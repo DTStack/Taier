@@ -26,7 +26,7 @@ import lombok.Data;
 @Data
 @ApiModel("函数移动信息")
 public class BatchFunctionMoveVO extends DtInsightAuthParam {
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
     @ApiModelProperty(value = "函数id", example = "1", required = true)
@@ -35,6 +35,4 @@ public class BatchFunctionMoveVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "父文件夹id", example = "1", required = true)
     private Long nodePid;
 
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
 }

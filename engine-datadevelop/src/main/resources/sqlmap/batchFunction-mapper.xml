@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.batch.dao.BatchFunctionDao">
 
     <sql id="select_content_fragment">
-        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,project_id,create_user_id,modify_user_id,type,gmt_create,gmt_modified,is_deleted,engine_type,sql_text
+        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,type,gmt_create,gmt_modified,is_deleted,engine_type,sql_text
     </sql>
 
     <sql id="update_fragment">
@@ -32,9 +32,6 @@
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
-                project_id = #{projectId},
-            </if>
             <if test="createUserId != null">
                 create_user_id = #{createUserId},
             </if>
@@ -62,31 +59,31 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="BatchFunction">
+    <select id="getOne" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="listByNodePidAndProjectId" resultType="BatchFunction">
+    <select id="listByNodePidAndTenantId" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        WHERE project_id = #{projectId} and node_pid = #{nodePid} and is_deleted = 0
+        WHERE tenant_id = #{tenantId} and node_pid = #{nodePid} and is_deleted = 0
     </select>
 
-    <select id="listSystemFunction" resultType="BatchFunction">
+    <select id="listSystemFunction" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        WHERE type=1 and is_deleted = 0 and tenant_id=-1 and project_id=-1
+        WHERE type=1 and is_deleted = 0 and tenant_id=-1
         <if test="engineType !=null">
            AND  engine_type = #{engineType}
         </if>
     </select>
 
-    <select id="listProjectFunction" resultType="BatchFunction">
+    <select id="listTenantFunction" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
@@ -95,11 +92,11 @@
             AND type = #{functionType}
         </if>
         <choose>
-            <when test="projectId != null">
-                AND project_Id in (#{projectId}, -1)
+            <when test="tenantId != null">
+                AND tenant_Id in (#{tenantId}, -1)
             </when>
             <otherwise>
-                AND project_Id = -1
+                AND tenant_Id = -1
             </otherwise>
         </choose>
         <if test="engineType !=null">
@@ -107,29 +104,29 @@
         </if>
     </select>
 
-    <select id="listByNameAndProjectId" resultType="BatchFunction">
+    <select id="listByNameAndTenantId" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        WHERE name = #{name} and project_id = #{projectId} and type = #{type} and is_deleted = 0
+        WHERE name = #{name} and tenant_id = #{tenantId} and type = #{type} and is_deleted = 0
     </select>
 
-    <select id="getByNameAndProjectId" resultType="BatchFunction">
+    <select id="getByNameAndTenantId" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        WHERE name = #{name} and project_id = #{projectId} and is_deleted = 0 limit 1
+        WHERE name = #{name} and tenant_id = #{tenantId} and is_deleted = 0 limit 1
     </select>
 
-    <insert id="insert" parameterType="BatchFunction" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.batch.domain.BatchFunction" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_function
-        (name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, project_id, create_user_id,
+        (name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id,
          modify_user_id, type, gmt_create, gmt_modified, is_deleted,engine_type,sql_text)
         VALUES (#{name}, #{className}, #{purpose}, #{commandFormate}, #{paramDesc}, #{nodePid}, #{tenantId},
-                #{projectId}, #{createUserId}, #{modifyUserId}, #{type}, now(), now(), 0,#{engineType},#{sqlText})
+                #{createUserId}, #{modifyUserId}, #{type}, now(), now(), 0,#{engineType},#{sqlText})
     </insert>
 
-    <update id="update" parameterType="BatchFunction">
+    <update id="update" parameterType="com.dtstack.batch.domain.BatchFunction">
         UPDATE
         rdos_batch_function
         <include refid="update_fragment"/>
@@ -137,31 +134,21 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="listNameByProjectId" resultType="java.lang.String">
+    <select id="listNameByTenantId" resultType="java.lang.String">
         SELECT name
         FROM rdos_batch_function
         WHERE tenant_id = #{tenantId}
-          and project_id = #{projectId}
           and is_deleted = 0
         <if test="engineType !=null">
             AND  engine_type = #{engineType}
         </if>
     </select>
 
-    <select id="countByProjectIdAndType" resultType="java.lang.Integer">
-        select count(id)
-        from rdos_batch_function
-        where tenant_id = #{tenantId}
-          and project_id = #{projectId}
-          and type = #{type}
-          and is_deleted = 0
-    </select>
-
-    <select id="generalQuery" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="BatchFunction">
+    <select id="generalQuery" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        where tenant_id = #{model.tenantId} and project_id = #{model.projectId}
+        where tenant_id = #{model.tenantId}
         and type = #{model.type} and is_deleted = 0
         <if test="model.functionModifyUserId != null">
             and modify_user_id = #{model.functionModifyUserId}
@@ -196,7 +183,7 @@
     <select id="generalCount" resultType="java.lang.Integer">
         SELECT count(1)
         FROM rdos_batch_function
-        where tenant_id = #{model.tenantId} and project_id = #{model.projectId}
+        where tenant_id = #{model.tenantId}
         and type = #{model.type} and is_deleted = 0
         <if test="model.functionModifyUserId != null">
             and modify_user_id = #{model.functionModifyUserId}
@@ -212,36 +199,25 @@
         </if>
     </select>
 
-    <select id="listByIds" resultType="BatchFunction">
+    <select id="listProjectFunction" resultType="com.dtstack.batch.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
-        where tenant_id = #{tenantId} and project_id = #{projectId}
-        <if test="type != null">
-            and type = #{type}
+        WHERE is_deleted = 0
+        <if test="functionType != null">
+            AND type = #{functionType}
         </if>
-        <if test="list != null and list.size() > 0">
-            and id in
-            <foreach collection="list" item="id" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-        </if>
-        <if test="isDeleted != null">
-            and is_deleted = #{isDeleted}
+        <choose>
+            <when test="projectId != null">
+                AND project_Id in (#{projectId}, -1)
+            </when>
+            <otherwise>
+                AND project_Id = -1
+            </otherwise>
+        </choose>
+        <if test="engineType !=null">
+            AND engine_type = #{engineType}
         </if>
     </select>
 
-    <select id="listByProjectIdAndType" resultType="BatchFunction">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM rdos_batch_function
-        where project_id = #{projectId}
-        and type = #{type} and is_deleted = 0
-    </select>
-
-    <update id="deleteByProjectId" parameterType="java.lang.Long">
-        UPDATE rdos_batch_function
-        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
-        WHERE project_id = #{projectId} AND is_deleted = 0;
-    </update>
 </mapper>

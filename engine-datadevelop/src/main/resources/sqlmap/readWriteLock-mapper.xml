@@ -6,7 +6,7 @@
     </resultMap>
 
     <sql id="select_content_fragment">
-        id,lock_name,create_user_id,modify_user_id,version,gmt_create,gmt_modified,is_deleted,tenant_id,project_id,relation_id,type
+        id,lock_name,create_user_id,modify_user_id,version,gmt_create,gmt_modified,is_deleted,tenant_id,relation_id,type
     </sql>
 
     <sql id="update_fragment">
@@ -36,9 +36,6 @@
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
-                project_id = #{projectId},
-            </if>
             <if test="relationId != null">
                 relation_id = #{relationId},
             </if>
@@ -57,9 +54,9 @@
 
     <insert id="insert" parameterType="com.dtstack.batch.domain.ReadWriteLock" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_read_write_lock
-        (lock_name,create_user_id,modify_user_id,tenant_id,project_id,relation_id,type)
+        (lock_name,create_user_id,modify_user_id,tenant_id,relation_id,type)
         VALUES
-        (#{lockName},#{createUserId},#{createUserId},#{tenantId},#{projectId},#{relationId},#{type})
+        (#{lockName},#{createUserId},#{createUserId},#{tenantId},#{relationId},#{type})
     </insert>
 
     <select id="getByLockName" resultType="com.dtstack.batch.domain.ReadWriteLock">
@@ -76,18 +73,18 @@
         WHERE id = #{id}
     </update>
 
-    <select id="getByProjectIdAndRelationIdAndType" resultType="com.dtstack.batch.domain.ReadWriteLock">
+    <select id="getByTenantIdAndRelationIdAndType" resultType="com.dtstack.batch.domain.ReadWriteLock">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock
-        WHERE project_id = #{projectId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
+        WHERE tenant_id = #{tenantId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
     </select>
 
     <select id="getLocksByIds" resultType="com.dtstack.batch.domain.ReadWriteLock">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock
-        WHERE project_id = #{projectId} AND type = #{type} AND is_deleted = 0
+        WHERE tenant_id = #{tenantId} AND type = #{type} AND is_deleted = 0
         <if test="relationIds != null and relationIds.size() > 0">
             And relation_id in
             <foreach collection="relationIds" index="index" item="item" open="(" close=")" separator=",">
@@ -101,12 +98,6 @@
         rdos_read_write_lock
         SET version = version+1,modify_user_id = #{userId},gmt_modified = NOW()
         WHERE id = #{id}
-    </update>
-
-    <update id="deleteByProjectId" parameterType="java.lang.Long">
-        UPDATE rdos_read_write_lock
-        SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
-        WHERE project_id = #{projectId} AND is_deleted = 0;
     </update>
 
 </mapper>
