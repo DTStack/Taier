@@ -18,11 +18,15 @@
 
 package com.dtstack.batch.domain;
 
-import lombok.Data;
-
-@Data
 public class BatchCatalogue extends Catalogue {
 
     BatchCatalogue parentCatalogue;
 
+    public BatchCatalogue getParentCatalogue() {
+        return parentCatalogue;
+    }
+
+    public void setParentCatalogue(BatchCatalogue parentCatalogue) {
+        this.parentCatalogue = parentCatalogue;
+    }
 }

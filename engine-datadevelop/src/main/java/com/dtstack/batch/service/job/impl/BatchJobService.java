@@ -564,7 +564,7 @@ public class BatchJobService {
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-//            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
+            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
             final IBatchJobExeService batchJobService = null;
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, projectId, taskId, sql, isRoot, dtuicTenantId, task, dtToken, isEnd, jobId);
         } catch (final Exception e) {

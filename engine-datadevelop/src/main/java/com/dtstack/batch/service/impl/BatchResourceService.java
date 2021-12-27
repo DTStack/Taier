@@ -88,8 +88,8 @@ public class BatchResourceService {
      * 添加资源
      */
     public CatalogueVO addResource(BatchResourceAddDTO batchResourceAddDTO) {
-        final long projectId = batchResourceAddDTO.getProjectId();
-        final long userId = batchResourceAddDTO.getUserId();
+        final Long tenantId = batchResourceAddDTO.getTenantId();
+        final Long userId = batchResourceAddDTO.getUserId();
 
         final String resourceName;
         Long resourceId = null;
@@ -108,8 +108,7 @@ public class BatchResourceService {
             resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
         }
 
-        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getTenantId(), projectId, resourceName,
-                batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+        String hdfsPath = uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         BatchResource batchResource = null;
         //重新上传资源
@@ -123,7 +122,7 @@ public class BatchResourceService {
             batchResource.setUrl(hdfsPath);
         } else {
             //判断是否已经存在相同的资源了
-            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, projectId);
+            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
 
             batchResourceAddDTO.setUrl(hdfsPath);
             batchResourceAddDTO.setCreateUserId(userId);
@@ -160,23 +159,51 @@ public class BatchResourceService {
         return catalogueVO;
     }
 
-    public Long addResourceWithUrl(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId, Long projectId) {
+
+    /**
+     * 新增资源组
+     * @param id
+     * @param resourceName
+     * @param originFileName
+     * @param url
+     * @param resourceDesc
+     * @param resourceType
+     * @param nodePid
+     * @param userId
+     * @param tenantId
+     * @return
+     */
+    public Long addResourceWithUrl(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId) {
         Preconditions.checkNotNull(resourceName, "resourceName can not be null");
         Preconditions.checkNotNull(originFileName, "orginFileName can not be null");
         Preconditions.checkNotNull(url, "remoteUrl can not be null");
         Preconditions.checkNotNull(nodePid, "nodePid can not be null");
 
-        BatchResource batchResource = this.buildResource(id, resourceName, originFileName, url, resourceDesc, resourceType, nodePid, userId, tenantId, projectId);
+        BatchResource batchResource = this.buildResource(id, resourceName, originFileName, url, resourceDesc, resourceType, nodePid, userId, tenantId);
         batchResource = this.addOrUpdate(batchResource);
         return batchResource.getId();
     }
 
-    private BatchResource buildResource(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId, Long projectId) {
+
+    /**
+     * 根据参数，构建资源组对象
+     * @param id
+     * @param resourceName
+     * @param originFileName
+     * @param url
+     * @param resourceDesc
+     * @param resourceType
+     * @param nodePid
+     * @param userId
+     * @param tenantId
+     * @return
+     */
+    private BatchResource buildResource(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId) {
         final BatchResource batchResource;
         //重新上传资源
         if (id != null) {
             batchResource = this.batchResourceDao.getOne(id);
-            if (batchResource == null || batchResource.getIsDeleted() == Deleted.DELETED.getStatus()) {
+            if (batchResource == null || batchResource.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             batchResource.setResourceDesc(resourceDesc);
@@ -185,7 +212,7 @@ public class BatchResourceService {
             batchResource.setNodePid(nodePid);
         } else {
             //判断是否已经存在相同的资源了
-            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, projectId);
+            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
             batchResource = new BatchResource();
             batchResource.setResourceName(resourceName);
             batchResource.setOriginFileName(originFileName);
@@ -204,7 +231,13 @@ public class BatchResourceService {
         return batchResource;
     }
 
-    public BatchResource addOrUpdate(BatchResource batchResource) {
+
+    /**
+     * 新增或修改
+     * @param batchResource
+     * @return
+     */
+    private BatchResource addOrUpdate(BatchResource batchResource) {
         if (batchResource.getId() > 0) {
             this.batchResourceDao.update(batchResource);
         } else {
@@ -217,15 +250,14 @@ public class BatchResourceService {
     /**
      * 获取资源列表
      */
-    public List<BatchResource> getResources(Long projectId) {
-
-        return this.batchResourceDao.listByProjectId(projectId);
+    public List<BatchResource> getResources(Long tenantId) {
+        return this.batchResourceDao.listByTenantId(tenantId);
     }
 
     /**
      * 删除资源
      */
-    public Long deleteResource(Long resourceId, Long projectId, Long dtuicTenantId) {
+    public Long deleteResource(Long tenantId, Long resourceId) {
         final List<BatchTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
         if (!CollectionUtils.isEmpty(taskResources)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
@@ -237,14 +269,13 @@ public class BatchResourceService {
         //删除资源在hdfs的实际存储文件
         final BatchResource resource = getResource(resourceId);
         try {
-            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(dtuicTenantId), HadoopConf.getHadoopKerberosConf(dtuicTenantId),resource.getUrl());
+            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),resource.getUrl());
         } catch (final Exception e) {
-            BatchResourceService.logger.error(" taskId:{} projectId:{} userId:{} fail delete resource from HDFS", e);
+            BatchResourceService.logger.error(" tenantId:{} taskId:{}  userId:{} fail delete resource from HDFS", e);
         }
 
         //删除资源记录
-        batchResourceDao.deleteById(resourceId, projectId);
-        logger.info(String.format("detele resource success  resourceId = %s, projectId = %s",resourceId,projectId));
+        batchResourceDao.deleteById(resourceId);
         return resourceId;
     }
 
@@ -279,20 +310,32 @@ public class BatchResourceService {
     }
 
 
-
-    private String getBatchHdfsPath(Long dtuicTenantId, String fileName) {
-        final String hdfsURI = HadoopConf.getDefaultFs(dtuicTenantId);
+    /**
+     * 获取离线上传的资源到HDFS上的路径
+     * @param tenantId
+     * @param fileName
+     * @return
+     */
+    private String getBatchHdfsPath(Long tenantId, String fileName) {
+        String hdfsURI = HadoopConf.getDefaultFs(tenantId);
         return hdfsURI + environmentContext.getHdfsBatchPath() + fileName;
     }
 
-   public void deleteByProjectId(Long projectId, Long userId) {
-        batchResourceDao.deleteByProjectId(projectId, userId);
-    }
 
+    /**
+     * 根据资源ids 查询资源列表
+     * @param resourceIdList
+     * @return
+     */
     public List<BatchResource> getResourceList(List<Long> resourceIdList) {
-        return this.batchResourceDao.listByIds(resourceIdList, Deleted.NORMAL.getStatus());
+        return this.batchResourceDao.listByIds(resourceIdList);
     }
 
+    /**
+     * 根据资源id获取资源信息
+     * @param resourceId
+     * @return
+     */
     public BatchResource getResource(long resourceId) {
         return this.batchResourceDao.getOne(resourceId);
     }
@@ -339,7 +382,7 @@ public class BatchResourceService {
      * 替换资源
      */
     public void replaceResource(BatchResourceAddDTO batchResourceAddDTO) {
-        final long projectId = batchResourceAddDTO.getProjectId();
+        final long tenantId = batchResourceAddDTO.getTenantId();
         final long resourceId = batchResourceAddDTO.getId();
 
         final BatchResource resourceDb = this.batchResourceDao.getOne(resourceId);
@@ -349,8 +392,7 @@ public class BatchResourceService {
 
         final String resourceName = resourceDb.getResourceName();
 
-        String hdfsPath = uploadHDFSFileWithResource(batchResourceAddDTO.getTenantId(), projectId, resourceName,
-                batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+        String hdfsPath = uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         resourceDb.setUrl(hdfsPath);
         resourceDb.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
@@ -365,16 +407,25 @@ public class BatchResourceService {
 
     }
 
-    private String uploadHDFSFileWithResource(final Long dtuicTenantId, final long projectId, final String resourceName, String originalFilename, String tmpPath) {
+
+    /**
+     * 上次资源文件到hdsf上
+     * @param tenantId
+     * @param resourceName
+     * @param originalFilename
+     * @param tmpPath
+     * @return
+     */
+    private String uploadHDFSFileWithResource(Long tenantId, String resourceName, String originalFilename, String tmpPath) {
         if (originalFilename == null || tmpPath == null){
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        final String hdfsFileName = projectId + "_" + resourceName + "_" + originalFilename;
-        final String hdfsPath = this.getBatchHdfsPath(dtuicTenantId, hdfsFileName);
+        final String hdfsFileName = tenantId + "_" + resourceName + "_" + originalFilename;
+        final String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {
-            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(dtuicTenantId), HadoopConf.getHadoopKerberosConf(dtuicTenantId),tmpPath, hdfsPath);
+            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),tmpPath, hdfsPath);
         } catch (final Exception e) {
             BatchResourceService.logger.error("{}", e);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
@@ -396,4 +447,13 @@ public class BatchResourceService {
         return batchResourceDao.getResourceURLByFunctionId(functionId);
     }
 
+    /**
+     * 根据 租户、目录Id 查询资源列表
+     * @param tenantId
+     * @param nodePid
+     * @return
+     */
+    public List<BatchResource> listByPidAndTenantId(Long tenantId, Long nodePid) {
+        return batchResourceDao.listByPidAndTenantId(tenantId, nodePid);
+    }
 }

@@ -35,13 +35,10 @@ public interface IDataDownloadService {
      * 下载sql查询的数据
      * @param jobId
      * @param tenantId
-     * @param projectId
-     * @param dtuicTenantId
-     * @param needMask
      * @return
      * @throws Exception
      */
-    IDownload downloadSqlExeResult(String jobId, Long tenantId, Long projectId, Long dtuicTenantId, boolean needMask);
+    IDownload downloadSqlExeResult(String jobId, Long tenantId);
 
 
     /**
@@ -49,21 +46,19 @@ public interface IDataDownloadService {
      * 比如用在:
      *    数据预览
      *    临时表查询数据
-     * @param dtuicTenantId
+     * @param tenantId
      * @param tableName
      * @param db
      * @param num
      * @param fieldNameList
      * @param permissionStyle
-     * @param needMask
      * @return
      * @throws Exception
      */
-    List<Object> queryDataFromTable(Long dtuicTenantId, Long projectId, String tableName, String db, Integer num,
-                                    List<String> fieldNameList, Boolean permissionStyle, boolean needMask) throws Exception;
+    List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num, List<String> fieldNameList, Boolean permissionStyle) throws Exception;
 
-    IDownload buildIDownLoad(String jobId, Integer taskType, Long dtuicTenantId, Integer limitNum);
+    IDownload buildIDownLoad(String jobId, Integer taskType, Long tenantId, Integer limitNum);
 
-    IDownload typeLogDownloader(Long dtuicTenantId, String jobId, Integer limitNum, String logType);
+    IDownload typeLogDownloader(Long tenantId, String jobId, Integer limitNum, String logType);
 
 }

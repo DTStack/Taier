@@ -35,9 +35,9 @@ public interface BatchHiveSelectSqlDao {
 
     Integer insert(BatchHiveSelectSql selectSql);
 
-    Integer updateGmtModify(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId);
+    Integer updateGmtModify(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
-    Integer deleteByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("projectId") Long projectId);
+    Integer deleteByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
     List<BatchHiveSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
 
@@ -47,5 +47,5 @@ public interface BatchHiveSelectSqlDao {
 
     List<BatchHiveSelectSql> listBySqlType(@Param("type") Integer type);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

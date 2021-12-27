@@ -39,9 +39,9 @@ public class BatchCataloguePathVO {
     @ApiModelProperty(value = "script类型", example = "1")
     private Integer scriptType;
 
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
+    @ApiModelProperty(value = "租户id", example = "1")
+    private Long tenantId;
 }

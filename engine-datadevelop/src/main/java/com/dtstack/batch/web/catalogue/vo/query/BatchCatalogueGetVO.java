@@ -27,9 +27,6 @@ import lombok.Data;
 @ApiModel("目录获取信息")
 public class BatchCatalogueGetVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long appointProjectId;
-
     @ApiModelProperty(value = "是否获取文件", example = "false")
     private Boolean isGetFile = false;
 
@@ -39,13 +36,10 @@ public class BatchCatalogueGetVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "父id", example = "1")
     private Long parentId;
 
-    @ApiModelProperty(value = "用户id", hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(value = "租户id", hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "节点父id", example = "3", required = true)

@@ -22,9 +22,7 @@ package com.dtstack.engine.domain;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -211,6 +209,13 @@ public class ScheduleJob implements Serializable {
      * 补数据实例状态：0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例
      */
     private Integer fillType;
+
+    /**
+     * 任务提交的用户名称
+     */
+    private String submitUserName;
+
+    private String engineLog;
 
     public Long getId() {
         return id;
@@ -489,5 +494,19 @@ public class ScheduleJob implements Serializable {
         return Objects.hash(id, tenantId, jobId, jobKey, jobName, taskId, type, isRestart, cycTime, dependencyType, flowJobId, periodType, status, taskType, fillId, execStartTime, execEndTime, execTime, maxRetryNum, retryNum, nodeAddress, versionId, nextCycTime, engineJobId, applicationId, computeType, phaseStatus, jobExecuteOrder, createUserId, gmtCreate, gmtModified, isDeleted, fillType);
     }
 
+    public String getSubmitUserName() {
+        return submitUserName;
+    }
 
+    public void setSubmitUserName(String submitUserName) {
+        this.submitUserName = submitUserName;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
+    }
 }

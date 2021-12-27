@@ -19,6 +19,7 @@
 
 package com.dtstack.batch.bo;
 
+import com.dtstack.batch.sql.ParseResult;
 import lombok.Data;
 
 import java.util.List;
@@ -42,9 +43,9 @@ public class ExecuteContent {
      */
     private List<String> sqlList;
 
-//    private List<ParseResult> parseResultList;
-//
-//    private ParseResult parseResult;
+    private List<ParseResult> parseResultList;
+
+    private ParseResult parseResult;
 
     /**
      * 关联的id，任务或脚本id
