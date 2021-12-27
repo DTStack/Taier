@@ -73,6 +73,7 @@ public class TenantService {
     private ComponentService componentService;
 
 
+
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
                                                        int pageSize,
@@ -83,14 +84,13 @@ public class TenantService {
         if (count == 0) {
             return PageResult.EMPTY_PAGE_RESULT;
         }
-        List<ClusterTenant> engineTenantVOS = clusterTenantMapper.generalQuery(query, clusterId, tenantName);
-        fillQueue(engineTenantVOS);
+        List<ClusterTenant> clusterTenants = clusterTenantMapper.generalQuery(query, clusterId, tenantName);
 
-        return null;
+        List<ClusterTenantVO> clusterTenantVOS = fillQueue(clusterTenants);
+        return new PageResult(clusterTenantVOS,count,query);
     }
 
     private List<ClusterTenantVO> fillQueue(List<ClusterTenant> clusterTenants) {
-
         List<Long> queueIds = clusterTenants.stream()
                 .map(ClusterTenant::getQueueId)
                 .filter(Objects::nonNull)
@@ -102,7 +102,6 @@ public class TenantService {
         return clusterTenants.stream().map(clusterTenant -> {
             Queue queue = queueMap.getOrDefault(clusterTenant.getQueueId(), new Queue());
             return TenantTransfer.INSTANCE.toClusterTenantVO(clusterTenant, queue);
-
         }).collect(Collectors.toList());
     }
 

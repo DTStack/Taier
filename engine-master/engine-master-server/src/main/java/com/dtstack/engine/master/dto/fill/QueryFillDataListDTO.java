@@ -1,6 +1,4 @@
-package com.dtstack.batch.vo.fill;
-
-import com.dtstack.batch.vo.base.PageVO;
+package com.dtstack.engine.master.dto.fill;
 
 /**
  * @Auther: dazhi
@@ -8,7 +6,7 @@ import com.dtstack.batch.vo.base.PageVO;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class FillDataListVO extends PageVO {
+public class QueryFillDataListDTO {
 
     /**
      * 补数据名称
@@ -26,7 +24,7 @@ public class FillDataListVO extends PageVO {
     private String bizDay;
 
     /**
-     * 补数据运行 格式yyyy-MM-dd
+     * 补数据运行时间 格式yyyy-MM-dd
      */
     private String runDay;
 
@@ -34,6 +32,16 @@ public class FillDataListVO extends PageVO {
      * 租户id
      */
     private Long tenantId;
+
+    /**
+     * 当前页码
+     */
+    private Integer currentPage;
+
+    /**
+     * 当前页数
+     */
+    private Integer pageSize;
 
     public String getJobName() {
         return jobName;
@@ -73,5 +81,21 @@ public class FillDataListVO extends PageVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }

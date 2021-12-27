@@ -81,7 +81,7 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
         @SuppressWarnings("unchecked")
         List<ScheduleTaskParamShade> taskParamShades = (List) pipelineParam.get(taskParamsToReplaceKey);
 
-        String uploadPath = this.uploadSqlTextToHdfs(taskShade.getSqlText(), taskShade.getTaskType(),
+        String uploadPath = this.uploadSqlTextToHdfs((String)actionParam.get("sqlText"), taskShade.getTaskType(),
                 taskShade.getName(), taskShade.getTenantId(),0L, taskParamShades, scheduleJob.getCycTime(),
                 fileUploadPath, pluginInfo, workerOperator, scheduleJob.getJobId());
 

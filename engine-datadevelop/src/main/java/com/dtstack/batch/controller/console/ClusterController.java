@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/node/cluster", "/node/component/cluster"})
+@RequestMapping("/node/cluster")
 @Api(value = "/node/cluster", tags = {"集群接口"})
 public class ClusterController {
 
@@ -82,9 +82,8 @@ public class ClusterController {
     })
     @GetMapping(value = "/getCluster")
     public ClusterVO getCluster(@RequestParam("clusterId") Long clusterId) {
-        return clusterService.getCluster(clusterId, true, true, true);
+        return clusterService.getConsoleClusterInfo(clusterId);
     }
-
 
     @ApiOperation(value = "getAllCluster", notes = "获取所有集群名称")
     @GetMapping(value = "/getAllCluster")
