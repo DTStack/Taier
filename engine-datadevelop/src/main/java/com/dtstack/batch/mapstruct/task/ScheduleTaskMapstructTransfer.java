@@ -1,7 +1,7 @@
 package com.dtstack.batch.mapstruct.task;
 
 import com.dtstack.batch.vo.schedule.QueryTaskListVO;
-import com.dtstack.batch.vo.schedule.ScheduleTaskVO;
+import com.dtstack.batch.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import org.mapstruct.Mapper;
@@ -23,5 +23,5 @@ public interface ScheduleTaskMapstructTransfer {
 
     QueryTaskListDTO queryTasksVoToDto(QueryTaskListVO vo);
 
-    List<ScheduleTaskVO> beanToTaskVO(List<ScheduleTaskShade> records);
+    List<ReturnScheduleTaskVO> beanToTaskVO(List<ScheduleTaskShade> records);
 }

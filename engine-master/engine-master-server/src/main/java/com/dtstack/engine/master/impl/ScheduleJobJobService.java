@@ -132,7 +132,7 @@ public class ScheduleJobJobService {
             //控制展开层数
             level = 1;
         }
-        Integer jobLevel = context.getJobJobLevel();
+        Integer jobLevel = context.getMaxLevel();
         if(level !=null && level > jobLevel){
             level = jobLevel;
         }

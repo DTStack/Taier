@@ -55,17 +55,17 @@ public class ScheduleTaskTaskShadeController {
         return scheduleTaskTaskShadeService.getAllParentTask(taskId,appType);
     }
 
-    @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
-    public ScheduleTaskVO displayOffSpring(@RequestParam("taskId") Long taskId,
-                                           @RequestParam("projectId") Long projectId,
-                                           @RequestParam("level") Integer level,
-                                           @RequestParam("type") Integer directType, @RequestParam("appType")Integer appType) {
-        return scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, level, directType, appType);
-    }
+//    @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
+//    public ScheduleTaskVO displayOffSpring(@RequestParam("taskId") Long taskId,
+//                                           @RequestParam("projectId") Long projectId,
+//                                           @RequestParam("level") Integer level,
+//                                           @RequestParam("type") Integer directType, @RequestParam("appType")Integer appType) {
+//        return scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, level, directType, appType);
+//    }
 
-    @RequestMapping(value="/getAllFlowSubTasks", method = {RequestMethod.POST})
-    @ApiOperation(value = "查询工作流全部节点信息 -- 依赖树")
-    public ScheduleTaskVO getAllFlowSubTasks(@RequestParam("taskId") Long taskId, @RequestParam("appType") Integer appType) {
-        return scheduleTaskTaskShadeService.getAllFlowSubTasks(taskId, appType);
-    }
+//    @RequestMapping(value="/getAllFlowSubTasks", method = {RequestMethod.POST})
+//    @ApiOperation(value = "查询工作流全部节点信息 -- 依赖树")
+//    public ScheduleTaskVO getAllFlowSubTasks(@RequestParam("taskId") Long taskId, @RequestParam("appType") Integer appType) {
+//        return scheduleTaskTaskShadeService.getAllFlowSubTasks(taskId, appType);
+//    }
 }
