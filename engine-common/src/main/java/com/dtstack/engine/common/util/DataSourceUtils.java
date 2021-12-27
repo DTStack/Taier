@@ -2,12 +2,10 @@ package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
-import com.dtstack.dtcenter.common.util.Base64Util;
 import com.dtstack.engine.common.constrant.FormNames;
 import com.dtstack.engine.common.exception.PubSvcDefineException;
-import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;

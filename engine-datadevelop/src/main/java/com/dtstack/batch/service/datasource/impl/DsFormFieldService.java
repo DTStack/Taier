@@ -6,12 +6,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.batch.bo.datasource.DsTypeVersionParam;
 import com.dtstack.batch.vo.datasource.DsFormFieldVo;
 import com.dtstack.batch.vo.datasource.DsFormTemplateVo;
+import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.datasource.DsFormField;
 import com.dtstack.engine.mapper.datasource.DsFormFieldMapper;
-import dt.insight.plat.lang.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
