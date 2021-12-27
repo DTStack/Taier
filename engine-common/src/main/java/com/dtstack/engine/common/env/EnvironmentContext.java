@@ -505,6 +505,7 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${engine.console.upload.path:${user.dir}/upload}")
     private String uploadPath;
 
+
     @Override
     public void afterPropertiesSet() throws Exception {
         ClientCache.setUserDir(getDataSourcePluginPath());

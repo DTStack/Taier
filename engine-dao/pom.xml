@@ -33,6 +33,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>
