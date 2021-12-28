@@ -39,5 +39,5 @@ public interface BatchTaskRecordDao {
 
     Integer generalCount(PageQuery<BatchTaskRecordDTO> pageQuery);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

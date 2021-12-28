@@ -116,6 +116,11 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
     @ApiModelProperty(notes = "是否是当前项目")
     private boolean currentProject;
 
+    /**
+     * 运行资源的入口类
+     */
+    private String mainClass;
+
     private List<ScheduleTaskVO> taskVOS;
     private List<ScheduleTaskVO> subTaskVOS;
     protected String cron;
@@ -414,5 +419,13 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setProjectAlias(String projectAlias) {
         this.projectAlias = projectAlias;
+    }
+
+    public String getMainClass() {
+        return mainClass;
+    }
+
+    public void setMainClass(String mainClass) {
+        this.mainClass = mainClass;
     }
 }

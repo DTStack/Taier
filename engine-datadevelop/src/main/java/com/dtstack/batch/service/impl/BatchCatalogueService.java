@@ -229,12 +229,12 @@ public class BatchCatalogueService {
      * 创建租户时，初始化目录信息
      * @param tenantId
      * @param userId
-     * @param projectEngineVOS
+     * @param tenantEngineVOS
      */
     @Transactional(rollbackFor = Exception.class)
-    public void initCatalogue(Long tenantId, Long userId, List<TenantEngineVO> projectEngineVOS) {
+    public void initCatalogue(Long tenantId, Long userId, List<TenantEngineVO> tenantEngineVOS) {
         List<Dict> batchCatalogueDicts = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
-        List<Integer> supportEngineType = projectEngineVOS.stream().map(TenantEngineVO::getEngineType).collect(Collectors.toList());
+        List<Integer> supportEngineType = tenantEngineVOS.stream().map(TenantEngineVO::getEngineType).collect(Collectors.toList());
         List<Dict> batchCatalogueDictLevelOne = this.initCatalogueDictLevelByEngineType(supportEngineType);
 
         Map<Integer, Set<String>> catalogueMapping = batchCatalogueDictLevelOne

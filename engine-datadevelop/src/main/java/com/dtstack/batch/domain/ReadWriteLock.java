@@ -54,11 +54,6 @@ public class ReadWriteLock extends BaseEntity {
     private Long tenantId;
 
     /**
-     * 项目Id
-     */
-    private Long projectId;
-
-    /**
      * 任务Id
      */
     private Long relationId;

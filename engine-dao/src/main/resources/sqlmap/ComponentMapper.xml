@@ -98,10 +98,9 @@
                cc.is_default
         FROM console_component cc
                  INNER JOIN console_cluster_tenant cct ON cc.cluster_id = cct.cluster_id
-                 INNER JOIN console_dtuic_tenant cdt ON cdt.id = cct.tenant_id
                  INNER JOIN schedule_dict sd ON sd.dict_value = cc.hadoop_version
         WHERE cc.component_type_code = #{componentTypeCode}
-          AND cdt.tenant_id = #{tenantId}
+          AND cct.tenant_id = #{tenantId}
           AND cc.is_deleted = 0
     </select>
 
