@@ -46,9 +46,6 @@ public class ReadWriteLockResultVO{
     @ApiModelProperty(value = "乐观锁", example = "9")
     private Integer version;
 
-    @ApiModelProperty(value = "项目 ID", example = "11")
-    private Long projectId;
-
     @ApiModelProperty(value = "任务 ID", example = "3")
     private Long relationId;
 

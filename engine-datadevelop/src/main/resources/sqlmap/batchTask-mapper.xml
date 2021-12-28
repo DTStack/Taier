@@ -3,12 +3,12 @@
 <mapper namespace="com.dtstack.batch.dao.BatchTaskDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
+      id,tenant_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
       schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
     <sql id="simple_select_content_fragment">
-        id,tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,period_type,
+        id,tenant_id,node_pid,name,task_type,engine_type,compute_type,period_type,
       schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
@@ -19,9 +19,6 @@
             </if>
             <if test="model.tenantId != null">
                 AND tenant_id = #{model.tenantId}
-            </if>
-            <if test="model.projectId != null">
-                AND project_id = #{model.projectId}
             </if>
             <if test="model.nodePid != null">
                 AND node_pid = #{model.nodePid}
@@ -111,9 +108,6 @@
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null">
-                project_id = #{projectId},
-            </if>
             <if test="nodePid != null">
                 node_pid = #{nodePid},
             </if>
@@ -181,7 +175,7 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="BatchTask">
+    <select id="getOne" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -190,14 +184,14 @@
 
 
 
-    <select id="getOneWithDeleted" resultType="BatchTask">
+    <select id="getOneWithDeleted" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
         WHERE id = #{id}
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="BatchTask">
+    <select id="generalQuery" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -219,9 +213,9 @@
         </if>
     </select>
 
-    <select id="generalQueryWithoutSql" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="BatchTask">
+    <select id="generalQueryWithoutSql" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
-        id,tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,
+        id,tenant_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,
         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id
         FROM rdos_batch_task
         <include refid="select_where_fragment"/>
@@ -249,33 +243,33 @@
         limit 1
     </select>
 
-    <select id="listBatchTaskByNodePid" resultType="BatchTask">
+    <select id="listBatchTaskByNodePid" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE node_pid = #{nodePid} and project_id = #{projectId} and is_deleted = 0
+        WHERE node_pid = #{nodePid} and tenant_id = #{tenantId} and is_deleted = 0
     </select>
 
-    <select id="listByNameFuzzy" resultType="BatchTask">
+    <select id="listByNameFuzzy" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE project_id = #{projectId} and name like CONCAT('%',#{name},'%') and is_deleted = 0
+        WHERE tenant_id = #{tenantId} and name like CONCAT('%',#{name},'%') and is_deleted = 0
     </select>
 
     <delete id="deleteById">
         UPDATE rdos_batch_task SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{modifyUserId}
-        WHERE id = #{id} AND is_deleted = 0 AND project_id = #{projectId}
+        WHERE id = #{id} AND is_deleted = 0 AND tenant_id = #{tenantId}
     </delete>
 
-    <select id="listByProjectId" resultType="BatchTask">
+    <select id="listByTenantId" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE project_id = #{projectId} and is_deleted = 0
+        WHERE tenant_id = #{tenantId} and is_deleted = 0
     </select>
 
-    <select id="listByIds" resultType="BatchTask">
+    <select id="listByIds" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -286,29 +280,29 @@
 
     </select>
 
-    <select id="listByFlowId" resultType="BatchTask">
+    <select id="listByFlowId" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
         where is_deleted = 0 and flow_id = #{flowId}
     </select>
 
-    <select id="listAll" resultType="BatchTask">
+    <select id="listAll" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
         WHERE is_deleted = 0 and submit_status != 0
     </select>
 
-    <select id="getByName" resultType="BatchTask">
+    <select id="getByName" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE name = #{name} and project_id = #{projectId}
+        WHERE name = #{name} and tenant_id = #{tenantId}
         and is_deleted=0 limit 1
     </select>
 
-    <select id="getByNameList" resultType="BatchTask">
+    <select id="getByNameList" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
@@ -316,20 +310,20 @@
         <foreach collection="nameList" item="name" open="(" close=")" separator=",">
             #{name}
         </foreach>
-         and project_id = #{projectId}
+         and tenant_id = #{tenantId}
         and is_deleted=0
     </select>
 
-    <insert id="insert" parameterType="BatchTask" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.engine.domain.BatchTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task
-          (tenant_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
+          (tenant_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
           schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
         VALUES
-          (#{tenantId},#{projectId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
+          (#{tenantId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
           #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
     </insert>
 
-    <update id="update" parameterType="BatchTask">
+    <update id="update" parameterType="com.dtstack.engine.domain.BatchTask">
         UPDATE
         rdos_batch_task
         <include refid="update_fragment"/>
@@ -338,14 +332,14 @@
     </update>
     
     <update id="updateSubmitStatus">
-        UPDATE rdos_batch_task set submit_status=#{submitStatus},gmt_modified=#{time} where id=#{id} and project_id=#{projectId}
+        UPDATE rdos_batch_task set submit_status=#{submitStatus},gmt_modified=#{time} where id=#{id} and tenant_id=#{tenantId}
     </update>
 
-    <select id="listTaskByType" resultType="BatchTask">
+    <select id="listTaskByType" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE project_id = #{projectId} and task_type = #{type}
+        WHERE tenant_id = #{tenantId} and task_type = #{type}
         <if test="taskName != null">
             and name like CONCAT('%',#{taskName},'%')
         </if>
@@ -364,32 +358,16 @@
         AND is_deleted = 0
     </update>
 
-    <select id="countByProjectIdAndSubmit" resultType="java.lang.Integer">
+    <select id="countByTenantIdAndSubmit" resultType="java.lang.Integer">
         SELECT
         count(1)
         FROM rdos_batch_task
-        WHERE project_id = #{projectId} and tenant_id = #{tenantId} and is_deleted = 0 and flow_id = 0
+        WHERE tenant_id = #{tenantId} and is_deleted = 0 and flow_id = 0
         <if test="isSubmit != null">
             AND submit_status = #{isSubmit}
         </if>
     </select>
     
-    <select id="countScienceJobStatus" resultType="java.util.HashMap">
-        SELECT
-        COUNT(1) as total,
-        SUM(submit_status) AS deployCount
-        FROM rdos_batch_task
-        WHERE tenant_id = #{tenantId}
-        and is_deleted = 0
-        and task_type = #{taskType}
-         <if test="projectIds != null and projectIds.size()>0">
-            and project_id in
-            <foreach collection="projectIds" item="item" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </if>
-    </select>
-
     <select id="countAll" resultType="java.lang.Integer">
         SELECT
         count(1)
@@ -399,16 +377,16 @@
     </select>
 
     <!--适用于任务列表的目录信息list查询,不查询sql_text等无用的大字段 -->
-    <select id="catalogueListBatchTaskByNodePid" resultType="BatchTask">
+    <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
-        t.id,t.tenant_id,t.project_id,t.node_pid,t.name,t.task_type,t.engine_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
+        t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.engine_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
         t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.owner_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
         if(t.version != ifnull(tv.version,-1),0,1) as status
         FROM rdos_batch_task t left join (select task_id,max(version) as version from rdos_batch_task_version group by task_id)tv on t.id = tv.task_id
         WHERE t.node_pid = #{nodePid} and t.tenant_id = #{tenantId} and t.is_deleted = 0
     </select>
 
-    <update id="updateSqlText" parameterType="BatchTask">
+    <update id="updateSqlText" parameterType="com.dtstack.engine.domain.BatchTask">
         UPDATE
         rdos_batch_task
         <include refid="update_fragment"/>
@@ -416,7 +394,7 @@
         id = #{id}  AND is_deleted = 0
     </update>
 
-    <update id="updateScheduleConf" parameterType="BatchTask">
+    <update id="updateScheduleConf" parameterType="com.dtstack.engine.domain.BatchTask">
         UPDATE
         rdos_batch_task
         set period_type = #{periodType},
@@ -427,11 +405,11 @@
 
     <delete id="deleteByName">
         UPDATE rdos_batch_task SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
-        WHERE name = #{name} and project_id = #{projectId} and is_deleted=0
+        WHERE name = #{name} and tenant_id = #{tenantId} and is_deleted=0
     </delete>
 
-    <select id="getTaskOwnerAndProjectId" resultType="com.dtstack.batch.dao.po.TaskOwnerAndProjectPO">
-        select distinct owner_user_id as ownerId , project_id  as projectId
+    <select id="getTaskOwnerAndTenantId" resultType="com.dtstack.batch.dao.po.TaskOwnerAndTenantPO">
+        select distinct owner_user_id as ownerId , tenant_id  as tenantId
         from rdos_batch_task
         where is_deleted = 0
     </select>
@@ -454,7 +432,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
-        WHERE is_deleted = 0 AND submit_status = 1 AND project_id = #{projectId}
+        WHERE is_deleted = 0 AND submit_status = 1 AND tenant_id = #{tenantId}
         <if test="taskIds != null and taskIds.size()>0">
             AND id in
             <foreach collection="taskIds" item="id" open="(" close=")" separator=",">
@@ -463,10 +441,10 @@
         </if>
     </select>
 
-    <update id="deleteByProjectId" parameterType="java.lang.Long">
+    <update id="deleteByTenantId" parameterType="java.lang.Long">
         UPDATE rdos_batch_task
         SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{userId}
-        WHERE project_id = #{projectId} AND is_deleted = 0;
+        WHERE tenant_id = #{tenantId} AND is_deleted = 0;
     </update>
 
     <update id="updateTaskOwnerUser">
@@ -474,7 +452,7 @@
         SET owner_user_id = #{newOwnerUserId},
             gmt_modified = now()
         WHERE owner_user_id = #{oldOwnerUserId}
-        AND project_id = #{projectId}
+        AND tenant_id = #{tenantId}
         AND is_deleted = 0
     </update>
 </mapper>

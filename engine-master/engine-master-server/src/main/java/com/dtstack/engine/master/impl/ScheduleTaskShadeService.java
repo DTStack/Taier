@@ -727,4 +727,16 @@ public class ScheduleTaskShadeService {
         }
         return taskTypeVOS;
     }
+
+    public String addOrUpdateBatchTask(List<ScheduleTaskShadeDTO> scheduleTasks, String commitId) {
+        return null;
+    }
+
+    public void taskCommit(String taskCommitId) {
+
+    }
+
+    public void infoCommit(Long taskId, Integer type, String extroInfo, String commitId) {
+
+    }
 }

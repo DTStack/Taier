@@ -34,10 +34,10 @@ public class DtInsightAuthParam extends BaseParam {
     @ApiModelProperty(hidden = true)
     private String token;
 
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "租户id", example = "1")
     private Long tenantId;
 
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
 }

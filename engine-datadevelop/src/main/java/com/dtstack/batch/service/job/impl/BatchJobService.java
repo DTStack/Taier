@@ -21,8 +21,6 @@ package com.dtstack.batch.service.job.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
 import com.dtstack.batch.domain.BatchResource;
@@ -34,6 +32,7 @@ import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.impl.BatchServerLogService;
+import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
 import com.dtstack.batch.service.job.IBatchJobExeService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
@@ -45,12 +44,24 @@ import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.ResourceRefType;
+import com.dtstack.engine.common.enums.TaskStatus;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.SessionUtil;
-import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
@@ -73,7 +84,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * company: www.dtstack.com
@@ -89,7 +105,7 @@ public class BatchJobService {
 
     private static final String ADD_JAR_WITH = "ADD JAR WITH %s AS ;";
 
-    private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
+    private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
     private BatchTaskDao batchTaskDao;
@@ -115,8 +131,8 @@ public class BatchJobService {
     @Autowired
     private TenantService tenantService;
 
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -176,7 +192,7 @@ public class BatchJobService {
     private String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         String extroInfo = "";
         Long taskId = batchTask.getId();
-        // 跨项目的时候 需要依赖 task的project
+        // 跨项目的时候 需要依赖 task的tenant
         final Long dtuicTenantId = tenantService.getDtuicTenantId(batchTask.getTenantId());
 
         final Map<String, Object> actionParam = new HashMap<>(10);
@@ -187,8 +203,7 @@ public class BatchJobService {
             multiEngineType = MultiEngineType.HADOOP;
         }
         taskParamsToReplace = taskParamsToReplace == null ? this.batchTaskParamShadeService.getTaskParam(batchTask.getId()) : taskParamsToReplace;
-//        final IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
-        final IBatchJobExeService jobExecuteService = null; //todo
+        final IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
         jobExecuteService.readyForTaskStartTrigger(actionParam, dtuicTenantId, batchTask, taskParamsToReplace);
 
         actionParam.put("taskId", taskId);
@@ -270,11 +285,11 @@ public class BatchJobService {
         }
         String extroInfo = getExtraInfo(batchTask, userId, null);
         //任务批量提交，调用infoCommit接口，此时只有调用taskCommit接口才会真正被engine调度
-//        this.scheduleTaskShadeService.infoCommit(taskId, AppType.RDOS.getType(), extroInfo, commitId);
+        this.scheduleTaskShadeService.infoCommit(taskId, AppType.RDOS.getType(), extroInfo, commitId);
     }
 
-    private String getHadoopMRSqlText(final Long taskId, final Long projectId) {
-        final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType(), projectId);
+    private String getHadoopMRSqlText(final Long taskId, final Long tenantId) {
+        final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType(), tenantId);
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("HadoopMR任务资源不能为空");
         }
@@ -295,14 +310,14 @@ public class BatchJobService {
         return simpleTableName;
     }
 
-    public String stopJob(long jobId, Long userId, Long projectId, Long tenantId, Long dtuicTenantId, Boolean isRoot) {
+    public String stopJob(long jobId, Long userId, Boolean isRoot) {
 
         final ScheduleJob ScheduleJob = this.scheduleJobService.getById(jobId);
         if (ScheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
 
-        this.checkJobOperateValid(ScheduleJob, userId, 0L, ScheduleJob.getTenantId(), isRoot);
+        this.checkJobOperateValid(ScheduleJob, userId, ScheduleJob.getTenantId(), isRoot);
         this.scheduleJobService.stopJob(jobId, AppType.RDOS.getType());
         return "success";
     }
@@ -313,11 +328,10 @@ public class BatchJobService {
      *
      * @param ScheduleJob
      * @param userId
-     * @param projectId 项目id需要为任务本身id
      * @param tenantId
      * @param isRoot
      */
-    private void checkJobOperateValid(final ScheduleJob ScheduleJob, final Long userId, final Long projectId, final Long tenantId, final Boolean isRoot) {
+    private void checkJobOperateValid(final ScheduleJob ScheduleJob, final Long userId, final Long tenantId, final Boolean isRoot) {
         final ScheduleTaskShade task = this.scheduleTaskShadeService.findTaskId(ScheduleJob.getTaskId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
         if (task != null) {
 //            this.roleUserService.checkUserRole(userId, RoleValue.OPERATION.getRoleValue(), ErrorCode.PERMISSION_LIMIT.getDescription(), projectId, tenantId, isRoot);
@@ -330,7 +344,7 @@ public class BatchJobService {
      *
      * @return
      */
-    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long dtuicTenantId, String taskParams) {
+    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId, String taskParams) {
         BatchStartSyncResultVO batchStartSyncResultVO = new BatchStartSyncResultVO();
         batchStartSyncResultVO.setMsg(null);
         batchStartSyncResultVO.setJobId(null);
@@ -347,9 +361,8 @@ public class BatchJobService {
 
         try {
 
-//            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(MultiEngineType.HADOOP.getType());
-            final IBatchJobExeService batchJobExeService = null; //todo
-            final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, dtuicTenantId, isRoot);
+            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(MultiEngineType.HADOOP.getType());
+            final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
             String extroInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extroInfo, ScheduleTaskShade.class);
@@ -366,7 +379,7 @@ public class BatchJobService {
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
             this.batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
-                    0L, job, userId, MultiEngineType.HADOOP.getType());
+                    job, userId, MultiEngineType.HADOOP.getType());
 
             batchStartSyncResultVO.setMsg("任务提交成功,名称为:" + name);
             batchStartSyncResultVO.setJobId(jobId);
@@ -385,11 +398,11 @@ public class BatchJobService {
     /**
      * 获取同步任务运行状态
      */
-    public BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId, Long userId, Long projectId) {
-        return this.getSyncTaskStatusInner(tenantId, jobId, userId, 0, projectId);
+    public BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId, Long userId) {
+        return this.getSyncTaskStatusInner(tenantId, jobId, userId, 0);
     }
 
-    private BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, final Long userId, int retryTimes, Long projectId) {
+    private BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, final Long userId, int retryTimes) {
         final BatchGetSyncTaskStatusInnerResultVO resultVO = new BatchGetSyncTaskStatusInnerResultVO();
         resultVO.setMsg(null);
         resultVO.setStatus(TaskStatus.RUNNING.getStatus());
@@ -425,7 +438,7 @@ public class BatchJobService {
                     if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                             || TaskStatus.FAILED.getStatus().equals(status)) {
                         resultVO.setMsg(engineLogStr);
-                        resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), projectId));
+                        resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), tenantId));
                     }
                     return resultVO;
                 }
@@ -468,7 +481,7 @@ public class BatchJobService {
                         if (StringUtils.isEmpty(engineLog.getString("root-exception")) && retryTimes < 3) {
                             retryTimes++;
                             Thread.sleep(500);
-                            return this.getSyncTaskStatusInner(tenantId, jobId, userId, retryTimes, projectId);
+                            return this.getSyncTaskStatusInner(tenantId, jobId, userId, retryTimes);
                         } else {
                             if (engineLog.containsKey("engineLogErr")) {
                                 // 有这个字段表示日志没有获取到，目前engine端只对flink任务做了这种处理，这里先提前加上
@@ -495,11 +508,11 @@ public class BatchJobService {
                 } else if (TaskStatus.FINISHED.getStatus().equals(status) && retryTimes < 3) {
                     // FIXME perjob模式运行任务，任务完成后统计信息可能还没收集到，这里等待1秒后再请求一次结果
                     Thread.sleep(1000);
-                    return this.getSyncTaskStatusInner(tenantId, jobId, userId, 3, projectId);
+                    return this.getSyncTaskStatusInner(tenantId, jobId, userId, 3);
                 }
                 if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                         || TaskStatus.FAILED.getStatus().equals(status)) {
-                    resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), projectId));
+                    resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), tenantId));
                 }
                 resultVO.setMsg(logBuild.toString());
             } catch (final Exception e) {
@@ -525,7 +538,6 @@ public class BatchJobService {
     /**
      * @param userId
      * @param tenantId
-     * @param projectId
      * @param taskId
      * @param uniqueKey
      * @param sql
@@ -534,11 +546,10 @@ public class BatchJobService {
      * @param isCheckDDL
      * @param isRoot
      * @param isEnd         是否是当前session最后一条sql
-     * @param dtuicTenantId
      * @return
      */
     //通过数据地图权限判断
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, long projectId, long taskId, String uniqueKey, String sql, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot,  Boolean isEnd, Long dtuicTenantId, String taskParams) {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String uniqueKey, String sql, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot,  Boolean isEnd, String taskParams) {
 
         // 更新ddl检查设置
         if (!Objects.isNull(isCheckDDL)) {
@@ -565,8 +576,7 @@ public class BatchJobService {
             task.setTaskParams(paramActionExt.getTaskParams());
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
             final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
-            final IBatchJobExeService batchJobService = null;
-            result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, projectId, taskId, sql, isRoot, dtuicTenantId, task, dtToken, isEnd, jobId);
+            result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, isRoot, task, dtToken, isEnd, jobId);
         } catch (final Exception e) {
             BatchJobService.logger.warn("startSqlImmediately-->", e);
             result.setMsg(e.getMessage());
@@ -585,7 +595,6 @@ public class BatchJobService {
      * 高级运行sparkSql从引擎执行逻辑
      * @param userId
      * @param tenantId
-     * @param projectId
      * @param taskId
      * @param uniqueKey
      * @param sqlList
@@ -593,10 +602,9 @@ public class BatchJobService {
      * @param dtToken
      * @param isCheckDDL
      * @param isRoot
-     * @param dtuicTenantId
      * @return
      */
-    public ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, long projectId, long taskId, String uniqueKey, List<String> sqlList, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot, Long dtuicTenantId){
+    public ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, Long taskId, String uniqueKey, List<String> sqlList, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot){
         // 更新ddl检查设置
         if (!Objects.isNull(isCheckDDL)) {
             SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
@@ -611,11 +619,10 @@ public class BatchJobService {
             }
             final List<BatchTaskParam> params = this.batchTaskParamService.saveTaskParams(taskId, this.batchTaskParamService.paramResolver(taskVariables));
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-//            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
-            final IBatchJobExeService batchJobExeService = null; //todo
+            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
             sqlList = this.jobParamReplace.batchParamReplace(sqlList, this.batchTaskParamService.convertShade(params),
                     DateUtil.getFormattedDate(System.currentTimeMillis(), "yyyyMMddHHmmss"));
-            result = batchJobExeService.startSqlSophisticated(userId,tenantId,uniqueKey,projectId,taskId,sqlList,isRoot,dtuicTenantId,task,dtToken,null);
+            result = batchJobExeService.startSqlSophisticated(userId,tenantId,uniqueKey,taskId,sqlList,isRoot,task,dtToken,null);
         }catch (final Exception e) {
             BatchJobService.logger.warn("startSqlSophisticated-->", e);
             result.setMsg(e.getMessage());
@@ -636,9 +643,9 @@ public class BatchJobService {
     /**
      * 停止通过sql任务执行的sql查询语句
      */
-    public void stopSqlImmediately(String jobId, Long tenantId, Long projectId, Long dtuicTenantId) {
+    public void stopSqlImmediately(String jobId, Long tenantId) {
         if (StringUtils.isNotBlank(jobId)) {
-            this.batchSelectSqlService.stopSelectJob(jobId, tenantId, projectId);
+            this.batchSelectSqlService.stopSelectJob(jobId, tenantId);
         }
     }
 
@@ -648,11 +655,11 @@ public class BatchJobService {
      *
      * @param taskId
      * @param count
-     * @param projectId
+     * @param tenantId
      * @return
      */
     //FIXME 任务类型只统计了完成和失败的。。然后其他状态呢？运行中。。提交中。。。
-    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long projectId)  {
+    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long tenantId)  {
         final BatchTask task = this.batchTaskDao.getOne(taskId);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -664,7 +671,7 @@ public class BatchJobService {
         Integer cronNum = 0;
         Integer failNum = 0;
 
-        final List<Map<String, Object>> resultMap = this.scheduleJobService.statisticsTaskRecentInfo(taskId, AppType.RDOS.getType(), projectId, count);
+        final List<Map<String, Object>> resultMap = this.scheduleJobService.statisticsTaskRecentInfo(taskId, AppType.RDOS.getType(), tenantId, count);
         for ( Map<String, Object> map : resultMap) {
             Object execStartTime = map.getOrDefault("execStartTime","0");
             Object execEndTime = map.getOrDefault("execEndTime","0");
@@ -727,8 +734,8 @@ public class BatchJobService {
         return result;
     }
 
-    public List<String> listJobIdByTaskNameAndStatusList(String taskName, List<Integer> statusList, Long projectId) {
-        return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, projectId, AppType.RDOS.getType());
+    public List<String> listJobIdByTaskNameAndStatusList(String taskName, List<Integer> statusList, Long tenantId) {
+        return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, tenantId, AppType.RDOS.getType());
     }
 
 
@@ -736,11 +743,11 @@ public class BatchJobService {
      * 返回这些jobId对应的父节点的jobMap
      *
      * @param jobIdList
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    public Map<String, ScheduleJob> getLabTaskRelationMap(List<String> jobIdList, Long projectId) {
-        return this.scheduleJobService.getLabTaskRelationMap(jobIdList, projectId);
+    public Map<String, ScheduleJob> getLabTaskRelationMap(List<String> jobIdList, Long tenantId) {
+        return this.scheduleJobService.getLabTaskRelationMap(jobIdList, tenantId);
     }
 
 

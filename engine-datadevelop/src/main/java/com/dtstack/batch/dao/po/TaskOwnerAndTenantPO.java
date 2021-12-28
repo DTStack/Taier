@@ -16,20 +16,21 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.dto;
+package com.dtstack.batch.dao.po;
 
-import com.dtstack.batch.domain.BatchAlarm;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
- * Reason:
- * Date: 2018/1/3
- * Company: www.dtstack.com
- * @author xuchao
+ * @company: www.dtstack.com
+ * @Author ：Nanqi
+ * @Date ：Created in 10:05 2020/12/26
+ * @Description：任务以及项目用户
  */
 @Data
-public class BatchAlarmDTO extends BatchAlarm {
+public class TaskOwnerAndTenantPO implements Serializable {
+    private Long ownerId;
 
-    private String taskNameLike;
-
+    private Long projectId;
 }
