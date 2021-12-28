@@ -1,5 +1,7 @@
 package com.dtstack.batch.vo.fill;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/12/9 1:48 PM
@@ -11,51 +13,61 @@ public class ReturnFillDataListVO {
     /**
      * 补数据标识
      */
+    @ApiModelProperty(value = "补数据标识",example = "1")
     private Long id;
 
     /**
      * 补数据名称
      */
+    @ApiModelProperty(value = "补数据名称")
     private String fillDataName;
 
     /**
      * 成功job数量
      */
+    @ApiModelProperty(value = "成功job数量")
     private Long finishedJobSum;
 
     /**
      * 所有job数量
      */
+    @ApiModelProperty(value = "所有job数量")
     private Long allJobSum;
 
     /**
      * 完成的job数量
      */
+    @ApiModelProperty(value = "完成的job数量")
     private Long doneJobSum;
 
     /**
      * 补数据开始时间
      */
+    @ApiModelProperty(value = "补数据开始时间",example = "2021-12-23")
     private String fromDay;
 
     /**
      * 补数据结束时间
      */
+    @ApiModelProperty(value = "补数据结束时间",example = "2021-12-23")
     private String toDay;
 
     /**
      * 补数据生成时间
      */
+    @ApiModelProperty(value = "补数据生成时间",example = "2021-12-24 16:01:02")
     private String runDay;
 
     /**
      * 操作人名称
      */
+    @ApiModelProperty(value = "操作人名称",example = "admin@dtstack.com")
     private String UserName;
 
     /**
      * 操作人id
      */
+    @ApiModelProperty(value = "操作人id",example = "")
     private Long userId;
 
     public Long getId() {
