@@ -9,6 +9,8 @@ import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.common.util.JsonUtil;
+import com.dtstack.batch.engine.rdbms.common.HadoopConf;
+import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.enums.DataSourceDataBaseType;
 import com.dtstack.batch.enums.EDataSourcePermission;
@@ -61,7 +63,9 @@ import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.FormNames;
+import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
@@ -1948,6 +1952,70 @@ public class DatasourceService {
             throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
 
+    }
+
+    public void initDefaultSource(Long tenantId, String dataSourceName, String dataSourceDesc, Long userId) throws Exception {
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, EJobType.SPARK_SQL);
+        String jdbcUrl = jdbcInfo.getJdbcUrl();
+        SparkThriftConnectionUtils.HiveVersion version = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
+        JSONObject dataJson = new JSONObject();
+        dataJson.put("username",jdbcInfo.getUsername());
+        dataJson.put("password",jdbcInfo.getPassword());
+        if (!jdbcUrl.contains("%s")) {
+            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
+        }
+        jdbcUrl = String.format(jdbcUrl, dataSourceName);
+        dataJson.put("jdbcUrl", jdbcUrl);
+        String defaultFs = HadoopConf.getDefaultFs(tenantId);
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(defaultFs)) {
+            dataJson.put("defaultFS", defaultFs);
+        }else {
+            throw new RdosDefineException("默认数据源的defaultFs未找到");
+        }
+
+        JSONObject hdpConfig = createHadoopConfigObject(tenantId);
+        if (!hdpConfig.isEmpty()) {
+            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
+        }
+
+        dataSourceName = dataSourceName + "_" + MultiEngineType.HADOOP.name();
+        dataJson.put("hasHdfsConfig", true);
+        DataSourceVO dataSourceVO = new DataSourceVO();
+        dataSourceVO.setDataDesc(org.apache.commons.lang3.StringUtils.isNotEmpty(dataSourceDesc) ? dataSourceDesc : "");
+        dataSourceVO.setDataJson(dataJson);
+        dataSourceVO.setCreateUserId(userId);
+        dataSourceVO.setActive(1);
+        dataSourceVO.setDataName(dataSourceName);
+        dataSourceVO.setTenantId(tenantId);
+        if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(version)){
+            dataSourceVO.setType(DataSourceType.HIVE1X.getVal());
+        }else {
+            dataSourceVO.setType(DataSourceType.HIVE.getVal());
+        }
+        dataSourceVO.setIsMeta(1);
+
+        addOrUpdate(dataSourceVO, userId);
+    }
+
+    public JSONObject createHadoopConfigObject(Long tenantId) {
+        JSONObject hadoop = new JSONObject();
+        Map<String, Object> config = HadoopConf.getConfiguration(tenantId);
+        String nameServices = config.getOrDefault("dfs.nameservices","").toString();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(nameServices)) {
+            hadoop.put("dfs.nameservices", nameServices);
+            String nameNodes = config.getOrDefault(String.format("dfs.ha.namenodes.%s", nameServices),"").toString();
+            if (org.apache.commons.lang3.StringUtils.isNotBlank(nameNodes)) {
+                hadoop.put(String.format("dfs.ha.namenodes.%s", nameServices), nameNodes);
+                for (String nameNode : nameNodes.split(",")) {
+                    String key = String.format("dfs.namenode.rpc-address.%s.%s", nameServices, nameNode);
+                    hadoop.put(key, config.get(key));
+                }
+            }
+            String failoverKey = String.format("dfs.client.failover.proxy.provider.%s", nameServices);
+            hadoop.put(failoverKey, config.get(failoverKey));
+        }
+
+        return hadoop;
     }
 
     public BatchDataSource getOne(Long valueOf) {
