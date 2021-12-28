@@ -91,7 +91,7 @@ public class FillDataRunnable implements Runnable {
                 all = Sets.newHashSet(run);
             }
 
-            // 生成周期实例
+            // 生成补数据实例
             fillDataJobBuilder.createFillJob(all, run,fillId,fillName,beginTime,endTime,startDay,endDay, tenantId,userId);
 
         } catch (Throwable e) {

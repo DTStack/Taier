@@ -355,7 +355,6 @@ public abstract class AbstractBuilder {
         ScheduleJobJob jobJobJob = new ScheduleJobJob();
         jobJobJob.setJobKey(jobKey);
         jobJobJob.setParentJobKey(parentKey);
-        jobJobJob.setParentAppType(parentAppType);
         jobJobJob.setGmtModified(timestamp);
         jobJobJob.setGmtCreate(timestamp);
         return jobJobJob;
