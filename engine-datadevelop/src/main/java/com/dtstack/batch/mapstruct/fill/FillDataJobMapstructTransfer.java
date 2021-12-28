@@ -49,8 +49,5 @@ public interface FillDataJobMapstructTransfer {
     /**
      * 补数据实例 domain -> vo
      */
-    @Mappings({
-            @Mapping(target = "userId",source = "createUserId")
-    })
     FillDataJobVO scheduleJobToFillDataJobVO(ScheduleJob scheduleJob);
 }

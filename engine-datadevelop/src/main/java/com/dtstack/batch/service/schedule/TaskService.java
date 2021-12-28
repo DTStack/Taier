@@ -96,15 +96,15 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * 通过任务名称和所属idc哈希任务
      *
      * @param taskName 任务名称
-     * @param userId 所属用户id
+     * @param ownerId 所属用户id
      * @return taskIds
      */
-    public List<Long> findTaskIdByTaskName(String taskName, Long userId) {
-        if (StringUtils.isBlank(taskName) && userId == null) {
+    public List<Long> findTaskIdByTaskName(String taskName, Long ownerId) {
+        if (StringUtils.isBlank(taskName) && ownerId == null) {
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
-                .eq(userId != null, ScheduleTaskShade::getOwnerUserId, userId)
+                .eq(ownerId != null, ScheduleTaskShade::getOwnerUserId, ownerId)
                 .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
                 .list().stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
     }

@@ -1559,14 +1559,6 @@ public class BatchTaskService {
         BeanUtils.copyProperties(batchTask, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(batchTask.getId());
         scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        if (StringUtils.isNotEmpty(batchTask.getScheduleConf())) {
-            JSONObject scheduleConfig = JSONObject.parseObject(batchTask.getScheduleConf());
-            if (scheduleConfig != null) {
-                scheduleTaskShadeDTO.setIsExpire(scheduleConfig.getBooleanValue("isExpire") ? 1 : 0);
-            } else {
-                scheduleTaskShadeDTO.setIsExpire(0);
-            }
-        }
         return scheduleTaskShadeDTO;
     }
 
