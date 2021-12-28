@@ -202,7 +202,7 @@ public class BatchScheduleTaskResultVO {
     private Long projectId;
 
     @ApiModelProperty(value = "主键 ID", example = "1")
-    private Long id = 0L;
+    private Long id;
 
     @ApiModelProperty(value = "创建时间", example = "2020-12-29T11:39:13.000+00:00")
     private Timestamp gmtCreate;

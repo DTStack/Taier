@@ -1,7 +1,7 @@
 package com.dtstack.batch.sql.formate;
 
-import com.dtstack.dtcenter.common.util.Base64Util;
-import com.dtstack.dtcenter.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

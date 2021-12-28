@@ -40,5 +40,5 @@ public interface ITaskService {
      */
     String uploadSqlText(Long tenantId, String content, Integer taskType, String taskName);
 
-    void readyForPublishTaskInfo(BatchTask task, Long tenantId);
+    void readyForPublishTaskInfo(BatchTask task);
 }

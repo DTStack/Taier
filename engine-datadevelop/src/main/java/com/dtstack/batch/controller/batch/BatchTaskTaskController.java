@@ -65,7 +65,7 @@ public class BatchTaskTaskController {
             @Override
             protected BatchScheduleTaskResultVO process() {
                 return TaskMapstructTransfer.INSTANCE.ScheduleTaskVOToBatchScheduleTaskResultVO(taskService.displayOffSpring(taskVO.getTaskId(),
-                        taskVO.getProjectId(), taskVO.getUserId(), taskVO.getLevel(), taskVO.getType(), taskVO.getAppType()));
+                        taskVO.getTenantId(), taskVO.getUserId(), taskVO.getLevel(), taskVO.getType(), taskVO.getAppType()));
             }
         }.execute();
     }
