@@ -19,11 +19,6 @@ public class QueryFillDataListDTO {
     private Long userId;
 
     /**
-     * 业务日期
-     */
-    private String bizDay;
-
-    /**
      * 补数据运行时间 格式yyyy-MM-dd
      */
     private String runDay;
@@ -57,14 +52,6 @@ public class QueryFillDataListDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getBizDay() {
-        return bizDay;
-    }
-
-    public void setBizDay(String bizDay) {
-        this.bizDay = bizDay;
     }
 
     public String getRunDay() {
