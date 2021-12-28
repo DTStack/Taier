@@ -57,20 +57,20 @@ public class ScheduleJobJobController {
 //        return scheduleJobJobService.displayOffSpringWorkFlow(jobId, appType);
 //    }
 
-    /**
-     * @author newman
-     * @Description 展开上游工作实例
-     * @Date 2021/1/6 5:49 下午
-     * @param jobId:
-     * @param level:
-     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
-     **/
-    @RequestMapping(value="/displayForefathers", method = {RequestMethod.POST})
-    public ScheduleJobVO displayForefathers(@RequestParam("jobId") Long jobId, @RequestParam("level") Integer level) throws Exception {
-        if(context.getUseOptimize()) {
-            return scheduleJobJobService.displayForefathersNew(jobId, level);
-        }else{
-            return scheduleJobJobService.displayForefathers(jobId, level);
-        }
-    }
+//    /**
+//     * @author newman
+//     * @Description 展开上游工作实例
+//     * @Date 2021/1/6 5:49 下午
+//     * @param jobId:
+//     * @param level:
+//     * @return: com.dtstack.engine.master.vo.ScheduleJobVO
+//     **/
+//    @RequestMapping(value="/displayForefathers", method = {RequestMethod.POST})
+//    public ScheduleJobVO displayForefathers(@RequestParam("jobId") Long jobId, @RequestParam("level") Integer level) throws Exception {
+//        if(context.getUseOptimize()) {
+//            return scheduleJobJobService.displayForefathersNew(jobId, level);
+//        }else{
+//            return scheduleJobJobService.displayForefathers(jobId, level);
+//        }
+//    }
 }

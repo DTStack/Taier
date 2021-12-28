@@ -37,6 +37,7 @@ import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
 import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.action.restart.RestartJobRunnable;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
@@ -448,9 +449,6 @@ public class ActionService {
         jobLogVO.setComputeType(taskShade.getComputeType());
         jobLogVO.setTaskType(taskShade.getTaskType());
 
-//        jobLogVO.setExecEndTime(scheduleJob.getExecEndTime());
-//        jobLogVO.setExecStartTime(scheduleJob.getExecStartTime());
-
         String engineLog = getEngineLog(jobId, scheduleJob);
         jobLogVO.setEngineLog(engineLog);
 
@@ -645,8 +643,6 @@ public class ActionService {
      * @return
      */
     public boolean restartJob(RestartType restartType, List<String> jobIds) {
-     /*   CompletableFuture.runAsync(new RestartJobRunnable(jobIds,restartType, scheduleJobDao, scheduleTaskShadeDao,
-                scheduleJobJobDao, environmentContext,scheduleJobService));*/
         return true;
     }
 }
