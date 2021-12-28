@@ -228,36 +228,35 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         return clusterMapper.selectById(clusterId);
     }
 
-    public String getConfigByKey(Long tenantId, String componentConfName, Boolean fullKerberos, String componentVersion) {
+    public JSONObject getConfigByKey(Long tenantId, String componentConfName, String componentVersion) {
         Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
         Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), componentVersion, null);
         if (null == component) {
-            return "{}";
+            return null;
         }
         JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class, componentVersion);
         if (configObj != null) {
-            KerberosConfig kerberosConfig = null;
             if (StringUtils.isNotBlank(component.getKerberosFileName())) {
                 //开启kerberos的kerberosFileName不为空
-                kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
+                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
                         ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? StringUtils.isNotBlank(componentVersion) ? componentVersion :
                                 componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
+                // 添加组件的kerberos配置信息 应用层使用
+                configObj.put(ConfigConstant.KERBEROS_CONFIG,kerberosConfig);
+                //填充sftp配置项
+                Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
+                if (MapUtils.isNotEmpty(sftpMap)) {
+                    configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
+                }
             }
             //返回版本
             configObj.put(ConfigConstant.VERSION, component.getHadoopVersion());
             configObj.put(IS_METADATA, component.getIsMetadata());
-            // 添加组件的kerberos配置信息 应用层使用
-            configObj.put(ConfigConstant.KERBEROS_CONFIG,kerberosConfig);
-            //填充sftp配置项
-            Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-            if (MapUtils.isNotEmpty(sftpMap)) {
-                configObj.put(EComponentType.SFTP.getConfName(), sftpMap);
-            }
-            return configObj.toJSONString();
+            return configObj;
         }
-        return "{}";
+        return null;
     }
 
 
@@ -495,12 +494,6 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
             vo.setEngines(engineVOS);
         }
         return vo;
-    }
-
-    //todo getSftp
-    public JSONObject getSftpByTenantId(Long tenantId){
-
-        return null;
     }
 }
 

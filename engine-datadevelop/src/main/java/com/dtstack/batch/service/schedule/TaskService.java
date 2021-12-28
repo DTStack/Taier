@@ -3,7 +3,7 @@ package com.dtstack.batch.service.schedule;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
-import com.dtstack.batch.vo.schedule.ScheduleTaskVO;
+import com.dtstack.batch.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.domain.ScheduleTaskShade;
@@ -38,18 +38,21 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @param dto 查询条件
      * @return
      */
-    public PageResult<List<ScheduleTaskVO>> queryTasks(QueryTaskListDTO dto) {
+    public PageResult<List<ReturnScheduleTaskVO>> queryTasks(QueryTaskListDTO dto) {
         Page<ScheduleTaskShade> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         // 分页查询
         Page<ScheduleTaskShade> resultPage = this.lambdaQuery()
+                .eq(ScheduleTaskShade::getFlowId,0L)
                 .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
                 .eq(dto.getOwnerId() != null, ScheduleTaskShade::getOwnerUserId, dto.getOwnerId())
                 .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
                 .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
-                .in(StringUtils.isNotBlank(dto.getTaskTypeList()), ScheduleTaskShade::getTaskType, Arrays.asList(dto.getTaskTypeList().split(",")))
-                .in(StringUtils.isNotBlank(dto.getPeriodTypeList()), ScheduleTaskShade::getPeriodType, Arrays.asList(dto.getPeriodTypeList().split(",")))
+                .in(CollectionUtils.isNotEmpty(dto.getTaskTypeList()), ScheduleTaskShade::getTaskType, dto.getTaskTypeList())
+                .in(CollectionUtils.isNotEmpty(dto.getPeriodTypeList()), ScheduleTaskShade::getPeriodType, dto.getPeriodTypeList())
                 .page(page);
-        List<ScheduleTaskVO> scheduleTaskVOS = ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(resultPage.getRecords());
+
+        List<ReturnScheduleTaskVO> scheduleTaskVOS = ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(resultPage.getRecords());
+
         return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), resultPage.getTotal(), (int) resultPage.getPages(), scheduleTaskVOS);
     }
 
@@ -66,7 +69,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             return Boolean.FALSE;
         }
 
-        if (EScheduleStatus.getStatus(scheduleStatus) != null) {
+        if (EScheduleStatus.getStatus(scheduleStatus) == null) {
             LOGGER.error("scheduleStatus is null");
             return Boolean.FALSE;
         }
@@ -74,15 +77,27 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         ScheduleTaskShade scheduleTask = new ScheduleTaskShade();
         scheduleTask.setScheduleStatus(scheduleStatus);
         return this.lambdaUpdate()
-                .in(ScheduleTaskShade::getTaskId)
+                .in(ScheduleTaskShade::getTaskId,taskIdList)
                 .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .update(scheduleTask);
     }
 
     /**
-     * @param taskName
-     * @param userId
+     * 查询工作流子节点
+     *
+     * @param taskId 任务id
      * @return
+     */
+    public List<ReturnScheduleTaskVO> dealFlowWorkTask(Long taskId) {
+        return ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(findAllFlowTasks(taskId));
+    }
+
+    /**
+     * 通过任务名称和所属idc哈希任务
+     *
+     * @param taskName 任务名称
+     * @param userId 所属用户id
+     * @return taskIds
      */
     public List<Long> findTaskIdByTaskName(String taskName, Long userId) {
         if (StringUtils.isBlank(taskName) && userId == null) {
@@ -93,4 +108,21 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
                 .list().stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
     }
+
+    /**
+     * 查询工作有下的所有任务
+     *
+     * @param taskId 任务i     * @return
+     */
+    public List<ScheduleTaskShade> findAllFlowTasks(Long taskId) {
+        if (taskId == null) {
+            return Lists.newArrayList();
+        }
+        return this.lambdaQuery()
+                .eq(ScheduleTaskShade::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getFlowId,taskId)
+                .list();
+    }
+
+
 }

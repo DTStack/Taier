@@ -52,12 +52,6 @@ public class ScheduleFillJobParticipateDTO {
     private Long tenantId;
 
     /**
-     * 最大并行数，默认 0 不限制
-     * 该字段范围 0~100，如果小于0 会当做0使用，如果大于100，会被当做100使用
-     */
-    private Integer maxParallelNum;
-
-    /**
      * 补数据运行信息
      */
     private ScheduleFillDataInfoDTO fillDataInfo;
@@ -116,17 +110,6 @@ public class ScheduleFillJobParticipateDTO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Integer getMaxParallelNum() {
-        if (maxParallelNum == null) {
-            return 0;
-        }
-        return maxParallelNum;
-    }
-
-    public void setMaxParallelNum(Integer maxParallelNum) {
-        this.maxParallelNum = maxParallelNum;
     }
 
     public ScheduleFillDataInfoDTO getFillDataInfo() {
