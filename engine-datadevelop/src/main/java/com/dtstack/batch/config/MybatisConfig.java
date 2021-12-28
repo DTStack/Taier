@@ -26,11 +26,9 @@ import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -95,6 +93,8 @@ public class MybatisConfig {
         Resource resource = resolver.getResource(environmentContext.getMybatisConfigLocation());
         sqlSessionFactoryBean.setConfigLocation(resource);
         sqlSessionFactoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
+
+        sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor());
         return sqlSessionFactoryBean.getObject();
     }
 

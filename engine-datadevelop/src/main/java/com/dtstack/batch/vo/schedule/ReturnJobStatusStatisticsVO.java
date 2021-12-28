@@ -1,5 +1,7 @@
 package com.dtstack.batch.vo.schedule;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/12/24 1:50 PM
@@ -7,9 +9,10 @@ package com.dtstack.batch.vo.schedule;
  * @Description:
  */
 public class ReturnJobStatusStatisticsVO {
-
+    @ApiModelProperty(value = "状态key",example = "FAILED")
     private String statusKey;
 
+    @ApiModelProperty(value = "状态数量",example = "30")
     private Long count;
 
     public String getStatusKey() {

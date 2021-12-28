@@ -59,7 +59,7 @@ public class QueryFillDataJobListVO extends PageVO {
      * 用户ID 责任人
      */
     @ApiModelProperty(value = "用户ID 责任人")
-    private Long userId;
+    private Long ownerId;
 
     /**
      * 任务类型
@@ -143,12 +143,12 @@ public class QueryFillDataJobListVO extends PageVO {
         this.cycEndDay = cycEndDay;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getTaskTypes() {
