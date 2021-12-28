@@ -13,7 +13,7 @@ import com.dtstack.batch.sql.node.NodeList;
 import com.dtstack.batch.sql.node.SelectNode;
 import com.dtstack.batch.sql.node.UnionCall;
 import com.google.common.collect.Lists;
-import javafx.util.Pair;
+import com.dtstack.batch.sql.Pair;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlInsert;
 import org.apache.calcite.sql.SqlKind;

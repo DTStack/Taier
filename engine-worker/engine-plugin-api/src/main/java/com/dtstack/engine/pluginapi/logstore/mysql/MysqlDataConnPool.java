@@ -21,7 +21,7 @@ package com.dtstack.engine.pluginapi.logstore.mysql;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,12 +130,12 @@ public class MysqlDataConnPool {
         dataSource.setDriverClassName(DRIVER_NAME);
         dataSource.setUrl(jdbcUrl);
 
-        if (!Strings.isNullOrEmpty(username)) {
+        if (StringUtils.isNotBlank(username)) {
             dataSource.setUsername(username);
 
         }
 
-        if (!Strings.isNullOrEmpty(password)) {
+        if (StringUtils.isNotBlank(password)) {
             dataSource.setPassword(password);
         }
 
