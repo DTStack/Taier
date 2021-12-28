@@ -50,7 +50,7 @@ public class BatchTaskTaskShadeController {
             @Override
             protected BatchScheduleTaskResultVO process() {
                 ScheduleTaskVO scheduleTaskVO = schduleTaskTaskShadeRpcService.displayOffSpring(shadeVO.getTaskId(),
-                        shadeVO.getProjectId(),  shadeVO.getLevel(), shadeVO.getDirectType(), AppType.RDOS.getType());
+                        shadeVO.getTenantId(),  shadeVO.getLevel(), shadeVO.getDirectType(), AppType.RDOS.getType());
 
                 return TaskMapstructTransfer.INSTANCE.ScheduleTaskVOToBatchScheduleTaskResultVO(scheduleTaskVO);
             }

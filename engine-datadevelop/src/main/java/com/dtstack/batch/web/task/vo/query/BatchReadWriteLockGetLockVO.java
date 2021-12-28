@@ -41,9 +41,6 @@ public class BatchReadWriteLockGetLockVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "租户 ID", hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "锁版本", example = "2")
     private Integer lockVersion;
 

@@ -150,6 +150,8 @@ public class ScheduleTaskShade implements Serializable {
      */
     private String componentVersion;
 
+    private Integer isExpire;
+
     public Long getId() {
         return id;
     }
@@ -363,5 +365,13 @@ public class ScheduleTaskShade implements Serializable {
                 ", extraInfo='" + extraInfo + '\'' +
                 ", ownerUserId=" + ownerUserId +
                 '}';
+    }
+
+    public Integer getIsExpire() {
+        return isExpire;
+    }
+
+    public void setIsExpire(Integer isExpire) {
+        this.isExpire = isExpire;
     }
 }
