@@ -19,11 +19,11 @@
 
 package com.dtstack.batch.sql.hive;
 
-import com.dtstack.batch.sql.hive.old.hive.AlterAstNodeParser;
-import com.dtstack.batch.sql.hive.old.hive.CreateTableAstNodeParser;
-import com.dtstack.batch.sql.hive.old.hive.InsertAstNodeParser;
-import com.dtstack.batch.sql.hive.old.hive.OtherAstNodeParser;
-import com.dtstack.batch.sql.hive.old.hive.SelectAstNodeParser;
+import com.dtstack.batch.sql.hive.hive.AlterAstNodeParser;
+import com.dtstack.batch.sql.hive.hive.CreateTableAstNodeParser;
+import com.dtstack.batch.sql.hive.hive.InsertAstNodeParser;
+import com.dtstack.batch.sql.hive.hive.OtherAstNodeParser;
+import com.dtstack.batch.sql.hive.hive.SelectAstNodeParser;
 import org.apache.hadoop.hive.ql.parse.HiveParser;
 
 /**

@@ -18,16 +18,15 @@
 
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
-import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.batch.dao.po.TaskOwnerAndTenantPO;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.web.pager.PageQuery;
+import com.dtstack.engine.domain.BatchTask;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * company: www.dtstack.com
@@ -47,13 +46,13 @@ public interface BatchTaskDao {
 
     Integer generalCount(@Param("model") Object model);
 
-    List<BatchTask> listBatchTaskByNodePid(@Param("projectId") long projectId, @Param("nodePid") Long nodePid);
+    List<BatchTask> listBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
-    List<BatchTask> listByNameFuzzy(@Param("projectId") long projectId, @Param("name") String name);
+    List<BatchTask> listByNameFuzzy(@Param("tenantId") Long tenantId, @Param("name") String name);
 
-    Integer deleteById(@Param("id") Long id, @Param("gmtModified") Timestamp timestamp, @Param("projectId") Long projectId, @Param("modifyUserId") Long userId);
+    Integer deleteById(@Param("id") Long id, @Param("gmtModified") Timestamp timestamp, @Param("tenantId") Long tenantId, @Param("modifyUserId") Long userId);
 
-    List<BatchTask> listByProjectId(@Param("projectId") long projectId);
+    List<BatchTask> listByTenantId(@Param("tenantId") Long tenantId);
 
     List<BatchTask> listByIds(@Param("ids") Collection<Long> taskIds);
 
@@ -61,24 +60,22 @@ public interface BatchTaskDao {
 
     List<BatchTask> listAll();
 
-    BatchTask getByName(@Param("name") String name, @Param("projectId") Long projectId);
+    BatchTask getByName(@Param("name") String name, @Param("tenantId") Long tenantId);
 
-    List<BatchTask> getByNameList(@Param("nameList") List<String> nameList, @Param("projectId") Long projectId);
+    List<BatchTask> getByNameList(@Param("nameList") List<String> nameList, @Param("tenantId") Long tenantId);
 
     Integer insert(BatchTask batchTask);
 
     Integer update(BatchTask batchTask);
 
-    Integer updateSubmitStatus(@Param("projectId") Long projectId, @Param("id") Long id, @Param("submitStatus") Integer submitStatus, @Param("time") Timestamp time);
+    Integer updateSubmitStatus(@Param("tenantId") Long tenantId, @Param("id") Long id, @Param("submitStatus") Integer submitStatus, @Param("time") Timestamp time);
 
-    List<BatchTask> listTaskByType(@Param("projectId") Long projectId, @Param("type") Integer type, @Param("taskName") String taskName);
+    List<BatchTask> listTaskByType(@Param("tenantId") Long tenantId, @Param("type") Integer type, @Param("taskName") String taskName);
 
     Integer batchUpdateTaskScheduleStatus(@Param("taskIds") List<Long> taskIds, @Param("scheduleStatus") Integer scheduleStatus);
 
-    Integer countByProjectIdAndSubmit(@Param("isSubmit") Integer isSubmit, @Param("projectId") Long projectId, @Param("tenantId") Long tenantId);
+    Integer countByTenantIdAndSubmit(@Param("isSubmit") Integer isSubmit, @Param("tenantId") Long tenantId);
    
-    Map<String, Object> countScienceJobStatus(@Param("projectIds") List<Long> projectIds, @Param("taskType")Integer taskType, @Param("tenantId") Long tenantId);
-
     Integer countAll();
 
     List<BatchTask> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
@@ -87,7 +84,7 @@ public interface BatchTaskDao {
 
     Integer updateScheduleConf(@Param("flowId") Long flowId, @Param("periodType") Integer periodType, @Param("scheduleConf")String scheduleConf);
 
-    void deleteByName(@Param("name") String name, @Param("projectId") Long projectId, @Param("userId") Long userId);
+    void deleteByName(@Param("name") String name, @Param("tenantId") Long tenantId, @Param("userId") Long userId);
 
     /**
      * 根据提交状态和任务类型查询
@@ -104,19 +101,19 @@ public interface BatchTaskDao {
      * @param taskIds
      * @return
      */
-    List<BatchTask> listSubmitTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("projectId") Long projectId);
+    List<BatchTask> listSubmitTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("tenantId") Long tenantId);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId, @Param("userId") Long userId);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("userId") Long userId);
 
-    List<TaskOwnerAndProjectPO> getTaskOwnerAndProjectId();
+    List<TaskOwnerAndTenantPO> getTaskOwnerAndTenantId();
 
     /**
      * 更新此项目下的任务负责人
      *
      * @param oldOwnerUserId
      * @param newOwnerUserId
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    Integer updateTaskOwnerUser(@Param("oldOwnerUserId") Long oldOwnerUserId, @Param("newOwnerUserId") Long newOwnerUserId, @Param("projectId") Long projectId);
+    Integer updateTaskOwnerUser(@Param("oldOwnerUserId") Long oldOwnerUserId, @Param("newOwnerUserId") Long newOwnerUserId, @Param("tenantId") Long tenantId);
 }

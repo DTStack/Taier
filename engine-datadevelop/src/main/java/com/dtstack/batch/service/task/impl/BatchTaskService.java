@@ -34,7 +34,7 @@ import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskResourceDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.dao.ReadWriteLockDao;
-import com.dtstack.batch.dao.po.TaskOwnerAndProjectPO;
+import com.dtstack.batch.dao.po.TaskOwnerAndTenantPO;
 import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
@@ -45,8 +45,8 @@ import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.BatchTaskVersion;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.domain.Dict;
-import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.domain.ReadWriteLock;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
 import com.dtstack.batch.enums.DependencyType;
@@ -61,18 +61,21 @@ import com.dtstack.batch.parser.ScheduleFactory;
 import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceTaskRefService;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchResourceService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.BatchSysParamService;
 import com.dtstack.batch.service.impl.DictService;
+import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
 import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.job.SyncJobCheck;
+import com.dtstack.batch.utils.Strings;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ReadWriteLockVO;
@@ -89,7 +92,6 @@ import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.DictType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EParamType;
 import com.dtstack.engine.common.enums.ESubmitStatus;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.FuncType;
@@ -112,6 +114,7 @@ import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.domain.TaskParamTemplate;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
 import com.dtstack.engine.dto.UserDTO;
@@ -213,8 +216,8 @@ public class BatchTaskService {
     @Autowired
     private BatchTaskTaskService batchTaskTaskService;
 
-//    @Autowired
-//    private BatchDataSourceService dataSourceService;
+    @Autowired
+    private DatasourceService dataSourceService;
 
     @Autowired
     private BatchCatalogueDao batchCatalogueDao;
@@ -258,8 +261,8 @@ public class BatchTaskService {
     @Autowired
     private IMultiEngineService multiEngineService;
 
-//    @Autowired
-//    private MultiEngineServiceFactory multiEngineServiceFactory;
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
@@ -424,13 +427,13 @@ public class BatchTaskService {
         data.put("version", "0");
     }
 
-    private BatchTask copyTask(final Long projectId, final Long userId, final Long srcTaskId, String taskName, final String taskDesc, final Long nodePid, final Long flowId) {
+    private BatchTask copyTask(final Long tenantId, final Long userId, final Long srcTaskId, String taskName, final String taskDesc, final Long nodePid, final Long flowId) {
         final BatchTask srcTask = this.batchTaskDao.getOne(srcTaskId);
         if (srcTask == null) {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        BatchTask taskGetByName = this.batchTaskDao.getByName(taskName, projectId);
+        BatchTask taskGetByName = this.batchTaskDao.getByName(taskName, tenantId);
         if (flowId == 0) {
             if (taskGetByName != null) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
@@ -438,7 +441,7 @@ public class BatchTaskService {
         } else {
             while (taskGetByName != null) {
                 taskName = NameUtil.getCopyName(taskName);
-                taskGetByName = this.batchTaskDao.getByName(taskName, projectId);
+                taskGetByName = this.batchTaskDao.getByName(taskName, tenantId);
             }
         }
 
@@ -477,8 +480,7 @@ public class BatchTaskService {
         this.batchTaskParamService.copyTaskParam(srcTaskId, distTask.getId());
 
         // 新增锁
-        this.readWriteLockService.getLock(srcTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(),
-                distTask.getId(), projectId, null, null);
+        this.readWriteLockService.getLock(srcTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(), distTask.getId(), null);
 
         return distTask;
     }
@@ -510,7 +512,7 @@ public class BatchTaskService {
             elem = new HashMap<>();
             elem.put("name", task.getName());
             elem.put("id", task.getId());
-//            elem.put("createUser", userService.getUserName(task.getCreateUserId()));
+            elem.put("createUser", userService.getUserName(task.getCreateUserId()));
             elem.put("taskType", task.getTaskType());
             result.add(elem);
         }
@@ -801,8 +803,7 @@ public class BatchTaskService {
         this.batchTaskParamService.copyTaskParam(taskId, distTask.getId());
 
         // 新增锁
-        final ReadWriteLockVO lock = this.readWriteLockService.getLock(distTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(),
-                distTask.getId(), 0L, null, null);
+        final ReadWriteLockVO lock = this.readWriteLockService.getLock(distTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(), distTask.getId(), null);
         //更新工作流task sqlText字段
         final String sqlText = this.buildSqlText(flowTask, distTask, lock, coordsExtra);
         flowTask.setSqlText(sqlText);
@@ -884,7 +885,7 @@ public class BatchTaskService {
         batchTaskTaskService.deleteByProjectId(projectId);
         batchTaskVersionDao.deleteByProjectId(projectId);
         batchTaskRecordService.deleteByProjectId(projectId);
-        batchTaskDao.deleteByProjectId(projectId, userId);
+        batchTaskDao.deleteByTenantId(projectId, userId);
     }
 
     /**
@@ -1102,7 +1103,7 @@ public class BatchTaskService {
         if (CollectionUtils.isNotEmpty(vos)) {
             Set<Long> userIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet());
             userIds.addAll(vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
-//            final Map<Long, User> userMap = userService.getUserMap(userIds);
+            final Map<Long, User> userMap = userService.getUserMap(userIds);
             for (final ScheduleTaskVO vo : vos) {
                 final Long taskId = vo.getTaskId();
                 vo.setTaskId(taskId);
@@ -1110,7 +1111,7 @@ public class BatchTaskService {
                 //维持原来逻辑
                 vo.setId(taskId);
                 vo.setName(vo.getName());
-//                buildUserDTOInfo(userMap, vo);
+                buildUserDTOInfo(userMap, vo);
                 if(CollectionUtils.isNotEmpty(vo.getRelatedTasks())){
                     //补充子任务用户信息
                     dealFlowWorkSubTasks(vo.getRelatedTasks());
@@ -1346,8 +1347,7 @@ public class BatchTaskService {
         List<ScheduleTaskShadeDTO> scheduleTasks = subTasks.stream().map(task -> buildScheduleTaskShadeDTO(task, allTaskTaskList)).collect(Collectors.toList());
         logger.info("待发布任务检查完毕，{}个任务准备处于待提交状态，taskId：{}", scheduleTasks.size(), scheduleTasks.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList()));
         // 批量发布任务
-//        String taskCommitId = this.scheduleTaskShadeService.addOrUpdateBatchTask(scheduleTasks, commitId);
-        String taskCommitId = "";
+        String taskCommitId = this.scheduleTaskShadeService.addOrUpdateBatchTask(scheduleTasks, commitId);
         logger.info("待发布任务提交完毕，commitId：{}", taskCommitId);
         if (StringUtils.isBlank(taskCommitId)) {
             throw new RdosDefineException("engine返回commitId为空");
@@ -1376,7 +1376,7 @@ public class BatchTaskService {
         }
         if (StringUtils.isBlank(commitId)) {
             // 无异常表示任务提交全部提交成功，调用engine接口提交
-//            this.scheduleTaskShadeService.taskCommit(taskCommitId);
+            this.scheduleTaskShadeService.taskCommit(taskCommitId);
         }
         logger.info("待发布任务参数提交完毕");
         return checkResultVO;
@@ -1418,7 +1418,6 @@ public class BatchTaskService {
         checkTaskCanSubmit(task);
 
         task.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
-        final Long dtuicTenantId = tenantService.getDtuicTenantId(task.getTenantId());
 
         Integer engineType = null;
         if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())
@@ -1426,10 +1425,9 @@ public class BatchTaskService {
                 && !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
             final MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
             engineType = multiEngineType.getType();
-//            final ITaskService taskService = this.multiEngineServiceFactory.getTaskService(multiEngineType.getType());
-            final ITaskService taskService = null;
+            final ITaskService taskService = this.multiEngineServiceFactory.getTaskService(multiEngineType.getType());
             if (Objects.nonNull(taskService)) {
-                taskService.readyForPublishTaskInfo(task, dtuicTenantId);
+                taskService.readyForPublishTaskInfo(task);
             }
         }
 
@@ -1451,8 +1449,7 @@ public class BatchTaskService {
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
             boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && ignoreCheck;
 
-            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(dtuicTenantId,task.getTaskType(), versionSqlText, userId, task.getTenantId(),
-                    null, checkSyntax, isRoot, engineType, task.getTaskParams());
+            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText, userId, checkSyntax, isRoot, engineType, task.getTaskParams());
             if (!syntaxResult.getCheckResult()){
                 checkVo.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
                 checkVo.setErrorMessage(syntaxResult.getMessage());
@@ -1464,8 +1461,7 @@ public class BatchTaskService {
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, sdf.format(new Date()));
             TenantEngine projectEngine = projectEngineService.getByTenantAndEngineType(projectId, engineType);
-//            ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, projectId);
-            ISqlExeService sqlExeService = null; //todo
+            ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, projectId);
             String sql = sqlExeService.process(versionSqlText, projectEngine.getEngineIdentity());
 
         } else if (EJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
@@ -1565,11 +1561,11 @@ public class BatchTaskService {
         scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         if (StringUtils.isNotEmpty(batchTask.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(batchTask.getScheduleConf());
-    /*        if (scheduleConfig != null) {
+            if (scheduleConfig != null) {
                 scheduleTaskShadeDTO.setIsExpire(scheduleConfig.getBooleanValue("isExpire") ? 1 : 0);
             } else {
                 scheduleTaskShadeDTO.setIsExpire(0);
-            }*/
+            }
         }
         return scheduleTaskShadeDTO;
     }
@@ -1629,8 +1625,7 @@ public class BatchTaskService {
         param.getTargetMap().put("column", Lists.newArrayList());
         param.getTargetMap().put("table", "");
         param.setSettingMap(new HashMap<>());
-//        final String syncSql = this.dataSourceService.getSyncSql(param,true);
-        final String syncSql = "";     //todo
+        final String syncSql = this.dataSourceService.getSyncSql(param,true);
         return DataFilter.passwordFilter(syncSql);
     }
 
@@ -1887,8 +1882,7 @@ public class BatchTaskService {
                 this.batchTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
             } else if ((param.isPreSave() || param.getId() == 0) && param.getCreateModel() == TaskCreateModelType.GUIDE.getType()) {
                 if (param.getId() != 0) {
-//                    String sqlText = this.dataSourceService.getSyncSql(param, false);
-                    String sqlText = ""; //todo
+                    String sqlText = this.dataSourceService.getSyncSql(param, false);
                     sql = JSON.parseObject(sqlText);
                 }
             }
@@ -2295,8 +2289,7 @@ public class BatchTaskService {
                     task.getUserId(),
                     ReadWriteLockType.BATCH_TASK.name(),
                     task.getId(),
-                    0L,
-                    null, null);
+                     null);
             task.setReadWriteLockVO(readWriteLockVO);
             logger.info("success insert batchTask, taskId:{}", task.getId());
         }
@@ -2679,9 +2672,7 @@ public class BatchTaskService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void frozenTask(List<Long> taskIdList, int scheduleStatus,
-                           Long projectId, Long userId, Long tenantId,
-                           Boolean isRoot) {
+    public void frozenTask(List<Long> taskIdList, int scheduleStatus, Long userId, Long tenantId, Boolean isRoot) {
 
         final List<BatchTask> batchTasks = this.batchTaskDao.listByIds(taskIdList);
         if (CollectionUtils.isEmpty(batchTasks)) {
@@ -2911,8 +2902,8 @@ public class BatchTaskService {
         return batchTasks;
     }
 
-    public List<TaskOwnerAndProjectPO>  getTaskOwnerAndProjectId(){
-        List<TaskOwnerAndProjectPO> taskOwnerAndProjectId = batchTaskDao.getTaskOwnerAndProjectId();
+    public List<TaskOwnerAndTenantPO>  getTaskOwnerAndProjectId(){
+        List<TaskOwnerAndTenantPO> taskOwnerAndProjectId = batchTaskDao.getTaskOwnerAndTenantId();
         return taskOwnerAndProjectId;
     }
 

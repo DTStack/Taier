@@ -34,9 +34,6 @@ public class BatchJobListJobIdByNameVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "状态列表", required = true)
     private List<Integer> statusList;
 
-    @ApiModelProperty(hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "任务实例Id列表", required = true)
     private List<String> jobIdList;
 }
