@@ -1,7 +1,5 @@
 package com.dtstack.batch.sql;
 
-import org.apache.hadoop.hive.ql.parse.HiveParser;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,20 +130,4 @@ public enum TableOperateEnum {
         );
     }
 
-    public static TableOperateEnum getOperate(int token) {
-        switch (token) {
-            case HiveParser.TOK_CREATETABLE:
-                return CREATE;
-            case HiveParser.TOK_DROPTABLE:
-                return DROP;
-            case HiveParser.TOK_TRUNCATETABLE:
-                return TRUNCATE;
-            case HiveParser.TOK_LOAD:
-                return LOAD;
-            case HiveParser.TOK_SHOWTABLES:
-                return SHOW;
-            default:
-                return SELECT;
-        }
-    }
 }
