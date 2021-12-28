@@ -47,7 +47,7 @@ public class BatchDataSourceTaskRefService {
     private BatchDataSourceTaskRefDao dataSourceTaskRefDao;
 
     @Forbidden
-    public void addRef(Long dataSourceId, long taskId, Long projectId, Long tenantId) {
+    public void addRef(Long dataSourceId, long taskId, Long tenantId) {
         BatchDataSourceTaskRef ref = dataSourceTaskRefDao.getBySourceIdAndTaskId(dataSourceId, taskId);
         Timestamp current = Timestamp.valueOf(LocalDateTime.now());
 
@@ -98,7 +98,7 @@ public class BatchDataSourceTaskRefService {
         List<Long> sourceIds = dataSourceTaskRefDao.listSourceIdByTaskId(srcTaskId);
         if(CollectionUtils.isNotEmpty(sourceIds)){
             for (Long sourceId : sourceIds) {
-                addRef(sourceId,distTask.getId(),0L,distTask.getTenantId());
+                addRef(sourceId, distTask.getId(), distTask.getTenantId());
             }
         }
     }
