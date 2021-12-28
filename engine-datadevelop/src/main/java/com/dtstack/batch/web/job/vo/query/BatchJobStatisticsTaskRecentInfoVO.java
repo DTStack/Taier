@@ -33,6 +33,4 @@ public class BatchJobStatisticsTaskRecentInfoVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "数量", example = "0", required = true)
     private Integer count;
 
-    @ApiModelProperty(hidden = true)
-    private Long projectId;
 }

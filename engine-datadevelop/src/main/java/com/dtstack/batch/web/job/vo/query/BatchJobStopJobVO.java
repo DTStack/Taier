@@ -33,12 +33,6 @@ public class BatchJobStopJobVO extends DtInsightAuthParam {
     private Long tenantId;
 
     @ApiModelProperty(hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(hidden = true)
     private Boolean isRoot;
 
     @ApiModelProperty(value = "任务实例Id", example = "1", required = true)

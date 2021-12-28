@@ -344,7 +344,7 @@ public class BatchJobService {
      *
      * @return
      */
-    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long dtuicTenantId, String taskParams) {
+    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId, String taskParams) {
         BatchStartSyncResultVO batchStartSyncResultVO = new BatchStartSyncResultVO();
         batchStartSyncResultVO.setMsg(null);
         batchStartSyncResultVO.setJobId(null);
@@ -362,7 +362,7 @@ public class BatchJobService {
         try {
 
             final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(MultiEngineType.HADOOP.getType());
-            final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, dtuicTenantId, isRoot);
+            final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
             String extroInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extroInfo, ScheduleTaskShade.class);
