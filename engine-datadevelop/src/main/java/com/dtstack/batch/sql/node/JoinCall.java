@@ -3,7 +3,7 @@ package com.dtstack.batch.sql.node;
 
 import com.dtstack.batch.sql.Column;
 import com.google.common.collect.Lists;
-import javafx.util.Pair;
+import com.dtstack.batch.sql.Pair;
 import org.apache.calcite.sql.SqlBasicCall;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlJoin;

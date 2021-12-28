@@ -1,14 +1,6 @@
 package com.dtstack.batch.sql.hive;
 
-import com.dtstack.batch.sql.AlterResult;
-import com.dtstack.batch.sql.BaseSqlParser;
-import com.dtstack.batch.sql.Column;
-import com.dtstack.batch.sql.ColumnLineage;
-import com.dtstack.batch.sql.ParseResult;
-import com.dtstack.batch.sql.SqlType;
-import com.dtstack.batch.sql.Table;
-import com.dtstack.batch.sql.TableLineage;
-import com.dtstack.batch.sql.TableOperateEnum;
+import com.dtstack.batch.sql.*;
 import com.dtstack.batch.sql.calcite.LineageParser;
 import com.dtstack.batch.sql.handler.IUglySqlHandler;
 import com.dtstack.batch.sql.hive.node.NodeParser;
@@ -23,7 +15,6 @@ import com.dtstack.batch.sql.utils.SqlFormatUtil;
 import com.dtstack.batch.sql.utils.SqlRegexUtil;
 import com.dtstack.batch.sql.utils.SqlTypeRegexUtil;
 import com.google.common.collect.Lists;
-import javafx.util.Pair;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -236,7 +227,7 @@ public class AstNodeParser extends BaseSqlParser {
                     table.setOperate(TableOperateEnum.ALTER);
                 }
             } else {
-                table.setOperate(TableOperateEnum.getOperate(type));
+                table.setOperate(TableOperateEnum.getOperateBySqlType(type));
             }
 
             Map<String, String> tableDb = ASTNodeUtil.getTableNameAndDbName((ASTNode) root.getParent());
