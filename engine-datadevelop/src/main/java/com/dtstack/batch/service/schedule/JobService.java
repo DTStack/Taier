@@ -192,6 +192,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     public PageResult<List<ReturnFillDataListVO>> fillDataList(QueryFillDataListDTO dto) {
         Page<ScheduleFillDataJob> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
+        // 查询补数据列表
         page = fillDataJobService.lambdaQuery()
                 .like(StringUtils.isNotBlank(dto.getJobName()), ScheduleFillDataJob::getJobName, dto.getJobName())
                 .eq(dto.getUserId() != null, ScheduleFillDataJob::getCreateUserId, dto.getUserId())
@@ -203,6 +204,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<ReturnFillDataListVO> fillDataReturnListVOs = Lists.newArrayList();
 
         if (CollectionUtils.isNotEmpty(records)) {
+            // 封装结果集
             Map<Long, ScheduleFillDataJob> fillDataJobMap = records.stream().collect(Collectors.toMap(ScheduleFillDataJob::getId, g -> (g)));
             
             List<CountFillDataJobStatusPO> statistics = this.baseMapper.countByFillIdGetAllStatus(fillDataJobMap.keySet());
@@ -210,7 +212,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
             for (ScheduleFillDataJob scheduleFillDataJob : records) {
                 ReturnFillDataListVO fillDataReturnListVO = FillDataJobMapstructTransfer.INSTANCE.fillDataListDTOToFillDataReturnListVO(scheduleFillDataJob);
-
+                fillDataReturnListVO.setGmtCreate(DateUtil.getDate(scheduleFillDataJob.getGmtCreate(),DateUtil.STANDARD_DATETIME_FORMAT));
                 // 计算补数据执行进度
                 List<CountFillDataJobStatusPO> countFillDataJobStatusPOS = statisticsGroup.get(fillDataReturnListVO.getId());
                 Map<Integer, IntSummaryStatistics> statusCount = countFillDataJobStatusPOS.stream().collect(Collectors.groupingBy(CountFillDataJobStatusPO::getStatus, Collectors.summarizingInt(CountFillDataJobStatusPO::getCount)));
@@ -232,6 +234,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Integer totalCount = 0;
         ReturnFillDataJobListVO dataJobDetailVO = new ReturnFillDataJobListVO();
 
+        // 查询补数据是否存在，不存在直接返回结果
         ScheduleFillDataJob fillDataJob = fillDataJobService.getById(dto.getFillId());
         if(checkFillDataJobList(fillDataJob,dataJobDetailVO)){
             return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),totalCount,dataJobDetailVO);
@@ -240,11 +243,17 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         dataJobDetailVO.setId(fillDataJob.getId());
         dataJobDetailVO.setFillDataName(fillDataJob.getJobName());
 
-        List<Long> taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(),dto.getUserId());
-        if (CollectionUtils.isEmpty(taskIds)){
-            return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),totalCount,dataJobDetailVO);
+
+        // 关联任务
+        List<Long> taskIds = null;
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getUserId() != null) {
+            taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(), dto.getUserId());
+            if (CollectionUtils.isEmpty(taskIds)) {
+                return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
+            }
         }
 
+        // 查询实例表
         Page<ScheduleJob> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         page = this.lambdaQuery()
                 .ne(ScheduleJob::getFlowJobId,0)
@@ -264,13 +273,21 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 .page(page);
 
         List<ScheduleJob> records = page.getRecords();
-        
+
+        // 封装结果集
         if (CollectionUtils.isNotEmpty(records)) {
             List<FillDataJobVO> fillDataJobVOS = Lists.newArrayList();
 
+            List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
+            List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list();
+            Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+
             records.forEach(record ->{
                 FillDataJobVO vo = FillDataJobMapstructTransfer.INSTANCE.scheduleJobToFillDataJobVO(record);
+                vo.setTaskName(taskShadeMap.get(record.getTaskId()) != null ? taskShadeMap.get(record.getTaskId()).getName() : "");
                 vo.setExeStartTime(DateUtil.getDate(record.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
+                vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
+                vo.setExecTime(getExecTime(record));
                 fillDataJobVOS.add(vo);
             });
 

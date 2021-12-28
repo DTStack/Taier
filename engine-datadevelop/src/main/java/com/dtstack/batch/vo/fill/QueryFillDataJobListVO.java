@@ -3,6 +3,7 @@ package com.dtstack.batch.vo.fill;
 import com.dtstack.batch.vo.base.PageVO;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,72 +27,80 @@ public class QueryFillDataJobListVO extends PageVO {
      * 补数据id
      */
     @NotNull(message = "fillId is not null")
+    @ApiModelProperty(value = "补数据id",required = true)
     private Long fillId;
 
     /**
      * 租户id
      */
     @NotNull(message = "tenantId is not null")
+    @ApiModelProperty(value = "租户id",hidden = true)
     private Long tenantId;
 
     /**
      * 任务名称
      */
+    @ApiModelProperty(value = "任务名称")
     private String taskName;
 
     /**
      * 计算时间
      */
+    @ApiModelProperty(value = "计算执行的开始时间")
     private Long cycStartDay;
 
     /**
      * 计算时间
      */
+    @ApiModelProperty(value = "计算执行的结束时间")
     private Long cycEndDay;
-
-    /**
-     * 工作流任务id
-     */
-    private List<String> flowJobIdList;
 
     /**
      * 用户ID 责任人
      */
+    @ApiModelProperty(value = "用户ID 责任人")
     private Long userId;
 
     /**
      * 任务类型
      */
+    @ApiModelProperty(value = "任务类型,多个用逗号隔开")
     private String taskTypes;
 
     /**
      * 状态
      */
+    @ApiModelProperty(value = "状态类型,多个用逗号隔开")
     private String jobStatuses;
 
     /**
      * 按业务日期排序
      */
+    @ApiModelProperty(value = "按业务日期排序")
     private String businessDateSort;
 
     /**
      * 按计划时间排序
      */
+    @ApiModelProperty(value = "按计划时间排序")
     private String cycSort;
 
     /**
      * 按运行时长排序
      */
+    @ApiModelProperty(value = "按运行时长排序")
     private String execTimeSort;
 
     /**
      * 按开始时间排序
      */
+    @ApiModelProperty(value = "按开始时间排序")
     private String execStartSort;
 
     /**
      * 按重试次数排序
      */
+    @ApiModelProperty(value = "按重试次数排序")
     private String retryNumSort;
 
     public Long getFillId() {
@@ -132,14 +141,6 @@ public class QueryFillDataJobListVO extends PageVO {
 
     public void setCycEndDay(Long cycEndDay) {
         this.cycEndDay = cycEndDay;
-    }
-
-    public List<String> getFlowJobIdList() {
-        return flowJobIdList;
-    }
-
-    public void setFlowJobIdList(List<String> flowJobIdList) {
-        this.flowJobIdList = flowJobIdList;
     }
 
     public Long getUserId() {
@@ -230,38 +231,5 @@ public class QueryFillDataJobListVO extends PageVO {
 
     public void setRetryNumSort(String retryNumSort) {
         this.retryNumSort = retryNumSort;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QueryFillDataJobListVO that = (QueryFillDataJobListVO) o;
-        return Objects.equals(fillId, that.fillId) && Objects.equals(tenantId, that.tenantId) && Objects.equals(taskName, that.taskName) && Objects.equals(cycStartDay, that.cycStartDay) && Objects.equals(cycEndDay, that.cycEndDay) && Objects.equals(flowJobIdList, that.flowJobIdList) && Objects.equals(userId, that.userId) && Objects.equals(taskTypes, that.taskTypes) && Objects.equals(jobStatuses, that.jobStatuses) && Objects.equals(businessDateSort, that.businessDateSort) && Objects.equals(cycSort, that.cycSort) && Objects.equals(execTimeSort, that.execTimeSort) && Objects.equals(execStartSort, that.execStartSort) && Objects.equals(retryNumSort, that.retryNumSort);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fillId, tenantId, taskName, cycStartDay, cycEndDay, flowJobIdList, userId, taskTypes, jobStatuses, businessDateSort, cycSort, execTimeSort, execStartSort, retryNumSort);
-    }
-
-    @Override
-    public String toString() {
-        return "FillDataJobListVO{" +
-                "fillId=" + fillId +
-                ", tenantId=" + tenantId +
-                ", taskName='" + taskName + '\'' +
-                ", bizStartDay=" + cycStartDay +
-                ", bizEndDay=" + cycEndDay +
-                ", flowJobIdList=" + flowJobIdList +
-                ", dutyUserId=" + userId +
-                ", taskType='" + taskTypes + '\'' +
-                ", jobStatuses='" + jobStatuses + '\'' +
-                ", businessDateSort='" + businessDateSort + '\'' +
-                ", cycSort='" + cycSort + '\'' +
-                ", execTimeSort='" + execTimeSort + '\'' +
-                ", execStartSort='" + execStartSort + '\'' +
-                ", retryNumSort='" + retryNumSort + '\'' +
-                '}';
     }
 }
