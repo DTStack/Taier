@@ -169,7 +169,7 @@ public class BatchJobController {
         return new APITemplate<BatchScheduleJobExeStaticsResultVO>() {
             @Override
             protected BatchScheduleJobExeStaticsResultVO process() throws BizException {
-                ScheduleJobExeStaticsVO scheduleJobExeStaticsVO = batchJobService.statisticsTaskRecentInfo(vo.getTaskId(), vo.getCount(), vo.getProjectId());
+                ScheduleJobExeStaticsVO scheduleJobExeStaticsVO = batchJobService.statisticsTaskRecentInfo(vo.getTaskId(), vo.getCount(), vo.getTenantId());
                 return BatchJobMapstructTransfer.INSTANCE.scheduleJobExeStaticsVOToBatchScheduleJobExeStaticsResultVO(scheduleJobExeStaticsVO);
             }
         }.execute();
@@ -183,7 +183,7 @@ public class BatchJobController {
         return new APITemplate<List<String>>() {
             @Override
             protected List<String> process() throws BizException {
-                return batchJobService.listJobIdByTaskNameAndStatusList(vo.getTaskName(), vo.getStatusList(), vo.getProjectId());
+                return batchJobService.listJobIdByTaskNameAndStatusList(vo.getTaskName(), vo.getStatusList(), vo.getTenantId());
             }
         }.execute();
     }
@@ -194,7 +194,7 @@ public class BatchJobController {
         return new APITemplate<Map<String, BatchGetLabTaskRelationMapResultVO>>() {
             @Override
             protected Map<String, BatchGetLabTaskRelationMapResultVO> process() throws BizException {
-                Map<String, ScheduleJob> labTaskRelationMap = batchJobService.getLabTaskRelationMap(vo.getJobIdList(), vo.getProjectId());
+                Map<String, ScheduleJob> labTaskRelationMap = batchJobService.getLabTaskRelationMap(vo.getJobIdList(), vo.getTenantId());
                 return BatchJobMapstructTransfer.INSTANCE.scheduleJobMapToBatchGetLabTaskRelationMapResultVOMap(labTaskRelationMap);
             }
         }.execute();

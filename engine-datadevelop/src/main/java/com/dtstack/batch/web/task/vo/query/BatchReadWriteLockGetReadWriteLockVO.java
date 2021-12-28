@@ -27,9 +27,6 @@ import lombok.Data;
 @ApiModel("读写锁信息")
 public class BatchReadWriteLockGetReadWriteLockVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "关联 ID", example = "3", required = true)
     private Long relationId;
 
