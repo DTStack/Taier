@@ -73,11 +73,11 @@ public class ScheduleJobController {
     }
 
 
-    @RequestMapping(value = "/getRelatedJobs", method = {RequestMethod.POST})
-    @ApiOperation(value = "获取工作流节点的父节点和子节点关联信息")
-    public ScheduleJobVO getRelatedJobs(@RequestParam("jobId") String jobId, @RequestParam("vo") String query) throws Exception {
-        return scheduleJobService.getRelatedJobs(jobId, query);
-    }
+//    @RequestMapping(value = "/getRelatedJobs", method = {RequestMethod.POST})
+//    @ApiOperation(value = "获取工作流节点的父节点和子节点关联信息")
+//    public ScheduleJobVO getRelatedJobs(@RequestParam("jobId") String jobId, @RequestParam("vo") String query) throws Exception {
+//        return scheduleJobService.getRelatedJobs(jobId, query);
+//    }
 
     @RequestMapping(value = "/jobDetail", method = {RequestMethod.POST})
     public List<ScheduleRunDetailVO> jobDetail(@RequestParam("taskId") Long taskId, @RequestParam("appType") Integer appType) {

@@ -461,8 +461,8 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if ((TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.FAILED.getStatus().equals(status))
                 && EJobType.HIVE_SQL.getVal().equals(taskType)) {
             ScheduleJob batchEngineJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-            buildLog(engineEntity.getLogInfo(), batchEngineJob != null && StringUtils.isNotBlank(batchEngineJob.getEngineLog()) ?
-                    batchEngineJob.getEngineLog() : null, tenantId, jobId, false, result);
+//            buildLog(engineEntity.getLogInfo(), batchEngineJob != null && StringUtils.isNotBlank(batchEngineJob.getEngineLog()) ?
+//                    batchEngineJob.getEngineLog() : null, tenantId, jobId, false, result);
             result.setDownload(null);
         }
     }
