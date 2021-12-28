@@ -76,8 +76,8 @@ public class BatchTaskResourceService {
         return batchResourceService.getResourceList(taskResourceIds);
     }
 
-    public void deleteByProjectId(Long projectId) {
-        batchTaskResourceDao.deleteByProjectId(projectId);
+    public void deleteByTenantId(Long tenantId) {
+        batchTaskResourceDao.deleteByTenantId(tenantId);
     }
 
     public List<Long> getResourceIdList(long taskId, Integer type, long projectId) {

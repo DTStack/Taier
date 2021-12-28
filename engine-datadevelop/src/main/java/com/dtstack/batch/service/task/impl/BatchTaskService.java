@@ -879,13 +879,13 @@ public class BatchTaskService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void deleteByProjectId(Long projectId, Long userId) {
-        batchTaskResourceService.deleteByProjectId(projectId);
-        batchTaskResourceShadeService.deleteByProjectId(projectId);
-        batchTaskTaskService.deleteByProjectId(projectId);
-        batchTaskVersionDao.deleteByProjectId(projectId);
-        batchTaskRecordService.deleteByProjectId(projectId);
-        batchTaskDao.deleteByTenantId(projectId, userId);
+    public void deleteByTenantId(Long tenantId, Long userId) {
+        batchTaskResourceService.deleteByTenantId(tenantId);
+        batchTaskResourceShadeService.deleteByTenantId(tenantId);
+        batchTaskTaskService.deleteByTenantId(tenantId);
+        batchTaskVersionDao.deleteByTenantId(tenantId);
+        batchTaskRecordService.deleteByTenantId(tenantId);
+        batchTaskDao.deleteByTenantId(tenantId, userId);
     }
 
     /**
@@ -2326,6 +2326,10 @@ public class BatchTaskService {
             task.setTaskParams("");
         }
 
+        if (StringUtils.isBlank(task.getMainClass())) {
+            task.setMainClass("");
+        }
+
         if (StringUtils.isBlank(task.getScheduleConf())) {
             task.setScheduleConf(DEFAULT_SCHEDULE_CONF);
         } else {
@@ -2353,7 +2357,7 @@ public class BatchTaskService {
         task.setGmtCreate(task.getGmtModified());
         // 增加注释
         task.setSqlText(this.createAnnotationText(task));
-
+        task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
 
         if (EJobType.CARBON_SQL.getVal().equals(task.getTaskType())) {
             task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
