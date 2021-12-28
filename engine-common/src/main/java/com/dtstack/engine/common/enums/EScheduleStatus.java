@@ -26,8 +26,8 @@ package com.dtstack.engine.common.enums;
  */
 public enum EScheduleStatus {
 
-    //1正常调度,2暂停
-    NORMAL(1), PAUSE(2), UNSTARTED(0);
+    // 调度状态：0 正常 1冻结 2停止
+    NORMAL(0),FREEZE(1), PAUSE(2);
 
     private Integer val;
 

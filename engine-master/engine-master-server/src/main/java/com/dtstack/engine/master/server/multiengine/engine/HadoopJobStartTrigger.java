@@ -242,8 +242,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),true,null);
-                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    JSONObject pluginInfo = clusterService.getConfigByKey(dtuicTenantId, EComponentType.IMPALA_SQL.getConfName(),null);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
                     workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
                     location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
@@ -251,8 +250,7 @@ public class HadoopJobStartTrigger extends JobStartTriggerBase {
                     Cluster cluster = clusterService.getCluster(dtuicTenantId);
                     Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
                     EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
-                    String jdbcInfo = clusterService.getConfigByKey(dtuicTenantId, metadataComponentType.getConfName(), true, null);
-                    JSONObject pluginInfo = JSONObject.parseObject(jdbcInfo);
+                    JSONObject pluginInfo = clusterService.getConfigByKey(dtuicTenantId, metadataComponentType.getConfName(), null);
                     String engineType = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
                     pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {

@@ -40,22 +40,22 @@ public class ScheduleJobJobController {
     @Autowired
     private EnvironmentContext context;
 
-    @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
-    public ScheduleJobVO displayOffSpring(@RequestParam("jobId") Long jobId,
-                                          @RequestParam("level") Integer level) throws Exception {
+//    @RequestMapping(value="/displayOffSpring", method = {RequestMethod.POST})
+//    public ScheduleJobVO displayOffSpring(@RequestParam("jobId") Long jobId,
+//                                          @RequestParam("level") Integer level) throws Exception {
+//
+//        if(context.getUseOptimize()) {
+//            return scheduleJobJobService.displayOffSpringNew(jobId, level);
+//        }else{
+//            return scheduleJobJobService.displayOffSpring(jobId, level);
+//        }
+//    }
 
-        if(context.getUseOptimize()) {
-            return scheduleJobJobService.displayOffSpringNew(jobId, level);
-        }else{
-            return scheduleJobJobService.displayOffSpring(jobId, level);
-        }
-    }
-
-    @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
-    @ApiOperation(value = "为工作流节点展开子节点")
-    public ScheduleJobVO displayOffSpringWorkFlow(@RequestParam("jobId") Long jobId, @RequestParam("appType")Integer appType) throws Exception {
-        return scheduleJobJobService.displayOffSpringWorkFlow(jobId, appType);
-    }
+//    @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
+//    @ApiOperation(value = "为工作流节点展开子节点")
+//    public ScheduleJobVO displayOffSpringWorkFlow(@RequestParam("jobId") Long jobId, @RequestParam("appType")Integer appType) throws Exception {
+//        return scheduleJobJobService.displayOffSpringWorkFlow(jobId, appType);
+//    }
 
     /**
      * @author newman

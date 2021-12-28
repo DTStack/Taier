@@ -977,14 +977,13 @@ public class DateUtil {
     }
 
 
-
     /**
      * 根据日期与格式类型，获取时间戳
      *
      * @return milliseconds
      * @author toutian
      */
-    public static long getTimestamp(String formattedDate, String format) {
+    public static Long getTimestamp(String formattedDate, String format) {
         SimpleDateFormat simpleDateFormat = getDateFormat(format);
         try {
             Date date = simpleDateFormat.parse(formattedDate);
@@ -992,7 +991,7 @@ public class DateUtil {
         } catch (ParseException e) {
             LOGGER.error("DateUtil.getTimestamp error:", e);
         }
-        return 0L;
+        return null;
     }
 
     private static SimpleDateFormat getDateFormat(String pattern) {

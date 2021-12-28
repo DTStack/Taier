@@ -19,7 +19,12 @@
 package com.dtstack.engine.domain;
 
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.sql.Timestamp;
+import java.util.Objects;
 
 /**
  * company: www.dtstack.com
@@ -29,12 +34,38 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @TableName("schedule_job_job")
 public class ScheduleJobJob extends BaseEntity {
 
+    @TableId(value="id", type= IdType.AUTO)
+    private Long id;
+
+    private Long tenantId;
+
     private String jobKey;
 
     private String parentJobKey;
 
-    private Integer parentAppType;
+    private Timestamp gmtCreate;
 
+    private Timestamp gmtModified;
+
+    private Integer isDeleted;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 
     public String getJobKey() {
         return jobKey;
@@ -52,11 +83,59 @@ public class ScheduleJobJob extends BaseEntity {
         this.parentJobKey = parentJobKey;
     }
 
-    public Integer getParentAppType() {
-        return parentAppType;
+    @Override
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setParentAppType(Integer parentAppType) {
-        this.parentAppType = parentAppType;
+    @Override
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    @Override
+    public Timestamp getGmtModified() {
+        return gmtModified;
+    }
+
+    @Override
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    @Override
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    @Override
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleJobJob that = (ScheduleJobJob) o;
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(parentJobKey, that.parentJobKey) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tenantId, jobKey, parentJobKey, gmtCreate, gmtModified, isDeleted);
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleJobJob{" +
+                "id=" + id +
+                ", tenantId=" + tenantId +
+                ", jobKey='" + jobKey + '\'' +
+                ", parentJobKey='" + parentJobKey + '\'' +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtModified=" + gmtModified +
+                ", isDeleted=" + isDeleted +
+                '}';
     }
 }
