@@ -308,8 +308,8 @@ public class EnvironmentContext implements InitializingBean {
     }
 
     /**控制任务展开层数**/
-    public Integer getJobJobLevel(){
-        return Integer.valueOf(environment.getProperty("max.jobJob.level","20"));
+    public Integer getMaxLevel(){
+        return Integer.valueOf(environment.getProperty("max.level","20"));
     }
 
     /**控制工作流节点展开层数**/

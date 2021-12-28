@@ -2027,7 +2027,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
         if (null == job) {
             return new ArrayList<>();
         }
-        Integer jobLevel = environmentContext.getJobJobLevel();
+        Integer jobLevel = environmentContext.getMaxLevel();
         return this.getAllChildJobWithSameDay(job, isOnlyNextChild, appType,jobLevel);
     }
 
