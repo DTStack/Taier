@@ -84,46 +84,24 @@
             </exclusions>
         </dependency>
 
+
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <version>${hive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-1.2-api</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-api</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j-core</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-api</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>calcite-core</artifactId>
-                    <groupId>org.apache.calcite</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <groupId>org.slf4j</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.0.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>dt.insight.plat</groupId>
+            <artifactId>dt-insight-hive-shade</artifactId>
+            <version>4.1.2-RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>

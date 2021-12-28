@@ -132,11 +132,11 @@ public class BatchDownloadService {
         Integer otherTypes = null;
         // 特殊处理Hadoop引擎
         if(MultiEngineType.HADOOP.getType() == engineType){
-//            DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
-//            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
-//                // 1 代表Impala
-//                otherTypes = 1;
-//            }
+           /* DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
+                // 1 代表Impala
+                otherTypes = 1;
+            }*/
         }
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType, otherTypes);
         Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
