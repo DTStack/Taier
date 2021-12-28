@@ -73,6 +73,7 @@ import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.datasource.DsFormField;
 import com.dtstack.engine.domain.datasource.DsInfo;
+import com.dtstack.engine.master.impl.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -143,6 +144,9 @@ public class DatasourceService {
 
     @Autowired
     private BatchTaskParamService batchTaskParamService;
+
+    @Autowired
+    private ClusterService clusterService;
 
     /**
      * FIMXE 暂时将数据源读写权限设置在程序    里面
@@ -960,19 +964,9 @@ public class DatasourceService {
         }
     }
 
-    public Map<String, String> getSftpMap(Long dtuicTenantId) {
-        Map<String, String> map = new HashMap<>();
-        String cluster = clusterServic.clusterInfo(dtuicTenantId);
-        JSONObject clusterObj = JSON.parseObject(cluster);
-        JSONObject sftpConfig = clusterObj.getJSONObject(EComponentType.SFTP.getConfName());
-        if (Objects.isNull(sftpConfig)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
-        } else {
-            for (String key : sftpConfig.keySet()) {
-                map.put(key, sftpConfig.getString(key));
-            }
-        }
-        return map;
+    public Map<String, String> getSftpMap(Long tenantId) {
+        JSONObject configByKey = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
+        return PublicUtil.objectToObject(configByKey,Map.class);
     }
 
 
