@@ -1,7 +1,7 @@
 package com.dtstack.batch.sql.utils;
 
 import com.dtstack.batch.sql.hive.ASTNodeUtil;
-import com.dtstack.dtcenter.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.DtStringUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;

@@ -7,6 +7,7 @@ import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.engine.common.constrant.FormNames;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -145,7 +146,7 @@ public class KerberosService {
     public Map<String, String> getSftpMap(Long tenantId) {
         Map<String,String> map = new HashMap<>();
         // 解析SFTP配置信息
-        JSONObject sftpConfig = clusterService.getSftpByTenantId(tenantId);
+        JSONObject sftpConfig = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(),null);
         if (Objects.isNull(sftpConfig)) {
             throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
         } else {

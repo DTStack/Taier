@@ -326,7 +326,7 @@ public class BatchTaskController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                 taskService.frozenTask(detailVO.getTaskIdList(), detailVO.getScheduleStatus(), detailVO.getProjectId(), detailVO.getUserId(), detailVO.getTenantId(), detailVO.getIsRoot());
+                 taskService.frozenTask(detailVO.getTaskIdList(), detailVO.getScheduleStatus(), detailVO.getUserId(), detailVO.getTenantId(), detailVO.getIsRoot());
                  return null;
             }
         }.execute();
