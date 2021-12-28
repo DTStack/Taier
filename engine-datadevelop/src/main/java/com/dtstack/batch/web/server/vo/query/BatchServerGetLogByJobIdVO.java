@@ -23,13 +23,23 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
+
 @Data
 @ApiModel("根据jobId获取日志信息")
 public class BatchServerGetLogByJobIdVO extends DtInsightAuthParam {
 
+    /**
+     * 任务实例ID
+     */
     @ApiModelProperty(value = "任务实例ID",example = "1", required = true)
+    @NotNull
     private String jobId;
 
+    /**
+     * 页数
+     */
     @ApiModelProperty(value = "页数",example = "1", required = true)
+    @NotNull
     private Integer pageInfo;
 }

@@ -23,7 +23,7 @@ import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
 import com.dtstack.engine.domain.BatchTask;
-//import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
+import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSelectSqlData;

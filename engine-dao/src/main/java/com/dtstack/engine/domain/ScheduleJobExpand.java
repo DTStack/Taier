@@ -51,6 +51,11 @@ public class ScheduleJobExpand implements Serializable {
      */
     private Timestamp gmtModified;
 
+    /**
+     * 是否逻辑删除
+     */
+    private Integer isDeleted;
+
 
     public Long getId() {
         return id;
@@ -106,5 +111,13 @@ public class ScheduleJobExpand implements Serializable {
 
     public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
