@@ -97,7 +97,7 @@ public class BatchTaskRecordService {
         return resultVO;
     }
 
-    public void deleteByProjectId(Long projectId) {
-        batchTaskRecordDao.deleteByProjectId(projectId);
+    public void deleteByTenantId(Long tenantId) {
+        batchTaskRecordDao.deleteByTenantId(tenantId);
     }
 }

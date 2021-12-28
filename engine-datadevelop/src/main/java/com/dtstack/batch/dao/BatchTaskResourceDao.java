@@ -46,5 +46,5 @@ public interface BatchTaskResourceDao {
 
     Integer update(BatchTaskResource batchTaskResource);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }
