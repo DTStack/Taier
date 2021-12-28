@@ -1,5 +1,7 @@
 package com.dtstack.batch.vo.schedule;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/12/26 11:27 AM
@@ -11,6 +13,9 @@ public class ReturnJobDisplayVO {
     /**
      * 方向 0 向上 1 向下
      */
+    @ApiModelProperty(value = "查询方向:\n" +
+            "FATHER(1):向上查询 \n" +
+            "CHILD(2):向下查询",example = "1")
     private Integer directType;
 
     /**

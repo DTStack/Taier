@@ -6,6 +6,7 @@ import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.domain.po.CountFillDataJobStatusPO;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -18,15 +19,16 @@ import java.util.Set;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
+@Mapper
 public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
     /**
      * 获得补数据实例运行的全部状态
      *
-     * @param fillId   补数据id
+     * @param fillIdList   补数据id
      * @return
      */
-    List<CountFillDataJobStatusPO> countByFillIdGetAllStatus(@Param("fillId") Set<Long> fillId);
+    List<CountFillDataJobStatusPO> countByFillIdGetAllStatus(@Param("fillIdList") Set<Long> fillIdList);
 
     ScheduleJob getByTaskIdAndStatusOrderByIdLimit(@Param("taskId") Long taskId, @Param("status") Integer status, @Param("time") Timestamp time, @Param("type") Integer type);
 
