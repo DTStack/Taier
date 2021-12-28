@@ -36,12 +36,6 @@ public class BatchJobStartSqlVO extends DtInsightAuthParam {
     private Long tenantId;
 
     @ApiModelProperty(hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
-    @ApiModelProperty(hidden = true)
     private String dtToken;
 
     @ApiModelProperty(hidden = true)

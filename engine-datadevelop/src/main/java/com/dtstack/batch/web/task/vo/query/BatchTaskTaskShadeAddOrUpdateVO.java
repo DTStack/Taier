@@ -30,7 +30,7 @@ public class BatchTaskTaskShadeAddOrUpdateVO {
     private Long taskId;
 
     @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
+    private Long tenantId;
 
     @ApiModelProperty(value = "用户 ID", hidden = true)
     private Long userId;

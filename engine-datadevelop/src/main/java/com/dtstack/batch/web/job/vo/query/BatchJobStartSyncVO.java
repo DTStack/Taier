@@ -37,7 +37,7 @@ public class BatchJobStartSyncVO extends DtInsightAuthParam {
     private Boolean isRoot;
 
     @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
+    private Long tenantId;
 
     @ApiModelProperty(value = "任务参数", example = "我是参数", required = true)
     private String taskParams;

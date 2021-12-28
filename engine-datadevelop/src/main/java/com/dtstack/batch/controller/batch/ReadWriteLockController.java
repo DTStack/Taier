@@ -50,7 +50,7 @@ public class ReadWriteLockController {
             @Override
             protected ReadWriteLockGetLockResultVO process() {
                 return BatchReadWriteLockMapstructTransfer.INSTANCE.ReadWriteLockVOToReadWriteLockGetLockResultVO(lockService.getLock(lockVO.getTenantId(), lockVO.getUserId(),
-                        lockVO.getType(), lockVO.getFileId(), lockVO.getProjectId(), lockVO.getLockVersion(), lockVO.getSubFileIds()));
+                        lockVO.getType(), lockVO.getFileId(), lockVO.getSubFileIds()));
             }
         }.execute();
     }

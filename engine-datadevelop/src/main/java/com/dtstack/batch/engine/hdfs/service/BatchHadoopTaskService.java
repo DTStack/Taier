@@ -88,12 +88,12 @@ public class BatchHadoopTaskService implements ITaskService {
     }
 
     @Override
-    public void readyForPublishTaskInfo(final BatchTask task, final Long tenantId) {
+    public void readyForPublishTaskInfo(final BatchTask task) {
 
         if (task.getTaskType().equals(EJobType.SPARK_PYTHON.getVal()) && StringUtils.isNotBlank(task.getExeArgs())) {
             final JSONObject args = JSON.parseObject(task.getExeArgs());
             if (args.getInteger("operateModel").equals(TaskOperateType.EDIT.getType())) {
-                final String fileDir = this.uploadSqlText(tenantId, task.getSqlText(), task.getTaskType(), task.getName());
+                final String fileDir = this.uploadSqlText(task.getTenantId(), task.getSqlText(), task.getTaskType(), task.getName());
                 args.put("hdfsPath", fileDir);
                 task.setExeArgs(args.toJSONString());
             }

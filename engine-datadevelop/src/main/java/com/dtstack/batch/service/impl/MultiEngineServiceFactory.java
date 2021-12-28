@@ -19,6 +19,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.engine.rdbms.service.ISqlBuildService;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.job.IBatchJobExeService;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.service.job.ITaskService;
@@ -77,7 +78,7 @@ public class MultiEngineServiceFactory {
     private IFunctionService batchHiveFunctionService;
 
     @Autowired
-    private BatchDataSourceService batchDataSourceService;
+    private DatasourceService datasourceService;
 
     public ISqlBuildService getSqlBuildService(int multiEngineType) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
@@ -98,15 +99,15 @@ public class MultiEngineServiceFactory {
      * tips：用于非任务相关获取DataSourceType，例如：数据地图、数据源
      *
      * @param multiEngineType
-     * @param projectId
+     * @param tenantId
      * @return
      */
-    public DataSourceType getDataSourceTypeByEngineTypeAndProjectId(Integer multiEngineType, Long projectId){
+    public DataSourceType getDataSourceTypeByEngineTypeAndProjectId(Integer multiEngineType, Long tenantId){
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            if (Objects.isNull(projectId)) {
-                throw new RdosDefineException("projectId is not allowed null");
+            if (Objects.isNull(tenantId)) {
+                throw new RdosDefineException("tenantId is not allowed null");
             }
-            return batchDataSourceService.getHadoopDefaultDataSourceByProjectId(projectId);
+            return datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         }
         return getDatasourceTypeNotIncludeHadoop(multiEngineType);
     }
@@ -119,7 +120,7 @@ public class MultiEngineServiceFactory {
      * @param taskType
      * @return
      */
-    public DataSourceType getDataSourceTypeByEngineTypeAndTaskType(Integer multiEngineType, Integer taskType, Long projectId) {
+    public DataSourceType getDataSourceTypeByEngineTypeAndTaskType(Integer multiEngineType, Integer taskType, Long tenantId) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {
             if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
                 return DataSourceType.HIVE;
@@ -127,8 +128,8 @@ public class MultiEngineServiceFactory {
                 return DataSourceType.SparkThrift2_1;
             } else if (EJobType.IMPALA_SQL.getVal().equals(taskType)) {
                 return DataSourceType.IMPALA;
-            } else if (projectId != null){
-                return batchDataSourceService.getHadoopDefaultDataSourceByProjectId(projectId);
+            } else if (tenantId != null){
+                return datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
             }
         }
         return getDatasourceTypeNotIncludeHadoop(multiEngineType);
@@ -163,7 +164,7 @@ public class MultiEngineServiceFactory {
                 return batchSparkSqlExeService;
             }
             if (tenantId != null) {
-                DataSourceType dataSourceType = batchDataSourceService.getHadoopDefaultDataSourceByProjectId(tenantId);
+                DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
                 if (DataSourceType.SparkThrift2_1.equals(dataSourceType)) {
                     return batchSparkSqlExeService;
                 }
