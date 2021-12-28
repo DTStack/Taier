@@ -2,6 +2,8 @@ package com.dtstack.batch.vo.fill;
 
 import io.swagger.annotations.ApiModelProperty;
 
+import java.sql.Timestamp;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/12/9 1:48 PM
@@ -56,7 +58,7 @@ public class ReturnFillDataListVO {
      * 补数据生成时间
      */
     @ApiModelProperty(value = "补数据生成时间",example = "2021-12-24 16:01:02")
-    private String runDay;
+    private String gmtCreate;
 
     /**
      * 操作人名称
@@ -126,12 +128,12 @@ public class ReturnFillDataListVO {
         this.toDay = toDay;
     }
 
-    public String getRunDay() {
-        return runDay;
+    public String getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setRunDay(String runDay) {
-        this.runDay = runDay;
+    public void setGmtCreate(String gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
     public String getUserName() {
