@@ -33,12 +33,6 @@ public class BatchJobSyncTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(hidden = true)
-    private Long projectId;
-
-    @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "任务实例Id", example = "bd0619ba", required = true)
     private String jobId;
 }
