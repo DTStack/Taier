@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.mapper.ScheduleJobMapper">
 
-    <select id="countByFillIdGetAllStatus" resultType="java.util.Map">
+    <select id="countByFillIdGetAllStatus" resultType="com.dtstack.engine.domain.po.CountFillDataJobStatusPO">
         SELECT
             status*1 AS status,
-            count(bj.status) AS count,
+            count(status) AS count,
             fill_id AS fillId
         FROM
             schedule_job
@@ -18,7 +18,7 @@
             <foreach collection="fillIdList" index="index" item="fillId" open="(" close=")" separator=",">
                 #{fillId}
             </foreach>
-        GROUP BY fill_id,status
+            GROUP BY fill_id,status
     </select>
 
     <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="ScheduleJob">
@@ -64,7 +64,7 @@
             <if test="statistics.userId!=null">
                AND `create_user_id` = #{statistics.userId}
             </if>
-            <if test="statistics.cycStartTime!=null and statistics.cycEndTime!=null">
+            <if test="statistics.cycStartTime!=null and statistics.cycStartTime!='' and statistics.cycEndTime!='' and statistics.cycEndTime!=null">
                 AND `cyc_time` &gt; #{statistics.cycStartTime} AND `cyc_time` &lt;= #{statistics.cycEndTime}
             </if>
             <if test="statistics.taskIdList!=null and statistics.taskIdList.size!=0">
@@ -94,5 +94,6 @@
         GROUP BY status
 
     </select>
+
 
 </mapper>

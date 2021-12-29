@@ -23,7 +23,7 @@ public class QueryJobStatusStatisticsDTO {
     /**
      * 用户ID 责任人
      */
-    private Long userId;
+    private Long ownerId;
 
     /**
      * 计划开始时间
@@ -66,12 +66,12 @@ public class QueryJobStatusStatisticsDTO {
         this.taskName = taskName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public Long getCycStartDay() {

@@ -3,6 +3,7 @@ package com.dtstack.batch.vo.schedule;
 import com.dtstack.batch.vo.base.PageVO;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,66 +26,79 @@ public class QueryJobListVO extends PageVO {
      * 租户id
      */
     @NotNull(message = "tenantId is not null")
+    @ApiModelProperty(value = "租户id",hidden = true)
     private Long tenantId;
 
     /**
      * 任务名称
      */
+    @ApiModelProperty(value = "任务名称")
     private String taskName;
 
     /**
      * 用户ID 责任人
      */
-    private Long userId;
+    @ApiModelProperty(value = "用户ID 责任人")
+    private Long ownerId;
 
     /**
      * 计划开始时间
-     **/
+     */
+    @ApiModelProperty(value = "计划开始时间")
     private Long cycStartDay;
 
     /**
      * 计划结束时间
-     **/
+     */
+    @ApiModelProperty(value = "计划结束时间")
     private Long cycEndDay;
 
     /**
      * 任务类型
      */
+    @ApiModelProperty(value = "任务类型,多个以逗号隔开")
     private String taskTypes;
 
     /**
      * 状态
      */
+    @ApiModelProperty(value = "任务状态,多个以逗号隔开")
     private String jobStatuses;
 
     /**
      * 调度周期类型
      */
+    @ApiModelProperty(value = "调度周期类型,多个以逗号隔开")
     private String taskPeriodTypes;
 
     /**
      * 按计划时间排序
      */
+    @ApiModelProperty(value = "按计划时间排序")
     private String cycSort;
 
     /**
      * 按开始时间排序
      */
+    @ApiModelProperty(value = "按开始时间排序")
     private String execStartSort;
 
     /**
      * 结束时间
      */
+    @ApiModelProperty(value = "结束时间")
     private String execEndSort;
 
     /**
      * 按运行时长排序
      */
+    @ApiModelProperty(value = " 按运行时长排序")
     private String execTimeSort;
 
     /**
      * 按重试次数排序
      */
+    @ApiModelProperty(value = "按重试次数排序")
     private String retryNumSort;
 
     public Long getTenantId() {
@@ -103,12 +117,12 @@ public class QueryJobListVO extends PageVO {
         this.taskName = taskName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public Long getCycStartDay() {

@@ -64,6 +64,26 @@ public class ScheduleJob implements Serializable {
     private Long taskId;
 
     /**
+     * 创建时间
+     */
+    private Timestamp gmtCreate;
+
+    /**
+     * 修改时间
+     */
+    private Timestamp gmtModified;
+
+    /**
+     * 创建人id
+     */
+    private Long createUserId;
+
+    /**
+     * 是否逻辑删除
+     */
+    private Integer isDeleted;
+
+    /**
      * 任务类型： 0 周期实例，1补数据 2 立即运行
      */
     private Integer type;
@@ -185,25 +205,6 @@ public class ScheduleJob implements Serializable {
      */
     private Long jobExecuteOrder;
 
-    /**
-     * 创建人id
-     */
-    private Long createUserId;
-
-    /**
-     * 创建时间
-     */
-    private Timestamp gmtCreate;
-
-    /**
-     * 修改时间
-     */
-    private Timestamp gmtModified;
-
-    /**
-     * 是否逻辑删除
-     */
-    private Integer isDeleted;
 
     /**
      * 补数据实例状态：0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例
@@ -214,8 +215,6 @@ public class ScheduleJob implements Serializable {
      * 任务提交的用户名称
      */
     private String submitUserName;
-
-    private String engineLog;
 
     public Long getId() {
         return id;
@@ -481,32 +480,11 @@ public class ScheduleJob implements Serializable {
         this.fillType = fillType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ScheduleJob that = (ScheduleJob) o;
-        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobId, that.jobId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(jobName, that.jobName) && Objects.equals(taskId, that.taskId) && Objects.equals(type, that.type) && Objects.equals(isRestart, that.isRestart) && Objects.equals(cycTime, that.cycTime) && Objects.equals(dependencyType, that.dependencyType) && Objects.equals(flowJobId, that.flowJobId) && Objects.equals(periodType, that.periodType) && Objects.equals(status, that.status) && Objects.equals(taskType, that.taskType) && Objects.equals(fillId, that.fillId) && Objects.equals(execStartTime, that.execStartTime) && Objects.equals(execEndTime, that.execEndTime) && Objects.equals(execTime, that.execTime) && Objects.equals(maxRetryNum, that.maxRetryNum) && Objects.equals(retryNum, that.retryNum) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(versionId, that.versionId) && Objects.equals(nextCycTime, that.nextCycTime) && Objects.equals(engineJobId, that.engineJobId) && Objects.equals(applicationId, that.applicationId) && Objects.equals(computeType, that.computeType) && Objects.equals(phaseStatus, that.phaseStatus) && Objects.equals(jobExecuteOrder, that.jobExecuteOrder) && Objects.equals(createUserId, that.createUserId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(fillType, that.fillType);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, tenantId, jobId, jobKey, jobName, taskId, type, isRestart, cycTime, dependencyType, flowJobId, periodType, status, taskType, fillId, execStartTime, execEndTime, execTime, maxRetryNum, retryNum, nodeAddress, versionId, nextCycTime, engineJobId, applicationId, computeType, phaseStatus, jobExecuteOrder, createUserId, gmtCreate, gmtModified, isDeleted, fillType);
-    }
-
     public String getSubmitUserName() {
         return submitUserName;
     }
 
     public void setSubmitUserName(String submitUserName) {
         this.submitUserName = submitUserName;
-    }
-
-    public String getEngineLog() {
-        return engineLog;
-    }
-
-    public void setEngineLog(String engineLog) {
-        this.engineLog = engineLog;
     }
 }

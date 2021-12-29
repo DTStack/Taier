@@ -10,10 +10,15 @@ import com.dtstack.engine.master.vo.JobLogVO;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Auther: dazhi
@@ -24,7 +29,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/node/action")
 @Api(value = "/node/action", tags = {"任务动作接口"})
-public class ActionController {
+public class OperationActionController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperationActionController.class);
 
     @Autowired
     private ActionService actionService;
@@ -33,8 +40,12 @@ public class ActionController {
     private JobService jobService;
 
     @PostMapping(value = "/log/unite")
-    public JobLogVO logUnite(@RequestBody BatchServerGetLogByJobIdVO vo) {
-        return actionService.logUnite(vo.getJobId(),vo.getPageInfo());
+    public JobLogVO logUnite(@RequestBody @Valid BatchServerGetLogByJobIdVO vo, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
+        }
+        return actionService.logUnite(vo.getJobId(), vo.getPageInfo());
     }
 
     @ApiOperation(value = "重跑任务")

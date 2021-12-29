@@ -651,13 +651,16 @@ public class DateUtil {
         SimpleDateFormat sf = new SimpleDateFormat(format);
         return sf.format(cal.getTime());
     }
-    
+
     /**
      * 获得指定格式的日期字符串
-     * 
+     *
      * @return 格式化后的日期
      */
     public static String getDate(Date date, String format) {
+        if (date == null) {
+            return "";
+        }
         SimpleDateFormat sf = new SimpleDateFormat(format);
         return sf.format(date);
     }
