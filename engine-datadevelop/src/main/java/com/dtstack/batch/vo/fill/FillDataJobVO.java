@@ -1,6 +1,6 @@
 package com.dtstack.batch.vo.fill;
 
-import java.util.Objects;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @Auther: dazhi
@@ -13,52 +13,62 @@ public class FillDataJobVO {
     /**
      * 实例id
      */
+    @ApiModelProperty(value = "实例id",example = "")
     private String jobId;
 
     /**
      * 实例状态
      */
+    @ApiModelProperty(value = "实例状态",example = "0")
     private Integer status;
 
     /**
      * 任务名称
      */
-    private String jobName;
+    @ApiModelProperty(value = "任务名称",example = "0")
+    private String taskName;
 
     /**
      * 任务类型
      */
+    @ApiModelProperty(value = "任务类型",example = "0")
     private Integer taskType;
 
     /**
      * 计划时间
      */
+    @ApiModelProperty(value = "计划时间",example = "2021-12-24 16:11:53")
     private String cycTime;
 
     /**
      * 开始时间
      */
+    @ApiModelProperty(value = "开始时间",example = "2021-12-24 16:11:53")
     private String exeStartTime;
 
     /**
      * 运行时长
      */
+    @ApiModelProperty(value = "运行时长",example = "0")
     private String execTime;
 
     /**
      * 重试次数
      */
+    @ApiModelProperty(value = "重试次数",example = "0")
     private Integer retryNum;
 
     /**
      * 责任人
      */
-    private String userName;
+    @ApiModelProperty(value = "责任人",example = "\tadmin@dtstack.com")
+    private String ownerName;
 
     /**
      * 责任人id
      */
-    private Long userId;
+    @ApiModelProperty(value = "责任人id",example = "1")
+    private Long ownerId;
 
     /**
      * 工作流id
@@ -81,12 +91,12 @@ public class FillDataJobVO {
         this.status = status;
     }
 
-    public String getJobName() {
-        return jobName;
+    public String getTaskName() {
+        return taskName;
     }
 
-    public void setJobName(String jobName) {
-        this.jobName = jobName;
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
     public Integer getTaskType() {
@@ -129,20 +139,20 @@ public class FillDataJobVO {
         this.retryNum = retryNum;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getOwnerName() {
+        return ownerName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getFlowJobId() {
@@ -151,35 +161,5 @@ public class FillDataJobVO {
 
     public void setFlowJobId(String flowJobId) {
         this.flowJobId = flowJobId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        FillDataJobVO that = (FillDataJobVO) o;
-        return Objects.equals(jobId, that.jobId) && Objects.equals(status, that.status) && Objects.equals(jobName, that.jobName) && Objects.equals(taskType, that.taskType) && Objects.equals(cycTime, that.cycTime) && Objects.equals(exeStartTime, that.exeStartTime) && Objects.equals(execTime, that.execTime) && Objects.equals(retryNum, that.retryNum) && Objects.equals(userName, that.userName) && Objects.equals(userId, that.userId) && Objects.equals(flowJobId, that.flowJobId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(jobId, status, jobName, taskType, cycTime, exeStartTime, execTime, retryNum, userName, userId, flowJobId);
-    }
-
-    @Override
-    public String toString() {
-        return "FillDataJobVO{" +
-                "jobId='" + jobId + '\'' +
-                ", status=" + status +
-                ", jobName='" + jobName + '\'' +
-                ", taskType=" + taskType +
-                ", cycTime='" + cycTime + '\'' +
-                ", exeStartTime='" + exeStartTime + '\'' +
-                ", exeTime='" + execTime + '\'' +
-                ", retryNum=" + retryNum +
-                ", userName='" + userName + '\'' +
-                ", userId=" + userId +
-                ", flowJobId='" + flowJobId + '\'' +
-                '}';
     }
 }

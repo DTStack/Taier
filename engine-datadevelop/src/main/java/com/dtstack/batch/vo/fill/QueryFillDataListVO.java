@@ -1,6 +1,7 @@
 package com.dtstack.batch.vo.fill;
 
 import com.dtstack.batch.vo.base.PageVO;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * @Auther: dazhi
@@ -13,26 +14,25 @@ public class QueryFillDataListVO extends PageVO {
     /**
      * 补数据名称
      */
+    @ApiModelProperty(value = "补数据名称")
     private String jobName;
 
     /**
      * 操作人用户id
      */
+    @ApiModelProperty(value = "操作人用户id")
     private Long userId;
-
-    /**
-     * 业务日期
-     */
-    private String bizDay;
 
     /**
      * 补数据运行 格式yyyy-MM-dd
      */
+    @ApiModelProperty(value = "补数据运行 格式yyyy-MM-dd")
     private String runDay;
 
     /**
      * 租户id
      */
+    @ApiModelProperty(value = "租户id",hidden = true)
     private Long tenantId;
 
     public String getJobName() {
@@ -49,14 +49,6 @@ public class QueryFillDataListVO extends PageVO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getBizDay() {
-        return bizDay;
-    }
-
-    public void setBizDay(String bizDay) {
-        this.bizDay = bizDay;
     }
 
     public String getRunDay() {
