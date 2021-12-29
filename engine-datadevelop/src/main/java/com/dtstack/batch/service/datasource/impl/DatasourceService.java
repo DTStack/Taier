@@ -1987,11 +1987,7 @@ public class DatasourceService {
         dataSourceVO.setActive(1);
         dataSourceVO.setDataName(dataSourceName);
         dataSourceVO.setTenantId(tenantId);
-        if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(version)){
-            dataSourceVO.setType(DataSourceType.HIVE1X.getVal());
-        }else {
-            dataSourceVO.setType(DataSourceType.HIVE.getVal());
-        }
+        dataSourceVO.setDataType(DataSourceTypeEnum.SparkThrift2_1.getDataType());
         dataSourceVO.setIsMeta(1);
 
         addOrUpdate(dataSourceVO, userId);
