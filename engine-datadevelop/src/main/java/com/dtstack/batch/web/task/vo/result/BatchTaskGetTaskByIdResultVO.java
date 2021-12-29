@@ -19,9 +19,6 @@
 package com.dtstack.batch.web.task.vo.result;
 
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
-import com.dtstack.batch.web.task.vo.result.BatchResourceResultVO;
-import com.dtstack.batch.web.task.vo.result.BatchTaskVersionDetailResultVO;
-import com.dtstack.batch.web.task.vo.result.ReadWriteLockResultVO;
 import com.dtstack.batch.web.user.vo.result.BatchUserGetTaskByIdResultVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -181,9 +178,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     @ApiModelProperty(value = "所属工作流id", example = "32")
     private Long flowId;
-
-    @ApiModelProperty(value = "是否过期", example = "1")
-    private Integer isExpire;
 
     @ApiModelProperty(value = "uic 租户 ID", example = "11")
     private Long dtuicTenantId = 0L;
