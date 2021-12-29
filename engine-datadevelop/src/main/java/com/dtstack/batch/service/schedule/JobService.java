@@ -313,10 +313,11 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 .in(CollectionUtils.isNotEmpty(dto.getTaskTypeList()), ScheduleJob::getTaskType, dto.getTaskTypeList())
                 .in(CollectionUtils.isNotEmpty(dto.getJobStatusList()), ScheduleJob::getStatus, transform(dto.getJobStatusList()))
                 .between((dto.getCycStartDay() != null && dto.getCycEndDay() != null), ScheduleJob::getCycTime, getCycTime(dto.getCycStartDay()), getCycTime(dto.getCycEndDay()))
-                .orderBy(StringUtils.isNotBlank(dto.getExecTimeSort()),Boolean.FALSE,ScheduleJob::getExecTime)
-                .orderBy(StringUtils.isNotBlank(dto.getExecStartSort()),Boolean.FALSE,ScheduleJob::getExecStartTime)
-                .orderBy(StringUtils.isNotBlank(dto.getCycSort()),Boolean.FALSE,ScheduleJob::getCycTime)
-                .orderBy(StringUtils.isNotBlank(dto.getRetryNumSort()),Boolean.FALSE,ScheduleJob::getRetryNum)
+                .orderBy(StringUtils.isNotBlank(dto.getExecTimeSort()),isAsc(dto.getExecTimeSort()),ScheduleJob::getExecTime)
+                .orderBy(StringUtils.isNotBlank(dto.getExecStartSort()),isAsc(dto.getExecStartSort()),ScheduleJob::getExecStartTime)
+                .orderBy(StringUtils.isNotBlank(dto.getExecEndSort()),isAsc(dto.getExecEndSort()),ScheduleJob::getExecEndTime)
+                .orderBy(StringUtils.isNotBlank(dto.getCycSort()),isAsc(dto.getCycSort()),ScheduleJob::getCycTime)
+                .orderBy(StringUtils.isNotBlank(dto.getRetryNumSort()),isAsc(dto.getRetryNumSort()),ScheduleJob::getRetryNum)
                 .orderBy(Boolean.TRUE,Boolean.FALSE,ScheduleJob::getGmtCreate)
                 .page(page);
 
@@ -333,7 +334,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             records.forEach(record ->{
                 FillDataJobVO vo = FillDataJobMapstructTransfer.INSTANCE.scheduleJobToFillDataJobVO(record);
                 vo.setTaskName(taskShadeMap.get(record.getTaskId()) != null ? taskShadeMap.get(record.getTaskId()).getName() : "");
-                vo.setExeStartTime(DateUtil.getDate(record.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
+                vo.setStartExecTime(DateUtil.getDate(record.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
+                vo.setEndExecTime(DateUtil.getDate(record.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
                 vo.setExecTime(getExecTime(record));
                 vo.setOwnerId(taskShadeMap.get(record.getTaskId()) != null ? taskShadeMap.get(record.getTaskId()).getOwnerUserId() : 0L);
@@ -493,7 +495,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * @return 是否正序
      */
     private boolean isAsc(String sort) {
-        return StringUtils.isNotBlank(sort) && "asc".equals(sort);
+        return "asc".equals(sort);
     }
 
     /**

@@ -44,7 +44,13 @@ public class FillDataJobVO {
      * 开始时间
      */
     @ApiModelProperty(value = "开始时间",example = "2021-12-24 16:11:53")
-    private String exeStartTime;
+    private String startExecTime;
+
+    /**
+     * 结束时间
+     */
+    @ApiModelProperty(value = "结束时间",example = "2021-12-24 16:11:53")
+    private String endExecTime;
 
     /**
      * 运行时长
@@ -116,12 +122,20 @@ public class FillDataJobVO {
         this.cycTime = cycTime;
     }
 
-    public String getExeStartTime() {
-        return exeStartTime;
+    public String getStartExecTime() {
+        return startExecTime;
     }
 
-    public void setExeStartTime(String exeStartTime) {
-        this.exeStartTime = exeStartTime;
+    public void setStartExecTime(String startExecTime) {
+        this.startExecTime = startExecTime;
+    }
+
+    public String getEndExecTime() {
+        return endExecTime;
+    }
+
+    public void setEndExecTime(String endExecTime) {
+        this.endExecTime = endExecTime;
     }
 
     public String getExecTime() {

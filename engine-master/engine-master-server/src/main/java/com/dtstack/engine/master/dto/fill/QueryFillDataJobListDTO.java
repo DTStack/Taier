@@ -1,5 +1,7 @@
 package com.dtstack.engine.master.dto.fill;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
@@ -55,11 +57,6 @@ public class QueryFillDataJobListDTO {
     private List<Integer> jobStatusList;
 
     /**
-     * 按业务日期排序
-     */
-    private String businessDateSort;
-
-    /**
      * 按计划时间排序
      */
     private String cycSort;
@@ -73,6 +70,12 @@ public class QueryFillDataJobListDTO {
      * 按开始时间排序
      */
     private String execStartSort;
+
+    /**
+     * 结束时间
+     */
+    private String execEndSort;
+
 
     /**
      * 按重试次数排序
@@ -153,14 +156,6 @@ public class QueryFillDataJobListDTO {
         this.jobStatusList = jobStatusList;
     }
 
-    public String getBusinessDateSort() {
-        return businessDateSort;
-    }
-
-    public void setBusinessDateSort(String businessDateSort) {
-        this.businessDateSort = businessDateSort;
-    }
-
     public String getCycSort() {
         return cycSort;
     }
@@ -183,6 +178,14 @@ public class QueryFillDataJobListDTO {
 
     public void setExecStartSort(String execStartSort) {
         this.execStartSort = execStartSort;
+    }
+
+    public String getExecEndSort() {
+        return execEndSort;
+    }
+
+    public void setExecEndSort(String execEndSort) {
+        this.execEndSort = execEndSort;
     }
 
     public String getRetryNumSort() {
