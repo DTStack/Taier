@@ -1,5 +1,7 @@
 package com.dtstack.batch.vo.schedule;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -14,41 +16,49 @@ public class JobNodeVO {
     /**
      * 实例id
      */
+    @ApiModelProperty(value = "实例id")
     private String jobId;
 
     /**
      * 实例状态
      */
+    @ApiModelProperty(value = "实例状态")
     private Integer status;
 
     /**
      * 任务id
      */
+    @ApiModelProperty(value = "任务id")
     private Long taskId;
 
     /**
      * 任务名称
      */
+    @ApiModelProperty(value = "任务名称")
     private String taskName;
 
     /**
      * 任务类型
      */
+    @ApiModelProperty(value = "任务类型")
     private Integer taskType;
 
     /**
      * 发布时间
      */
+    @ApiModelProperty(value = "发布时间")
     private Timestamp taskGmtCreate;
 
     /**
      * 子节点
      */
+    @ApiModelProperty(value = "子节点")
     private List<JobNodeVO> childNode;
 
     /**
      * 父节点
      */
+    @ApiModelProperty(value = " 父节点")
     private List<JobNodeVO> parentNode;
 
     public String getJobId() {
