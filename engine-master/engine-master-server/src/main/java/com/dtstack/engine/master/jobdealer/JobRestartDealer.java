@@ -22,7 +22,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
 import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.master.impl.EngineJobCacheService;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.pluginapi.JobClient;

@@ -10,7 +10,6 @@
 
     <plugins>
         <plugin interceptor="com.dtstack.engine.master.config.StatusChangeInterceptor"/>
-        <plugin interceptor="com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor"/>
     </plugins>
 
 </configuration>

@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.batch.enums.EScheduleType;
 import com.dtstack.batch.event.FillStatusUpdateFinishEvent;
 import com.dtstack.batch.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.batch.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.batch.vo.fill.ReturnFillDataJobListVO;
 import com.dtstack.batch.vo.fill.FillDataJobVO;
 import com.dtstack.batch.vo.fill.ReturnFillDataListVO;
+import com.dtstack.batch.vo.schedule.ReturnDisplayPeriodVO;
 import com.dtstack.batch.vo.schedule.ReturnJobListVO;
 import com.dtstack.batch.vo.schedule.ReturnJobStatusStatisticsVO;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
@@ -32,12 +34,14 @@ import com.dtstack.engine.master.enums.FillGeneratStatusEnum;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
 import com.dtstack.engine.master.pool.FillDataThreadPoolExecutor;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.master.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +56,6 @@ import java.util.stream.Collectors;
 /**
  * @Auther: dazhi
  * @Date: 2021/12/7 3:26 PM
- * @Email:dazhi@dtstack.com
- * @Description:
  */
 @Service
 public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
@@ -96,7 +98,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         page = this.lambdaQuery()
                 .eq(ScheduleJob::getFlowJobId, 0)
                 .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
-                .in(ScheduleJob::getFillType, Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType()))
+                .in(ScheduleJob::getFillType, Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()))
+                .eq(ScheduleJob::getType, EScheduleType.NORMAL_SCHEDULE.getType())
                 .eq(ScheduleJob::getTenantId, dto.getTenantId())
                 .in(CollectionUtils.isNotEmpty(taskIds), ScheduleJob::getTaskId, taskIds)
                 .between((dto.getCycStartDay() != null && dto.getCycEndDay() != null), ScheduleJob::getCycTime, getCycTime(dto.getCycStartDay()), getCycTime(dto.getCycEndDay()))
@@ -106,7 +109,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 .orderBy(StringUtils.isNotBlank(dto.getCycSort()),isAsc(dto.getCycSort()),ScheduleJob::getCycTime)
                 .orderBy(StringUtils.isNotBlank(dto.getExecStartSort()),isAsc(dto.getExecStartSort()),ScheduleJob::getExecStartTime)
                 .orderBy(StringUtils.isNotBlank(dto.getExecEndSort()),isAsc(dto.getExecEndSort()),ScheduleJob::getExecEndTime)
-                .orderBy(StringUtils.isNotBlank(dto.getExecTimeSort()),isAsc(dto.getExecEndSort()),ScheduleJob::getExecTime)
+                .orderBy(StringUtils.isNotBlank(dto.getExecTimeSort()),isAsc(dto.getExecTimeSort()),ScheduleJob::getExecTime)
                 .orderBy(StringUtils.isNotBlank(dto.getRetryNumSort()),isAsc(dto.getRetryNumSort()),ScheduleJob::getRetryNum)
                 .orderBy(Boolean.TRUE,Boolean.FALSE,ScheduleJob::getGmtCreate)
                 .page(page);
@@ -121,8 +124,6 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
         return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
     }
-
-
 
     /**
      * 统计周期实例状态
@@ -144,7 +145,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         JobsStatusStatisticsPO jobsStatusStatistics = JobMapstructTransfer.INSTANCE.queryJobStatusStatisticsDTOToJobsStatusStatistics(dto);
         jobsStatusStatistics.setCycStartTime(getCycTime(dto.getCycStartDay()));
         jobsStatusStatistics.setCycEndTime(getCycTime(dto.getCycEndDay()));
-
+        jobsStatusStatistics.setFillTypeList(Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()));
 
         List<StatusCountPO> statusCountList = this.baseMapper.queryJobsStatusStatistics(jobsStatusStatistics);
         // 封装结果集
@@ -164,6 +165,50 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     }
 
     /**
+     * 查询上一个周期或者下一个周期实例
+     *
+     * @param isAfter 是否是上个周期
+     * @param jobId 实例id
+     * @param limit 查询个数
+     */
+    public List<ReturnDisplayPeriodVO> displayPeriods(Boolean isAfter, String jobId, Integer limit) {
+        ScheduleJob scheduleJob = this.lambdaQuery()
+                .eq(ScheduleJob::getJobId, jobId)
+                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
+        if (scheduleJob == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
+        }
+
+        //需要根据查询的job的类型来
+        List<ScheduleJob> scheduleJobList = this.baseMapper.listAfterOrBeforeJobs(scheduleJob.getTaskId(), isAfter, scheduleJob.getCycTime(), scheduleJob.getType());
+        scheduleJobList.sort((o1, o2) -> {
+            if (!NumberUtils.isNumber(o1.getCycTime())) {
+                return 1;
+            }
+
+            if (!NumberUtils.isNumber(o2.getCycTime())) {
+                return -1;
+            }
+            return Long.compare(Long.parseLong(o2.getCycTime()), Long.parseLong(o1.getCycTime()));
+        });
+
+        if (scheduleJobList.size() > limit) {
+            scheduleJobList = scheduleJobList.subList(0, limit);
+        }
+
+        List<ReturnDisplayPeriodVO> vos = new ArrayList<>(scheduleJobList.size());
+        scheduleJobList.forEach(nextScheduleJob -> {
+            ReturnDisplayPeriodVO vo = new ReturnDisplayPeriodVO();
+            vo.setJobId(nextScheduleJob.getId());
+            vo.setCycTime(DateUtil.addTimeSplit(nextScheduleJob.getCycTime()));
+            vo.setStatus(nextScheduleJob.getStatus());
+            vos.add(vo);
+        });
+        return vos;
+    }
+
+    /**
      * 生成补数据
      *
      * @param dto 补数据需要的参数
@@ -178,7 +223,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         fillDataJobService.save(fillDataJob);
 
         // 提交补数据任务
-        fillDataThreadPoolExecutor.submit(new FillDataRunnable(fillDataJob.getId(),dto,dto.getFillDataInfo(),fillStatusUpdateFinishEvent,applicationContext));
+        ScheduleFillDataInfoDTO fillDataInfo = dto.getFillDataInfo();
+        fillDataThreadPoolExecutor.submit(new FillDataRunnable(fillDataJob.getId(),dto, fillDataInfo,fillStatusUpdateFinishEvent,applicationContext));
         return fillDataJob.getId();
     }
 
@@ -193,7 +239,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 查询补数据列表
         page = fillDataJobService.lambdaQuery()
                 .like(StringUtils.isNotBlank(dto.getJobName()), ScheduleFillDataJob::getJobName, dto.getJobName())
-                .eq(dto.getUserId() != null, ScheduleFillDataJob::getCreateUserId, dto.getUserId())
+                .eq(dto.getOwnerId() != null, ScheduleFillDataJob::getCreateUserId, dto.getOwnerId())
                 .eq(StringUtils.isNotBlank(dto.getRunDay()), ScheduleFillDataJob::getRunDay, dto.getRunDay())
                 .eq(ScheduleFillDataJob::getTenantId, dto.getTenantId())
                 .orderBy(true,true,ScheduleFillDataJob::getGmtCreate)
@@ -261,6 +307,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .eq(ScheduleJob::getTenantId, dto.getTenantId())
                 .eq(ScheduleJob::getFillId, dto.getFillId())
+                .eq(ScheduleJob::getType, EScheduleType.FILL_DATA.getType())
                 .in(ScheduleJob::getFillType, Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()))
                 .in(CollectionUtils.isNotEmpty(taskIds), ScheduleJob::getTaskId, taskIds)
                 .in(CollectionUtils.isNotEmpty(dto.getTaskTypeList()), ScheduleJob::getTaskType, dto.getTaskTypeList())
@@ -305,7 +352,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * @param cycTime 计划时间
      * @return 计划时间
      */
-    private String getCycTime(Long cycTime) {
+    public String getCycTime(Long cycTime) {
         if (cycTime == null) {
             return "";
         }
@@ -418,9 +465,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     /**
      * 校验补数据列表
      * 
-     * @param fillDataJob
-     * @param dataJobDetailVO
-     * @return
+     * @param fillDataJob 补数据信息
+     * @param dataJobDetailVO 返回值结果
      */
     private Boolean checkFillDataJobList(ScheduleFillDataJob fillDataJob, ReturnFillDataJobListVO dataJobDetailVO) {
         if (fillDataJob == null) {
@@ -542,6 +588,5 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     public ScheduleJob getScheduleJob(String jobId){
         return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
     }
-
 
 }

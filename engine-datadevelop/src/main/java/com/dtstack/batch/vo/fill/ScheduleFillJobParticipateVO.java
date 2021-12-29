@@ -53,7 +53,7 @@ public class ScheduleFillJobParticipateVO {
      */
     @Pattern(regexp = "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
             message = "beginTime need format HH:mm")
-    @ApiModelProperty(value = "结束时间：精确到日 时间格式： yyyy-MM-dd",required = true)
+    @ApiModelProperty(value = "结束时间：精确到日 时间格式： yyyy-MM-dd")
     private String beginTime;
 
     /**

@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.batch.vo.schedule.ReturnScheduleTaskVO;
+import com.dtstack.batch.vo.schedule.ReturnTaskSupportTypesVO;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
+import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,10 +47,12 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         // 分页查询
         Page<ScheduleTaskShade> resultPage = this.lambdaQuery()
                 .eq(ScheduleTaskShade::getFlowId,0L)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
                 .eq(dto.getOwnerId() != null, ScheduleTaskShade::getOwnerUserId, dto.getOwnerId())
                 .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
                 .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
+                .between((dto.getStartModifiedTime() != null && dto.getEndModifiedTime() != null), ScheduleTaskShade::getGmtModified, dto.getStartModifiedTime(), dto.getEndModifiedTime())
                 .in(CollectionUtils.isNotEmpty(dto.getTaskTypeList()), ScheduleTaskShade::getTaskType, dto.getTaskTypeList())
                 .in(CollectionUtils.isNotEmpty(dto.getPeriodTypeList()), ScheduleTaskShade::getPeriodType, dto.getPeriodTypeList())
                 .page(page);
@@ -124,5 +130,21 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .list();
     }
 
+    /**
+     * 获得所有任务类型
+     *
+     * @return 任务类型
+     */
+    public List<ReturnTaskSupportTypesVO> querySupportJobTypes() {
+        List<ReturnTaskSupportTypesVO> returnTaskSupportTypesVOS = Lists.newArrayList();
+        EScheduleJobType[] eScheduleJobTypes = EScheduleJobType.values();
 
+        for (EScheduleJobType eScheduleJobType : eScheduleJobTypes) {
+            ReturnTaskSupportTypesVO vo = new ReturnTaskSupportTypesVO();
+            vo.setTaskTypeName(eScheduleJobType.getName());
+            vo.setTaskTypeCode(eScheduleJobType.getType());
+            returnTaskSupportTypesVOS.add(vo);
+        }
+        return returnTaskSupportTypesVOS;
+    }
 }

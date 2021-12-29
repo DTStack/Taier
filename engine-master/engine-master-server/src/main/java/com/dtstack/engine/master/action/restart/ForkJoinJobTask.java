@@ -1,9 +1,12 @@
 package com.dtstack.engine.master.action.restart;
 
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobJobDao;
+import com.dtstack.engine.master.service.ScheduleJobJobService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.google.common.base.Strings;
@@ -28,29 +31,32 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
 
     private final static Logger logger = LoggerFactory.getLogger(ForkJoinJobTask.class);
     private static final List<Integer> SPECIAL_TASK_TYPES = Lists.newArrayList(EScheduleJobType.WORK_FLOW.getVal());
-    private String jobId;
-    private ConcurrentHashMap<String,String> results;
-    private ScheduleJobDao scheduleJobDao;
-    private ScheduleJobJobDao scheduleJobJobDao;
-    private boolean isOnlyNextChild;
+    private final String jobId;
+    private final ConcurrentHashMap<String,String> results;
+    private final ScheduleJobService scheduleJobService;
+    private final ScheduleJobJobService scheduleJobJobService;
+    private final boolean isOnlyNextChild;
 
     public ForkJoinJobTask(String jobId, ConcurrentHashMap<String,String> results,
-                           ScheduleJobDao scheduleJobDao, ScheduleJobJobDao scheduleJobJobDao, boolean isOnlyNextChild) {
+                           ScheduleJobService scheduleJobService, ScheduleJobJobService scheduleJobJobService, boolean isOnlyNextChild) {
         this.jobId = jobId;
         this.results = results;
-        this.scheduleJobDao = scheduleJobDao;
-        this.scheduleJobJobDao = scheduleJobJobDao;
+        this.scheduleJobService = scheduleJobService;
+        this.scheduleJobJobService = scheduleJobJobService;
         this.isOnlyNextChild = isOnlyNextChild;
     }
 
     @Override
     protected ConcurrentHashMap<String,String> compute() {
-        ScheduleJob job = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (null == job) {
+        ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
+                .eq(ScheduleJob::getJobId, jobId)
+                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
+        if (null == scheduleJob) {
             return null;
         }
 
-        String jobKey = job.getJobKey();
+        String jobKey = scheduleJob.getJobKey();
         //从jobKey获取父任务的触发时间
         String parentJobDayStr = JobKeyUtils.getJobTriggerTimeFromJobKey(jobKey);
         if (Strings.isNullOrEmpty(parentJobDayStr)) {
@@ -58,25 +64,35 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
         }
 
         //查询子工作任务
-        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByParentJobKey(jobKey);
-        if (CollectionUtils.isEmpty(scheduleJobJobs)) {
+        List<ScheduleJobJob> scheduleJobJobList = scheduleJobJobService.lambdaQuery().eq(ScheduleJobJob::getParentJobKey, jobKey)
+                .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
+        if (CollectionUtils.isEmpty(scheduleJobJobList)) {
             return null;
         }
 
-        List<ScheduleJob> subJobsAndStatusByFlowId = null;
+        List<ScheduleJob> flowJobList = null;
         //如果工作流 和 实验任务 把子节点全部添加进来
-        if (SPECIAL_TASK_TYPES.contains(job.getTaskType())) {
-            subJobsAndStatusByFlowId = scheduleJobDao.getSubJobsAndStatusByFlowId(job.getJobId());
+        if (SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType())) {
+            flowJobList = scheduleJobService.lambdaQuery()
+                    .eq(ScheduleJob::getFlowJobId, scheduleJob.getJobId())
+                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
         }
 
-        Set<String> jobKeyList = this.filterJobKeyList(job, scheduleJobJobs, parentJobDayStr, subJobsAndStatusByFlowId);
+        Set<String> jobKeyList = this.filterJobKeyList(scheduleJob, scheduleJobJobList, parentJobDayStr, flowJobList);
 
         if (CollectionUtils.isEmpty(jobKeyList)) {
             return null;
         }
-        List<ScheduleJob> listJobs = scheduleJobDao.listJobByJobKeys(jobKeyList);
+
+        List<ScheduleJob> childJobList = scheduleJobService.lambdaQuery()
+                .eq(ScheduleJob::getJobKey, jobKeyList)
+                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
+
         List<ForkJoinJobTask> tasks = new ArrayList<>();
-        for (ScheduleJob childScheduleJob : listJobs) {
+        for (ScheduleJob childScheduleJob : childJobList) {
             if (results.containsKey(childScheduleJob.getJobId())) {
                 continue;
             }
@@ -84,7 +100,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
             if (isOnlyNextChild) {
                 continue;
             }
-            ForkJoinJobTask subTask = new ForkJoinJobTask(childScheduleJob.getJobId(), results, scheduleJobDao, scheduleJobJobDao, isOnlyNextChild);
+            ForkJoinJobTask subTask = new ForkJoinJobTask(childScheduleJob.getJobId(), results, scheduleJobService, scheduleJobJobService, isOnlyNextChild);
             logger.info("forkJoinJobTask subTask jobId {} result {} isOnlyNextChild {} ", childScheduleJob.getJobId(), results.size(), isOnlyNextChild);
             tasks.add(subTask);
         }

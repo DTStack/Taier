@@ -17,6 +17,12 @@ public class ReturnJobListVO {
     private String jobId;
 
     /**
+     * 实例状态
+     */
+    @ApiModelProperty(value = "实例状态",example = "0")
+    private Integer status;
+
+    /**
      * 任务id
      */
     @ApiModelProperty(value = "任务id",example = "0")
@@ -88,6 +94,14 @@ public class ReturnJobListVO {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Long getTaskId() {

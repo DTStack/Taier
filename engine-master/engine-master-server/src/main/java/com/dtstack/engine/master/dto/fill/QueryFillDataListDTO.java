@@ -16,7 +16,7 @@ public class QueryFillDataListDTO {
     /**
      * 操作人用户id
      */
-    private Long userId;
+    private Long ownerId;
 
     /**
      * 补数据运行时间 格式yyyy-MM-dd
@@ -46,12 +46,12 @@ public class QueryFillDataListDTO {
         this.jobName = jobName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getRunDay() {

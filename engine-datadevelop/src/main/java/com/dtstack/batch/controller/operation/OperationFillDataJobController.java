@@ -5,6 +5,7 @@ import com.dtstack.batch.service.schedule.JobService;
 import com.dtstack.batch.vo.fill.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pager.PageResult;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import java.util.Objects;
  */
 @RestController
 @RequestMapping("/node/fill")
+@Api(value = "/node/fill", tags = {"运维中心---补数据相关接口"})
 public class OperationFillDataJobController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationFillDataJobController.class);

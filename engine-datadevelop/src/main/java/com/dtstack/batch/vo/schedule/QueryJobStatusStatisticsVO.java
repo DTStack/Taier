@@ -54,20 +54,32 @@ public class QueryJobStatusStatisticsVO {
     /**
      * 任务类型
      */
-    @ApiModelProperty(value = "任务类型多个用逗号隔开")
-    private String taskTypes;
+    @ApiModelProperty(value = "任务类型")
+    private List<Integer> taskTypeList;
 
     /**
      * 状态
      */
-    @ApiModelProperty(value = "状态多个用逗号隔开")
-    private String jobStatuses;
+    @ApiModelProperty(value = "状态")
+    private List<Integer> jobStatusList;
 
     /**
      * 调度周期类型
      */
     @ApiModelProperty(value = "调度周期类型")
-    private String taskPeriodTypes;
+    private List<Integer> taskPeriodTypeList;
+
+    /**
+     * 实例类型 周期实例：0, 补数据实例:1;
+     */
+    @ApiModelProperty(value = "实例类型 周期实例：0, 补数据实例:1;")
+    private Integer type;
+
+    /**
+     * 补数据id
+     */
+    @ApiModelProperty(value = "补数据id")
+    private Long fillId;
 
     public Long getTenantId() {
         return tenantId;
@@ -109,66 +121,43 @@ public class QueryJobStatusStatisticsVO {
         this.cycEndDay = cycEndDay;
     }
 
-    public String getTaskTypes() {
-        return taskTypes;
-    }
-
     public List<Integer> getTaskTypeList() {
-        String taskTypes = this.taskTypes;
-        if (StringUtils.isNotBlank(taskTypes)) {
-            try {
-                List<String> taskTypeStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskTypes);
-                return taskTypeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskTypeList;
     }
 
-    public void setTaskTypes(String taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
-    public String getJobStatuses() {
-        return jobStatuses;
+    public void setTaskTypeList(List<Integer> taskTypeList) {
+        this.taskTypeList = taskTypeList;
     }
 
     public List<Integer> getJobStatusList() {
-        String jobStatuses = this.jobStatuses;
-        if (StringUtils.isNotBlank(jobStatuses)) {
-            try {
-                List<String> jobStatusStrList = Splitter.on(",").omitEmptyStrings().splitToList(jobStatuses);
-                return jobStatusStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return jobStatusList;
     }
 
-    public void setJobStatuses(String jobStatuses) {
-        this.jobStatuses = jobStatuses;
-    }
-
-    public String getTaskPeriodTypes() {
-        return taskPeriodTypes;
+    public void setJobStatusList(List<Integer> jobStatusList) {
+        this.jobStatusList = jobStatusList;
     }
 
     public List<Integer> getTaskPeriodTypeList() {
-        String taskPeriodTypes = this.taskPeriodTypes;
-        if (StringUtils.isNotBlank(taskPeriodTypes)) {
-            try {
-                List<String> taskPeriodTypesStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskPeriodTypes);
-                return taskPeriodTypesStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskPeriodTypeList;
     }
 
-    public void setTaskPeriodTypes(String taskPeriodTypes) {
-        this.taskPeriodTypes = taskPeriodTypes;
+    public void setTaskPeriodTypeList(List<Integer> taskPeriodTypeList) {
+        this.taskPeriodTypeList = taskPeriodTypeList;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Long getFillId() {
+        return fillId;
+    }
+
+    public void setFillId(Long fillId) {
+        this.fillId = fillId;
     }
 }

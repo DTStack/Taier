@@ -41,6 +41,8 @@ import com.dtstack.engine.master.server.scheduler.JobCheckRunInfo;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
+import com.dtstack.engine.master.service.EngineJobCacheService;
+import com.dtstack.engine.master.service.ScheduleJobExpandService;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
@@ -155,6 +157,9 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
 
     @Autowired
     private ScheduleJobExpandMapper scheduleJobExpandMapper;
+
+    @Autowired
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     private final static List<Integer> FINISH_STATUS = Lists.newArrayList(RdosTaskStatus.FINISHED.getStatus(), RdosTaskStatus.MANUALSUCCESS.getStatus(), RdosTaskStatus.CANCELLING.getStatus(), RdosTaskStatus.CANCELED.getStatus());
 
@@ -2689,7 +2694,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
     }
 
     public int insert(ScheduleJob scheduleJob) {
-       return scheduleJobMapper.insert(scheduleJob);
+        int insert = scheduleJobMapper.insert(scheduleJob);
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setJobId(scheduleJob.getJobId());
+        scheduleJobExpandService.save(scheduleJobExpand);
+        return insert;
     }
 
     @Transactional(rollbackFor = Exception.class)

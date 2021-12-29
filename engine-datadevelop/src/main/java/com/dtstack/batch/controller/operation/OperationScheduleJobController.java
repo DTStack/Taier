@@ -2,12 +2,11 @@ package com.dtstack.batch.controller.operation;
 
 import com.dtstack.batch.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.batch.service.schedule.JobService;
-import com.dtstack.batch.vo.schedule.QueryJobListVO;
-import com.dtstack.batch.vo.schedule.QueryJobStatusStatisticsVO;
-import com.dtstack.batch.vo.schedule.ReturnJobListVO;
-import com.dtstack.batch.vo.schedule.ReturnJobStatusStatisticsVO;
+import com.dtstack.batch.vo.schedule.*;
 import com.dtstack.engine.master.vo.ScheduleJobVO;
+import com.dtstack.engine.master.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.pager.PageResult;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/node/scheduleJob")
+@Api(value = "/node/scheduleJob", tags = {"运维中心---周期实例相关接口"})
 public class OperationScheduleJobController {
 
     @Autowired
@@ -49,4 +49,12 @@ public class OperationScheduleJobController {
     public List<ReturnJobListVO> queryFlowWorkSubJobs(@RequestParam("jobId") String jobId) {
         return jobService.queryFlowWorkSubJobs(jobId);
     }
+
+    @RequestMapping(value = "/queryDisplayPeriods", method = {RequestMethod.POST})
+    public List<ReturnDisplayPeriodVO> queryDisplayPeriods(@RequestParam("isAfter") Boolean isAfter,
+                                                           @RequestParam("jobId") String jobId,
+                                                           @RequestParam("limit") Integer limit) {
+        return jobService.displayPeriods(isAfter, jobId, limit);
+    }
+
 }
