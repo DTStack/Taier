@@ -98,8 +98,8 @@ public class BatchTaskResourceShadeService {
         }
     }
 
-    public void deleteByProjectId(Long projectId) {
-        batchTaskResourceShadeDao.deleteByProjectId(projectId);
+    public void deleteByTenantId(Long tenantId) {
+        batchTaskResourceShadeDao.deleteByTenantId(tenantId);
     }
 
     /**
