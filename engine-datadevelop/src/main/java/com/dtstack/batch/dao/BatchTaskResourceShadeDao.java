@@ -41,5 +41,5 @@ public interface BatchTaskResourceShadeDao {
 
     List<BatchResource> listResourceByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType, @Param("projectId") long projectId);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }
