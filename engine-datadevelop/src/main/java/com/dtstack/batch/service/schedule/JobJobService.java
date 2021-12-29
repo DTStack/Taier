@@ -272,7 +272,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                         .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                         .list();
 
-                jobJobKeyMap.putAll(jobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey, Collectors.mapping(ScheduleJobJob::getJobKey, Collectors.toList()))));
+                jobJobKeyMap.putAll(jobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey, Collectors.mapping(ScheduleJobJob::getParentJobKey, Collectors.toList()))));
                 jobKeys = jobJobList.stream().map(ScheduleJobJob::getParentJobKey).collect(Collectors.toList());
             }
         }

@@ -40,14 +40,9 @@ public class QueryFillDataJobListDTO {
     private Long cycEndDay;
 
     /**
-     * 工作流任务id
-     */
-    private List<String> flowJobIdList;
-
-    /**
      * 用户ID 责任人
      */
-    private Long userId;
+    private Long ownerId;
 
     /**
      * 任务类型
@@ -134,20 +129,12 @@ public class QueryFillDataJobListDTO {
         this.cycEndDay = cycEndDay;
     }
 
-    public List<String> getFlowJobIdList() {
-        return flowJobIdList;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setFlowJobIdList(List<String> flowJobIdList) {
-        this.flowJobIdList = flowJobIdList;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public List<Integer> getTaskTypeList() {
@@ -222,38 +209,4 @@ public class QueryFillDataJobListDTO {
         this.pageSize = pageSize;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        QueryFillDataJobListDTO that = (QueryFillDataJobListDTO) o;
-        return Objects.equals(fillId, that.fillId) && Objects.equals(tenantId, that.tenantId) && Objects.equals(taskName, that.taskName) && Objects.equals(cycStartDay, that.cycStartDay) && Objects.equals(cycEndDay, that.cycEndDay) && Objects.equals(flowJobIdList, that.flowJobIdList) && Objects.equals(userId, that.userId) && Objects.equals(taskTypeList, that.taskTypeList) && Objects.equals(jobStatusList, that.jobStatusList) && Objects.equals(businessDateSort, that.businessDateSort) && Objects.equals(cycSort, that.cycSort) && Objects.equals(execTimeSort, that.execTimeSort) && Objects.equals(execStartSort, that.execStartSort) && Objects.equals(retryNumSort, that.retryNumSort) && Objects.equals(currentPage, that.currentPage) && Objects.equals(pageSize, that.pageSize);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fillId, tenantId, taskName, cycStartDay, cycEndDay, flowJobIdList, userId, taskTypeList, jobStatusList, businessDateSort, cycSort, execTimeSort, execStartSort, retryNumSort, currentPage, pageSize);
-    }
-
-    @Override
-    public String toString() {
-        return "FillDataJobListDTO{" +
-                "fillId=" + fillId +
-                ", tenantId=" + tenantId +
-                ", taskName='" + taskName + '\'' +
-                ", bizStartDay=" + cycStartDay +
-                ", bizEndDay=" + cycEndDay +
-                ", flowJobIdList=" + flowJobIdList +
-                ", userId=" + userId +
-                ", taskTypeList=" + taskTypeList +
-                ", jobStatusList=" + jobStatusList +
-                ", businessDateSort='" + businessDateSort + '\'' +
-                ", cycSort='" + cycSort + '\'' +
-                ", execTimeSort='" + execTimeSort + '\'' +
-                ", execStartSort='" + execStartSort + '\'' +
-                ", retryNumSort='" + retryNumSort + '\'' +
-                ", currentPage=" + currentPage +
-                ", pageSize=" + pageSize +
-                '}';
-    }
 }
