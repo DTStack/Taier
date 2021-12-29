@@ -207,7 +207,7 @@ public class BatchJobService {
         jobExecuteService.readyForTaskStartTrigger(actionParam, dtuicTenantId, batchTask, taskParamsToReplace);
 
         actionParam.put("taskId", taskId);
-        actionParam.put("engineType", EngineType.getEngineName(batchTask.getEngineType()));
+//        actionParam.put("engineType", EngineType.getEngineName(batchTask.getEngineType()));
         actionParam.put("taskType", EJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("name", batchTask.getName());
         actionParam.put("computeType", batchTask.getComputeType());

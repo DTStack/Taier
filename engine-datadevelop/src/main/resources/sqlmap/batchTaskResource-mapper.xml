@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.batch.dao.BatchTaskResourceDao">
 
     <sql id="select_content_fragment">
-      id,task_id,resource_id,resource_type,project_id,tenant_id,gmt_create,gmt_modified,is_deleted
+      id,task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -20,9 +20,6 @@
             <if test="resourceType != null">
                 resource_type = #{resourceType},
             </if>
-            <if test="projectId != null">
-                project_id = #{projectId},
-            </if>
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
@@ -38,7 +35,7 @@
         </set>
     </sql>
 
-    <select id="listByTaskId" resultType="BatchTaskResource">
+    <select id="listByTaskId" resultType="com.dtstack.batch.domain.BatchTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_resource
@@ -48,21 +45,20 @@
             and resource_type = #{resourceType}
         </if>
 
-        and project_id = #{projectId} and is_deleted = 0
+        and is_deleted = 0
     </select>
 
-    <select id="getByTaskIdAndResourceId" resultType="BatchTaskResource">
+    <select id="getByTaskIdAndResourceId" resultType="com.dtstack.batch.domain.BatchTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_resource
-        WHERE task_id = #{taskId} and project_id = #{projectId} and resource_id = #{resourceId} and resource_type = #{resourceType}
+        WHERE task_id = #{taskId} and resource_id = #{resourceId} and resource_type = #{resourceType}
         and is_deleted = 0 limit 1
     </select>
 
     <delete id="deleteByTaskId">
         DELETE FROM rdos_batch_task_resource
         WHERE task_id = #{taskId}
-        and project_id = #{projectId}
         and is_deleted = 0
         <if test="resourceType != null">
             and resource_type = #{resourceType}
@@ -74,28 +70,27 @@
         rdos_batch_task_resource
         SET is_deleted = 1 WHERE
         task_id = #{taskId}
-        and project_id = #{projectId}
         and is_deleted = 0
         <if test="resourceType != null">
             and resource_type = #{resourceType}
         </if>
     </update>
 
-    <select id="listByResourceId" resultType="BatchTaskResource">
+    <select id="listByResourceId" resultType="com.dtstack.batch.domain.BatchTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_resource
         WHERE resource_id = #{resourceId} and is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="BatchTaskResource" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.batch.domain.BatchTaskResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task_resource
-          (task_id,resource_id,resource_type,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+          (task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
-          (#{taskId},#{resourceId},#{resourceType},#{projectId},#{tenantId},now(),now(),0)
+          (#{taskId},#{resourceId},#{resourceType},#{tenantId},now(),now(),0)
     </insert>
 
-    <update id="update" parameterType="BatchTaskResource">
+    <update id="update" parameterType="com.dtstack.batch.domain.BatchTaskResource">
         UPDATE
         rdos_batch_task_resource
         <include refid="update_fragment"/>
@@ -103,10 +98,10 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <update id="deleteByProjectId" parameterType="java.lang.Long">
+    <update id="deleteByTenantId" parameterType="java.lang.Long">
         UPDATE rdos_batch_task_resource
         SET is_deleted = 1, gmt_modified = now()
-        WHERE project_id = #{projectId} AND is_deleted = 0;
+        WHERE tenant_id = #{tenantId} AND is_deleted = 0;
     </update>
 
 </mapper>
