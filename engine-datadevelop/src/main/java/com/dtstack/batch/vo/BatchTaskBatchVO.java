@@ -19,13 +19,11 @@
 package com.dtstack.batch.vo;
 
 import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
-import com.dtstack.batch.dto.BatchTaskForFillDataDTO;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
 import com.dtstack.batch.parser.ScheduleFactory;
-import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -66,6 +64,7 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.setTaskVOS(task.getTaskVOS());
         this.setProjectName(task.getProjectName());
         this.setComponentVersion(task.getComponentVersion());
+        this.setMainClass(task.getMainClass());
         init();
     }
 
@@ -199,6 +198,13 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
      * 是否是当前项目
      */
     private Boolean currentProject = false;
+
+    /**
+     * 提交状态
+     * 未提交：0
+     * 已已经：1
+     */
+    private Integer submitStatus;
 
     private Long taskId;
 
@@ -533,5 +539,13 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     @Override
     public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
+    }
+
+    public Integer getSubmitStatus() {
+        return submitStatus;
+    }
+
+    public void setSubmitStatus(Integer submitStatus) {
+        this.submitStatus = submitStatus;
     }
 }

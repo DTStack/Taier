@@ -20,8 +20,14 @@ package com.dtstack.batch.service.console;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.mapstruct.console.TenantTransfer;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
+import com.dtstack.batch.service.impl.BatchCatalogueService;
+import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.Sort;
 import com.dtstack.engine.domain.ClusterTenant;
 import com.dtstack.engine.domain.Queue;
@@ -36,6 +42,7 @@ import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +78,15 @@ public class TenantService {
 
     @Autowired
     private ComponentService componentService;
+
+    @Autowired
+    private BatchCatalogueService batchCatalogueService;
+
+    @Autowired
+    private TenantEngineService tenantEngineService;
+
+    @Autowired
+    private DatasourceService datasourceService;
 
 
 
@@ -117,6 +133,7 @@ public class TenantService {
             //hadoop
             updateTenantQueue(tenantId, clusterId, queueId);
         }
+        initBatch(tenantId, tenant.getCreateUserId(), tenant.getTenantName(), tenant.getTenantDesc());
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -233,5 +250,27 @@ public class TenantService {
         tenant.setCreateUserId(createUserId);
         tenant.setGmtCreate(Timestamp.from(Instant.now()));
         tenantMapper.insert(tenant);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void initBatch(Long tenantId, Long userId, String tenantName, String tenantDesc) throws Exception {
+        //初始化目录
+        TenantEngineVO tenantEngineVO = new TenantEngineVO();
+        tenantEngineVO.setDatabase(tenantName);
+        tenantEngineVO.setEngineType(MultiEngineType.HADOOP.getType());
+        List<TenantEngineVO> tenantEngines = Lists.newArrayList(tenantEngineVO);
+        batchCatalogueService.initCatalogue(tenantId, userId, tenantEngines);
+
+        //初始化数据源
+        datasourceService.initDefaultSource(tenantId, tenantName, tenantDesc, userId);
+
+        //初始化租户引擎
+        TenantEngine tenantEngine = new TenantEngine();
+        tenantEngine.setEngineType(MultiEngineType.HADOOP.getType());
+        tenantEngine.setTenantId(tenantId);
+        tenantEngine.setEngineIdentity(tenantName);
+        tenantEngine.setCreateUserId(userId);
+        tenantEngine.setStatus(0);
+        tenantEngineService.insert(tenantEngine);
     }
 }
