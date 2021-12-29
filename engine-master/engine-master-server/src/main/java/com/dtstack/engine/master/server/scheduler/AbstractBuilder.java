@@ -11,6 +11,7 @@ import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.scheduler.parser.*;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -66,7 +67,7 @@ public abstract class AbstractBuilder {
     protected JobGraphTriggerService jobGraphTriggerService;
 
     @Autowired
-    protected ActionService actionService;
+    protected ScheduleActionService scheduleActionService;
 
     protected List<ScheduleBatchJob> buildJobRunBean(ScheduleTaskShade task, String keyPreStr, EScheduleType scheduleType,
                                                   boolean needAddFather, boolean needSelfDependency, String triggerDay,
@@ -144,12 +145,12 @@ public abstract class AbstractBuilder {
                 //补数据的名称和后缀用‘-’分割开-->在查询的时候会用到
                 targetJobName = targetJobName + "-" + task.getName() + "-" + triggerTime;
             }
-            if(actionService == null) {
+            if(scheduleActionService == null) {
                 String errorMsg = "actionService is null in JobGraphBuilder#buildJobRunBean";
                 LOGGER.error(errorMsg);
                 throw new RuntimeException(errorMsg);
             }
-            scheduleJob.setJobId(actionService.generateUniqueSign());
+            scheduleJob.setJobId(scheduleActionService.generateUniqueSign());
             scheduleJob.setJobKey(jobKey);
             scheduleJob.setJobName(targetJobName);
             scheduleJob.setPeriodType(scheduleCron.getPeriodType());

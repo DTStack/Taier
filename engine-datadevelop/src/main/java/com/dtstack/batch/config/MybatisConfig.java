@@ -88,13 +88,12 @@ public class MybatisConfig {
         sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.engine.domain,com.dtstack.engine.domain.po,com.dtstack.batch.domain,com.dtstack.engine.datasource.dao.po.datasource");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resourceDash = resolver.getResources(environmentContext.getMybatisMapperLocations());
-        Resource[] resources = (Resource[]) ArrayUtils.addAll(resourceDash);
+        Resource[] resources = ArrayUtils.addAll(resourceDash);
         sqlSessionFactoryBean.setMapperLocations(resources);
+        sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor());
         Resource resource = resolver.getResource(environmentContext.getMybatisConfigLocation());
         sqlSessionFactoryBean.setConfigLocation(resource);
         sqlSessionFactoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
-
-        sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor());
         return sqlSessionFactoryBean.getObject();
     }
 

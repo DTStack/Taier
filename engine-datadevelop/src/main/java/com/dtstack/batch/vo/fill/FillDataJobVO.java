@@ -73,6 +73,7 @@ public class FillDataJobVO {
     /**
      * 工作流id
      */
+    @ApiModelProperty(value = "工作流id",example = "1")
     private String flowJobId;
 
     public String getJobId() {

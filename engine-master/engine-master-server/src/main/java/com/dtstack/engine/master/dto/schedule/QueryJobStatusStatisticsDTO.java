@@ -50,6 +50,16 @@ public class QueryJobStatusStatisticsDTO {
      */
     private List<Integer> taskPeriodTypeList;
 
+    /**
+     * 实例类型 周期实例：0, 补数据实例:1;
+     */
+    private Integer type;
+
+    /**
+     * 补数据id
+     */
+    private Long fillId;
+
     public Long getTenantId() {
         return tenantId;
     }
@@ -112,5 +122,21 @@ public class QueryJobStatusStatisticsDTO {
 
     public void setTaskPeriodTypeList(List<Integer> taskPeriodTypeList) {
         this.taskPeriodTypeList = taskPeriodTypeList;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Long getFillId() {
+        return fillId;
+    }
+
+    public void setFillId(Long fillId) {
+        this.fillId = fillId;
     }
 }

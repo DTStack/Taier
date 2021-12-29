@@ -28,7 +28,7 @@ import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.impl.EngineJobCacheService;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.impl.NodeRecoverService;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;

@@ -56,20 +56,20 @@ public class QueryJobListVO extends PageVO {
     /**
      * 任务类型
      */
-    @ApiModelProperty(value = "任务类型,多个以逗号隔开")
-    private String taskTypes;
+    @ApiModelProperty(value = "任务类型")
+    private List<Integer> taskTypeList;
 
     /**
      * 状态
      */
-    @ApiModelProperty(value = "任务状态,多个以逗号隔开")
-    private String jobStatuses;
+    @ApiModelProperty(value = "任务状态")
+    private List<Integer> jobStatusList;
 
     /**
      * 调度周期类型
      */
-    @ApiModelProperty(value = "调度周期类型,多个以逗号隔开")
-    private String taskPeriodTypes;
+    @ApiModelProperty(value = "调度周期类型")
+    private List<Integer> taskPeriodTypeList;
 
     /**
      * 按计划时间排序
@@ -141,67 +141,28 @@ public class QueryJobListVO extends PageVO {
         this.cycEndDay = cycEndDay;
     }
 
-    public String getTaskTypes() {
-        return taskTypes;
-    }
-
     public List<Integer> getTaskTypeList() {
-        String taskTypes = this.taskTypes;
-        if (StringUtils.isNotBlank(taskTypes)) {
-            try {
-                List<String> taskTypeStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskTypes);
-                return taskTypeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskTypeList;
     }
 
-    public void setTaskTypes(String taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
-    public String getJobStatuses() {
-        return jobStatuses;
+    public void setTaskTypeList(List<Integer> taskTypeList) {
+        this.taskTypeList = taskTypeList;
     }
 
     public List<Integer> getJobStatusList() {
-        String jobStatuses = this.jobStatuses;
-        if (StringUtils.isNotBlank(jobStatuses)) {
-            try {
-                List<String> jobStatusStrList = Splitter.on(",").omitEmptyStrings().splitToList(jobStatuses);
-                return jobStatusStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return jobStatusList;
     }
 
-    public void setJobStatuses(String jobStatuses) {
-        this.jobStatuses = jobStatuses;
-    }
-
-    public String getTaskPeriodTypes() {
-        return taskPeriodTypes;
+    public void setJobStatusList(List<Integer> jobStatusList) {
+        this.jobStatusList = jobStatusList;
     }
 
     public List<Integer> getTaskPeriodTypeList() {
-        String taskPeriodTypes = this.taskPeriodTypes;
-        if (StringUtils.isNotBlank(taskPeriodTypes)) {
-            try {
-                List<String> taskPeriodTypesStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskPeriodTypes);
-                return taskPeriodTypesStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskPeriodTypeList;
     }
 
-    public void setTaskPeriodTypes(String taskPeriodTypes) {
-        this.taskPeriodTypes = taskPeriodTypes;
+    public void setTaskPeriodTypeList(List<Integer> taskPeriodTypeList) {
+        this.taskPeriodTypeList = taskPeriodTypeList;
     }
 
     public String getCycSort() {

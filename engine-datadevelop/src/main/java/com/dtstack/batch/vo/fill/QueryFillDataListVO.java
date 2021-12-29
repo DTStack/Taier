@@ -21,7 +21,7 @@ public class QueryFillDataListVO extends PageVO {
      * 操作人用户id
      */
     @ApiModelProperty(value = "操作人用户id")
-    private Long userId;
+    private Long ownerId;
 
     /**
      * 补数据运行 格式yyyy-MM-dd
@@ -43,12 +43,12 @@ public class QueryFillDataListVO extends PageVO {
         this.jobName = jobName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getRunDay() {

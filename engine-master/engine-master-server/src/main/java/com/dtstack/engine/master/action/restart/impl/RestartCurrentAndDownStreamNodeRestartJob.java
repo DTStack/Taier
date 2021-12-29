@@ -7,6 +7,7 @@ import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.master.action.restart.AbstractRestartJob;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.context.ApplicationContext;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +23,8 @@ import java.util.stream.Collectors;
 public class RestartCurrentAndDownStreamNodeRestartJob extends AbstractRestartJob {
 
 
-    public RestartCurrentAndDownStreamNodeRestartJob(ScheduleJobDao scheduleJobDao, EnvironmentContext environmentContext, ScheduleJobJobDao scheduleJobJobDao, ScheduleJobService scheduleJobService) {
-        super(scheduleJobDao, environmentContext, scheduleJobJobDao, scheduleJobService);
+    public RestartCurrentAndDownStreamNodeRestartJob(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
+        super( environmentContext,applicationContext);
     }
 
     @Override

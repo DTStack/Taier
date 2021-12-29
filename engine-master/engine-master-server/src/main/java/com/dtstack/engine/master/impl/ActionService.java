@@ -38,6 +38,7 @@ import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.action.restart.RestartJobRunnable;
+import com.dtstack.engine.master.dto.schedule.ActionJobKillDTO;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
@@ -50,6 +51,7 @@ import com.dtstack.engine.master.server.pipeline.params.UploadParamPipeline;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.master.service.ScheduleJobExpandService;
 import com.dtstack.engine.master.vo.JobLogVO;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
@@ -69,6 +71,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -85,7 +88,7 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author sishu.yss
  */
-@Service
+@Service("OldActionService")
 public class ActionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionService.class);
@@ -134,6 +137,12 @@ public class ActionService {
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Autowired
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -346,6 +355,7 @@ public class ActionService {
         if (scheduleJob == null) {
             scheduleJob = buildScheduleJob(paramActionExt);
             scheduleJobService.insert(scheduleJob);
+
             return true;
         }
         boolean result = RdosTaskStatus.canStart(scheduleJob.getStatus());
@@ -465,7 +475,7 @@ public class ActionService {
             info = new JSONObject();
         }
 
-//        info.put("sql", taskShade.getSqlText());
+        info.put("sql", taskShade.getSqlText());
         info.put("engineLogErr", engineLog);
         jobLogVO.setLogInfo(info.toJSONString());
         try {
@@ -637,12 +647,4 @@ public class ActionService {
     }
 
 
-    /**
-     * 异步重跑任务
-     *
-     * @return
-     */
-    public boolean restartJob(RestartType restartType, List<String> jobIds) {
-        return true;
-    }
 }

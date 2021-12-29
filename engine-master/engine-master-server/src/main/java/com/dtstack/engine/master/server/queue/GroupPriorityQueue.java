@@ -24,7 +24,7 @@ import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.impl.EngineJobCacheService;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;

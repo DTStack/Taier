@@ -1,5 +1,7 @@
 package com.dtstack.engine.master.dto.schedule;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 /**
@@ -29,6 +31,16 @@ public class QueryTaskListDTO {
      * 调度状态：0 正常 1冻结 2停止
      */
     private Integer scheduleStatus;
+
+    /**
+     * 最近修改的开始时间
+     */
+    private Long startModifiedTime;
+
+    /**
+     * 最近修改的结束时间
+     */
+    private Long endModifiedTime;
 
     /**
      * 任务类型
@@ -80,6 +92,22 @@ public class QueryTaskListDTO {
 
     public void setScheduleStatus(Integer scheduleStatus) {
         this.scheduleStatus = scheduleStatus;
+    }
+
+    public Long getStartModifiedTime() {
+        return startModifiedTime;
+    }
+
+    public void setStartModifiedTime(Long startModifiedTime) {
+        this.startModifiedTime = startModifiedTime;
+    }
+
+    public Long getEndModifiedTime() {
+        return endModifiedTime;
+    }
+
+    public void setEndModifiedTime(Long endModifiedTime) {
+        this.endModifiedTime = endModifiedTime;
     }
 
     public List<Integer> getTaskTypeList() {

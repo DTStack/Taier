@@ -41,6 +41,19 @@ public class QueryTaskListVO extends PageVO {
     private String name;
 
     /**
+     * 最近修改的开始时间
+     */
+    @ApiModelProperty(value = "最近修改的开始时间 单位毫秒")
+    private Long startModifiedTime;
+
+    /**
+     * 最近修改的结束时间
+     */
+    @ApiModelProperty(value = "最近修改的结束时间 单位毫秒")
+    private Long endModifiedTime;
+
+
+    /**
      * 调度状态：0 正常 1冻结 2停止
      */
     @ApiModelProperty(value = "调度状态：0 正常 1冻结 2停止", example = "0")
@@ -50,13 +63,13 @@ public class QueryTaskListVO extends PageVO {
      * 任务类型
      */
     @ApiModelProperty(value = "任务类型")
-    private String taskTypes;
+    private List<Integer> taskTypeList;
 
     /**
      * 周期类型
      */
     @ApiModelProperty(value = "周期类型", hidden = true)
-    private String periodTypes;
+    private List<Integer> periodTypeList;
 
     public Long getTenantId() {
         return tenantId;
@@ -82,6 +95,22 @@ public class QueryTaskListVO extends PageVO {
         this.ownerId = ownerId;
     }
 
+    public Long getStartModifiedTime() {
+        return startModifiedTime;
+    }
+
+    public void setStartModifiedTime(Long startModifiedTime) {
+        this.startModifiedTime = startModifiedTime;
+    }
+
+    public Long getEndModifiedTime() {
+        return endModifiedTime;
+    }
+
+    public void setEndModifiedTime(Long endModifiedTime) {
+        this.endModifiedTime = endModifiedTime;
+    }
+
     public Integer getScheduleStatus() {
         return scheduleStatus;
     }
@@ -90,45 +119,19 @@ public class QueryTaskListVO extends PageVO {
         this.scheduleStatus = scheduleStatus;
     }
 
-    public String getTaskTypes() {
-        return taskTypes;
-    }
-
-    public void setTaskTypes(String taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
     public List<Integer> getTaskTypeList() {
-        String taskTypes = this.taskTypes;
-        if (StringUtils.isNotBlank(taskTypes)) {
-            try {
-                List<String> taskTypeStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskTypes);
-                return taskTypeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskTypeList;
     }
 
-    public String getPeriodTypes() {
-        return periodTypes;
-    }
-
-    public void setPeriodTypes(String periodTypes) {
-        this.periodTypes = periodTypes;
+    public void setTaskTypeList(List<Integer> taskTypeList) {
+        this.taskTypeList = taskTypeList;
     }
 
     public List<Integer> getPeriodTypeList() {
-        String periodTypes = this.periodTypes;
-        if (StringUtils.isNotBlank(periodTypes)) {
-            try {
-                List<String> periodTypesStrList = Splitter.on(",").omitEmptyStrings().splitToList(periodTypes);
-                return periodTypesStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return periodTypeList;
+    }
+
+    public void setPeriodTypeList(List<Integer> periodTypeList) {
+        this.periodTypeList = periodTypeList;
     }
 }

@@ -23,6 +23,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
