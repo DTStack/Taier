@@ -438,10 +438,6 @@ public class ClusterService implements com.dtstack.engine.api.ClusterService {
         return null;
     }
 
-    public String pluginInfoForType(Long uicTenantId, boolean b, int typeCode) {
-        return null;
-    }
-
     public String dbInfo(Long uicTenantId, Long aLong, int typeCode) {
         return null;
     }

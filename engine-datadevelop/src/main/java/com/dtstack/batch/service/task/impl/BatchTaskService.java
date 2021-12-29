@@ -531,8 +531,8 @@ public class BatchTaskService {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
 
-        final List<BatchResource> resources = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), null, ResourceRefType.MAIN_RES.getType());
-        final List<BatchResource> refResourceIdList = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), null, ResourceRefType.DEPENDENCY_RES.getType());
+        final List<BatchResource> resources = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        final List<BatchResource> refResourceIdList = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         final BatchTaskBatchVO taskVO = new BatchTaskBatchVO(this.batchTaskTaskService.getForefathers(task));
         taskVO.setVersion(task.getVersion());
@@ -1539,7 +1539,7 @@ public class BatchTaskService {
 
         final List<BatchTaskParam> batchTaskParamList = this.batchTaskParamService.getTaskParam(batchTask.getId());
         //查询出任务所有的关联的资源(运行主体资源和依赖引用资源)
-        final List<BatchTaskResource> batchTaskResourceList = this.batchTaskResourceService.getTaskResources(batchTask.getId(), null,null);
+        final List<BatchTaskResource> batchTaskResourceList = this.batchTaskResourceService.getTaskResources(batchTask.getId(), null);
         final List<BatchTaskTask> batchTaskTaskList = this.batchTaskTaskService.getAllParentTask(batchTask.getId());
 
         if (!CollectionUtils.isEmpty(batchTaskParamList)) {
@@ -2550,7 +2550,7 @@ public class BatchTaskService {
         Preconditions.checkNotNull(task, "can not find task by id " + id);
 
         //删除旧的资源
-        this.batchTaskResourceDao.deleteByTaskId(task.getId(), 0L, ResourceRefType.MAIN_RES.getType());
+        this.batchTaskResourceDao.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
 
         //添加新的资源
         if (CollectionUtils.isNotEmpty(oriResourceList)) {
@@ -2581,7 +2581,7 @@ public class BatchTaskService {
         Preconditions.checkNotNull(task, "can not find task by id " + id);
 
         //删除旧的资源
-        this.batchTaskResourceDao.deleteByTaskId(task.getId(), 0L, ResourceRefType.DEPENDENCY_RES.getType());
+        this.batchTaskResourceDao.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         //添加新的关联资源
         if (CollectionUtils.isNotEmpty(refResourceList)) {
@@ -2666,7 +2666,7 @@ public class BatchTaskService {
         //删除关联的数据源资源
         this.dataSourceTaskRefService.removeRef(taskId);
         //删除关联的函数资源
-        this.batchTaskResourceService.deleteTaskResource(taskId, projectId);
+        this.batchTaskResourceService.deleteTaskResource(taskId);
         this.batchTaskResourceShadeService.deleteByTaskId(taskId);
         //删除关联的参数表信息
         this.batchTaskParamService.deleteTaskParam(taskId);
