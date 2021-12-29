@@ -3,12 +3,12 @@
 <mapper namespace="com.dtstack.batch.dao.BatchTaskDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
+      id,tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
       schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
     <sql id="simple_select_content_fragment">
-        id,tenant_id,node_pid,name,task_type,engine_type,compute_type,period_type,
+        id,tenant_id,node_pid,name,task_type,compute_type,period_type,
       schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
@@ -28,9 +28,6 @@
             </if>
             <if test="model.taskType != null">
                 AND task_type = #{model.taskType}
-            </if>
-            <if test="model.engineType != null">
-                AND engine_type = #{model.engineType}
             </if>
             <if test="model.computeType != null">
                 AND compute_type = #{model.computeType}
@@ -116,9 +113,6 @@
             </if>
             <if test="taskType != null">
                 task_type = #{taskType},
-            </if>
-            <if test="engineType != null">
-                engine_type = #{engineType},
             </if>
             <if test="computeType != null">
                 compute_type = #{computeType},
@@ -215,7 +209,7 @@
 
     <select id="generalQueryWithoutSql" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
-        id,tenant_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,
+        id,tenant_id,node_pid,name,task_type,compute_type,task_params,schedule_conf,period_type,
         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id
         FROM rdos_batch_task
         <include refid="select_where_fragment"/>
@@ -316,10 +310,10 @@
 
     <insert id="insert" parameterType="com.dtstack.engine.domain.BatchTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task
-          (tenant_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,
+          (tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
           schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
         VALUES
-          (#{tenantId},#{nodePid},#{name},#{taskType},#{engineType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
+          (#{tenantId},#{nodePid},#{name},#{taskType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
           #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
     </insert>
 
@@ -379,7 +373,7 @@
     <!--适用于任务列表的目录信息list查询,不查询sql_text等无用的大字段 -->
     <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
-        t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.engine_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
+        t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
         t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.owner_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
         if(t.version != ifnull(tv.version,-1),0,1) as status
         FROM rdos_batch_task t left join (select task_id,max(version) as version from rdos_batch_task_version group by task_id)tv on t.id = tv.task_id

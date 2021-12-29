@@ -145,8 +145,8 @@ public class BatchTaskTaskService {
         return parentTaskList;
     }
 
-    public void deleteByProjectId(Long projectId) {
-        batchTaskTaskDao.deleteByProjectId(projectId, AppType.RDOS.getType());
+    public void deleteByTenantId(Long tenantId) {
+        batchTaskTaskDao.deleteByTenantId(tenantId, AppType.RDOS.getType());
 /*        List<BatchTaskTask> taskTasks = listTaskTaskByProjectId(projectId);
         Set<Long> taskIds = taskTasks.stream().map(BatchTaskTask::getTaskId).collect(Collectors.toSet());
         taskIds.stream().forEach(taskId -> scheduleTaskTaskShadeService.clearDataByTaskId(taskId, AppType.RDOS.getType()));*/
