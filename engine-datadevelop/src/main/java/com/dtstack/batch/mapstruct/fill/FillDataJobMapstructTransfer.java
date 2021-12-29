@@ -36,8 +36,7 @@ public interface FillDataJobMapstructTransfer {
      * 补数据列表 domain->vo
      */
     @Mappings({
-            @Mapping(target = "fillDataName",source = "jobName"),
-            @Mapping(target = "userId",source = "createUserId")
+            @Mapping(target = "fillDataName",source = "jobName")
     })
     ReturnFillDataListVO fillDataListDTOToFillDataReturnListVO(ScheduleFillDataJob record);
 

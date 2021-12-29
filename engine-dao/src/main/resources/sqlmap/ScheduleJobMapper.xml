@@ -91,8 +91,36 @@
                     #{periodType}
                 </foreach>
             </if>
+            <if test="statistics.fillTypeList!=null and statistics.fillTypeList.size!=0">
+                AND `fill_type` IN
+                <foreach collection="statistics.fillTypeList" open="(" close=")" item="fillType" separator=",">
+                    #{fillType}
+                </foreach>
+            </if>
+            <if test="statistics.type!=null" >
+                AND `type` = #{statistics.type}
+            </if>
+            <if test="statistics.fillId!=null">
+                AND `fill_id` = #{statistics.fillId}
+            </if>
         GROUP BY status
 
+    </select>
+
+    <select id="listAfterOrBeforeJobs" resultType="com.dtstack.engine.domain.ScheduleJob">
+        SELECT
+            `job_id`,`cyc_time`,`status`
+        FROM `schedule_job`
+        WHERE `task_id` = #{taskId}
+            AND type = #{type}
+        <choose>
+            <when test="isAfter">
+                AND `cyc_time` > #{cycTime}
+            </when>
+            <otherwise>
+                <![CDATA[ AND `cyc_time` < ]]> #{cycTime}
+            </otherwise>
+        </choose>
     </select>
 
 

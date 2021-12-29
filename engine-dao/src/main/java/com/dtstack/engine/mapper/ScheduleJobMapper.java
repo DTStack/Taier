@@ -34,7 +34,9 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
     List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress, @Param("phaseStatus") Integer phaseStatus);
 
-    void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
+    Integer updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
 
     List<StatusCountPO> queryJobsStatusStatistics(@Param("statistics") JobsStatusStatisticsPO statistics);
+
+    List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") Boolean isAfter, @Param("cycTime") String cycTime, @Param("type") Integer type);
 }

@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.action.restart.impl;
 
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.mapper.ScheduleJobDao;
@@ -7,6 +8,7 @@ import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.master.action.restart.AbstractRestartJob;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.context.ApplicationContext;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +22,8 @@ import java.util.Map;
  */
 public class SetSuccessAndResumeSchedulingRestartJob extends AbstractRestartJob {
 
-    public SetSuccessAndResumeSchedulingRestartJob(ScheduleJobDao scheduleJobDao, EnvironmentContext environmentContext, ScheduleJobJobDao scheduleJobJobDao, ScheduleJobService scheduleJobService) {
-        super(scheduleJobDao, environmentContext, scheduleJobJobDao, scheduleJobService);
+    public SetSuccessAndResumeSchedulingRestartJob(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
+        super(environmentContext, applicationContext);
     }
 
     @Override
@@ -34,7 +36,10 @@ public class SetSuccessAndResumeSchedulingRestartJob extends AbstractRestartJob 
                 resumeBatchJobs.putAll(allChildJobWithSameDayByForkJoin);
             }
             if (!"0".equalsIgnoreCase(job.getFlowJobId())) {
-                ScheduleJob workFlowJob = scheduleJobDao.getByJobId(job.getFlowJobId(), null);
+                ScheduleJob workFlowJob = scheduleJobService.lambdaQuery()
+                        .eq(ScheduleJob::getJobId,job.getFlowJobId())
+                        .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .one();
                 if (null != workFlowJob) {
                     resumeBatchJobs.put(workFlowJob.getJobId(), workFlowJob.getCycTime());
                 }

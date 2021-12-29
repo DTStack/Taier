@@ -65,13 +65,13 @@ public class QueryFillDataJobListVO extends PageVO {
      * 任务类型
      */
     @ApiModelProperty(value = "任务类型,多个用逗号隔开")
-    private String taskTypes;
+    private List<Integer> taskTypeList;
 
     /**
      * 状态
      */
     @ApiModelProperty(value = "状态类型,多个用逗号隔开")
-    private String jobStatuses;
+    private List<Integer> jobStatusList;
 
     /**
      * 按业务日期排序
@@ -151,46 +151,20 @@ public class QueryFillDataJobListVO extends PageVO {
         this.ownerId = ownerId;
     }
 
-    public String getTaskTypes() {
-        return taskTypes;
-    }
-
-    public void setTaskTypes(String taskTypes) {
-        this.taskTypes = taskTypes;
-    }
-
     public List<Integer> getTaskTypeList() {
-        String taskTypes = this.taskTypes;
-        if (StringUtils.isNotBlank(taskTypes)) {
-            try {
-                List<String> taskTypeStrList = Splitter.on(",").omitEmptyStrings().splitToList(taskTypes);
-                return taskTypeStrList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return taskTypeList;
     }
 
-    public String getJobStatuses() {
-        return jobStatuses;
-    }
-
-    public void setJobStatuses(String jobStatuses) {
-        this.jobStatuses = jobStatuses;
+    public void setTaskTypeList(List<Integer> taskTypeList) {
+        this.taskTypeList = taskTypeList;
     }
 
     public List<Integer> getJobStatusList() {
-        String jobStatuses = this.jobStatuses;
-        if (StringUtils.isNotBlank(jobStatuses)) {
-            try {
-                List<String> jobStatusList = Splitter.on(",").omitEmptyStrings().splitToList(jobStatuses);
-                return jobStatusList.stream().map(Integer::parseInt).collect(Collectors.toList());
-            } catch (Exception e) {
-                LOGGER.error("",e);
-            }
-        }
-        return Lists.newArrayList();
+        return jobStatusList;
+    }
+
+    public void setJobStatusList(List<Integer> jobStatusList) {
+        this.jobStatusList = jobStatusList;
     }
 
     public String getBusinessDateSort() {

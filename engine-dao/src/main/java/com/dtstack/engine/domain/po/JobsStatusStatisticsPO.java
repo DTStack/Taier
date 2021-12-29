@@ -50,6 +50,22 @@ public class JobsStatusStatisticsPO {
      */
     private List<Integer> taskPeriodTypeList;
 
+    /**
+     * 补数据类型
+     */
+    private List<Integer> FillTypeList;
+
+    /**
+     * 实例类型 周期实例：0, 补数据实例:1;
+     */
+    private Integer type;
+
+    /**
+     * 补数据id
+     */
+    private Long fillId;
+
+
     public Long getTenantId() {
         return tenantId;
     }
@@ -112,5 +128,29 @@ public class JobsStatusStatisticsPO {
 
     public void setTaskPeriodTypeList(List<Integer> taskPeriodTypeList) {
         this.taskPeriodTypeList = taskPeriodTypeList;
+    }
+
+    public List<Integer> getFillTypeList() {
+        return FillTypeList;
+    }
+
+    public void setFillTypeList(List<Integer> fillTypeList) {
+        FillTypeList = fillTypeList;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Long getFillId() {
+        return fillId;
+    }
+
+    public void setFillId(Long fillId) {
+        this.fillId = fillId;
     }
 }

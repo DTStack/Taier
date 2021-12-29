@@ -1,20 +1,19 @@
 package com.dtstack.engine.master.action.restart;
 
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
-import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.master.service.ScheduleJobJobService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -28,20 +27,20 @@ public abstract class AbstractRestart {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(AbstractRestart.class);
 
-    protected final ScheduleJobDao scheduleJobDao;
+    protected final ScheduleJobService scheduleJobService;
 
-    protected final ScheduleJobJobDao scheduleJobJobDao;
+    protected final ScheduleJobJobService scheduleJobJobService;
 
     protected final EnvironmentContext environmentContext;
 
-    protected final ScheduleJobService scheduleJobService;
+    protected final  ApplicationContext applicationContext;
 
 
-    public AbstractRestart(ScheduleJobDao scheduleJobDao, EnvironmentContext environmentContext, ScheduleJobJobDao scheduleJobJobDao, ScheduleJobService scheduleJobService) {
-        this.scheduleJobDao = scheduleJobDao;
+    public AbstractRestart(EnvironmentContext environmentContext, ApplicationContext applicationContext) {
         this.environmentContext = environmentContext;
-        this.scheduleJobJobDao = scheduleJobJobDao;
-        this.scheduleJobService = scheduleJobService;
+        this.applicationContext = applicationContext;
+        this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
+        this.scheduleJobJobService = applicationContext.getBean(ScheduleJobJobService.class);
     }
 
     /**
@@ -53,9 +52,12 @@ public abstract class AbstractRestart {
     protected void setSubFlowJob(ScheduleJob batchJob, Map<String,String> resumeBatchJobs) {
         List<String> subFlowJob = getSubFlowJob(batchJob);
         if (CollectionUtils.isNotEmpty(subFlowJob)) {
-            List<ScheduleJob> jobs = scheduleJobDao.getRdosJobByJobIds(subFlowJob);
-            if(CollectionUtils.isNotEmpty(jobs)){
-                resumeBatchJobs.putAll(jobs.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
+            List<ScheduleJob> jobList = scheduleJobService.lambdaQuery()
+                    .in(ScheduleJob::getFlowJobId, subFlowJob)
+                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
+            if(CollectionUtils.isNotEmpty(jobList)){
+                resumeBatchJobs.putAll(jobList.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
             }
         }
     }
@@ -70,9 +72,12 @@ public abstract class AbstractRestart {
         List<String> subJobIds = new ArrayList<>();
         if (EScheduleJobType.WORK_FLOW.getType().equals(batchJob.getTaskType())) {
             //如果任务为工作流类型 需要补充自己的子节点
-            List<ScheduleJob> subJobsByFlowIds = scheduleJobDao.getSubJobsByFlowIds(Collections.singletonList(batchJob.getJobId()));
-            if (CollectionUtils.isNotEmpty(subJobsByFlowIds)) {
-                subJobIds.addAll(subJobsByFlowIds.stream()
+            List<ScheduleJob> flowJobList = scheduleJobService.lambdaQuery()
+                    .eq(ScheduleJob::getFlowJobId, batchJob.getJobId())
+                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
+            if (CollectionUtils.isNotEmpty(flowJobList)) {
+                subJobIds.addAll(flowJobList.stream()
                         .map(ScheduleJob::getJobId)
                         .collect(Collectors.toSet()));
             }
@@ -90,7 +95,7 @@ public abstract class AbstractRestart {
     protected Map<String,String> getAllChildJobWithSameDayByForkJoin(String jobId, boolean isOnlyNextChild) {
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         ConcurrentHashMap<String,String> results = new ConcurrentHashMap<>();
-        ForkJoinJobTask forkJoinJobTask = new ForkJoinJobTask(jobId, results, scheduleJobDao, scheduleJobJobDao, isOnlyNextChild);
+        ForkJoinJobTask forkJoinJobTask = new ForkJoinJobTask(jobId, results, scheduleJobService, scheduleJobJobService, isOnlyNextChild);
         ForkJoinTask<Map<String,String>> submit = forkJoinPool.submit(forkJoinJobTask);
         try {
             return submit.get(environmentContext.getForkJoinResultTimeOut(), TimeUnit.SECONDS);
@@ -110,9 +115,15 @@ public abstract class AbstractRestart {
         List<String> jobIds = getSubFlowJob(job);
         // 设置强规则任务
         jobIds.add(job.getJobId());
-        scheduleJobDao.updateJobStatusByIds(RdosTaskStatus.MANUALSUCCESS.getStatus(), jobIds);
-        LOGGER.info("ids  {} manual success", jobIds);
 
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setStatus(RdosTaskStatus.MANUALSUCCESS.getStatus());
+        scheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        scheduleJobService.lambdaUpdate().in(ScheduleJob::getFlowJobId,jobIds)
+                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJob);
+
+        LOGGER.info("ids  {} manual success", jobIds);
         // 置成功并恢复调度,要把当前置成功任务去除掉
         jobIds.forEach(jobMap::remove);
     }
