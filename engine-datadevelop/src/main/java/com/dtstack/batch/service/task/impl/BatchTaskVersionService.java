@@ -127,11 +127,11 @@ public class BatchTaskVersionService {
     }
 
     /**
-     * 根据projectId 删除记录
-     * @param projectId
+     * 根据tenantId 删除记录
+     * @param tenantId
      * @return
      */
-    public Integer deleteByProjectId(Long projectId){
-        return batchTaskVersionDao.deleteByProjectId(projectId);
+    public Integer deleteByTenantId(Long tenantId){
+        return batchTaskVersionDao.deleteByTenantId(tenantId);
     }
 }

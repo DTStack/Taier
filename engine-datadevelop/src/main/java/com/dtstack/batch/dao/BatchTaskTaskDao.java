@@ -47,7 +47,7 @@ public interface BatchTaskTaskDao {
 
     Integer deleteByParentId(@Param("parentId") long parentId, @Param("parentAppType") Integer parentAppType);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId, @Param("parentAppType") Integer parentAppType);
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("parentAppType") Integer parentAppType);
 
     List<BatchTaskTask> listTaskTaskByTaskIds(@Param("taskIds") List<Long> taskIds);
 }
