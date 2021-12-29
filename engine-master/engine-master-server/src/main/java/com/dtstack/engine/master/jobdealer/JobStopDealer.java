@@ -187,7 +187,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      */
     private void cancellingJob(LambdaUpdateChainWrapper<ScheduleJob> scheduleJobService) {
         ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setStatus(RdosTaskStatus.CANCELLING.getStatus());
+        scheduleJob.setStatus(RdosTaskStatus.CANCELED.getStatus());
         scheduleJobService
                 .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .update(scheduleJob);

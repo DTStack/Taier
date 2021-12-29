@@ -74,12 +74,6 @@ public class QueryFillDataJobListVO extends PageVO {
     private List<Integer> jobStatusList;
 
     /**
-     * 按业务日期排序
-     */
-    @ApiModelProperty(value = "按业务日期排序")
-    private String businessDateSort;
-
-    /**
      * 按计划时间排序
      */
     @ApiModelProperty(value = "按计划时间排序")
@@ -96,6 +90,12 @@ public class QueryFillDataJobListVO extends PageVO {
      */
     @ApiModelProperty(value = "按开始时间排序")
     private String execStartSort;
+
+    /**
+     * 结束时间
+     */
+    @ApiModelProperty(value = "结束时间")
+    private String execEndSort;
 
     /**
      * 按重试次数排序
@@ -166,15 +166,6 @@ public class QueryFillDataJobListVO extends PageVO {
     public void setJobStatusList(List<Integer> jobStatusList) {
         this.jobStatusList = jobStatusList;
     }
-
-    public String getBusinessDateSort() {
-        return businessDateSort;
-    }
-
-    public void setBusinessDateSort(String businessDateSort) {
-        this.businessDateSort = businessDateSort;
-    }
-
     public String getCycSort() {
         return cycSort;
     }
@@ -197,6 +188,14 @@ public class QueryFillDataJobListVO extends PageVO {
 
     public void setExecStartSort(String execStartSort) {
         this.execStartSort = execStartSort;
+    }
+
+    public String getExecEndSort() {
+        return execEndSort;
+    }
+
+    public void setExecEndSort(String execEndSort) {
+        this.execEndSort = execEndSort;
     }
 
     public String getRetryNumSort() {
