@@ -618,11 +618,11 @@ public enum Engine2DTOService {
      * @return
      */
     public static Map<String, String> getSftp(Long uicTenantId) {
-        String data = clusterService.pluginInfoForType(uicTenantId, true, EComponentApiType.SFTP.getTypeCode());
-        if (StringUtils.isBlank(data)) {
+        JSONObject data = clusterService.getConfigByKey(uicTenantId, EComponentType.SFTP.getConfName(), null);
+        if (data == null) {
             throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentApiType.SFTP.name()));
         }
-        Map<String, Object> conf = JSONObject.parseObject(data, Map.class);
+        Map<String, Object> conf = JSONObject.parseObject(data.toJSONString(), Map.class);
         return conf.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (entry.getValue() == null ? null : entry.getValue().toString())));
     }
@@ -750,11 +750,11 @@ public enum Engine2DTOService {
      * @return
      */
     private static Map<String, Object> getHdfsInfo(Long uicTenantId) {
-        String data = clusterService.pluginInfoForType(uicTenantId, true, EComponentApiType.HDFS.getTypeCode());
-        if (StringUtils.isBlank(data)) {
+        JSONObject data = clusterService.getConfigByKey(uicTenantId, EComponentType.HDFS.getConfName(), null);
+        if (data == null) {
             throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentApiType.HDFS.name()));
         }
-        return JSONObject.parseObject(data, Map.class);
+        return JSONObject.parseObject(data.toJSONString(), Map.class);
     }
 
     /**
