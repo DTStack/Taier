@@ -4,6 +4,7 @@ import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.batch.vo.schedule.QueryTaskListVO;
 import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.vo.schedule.ReturnScheduleTaskVO;
+import com.dtstack.batch.vo.schedule.ReturnTaskSupportTypesVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.pager.PageResult;
 import io.swagger.annotations.Api;
@@ -24,7 +25,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/node/scheduleTaskShade")
-@Api(value = "/node/scheduleTaskShade", tags = {"运维中心任务接口"})
+@Api(value = "/node/scheduleTaskShade", tags = {"运维中心---任务相关接口"})
 public class OperationScheduleTaskController {
 
     @Autowired
@@ -56,7 +57,9 @@ public class OperationScheduleTaskController {
         return taskService.dealFlowWorkTask(taskId);
     }
 
-
-
-
+    @PostMapping(value = "/querySupportJobTypes")
+    @ApiOperation(value = "查询所有任务类型")
+    public List<ReturnTaskSupportTypesVO> querySupportJobTypes() {
+        return taskService.querySupportJobTypes();
+    }
 }

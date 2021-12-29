@@ -14,6 +14,7 @@ import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.mapper.ScheduleJobJobMapper;
 import com.dtstack.engine.master.dto.schedule.QueryJobDisplayDTO;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -144,6 +145,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         rootNode.setStatus(scheduleJob.getStatus());
         rootNode.setTaskId(scheduleJob.getTaskId());
         rootNode.setTaskType(scheduleJob.getTaskType());
+        rootNode.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
 
         ScheduleTaskShade taskShade = taskShadeMap.get(scheduleJob.getTaskId());
         if (taskShade != null) {
@@ -190,6 +192,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 vo.setStatus(scheduleJob.getStatus());
                 vo.setTaskId(scheduleJob.getTaskId());
                 vo.setTaskType(scheduleJob.getTaskType());
+                vo.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
 
                 ScheduleTaskShade taskShade = taskShadeMap.get(scheduleJob.getTaskId());
                 if (taskShade != null) {
@@ -217,6 +220,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
      */
     private Map<Long, ScheduleTaskShade> findTaskJob(List<ScheduleJob> scheduleJobList) {
         List<Long> taskIdList = scheduleJobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(taskIdList)) {
+            return Maps.newHashMap();
+        }
         List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery()
                 .in(ScheduleTaskShade::getTaskId, taskIdList)
                 .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
@@ -235,6 +241,10 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         Set<String> jobKeySet = Sets.newHashSet(allJobJob.keySet());
         for (List<String> jobKeyList : allJobJob.values()) {
             jobKeySet.addAll(jobKeyList);
+        }
+
+        if (CollectionUtils.isEmpty(jobKeySet)) {
+            return Lists.newArrayList();
         }
         return jobService.lambdaQuery()
                 .in(ScheduleJob::getJobKey, jobKeySet)
@@ -256,6 +266,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         Map<String, List<String>> jobJobKeyMap = Maps.newHashMap();
         // 查询出所有边（jobjob）
         for (int i = 0; i < level; i++) {
+            if (CollectionUtils.isEmpty(jobKeys)) {
+                break;
+            }
             if (DisplayDirect.CHILD.getType().equals(directType)) {
                 // 向下查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()

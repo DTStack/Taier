@@ -18,10 +18,8 @@
 
 package com.dtstack.engine.master.jobdealer.cache;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.mapper.EngineJobCacheMapper;
-import com.dtstack.engine.master.impl.EngineJobCacheService;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.JobStatusDealer;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
 import org.slf4j.Logger;

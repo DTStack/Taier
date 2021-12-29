@@ -26,6 +26,13 @@ public class JobNodeVO {
     private Integer status;
 
     /**
+     * 实例状态
+     */
+    @ApiModelProperty(value = "计划时间")
+    private String cycTime;
+
+
+    /**
      * 任务id
      */
     @ApiModelProperty(value = "任务id")
@@ -48,6 +55,18 @@ public class JobNodeVO {
      */
     @ApiModelProperty(value = "发布时间")
     private Timestamp taskGmtCreate;
+
+    /**
+     * 责任人id
+     */
+    @ApiModelProperty(value = "责任人id",example = "1")
+    private Long ownerId;
+
+    /**
+     * 责任人名称
+     */
+    @ApiModelProperty(value = "责任人名称",example = "1")
+    private String ownerName;
 
     /**
      * 子节点
@@ -75,6 +94,14 @@ public class JobNodeVO {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getCycTime() {
+        return cycTime;
+    }
+
+    public void setCycTime(String cycTime) {
+        this.cycTime = cycTime;
     }
 
     public Long getTaskId() {
@@ -107,6 +134,22 @@ public class JobNodeVO {
 
     public void setTaskGmtCreate(Timestamp taskGmtCreate) {
         this.taskGmtCreate = taskGmtCreate;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public List<JobNodeVO> getChildNode() {

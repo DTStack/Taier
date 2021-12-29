@@ -2,6 +2,9 @@ package com.dtstack.engine.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.domain.ScheduleJobExpand;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Set;
 
 /**
  * @Auther: dazhi
@@ -11,4 +14,8 @@ import com.dtstack.engine.domain.ScheduleJobExpand;
  */
 public interface ScheduleJobExpandMapper extends BaseMapper<ScheduleJobExpand> {
 
+    Integer updateLogByJobIds(@Param("jobIds") Set<String> jobIds,
+                              @Param("isDeleted") Integer isDeleted,
+                              @Param("logInfo") String logInfo,
+                              @Param("engineLog") String engineLog);
 }

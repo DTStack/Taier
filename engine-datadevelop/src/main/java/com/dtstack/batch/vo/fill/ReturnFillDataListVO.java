@@ -55,6 +55,12 @@ public class ReturnFillDataListVO {
     private String toDay;
 
     /**
+     * 运行日期
+     */
+    @ApiModelProperty(value = "运行日期",example = "2021-12-23")
+    private String runDay;
+
+    /**
      * 补数据生成时间
      */
     @ApiModelProperty(value = "补数据生成时间",example = "2021-12-24 16:01:02")
@@ -64,13 +70,13 @@ public class ReturnFillDataListVO {
      * 操作人名称
      */
     @ApiModelProperty(value = "操作人名称",example = "admin@dtstack.com")
-    private String UserName;
+    private String ownerName;
 
     /**
      * 操作人id
      */
     @ApiModelProperty(value = "操作人id",example = "")
-    private Long userId;
+    private Long ownerId;
 
     public Long getId() {
         return id;
@@ -128,6 +134,14 @@ public class ReturnFillDataListVO {
         this.toDay = toDay;
     }
 
+    public String getRunDay() {
+        return runDay;
+    }
+
+    public void setRunDay(String runDay) {
+        this.runDay = runDay;
+    }
+
     public String getGmtCreate() {
         return gmtCreate;
     }
@@ -136,19 +150,19 @@ public class ReturnFillDataListVO {
         this.gmtCreate = gmtCreate;
     }
 
-    public String getUserName() {
-        return UserName;
+    public String getOwnerName() {
+        return ownerName;
     }
 
-    public void setUserName(String userName) {
-        UserName = userName;
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 }
