@@ -48,8 +48,7 @@ public class BatchTaskResourceController {
         return new APITemplate<List<BatchResourceResultVO> >() {
             @Override
             protected List<BatchResourceResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchResourceListToBatchResourceResultVOList(resourceService.getResources(vo.getTaskId(),
-                        vo.getProjectId(), vo.getType()));
+                return TaskMapstructTransfer.INSTANCE.BatchResourceListToBatchResourceResultVOList(resourceService.getResources(vo.getTaskId(), vo.getType()));
             }
         }.execute();
     }
