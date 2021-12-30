@@ -191,7 +191,7 @@ public class BatchCatalogueService {
      * @return
      */
     private BatchCatalogue addOrUpdate(BatchCatalogue batchCatalogue) {
-        if (batchCatalogue.getId() > 0) {
+        if (batchCatalogue.getId() != null && batchCatalogue.getId() > 0) {
             batchCatalogueDao.update(batchCatalogue);
         } else {
             batchCatalogueDao.insert(batchCatalogue);
@@ -567,7 +567,7 @@ public class BatchCatalogueService {
     public void updateCatalogue(BatchCatalogueVO catalogueInput, Long userId) {
 
         BatchCatalogue catalogue = batchCatalogueDao.getOne(catalogueInput.getId());
-        catalugeOneNotUpdate(catalogue);
+        catalogueOneNotUpdate(catalogue);
         if (catalogue == null || catalogue.getIsDeleted() == 1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
@@ -607,7 +607,7 @@ public class BatchCatalogueService {
 
         BatchCatalogue catalogue = batchCatalogueDao.getOne(catalogueInput.getId());
 
-        catalugeOneNotUpdate(catalogue);
+        catalogueOneNotUpdate(catalogue);
 
         if (catalogue == null || catalogue.getIsDeleted() == 1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
@@ -638,7 +638,7 @@ public class BatchCatalogueService {
      * @param catalogue
      * @author jiangbo
      */
-    private void catalugeOneNotUpdate(BatchCatalogue catalogue) {
+    private void catalogueOneNotUpdate(BatchCatalogue catalogue) {
         if (catalogue.getCatalogueType().equals(RdosBatchCatalogueTypeEnum.TENANT.getType())) {
             if (catalogue.getLevel() == 0) {
                 throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
@@ -1106,36 +1106,6 @@ public class BatchCatalogueService {
                 }
             }
         }
-    }
-
-
-    /**
-     * 新增路径
-     *
-     * @param pathList 路径列表
-     * @param rootName 如 数据开发、资源管理等
-     * @param tenantId
-     * @return
-     */
-    public Long createCataloguePath(List<String> pathList, String rootName, Long tenantId) {
-        BatchCatalogue zeroCatalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(1, tenantId, rootName);
-        Long nodePid = zeroCatalogue.getId();
-        if (CollectionUtils.isNotEmpty(pathList)) {
-            for (String nodeName : pathList) {
-                BatchCatalogue catalogue = batchCatalogueDao.getByPidAndName(tenantId, nodePid, nodeName);
-                if (catalogue == null) {
-                    catalogue = new BatchCatalogue();
-                    catalogue.setNodeName(nodeName);
-                    catalogue.setNodePid(nodePid);
-                    catalogue.setTenantId(zeroCatalogue.getTenantId());
-                    CatalogueVO catalogueVO = addCatalogue(catalogue);
-                    nodePid = catalogueVO.getId();
-                } else {
-                    nodePid = catalogue.getId();
-                }
-            }
-        }
-        return nodePid;
     }
 
 

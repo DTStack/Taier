@@ -20,14 +20,14 @@ package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTaskTask;
+import com.dtstack.batch.service.console.TenantService;
+import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.engine.common.enums.base.AppType;
-import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
-import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,6 +62,9 @@ public class BatchTaskTaskService {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
+    private TaskService taskService;
+
+    @Autowired
     private BatchTaskService batchTaskService;
 
     @Transactional(rollbackFor = Exception.class)
@@ -92,8 +95,7 @@ public class BatchTaskTaskService {
      */
     private BatchTaskTask existTaskTask(List<BatchTaskTask> dependencyTaskTasks, BatchTaskTask taskTask) {
         for (BatchTaskTask batchTaskTask : dependencyTaskTasks) {
-            if (taskTask.getParentAppType().equals(batchTaskTask.getParentAppType()) &&
-                    taskTask.getParentTaskId().equals(batchTaskTask.getParentTaskId())) {
+            if (taskTask.getParentTaskId().equals(batchTaskTask.getParentTaskId())) {
                 return batchTaskTask;
             }
         }
@@ -199,8 +201,7 @@ public class BatchTaskTaskService {
         List<ScheduleTaskVO> fatherTaskVOs = Lists.newArrayList();
         for (BatchTaskTask taskTask : taskTasks) {
             Long parentTaskId = taskTask.getParentTaskId();
-            Integer parentAppType = taskTask.getParentAppType();
-            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(parentTaskId, Deleted.NORMAL.getStatus(), parentAppType);
+            ScheduleTaskShade taskShade = taskService.findTaskByTaskId(parentTaskId);
             if (taskShade != null) {
                 ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO();
                 BeanUtils.copyProperties(taskShade, scheduleTaskVO);
