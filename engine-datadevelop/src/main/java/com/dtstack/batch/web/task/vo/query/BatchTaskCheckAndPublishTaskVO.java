@@ -27,9 +27,6 @@ import lombok.Data;
 @ApiModel("任务信息")
 public class BatchTaskCheckAndPublishTaskVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "任务ID", example = "1", required = true)
     private Long id;
 
@@ -42,6 +39,6 @@ public class BatchTaskCheckAndPublishTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "是否root用户", hidden = true)
     private Boolean isRoot;
 
-    @ApiModelProperty(value = "uic 租户 ID", hidden = true)
-    private Long dtuicTenantId;
+    @ApiModelProperty(value = "租户 ID", hidden = true)
+    private Long tenantId;
 }

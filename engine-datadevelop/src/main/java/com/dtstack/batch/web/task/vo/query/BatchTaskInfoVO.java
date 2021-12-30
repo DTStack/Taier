@@ -28,9 +28,6 @@ import lombok.Data;
 @ApiModel("任务信息")
 public class BatchTaskInfoVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "任务名称", example = "spark_test", required = true)
     private String taskName;
 }
