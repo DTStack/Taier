@@ -6,14 +6,14 @@
         id,type,dict_name,dict_value,dict_name_zh,dict_name_en,dict_sort,gmt_create,gmt_modified,is_deleted
     </sql>
 
-    <select id="listByType" resultType="Dict">
+    <select id="listByType" resultType="com.dtstack.batch.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_dict
         WHERE type = #{type} AND is_deleted = 0 ORDER BY dict_sort ASC
     </select>
 
-    <select id="getByTypeAndValue" resultType="Dict">
+    <select id="getByTypeAndValue" resultType="com.dtstack.batch.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_dict

@@ -2020,4 +2020,8 @@ public class DatasourceService {
 
     public void createMateDataSource(Long tenantId, Long userId, String toJSONString, String dataSourceName, Integer dataSourceType, String tenantDesc, String dbName) {
     }
+
+    public Integer getEComponentTypeByDataSourceType(Integer val) {
+        return null;
+    }
 }

@@ -3,23 +3,23 @@
 <mapper namespace="com.dtstack.engine.mapper.ScheduleTaskShadeDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
-      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,task_rule,component_version,business_type
+      id,tenant_id,task_id,node_pid,name,task_type,engine_type,compute_type,sql_text,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,task_rule,component_version,business_type
     </sql>
 
     <sql id="select_content_fragment_with_sql">
-        id,tenant_id,task_id,project_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
-      schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,task_rule,component_version,business_type
+        id,tenant_id,task_id,node_pid,name,task_type,engine_type,compute_type,task_params,schedule_conf,period_type,app_type,dtuic_tenant_id,
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,task_desc,main_class,exe_args,flow_id,is_publish_to_produce,task_rule,component_version,business_type
     </sql>
 
     <sql id="alias_select_content_fragment">
-        ts.id,ts.tenant_id,ts.task_id,ts.project_id,ts.node_pid,ts.name,ts.task_type,ts.app_type,ts.engine_type,ts.compute_type,ts.sql_text,ts.task_params,ts.schedule_conf,ts.period_type,
-        ts.schedule_status,ts.project_schedule_status,ts.submit_status,ts.gmt_create,ts.gmt_modified,ts.modify_user_id,ts.create_user_id,ts.owner_user_id,ts.version_id,ts.is_deleted,ts.task_desc,ts.main_class,ts.exe_args,ts.flow_id,ts.is_publish_to_produce,ts.dtuic_tenant_id,task_rule,component_version,ts.business_type
+        ts.id,ts.tenant_id,ts.task_id,ts.node_pid,ts.name,ts.task_type,ts.app_type,ts.engine_type,ts.compute_type,ts.sql_text,ts.task_params,ts.schedule_conf,ts.period_type,
+        ts.schedule_status,ts.submit_status,ts.gmt_create,ts.gmt_modified,ts.modify_user_id,ts.create_user_id,ts.owner_user_id,ts.version_id,ts.is_deleted,ts.task_desc,ts.main_class,ts.exe_args,ts.flow_id,ts.is_publish_to_produce,ts.dtuic_tenant_id,task_rule,component_version,ts.business_type
     </sql>
 
     <sql id="simple_select_content_fragment">
-        id,tenant_id,project_id,name,task_type,engine_type,compute_type,period_type,schedule_conf,task_id,app_type,
-        schedule_status,project_schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,flow_id,is_publish_to_produce,dtuic_tenant_id,task_rule,component_version,business_type
+        id,tenant_id,name,task_type,engine_type,compute_type,period_type,schedule_conf,task_id,app_type,
+        schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version_id,is_deleted,flow_id,is_publish_to_produce,dtuic_tenant_id,task_rule,component_version,business_type
     </sql>
 
     <sql id="select_where_fragment">
@@ -31,11 +31,8 @@
                 AND tenant_id = #{model.tenantId}
             </if>
 
-            <if test="model.dtuicTenantId != null and model.dtuicTenantId != 0">
-                AND dtuic_tenant_id = #{model.dtuicTenantId}
-            </if>
-            <if test="model.projectId != null">
-                AND project_id = #{model.projectId}
+            <if test="model.tenantId != null and model.tenantId != 0">
+                AND tenant_id = #{model.tenantId}
             </if>
             <if test="model.nodePid != null">
                 AND node_pid = #{model.nodePid}
@@ -45,9 +42,6 @@
             </if>
             <if test="model.taskType != null">
                 AND task_type = #{model.taskType}
-            </if>
-            <if test="model.engineType != null">
-                AND engine_type = #{model.engineType}
             </if>
             <if test="model.computeType != null">
                 AND compute_type = #{model.computeType}
@@ -151,9 +145,6 @@
             <if test="tenantId != null and tenantId > 0">
                 tenant_id = #{tenantId},
             </if>
-            <if test="projectId != null and projectId > 0">
-                project_id = #{projectId},
-            </if>
             <if test="nodePid != null">
                 node_pid = #{nodePid},
             </if>
@@ -162,9 +153,6 @@
             </if>
             <if test="taskType != null">
                 task_type = #{taskType},
-            </if>
-            <if test="engineType != null">
-                engine_type = #{engineType},
             </if>
             <if test="computeType != null">
                 compute_type = #{computeType},
@@ -214,29 +202,14 @@
             <if test="mainClass != null">
                 main_class = #{mainClass},
             </if>
-            <if test="exeArgs != null">
-                exe_args = #{exeArgs},
-            </if>
-            <if test="isPublishToProduce != null">
-                is_publish_to_produce = #{isPublishToProduce},
-            </if>
-            <if test="dtuicTenantId !=null and dtuicTenantId > 0">
-                dtuic_tenant_id  = #{dtuicTenantId},
+            <if test="tenantId !=null and tenantId > 0">
+                dtuic_tenant_id  = #{tenantId},
             </if>
             <if test="flowId !=null">
                 flow_id  = #{flowId},
             </if>
-            <if test="projectScheduleStatus != null">
-                project_schedule_status = #{projectScheduleStatus},
-            </if>
-            <if test="taskRule != null">
-                task_rule = #{taskRule},
-            </if>
             <if test="componentVersion != null and componentVersion != '' ">
                 component_version = #{componentVersion}
-            </if>
-            <if test="businessType!=null">
-                business_type = #{businessType}
             </if>
         </set>
     </sql>
@@ -252,7 +225,7 @@
         SELECT
         <include refid="select_content_fragment_with_sql"/>
         FROM schedule_task_shade
-        WHERE id > #{startId} AND submit_status = #{submitStatus} and project_schedule_status = #{projectScheduleStatus} and is_deleted = 0
+        WHERE id > #{startId} AND submit_status = #{submitStatus} and is_deleted = 0
         <if test="appType != null">
             and app_type = #{appType}
         </if>
@@ -745,18 +718,13 @@
         SELECT
             t.id,
             t.tenant_id,
-            t.project_id,
             t.name,
             t.task_type,
-            t.engine_type,
             t.compute_type,
             t.period_type,
             t.schedule_conf,
             t.task_id,
-            t.app_type,
             t.schedule_status,
-            t.project_schedule_status,
-            t.submit_status,
             t.gmt_create,
             t.gmt_modified,
             t.modify_user_id,
@@ -764,14 +732,11 @@
             t.owner_user_id,
             t.version_id,
             t.is_deleted,
-            t.flow_id,
-            t.is_publish_to_produce,
-            t.dtuic_tenant_id,
-            t.task_rule
+            t.flow_id
         FROM `schedule_task_shade` t
         LEFT JOIN `schedule_task_task_shade`  tt
-        ON t.task_id = tt.task_id and t.app_type = tt.app_type and tt.is_deleted = 0
-        WHERE t.is_deleted = 0 and tt.parent_task_id = #{taskId} AND tt.parent_app_type = #{appType}
+        ON t.task_id = tt.task_id and tt.is_deleted = 0
+        WHERE t.is_deleted = 0 and tt.parent_task_id = #{taskId}
         LIMIT #{limit}
     </select>
 

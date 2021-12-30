@@ -189,7 +189,7 @@ public class BatchJobService {
      * @return info信息
      * @throws Exception
      */
-    private String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         String extroInfo = "";
         Long taskId = batchTask.getId();
         // 跨项目的时候 需要依赖 task的tenant

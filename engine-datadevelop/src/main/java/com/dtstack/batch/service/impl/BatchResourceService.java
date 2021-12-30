@@ -19,27 +19,27 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.common.enums.CatalogueType;
-import com.dtstack.engine.domain.User;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.batch.dao.*;
-import com.dtstack.batch.domain.*;
+import com.dtstack.batch.dao.BatchCatalogueDao;
+import com.dtstack.batch.dao.BatchFunctionResourceDao;
+import com.dtstack.batch.dao.BatchResourceDao;
+import com.dtstack.batch.domain.BatchCatalogue;
+import com.dtstack.batch.domain.BatchFunctionResource;
+import com.dtstack.batch.domain.BatchResource;
+import com.dtstack.batch.domain.BatchTaskResource;
 import com.dtstack.batch.dto.BatchResourceAddDTO;
-import com.dtstack.batch.dto.BatchResourceDTO;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.common.HdfsOperator;
 import com.dtstack.batch.service.task.impl.BatchTaskResourceService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.BatchResourceVO;
 import com.dtstack.batch.vo.CatalogueVO;
-import com.dtstack.batch.web.pager.PageQuery;
-import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.ResourceType;
+import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.master.impl.UserService;
-import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,7 +52,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author sishu.yss
@@ -160,77 +161,6 @@ public class BatchResourceService {
     }
 
 
-    /**
-     * 新增资源组
-     * @param id
-     * @param resourceName
-     * @param originFileName
-     * @param url
-     * @param resourceDesc
-     * @param resourceType
-     * @param nodePid
-     * @param userId
-     * @param tenantId
-     * @return
-     */
-    public Long addResourceWithUrl(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId) {
-        Preconditions.checkNotNull(resourceName, "resourceName can not be null");
-        Preconditions.checkNotNull(originFileName, "orginFileName can not be null");
-        Preconditions.checkNotNull(url, "remoteUrl can not be null");
-        Preconditions.checkNotNull(nodePid, "nodePid can not be null");
-
-        BatchResource batchResource = this.buildResource(id, resourceName, originFileName, url, resourceDesc, resourceType, nodePid, userId, tenantId);
-        batchResource = this.addOrUpdate(batchResource);
-        return batchResource.getId();
-    }
-
-
-    /**
-     * 根据参数，构建资源组对象
-     * @param id
-     * @param resourceName
-     * @param originFileName
-     * @param url
-     * @param resourceDesc
-     * @param resourceType
-     * @param nodePid
-     * @param userId
-     * @param tenantId
-     * @return
-     */
-    private BatchResource buildResource(Long id, String resourceName, String originFileName, String url, String resourceDesc, Integer resourceType, Long nodePid, Long userId, Long tenantId) {
-        final BatchResource batchResource;
-        //重新上传资源
-        if (id != null) {
-            batchResource = this.batchResourceDao.getOne(id);
-            if (batchResource == null || batchResource.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
-            }
-            batchResource.setResourceDesc(resourceDesc);
-            batchResource.setOriginFileName(originFileName);
-            batchResource.setUrl(url);
-            batchResource.setNodePid(nodePid);
-        } else {
-            //判断是否已经存在相同的资源了
-            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
-            batchResource = new BatchResource();
-            batchResource.setResourceName(resourceName);
-            batchResource.setOriginFileName(originFileName);
-            batchResource.setUrl(url);
-            batchResource.setResourceDesc(resourceDesc);
-            batchResource.setNodePid(nodePid);
-            batchResource.setResourceType(resourceType);
-            batchResource.setCreateUserId(userId);
-            batchResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-            batchResource.setTenantId(tenantId);
-        }
-
-        batchResource.setResourceType(ResourceType.OTHER.getType());
-        batchResource.setModifyUserId(userId);
-        batchResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        return batchResource;
-    }
-
 
     /**
      * 新增或修改
@@ -238,7 +168,7 @@ public class BatchResourceService {
      * @return
      */
     private BatchResource addOrUpdate(BatchResource batchResource) {
-        if (batchResource.getId() > 0) {
+        if (batchResource.getId() != null && batchResource.getId() > 0) {
             this.batchResourceDao.update(batchResource);
         } else {
             this.batchResourceDao.insert(batchResource);
@@ -247,12 +177,6 @@ public class BatchResourceService {
         return batchResource;
     }
 
-    /**
-     * 获取资源列表
-     */
-    public List<BatchResource> getResources(Long tenantId) {
-        return this.batchResourceDao.listByTenantId(tenantId);
-    }
 
     /**
      * 删除资源
@@ -293,22 +217,6 @@ public class BatchResourceService {
         return null;
     }
 
-    /**
-     * 修改资源名称
-     */
-    public BatchResource renameResource(Long userId, long resourceId, String name) {
-
-        BatchResource sr = this.batchResourceDao.getOne(resourceId);
-        if (sr != null && sr.getIsDeleted().intValue() == Deleted.DELETED.getStatus().intValue()) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
-        }
-        sr = new BatchResource();
-        sr.setId(resourceId);
-        sr.setResourceName(name);
-        sr.setModifyUserId(userId);
-        return this.addOrUpdate(sr);
-    }
-
 
     /**
      * 获取离线上传的资源到HDFS上的路径
@@ -338,43 +246,6 @@ public class BatchResourceService {
      */
     public BatchResource getResource(long resourceId) {
         return this.batchResourceDao.getOne(resourceId);
-    }
-
-    /**
-     * 资源分页查询
-     * @param resourceDTO
-     * @return
-     */
-    public PageResult<List<BatchResourceVO>> pageQuery(BatchResourceDTO resourceDTO){
-        final PageQuery<BatchResourceDTO> query = new PageQuery<>(resourceDTO.getPageIndex(),resourceDTO.getPageSize(),"gmt_modified",resourceDTO.getSort());
-        query.setModel(resourceDTO);
-
-        final List<BatchResourceVO> resourceVOS = new ArrayList<>();
-        final Integer count = this.batchResourceDao.generalCount(resourceDTO);
-        if (count > 0){
-            final List<BatchResource> resources = this.batchResourceDao.generalQuery(query);
-
-            final List<Long> userIds = new ArrayList<>();
-            resources.forEach(r -> {
-                userIds.add(r.getCreateUserId());
-                userIds.add(r.getModifyUserId());
-            });
-
-            final List<User> users = userService.listByIds(userIds);
-            final Map<Long,User> idUserMap = new HashMap<>();
-            users.forEach(u -> {
-                idUserMap.put(u.getId(),u);
-            });
-
-            for (final BatchResource resource : resources) {
-                final BatchResourceVO vo = BatchResourceVO.toVO(resource);
-                vo.setCreateUser(idUserMap.get(vo.getCreateUserId()));
-                vo.setModifyUser(idUserMap.get(vo.getModifyUserId()));
-                resourceVOS.add(vo);
-            }
-        }
-
-        return new PageResult<>(resourceVOS,count,query);
     }
 
 
