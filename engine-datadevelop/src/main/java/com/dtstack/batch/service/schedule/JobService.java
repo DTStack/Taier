@@ -33,8 +33,6 @@ import com.dtstack.engine.master.enums.FillDataTypeEnum;
 import com.dtstack.engine.master.enums.FillGeneratStatusEnum;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
 import com.dtstack.engine.master.pool.FillDataThreadPoolExecutor;
-import com.dtstack.engine.master.vo.ScheduleJobVO;
-import com.dtstack.engine.master.vo.SchedulePeriodInfoVO;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -87,7 +85,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(), dto.getOwnerId());
+            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
             if (CollectionUtils.isEmpty(taskIds)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
             }
@@ -135,7 +133,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(), dto.getOwnerId());
+            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
             if (CollectionUtils.isEmpty(taskIds)) {
                 return Lists.newArrayList();
             }
@@ -294,7 +292,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskIdByTaskName(dto.getTaskName(), dto.getOwnerId());
+            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
             if (CollectionUtils.isEmpty(taskIds)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
             }

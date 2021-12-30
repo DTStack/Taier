@@ -8,8 +8,8 @@ import com.dtstack.batch.vo.schedule.ReturnTaskSupportTypesVO;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
-import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.pager.PageResult;
@@ -18,10 +18,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +34,59 @@ import java.util.stream.Collectors;
 public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTaskShade> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
+
+    @Autowired
+    private TaskTaskService tasktaskService;
+
+    /**
+     * 根据任务id获得任务
+     *
+     * @param taskId 任务id
+     * @return 任务
+     */
+    public ScheduleTaskShade findTaskByTaskId(Long taskId){
+        return taskId != null ? this.lambdaQuery()
+                .eq(ScheduleTaskShade::getTaskId, taskId)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one() : null;
+    }
+
+    /**
+     * 修改任务名称
+     *
+     * @param taskId 任务id
+     * @param name   任务名称
+     * @return 是否修改成功
+     */
+    public Boolean updateTaskName(Long taskId, String name) {
+        if (taskId==null || StringUtils.isBlank(name)) {
+            return Boolean.FALSE;
+        }
+
+        ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setName(name);
+        return this.lambdaUpdate()
+                .eq(ScheduleTaskShade::getTaskId, taskId)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).update(scheduleTaskShade);
+    }
+
+    /**
+     * 删除任务
+     */
+    public Boolean deleteTask(Long taskId, Long modifyUserId) {
+        if (taskId == null) {
+            return Boolean.FALSE;
+        }
+
+        // 逻辑删除任务
+        ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
+        scheduleTaskShade.setIsDeleted(IsDeletedEnum.DELETE.getType());
+        scheduleTaskShade.setModifyUserId(modifyUserId);
+        this.lambdaUpdate().eq(ScheduleTaskShade::getTaskId, taskId).update(scheduleTaskShade);
+
+        // 直接删除任务依赖
+        return tasktaskService.lambdaUpdate().eq(ScheduleTaskTaskShade::getTaskId, taskId).remove();
+    }
 
     /**
      * 查询任务列表
@@ -105,7 +157,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @param ownerId 所属用户id
      * @return taskIds
      */
-    public List<Long> findTaskIdByTaskName(String taskName, Long ownerId) {
+    public List<Long> findTaskByTaskName(String taskName, Long ownerId) {
         if (StringUtils.isBlank(taskName) && ownerId == null) {
             return Lists.newArrayList();
         }
