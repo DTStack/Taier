@@ -65,7 +65,7 @@ public class BatchTaskController {
         return new APITemplate<List<Map<String, Object>>>() {
             @Override
             protected List<Map<String, Object>> process() {
-                return taskService.globalSearch(infoVO.getTaskName(), infoVO.getProjectId());
+                return taskService.globalSearch(infoVO.getTaskName());
             }
         }.execute();
     }
@@ -88,7 +88,7 @@ public class BatchTaskController {
         return new APITemplate<List<BatchTaskResultVO> >() {
             @Override
             protected List<BatchTaskResultVO>  process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(taskService.getTasksByProjectId(vo.getTenantId(), vo.getProjectId(), vo.getTaskName()));
+                return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(taskService.getTasksByTenantId(vo.getTenantId(), vo.getTaskName()));
             }
         }.execute();
     }
@@ -105,17 +105,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "cloneTaskToFlow")
-    @ApiOperation("克隆任务到工作流")
-    public R<BatchTaskResultVO> cloneTaskToFlow(@RequestBody BatchTaskCloneTaskToFlowVO infoVO) {
-        return new APITemplate<BatchTaskResultVO>() {
-            @Override
-            protected BatchTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(taskService.cloneTaskToFlow(infoVO.getUserId(),
-                        infoVO.getTaskId(), infoVO.getTaskName(), infoVO.getTaskDesc(), infoVO.getFlowId(), infoVO.getCoordsExtra()));
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "getTasksByName")
     @ApiOperation("根据项目id,任务名 获取任务列表")
@@ -125,17 +114,6 @@ public class BatchTaskController {
             protected List<BatchTaskResultVO>   process() {
                 return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(taskService.getTasksByName(infoVO.getProjectId(),
                         infoVO.getName()));
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "recommendDependencyTask")
-    @ApiOperation("推荐依赖任务")
-    public R<List<Map<String, Object>>> recommendDependencyTask(@RequestBody BatchTaskRecommendDependencyTaskVO infoVO) {
-        return new APITemplate<List<Map<String, Object>>>() {
-            @Override
-            protected List<Map<String, Object>>  process() {
-                return taskService.recommendDependencyTask(infoVO.getProjectId(), infoVO.getTaskId());
             }
         }.execute();
     }
@@ -174,39 +152,14 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "queryTasks")
-    @ApiOperation("运维中心 - 任务管理 - 搜索")
-    public R<Map<String, Object>> queryTasks(@RequestBody BatchTaskQueryTasksVO infoVO) {
-        return new APITemplate<Map<String, Object>>() {
-            @Override
-            protected Map<String, Object> process() {
-                return taskService.queryTasks(infoVO.getTenantId(), infoVO.getProjectId(), infoVO.getName(), infoVO.getOwnerId(),
-                        infoVO.getStartTime(), infoVO.getEndTime(), infoVO.getScheduleStatus(), infoVO.getTaskType(),
-                        infoVO.getTaskPeriodId(), infoVO.getCurrentPage(), infoVO.getPageSize(), infoVO.getSearchType());
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "dealFlowWorkTask")
-    @ApiOperation("查询工作流下的子节点")
-    public R<BatchTaskBatchResultVO> dealFlowWorkTask(@RequestBody BatchTaskDealFlowWorkTaskVO detailVO) {
-        return new APITemplate<BatchTaskBatchResultVO>() {
-            @Override
-            protected BatchTaskBatchResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskBatchVOToBatchTaskBatchResultVO(taskService.dealFlowWorkTask(detailVO.getTaskId(),
-                        detailVO.getTaskType(), detailVO.getOwnerId()));
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "checkAndPublishTask")
     @ApiOperation("任务发布权限判断、发布")
     public R<Void> checkAndPublishTask(@RequestBody BatchTaskCheckAndPublishTaskVO detailVO) {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                taskService.checkAndPublishTask(detailVO.getProjectId(), detailVO.getId(), detailVO.getUserId(),
-                        detailVO.getPublishDesc(), detailVO.getIsRoot(), detailVO.getDtuicTenantId(), null);
+                taskService.checkAndPublishTask(detailVO.getTenantId(), detailVO.getId(), detailVO.getUserId(),
+                        detailVO.getPublishDesc(), detailVO.getIsRoot());
                 return null;
             }
         }.execute();
@@ -218,9 +171,8 @@ public class BatchTaskController {
         return new APITemplate<BatchTaskPublishTaskResultVO>() {
             @Override
             protected BatchTaskPublishTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToBatchTaskPublishTaskResultVO(taskService.publishTask(detailVO.getProjectId(),
-                        detailVO.getId(), detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getIsRoot(), detailVO.getIgnoreCheck(),
-                        detailVO.getDtuicTenantId(), null));
+                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToBatchTaskPublishTaskResultVO(taskService.publishTask(detailVO.getTenantId(),
+                        detailVO.getId(), detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getIsRoot(), detailVO.getIgnoreCheck()));
             }
         }.execute();
     }
@@ -315,7 +267,7 @@ public class BatchTaskController {
         return new APITemplate<Long>() {
             @Override
             protected Long process() {
-                return taskService.deleteTask(detailVO.getTaskId(), detailVO.getProjectId(), detailVO.getUserId(), detailVO.getTenantId(), detailVO.getSqlText());
+                return taskService.deleteTask(detailVO.getTaskId(), detailVO.getTenantId(), detailVO.getUserId(), detailVO.getSqlText());
             }
         }.execute();
     }
@@ -349,7 +301,7 @@ public class BatchTaskController {
         return new APITemplate<List<BatchTaskGetSupportJobTypesResultVO>>() {
             @Override
             protected List<BatchTaskGetSupportJobTypesResultVO>  process() {
-                return taskService.getSupportJobTypes(detailVO.getDtuicTenantId(), detailVO.getProjectId());
+                return taskService.getSupportJobTypes(detailVO.getTenantId());
             }
         }.execute();
     }
@@ -395,8 +347,7 @@ public class BatchTaskController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                taskService.setOwnerUser(detailVO.getOwnerUserId(), detailVO.getTaskId(), detailVO.getUserId(), detailVO.getTenantId(),
-                        detailVO.getProjectId(), detailVO.getIsRoot());
+                taskService.setOwnerUser(detailVO.getOwnerUserId(), detailVO.getTaskId());
                 return null;
             }
         }.execute();
@@ -420,18 +371,6 @@ public class BatchTaskController {
             @Override
             protected List<ScheduleTaskShadeResultVO> process() {
                 return TaskMapstructTransfer.INSTANCE.scheduleTaskShadeTypeVOsToBatchTaskResultVOs(taskService.allProductGlobalSearch(allProductGlobalSearchVO));
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "recentlyRunTime")
-    @ApiOperation("自定义调度周期接下来10个调度日期")
-    public R<BatchTaskRecentlyRunTimeResultVO> recentlyRunTime(@RequestBody BatchTaskRecentlyRunTimeVO recentlyRunTimeVO) {
-        return new APITemplate<BatchTaskRecentlyRunTimeResultVO>() {
-            @Override
-            protected BatchTaskRecentlyRunTimeResultVO process() {
-                return taskService.recentlyRunTime(recentlyRunTimeVO.getStartDate(), recentlyRunTimeVO.getEndDate(),
-                        recentlyRunTimeVO.getCron(), recentlyRunTimeVO.getNum());
             }
         }.execute();
     }

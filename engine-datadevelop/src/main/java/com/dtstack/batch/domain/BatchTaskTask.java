@@ -31,6 +31,4 @@ public class BatchTaskTask extends BaseEntity {
 
     private Long parentTaskId;
 
-    private Integer parentAppType;
-
 }

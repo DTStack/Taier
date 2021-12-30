@@ -19,11 +19,9 @@
 package com.dtstack.engine.master.controller;
 
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.master.vo.ScheduleTaskVO;
-import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
+import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,7 +45,7 @@ public class ScheduleTaskTaskShadeController {
 
     @RequestMapping(value="/saveTaskTaskList", method = {RequestMethod.POST})
     public SaveTaskTaskVO saveTaskTaskList(@RequestParam("taskTask") String taskLists, @RequestParam("commitId") String commitId) {
-        return scheduleTaskTaskShadeService.saveTaskTaskList(taskLists,commitId);
+        return scheduleTaskTaskShadeService.saveTaskTaskList(taskLists);
     }
 
     @RequestMapping(value="/getAllParentTask", method = {RequestMethod.POST})

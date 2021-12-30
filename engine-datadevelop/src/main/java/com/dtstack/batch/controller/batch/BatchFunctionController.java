@@ -21,10 +21,13 @@ package com.dtstack.batch.controller.batch;
 import com.dtstack.batch.mapstruct.vo.FunctionMapstructTransfer;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.vo.TaskCatalogueVO;
-import com.dtstack.batch.web.function.vo.query.*;
+import com.dtstack.batch.web.function.vo.query.BatchFunctionAddVO;
+import com.dtstack.batch.web.function.vo.query.BatchFunctionBaseVO;
+import com.dtstack.batch.web.function.vo.query.BatchFunctionDeleteVO;
+import com.dtstack.batch.web.function.vo.query.BatchFunctionMoveVO;
+import com.dtstack.batch.web.function.vo.query.BatchFunctionNameVO;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionAddResultVO;
 import com.dtstack.batch.web.function.vo.result.BatchFunctionQueryResultVO;
-import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
@@ -58,12 +61,12 @@ public class BatchFunctionController {
     }
 
     @PostMapping(value = "addOrUpdateFunction")
-    @ApiOperation(value = "添加函数")
+    @ApiOperation(value = "添加函数 or 修改函数")
     public R<BatchFunctionAddResultVO> addOrUpdateFunction(@RequestBody BatchFunctionAddVO vo) {
         return new APITemplate<BatchFunctionAddResultVO>() {
             @Override
             protected BatchFunctionAddResultVO process() {
-                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceIds(), vo.getTenantId());
+                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceId(), vo.getTenantId());
                 return FunctionMapstructTransfer.INSTANCE.newTaskCatalogueVoToFunctionAddResultVo(result);
             }
         }.execute();
@@ -104,16 +107,5 @@ public class BatchFunctionController {
         }.execute();
     }
 
-    @PostMapping(value = "pageQuery")
-    @ApiOperation(value = "自定义函数分页查询")
-    public R<PageResult<List<BatchFunctionQueryResultVO>>> pageQuery(@RequestBody BatchFunctionQueryVO vo) {
-        return new APITemplate<PageResult<List<BatchFunctionQueryResultVO>>>() {
-            @Override
-            protected PageResult<List<BatchFunctionQueryResultVO>> process() {
-                PageResult<List<com.dtstack.batch.vo.BatchFunctionVO>> result = batchFunctionService.pageQuery(FunctionMapstructTransfer.INSTANCE.newFunctionQueryVoToDTO(vo));
-                return FunctionMapstructTransfer.INSTANCE.newFunctionVoToFunctionQueryResultVo(result);
-            }
-        }.execute();
-    }
 
 }

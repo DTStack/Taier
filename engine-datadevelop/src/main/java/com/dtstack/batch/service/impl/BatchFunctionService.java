@@ -26,14 +26,11 @@ import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchFunction;
 import com.dtstack.batch.domain.BatchFunctionResource;
 import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.batch.dto.BatchFunctionDTO;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.BatchFunctionVO;
 import com.dtstack.batch.vo.TaskCatalogueVO;
-import com.dtstack.batch.web.pager.PageQuery;
-import com.dtstack.batch.web.pager.PageResult;
 import com.dtstack.engine.common.constrant.PatternConstant;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.FuncType;
@@ -42,7 +39,6 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.UserService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -59,9 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -152,14 +146,14 @@ public class BatchFunctionService {
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, List<Long> resourceIds, Long tenantId) {
+    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, Long resourceId, Long tenantId) {
         if (!PublicUtil.matcher(batchFunction.getName(), PatternConstant.FUNCTIONPATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
-        if (CollectionUtils.isEmpty(resourceIds)) {
+        if (resourceId == null) {
             throw new RdosDefineException("新增函数必须添加资源", ErrorCode.INVALID_PARAMETERS);
         } else {
-            checkResourceType(resourceIds);
+            checkResourceType(resourceId);
         }
         BatchCatalogue parentNode = batchCatalogueService.getOne(batchFunction.getNodePid());
         if (null != parentNode && parentNode.getEngineType() > 0 && batchFunction.getEngineType() == null) {
@@ -176,7 +170,7 @@ public class BatchFunctionService {
 			batchFunction.setType(FuncType.CUSTOM.getType());
 			batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
 			addOrUpdate(batchFunction);
-            addOrUpdateFunctionResource(batchFunction, resourceIds.get(0));
+            addOrUpdateFunctionResource(batchFunction, resourceId);
 			// 添加类目关系
 			TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
 			taskCatalogueVO.setId(batchFunction.getId());
@@ -190,7 +184,7 @@ public class BatchFunctionService {
 			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
-            logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceIds, tenantId);
+            logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
             logger.error(e.getMessage(), e);
             if (e instanceof RdosDefineException) {
                 throw e;
@@ -235,11 +229,11 @@ public class BatchFunctionService {
 
     /**
      * 校验资源是否存在
-     * @param resourceIds
+     * @param resourceId
      */
-    private void checkResourceType(List<Long> resourceIds) {
-        List<BatchResource> resourceList = batchResourceService.getResourceList(resourceIds);
-        if (resourceList == null) {
+    private void checkResourceType(Long resourceId) {
+        BatchResource resource = batchResourceService.getResource(resourceId);
+        if (resource == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
         }
     }
@@ -334,45 +328,6 @@ public class BatchFunctionService {
      */
     public List<BatchFunction> listTenantFunction(Long tenantId, Integer functionType, Integer engineType) {
         return batchFunctionDao.listTenantFunction(tenantId, functionType, engineType);
-    }
-
-
-    /**
-     * 自定义函数的分页查询
-     * @param functionDTO
-     * @return
-     */
-    public PageResult<List<BatchFunctionVO>> pageQuery(BatchFunctionDTO functionDTO) {
-        PageQuery<BatchFunctionDTO> query = new PageQuery<>(functionDTO.getPageIndex(), functionDTO.getPageSize(), "gmt_modified", functionDTO.getSort());
-        query.setModel(functionDTO);
-
-        List<BatchFunctionVO> functionVOS = new ArrayList<>();
-        Integer count = batchFunctionDao.generalCount(functionDTO);
-        if (count > 0) {
-            List<BatchFunction> functions = batchFunctionDao.generalQuery(query);
-
-            List<Long> userIds = new ArrayList<>();
-            functions.forEach(f -> {
-                userIds.add(f.getCreateUserId());
-                userIds.add(f.getModifyUserId());
-            });
-            List<User> users = userService.listByIds(userIds);
-
-            Map<Long, User> idUserMap = new HashMap<>();
-            users.forEach(u -> {
-                idUserMap.put(u.getId(), u);
-            });
-
-            BatchFunctionVO vo;
-            for (BatchFunction function : functions) {
-                vo = BatchFunctionVO.toVO(function);
-                vo.setCreateUser(idUserMap.get(vo.getCreateUserId()));
-                vo.setModifyUser(idUserMap.get(vo.getModifyUserId()));
-                functionVOS.add(vo);
-            }
-        }
-
-        return new PageResult<>(functionVOS, count, query);
     }
 
 

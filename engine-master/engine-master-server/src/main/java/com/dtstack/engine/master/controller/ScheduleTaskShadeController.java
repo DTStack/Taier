@@ -88,7 +88,7 @@ public class ScheduleTaskShadeController {
     @RequestMapping(value = "/getNotDeleteTask", method = {RequestMethod.POST})
     @ApiOperation(value = "获得其他依赖的接口", notes = "task删除时触发同步清理")
     public List<NotDeleteTaskVO> getNotDeleteTask(@RequestParam("taskId") Long taskId, @RequestParam("appType") Integer appType) {
-        return scheduleTaskShadeService.getNotDeleteTask(taskId, appType);
+        return scheduleTaskShadeService.getNotDeleteTask(taskId);
     }
 
     @RequestMapping(value = "/getTasksByName", method = {RequestMethod.POST})
