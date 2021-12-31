@@ -177,8 +177,9 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
      * @param tenantId
      * @return
      */
-    public List<DsInfo> queryByTenantId(Long tenantId) {
-        return dsInfoMapper.queryByTenantId(tenantId);
+    public List<DsListVO> queryByTenantId(Long tenantId) {
+        List<DsInfo> dsInfos = dsInfoMapper.queryByTenantId(tenantId);
+        return DsListTransfer.INSTANCE.dsInfosToDsListVOS(dsInfos);
     }
 
 
