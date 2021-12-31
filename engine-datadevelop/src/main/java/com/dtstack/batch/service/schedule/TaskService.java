@@ -92,6 +92,26 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     }
 
     /**
+     * 获得任务被依赖的任务
+     *
+     * @param taskId 任务id
+     * @return
+     */
+    public List<ScheduleTaskShade> listRelyCurrentTask(Long taskId) {
+        List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList = tasktaskService.lambdaQuery()
+                .eq(ScheduleTaskTaskShade::getParentTaskId, taskId)
+                .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
+
+        if (CollectionUtils.isEmpty(scheduleTaskTaskShadeList)) {
+            return Lists.newArrayList();
+        }
+        
+        List<Long> childTaskIdList = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
+        return this.lambdaQuery().in(ScheduleTaskShade::getTaskId,childTaskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).list();
+    }
+
+    /**
      * 提交单个任务 (不包括工作流)
      * @param savaTaskDTO 任务
      * @return 是否提交成功
