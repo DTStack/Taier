@@ -2,6 +2,9 @@ package com.dtstack.engine.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -10,4 +13,14 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
  * @Description:
  */
 public interface ScheduleTaskShadeMapper extends BaseMapper<ScheduleTaskShade> {
+
+    /**
+     * 查询所有可以生成周期实例的任务
+     *
+     * @param startId 开始id
+     * @param scheduleStatusList 任务状态
+     * @param taskSize 获取的任务数
+     * @return 任务列表
+     */
+    List<ScheduleTaskShade> listRunnableTask(@Param("startId") Long startId, @Param("scheduleStatusList") List<Integer> scheduleStatusList, @Param("taskSize") Integer taskSize);
 }

@@ -3,15 +3,19 @@ package com.dtstack.engine.master.server.scheduler;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.Restarted;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.master.impl.*;
+import com.dtstack.engine.master.impl.JobGraphTriggerService;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.scheduler.parser.*;
 import com.dtstack.engine.master.service.ScheduleActionService;
+import com.dtstack.engine.master.service.ScheduleJobService;
+import com.dtstack.engine.master.service.ScheduleTaskService;
+import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -55,13 +59,13 @@ public abstract class AbstractBuilder {
     protected static final String NORMAL_TASK_FLOW_ID = "0";
 
     @Autowired
-    protected ScheduleTaskShadeService batchTaskShadeService;
+    protected ScheduleTaskService scheduleTaskService;
 
     @Autowired
-    protected ScheduleJobService batchJobService;
+    protected ScheduleJobService scheduleJobService;
 
     @Autowired
-    protected ScheduleTaskTaskShadeService taskTaskShadeService;
+    protected ScheduleTaskTaskService scheduleTaskTaskService;
 
     @Autowired
     protected JobGraphTriggerService jobGraphTriggerService;
@@ -161,7 +165,10 @@ public abstract class AbstractBuilder {
                 scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
             } else {
                 //工作流子节点
-                ScheduleTaskShade flowTaskShade = batchTaskShadeService.getBatchTaskById(task.getFlowId());
+                ScheduleTaskShade flowTaskShade = scheduleTaskService.lambdaQuery()
+                        .eq(ScheduleTaskShade::getTaskId, task.getFlowId())
+                        .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .one();
                 if (null == flowTaskShade) {
                     scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
                 } else {
@@ -178,8 +185,8 @@ public abstract class AbstractBuilder {
                 }
             }
 
-//            scheduleJob.setGmtCreate(timestampNow);
-//            scheduleJob.setGmtModified(timestampNow);
+            scheduleJob.setGmtCreate(timestampNow);
+            scheduleJob.setGmtModified(timestampNow);
             if (createUserId == null) {
                 scheduleJob.setCreateUserId(task.getCreateUserId());
             } else {
@@ -207,7 +214,7 @@ public abstract class AbstractBuilder {
             String businessDate = generateBizDateFromCycTime(triggerTime);
 
             //任务流中的子任务且没有父任务依赖，起始节点将任务流节点作为父任务加入
-            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId(),null)) {
+            if (task.getFlowId() > 0 && !whetherHasParentTask(task.getTaskId())) {
                 List<String> keys = getJobKeys(Lists.newArrayList(task.getFlowId()), scheduleJob, scheduleCron, keyPreStr);
                 scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, keys.get(0), timestampNow,null));
             }
@@ -341,7 +348,10 @@ public abstract class AbstractBuilder {
         if (preSelfJobKey != null) {
             //需要查库判断是否存在
             if (isFirst) {
-                ScheduleJob dbScheduleJob = batchJobService.getJobByJobKeyAndType(preSelfJobKey, scheduleType.getType());
+                ScheduleJob dbScheduleJob = scheduleJobService.lambdaQuery()
+                        .eq(ScheduleJob::getJobKey, preSelfJobKey)
+                        .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .one();
                 if (dbScheduleJob != null) {
                     scheduleBatchJob.addBatchJobJob(createNewJobJob(scheduleJob, jobKey, preSelfJobKey, timestampNow,1));
                 }
@@ -372,9 +382,10 @@ public abstract class AbstractBuilder {
      * @return
      */
     public List<FatherDependency> getDependencyJobKeys(EScheduleType scheduleType, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
-
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(scheduleJob.getTaskId(),1);
-
+        List<ScheduleTaskTaskShade> taskTasks = scheduleTaskTaskService.lambdaQuery()
+                .eq(ScheduleTaskTaskShade::getTaskId, scheduleJob.getTaskId())
+                .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
         // 所有父任务的jobKey
         // return getJobKeys(pIdList, batchJob, scheduleCron, keyPreStr);
         // 补数据运行时，需要所有周期实例立即运行
@@ -404,7 +415,10 @@ public abstract class AbstractBuilder {
 
         if (CollectionUtils.isNotEmpty(taskTasks)) {
             List<Long> taskShadeIds = taskTasks.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
-            List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds,null);
+            List<ScheduleTaskShade> pTaskList = scheduleTaskService.lambdaQuery()
+                    .in(ScheduleTaskShade::getTaskId, taskShadeIds)
+                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
             for (ScheduleTaskShade pTask : pTaskList) {
                 try {
                     ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
@@ -420,7 +434,11 @@ public abstract class AbstractBuilder {
                     //如果父任务在当前任务业务日期不同，则查询父任务是有已生成
                     if (fatherCycTime.getDayOfYear() != jobCycTime.getDayOfYear()) {
                         //判断父任务是否生成
-                        ScheduleJob pScheduleJob = batchJobService.getJobByJobKeyAndType(pjobKey, EScheduleType.NORMAL_SCHEDULE.getType());
+                        ScheduleJob pScheduleJob = scheduleJobService.lambdaQuery()
+                                .eq(ScheduleJob::getJobKey, pjobKey)
+                                .eq(ScheduleJob::getType, EScheduleType.NORMAL_SCHEDULE.getType())
+                                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                                .one();
                         if (pScheduleJob == null) {
                             LOGGER.error("getExternalJobKeys ,but not found the parent job of " + pTask.getTaskId()
                                     + " ,current job is " + scheduleJob.getJobId() + ", the pjobKey = " + pjobKey);
@@ -449,14 +467,20 @@ public abstract class AbstractBuilder {
      * @param taskId
      * @return true-有父任务，false-无
      */
-    private boolean whetherHasParentTask(Long taskId,Integer appType) {
-        List<ScheduleTaskTaskShade> taskTasks = taskTaskShadeService.getAllParentTask(taskId,appType);
+    private boolean whetherHasParentTask(Long taskId) {
+        List<ScheduleTaskTaskShade> taskTasks = scheduleTaskTaskService.lambdaQuery()
+                .eq(ScheduleTaskTaskShade::getTaskId, taskId)
+                .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
         return CollectionUtils.isNotEmpty(taskTasks);
     }
 
     private List<String> getJobKeys(List<Long> taskShadeIds, ScheduleJob scheduleJob, ScheduleCron scheduleCron, String keyPreStr) {
         List<String> jobKeyList = Lists.newArrayList();
-        List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, 1);
+        List<ScheduleTaskShade> pTaskList = scheduleTaskService.lambdaQuery()
+                .in(ScheduleTaskShade::getTaskId, taskShadeIds)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
         for (ScheduleTaskShade pTask : pTaskList) {
             try {
                 ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
@@ -475,7 +499,10 @@ public abstract class AbstractBuilder {
         List<FatherDependency> jobKeyList = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(taskTasks)) {
             List<Long> taskShadeIds = taskTasks.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
-            List<ScheduleTaskShade> pTaskList = batchTaskShadeService.getTaskByIds(taskShadeIds, null);
+            List<ScheduleTaskShade> pTaskList = scheduleTaskService.lambdaQuery()
+                    .in(ScheduleTaskShade::getTaskId, taskShadeIds)
+                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
             for (ScheduleTaskShade pTask : pTaskList) {
                 try {
                     ScheduleCron pScheduleCron = ScheduleFactory.parseFromJson(pTask.getScheduleConf());
@@ -504,7 +531,10 @@ public abstract class AbstractBuilder {
         //原逻辑是拿batchJob的taskId 作为key
         //现在task中 taskId + appType 才是唯一
         //现在采用taskShade表的id
-        ScheduleTaskShade shade = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId());
+        ScheduleTaskShade shade = scheduleTaskService.lambdaQuery()
+                .eq(ScheduleTaskShade::getTaskId, scheduleJob.getTaskId())
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
         if (null != shade && StringUtils.isNotBlank(preTriggerDateStr)) {
             return generateJobKey(keyPreStr, shade.getId(), preTriggerDateStr);
         }
