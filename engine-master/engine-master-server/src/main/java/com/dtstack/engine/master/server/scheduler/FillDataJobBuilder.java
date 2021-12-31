@@ -1,15 +1,12 @@
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.ForceCancelFlag;
-import com.dtstack.engine.common.enums.OperatorType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -79,7 +76,7 @@ public class FillDataJobBuilder extends AbstractBuilder  {
                     for (Long taskId : taskKey) {
                         try {
                             String preStr = FILL_DATA_TYPE + "_" + fillName;
-                            ScheduleTaskShade batchTask = batchTaskShadeService.getBatchTaskById(taskId);
+                            ScheduleTaskShade batchTask = scheduleTaskService.lambdaQuery().eq(ScheduleTaskShade::getTaskId, taskId).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
                             if (batchTask != null) {
                                 // 查询绑定任务
                                 List<ScheduleBatchJob> batchJobs = Lists.newArrayList();
@@ -143,7 +140,10 @@ public class FillDataJobBuilder extends AbstractBuilder  {
                                                                String beginTime, String endTime, Long tenantId) throws Exception {
         List<ScheduleBatchJob> result = Lists.newArrayList();
         //获取全部子任务
-        List<ScheduleTaskShade> subTasks = batchTaskShadeService.getFlowWorkSubTasks(taskId, null, null);
+        List<ScheduleTaskShade> subTasks = scheduleTaskService.lambdaQuery()
+                .eq(ScheduleTaskShade::getFlowId, taskId)
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .list();
         AtomicInteger atomicInteger = new AtomicInteger();
         for (ScheduleTaskShade taskShade : subTasks) {
             String subKeyPreStr = preStr;
@@ -174,7 +174,7 @@ public class FillDataJobBuilder extends AbstractBuilder  {
     }
 
     private void savaFillJob(Map<String, ScheduleBatchJob> allJob) {
-        batchJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
+        scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
         List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
                 .stream()
                 .map(scheduleBatchJob -> {
