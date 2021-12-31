@@ -12,6 +12,7 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
+import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.pager.PageResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -89,6 +90,17 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     }
 
     /**
+     * 提交单个任务 (不包括工作流)
+     * @param savaTaskDTO 任务
+     * @return 是否提交成功
+     */
+    public Boolean savaTask(SavaTaskDTO savaTaskDTO) {
+
+
+        return false;
+    }
+
+    /**
      * 查询任务列表
      *
      * @param dto 查询条件
@@ -157,14 +169,14 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @param ownerId 所属用户id
      * @return taskIds
      */
-    public List<Long> findTaskByTaskName(String taskName, Long ownerId) {
+    public List<ScheduleTaskShade> findTaskByTaskName(String taskName, Long ownerId) {
         if (StringUtils.isBlank(taskName) && ownerId == null) {
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
                 .eq(ownerId != null, ScheduleTaskShade::getOwnerUserId, ownerId)
                 .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
-                .list().stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
+                .list();
     }
 
     /**
