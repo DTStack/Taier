@@ -39,4 +39,8 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     List<StatusCountPO> queryJobsStatusStatistics(@Param("statistics") JobsStatusStatisticsPO statistics);
 
     List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") Boolean isAfter, @Param("cycTime") String cycTime, @Param("type") Integer type);
+
+    int countByCycTimeAndJobName(@Param("cycTime") String cycTime, @Param("jobName") String jobName, @Param("type") Integer type);
+
+    List<ScheduleJob> listByCycTimeAndJobName(@Param("startId") Long startId, @Param("cycTime") String cycTime, @Param("jobName") String jobName, @Param("type") Integer type, @Param("jobSize") Integer jobSize);
 }
