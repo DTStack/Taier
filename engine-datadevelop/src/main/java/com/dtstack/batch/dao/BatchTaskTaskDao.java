@@ -33,21 +33,38 @@ import java.util.List;
 
 public interface BatchTaskTaskDao {
 
-    List<BatchTaskTask> listByTaskId(@Param("taskId") long taskId);
+    List<BatchTaskTask> listByTaskId(@Param("taskId") Long taskId);
 
-    List<BatchTaskTask> listByParentTaskId(@Param("parentTaskId") long parentTaskId);
+    List<BatchTaskTask> listByParentTaskId(@Param("parentTaskId") Long parentTaskId);
 
-    Integer deleteByTaskId(@Param("taskId") long taskId);
+    Integer deleteByTaskId(@Param("taskId") Long taskId);
 
-    Integer delete(@Param("id") long id);
+    Integer delete(@Param("id") Long id);
 
     Integer insert(BatchTaskTask batchTaskTask);
 
     Integer update(BatchTaskTask batchTaskTask);
 
-    Integer deleteByParentId(@Param("parentId") long parentId, @Param("parentAppType") Integer parentAppType);
+    /**
+     * 根据父任务id删除项目
+     * @param parentId
+     * @return
+     */
+    Integer deleteByParentId(@Param("parentId") Long parentId);
 
-    Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("parentAppType") Integer parentAppType);
+    /**
+     * 根据租户Id删除数据
+     * @param tenantId
+     * @return
+     */
+    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 
     List<BatchTaskTask> listTaskTaskByTaskIds(@Param("taskIds") List<Long> taskIds);
+
+    /**
+     * 根据任务Id，获取所有父任务的id
+     * @param taskId
+     * @return
+     */
+    List<Long> listParentTaskIdByTaskId(@Param("taskId") Long taskId);
 }
