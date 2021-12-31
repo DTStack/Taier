@@ -106,7 +106,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (CollectionUtils.isEmpty(scheduleTaskTaskShadeList)) {
             return Lists.newArrayList();
         }
-        
+
         List<Long> childTaskIdList = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
         return this.lambdaQuery().in(ScheduleTaskShade::getTaskId,childTaskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).list();
     }
@@ -116,7 +116,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @param savaTaskDTO 任务
      * @return 是否提交成功
      */
-    public Boolean savaTask(SavaTaskDTO savaTaskDTO) {
+    public Boolean saveTask(SavaTaskDTO savaTaskDTO) {
         ScheduleTaskShadeDTO scheduleTaskShadeDTO = savaTaskDTO.getScheduleTaskShadeDTO();
         ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
 
