@@ -77,4 +77,11 @@ public class DataSourceController {
     }
 
 
+    @ApiOperation("根据租户id查询数据源列表")
+    @GetMapping("queryByTenantId")
+    public R<List<DsListVO>> queryByTenantId(Long tenantId) {
+        return R.ok(dsInfoService.queryByTenantId(tenantId));
+    }
+
+
 }
