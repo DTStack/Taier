@@ -120,9 +120,19 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         ScheduleTaskShadeDTO scheduleTaskShadeDTO = savaTaskDTO.getScheduleTaskShadeDTO();
         ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
 
-        // 保存任务
-        this.saveOrUpdate(scheduleTaskShade);
+        ScheduleTaskShade dbTaskShade = this.lambdaQuery()
+                .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
 
+        // 保存任务或者更新任务
+        if (dbTaskShade != null) {
+            scheduleTaskShade.setId(dbTaskShade.getId());
+            this.updateById(scheduleTaskShade);
+        } else {
+            this.save(scheduleTaskShade);
+        }
+        
         // 保存关系
         List<Long> parentTaskIdList = savaTaskDTO.getParentTaskIdList();
 
