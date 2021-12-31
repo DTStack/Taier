@@ -85,9 +85,11 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
-            if (CollectionUtils.isEmpty(taskIds)) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
+            } else {
+                taskIds = scheduleTaskShadeList.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
             }
         }
 
@@ -131,11 +133,13 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     public List<ReturnJobStatusStatisticsVO> queryJobsStatusStatistics(QueryJobStatusStatisticsDTO dto) {
         // 关联任务
-        List<Long> taskIds;
+        List<Long> taskIdList = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
-            if (CollectionUtils.isEmpty(taskIds)) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return Lists.newArrayList();
+            } else {
+                taskIdList = scheduleTaskShadeList.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
             }
         }
 
@@ -144,6 +148,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         jobsStatusStatistics.setCycStartTime(getCycTime(dto.getCycStartDay()));
         jobsStatusStatistics.setCycEndTime(getCycTime(dto.getCycEndDay()));
         jobsStatusStatistics.setFillTypeList(Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()));
+        jobsStatusStatistics.setTaskIdList(taskIdList);
 
         List<StatusCountPO> statusCountList = this.baseMapper.queryJobsStatusStatistics(jobsStatusStatistics);
         // 封装结果集
@@ -292,9 +297,11 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            taskIds = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
-            if (CollectionUtils.isEmpty(taskIds)) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
+            } else {
+                taskIds = scheduleTaskShadeList.stream().map(ScheduleTaskShade::getTaskId).collect(Collectors.toList());
             }
         }
 
