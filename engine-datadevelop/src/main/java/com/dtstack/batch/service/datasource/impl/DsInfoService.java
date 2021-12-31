@@ -8,6 +8,7 @@ import com.dtstack.batch.common.exception.PubSvcDefineException;
 import com.dtstack.batch.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.batch.mapstruct.datasource.DsListTransfer;
 import com.dtstack.batch.vo.datasource.DsDetailVO;
+import com.dtstack.batch.vo.datasource.DsInfoVO;
 import com.dtstack.batch.vo.datasource.DsListVO;
 import com.dtstack.batch.web.pager.PageUtil;
 import com.dtstack.engine.common.constrant.FormNames;
@@ -177,9 +178,9 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
      * @param tenantId
      * @return
      */
-    public List<DsListVO> queryByTenantId(Long tenantId) {
+    public List<DsInfoVO> queryByTenantId(Long tenantId) {
         List<DsInfo> dsInfos = dsInfoMapper.queryByTenantId(tenantId);
-        return DsListTransfer.INSTANCE.dsInfosToDsListVOS(dsInfos);
+        return DsListTransfer.INSTANCE.toDsInfoVOS(dsInfos);
     }
 
 
