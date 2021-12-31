@@ -245,7 +245,8 @@
         <include refid="select_content_fragment" />
         from dsc_info a
         where a.tenant_id = #{tenantId}
-        and is_deleted = 0;
+        and is_deleted = 0
+        and status = 1;
     </select>
 
 </mapper>
