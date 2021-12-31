@@ -51,5 +51,4 @@ public interface BatchTaskVersionDao {
 
     BatchTaskVersion getByTaskIdAndVersion(@Param("taskId") Long taskId, @Param("version") Integer version);
 
-    Integer deleteByTenantId(@Param("projectId") Long projectId);
 }
