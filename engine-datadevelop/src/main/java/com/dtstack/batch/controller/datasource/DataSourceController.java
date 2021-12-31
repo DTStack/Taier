@@ -7,6 +7,7 @@ import com.dtstack.batch.service.datasource.impl.DsInfoService;
 import com.dtstack.batch.service.datasource.impl.DsTypeService;
 import com.dtstack.batch.utils.Asserts;
 import com.dtstack.batch.vo.datasource.DsDetailVO;
+import com.dtstack.batch.vo.datasource.DsInfoVO;
 import com.dtstack.batch.vo.datasource.DsListVO;
 import com.dtstack.batch.vo.datasource.DsTypeListVO;
 import com.dtstack.engine.common.exception.BizException;
@@ -79,7 +80,7 @@ public class DataSourceController {
 
     @ApiOperation("根据租户id查询数据源列表")
     @GetMapping("queryByTenantId")
-    public R<List<DsListVO>> queryByTenantId(Long tenantId) {
+    public R<List<DsInfoVO>> queryByTenantId(@RequestParam("tenantId") Long tenantId) {
         return R.ok(dsInfoService.queryByTenantId(tenantId));
     }
 
