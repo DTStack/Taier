@@ -22,8 +22,8 @@ import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.schedule.TaskService;
+import com.dtstack.batch.service.schedule.TaskTaskService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
-import com.dtstack.engine.common.enums.base.AppType;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
@@ -63,6 +63,8 @@ public class BatchTaskTaskService {
 
     @Autowired
     private TaskService taskService;
+
+    private TaskTaskService ScheduleTaskTaskService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -147,19 +149,21 @@ public class BatchTaskTaskService {
         return parentTaskList;
     }
 
-    public void deleteByTenantId(Long tenantId) {
-        batchTaskTaskDao.deleteByTenantId(tenantId, AppType.RDOS.getType());
-/*        List<BatchTaskTask> taskTasks = listTaskTaskByProjectId(projectId);
-        Set<Long> taskIds = taskTasks.stream().map(BatchTaskTask::getTaskId).collect(Collectors.toSet());
-        taskIds.stream().forEach(taskId -> scheduleTaskTaskShadeService.clearDataByTaskId(taskId, AppType.RDOS.getType()));*/
-    }
-
     public List<BatchTaskTask> getByParentTaskId(long parentId) {
         return batchTaskTaskDao.listByParentTaskId(parentId);
     }
 
     public List<BatchTaskTask> getAllParentTask(long taskId) {
         return batchTaskTaskDao.listByTaskId(taskId);
+    }
+
+    /**
+     * 根据任务Id，获取所有父任务的id
+     * @param taskId
+     * @return
+     */
+    public List<Long> getAllParentTaskId(Long taskId) {
+        return batchTaskTaskDao.listParentTaskIdByTaskId(taskId);
     }
 
     /**
@@ -232,8 +236,8 @@ public class BatchTaskTaskService {
      * @param parentId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteTaskTaskByParentId(Long parentId, Integer parentAppType) {
-        batchTaskTaskDao.deleteByParentId(parentId, parentAppType);
+    public void deleteTaskTaskByParentId(Long parentId) {
+        batchTaskTaskDao.deleteByParentId(parentId);
     }
 
 

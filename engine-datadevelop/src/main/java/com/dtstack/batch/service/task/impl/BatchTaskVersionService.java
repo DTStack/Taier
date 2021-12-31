@@ -126,12 +126,4 @@ public class BatchTaskVersionService {
         return batchTaskVersionDao.getByTaskIdAndVersion(taskId, version);
     }
 
-    /**
-     * 根据tenantId 删除记录
-     * @param tenantId
-     * @return
-     */
-    public Integer deleteByTenantId(Long tenantId){
-        return batchTaskVersionDao.deleteByTenantId(tenantId);
-    }
 }
