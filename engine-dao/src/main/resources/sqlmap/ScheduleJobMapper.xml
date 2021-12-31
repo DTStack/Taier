@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dtstack.engine.mapper.ScheduleJobMapper">
 
+    <sql id="select_content_fragment">
+
+    </sql>
+
     <select id="countByFillIdGetAllStatus" resultType="com.dtstack.engine.domain.po.CountFillDataJobStatusPO">
         SELECT
             status*1 AS status,
@@ -121,6 +125,32 @@
                 <![CDATA[ AND `cyc_time` < ]]> #{cycTime}
             </otherwise>
         </choose>
+    </select>
+
+    <select id="countByCycTimeAndJobName" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM schedule_job bj
+        WHERE cyc_time like '${cycTime}%'
+        AND job_name LIKE '${jobName}%'
+        AND is_deleted = 0
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+    </select>
+
+    <select id="listByCycTimeAndJobName" resultType="com.dtstack.engine.domain.ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_job
+        WHERE id > #{startId}
+        AND cyc_time LIKE '${cycTime}%'
+        AND job_name LIKE '${jobName}%'
+        AND is_deleted = 0
+        <if test="type != null">
+            AND type = #{type}
+        </if>
+        limit #{jobSize}
     </select>
 
 
