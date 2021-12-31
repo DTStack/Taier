@@ -13,6 +13,7 @@ import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
+import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.engine.pager.PageResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -68,7 +69,8 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         scheduleTaskShade.setName(name);
         return this.lambdaUpdate()
                 .eq(ScheduleTaskShade::getTaskId, taskId)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).update(scheduleTaskShade);
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleTaskShade);
     }
 
     /**
@@ -95,9 +97,29 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @return 是否提交成功
      */
     public Boolean savaTask(SavaTaskDTO savaTaskDTO) {
+        ScheduleTaskShadeDTO scheduleTaskShadeDTO = savaTaskDTO.getScheduleTaskShadeDTO();
+        ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
 
+        // 保存任务
+        this.saveOrUpdate(scheduleTaskShade);
 
-        return false;
+        // 保存关系
+        List<Long> parentTaskIdList = savaTaskDTO.getParentTaskIdList();
+
+        List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList = Lists.newArrayList();
+        for (Long parentTaskId : parentTaskIdList) {
+            ScheduleTaskTaskShade scheduleTaskTaskShade = new ScheduleTaskTaskShade();
+
+            scheduleTaskTaskShade.setTenantId(scheduleTaskShade.getTenantId());
+            scheduleTaskTaskShade.setTaskId(scheduleTaskShade.getTaskId());
+            scheduleTaskTaskShade.setParentTaskId(parentTaskId);
+            scheduleTaskTaskShadeList.add(scheduleTaskTaskShade);
+        }
+        // TODO 这块后面还需要考虑成环判断
+
+        // 删除任务依赖
+        tasktaskService.lambdaUpdate().eq(ScheduleTaskTaskShade::getTaskId, scheduleTaskShade.getTaskId()).remove();
+        return tasktaskService.saveBatch(scheduleTaskTaskShadeList);
     }
 
     /**
