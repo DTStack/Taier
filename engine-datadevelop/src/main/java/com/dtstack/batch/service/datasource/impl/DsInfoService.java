@@ -172,5 +172,14 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
         return dsInfoMapper.queryByIds(notChecked);
     }
 
+    /**
+     * 根据租户查询数据源列表
+     * @param tenantId
+     * @return
+     */
+    public List<DsInfo> queryByTenantId(Long tenantId) {
+        return dsInfoMapper.queryByTenantId(tenantId);
+    }
+
 
 }
