@@ -73,4 +73,5 @@ public interface DsInfoMapper extends IMapper<DsInfo> {
     void updateDataTypeByDataTypeCode(@Param("dataType") String dataType,@Param("dataVersion") String dataVersion, @Param("dataTypeCode") Integer dataTypeCode);
 
 
+    List<DsInfo> queryByTenantId(Long tenantId);
 }
