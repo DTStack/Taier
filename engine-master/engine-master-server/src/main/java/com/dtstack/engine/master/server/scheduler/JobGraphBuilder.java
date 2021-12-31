@@ -18,16 +18,13 @@
 
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.common.enums.EProjectScheduleStatus;
-import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.enums.ESubmitStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
@@ -68,7 +65,6 @@ public class JobGraphBuilder extends AbstractBuilder {
      * 系统调度的时候插入的默认batch_job名称
      */
     private static final String CRON_JOB_NAME = "cronJob";
-    private static final String FILL_DATA_TYPE = "fillData";
     private static final String CRON_TRIGGER_TYPE = "cronTrigger";
     private static final String NORMAL_TASK_FLOW_ID = "0";
 
@@ -77,8 +73,6 @@ public class JobGraphBuilder extends AbstractBuilder {
     private static final int TASK_BATCH_SIZE = 50;
     private static final int JOB_BATCH_SIZE = 50;
     private static final int MAX_TASK_BUILD_THREAD = 20;
-
-    private static String dtfFormatString = "yyyyMMddHHmmss";
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -121,7 +115,7 @@ public class JobGraphBuilder extends AbstractBuilder {
             cleanDirtyJobGraph(triggerDay);
 
             int totalTask = 0;
-            totalTask = getTotalTask(totalTask);
+            totalTask = getTotalTask();
             LOGGER.info("Counting task which status=SUBMIT scheduleStatus=NORMAL totalTask:{}", totalTask);
 
             if (totalTask <= 0) {
@@ -216,7 +210,7 @@ public class JobGraphBuilder extends AbstractBuilder {
                             }
 
                             // 插入周期实例
-                            batchJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
+                            scheduleJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
                             LOGGER.info("batch-number:{} done!!! allFlowJobs size:{}", batchIdx, allFlowJobs.size());
                         } catch (Throwable e) {
                             LOGGER.error("!!! buildTaskJobGraph  build job error !!!", e);
@@ -244,10 +238,20 @@ public class JobGraphBuilder extends AbstractBuilder {
                 String placeholder = listEntry.getKey();
                 String flowJob = flowJobId.get(placeholder);
 
+
+                ScheduleJob scheduleJob = new ScheduleJob();
                 if (StringUtils.isNotBlank(flowJob)) {
-                    batchJobService.updateFlowJob(placeholder,flowJob);
+                    scheduleJob.setFlowJobId(flowJob);
+                    scheduleJobService.lambdaUpdate()
+                            .eq(ScheduleJob::getFlowJobId,placeholder)
+                            .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                            .update(scheduleJob);
                 } else {
-                    batchJobService.updateFlowJob(placeholder,NORMAL_TASK_FLOW_ID);
+                    scheduleJob.setFlowJobId(NORMAL_TASK_FLOW_ID);
+                    scheduleJobService.lambdaUpdate()
+                            .eq(ScheduleJob::getFlowJobId,placeholder)
+                            .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                            .update(scheduleJob);
                 }
             }
 
@@ -266,12 +270,15 @@ public class JobGraphBuilder extends AbstractBuilder {
      * @param startId
      * @return
      */
-    private List<ScheduleTaskShade> getScheduleTaskShades(long startId) {
-        return batchTaskShadeService.listTaskByStatus(startId, ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), TASK_BATCH_SIZE, null, null);
+    private List<ScheduleTaskShade> getScheduleTaskShades(Long startId) {
+        return scheduleTaskService.listRunnableTask(startId, Lists.newArrayList(EScheduleStatus.NORMAL.getVal(), EScheduleStatus.FREEZE.getVal()), TASK_BATCH_SIZE);
     }
 
-    private int getTotalTask(int totalTask) {
-        return batchTaskShadeService.countTaskByStatus(ESubmitStatus.SUBMIT.getStatus(), EProjectScheduleStatus.NORMAL.getStatus(), null, null);
+    private int getTotalTask() {
+       return scheduleTaskService.lambdaQuery()
+                .in(ScheduleTaskShade::getScheduleStatus, Lists.newArrayList(EScheduleStatus.NORMAL.getVal(), EScheduleStatus.FREEZE.getVal()))
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .count();
     }
 
     /**
@@ -280,7 +287,7 @@ public class JobGraphBuilder extends AbstractBuilder {
      */
     private void cleanDirtyJobGraph(String triggerDay) {
         String preCycTime = DateUtil.getTimeStrWithoutSymbol(triggerDay);
-        int totalJob = batchJobService.countByCyctimeAndJobName(preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType());
+        int totalJob = scheduleJobService.countByCycTimeAndJobName(preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType());
         if (totalJob <= 0) {
             return;
         }
@@ -300,8 +307,7 @@ public class JobGraphBuilder extends AbstractBuilder {
             if (batchIdx > totalBatch) {
                 break;
             }
-            final List<ScheduleJob> scheduleJobList = batchJobService.listByCyctimeAndJobName(startId, preCycTime,
-                    CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType(), JOB_BATCH_SIZE);
+            final List<ScheduleJob> scheduleJobList = scheduleJobService.listByCycTimeAndJobName(startId, preCycTime, CRON_JOB_NAME, EScheduleType.NORMAL_SCHEDULE.getType(), JOB_BATCH_SIZE);
             if (scheduleJobList.isEmpty()) {
                 break;
             }
@@ -311,7 +317,7 @@ public class JobGraphBuilder extends AbstractBuilder {
             for ( ScheduleJob scheduleJob : scheduleJobList) {
                 jobKeyList.add(scheduleJob.getJobKey());
             }
-            batchJobService.deleteJobsByJobKey(jobKeyList);
+            scheduleJobService.lambdaUpdate().in(ScheduleJob::getJobKey,jobKeyList).remove();
             LOGGER.info("batch-number:{} done! Cleaning dirty jobs size:{}", batchIdx, scheduleJobList.size());
         }
     }
