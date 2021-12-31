@@ -39,6 +39,10 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     @Autowired
     private EnvironmentContext context;
 
+    /**
+     * 展开任务上下游
+     * @return 上下游规则
+     */
     public ReturnTaskDisplayVO displayOffSpring(QueryTaskDisplayDTO dto) {
         // 查询的最长层级不能超过 max.jobJob.level
         dto.setLevel(JobUtils.checkLevel(dto.getLevel(),context.getMaxLevel()));
@@ -68,6 +72,11 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         return vo;
     }
 
+    /**
+     * 展开工作流任务
+     * @param taskId 任务id
+     * @return 上下游规则
+     */
     public ReturnTaskDisplayVO getAllFlowSubTasks(Long taskId) {
         // 查询任务
         ScheduleTaskShade taskShade = taskService.lambdaQuery()
