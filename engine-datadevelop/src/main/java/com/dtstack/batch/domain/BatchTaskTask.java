@@ -27,8 +27,19 @@ import lombok.Data;
 @Data
 public class BatchTaskTask extends BaseEntity {
 
+    /**
+     * 任务id
+     */
     private Long taskId;
 
+    /**
+     * 父任务id
+     */
     private Long parentTaskId;
+
+    /**
+     * 租户Id
+     */
+    private Long tenantId;
 
 }

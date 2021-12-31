@@ -277,8 +277,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
         String taskExeArgs = null;
 
-        List<BatchResource> resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType(), 0L);
-        final List<BatchResource> extResourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.DEPENDENCY_RES.getType(), 0L);
+        List<BatchResource> resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType());
+        final List<BatchResource> extResourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         if (EJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
             sql = String.format("set hive.default.fileformat=%s;\n ",environmentContext.getCreateTableType())+sql;
@@ -342,7 +342,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             if (batchTask.getEngineType().equals(EngineType.Spark.getVal())){
                 if (CollectionUtils.isNotEmpty(resourceList) && StringUtils.isBlank(resourceList.get(0).getUrl())){
                     LOG.error(String.format("任务= %s 运行时依赖的jar包未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
-                    resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType(), 0L);
+                    resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType());
                     if (CollectionUtils.isEmpty(resourceList)){
                         BatchHadoopJobExeService.LOG.error(String.format("任务= %s 运行时依赖的jar包未找到,再次查询时仍未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
                         throw new RdosDefineException("spark jar not find");
