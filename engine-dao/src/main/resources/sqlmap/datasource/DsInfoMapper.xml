@@ -240,4 +240,12 @@
         </if>
     </select>
 
+    <select id="queryByTenantId" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+        select
+        <include refid="select_content_fragment" />
+        from dsc_info a
+        where a.tenant_id = #{tenantId}
+        and is_deleted = 0;
+    </select>
+
 </mapper>
