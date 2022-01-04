@@ -201,11 +201,11 @@ public class ScheduleTaskShade implements Serializable {
         this.sqlText = sqlText;
     }
 
-    public String getTaskParam() {
+    public String getTaskParams() {
         return taskParams;
     }
 
-    public void setTaskParam(String taskParams) {
+    public void setTaskParams(String taskParams) {
         this.taskParams = taskParams;
     }
 
