@@ -490,4 +490,17 @@ public class ScheduleJob implements Serializable {
     public void setSubmitUserName(String submitUserName) {
         this.submitUserName = submitUserName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScheduleJob that = (ScheduleJob) o;
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobId, that.jobId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(jobName, that.jobName) && Objects.equals(taskId, that.taskId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(type, that.type) && Objects.equals(isRestart, that.isRestart) && Objects.equals(cycTime, that.cycTime) && Objects.equals(dependencyType, that.dependencyType) && Objects.equals(flowJobId, that.flowJobId) && Objects.equals(periodType, that.periodType) && Objects.equals(status, that.status) && Objects.equals(taskType, that.taskType) && Objects.equals(fillId, that.fillId) && Objects.equals(execStartTime, that.execStartTime) && Objects.equals(execEndTime, that.execEndTime) && Objects.equals(execTime, that.execTime) && Objects.equals(maxRetryNum, that.maxRetryNum) && Objects.equals(retryNum, that.retryNum) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(versionId, that.versionId) && Objects.equals(nextCycTime, that.nextCycTime) && Objects.equals(engineJobId, that.engineJobId) && Objects.equals(applicationId, that.applicationId) && Objects.equals(computeType, that.computeType) && Objects.equals(phaseStatus, that.phaseStatus) && Objects.equals(jobExecuteOrder, that.jobExecuteOrder) && Objects.equals(fillType, that.fillType) && Objects.equals(submitUserName, that.submitUserName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, tenantId, jobId, jobKey, jobName, taskId, gmtCreate, gmtModified, createUserId, isDeleted, type, isRestart, cycTime, dependencyType, flowJobId, periodType, status, taskType, fillId, execStartTime, execEndTime, execTime, maxRetryNum, retryNum, nodeAddress, versionId, nextCycTime, engineJobId, applicationId, computeType, phaseStatus, jobExecuteOrder, fillType, submitUserName);
+    }
 }
