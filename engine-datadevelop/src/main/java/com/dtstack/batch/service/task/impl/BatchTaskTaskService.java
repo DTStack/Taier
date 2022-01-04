@@ -22,11 +22,9 @@ import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.schedule.TaskService;
-import com.dtstack.batch.service.schedule.TaskTaskService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
@@ -59,15 +57,7 @@ public class BatchTaskTaskService {
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
-
-    @Autowired
     private TaskService taskService;
-
-    private TaskTaskService ScheduleTaskTaskService;
-
-    @Autowired
-    private BatchTaskService batchTaskService;
 
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateTaskTask(Long taskId, List<BatchTask> dependencyTasks) {
@@ -195,7 +185,6 @@ public class BatchTaskTaskService {
 //        vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
 //        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
-//        vo.setProjectName(projectService.getProjectById(task.getProjectId()).getProjectName());
 
         List<BatchTaskTask> taskTasks = batchTaskTaskDao.listByTaskId(task.getId());
         if (CollectionUtils.isEmpty(taskTasks)) {

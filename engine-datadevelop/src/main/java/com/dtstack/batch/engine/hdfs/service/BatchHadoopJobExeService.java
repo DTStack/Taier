@@ -327,13 +327,12 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
         if (EJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
             //sparkSql已经参数替换过
-        } else if (batchTask.getEngineType().equals(EngineType.Learning.getVal())
-                || batchTask.getEngineType().equals(EngineType.Shell.getVal())
-                || batchTask.getEngineType().equals(EngineType.DtScript.getVal())
-                || batchTask.getEngineType().equals(EngineType.Spark.getVal())
-                || batchTask.getEngineType().equals(EngineType.Hadoop.getVal())
-                || batchTask.getEngineType().equals(EngineType.Python2.getVal())
-                || batchTask.getEngineType().equals(EngineType.Python3.getVal())) {
+        } else if (batchTask.getTaskType().equals(EJobType.DEEP_LEARNING.getType())
+                || batchTask.getTaskType().equals(EJobType.SHELL.getType())
+                || batchTask.getTaskType().equals(EJobType.SPARK.getVal())
+                || batchTask.getTaskType().equals(EJobType.HIVE_SQL.getVal())
+                || batchTask.getTaskType().equals(EJobType.PYTHON.getVal())
+                || batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
             taskParams = formatLearnTaskParams(batchTask.getTaskParams());
             //替换系统参数
             batchTaskParamService.checkParams(batchTask.getSqlText(), taskParamsToReplace);

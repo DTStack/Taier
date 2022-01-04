@@ -54,8 +54,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private String tenantName;
 
-    private String projectName;
-
     private String projectAlias;
 
     /**
@@ -140,10 +138,12 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
         return currentProject;
     }
 
+    @Override
     public String getTaskParams() {
         return taskParams;
     }
 
+    @Override
     public void setTaskParams(String taskParams) {
         this.taskParams = taskParams;
     }
@@ -156,10 +156,12 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
         this.nodePid = nodePid;
     }
 
+    @Override
     public Integer getTaskType() {
         return taskType;
     }
 
+    @Override
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
     }
@@ -178,14 +180,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     public String getIncreColumn() {
