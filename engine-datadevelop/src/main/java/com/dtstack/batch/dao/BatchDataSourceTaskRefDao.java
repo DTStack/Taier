@@ -50,5 +50,4 @@ public interface BatchDataSourceTaskRefDao {
 
     List<Long> listSourceIdByTaskId(@Param("taskId") Long taskId);
 
-    Integer deleteByProjectId(@Param("projectId") Long projectId);
 }

@@ -134,7 +134,6 @@ import com.dtstack.engine.common.thread.RdosThreadFactory;
 import com.dtstack.engine.common.util.Base64Util;
 import com.dtstack.engine.common.util.DataFilter;
 import com.dtstack.engine.common.util.JsonUtils;
-import com.dtstack.engine.common.util.NameUtil;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.domain.BaseEntity;
 import com.dtstack.engine.domain.BatchDataSource;
@@ -298,9 +297,6 @@ public class BatchTaskService {
     private BatchTaskResourceShadeService batchTaskResourceShadeService;
 
     @Autowired
-    private TaskTaskService scheduleTaskTaskShadeService;
-
-    @Autowired
     private TenantEngineService tenantEngineService;
 
     @Autowired
@@ -398,75 +394,6 @@ public class BatchTaskService {
         jobSupportTypeMap.put(EDeployType.LIBRA.getType(), libraSupportType);
     }
 
-    /**
-     * 任务克隆
-     */
-    @Transactional
-    public BatchTask cloneTask(Long tenantId, Long userId, Long taskId, String taskName, String taskDesc, Long nodePid) {
-
-        final BatchTask distTask = this.copyTask(tenantId, userId, taskId, taskName, taskDesc, nodePid, 0L);
-
-        // 工作流任务拷贝子节点
-        if (distTask.getTaskType().equals(EJobType.WORK_FLOW.getVal())) {
-            // 子节点之间的依赖关系
-            final List<BatchTask> subTasks = this.batchTaskDao.listByFlowId(taskId);
-            if (CollectionUtils.isNotEmpty(subTasks)) {
-
-                final Map<Long, BatchTask> srcTaskIdDistTaskMap = new HashMap<>();
-                for (final BatchTask subTask : subTasks) {
-                    final BatchTask subDistTask = this.copyTask(tenantId, userId, subTask.getId(), subTask.getName(), subTask.getTaskDesc(), subTask.getNodePid(), distTask.getId());
-                    srcTaskIdDistTaskMap.put(subTask.getId(), subDistTask);
-                }
-
-                // 更新sqlText
-                this.updateWorkFlowSqlText(srcTaskIdDistTaskMap, distTask);
-                // 解析出子任务间的依赖关系
-                final Map<Long, List<Long>> dependency = this.parseTaskRelationsFromSqlText(distTask.getSqlText());
-                // 判断任务依赖是否成环
-                if (MapUtils.isNotEmpty(dependency)) {
-                    checkIsLoopByList(dependency);
-                }
-                // 添加任务依赖关系
-                for (final Map.Entry<Long, List<Long>> entry : dependency.entrySet()) {
-                    List<BatchTask> dependencyTasks = getTaskByIds(entry.getValue());
-                    dependencyTasks.stream().forEach(task -> {
-                        task.setTenantId(distTask.getTenantId());
-                    });
-                    batchTaskTaskService.addOrUpdateTaskTask(entry.getKey(), dependencyTasks);
-                }
-            }
-        }
-        return distTask;
-    }
-
-    /**
-     * 更新工作流里的任务依赖关系
-     *
-     * @param srcTaskIdDistTaskMap
-     * @param batchTask
-     */
-    public void updateWorkFlowSqlText(final Map<Long, BatchTask> srcTaskIdDistTaskMap, final BatchTask batchTask) {
-        final JSONArray jsonArray = JSON.parseArray(batchTask.getSqlText());
-        BatchTask subTask;
-        for (int i = 0; i < jsonArray.size(); i++) {
-            final JSONObject node = jsonArray.getJSONObject(i);
-            if (node.containsKey("source") && node.containsKey("target")) {
-                final JSONObject sourceNode = node.getJSONObject("source");
-                subTask = srcTaskIdDistTaskMap.get(sourceNode.getJSONObject("data").getLong("id"));
-                this.updateDataNode(sourceNode, subTask);
-
-                final JSONObject targetNode = node.getJSONObject("target");
-                subTask = srcTaskIdDistTaskMap.get(targetNode.getJSONObject("data").getLong("id"));
-                this.updateDataNode(targetNode, subTask);
-            } else {
-                subTask = srcTaskIdDistTaskMap.get(node.getJSONObject("data").getLong("id"));
-                this.updateDataNode(node, subTask);
-            }
-        }
-
-        batchTask.setSqlText(jsonArray.toJSONString());
-        this.batchTaskDao.update(batchTask);
-    }
 
     private void updateDataNode(final JSONObject node, final BatchTask subTask) {
         if (subTask == null) {
@@ -482,63 +409,6 @@ public class BatchTaskService {
         data.put("version", "0");
     }
 
-    private BatchTask copyTask(final Long tenantId, final Long userId, final Long srcTaskId, String taskName, final String taskDesc, final Long nodePid, final Long flowId) {
-        final BatchTask srcTask = this.batchTaskDao.getOne(srcTaskId);
-        if (srcTask == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
-        }
-
-        BatchTask taskGetByName = this.batchTaskDao.getByName(taskName, tenantId);
-        if (flowId == 0) {
-            if (taskGetByName != null) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
-            }
-        } else {
-            while (taskGetByName != null) {
-                taskName = NameUtil.getCopyName(taskName);
-                taskGetByName = this.batchTaskDao.getByName(taskName, tenantId);
-            }
-        }
-
-        final BatchTask distTask = new BatchTask();
-        PublicUtil.copyPropertiesIgnoreNull(srcTask, distTask);
-        distTask.setId(null);
-        distTask.setName(taskName);
-        distTask.setCreateUserId(userId);
-        distTask.setModifyUserId(userId);
-        distTask.setTaskDesc(taskDesc);
-        distTask.setOwnerUserId(userId);
-        distTask.setNodePid(nodePid);
-        distTask.setFlowId(flowId);
-        distTask.setVersion(0);
-        distTask.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        distTask.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        this.batchTaskDao.insert(distTask);
-        final BatchTaskRecord record = new BatchTaskRecord();
-        record.setTaskId(this.batchTaskDao.getByName(distTask.getName(), null).getId());
-        record.setTenantId(distTask.getTenantId());
-        record.setRecordType(TaskOperateType.CREATE.getType());
-        record.setOperatorId(userId);
-        record.setOperateTime(new Timestamp(System.currentTimeMillis()));
-        this.batchTaskRecordService.saveTaskRecord(record);
-
-        // 任务数据源关系拷贝
-        this.batchDataSourceTaskRefService.copyTaskDataSource(srcTaskId, distTask);
-
-        // 任务主资源关系拷贝
-        this.batchTaskResourceService.copyTaskResource(srcTaskId, distTask, ResourceRefType.MAIN_RES.getType());
-
-        //任务依赖资源拷贝
-        this.batchTaskResourceService.copyTaskResource(srcTaskId, distTask, ResourceRefType.DEPENDENCY_RES.getType());
-
-        // 任务参数拷贝
-        this.batchTaskParamService.copyTaskParam(srcTaskId, distTask.getId());
-
-        // 新增锁
-        this.readWriteLockService.getLock(srcTask.getTenantId(), userId, ReadWriteLockType.BATCH_TASK.name(), distTask.getId(), null);
-
-        return distTask;
-    }
 
     /**
      * 数据开发-任务全局搜索
@@ -580,14 +450,14 @@ public class BatchTaskService {
      * @return
      * @author toutian
      */
-    public BatchTaskBatchVO getTaskById(final ScheduleTaskVO ScheduleTaskVO) {
-        final BatchTask task = this.batchTaskDao.getOne(ScheduleTaskVO.getId());
+    public BatchTaskBatchVO getTaskById(final ScheduleTaskVO scheduleTaskVO) {
+        final BatchTask task = this.batchTaskDao.getOne(scheduleTaskVO.getId());
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
 
-        final List<BatchResource> resources = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), ResourceRefType.MAIN_RES.getType());
-        final List<BatchResource> refResourceIdList = this.batchTaskResourceService.getResources(ScheduleTaskVO.getId(), ResourceRefType.DEPENDENCY_RES.getType());
+        final List<BatchResource> resources = this.batchTaskResourceService.getResources(scheduleTaskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        final List<BatchResource> refResourceIdList = this.batchTaskResourceService.getResources(scheduleTaskVO.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         final BatchTaskBatchVO taskVO = new BatchTaskBatchVO(this.batchTaskTaskService.getForefathers(task));
         taskVO.setVersion(task.getVersion());
@@ -621,7 +491,7 @@ public class BatchTaskService {
         taskVO.setRefResourceList(refResourceIdList);
 
         final PageQuery pageQuery = new PageQuery(1, 5, "gmt_create", Sort.DESC.name());
-        final List<BatchTaskVersionDetail> taskVersions = this.batchTaskVersionDao.listByTaskId(ScheduleTaskVO.getId(), pageQuery).stream()
+        final List<BatchTaskVersionDetail> taskVersions = this.batchTaskVersionDao.listByTaskId(scheduleTaskVO.getId(), pageQuery).stream()
                 .map(ver -> {
                     if (StringUtils.isNotBlank(ver.getOriginSql())) {
                         if (task.getTaskType().intValue() == EJobType.SYNC.getVal().intValue()) {
@@ -657,13 +527,13 @@ public class BatchTaskService {
         }
 
         final ReadWriteLockVO readWriteLockVO = this.readWriteLockService.getDetail(
-                0L, task.getId(),
-                ReadWriteLockType.BATCH_TASK, ScheduleTaskVO.getUserId(),
+                scheduleTaskVO.getTenantId(), task.getId(),
+                ReadWriteLockType.BATCH_TASK, scheduleTaskVO.getUserId(),
                 task.getModifyUserId(),
                 task.getGmtModified());
         taskVO.setReadWriteLockVO(readWriteLockVO);
-        taskVO.setUserId(ScheduleTaskVO.getUserId());
-        setTaskVariables(taskVO, ScheduleTaskVO.getId());
+        taskVO.setUserId(scheduleTaskVO.getUserId());
+        setTaskVariables(taskVO, scheduleTaskVO.getId());
         final List<Long> userIds = new ArrayList<>();
         userIds.add(task.getCreateUserId());
         userIds.add(task.getOwnerUserId());
@@ -755,49 +625,6 @@ public class BatchTaskService {
         return returnList;
     }
 
-
-    /**
-     * 克隆task到工作流后重新生成sqlText
-     *
-     * @param flowTask
-     * @param coordsExtra
-     * @return
-     */
-    private String buildSqlText(final BatchTask flowTask, final BatchTask clonedTask, final ReadWriteLockVO lock, final Map<String, Object> coordsExtra) {
-        final Map<String, Object> taskGraphMap = new HashMap<>();
-        if (coordsExtra != null) {
-            taskGraphMap.putAll(coordsExtra);
-        } else {
-            taskGraphMap.put("vertex", true);
-            taskGraphMap.put("edge", false);
-            taskGraphMap.put("x", 100);
-            taskGraphMap.put("y", -100);
-            taskGraphMap.put("value", null);
-        }
-        taskGraphMap.put("id", clonedTask.getId());
-        final Map<String, Object> taskMap = new HashMap<>();
-        taskMap.put("id", clonedTask.getId());
-        taskMap.put("name", clonedTask.getName());
-        taskMap.put("type", "file");
-        taskMap.put("taskType", clonedTask.getTaskType());
-        taskMap.put("parentId", clonedTask.getNodePid());
-        taskMap.put("catalogueType", CatalogueType.TASK_DEVELOP.getType());
-        taskMap.put("nodePid", clonedTask.getNodePid());
-        taskMap.put("submitStatus", clonedTask.getSubmitStatus());
-        taskMap.put("version", clonedTask.getVersion());
-        taskGraphMap.put("data", taskMap);
-        taskGraphMap.put("readWriteLockVO", lock);
-
-        final String sqlText = flowTask.getSqlText();
-        JSONArray graphArray = null;
-        if (StringUtils.isNotEmpty(sqlText)) {
-            graphArray = JSON.parseArray(sqlText);
-        } else {
-            graphArray = new JSONArray();
-        }
-        graphArray.add(taskGraphMap);
-        return graphArray.toJSONString();
-    }
 
     /**
      * 数据开发-根据项目id,任务名 获取任务列表
@@ -984,59 +811,6 @@ public class BatchTaskService {
         }
     }
 
-    private List<ScheduleTaskVO> dealFlowWorkSubTasks(final List<ScheduleTaskVO> vos) {
-        final Set<Long> userIds = vos.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet());
-        userIds.addAll(vos.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
-/*        final Map<Long, User> userMap = userService.getUserMap(userIds);
-        for (final ScheduleTaskVO vo : vos) {
-            buildUserDTOInfo(userMap, vo);
-        }*/
-        return vos;
-    }
-
-
-
-    private BatchTaskBatchVO buildUserInfo(final ScheduleTaskVO batchTask) {
-        if (Objects.isNull(batchTask)) {
-            return null;
-        }
-
-        final long taskId = batchTask.getTaskId();
-        final BatchTask task = this.batchTaskDao.getOne(taskId);
-        if (Objects.isNull(task)) {
-            return null;
-        }
-        final Set<Long> userIds = new HashSet<>();
-        final List<BatchTaskBatchVO> tasks = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(batchTask.getRelatedTasks())) {
-            for (final ScheduleTaskVO relatedTask : batchTask.getRelatedTasks()) {
-                tasks.add(new BatchTaskBatchVO(relatedTask));
-            }
-        }
-        tasks.add(new BatchTaskBatchVO(batchTask));
-        userIds.addAll(tasks.stream().map(ScheduleTaskVO::getCreateUserId).collect(Collectors.toSet()));
-        userIds.addAll(tasks.stream().map(ScheduleTaskVO::getOwnerUserId).collect(Collectors.toSet()));
-        userIds.addAll(tasks.stream().map(ScheduleTaskVO::getModifyUserId).collect(Collectors.toSet()));
-
-        final Map<Long, User> userMap = userService.getUserMap(userIds);
-        if (MapUtils.isEmpty(userMap)) {
-            return new BatchTaskBatchVO(batchTask);
-        }
-        final BatchTaskBatchVO batchTaskBatchVO = this.getBatchTaskUserDTO(batchTask, userMap);
-
-        if (CollectionUtils.isEmpty(batchTask.getRelatedTasks())) {
-            return batchTaskBatchVO;
-        }
-        final List<ScheduleTaskVO> taskBatchVOS = new ArrayList<>();
-        if(CollectionUtils.isEmpty(batchTask.getRelatedTasks())){
-            return batchTaskBatchVO;
-        }
-        for (final ScheduleTaskVO relate : batchTask.getRelatedTasks()) {
-            taskBatchVOS.add(getBatchTaskUserDTO(relate,userMap));
-        }
-        batchTaskBatchVO.setRelatedTasks(taskBatchVOS);
-        return batchTaskBatchVO;
-    }
 
     private BatchTaskBatchVO getBatchTaskUserDTO(final ScheduleTaskVO batchTask, final Map<Long, User> userMap) {
         final BatchTaskBatchVO batchTaskBatchVO = new BatchTaskBatchVO(batchTask);
@@ -1092,7 +866,6 @@ public class BatchTaskService {
      */
     @Transactional
     public TaskCheckResultVO publishTask(Long tenantId, Long id, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
-        TaskCheckResultVO vo ;
         BatchTask task = batchTaskDao.getOne(id);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -1132,7 +905,7 @@ public class BatchTaskService {
         }
 
         // 发布任务中所有的依赖关系
-        List<Long> parentTaskIds = null;
+        List<Long> parentTaskIds = Lists.newArrayList();
         ScheduleTaskShadeDTO scheduleTaskShadeDTO = buildScheduleTaskShadeDTO(publishTask, parentTaskIds);
 
         // 提交任务参数信息并保存任务记录和更新任务状态
@@ -1222,7 +995,7 @@ public class BatchTaskService {
             //避免重复校验
             ScheduleTaskShade taskShade = this.taskService.findTaskByTaskId(task.getId());
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
-            boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && ignoreCheck;
+            boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && BooleanUtils.isTrue(ignoreCheck);
 
             CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText, userId, checkSyntax, isRoot, engineType, task.getTaskParams());
             if (!syntaxResult.getCheckResult()){
@@ -1313,11 +1086,8 @@ public class BatchTaskService {
         final List<BatchTaskParam> batchTaskParamList = this.batchTaskParamService.getTaskParam(batchTask.getId());
         //查询出任务所有的关联的资源(运行主体资源和依赖引用资源)
         final List<BatchTaskResource> batchTaskResourceList = this.batchTaskResourceService.getTaskResources(batchTask.getId(), null);
-        parentTaskIds = this.batchTaskTaskService.getAllParentTaskId(batchTask.getId());
-
-        if (!CollectionUtils.isEmpty(batchTaskParamList)) {
-            this.batchTaskParamShadeService.saveTaskParam(batchTaskParamList);
-        }
+        List<Long> parentTaskList = this.batchTaskTaskService.getAllParentTaskId(batchTask.getId());
+        parentTaskIds.addAll(parentTaskList);
 
         if (!CollectionUtils.isEmpty(batchTaskResourceList)) {
             this.batchTaskResourceShadeService.saveTaskResource(batchTaskResourceList);
@@ -1327,6 +1097,12 @@ public class BatchTaskService {
         BeanUtils.copyProperties(batchTask, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(batchTask.getId());
         scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
+
+        if (!CollectionUtils.isEmpty(batchTaskParamList)) {
+            this.batchTaskParamShadeService.saveTaskParam(batchTaskParamList);
+        }else{
+            scheduleTaskShadeDTO.setTaskParams("");
+        }
 
         return scheduleTaskShadeDTO;
     }
@@ -1652,13 +1428,6 @@ public class BatchTaskService {
             this.checkIncreSyncTask(param);
             param.setSqlText(Base64Util.baseEncode(param.getSqlText()));
         }
-        // 再做一次权限校验，因为表名可以填写
-        if (param.getId() != 0 && !param.getIsEditBaseInfo()) {
-            Long ownerUserId = param.getOwnerUserId();
-            if (ownerUserId == null) {
-                ownerUserId = param.getUserId();
-            }
-        }
         return engineType;
     }
 
@@ -1923,25 +1692,6 @@ public class BatchTaskService {
         }
     }
 
-    public void updateSubTaskScheduleConf(final Long flowWorkId, final JSONObject newScheduleConf) {
-        final BatchTask task = this.batchTaskDao.getOne(flowWorkId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        final int periodType = newScheduleConf.getInteger("periodType");
-        if (!Objects.equals(JSON.parseObject(task.getScheduleConf()), newScheduleConf)
-                || periodType == ESchedulePeriodType.MIN.getVal() || periodType == ESchedulePeriodType.HOUR.getVal()) {
-            final List<BatchTask> batchTasks = this.getFlowWorkSubTasks(flowWorkId);
-            newScheduleConf.put("selfReliance", 0);
-            //工作流更新调度属性时，子任务同步更新
-            for (final BatchTask bTask : batchTasks) {
-                //工作流配置的自动取消不同步子任务
-                newScheduleConf.remove("isExpire");
-                bTask.setScheduleConf(newScheduleConf.toString());
-            }
-            batchTasks.forEach(batchTask -> this.batchTaskDao.update(batchTask));
-        }
-    }
 
     /**
      * 新增/更新任务
@@ -1978,7 +1728,7 @@ public class BatchTaskService {
 
             BatchTask specialTask1 = new BatchTask();
             ReadWriteLockVO readWriteLockVO = this.readWriteLockService.dealWithLock(
-            0L,
+                    task.getTenantId(),
                     task.getId(),
                     ReadWriteLockType.BATCH_TASK,
                     task.getUserId(),
@@ -2116,12 +1866,7 @@ public class BatchTaskService {
         // 增加注释
         task.setSqlText(this.createAnnotationText(task));
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-
-        if (EJobType.CARBON_SQL.getVal().equals(task.getTaskType())) {
-            task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
-        } else {
-            task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
-        }
+        task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
         String scConf = DEFAULT_SCHEDULE_CONF;
@@ -2350,7 +2095,7 @@ public class BatchTaskService {
     }
 
     private String getDefaultTaskParam(Integer taskType) {
-        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate(null, taskType);
+        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate("2.1", taskType);
         if(null == taskParamTemplate){
             return Strings.EMPTY_STRING;
         }
