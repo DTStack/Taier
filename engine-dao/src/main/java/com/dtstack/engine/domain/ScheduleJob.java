@@ -19,11 +19,12 @@
 package com.dtstack.engine.domain;
 
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Objects;
 
 /**
  * company: www.dtstack.com
@@ -36,6 +37,7 @@ public class ScheduleJob implements Serializable {
     /**
      * 实例唯一标识
      */
+    @TableId(value="id", type= IdType.AUTO)
     private Long id;
 
     /**

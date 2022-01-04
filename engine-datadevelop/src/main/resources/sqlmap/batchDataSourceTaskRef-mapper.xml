@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.batch.dao.BatchDataSourceTaskRefDao">
 
     <sql id="select_content_fragment">
-      id,data_source_id,task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted
+      id,data_source_id,task_id,tenant_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -16,9 +16,6 @@
             </if>
             <if test="taskId != null">
                 task_id = #{taskId},
-            </if>
-            <if test="projectId != null">
-                project_id = #{projectId},
             </if>
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
@@ -35,7 +32,7 @@
         </set>
     </sql>
 
-    <select id="getBySourceIdAndTaskId" resultType="BatchDataSourceTaskRef">
+    <select id="getBySourceIdAndTaskId" resultType="com.dtstack.engine.domain.BatchDataSourceTaskRef">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_data_source_task_ref
@@ -47,14 +44,14 @@
         WHERE task_id = #{taskId}
     </delete>
 
-    <insert id="insert" parameterType="BatchDataSourceTaskRef" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.engine.domain.BatchDataSourceTaskRef" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_data_source_task_ref
-          (data_source_id,task_id,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+          (data_source_id,task_id,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
-          (#{dataSourceId},#{taskId},#{projectId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
+          (#{dataSourceId},#{taskId},#{tenantId},#{gmtCreate},#{gmtModified},#{isDeleted})
     </insert>
 
-    <update id="update" parameterType="BatchDataSourceTaskRef">
+    <update id="update" parameterType="com.dtstack.engine.domain.BatchDataSourceTaskRef">
         UPDATE
         rdos_batch_data_source_task_ref
         <include refid="update_fragment"/>
@@ -62,7 +59,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="pageQueryBySourceId" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="BatchTask">
+    <select id="pageQueryBySourceId" parameterType="com.dtstack.batch.web.pager.PageQuery" resultType="com.dtstack.engine.domain.BatchTask">
         select
         task.id,task.name
         from rdos_batch_data_source_task_ref ref
@@ -101,9 +98,4 @@
         where task_id = #{taskId} and is_deleted = 0
     </select>
 
-    <update id="deleteByProjectId" parameterType="java.lang.Long">
-        UPDATE rdos_batch_data_source_task_ref
-        SET is_deleted = 1, gmt_modified = now()
-        WHERE project_id = #{projectId} AND is_deleted = 0;
-    </update>
 </mapper>

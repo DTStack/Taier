@@ -89,6 +89,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,11 +102,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -2014,8 +2019,12 @@ public class DatasourceService {
         return hadoop;
     }
 
-    public BatchDataSource getOne(Long valueOf) {
-        return null;
+    public BatchDataSource getOne(Long id) {
+        DsInfo dsInfo = dsInfoService.getOneById(id);
+        BatchDataSource batchDataSource = new BatchDataSource();
+        BeanUtils.copyProperties(dsInfo, batchDataSource);
+        batchDataSource.setType(dsInfo.getDataTypeCode());
+        return batchDataSource;
     }
 
     public void createMateDataSource(Long tenantId, Long userId, String toJSONString, String dataSourceName, Integer dataSourceType, String tenantDesc, String dbName) {
@@ -2024,4 +2033,268 @@ public class DatasourceService {
     public Integer getEComponentTypeByDataSourceType(Integer val) {
         return null;
     }
+
+    /**
+     * 数据同步-获得数据库中相关的表信息
+     *
+     * @param sourceId  数据源id
+     * @param tenantId 租户id
+     * @param schema 查询的schema
+     * @param name 模糊查询表名
+     * @param isAll 是否获取所有表
+     * @param isRead 是否读取类型
+     * @return
+     */
+    public List<String> tablelist(Long sourceId,Long tenantId,String schema, String name, Boolean isAll, Boolean isRead) {
+        List<String> tables = new ArrayList<>();
+        BatchDataSource source = getOne(sourceId);
+        String dataJson = source.getDataJson();
+        JSONObject json = JSON.parseObject(dataJson);
+        //查询的db
+        String dataSource = schema;
+
+        IClient client = ClientCache.getClient(source.getType());
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(source.getId()));
+        SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableNamePattern(name).limit(5000).build();
+        sqlQueryDTO.setView(true);
+        sqlQueryDTO.setSchema(dataSource);
+        //如果是hive类型的数据源  过滤脏数据表 和 临时表
+        tables = client.getTableList(sourceDTO, sqlQueryDTO);
+        return tables;
+    }
+
+
+    /**
+     * 数据同步-获得表中字段与类型信息
+     *
+     * @param sourceId  数据源id
+     * @param tableName 表名
+     * @return
+     */
+    public List<JSONObject> tablecolumn(Long projectId, Long userId, Long sourceId, String tableName, Boolean isIncludePart, String schema) {
+
+        final BatchDataSource source = this.getOne(sourceId);
+        final StringBuffer newTableName = new StringBuffer();
+        if (DataSourceType.SQLServer.getVal().equals(source.getType()) && StringUtils.isNotBlank(tableName)){
+            if (tableName.indexOf("[") == -1){
+                final String[] tableNames = tableName.split("\\.");
+                for (final String name : tableNames) {
+                    newTableName.append("[").append(name).append("]").append(".");
+                }
+                tableName = newTableName.substring(0,newTableName.length()-1);
+            }
+        }
+        return getTableColumnIncludePart(source, tableName,isIncludePart, schema);
+    }
+
+
+    /**
+     * 返回切分键需要的列名
+     * <p>
+     * 只支持关系型数据库 mysql\oracle\sqlserver\postgresql  的整型数据类型
+     * 也不支持其他数据库。
+     * 如果指定了不支持的类型，则忽略切分键功能，使用单通道进行同步。
+     *
+     * @param userId
+     * @param sourceId
+     * @param tableName
+     * @return
+     */
+    public Set<JSONObject> columnForSyncopate(Long userId, Long sourceId, String tableName, String schema) {
+
+        BatchDataSource source = getOne(sourceId);
+        if (Objects.isNull(RDBMSSourceType.getByDataSourceType(source.getType())) && !DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
+            log.error("切分键只支关系型数据库");
+            throw new RdosDefineException("切分键只支持关系型数据库");
+        }
+        if (StringUtils.isEmpty(tableName)) {
+            return new HashSet<>();
+        }
+        final StringBuffer newTableName = new StringBuffer();
+        if (DataSourceType.SQLServer.getVal().equals(source.getType()) && StringUtils.isNotBlank(tableName)){
+            if (tableName.indexOf("[") == -1){
+                final String[] tableNames = tableName.split("\\.");
+                for (final String name : tableNames) {
+                    newTableName.append("[").append(name).append("]").append(".");
+                }
+                tableName = newTableName.substring(0,newTableName.length()-1);
+            }
+        }
+        final List<JSONObject> tablecolumn = this.getTableColumn(source, tableName, schema);
+        if (CollectionUtils.isNotEmpty(tablecolumn)) {
+            List<String> numbers;
+            if (DataSourceType.MySQL.getVal().equals(source.getType()) || DataSourceType.Polardb_For_MySQL.getVal().equals(source.getType()) || DataSourceType.TiDB.getVal().equals(source.getType())) {
+                numbers = MYSQL_NUMBERS;
+            } else if (DataSourceType.Oracle.getVal().equals(source.getType())) {
+                numbers = ORACLE_NUMBERS;
+            } else if (DataSourceType.SQLServer.getVal().equals(source.getType())) {
+                numbers = SQLSERVER_NUMBERS;
+            } else if (DataSourceType.PostgreSQL.getVal().equals(source.getType())
+                    || DataSourceType.ADB_FOR_PG.getVal().equals(source.getType())) {
+                numbers = POSTGRESQL_NUMBERS;
+            } else if (DataSourceType.DB2.getVal().equals(source.getType())) {
+                numbers = DB2_NUMBERS;
+            } else if (DataSourceType.GBase_8a.getVal().equals(source.getType())) {
+                numbers = GBASE_NUMBERS;
+            } else if (DataSourceType.Clickhouse.getVal().equals(source.getType())) {
+                numbers = CLICKHOUSE_NUMBERS;
+            } else if (DataSourceType.DMDB.getVal().equals(source.getType())) {
+                numbers = DMDB_NUMBERS;
+            } else if (DataSourceType.GREENPLUM6.getVal().equals(source.getType())) {
+                numbers = GREENPLUM_NUMBERS;
+            } else if (DataSourceType.KINGBASE8.getVal().equals(source.getType())) {
+                numbers = KINGBASE_NUMBERS;
+            } else if (DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
+                numbers = INFLUXDB_NUMBERS;
+            } else {
+                throw new RdosDefineException("切分键只支持关系型数据库");
+            }
+            Map<JSONObject, String> twinsMap = new LinkedHashMap<>(tablecolumn.size()+1);
+            for (JSONObject twins : tablecolumn) {
+                twinsMap.put(twins, twins.getString(TYPE));
+            }
+
+
+            Iterator<Map.Entry<JSONObject, String>> iterator = twinsMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                String type = getSimpleType(iterator.next().getValue());
+                if (numbers.contains(type.toUpperCase())) {
+                    continue;
+                }
+                if (source.getType().equals(DataSourceType.Oracle.getVal())) {
+                    if ("number".equalsIgnoreCase(type)) {
+                        continue;
+                    }
+
+                    Matcher numberMatcher1 = NUMBER_PATTERN.matcher(type);
+                    Matcher numberMatcher2 = NUMBER_PATTERN2.matcher(type);
+                    if (numberMatcher1.matches()) {
+                        continue;
+                    } else if (numberMatcher2.matches()) {
+                        int floatLength = Integer.parseInt(numberMatcher2.group(2));
+                        if (floatLength <= 0) {
+                            continue;
+                        }
+                    }
+                }
+                iterator.remove();
+            }
+            //为oracle加上默认切分键
+            if (source.getType().equals(DataSourceType.Oracle.getVal())) {
+                JSONObject keySet = new JSONObject();
+                keySet.put("type", "NUMBER(38,0)");
+                keySet.put("key", "ROW_NUMBER()");
+                keySet.put("comment", "");
+                twinsMap.put(keySet, "NUMBER(38,0)");
+            }
+            return twinsMap.keySet();
+        }
+        return Sets.newHashSet();
+    }
+
+    private String getSimpleType(String type) {
+        type = type.toUpperCase();
+        String[] split = type.split(" ");
+        if (split != null && split.length > 1) {
+            //提取例如"INT UNSIGNED"情况下的字段类型
+            type = split[0];
+        }
+        return type;
+    }
+
+
+    public Set<String> getHivePartitions(Long sourceId, String tableName) {
+
+        BatchDataSource source = getOne(sourceId);
+        JSONObject json = JSON.parseObject(source.getDataJson());
+        Map<String, Object> kerberosConfig = this.fillKerberosConfig(sourceId);
+
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig);
+        IClient iClient = ClientCache.getClient(source.getType());
+        List<ColumnMetaDTO> partitionColumn = iClient.getPartitionColumn(sourceDTO, SqlQueryDTO.builder().tableName(tableName).build());
+
+        Set<String> partitionNameSet = Sets.newHashSet();
+        //格式化分区信息 与hive保持一致
+        if (CollectionUtils.isNotEmpty(partitionColumn)){
+            StringJoiner tempJoiner = new StringJoiner("=/","","=");
+            for (ColumnMetaDTO column : partitionColumn) {
+                tempJoiner.add(column.getKey());
+            }
+            partitionNameSet.add(tempJoiner.toString());
+        }
+        return partitionNameSet;
+    }
+
+
+    /**
+     * 数据同步-获得预览数据，默认展示3条
+     *
+     * @param userId    用户id
+     * @param sourceId  数据源id
+     * @param tableName 表名
+     * @return
+     * @author toutian
+     */
+    public JSONObject preview(Long userId, Long sourceId, String tableName, String partition,
+                              Long tenantId, Long dtuicTenantId, Boolean isRoot, String schema) {
+
+        BatchDataSource source = getOne(sourceId);
+        StringBuffer newTableName = new StringBuffer();
+        if (DataSourceType.SQLServer.getVal().equals(source.getType()) && StringUtils.isNotBlank(tableName)){
+            if (tableName.indexOf("[") == -1){
+                final String[] tableNames = tableName.split("\\.");
+                for (final String name : tableNames) {
+                    newTableName.append("[").append(name).append("]").append(".");
+                }
+                tableName = newTableName.substring(0,newTableName.length()-1);
+            }
+        }
+        String dataJson = source.getDataJson();
+        JSONObject json = JSON.parseObject(dataJson);
+        //获取字段信息
+        List<String> columnList = new ArrayList<String>();
+        //获取数据
+        List<List<String>> dataList = new ArrayList<List<String>>();
+        try {
+            Map<String, Object> kerberosConfig = fillKerberosConfig(source.getId());
+            List<JSONObject> columnJson = getTableColumn(source, tableName, schema);
+            if (CollectionUtils.isNotEmpty(columnJson)) {
+                for (JSONObject columnMetaDTO : columnJson) {
+                    columnList.add(columnMetaDTO.getString("key"));
+                }
+            }
+            IClient iClient = ClientCache.getClient(source.getType());
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig);
+            SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().schema(schema).tableName(tableName).previewNum(3).build();
+            dataList = iClient.getPreview(iSourceDTO, sqlQueryDTO);
+            if (DataSourceType.getRDBMS().contains(source.getType())) {
+                //因为会把字段名也会返回 所以要去除第一行
+                dataList = dataList.subList(1, dataList.size());
+            }
+        } catch (Exception e) {
+            log.error("datasource preview end with error.", e);
+            throw new RdosDefineException(String.format("%s获取预览数据失败", source.getDataName()), e);
+        }
+
+        JSONObject preview = new JSONObject(2);
+        preview.put("columnList", columnList);
+        preview.put("dataList", dataList);
+
+        return preview;
+    }
+
+    /**
+     * 获取所有schema
+     * @param sourceId 数据源id
+     * @return
+     */
+    public List<String> getAllSchemas(Long sourceId, String schema) {
+        BatchDataSource source = getOne(sourceId);
+        String dataJson = source.getDataJson();
+        JSONObject json = JSON.parseObject(dataJson);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(sourceId));
+        IClient client = ClientCache.getClient(source.getType());
+        return client.getAllDatabases(sourceDTO, SqlQueryDTO.builder().schema(schema).build());
+    }
+
 }
