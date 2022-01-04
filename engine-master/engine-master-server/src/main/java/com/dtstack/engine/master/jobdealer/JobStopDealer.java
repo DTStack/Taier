@@ -200,7 +200,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      * @return 是否提交yarn
      */
     private boolean isSubmit(ScheduleJob scheduleJob) {
-        return RdosTaskStatus.UNSUBMIT.getStatus().equals(scheduleJob.getStatus()) || SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType()) || RdosTaskStatus.RUNNING_TASK_RULE.getStatus().equals(scheduleJob.getStatus());
+        return RdosTaskStatus.UNSUBMIT.getStatus().equals(scheduleJob.getStatus()) || SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType());
     }
 
 
