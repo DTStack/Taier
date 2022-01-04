@@ -28,7 +28,6 @@ import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckAndPublishTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckIsLoopVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckNameVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskCloneTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskDeleteTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskFrozenTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetByNameVO;
@@ -77,18 +76,6 @@ public class BatchTaskController {
     @Autowired
     private BatchTaskService batchTaskService;
 
-
-    @PostMapping(value = "cloneTask")
-    @ApiOperation("任务克隆")
-    public R<BatchTaskResultVO> cloneTask(@RequestBody BatchTaskCloneTaskVO infoVO) {
-        return new APITemplate<BatchTaskResultVO>() {
-            @Override
-            protected BatchTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(batchTaskService.cloneTask(infoVO.getProjectId(), infoVO.getUserId(),
-                        infoVO.getTaskId(), infoVO.getTaskName(), infoVO.getTaskDesc(), infoVO.getNodePid()));
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "globalSearch")
     @ApiOperation("数据开发-任务全局搜索")
