@@ -195,14 +195,5 @@ public class SyncJobCheck {
             }
         }
 
-        if(JSONPath.contains(job, JobElementPath.DIRTY)){
-            if(StringUtils.isEmpty((String)JSONPath.eval(job, JobElementPath.DIRTY_PATH))){
-                throw new RdosDefineException("脏数据存储路径 path 不能为空");
-            }
-
-            if(JSONPath.eval(job, JobElementPath.DIRTY_HADOOP_CONFIG) == null){
-                throw new RdosDefineException("脏数据的hadoop配置 hadoopConfig 不能为空");
-            }
-        }
     }
 }

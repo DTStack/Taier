@@ -189,7 +189,7 @@ public class BatchJobService {
      * @return info信息
      * @throws Exception
      */
-    private String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         String extroInfo = "";
         Long taskId = batchTask.getId();
         // 跨项目的时候 需要依赖 task的tenant
@@ -228,7 +228,7 @@ public class BatchJobService {
         } else if (EJobType.HADOOP_MR.getVal().equals(batchTask.getTaskType())) {
             //mr任务配置main函数，并增加自定义参数支持。兼容老版本
             if (StringUtils.isEmpty(batchTask.getMainClass())){
-                actionParam.put("sqlText", this.getHadoopMRSqlText(batchTask.getId(), 0L));
+                actionParam.put("sqlText", this.getHadoopMRSqlText(batchTask.getId()));
                 // MR 任务提交不需要带--cmd-opts
                 final JSONObject args = JSON.parseObject(batchTask.getExeArgs());
                 actionParam.put("exeArgs", Objects.nonNull(args) ? args.get("--cmd-opts") : "");
@@ -288,8 +288,8 @@ public class BatchJobService {
         this.scheduleTaskShadeService.infoCommit(taskId, AppType.RDOS.getType(), extroInfo, commitId);
     }
 
-    private String getHadoopMRSqlText(final Long taskId, final Long tenantId) {
-        final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType(), tenantId);
+    private String getHadoopMRSqlText(final Long taskId) {
+        final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType());
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("HadoopMR任务资源不能为空");
         }

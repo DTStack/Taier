@@ -31,7 +31,7 @@ public interface BatchTaskResourceShadeDao {
 
     BatchTaskResourceShade getOne(@Param("id") Long id);
 
-    List<BatchTaskResourceShade> listByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType, @Param("projectId") long projectId);
+    List<BatchTaskResourceShade> listByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType);
 
     Integer deleteByTaskId(@Param("taskId") long taskId);
 
@@ -39,7 +39,7 @@ public interface BatchTaskResourceShadeDao {
 
     Integer update(BatchTaskResourceShade batchTaskResourceShade);
 
-    List<BatchResource> listResourceByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType, @Param("projectId") long projectId);
+    List<BatchResource> listResourceByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType);
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

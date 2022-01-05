@@ -67,10 +67,6 @@ public class BatchDataSourceTaskRefService {
         addOrUpdate(ref);
     }
 
-    public void deleteByProjectId(Long projectId) {
-        dataSourceTaskRefDao.deleteByProjectId(projectId);
-    }
-
     @Forbidden
     public BatchDataSourceTaskRef addOrUpdate(BatchDataSourceTaskRef batchDataSourceTaskRef) {
         if (batchDataSourceTaskRef.getId() > 0) {

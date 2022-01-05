@@ -298,20 +298,6 @@ public class BatchTaskParamService {
         return taskParams;
     }
 
-    public void copyTaskParam(final Long srcTaskId, final Long distTaskId) {
-        final List<BatchTaskParam> taskParams = getTaskParam(srcTaskId);
-        if (CollectionUtils.isNotEmpty(taskParams)) {
-            final Timestamp nowTime = Timestamp.valueOf(LocalDateTime.now());
-            for (final BatchTaskParam taskParam : taskParams) {
-                taskParam.setId(null);
-                taskParam.setTaskId(distTaskId);
-                taskParam.setGmtCreate(nowTime);
-                taskParam.setGmtModified(nowTime);
-
-                this.batchTaskParamDao.insert(taskParam);
-            }
-        }
-    }
 
 }
 

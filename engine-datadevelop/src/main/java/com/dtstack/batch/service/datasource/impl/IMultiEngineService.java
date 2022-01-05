@@ -43,14 +43,14 @@ public interface IMultiEngineService {
 
     /**
      * 从console获取Hadoop的meta数据源
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      */
-    DataSourceType getTenantSupportHadoopMetaDataSource(Long dtuicTenantId);
+    DataSourceType getTenantSupportHadoopMetaDataSource(Long tenantId);
 
-    List<EJobType> getTenantSupportJobType(Long dtuicTenantId, Long projectId);
+    List<EJobType> getTenantSupportJobType(Long tenantId);
 
-    EngineInfo getEnginePluginInfo(Long dtuicTenantId, Integer type, Long  ProjectId);
+    EngineInfo getEnginePluginInfo(Long tenantId, Integer type);
 
-    List<EScriptType> getTenantSupportScriptType(Long dtuicTenantId, Long projectId);
+    List<EScriptType> getTenantSupportScriptType(Long tenantId);
 }

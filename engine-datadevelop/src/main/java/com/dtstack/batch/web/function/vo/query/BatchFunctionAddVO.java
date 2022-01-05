@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @Data
 @ApiModel("函数添加信息")
@@ -85,6 +84,6 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     private Integer isDeleted = 0;
 
     @ApiModelProperty(value = "资源id列表", required = true)
-    private List<Long> resourceIds;
+    private Long resourceId;
 
 }

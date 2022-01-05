@@ -115,40 +115,11 @@ public class ScheduleTaskShadeService {
         scheduleTaskTaskShadeService.clearDataByTaskId(taskId, appType);
     }
 
-    public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId, Integer appType) {
-        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId, appType, environmentContext.getListChildTaskLimit());
-        return buildNotDeleteTaskVO( shades,appType);
-
+    public List<NotDeleteTaskVO> getNotDeleteTask(Long taskId) {
+        List<ScheduleTaskShade> shades = scheduleTaskShadeDao.getChildTaskByOtherPlatform(taskId, environmentContext.getListChildTaskLimit());
+        return null;
     }
 
-    public List<NotDeleteTaskVO> buildNotDeleteTaskVO(List<ScheduleTaskShade> shades,Integer appType) {
-        List<NotDeleteTaskVO> notDeleteTaskVOS = Lists.newArrayList();
-        /*if (CollectionUtils.isNotEmpty(shades)) {
-            List<Long> projectIds = shades.stream().map(ScheduleTaskShade::getProjectId).collect(Collectors.toList());
-            List<Long> tenantIds = shades.stream().map(ScheduleTaskShade::getDtuicTenantId).collect(Collectors.toList());
-
-            List<Tenant> tenants = tenantDao.listAllTenantByDtUicTenantIds(tenantIds);
-
-            Map<Long, Tenant> tenantMap = tenants.stream().collect(Collectors.toMap(Tenant::getDtUicTenantId, g -> (g)));
-            for (ScheduleTaskShade shade : shades) {
-                NotDeleteTaskVO notDeleteTaskVO = new NotDeleteTaskVO();
-                notDeleteTaskVO.setAppType(shade.getAppType());
-                ScheduleEngineProject project = scheduleEngineProjectDao.getProjectByProjectIdAndApptype(shade.getProjectId(), shade.getAppType());
-                if (project != null) {
-                    notDeleteTaskVO.setProjectAlias(project.getProjectAlias());
-                    notDeleteTaskVO.setProjectName(project.getProjectName());
-                }
-                Tenant tenant = tenantMap.get(shade.getDtuicTenantId());
-                if (tenant != null) {
-                    notDeleteTaskVO.setTenantName(tenant.getTenantName());
-                }
-
-                notDeleteTaskVO.setTaskName(shade.getName());
-                notDeleteTaskVOS.add(notDeleteTaskVO);
-            }
-        }*/
-        return notDeleteTaskVOS;
-    }
 
     /**
      * 获取所有需要需要生成调度的task 没有sqlText字段
@@ -572,17 +543,17 @@ public class ScheduleTaskShadeService {
         return scheduleTaskShadeDao.getById(id);
     }
 
-    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String name, Integer appType, Long uicTenantId, Long projectId) {
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String name, Integer appType, Long userId, Long tenantId) {
         if (appType == null) {
             throw new RdosDefineException("appType must be passed");
         }
 
-        if (uicTenantId == null) {
-            throw new RdosDefineException("uicTenantId must be passed");
+        if (userId == null) {
+            throw new RdosDefineException("userId must be passed");
         }
 
-        if (projectId == null) {
-            throw new RdosDefineException("projectId must be passed");
+        if (tenantId == null) {
+            throw new RdosDefineException("tenantId must be passed");
         }
 
         if (StringUtils.isNotBlank(name)) {
@@ -592,7 +563,7 @@ public class ScheduleTaskShadeService {
         if (StringUtils.isBlank(name)) {
             return buildTypeVo(null);
         }
-        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, uicTenantId, projectId, environmentContext.getFuzzyProjectByProjectAliasLimit(),EProjectScheduleStatus.NORMAL.getStatus());
+        List<ScheduleTaskShade> tasks = scheduleTaskShadeDao.findFuzzyTaskNameByCondition(name, appType, userId, tenantId, environmentContext.getFuzzyProjectByProjectAliasLimit(),EProjectScheduleStatus.NORMAL.getStatus());
 
         return buildTypeVo(tasks);
     }
