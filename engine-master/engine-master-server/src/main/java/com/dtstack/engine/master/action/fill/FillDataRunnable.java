@@ -6,7 +6,7 @@ import com.dtstack.engine.master.dto.fill.ScheduleFillDataInfoDTO;
 import com.dtstack.engine.master.dto.fill.ScheduleFillJobParticipateDTO;
 import com.dtstack.engine.master.enums.FillDataTypeEnum;
 import com.dtstack.engine.master.enums.FillGeneratStatusEnum;
-import com.dtstack.engine.master.server.scheduler.FillDataJobBuilder;
+import com.dtstack.engine.master.server.builder.FillDataJobBuilder;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
