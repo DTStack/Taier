@@ -100,6 +100,7 @@ public class RDBWriter extends RDBBase implements Writer {
         switch (this.getType()) {
             case MySql:
             case TiDB:
+            case TDDL:
                 writer.put("name", PluginName.MySQL_W);
                 break;
             case Clickhouse:

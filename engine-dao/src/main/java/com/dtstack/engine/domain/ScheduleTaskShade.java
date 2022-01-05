@@ -201,14 +201,6 @@ public class ScheduleTaskShade implements Serializable {
         this.sqlText = sqlText;
     }
 
-    public String getTaskParams() {
-        return taskParams;
-    }
-
-    public void setTaskParams(String taskParams) {
-        this.taskParams = taskParams;
-    }
-
     public Long getTaskId() {
         return taskId;
     }
@@ -329,6 +321,14 @@ public class ScheduleTaskShade implements Serializable {
         this.componentVersion = componentVersion;
     }
 
+    public String getTaskParams() {
+        return taskParams;
+    }
+
+    public void setTaskParams(String taskParams) {
+        this.taskParams = taskParams;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -344,12 +344,14 @@ public class ScheduleTaskShade implements Serializable {
 
     @Override
     public String toString() {
-        return "ScheduleTask{" +
+        return "ScheduleTaskShade{" +
                 "id=" + id +
                 ", tenantId=" + tenantId +
                 ", name='" + name + '\'' +
                 ", taskType=" + taskType +
                 ", computeType=" + computeType +
+                ", sqlText='" + sqlText + '\'' +
+                ", taskParams='" + taskParams + '\'' +
                 ", taskId=" + taskId +
                 ", scheduleConf='" + scheduleConf + '\'' +
                 ", periodType=" + periodType +
@@ -358,13 +360,13 @@ public class ScheduleTaskShade implements Serializable {
                 ", gmtModified=" + gmtModified +
                 ", createUserId=" + createUserId +
                 ", modifyUserId=" + modifyUserId +
+                ", ownerUserId=" + ownerUserId +
+                ", extraInfo='" + extraInfo + '\'' +
                 ", versionId=" + versionId +
                 ", isDeleted=" + isDeleted +
                 ", taskDesc='" + taskDesc + '\'' +
                 ", flowId=" + flowId +
                 ", componentVersion='" + componentVersion + '\'' +
-                ", extraInfo='" + extraInfo + '\'' +
-                ", ownerUserId=" + ownerUserId +
                 '}';
     }
 }

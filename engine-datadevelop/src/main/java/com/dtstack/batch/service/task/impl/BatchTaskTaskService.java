@@ -20,14 +20,12 @@ package com.dtstack.batch.service.task.impl;
 
 import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTaskTask;
+import com.dtstack.batch.service.console.TenantService;
+import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
-import com.dtstack.engine.common.enums.base.AppType;
-import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
-import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,10 +57,7 @@ public class BatchTaskTaskService {
     private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
 
     @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
-
-    @Autowired
-    private BatchTaskService batchTaskService;
+    private TaskService taskService;
 
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateTaskTask(Long taskId, List<BatchTask> dependencyTasks) {
@@ -92,8 +87,7 @@ public class BatchTaskTaskService {
      */
     private BatchTaskTask existTaskTask(List<BatchTaskTask> dependencyTaskTasks, BatchTaskTask taskTask) {
         for (BatchTaskTask batchTaskTask : dependencyTaskTasks) {
-            if (taskTask.getParentAppType().equals(batchTaskTask.getParentAppType()) &&
-                    taskTask.getParentTaskId().equals(batchTaskTask.getParentTaskId())) {
+            if (taskTask.getParentTaskId().equals(batchTaskTask.getParentTaskId())) {
                 return batchTaskTask;
             }
         }
@@ -145,19 +139,21 @@ public class BatchTaskTaskService {
         return parentTaskList;
     }
 
-    public void deleteByTenantId(Long tenantId) {
-        batchTaskTaskDao.deleteByTenantId(tenantId, AppType.RDOS.getType());
-/*        List<BatchTaskTask> taskTasks = listTaskTaskByProjectId(projectId);
-        Set<Long> taskIds = taskTasks.stream().map(BatchTaskTask::getTaskId).collect(Collectors.toSet());
-        taskIds.stream().forEach(taskId -> scheduleTaskTaskShadeService.clearDataByTaskId(taskId, AppType.RDOS.getType()));*/
-    }
-
     public List<BatchTaskTask> getByParentTaskId(long parentId) {
         return batchTaskTaskDao.listByParentTaskId(parentId);
     }
 
     public List<BatchTaskTask> getAllParentTask(long taskId) {
         return batchTaskTaskDao.listByTaskId(taskId);
+    }
+
+    /**
+     * 根据任务Id，获取所有父任务的id
+     * @param taskId
+     * @return
+     */
+    public List<Long> getAllParentTaskId(Long taskId) {
+        return batchTaskTaskDao.listParentTaskIdByTaskId(taskId);
     }
 
     /**
@@ -189,7 +185,6 @@ public class BatchTaskTaskService {
 //        vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
 //        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
-//        vo.setProjectName(projectService.getProjectById(task.getProjectId()).getProjectName());
 
         List<BatchTaskTask> taskTasks = batchTaskTaskDao.listByTaskId(task.getId());
         if (CollectionUtils.isEmpty(taskTasks)) {
@@ -199,8 +194,7 @@ public class BatchTaskTaskService {
         List<ScheduleTaskVO> fatherTaskVOs = Lists.newArrayList();
         for (BatchTaskTask taskTask : taskTasks) {
             Long parentTaskId = taskTask.getParentTaskId();
-            Integer parentAppType = taskTask.getParentAppType();
-            ScheduleTaskShade taskShade = scheduleTaskShadeService.findTaskId(parentTaskId, Deleted.NORMAL.getStatus(), parentAppType);
+            ScheduleTaskShade taskShade = taskService.findTaskByTaskId(parentTaskId);
             if (taskShade != null) {
                 ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO();
                 BeanUtils.copyProperties(taskShade, scheduleTaskVO);
@@ -231,8 +225,8 @@ public class BatchTaskTaskService {
      * @param parentId
      */
     @Transactional(rollbackFor = Exception.class)
-    public void deleteTaskTaskByParentId(Long parentId, Integer parentAppType) {
-        batchTaskTaskDao.deleteByParentId(parentId, parentAppType);
+    public void deleteTaskTaskByParentId(Long parentId) {
+        batchTaskTaskDao.deleteByParentId(parentId);
     }
 
 
