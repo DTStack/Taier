@@ -428,9 +428,30 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("fill.data.limit.size", "2000"));
     }
 
-    public int getFillDataRootTaskMaxLevel() {
+    public Integer getFillDataRootTaskMaxLevel() {
         return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
     }
+
+    public Integer getFillDataJobGraphBuildPoolCorePoolSize() {
+        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.core.pool.size", "20"));
+    }
+
+    public Integer getFillDataJobGraphBuildPoolMaximumPoolSize() {
+        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.maximum.pool.size", "20"));
+    }
+
+    public Integer getFillDataJobGraphBuildPoolQueueSize() {
+        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.queue.size", "1000"));
+    }
+
+    public Integer getFillDataJobLimitSize() {
+        return Integer.parseInt(environment.getProperty("fillData.job.limit.size", "50"));
+    }
+
+    public Integer getFillDataMaxTaskBuildThread() {
+        return Integer.parseInt(environment.getProperty("fillData.job.max.task.build.thread", "20"));
+    }
+
 
     /* datadevelop */
 
@@ -510,4 +531,6 @@ public class EnvironmentContext implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         ClientCache.setUserDir(getDataSourcePluginPath());
     }
+
+
 }

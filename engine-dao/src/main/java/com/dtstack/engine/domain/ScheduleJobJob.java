@@ -32,29 +32,63 @@ import java.util.Objects;
  * create: 2019/10/22
  */
 @TableName("schedule_job_job")
-public class ScheduleJobJob extends BaseEntity {
+public class ScheduleJobJob {
 
+    /**
+     * 唯一标识
+     */
     @TableId(value="id", type= IdType.AUTO)
     private Long id;
 
+    /**
+     * 租户id
+     */
     private Long tenantId;
 
+    /**
+     * 实例key
+     */
     private String jobKey;
 
+    /**
+     * 父实例key
+     */
     private String parentJobKey;
 
+    /**
+     * parentJobKey类型： RelyType
+     *   1. 自依赖实例key
+     *   2. 上游任务key
+     *   3. 上游任务的下一个周期key
+     */
+    private Integer parentJobKeyType;
+
+    /**
+     * 依赖规则: RelyRule
+     *  1. 父实例运行完成，可以运行
+     *  2. 父实例运行成功，可以运行
+     */
+    private Integer rule;
+
+    /**
+     * 生成时间
+     */
     private Timestamp gmtCreate;
 
+    /**
+     * 最近一次修改的时间
+     */
     private Timestamp gmtModified;
 
+    /**
+     * 是否逻辑删除
+     */
     private Integer isDeleted;
 
-    @Override
     public Long getId() {
         return id;
     }
 
-    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -83,32 +117,42 @@ public class ScheduleJobJob extends BaseEntity {
         this.parentJobKey = parentJobKey;
     }
 
-    @Override
+    public Integer getParentJobKeyType() {
+        return parentJobKeyType;
+    }
+
+    public void setParentJobKeyType(Integer parentJobKeyType) {
+        this.parentJobKeyType = parentJobKeyType;
+    }
+
+    public Integer getRule() {
+        return rule;
+    }
+
+    public void setRule(Integer rule) {
+        this.rule = rule;
+    }
+
     public Timestamp getGmtCreate() {
         return gmtCreate;
     }
 
-    @Override
     public void setGmtCreate(Timestamp gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 
-    @Override
     public Timestamp getGmtModified() {
         return gmtModified;
     }
 
-    @Override
     public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
     }
 
-    @Override
     public Integer getIsDeleted() {
         return isDeleted;
     }
 
-    @Override
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
@@ -118,12 +162,12 @@ public class ScheduleJobJob extends BaseEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ScheduleJobJob that = (ScheduleJobJob) o;
-        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(parentJobKey, that.parentJobKey) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(parentJobKey, that.parentJobKey) && Objects.equals(parentJobKeyType, that.parentJobKeyType) && Objects.equals(rule, that.rule) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tenantId, jobKey, parentJobKey, gmtCreate, gmtModified, isDeleted);
+        return Objects.hash(id, tenantId, jobKey, parentJobKey, parentJobKeyType, rule, gmtCreate, gmtModified, isDeleted);
     }
 
     @Override
@@ -133,6 +177,8 @@ public class ScheduleJobJob extends BaseEntity {
                 ", tenantId=" + tenantId +
                 ", jobKey='" + jobKey + '\'' +
                 ", parentJobKey='" + parentJobKey + '\'' +
+                ", type=" + parentJobKeyType +
+                ", rule=" + rule +
                 ", gmtCreate=" + gmtCreate +
                 ", gmtModified=" + gmtModified +
                 ", isDeleted=" + isDeleted +
