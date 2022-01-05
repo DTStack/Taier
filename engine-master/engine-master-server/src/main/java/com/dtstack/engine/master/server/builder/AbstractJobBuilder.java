@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.server.builder;
 
-import com.dtstack.engine.common.enums.DependencyType;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.Restarted;
@@ -12,30 +11,23 @@ import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.server.builder.dependency.DependencyHandler;
 import com.dtstack.engine.master.server.builder.dependency.DependencyManager;
-import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleTaskService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Auther: dazhi
@@ -59,13 +51,13 @@ public abstract class AbstractJobBuilder implements JobBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobBuilder.class);
 
     @Override
-    public List<JobBuilderBean> buildJob(ScheduleTaskShade scheduleTaskShade,
-                                   String name,
-                                   String triggerDay,
-                                   String beginTime,
-                                   String endTime,
-                                   Long fillId,
-                                   JobSortWorker jobSortWorker) throws Exception{
+    public List<ScheduleJobDetails> buildJob(ScheduleTaskShade scheduleTaskShade,
+                                             String name,
+                                             String triggerDay,
+                                             String beginTime,
+                                             String endTime,
+                                             Long fillId,
+                                             JobSortWorker jobSortWorker) throws Exception{
 
         // 解析周期信息
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
@@ -78,14 +70,14 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         Date startDate = getStartData(scheduleConf,triggerRange,scheduleTaskShade.getTaskId());
         Date endDate = getEndDate(scheduleConf,triggerRange,scheduleTaskShade.getTaskId());
 
-        List<JobBuilderBean> jobBuilderBeanList = Lists.newArrayList();
+        List<ScheduleJobDetails> jobBuilderBeanList = Lists.newArrayList();
         Date next;
         while ((next = corn.next(startDate)) != null) {
             // 如下下一次执行时间已经在结束时间之后，停止生成实例
             if (next.after(endDate)) {
                 break;
             }
-            JobBuilderBean jobBuilderBean = buildJobBuilderBean(scheduleTaskShade, getName(scheduleTaskShade, name), fillId, jobSortWorker, corn, scheduleConf, next,NORMAL_TASK_FLOW_ID);
+            ScheduleJobDetails jobBuilderBean = buildJobBuilderBean(scheduleTaskShade, getName(scheduleTaskShade, name), fillId, jobSortWorker, corn, scheduleConf, next,NORMAL_TASK_FLOW_ID);
 
             if (EScheduleJobType.WORK_FLOW.getVal().equals(scheduleTaskShade.getTaskType())) {
                 // 该任务是工作流任务 先生成子任务
@@ -93,7 +85,7 @@ public abstract class AbstractJobBuilder implements JobBuilder {
                         .eq(ScheduleTaskShade::getFlowId, scheduleTaskShade.getTaskId())
                         .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                         .list();
-                List<JobBuilderBean> flowBean = Lists.newArrayList();
+                List<ScheduleJobDetails> flowBean = Lists.newArrayList();
                 ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
                 for (ScheduleTaskShade subTask : subTasks) {
                     flowBean.add(buildJobBuilderBean(subTask, getName(subTask, name), fillId, jobSortWorker, corn, scheduleConf, next,scheduleJob.getJobId()));
@@ -131,14 +123,14 @@ public abstract class AbstractJobBuilder implements JobBuilder {
      * @return
      */
     @NotNull
-    private JobBuilderBean buildJobBuilderBean(ScheduleTaskShade scheduleTaskShade,
-                                               String name,
-                                               Long fillId,
-                                               JobSortWorker jobSortWorker,
-                                               ScheduleCorn corn,
-                                               ScheduleConf scheduleConf,
-                                               Date currentData,
-                                               String flowJobId) {
+    private ScheduleJobDetails buildJobBuilderBean(ScheduleTaskShade scheduleTaskShade,
+                                                   String name,
+                                                   Long fillId,
+                                                   JobSortWorker jobSortWorker,
+                                                   ScheduleCorn corn,
+                                                   ScheduleConf scheduleConf,
+                                                   Date currentData,
+                                                   String flowJobId) {
         String triggerTime = DateUtil.getDate(corn.next(currentData),DateUtil.STANDARD_DATETIME_FORMAT);
         String nextDate = DateUtil.getDate(corn.next(currentData), DateUtil.STANDARD_DATETIME_FORMAT);
         String jobKey = JobKeyUtils.generateJobKey(getKeyPreStr(), scheduleTaskShade.getTaskId(), triggerTime);
@@ -176,7 +168,7 @@ public abstract class AbstractJobBuilder implements JobBuilder {
             dependencyHandler = dependencyHandler.next();
         }
 
-        JobBuilderBean jobBuilderBean = new JobBuilderBean();
+        ScheduleJobDetails jobBuilderBean = new ScheduleJobDetails();
         jobBuilderBean.setJobJobList(jobJobList);
         jobBuilderBean.setScheduleJob(scheduleJob);
         return jobBuilderBean;

@@ -12,8 +12,7 @@ import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.mapstruct.ScheduleJobMapStruct;
-import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.master.server.builder.JobBuilderBean;
+import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -119,12 +118,12 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param scheduleType 调度类型 正常调度 和 补数据
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long insertJobList(Collection<JobBuilderBean> jobBuilderBeanCollection, Integer scheduleType) {
+    public Long insertJobList(Collection<ScheduleJobDetails> jobBuilderBeanCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(jobBuilderBeanCollection)) {
             return null;
         }
 
-        Iterator<JobBuilderBean> batchJobIterator = jobBuilderBeanCollection.iterator();
+        Iterator<ScheduleJobDetails> batchJobIterator = jobBuilderBeanCollection.iterator();
 
         //count%20 为一批
         //1: 批量插入BatchJob
@@ -145,7 +144,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 nodeSize--;
                 count++;
 
-                JobBuilderBean jobBuilderBean = batchJobIterator.next();
+                ScheduleJobDetails jobBuilderBean = batchJobIterator.next();
 
                 ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
                 scheduleJob.setNodeAddress(nodeAddress);

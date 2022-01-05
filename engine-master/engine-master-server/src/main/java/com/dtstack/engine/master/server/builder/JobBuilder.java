@@ -1,6 +1,5 @@
 package com.dtstack.engine.master.server.builder;
 
-import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 
 import java.util.List;
@@ -24,11 +23,11 @@ public interface JobBuilder {
      * @param fillId 补数据id,周期实例直接传0
      * @return 生成周期实例
      */
-    List<JobBuilderBean> buildJob(ScheduleTaskShade scheduleTaskShade,
-                                  String name,
-                                  String triggerDay,
-                                  String beginTime,
-                                  String endTime,
-                                  Long fillId,
-                                  JobSortWorker jobSortWorker) throws Exception;
+    List<ScheduleJobDetails> buildJob(ScheduleTaskShade scheduleTaskShade,
+                                      String name,
+                                      String triggerDay,
+                                      String beginTime,
+                                      String endTime,
+                                      Long fillId,
+                                      JobSortWorker jobSortWorker) throws Exception;
 }
