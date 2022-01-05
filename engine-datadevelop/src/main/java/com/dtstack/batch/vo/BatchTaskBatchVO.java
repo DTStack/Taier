@@ -62,7 +62,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.setTaskDesc(task.getTaskDesc());
         this.setFlowId(task.getFlowId());
         this.setTaskVOS(task.getTaskVOS());
-        this.setProjectName(task.getProjectName());
         this.setComponentVersion(task.getComponentVersion());
         this.setMainClass(task.getMainClass());
         init();
@@ -148,8 +147,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     private String tenantName;
 
-    private String projectName;
-
     /**
      * 0-向导模式，1-脚本模式
      */
@@ -193,11 +190,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     private Integer syncModel = 0;
 
     private String increColumn;
-
-    /**
-     * 是否是当前项目
-     */
-    private Boolean currentProject = false;
 
     /**
      * 提交状态
@@ -255,15 +247,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.taskId = taskId;
     }
 
-    @Override
-    public boolean getCurrentProject() {
-        return currentProject;
-    }
-
-    @Override
-    public void setCurrentProject(boolean currentProject) {
-        this.currentProject = currentProject;
-    }
 
     @Override
     public String getTenantName() {
@@ -273,16 +256,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     @Override
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
-    }
-
-    @Override
-    public String getProjectName() {
-        return projectName;
-    }
-
-    @Override
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     @Override

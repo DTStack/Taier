@@ -112,5 +112,4 @@ public interface BatchFunctionDao {
      */
     Integer generalCount(@Param("model") BatchFunctionDTO model);
 
-    List<BatchFunction> listProjectFunction(@Param("projectId") Long projectId, @Param("functionType") Integer functionType, @Param("engineType") Integer engineType);
 }

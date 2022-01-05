@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.batch.dao.BatchTaskResourceShadeDao">
 
     <sql id="select_content_fragment">
-      id,task_id,resource_id,resource_type,project_id,tenant_id,gmt_create,gmt_modified,is_deleted
+      id,task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted
     </sql>
 
     <sql id="update_fragment">
@@ -21,10 +21,6 @@
             <if test="resourceType != null">
                 resource_type = #{resourceType},
             </if>
-
-            <if test="projectId != null">
-                project_id = #{projectId},
-            </if>
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
@@ -40,14 +36,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="BatchTaskResourceShade">
+    <select id="getOne" resultType="com.dtstack.batch.domain.BatchTaskResourceShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_resource_shade
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="listByTaskId" resultType="BatchTaskResourceShade">
+    <select id="listByTaskId" resultType="com.dtstack.batch.domain.BatchTaskResourceShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_resource_shade
@@ -57,7 +53,7 @@
             and resource_type = #{resourceType}
         </if>
 
-        and project_id = #{projectId} and is_deleted = 0
+        and tenant_id = #{tenantId} and is_deleted = 0
     </select>
 
     <delete id="deleteByTaskId">
@@ -65,14 +61,14 @@
         WHERE task_id = #{taskId}
     </delete>
 
-    <insert id="insert" parameterType="BatchTaskResourceShade" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.batch.domain.BatchTaskResourceShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task_resource_shade
-        (task_id,resource_id,resource_type,project_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        (task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
-        (#{taskId},#{resourceId}, #{resourceType},#{projectId},#{tenantId},now(),now(),0)
+        (#{taskId},#{resourceId}, #{resourceType},#{tenantId},now(),now(),0)
     </insert>
 
-    <update id="update" parameterType="BatchTaskResourceShade">
+    <update id="update" parameterType="com.dtstack.batch.domain.BatchTaskResourceShade">
         UPDATE
         rdos_batch_task_resource_shade
         <include refid="update_fragment"/>
@@ -80,9 +76,9 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="listResourceByTaskId" resultType="BatchResource">
+    <select id="listResourceByTaskId" resultType="com.dtstack.batch.domain.BatchResource">
         SELECT
-        re.id,re.tenant_id,re.project_id,re.node_pid,re.url,re.resource_type,re.resource_name,re.origin_file_name,re.resource_desc,re.gmt_create,re.gmt_modified,re.create_user_id,re.modify_user_id,re.is_deleted,re.node_id
+        re.id,re.tenant_id,re.node_pid,re.url,re.resource_type,re.resource_name,re.origin_file_name,re.resource_desc,re.gmt_create,re.gmt_modified,re.create_user_id,re.modify_user_id,re.is_deleted,re.node_id
         FROM rdos_batch_task_resource_shade tr
         LEFT JOIN rdos_batch_resource re ON re.id = tr.resource_id
         WHERE tr.task_id = #{taskId}
@@ -91,7 +87,7 @@
             and tr.resource_type = #{resourceType}
         </if>
 
-        and tr.project_id = #{projectId} and tr.is_deleted = 0 and re.is_deleted = 0
+        and tr.is_deleted = 0 and re.is_deleted = 0
     </select>
 
     <update id="deleteByTenantId" parameterType="java.lang.Long">

@@ -277,8 +277,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
         String taskExeArgs = null;
 
-        List<BatchResource> resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType(), 0L);
-        final List<BatchResource> extResourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.DEPENDENCY_RES.getType(), 0L);
+        List<BatchResource> resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType());
+        final List<BatchResource> extResourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         if (EJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType()) || EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
             sql = String.format("set hive.default.fileformat=%s;\n ",environmentContext.getCreateTableType())+sql;
@@ -327,13 +327,12 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
         if (EJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
             //sparkSql已经参数替换过
-        } else if (batchTask.getEngineType().equals(EngineType.Learning.getVal())
-                || batchTask.getEngineType().equals(EngineType.Shell.getVal())
-                || batchTask.getEngineType().equals(EngineType.DtScript.getVal())
-                || batchTask.getEngineType().equals(EngineType.Spark.getVal())
-                || batchTask.getEngineType().equals(EngineType.Hadoop.getVal())
-                || batchTask.getEngineType().equals(EngineType.Python2.getVal())
-                || batchTask.getEngineType().equals(EngineType.Python3.getVal())) {
+        } else if (batchTask.getTaskType().equals(EJobType.DEEP_LEARNING.getType())
+                || batchTask.getTaskType().equals(EJobType.SHELL.getType())
+                || batchTask.getTaskType().equals(EJobType.SPARK.getVal())
+                || batchTask.getTaskType().equals(EJobType.HIVE_SQL.getVal())
+                || batchTask.getTaskType().equals(EJobType.PYTHON.getVal())
+                || batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
             taskParams = formatLearnTaskParams(batchTask.getTaskParams());
             //替换系统参数
             batchTaskParamService.checkParams(batchTask.getSqlText(), taskParamsToReplace);
@@ -342,7 +341,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             if (batchTask.getEngineType().equals(EngineType.Spark.getVal())){
                 if (CollectionUtils.isNotEmpty(resourceList) && StringUtils.isBlank(resourceList.get(0).getUrl())){
                     LOG.error(String.format("任务= %s 运行时依赖的jar包未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
-                    resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType(), 0L);
+                    resourceList = batchTaskResourceShadeService.listResourceByTaskId(batchTask.getId(), ResourceRefType.MAIN_RES.getType());
                     if (CollectionUtils.isEmpty(resourceList)){
                         BatchHadoopJobExeService.LOG.error(String.format("任务= %s 运行时依赖的jar包未找到,再次查询时仍未找到 taskId= %s,tenantId= %s",batchTask.getName(),batchTask.getId(),0L));
                         throw new RdosDefineException("spark jar not find");
