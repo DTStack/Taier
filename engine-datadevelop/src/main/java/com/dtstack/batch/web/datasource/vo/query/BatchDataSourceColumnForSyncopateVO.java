@@ -45,6 +45,4 @@ public class BatchDataSourceColumnForSyncopateVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "用户id", hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
 }

@@ -72,7 +72,7 @@ public class ScheduleTaskTaskShadeService {
 
     @Transactional(rollbackFor = Exception.class)
     @DtDruidRemoveAbandoned
-    public SaveTaskTaskVO saveTaskTaskList(String taskLists,String commitId) {
+    public SaveTaskTaskVO saveTaskTaskList(String taskLists) {
         if(StringUtils.isBlank(taskLists)){
             return SaveTaskTaskVO.save();
         }
@@ -95,15 +95,11 @@ public class ScheduleTaskTaskShadeService {
             for (ScheduleTaskTaskShade scheduleTaskTaskShade : taskTaskList) {
                 keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), null), scheduleTaskTaskShade);
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
-//                Preconditions.checkNotNull(scheduleTaskTaskShade.getAppType());
                 // 清除原来关系
                 scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(),null);
             }
             // 保存现有任务关系
             for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
-//                if (taskTaskShade.getParentAppType() == null) {
-//                    taskTaskShade.setParentAppType(taskTaskShade.getAppType());
-//                }
                 scheduleTaskTaskShadeDao.insert(taskTaskShade);
             }
         } catch (Exception e) {

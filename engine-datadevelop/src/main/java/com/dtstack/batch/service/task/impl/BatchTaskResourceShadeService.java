@@ -78,8 +78,8 @@ public class BatchTaskResourceShadeService {
         }
     }
 
-    public List<Long> getResourceIdList(long taskId, long projectId, int type) {
-        List<BatchTaskResourceShade> resourceList = batchTaskResourceShadeDao.listByTaskId(taskId, type, projectId);
+    public List<Long> getResourceIdList(long taskId, int type) {
+        List<BatchTaskResourceShade> resourceList = batchTaskResourceShadeDao.listByTaskId(taskId, type);
         List<Long> resultIdList = Lists.newArrayList();
         if (resourceList == null) {
             return resultIdList;
@@ -89,8 +89,8 @@ public class BatchTaskResourceShadeService {
         return resultIdList;
     }
 
-    public List<BatchResource> listResourceByTaskId (Long taskId, Integer resourceType, Long projectId) {
-        List<BatchResource> resourceList = batchTaskResourceShadeDao.listResourceByTaskId(taskId, resourceType, projectId);
+    public List<BatchResource> listResourceByTaskId (Long taskId, Integer resourceType) {
+        List<BatchResource> resourceList = batchTaskResourceShadeDao.listResourceByTaskId(taskId, resourceType);
         if (CollectionUtils.isEmpty(resourceList)) {
             return new ArrayList<>();
         } else {

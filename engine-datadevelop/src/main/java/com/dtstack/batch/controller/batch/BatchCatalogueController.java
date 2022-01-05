@@ -23,7 +23,6 @@ import com.dtstack.batch.service.impl.BatchCatalogueService;
 import com.dtstack.batch.vo.CatalogueVO;
 import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueAddVO;
 import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueGetVO;
-import com.dtstack.batch.web.catalogue.vo.query.BatchCataloguePathVO;
 import com.dtstack.batch.web.catalogue.vo.query.BatchCatalogueUpdateVO;
 import com.dtstack.batch.web.catalogue.vo.result.BatchCatalogueResultVO;
 import com.dtstack.engine.common.lang.coc.APITemplate;
@@ -88,17 +87,6 @@ public class BatchCatalogueController {
             protected Void process() {
                 batchCatalogueService.deleteCatalogue(BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueAddVoToCatalogueVo(vo));
                 return null;
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "createCataloguePath")
-    @ApiOperation(value = "新增路径")
-    public R<Long> createCataloguePath(@RequestBody BatchCataloguePathVO vo) {
-        return new APITemplate<Long>() {
-            @Override
-            protected Long process() {
-                return batchCatalogueService.createCataloguePath(vo.getNameList(), vo.getRootName(), vo.getTenantId());
             }
         }.execute();
     }
