@@ -5,11 +5,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
-import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.master.server.builder.dependency.DependencyManager;
-import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobOperatorRecordService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskService;
@@ -28,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -88,7 +83,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
             buildSemaphore.acquire();
             jobGraphBuildPool.submit(()->{
                 try {
-                    Map<Long, JobBuilderBean> saveMap = Maps.newHashMap();
+                    Map<Long, ScheduleJobDetails> saveMap = Maps.newHashMap();
                     for (Long taskId : taskKey) {
                         try {
                             String preStr = FILL_DATA_TYPE + "_" + fillName;
@@ -99,7 +94,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
                                     .one();
 
                             if (scheduleTaskShade != null) {
-                                List<JobBuilderBean> jobBuilderBeanList = Lists.newArrayList();
+                                List<ScheduleJobDetails> jobBuilderBeanList = Lists.newArrayList();
                                 // 非工作流任务子任务
                                 if (scheduleTaskShade.getFlowId() == 0) {
                                     // 生成周期实例
@@ -113,7 +108,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
                                     }
                                 }
 
-                                for (JobBuilderBean jobBuilderBean : jobBuilderBeanList) {
+                                for (ScheduleJobDetails jobBuilderBean : jobBuilderBeanList) {
                                     addMap(run, saveMap,taskId, jobBuilderBean);
                                 }
                             }
@@ -135,7 +130,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
 
     }
 
-    private void addMap(Set<Long> run, Map<Long, JobBuilderBean> saveMap, Long taskId, JobBuilderBean jobBuilderBean) {
+    private void addMap(Set<Long> run, Map<Long, ScheduleJobDetails> saveMap, Long taskId, ScheduleJobDetails jobBuilderBean) {
         ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
         if (run.contains(taskId)) {
             scheduleJob.setFillType(FillJobTypeEnum.RUN_JOB.getType());
@@ -145,17 +140,17 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
 
         saveMap.put(scheduleJob.getTaskId(),jobBuilderBean);
 
-        List<JobBuilderBean> flowBean = jobBuilderBean.getFlowBean();
+        List<ScheduleJobDetails> flowBean = jobBuilderBean.getFlowBean();
         
         if (CollectionUtils.isNotEmpty(flowBean)) {
-            for (JobBuilderBean builderBean : flowBean) {
+            for (ScheduleJobDetails builderBean : flowBean) {
                 ScheduleJob flowScheduleJob = builderBean.getScheduleJob();
                 saveMap.put(flowScheduleJob.getTaskId(),builderBean);
             }
         }
     }
 
-    private void savaFillJob(Map<Long, JobBuilderBean> allJob) {
+    private void savaFillJob(Map<Long, ScheduleJobDetails> allJob) {
         scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
         List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
                 .stream()
