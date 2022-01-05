@@ -59,4 +59,16 @@ public class JobKeyUtils {
             return -1L;
         }
     }
+
+    /**
+     * 生成jobkey
+     * @param keyPreStr 前缀
+     * @param taskId 任务id
+     * @param triggerTime 计划时间
+     * @return jobKey
+     */
+    public static String generateJobKey(String keyPreStr, Long taskId, String triggerTime) {
+        triggerTime = triggerTime.replace("-", "").replace(":", "").replace(" ", "");
+        return keyPreStr + "_" + taskId + "_" + triggerTime;
+    }
 }

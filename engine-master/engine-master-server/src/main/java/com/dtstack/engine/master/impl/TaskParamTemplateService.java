@@ -19,6 +19,7 @@
 package com.dtstack.engine.master.impl;
 
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.domain.TaskParamTemplate;
 import com.dtstack.engine.mapper.TaskParamTemplateMapper;
@@ -40,6 +41,6 @@ public class TaskParamTemplateService {
     public TaskParamTemplate getTaskParamTemplate(String version, Integer taskType) {
       return taskParamTemplateMapper.selectOne(Wrappers.lambdaQuery(TaskParamTemplate.class)
                .eq(TaskParamTemplate::getTaskType,taskType)
-               .eq(TaskParamTemplate::getTaskVersion,version));
+               .eq(StringUtils.isNotBlank(version),TaskParamTemplate::getTaskVersion,version));
     }
 }

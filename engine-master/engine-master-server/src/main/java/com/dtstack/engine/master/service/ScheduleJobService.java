@@ -13,6 +13,7 @@ import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.mapstruct.ScheduleJobMapStruct;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
+import com.dtstack.engine.master.server.builder.JobBuilderBean;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -114,16 +115,16 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     /**
      * 批量插入周期实例 jobSize 在负载均衡时 区分 scheduleType（正常调度 和 补数据）
      *
-     * @param batchJobCollection 实例集合
+     * @param jobBuilderBeanCollection 实例集合
      * @param scheduleType 调度类型 正常调度 和 补数据
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long insertJobList(Collection<ScheduleBatchJob> batchJobCollection, Integer scheduleType) {
-        if (CollectionUtils.isEmpty(batchJobCollection)) {
+    public Long insertJobList(Collection<JobBuilderBean> jobBuilderBeanCollection, Integer scheduleType) {
+        if (CollectionUtils.isEmpty(jobBuilderBeanCollection)) {
             return null;
         }
 
-        Iterator<ScheduleBatchJob> batchJobIterator = batchJobCollection.iterator();
+        Iterator<JobBuilderBean> batchJobIterator = jobBuilderBeanCollection.iterator();
 
         //count%20 为一批
         //1: 批量插入BatchJob
@@ -135,7 +136,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
-        Map<String, Integer> nodeJobSize = computeJobSizeForNode(batchJobCollection.size(), scheduleType);
+        Map<String, Integer> nodeJobSize = computeJobSizeForNode(jobBuilderBeanCollection.size(), scheduleType);
         for (Map.Entry<String, Integer> nodeJobSizeEntry : nodeJobSize.entrySet()) {
             String nodeAddress = nodeJobSizeEntry.getKey();
             int nodeSize = nodeJobSizeEntry.getValue();
@@ -144,21 +145,21 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 nodeSize--;
                 count++;
 
-                ScheduleBatchJob scheduleBatchJob = batchJobIterator.next();
+                JobBuilderBean jobBuilderBean = batchJobIterator.next();
 
-                ScheduleJob scheduleJob = scheduleBatchJob.getScheduleJob();
+                ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
                 scheduleJob.setNodeAddress(nodeAddress);
 
                 jobWaitForSave.add(scheduleJob);
-                jobJobWaitForSave.addAll(scheduleBatchJob.getBatchJobJobList());
+                jobJobWaitForSave.addAll(jobBuilderBean.getJobJobList());
 
-                LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, batchJobCollection.size(), finalBatchNodeSize);
-                if (count % jobBatchSize == 0 || count == (batchJobCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
+                LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
+                if (count % jobBatchSize == 0 || count == (jobBuilderBeanCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
                     minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
-                    LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, batchJobCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
+                    LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
                 }
             }
-            LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}",count, batchJobCollection.size(), finalBatchNodeSize);
+            LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}",count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
             //结束前persist一次，flush所有jobs
             minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId,jobJobBatchSize);
 

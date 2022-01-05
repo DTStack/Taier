@@ -210,7 +210,7 @@ public class JobGraphBuilder extends AbstractBuilder {
                             }
 
                             // 插入周期实例
-                            scheduleJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
+//                            scheduleJobService.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
                             LOGGER.info("batch-number:{} done!!! allFlowJobs size:{}", batchIdx, allFlowJobs.size());
                         } catch (Throwable e) {
                             LOGGER.error("!!! buildTaskJobGraph  build job error !!!", e);
