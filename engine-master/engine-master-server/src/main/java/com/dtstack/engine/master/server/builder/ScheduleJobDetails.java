@@ -12,7 +12,7 @@ import java.util.Objects;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public class JobBuilderBean {
+public class ScheduleJobDetails {
 
     /**
      * 周期实例
@@ -27,7 +27,7 @@ public class JobBuilderBean {
     /**
      * 如果任务是工作流，那么会生成工作流的子任务
      */
-    private List<JobBuilderBean> flowBean;
+    private List<ScheduleJobDetails> flowBean;
 
     public ScheduleJob getScheduleJob() {
         return scheduleJob;
@@ -45,11 +45,11 @@ public class JobBuilderBean {
         this.jobJobList = jobJobList;
     }
 
-    public List<JobBuilderBean> getFlowBean() {
+    public List<ScheduleJobDetails> getFlowBean() {
         return flowBean;
     }
 
-    public void setFlowBean(List<JobBuilderBean> flowBean) {
+    public void setFlowBean(List<ScheduleJobDetails> flowBean) {
         this.flowBean = flowBean;
     }
 
@@ -57,7 +57,7 @@ public class JobBuilderBean {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        JobBuilderBean that = (JobBuilderBean) o;
+        ScheduleJobDetails that = (ScheduleJobDetails) o;
         return Objects.equals(scheduleJob, that.scheduleJob) && Objects.equals(jobJobList, that.jobJobList) && Objects.equals(flowBean, that.flowBean);
     }
 
