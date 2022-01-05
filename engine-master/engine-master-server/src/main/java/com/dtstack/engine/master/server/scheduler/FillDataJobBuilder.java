@@ -174,20 +174,20 @@ public class FillDataJobBuilder extends AbstractBuilder  {
     }
 
     private void savaFillJob(Map<String, ScheduleBatchJob> allJob) {
-        scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
-        List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
-                .stream()
-                .map(scheduleBatchJob -> {
-                    ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
-                    record.setJobId(scheduleBatchJob.getJobId());
-                    record.setForceCancelFlag(ForceCancelFlag.NO.getFlag());
-                    record.setOperatorType(OperatorType.FILL_DATA.getType());
-                    record.setNodeAddress(scheduleBatchJob.getScheduleJob().getNodeAddress());
-                    return record;
-                })
-                .collect(Collectors.toList());
-
-        scheduleJobOperatorRecordDao.insertBatch(operatorJobIds);
+//        scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
+//        List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
+//                .stream()
+//                .map(scheduleBatchJob -> {
+//                    ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
+//                    record.setJobId(scheduleBatchJob.getJobId());
+//                    record.setForceCancelFlag(ForceCancelFlag.NO.getFlag());
+//                    record.setOperatorType(OperatorType.FILL_DATA.getType());
+//                    record.setNodeAddress(scheduleBatchJob.getScheduleJob().getNodeAddress());
+//                    return record;
+//                })
+//                .collect(Collectors.toList());
+//
+//        scheduleJobOperatorRecordDao.insertBatch(operatorJobIds);
     }
 
 }
