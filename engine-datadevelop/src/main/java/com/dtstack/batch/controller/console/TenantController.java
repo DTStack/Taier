@@ -21,6 +21,7 @@ package com.dtstack.batch.controller.console;
 import com.dtstack.batch.mapstruct.console.TenantTransfer;
 import com.dtstack.batch.vo.console.TenantVO;
 import com.dtstack.engine.common.constrant.Cookies;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.master.impl.ClusterService;
@@ -48,7 +49,7 @@ public class TenantController {
     private ClusterService clusterService;
 
     @PostMapping(value = "/pageQuery")
-    public PageResult<List<ClusterTenantVO>> pageQuery(@RequestParam("clusterId") Long clusterId,
+    public R<PageResult<List<ClusterTenantVO>>> pageQuery(@RequestParam("clusterId") Long clusterId,
                                                        @RequestParam("tenantName") String tenantName,
                                                        @RequestParam("pageSize") int pageSize,
                                                        @RequestParam("currentPage") int currentPage) {
@@ -57,34 +58,36 @@ public class TenantController {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         tenantName = tenantName == null ? "" : tenantName;
-        return tenantService.pageQuery(clusterId, tenantName, pageSize, currentPage);
+        return R.ok(tenantService.pageQuery(clusterId, tenantName, pageSize, currentPage));
     }
 
 
     @PostMapping(value = "/bindingTenant")
-    public void bindingTenant(@RequestParam("tenantId") Long tenantId, @RequestParam("clusterId") Long clusterId,
+    public R<Void> bindingTenant(@RequestParam("tenantId") Long tenantId, @RequestParam("clusterId") Long clusterId,
                               @RequestParam("queueId") Long queueId) throws Exception {
         Cluster cluster = clusterService.getCluster(clusterId);
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
         tenantService.bindingTenant(tenantId, clusterId, queueId, cluster.getClusterName());
+        return R.empty();
     }
 
     @PostMapping(value = "/bindingQueue")
-    public void bindingQueue(@RequestParam("queueId") Long queueId,
+    public R<Void> bindingQueue(@RequestParam("queueId") Long queueId,
                              @RequestParam("tenantId") Long tenantId) {
         tenantService.bindingQueue(queueId, tenantId);
+        return R.empty();
     }
 
     @GetMapping(value = "/listTenant")
-    public List<TenantVO> listTenant() {
+    public R<List<TenantVO>> listTenant() {
         List<Tenant> tenants = tenantService.listAllTenant();
-        return TenantTransfer.INSTANCE.toVOs(tenants);
+        return R.ok(TenantTransfer.INSTANCE.toVOs(tenants));
     }
 
     @PostMapping(value = "/addTenant")
-    public void bindingTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.DT_USER_ID) Long userId) throws Exception {
+    public R<Void> bindingTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.DT_USER_ID) Long userId) throws Exception {
         if(StringUtils.isBlank(tenantName)){
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
@@ -93,6 +96,7 @@ public class TenantController {
             throw new RdosDefineException("tenant has exist");
         }
         tenantService.addTenant(tenantName,userId);
+        return R.empty();
     }
 
 }

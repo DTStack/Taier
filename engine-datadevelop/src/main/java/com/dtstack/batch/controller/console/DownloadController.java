@@ -18,6 +18,7 @@
 
 package com.dtstack.batch.controller.console;
 
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.impl.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -56,13 +57,13 @@ public class DownloadController {
     @ApiImplicitParams({
             @ApiImplicitParam(name="type",value="0:kerberos配置文件 1:配置文件 2:模板文件",required=true, dataType = "int")
     })
-    public void handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
-                               @RequestParam("type") Integer downloadType,
-                               @RequestParam("componentType") Integer componentType,
-                               @RequestParam("hadoopVersion") String componentVersion,
-                               @RequestParam("clusterName") String clusterName,
-                               @RequestParam(value = "deployType",required = false) Integer deployType,
-                               HttpServletResponse response) {
+    public R<Void> handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
+                                  @RequestParam("type") Integer downloadType,
+                                  @RequestParam("componentType") Integer componentType,
+                                  @RequestParam("hadoopVersion") String componentVersion,
+                                  @RequestParam("clusterName") String clusterName,
+                                  @RequestParam(value = "deployType",required = false) Integer deployType,
+                                  HttpServletResponse response) {
         response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
@@ -89,6 +90,7 @@ public class DownloadController {
                 downLoadFile.delete();
             }
         }
+        return R.empty();
     }
 
     private static String encodeURIComponent(String value) {
