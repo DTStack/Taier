@@ -20,7 +20,6 @@
         <module>yarn-core</module>
         <module>yarn2</module>
         <module>yarn3</module>
-        <module>kubernetes</module>
     </modules>
 
     <build>
