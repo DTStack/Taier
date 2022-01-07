@@ -44,4 +44,5 @@ public class JobStateCount extends BaseEntity {
 
     private Integer finished;
 
+
 }
