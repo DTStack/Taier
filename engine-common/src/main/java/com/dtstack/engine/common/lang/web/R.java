@@ -40,6 +40,11 @@ public class R<T> {
                 .data(data);
     }
 
+    public final static R<Void> empty() {
+        return new R()
+                .code(ErrorEnum.SUCCESS.code());
+    }
+
     public final static <T> R<T> fail(int code, String message) {
         return new R()
                 .code(code)

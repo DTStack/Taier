@@ -21,6 +21,7 @@ package com.dtstack.batch.controller.console;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.dtstack.batch.mapstruct.console.ClusterTransfer;
 import com.dtstack.batch.vo.console.ClusterInfoVO;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.vo.ClusterEngineVO;
@@ -48,8 +49,8 @@ public class ClusterController {
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
     })
     @PostMapping(value = "/addCluster")
-    public Boolean addCluster(@RequestParam("clusterName") String clusterName) {
-        return clusterService.addCluster(clusterName);
+    public R<Boolean> addCluster(@RequestParam("clusterName") String clusterName) {
+        return R.ok(clusterService.addCluster(clusterName));
     }
 
 
@@ -59,12 +60,12 @@ public class ClusterController {
             @ApiImplicitParam(name = "pageSize", value = "页面大小", required = true, dataType = "int")
     })
     @PostMapping(value = "/pageQuery")
-    public PageResult<List<ClusterInfoVO>> pageQuery(@RequestParam("currentPage") int currentPage, @RequestParam("pageSize") int pageSize) {
+    public R<PageResult<List<ClusterInfoVO>>> pageQuery(@RequestParam("currentPage") int currentPage, @RequestParam("pageSize") int pageSize) {
         IPage<Cluster> clusterIPage = clusterService.pageQuery(currentPage, pageSize);
         List<Cluster> clusters = clusterIPage.getRecords();
         List<ClusterInfoVO> clusterInfoVOS = ClusterTransfer.INSTANCE.toInfoVOs(clusters);
         PageResult<List<ClusterInfoVO>> pageResult = new PageResult<>(currentPage, pageSize, clusterIPage.getTotal(), clusterInfoVOS);
-        return pageResult;
+        return R.ok(pageResult);
     }
 
     @ApiOperation(value = "deleteCluster", notes = "删除集群")
@@ -72,8 +73,8 @@ public class ClusterController {
             @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
     })
     @PostMapping(value = "/deleteCluster")
-    public Boolean deleteCluster(@RequestParam("clusterId") Long clusterId) {
-        return clusterService.deleteCluster(clusterId);
+    public R<Boolean> deleteCluster(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(clusterService.deleteCluster(clusterId));
     }
 
     @ApiOperation(value = "getCluster", notes = "获取集群详细信息 包含组件")
@@ -81,15 +82,15 @@ public class ClusterController {
             @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
     })
     @GetMapping(value = "/getCluster")
-    public ClusterVO getCluster(@RequestParam("clusterId") Long clusterId) {
-        return clusterService.getConsoleClusterInfo(clusterId);
+    public R<ClusterVO> getCluster(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(clusterService.getConsoleClusterInfo(clusterId));
     }
 
     @ApiOperation(value = "getAllCluster", notes = "获取所有集群名称")
     @GetMapping(value = "/getAllCluster")
-    public List<ClusterInfoVO> getAllCluster() {
+    public R<List<ClusterInfoVO>> getAllCluster() {
         List<Cluster> clusters = clusterService.getAllCluster();
-        return ClusterTransfer.INSTANCE.toInfoVOs(clusters);
+        return R.ok(ClusterTransfer.INSTANCE.toInfoVOs(clusters));
     }
 
     @ApiOperation(value = "getClusterEngine", notes = "获取单个集群详细信息包含引擎")
@@ -97,8 +98,8 @@ public class ClusterController {
             @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
     })
     @GetMapping(value = "/getClusterEngine")
-    public ClusterEngineVO getClusterEngine(@RequestParam("clusterId") Long clusterId) {
-        return clusterService.getClusterEngine(clusterId);
+    public R<ClusterEngineVO> getClusterEngine(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(clusterService.getClusterEngine(clusterId));
     }
 
 }

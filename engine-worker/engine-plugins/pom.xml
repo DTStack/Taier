@@ -21,7 +21,6 @@
 
     <modules>
         <module>base</module>
-        <module>dtscript</module>
         <module>dummy</module>
         <module>flink</module>
         <module>hadoop</module>

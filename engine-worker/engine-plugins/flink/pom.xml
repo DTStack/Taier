@@ -17,14 +17,9 @@
 
     <modules>
         <module>common</module>
-        <module>yarn2-hdfs2-flink180-core</module>
-        <module>yarn2-hdfs2-flink180</module>
-        <module>yarn3-hdfs3-flink180</module>
-        <module>flink180-standalone</module>
         <module>yarn2-hdfs2-flink110-core</module>
         <module>yarn2-hdfs2-flink110</module>
         <module>yarn3-hdfs3-flink110</module>
-        <module>flink110-standalone</module>
         <module>flink-base</module>
     </modules>
 

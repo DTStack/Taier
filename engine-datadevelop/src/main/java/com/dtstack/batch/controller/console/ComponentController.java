@@ -19,6 +19,7 @@
 package com.dtstack.batch.controller.console;
 
 import com.dtstack.batch.mapstruct.console.KerberosConfigTransfer;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.KerberosConfig;
 import com.dtstack.engine.master.impl.ComponentService;
@@ -56,9 +57,9 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentVersion", value = "组件版本", required = true, dataType = "String")
     })
     @PostMapping(value = "/getKerberosConfig")
-    public KerberosConfigVO getKerberosConfig(@RequestParam("clusterId") Long clusterId, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
+    public R<KerberosConfigVO> getKerberosConfig(@RequestParam("clusterId") Long clusterId, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
         KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterId, componentType, componentVersion);
-        return KerberosConfigTransfer.INSTANCE.toVO(kerberosConfig);
+        return R.ok(KerberosConfigTransfer.INSTANCE.toVO(kerberosConfig));
     }
 
     @PostMapping(value = "/updateKrb5Conf")
@@ -66,8 +67,9 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "krb5Content", value = "krb5配置内容", required = true, dataType = "String")
     })
-    public void updateKrb5Conf(@RequestParam("krb5Content") String krb5Content) {
+    public R<Void> updateKrb5Conf(@RequestParam("krb5Content") String krb5Content) {
         componentService.updateKrb5Conf(krb5Content);
+        return R.empty();
     }
 
     @PostMapping(value = "/closeKerberos")
@@ -75,8 +77,9 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
     })
-    public void closeKerberos(@RequestParam("componentId") Long componentId) {
+    public R<Void> closeKerberos(@RequestParam("componentId") Long componentId) {
         componentService.closeKerberos(componentId);
+        return R.empty();
     }
 
     @PostMapping(value = "/loadTemplate")
@@ -89,10 +92,10 @@ public class ComponentController {
             @ApiImplicitParam(name = "originVersion", value = "组件版本值", required = true, dataType = "String"),
             @ApiImplicitParam(name = "deployType", value = "组件deployType类型", required = true, dataType = "int"),
     })
-    public List<ClientTemplate> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterName") String clusterName,
+    public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterName") String clusterName,
                                              @RequestParam("version") String version, @RequestParam("storeType") Integer storeType,
                                              @RequestParam("originVersion") String originVersion, @RequestParam("deployType") Integer deployType) {
-        return componentService.loadTemplate(componentType, clusterName, version, storeType, originVersion, deployType);
+        return R.ok(componentService.loadTemplate(componentType, clusterName, version, storeType, originVersion, deployType));
     }
 
 
@@ -101,31 +104,32 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
     })
-    public void delete(@RequestParam("componentId") long componentId) {
+    public R<Void> delete(@RequestParam("componentId") long componentId) {
         componentService.delete(componentId);
+        return R.empty();
     }
 
 
     @GetMapping(value = "/getComponentVersion")
     @ApiOperation(value = "获取对应的组件能版本信息")
-    public Map getComponentVersion() {
-        return componentService.getComponentVersion();
+    public R<Map> getComponentVersion() {
+        return R.ok(componentService.getComponentVersion());
     }
 
-    @RequestMapping(value = "/getComponentStore", method = {RequestMethod.POST})
+    @PostMapping(value = "/getComponentStore")
     @ApiOperation(value = "获取对应的组件能选择的存储组件类型")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String"),
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int")
     })
-    public List<Integer> getComponentStore(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType) {
+    public R<List<Integer>> getComponentStore(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType) {
         List<Component> componentStore = componentService.getComponentStore(clusterName, componentType);
         if (CollectionUtils.isEmpty(componentStore)) {
-            return new ArrayList<>();
+            return R.ok(new ArrayList<>());
         }
-        return componentStore.stream()
+        return R.ok(componentStore.stream()
                 .map(Component::getComponentTypeCode)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @PostMapping(value = "/testConnects")
@@ -133,11 +137,11 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
     })
-    public List<ComponentMultiTestResult> testConnects(@RequestParam("clusterName") String clusterName) {
+    public R<List<ComponentMultiTestResult>> testConnects(@RequestParam("clusterName") String clusterName) {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
-        return componentService.testConnects(clusterName);
+        return R.ok(componentService.testConnects(clusterName));
     }
 
     @PostMapping(value = "/testConnect")
@@ -147,8 +151,8 @@ public class ComponentController {
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String"),
             @ApiImplicitParam(name = "componentVersion", value = "组件版本", required = true, dataType = "String"),
     })
-    public ComponentTestResult testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
-        return componentService.testConnect(clusterName, componentType, StringUtils.isBlank(componentVersion) ? null : componentVersion);
+    public R<ComponentTestResult> testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
+        return R.ok(componentService.testConnect(clusterName, componentType, StringUtils.isBlank(componentVersion) ? null : componentVersion));
     }
 
 }
