@@ -28,7 +28,6 @@ public interface PublicConstent {
     /**
      * UPSERT 魔法字符
      */
-    public static String UPSERT = "upsert";
-
-    public static String AUTH_EH_CACHE = "BatchAuthSpringCache";
+     String UPSERT = "upsert";
+     String AUTH_EH_CACHE = "BatchAuthSpringCache";
 }
