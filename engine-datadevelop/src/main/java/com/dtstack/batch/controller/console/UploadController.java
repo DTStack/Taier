@@ -18,8 +18,10 @@
 
 package com.dtstack.batch.controller.console;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.dto.Resource;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.vo.ComponentVO;
@@ -54,53 +56,65 @@ public class UploadController {
 
     @PostMapping(value="/component/config")
     @ApiOperation(value = "解析zip中xml或者json")
-    public List<Object> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
+    public R<List<Object>> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
                                @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String componentVersion) {
-        return componentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion);
+        return R.ok(componentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion));
     }
 
     @PostMapping(value="/component/addOrUpdateComponent")
-    public ComponentVO addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
-                                            @RequestParam("componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
+    public R<ComponentVO> addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
+                                            @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
                                             @RequestParam("principals")String principals,@RequestParam("principal")String principal,@RequestParam("isMetadata")boolean isMetadata,
+
                                             @RequestParam(value = "isDefault",required = false) Boolean isDefault,@RequestParam(value = "deployType",required = false)Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
-        if (null == componentCode) {
-            throw new RdosDefineException("Component type cannot be empty");
-        }
-        if (null == clusterId) {
-            throw new RdosDefineException("Cluster Id cannot be empty");
-        }
-        if (CollectionUtils.isNotEmpty(resources) && resources.size() >= 2 && StringUtils.isBlank(kerberosFileName)) {
-            //上传二份文件 需要kerberosFileName文件名字段
-            throw new RdosDefineException("kerberosFileName不能为空");
-        }
-        if(null == componentConfig){
-            componentConfig = new JSONObject().toJSONString();
-        }
-        //校验引擎是否添加
-        EComponentType componentType = EComponentType.getByCode(componentCode);
-        if(EComponentType.deployTypeComponents.contains(componentType) && null == deployType){
-            throw new RdosDefineException("deploy type cannot be empty");
-        }
-        return componentService.addOrUpdateComponent(clusterId, componentConfig, resources, hadoopVersion, kerberosFileName, componentTemplate,componentType,storeType,principals,principal,isMetadata,isDefault,deployType);
+        return new APITemplate<ComponentVO>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+
+
+                if (null == componentCode) {
+                    throw new RdosDefineException("Component type cannot be empty");
+                }
+                if (null == clusterId) {
+                    throw new RdosDefineException("Cluster Id cannot be empty");
+                }
+                if (CollectionUtils.isNotEmpty(resources) && resources.size() >= 2 && StringUtils.isBlank(kerberosFileName)) {
+                    //上传二份文件 需要kerberosFileName文件名字段
+                    throw new RdosDefineException("kerberosFileName不能为空");
+                }
+            }
+
+            @Override
+            protected ComponentVO process() throws BizException {
+                //校验引擎是否添加
+                EComponentType componentType = EComponentType.getByCode(componentCode);
+                if (EComponentType.deployTypeComponents.contains(componentType) && null == deployType) {
+                    throw new RdosDefineException("deploy type cannot be empty");
+                }
+                return componentService.addOrUpdateComponent(clusterId, componentConfig, resources,
+                        hadoopVersion, kerberosFileName, componentTemplate, componentType, storeType, principals, principal, isMetadata, isDefault, deployType);
+            }
+        }.execute();
+
+
     }
 
     @PostMapping(value="/component/parseKerberos")
     @ApiOperation(value = "解析kerberos文件中信息")
-    public List<String> parseKerberos(@RequestParam("fileName") List<MultipartFile> files) {
-        return componentService.parseKerberos(getResourcesFromFiles(files));
+    public R<List<String>> parseKerberos(@RequestParam("fileName") List<MultipartFile> files) {
+        return R.ok(componentService.parseKerberos(getResourcesFromFiles(files)));
     }
 
     @PostMapping(value="/component/uploadKerberos")
-    public String uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
+    public R<String> uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
                                  @RequestParam("componentCode") Integer componentCode,@RequestParam("componentVersion") String componentVersion) {
         List<Resource> resources = getResourcesFromFiles(files);
-        return componentService.uploadKerberos(resources, clusterId, componentCode,componentVersion);
+        return R.ok(componentService.uploadKerberos(resources, clusterId, componentCode,componentVersion));
     }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {
