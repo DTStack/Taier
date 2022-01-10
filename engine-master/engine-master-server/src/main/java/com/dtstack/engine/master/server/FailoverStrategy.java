@@ -28,10 +28,9 @@ import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.master.server.builder.CycleJobBuilder;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.impl.NodeRecoverService;
-import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
-import com.dtstack.engine.master.server.scheduler.JobGraphBuilderTrigger;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
@@ -80,7 +79,7 @@ public class FailoverStrategy {
     private NodeRecoverService nodeRecoverService;
 
     @Autowired
-    private JobGraphBuilder jobGraphBuilder;
+    private CycleJobBuilder cycleJobBuilder;
 
     @Autowired
     private JobGraphBuilderTrigger jobGraphBuilderTrigger;
@@ -155,7 +154,7 @@ public class FailoverStrategy {
                 //判断当天jobGraph是否已经生成
                 SimpleDateFormat sdfDay = new SimpleDateFormat("yyyy-MM-dd");
                 String currDayStr = sdfDay.format(Calendar.getInstance().getTime());
-                jobGraphBuilder.buildTaskJobGraph(currDayStr);
+                cycleJobBuilder.buildTaskJobGraph(currDayStr);
             } catch (Exception e) {
                 LOGGER.error("----jobGraphChecker error:", e);
             }

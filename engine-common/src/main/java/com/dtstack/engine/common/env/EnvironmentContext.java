@@ -432,23 +432,23 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
     }
 
-    public Integer getFillDataJobGraphBuildPoolCorePoolSize() {
+    public Integer getGraphBuildPoolCorePoolSize() {
         return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.core.pool.size", "20"));
     }
 
-    public Integer getFillDataJobGraphBuildPoolMaximumPoolSize() {
+    public Integer getGraphBuildPoolMaximumPoolSize() {
         return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.maximum.pool.size", "20"));
     }
 
-    public Integer getFillDataJobGraphBuildPoolQueueSize() {
+    public Integer getGraphBuildPoolQueueSize() {
         return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.queue.size", "1000"));
     }
 
-    public Integer getFillDataJobLimitSize() {
+    public Integer getJobLimitSize() {
         return Integer.parseInt(environment.getProperty("fillData.job.limit.size", "50"));
     }
 
-    public Integer getFillDataMaxTaskBuildThread() {
+    public Integer getMaxTaskBuildThread() {
         return Integer.parseInt(environment.getProperty("fillData.job.max.task.build.thread", "20"));
     }
 

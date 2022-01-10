@@ -1,7 +1,6 @@
 package com.dtstack.engine.master.server.builder;
 
 import com.dtstack.engine.common.enums.*;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.domain.ScheduleTaskShade;
@@ -9,21 +8,19 @@ import com.dtstack.engine.master.enums.FillJobTypeEnum;
 import com.dtstack.engine.master.service.ScheduleJobOperatorRecordService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskService;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.util.DateUtil;
+import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -33,60 +30,73 @@ import java.util.stream.Collectors;
  * @Description:
  */
 @Component
-public class FillDataJobBuilder extends AbstractJobBuilder implements InitializingBean {
+public class FillDataJobBuilder extends AbstractJobBuilder {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FillDataJobBuilder.class);
 
     private static final String FILL_DATA_TYPE = "fillData";
     private static final String FILL_DATA_JOB_BUILDER = "FillDataJobBuilder";
 
-    @Autowired
-    private ScheduleJobService scheduleJobService;
 
-    @Autowired
-    private ScheduleTaskService scheduleTaskService;
-
-    @Autowired
-    private EnvironmentContext environmentContext;
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
-    private ExecutorService jobGraphBuildPool;
 
+
+    /**
+     * 创建补数据实例
+     *
+     * @param all all list 所有节点
+     * @param run run list 可运行节点
+     * @param fillId 补数据id
+     * @param fillName 补数据名称
+     * @param beginTime 开始时间
+     * @param endTime 结束时间
+     * @param startDay 每天时间范围 开始范围
+     * @param endDay 每天时间范围 结束范围
+     * @throws Exception
+     */
     @Transactional(rollbackFor = Exception.class)
     public void createFillJob(Set<Long> all, Set<Long> run, Long fillId, String fillName, String beginTime, String endTime,
-                              String startDay, String endDay, Long tenantId, Long userId) throws Exception {
+                              String startDay, String endDay) throws Exception {
         Date startDate = DateUtil.parseDate(startDay, DateUtil.DATE_FORMAT, Locale.CHINA);
         Date endDate = DateUtil.parseDate(endDay, DateUtil.DATE_FORMAT, Locale.CHINA);
 
         DateTime startTime = new DateTime(startDate);
         DateTime finishTime = new DateTime(endDate);
         while (startTime.getMillis() <= finishTime.getMillis()) {
-            startTime = startTime.plusDays(1);
             String triggerDay = startTime.toString(DateUtil.DATE_FORMAT);
-            buildFillDataJobGraph(fillName, fillId, all, run, triggerDay, beginTime, endTime, tenantId, userId);
+            buildFillDataJobGraph(fillName, fillId, all, run, triggerDay, beginTime, endTime);
+            startTime = startTime.plusDays(1);
         }
     }
 
+    /**
+     * 创建一天的补数据实例
+     *
+     * @param fillName 补数据名称
+     * @param fillId 补数据id
+     * @param all all list 所有节点
+     * @param run run list 可运行节点
+     * @param triggerDay 具体目标天
+     * @param beginTime  每天时间范围 开始范围
+     * @param endTime 每天时间范围 结束范围
+     * @throws Exception
+     */
     @Transactional(rollbackFor = Exception.class)
     private void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
-                                       String beginTime, String endTime, Long tenantId, Long userId) throws Exception {
-        // 切割控制并发数
+                                       String beginTime, String endTime) throws Exception {
         List<Long> allList = Lists.newArrayList(all);
-        List<List<Long>> partition = Lists.partition(allList, environmentContext.getFillDataJobLimitSize());
-        Semaphore buildSemaphore = new Semaphore(environmentContext.getFillDataMaxTaskBuildThread());
-        CountDownLatch ctl = new CountDownLatch(partition.size());
+        List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobLimitSize());
         AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();
 
         for (List<Long> taskKey : partition) {
-            buildSemaphore.acquire();
             jobGraphBuildPool.submit(()->{
                 try {
                     Map<Long, ScheduleJobDetails> saveMap = Maps.newHashMap();
                     for (Long taskId : taskKey) {
                         try {
-                            String preStr = FILL_DATA_TYPE + "_" + fillName;
                             ScheduleTaskShade scheduleTaskShade = scheduleTaskService
                                     .lambdaQuery()
                                     .eq(ScheduleTaskShade::getTaskId, taskId)
@@ -97,14 +107,15 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
                                 List<ScheduleJobDetails> jobBuilderBeanList = Lists.newArrayList();
                                 // 非工作流任务子任务
                                 if (scheduleTaskShade.getFlowId() == 0) {
-                                    // 生成周期实例
-                                    jobBuilderBeanList = buildJob(scheduleTaskShade, preStr, triggerDay, beginTime, endTime, fillId, sortWorker);
-
+                                    // 生成补数据实例
+                                    jobBuilderBeanList = RetryUtil.executeWithRetry(() -> buildJob(scheduleTaskShade, fillName, triggerDay, beginTime, endTime, fillId, sortWorker),
+                                            environmentContext.getBuildJobErrorRetry(), 200, false);
                                 } else {
                                     Long flowId = scheduleTaskShade.getFlowId();
                                     if (!allList.contains(flowId)) {
                                         // 生成周期实例
-                                        jobBuilderBeanList = buildJob(scheduleTaskShade, preStr, triggerDay, beginTime, beginTime, fillId,sortWorker);
+                                        jobBuilderBeanList = RetryUtil.executeWithRetry(() -> buildJob(scheduleTaskShade, fillName, triggerDay, beginTime, beginTime, fillId,sortWorker),
+                                                environmentContext.getBuildJobErrorRetry(), 200, false);
                                     }
                                 }
 
@@ -119,17 +130,18 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
                     savaFillJob(saveMap);
                 } catch (Exception e) {
                     LOGGER.error("fill error:",e);
-                } finally {
-                    buildSemaphore.release();
-                    ctl.countDown();
                 }
             });
         }
-        ctl.await();
-        jobGraphBuildPool.shutdown();
-
     }
 
+    /**
+     *
+     * @param run  run list 可运行节点
+     * @param saveMap 生成实例集合
+     * @param taskId 任务id
+     * @param jobBuilderBean 构建出来的实际
+     */
     private void addMap(Set<Long> run, Map<Long, ScheduleJobDetails> saveMap, Long taskId, ScheduleJobDetails jobBuilderBean) {
         ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
         if (run.contains(taskId)) {
@@ -145,11 +157,17 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
         if (CollectionUtils.isNotEmpty(flowBean)) {
             for (ScheduleJobDetails builderBean : flowBean) {
                 ScheduleJob flowScheduleJob = builderBean.getScheduleJob();
+                flowScheduleJob.setFillType(FillJobTypeEnum.RUN_JOB.getType());
                 saveMap.put(flowScheduleJob.getTaskId(),builderBean);
             }
         }
     }
 
+    /**
+     * 持久化时间
+     *
+     * @param allJob 所有集合
+     */
     private void savaFillJob(Map<Long, ScheduleJobDetails> allJob) {
         scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
         List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
@@ -168,7 +186,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
     }
 
     @Override
-    protected String getKeyPreStr() {
+    protected String getPrefix() {
         return FILL_DATA_TYPE;
     }
 
@@ -177,9 +195,4 @@ public class FillDataJobBuilder extends AbstractJobBuilder implements Initializi
         return EScheduleType.FILL_DATA.getType();
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        jobGraphBuildPool = new ThreadPoolExecutor(environmentContext.getFillDataJobGraphBuildPoolCorePoolSize(), environmentContext.getFillDataJobGraphBuildPoolMaximumPoolSize(), 10L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>(environmentContext.getFillDataJobGraphBuildPoolQueueSize()), new CustomThreadFactory(FILL_DATA_JOB_BUILDER));
-    }
 }

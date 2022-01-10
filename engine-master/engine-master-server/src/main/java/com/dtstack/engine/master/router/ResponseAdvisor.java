@@ -25,7 +25,7 @@ import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.util.List;
 
-@ControllerAdvice(basePackages = {"com.dtstack.engine.master.controller"})
+@ControllerAdvice(basePackages = {"com.dtstack.engine.master.controller","com.dtstack.batch.controller.operation"})
 public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ResponseAdvisor.class);

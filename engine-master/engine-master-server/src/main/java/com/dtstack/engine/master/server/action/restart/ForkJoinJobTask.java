@@ -1,10 +1,8 @@
-package com.dtstack.engine.master.action.restart;
+package com.dtstack.engine.master.server.action.restart;
 
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.master.service.ScheduleJobJobService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.utils.JobKeyUtils;

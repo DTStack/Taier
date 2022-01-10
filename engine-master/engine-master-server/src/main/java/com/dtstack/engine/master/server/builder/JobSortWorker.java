@@ -10,7 +10,6 @@ public interface JobSortWorker {
 
     /**
      * 排序
-     *
      * @return 序号
      */
     Long getSort();
