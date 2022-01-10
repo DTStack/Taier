@@ -1,20 +1,15 @@
-package com.dtstack.engine.master.action.restart;
+package com.dtstack.engine.master.server.action.restart;
 
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
-import com.dtstack.engine.mapper.ScheduleTaskShadeDao;
-import com.dtstack.engine.master.action.restart.impl.RestartCurrentAndDownStreamNodeRestartJob;
-import com.dtstack.engine.master.action.restart.impl.RestartCurrentNodeRestartJob;
-import com.dtstack.engine.master.action.restart.impl.SetSuccessAndResumeSchedulingRestartJob;
+import com.dtstack.engine.master.server.action.restart.impl.RestartCurrentAndDownStreamNodeRestartJob;
+import com.dtstack.engine.master.server.action.restart.impl.RestartCurrentNodeRestartJob;
+import com.dtstack.engine.master.server.action.restart.impl.SetSuccessAndResumeSchedulingRestartJob;
 import com.dtstack.engine.master.enums.RestartType;
-import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskService;
-import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -27,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

@@ -56,7 +56,7 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
     private String getJobKey(ScheduleTaskShade scheduleTaskShade, Date currentDate) throws Exception {
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
         // 上游任务
-        Date upstreamTask = corn.last(currentDate);
+        Date upstreamTask = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
 
         // 上游任务的上一个周期
         Date upstreamTaskLastCycle = corn.last(upstreamTask);
