@@ -1,10 +1,7 @@
-package com.dtstack.engine.master.action.restart;
+package com.dtstack.engine.master.server.action.restart;
 
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
-import com.dtstack.engine.master.impl.ScheduleJobService;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;

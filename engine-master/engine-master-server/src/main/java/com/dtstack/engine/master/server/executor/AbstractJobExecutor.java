@@ -235,22 +235,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
                                     LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
                                     batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
                                 }
-/*                            } else if (EScheduleJobType.NOT_DO_TASK.getType().equals(type)) {
-                                LOGGER.info("jobId:{} scheduleType:{} is NOT_DO_TASK not put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                                // 空任务且是未提交状态
-                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                                    // 直接状态成运行中
-                                    LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} , update RUNNING", scheduleBatchJob.getJobId(),status);
-                                    batchJobService.updateStatusByJobIdEqualsStatus(scheduleBatchJob.getJobId(), RdosTaskStatus.RUNNING.getStatus(),RdosTaskStatus.UNSUBMIT.getStatus());
-                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
-                                    LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} is not submit，determine whether the timeout", scheduleBatchJob.getJobId(),status);
-                                    // 已经提交状态 判断是否超时
-                                    if (isTimeOut(scheduleBatchJob, batchTask)) {
-                                        // 直接失败更新状态
-                                        LOGGER.info("jobId:{} is NOT_DO_TASK,status:{} ,job timeout so update FAILED", scheduleBatchJob.getJobId(), status);
-                                        batchJobService.updateStatusAndLogInfoAndExecTimeById(scheduleBatchJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "空任务超时",null,new Date());
-                                    }
-                                }*/
                             } else {
                                 if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 更新job状态

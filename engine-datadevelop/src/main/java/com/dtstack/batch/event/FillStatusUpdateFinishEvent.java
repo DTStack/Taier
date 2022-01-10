@@ -2,7 +2,7 @@ package com.dtstack.batch.event;
 
 import com.dtstack.batch.service.schedule.FillDataService;
 import com.dtstack.engine.domain.ScheduleFillDataJob;
-import com.dtstack.engine.master.action.fill.FillDataRunnable;
+import com.dtstack.engine.master.server.action.fill.FillDataRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

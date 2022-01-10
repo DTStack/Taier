@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.action.fill;
+package com.dtstack.engine.master.server.action.fill;
 
 import com.dtstack.engine.master.dto.fill.FillDataChooseTaskDTO;
 import com.dtstack.engine.master.dto.fill.FillDataInfoDTO;
@@ -33,8 +33,6 @@ public class FillDataRunnable implements Runnable {
     private final String endDay;
     private final String beginTime;
     private final String endTime;
-    private final Long tenantId;
-    private final Long userId;
 
     private final List<FillDataChooseTaskDTO> taskIds;
     private final FillDataChooseTaskDTO rootTaskId;
@@ -54,8 +52,6 @@ public class FillDataRunnable implements Runnable {
         this.endDay = scheduleFillJobParticipateDTO.getEndDay();
         this.beginTime = scheduleFillJobParticipateDTO.getBeginTime();
         this.endTime = scheduleFillJobParticipateDTO.getEndTime();
-        this.tenantId = scheduleFillJobParticipateDTO.getTenantId();
-        this.userId = scheduleFillJobParticipateDTO.getUserId();
         this.fillDataType = fillDataInfo.getFillDataType();
         this.taskIds = fillDataInfo.getTaskIds();
         this.rootTaskId = fillDataInfo.getRootTaskId();
@@ -92,7 +88,7 @@ public class FillDataRunnable implements Runnable {
             }
 
             // 生成补数据实例
-            fillDataJobBuilder.createFillJob(all, run,fillId,fillName,beginTime,endTime,startDay,endDay, tenantId,userId);
+            fillDataJobBuilder.createFillJob(all, run,fillId,fillName,beginTime,endTime,startDay,endDay);
 
         } catch (Throwable e) {
             LOGGER.error("fillId:{} create exception:",fillId,e);

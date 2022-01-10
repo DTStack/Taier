@@ -3,6 +3,7 @@ package com.dtstack.engine.master.server.builder;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.Restarted;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
@@ -12,8 +13,10 @@ import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.server.builder.dependency.DependencyHandler;
 import com.dtstack.engine.master.server.builder.dependency.DependencyManager;
 import com.dtstack.engine.master.service.ScheduleActionService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
@@ -23,11 +26,16 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Auther: dazhi
@@ -35,15 +43,23 @@ import java.util.Locale;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-public abstract class AbstractJobBuilder implements JobBuilder {
+public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean {
 
     protected static final String NORMAL_TASK_FLOW_ID = "0";
+
+    protected ExecutorService jobGraphBuildPool;
+
+    @Autowired
+    protected ScheduleJobService scheduleJobService;
 
     @Autowired
     protected DependencyManager dependencyManager;
 
     @Autowired
-    private ScheduleTaskService scheduleTaskService;
+    protected ScheduleTaskService scheduleTaskService;
+
+    @Autowired
+    protected EnvironmentContext environmentContext;
 
     @Autowired
     protected ScheduleActionService scheduleActionService;
@@ -71,13 +87,14 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         Date endDate = getEndDate(scheduleConf,triggerRange,scheduleTaskShade.getTaskId());
 
         List<ScheduleJobDetails> jobBuilderBeanList = Lists.newArrayList();
-        Date next;
-        while ((next = corn.next(startDate)) != null) {
+
+        Date next = corn.isMatch(startDate) ? startDate : corn.next(startDate);
+        while (next != null) {
             // 如下下一次执行时间已经在结束时间之后，停止生成实例
             if (next.after(endDate)) {
                 break;
             }
-            ScheduleJobDetails jobBuilderBean = buildJobBuilderBean(scheduleTaskShade, getName(scheduleTaskShade, name), fillId, jobSortWorker, corn, scheduleConf, next,NORMAL_TASK_FLOW_ID);
+            ScheduleJobDetails jobBuilderBean = buildJobBuilderBean(scheduleTaskShade, name, fillId, jobSortWorker, corn, scheduleConf, next, NORMAL_TASK_FLOW_ID);
 
             if (EScheduleJobType.WORK_FLOW.getVal().equals(scheduleTaskShade.getTaskType())) {
                 // 该任务是工作流任务 先生成子任务
@@ -88,15 +105,26 @@ public abstract class AbstractJobBuilder implements JobBuilder {
                 List<ScheduleJobDetails> flowBean = Lists.newArrayList();
                 ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
                 for (ScheduleTaskShade subTask : subTasks) {
-                    flowBean.add(buildJobBuilderBean(subTask, getName(subTask, name), fillId, jobSortWorker, corn, scheduleConf, next,scheduleJob.getJobId()));
+                    flowBean.add(buildJobBuilderBean(subTask, name, fillId, jobSortWorker, corn, scheduleConf, next, scheduleJob.getJobId()));
                 }
                 jobBuilderBean.setFlowBean(flowBean);
             }
 
 
             jobBuilderBeanList.add(jobBuilderBean);
+            next = corn.next(next);
         }
         return jobBuilderBeanList;
+    }
+
+    /**
+     * 周期实例生成bean方法
+     * @param batchTaskShade 任务
+     * @param triggerDay 目标天
+     * @param sortWorker 排序器
+     */
+    public List<ScheduleJobDetails> buildJob(ScheduleTaskShade batchTaskShade, String triggerDay, AtomicJobSortWorker sortWorker) throws Exception {
+        return buildJob(batchTaskShade, getPrefix(),triggerDay,"00:00","23:59",0L,sortWorker);
     }
 
     /**
@@ -106,8 +134,8 @@ public abstract class AbstractJobBuilder implements JobBuilder {
      * @return 名称
      */
     @NotNull
-    private String getName(ScheduleTaskShade scheduleTaskShade, String name) {
-        return name + "_" + scheduleTaskShade.getName();
+    private String getName(ScheduleTaskShade scheduleTaskShade, String name,String cycTime ) {
+        return getPrefix() + "_" + name + "_" + scheduleTaskShade.getName() + "_" + cycTime;
     }
 
     /**
@@ -131,22 +159,23 @@ public abstract class AbstractJobBuilder implements JobBuilder {
                                                    ScheduleConf scheduleConf,
                                                    Date currentData,
                                                    String flowJobId) {
-        String triggerTime = DateUtil.getDate(corn.next(currentData),DateUtil.STANDARD_DATETIME_FORMAT);
-        String nextDate = DateUtil.getDate(corn.next(currentData), DateUtil.STANDARD_DATETIME_FORMAT);
-        String jobKey = JobKeyUtils.generateJobKey(getKeyPreStr(), scheduleTaskShade.getTaskId(), triggerTime);
+        String triggerTime = DateUtil.getDate(currentData,DateUtil.STANDARD_DATETIME_FORMAT);
+        String cycTime = DateUtil.getTimeStrWithoutSymbol(triggerTime);
+        String jobKey = JobKeyUtils.generateJobKey(getKeyPreStr(name), scheduleTaskShade.getTaskId(), cycTime);
+
 
         // 实例
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(scheduleTaskShade.getTenantId());
         scheduleJob.setJobId(scheduleActionService.generateUniqueSign());
         scheduleJob.setJobKey(jobKey);
-        scheduleJob.setJobName(name);
+        scheduleJob.setJobName(getName(scheduleTaskShade, name, cycTime));
         scheduleJob.setTaskId(scheduleTaskShade.getTaskId());
         scheduleJob.setCreateUserId(scheduleTaskShade.getCreateUserId());
         scheduleJob.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
         scheduleJob.setType(getType());
         scheduleJob.setIsRestart(Restarted.NORMAL.getStatus());
-        scheduleJob.setCycTime(DateUtil.getTimeStrWithoutSymbol(triggerTime));
+        scheduleJob.setCycTime(cycTime);
         scheduleJob.setDependencyType(scheduleConf.getSelfReliance());
         scheduleJob.setFlowJobId(flowJobId);
         scheduleJob.setPeriodType(scheduleConf.getPeriodType());
@@ -156,12 +185,12 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         scheduleJob.setMaxRetryNum(scheduleConf.getMaxRetryNum());
         scheduleJob.setVersionId(scheduleTaskShade.getVersionId());
         scheduleJob.setComputeType(scheduleTaskShade.getComputeType());
-        scheduleJob.setNextCycTime(nextDate);
-        scheduleJob.setJobExecuteOrder(jobSortWorker.getSort());
+        scheduleJob.setNextCycTime(DateUtil.getDate(corn.next(currentData), DateUtil.STANDARD_DATETIME_FORMAT));
+        scheduleJob.setJobExecuteOrder(buildJobExecuteOrder(cycTime,jobSortWorker.getSort()));
 
         // 获得依赖
         List<ScheduleJobJob> jobJobList = Lists.newArrayList();
-        DependencyHandler dependencyHandler = dependencyManager.getDependencyHandler(getKeyPreStr(), scheduleTaskShade, corn);
+        DependencyHandler dependencyHandler = dependencyManager.getDependencyHandler(getKeyPreStr(name), scheduleTaskShade, corn);
 
         while (dependencyHandler != null) {
             jobJobList.addAll(dependencyHandler.generationJobJobForTask(corn, currentData,jobKey));
@@ -174,12 +203,15 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         return jobBuilderBean;
     }
 
+    @NotNull
+    private String getKeyPreStr(String name) {
+        return getPrefix() + "_" + name;
+    }
+
     /**
      * 获得实例前缀
-     *
-     * @return jobKey
      */
-    protected abstract String getKeyPreStr();
+    protected abstract String getPrefix();
 
     /**
      * 获得实例类型
@@ -209,17 +241,16 @@ public abstract class AbstractJobBuilder implements JobBuilder {
             endTime = "23:59:59";
         }
 
-        String start = triggerDay + " " + beginTime;
-        String end = triggerDay + " " + endTime;
+        String start = triggerDay + " " + beginTime + ":00";
+        String end = triggerDay + " " + endTime + ":59";
 
-        Date startDate = DateUtil.parseDate(start, DateUtil.DATE_FORMAT, Locale.CHINA);
-        Date endDate = DateUtil.parseDate(end, DateUtil.DATE_FORMAT, Locale.CHINA);
-
+        Date startDate = DateUtil.parseDate(start, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
+        Date endDate = DateUtil.parseDate(end, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         if (startDate == null || endDate == null) {
             throw new RdosDefineException("triggerDay or beginTime or endTime invalid");
         }
 
-        return new ImmutablePair<>(startDate, startDate);
+        return new ImmutablePair<>(startDate, endDate);
     }
 
     /**
@@ -235,12 +266,12 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         // 这里有两个时间范围 1 任务运行的时间范围 2 计划的时间范围
 
         // 任务运行开始时间在计划时间之前
-        if (beginDate.after(triggerRange.getLeft())) {
+        if (beginDate.before(triggerRange.getLeft())) {
             return triggerRange.getLeft();
         }
 
         // 任务运行开始时间在计划时间之中
-        if (beginDate.before(triggerRange.getLeft()) && beginDate.after(triggerRange.getRight())) {
+        if (beginDate.after(triggerRange.getLeft()) && beginDate.before(triggerRange.getRight())) {
             return beginDate;
         }
 
@@ -266,5 +297,30 @@ public abstract class AbstractJobBuilder implements JobBuilder {
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
+    }
+
+    /**
+     * 按照计划时间生成具体排列序号
+     *
+     * @param triggerTime 计划时间
+     * @param count
+     * @return
+     */
+    protected Long buildJobExecuteOrder(String triggerTime, Long count) {
+        if (StringUtils.isBlank(triggerTime)) {
+            throw new RuntimeException("cycTime is not null");
+        }
+
+        // 时间格式 yyyyMMddHHmmss  截取 jobExecuteOrder = yyMMddHHmm +  9位的自增
+        String substring = triggerTime.substring(2, triggerTime.length() - 2);
+        String increasing = String.format("%09d", count);
+        return Long.parseLong(substring+increasing);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        jobGraphBuildPool = new ThreadPoolExecutor(environmentContext.getGraphBuildPoolCorePoolSize(), environmentContext.getGraphBuildPoolMaximumPoolSize(), 10L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(environmentContext.getGraphBuildPoolQueueSize()), new CustomThreadFactory(getPrefix()));
+
     }
 }

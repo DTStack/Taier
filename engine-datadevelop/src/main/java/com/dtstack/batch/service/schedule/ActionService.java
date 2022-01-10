@@ -7,7 +7,7 @@ import com.dtstack.engine.domain.ScheduleEngineJobRetry;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobExpand;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.action.restart.RestartJobRunnable;
+import com.dtstack.engine.master.server.action.restart.RestartJobRunnable;
 import com.dtstack.engine.master.dto.schedule.ActionJobKillDTO;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.jobdealer.JobDealer;
