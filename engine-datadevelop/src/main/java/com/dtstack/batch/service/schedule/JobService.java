@@ -32,7 +32,7 @@ import com.dtstack.engine.master.dto.schedule.QueryJobStatusStatisticsDTO;
 import com.dtstack.engine.master.enums.FillDataTypeEnum;
 import com.dtstack.engine.master.enums.FillGeneratStatusEnum;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
-import com.dtstack.engine.master.pool.FillDataThreadPoolExecutor;
+import com.dtstack.engine.master.server.action.fill.FillDataThreadPoolExecutor;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.util.DateUtil;
