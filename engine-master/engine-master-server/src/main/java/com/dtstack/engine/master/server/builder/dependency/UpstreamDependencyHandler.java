@@ -71,7 +71,7 @@ public class UpstreamDependencyHandler extends AbstractDependencyHandler {
     public String getJobKey(ScheduleTaskShade scheduleTaskShade, Date currentDate) throws Exception {
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
         // 上一个周期
-        String lastDate = DateUtil.getDate(corn.last(currentDate), DateUtil.STANDARD_DATETIME_FORMAT);
+        String lastDate = DateUtil.getDate(corn.isMatch(currentDate) ? currentDate : corn.last(currentDate), DateUtil.STANDARD_DATETIME_FORMAT);
 
         if (StringUtils.isBlank(lastDate)) {
             throw new RdosDefineException("no find upstream task of last cycle");

@@ -37,11 +37,14 @@ import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
 import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
+import com.dtstack.engine.master.server.builder.AtomicJobSortWorker;
+import com.dtstack.engine.master.server.builder.CycleJobBuilder;
+import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobCheckRunInfo;
-import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import com.dtstack.engine.master.service.EngineJobCacheService;
+import com.dtstack.engine.master.service.JobGraphTriggerService;
 import com.dtstack.engine.master.service.ScheduleJobExpandService;
 import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.*;
@@ -114,7 +117,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
     private ScheduleTaskShadeService batchTaskShadeService;
 
     @Autowired
-    private JobGraphBuilder jobGraphBuilder;
+    private CycleJobBuilder cycleJobBuilder;
 
     @Autowired
     private ScheduleFillDataJobDao scheduleFillDataJobDao;
@@ -144,7 +147,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private JobGraphTriggerDao jobGraphTriggerDao;
+    private JobGraphTriggerService jobGraphTriggerService;
 
     @Autowired
     private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
@@ -2237,18 +2240,17 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
                 date = new DateTime().toString("yyyy-MM-dd");
             }
             Map<String, String> flowJobId = new ConcurrentHashMap<>();
-            List<ScheduleBatchJob> allJobs = new ArrayList<>();
-            AtomicInteger count = new AtomicInteger();
+            List<ScheduleJobDetails> allJobs = new ArrayList<>();
+            AtomicJobSortWorker worker = new AtomicJobSortWorker();
             for (ScheduleTaskShade task : taskShades) {
                 try {
-                    List<ScheduleBatchJob> cronTrigger = jobGraphBuilder.buildJobRunBean(task, "cronTrigger", EScheduleType.NORMAL_SCHEDULE,
-                            true, true, date, "cronJob" + "_" + task.getName(),
-                            null, null, null,task.getTenantId(),count);
-                    allJobs.addAll(cronTrigger);
+                    List<ScheduleJobDetails> scheduleJobDetails = cycleJobBuilder.buildJob(task, date, worker);
+                    allJobs.addAll(scheduleJobDetails);
                     if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
                         //工作流或算法实验
-                        for (ScheduleBatchJob jobRunBean : cronTrigger) {
-                            flowJobId.put(JobGraphUtils.buildFlowReplaceId(task.getTaskId(),jobRunBean.getCycTime(),null),jobRunBean.getJobId());
+                        for (ScheduleJobDetails jobRunBean : scheduleJobDetails) {
+                            ScheduleJob scheduleJob = jobRunBean.getScheduleJob();
+                            flowJobId.put(JobGraphUtils.buildFlowReplaceId(task.getTaskId(),scheduleJob.getCycTime(),null),scheduleJob.getJobId());
                         }
                     }
                 } catch (Exception e) {
@@ -2256,14 +2258,14 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
                 }
             }
 
-            for (ScheduleBatchJob job : allJobs) {
+            for (ScheduleJobDetails job : allJobs) {
                 String flowIdKey = job.getScheduleJob().getFlowJobId();
                 job.getScheduleJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, "0"));
             }
             sortAllJobs(allJobs);
 
             //需要保存BatchJob, BatchJobJob
-            this.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
+//            this.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
 
         } catch (Exception e) {
             LOGGER.error("createTodayTaskShadeForTest", e);
@@ -2278,10 +2280,12 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
      * @param allJobs:
      * @return: void
      **/
-    private void sortAllJobs(List<ScheduleBatchJob> allJobs) {
+    private void sortAllJobs(List<ScheduleJobDetails> allJobs) {
         allJobs.sort((ebj1, ebj2) -> {
-            Long date1 = Long.valueOf(ebj1.getCycTime());
-            Long date2 = Long.valueOf(ebj2.getCycTime());
+            ScheduleJob scheduleJob = ebj1.getScheduleJob();
+            ScheduleJob scheduleJob1 = ebj2.getScheduleJob();
+            Long date1 = Long.valueOf(scheduleJob.getCycTime());
+            Long date2 = Long.valueOf(scheduleJob1.getCycTime());
             if (date1 < date2) {
                 return -1;
             } else if (date1 > date2) {
@@ -2396,7 +2400,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
      * @param triggerDay
      */
     public void buildTaskJobGraphTest( String triggerDay) {
-        CompletableFuture.runAsync(() -> jobGraphBuilder.buildTaskJobGraph(triggerDay));
+        CompletableFuture.runAsync(() -> cycleJobBuilder.buildTaskJobGraph(triggerDay));
     }
 
     public boolean updatePhaseStatusById(Long id, JobPhaseStatus original, JobPhaseStatus update) {
@@ -2418,7 +2422,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
             return 0L;
         }
         // 如果当前时间范围没有数据, 返回NULL
-        String minJobId = jobGraphTriggerDao.getMinJobIdByTriggerTime(left, right);
+        String minJobId = jobGraphTriggerService.getMinJobIdByTriggerTime(left, right);
         if (StringUtils.isBlank(minJobId)){
             return 0L;
         }

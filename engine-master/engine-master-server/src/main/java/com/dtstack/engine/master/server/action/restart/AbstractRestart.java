@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.action.restart;
+package com.dtstack.engine.master.server.action.restart;
 
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;

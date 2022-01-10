@@ -78,6 +78,22 @@ public class ScheduleCorn {
         return Date.from(zonedDateTime.toInstant());
     }
 
+    /**
+     * 判断当前时间是否是执行时间
+     * @param date 当前时间
+     */
+    public Boolean isMatch(Date date) {
+        if (date == null) {
+            return null;
+        }
+
+        CronParser parser = new CronParser(CRON_DEFINITION);
+        Cron quartzCron = parser.parse(cron);
+
+        ExecutionTime executionTime = ExecutionTime.forCron(quartzCron);
+        return executionTime.isMatch(ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()));
+    }
+
     public String getCron() {
         return cron;
     }

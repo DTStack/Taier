@@ -830,7 +830,7 @@ public class DateUtil {
     	SimpleDateFormat df = new SimpleDateFormat(
 				pattern, locale);
 
-		df.setTimeZone(new SimpleTimeZone(0, "GMT"));
+		df.setTimeZone(TimeZone.getTimeZone("GMT+8"));
 		try {
 			return df.parse(dateStr);
 		} catch (ParseException e) {

@@ -18,14 +18,13 @@
 
 package com.dtstack.engine.master.utils;
 
-import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.master.server.ScheduleBatchJob;
+import com.dtstack.engine.master.server.scheduler.parser.*;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.MathUtil;
-import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.master.server.scheduler.JobGraphBuilder;
-import com.dtstack.engine.master.server.scheduler.parser.*;
 import com.google.common.collect.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -246,8 +245,8 @@ public class JobGraphUtils {
         }else if (cron.getPeriodType() == ESchedulePeriodType.CUSTOM.getVal()){
             try {
                 CronExpression expression = new CronExpression(cron.getCronStr());
-                dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,
-                        currTriggerDate,currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
+//                dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,
+//                        currTriggerDate,currTriggerDate.toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,true));
             } catch (ParseException e) {
                 throw new RdosDefineException("cron express is invalid:" + cron.getCronStr(), e);
             }
@@ -337,8 +336,8 @@ public class JobGraphUtils {
             } catch (ParseException e) {
                 throw new RdosDefineException("cron express is invalid:" + fatherCron.getCronStr(), e);
             }
-            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,dateTime.toDate(),
-                    dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
+//            dateTime = new DateTime(JobGraphBuilder.findLastDateBeforeCurrent(expression,dateTime.toDate(),
+//                    dateTime.toDate().toInstant().atZone(DateUtil.DEFAULT_ZONE).toLocalDateTime(),0,false));
         } else {
             throw new RuntimeException("not support period type of " + fatherCron.getPeriodType());
         }

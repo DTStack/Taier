@@ -16,8 +16,9 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.server.scheduler;
+package com.dtstack.engine.master.server;
 
+import com.dtstack.engine.master.server.builder.CycleJobBuilder;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import org.joda.time.DateTime;
@@ -52,7 +53,7 @@ public class JobGraphBuilderTrigger implements Runnable {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private JobGraphBuilder jobGraphBuilder;
+    private CycleJobBuilder cycleJobBuilder;
 
     private ScheduledExecutorService scheduledService;
 
@@ -114,7 +115,7 @@ public class JobGraphBuilderTrigger implements Runnable {
                 try {
                     String triggerDay = getTriggerDay(environmentContext.getJobGraphBuildCron());
                     LOGGER.warn("---check jobGraph build day:{} job graph start!--", triggerDay);
-                    jobGraphBuilder.buildTaskJobGraph(triggerDay);
+                    cycleJobBuilder.buildTaskJobGraph(triggerDay);
                     LOGGER.warn("---check jobGraph build day:{} job graph end!--", triggerDay);
                 } catch (Exception e) {
                     LOGGER.error("", e);
