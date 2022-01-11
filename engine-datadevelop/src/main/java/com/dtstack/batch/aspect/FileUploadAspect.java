@@ -21,7 +21,7 @@ package com.dtstack.batch.aspect;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.router.DtRequestWrapperFilter;
+import com.dtstack.batch.filter.DtRequestWrapperFilter;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;

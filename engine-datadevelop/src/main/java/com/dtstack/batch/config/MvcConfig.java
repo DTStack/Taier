@@ -20,8 +20,10 @@
 
 package com.dtstack.batch.config;
 
-import com.dtstack.engine.master.router.login.LoginInterceptor;
+import com.dtstack.batch.interceptor.LoginInterceptor;
 import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -36,14 +38,10 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import java.util.ArrayList;
 import java.util.List;
 
-
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/07/08
- */
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(MvcConfig.class);
 
     private static final List<String> INTERCEPT_LIST;
 
@@ -51,25 +49,15 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         INTERCEPT_LIST = Lists.newArrayList(
                 //数据开发
                 "/api/rdos/**",
-                "/**/getJobGraph","/**/runTimeTopOrder","/**/errorTopOrder",
                 "/**/frozenTask","/**/getFillDataJobInfoPreview","/**/stopFillDataJobs",
                 //队列管理
                 "/node/cluster/getAllCluster","/node/console/nodeAddress","/node/console/overview","/node/console/stopAll",
                 "/node/console/groupDetail",
                 //资源管理
-                "/node/console/clusterResources","/node/tenant/pageQuery","/node/tenant/queryTaskResourceLimits",
-                "/node/console/getTaskResourceTemplate","/node/tenant/bindingQueue","/node/account/getTenantUnBandList",
-                //告警通道
-                "/node/account/pageQuery","/console/service/alert/page","/console/service/alert/edit",
-                "/console/service/alert/setDefaultAlert","/service/alert/getByAlertId","/console/service/alert/delete",
+                "/node/console/clusterResources","/node/tenant/pageQuery","/node/tenant/bindingQueue","/node/account/getTenantUnBandList",
                 //多集群管理
                 "/node/cluster/pageQuery","/node/component/cluster/getCluster","/node/component/getComponentVersion",
-                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster",
-                // 安全审计
-                "/node/securityAudit/pageQuery","/node/securityAudit/getOperationList",
-                // 告警
-                "/node/alert/edit","/node/alert/setDefaultAlert","/node/alert/page","/node/alert/getByAlertId","/node/alert/delete"
-                ,"/node/alert/list/show","/node/alert/testAlert","/node/status"
+                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster"
                 );
     }
 
@@ -119,6 +107,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
                 "classpath:/META-INF/resources/webjars/");
         super.addResourceHandlers(registry);
     }
+
 
 }
 
