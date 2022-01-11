@@ -23,12 +23,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-master-server</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
         <!-- 包含注解的实现 -->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -101,6 +95,39 @@
             <groupId>dt.insight.plat</groupId>
             <artifactId>dt-insight-hive-shade</artifactId>
             <version>4.1.2-RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-dao</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.dtstack.engine</groupId>
+            <artifactId>engine-master</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     </dependencies>
 

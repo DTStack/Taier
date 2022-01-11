@@ -18,15 +18,15 @@
 
 package com.dtstack.batch.controller.login;
 
+import com.dtstack.batch.domain.login.DTToken;
+import com.dtstack.batch.domain.login.DtUser;
 import com.dtstack.batch.service.console.TenantService;
+import com.dtstack.batch.service.login.CookieService;
+import com.dtstack.batch.service.login.LoginService;
+import com.dtstack.batch.service.login.TokenService;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.UserService;
-import com.dtstack.engine.master.router.login.CookieService;
-import com.dtstack.engine.master.router.login.LoginService;
-import com.dtstack.engine.master.router.login.TokenService;
-import com.dtstack.engine.master.router.login.domain.DTToken;
-import com.dtstack.engine.master.router.login.domain.DtUser;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.MD5Util;

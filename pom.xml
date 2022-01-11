@@ -30,7 +30,6 @@
     </properties>
 
     <modules>
-        <module>engine-api</module>
         <module>engine-common</module>
         <module>engine-dao</module>
         <module>engine-master</module>
