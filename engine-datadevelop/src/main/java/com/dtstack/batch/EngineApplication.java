@@ -38,6 +38,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 
 /**
@@ -52,6 +53,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableCaching
 @EnableScheduling
+@EnableWebMvc
 @MapperScan("com.dtstack.engine.mapper")
 public class EngineApplication {
 
@@ -64,8 +66,6 @@ public class EngineApplication {
             SpringApplication application = new SpringApplication(EngineApplication.class);
             application.run(args);
             System.setSecurityManager(new NoExitSecurityManager());
-
-
             ShutdownHookUtil.addShutdownHook(EngineApplication::shutdown, EngineApplication.class.getSimpleName(), LOGGER);
             JavaPolicyUtils.checkJavaPolicy();
         } catch (Throwable t) {
