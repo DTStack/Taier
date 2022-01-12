@@ -29,7 +29,7 @@ import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

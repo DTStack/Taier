@@ -34,9 +34,8 @@ import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.http.HttpClient;
 import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
@@ -302,7 +301,7 @@ public class FlinkClient extends AbstractClient {
             return Pair.create(jobExecutionResult.getJobID().toString(), null);
         } catch (Exception e) {
             flinkClusterClientManager.dealWithClientError();
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -332,7 +331,7 @@ public class FlinkClient extends AbstractClient {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
-            throw new RdosDefineException("need to set compute type.");
+            throw new PluginDefineException("need to set compute type.");
         }
 
         switch (computeType){
@@ -342,7 +341,7 @@ public class FlinkClient extends AbstractClient {
                 return submitSqlJobForStream(jobClient);
 
         }
-        throw new RdosDefineException("not support for compute type :" + computeType);
+        throw new PluginDefineException("not support for compute type :" + computeType);
     }
 
     /**
@@ -372,7 +371,7 @@ public class FlinkClient extends AbstractClient {
                     try {
                         return new File(k).toURL();
                     } catch (MalformedURLException e) {
-                        throw new RdosDefineException(e);
+                        throw new PluginDefineException(e);
                     }
                 }).collect(Collectors.toList());
             }
@@ -387,7 +386,7 @@ public class FlinkClient extends AbstractClient {
     }
 
     private JobResult submitSqlJobForBatch(JobClient jobClient) {
-        throw new RdosDefineException("not support for flink batch sql now!!!");
+        throw new PluginDefineException("not support for flink batch sql now!!!");
     }
 
     @Override
@@ -514,7 +513,7 @@ public class FlinkClient extends AbstractClient {
 
         try{
             if (response == null) {
-                throw new RdosDefineException("Get status response is null");
+                throw new PluginDefineException("Get status response is null");
             }
 
             Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
@@ -575,7 +574,7 @@ public class FlinkClient extends AbstractClient {
                         case FAILED:
                             return RdosTaskStatus.FAILED;
                         default:
-                            throw new RdosDefineException("Unsupported application state");
+                            throw new PluginDefineException("Unsupported application state");
                     }
                 } catch (YarnException | IOException e) {
                     logger.error("appId: {}, getPerJobStatus with yarnClient error: ", applicationId, e);
@@ -641,7 +640,7 @@ public class FlinkClient extends AbstractClient {
             String reqUrl = String.format("%s%s", getReqUrl(), path);
             return PoolHttpClient.get(reqUrl, null, ConfigConstrant.HTTP_MAX_RETRY);
         } catch (Exception e) {
-            throw new RdosDefineException(ErrorCode.HTTP_CALL_ERROR, e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -651,7 +650,7 @@ public class FlinkClient extends AbstractClient {
             return PoolHttpClient.get(reqUrl);
         } catch (Exception e) {
             logger.error("", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -715,9 +714,9 @@ public class FlinkClient extends AbstractClient {
                         }
                     }
                 }
-                throw new RdosDefineException(String.format("Not found Message from jobArchive, jobId[%s], urlPath[%s]", jobId, urlPath));
+                throw new PluginDefineException(String.format("Not found Message from jobArchive, jobId[%s], urlPath[%s]", jobId, urlPath));
             } catch (Exception e) {
-                throw new RdosDefineException(e);
+                throw new PluginDefineException(e);
             }
         }, hadoopConf.getConfiguration());
     }
@@ -946,7 +945,7 @@ public class FlinkClient extends AbstractClient {
                 try {
                     jarFile = FlinkUtil.downloadJar(addFilePath, tmpJarDir, filesystemManager, false);
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new PluginDefineException(e);
                 }
 
                 fileList.add(jarFile.getAbsolutePath());
@@ -1062,7 +1061,7 @@ public class FlinkClient extends AbstractClient {
                     try {
                         return new File(k).toURL();
                     } catch (MalformedURLException e) {
-                        throw new RdosDefineException(e);
+                        throw new PluginDefineException(e);
                     }
                 }).collect(Collectors.toList());
             }

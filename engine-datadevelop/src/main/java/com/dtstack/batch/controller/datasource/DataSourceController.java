@@ -10,7 +10,7 @@ import com.dtstack.batch.vo.datasource.DsDetailVO;
 import com.dtstack.batch.vo.datasource.DsInfoVO;
 import com.dtstack.batch.vo.datasource.DsListVO;
 import com.dtstack.batch.vo.datasource.DsTypeListVO;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.common.pager.PageResult;
 import com.dtstack.engine.common.util.APITemplate;
@@ -52,7 +52,7 @@ public class DataSourceController {
     public R<DsDetailVO> dsDetail(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<DsDetailVO>() {
             @Override
-            protected DsDetailVO process() throws BizException {
+            protected DsDetailVO process() throws RdosDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 return dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
             }
@@ -64,7 +64,7 @@ public class DataSourceController {
     public R<Boolean> deleteById(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<Boolean>() {
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 return dsInfoService.delDsInfo(dsInfoIdParam.getDataInfoId());
             }

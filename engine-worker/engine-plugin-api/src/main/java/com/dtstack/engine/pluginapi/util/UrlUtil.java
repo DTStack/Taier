@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.pluginapi.util;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,10 +34,6 @@ import java.util.regex.Pattern;
 public class UrlUtil {
 
 	private static Pattern URLPattern = Pattern.compile("^(?:(http[s]?)://)?([^:/\\?]+)(?::(\\d+))?([^\\?]*)\\??(.*)");
-	
-	public static String getHttpUrl(String node,String path){
-		return String.format("http://%s/%s", node,path);
-	}
 
 	/**
 	 * 返回URL请求的 ${域名:port}部分
@@ -46,7 +42,7 @@ public class UrlUtil {
 	public static String getHttpRootUrl(String url){
 		Matcher matcher = URLPattern.matcher(url);
 		if(!matcher.find()){
-			throw new RdosDefineException(String.format("url:%s is not regular HTTP_URL", url));
+			throw new PluginDefineException(String.format("url:%s is not regular HTTP_URL", url));
 		}
 
 		String protocol = matcher.group(1) == null ? "http" : matcher.group(1);

@@ -32,7 +32,7 @@ import com.dtstack.engine.master.vo.IComponentVO;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.utils.ComponentConfigUtils;
 import com.dtstack.engine.master.enums.DictType;
 import com.google.common.collect.Lists;

@@ -35,7 +35,7 @@ import com.dtstack.engine.pluginapi.client.AbstractClient;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
@@ -194,7 +194,7 @@ public class HadoopClient extends AbstractClient {
                         case FAILED:
                             return RdosTaskStatus.FAILED;
                         default:
-                            throw new RdosDefineException("Unsupported application state");
+                            throw new PluginDefineException("Unsupported application state");
                     }
                 } catch (Exception e) {
                     return RdosTaskStatus.NOTFOUND;
@@ -208,12 +208,12 @@ public class HadoopClient extends AbstractClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
+        throw new PluginDefineException("hadoop client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        throw new RdosDefineException("hadoop client not support method 'getJobMaster'");
+        throw new PluginDefineException("hadoop client not support method 'getJobMaster'");
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
@@ -262,13 +262,13 @@ public class HadoopClient extends AbstractClient {
                     InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
                     IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
                 } catch (Exception e) {
-                    throw new RdosDefineException(e);
+                    throw new PluginDefineException(e);
                 }
                 return null;
             }, conf);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -354,7 +354,7 @@ public class HadoopClient extends AbstractClient {
             }, conf);
         } catch (Exception e) {
             LOG.error("initSecurity happens error", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -381,7 +381,7 @@ public class HadoopClient extends AbstractClient {
                 String addFilePath = jarFileInfo.getJarPath();
                 //只支持hdfs
                 if(!addFilePath.startsWith(HDFS_PREFIX)) {
-                    throw new RdosDefineException("only support hdfs protocol for jar path");
+                    throw new PluginDefineException("only support hdfs protocol for jar path");
                 }
                 String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
                 try {
@@ -518,7 +518,7 @@ public class HadoopClient extends AbstractClient {
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
                     LOG.error("submit file {} to hdfs error", hdfsPath,e);
-                    throw new RdosDefineException("上传文件失败", e);
+                    throw new PluginDefineException("上传文件失败", e);
                 } finally {
                     if (null != fs) {
                         try {
@@ -533,7 +533,7 @@ public class HadoopClient extends AbstractClient {
                 return conf.get("fs.defaultFS") + hdfsPath;
             }, conf);
         } catch (Exception e) {
-            throw new RdosDefineException("上传文件失败", e);
+            throw new PluginDefineException("上传文件失败", e);
         }
     }
 
@@ -645,7 +645,7 @@ public class HadoopClient extends AbstractClient {
             }, conf);
 
         } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new PluginDefineException(e.getMessage());
         }
         return clusterResource;
     }

@@ -18,8 +18,8 @@
 
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class JsonUtils {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DtCenterDefException(ErrorCode.JSON_PARSING_FAILED);
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         return formatJson;
     }

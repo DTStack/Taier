@@ -19,26 +19,20 @@
 package com.dtstack.batch.utils;
 
 
+import com.dtstack.engine.common.constrant.Cookies;
+
 import javax.servlet.http.Cookie;
 
 public class CookieUtil {
 
-
-    public static final String DT_TOKEN = "dt_token";
-    public static final String DT_USERID = "dt_user_id";
-    public static final String DT_TENANT_ID = "dt_tenant_id";
-    public static final String USER_FILED = "userId";
-    public static final String TENANT_FILED = "tenantId";
-    public static final String TOKEN = "dtToken";
-
     public static String getDtUicToken(Cookie[] cookies) {
-        Object value = getCookieValue(cookies, DT_TOKEN);
+        Object value = getCookieValue(cookies, Cookies.TOKEN);
         return value == null ? "" : value.toString();
     }
 
 
     public static long getUserId(Cookie[] cookies) {
-        Object value = getCookieValue(cookies, DT_USERID);
+        Object value = getCookieValue(cookies, Cookies.USER_ID);
         return value == null ? -1 : Long.parseLong(value.toString());
     }
 

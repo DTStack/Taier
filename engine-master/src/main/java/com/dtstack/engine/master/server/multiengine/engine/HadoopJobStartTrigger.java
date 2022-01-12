@@ -43,7 +43,7 @@ import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;

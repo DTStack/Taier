@@ -25,7 +25,7 @@ import com.dtstack.engine.common.enums.EComponentScheduleType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.EngineAssert;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.*;
@@ -33,8 +33,7 @@ import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -92,7 +91,6 @@ public class ClusterService {
 
     public ClusterVO getClusterByName(String clusterName) {
         Cluster cluster = clusterMapper.getByClusterName(clusterName);
-        EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
         return ClusterVO.toVO(cluster);
     }
 
@@ -358,7 +356,9 @@ public class ClusterService {
      */
     public ClusterVO getConsoleClusterInfo(Long clusterId) {
         Cluster cluster = clusterMapper.getOne(clusterId);
-        EngineAssert.assertTrue(cluster != null, ErrorCode.DATA_NOT_FIND.getDescription());
+        if(null == cluster){
+            return new ClusterVO();
+        }
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
         // 查询默认版本或者多个版本
         List<Component> components = componentMapper.listByClusterId(clusterId,null,false);

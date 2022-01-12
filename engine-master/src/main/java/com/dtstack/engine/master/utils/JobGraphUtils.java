@@ -22,7 +22,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.scheduler.parser.*;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.collect.Lists;

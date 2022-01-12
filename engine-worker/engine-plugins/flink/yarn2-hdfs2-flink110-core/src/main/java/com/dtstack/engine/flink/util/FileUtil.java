@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.util;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,7 +51,7 @@ public class FileUtil {
     public static void checkFileExist(String filePath) {
         if (StringUtils.isNotBlank(filePath)) {
             if (!new File(filePath).exists()) {
-                throw new RdosDefineException(String.format("The file jar %s  path is not exist ", filePath));
+                throw new PluginDefineException(String.format("The file jar %s  path is not exist ", filePath));
             }
         }
     }
@@ -59,7 +59,7 @@ public class FileUtil {
     public static InputStream readStreamFromFile(String filePath, Configuration hadoopConf) throws URISyntaxException, IOException {
         Pair<String, String> pair = parseHdfsUri(filePath);
         if(pair == null){
-            throw new RdosDefineException("can't parse hdfs url from given uriStr:" + filePath);
+            throw new PluginDefineException("can't parse hdfs url from given uriStr:" + filePath);
         }
 
         String hdfsUri = pair.getLeft();

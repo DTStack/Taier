@@ -19,7 +19,7 @@
 package com.dtstack.engine.sparkyarn.sparkext;
 
 import com.dtstack.engine.base.filesystem.FilesystemManager;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.sparkyarn.sparkyarn.SparkYarnConfig;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
@@ -100,7 +100,7 @@ public class ClientExt extends DtClient {
         try {
             Files.createParentDirs(dirFile);
         } catch (IOException e) {
-            throw new RdosDefineException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
+            throw new PluginDefineException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
         }
 
         if (dirFile.exists()) {
@@ -110,7 +110,7 @@ public class ClientExt extends DtClient {
             }
         } else {
             if (!dirFile.mkdir()) {
-                throw new RdosDefineException(String.format("can not create dir '%s' on engine", confFileDirName));
+                throw new PluginDefineException(String.format("can not create dir '%s' on engine", confFileDirName));
             }
         }
 
@@ -118,7 +118,7 @@ public class ClientExt extends DtClient {
         boolean downLoadSuccess = filesystemManager.downloadDir(remotePath, confFileDirName);
         LOG.info("downloadDir remotePath:{} confFileDirName:{} status is: {} ", remotePath, confFileDirName, downLoadSuccess);
         if (!downLoadSuccess) {
-            throw new RdosDefineException("yarn-site.xml/hdfs-site.xml/hive-site.xml configuration download failed");
+            throw new PluginDefineException("yarn-site.xml/hdfs-site.xml/hive-site.xml configuration download failed");
         }
 
         return confFileDirName;

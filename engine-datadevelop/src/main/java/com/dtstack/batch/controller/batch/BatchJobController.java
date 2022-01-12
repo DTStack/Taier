@@ -24,7 +24,7 @@ import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.web.job.vo.query.*;
 import com.dtstack.batch.web.job.vo.result.*;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.ScheduleJob;
@@ -54,7 +54,7 @@ public class BatchJobController {
 
         return new APITemplate<String>() {
             @Override
-            protected String process() throws BizException {
+            protected String process() throws RdosDefineException {
                 return batchJobService.updateStatusById(vo.getJobId(), vo.getStatus());
             }
         }.execute();
@@ -66,7 +66,7 @@ public class BatchJobController {
 
         return new APITemplate<String>() {
             @Override
-            protected String process() throws BizException {
+            protected String process() throws RdosDefineException {
                 return batchJobService.updateStatus(vo.getJobId(), vo.getStatus(), vo.getMsg());
             }
         }.execute();
@@ -78,7 +78,7 @@ public class BatchJobController {
 
         return new APITemplate<String>() {
             @Override
-            protected String process() throws BizException {
+            protected String process() throws RdosDefineException {
                 return batchJobService.stopJob(vo.getJobId(), vo.getUserId(), vo.getIsRoot());
             }
         }.execute();
@@ -91,7 +91,7 @@ public class BatchJobController {
         return new APITemplate<BatchStartSyncResultVO>() {
 
             @Override
-            protected BatchStartSyncResultVO process() throws BizException {
+            protected BatchStartSyncResultVO process() throws RdosDefineException {
                 return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId(), vo.getTaskParams());
             }
         }.execute();
@@ -103,7 +103,7 @@ public class BatchJobController {
 
         return new APITemplate<BatchGetSyncTaskStatusInnerResultVO>() {
             @Override
-            protected BatchGetSyncTaskStatusInnerResultVO process() throws BizException {
+            protected BatchGetSyncTaskStatusInnerResultVO process() throws RdosDefineException {
                 return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId(), vo.getUserId());
             }
         }.execute();
@@ -115,7 +115,7 @@ public class BatchJobController {
 
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws BizException {
+            protected Void process() throws RdosDefineException {
                 batchJobService.stopSyncJob(vo.getJobId());
                 return null;
             }
@@ -128,7 +128,7 @@ public class BatchJobController {
 
         return new APITemplate<BatchExecuteResultVO>() {
             @Override
-            protected BatchExecuteResultVO process() throws BizException {
+            protected BatchExecuteResultVO process() throws RdosDefineException {
                 ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd(), vo.getTaskParams());
                 return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
             }
@@ -141,7 +141,7 @@ public class BatchJobController {
 
         return new APITemplate<BatchExecuteSqlParseResultVO>() {
             @Override
-            protected BatchExecuteSqlParseResultVO process() throws BizException {
+            protected BatchExecuteSqlParseResultVO process() throws RdosDefineException {
                 ExecuteSqlParseVO executeSqlParseVO = batchJobService.startSqlSophisticated(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSqlList(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot());
                 return BatchJobMapstructTransfer.INSTANCE.executeSqlParseVOToBatchExecuteSqlParseResultVO(executeSqlParseVO);
             }
@@ -155,7 +155,7 @@ public class BatchJobController {
 
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws BizException {
+            protected Void process() throws RdosDefineException {
                 batchJobService.stopSqlImmediately(vo.getJobId(), vo.getTenantId());
                 return null;
             }
@@ -168,7 +168,7 @@ public class BatchJobController {
 
         return new APITemplate<BatchScheduleJobExeStaticsResultVO>() {
             @Override
-            protected BatchScheduleJobExeStaticsResultVO process() throws BizException {
+            protected BatchScheduleJobExeStaticsResultVO process() throws RdosDefineException {
                 ScheduleJobExeStaticsVO scheduleJobExeStaticsVO = batchJobService.statisticsTaskRecentInfo(vo.getTaskId(), vo.getCount(), vo.getTenantId());
                 return BatchJobMapstructTransfer.INSTANCE.scheduleJobExeStaticsVOToBatchScheduleJobExeStaticsResultVO(scheduleJobExeStaticsVO);
             }
@@ -182,7 +182,7 @@ public class BatchJobController {
 
         return new APITemplate<List<String>>() {
             @Override
-            protected List<String> process() throws BizException {
+            protected List<String> process() throws RdosDefineException {
                 return batchJobService.listJobIdByTaskNameAndStatusList(vo.getTaskName(), vo.getStatusList(), vo.getTenantId());
             }
         }.execute();
@@ -193,7 +193,7 @@ public class BatchJobController {
     public R<Map<String, BatchGetLabTaskRelationMapResultVO>> getLabTaskRelationMap(@RequestBody BatchJobListJobIdByNameVO vo) {
         return new APITemplate<Map<String, BatchGetLabTaskRelationMapResultVO>>() {
             @Override
-            protected Map<String, BatchGetLabTaskRelationMapResultVO> process() throws BizException {
+            protected Map<String, BatchGetLabTaskRelationMapResultVO> process() throws RdosDefineException {
                 Map<String, ScheduleJob> labTaskRelationMap = batchJobService.getLabTaskRelationMap(vo.getJobIdList(), vo.getTenantId());
                 return BatchJobMapstructTransfer.INSTANCE.scheduleJobMapToBatchGetLabTaskRelationMapResultVOMap(labTaskRelationMap);
             }
@@ -205,7 +205,7 @@ public class BatchJobController {
     public R<String> getEngineJobId(@RequestBody BatchJobGetEngineJobIdVO vo) {
         return new APITemplate<String>() {
             @Override
-            protected String process() throws BizException {
+            protected String process() throws RdosDefineException {
                 return batchJobService.getEngineJobId(vo.getJobId());
             }
         }.execute();
@@ -216,7 +216,7 @@ public class BatchJobController {
     public R<BatchJobFindTaskRuleJobResultVO> findTaskRuleJob(@RequestBody BatchJobFindTaskRuleJobVO vo) {
         return new APITemplate<BatchJobFindTaskRuleJobResultVO>() {
             @Override
-            protected BatchJobFindTaskRuleJobResultVO process() throws BizException {
+            protected BatchJobFindTaskRuleJobResultVO process() throws RdosDefineException {
                 return null;
 //                return BatchJobMapstructTransfer.INSTANCE.scheduleDetailsVOToBatchJobFindTaskRuleJobResultVO(batchJobService.findTaskRuleJob(vo.getJobId()));
             }

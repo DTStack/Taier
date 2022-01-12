@@ -26,7 +26,7 @@ import com.dtstack.engine.master.server.listener.Listener;
 import com.dtstack.engine.master.server.listener.MasterListener;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;

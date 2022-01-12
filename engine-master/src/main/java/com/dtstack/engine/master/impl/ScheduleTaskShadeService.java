@@ -39,7 +39,7 @@ import com.dtstack.engine.master.vo.task.TaskTypeVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.collect.Lists;

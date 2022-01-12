@@ -20,7 +20,7 @@ package com.dtstack.engine.base.util;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -78,7 +78,7 @@ public class KerberosUtils {
             return ugi.doAs((PrivilegedExceptionAction<T>) supplier::get);
         } catch (Exception e) {
             logger.error("loginKerberosWithCallBack error: ", e);
-            throw new RdosDefineException("doAs error: " + e.getMessage());
+            throw new PluginDefineException("doAs error: " + e.getMessage());
         }
     }
 
@@ -114,7 +114,7 @@ public class KerberosUtils {
                 return loginKerberosWithCallBack(ugi, supplier);
             }
             logger.error("retryLoginKerberosWithCallBack: ", e);
-            throw new RdosDefineException("doAs error: " + e);
+            throw new PluginDefineException("doAs error: " + e);
         }
     }
 
@@ -211,7 +211,7 @@ public class KerberosUtils {
             Preconditions.checkNotNull(ugi, "UserGroupInformation is null");
             return KerberosUtils.retryLoginKerberosWithCallBack(ugi, supplier, finalKrb5ConfPath, configuration, finalPrincipal, finalKeytabPath, threadName, config.getKrbName(), isMergeKrb5);
         } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new PluginDefineException(e.getMessage());
         }
     }
 
@@ -309,7 +309,7 @@ public class KerberosUtils {
             return UserGroupInformation.loginUserFromKeytabAndReturnUGI(principal, keytabPath);
         } catch (Exception e) {
             logger.error("Create ugi error, {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -354,7 +354,7 @@ public class KerberosUtils {
             keytab = Keytab.loadKeytab(new File(filePath));
         } catch (IOException e) {
             logger.error("Principal {} parse error e: {}!", filePath, e.getMessage());
-            throw new RdosDefineException("keytab文件解析异常", e);
+            throw new PluginDefineException("keytab文件解析异常", e);
         }
         List<PrincipalName> principals = keytab.getPrincipals();
         String principal = "";
@@ -369,13 +369,13 @@ public class KerberosUtils {
 
     private static void checkParams(String principal, String krb5ConfPath, String keytabPath) {
         if (StringUtils.isEmpty(principal)) {
-            throw new RdosDefineException("principal is null！");
+            throw new PluginDefineException("principal is null！");
         }
         if (StringUtils.isEmpty(krb5ConfPath)) {
-            throw new RdosDefineException("krb5.conf not exists！");
+            throw new PluginDefineException("krb5.conf not exists！");
         }
         if (StringUtils.isEmpty(keytabPath)) {
-            throw new RdosDefineException("keytab not exists！");
+            throw new PluginDefineException("keytab not exists！");
         }
     }
 
@@ -404,7 +404,7 @@ public class KerberosUtils {
                 try {
                     Files.write(Paths.get(krb5ConfPath), Collections.singleton(config.getMergeKrbContent()));
                 } catch (IOException e) {
-                    throw new RdosDefineException(e);
+                    throw new PluginDefineException(e);
                 }
             } else {
                 krb5ConfPath = sftpFileManage.cacheOverloadFile(krb5FileName, remoteDir, localDir);
