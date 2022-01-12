@@ -36,7 +36,7 @@ import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;

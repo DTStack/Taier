@@ -16,7 +16,7 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import com.dtstack.batch.utils.CookieUtil;
+import com.dtstack.engine.common.constrant.Cookies;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;
@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
 import javax.servlet.http.Cookie;
@@ -168,9 +167,9 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		}
 
 		if (null != arg) {
-			setBaseInfo(arg, servletRequest, CookieUtil.TENANT_FILED, CookieUtil.DT_TENANT_ID, (request) -> null);
-			setBaseInfo(arg, servletRequest, CookieUtil.USER_FILED, CookieUtil.DT_USERID, (request) -> null);
-			setBaseInfo(arg, servletRequest, CookieUtil.TOKEN, CookieUtil.DT_TOKEN, (request) -> null);
+			setBaseInfo(arg, servletRequest, Cookies.TENANT_ID, Cookies.TENANT_FILED, (request) -> null);
+			setBaseInfo(arg, servletRequest, Cookies.USER_ID, Cookies.USER_FILED, (request) -> null);
+			setBaseInfo(arg, servletRequest, Cookies.TOKEN, Cookies.TOKEN, (request) -> null);
 		}
 		return arg;
 	}

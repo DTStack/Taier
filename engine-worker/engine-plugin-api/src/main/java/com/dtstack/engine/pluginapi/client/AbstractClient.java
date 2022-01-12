@@ -18,12 +18,11 @@
 
 package com.dtstack.engine.pluginapi.client;
 
-import com.dtstack.engine.pluginapi.pojo.*;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.pojo.Column;
+import com.dtstack.engine.pluginapi.pojo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,10 +120,6 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
-    @Override
-    public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
-        return null;
-    }
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
@@ -153,17 +148,8 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public List<Column> getAllColumns(String tableName, String schemaName, String dbName) {
-        return null;
-    }
-
-    @Override
     public CheckResult grammarCheck(JobClient jobClient){
         return null;
     }
 
-    @Override
-    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo) {
-        return null;
-    }
 }

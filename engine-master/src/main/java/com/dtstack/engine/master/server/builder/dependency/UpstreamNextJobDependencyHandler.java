@@ -7,7 +7,7 @@ import com.dtstack.engine.master.enums.RelyType;
 import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.utils.JobKeyUtils;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

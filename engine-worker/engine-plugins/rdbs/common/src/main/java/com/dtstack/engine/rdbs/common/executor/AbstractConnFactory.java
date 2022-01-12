@@ -20,7 +20,7 @@ package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.rdbs.common.constant.ConfigConstant;
@@ -88,7 +88,7 @@ public abstract class AbstractConnFactory {
             }
             testConn();
         } catch (Exception e) {
-            throw new RdosDefineException("get conn exception:" + e.toString());
+            throw new PluginDefineException("get conn exception:" + e.toString());
         }
     }
 
@@ -100,7 +100,7 @@ public abstract class AbstractConnFactory {
             stmt = conn.createStatement();
             stmt.execute(testSql);
         }catch (Exception e){
-            throw new RdosDefineException("get conn exception:" + e.toString());
+            throw new PluginDefineException("get conn exception:" + e.toString());
         }finally {
 
             try{
@@ -128,7 +128,7 @@ public abstract class AbstractConnFactory {
                     conn = DriverManager.getConnection(jdbcUrl, username, password);
                 }
             } catch (SQLException e) {
-                throw new RdosDefineException("get conn exception:" + e.toString());
+                throw new PluginDefineException("get conn exception:" + e.toString());
             }
             return conn;
         }, yarnConf);

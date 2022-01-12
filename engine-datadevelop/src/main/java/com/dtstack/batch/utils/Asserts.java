@@ -1,8 +1,8 @@
 package com.dtstack.batch.utils;
 
 
-import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.base.Validates;
 import com.dtstack.engine.common.util.Collections;
 
@@ -39,7 +39,7 @@ public class Asserts {
      */
     public static void isTrue(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -71,7 +71,7 @@ public class Asserts {
      */
     public static void isFalse(boolean expression, String format, Object... args) {
         if (expression) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -102,7 +102,7 @@ public class Asserts {
      */
     public static void isNull(Object object, String format, Object... args) {
         if (!Validates.isNull(object)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -128,7 +128,7 @@ public class Asserts {
      */
     public static void notNull(Object object, String format, Object... args) {
         if (!Validates.nonNull(object)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -143,7 +143,7 @@ public class Asserts {
      */
     public static void between(Integer number, Integer start, Integer end, String format, Object... args) {
         if (number < start || number > end) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -221,7 +221,7 @@ public class Asserts {
      */
     public static final void hasLength(String text, String format, Object... args) {
         if (text == null || Strings.isEmpty(text)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -242,7 +242,7 @@ public class Asserts {
         if (text == null
                 || text.length() < start
                 || text.length() > end) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -257,7 +257,7 @@ public class Asserts {
     public static final void lengthLessEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() > limit) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -277,7 +277,7 @@ public class Asserts {
     public static final void lengthEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() != limit) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -303,7 +303,7 @@ public class Asserts {
      */
     public static final void hasText(String text, String format, Object... args) {
         if (text == null || Strings.isBlank(text)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -320,7 +320,7 @@ public class Asserts {
      */
     public static final void notEmpty(Collection collection, String format, Object... args) {
         if (!Collections.nonEmpty(collection)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 }

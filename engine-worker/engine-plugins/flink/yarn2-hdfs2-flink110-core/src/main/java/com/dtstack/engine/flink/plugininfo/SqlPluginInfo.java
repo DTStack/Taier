@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.pluginapi.JarFileInfo;
 import com.dtstack.engine.pluginapi.JobClient;
@@ -130,7 +130,7 @@ public class SqlPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosDefineException("Can not find core jar file in sqlPlugin path: " + localSqlPluginDir);
+            throw new PluginDefineException("Can not find core jar file in sqlPlugin path: " + localSqlPluginDir);
         }
 
         return coreJarFileName;

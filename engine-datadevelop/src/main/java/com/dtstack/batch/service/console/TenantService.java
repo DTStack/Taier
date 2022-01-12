@@ -30,6 +30,8 @@ import com.dtstack.batch.vo.console.ClusterTenantVO;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ClusterTenant;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.Tenant;
@@ -40,8 +42,6 @@ import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,7 +188,7 @@ public class TenantService {
         if (tenant != null) {
             return tenant;
         }
-        throw new RdosDefineException(ErrorCode.TENANT_CAN_NOT_FIND);
+        throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
     public Tenant getByDtUicTenantId(Long tenantId) {

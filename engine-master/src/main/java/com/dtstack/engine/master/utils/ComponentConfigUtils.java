@@ -24,7 +24,7 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.domain.ComponentConfig;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.common.enums.EFrontType;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.sftp.SftpConfig;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.collections.MapUtils;

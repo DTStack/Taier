@@ -19,7 +19,7 @@
 package com.dtstack.engine.master.server.builder.cron;
 
 import com.dtstack.engine.master.server.builder.ScheduleConf;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * 按天调度解析

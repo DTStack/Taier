@@ -20,7 +20,7 @@ package com.dtstack.engine.master.server.builder.cron;
 
 import com.alibaba.fastjson.JSON;
 import com.dtstack.engine.master.server.builder.ScheduleConf;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

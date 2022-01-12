@@ -5,7 +5,7 @@ import com.dtstack.batch.bo.datasource.DsTypeVersionParam;
 import com.dtstack.batch.service.datasource.impl.DsFormFieldService;
 import com.dtstack.batch.utils.Asserts;
 import com.dtstack.batch.vo.datasource.DsFormTemplateVo;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.common.util.APITemplate;
 import io.swagger.annotations.Api;
@@ -36,7 +36,7 @@ public class DatasourceFormController {
                 Asserts.hasText(param.getDataType(), "数据源类型不能为空!");
             }
             @Override
-            protected DsFormTemplateVo process() throws BizException {
+            protected DsFormTemplateVo process() throws RdosDefineException {
                 return dsFormFieldService.findTemplateByTypeVersion(param);
             }
         }.execute();
