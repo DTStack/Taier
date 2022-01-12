@@ -20,9 +20,6 @@ package com.dtstack.batch;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.dtstack.engine.common.security.NoExitSecurityManager;
 import com.dtstack.engine.common.util.JavaPolicyUtils;
 import com.dtstack.engine.common.util.ShutdownHookUtil;
@@ -32,13 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 
 /**
@@ -46,14 +39,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
  * author: toutian
  * create: 2020/07/08
  */
-@SpringBootApplication(exclude = {
-        RedisAutoConfiguration.class,
-        RedisRepositoriesAutoConfiguration.class
-})
+@SpringBootApplication
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableCaching
 @EnableScheduling
-@EnableWebMvc
 @MapperScan("com.dtstack.engine.mapper")
 public class EngineApplication {
 
