@@ -26,7 +26,7 @@ import com.dtstack.engine.pluginapi.client.AbstractClient;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import com.dtstack.engine.pluginapi.util.MathUtil;
@@ -99,7 +99,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {
-        throw new RdosDefineException(dbType + "client not support MR job");
+        throw new PluginDefineException(dbType + "client not support MR job");
     }
 
     @Override
@@ -121,12 +121,12 @@ public abstract class AbstractRdbsClient extends AbstractClient {
 
     @Override
     public String getJobMaster(JobIdentifier jobIdentifier) {
-        throw new RdosDefineException(dbType + " client not support method 'getJobMaster'");
+        throw new PluginDefineException(dbType + " client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        throw new RdosDefineException(dbType + "client not support method 'getMessageByHttp'");
+        throw new PluginDefineException(dbType + "client not support method 'getMessageByHttp'");
     }
 
     @Override
@@ -215,7 +215,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
             }
         } catch (Exception e) {
             LOG.error("execue sql {} error",sql,e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         } finally {
             try {
                 if (res != null) {

@@ -1,27 +1,34 @@
 package com.dtstack.batch.config;
 
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.ExceptionEnums;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.ExceptionEnums;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.util.List;
 
-@Configuration
-public class ExceptionConfig {
+@ControllerAdvice("com.dtstack.*.controller")
+public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExceptionConfig.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ResponseAdvisor.class);
 
     /**
      * ValidationException
@@ -76,7 +83,7 @@ public class ExceptionConfig {
         ExceptionEnums errorCode = ErrorCode.UNKNOWN_ERROR;
         String errorMsg = null;
         RdosDefineException rdosDefineException = null;
-        if (e.getCause() instanceof RdosDefineException) {
+        if (e.getCause() instanceof DtCenterDefException) {
             rdosDefineException = (RdosDefineException) e.getCause();
             if (rdosDefineException.getErrorCode() != null) {
                 errorCode = rdosDefineException.getErrorCode();
@@ -104,5 +111,26 @@ public class ExceptionConfig {
             return R.fail(errorCode.getCode(), errorMsg);
         }
         return R.fail(errorCode.getCode(), errorMsg);
+    }
+
+    @Override
+    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+        return true;
+    }
+
+    @Override
+    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+        String requestPath = request.getURI().getPath();
+        if (!requestPath.startsWith("/node") && !requestPath.startsWith("/api/rdos")) {
+            return body;
+        }
+        R<Object> resultBody = new R<>();
+        if (body instanceof R) {
+            return body;
+        } else {
+            resultBody.setData(body);
+        }
+        resultBody.setCode(ErrorCode.SUCCESS.getCode());
+        return resultBody;
     }
 }

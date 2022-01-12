@@ -22,7 +22,7 @@ package com.dtstack.engine.base.monitor;
 import com.dtstack.engine.base.BaseConfig;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -85,7 +85,7 @@ public class AcceptedApplicationMonitor implements Runnable {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
             if (yarnClient == null) {
-                throw new RdosDefineException("AcceptedApplicationMonitor init yarnClient fail");
+                throw new PluginDefineException("AcceptedApplicationMonitor init yarnClient fail");
             }
             List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
                     filter(report -> report.getQueue().endsWith(queueName)).collect(Collectors.toList());

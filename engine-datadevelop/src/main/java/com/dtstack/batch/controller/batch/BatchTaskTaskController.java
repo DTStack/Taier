@@ -25,7 +25,7 @@ import com.dtstack.batch.web.task.vo.query.BatchTaskTaskAddOrUpdateVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskDisplayOffSpringVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskFindTaskRuleTaskVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskTaskFindTaskRuleTaskResultVO;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
@@ -75,7 +75,7 @@ public class BatchTaskTaskController {
     public R<BatchTaskTaskFindTaskRuleTaskResultVO> findTaskRuleTask(@RequestBody BatchTaskTaskFindTaskRuleTaskVO vo) {
         return new APITemplate<BatchTaskTaskFindTaskRuleTaskResultVO>() {
             @Override
-            protected BatchTaskTaskFindTaskRuleTaskResultVO process() throws BizException {
+            protected BatchTaskTaskFindTaskRuleTaskResultVO process() throws RdosDefineException {
 //                return TaskMapstructTransfer.INSTANCE.scheduleDetailsVOToBatchTaskTaskFindTaskRuleTaskResultVO(taskService.findTaskRuleTask(vo.getTaskId(), vo.getAppType()));
                 return null;
             }

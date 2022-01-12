@@ -18,18 +18,18 @@
 
 package com.dtstack.engine.common.client;
 
-import com.dtstack.engine.pluginapi.client.IClient;
-import com.dtstack.engine.pluginapi.pojo.*;
+import com.dtstack.engine.common.exception.LimitResourceException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.callback.CallBack;
 import com.dtstack.engine.pluginapi.callback.ClassLoaderCallBackMethod;
+import com.dtstack.engine.pluginapi.client.IClient;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ClientArgumentException;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.common.exception.LimitResourceException;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.pojo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,26 +243,6 @@ public class ClientProxy implements IClient {
         throw new RdosDefineException(e);
     }
 
-    @Override
-    public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<List<String>>() {
-
-                        @Override
-                        public List<String> execute() throws Exception {
-                            return targetClient.getContainerInfos(jobIdentifier);
-                        }
-                    }, targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
 
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
@@ -360,23 +340,6 @@ public class ClientProxy implements IClient {
 
 
     @Override
-    public List<Column> getAllColumns(String tableName,String schemaName, String dbName) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getAllColumns(tableName,schemaName,dbName),
-                            targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            LOGGER.error("getAllColumnsException,e:{}",ExceptionUtil.getErrorMessage(e));
-            throw new RdosDefineException(e);
-        }
-    }
-
-    @Override
     public CheckResult grammarCheck(JobClient jobClient) {
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -391,18 +354,4 @@ public class ClientProxy implements IClient {
         }
     }
 
-    @Override
-    public List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.getDtScriptAgentLabel(pluginInfo), targetClient.getClass().getClassLoader(), true);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e);
-                }
-            }, executorService).get(timeout, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RdosDefineException(e);
-        }
-    }
 }

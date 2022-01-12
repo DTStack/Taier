@@ -19,7 +19,7 @@
 package com.dtstack.engine.hadoop.parser;
 
 import com.dtstack.engine.pluginapi.JarFileInfo;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +33,7 @@ public class AddJarOperator {
 
 		Matcher matcher = pattern.matcher(sql);
 		if(!matcher.find()){
-			throw new RdosDefineException("not a addJar operator:" + sql);
+			throw new PluginDefineException("not a addJar operator:" + sql);
 		}
 
 		JarFileInfo jarFileInfo = new JarFileInfo();

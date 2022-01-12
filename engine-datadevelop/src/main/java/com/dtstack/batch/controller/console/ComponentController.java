@@ -26,7 +26,7 @@ import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.engine.master.vo.KerberosConfigVO;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;

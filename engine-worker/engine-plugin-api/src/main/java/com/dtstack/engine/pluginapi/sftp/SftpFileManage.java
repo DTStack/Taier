@@ -19,7 +19,7 @@
 package com.dtstack.engine.pluginapi.sftp;
 
 import com.dtstack.engine.pluginapi.IFileManage;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
@@ -319,7 +319,7 @@ public class SftpFileManage implements IFileManage {
             return true;
         } catch (Exception e) {
             LOGGER.error("sftp downloadDir error {}", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         } finally {
             close(channelSftp);
         }
@@ -497,7 +497,7 @@ public class SftpFileManage implements IFileManage {
             return vector;
         } catch (SftpException e) {
             LOGGER.error("listFile  error", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         } finally {
             close(channelSftp);
         }

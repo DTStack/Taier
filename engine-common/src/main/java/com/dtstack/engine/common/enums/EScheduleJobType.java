@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.common.enums;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 public enum EScheduleJobType {
 

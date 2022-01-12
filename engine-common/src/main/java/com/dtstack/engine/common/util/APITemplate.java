@@ -5,8 +5,8 @@
 
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public abstract class APITemplate<T> {
     protected void checkParams() throws IllegalArgumentException {
     }
 
-    protected abstract T process() throws BizException;
+    protected abstract T process() throws RdosDefineException;
 
     protected void afterProcess() {
     }
@@ -41,13 +41,13 @@ public abstract class APITemplate<T> {
             this.checkParams();
         } catch (IllegalArgumentException var18) {
             if (this.log.isInfoEnabled()) {
-                this.log.info("param check error:{}", var18);
+                this.log.info("param check error", var18);
             }
 
             throw var18;
-        } catch (BizException var19) {
+        } catch (RdosDefineException var19) {
             this.onError(var19);
-            return R.fail(var19.getCode(), var19.getMessage());
+            return R.fail(var19.getErrorCode().getCode(), var19.getMessage());
         } catch (DtCenterDefException var20) {
             this.onError(var20);
             return R.fail(var20.getCode(), var20.getMessage());
@@ -67,9 +67,9 @@ public abstract class APITemplate<T> {
                     var4 = R.ok(r);
                     var17 = false;
                     break label146;
-                } catch (BizException var21) {
+                } catch (RdosDefineException var21) {
                     this.onError(var21);
-                    var4 = R.fail(var21.getCode(), var21.getMessage());
+                    var4 = R.fail(var21.getErrorCode().getCode(), var21.getMessage());
                     var17 = false;
                 } catch (DtCenterDefException var22) {
                     this.onError(var22);

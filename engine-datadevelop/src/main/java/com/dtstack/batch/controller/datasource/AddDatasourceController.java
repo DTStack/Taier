@@ -23,7 +23,7 @@ import com.dtstack.batch.web.datasource.vo.query.BatchDataSourcePreviewVO;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableColumnVO;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableListVO;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableLocationVO;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.common.util.APITemplate;
 import com.dtstack.engine.common.util.DataSourceUtils;
@@ -103,7 +103,7 @@ public class AddDatasourceController {
                 Asserts.hasText(addDataSourceParam.getDataType(), "数据源类型不能为空!");
             }
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.checkConnection(dataSourceVO);
             }
@@ -125,7 +125,7 @@ public class AddDatasourceController {
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
@@ -149,7 +149,7 @@ public class AddDatasourceController {
                 }
             }
             @Override
-            protected Long process() throws BizException {
+            protected Long process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.addOrUpdateSource(dataSourceVO, dataSourceVO.getUserId());
             }
@@ -170,7 +170,7 @@ public class AddDatasourceController {
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
             @Override
-            protected Long process() throws BizException {
+            protected Long process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);

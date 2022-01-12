@@ -22,7 +22,6 @@ package com.dtstack.batch.service.login;
 import com.dtstack.batch.domain.login.DTToken;
 import com.dtstack.batch.domain.login.DtUser;
 import com.dtstack.engine.common.constrant.Cookies;
-import com.dtstack.engine.dto.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * @author toutian
@@ -48,27 +45,6 @@ public class LoginService {
 
     @Autowired
     private TokenService tokenService;
-
-
-    public void login(DtUser dtUicUser, Consumer<UserDTO> resultHandler) {
-        try {
-            if (dtUicUser == null) {
-                resultHandler.accept(null);
-                return;
-            }
-            boolean isRootUser = Optional.ofNullable(dtUicUser.getRootOnly()).orElse(false);
-            LOGGER.info("dtUic userId [{}] userName {} tenantId {} is Root {} login", dtUicUser.getUserId(), dtUicUser.getUserName(), dtUicUser.getTenantId(), isRootUser);
-            UserDTO userDTO = new UserDTO();
-            userDTO.setDtuicUserId(dtUicUser.getUserId());
-            userDTO.setTenantId(dtUicUser.getTenantId());
-            userDTO.setUserName(dtUicUser.getUserName());
-            userDTO.setRootUser(isRootUser ? 1 : 0);
-            resultHandler.accept(userDTO);
-        } catch (Throwable e) {
-            LOGGER.error("login fail:", e);
-            throw e;
-        }
-    }
 
 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, DtUser dtUicUser) {
@@ -96,16 +72,12 @@ public class LoginService {
         Objects.requireNonNull(user);
 
         String token = tokenService.encryption(user.getUserId(), user.getUserName(), user.getTenantId());
-        cookieService.addCookie(request, response, Cookies.DT_USER_ID, user.getUserId());
-        cookieService.addCookie(request, response, Cookies.DT_USER_NAME, user.getUserName());
-        cookieService.addCookie(request, response, Cookies.DT_TOKEN, token);
-
-        cookieService.addCookie(request, response, Cookies.CREATE_USER_ID, user.getUserId());
-        cookieService.addCookie(request, response, Cookies.MODIFY_USER_ID, user.getUserId());
-
+        cookieService.addCookie(request, response, Cookies.USER_ID, user.getUserId());
+        cookieService.addCookie(request, response, Cookies.USER_NAME, user.getUserName());
+        cookieService.addCookie(request, response, Cookies.TOKEN, token);
         if (null != user.getTenantId()) {
-            cookieService.addCookie(request, response, Cookies.DT_TENANT_ID, user.getTenantId());
-            cookieService.addCookie(request, response, Cookies.DT_TENANT_NAME, user.getTenantName());
+            cookieService.addCookie(request, response, Cookies.TENANT_ID, user.getTenantId());
+            cookieService.addCookie(request, response, Cookies.TENANT_NAME, user.getTenantName());
         }
     }
 

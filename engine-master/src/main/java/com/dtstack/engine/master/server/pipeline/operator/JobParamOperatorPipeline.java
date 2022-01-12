@@ -20,7 +20,7 @@ package com.dtstack.engine.master.server.pipeline.operator;
 
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.scheduler.JobParamReplace;
 import org.apache.commons.lang.StringUtils;

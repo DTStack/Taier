@@ -186,7 +186,7 @@ public class FailoverStrategy {
                             continue;
                         }
 
-                        PoolHttpClient.post(UrlUtil.getHttpUrl(nodeAddress, MASTER_TRIGGER_NODE), null);
+                        PoolHttpClient.post(String.format("http://%s/%s", node,MASTER_TRIGGER_NODE), null);
                     }
                     LOGGER.warn("----- nodeAddress:{} node disaster recovery task ends and resumes-----", node);
                 }

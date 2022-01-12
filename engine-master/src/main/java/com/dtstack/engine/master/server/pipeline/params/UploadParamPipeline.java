@@ -19,15 +19,15 @@
 package com.dtstack.engine.master.server.pipeline.params;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
-import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.scheduler.JobParamReplace;
-import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.enums;
 
-import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  *
@@ -114,6 +114,6 @@ public enum EJobType {
             }
 
         }
-        throw new DtCenterDefException(ErrorCode.TASK_TYPE_NOT_SUPPORT);
+        throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
     }
 }

@@ -18,14 +18,19 @@
 
 package com.dtstack.engine.pluginapi.exception;
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/2/12
- */
-public interface ExceptionEnums {
 
-    int getCode();
+public class PluginDefineException extends RuntimeException {
 
-    String getDescription();
+    public PluginDefineException(Throwable cause){
+        super(cause);
+    }
+
+    public PluginDefineException(String errorMessage){
+        super(errorMessage);
+    }
+
+    public PluginDefineException(String errorMessage,Throwable throwable){
+        super(errorMessage,throwable);
+    }
+
 }

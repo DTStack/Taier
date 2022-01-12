@@ -8,7 +8,7 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.service.JobGraphTriggerService;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
