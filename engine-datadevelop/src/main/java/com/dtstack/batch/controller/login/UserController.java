@@ -24,11 +24,12 @@ import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.login.CookieService;
 import com.dtstack.batch.service.login.LoginService;
 import com.dtstack.batch.service.login.TokenService;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.UserService;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
@@ -46,9 +47,9 @@ import javax.servlet.http.HttpServletResponse;
  * @date 2021-08-02
  */
 @RestController
-@RequestMapping("/node/login")
-@Api(value = "/node/login", tags = {"登录接口"})
-public class LoginController {
+@RequestMapping("/node/user")
+@Api(value = "/node/user", tags = {"登录接口"})
+public class UserController {
 
     @Autowired
     private LoginService loginService;
@@ -65,8 +66,8 @@ public class LoginController {
     @Autowired
     private TenantService tenantService;
 
-    @PostMapping(value = "/submit")
-    public String submit(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping(value = "/login")
+    public R<String> login(@RequestParam(value = "username") String userName, @RequestParam(value = "password") String password, HttpServletRequest request, HttpServletResponse response) {
         if (StringUtils.isBlank(userName)) {
             throw new RdosDefineException("userName can not null");
         }
@@ -76,7 +77,7 @@ public class LoginController {
 
         User user = userService.getByUserName(userName.trim());
         if (null == user) {
-            throw new RdosDefineException(ErrorCode.USER_NOT_FIND);
+            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
         }
         String md5Password = MD5Util.getMd5String(password);
         if (!md5Password.equalsIgnoreCase(user.getPassword())) {
@@ -88,17 +89,17 @@ public class LoginController {
         dtUser.setEmail(user.getEmail());
         dtUser.setPhone(user.getPhoneNumber());
         loginService.onAuthenticationSuccess(request, response, dtUser);
-        return dtUser.getUserName();
+        return R.ok(dtUser.getUserName());
     }
 
     @RequestMapping(value = "/logout")
-    public boolean logout(HttpServletRequest request, HttpServletResponse response) {
+    public R<Boolean> logout(HttpServletRequest request, HttpServletResponse response) {
         cookieService.clean(request, response);
-        return true;
+        return R.ok(true);
     }
 
     @PostMapping(value = "/switchTenant")
-    public String switchTenant(@RequestParam(value = "tenantId") Long tenantId, HttpServletRequest request, HttpServletResponse response) {
+    public R<String> switchTenant(@RequestParam(value = "tenantId") Long tenantId, HttpServletRequest request, HttpServletResponse response) {
         String token = cookieService.token(request);
         if (StringUtils.isBlank(token)) {
             throw new RdosDefineException(ErrorCode.TOKEN_IS_NULL);
@@ -107,11 +108,11 @@ public class LoginController {
         Long userId = decryption.getUserId();
         User user = userService.getById(userId);
         if (null == user) {
-            throw new RdosDefineException(ErrorCode.USER_NOT_FIND);
+            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
         }
         Tenant tenant = tenantService.getTenantById(tenantId);
         if (null == tenant) {
-            throw new RdosDefineException(ErrorCode.TENANT_CAN_NOT_FIND);
+            throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
         }
         DtUser dtUser = new DtUser();
         dtUser.setUserId(user.getId());
@@ -121,6 +122,6 @@ public class LoginController {
         dtUser.setTenantId(tenantId);
         dtUser.setTenantName(tenant.getTenantName());
         loginService.onAuthenticationSuccess(request, response, dtUser);
-        return user.getUserName();
+        return R.ok(user.getUserName());
     }
 }

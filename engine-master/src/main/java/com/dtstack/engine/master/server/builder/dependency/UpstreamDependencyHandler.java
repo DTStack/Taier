@@ -13,7 +13,7 @@ import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.service.ScheduleTaskService;
 import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

@@ -1,11 +1,8 @@
 package com.dtstack.engine.common.enums;
 
 
-import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.dtstack.engine.common.exception.RdosDefineException;
 
 /**
  * Reason:
@@ -133,9 +130,6 @@ public enum EngineType {
         return engineType.getEngineName().toLowerCase();
     }
 
-    public static EngineType getByEScriptType(Integer scriptType) {
-        return getByPythonVersion(++scriptType);
-    }
     public static EngineType getByPythonVersion(Integer version){
         EngineType engineType;
         if (version.equals(2)) {
@@ -143,36 +137,9 @@ public enum EngineType {
         } else if (version.equals(3)) {
             engineType = Python3;
         } else {
-            throw new DtCenterDefException(ErrorCode.PYTHON_NOT_SUPPORT);
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         return engineType;
-    }
-
-    /**
-     * 判断该引擎类型 url是否需要 额外参数
-     * @return
-     */
-
-    public static Boolean isNeedParam(String engineName){
-        List<String> engineList = new ArrayList<>();
-        engineList.add(EngineType.Flink.getEngineName());
-        engineList.add(EngineType.Spark.getEngineName());
-        engineList.add(EngineType.Datax.getEngineName());
-        engineList.add(EngineType.Learning.getEngineName());
-        engineList.add(EngineType.Shell.getEngineName());
-        engineList.add(EngineType.Python2.getEngineName());
-        engineList.add(EngineType.DtScript.getEngineName());
-        engineList.add(EngineType.Hadoop.getEngineName());
-        engineList.add(EngineType.Carbon.getEngineName());
-        engineList.add(EngineType.GaussDB.getEngineName());
-        engineList.add(EngineType.Kylin.getEngineName());
-        engineList.add(EngineType.HIVE.getEngineName());
-        engineList.add(EngineType.IMPALA.getEngineName());
-        engineList.add(EngineType.TIDB.getEngineName());
-        if (engineList.contains(engineName)){
-            return true;
-        }
-        return false;
     }
 
 }

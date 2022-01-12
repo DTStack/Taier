@@ -21,7 +21,7 @@ package com.dtstack.engine.flink;
 import com.dtstack.engine.base.util.HadoopConfTool;
 import com.dtstack.engine.base.util.KerberosUtils;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.dtstack.engine.flink.base.enums.ClusterMode;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
@@ -109,7 +109,7 @@ public class FlinkClientBuilder {
             FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
 
         flinkConfiguration = config;
@@ -176,7 +176,7 @@ public class FlinkClientBuilder {
             }, yarnConf);
         } catch (Exception e) {
             LOG.error("buildYarnClient initSecurity happens error", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -191,7 +191,7 @@ public class FlinkClientBuilder {
 
     public Configuration getFlinkConfiguration() {
         if (flinkConfiguration == null) {
-            throw new RdosDefineException("Configuration directory not set");
+            throw new PluginDefineException("Configuration directory not set");
         }
         return flinkConfiguration;
     }

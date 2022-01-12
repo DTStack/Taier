@@ -28,7 +28,7 @@ import com.dtstack.batch.web.resource.vo.query.BatchResourceAddVO;
 import com.dtstack.batch.web.resource.vo.query.BatchResourceBaseVO;
 import com.dtstack.batch.web.resource.vo.result.BatchGetResourceByIdResultVO;
 import com.dtstack.engine.common.annotation.FileUpload;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
@@ -54,7 +54,7 @@ public class BatchResourceController {
     public R<BatchCatalogueResultVO> addResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
-            protected BatchCatalogueResultVO process() throws BizException {
+            protected BatchCatalogueResultVO process() throws RdosDefineException {
                 CatalogueVO catalogue = batchResourceService.addResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
                 return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
@@ -67,7 +67,7 @@ public class BatchResourceController {
     public R<Void> replaceResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
         return new APITemplate<Void>() {
             @Override
-            protected Void process() throws BizException {
+            protected Void process() throws RdosDefineException {
                 batchResourceService.replaceResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
                 return null;
             }
@@ -80,7 +80,7 @@ public class BatchResourceController {
     public R<BatchGetResourceByIdResultVO> getResourceById(@RequestBody BatchResourceBaseVO batchResourceBaseVO) {
         return new APITemplate<BatchGetResourceByIdResultVO>() {
             @Override
-            protected BatchGetResourceByIdResultVO process() throws BizException {
+            protected BatchGetResourceByIdResultVO process() throws RdosDefineException {
                 BatchResourceVO resourceById = batchResourceService.getResourceById(batchResourceBaseVO.getResourceId());
                 return BatchResourceMapstructTransfer.INSTANCE.batchResourceVOToBatchGetResourceByIdResultVO(resourceById);
             }
@@ -92,7 +92,7 @@ public class BatchResourceController {
     public R<Long> deleteResource(@RequestBody(required = false) BatchResourceBaseVO batchResourceBaseVO) {
         return new APITemplate<Long>() {
             @Override
-            protected Long process() throws BizException {
+            protected Long process() throws RdosDefineException {
                 return batchResourceService.deleteResource(batchResourceBaseVO.getTenantId(), batchResourceBaseVO.getResourceId());
             }
         }.execute();

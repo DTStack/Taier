@@ -18,10 +18,10 @@
 
 package com.dtstack.engine.master.impl;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BaseEntity;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.mapper.QueueMapper;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -19,8 +19,8 @@
 package com.dtstack.engine.common.enums;
 
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 

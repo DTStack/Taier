@@ -2371,7 +2371,7 @@ public class BatchTaskService {
     public void setOwnerUser(Long ownerUserId, Long taskId) {
         final User ownerUser = userService.getById(ownerUserId);
         if (ownerUser == null) {
-            throw new RdosDefineException(ErrorCode.GET_USER_ERROR);
+            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
         }
 
         final BatchTask batchTask = this.batchTaskDao.getOne(taskId);

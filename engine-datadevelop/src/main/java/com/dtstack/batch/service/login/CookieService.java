@@ -84,7 +84,7 @@ public class CookieService {
                 hashMap.put(cookie.getName(), cookie.getValue());
             }
         }
-        return hashMap.get(Cookies.DT_TOKEN);
+        return hashMap.get(Cookies.TOKEN);
     }
 
     public void clean(HttpServletRequest request, HttpServletResponse response) {

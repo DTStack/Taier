@@ -26,7 +26,7 @@ import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
@@ -141,7 +141,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         try {
             KerberosUtils.login(flinkConfig, () -> this.startAndGetSessionClusterClient(), flinkClientBuilder.getYarnConf());
         } catch (Exception e) {
-            throw new RdosDefineException("init SessionClient startAndGetSessionClusterClient error.");
+            throw new PluginDefineException("init SessionClient startAndGetSessionClusterClient error.");
         }
 
     }
@@ -149,7 +149,7 @@ public class SessionClientFactory extends AbstractClientFactory {
     private void initZkClient() {
         String zkAddress = flinkConfiguration.getValue(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM);
         if (StringUtils.isBlank(zkAddress)) {
-            throw new RdosDefineException("zkAddress is error");
+            throw new PluginDefineException("zkAddress is error");
         }
 
         this.zkClient = CuratorFrameworkFactory.builder()
@@ -270,7 +270,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         if (!sessionHealthCheckedInfo.isRunning()) {
             LOG.warn(ErrorMessageConsts.WAIT_SESSION_RECOVER);
             // TODO 抛出一个FlinkSessionUnhealthyException类型？
-            throw new RdosDefineException(ErrorMessageConsts.WAIT_SESSION_RECOVER);
+            throw new PluginDefineException(ErrorMessageConsts.WAIT_SESSION_RECOVER);
         }
         return clusterClient;
     }
@@ -284,7 +284,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         Configuration newConf = new Configuration(flinkConfiguration);
         ApplicationId applicationId = acquireAppIdAndSetClusterId(newConf);
         if (applicationId == null) {
-            throw new RdosDefineException("No flink session found on yarn cluster.");
+            throw new PluginDefineException("No flink session found on yarn cluster.");
         }
 
         if (!flinkConfig.getFlinkHighAvailability()) {
@@ -299,7 +299,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             clusterClient = clusterClientProvider.getClusterClient();
         } catch (Exception e) {
             LOG.info("No flink session, Couldn't retrieve Yarn cluster.", e);
-            throw new RdosDefineException("No flink session, Couldn't retrieve Yarn cluster.");
+            throw new PluginDefineException("No flink session, Couldn't retrieve Yarn cluster.");
         }
 
         LOG.warn("---init flink client with yarn session success----");
@@ -317,7 +317,7 @@ public class SessionClientFactory extends AbstractClientFactory {
 
             YarnClient yarnClient = flinkClientBuilder.getYarnClient();
             if (null == yarnClient) {
-                throw new RdosDefineException("getYarnClient error, Yarn Client is null!");
+                throw new PluginDefineException("getYarnClient error, Yarn Client is null!");
             }
 
             List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
@@ -359,7 +359,7 @@ public class SessionClientFactory extends AbstractClientFactory {
             return applicationId;
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -396,7 +396,7 @@ public class SessionClientFactory extends AbstractClientFactory {
                 String syncPluginDir = flinkPluginRoot + ConfigConstrant.SP + ConfigConstrant.SYNCPLUGIN_DIR;
                 File syncFile = new File(syncPluginDir);
                 if (!syncFile.exists()) {
-                    throw new RdosDefineException("syncPlugin path is null");
+                    throw new PluginDefineException("syncPlugin path is null");
                 }
                 List<File> pluginPaths = Arrays.stream(syncFile.listFiles())
                         .filter(file -> !file.getName().endsWith("zip"))
@@ -423,7 +423,7 @@ public class SessionClientFactory extends AbstractClientFactory {
         File[] clusterKeytabFiles = clusterKeytabDir.listFiles();
 
         if (clusterKeytabFiles == null || clusterKeytabFiles.length == 0) {
-            throw new RdosDefineException("not find keytab file from " + clusterKeytabDirPath);
+            throw new PluginDefineException("not find keytab file from " + clusterKeytabDirPath);
         }
         for (File file : clusterKeytabFiles) {
             String fileName = file.getName();

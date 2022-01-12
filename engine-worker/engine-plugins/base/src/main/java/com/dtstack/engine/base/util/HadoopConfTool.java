@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.base.util;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -190,7 +190,7 @@ public class HadoopConfTool {
             return out.toByteArray();
         } catch(Exception e) {
             LOG.error("Serialize hadoopConf happens error: {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -204,7 +204,7 @@ public class HadoopConfTool {
             return hadoopConf;
         } catch (IOException e) {
             LOG.error("Deserialize hadoopConf happens error: {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -219,7 +219,7 @@ public class HadoopConfTool {
             return yanrConf;
         } catch (IOException e) {
             LOG.error("Deserialize yanrConf happens error: {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 
@@ -230,7 +230,7 @@ public class HadoopConfTool {
             hadoopConf.writeXml(fwrt);
         } catch (Exception e) {
             LOG.error("WriteHadoopXml happens error: {}", e.getMessage());
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 }

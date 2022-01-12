@@ -39,7 +39,7 @@ import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.EQueueSourceType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ClientArgumentException;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import org.slf4j.Logger;

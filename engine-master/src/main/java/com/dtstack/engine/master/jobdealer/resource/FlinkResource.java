@@ -22,7 +22,7 @@ import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.common.enums.EDeployType;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.enums.EComponentType;
 import org.apache.commons.lang3.StringUtils;
 

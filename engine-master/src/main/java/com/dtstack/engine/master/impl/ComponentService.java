@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.exception.EngineAssert;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.common.util.Xml2JsonUtil;
 import com.dtstack.engine.common.util.ZipUtil;
@@ -46,9 +46,8 @@ import com.dtstack.engine.master.vo.IComponentVO;
 import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.engine.pluginapi.sftp.SftpConfig;
 import com.dtstack.engine.pluginapi.sftp.SftpFileManage;
@@ -1576,8 +1575,9 @@ public class ComponentService {
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long componentId) {
         Component component = componentMapper.selectById(componentId);
-        EngineAssert.assertTrue(component != null, ErrorCode.DATA_NOT_FIND.getDescription());
-
+        if (component == null) {
+            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
+        }
         if (EComponentType.requireComponent.contains(EComponentType.getByCode(component.getComponentTypeCode()))){
             throw new RdosDefineException(String.format("%s is a required component and cannot be deleted",component.getComponentName()));
         }

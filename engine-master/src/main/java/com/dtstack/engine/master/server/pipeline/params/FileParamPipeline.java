@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.master.server.pipeline.params;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import org.apache.commons.lang.StringUtils;
 

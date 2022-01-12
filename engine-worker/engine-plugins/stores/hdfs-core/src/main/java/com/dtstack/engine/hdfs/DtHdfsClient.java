@@ -28,7 +28,7 @@ import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.client.AbstractClient;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -140,7 +140,7 @@ public class DtHdfsClient extends AbstractClient {
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
                     LOG.error("submit file {} to hdfs error", hdfsPath,e);
-                    throw new RdosDefineException("上传文件失败", e);
+                    throw new PluginDefineException("上传文件失败", e);
                 } finally {
                     if (Objects.nonNull(fs)) {
                         try {
@@ -155,7 +155,7 @@ public class DtHdfsClient extends AbstractClient {
                 return configuration.get("fs.defaultFS") + hdfsPath;
             }, configuration);
         } catch (Exception e) {
-            throw new RdosDefineException("上传文件失败", e);
+            throw new PluginDefineException("上传文件失败", e);
         }
     }
 

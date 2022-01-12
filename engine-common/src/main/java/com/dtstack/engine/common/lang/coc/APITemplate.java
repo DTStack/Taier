@@ -1,7 +1,7 @@
 package com.dtstack.engine.common.lang.coc;
 
-import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +35,9 @@ public abstract class APITemplate<T> {
      * 业务方法执行入口,业务异常时抛出BizException
      *
      * @return 业务执行结果信息返回
-     * @throws BizException 业务执行异常
+     * @throws RdosDefineException 业务执行异常
      */
-    protected abstract T process() throws BizException;
+    protected abstract T process() throws RdosDefineException;
 
     /**
      * 后置处理器
@@ -77,9 +77,9 @@ public abstract class APITemplate<T> {
                 log.info("param check error:{}", e);
             }
             throw e;
-        } catch (BizException e) {
+        } catch (RdosDefineException e) {
             onError(e);
-            return R.fail(e.getCode(), e.getMessage());
+            return R.fail(e.getErrorCode().getCode(), e.getMessage());
         } catch (DtCenterDefException ex) {
             onError(ex);
             return R.fail(ex.getCode(), ex.getMessage());
@@ -89,9 +89,9 @@ public abstract class APITemplate<T> {
             T r = process();
             onSuccess();
             return R.ok(r);
-        } catch (BizException be) {
+        } catch (RdosDefineException be) {
             onError(be);
-            return R.fail(be.getCode(), be.getMessage());
+            return R.fail(be.getErrorCode().getCode(), be.getMessage());
         } catch (DtCenterDefException ex) {
             onError(ex);
             return R.fail(ex.getCode(), ex.getMessage());

@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.pluginapi.enums;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 
 public enum EDeployMode{
     PERJOB("perjob", 1),
@@ -46,6 +46,6 @@ public enum EDeployMode{
                 return value;
             }
         }
-        throw new RdosDefineException("不支持的模式");
+        throw new PluginDefineException("不支持的模式");
     }
 }

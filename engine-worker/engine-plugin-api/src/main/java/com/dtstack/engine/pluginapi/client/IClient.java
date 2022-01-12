@@ -18,16 +18,10 @@
 
 package com.dtstack.engine.pluginapi.client;
 
-import com.dtstack.engine.pluginapi.pojo.CheckResult;
-import com.dtstack.engine.pluginapi.pojo.DtScriptAgentLabel;
-import com.dtstack.engine.pluginapi.pojo.Column;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.pojo.ClusterResource;
-import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.engine.pluginapi.pojo.JobResult;
-import com.dtstack.engine.pluginapi.pojo.JudgeResult;
+import com.dtstack.engine.pluginapi.pojo.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,8 +50,6 @@ public interface IClient {
 
 	JudgeResult judgeSlots(JobClient jobClient);
 
-	List<String> getContainerInfos(JobIdentifier jobIdentifier);
-
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
     ComponentTestResult testConnect(String pluginInfo);
@@ -70,10 +62,7 @@ public interface IClient {
 
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
-	List<Column> getAllColumns(String tableName,String schemaName,String dbName);
-
 	CheckResult grammarCheck(JobClient jobClient);
 
-	List<DtScriptAgentLabel> getDtScriptAgentLabel(String pluginInfo);
 
 }

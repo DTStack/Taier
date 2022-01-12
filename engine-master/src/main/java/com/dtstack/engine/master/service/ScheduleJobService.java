@@ -16,7 +16,7 @@ import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;

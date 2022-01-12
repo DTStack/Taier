@@ -18,11 +18,14 @@
 
 package com.dtstack.engine.common.enums;
 
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.constrant.ComponentConstant;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -332,12 +335,6 @@ public enum EComponentType {
             EComponentType.DB2, EComponentType.OCEANBASE
     );
 
-    //基础配置信息
-    public static List<String> BASE_CONFIG = Lists.newArrayList(
-            EComponentType.HDFS.getConfName(), EComponentType.NFS.getConfName(),
-            EComponentType.YARN.getConfName(), EComponentType.SPARK_THRIFT.getConfName(),
-            EComponentType.SFTP.getConfName(),EComponentType.KUBERNETES.getConfName()
-    );
 
     //没有控件渲染的组件
     public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.KUBERNETES,EComponentType.HDFS);
