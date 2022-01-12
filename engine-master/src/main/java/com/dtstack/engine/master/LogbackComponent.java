@@ -24,22 +24,19 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 
 import java.io.File;
 import java.io.IOException;
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2020/07/08
- */
-@Component
-public class LogbackComponent {
+
+public class LogbackComponent implements ApplicationListener<ApplicationStartedEvent> {
 
     private static Logger LOGGER = LoggerFactory.getLogger(LogbackComponent.class);
 
     private static String logback = System.getProperty("user.dir") + "/conf/logback.xml";
+
 
     private void setupLogger() throws IOException, JoranException {
         LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -72,12 +69,12 @@ public class LogbackComponent {
         }
     }
 
-   /* @Override
-    public void contextInitialized(ServletContextEvent event) {
+    @Override
+    public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         try {
             setupLogger();
         } catch (Throwable e) {
             LOGGER.error("", e);
         }
-    }*/
+    }
 }
