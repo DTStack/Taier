@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.common.util;
 
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
@@ -24,30 +24,23 @@ import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * @Auther: dazhi
- * @Date: 2020/11/23 11:21 上午
- * @Email:dazhi@dtstack.com
- * @Description:
- */
-@Component
-public class TaskParamsService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskParamsService.class);
+public class TaskParamsUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskParamsUtils.class);
 
     /**
      * 解析对应数据同步任务的环境参数 获取对应数据同步模式
      * @param taskParams
      * @return
      */
-    public EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
+    public static EDeployMode parseDeployTypeByTaskParams(String taskParams, Integer computeType) {
         try {
             if (!StringUtils.isBlank(taskParams)) {
                 Properties properties = PublicUtil.stringToProperties(taskParams);

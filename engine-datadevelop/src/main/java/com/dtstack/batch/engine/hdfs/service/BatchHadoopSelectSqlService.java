@@ -50,7 +50,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.TaskStatus;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.impl.ActionService;
@@ -569,7 +569,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             return Collections.emptyList();
         }
         String colsStr = matcher.group("cols");
-        return Arrays.asList(DtStringUtil.splitIgnoreQuota(colsStr, ","));
+        return Arrays.asList(Strings.splitIgnoreQuotaBrackets(colsStr, ","));
     }
 
     /**
@@ -588,7 +588,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
                 break;
             }
             if (colStr.matches(SQL_AS_REDEX)) {
-                String[] colAndAlias = DtStringUtil.splitIgnoreQuotaBrackets(colStr, "(?i)\\s+as\\s+");
+                String[] colAndAlias = Strings.splitIgnoreQuotaBrackets(colStr, "(?i)\\s+as\\s+");
                 fieldNames.add(BooleanUtils.isTrue(aliasNames) ? colAndAlias[1] : colAndAlias[0]);
             } else {
                 fieldNames.add(colStr);

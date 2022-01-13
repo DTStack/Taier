@@ -48,7 +48,7 @@ public class JobParamOperatorPipeline extends IPipeline.AbstractPipeline {
             if (null == scheduleJob) {
                 throw new RdosDefineException("upload param pipeline schedule job can not be null");
             }
-            pipelineParam.put(pipelineKey,new JobParamReplace().paramReplace(urlKey,taskParamShades,scheduleJob.getCycTime()));
+            pipelineParam.put(pipelineKey,JobParamReplace.paramReplace(urlKey,taskParamShades,scheduleJob.getCycTime()));
         }
     }
 }

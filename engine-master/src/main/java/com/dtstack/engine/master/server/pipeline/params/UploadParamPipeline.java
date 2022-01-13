@@ -102,7 +102,7 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
         try {
             //content统一处理参数
             if (StringUtils.isNotBlank(content) && CollectionUtils.isNotEmpty(taskParamShades)) {
-                content = new JobParamReplace().paramReplace(content, taskParamShades, cycTime);
+                content = JobParamReplace.paramReplace(content, taskParamShades, cycTime);
             }
             String hdfsPath = fileUploadPath + fileName;
             if (EScheduleJobType.SHELL.getVal().equals(taskType)) {
