@@ -23,13 +23,13 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.common.util.SystemPropertyUtil;
+import com.dtstack.engine.common.util.TaskParamsUtils;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.ScheduleJobCacheService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.server.queue.GroupInfo;
@@ -97,8 +97,6 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     @Autowired
     private WorkerOperator workerOperator;
 
-    @Autowired
-    private TaskParamsService taskParamsService;
     /**
      * key: jobResource, 计算引擎类型
      * value: queue
@@ -267,7 +265,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,paramAction.getTaskType(),
-                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType()).getType(),
+                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType()).getType(),
                     null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);

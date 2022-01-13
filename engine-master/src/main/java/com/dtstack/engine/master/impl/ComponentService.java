@@ -1891,6 +1891,12 @@ public class ComponentService {
         return componentMapper.listByClusterId(clusterId,null,true);
     }
 
+
+    public List<Component> listComponentsByComponentType(Long tenantId, Integer componentType) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        return componentMapper.listByClusterId(clusterId,componentType,false);
+    }
+
     public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long uicTenantId, int type, Object o) {
         return null;
     }

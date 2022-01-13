@@ -27,6 +27,7 @@ import com.dtstack.batch.service.impl.BatchCatalogueService;
 import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.batch.vo.console.ClusterTenantVO;
+import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.Sort;
@@ -237,7 +238,7 @@ public class TenantService {
     }
 
     public List<Tenant> listAllTenant() {
-        return tenantMapper.selectList(null);
+        return tenantMapper.selectList(Wrappers.lambdaQuery(Tenant.class).eq(Tenant::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public Tenant findByName(String tenantName) {

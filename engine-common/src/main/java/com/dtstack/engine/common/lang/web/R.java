@@ -1,15 +1,8 @@
 package com.dtstack.engine.common.lang.web;
 
-/**
- * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
- * @description:
- * @create: 2021-12-16 16:52
- **/
-
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.lang.base.Strings;
 import com.dtstack.engine.common.lang.i18n;
+import com.dtstack.engine.common.util.Strings;
 
 public class R<T> {
     private static String DATA_VERSION;

@@ -2,9 +2,9 @@ package com.dtstack.batch.service.datasource.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.engine.common.util.Collections;
 import com.dtstack.engine.mapper.datasource.IMapper;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,7 +50,7 @@ public abstract class BaseService<M extends IMapper<T>, T> extends ServiceImpl<M
      * @return true操作成功 false操作失败
      */
     public boolean insertBatch(Collection<T> entities, int batchSize) {
-        if (Collections.isEmpty(entities)) {
+        if (CollectionUtils.isEmpty(entities)) {
             return false;
         }
         return super.saveBatch(entities, batchSize);
