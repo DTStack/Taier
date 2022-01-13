@@ -6,12 +6,15 @@ import com.dtstack.batch.service.datasource.impl.DsFormFieldService;
 import com.dtstack.batch.utils.Asserts;
 import com.dtstack.batch.vo.datasource.DsFormTemplateVo;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
-import com.dtstack.engine.common.util.APITemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *

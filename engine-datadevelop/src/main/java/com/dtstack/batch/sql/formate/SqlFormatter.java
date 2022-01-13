@@ -1,7 +1,6 @@
 package com.dtstack.batch.sql.formate;
 
 import com.dtstack.engine.common.util.Base64Util;
-import com.dtstack.engine.common.util.DtStringUtil;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,7 +155,7 @@ public class SqlFormatter {
 
     public static String formatSql(String sql) {
         int allDelimiter = getDelimiterCount(sql);
-        String[] arrSql = DtStringUtil.splitIgnoreQuota(sql, SQL_DELIMITER);
+        String[] arrSql = com.dtstack.engine.common.util.Strings.splitIgnoreQuotaBrackets(sql, SQL_DELIMITER);
         StringBuffer sb = new StringBuffer("");
 
         int index = 0;
@@ -206,15 +205,6 @@ public class SqlFormatter {
         return allDelimiter;
     }
 
-    public static void main1(String[] args) {
-        String sql = "-- name sy_test_0116_1\n-- type SparkSQL\n-- author admin@dtstack.com\n-- create time 2019-01-16 14:11:31\n-- desc\n-- name sy_test_0116_1\n-- type SparkSQL\n-- author admin@dtstack.com\n-- create time 2019-01-16 14:11:31\n-- desc\nselect\n    id,\n    name as lasl       \nfrom\n    rdos_batch       \nwhere\n    id = lal                               \n    and name = 'asd';\ncreate table isd(     id int,     name string  );";
-        try {
-            logger.info("\n\n\n+++=====+++\n" + format(sql));
-        } catch (Exception e) {
-            logger.error("failure to format sql ,e : {}", e.getMessage());
-        }
-    }
-
 
     public static int[] BinstrToIntArray(String binStr) {
         char[] temp = binStr.toCharArray();
@@ -233,15 +223,6 @@ public class SqlFormatter {
             sum += temp[temp.length - 1 - i] << i;
         }
         return (char) sum;
-    }
-
-    public static String BinstrToStr(String binStr) {
-        String[] tempStr = binStr.split("_");
-        char[] tempChar = new char[tempStr.length];
-        for (int i = 0; i < tempStr.length; i++) {
-            tempChar[i] = BinstrToChar(tempStr[i]);
-        }
-        return String.valueOf(tempChar);
     }
 
     public static String toBinary(String str) {
