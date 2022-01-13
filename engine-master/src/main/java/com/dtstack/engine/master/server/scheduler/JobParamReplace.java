@@ -18,13 +18,12 @@
 
 package com.dtstack.engine.master.server.scheduler;
 
-import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.common.enums.EParamType;
-import com.dtstack.engine.common.util.TimeParamOperatorUtil;
+import com.dtstack.engine.common.util.TimeParamOperator;
+import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,7 +38,6 @@ import java.util.regex.Pattern;
  * @author xuchao
  */
 
-@Component
 public class JobParamReplace {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobParamReplace.class);
@@ -52,7 +50,7 @@ public class JobParamReplace {
     private final static String VAR_COMPONENT = "@@{%s}";
 
 
-    public String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
+    public static String paramReplace(String sql, List<ScheduleTaskParamShade> paramList, String cycTime) {
 
         if (CollectionUtils.isEmpty(paramList)) {
             return sql;
@@ -80,7 +78,7 @@ public class JobParamReplace {
         return sql;
     }
 
-    private String convertSymbol(Integer type) {
+    private static String convertSymbol(Integer type) {
         if (EParamType.COMPONENT.getType().equals(type)) {
             return VAR_COMPONENT;
         } else {
@@ -88,21 +86,21 @@ public class JobParamReplace {
         }
     }
 
-    public String convertParam(Integer type, String paramName, String paramCommand, String cycTime, Long taskId) {
+    public static String convertParam(Integer type, String paramName, String paramCommand, String cycTime, Long taskId) {
 
         String command = paramCommand;
         if (EParamType.SYS_TYPE.getType().equals(type)) {
             // 特殊处理 bdp.system.currenttime
             if ("bdp.system.runtime".equals(paramName)) {
-                return TimeParamOperatorUtil.dealCustomizeTimeOperator(command, cycTime);
+                return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
             }
 
-            command = TimeParamOperatorUtil.transform(command, cycTime);
+            command = TimeParamOperator.transform(command, cycTime);
             return command;
         } else if (EParamType.COMPONENT.getType().equals(type)) {
             return command;
         } else {
-            return TimeParamOperatorUtil.dealCustomizeTimeOperator(command, cycTime);
+            return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
         }
     }
 }

@@ -11,13 +11,14 @@ import com.dtstack.batch.vo.datasource.DsInfoVO;
 import com.dtstack.batch.vo.datasource.DsListVO;
 import com.dtstack.batch.vo.datasource.DsTypeListVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.common.util.APITemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**

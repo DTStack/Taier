@@ -177,7 +177,8 @@ public class PipelineBuilder {
      * @return
      */
     public static Map<String, Object> getPipelineInitMap(String pipelineConfig, ScheduleJob scheduleJob, ScheduleTaskShade scheduleTaskShade,
-                                                         List<ScheduleTaskParamShade> taskParamsToReplace, Consumer<Map<String, Object>> uploadConsumer) {
+                                                         List<ScheduleTaskParamShade> taskParamsToReplace,
+                                                         Consumer<Map<String, Object>> uploadConsumer) {
         Map<String, Object> pipelineMap = new HashMap<>();
         pipelineMap.put(IPipeline.AbstractPipeline.scheduleJobKey, scheduleJob);
         pipelineMap.put(IPipeline.AbstractPipeline.taskShadeKey, scheduleTaskShade);
@@ -232,5 +233,6 @@ public class PipelineBuilder {
                 "}";
         return buildPipeline(defaultSqlPipeConfig);
     }
+
 }
 

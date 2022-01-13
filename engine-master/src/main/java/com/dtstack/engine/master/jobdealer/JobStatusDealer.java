@@ -23,12 +23,12 @@ import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.util.LogCountUtil;
+import com.dtstack.engine.common.util.TaskParamsUtils;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.ScheduleJobCacheService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.TaskParamsService;
 import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;
 import com.dtstack.engine.master.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
@@ -90,7 +90,6 @@ public class JobStatusDealer implements Runnable {
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
     private int taskStatusDealerPoolSize;
-    private TaskParamsService taskParamsService;
 
     /**
      * 记录job 连续某个状态的频次
@@ -171,7 +170,7 @@ public class JobStatusDealer implements Runnable {
             Integer taskType = paramAction.getTaskType();
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineTaskId, appId, jobId,scheduleJob.getTenantId(),taskType,
-                    taskParamsService.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
+                    TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
                     null,  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
             RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
@@ -297,8 +296,6 @@ public class JobStatusDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
-        this.taskParamsService = applicationContext.getBean(TaskParamsService.class);
-
     }
 
     private void createLogDelayDealer() {

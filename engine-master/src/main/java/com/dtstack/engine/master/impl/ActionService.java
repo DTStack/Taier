@@ -21,12 +21,13 @@ package com.dtstack.engine.master.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.dtstack.engine.common.CustomThreadRunsPolicy;
 import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.AddressUtil;
 import com.dtstack.engine.common.util.DtJobIdWorker;
 import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
@@ -41,26 +42,20 @@ import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
-import com.dtstack.engine.master.server.multiengine.JobStartTriggerBase;
-import com.dtstack.engine.master.server.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.pipeline.PipelineBuilder;
+import com.dtstack.engine.master.server.pipeline.operator.SyncOperatorPipeline;
 import com.dtstack.engine.master.server.pipeline.params.UploadParamPipeline;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
-import com.dtstack.engine.master.service.ScheduleJobExpandService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
-import com.dtstack.engine.pluginapi.enums.EDeployMode;
-import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,8 +74,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -107,19 +100,10 @@ public class ActionService {
     private JobDealer jobDealer;
 
     @Autowired
-    private WorkerOperator workerOperator;
-
-    @Autowired
     private JobStopDealer jobStopDealer;
 
     @Autowired
     private JobRichOperator jobRichOperator;
-
-    @Autowired
-    private MultiEngineFactory multiEngineFactory;
-
-    @Autowired
-    private TaskParamsService taskParamsService;
 
     @Autowired
     private ClusterService clusterService;
@@ -131,29 +115,18 @@ public class ActionService {
     private ComponentMapper componentMapper;
 
     @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
-
-    @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private ScheduleJobExpandService scheduleJobExpandService;
+    private SyncOperatorPipeline syncOperatorPipeline;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
     private static final String RUN_JOB_NAME = "runJob";
     private static final String RUN_DELIMITER = "_";
-
-    private ThreadPoolExecutor logTimeOutPool =  new ThreadPoolExecutor(5, 5,
-                                          60L,TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
-                new CustomThreadFactory("logTimeOutPool"),
-                new CustomThreadRunsPolicy("logTimeOutPool", "log"));
 
     private static final PropertyFilter propertyFilter = (object, name, value) ->
             !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
@@ -262,9 +235,8 @@ public class ActionService {
         if (info == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
-        Integer multiEngineType = info.getInteger("multiEngineType");
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-        dealActionParam(actionParam,multiEngineType,batchTask,scheduleJob);
+        dealActionParam(actionParam,batchTask,scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("jobId", scheduleJob.getJobId());
         actionParam.put("taskType", batchTask.getTaskType());
@@ -272,11 +244,6 @@ public class ActionService {
         actionParam.put("type",scheduleJob.getType());
         actionParam.put("tenantId", batchTask.getTenantId());
         actionParam.putAll(parseRetryParam(batchTask));
-        if (EJobType.SYNC.getType() == scheduleJob.getTaskType()) {
-            //数据同步需要解析是perJob 还是session
-            EDeployMode eDeployMode = taskParamsService.parseDeployTypeByTaskParams((String)actionParam.get("taskParam"),batchTask.getComputeType());
-            actionParam.put("deployMode", eDeployMode.getType());
-        }
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
 
@@ -300,29 +267,29 @@ public class ActionService {
         return retryParam;
     }
 
-    private void dealActionParam(Map<String, Object> actionParam, Integer multiEngineType, ScheduleTaskShade batchTask, ScheduleJob scheduleJob) throws Exception {
+    private void dealActionParam(Map<String, Object> actionParam,ScheduleTaskShade batchTask, ScheduleJob scheduleJob) throws Exception {
         IPipeline pipeline = null;
         String pipelineConfig = null;
         if (actionParam.containsKey(PipelineBuilder.pipelineKey)) {
             pipelineConfig = (String) actionParam.get(PipelineBuilder.pipelineKey);
             pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
+        } else if (EScheduleJobType.SPARK_SQL.getType().equals(batchTask.getTaskType())) {
+            pipeline = PipelineBuilder.buildDefaultSqlPipeline();
+        } else if (EScheduleJobType.SYNC.getType().equals(batchTask.getTaskType())) {
+            pipeline = syncOperatorPipeline;
         }
         if (pipeline == null) {
-            //走旧逻辑
-            JobStartTriggerBase jobTriggerService = multiEngineFactory.getJobTriggerService(multiEngineType);
-            jobTriggerService.readyForTaskStartTrigger(actionParam, batchTask, scheduleJob);
-            return;
+            throw new RdosDefineException(ErrorCode.CONFIG_ERROR);
         }
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
-        Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, batchTask, taskParamsToReplace, (pipelineMap) -> {
+        Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, batchTask, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
             JSONObject pluginInfo = clusterService.pluginInfoJSON(batchTask.getTenantId(), batchTask.getTaskType(), null, null);
             Long clusterId = clusterTenantMapper.getClusterIdByTenantId(batchTask.getTenantId());
             String hadoopVersion = componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, EComponentType.HDFS.getTypeCode());
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, EComponentType.HDFS.name().toLowerCase() + componentService.formatHadoopVersion(hadoopVersion, EComponentType.HDFS));
-            pipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
-            pipelineMap.put(UploadParamPipeline.workOperatorKey, workerOperator);
-            pipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
+            uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
+            uploadPipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
         });
         pipeline.execute(actionParam, pipelineInitMap);
     }
@@ -422,18 +389,8 @@ public class ActionService {
 
     private String getEngineLog(String jobId, ScheduleJob scheduleJob) {
         String engineLog = "";
-        try {
-            if (StringUtils.isBlank(engineLog)) {
-                engineLog = CompletableFuture.supplyAsync(
-                        () ->
-                        jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getTenantId()),
-                        logTimeOutPool
-                ).get(environmentContext.getLogTimeout(), TimeUnit.SECONDS);
-                if (engineLog == null) {
-                    engineLog = "";
-                }
-            }
-        } catch (Exception e){
+        if (StringUtils.isBlank(engineLog)) {
+            engineLog = jobDealer.getAndUpdateEngineLog(jobId, scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), scheduleJob.getTenantId());
         }
         return engineLog;
     }

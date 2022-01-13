@@ -18,12 +18,15 @@
 
 package com.dtstack.engine.common.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * Date: 2020/7/21
@@ -48,7 +51,7 @@ public class JsonUtils {
         try {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(json, Object.class));
         } catch (Exception e) {
-            LOG.warn("JOSN解析失败:{}", e);
+            LOG.warn("JOSN解析失败:{}",json, e);
             return json;
         }
         return formatJson;
@@ -63,5 +66,11 @@ public class JsonUtils {
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         return formatJson;
+    }
+
+    public static String getStrFromJson(JSONObject dataJson, String key) {
+        Objects.requireNonNull(dataJson);
+        Objects.requireNonNull(key);
+        return dataJson.containsKey(key) ? dataJson.getString(key) : "";
     }
 }

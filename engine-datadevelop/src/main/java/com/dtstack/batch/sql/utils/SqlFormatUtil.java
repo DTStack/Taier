@@ -1,7 +1,7 @@
 package com.dtstack.batch.sql.utils;
 
 import com.dtstack.batch.sql.hive.ASTNodeUtil;
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -102,7 +102,7 @@ public class SqlFormatUtil {
 
         String sqlCopy = sql;
         sqlCopy = SqlFormatUtil.init(sqlCopy).getSql();
-        String[] strings = DtStringUtil.splitIgnoreQuota(sqlCopy, ";");
+        String[] strings = Strings.splitIgnoreQuotaBrackets(sqlCopy, ";");
         if (strings.length > 2) {
             throw new IllegalArgumentException("只能执行单条sql");
         }
