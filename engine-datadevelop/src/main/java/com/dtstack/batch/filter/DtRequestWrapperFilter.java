@@ -48,8 +48,8 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
     private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent",
-            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource",
-            "/node/alert/edit","/node/alert/testAlert","/node/upload/component/parseKerberos", "/node/upload/component/uploadKerberos","/node/login/submit","/node/login/logout"};
+            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource", "/node/upload/component/parseKerberos",
+            "/node/upload/component/uploadKerberos","/node/user/login","/node/user/logout"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -64,9 +64,9 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             }
         }
 
-        LOGGER.info("Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
         JSONObject reqBody;
         if (isExclude) {
+            LOGGER.info("exclude Uri: " + uri + ", Params: " + getParameterString(requestWrapper));
             reqBody = new JSONObject();
         } else {
             reqBody = getRequestBodyJson(requestWrapper);
@@ -95,8 +95,7 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             reader.close();
             String reqBody = builder.toString();
             if (StringUtils.isNotBlank(reqBody)) {
-                JSONObject bodyJson = JSONObject.parseObject(reqBody);
-                return bodyJson;
+                return JSONObject.parseObject(reqBody);
             }
         }
         return new JSONObject();
@@ -108,11 +107,11 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
         for (String key: map.keySet()) {
             String[] params = map.get(key);
             if (params.length == 0) {
-                infoBuilder.append(key + ":" + "null ");
+                infoBuilder.append(key).append(":").append("null ");
             } else if (params.length == 1){
-                infoBuilder.append(key + ":" + params[0] + " ");
+                infoBuilder.append(key).append(":").append(params[0]).append(" ");
             } else {
-                infoBuilder.append(key + ":" + Arrays.toString(params) + " ");
+                infoBuilder.append(key).append(":").append(Arrays.toString(params)).append(" ");
             }
         }
         return infoBuilder.toString();

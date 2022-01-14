@@ -19,12 +19,12 @@
 package com.dtstack.engine.master.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.executor.AbstractJobExecutor;
-import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -57,9 +56,6 @@ public class BatchFlowWorkJobService {
 
     @Autowired
     private ScheduleJobService batchJobService;
-
-    @Autowired
-    private ScheduleJobJobDao scheduleJobJobDao;
 
     Predicate<Integer> isSpecialType = type ->  type.intValue() == EScheduleJobType.WORK_FLOW.getType();
 

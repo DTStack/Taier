@@ -6,7 +6,7 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.master.server.builder.ScheduleConf;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
-import com.dtstack.engine.master.service.ScheduleTaskService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class DependencyManager {
 
     @Autowired
-    private ScheduleTaskService scheduleTaskService;
+    private ScheduleTaskShadeService scheduleTaskService;
 
     @Autowired
     private ScheduleTaskTaskService scheduleTaskTaskService;

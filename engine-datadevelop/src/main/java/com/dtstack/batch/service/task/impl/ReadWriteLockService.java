@@ -26,7 +26,7 @@ import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.engine.common.Callback;
 import com.dtstack.engine.common.enums.ReadWriteLockType;
 import com.dtstack.engine.common.enums.TaskLockStatus;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.batch.service.user.UserService;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
