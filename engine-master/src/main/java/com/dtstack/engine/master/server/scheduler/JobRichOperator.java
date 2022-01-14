@@ -20,23 +20,22 @@ package com.dtstack.engine.master.server.scheduler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
-import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
-import com.dtstack.engine.common.enums.EScheduleJobType;
-import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.dtstack.engine.mapper.ScheduleJobDao;
+import com.dtstack.engine.mapper.ScheduleJobJobDao;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.master.service.ScheduleJobService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.utils.JobGraphUtils;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -256,7 +255,7 @@ public class JobRichOperator {
 
             LOGGER.error("job:{} dependency job:{} not exists.", jobjob.getJobKey(), jobjob.getParentJobKey());
             String parentJobKey = jobjob.getParentJobKey();
-            String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey, 1);
+            String parentTaskName = batchTaskShadeService.getTaskNameByJobKey(parentJobKey);
             checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
             checkRunInfo.setExtInfo("(父任务名称为:" + parentTaskName + ")");
             return checkRunInfo;
@@ -264,7 +263,7 @@ public class JobRichOperator {
         Integer dependencyJobStatus = batchJobService.getJobStatus(dependencyJob.getJobId());
 
         //工作中的起始子节点
-        ScheduleTaskShade taskShade = batchTaskShadeService.getBatchTaskById(dependencyJob.getTaskId());
+        ScheduleTaskShade taskShade = batchTaskShadeService.getByTaskId(dependencyJob.getTaskId());
         if (!StringUtils.equals("0", scheduleBatchJob.getScheduleJob().getFlowJobId())) {
             if (taskShade != null &&
                     (taskShade.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal())) {
@@ -384,7 +383,7 @@ public class JobRichOperator {
                     //下游任务的上一周期已经结束(未成功状态 如手动取消 过期 kill等) 但是 配置条件的是依赖任务成功 需要跳出check 否则任务会一直是等待运行
                     if (isEndStatus(childJobStatus)) {
                         jobCheckRunInfo.setStatus(JobCheckStatus.CHILD_PRE_NOT_SUCCESS);
-                        ScheduleTaskShade childPreTask = batchTaskShadeService.getBatchTaskById(childJobPreJob.getTaskId());
+                        ScheduleTaskShade childPreTask = batchTaskShadeService.getByTaskId(childJobPreJob.getTaskId());
                         jobCheckRunInfo.setExtInfo(String.format("(依赖下游任务的上一周期(%s)",null != childPreTask ? childPreTask.getName() : ""));
                         LOGGER.info("get JobKey {} child job {} prePeriod status is {}  but not success", jobKey, childJobPreJob.getJobId(), childJobStatus);
                         return jobCheckRunInfo;
@@ -593,7 +592,7 @@ public class JobRichOperator {
         for (Map.Entry<Long, ScheduleJobJob> entry : taskRefFirstJobMap.entrySet()) {
             ScheduleJobJob scheduleJobJob = entry.getValue();
             Long taskId = entry.getKey();
-            ScheduleTaskShade batchTaskShade = batchTaskShadeService.getBatchTaskById(taskId);
+            ScheduleTaskShade batchTaskShade = batchTaskShadeService.getByTaskId(taskId);
             if (batchTaskShade == null) {
                 LOGGER.error("can't find task by id:{}.", taskId);
                 continue;
@@ -614,7 +613,6 @@ public class JobRichOperator {
 
             } catch (Exception e) {
                 LOGGER.error("", e);
-                continue;
             }
         }
 

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.service.login;
+package com.dtstack.batch.service.user;
 
 
 import com.dtstack.batch.domain.login.DTToken;

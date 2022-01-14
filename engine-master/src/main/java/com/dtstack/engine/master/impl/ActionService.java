@@ -38,7 +38,6 @@ import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
-import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -49,6 +48,7 @@ import com.dtstack.engine.master.server.pipeline.params.UploadParamPipeline;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
@@ -64,7 +64,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -73,8 +72,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 接收http请求
@@ -341,12 +338,12 @@ public class ActionService {
     private ScheduleJob buildScheduleJob(ParamActionExt paramActionExt) {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(paramActionExt.getJobId());
-        scheduleJob.setJobName(getOrDefault(paramActionExt.getName(),""));
+        scheduleJob.setJobName(getOrDefault(paramActionExt.getName(), ""));
         scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(paramActionExt.getComputeType());
 
         scheduleJob.setTenantId(paramActionExt.getTenantId());
-        scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), new DateTime().toString("yyyyMMdd") )));
+        scheduleJob.setJobKey(getOrDefault(paramActionExt.getJobKey(), String.format("%s%s%s", "tempJob", paramActionExt.getTaskId(), paramActionExt.getJobId())));
         scheduleJob.setTaskId(getOrDefault(paramActionExt.getTaskId(), -1L));
         scheduleJob.setCreateUserId(getOrDefault(paramActionExt.getCreateUserId(), -1L));
 

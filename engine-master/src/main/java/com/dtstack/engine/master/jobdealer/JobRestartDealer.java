@@ -21,10 +21,10 @@ package com.dtstack.engine.master.jobdealer;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
+import com.dtstack.engine.master.service.EngineJobCacheService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.EngineType;
@@ -57,7 +57,7 @@ public class JobRestartDealer {
     private EngineJobCacheService engineJobCacheService;
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobService scheduleJobService;
 
     @Autowired
     private EngineJobRetryDao engineJobRetryDao;
@@ -238,7 +238,7 @@ public class JobRestartDealer {
             //重试的任务不置为失败，waitengine
             jobRetryRecord(jobClient);
 
-            scheduleJobDao.updateJobStatus(jobId,RdosTaskStatus.RESTARTING.getStatus());
+            scheduleJobService.updateStatus(jobId,RdosTaskStatus.RESTARTING.getStatus());
             LOGGER.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
 
             //update retryNum
@@ -249,7 +249,7 @@ public class JobRestartDealer {
 
     private void jobRetryRecord(JobClient jobClient) {
         try {
-            ScheduleJob batchJob = scheduleJobDao.getRdosJobByJobId(jobClient.getJobId());
+            ScheduleJob batchJob = scheduleJobService.getByJobId(jobClient.getJobId());
             EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
             engineJobRetryDao.insert(batchJobRetry);
@@ -259,7 +259,7 @@ public class JobRestartDealer {
     }
 
     private void updateJobStatus(String jobId, Integer status) {
-        scheduleJobDao.updateJobStatus(jobId, status);
+        scheduleJobService.updateStatus(jobId, status);
         LOGGER.info("jobId:{} update job status:{}.", jobId, status);
     }
 
@@ -267,17 +267,17 @@ public class JobRestartDealer {
      * 获取任务已经重试的次数
      */
     private Integer getAlreadyRetryNum(String jobId){
-        ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
+        ScheduleJob rdosEngineBatchJob = scheduleJobService.getByJobId(jobId);
         return rdosEngineBatchJob == null || rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
     }
 
     private void increaseJobRetryNum(String jobId){
-        ScheduleJob rdosEngineBatchJob = scheduleJobDao.getRdosJobByJobId(jobId);
-        if (rdosEngineBatchJob == null) {
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
+        if (scheduleJob == null) {
             return;
         }
-        Integer retryNum = rdosEngineBatchJob.getRetryNum() == null ? 0 : rdosEngineBatchJob.getRetryNum();
+        Integer retryNum = scheduleJob.getRetryNum() == null ? 0 : scheduleJob.getRetryNum();
         retryNum++;
-        scheduleJobDao.updateRetryNum(jobId, retryNum);
+        scheduleJobService.updateRetryNum(jobId, retryNum);
     }
 }
