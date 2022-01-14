@@ -14,7 +14,7 @@ import com.dtstack.engine.master.server.builder.dependency.DependencyHandler;
 import com.dtstack.engine.master.server.builder.dependency.DependencyManager;
 import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
-import com.dtstack.engine.master.service.ScheduleTaskService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -56,7 +56,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
     protected DependencyManager dependencyManager;
 
     @Autowired
-    protected ScheduleTaskService scheduleTaskService;
+    protected ScheduleTaskShadeService scheduleTaskService;
 
     @Autowired
     protected EnvironmentContext environmentContext;

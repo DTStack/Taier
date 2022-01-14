@@ -22,24 +22,23 @@ import com.dtstack.engine.common.BlockCallerPolicy;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ClientAccessException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.exception.WorkerAccessException;
 import com.dtstack.engine.common.queue.DelayBlockingQueue;
 import com.dtstack.engine.common.util.SleepUtil;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.bo.SimpleJobDelay;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.EQueueSourceType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ClientArgumentException;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
 import org.slf4j.Logger;
@@ -68,7 +67,6 @@ public class JobSubmitDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EngineJobCacheService engineJobCacheService;
     private ShardCache shardCache;
-    private ScheduleJobDao scheduleJobDao;
 
     private long jobRestartDelay;
     private long jobLackingDelay;
@@ -92,7 +90,6 @@ public class JobSubmitDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
-        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -111,7 +108,7 @@ public class JobSubmitDealer implements Runnable {
         this.priorityQueue = priorityQueue;
         this.jobResource = priorityQueue.getJobResource();
         this.queue = priorityQueue.getQueue();
-        this.delayJobQueue = new DelayBlockingQueue<SimpleJobDelay<JobClient>>(priorityQueue.getQueueSizeLimited());
+        this.delayJobQueue = new DelayBlockingQueue<>(priorityQueue.getQueueSizeLimited());
 
         ExecutorService executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_DelayJobProcessor"));

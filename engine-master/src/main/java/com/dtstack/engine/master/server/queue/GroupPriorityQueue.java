@@ -22,12 +22,11 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.queue.comparator.JobClientComparator;
 import com.dtstack.engine.domain.EngineJobCache;
-import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
@@ -61,7 +60,6 @@ public class GroupPriorityQueue {
     private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
     private EngineJobCacheService engineJobCacheService;
-    private ScheduleJobDao scheduleJobDao;
     private JobDealer jobDealer;
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
@@ -244,9 +242,6 @@ public class GroupPriorityQueue {
         if (null == environmentContext) {
             throw new RuntimeException("environmentContext is null.");
         }
-        if (null == scheduleJobDao) {
-            throw new RuntimeException("scheduleJobDao is null.");
-        }
         if (null == jobDealer) {
             throw new RuntimeException("workNode is null.");
         }
@@ -264,7 +259,6 @@ public class GroupPriorityQueue {
     public GroupPriorityQueue build() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
         this.engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
-        this.scheduleJobDao = applicationContext.getBean(ScheduleJobDao.class);
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
 

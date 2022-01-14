@@ -39,7 +39,7 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.batch.service.user.UserService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;

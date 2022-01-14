@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.batch.service.task;
 
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;

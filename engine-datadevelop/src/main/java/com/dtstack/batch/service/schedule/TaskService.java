@@ -1,5 +1,6 @@
 package com.dtstack.batch.service.schedule;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.batch.mapstruct.task.ScheduleTaskMapstructTransfer;
@@ -9,7 +10,9 @@ import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.ScheduleTaskShadeInfo;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
+import com.dtstack.engine.mapper.ScheduleTaskShadeInfoMapper;
 import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
@@ -39,6 +42,9 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
 
     @Autowired
     private TaskTaskService tasktaskService;
+
+    @Autowired
+    private ScheduleTaskShadeInfoMapper scheduleTaskShadeInfoMapper;
 
     /**
      * 根据任务id获得任务
@@ -125,13 +131,20 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .one();
 
+        ScheduleTaskShadeInfo scheduleTaskShadeInfo = new ScheduleTaskShadeInfo();
+        scheduleTaskShadeInfo.setInfo(scheduleTaskShade.getExtraInfo());
+        scheduleTaskShadeInfo.setTaskId(scheduleTaskShade.getTaskId());
         // 保存任务或者更新任务
         if (dbTaskShade != null) {
             scheduleTaskShade.setId(dbTaskShade.getId());
             this.updateById(scheduleTaskShade);
+            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
         } else {
             this.save(scheduleTaskShade);
+            scheduleTaskShadeInfoMapper.update(scheduleTaskShadeInfo,
+                    Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class).eq(ScheduleTaskShadeInfo::getTaskId,scheduleTaskShade.getTaskId()));
         }
+
 
         // 保存关系
         List<Long> parentTaskIdList = savaTaskDTO.getParentTaskIdList();
