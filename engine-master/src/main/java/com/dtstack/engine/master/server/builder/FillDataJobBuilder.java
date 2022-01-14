@@ -1,13 +1,14 @@
 package com.dtstack.engine.master.server.builder;
 
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.common.enums.ForceCancelFlag;
+import com.dtstack.engine.common.enums.IsDeletedEnum;
+import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
 import com.dtstack.engine.master.service.ScheduleJobOperatorRecordService;
-import com.dtstack.engine.master.service.ScheduleJobService;
-import com.dtstack.engine.master.service.ScheduleTaskService;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;

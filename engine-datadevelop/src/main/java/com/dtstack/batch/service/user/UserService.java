@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.batch.service.user;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.engine.domain.User;

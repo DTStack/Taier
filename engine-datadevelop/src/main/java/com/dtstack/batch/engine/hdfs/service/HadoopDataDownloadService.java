@@ -47,7 +47,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;

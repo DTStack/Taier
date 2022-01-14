@@ -24,10 +24,10 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.*;
-import com.dtstack.engine.master.PluginWrapper;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
@@ -41,7 +41,6 @@ import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -100,9 +99,6 @@ public class ConsoleService {
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private PluginWrapper pluginWrapper;
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;

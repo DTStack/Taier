@@ -25,6 +25,7 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.mapper.ScheduleTaskTaskShadeDao;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.task.SaveTaskTaskVO;
 import com.dtstack.engine.common.enums.EScheduleJobType;
@@ -323,7 +324,7 @@ public class ScheduleTaskTaskShadeService {
                                                                              Long projectId,
                                                                              Integer level,
                                                                              Integer directType, Integer appType) {
-        ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId);
+        ScheduleTaskShade task = taskShadeService.getByTaskId(taskId);
         if(null == task){
             return null;
         }
@@ -521,7 +522,7 @@ public class ScheduleTaskTaskShadeService {
         }
 
         //获得所有父节点task
-        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
+        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds));
         if (CollectionUtils.isEmpty(tasks)) {
             return null;
         }
@@ -582,7 +583,7 @@ public class ScheduleTaskTaskShadeService {
     public com.dtstack.engine.master.impl.vo.ScheduleTaskVO getAllFlowSubTasks(Long taskId, Integer appType) {
 
         //工作流任务信息
-        ScheduleTaskShade task = taskShadeService.getBatchTaskById(taskId);
+        ScheduleTaskShade task = taskShadeService.getByTaskId(taskId);
         //构建父节点信息
         com.dtstack.engine.master.impl.vo.ScheduleTaskVO parentNode = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(task, true);
         com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO();
@@ -625,7 +626,7 @@ public class ScheduleTaskTaskShadeService {
         Set<Long> taskIds = childTaskTasks.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toSet());
         level--;
         //获得所有父节点task
-        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
+        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds));
         if (CollectionUtils.isEmpty(tasks)) {
             return vo;
         }
@@ -682,7 +683,7 @@ public class ScheduleTaskTaskShadeService {
     public List<ScheduleTaskVO> getFlowWorkSubTasksRefTask(Set<Long> taskIds, int level, Integer directType, Integer appType,int max) {
 
         //获得所有父节点task
-        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds),appType);
+        List<ScheduleTaskShade> tasks = taskShadeService.getTaskByIds(new ArrayList<>(taskIds));
         if (CollectionUtils.isEmpty(tasks)) {
             return null;
         }

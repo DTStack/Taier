@@ -5,11 +5,11 @@ import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.master.server.action.restart.impl.RestartCurrentAndDownStreamNodeRestartJob;
 import com.dtstack.engine.master.server.action.restart.impl.RestartCurrentNodeRestartJob;
 import com.dtstack.engine.master.server.action.restart.impl.SetSuccessAndResumeSchedulingRestartJob;
-import com.dtstack.engine.master.enums.RestartType;
-import com.dtstack.engine.master.service.ScheduleTaskService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -36,7 +36,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
 
     private final List<String> jobIds;
     private final RestartType restartType;
-    private final ScheduleTaskService scheduleTaskService;
+    private final ScheduleTaskShadeService scheduleTaskShadeService;
     private final AbstractRestartJob abstractRestartJob;
     private final ApplicationContext applicationContext;
 
@@ -46,7 +46,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
         this.restartType = restartType;
         this.applicationContext = applicationContext;
         this.abstractRestartJob = getAbstractRestartJob();
-        this.scheduleTaskService = applicationContext.getBean(ScheduleTaskService.class);
+        this.scheduleTaskShadeService = applicationContext.getBean(ScheduleTaskShadeService.class);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
             }
 
             List<Long> taskIds = jobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-            List<ScheduleTaskShade> taskShadeList = scheduleTaskService.lambdaQuery()
+            List<ScheduleTaskShade> taskShadeList = scheduleTaskShadeService.lambdaQuery()
                     .in(ScheduleTaskShade::getTaskId, taskIds)
                     .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                     .list();
