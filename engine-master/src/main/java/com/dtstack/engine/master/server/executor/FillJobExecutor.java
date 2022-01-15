@@ -75,7 +75,7 @@ public class FillJobExecutor extends AbstractJobExecutor {
             return new ArrayList<>();
         }
         Set<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toSet());
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), null, jobIds);
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), null, jobIds);
         LOGGER.info("getFillDataJob nodeAddress {} start scanning since when startId:{}  queryJobSize {} ", nodeAddress, startId, scheduleJobs.size());
         if(jobIds.size() > scheduleJobs.size()){
             //check lost operator records can remove

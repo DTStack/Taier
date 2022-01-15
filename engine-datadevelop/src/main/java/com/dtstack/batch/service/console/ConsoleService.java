@@ -74,7 +74,7 @@ public class ConsoleService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
     private EngineJobCacheMapper engineJobCacheMapper;
@@ -114,7 +114,7 @@ public class ConsoleService {
     public ConsoleJobVO searchJob(String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
-        ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
+        ScheduleJob scheduleJob = scheduleJobMapper.getByName(jobName);
         if (scheduleJob != null) {
             jobId = scheduleJob.getJobId();
         }
@@ -240,7 +240,7 @@ public class ConsoleService {
             if (count > 0) {
                 List<EngineJobCache> engineJobCaches = engineJobCacheMapper.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
-                List<ScheduleJob> rdosJobByJobIds = scheduleJobDao.getRdosJobByJobIds(jobIds);
+                List<ScheduleJob> rdosJobByJobIds = scheduleJobMapper.getRdosJobByJobIds(jobIds);
                 Map<String, ScheduleJob> scheduleJobMap = rdosJobByJobIds.stream().collect(Collectors.toMap(ScheduleJob::getJobId, u -> u));
                 Set<Long> tenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getTenantId).collect(Collectors.toSet());
                 Map<Long, Tenant> tenantMap = tenantMapper.selectBatchIds(tenantIds).stream()
@@ -364,7 +364,7 @@ public class ConsoleService {
 
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIdList);
-                Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
                 LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
@@ -407,7 +407,7 @@ public class ConsoleService {
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIds);
-                    Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
+                    Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
                     LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
