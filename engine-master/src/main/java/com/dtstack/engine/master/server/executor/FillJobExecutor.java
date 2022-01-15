@@ -22,7 +22,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
-import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
+import com.dtstack.engine.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.service.ScheduleJobService;
@@ -51,7 +51,7 @@ public class FillJobExecutor extends AbstractJobExecutor {
     private final Logger LOGGER = LoggerFactory.getLogger(FillJobExecutor.class);
 
     @Autowired
-    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
+    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -70,12 +70,12 @@ public class FillJobExecutor extends AbstractJobExecutor {
     @Override
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
         //query fill job from operator
-        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordDao.listJobs(startId, nodeAddress, OperatorType.FILL_DATA.getType());
+        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordMapper.listJobs(startId, nodeAddress, OperatorType.FILL_DATA.getType());
         if (CollectionUtils.isEmpty(records)) {
             return new ArrayList<>();
         }
         Set<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toSet());
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), null, jobIds);
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), null, jobIds);
         LOGGER.info("getFillDataJob nodeAddress {} start scanning since when startId:{}  queryJobSize {} ", nodeAddress, startId, scheduleJobs.size());
         if(jobIds.size() > scheduleJobs.size()){
             //check lost operator records can remove

@@ -23,6 +23,7 @@ import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,4 +35,16 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
     List<ScheduleJobOperatorRecord> listStopJob(@Param("startId") Long startId);
 
     Integer updateOperatorExpiredVersion(@Param("id") Long id, @Param("operatorExpired") Timestamp operatorExpired, @Param("version") Integer version);
+
+    Integer deleteByJobIdAndType(@Param("jobId") String jobId,@Param("type")Integer type);
+
+    List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
+
+    Timestamp getJobCreateTimeById(@Param("id") Long id);
+
+    Long insertBatch(@Param("records") Collection<ScheduleJobOperatorRecord> records);
+
+    List<ScheduleJobOperatorRecord> listJobs(@Param("startId")Long startId, @Param("nodeAddress")String nodeAddress, @Param("type")Integer type);
+
+    void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
 }
