@@ -21,7 +21,7 @@ package com.dtstack.engine.master.server.executor;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
+import com.dtstack.engine.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
@@ -47,7 +47,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     private final Logger LOGGER = LoggerFactory.getLogger(RestartJobExecutor.class);
 
     @Autowired
-    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
+    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -66,7 +66,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
     @Override
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
         //添加需要重跑的数据
-        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordDao.listJobs(startId, nodeAddress, OperatorType.RESTART.getType());
+        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordMapper.listJobs(startId, nodeAddress, OperatorType.RESTART.getType());
         if (CollectionUtils.isEmpty(records)) {
             return new ArrayList<>();
         }
