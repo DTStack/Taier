@@ -35,11 +35,6 @@ public enum CatalogueType {
     RESOURCE_MANAGER("ResourceManager"),
 
     /**
-     * 脚本管理
-     */
-    SCRIPT_MANAGER("ScriptManager"),
-
-    /**
      * 自定义函数
      */
     CUSTOM_FUNCTION("CustomFunction"),
@@ -50,39 +45,14 @@ public enum CatalogueType {
     SYSTEM_FUNCTION("SystemFunction"),
 
     /**
-     * 生产函数
+     * 存储过程
      */
     PROCEDURE_FUNCTION("ProcedureFunction"),
-
-    /**
-     * gp数据源自定义函数
-     */
-    GREENPLUM_CUSTOM_FUNCTION("GreenPlumCustomFunction"),
-
-    /**
-     * libra系统函数
-     */
-    LIBRASQL_FUNCTION("LibraSQLFunction"),
 
     /**
      * spark系统函数
      */
     SPARKSQL_FUNCTION("SparkSQLFunction"),
-
-    /**
-     * tidb系统函数
-     */
-    TIDBSQL_FUNCTION("TiDBSQLFunction"),
-
-    /**
-     * oracle系统函数
-     */
-    ORACLE_FUNCTION("OracleSQLFunction"),
-
-    /**
-     * GP系统函数
-     */
-    GREENPLUM_FUNCTION("GreenPlumSQLFunction"),
 
     /**
      * 函数管理

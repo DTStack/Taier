@@ -38,12 +38,6 @@ public class MultiEngineFactory {
     public static EngineInfo createEngineInfo(int engineType) {
         if (engineType == MultiEngineType.HADOOP.getType()) {
             return new HadoopEngineInfo();
-        } else if (engineType == MultiEngineType.LIBRA.getType()) {
-            return new LibraEngineInfo();
-        } else if (engineType == MultiEngineType.TIDB.getType()) {
-            return new TiDBEngineInfo();
-        } else if (engineType == MultiEngineType.ORACLE.getType()) {
-            return new OracleEngineInfo();
         }
         return null;
     }
@@ -68,18 +62,6 @@ public class MultiEngineFactory {
             list.add(EComponentType.SPARK_THRIFT);
             list.add(EComponentType.SPARK);
             list.add(EComponentType.HIVE_SERVER);
-            list.add(EComponentType.IMPALA_SQL);
-            list.add(EComponentType.INCEPTOR_SQL);
-        }
-        if (engineTypeList.contains(MultiEngineType.LIBRA.getType())){
-            list.add(EComponentType.LIBRA_SQL);
-        }
-
-        if (engineTypeList.contains(MultiEngineType.TIDB.getType())){
-            list.add(EComponentType.TIDB_SQL);
-        }
-        if (engineTypeList.contains(MultiEngineType.ORACLE.getType())){
-            list.add(EComponentType.ORACLE_SQL);
         }
         return list;
     }
