@@ -68,9 +68,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
-
-    @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
 
     @Autowired
@@ -277,7 +274,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
 
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
-        return scheduleJobDao.getByJobKeyAndType(jobKey, type);
+        return scheduleJobMapper.getByJobKeyAndType(jobKey, type);
     }
 
 
@@ -312,11 +309,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if(null == updateJob || null == updateJob.getJobId() ){
             return 0;
         }
-        ScheduleJob job = scheduleJobDao.getByJobId(updateJob.getJobId(), Deleted.NORMAL.getStatus());
+        ScheduleJob job = scheduleJobMapper.getByJobId(updateJob.getJobId(), Deleted.NORMAL.getStatus());
         if (null != job.getExecStartTime() && null != updateJob.getExecEndTime()){
 //            updateJob.setExecTime((updateJob.getExecEndTime().getTime()-job.getExecStartTime().getTime())/1000);
         }
-        return scheduleJobDao.updateStatusWithExecTime(updateJob);
+        return scheduleJobMapper.updateStatusWithExecTime(updateJob);
     }
 
 
@@ -366,19 +363,19 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
             updateJob.setExecEndTime(new Timestamp(System.currentTimeMillis()));
             updateJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
             updateJob.setExecTime(0L);
-            scheduleJobDao.updateStatusWithExecTime(updateJob);
+            scheduleJobMapper.updateStatusWithExecTime(updateJob);
         }
 
         //工作流节点保持提交中状态
         if (EScheduleJobType.WORK_FLOW.getVal().equals(batchTask.getTaskType())) {
             updateJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus());
         }
-        scheduleJobDao.updateStatusWithExecTime(updateJob);
+        scheduleJobMapper.updateStatusWithExecTime(updateJob);
     }
 
     public void stopJob( long jobId, Integer appType) {
 
-        ScheduleJob scheduleJob = scheduleJobDao.getOne(jobId);
+        ScheduleJob scheduleJob = scheduleJobMapper.getOne(jobId);
         stopJobByScheduleJob(appType, scheduleJob);
         // 杀死工作流任务，已经强规则任务
         List<ScheduleJob> jobs = Lists.newArrayList(scheduleJob);
@@ -420,7 +417,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return
      */
     public List<ScheduleJob> getSubJobsAndStatusByFlowId(String jobId) {
-        return scheduleJobDao.getSubJobsAndStatusByFlowId(jobId);
+        return scheduleJobMapper.getSubJobsAndStatusByFlowId(jobId);
     }
 
 
@@ -428,7 +425,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType) {
         ScheduleTaskShade task = batchTaskShadeService.getByName(taskName);
         if (task != null) {
-            return scheduleJobDao.listJobIdByTaskIdAndStatus(task.getTaskId(), null ,statusList);
+            return scheduleJobMapper.listJobIdByTaskIdAndStatus(task.getTaskId(), null ,statusList);
         }
         return new ArrayList<>();
     }
@@ -446,11 +443,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if(CollectionUtils.isEmpty(jobIdList)){
             return Collections.EMPTY_MAP;
         }
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listByJobIdList(jobIdList, tenantId);
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listByJobIdList(jobIdList, tenantId);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             Map<String, ScheduleJob> jobMap = new HashMap<>();
             for (ScheduleJob scheduleJob : scheduleJobs) {
-                ScheduleJob flowJob = scheduleJobDao.getByJobId(scheduleJob.getFlowJobId(), Deleted.NORMAL.getStatus());
+                ScheduleJob flowJob = scheduleJobMapper.getByJobId(scheduleJob.getFlowJobId(), Deleted.NORMAL.getStatus());
                 jobMap.put(scheduleJob.getJobId(), flowJob);
             }
             return jobMap;
@@ -468,24 +465,23 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return
      */
     public List<Map<String, Object>> statisticsTaskRecentInfo( Long taskId,  Integer appType,  Long projectId,  Integer count) {
-
-        return scheduleJobDao.listTaskExeInfo(taskId, projectId, count, appType);
+        return scheduleJobMapper.listTaskExeInfo(taskId, count);
 
     }
 
     public ScheduleJob getById( Long id) {
 
-        return scheduleJobDao.getOne(id);
+        return scheduleJobMapper.getOne(id);
     }
 
     public ScheduleJob getByJobId( String jobId,  Integer isDeleted) {
-        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, isDeleted);
+        ScheduleJob scheduleJob = scheduleJobMapper.getByJobId(jobId, isDeleted);
 
         return scheduleJob;
     }
 
     public Integer getJobStatus(String jobId){
-        Integer status = scheduleJobDao.getStatusByJobId(jobId);
+        Integer status = scheduleJobMapper.getStatusByJobId(jobId);
         if (Objects.isNull(status)) {
             throw new RdosDefineException("job not exist");
         }
@@ -494,12 +490,12 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
     public Integer generalCount(ScheduleJobDTO query) {
         query.setPageQuery(false);
-        return scheduleJobDao.generalCount(query);
+        return scheduleJobMapper.generalCount(query);
     }
 
 
     public List<ScheduleJob> generalQuery(PageQuery query) {
-        return scheduleJobDao.generalQuery(query);
+        return scheduleJobMapper.generalQuery(query);
     }
 
 
@@ -512,7 +508,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      */
     public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
 
-        scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null,null,null);
+        scheduleJobMapper.updateStatusByJobId(jobId, status, logInfo,null,null,null);
     }
 
     public boolean updatePhaseStatusById(Long id, JobPhaseStatus original, JobPhaseStatus update) {
@@ -520,7 +516,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
             return Boolean.FALSE;
         }
 
-        Integer integer = scheduleJobDao.updatePhaseStatusById(id, original.getCode(), update.getCode());
+        Integer integer = scheduleJobMapper.updatePhaseStatusById(id, original.getCode(), update.getCode());
 
         if (integer != null && !integer.equals(0)) {
             return Boolean.TRUE;
@@ -561,7 +557,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
                 LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] stage:[{}] type:[{}]", record.getJobId(), record.getId(), cache.getGmtCreate(), cache.getStage(), record.getOperatorType());
             }
-            ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, null);
+            ScheduleJob scheduleJob = scheduleJobMapper.getByJobId(jobId, null);
             if (null == scheduleJob) {
                 LOGGER.info("schedule job is null ,remove schedule:[{}] operator record:[{}] type:[{}] ", record.getJobId(), record.getId(), record.getOperatorType());
                 scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
