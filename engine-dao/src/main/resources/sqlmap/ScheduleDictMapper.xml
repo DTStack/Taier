@@ -43,6 +43,15 @@
         ORDER BY sort
     </select>
 
+    <update id="update">
+        UPDATE schedule_dict
+        SET dict_value = #{update}
+        WHERE
+        `dict_code` = #{dictCode}
+        AND `dict_name` = #{dictName}
+        AND is_deleted = 0
+        AND dict_value = #{oldUpdate}
+    </update>
 
     <select id="listById" resultType="com.dtstack.engine.domain.ScheduleDict">
         SELECT
