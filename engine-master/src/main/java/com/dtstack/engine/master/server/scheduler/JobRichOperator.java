@@ -25,8 +25,8 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.mapper.ScheduleJobJobDao;
+import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
 import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
@@ -75,7 +75,7 @@ public class JobRichOperator {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
@@ -219,7 +219,7 @@ public class JobRichOperator {
         List<Integer> checkStatus = new ArrayList<>(RdosTaskStatus.RUNNING_STATUS);
         checkStatus.addAll(RdosTaskStatus.WAIT_STATUS);
         checkStatus.addAll(RdosTaskStatus.SUBMITTING_STATUS);
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus,1, todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listIdByTaskIdAndStatus(scheduleJob.getTaskId(), checkStatus,1, todayCycTime, EScheduleType.NORMAL_SCHEDULE.getType());
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
             ScheduleJob waitFinishJob = scheduleJobs.get(0);
             LOGGER.info("jobId {} selfJob {}  has running status [{}],wait running job finish", scheduleJob.getJobId(), waitFinishJob.getJobId(), waitFinishJob.getStatus());
@@ -421,7 +421,7 @@ public class JobRichOperator {
             List<ScheduleJobJob> batchJobJobs = scheduleJobJobDao.listByParentJobKey(dbBatchJob.getJobKey());
             if (!CollectionUtils.isEmpty(batchJobJobs)) {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
-                return scheduleJobDao.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
+                return scheduleJobMapper.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
             }
             cycTime = JobGraphUtils.parseCycTimeFromJobKey(prePeriodJobKey);
             //如果上一轮周期也没下游任务 继续找
