@@ -25,7 +25,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
+import com.dtstack.engine.mapper.ScheduleJobJobMapper;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
 import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
@@ -78,7 +78,7 @@ public class JobRichOperator {
     private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    private ScheduleJobJobDao scheduleJobJobDao;
+    private ScheduleJobJobMapper scheduleJobJobMapper;
 
     @Autowired
     private ScheduleJobService batchJobService;
@@ -348,7 +348,7 @@ public class JobRichOperator {
         List<ScheduleJob> childPrePeriodList = scheduleBatchJob.getDependencyChildPrePeriodList();
         String jobKey = scheduleBatchJob.getScheduleJob().getJobKey();
         if (childPrePeriodList == null) {//获取子任务的上一个周期
-            List<ScheduleJobJob> childJobJobList = scheduleJobJobDao.listByParentJobKey(jobKey);
+            List<ScheduleJobJob> childJobJobList = scheduleJobJobMapper.listByParentJobKey(jobKey);
             childPrePeriodList = getFirstChildPrePeriodBatchJobJob(childJobJobList);
             scheduleBatchJob.setDependencyChildPrePeriodList(childPrePeriodList);
         }
@@ -418,7 +418,7 @@ public class JobRichOperator {
             if (null == dbBatchJob) {
                 return null;
             }
-            List<ScheduleJobJob> batchJobJobs = scheduleJobJobDao.listByParentJobKey(dbBatchJob.getJobKey());
+            List<ScheduleJobJob> batchJobJobs = scheduleJobJobMapper.listByParentJobKey(dbBatchJob.getJobKey());
             if (!CollectionUtils.isEmpty(batchJobJobs)) {
                 //上一轮周期任务的下游任务不为空 判断下游任务的状态
                 return scheduleJobMapper.listJobByJobKeys(batchJobJobs.stream().map(ScheduleJobJob::getJobKey).collect(Collectors.toList()));
