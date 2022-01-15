@@ -18,10 +18,10 @@
 
 package com.dtstack.engine.master.server.executor;
 
+import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.mapper.ScheduleJobDao;
 import com.dtstack.engine.master.server.queue.QueueInfo;
 import com.dtstack.engine.master.server.scheduler.JobRichOperator;
 import com.dtstack.engine.master.zookeeper.ZkService;
@@ -55,7 +55,7 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
     private static final Logger LOGGER = LoggerFactory.getLogger(JobExecutorTrigger.class);
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
     private CronJobExecutor cronJobExecutor;
@@ -97,7 +97,7 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
                 executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType().getType(), k -> {
-                    int queueSize = scheduleJobDao.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
+                    int queueSize = scheduleJobMapper.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
                     QueueInfo queueInfo = new QueueInfo();
                     queueInfo.setSize(queueSize);
                     return queueInfo;
