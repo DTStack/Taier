@@ -30,7 +30,6 @@ import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.DataSourceType;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -100,12 +99,8 @@ public class BatchDownloadService {
         BatchHiveSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
         Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
 
-        if (MultiEngineType.HADOOP.getType() != batchHiveSelectSql.getEngineType() &&
-                MultiEngineType.LIBRA.getType() != batchHiveSelectSql.getEngineType() &&
-                MultiEngineType.TIDB.getType() != batchHiveSelectSql.getEngineType() &&
-                MultiEngineType.ORACLE.getType() != batchHiveSelectSql.getEngineType() &&
-                MultiEngineType.GREENPLUM.getType() != batchHiveSelectSql.getEngineType()) {
-            throw new RdosDefineException("临时表查询仅支持Hadoop、LibrA、TiDB、Oracle、Greenplum 引擎类型的任务");
+        if (MultiEngineType.HADOOP.getType() != batchHiveSelectSql.getEngineType()) {
+            throw new RdosDefineException("临时表查询仅支持Hadoop 引擎类型的任务");
         }
 
         MultiEngineType engineType = MultiEngineType.getByType(batchHiveSelectSql.getEngineType());
