@@ -29,8 +29,8 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobDao;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
+import com.dtstack.engine.mapper.ScheduleJobJobMapper;
+import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
@@ -83,10 +83,10 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected ZkService zkService;
 
     @Autowired
-    protected ScheduleJobDao scheduleJobDao;
+    protected ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    protected ScheduleJobJobDao scheduleJobJobDao;
+    protected ScheduleJobJobMapper scheduleJobJobMapper;
 
     @Autowired
     protected EnvironmentContext environmentContext;
@@ -135,7 +135,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     protected List<ScheduleBatchJob> listExecJob(Long startId, String nodeAddress, Boolean isEq) {
         Pair<String, String> cycTime = getCycTime(false);
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(), isEq
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listExecJobByCycTimeTypeAddress(startId, nodeAddress, getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight(), JobPhaseStatus.CREATE.getCode(), isEq
                 , null, Restarted.NORMAL.getStatus());
         LOGGER.info("scheduleType:{} nodeAddress:{} leftTime:{} rightTime:{} start scanning since when startId:{}  isEq {}  queryJobSize {}.", getScheduleType(), nodeAddress, cycTime.getLeft(), cycTime.getRight(), startId, isEq,
                 scheduleJobs.size());
@@ -299,7 +299,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         //同步taskShade最新的versionId
         if (!batchTask.getVersionId().equals(scheduleJob.getVersionId())) {
             LOGGER.info("update scheduleJob jobId {} versionId from {} to {} taskId {}", scheduleJob.getJobId(),scheduleJob.getVersionId(), batchTask.getVersionId(),batchTask.getTaskId());
-            scheduleJobDao.updateStatusByJobId(scheduleJob.getJobId(), null, null, batchTask.getVersionId(),null,null);
+            scheduleJobMapper.updateStatusByJobId(scheduleJob.getJobId(), null, null, batchTask.getVersionId(),null,null);
         }
     }
 
@@ -364,7 +364,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> resultList = Lists.newArrayList();
         for (ScheduleJob scheduleJob : scheduleJobs) {
             ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
+            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobMapper.listByJobKey(scheduleJob.getJobKey());
             scheduleBatchJob.setJobJobList(scheduleJobJobs);
             resultList.add(scheduleBatchJob);
         }

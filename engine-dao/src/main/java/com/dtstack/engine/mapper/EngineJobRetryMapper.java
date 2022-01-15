@@ -18,6 +18,8 @@
 
 package com.dtstack.engine.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.EngineJobRetry;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,9 +30,7 @@ import java.util.List;
  * author: toutian
  * create: 2020/02/12
  */
-public interface EngineJobRetryDao {
-
-    void insert(EngineJobRetry engineJobRetry);
+public interface EngineJobRetryMapper extends BaseMapper<EngineJobRetry> {
 
     List<EngineJobRetry> listJobRetryByJobId(@Param("jobId") String jobId);
 
