@@ -20,7 +20,7 @@ package com.dtstack.engine.master.jobdealer;
 
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.mapper.EngineJobRetryDao;
+import com.dtstack.engine.mapper.EngineJobRetryMapper;
 import com.dtstack.engine.master.jobdealer.bo.EngineJobRetry;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.service.EngineJobCacheService;
@@ -60,7 +60,7 @@ public class JobRestartDealer {
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private EngineJobRetryDao engineJobRetryDao;
+    private EngineJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private ShardCache shardCache;
@@ -252,7 +252,7 @@ public class JobRestartDealer {
             ScheduleJob batchJob = scheduleJobService.getByJobId(jobClient.getJobId());
             EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
-            engineJobRetryDao.insert(batchJobRetry);
+            engineJobRetryMapper.insert(batchJobRetry);
         } catch (Throwable e ){
             LOGGER.error("{}",e);
         }
