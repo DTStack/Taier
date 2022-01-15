@@ -2343,8 +2343,6 @@ public class BatchTaskService {
                     obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.PROCEDURE_FUNCTION.name())) {
                     obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.PROCEDURE.getType());
-                } else if (type.equals(CatalogueType.GREENPLUM_CUSTOM_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.SYSTEM_FUNCTION.name())) {
                     throw new RdosDefineException("不能添加系统函数");
                 } else {
