@@ -29,7 +29,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.mapper.ScheduleJobJobDao;
+import com.dtstack.engine.mapper.ScheduleJobJobMapper;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
@@ -86,7 +86,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     protected ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    protected ScheduleJobJobDao scheduleJobJobDao;
+    protected ScheduleJobJobMapper scheduleJobJobMapper;
 
     @Autowired
     protected EnvironmentContext environmentContext;
@@ -364,7 +364,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
         List<ScheduleBatchJob> resultList = Lists.newArrayList();
         for (ScheduleJob scheduleJob : scheduleJobs) {
             ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
+            List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobMapper.listByJobKey(scheduleJob.getJobKey());
             scheduleBatchJob.setJobJobList(scheduleJobJobs);
             resultList.add(scheduleBatchJob);
         }
