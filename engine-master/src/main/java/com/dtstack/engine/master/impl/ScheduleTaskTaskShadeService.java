@@ -23,7 +23,7 @@ import com.dtstack.engine.common.enums.DisplayDirect;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.ScheduleTaskTaskShade;
-import com.dtstack.engine.mapper.ScheduleTaskTaskShadeDao;
+import com.dtstack.engine.mapper.ScheduleTaskTaskShadeMapper;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
@@ -58,7 +58,7 @@ public class ScheduleTaskTaskShadeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleTaskTaskShadeService.class);
 
     @Autowired
-    private ScheduleTaskTaskShadeDao scheduleTaskTaskShadeDao;
+    private ScheduleTaskTaskShadeMapper scheduleTaskTaskShadeMapper;
 
     @Autowired
     private ScheduleTaskShadeService taskShadeService;
@@ -68,7 +68,7 @@ public class ScheduleTaskTaskShadeService {
 
 
     public void clearDataByTaskId( Long taskId,Integer appType) {
-        scheduleTaskTaskShadeDao.deleteByTaskId(taskId,appType);
+        scheduleTaskTaskShadeMapper.deleteByTaskId(taskId,appType);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -97,11 +97,11 @@ public class ScheduleTaskTaskShadeService {
                 keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), null), scheduleTaskTaskShade);
                 Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
                 // 清除原来关系
-                scheduleTaskTaskShadeDao.deleteByTaskId(scheduleTaskTaskShade.getTaskId(),null);
+                scheduleTaskTaskShadeMapper.deleteByTaskId(scheduleTaskTaskShade.getTaskId(),null);
             }
             // 保存现有任务关系
             for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
-                scheduleTaskTaskShadeDao.insert(taskTaskShade);
+                scheduleTaskTaskShadeMapper.insert(taskTaskShade);
             }
         } catch (Exception e) {
             LOGGER.error("saveTaskTaskList error:{}", ExceptionUtil.getErrorMessage(e));
@@ -282,7 +282,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     private List<ScheduleTaskTaskShade> addChildTaskTask(List<String> childKey, List<ScheduleTaskTaskShade> taskTasks) {
-        List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = scheduleTaskTaskShadeDao.listParentTaskKeys(childKey);
+        List<ScheduleTaskTaskShade> scheduleChildTaskTaskShades = scheduleTaskTaskShadeMapper.listParentTaskKeys(childKey);
         List<String> sides = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(scheduleChildTaskTaskShades)) {
 //            sides = scheduleChildTaskTaskShades.stream().map(taskShade -> taskShade.getTaskKey()+"&"+taskShade.getParentTaskKey()).collect(Collectors.toList());
@@ -299,7 +299,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     private List<ScheduleTaskTaskShade> addParentTaskTask(List<String> parentKeys, List<ScheduleTaskTaskShade> taskTasks) {
-        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeDao.listTaskKeys(parentKeys);
+        List<ScheduleTaskTaskShade> taskTaskShades = scheduleTaskTaskShadeMapper.listTaskKeys(parentKeys);
         List<String> sides = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(taskTaskShades)) {
 //            sides = taskTaskShades.stream().map(taskShade -> taskShade.getTaskKey()+"&"+taskShade.getParentTaskKey()).collect(Collectors.toList());
@@ -316,7 +316,7 @@ public class ScheduleTaskTaskShadeService {
     }
 
     public List<ScheduleTaskTaskShade> getAllParentTask( Long taskId,Integer appType) {
-        return scheduleTaskTaskShadeDao.listParentTask(taskId,appType);
+        return scheduleTaskTaskShadeMapper.listParentTask(taskId,appType);
     }
 
 
@@ -380,7 +380,7 @@ public class ScheduleTaskTaskShadeService {
         List<ScheduleTaskTaskShade> childTaskTasks = null;
         //展开上游节点
         if (DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)) {
-            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(), null);
+            taskTasks = scheduleTaskTaskShadeMapper.listParentTask(taskShade.getTaskId(), null);
             if (checkIsLoop(taskIdRelations, taskTasks)) {
                 //成环了，直接返回
                 return vo;
@@ -388,7 +388,7 @@ public class ScheduleTaskTaskShadeService {
         }
         //展开下游节点
         if (DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)) {
-            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(), null);
+            childTaskTasks = scheduleTaskTaskShadeMapper.listChildTask(taskShade.getTaskId(), null);
             if (checkIsLoop(taskIdRelations, childTaskTasks)) {
                 //成环了，直接返回
                 return vo;
@@ -478,11 +478,11 @@ public class ScheduleTaskTaskShadeService {
         }
         //展开上游节点
         if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.FATHER.getType().equals(directType)){
-            taskTasks = scheduleTaskTaskShadeDao.listParentTask(taskShade.getTaskId(),null);
+            taskTasks = scheduleTaskTaskShadeMapper.listParentTask(taskShade.getTaskId(),null);
         }
         //展开下游节点
         if(DisplayDirect.FATHER_CHILD.getType().equals(directType) || DisplayDirect.CHILD.getType().equals(directType)){
-            childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),null);
+            childTaskTasks = scheduleTaskTaskShadeMapper.listChildTask(taskShade.getTaskId(),null);
         }
         if (CollectionUtils.isEmpty(taskTasks) && CollectionUtils.isEmpty(childTaskTasks)) {
             return vo;
@@ -611,7 +611,7 @@ public class ScheduleTaskTaskShadeService {
 
         com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         //查询子任务列表
-        List<ScheduleTaskTaskShade> childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),null);
+        List<ScheduleTaskTaskShade> childTaskTasks = scheduleTaskTaskShadeMapper.listChildTask(taskShade.getTaskId(),null);
         if (CollectionUtils.isEmpty(childTaskTasks)) {
             return vo;
         }
@@ -655,7 +655,7 @@ public class ScheduleTaskTaskShadeService {
         com.dtstack.engine.master.impl.vo.ScheduleTaskVO vo = new com.dtstack.engine.master.impl.vo.ScheduleTaskVO(taskShade, true);
         List<ScheduleTaskTaskShade> childTaskTasks = null;
         //查询子任务列表
-        childTaskTasks = scheduleTaskTaskShadeDao.listChildTask(taskShade.getTaskId(),null);
+        childTaskTasks = scheduleTaskTaskShadeMapper.listChildTask(taskShade.getTaskId(),null);
         if (CollectionUtils.isEmpty(childTaskTasks)) {
             return vo;
         }
