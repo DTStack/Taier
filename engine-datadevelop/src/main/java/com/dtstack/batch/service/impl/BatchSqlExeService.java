@@ -24,7 +24,6 @@ import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.enums.TableRelationType;
-import com.dtstack.batch.mapping.TableTypeEngineTypeMapping;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.sql.ParseResult;
@@ -110,16 +109,6 @@ public class BatchSqlExeService {
         executeContent.setDatabase(dbName);
         return dbName;
     }
-
-    private Integer getEngineType(final ExecuteContent executeContent) {
-        Integer engineType = executeContent.getEngineType();
-        if (engineType == null) {
-            engineType = TableTypeEngineTypeMapping.getEngineTypeByTableType(executeContent.getTableType()).getType();
-        }
-
-        return engineType;
-    }
-
 
 
     /**
@@ -321,7 +310,7 @@ public class BatchSqlExeService {
 
 
     private void prepareExecuteContent(final ExecuteContent executeContent) {
-        final Integer engineType = this.getEngineType(executeContent);
+        final Integer engineType = executeContent.getEngineType();
         String taskParam = "";
         if (TableRelationType.TASK.getType().equals(executeContent.getRelationType())) {
             BatchTask one = batchTaskService.getOne(executeContent.getRelationId());
