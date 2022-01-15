@@ -71,7 +71,7 @@ public class RestartJobExecutor extends AbstractJobExecutor {
             return new ArrayList<>();
         }
         List<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
-        List<ScheduleJob> scheduleJobs = scheduleJobDao.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus(), jobIds);
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listExecJobByJobIds(nodeAddress, JobPhaseStatus.CREATE.getCode(), Restarted.RESTARTED.getStatus(), jobIds);
         LOGGER.info("getRestartDataJob nodeAddress {} start scanning since when startId:{}  queryJobSize {} ", nodeAddress, startId, scheduleJobs.size());
         if(jobIds.size() > scheduleJobs.size()){
             //check lost operator records can remove

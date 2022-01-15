@@ -6,12 +6,13 @@ import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.po.StatusCountPO;
 import com.dtstack.engine.domain.po.CountFillDataJobStatusPO;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
+import com.dtstack.engine.dto.ScheduleJobDTO;
+import com.dtstack.engine.pager.PageQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Auther: dazhi
@@ -22,6 +23,7 @@ import java.util.Set;
 @Mapper
 public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
+    ScheduleJob getOne(@Param("id") Long id);
     /**
      * 获得补数据实例运行的全部状态
      *
@@ -43,4 +45,70 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     int countByCycTimeAndJobName(@Param("cycTime") String cycTime, @Param("jobName") String jobName, @Param("type") Integer type);
 
     List<ScheduleJob> listByCycTimeAndJobName(@Param("startId") Long startId, @Param("cycTime") String cycTime, @Param("jobName") String jobName, @Param("type") Integer type, @Param("jobSize") Integer jobSize);
+
+    ScheduleJob getByJobKeyAndType(@Param("jobKey") String jobKey, @Param("type") int type);
+
+    List<ScheduleJob> listJobByJobKeys(@Param("jobKeys") Collection<String> jobKeys);
+
+    List<ScheduleJob> listIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("statuses") List<Integer> status, @Param("appType") Integer appType,@Param("cycTime") String cycTime,@Param("type") Integer type);
+
+    List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("statuses") List<Integer> status);
+
+    ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
+
+    List<ScheduleJob> generalQuery(PageQuery<ScheduleJobDTO> pageQuery);
+
+    Integer generalCount(@Param("model") ScheduleJobDTO object);
+
+    Integer updateStatusWithExecTime(ScheduleJob job);
+
+    List<Map<String, Object>> listTaskExeInfo(@Param("taskId") Long taskId, @Param("limitNum") int limitNum);
+
+    /**
+     * 根据jobId获取子任务信息与任务状态
+     *
+     * @param jobId
+     * @return
+     */
+    List<ScheduleJob> getSubJobsAndStatusByFlowId(@Param("jobId") String jobId);
+
+    List<ScheduleJob> listByJobIdList(@Param("jobIds") Collection<String> jobIds, @Param("projectId") Long projectId);
+
+    Integer getStatusByJobId(@Param("jobId") String jobId);
+
+    Integer countTasksByCycTimeTypeAndAddress(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
+
+    List<SimpleScheduleJobPO> listSimpleJobByStatusAddress(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress);
+
+    Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
+
+    List<ScheduleJob> listExecJobByCycTimeTypeAddress(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime, @Param("phaseStatus") Integer phaseStatus,
+                                                      @Param("isEq") Boolean isEq, @Param("lastTime") Timestamp lastTime,@Param("isRestart") Integer isRestart);
+
+    List<ScheduleJob> listExecJobByJobIds(@Param("nodeAddress") String nodeAddress,@Param("phaseStatus") Integer phaseStatus,@Param("isRestart") Integer isRestart,@Param("jobIds") Collection<String> jobIds);
+
+    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo, @Param("versionId") Integer versionId, @Param("execStartTime") Date execStartTime, @Param("execEndTime") Date execEndTime);
+
+    void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
+
+    List<ScheduleJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
+
+    ScheduleJob getByName(@Param("jobName") String jobName);
+
+    Integer updateJobStatusByJobIds(@Param("jobIds") List<String> jobIds, @Param("status") Integer status);
+
+    Integer updatePhaseStatusById(@Param("id") Long id, @Param("original") Integer original, @Param("update") Integer update);
+
+    Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
+
+
+
+
+
+
+
+
+
+
+
 }
