@@ -26,7 +26,7 @@ import com.dtstack.engine.common.util.GenerateErrorMsgUtil;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
-import com.dtstack.engine.mapper.ScheduleJobOperatorRecordDao;
+import com.dtstack.engine.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.builder.CycleJobBuilder;
 import com.dtstack.engine.master.service.EngineJobCacheService;
@@ -94,7 +94,7 @@ public class FailoverStrategy {
     private ScheduleJobMapper rdosEngineBatchJobDao;
 
     @Autowired
-    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
+    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
 
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
@@ -290,7 +290,7 @@ public class FailoverStrategy {
                 continue;
             }
             scheduleJobMapper.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
-            scheduleJobOperatorRecordDao.updateNodeAddress(nodeEntry.getKey(),nodeEntry.getValue());
+            scheduleJobOperatorRecordMapper.updateNodeAddress(nodeEntry.getKey(),nodeEntry.getValue());
             LOGGER.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }
