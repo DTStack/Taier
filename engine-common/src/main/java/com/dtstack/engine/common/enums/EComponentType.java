@@ -199,39 +199,6 @@ public enum EComponentType {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
         }
-        if (LibrAComponents.contains(componentType)) {
-            return MultiEngineType.LIBRA;
-        }
-        if (OracleComponents.contains(componentType)) {
-            return MultiEngineType.ORACLE;
-        }
-        if (TiDBComponents.contains(componentType)) {
-            return MultiEngineType.TIDB;
-        }
-        if (GreenplumComponents.contains(componentType)) {
-            return MultiEngineType.GREENPLUM;
-        }
-        if (PrestoComponents.contains(componentType)) {
-            return MultiEngineType.PRESTO;
-        }
-        if (EmptyComponents.contains(componentType)){
-            return MultiEngineType.COMMON;
-        }
-        if (analyticDbForPgComponents.contains(componentType)){
-            return MultiEngineType.ANALYTICDB_FOR_PG;
-        }
-        if (EComponentType.MYSQL == componentType) {
-            return MultiEngineType.MYSQL;
-        }
-        if (EComponentType.SQL_SERVER == componentType) {
-            return MultiEngineType.SQL_SERVER;
-        }
-        if (EComponentType.DB2 == componentType) {
-            return MultiEngineType.DB2;
-        }
-        if (EComponentType.OCEANBASE == componentType) {
-            return MultiEngineType.OCEANBASE;
-        }
         return null;
     }
 

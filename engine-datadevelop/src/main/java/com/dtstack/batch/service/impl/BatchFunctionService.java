@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 @Service
 public class BatchFunctionService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchFunctionService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchFunctionService.class);
 
     @Autowired
     private BatchFunctionDao batchFunctionDao;
@@ -184,8 +184,8 @@ public class BatchFunctionService {
 			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
-            logger.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
-            logger.error(e.getMessage(), e);
+            LOGGER.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
+            LOGGER.error(e.getMessage(), e);
             if (e instanceof RdosDefineException) {
                 throw e;
             } else {
