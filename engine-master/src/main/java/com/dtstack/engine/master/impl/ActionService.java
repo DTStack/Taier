@@ -37,7 +37,7 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
-import com.dtstack.engine.mapper.EngineJobRetryDao;
+import com.dtstack.engine.mapper.EngineJobRetryMapper;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -91,7 +91,7 @@ public class ActionService {
     private ScheduleJobCacheService scheduleJobCacheService;
 
     @Autowired
-    private EngineJobRetryDao engineJobRetryDao;
+    private EngineJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private JobDealer jobDealer;
@@ -325,7 +325,7 @@ public class ActionService {
         }
         boolean result = RdosTaskStatus.canStart(scheduleJob.getStatus());
         if (result) {
-            engineJobRetryDao.removeByJobId(jobId);
+            engineJobRetryMapper.removeByJobId(jobId);
             if (!RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
                 scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 scheduleJobService.updateByJobId(scheduleJob);
@@ -403,7 +403,7 @@ public class ActionService {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
-        List<EngineJobRetry> batchJobRetrys = engineJobRetryDao.listJobRetryByJobId(jobId);
+        List<EngineJobRetry> batchJobRetrys = engineJobRetryMapper.listJobRetryByJobId(jobId);
         if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
             batchJobRetrys.forEach(jobRetry->{
                 ActionRetryLogVO vo = new ActionRetryLogVO();
@@ -429,7 +429,7 @@ public class ActionService {
         }
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
-        EngineJobRetry jobRetry = engineJobRetryDao.getJobRetryByJobId(jobId, retryNum - 1);
+        EngineJobRetry jobRetry = engineJobRetryMapper.getJobRetryByJobId(jobId, retryNum - 1);
         ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
             vo.setRetryNum(jobRetry.getRetryNum());
@@ -439,7 +439,7 @@ public class ActionService {
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getTenantId());
                 if (engineLog != null){
                     LOGGER.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
-                    engineJobRetryDao.updateEngineLog(jobRetry.getId(), engineLog);
+                    engineJobRetryMapper.updateEngineLog(jobRetry.getId(), engineLog);
                 } else {
                     engineLog = "";
                 }
