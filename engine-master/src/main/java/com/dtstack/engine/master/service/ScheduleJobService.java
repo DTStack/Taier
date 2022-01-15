@@ -80,7 +80,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private JobGraphTriggerService jobGraphTriggerService;
 
     @Autowired
-    private ScheduleJobOperatorRecordDao scheduleJobOperatorRecordDao;
+    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
 
     @Autowired
     private EngineJobCacheService engineJobCacheService;
@@ -554,17 +554,17 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
             EngineJobCache cache = engineJobCacheService.getByJobId(jobId);
             if (cache != null && cache.getGmtCreate().after(record.getGmtCreate())) {
                 //has submit to cache
-                scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+                scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
                 LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] stage:[{}] type:[{}]", record.getJobId(), record.getId(), cache.getGmtCreate(), cache.getStage(), record.getOperatorType());
             }
             ScheduleJob scheduleJob = scheduleJobMapper.getByJobId(jobId, null);
             if (null == scheduleJob) {
                 LOGGER.info("schedule job is null ,remove schedule:[{}] operator record:[{}] type:[{}] ", record.getJobId(), record.getId(), record.getOperatorType());
-                scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+                scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
             } else if (scheduleJob.getGmtModified().after(record.getGmtCreate())) {
                 if (RdosTaskStatus.STOPPED_STATUS.contains(scheduleJob.getStatus()) || RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus())) {
                     //has running or finish
-                    scheduleJobOperatorRecordDao.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
+                    scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
                     LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] status:[{}] type:[{}]", record.getJobId(), record.getId(), scheduleJob.getGmtModified(), scheduleJob.getStatus(), record.getOperatorType());
                 }
             }
