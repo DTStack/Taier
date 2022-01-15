@@ -19,12 +19,14 @@
 package com.dtstack.engine.domain;
 
 
+import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.util.Date;
 
 /**
  * @author toutian
  */
-
+@TableName("schedule_engine_job_retry")
 public class EngineJobRetry extends BaseEntity {
 
     /**
