@@ -56,7 +56,7 @@ import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
@@ -109,7 +109,7 @@ public class BatchServerLogService {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private ClusterService clusterService;

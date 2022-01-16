@@ -56,5 +56,4 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
     List<ScheduleJobOperatorRecord> listJobs(@Param("startId")Long startId, @Param("nodeAddress")String nodeAddress, @Param("type")Integer type);
 
     void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
-
 }

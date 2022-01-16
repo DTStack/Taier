@@ -29,7 +29,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchTask;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class BatchSelectSqlService {
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;

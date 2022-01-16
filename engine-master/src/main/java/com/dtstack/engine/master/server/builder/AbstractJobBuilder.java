@@ -63,7 +63,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
     protected EnvironmentContext environmentContext;
 
     @Autowired
-    protected ScheduleActionService scheduleActionService;
+    protected ScheduleActionService actionService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobBuilder.class);
 
@@ -168,7 +168,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         // 实例
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(scheduleTaskShade.getTenantId());
-        scheduleJob.setJobId(scheduleActionService.generateUniqueSign());
+        scheduleJob.setJobId(actionService.generateUniqueSign());
         scheduleJob.setJobKey(jobKey);
         scheduleJob.setJobName(getName(scheduleTaskShade, name, cycTime));
         scheduleJob.setTaskId(scheduleTaskShade.getTaskId());
