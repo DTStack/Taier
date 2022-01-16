@@ -53,10 +53,14 @@ import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.SessionUtil;
-import com.dtstack.engine.domain.*;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleJobExeStaticsVO;
@@ -130,7 +134,7 @@ public class BatchJobService {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private JobService jobService;

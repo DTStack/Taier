@@ -57,7 +57,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private JobStopDealer jobStopDealer;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private JobPartitioner jobPartitioner;
@@ -81,6 +81,8 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
 
+    @Autowired
+    private ScheduleTaskShadeService batchTaskShadeService;
 
 
     @Autowired
@@ -361,8 +363,8 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param jobId 实例id
      * @return 实例状态，如果查询不到，返回null
      */
-    public Integer getJobStatusByJobId(String jobId) {
-        if ( StringUtils.isBlank(jobId)) {
+    public Integer getJobStatusByJobId(String jobId){
+        if (StringUtils.isBlank(jobId)) {
             return null;
         }
         ScheduleJob scheduleJob = this.lambdaQuery().eq(ScheduleJob::getJobId, jobId).eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
@@ -372,6 +374,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         }
         return scheduleJob.getStatus();
     }
+
+    public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
+        return scheduleJobMapper.getByJobKeyAndType(jobKey, type);
+    }
+
 
     public Integer updateStatusByJobId(String jobId, Integer status, Integer versionId) {
         ScheduleJob scheduleJob = new ScheduleJob();
@@ -391,6 +398,39 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 //            updateJob.setExecTime((updateJob.getExecEndTime().getTime()-job.getExecStartTime().getTime())/1000);
         }
         return scheduleJobMapper.updateStatusWithExecTime(updateJob);
+    }
+
+    /**
+     * 触发 engine 执行指定task
+     */
+    public void sendTaskStartTrigger(ScheduleJob scheduleJob) throws Exception {
+        ScheduleTaskShade batchTask = batchTaskShadeService.getByTaskId(scheduleJob.getTaskId());
+        if (batchTask == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+        if(EScheduleJobType.WORK_FLOW.getType().equals(batchTask.getTaskType()) || EScheduleJobType.VIRTUAL.getType().equals(batchTask.getTaskType())){
+            runVirtualTask(scheduleJob,batchTask);
+            return;
+        }
+//        String extInfoByTaskId = scheduleTaskShadeDao.getExtInfoByTaskId(scheduleJob.getTaskId(), 1);
+        String extInfoByTaskId = null;
+        if (StringUtils.isNotBlank(extInfoByTaskId)) {
+            JSONObject extObject = JSONObject.parseObject(extInfoByTaskId);
+            if (null != extObject ) {
+                JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
+                if (null != info ) {
+                    ParamActionExt paramActionExt = actionService.paramActionExt(batchTask, scheduleJob, info);
+                    if (paramActionExt != null) {
+                        updateStatusByJobId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),batchTask.getVersionId());
+                        actionService.start(paramActionExt);
+                        return;
+                    }
+                }
+            }
+        }
+        //额外信息为空 标记任务为失败
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
+        LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
 
     private void runVirtualTask(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
