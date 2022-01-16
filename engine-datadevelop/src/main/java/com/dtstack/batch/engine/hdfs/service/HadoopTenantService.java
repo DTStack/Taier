@@ -32,7 +32,7 @@ import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.batch.service.user.UserService;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;

@@ -22,7 +22,6 @@ import com.dtstack.batch.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskGetAllFlowSubTasksVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskShadeAddOrUpdateVO;
-import com.dtstack.engine.common.enums.base.AppType;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
@@ -50,7 +49,7 @@ public class BatchTaskTaskShadeController {
             @Override
             protected BatchScheduleTaskResultVO process() {
                 ScheduleTaskVO scheduleTaskVO = schduleTaskTaskShadeRpcService.displayOffSpring(shadeVO.getTaskId(),
-                        shadeVO.getTenantId(),  shadeVO.getLevel(), shadeVO.getDirectType(), AppType.RDOS.getType());
+                        shadeVO.getTenantId(),  shadeVO.getLevel(), shadeVO.getDirectType(), null);
 
                 return TaskMapstructTransfer.INSTANCE.ScheduleTaskVOToBatchScheduleTaskResultVO(scheduleTaskVO);
             }
@@ -63,7 +62,7 @@ public class BatchTaskTaskShadeController {
         return new APITemplate<BatchScheduleTaskResultVO>() {
             @Override
             protected BatchScheduleTaskResultVO process() {
-                ScheduleTaskVO scheduleTaskVO = schduleTaskTaskShadeRpcService.getAllFlowSubTasks(shadeVO.getTaskId(), AppType.RDOS.getType());
+                ScheduleTaskVO scheduleTaskVO = schduleTaskTaskShadeRpcService.getAllFlowSubTasks(shadeVO.getTaskId(),null);
                 return TaskMapstructTransfer.INSTANCE.ScheduleTaskVOToBatchScheduleTaskResultVO(scheduleTaskVO);
             }
         }.execute();

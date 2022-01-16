@@ -1,6 +1,5 @@
 package com.dtstack.engine.common.cache;
 
-import com.dtstack.engine.common.enums.base.AppType;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.util.PublicUtil;
 import com.google.common.cache.Cache;
@@ -33,7 +32,6 @@ public class SessionCache implements InitializingBean {
 
     private RedisTemplate<String, Object> redisTemplate;
 
-    private AppType appType;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -52,7 +50,7 @@ public class SessionCache implements InitializingBean {
             uaCache.put(cacheKey, data);
             redisTemplate.opsForValue().set(cacheKey, objectMapper.writeValueAsString(data), expire, TimeUnit.SECONDS);
         } catch (Throwable e) {
-            logger.error("{}", e);
+            logger.error("SessionCache set error", e);
         }
     }
 
@@ -82,7 +80,7 @@ public class SessionCache implements InitializingBean {
             }
             return (T) data.get(key);
         } catch (Throwable e) {
-            logger.error("{}", e);
+            logger.error("SessionCache get error", e);
         }
         return null;
     }
@@ -99,12 +97,12 @@ public class SessionCache implements InitializingBean {
                 redisTemplate.delete(cacheKey);
             }
         } catch (Throwable e) {
-            logger.error("{}", e);
+            logger.error("SessionCache remove error", e);
         }
     }
 
     private String getCacheKey(Object key) {
-        return appType.name() + key.toString();
+        return key.toString();
     }
 
     public void setExpire(int expire) {
@@ -115,15 +113,8 @@ public class SessionCache implements InitializingBean {
         this.redisTemplate = redisTemplate;
     }
 
-    public void setAppType(AppType appType) {
-        this.appType = appType;
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (null == this.appType) {
-            throw new DtCenterDefException("AuthCache'appType is null");
-        }
         if (null == this.redisTemplate) {
             throw new DtCenterDefException("AuthCache'redisTemplate is null");
         }

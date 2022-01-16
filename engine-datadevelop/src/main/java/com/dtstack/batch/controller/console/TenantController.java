@@ -19,17 +19,17 @@
 package com.dtstack.batch.controller.console;
 
 import com.dtstack.batch.mapstruct.console.TenantTransfer;
+import com.dtstack.batch.service.console.TenantService;
+import com.dtstack.batch.vo.console.ClusterTenantVO;
 import com.dtstack.batch.vo.console.TenantVO;
 import com.dtstack.engine.common.constrant.Cookies;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.batch.service.console.TenantService;
-import com.dtstack.engine.master.vo.ClusterTenantVO;
 import com.dtstack.engine.pager.PageResult;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +50,9 @@ public class TenantController {
 
     @PostMapping(value = "/pageQuery")
     public R<PageResult<List<ClusterTenantVO>>> pageQuery(@RequestParam("clusterId") Long clusterId,
-                                                       @RequestParam("tenantName") String tenantName,
-                                                       @RequestParam("pageSize") int pageSize,
-                                                       @RequestParam("currentPage") int currentPage) {
+                                                          @RequestParam("tenantName") String tenantName,
+                                                          @RequestParam("pageSize") int pageSize,
+                                                          @RequestParam("currentPage") int currentPage) {
         Cluster cluster = clusterService.getCluster(clusterId);
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
@@ -87,7 +87,7 @@ public class TenantController {
     }
 
     @PostMapping(value = "/addTenant")
-    public R<Void> bindingTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.DT_USER_ID) Long userId) throws Exception {
+    public R<Void> bindingTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
         if(StringUtils.isBlank(tenantName)){
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }

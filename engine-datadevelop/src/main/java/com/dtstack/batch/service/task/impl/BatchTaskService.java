@@ -94,7 +94,6 @@ import com.dtstack.batch.sync.template.OdpsBase;
 import com.dtstack.batch.sync.template.OdpsReader;
 import com.dtstack.batch.sync.template.RDBBase;
 import com.dtstack.batch.sync.template.RDBReader;
-import com.dtstack.batch.utils.Strings;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ReadWriteLockVO;
@@ -131,10 +130,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
 import com.dtstack.engine.common.thread.RdosThreadFactory;
-import com.dtstack.engine.common.util.Base64Util;
-import com.dtstack.engine.common.util.DataFilter;
-import com.dtstack.engine.common.util.JsonUtils;
-import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.*;
 import com.dtstack.engine.domain.BaseEntity;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.BatchTask;
@@ -148,8 +144,8 @@ import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.TaskParamTemplateService;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.batch.service.task.TaskParamTemplateService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
@@ -2347,8 +2343,6 @@ public class BatchTaskService {
                     obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.PROCEDURE_FUNCTION.name())) {
                     obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.PROCEDURE.getType());
-                } else if (type.equals(CatalogueType.GREENPLUM_CUSTOM_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.SYSTEM_FUNCTION.name())) {
                     throw new RdosDefineException("不能添加系统函数");
                 } else {
@@ -2371,7 +2365,7 @@ public class BatchTaskService {
     public void setOwnerUser(Long ownerUserId, Long taskId) {
         final User ownerUser = userService.getById(ownerUserId);
         if (ownerUser == null) {
-            throw new RdosDefineException(ErrorCode.GET_USER_ERROR);
+            throw new RdosDefineException(ErrorCode.USER_IS_NULL);
         }
 
         final BatchTask batchTask = this.batchTaskDao.getOne(taskId);

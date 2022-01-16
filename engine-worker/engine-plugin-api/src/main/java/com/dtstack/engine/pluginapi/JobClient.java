@@ -22,7 +22,7 @@ import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.EQueueSourceType;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.MathUtil;
@@ -346,7 +346,7 @@ public class JobClient implements Serializable {
 
     public void doStatusCallBack(Integer status) {
         if (jobClientCallBack == null) {
-            throw new RdosDefineException("not set jobClientCallBak...");
+            throw new PluginDefineException("not set jobClientCallBak...");
         }
         jobClientCallBack.updateStatus(status);
     }

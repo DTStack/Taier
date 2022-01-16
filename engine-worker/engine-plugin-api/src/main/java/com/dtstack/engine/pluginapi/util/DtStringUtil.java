@@ -30,29 +30,6 @@ import java.util.zip.ZipOutputStream;
 
 public class DtStringUtil {
 
-    public static List<String> splitIngoreBlank(String str){
-
-        String[] strs = str.trim().split("\\s+");
-        List<String> tokensList = new ArrayList<>();
-        boolean inSingleQuotes = false;
-        StringBuilder b = new StringBuilder();
-        for (String c : strs) {
-            if (c.contains("\'")) {
-                inSingleQuotes = !inSingleQuotes;
-                b.append(c).append(' ');
-                if (!inSingleQuotes){
-                    tokensList.add(b.toString().replace('\'',' '));
-                    b = new StringBuilder();
-                }
-            } else if (inSingleQuotes){
-                b.append(c).append(' ');
-            } else {
-                tokensList.add(c);
-            }
-        }
-
-        return tokensList;
-    }
 
     /**
      * 根据指定分隔符分割字符串---忽略在引号里面的分隔符
@@ -100,17 +77,6 @@ public class DtStringUtil {
         }
 
         return tokensList;
-    }
-
-    /***
-     * 根据指定分隔符分割字符串---忽略在引号 和 括号 里面的分隔符
-     * @param str
-     * @param delimter
-     * @return
-     */
-    public static String[] splitIgnoreQuotaBrackets(String str, String delimter){
-        String splitPatternStr = delimter + "(?![^()]*+\\))(?![^{}]*+})(?![^\\[\\]]*+\\])(?=(?:[^\"]|\"[^\"]*\")*$)";
-        return str.split(splitPatternStr);
     }
 
     /**

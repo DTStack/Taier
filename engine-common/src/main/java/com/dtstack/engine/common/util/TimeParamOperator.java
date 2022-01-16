@@ -14,14 +14,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
- * @description:  * 基准时间是yyyyMMddHHmmss
- *  * 基准天是yyyyMMdd
- *  * 所有自定义操作必须是基于这两个
- * @create: 2021-12-15 23:23
- **/
+
 public class TimeParamOperator {
     private static final String STD_FMT = "yyyyMMddHHmmss";
 

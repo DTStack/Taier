@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.factory;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.base.enums.ClusterMode;
@@ -65,7 +65,7 @@ public abstract class AbstractClientFactory implements IClientFactory {
                 clientFactory = new StandaloneClientFactory(flinkClientBuilder);
                 break;
             default:
-                throw new RdosDefineException("not support clusterMode: " + clusterMode);
+                throw new PluginDefineException("not support clusterMode: " + clusterMode);
         }
         return clientFactory;
     }
@@ -105,7 +105,7 @@ public abstract class AbstractClientFactory implements IClientFactory {
                 }
             }
         } else {
-            throw new RdosDefineException("The Flink jar path is null");
+            throw new PluginDefineException("The Flink jar path is null");
         }
         return classpaths;
     }

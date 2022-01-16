@@ -1,15 +1,8 @@
 package com.dtstack.engine.common.lang.web;
 
-/**
- * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
- * @description:
- * @create: 2021-12-16 16:52
- **/
-
-import com.dtstack.engine.common.enums.ErrorEnum;
-import com.dtstack.engine.common.lang.base.Strings;
+import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.lang.i18n;
+import com.dtstack.engine.common.util.Strings;
 
 public class R<T> {
     private static String DATA_VERSION;
@@ -36,13 +29,13 @@ public class R<T> {
 
     public final static <T> R<T> ok(T data) {
         return new R()
-                .code(ErrorEnum.SUCCESS.code())
+                .code(ErrorCode.SUCCESS.getCode())
                 .data(data);
     }
 
     public final static R<Void> empty() {
         return new R()
-                .code(ErrorEnum.SUCCESS.code());
+                .code(ErrorCode.SUCCESS.getCode());
     }
 
     public final static <T> R<T> fail(int code, String message) {
@@ -108,7 +101,7 @@ public class R<T> {
      * @return
      */
     public boolean isSuccess() {
-        return getCode() == ErrorEnum.SUCCESS.getCode();
+        return getCode() == ErrorCode.SUCCESS.getCode();
     }
 
     public String getVersion() {
