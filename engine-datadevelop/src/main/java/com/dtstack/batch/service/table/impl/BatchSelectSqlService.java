@@ -29,7 +29,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchTask;
-import com.dtstack.engine.master.impl.ActionService;
+import com.dtstack.engine.master.service.ActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

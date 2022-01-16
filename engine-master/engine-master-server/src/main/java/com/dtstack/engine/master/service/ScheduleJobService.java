@@ -1,18 +1,18 @@
 package com.dtstack.engine.master.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.engine.common.constrant.TaskConstant;
 import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.OperatorType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.domain.ScheduleJobExpand;
-import com.dtstack.engine.domain.ScheduleJobJob;
-import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
+import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.mapstruct.ScheduleJobMapStruct;
-import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -44,10 +44,16 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ZkService zkService;
 
     @Autowired
+    private ActionService actionService;
+
+    @Autowired
     private JobPartitioner jobPartitioner;
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private ScheduleTaskService scheduleTaskService;
 
     @Autowired
     private ScheduleJobJobService scheduleJobJobService;
@@ -59,12 +65,48 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
     /**
+     * 开始运行实例
+     *
+     * @param scheduleJobDetails 实例
+     */
+    public void startJob(ScheduleJobDetails scheduleJobDetails) throws Exception {
+        ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
+        ScheduleTaskShade scheduleTaskShade = scheduleJobDetails.getScheduleTaskShade();
+
+        ScheduleTaskShade extraInfoTaskShade = scheduleTaskService.lambdaQuery()
+                .select(ScheduleTaskShade::getTaskId, ScheduleTaskShade::getExtraInfo)
+                .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
+
+        // 解析任务运行信息
+        String extraInfo = extraInfoTaskShade.getExtraInfo();
+        if (StringUtils.isNotBlank(extraInfo)) {
+            JSONObject extObject = JSONObject.parseObject(extraInfo);
+
+            if (null != extObject ) {
+                JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
+
+                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, info);
+                if (paramActionExt != null) {
+                    updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),scheduleTaskShade.getVersionId());
+                    actionService.start(paramActionExt);
+                }
+            }
+        } else {
+            //额外信息为空 标记任务为失败
+            this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
+            LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+        }
+    }
+
+    /**
      * 批量设置实例状态
      *
      * @param resumeBatchJobs 实例集合
      */
     @Transactional(rollbackFor = Exception.class)
-    public void batchRestartScheduleJob(Map<String, String> resumeBatchJobs) {
+    public void restartScheduleJob(Map<String, String> resumeBatchJobs) {
         if (MapUtils.isNotEmpty(resumeBatchJobs)) {
             List<String> restartJobId = new ArrayList<>(resumeBatchJobs.size());
             resumeBatchJobs.entrySet()
@@ -256,12 +298,75 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         return this.baseMapper.listByCycTimeAndJobName(startId,cycTime,jobName,type,jobSize);
     }
 
-    public Integer updateJobStatusAndExecTime(String jobId, Integer status) {
-        if (StringUtils.isNotBlank(jobId) && status != null) {
-            return this.baseMapper.updateJobStatusAndExecTime(jobId, status);
+    /**
+     * 查询实例状态
+     * @param jobId 实例id
+     * @return 实例状态，如果查询不到，返回null
+     */
+    public Integer getJobStatusByJobId(String jobId) {
+        if ( StringUtils.isBlank(jobId)) {
+            return null;
         }
-        return 0;
+        ScheduleJob scheduleJob = this.lambdaQuery().eq(ScheduleJob::getJobId, jobId).eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
+
+        if (scheduleJob == null) {
+            return null;
+        }
+        return scheduleJob.getStatus();
+    }
+
+    /**
+     * 更新状态和日志
+     *
+     * @param jobId 实例id
+     * @param status 实例状态
+     * @param logInfo 实例日志
+     */
+    public void updateStatusAndLogInfoById(String jobId, Integer status, String logInfo) {
+        if (StringUtils.isNotBlank(jobId) && status != null) {
+            this.baseMapper.updateJobStatusAndExecTime(jobId, status);
+        }
+
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setLogInfo(logInfo);
+
+        scheduleJobExpandService.lambdaUpdate()
+                .eq(ScheduleJobExpand::getJobId,jobId)
+                .eq(ScheduleJobExpand::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJobExpand);
+    }
+
+    /**
+     * 更新实例状态和版本
+     * @param jobId 实例id
+     * @param status 状态
+     * @param versionId 版本
+     */
+    private Boolean updateStatusByJobIdAndVersionId(String jobId, Integer status, Integer versionId) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setStatus(status);
+        scheduleJob.setVersionId(versionId);
+        return this.lambdaUpdate()
+                .eq(ScheduleJob::getJobId,jobId)
+                .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJob);
     }
 
 
+    /**
+     * 更新实例队列状态
+     * @param id 实例id
+     * @param oldJobPhaseStatus 旧状态
+     * @param newJobPhaseStatus 新状态
+     * @return 是否更新成功
+     */
+    public Boolean updatePhaseStatusById(Long id, JobPhaseStatus oldJobPhaseStatus, JobPhaseStatus newJobPhaseStatus) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setPhaseStatus(newJobPhaseStatus.getCode());
+        return this.lambdaUpdate()
+                .eq(ScheduleJob::getId,id)
+                .eq(ScheduleJob::getPhaseStatus,oldJobPhaseStatus.getCode())
+                .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJob);
+    }
 }

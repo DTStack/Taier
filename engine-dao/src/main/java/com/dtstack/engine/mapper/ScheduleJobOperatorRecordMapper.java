@@ -31,7 +31,16 @@ import java.util.List;
  */
 public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobOperatorRecord> {
 
-    List<ScheduleJobOperatorRecord> listStopJob(@Param("startId") Long startId);
-
     Integer updateOperatorExpiredVersion(@Param("id") Long id, @Param("operatorExpired") Timestamp operatorExpired, @Param("version") Integer version);
+
+    /**
+     * 扫描操作记录
+     *
+     * @param startSort 开始位置
+     * @param nodeAddress 节点
+     * @param type 操作类型
+     * @param isEq 是否查询开始位置
+     * @return 操作记录
+     */
+    List<ScheduleJobOperatorRecord> listOperatorRecord(@Param("startSort") Long startSort, @Param("nodeAddress") String nodeAddress, @Param("type") Integer type, @Param("isEq") Boolean isEq);
 }

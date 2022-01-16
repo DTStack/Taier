@@ -79,7 +79,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
                 if(MapUtils.isNotEmpty(computeResumeBatchJobs)){
                     resumeBatchJobs.putAll(computeResumeBatchJobs);
                 }
-                scheduleJobService.batchRestartScheduleJob(resumeBatchJobs);
+                scheduleJobService.restartScheduleJob(resumeBatchJobs);
             }
         } catch (Exception e) {
             LOGGER.error("restart job {} error", jobIds, e);
