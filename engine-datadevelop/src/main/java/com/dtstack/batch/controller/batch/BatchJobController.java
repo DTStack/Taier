@@ -21,9 +21,22 @@ package com.dtstack.batch.controller.batch;
 import com.dtstack.batch.mapstruct.vo.BatchJobMapstructTransfer;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.batch.web.job.vo.query.*;
-import com.dtstack.batch.web.job.vo.result.*;
+import com.dtstack.batch.web.job.vo.query.BatchJobFindTaskRuleJobVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobGetEngineJobIdVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobListJobIdByNameVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobStartSqlVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobStartSyncVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobStatisticsTaskRecentInfoVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobStopJobVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobSyncTaskVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobUpdateStatusByIdVO;
+import com.dtstack.batch.web.job.vo.query.BatchJobUpdateStatusVO;
+import com.dtstack.batch.web.job.vo.result.BatchExecuteResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchGetLabTaskRelationMapResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchJobFindTaskRuleJobResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchScheduleJobExeStaticsResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
@@ -129,21 +142,8 @@ public class BatchJobController {
         return new APITemplate<BatchExecuteResultVO>() {
             @Override
             protected BatchExecuteResultVO process() throws RdosDefineException {
-                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd(), vo.getTaskParams());
+                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd());
                 return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
-            }
-        }.execute();
-    }
-
-    @ApiOperation(value = "高级运行sparkSql从引擎执行逻辑")
-    @PostMapping(value = "startSqlSophisticated")
-    public R<BatchExecuteSqlParseResultVO> startSqlSophisticated(@RequestBody BatchJobStartSqlSophisticatedVO vo) {
-
-        return new APITemplate<BatchExecuteSqlParseResultVO>() {
-            @Override
-            protected BatchExecuteSqlParseResultVO process() throws RdosDefineException {
-                ExecuteSqlParseVO executeSqlParseVO = batchJobService.startSqlSophisticated(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSqlList(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot());
-                return BatchJobMapstructTransfer.INSTANCE.executeSqlParseVOToBatchExecuteSqlParseResultVO(executeSqlParseVO);
             }
         }.execute();
     }
