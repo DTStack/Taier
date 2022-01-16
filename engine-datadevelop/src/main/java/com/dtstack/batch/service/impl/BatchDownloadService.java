@@ -34,7 +34,7 @@ import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.google.common.base.Preconditions;
@@ -85,7 +85,7 @@ public class BatchDownloadService {
     private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private DatasourceService datasourceService;

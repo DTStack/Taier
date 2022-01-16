@@ -49,7 +49,7 @@ import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,7 +109,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private UserService userService;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 

@@ -16,7 +16,7 @@ import java.util.List;
  * @Email:dazhi@dtstack.com
  * @Description:
  */
-@Service("jobjob")
+@Service
 public class ScheduleJobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJobJob> {
 
     /**
