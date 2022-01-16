@@ -67,10 +67,10 @@ public enum EngineCatalogueType {
      * @param taskType
      * @return
      */
-    public static EngineCatalogueType getByEngineType(Integer taskType) {
+    public static EngineCatalogueType getByComponentType(Integer taskType) {
         if (EComponentType.SPARK_THRIFT.getTypeCode().equals(taskType)) {
             return EngineCatalogueType.SPARK;
         }
-        return EngineCatalogueType.SPARK;
+        return null;
     }
 }
