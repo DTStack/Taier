@@ -236,7 +236,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             while (true) {
                 try {
                     //根据条件判断是否有数据存在
-                    List<ScheduleJobOperatorRecord> jobStopRecords = scheduleJobOperatorRecordService.listStopJob(tmpStartId);
+                    List<ScheduleJobOperatorRecord> jobStopRecords = Lists.newArrayList();
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
@@ -423,7 +423,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         shardCache.removeIfPresent(jobId);
         engineJobCacheService.deleteByJobId(jobId);
         //修改任务状态
-        scheduleJobService.updateJobStatusAndExecTime(jobId, RdosTaskStatus.CANCELED.getStatus());
+        scheduleJobService.updateStatusAndLogInfoById(jobId, RdosTaskStatus.CANCELED.getStatus(),"");
         LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
     }
 

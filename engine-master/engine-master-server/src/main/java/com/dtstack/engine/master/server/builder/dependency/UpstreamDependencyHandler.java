@@ -1,17 +1,11 @@
 package com.dtstack.engine.master.server.builder.dependency;
 
-import com.dtstack.engine.common.enums.IsDeletedEnum;
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.domain.ScheduleTaskTaskShade;
 import com.dtstack.engine.master.enums.RelyRule;
 import com.dtstack.engine.master.enums.RelyType;
-import com.dtstack.engine.master.server.builder.AbstractJobBuilder;
 import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
-import com.dtstack.engine.master.service.ScheduleTaskService;
-import com.dtstack.engine.master.service.ScheduleTaskTaskService;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -19,13 +13,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -51,7 +41,7 @@ public class UpstreamDependencyHandler extends AbstractDependencyHandler {
                 scheduleJobJob.setTenantId(currentTaskShade.getTenantId());
                 scheduleJobJob.setJobKey(currentJobKey);
                 scheduleJobJob.setParentJobKey(getJobKey(taskShade,currentDate));
-                scheduleJobJob.setParentJobKeyType(RelyType.UPSTREAM.getType());
+                scheduleJobJob.setJobKeyType(RelyType.UPSTREAM.getType());
                 scheduleJobJob.setRule(RelyRule.RUN_SUCCESS.getType());
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {

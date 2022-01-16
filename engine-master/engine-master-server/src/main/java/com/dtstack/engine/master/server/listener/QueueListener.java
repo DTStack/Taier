@@ -23,7 +23,6 @@ import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.common.util.LogCountUtil;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
 import com.dtstack.engine.master.server.queue.QueueInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,7 @@ public class QueueListener implements InitializingBean, Runnable {
     private final static int CHECK_INTERVAL = 5000;
 
     @Autowired
-    private JobExecutorTrigger jobExecutorTrigger;
+    private JobSchedulerListener jobExecutorTrigger;
 
     @Autowired
     private JobDealer jobDealer;

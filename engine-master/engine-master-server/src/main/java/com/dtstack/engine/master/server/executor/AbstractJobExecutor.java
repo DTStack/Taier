@@ -35,8 +35,7 @@ import com.dtstack.engine.master.impl.BatchFlowWorkJobService;
 import com.dtstack.engine.master.impl.ScheduleJobService;
 import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.master.server.scheduler.JobCheckRunInfo;
-import com.dtstack.engine.master.server.scheduler.JobRichOperator;
+import com.dtstack.engine.master.server.scheduler.exec.JobCheckRunInfo;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -94,8 +93,6 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
     @Autowired
     protected ScheduleJobService batchJobService;
 
-    @Autowired
-    protected JobRichOperator jobRichOperator;
 
     @Autowired
     protected ScheduleTaskShadeService batchTaskShadeService;
@@ -226,23 +223,23 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
                             checkJobVersion(scheduleBatchJob.getScheduleJob(),batchTask);
 
-                            JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
+//                            JobCheckRunInfo checkRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, status, scheduleBatchJob.getScheduleType(), batchTask);
                             if (EScheduleJobType.WORK_FLOW.getType().equals(type)) {
                                 LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB so immediate put queue.", scheduleBatchJob.getJobId(), getScheduleType());
-                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
-                                    putScheduleJob(scheduleBatchJob);
-                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
-                                    LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
-                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
-                                }
+//                                if (RdosTaskStatus.UNSUBMIT.getStatus().equals(status) && isPutQueue(checkRunInfo, scheduleBatchJob)) {
+//                                    putScheduleJob(scheduleBatchJob);
+//                                } else if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
+//                                    LOGGER.info("jobId:{} scheduleType:{} is WORK_FLOW or ALGORITHM_LAB start judgment son is execution complete.", scheduleBatchJob.getJobId(), getScheduleType());
+//                                    batchFlowWorkJobService.checkRemoveAndUpdateFlowJobStatus(scheduleBatchJob);
+//                                }
                             } else {
-                                if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
+//                                if (isPutQueue(checkRunInfo, scheduleBatchJob)) {
                                     // 更新job状态
                                     boolean updateStatus = batchJobService.updatePhaseStatusById(scheduleBatchJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
                                     if (updateStatus) {
                                         LOGGER.info("jobId:{} scheduleType:{} nodeAddress:{} JobPhaseStatus:{} update success", scheduleBatchJob.getJobId(), getScheduleType(), nodeAddress, JobPhaseStatus.JOIN_THE_TEAM);
                                         putScheduleJob(scheduleBatchJob);
-                                    }
+//                                    }
                                 }
                             }
                             LOGGER.info("startId is {} jobId is {} scheduleType {} isRestart {}", startId, scheduleBatchJob.getJobId(), getScheduleType(),scheduleBatchJob.getIsRestart());
@@ -305,42 +302,17 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
 
     private boolean isPutQueue(JobCheckRunInfo checkRunInfo, ScheduleBatchJob scheduleBatchJob) {
         Integer status;
-        String errMsg = checkRunInfo.getErrMsg();
-        if (checkRunInfo.getStatus() == JobCheckStatus.CAN_EXE) {
-            LOGGER.info("jobId:{} checkRunInfo.status:{} put success queue", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
-            return Boolean.TRUE;
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_NOT_REACH
-                || checkRunInfo.getStatus() == JobCheckStatus.NOT_UNSUBMIT
-                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_NOT_FINISHED
-                || checkRunInfo.getStatus() == JobCheckStatus.CHILD_PRE_NOT_FINISHED) {
-            LOGGER.info("jobId:{} checkRunInfo.status:{} unable put to queue", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
-            return Boolean.FALSE;
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.NO_TASK
-                || checkRunInfo.getStatus() == JobCheckStatus.SELF_PRE_PERIOD_EXCEPTION
-                || checkRunInfo.getStatus() == JobCheckStatus.TASK_DELETE
-                || checkRunInfo.getStatus() == JobCheckStatus.FATHER_NO_CREATED
-                || checkRunInfo.getStatus() == JobCheckStatus.RESOURCE_OVER_LIMIT) {
-            status = RdosTaskStatus.FAILED.getStatus();
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.FATHER_JOB_EXCEPTION) {
-            //上游任务失败
-            status = RdosTaskStatus.PARENTFAILED.getStatus();
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED) {
+//        String errMsg = checkRunInfo.getErrMsg();
+        if (checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_CANCELED) {
             status = RdosTaskStatus.KILLED.getStatus();
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.TASK_PAUSE
-                || checkRunInfo.getStatus() == JobCheckStatus.DEPENDENCY_JOB_FROZEN) {
+//        } else if (checkRunInfo.getStatus() == JobCheckStatus.TASK_PAUSE) {
             status = RdosTaskStatus.FROZEN.getStatus();
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.TIME_OVER_EXPIRE
-                || JobCheckStatus.DEPENDENCY_JOB_EXPIRE.equals(checkRunInfo.getStatus())) {
-            //更新为自动取消
-            status = RdosTaskStatus.EXPIRE.getStatus();
-        } else if (checkRunInfo.getStatus() == JobCheckStatus.CHILD_PRE_NOT_SUCCESS) {
-            status = RdosTaskStatus.FAILED.getStatus();
-        } else {
+        }  else {
             LOGGER.error("appear unknown jobId:{} checkRunInfo.status:{} ", scheduleBatchJob.getJobId(), checkRunInfo.getStatus());
             return Boolean.FALSE;
         }
-        LOGGER.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
-        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), status, errMsg);
+//        LOGGER.info("jobId:{} checkRunInfo.status:{} errMsg:{} status:{} update status.", scheduleBatchJob.getJobId(), checkRunInfo.getStatus(), errMsg, status);
+//        batchJobService.updateStatusAndLogInfoById(scheduleBatchJob.getJobId(), status, errMsg);
         batchFlowWorkJobService.batchUpdateFlowSubJobStatus(scheduleBatchJob.getScheduleJob(),status);
         return Boolean.FALSE;
     }
@@ -377,7 +349,7 @@ public abstract class AbstractJobExecutor implements InitializingBean, Runnable 
      */
     public Pair<String, String> getCycTime(boolean minJobId) {
         if (EScheduleType.NORMAL_SCHEDULE.getType().equals(getScheduleType().getType())) {
-            return jobRichOperator.getCycTimeLimitEndNow(minJobId);
+//            return jobRichOperator.getCycTimeLimitEndNow(minJobId);
         }
         return new ImmutablePair<>(null, null);
     }
