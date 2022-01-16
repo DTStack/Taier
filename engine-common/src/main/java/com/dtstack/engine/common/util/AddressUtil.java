@@ -18,7 +18,6 @@
 
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.lang.base.Strings;
 import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

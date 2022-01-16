@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.common.enums;
 
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EComponentType;
 
 /**
  * @author yuebai
@@ -28,27 +28,7 @@ public enum EngineCatalogueType {
     /**
      *
      */
-    SPARK(-1, "Spark SQL"),
-
-    /**
-     *
-     */
-    LIBRA(-2, "Libra SQL"),
-
-    /**
-     *
-     */
-    TIDB(-3, "TiDB SQL"),
-
-    /**
-     *
-     */
-    ORACLE(-4, "Oracle SQL"),
-
-    /**
-     *
-     */
-    GREENPLUM(-5,"Greenplum SQL");
+    SPARK(-1, "SparkSQL");
 
     private int type;
 
@@ -84,28 +64,12 @@ public enum EngineCatalogueType {
 
     /**
      * 根据引擎类型获取目录结构
-     * @param engineType
+     * @param taskType
      * @return
      */
-    public static EngineCatalogueType getByEngineType(Integer engineType) {
-        if (MultiEngineType.HADOOP.getType() == engineType) {
+    public static EngineCatalogueType getByEngineType(Integer taskType) {
+        if (EComponentType.SPARK_THRIFT.getTypeCode().equals(taskType)) {
             return EngineCatalogueType.SPARK;
-        }
-
-        if (MultiEngineType.LIBRA.getType() == engineType) {
-            return EngineCatalogueType.LIBRA;
-        }
-
-        if (MultiEngineType.TIDB.getType() == engineType) {
-            return EngineCatalogueType.TIDB;
-        }
-
-        if (MultiEngineType.ORACLE.getType() == engineType) {
-            return EngineCatalogueType.ORACLE;
-        }
-
-        if (MultiEngineType.GREENPLUM.getType() == engineType) {
-            return EngineCatalogueType.GREENPLUM;
         }
         return EngineCatalogueType.SPARK;
     }

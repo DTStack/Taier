@@ -10,14 +10,15 @@ import com.dtstack.batch.vo.datasource.DsDetailVO;
 import com.dtstack.batch.vo.datasource.DsInfoVO;
 import com.dtstack.batch.vo.datasource.DsListVO;
 import com.dtstack.batch.vo.datasource.DsTypeListVO;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.common.pager.PageResult;
-import com.dtstack.engine.common.util.APITemplate;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -52,7 +53,7 @@ public class DataSourceController {
     public R<DsDetailVO> dsDetail(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<DsDetailVO>() {
             @Override
-            protected DsDetailVO process() throws BizException {
+            protected DsDetailVO process() throws RdosDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 return dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
             }
@@ -64,7 +65,7 @@ public class DataSourceController {
     public R<Boolean> deleteById(@RequestBody DsInfoIdParam dsInfoIdParam) {
         return new APITemplate<Boolean>() {
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
                 return dsInfoService.delDsInfo(dsInfoIdParam.getDataInfoId());
             }

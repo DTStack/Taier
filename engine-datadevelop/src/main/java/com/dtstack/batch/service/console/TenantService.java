@@ -25,11 +25,15 @@ import com.dtstack.batch.mapstruct.console.TenantTransfer;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.impl.BatchCatalogueService;
 import com.dtstack.batch.service.impl.TenantEngineService;
-import com.dtstack.batch.vo.TenantEngineVO;
+import com.dtstack.batch.vo.console.ClusterTenantVO;
+import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ClusterTenant;
+import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
@@ -37,12 +41,9 @@ import com.dtstack.engine.mapper.QueueMapper;
 import com.dtstack.engine.mapper.TenantMapper;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.engine.master.vo.ClusterTenantVO;
+import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,7 +189,7 @@ public class TenantService {
         if (tenant != null) {
             return tenant;
         }
-        throw new RdosDefineException(ErrorCode.TENANT_CAN_NOT_FIND);
+        throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
     public Tenant getByDtUicTenantId(Long tenantId) {
@@ -237,7 +238,7 @@ public class TenantService {
     }
 
     public List<Tenant> listAllTenant() {
-        return tenantMapper.selectList(null);
+        return tenantMapper.selectList(Wrappers.lambdaQuery(Tenant.class).eq(Tenant::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public Tenant findByName(String tenantName) {
@@ -255,11 +256,9 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void initBatch(Long tenantId, Long userId, String tenantName, String tenantDesc) throws Exception {
         //初始化目录
-        TenantEngineVO tenantEngineVO = new TenantEngineVO();
-        tenantEngineVO.setDatabase(tenantName);
-        tenantEngineVO.setEngineType(MultiEngineType.HADOOP.getType());
-        List<TenantEngineVO> tenantEngines = Lists.newArrayList(tenantEngineVO);
-        batchCatalogueService.initCatalogue(tenantId, userId, tenantEngines);
+        List<Component> components = componentService.listAllComponents(tenantId);
+        List<ComponentVO> componentVOS = ComponentVO.toVOS(components);
+        batchCatalogueService.initCatalogue(tenantId, userId, componentVOS);
 
         //初始化数据源
         datasourceService.initDefaultSource(tenantId, tenantName, tenantDesc, userId);

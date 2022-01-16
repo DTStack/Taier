@@ -7,8 +7,6 @@ engine-worker/engine-plugins/dummy,\
 engine-worker/engine-plugins/flink/common,\
 engine-worker/engine-plugins/flink/yarn3-hdfs3-flink110,\
 engine-worker/engine-plugins/flink/yarn2-hdfs2-flink110,\
-engine-worker/engine-plugins/spark/yarn3-hdfs3-spark240/spark-yarn-client,\
-engine-worker/engine-plugins/spark/yarn3-hdfs3-spark240/spark-sql-proxy,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark210/spark-yarn-client,\
 engine-worker/engine-plugins/spark/yarn3-hdfs3-spark210/spark-sql-proxy,\
 engine-worker/engine-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\

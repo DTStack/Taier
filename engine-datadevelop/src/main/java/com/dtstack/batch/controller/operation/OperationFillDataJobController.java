@@ -40,28 +40,16 @@ public class OperationFillDataJobController {
     @RequestMapping(value = "/fillData", method = {RequestMethod.POST})
     @ApiOperation(value = "补数据接口:支持批量补数据和工程补数据")
     public Long fillData(@RequestBody @Valid ScheduleFillJobParticipateVO scheduleFillJobParticipateVO, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
-            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
-        }
         return jobService.fillData(FillDataJobMapstructTransfer.INSTANCE.scheduleFillJobParticipateVoToScheduleFillJobParticipateDTO(scheduleFillJobParticipateVO));
     }
 
     @RequestMapping(value = "/queryFillDataList", method = {RequestMethod.POST})
     public PageResult<List<ReturnFillDataListVO>> fillDataList(@RequestBody @Valid QueryFillDataListVO vo, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
-            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
-        }
         return jobService.fillDataList(FillDataJobMapstructTransfer.INSTANCE.fillDataListVOToFillDataListDTO(vo));
     }
 
     @RequestMapping(value = "/queryFillDataJobList", method = {RequestMethod.POST})
     public PageResult<ReturnFillDataJobListVO> fillDataJobList(@RequestBody @Valid QueryFillDataJobListVO vo, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
-            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
-        }
         return jobService.fillDataJobList(FillDataJobMapstructTransfer.INSTANCE.fillDataJobListVOToFillDataJobReturnListVO(vo));
     }
 

@@ -19,11 +19,11 @@
 package com.dtstack.batch.mapstruct.console;
 
 
+import com.dtstack.batch.vo.console.ClusterTenantVO;
 import com.dtstack.batch.vo.console.TenantVO;
 import com.dtstack.engine.domain.ClusterTenant;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.domain.Tenant;
-import com.dtstack.engine.master.vo.ClusterTenantVO;
 import org.apache.commons.lang.math.NumberUtils;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

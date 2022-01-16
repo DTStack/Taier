@@ -38,7 +38,6 @@ import com.dtstack.batch.vo.BatchServerLogVO;
 import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -57,8 +56,9 @@ import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
 import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleJobService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
@@ -77,12 +77,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BatchServerLogService {
@@ -105,7 +100,7 @@ public class BatchServerLogService {
     private BatchTaskVersionService batchTaskVersionService;
 
     @Autowired
-    private com.dtstack.engine.master.impl.ScheduleJobService ScheduleJobService;
+    private ScheduleJobService scheduleJobService;
 
     @Autowired
     private BatchTaskService batchTaskService;
@@ -142,14 +137,14 @@ public class BatchServerLogService {
             return null;
         }
 
-        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null);
+        final ScheduleJob job = scheduleJobService.getByJobId(jobId, null);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         final Long tenantId = job.getTenantId();
 
-        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(job.getTaskId(), null, AppType.RDOS.getType());
+        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.getByTaskId(job.getTaskId());
         if (Objects.isNull(scheduleTaskShade)) {
             BatchServerLogService.logger.info("can not find task shade  by jobId:{}.", jobId);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
@@ -637,7 +632,7 @@ public class BatchServerLogService {
 
     public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long dtUicTenantId) {
 
-        final ScheduleJob job = this.ScheduleJobService.getByJobId(jobId, null);
+        final ScheduleJob job = scheduleJobService.getByJobId(jobId, null);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -699,7 +694,7 @@ public class BatchServerLogService {
 
     public SyncStatusLogInfoVO getSyncJobLogInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
 
-        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
+        final ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getByTaskId(taskId);
 
         final SyncStatusLogInfoVO syncStatusLogInfoVO = new SyncStatusLogInfoVO();
         final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");
@@ -737,7 +732,7 @@ public class BatchServerLogService {
      * @return
      */
     public SyncErrorCountInfoVO getSyncJobCountInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
-         ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.findTaskId(taskId, null, AppType.RDOS.getType());
+         ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getByTaskId(taskId);
 
          SyncErrorCountInfoVO countInfoVO = new SyncErrorCountInfoVO();
          Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");

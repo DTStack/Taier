@@ -1,5 +1,8 @@
 package com.dtstack.engine.common.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Splitter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -12,7 +15,10 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,10 +103,7 @@ public class PublicUtil {
 		return index%multiples==0;
 	}
 
-	public static  String upperFirstLetter(String word){
-		return word.substring(0, 1).toUpperCase() + word.substring(1);
-	}
-	
+
 	public static boolean matcher(String source,String pattern){
 		return Pattern.compile(pattern).matcher(source).matches();
 	}
@@ -183,41 +186,32 @@ public class PublicUtil {
 		BeanUtils.copyProperties(source, target, getNullPropertyNames(source));
 	}
 
-	
-    public static String convertDelimiter(String in) {
-        String line = in;
-        line = line.replaceAll("\\\\t", "\t");
-        line = line.replaceAll("\\\\n", "\n");
-        line = line.replaceAll("\\\\r", "\r");
-        line = line.replaceAll("\\\\\\\\", "\\\\");
+	public static JSONObject paramToMap(String header) {
+		JSONObject jsonObject = new JSONObject();
 
-        String pattern = "\\\\(\\d{3})";
-        Pattern r = Pattern.compile(pattern);
-        while(true) {
-            Matcher m = r.matcher(line);
-            if(!m.find()){
-				break;
-			}
-            String num = m.group(1);
-            int x = Integer.parseInt(num, 8);
-            line = m.replaceFirst(String.valueOf((char)x));
-        }
-        return line;
-    }
+		List<String> strings = Splitter.on(";").trimResults().splitToList(header);
 
-
-	public static List<Integer> getConvertSendType(int type) {
-		String hexType = new StringBuffer(Integer.toHexString(type)).reverse().toString();
-		char[] buf = hexType.toCharArray();
-		List<Integer> types = new ArrayList<>();
-		for (int i = 0; i < buf.length; i++) {
-			int cint = Character.getNumericValue(buf[i]);
-			if (cint != 0) {
-				types.add(i + 1);
+		for (String param : strings) {
+			String[] split1 = param.split("=");
+			if (ArrayUtils.isNotEmpty(split1) && split1.length == 2) {
+				jsonObject.put(split1[0],split1[1]);
+				jsonObject.put(lineToHump(split1[0]),split1[1]);
 			}
 		}
 
-		return types;
+		return jsonObject;
+	}
+
+	public static String lineToHump(String str) {
+		Pattern linePattern = Pattern.compile("_(\\w)");
+		str = str.toLowerCase();
+		Matcher matcher = linePattern.matcher(str);
+		StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			matcher.appendReplacement(sb, matcher.group(1).toUpperCase());
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 
 }

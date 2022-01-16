@@ -19,13 +19,12 @@
 package com.dtstack.batch.controller.console;
 
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.dto.Resource;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.vo.ComponentVO;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
@@ -90,7 +89,7 @@ public class UploadController {
             }
 
             @Override
-            protected ComponentVO process() throws BizException {
+            protected ComponentVO process() throws RdosDefineException {
                 //校验引擎是否添加
                 EComponentType componentType = EComponentType.getByCode(componentCode);
                 if (EComponentType.deployTypeComponents.contains(componentType) && null == deployType) {
