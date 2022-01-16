@@ -8,6 +8,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.server.builder.dependency.DependencyHandler;

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -37,30 +37,32 @@ import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.EngineJobRetryDao;
 import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.impl.ScheduleJobService;
+import com.dtstack.engine.master.impl.*;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
+import com.dtstack.engine.master.server.builder.ScheduleConf;
+import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
+import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.server.multiengine.JobStartTriggerBase;
 import com.dtstack.engine.master.server.multiengine.factory.MultiEngineFactory;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.pipeline.PipelineBuilder;
 import com.dtstack.engine.master.server.pipeline.params.UploadParamPipeline;
-import com.dtstack.engine.master.server.scheduler.JobRichOperator;
-import com.dtstack.engine.master.server.scheduler.parser.ScheduleCron;
-import com.dtstack.engine.master.server.scheduler.parser.ScheduleFactory;
-import com.dtstack.engine.master.service.ScheduleJobExpandService;
-import com.dtstack.engine.master.vo.JobLogVO;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.action.ActionRetryLogVO;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
-import com.dtstack.engine.pluginapi.enums.*;
+import com.dtstack.engine.pluginapi.enums.ComputeType;
+import com.dtstack.engine.pluginapi.enums.EDeployMode;
+import com.dtstack.engine.pluginapi.enums.EJobType;
+import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ErrorCode;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
-import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -73,6 +75,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -107,9 +110,6 @@ public class ActionService {
 
     @Autowired
     private JobStopDealer jobStopDealer;
-
-    @Autowired
-    private JobRichOperator jobRichOperator;
 
     @Autowired
     private MultiEngineFactory multiEngineFactory;
@@ -218,7 +218,7 @@ public class ActionService {
     }
 
     private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
-        String cycTime = jobRichOperator.getCycTime(0);
+        String cycTime = getCycTime(0);
         String scheduleConf = batchTask.getScheduleConf();
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
@@ -239,10 +239,11 @@ public class ActionService {
             jsonMap.put("isFailRetry",false);
             scheduleConf = JSON.toJSONString(jsonMap);
             batchTask.setScheduleConf(scheduleConf);
-            ScheduleCron scheduleCron = ScheduleFactory.parseFromJson(scheduleConf);
-            scheduleJob.setDependencyType(getOrDefault(scheduleCron.getSelfReliance(), 0));
-            scheduleJob.setPeriodType(scheduleCron.getPeriodType());
-            scheduleJob.setMaxRetryNum(getOrDefault(scheduleCron.getMaxRetryNum(), 0));
+            ScheduleCorn scheduleCron = ScheduleConfManager.parseFromJson(scheduleConf);
+            ScheduleConf scheduleConfBean = scheduleCron.getScheduleConf();
+            scheduleJob.setDependencyType(getOrDefault(scheduleConfBean.getSelfReliance(), 0));
+            scheduleJob.setPeriodType(scheduleConfBean.getPeriodType());
+            scheduleJob.setMaxRetryNum(getOrDefault(scheduleConfBean.getMaxRetryNum(), 0));
         }
 
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
@@ -529,5 +530,16 @@ public class ActionService {
         return jobIdWorker.nextJobId();
     }
 
+    public String getCycTime(Integer beforeDay) {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        if (beforeDay == null || beforeDay == 0) {
+            return sdf.format(calendar.getTime());
+        }
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + beforeDay);
+        return sdf.format(calendar.getTime());
+    }
 
 }

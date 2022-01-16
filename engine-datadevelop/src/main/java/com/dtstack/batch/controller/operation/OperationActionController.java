@@ -41,9 +41,6 @@ public class OperationActionController {
     private JobService jobService;
 
     @Autowired
-    private com.dtstack.engine.master.impl.ActionService oldActionService;
-
-    @Autowired
     private ActionService actionService;
 
     @ApiOperation(value = "重跑任务")
