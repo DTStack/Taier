@@ -20,7 +20,6 @@ package com.dtstack.batch.service.job;
 
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.engine.domain.BatchTask;
 
 import java.util.List;
@@ -51,22 +50,6 @@ public interface IBatchJobExeService {
     ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
                                         Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception;
 
-
-    /**
-     * 解析sql，返回sql对应的uuid以及将sql封装通过引擎执行
-     * @param userId
-     * @param tenantId
-     * @param uniqueKey
-     * @param taskId
-     * @param sqlList
-     * @param isRoot
-     * @param task
-     * @param dtToken
-     * @param database
-     * @return
-     */
-    ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, String uniqueKey, Long taskId, List<String> sqlList,
-                                            Boolean isRoot, BatchTask task, String dtToken, String database)throws Exception;
 
     /**
      * 组装参数 提交调度

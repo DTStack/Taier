@@ -18,28 +18,37 @@
 
 package com.dtstack.batch.enums;
 
-import com.dtstack.engine.common.enums.EJobType;
 import com.google.common.collect.Lists;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
- * @author sanyue
+ * @author <a href="mailto:jiangyue@dtstack.com">江月 At 袋鼠云</a>.
+ * @description  任务开发下面，初始化的模板任务的目录
+ * @date 2022/1/16 11:23 上午
  */
 
 public enum TemplateCatalogue {
-    //这个是libra独有的
-    ODS_LIBRA(0, "原始数据层(ODS)", "fx_customer_base"),
     ODS(1, "原始数据层(ODS)", "exam_ods_ddl"),
     DWD(2, "数仓明细层(DWD)", "exam_dwd_sales_ord_df"),
     DWS(3, "数仓汇总层(DWS)", "exam_dws_sales_shop_1d"),
     ADS(4, "应用数据层(ADS)", "exam_ads_sales_all_d"),
     DIM(5, "数据维度(DIM)", "exam_dim_shop");
 
+    /**
+     * 模板任务的目录类型
+     */
     private Integer type;
+
+    /**
+     * 模板任务的目录显示名称
+     */
     private String value;
+
+    /**
+     * 模板任务的名称
+     */
     private String fileName;
 
     TemplateCatalogue(Integer type, String value, String fileName) {
@@ -60,26 +69,14 @@ public enum TemplateCatalogue {
         return fileName;
     }
 
-    public static List<String> getValues(){
-        TemplateCatalogue[] values = TemplateCatalogue.values();
-        List<TemplateCatalogue> valueList = Arrays.asList(values);
-        List<String> strings = valueList.stream().map(TemplateCatalogue::getValue).collect(Collectors.toList());
-        return strings;
-    }
-
     /**
-     * 根据引擎类型获取不同结果
-     * @param type
+     * 所有的模板任务的目录
      * @return
      */
-    public static List<TemplateCatalogue> getValues(Integer type){
+    public static List<TemplateCatalogue> getValues(){
         List<TemplateCatalogue> list = Lists.newLinkedList();
         for (TemplateCatalogue temp : TemplateCatalogue.values()){
-           if (ODS_LIBRA.getType().equals(temp.getType()) && !EJobType.GaussDB_SQL.getVal().equals(type)){
-                continue;
-           }
            list.add(temp);
-
        }
         return list;
     }
