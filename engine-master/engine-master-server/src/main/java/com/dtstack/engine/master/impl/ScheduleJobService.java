@@ -37,16 +37,13 @@ import com.dtstack.engine.master.impl.vo.ScheduleJobVO;
 import com.dtstack.engine.master.impl.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.server.ScheduleBatchJob;
-import com.dtstack.engine.master.server.builder.AtomicJobSortWorker;
 import com.dtstack.engine.master.server.builder.CycleJobBuilder;
-import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
-import com.dtstack.engine.master.server.scheduler.JobCheckRunInfo;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
-import com.dtstack.engine.master.server.scheduler.JobRichOperator;
+import com.dtstack.engine.master.service.ActionService;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.service.JobGraphTriggerService;
 import com.dtstack.engine.master.service.ScheduleJobExpandService;
-import com.dtstack.engine.master.utils.JobGraphUtils;
 import com.dtstack.engine.master.vo.*;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.master.vo.schedule.job.ScheduleJobStatusCountVO;
@@ -69,7 +66,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -83,8 +79,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -130,9 +124,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
 
     @Autowired
     private ScheduleJobJobDao scheduleJobJobDao;
-
-    @Autowired
-    private JobRichOperator jobRichOperator;
 
     @Autowired
     private ActionService actionService;
@@ -2179,98 +2170,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper,ScheduleJo
     public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
 
         scheduleJobDao.updateStatusByJobId(jobId, status, logInfo,null,null,null);
-    }
-
-
-    /**
-     * 测试任务 是否可以运行
-     *
-     * @param jobId
-     * @return
-     */
-    public String testCheckCanRun(String jobId){
-        ScheduleJob scheduleJob = scheduleJobDao.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if (null == scheduleJob) {
-            return "任务不存在";
-        }
-
-        ScheduleBatchJob scheduleBatchJob = new ScheduleBatchJob(scheduleJob);
-        List<ScheduleJobJob> scheduleJobJobs = scheduleJobJobDao.listByJobKey(scheduleJob.getJobKey());
-        scheduleBatchJob.setJobJobList(scheduleJobJobs);
-        ScheduleTaskShade batchTaskById = batchTaskShadeService.getBatchTaskById(scheduleJob.getTaskId());
-        if (batchTaskById == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        try {
-            JobCheckRunInfo jobCheckRunInfo = jobRichOperator.checkJobCanRun(scheduleBatchJob, scheduleJob.getStatus(), scheduleJob.getType(),batchTaskById);
-            return JSONObject.toJSONString(jobCheckRunInfo);
-        } catch (Exception e) {
-            LOGGER.error("ScheduleJobService.testCheckCanRun error:", e);
-        }
-        return "";
-    }
-
-    /**
-     * 生成当天单个任务实例
-     *
-     * @throws Exception
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void createTodayTaskShade( Long taskId, Integer appType,String date) {
-        try {
-            //如果appType为空的话则为离线
-            if (null == appType) {
-                throw new RdosDefineException("appType不能为空");
-            }
-            ScheduleTaskShade testTask = batchTaskShadeService.getBatchTaskById(taskId);
-            if (null == testTask) {
-                throw new RdosDefineException("任务不存在");
-            }
-            List<ScheduleTaskShade> taskShades = new ArrayList<>();
-            taskShades.add(testTask);
-            if (SPECIAL_TASK_TYPES.contains(testTask.getTaskType())) {
-                //工作流算法实验 需要将子节点查询出来运行
-                List<ScheduleTaskShade> flowWorkSubTasks = batchTaskShadeService.getFlowWorkSubTasks(testTask.getTaskId(),
-                        null, null);
-                if (CollectionUtils.isNotEmpty(flowWorkSubTasks)) {
-                    taskShades.addAll(flowWorkSubTasks);
-                }
-            }
-            if(StringUtils.isBlank(date)){
-                date = new DateTime().toString("yyyy-MM-dd");
-            }
-            Map<String, String> flowJobId = new ConcurrentHashMap<>();
-            List<ScheduleJobDetails> allJobs = new ArrayList<>();
-            AtomicJobSortWorker worker = new AtomicJobSortWorker();
-            for (ScheduleTaskShade task : taskShades) {
-                try {
-                    List<ScheduleJobDetails> scheduleJobDetails = cycleJobBuilder.buildJob(task, date, worker);
-                    allJobs.addAll(scheduleJobDetails);
-                    if (SPECIAL_TASK_TYPES.contains(task.getTaskType())) {
-                        //工作流或算法实验
-                        for (ScheduleJobDetails jobRunBean : scheduleJobDetails) {
-                            ScheduleJob scheduleJob = jobRunBean.getScheduleJob();
-                            flowJobId.put(JobGraphUtils.buildFlowReplaceId(task.getTaskId(),scheduleJob.getCycTime(),null),scheduleJob.getJobId());
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("生成当天单个任务实例异常,taskId:{}",task.getTaskId(), e);
-                }
-            }
-
-            for (ScheduleJobDetails job : allJobs) {
-                String flowIdKey = job.getScheduleJob().getFlowJobId();
-                job.getScheduleJob().setFlowJobId(flowJobId.getOrDefault(flowIdKey, "0"));
-            }
-            sortAllJobs(allJobs);
-
-            //需要保存BatchJob, BatchJobJob
-//            this.insertJobList(allJobs, EScheduleType.NORMAL_SCHEDULE.getType());
-
-        } catch (Exception e) {
-            LOGGER.error("createTodayTaskShadeForTest", e);
-            throw new RdosDefineException("任务创建失败");
-        }
     }
 
     /**

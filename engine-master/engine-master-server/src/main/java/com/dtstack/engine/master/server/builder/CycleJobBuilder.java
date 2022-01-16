@@ -2,11 +2,9 @@ package com.dtstack.engine.master.server.builder;
 
 import com.dtstack.engine.common.enums.EScheduleStatus;
 import com.dtstack.engine.common.enums.EScheduleType;
-import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
-import com.dtstack.engine.master.server.ScheduleBatchJob;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.service.JobGraphTriggerService;
 import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;

@@ -61,7 +61,7 @@ public class ScheduleJobJob {
      *   2. 上游任务key
      *   3. 上游任务的下一个周期key
      */
-    private Integer parentJobKeyType;
+    private Integer jobKeyType;
 
     /**
      * 依赖规则: RelyRule
@@ -117,12 +117,12 @@ public class ScheduleJobJob {
         this.parentJobKey = parentJobKey;
     }
 
-    public Integer getParentJobKeyType() {
-        return parentJobKeyType;
+    public Integer getJobKeyType() {
+        return jobKeyType;
     }
 
-    public void setParentJobKeyType(Integer parentJobKeyType) {
-        this.parentJobKeyType = parentJobKeyType;
+    public void setJobKeyType(Integer jobKeyType) {
+        this.jobKeyType = jobKeyType;
     }
 
     public Integer getRule() {
@@ -162,12 +162,12 @@ public class ScheduleJobJob {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ScheduleJobJob that = (ScheduleJobJob) o;
-        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(parentJobKey, that.parentJobKey) && Objects.equals(parentJobKeyType, that.parentJobKeyType) && Objects.equals(rule, that.rule) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(jobKey, that.jobKey) && Objects.equals(parentJobKey, that.parentJobKey) && Objects.equals(jobKeyType, that.jobKeyType) && Objects.equals(rule, that.rule) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tenantId, jobKey, parentJobKey, parentJobKeyType, rule, gmtCreate, gmtModified, isDeleted);
+        return Objects.hash(id, tenantId, jobKey, parentJobKey, jobKeyType, rule, gmtCreate, gmtModified, isDeleted);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class ScheduleJobJob {
                 ", tenantId=" + tenantId +
                 ", jobKey='" + jobKey + '\'' +
                 ", parentJobKey='" + parentJobKey + '\'' +
-                ", type=" + parentJobKeyType +
+                ", type=" + jobKeyType +
                 ", rule=" + rule +
                 ", gmtCreate=" + gmtCreate +
                 ", gmtModified=" + gmtModified +
