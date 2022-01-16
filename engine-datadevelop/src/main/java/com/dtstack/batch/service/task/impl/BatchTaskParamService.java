@@ -20,6 +20,7 @@ package com.dtstack.batch.service.task.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.constrant.FormNames;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskParamDao;
@@ -84,38 +85,52 @@ public class BatchTaskParamService {
      */
     private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
 
+
+    /**
+     * 校验任务中的 系统参数 和 自定义参数
+     * @param jobContent SQL内容
+     * @param parameterSet 任务参数
+     */
     public void checkParams(final String jobContent, final List parameterSet) {
-        String jobStr = jobContent;
+        //校验任务参数不能为空参数
         if (CollectionUtils.isNotEmpty(parameterSet)) {
-            for (Object batchTaskParam : parameterSet) {
-                if (!(batchTaskParam instanceof BatchTaskParam)) {
-                    try {
-                        batchTaskParam = PublicUtil.objectToObject(batchTaskParam, BatchTaskParam.class);
-                    } catch (final IOException e) {
-                        logger.error("转换batchTaskParam对象失败,{}", e);
-                    }
+            for (Object paramObj : parameterSet) {
+
+                BatchTaskParam batchTaskParam = null;
+                try {
+                    batchTaskParam = PublicUtil.objectToObject(paramObj, BatchTaskParam.class);
+                } catch (final IOException e) {
+                    logger.error("转换batchTaskParam对象失败,{}", e);
                 }
-                if (StringUtils.isBlank(((BatchTaskParam) batchTaskParam).getParamCommand()) || "$[]".equalsIgnoreCase(((BatchTaskParam) batchTaskParam).getParamCommand())) {
-                    throw new RdosDefineException("自定义参数赋值不能为空");
+
+                if(batchTaskParam != null){
+                    if (StringUtils.isBlank(batchTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(batchTaskParam.getParamCommand())) {
+                        throw new RdosDefineException("自定义参数赋值不能为空");
+                    }
                 }
             }
         }
+
+        String jobStr = jobContent;
         if (StringUtils.isNotEmpty(jobStr)) {
-            //注释中的系统参数跳过检查
+
+            //校验任务参数时，先清除sql中的注释
             String sqlWithoutComments = this.batchSqlExeService.removeComment(jobStr);
             if (StringUtils.isNotEmpty(sqlWithoutComments)) {
                 sqlWithoutComments = sqlWithoutComments.replaceAll("\\s*", "");
             }
-            //删除 数据同步任务 配置项
-            if (sqlWithoutComments.contains("hbaseConfig") || sqlWithoutComments.contains("hadoopConfig")
-                    || sqlWithoutComments.contains("kerberosConfig")) {
+
+            //校验任务参数时，先删除 数据同步任务 配置项
+            if (sqlWithoutComments.contains(FormNames.HBASE_CONFIG) || sqlWithoutComments.contains(FormNames.HADOOP_CONFIG) || sqlWithoutComments.contains(FormNames.KERBEROS_CONFIG)) {
                 sqlWithoutComments = removeConfig(sqlWithoutComments);
             }
+
+            //正则解析SQL中的 系统参数 和 自定义参数
             Matcher matcher = PARAM_REGEX_PATTERN.matcher(sqlWithoutComments);
             if (matcher.find()) {
                 if (CollectionUtils.isEmpty(parameterSet)) {
                     logger.error("jobContent:{}", jobContent);
-                    throw new RdosDefineException("任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
+                    throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
                 }
             }
         }
@@ -198,6 +213,11 @@ public class BatchTaskParamService {
         return jobContent;
     }
 
+    /**
+     * 转换SQL任务中的 自定义参数 和 系统参数 为参数对象
+     * @param taskVariables
+     * @return
+     */
     public List<BatchParamDTO> paramResolver(final List<Map> taskVariables) {
 
         if (CollectionUtils.isEmpty(taskVariables)) {
@@ -262,6 +282,13 @@ public class BatchTaskParamService {
         return saves;
     }
 
+
+    /**
+     * 将SQL中的系统参数和自定义参数对象转换为 BatchTaskParamShade 对象
+     * @param params
+     * @return
+     * @throws Exception
+     */
     public List<BatchTaskParamShade> convertShade(final List<BatchTaskParam> params) throws Exception {
         final List<BatchTaskParamShade> shades = Lists.newArrayList();
         if (params != null) {
@@ -272,6 +299,13 @@ public class BatchTaskParamService {
         return shades;
     }
 
+
+    /**
+     * 将 系统参数和自定义参数 的DTO对象转换为PO对象
+     * @param paramDTOs
+     * @return
+     * @throws Exception
+     */
     public List<BatchTaskParam> convertParam(final List<BatchParamDTO> paramDTOs) throws Exception {
         final List<BatchTaskParam> params = Lists.newArrayList();
         if (paramDTOs != null) {
@@ -287,7 +321,7 @@ public class BatchTaskParamService {
 
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParam taskParamShade : taskParams) {
-            if (EParamType.SYS_TYPE.getType() != taskParamShade.getType()) {
+            if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {
                 continue;
             }
 
