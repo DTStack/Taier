@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.base.enums;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 
 /**
  * Created by sishu.yss on 2018/3/9.
@@ -43,7 +43,7 @@ public enum ClusterMode {
             return STANDALONE;
         }
 
-        throw new RdosDefineException("not support clusterMode: " + clusterMode);
+        throw new PluginDefineException("not support clusterMode: " + clusterMode);
     }
 
     /**

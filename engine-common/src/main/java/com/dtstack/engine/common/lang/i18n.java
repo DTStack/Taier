@@ -1,8 +1,6 @@
 package com.dtstack.engine.common.lang;
 
 
-import com.dtstack.engine.common.lang.base.Casts;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -18,7 +16,7 @@ public class i18n {
     }
 
     public static String error(int code) {
-        String key = Casts.castString(code);
+        String key = String.valueOf(code);
         if (resourceBundle.containsKey(key)) {
             return resourceBundle.getString(key);
         }

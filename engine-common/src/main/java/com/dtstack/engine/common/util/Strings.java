@@ -1,7 +1,5 @@
 package com.dtstack.engine.common.util;
 
-import com.dtstack.engine.common.lang.base.Chars;
-
 import java.util.Objects;
 
 public abstract class Strings {
@@ -165,8 +163,8 @@ public abstract class Strings {
                 k = format.indexOf(DELIM_STR, i);
                 if (k == -1) {
                 } else {
-                    sbuf.append(format.substring(i, k))
-                            .append(String.valueOf(object));
+                    sbuf.append(format, i, k)
+                            .append(object);
                     i = k + 2;
                 }
             }
@@ -188,11 +186,15 @@ public abstract class Strings {
             return false;
         }
         for (int k = 0; k < text.length(); k++) {
-            if (Chars.isChinese(text.charAt(k))) {
+            if (isChinese(text.charAt(k))) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static final boolean isChinese(char c) {
+        return c >= 19968 && c <= '龥';
     }
 
     /**
@@ -245,5 +247,18 @@ public abstract class Strings {
             }
         }
         return null;
+    }
+
+
+
+    /***
+     * 根据指定分隔符分割字符串---忽略在引号 和 括号 里面的分隔符
+     * @param str
+     * @param delimter
+     * @return
+     */
+    public static String[] splitIgnoreQuotaBrackets(String str, String delimter){
+        String splitPatternStr = delimter + "(?![^()]*+\\))(?![^{}]*+})(?![^\\[\\]]*+\\])(?=(?:[^\"]|\"[^\"]*\")*$)";
+        return str.split(splitPatternStr);
     }
 }

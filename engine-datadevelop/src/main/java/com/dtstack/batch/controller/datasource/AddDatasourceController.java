@@ -17,15 +17,10 @@ import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.datasource.DsClassifyVO;
 import com.dtstack.batch.vo.datasource.DsTypeVO;
 import com.dtstack.batch.vo.datasource.DsVersionVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceColumnForSyncopateVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceGetVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourcePreviewVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableColumnVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableListVO;
-import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTableLocationVO;
-import com.dtstack.engine.common.exception.BizException;
+import com.dtstack.batch.web.datasource.vo.query.*;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
-import com.dtstack.engine.common.util.APITemplate;
 import com.dtstack.engine.common.util.DataSourceUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,11 +28,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -103,7 +94,7 @@ public class AddDatasourceController {
                 Asserts.hasText(addDataSourceParam.getDataType(), "数据源类型不能为空!");
             }
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.checkConnection(dataSourceVO);
             }
@@ -125,7 +116,7 @@ public class AddDatasourceController {
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
             @Override
-            protected Boolean process() throws BizException {
+            protected Boolean process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
@@ -149,7 +140,7 @@ public class AddDatasourceController {
                 }
             }
             @Override
-            protected Long process() throws BizException {
+            protected Long process() throws RdosDefineException {
                 DataSourceVO dataSourceVO = new DataSourceParam2SourceVOConverter().convert(addDataSourceParam);
                 return datasourceService.addOrUpdateSource(dataSourceVO, dataSourceVO.getUserId());
             }
@@ -170,7 +161,7 @@ public class AddDatasourceController {
                 Asserts.hasText(principal, "kerberos principle不能为空!");
             }
             @Override
-            protected Long process() throws BizException {
+            protected Long process() throws RdosDefineException {
                 Pair<String, String> resource = (Pair<String, String>) params.get("resource");
                 params.remove(RESOURCE);
                 DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);

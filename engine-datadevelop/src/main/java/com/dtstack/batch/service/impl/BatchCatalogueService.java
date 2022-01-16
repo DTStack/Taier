@@ -33,22 +33,23 @@ import com.dtstack.batch.enums.TemplateCatalogue;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.BatchTaskTemplateService;
 import com.dtstack.batch.service.task.impl.ReadWriteLockService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.CatalogueVO;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.batch.vo.TaskResourceParam;
-import com.dtstack.batch.vo.TenantEngineVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.engine.common.enums.CatalogueLevel;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.DictType;
+import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.ReadWriteLockType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BatchTask;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.engine.master.vo.ComponentVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -56,6 +57,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +71,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -123,10 +124,13 @@ public class BatchCatalogueService {
 
     private final static String FILE_TYPE_FOLDER = "folder";
 
+    // 前端是根据type 区分函数目录下的类型的，所以以下皆是 函数管理下的目录
+    private List<String> FUNCTION_CATALOGUE_TYPE = Lists.newArrayList(CatalogueType.SYSTEM_FUNCTION.getType(), CatalogueType.CUSTOM_FUNCTION.getType(), CatalogueType.PROCEDURE_FUNCTION.getType());
+
     /**
      * 如果没有选择对接引擎 就要默认初始化下列目录
      */
-    private static Set<String> NO_ENGINE_CATALOGUE = Sets.newHashSet(CatalogueType.TASK_DEVELOP.getType(), CatalogueType.SCRIPT_MANAGER.getType(), CatalogueType.RESOURCE_MANAGER.getType(), CatalogueType.FUNCTION_MANAGER.getType());
+    private static Set<String> NO_ENGINE_CATALOGUE = Sets.newHashSet(CatalogueType.TASK_DEVELOP.getType(), CatalogueType.RESOURCE_MANAGER.getType(), CatalogueType.FUNCTION_MANAGER.getType());
 
     @Autowired
     private ReadWriteLockService readWriteLockService;
@@ -212,35 +216,25 @@ public class BatchCatalogueService {
         }
         if (name.equals(EngineCatalogueType.SPARK.getDesc())) {
             return MultiEngineType.HADOOP.getType();
-        } else if (name.equals(EngineCatalogueType.LIBRA.getDesc())) {
-            return MultiEngineType.LIBRA.getType();
-        } else if (name.equals(EngineCatalogueType.TIDB.getDesc())) {
-            return MultiEngineType.TIDB.getType();
-        } else if (name.equals(EngineCatalogueType.ORACLE.getDesc())) {
-            return MultiEngineType.ORACLE.getType();
-        } else if (name.equals(EngineCatalogueType.GREENPLUM.getDesc())) {
-            return MultiEngineType.GREENPLUM.getType();
         }
         return 0;
     }
 
 
     /**
-     * 创建租户时，初始化目录信息
+     * 绑定租户时，初始化目录信息
      * @param tenantId
      * @param userId
-     * @param tenantEngineVOS
+     * @param componentVOS
      */
     @Transactional(rollbackFor = Exception.class)
-    public void initCatalogue(Long tenantId, Long userId, List<TenantEngineVO> tenantEngineVOS) {
+    public void initCatalogue(Long tenantId, Long userId, List<ComponentVO> componentVOS) {
         List<Dict> batchCatalogueDicts = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
-        List<Integer> supportEngineType = tenantEngineVOS.stream().map(TenantEngineVO::getEngineType).collect(Collectors.toList());
-        List<Dict> batchCatalogueDictLevelOne = this.initCatalogueDictLevelByEngineType(supportEngineType);
+        List<Integer> componentTypes = componentVOS.stream().map(ComponentVO::getComponentTypeCode).collect(Collectors.toList());
+        List<Dict> batchCatalogueDictLevelOne = this.initCatalogueDictLevelByEngineType(componentTypes);
 
-        Map<Integer, Set<String>> catalogueMapping = batchCatalogueDictLevelOne
-                .stream()
-                .collect(Collectors.groupingBy(Dict::getDictValue,
-                        Collectors.mapping(Dict::getDictNameZH, Collectors.toSet())));
+        Map<Integer, Set<String>> catalogueMapping = batchCatalogueDictLevelOne.stream()
+                .collect(Collectors.groupingBy(Dict::getDictValue, Collectors.mapping(Dict::getDictNameZH, Collectors.toSet())));
         for (Dict dict : batchCatalogueDicts) {
             BatchCatalogue batchCatalogue = new BatchCatalogue();
             batchCatalogue.setNodeName(dict.getDictNameZH());
@@ -264,9 +258,9 @@ public class BatchCatalogueService {
                     sc1.setCreateUserId(userId);
                     sc1.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
                     addOrUpdate(sc1);
-                    if (name.equals(TASK_DEVELOPE) && supportEngineType.contains(MultiEngineType.HADOOP.getType())) {
+                    if (TASK_DEVELOPE.equals(name)) {
                         //初始化任务模版
-                        this.initTemplateCatalogue(sc1, tenantId, userId, supportEngineType);
+                        this.initTemplateCatalogue(sc1, tenantId, userId);
                     }
                     this.initEngineCatalogue(tenantId, userId, name, sc1);
                 }
@@ -302,25 +296,25 @@ public class BatchCatalogueService {
     }
 
     /**
-     * 租户添加新的引擎后，初始引擎的目录
+     * 租户添加新的组件后，初始组件的目录
      *
      * @param tenantId
      * @param userId
-     * @param addEngineType
+     * @param componentTypeList
      */
     @Transactional(rollbackFor = Exception.class)
-    public void initExtEngineCatalogue(Long tenantId, Long userId, List<Integer> addEngineType) {
-        if (CollectionUtils.isNotEmpty(addEngineType)) {
-            for (Integer engineType : addEngineType) {
+    public void initComponentCatalogue(Long tenantId, Long userId, List<Integer> componentTypeList) {
+        if (CollectionUtils.isNotEmpty(componentTypeList)) {
+            for (Integer componentType : componentTypeList) {
                 BatchCatalogue catalogue = null;
-                EngineCatalogueType engineCatalogueType = EngineCatalogueType.getByEngineType(engineType);
+                EngineCatalogueType engineCatalogueType = EngineCatalogueType.getByEngineType(componentType);
                 if (null == engineCatalogueType) {
                     logger.error("not support engine type");
                     return;
                 }
                 catalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.OTHER.getLevel(), tenantId, engineCatalogueType.getDesc());
                 if (null != catalogue) {
-                    logger.error("tenantId {} has init engine type {} catalogue ", tenantId, engineType);
+                    logger.error("tenantId {} has init engine type {} catalogue ", tenantId, componentType);
                     continue;
                 }
                 BatchCatalogue functionManager = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.ONE.getLevel(), tenantId, FUNCTION_MANAGER.get(0));
@@ -331,7 +325,7 @@ public class BatchCatalogueService {
                 BatchCatalogue sqlCatalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.SECOND.getLevel(), tenantId, engineCatalogueType.getDesc());
                 if (Objects.isNull(sqlCatalogue)) {
                     BatchCatalogue addEngineCatalogue = new BatchCatalogue();
-                    addEngineCatalogue.setEngineType(engineType);
+                    addEngineCatalogue.setEngineType(componentType);
                     addEngineCatalogue.setNodeName(engineCatalogueType.getDesc());
                     addEngineCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
                     addEngineCatalogue.setNodePid(functionManager.getId());
@@ -339,7 +333,7 @@ public class BatchCatalogueService {
                     addEngineCatalogue.setCreateUserId(userId);
                     addEngineCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
 
-                    //添加spark libra impala function 这一层
+                    //添加spark 这一层
                     addOrUpdate(addEngineCatalogue);
                     //初始化下一层目录
                     this.initEngineCatalogue(tenantId, userId, engineCatalogueType.getDesc(), addEngineCatalogue);
@@ -349,11 +343,12 @@ public class BatchCatalogueService {
 
     }
 
-    private List<Dict> initCatalogueDictLevelByEngineType(List<Integer> supportEngineType) {
+    private List<Dict> initCatalogueDictLevelByEngineType(List<Integer> componentType) {
         List<Dict> dictByType = dictService.getDictByType(DictType.BATCH_CATALOGUE_L1.getValue());
-        //根据引擎类型初始化对应的函数管理目录
-        if (CollectionUtils.isNotEmpty(supportEngineType)) {
-            if (!supportEngineType.contains(MultiEngineType.HADOOP.getType())) {
+        //根据组件类型初始化对应的函数管理目录
+        if (CollectionUtils.isNotEmpty(componentType)) {
+            //如果没有选择SparkThrift组件，则不初始化目录
+            if (!componentType.contains(EComponentType.SPARK_THRIFT.getTypeCode())) {
                 dictByType = dictByType.stream()
                         .filter(dict -> !dict.getDictNameZH().equals(EngineCatalogueType.SPARK.getDesc()))
                         .collect(Collectors.toList());
@@ -416,13 +411,9 @@ public class BatchCatalogueService {
      * @param supportEngineType
      * @return
      */
-    private List<BatchCatalogue> initTemplateCatalogue(Catalogue sc1, Long tenantId, Long userId, List<Integer> supportEngineType) {
-        int taskType = 0;
-        if (supportEngineType.size() == 1 && supportEngineType.contains(MultiEngineType.LIBRA.getType())) {
-            taskType = EJobType.GaussDB_SQL.getVal();
-        } else {
-            taskType = EJobType.SPARK_SQL.getVal();
-        }
+    private List<BatchCatalogue> initTemplateCatalogue(Catalogue sc1, Long tenantId, Long userId) {
+        int taskType = EJobType.SPARK_SQL.getVal();
+
         List<BatchCatalogue> templateCatalogueList = new ArrayList<>(TemplateCatalogue.getValues(taskType).size());
         //在任务开发目录下添加默认的任务模版文件
         BatchCatalogue bc = new BatchCatalogue();
@@ -525,40 +516,18 @@ public class BatchCatalogueService {
      * @return
      */
     public CatalogueVO getCatalogue(Boolean isGetFile, Long nodePid, String catalogueType, Long userId, Long tenantId, Integer taskType, Long parentId) {
-
-        //根目录
-        CatalogueVO rootCatalugue = new CatalogueVO();
+        CatalogueVO rootCatalogue = new CatalogueVO();
+        //0表示根目录
         if (nodePid == 0) {
             List<CatalogueVO> catalogues = getCatalogueOne(tenantId);
-            rootCatalugue.setChildren(catalogues);
-        } else if (taskType != null && EJobType.WORK_FLOW.getVal().intValue() == taskType) {
-            rootCatalugue.setId(nodePid);
-            rootCatalugue.setCatalogueType(catalogueType);
-            List<BatchTask> subTasks = batchTaskService.getFlowWorkSubTasksWithoutSql(nodePid);
-            BatchCatalogue currentCatalogue = this.getBatchCatalogueByType(parentId, catalogueType);
-            if (currentCatalogue == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
-            }
-            rootCatalugue.setLevel(currentCatalogue.getLevel() + 1);
-            List<CatalogueVO> children = build(subTasks, rootCatalugue, tenantId, userId);
-            rootCatalugue.setChildren(children);
-            rootCatalugue.setType("flow");
-            rootCatalugue.setTaskType(EJobType.WORK_FLOW.getVal());
-            BatchTask task = batchTaskService.getOne(nodePid);
-            ReadWriteLockVO readWriteLockVO = readWriteLockService.getDetail(
-                    tenantId, nodePid,
-                    ReadWriteLockType.BATCH_TASK, userId,
-                    task.getModifyUserId(),
-                    task.getGmtModified());
-            rootCatalugue.setReadWriteLockVO(readWriteLockVO);
-            rootCatalugue.setVersion(readWriteLockVO.getVersion());
+            rootCatalogue.setChildren(catalogues);
         } else {
-            rootCatalugue.setId(nodePid);
-            rootCatalugue.setCatalogueType(catalogueType);
-            rootCatalugue = getChildNode(rootCatalugue, isGetFile, userId, tenantId);
+            rootCatalogue.setId(nodePid);
+            rootCatalogue.setCatalogueType(catalogueType);
+            rootCatalogue = getChildNode(rootCatalogue, isGetFile, userId, tenantId);
         }
 
-        return rootCatalugue;
+        return rootCatalogue;
     }
 
     /**
@@ -663,71 +632,55 @@ public class BatchCatalogueService {
         return parentCatalogue.getLevel();
     }
 
+    /**
+     * 获取 租户 下的 0 级目录极其子目录
+     * @param tenantId
+     * @return
+     */
     public List<CatalogueVO> getCatalogueOne(Long tenantId) {
+        //查询 0 级目录
         List<BatchCatalogue> zeroCatalogues = batchCatalogueDao.listByLevelAndTenantId(0, tenantId);
-        List<Dict> catalogueOneDicts = dictService.getDictByType(DictType.BATCH_CATALOGUE_L1.getValue());
-        List<Dict> dicts = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
+        //从字典表中查询出初始化的 0 级目录
+        List<Dict> zeroCatalogueDictList = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
+        //从字典表中查询出初始化的 1 级目录
+        List<Dict> oneCatalogueDictList = dictService.getDictByType(DictType.BATCH_CATALOGUE_L1.getValue());
 
-        Map<String, String> catalogueOneType = new HashMap<>(catalogueOneDicts.size());
-        Map<String, String> catalogueType = new HashMap<>(dicts.size());
-        Map<String, Integer> catalogueOrder = new HashMap<>(dicts.size());
-        for (Dict oneDict : catalogueOneDicts) {
-            catalogueOneType.put(oneDict.getDictNameZH(), oneDict.getDictNameEN());
-        }
-        for (Dict dict : dicts) {
-            catalogueType.put(dict.getDictNameZH(), dict.getDictNameEN());
-            catalogueOrder.put(dict.getDictNameZH(), dict.getDictSort());
-        }
-        //目录排序，新建的项目有默认排序，但需要兼容老项目，无奈
-        zeroCatalogues.sort((v1, v2) -> {
-            return (catalogueOrder.get(v1.getNodeName()) != null ? (catalogueOrder.get(v2.getNodeName()) != null ?
-                    (catalogueOrder.get(v1.getNodeName()) < catalogueOrder.get(v2.getNodeName()) ? -1 : 0) : 1) : 1);
-        });
+        // 0 级目录的中文和英文名称
+        Map<String, String> zeroCatalogueType = zeroCatalogueDictList.stream().collect(Collectors.toMap(Dict::getDictNameZH, Dict::getDictNameEN, (key1, key2) -> key1));
+        // 1 级目录的中文和英文名称
+        Map<String, String> oneCatalogueType = oneCatalogueDictList.stream().collect(Collectors.toMap(Dict::getDictNameZH, Dict::getDictNameEN, (key1, key2) -> key1));
 
-        List<CatalogueVO> zeroCatalogueVOs = new ArrayList<>(zeroCatalogues.size());
+        List<CatalogueVO> zeroCatalogueVOList = new ArrayList<>(zeroCatalogues.size());
         for (BatchCatalogue zeroCatalogue : zeroCatalogues) {
             CatalogueVO zeroCatalogueVO = CatalogueVO.toVO(zeroCatalogue);
+            zeroCatalogueVO.setCatalogueType(zeroCatalogueType.get(zeroCatalogue.getNodeName()));
+            zeroCatalogueVO.setType(FILE_TYPE_FOLDER);
+            zeroCatalogueVOList.add(zeroCatalogueVO);
 
-            zeroCatalogueVO.setCatalogueType(catalogueType.get(zeroCatalogue.getNodeName()));
-            zeroCatalogueVO.setType("folder");
-            zeroCatalogueVOs.add(zeroCatalogueVO);
-
-            List<BatchCatalogue> oneCatalogues = batchCatalogueDao.listByPidAndTenantId(zeroCatalogue.getId(), 0L);
+            //查询一级目录下的子目录
+            List<BatchCatalogue> oneChildCatalogues = batchCatalogueDao.listByPidAndTenantId(zeroCatalogue.getId(), tenantId);
             if (FUNCTION_MANAGER.contains(zeroCatalogue.getNodeName())) {
+                //如果是函数目录，默认添加上系统函数目录
                 BatchCatalogue systemFuncCatalogue = batchCatalogueDao.getSystemFunctionCatalogueOne(EngineCatalogueType.SPARK.getType());
                 if (systemFuncCatalogue != null ) {
-                    oneCatalogues.add(systemFuncCatalogue);
+                    oneChildCatalogues.add(systemFuncCatalogue);
                 }
             }
-            List<CatalogueVO> oneCatalogueVOs = new ArrayList<>(oneCatalogues.size());
-            for (BatchCatalogue oneCatalogue : oneCatalogues) {
-                CatalogueVO oneCatalogueVO = CatalogueVO.toVO(oneCatalogue);
-                if (EngineCatalogueType.SPARK.getDesc().equals(oneCatalogueVO.getName())
-                        || EngineCatalogueType.LIBRA.getDesc().equals(oneCatalogueVO.getName())
-                        || EngineCatalogueType.TIDB.getDesc().equals(oneCatalogueVO.getName())
-                        || EngineCatalogueType.ORACLE.getDesc().equals(oneCatalogueVO.getName())
-                        || EngineCatalogueType.GREENPLUM.getDesc().equalsIgnoreCase(oneCatalogueVO.getName())) {
-                    // spark libral  函数管理 不是目录
-                    oneCatalogueVO.setType("catalogue");
+            List<CatalogueVO> oneChildCatalogueVOList = new ArrayList<>(oneChildCatalogues.size());
+            for (BatchCatalogue oneChildCatalogue : oneChildCatalogues) {
+                CatalogueVO oneChildCatalogueVO = CatalogueVO.toVO(oneChildCatalogue);
+                if (EngineCatalogueType.SPARK.getDesc().equals(oneChildCatalogueVO.getName())) {
+                    // spark  函数管理 不是目录
+                    oneChildCatalogueVO.setType("catalogue");
                 } else {
-                    oneCatalogueVO.setType("folder");
+                    oneChildCatalogueVO.setType("folder");
                 }
-                //兼容老数据
-                if (Objects.isNull(catalogueOneType.get(oneCatalogue.getNodeName())) && EngineCatalogueType.GREENPLUM.getDesc().equalsIgnoreCase(oneCatalogueVO.getName())) {
-                    char[] cName = oneCatalogue.getNodeName().toCharArray();
-                    //老数据首字母大写
-                    cName[0]-=32;
-                    String gpName = String.valueOf(cName);
-                    String gpManageName = catalogueOneType.get(gpName);
-                    oneCatalogueVO.setCatalogueType(gpManageName);
-                }else {
-                    oneCatalogueVO.setCatalogueType(catalogueOneType.get(oneCatalogue.getNodeName()));
-                }
-                oneCatalogueVOs.add(oneCatalogueVO);
+                oneChildCatalogueVO.setCatalogueType(oneCatalogueType.get(oneChildCatalogue.getNodeName()));
+                oneChildCatalogueVOList.add(oneChildCatalogueVO);
             }
-            zeroCatalogueVO.setChildren(oneCatalogueVOs);
+            zeroCatalogueVO.setChildren(oneChildCatalogueVOList);
         }
-        return zeroCatalogueVOs;
+        return zeroCatalogueVOList;
     }
 
     private List<CatalogueVO> build(List<BatchTask> taskList, CatalogueVO currentCatalogueVO, Long tenantId, Long userId) {
@@ -766,14 +719,14 @@ public class BatchCatalogueService {
     /**
      * 获得当前节点的子节点信息，包括子孙文件夹和子孙文件
      *
-     * @param tenantId        项目id
+     * @param tenantId   租户id
      * @param isGetFile
      * @param userId
      * @return
      * @author jiangbo、toutian
      */
     private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long userId, Long tenantId) {
-        BatchCatalogue currentCatalogue = this.getBatchCatalogueByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType());
+        BatchCatalogue currentCatalogue = this.getBatchCatalogueByType(currentCatalogueVO.getId());
         if (currentCatalogue == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
@@ -781,140 +734,86 @@ public class BatchCatalogueService {
         currentCatalogueVO.setName(currentCatalogue.getNodeName());
         currentCatalogueVO.setLevel(currentCatalogue.getLevel());
         currentCatalogueVO.setParentId(currentCatalogue.getNodePid());
-        currentCatalogueVO.setType("folder");
+        currentCatalogueVO.setType(FILE_TYPE_FOLDER);
         currentCatalogueVO.setEngineType(currentCatalogue.getEngineType());
 
-
-        // 前端是根据type 区分函数目录下的类型的
-        // 所以以下皆是 函数管理下的目录
-        Predicate<String> testIsFunctionCatalogue = nodeName ->
-                Lists.newArrayList(CatalogueType.SYSTEM_FUNCTION.getType(),
-                        CatalogueType.CUSTOM_FUNCTION.getType(),
-                        "ImpalaSysFunc", "ImpalaSQLFunction",
-                        "LibraFunc", "LibraSQLFunction",
-                        "TiDBSysFunc", "TiDBSQLFunction",
-                        "OracleSysFunc", "OracleSQLFunction",
-                        "GreenPlumSysFunc","GreenPlumSQLFunction",
-                        "ProcedureFunction", "GreenPlumCustomFunction"
-                ).contains(nodeName);
-
-
-        Map<Long, String> userNames = Maps.newHashMap();
         //获取目录下的资源或任务列表
         if (isGetFile) {
-            List<CatalogueVO> files = new ArrayList<>();
+            //目录下的文件信息
+            List<CatalogueVO> catalogueChildFileList = Lists.newArrayList();
+            //用户id 和 名称映射
+            Map<Long, String> userIdAndNameMap = Maps.newHashMap();
+
+            //任务目录
             if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.TASK_DEVELOP.getType())) {
-                Map<Long, List<CatalogueVO>> flowChildren = Maps.newHashMap();
                 List<BatchTask> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
                 taskList.sort(Comparator.comparing(BatchTask::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
-
                     List<Long> taskIds = taskList.stream().map(BatchTask::getId).collect(Collectors.toList());
-                    Map<Long, ReadWriteLockVO> vos = getReadWriteLockVOMap(0L, taskIds, userId, userNames);
+                    Map<Long, ReadWriteLockVO> readWriteLockIdAndVOMap = getReadWriteLockVOMap(tenantId, taskIds, userId, userIdAndNameMap);
 
+                    //遍历目录下的所有任务
                     for (BatchTask task : taskList) {
-                        CatalogueVO childTask = new CatalogueVO();
-                        childTask.setId(task.getId());
-                        childTask.setName(task.getName());
-                        childTask.setTaskType(task.getTaskType());
-                        if (task.getTaskType().intValue() == EJobType.WORK_FLOW.getVal()) {
-                            childTask.setType("flow");
-                        } else {
-                            childTask.setType("file");
-                        }
-                        childTask.setStatus(task.getStatus());
-                        childTask.setLevel(currentCatalogueVO.getLevel() + 1);
-                        childTask.setChildren(null);
-                        childTask.setParentId(currentCatalogueVO.getId());
-                        childTask.setCreateUser(getUserNameInMemory(userNames, task.getCreateUserId()));
+                        CatalogueVO childCatalogueTask = new CatalogueVO();
+                        BeanUtils.copyProperties(task, childCatalogueTask);
+                        childCatalogueTask.setType("file");
+                        childCatalogueTask.setLevel(currentCatalogueVO.getLevel() + 1);
+                        childCatalogueTask.setParentId(currentCatalogueVO.getId());
+                        childCatalogueTask.setCreateUser(getUserNameInMemory(userIdAndNameMap, task.getCreateUserId()));
 
-                        if (task.getTaskType().equals(EJobType.PYTHON.getVal())) {
-                            JSONObject exeArgs = JSONObject.parseObject(task.getExeArgs());
-                            childTask.setOperateModel(exeArgs.getInteger("operateModel"));
-                            childTask.setLearningType(0);
-                            childTask.setPythonVersion(exeArgs.getInteger("--python-version"));
-                        }
-
-                        ReadWriteLockVO readWriteLockVO = vos.get(task.getId());
+                        //设置任务的读写锁信息
+                        ReadWriteLockVO readWriteLockVO = readWriteLockIdAndVOMap.get(task.getId());
                         if (readWriteLockVO.getLastKeepLockUserName() == null) {
-                            readWriteLockVO.setLastKeepLockUserName(getUserNameInMemory(userNames, task.getModifyUserId()));
+                            readWriteLockVO.setLastKeepLockUserName(getUserNameInMemory(userIdAndNameMap, task.getModifyUserId()));
                             readWriteLockVO.setGmtModified(task.getGmtModified());
                         }
-                        childTask.setReadWriteLockVO(readWriteLockVO);
-                        if (task.getFlowId() > 0L) {
-                            childTask.setIsSubTask(1);
-                            List<CatalogueVO> temp = flowChildren.get(task.getFlowId());
-                            if (CollectionUtils.isEmpty(temp)) {
-                                temp = Lists.newArrayList();
-                                temp.add(childTask);
-                                flowChildren.put(task.getFlowId(), temp);
-                            } else {
-                                flowChildren.get(task.getFlowId()).add(childTask);
-                            }
-                        } else {
-                            files.add(childTask);
-                        }
-                    }
-                    for (CatalogueVO vo : files) {
-                        //fixme dataScience适配
-                        if (vo.getTaskType().equals(EJobType.ALGORITHM_LAB.getVal())) {
-                            continue;
-                        }
-                        Long id = vo.getId();
-                        List<CatalogueVO> children = flowChildren.get(id);
-                        if (CollectionUtils.isNotEmpty(children)) {
-                            vo.setChildren(children);
-                        }
+                        childCatalogueTask.setReadWriteLockVO(readWriteLockVO);
+
+                        catalogueChildFileList.add(childCatalogueTask);
                     }
                 }
-            } else if (testIsFunctionCatalogue.test(currentCatalogueVO.getCatalogueType())) {
+            } else if (FUNCTION_CATALOGUE_TYPE.contains(currentCatalogueVO.getCatalogueType())) {
+                //处理函数目录
                 List<BatchFunction> functionList = batchFunctionService.listByNodePidAndTenantId(tenantId, currentCatalogueVO.getId());
                 if (CollectionUtils.isNotEmpty(functionList)) {
                     functionList.sort(Comparator.comparing(BatchFunction::getName));
                     for (BatchFunction function : functionList) {
                         CatalogueVO child = new CatalogueVO();
-                        child.setId(function.getId());
+                        BeanUtils.copyProperties(function, child);
                         child.setLevel(currentCatalogueVO.getLevel() + 1);
-                        child.setName(function.getName());
                         child.setType("file");
-                        child.setChildren(null);
-                        child.setCreateUser(getUserNameInMemory(userNames, function.getCreateUserId()));
+                        child.setCreateUser(getUserNameInMemory(userIdAndNameMap, function.getCreateUserId()));
                         child.setParentId(function.getNodePid());
-                        child.setEngineType(currentCatalogueVO.getEngineType());
-                        child.setCatalogueType(currentCatalogueVO.getCatalogueType());
-                        files.add(child);
+                        catalogueChildFileList.add(child);
                     }
-
                 }
-
-            } else if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.RESOURCE_MANAGER.getType())) {
+            } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
+                //处理资源目录
                 List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
                 resourceList.sort(Comparator.comparing(BatchResource::getResourceName));
                 if (CollectionUtils.isNotEmpty(resourceList)) {
                     for (BatchResource resource : resourceList) {
                         CatalogueVO childResource = new CatalogueVO();
-                        childResource.setId(resource.getId());
+                        BeanUtils.copyProperties(resource, childResource);
                         childResource.setName(resource.getResourceName());
                         childResource.setType("file");
-                        childResource.setResourceType(resource.getResourceType());
                         childResource.setLevel(currentCatalogueVO.getLevel() + 1);
-                        childResource.setChildren(null);
                         childResource.setParentId(currentCatalogueVO.getId());
-                        childResource.setCreateUser(getUserNameInMemory(userNames, resource.getCreateUserId()));
-                        files.add(childResource);
+                        childResource.setCreateUser(getUserNameInMemory(userIdAndNameMap, resource.getCreateUserId()));
+                        catalogueChildFileList.add(childResource);
                     }
                 }
             }
-            currentCatalogueVO.setChildren(files);
+            currentCatalogueVO.setChildren(catalogueChildFileList);
         }
 
         //获取目录下的子目录
-        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), tenantId);
+        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), currentCatalogue.getTenantId());
         childCatalogues = keepInitCatalogueBeTop(childCatalogues, currentCatalogue, userId);
         List<CatalogueVO> children = new ArrayList<>();
         for (BatchCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
-            cv.setType("folder");
+            cv.setType(FILE_TYPE_FOLDER);
             this.changeSQLFunctionCatalogueType(catalogue, cv, currentCatalogueVO);
             children.add(cv);
         }
@@ -938,17 +837,9 @@ public class BatchCatalogueService {
     private void changeSQLFunctionCatalogueType(BatchCatalogue catalogue, CatalogueVO cv, CatalogueVO currentCatalogueVO) {
         cv.setCatalogueType(currentCatalogueVO.getCatalogueType());
         //如果是libraSQL 或者是sparkSQl下的function  需要替换child 的catalogueType
-        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) ||
-                CatalogueType.LIBRASQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) ||
-                CatalogueType.TIDBSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) ||
-                CatalogueType.ORACLE_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) ||
-                CatalogueType.GREENPLUM_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
+        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
             if ("自定义函数".equals(catalogue.getNodeName())) {
-                if (CatalogueType.GREENPLUM_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
-                    cv.setCatalogueType(CatalogueType.GREENPLUM_CUSTOM_FUNCTION.getType());
-                } else {
-                    cv.setCatalogueType(CatalogueType.CUSTOM_FUNCTION.getType());
-                }
+                cv.setCatalogueType(CatalogueType.CUSTOM_FUNCTION.getType());
             }
             if ("系统函数".equals(catalogue.getNodeName())) {
                 cv.setCatalogueType(CatalogueType.SYSTEM_FUNCTION.getType());
@@ -960,18 +851,6 @@ public class BatchCatalogueService {
         if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
             if (EngineCatalogueType.SPARK.getDesc().equals(catalogue.getNodeName())) {
                 cv.setCatalogueType(CatalogueType.SPARKSQL_FUNCTION.getType());
-            }
-            if (EngineCatalogueType.LIBRA.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.LIBRASQL_FUNCTION.getType());
-            }
-            if (EngineCatalogueType.TIDB.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.TIDBSQL_FUNCTION.getType());
-            }
-            if (EngineCatalogueType.ORACLE.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.ORACLE_FUNCTION.getType());
-            }
-            if (EngineCatalogueType.GREENPLUM.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.GREENPLUM_FUNCTION.getType());
             }
         }
 
@@ -1056,10 +935,9 @@ public class BatchCatalogueService {
     /**
      * 根据类型获取目录信息
      * @param catalogueId
-     * @param catalogueType
      * @return
      */
-    private BatchCatalogue getBatchCatalogueByType(Long catalogueId, String catalogueType) {
+    private BatchCatalogue getBatchCatalogueByType(Long catalogueId) {
         return batchCatalogueDao.getOne(catalogueId);
     }
 
@@ -1086,11 +964,7 @@ public class BatchCatalogueService {
      * @param childCatalogues
      */
     private void replaceSystemFunction(Long catalogueId, String catalogueType, List<BatchCatalogue> childCatalogues) {
-        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(catalogueType)
-                || CatalogueType.LIBRASQL_FUNCTION.getType().equals(catalogueType)
-                || CatalogueType.TIDBSQL_FUNCTION.getType().equals(catalogueType)
-                || CatalogueType.ORACLE_FUNCTION.getType().equals(catalogueType)
-                || CatalogueType.GREENPLUM_FUNCTION.getType().equals(catalogueType)) {
+        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(catalogueType)) {
             BatchCatalogue one = batchCatalogueDao.getOne(catalogueId);
             EngineCatalogueType systemEngineType = EngineCatalogueType.getByeName(one == null ? null : one.getNodeName());
             //需要将系统函数替换对应 引擎的函数模板

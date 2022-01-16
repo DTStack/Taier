@@ -34,6 +34,7 @@ import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.sql.ParseResult;
 import com.dtstack.batch.sql.SqlType;
 import com.dtstack.batch.sync.job.SourceType;
@@ -41,22 +42,15 @@ import com.dtstack.batch.vo.BuildSqlVO;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
 import com.dtstack.engine.common.engine.JdbcInfo;
-import com.dtstack.engine.common.enums.AppType;
-import com.dtstack.engine.common.enums.ComputeType;
-import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.TaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.UserService;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -71,11 +65,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -569,7 +559,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             return Collections.emptyList();
         }
         String colsStr = matcher.group("cols");
-        return Arrays.asList(DtStringUtil.splitIgnoreQuota(colsStr, ","));
+        return Arrays.asList(Strings.splitIgnoreQuotaBrackets(colsStr, ","));
     }
 
     /**
@@ -588,7 +578,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
                 break;
             }
             if (colStr.matches(SQL_AS_REDEX)) {
-                String[] colAndAlias = DtStringUtil.splitIgnoreQuotaBrackets(colStr, "(?i)\\s+as\\s+");
+                String[] colAndAlias = Strings.splitIgnoreQuotaBrackets(colStr, "(?i)\\s+as\\s+");
                 fieldNames.add(BooleanUtils.isTrue(aliasNames) ? colAndAlias[1] : colAndAlias[0]);
             } else {
                 fieldNames.add(colStr);

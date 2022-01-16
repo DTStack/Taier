@@ -19,7 +19,7 @@
 package com.dtstack.engine.flink.factory;
 
 import com.dtstack.engine.pluginapi.JobIdentifier;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import org.apache.flink.client.deployment.ClusterClientFactory;
 import org.apache.flink.client.deployment.ClusterDescriptor;
@@ -67,14 +67,14 @@ public class StandaloneClientFactory implements IClientFactory {
         ClusterClientFactory<StandaloneClusterId> standaloneClientFactory = new org.apache.flink.client.deployment.StandaloneClientFactory();
         final StandaloneClusterId clusterId = standaloneClientFactory.getClusterId(flinkConfiguration);
         if (clusterId == null) {
-            throw new RdosDefineException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
+            throw new PluginDefineException("No cluster id was specified. Please specify a cluster to which you would like to connect.");
         }
         try (ClusterDescriptor<StandaloneClusterId> clusterDescriptor = standaloneClientFactory.createClusterDescriptor(flinkConfiguration)) {
             ClusterClientProvider<StandaloneClusterId> clientProvider = clusterDescriptor.retrieve(clusterId);
             return  clientProvider.getClusterClient();
         } catch (ClusterRetrieveException e) {
             LOG.error("No standalone session, Couldn't retrieve cluster Client.", e);
-            throw new RdosDefineException("No standalone session, Couldn't retrieve cluster Client.", e);
+            throw new PluginDefineException("No standalone session, Couldn't retrieve cluster Client.", e);
         }
     }
 }

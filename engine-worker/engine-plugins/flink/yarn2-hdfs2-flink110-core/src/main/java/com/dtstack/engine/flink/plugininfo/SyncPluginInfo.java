@@ -18,7 +18,7 @@
 
 package com.dtstack.engine.flink.plugininfo;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.JarFileInfo;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.flink.FlinkClient;
@@ -153,7 +153,7 @@ public class SyncPluginInfo {
         }
 
         if (StringUtils.isEmpty(coreJarFileName)){
-            throw new RdosDefineException("Can not find core jar file in syncPlugin path: " + localSyncPluginDir);
+            throw new PluginDefineException("Can not find core jar file in syncPlugin path: " + localSyncPluginDir);
         }
 
         return coreJarFileName;

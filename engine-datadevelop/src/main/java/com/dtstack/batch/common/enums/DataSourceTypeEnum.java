@@ -127,27 +127,6 @@ public enum DataSourceTypeEnum {
         return value;
     }
 
-    public static List<Integer> hadoopSourceCode = Lists.newArrayList(HIVE1X.val,
-            HIVE2X.val, HIVE3X.val, SparkThrift2_1.val,INCEPTOR.val, IMPALA.val);
-    public static Boolean isHadoopType(Integer typeCode){
-        return hadoopSourceCode.contains(typeCode);
-    }
-
-    /**
-     * 根据数据源val获取数据源枚举信息
-     * @param val
-     * @return
-     */
-    public static DataSourceTypeEnum valOf(Integer val) {
-        Objects.requireNonNull(val);
-        for (DataSourceTypeEnum value : DataSourceTypeEnum.values()) {
-            if (Objects.equals(value.getVal(), val)) {
-                return value;
-            }
-        }
-        LOGGER.error("can not find this dataTypeCode:{}",val);
-        throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
-    }
 
     /**
      * 数据源值

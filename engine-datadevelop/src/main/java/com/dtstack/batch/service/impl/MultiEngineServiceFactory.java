@@ -109,7 +109,7 @@ public class MultiEngineServiceFactory {
             }
             return datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         }
-        return getDatasourceTypeNotIncludeHadoop(multiEngineType);
+        return null;
     }
 
     /**
@@ -132,31 +132,9 @@ public class MultiEngineServiceFactory {
                 return datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
             }
         }
-        return getDatasourceTypeNotIncludeHadoop(multiEngineType);
+        return null;
     }
 
-    /**
-     * 获取数据源类型通过引擎类型（除Hadoop引擎）
-     * tips：Hadoop引擎获取数据源方式会在调用该方法之前处理掉
-     *
-     * @param multiEngineType 引擎类型
-     * @return
-     */
-    private DataSourceType getDatasourceTypeNotIncludeHadoop(Integer multiEngineType){
-        if (MultiEngineType.LIBRA.getType() == multiEngineType) {
-            return DataSourceType.LIBRA;
-        }
-        if (MultiEngineType.TIDB.getType() == multiEngineType) {
-            return DataSourceType.TiDB;
-        }
-        if (MultiEngineType.ORACLE.getType() == multiEngineType) {
-            return DataSourceType.Oracle;
-        }
-        if (MultiEngineType.GREENPLUM.getType() == multiEngineType) {
-            return DataSourceType.GREENPLUM6;
-        }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
-    }
 
     public ISqlExeService getSqlExeService(int multiEngineType, Integer taskType, Long tenantId) {
         if (MultiEngineType.HADOOP.getType() == multiEngineType) {

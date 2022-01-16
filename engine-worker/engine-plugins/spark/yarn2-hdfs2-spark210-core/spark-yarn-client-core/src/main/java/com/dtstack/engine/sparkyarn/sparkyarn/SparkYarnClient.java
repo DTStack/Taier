@@ -34,7 +34,7 @@ import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EJobType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.pojo.JudgeResult;
@@ -215,11 +215,11 @@ public class SparkYarnClient extends AbstractClient {
         String exeArgsStr = jobParam.getClassArgs();
 
         if(!jarPath.startsWith(HDFS_PREFIX)){
-            throw new RdosDefineException("spark jar path protocol must be " + HDFS_PREFIX);
+            throw new PluginDefineException("spark jar path protocol must be " + HDFS_PREFIX);
         }
 
         if(Strings.isNullOrEmpty(appName)){
-            throw new RdosDefineException("spark jar must set app name!");
+            throw new PluginDefineException("spark jar must set app name!");
         }
 
         String[] appArgs = new String[]{};
@@ -407,7 +407,7 @@ public class SparkYarnClient extends AbstractClient {
         } catch (Exception e) {
             String message = String.format("Could't parse {%s} to json format. Reason : {%s}", cmdStr , e.getMessage());
             logger.error(message);
-            throw new RdosDefineException(message, e);
+            throw new PluginDefineException(message, e);
         }
     }
 
@@ -444,7 +444,7 @@ public class SparkYarnClient extends AbstractClient {
             sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
         }catch (Exception e){
             logger.error("", e);
-            throw new RdosDefineException("get unexpected exception:" + e.getMessage());
+            throw new PluginDefineException("get unexpected exception:" + e.getMessage());
         }
 
         String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
@@ -587,14 +587,14 @@ public class SparkYarnClient extends AbstractClient {
 
 
     private JobResult submitSparkSqlJobForStream(JobClient jobClient){
-        throw new RdosDefineException("not support spark sql job for stream type.");
+        throw new PluginDefineException("not support spark sql job for stream type.");
     }
 
     private JobResult submitSqlJob(JobClient jobClient) {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
-            throw new RdosDefineException("need to set compute type.");
+            throw new PluginDefineException("need to set compute type.");
         }
 
         switch (computeType){
@@ -607,7 +607,7 @@ public class SparkYarnClient extends AbstractClient {
 
         }
 
-        throw new RdosDefineException("not support for compute type :" + computeType);
+        throw new PluginDefineException("not support for compute type :" + computeType);
 
     }
 
@@ -674,7 +674,7 @@ public class SparkYarnClient extends AbstractClient {
                         case FAILED:
                             return RdosTaskStatus.FAILED;
                         default:
-                            throw new RdosDefineException("Unsupported application state");
+                            throw new PluginDefineException("Unsupported application state");
                     }
                 } catch (Exception e) {
                     logger.error("", e);
@@ -893,7 +893,7 @@ public class SparkYarnClient extends AbstractClient {
             }, yarnConf,true);
         } catch (Exception e) {
             logger.error("buildYarnClient initSecurity happens error", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
     }
 

@@ -19,7 +19,7 @@
 package com.dtstack.engine.flink.util;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.flink.entity.LatencyMarkerInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -134,11 +134,11 @@ public class JobGraphBuildUtil {
 
     private static void checkSize(List<String> ids, List<String> names) {
         if (names == null) {
-            throw new RdosDefineException("Error! This jobVertex doesn't have operators.");
+            throw new PluginDefineException("Error! This jobVertex doesn't have operators.");
         }
 
         if (ids.size() != names.size()) {
-            throw new RdosDefineException("id's size : [" + ids.size() + "] is not equal names's size : [" + names.size() + "]");
+            throw new PluginDefineException("id's size : [" + ids.size() + "] is not equal names's size : [" + names.size() + "]");
         }
     }
 

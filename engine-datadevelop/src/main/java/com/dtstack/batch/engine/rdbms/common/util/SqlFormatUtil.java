@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.common.util;
 
-import com.dtstack.engine.common.util.DtStringUtil;
+import com.dtstack.engine.common.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class SqlFormatUtil {
 
         String sqlCopy = sql;
         sqlCopy = SqlFormatUtil.init(sqlCopy).getSql();
-        String[] strings = DtStringUtil.splitIgnoreQuota(sqlCopy, ";");
+        String[] strings = Strings.splitIgnoreQuotaBrackets(sqlCopy, ";");
         if (strings.length > 2) {
             throw new IllegalArgumentException("只能执行单条sql");
         }
