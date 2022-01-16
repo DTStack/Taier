@@ -23,7 +23,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.TempJobType;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchHiveSelectSql;
-import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.dto.BatchParamDTO;
@@ -39,22 +38,19 @@ import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamShadeService;
 import com.dtstack.batch.service.task.impl.BatchTaskResourceShadeService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
 import com.dtstack.engine.common.enums.AppType;
-import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.ResourceRefType;
 import com.dtstack.engine.common.enums.TaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.SessionUtil;
@@ -64,7 +60,6 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.ActionService;
-import com.dtstack.batch.service.user.UserService;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
 import com.dtstack.engine.master.service.ScheduleJobService;
@@ -75,6 +70,7 @@ import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -86,11 +82,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * company: www.dtstack.com
@@ -167,70 +161,41 @@ public class BatchJobService {
     }
 
     /**
-     * 初始化engine info接口extroInfo信息
+     * 构建运行任务的完整命令(包含真正执行的SQL内容)
      * @param batchTask
      * @param userId
+     * @param taskParamsToReplace SQL中需要匹配和替换的 系统参数与自定义参数
      * @return info信息
      * @throws Exception
      */
     public String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
-        String extroInfo = "";
-        Long taskId = batchTask.getId();
-        // 跨项目的时候 需要依赖 task的tenant
-        final Long dtuicTenantId = tenantService.getDtuicTenantId(batchTask.getTenantId());
-
-        final Map<String, Object> actionParam = new HashMap<>(10);
-
+        //根据任务类型获取引擎类型
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(batchTask.getTaskType());
         if (Objects.isNull(multiEngineType)) {
-            //防止虚节点提交
-            multiEngineType = MultiEngineType.HADOOP;
+            throw new RdosDefineException(ErrorCode.COMPONENT_TYPE_UNDEFINED);
         }
-        taskParamsToReplace = taskParamsToReplace == null ? this.batchTaskParamShadeService.getTaskParam(batchTask.getId()) : taskParamsToReplace;
-        final IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
-        jobExecuteService.readyForTaskStartTrigger(actionParam, dtuicTenantId, batchTask, taskParamsToReplace);
 
-        actionParam.put("taskId", taskId);
-//        actionParam.put("engineType", EngineType.getEngineName(batchTask.getEngineType()));
+        //任务参数若为null，则表示是提交任务，否则就是临时运行任务
+        if(taskParamsToReplace == null){
+            taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(batchTask.getId());
+        }
+        IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
+
+        //构建任务运行完整信息
+        final Map<String, Object> actionParam = Maps.newHashMap();
+        //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
+        jobExecuteService.readyForTaskStartTrigger(actionParam, batchTask.getTenantId(), batchTask, taskParamsToReplace);
+
+        actionParam.put("taskId", batchTask.getId());
         actionParam.put("taskType", EJobType.getEngineJobType(batchTask.getTaskType()));
         actionParam.put("name", batchTask.getName());
         actionParam.put("computeType", batchTask.getComputeType());
-        //dtuicTenantId
-        actionParam.put("tenantId", dtuicTenantId);
+        actionParam.put("tenantId", batchTask.getTenantId());
         actionParam.put("isFailRetry", false);
         actionParam.put("maxRetryNum", 0);
         actionParam.put("multiEngineType", multiEngineType.getType());
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
 
-        if (EJobType.PYTHON.getVal().equals(batchTask.getTaskType()) || EJobType.SHELL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.DtScript.getEngineName());
-        } else if (EJobType.SPARK_PYTHON.getVal().equals(batchTask.getTaskType())) {
-
-
-            actionParam.put("engineType", EngineType.Spark.getEngineName());
-            actionParam.put("taskType", EJobType.SPARK_PYTHON.getVal());
-        } else if (EJobType.HADOOP_MR.getVal().equals(batchTask.getTaskType())) {
-            //mr任务配置main函数，并增加自定义参数支持。兼容老版本
-            if (StringUtils.isEmpty(batchTask.getMainClass())){
-                actionParam.put("sqlText", this.getHadoopMRSqlText(batchTask.getId()));
-                // MR 任务提交不需要带--cmd-opts
-                final JSONObject args = JSON.parseObject(batchTask.getExeArgs());
-                actionParam.put("exeArgs", Objects.nonNull(args) ? args.get("--cmd-opts") : "");
-            }
-        } else if (EJobType.CARBON_SQL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("taskType", EJobType.SPARK_SQL.getVal());
-        } else if (EJobType.SPARK.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.Spark.getEngineName());
-        } else if (EJobType.HIVE_SQL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.HIVE.getEngineName());
-            actionParam.put("taskType", EJobType.HIVE_SQL.getEngineJobType());
-        } else if (EJobType.TIDB_SQL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.TIDB.getEngineName());
-        } else if (EJobType.ORACLE_SQL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.ORACLE.getEngineName());
-        } else if (EJobType.GREENPLUM_SQL.getVal().equals(batchTask.getTaskType())) {
-            actionParam.put("engineType", EngineType.GREENPLUM.getEngineName());
-        }
         User user;
         if (userId == null) {
             user = userService.getById(batchTask.getOwnerUserId());
@@ -253,35 +218,11 @@ public class BatchJobService {
                 actionParam.put("maxRetryNum", 0);
             }
         }
-        extroInfo = objMapper.writeValueAsString(actionParam);
-
-        extroInfo = extroInfo.replaceAll("\r\n", System.getProperty("line.separator"));
-        return extroInfo;
+        String extraInfo = objMapper.writeValueAsString(actionParam);
+        extraInfo = extraInfo.replaceAll("\r\n", System.getProperty("line.separator"));
+        return extraInfo;
     }
 
-
-
-    private String getHadoopMRSqlText(final Long taskId) {
-        final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType());
-        if (CollectionUtils.isEmpty(resources)) {
-            throw new RdosDefineException("HadoopMR任务资源不能为空");
-        }
-        return String.format(BatchJobService.ADD_JAR_WITH, resources.get(0).getUrl());
-    }
-
-    public String getTableName(final String table) {
-        String simpleTableName = table;
-        if (StringUtils.isNotEmpty(table)) {
-            final String[] tablePart = table.split("\\.");
-            if (tablePart.length == 1) {
-                simpleTableName = tablePart[0];
-            } else if (tablePart.length == 2) {
-                simpleTableName = tablePart[1];
-            }
-        }
-
-        return simpleTableName;
-    }
 
     public String stopJob(long jobId, Long userId, Boolean isRoot) {
 
@@ -509,6 +450,7 @@ public class BatchJobService {
 
 
     /**
+     * 运行SQL任务
      * @param userId
      * @param tenantId
      * @param taskId
@@ -521,15 +463,14 @@ public class BatchJobService {
      * @param isEnd         是否是当前session最后一条sql
      * @return
      */
-    //通过数据地图权限判断
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String uniqueKey, String sql, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot,  Boolean isEnd, String taskParams) {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String uniqueKey, String sql, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot,  Boolean isEnd) {
 
         // 更新ddl检查设置
         if (!Objects.isNull(isCheckDDL)) {
             SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
         }
         final User user = userService.getById(userId);
-        dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;",dtToken,user.getId(),user.getUserName());
+        dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;", dtToken, user.getId(), user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
         MultiEngineType multiEngineType = null;
         try {
@@ -537,16 +478,20 @@ public class BatchJobService {
             if (task == null) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
             }
+            //真正运行的SQL是页面传入的SQL
+            task.setSqlText(sql);
 
+            //将SQL中的 系统参数和自定义参数 转换为DTO对象
             List<BatchParamDTO> batchParamDTOS = this.batchTaskParamService.paramResolver(taskVariables);
             final List<BatchTaskParam> params = this.batchTaskParamService.convertParam(batchParamDTOS);
             List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
-            task.setSqlText(sql);
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
-            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
+
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
+
             multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
             final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, isRoot, task, dtToken, isEnd, jobId);
@@ -555,54 +500,6 @@ public class BatchJobService {
             result.setMsg(e.getMessage());
             result.setStatus(TaskStatus.FAILED.getStatus());
             result.setSqlText(sql);
-            return result;
-        } finally {
-            if (null != multiEngineType && Objects.nonNull(result)) {
-                result.setEngineType(multiEngineType.getType());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 高级运行sparkSql从引擎执行逻辑
-     * @param userId
-     * @param tenantId
-     * @param taskId
-     * @param uniqueKey
-     * @param sqlList
-     * @param taskVariables
-     * @param dtToken
-     * @param isCheckDDL
-     * @param isRoot
-     * @return
-     */
-    public ExecuteSqlParseVO startSqlSophisticated(Long userId, Long tenantId, Long taskId, String uniqueKey, List<String> sqlList, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot){
-        // 更新ddl检查设置
-        if (!Objects.isNull(isCheckDDL)) {
-            SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
-        }
-        ExecuteSqlParseVO result = new ExecuteSqlParseVO();
-        MultiEngineType multiEngineType = null;
-        try {
-
-            final BatchTask task = this.batchTaskDao.getOne(taskId);
-            if (task == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-            }
-            final List<BatchTaskParam> params = this.batchTaskParamService.saveTaskParams(taskId, this.batchTaskParamService.paramResolver(taskVariables));
-            multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
-            sqlList = this.jobParamReplace.batchParamReplace(sqlList, this.batchTaskParamService.convertShade(params),
-                    DateUtil.getFormattedDate(System.currentTimeMillis(), "yyyyMMddHHmmss"));
-            result = batchJobExeService.startSqlSophisticated(userId,tenantId,uniqueKey,taskId,sqlList,isRoot,task,dtToken,null);
-        }catch (final Exception e) {
-            BatchJobService.logger.warn("startSqlSophisticated-->", e);
-            result.setMsg(e.getMessage());
-            if (String.valueOf(e.getCause()).split(":").length>1) {
-                result.setSqlText(Optional.ofNullable(String.valueOf(e.getCause()).split(":")[1]).orElse(StringUtils.EMPTY));
-            }
-            result.setStatus(TaskStatus.FAILED.getStatus());
             return result;
         } finally {
             if (null != multiEngineType && Objects.nonNull(result)) {
@@ -736,17 +633,22 @@ public class BatchJobService {
      * 初始化engine paramActionExt 入参
      * @param batchTask
      * @param userId
-     * @param taskParamsToReplace
+     * @param taskParamsToReplace  需要替换的 系统参数和自定义参数
      * @return
      * @throws Exception
      */
     private ParamTaskAction getParamTaskAction(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         ParamTaskAction paramTaskAction = new ParamTaskAction();
+
+        //将 BatchTask 对象转换为调度的 ScheduleTaskShade 对象
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
         BeanUtils.copyProperties(batchTask, scheduleTaskShade);
         scheduleTaskShade.setTaskId(batchTask.getId());
-        scheduleTaskShade.setTaskType(getParamTaskActionTaskType(batchTask.getTaskType()));
+        scheduleTaskShade.setTaskType(batchTask.getTaskType());
+
+        //构建运行任务的完整命令(包含真正执行的SQL内容)
         String extraInfo = getExtraInfo(batchTask, userId, taskParamsToReplace);
+
         JSONObject jsonObject = JSON.parseObject(extraInfo);
         if (jsonObject.containsKey("sqlText")) {
             jsonObject.put("sqlText", batchTask.getSqlText());
@@ -755,19 +657,6 @@ public class BatchJobService {
         scheduleTaskShade.setExtraInfo(extraInfo);
         paramTaskAction.setBatchTask(scheduleTaskShade);
         return paramTaskAction;
-    }
-
-    /**
-     * 根据任务类型生成engine任务类型
-     * @param taskType 离线任务类型
-     * @return 引擎任务类型
-     */
-    private Integer getParamTaskActionTaskType(Integer taskType) {
-        Integer paramTaskActionTaskType = EJobType.getEngineJobType(taskType);
-        if (EJobType.CARBON_SQL.getVal().equals(taskType)) {
-            paramTaskActionTaskType = EJobType.SPARK_SQL.getEngineJobType();
-        }
-        return paramTaskActionTaskType;
     }
 
 }
