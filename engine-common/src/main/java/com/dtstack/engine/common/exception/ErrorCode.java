@@ -100,6 +100,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     RESOURCE_COMPONENT_NOT_CONFIG(200,"please config resource component", "请先配置调度组件"),
     STORE_COMPONENT_NOT_CONFIG(201,"please config store component", "请先配置存储组件"),
     UNSUPPORTED_PLUGIN(203, "unsupported plugin", "插件不支持"),
+    COMPONENT_TYPE_UNDEFINED(204,"component type undefined", "该组件类型未定义"),
 
 
     TEMPLATE_TASK_CONTENT_NOT_NULL(249, "Template task content can not be null","模板任务的内容不能为空"),
@@ -133,7 +134,10 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CANT_NOT_FIND_CLUSTER(651, "cluster can not found","该集群不存在"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
     BIND_COMPONENT_NOT_DELETED(653, "component can not deleted","集群已绑定租户，对应计算和调度组件不能删除"),
-    METADATA_COMPONENT_NOT_DELETED(654, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),;
+    METADATA_COMPONENT_NOT_DELETED(654, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),
+
+
+    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
 
 
     private final int code;
