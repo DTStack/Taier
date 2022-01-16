@@ -76,7 +76,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.dtstack.engine.master.router" level="info" additivity="false">
+    <logger name="com.dtstack.batch.filter" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
@@ -96,12 +96,10 @@
         <appender-ref ref="flinkmonitor" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.server.executor" level="info" additivity="false">
+    <logger name="com.dtstack.engine.master.server" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.server.multiengine" level="info" additivity="false">
-        <appender-ref ref="schedule" />
-    </logger>
+
     <logger name="com.dtstack.engine.master.server.scheduler" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>

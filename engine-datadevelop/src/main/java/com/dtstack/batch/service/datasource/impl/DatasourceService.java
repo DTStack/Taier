@@ -8,48 +8,17 @@ import com.dtstack.batch.common.exception.PubSvcDefineException;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
-import com.dtstack.batch.common.util.JsonUtil;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.batch.enums.DataSourceDataBaseType;
-import com.dtstack.batch.enums.EDataSourcePermission;
-import com.dtstack.batch.enums.RDBMSSourceType;
-import com.dtstack.batch.enums.SourceDTOType;
-import com.dtstack.batch.enums.TableLocationType;
-import com.dtstack.batch.enums.TaskCreateModelType;
+import com.dtstack.batch.enums.*;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.sync.format.TypeFormat;
 import com.dtstack.batch.sync.format.writer.HiveWriterFormat;
 import com.dtstack.batch.sync.handler.SyncBuilderFactory;
 import com.dtstack.batch.sync.job.JobTemplate;
 import com.dtstack.batch.sync.job.PluginName;
-import com.dtstack.batch.sync.template.AwsS3Reader;
-import com.dtstack.batch.sync.template.AwsS3Writer;
-import com.dtstack.batch.sync.template.CarbonDataReader;
-import com.dtstack.batch.sync.template.CarbonDataWriter;
-import com.dtstack.batch.sync.template.DefaultSetting;
-import com.dtstack.batch.sync.template.EsReader;
-import com.dtstack.batch.sync.template.EsWriter;
-import com.dtstack.batch.sync.template.FtpReader;
-import com.dtstack.batch.sync.template.FtpWriter;
-import com.dtstack.batch.sync.template.HBaseReader;
-import com.dtstack.batch.sync.template.HBaseWriter;
-import com.dtstack.batch.sync.template.HDFSReader;
-import com.dtstack.batch.sync.template.HDFSWriter;
-import com.dtstack.batch.sync.template.HiveReader;
-import com.dtstack.batch.sync.template.HiveWriter;
-import com.dtstack.batch.sync.template.InceptorWriter;
-import com.dtstack.batch.sync.template.InfluxDBReader;
-import com.dtstack.batch.sync.template.MongoDbReader;
-import com.dtstack.batch.sync.template.MongoDbWriter;
-import com.dtstack.batch.sync.template.OdpsBase;
-import com.dtstack.batch.sync.template.OdpsReader;
-import com.dtstack.batch.sync.template.OdpsWriter;
-import com.dtstack.batch.sync.template.RDBBase;
-import com.dtstack.batch.sync.template.RDBReader;
-import com.dtstack.batch.sync.template.RDBWriter;
-import com.dtstack.batch.sync.template.RedisWriter;
+import com.dtstack.batch.sync.template.*;
 import com.dtstack.batch.utils.PublicUtil;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.TaskResourceParam;
@@ -71,8 +40,8 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.util.CommonUtils;
 import com.dtstack.engine.common.util.DataSourceUtils;
+import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.datasource.DsFormField;
@@ -97,19 +66,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -645,7 +602,7 @@ public class DatasourceService {
         }
         JSONObject linkJson = new JSONObject();
         for (DsFormField dsFormField : linkFieldList) {
-            String value = CommonUtils.getStrFromJson(dataJson, dsFormField.getName());
+            String value = JsonUtils.getStrFromJson(dataJson, dsFormField.getName());
             if (Strings.isNotBlank(value)) {
                 linkJson.put(dsFormField.getName(), value);
             }
@@ -719,9 +676,9 @@ public class DatasourceService {
 
                 BatchDataSource source = getOne(conn.getLong("sourceId"));
                 JSONObject json = JSONObject.parseObject(source.getDataJson());
-                replaceDataSourceInfoByCreateModel(conn,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
-                replaceDataSourceInfoByCreateModel(conn,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
-                replaceDataSourceInfoByCreateModel(conn,"jdbcUrl", Arrays.asList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)),createModel);
+                replaceDataSourceInfoByCreateModel(conn,"username",JsonUtils.getStrFromJson(json, JDBC_USERNAME),createModel);
+                replaceDataSourceInfoByCreateModel(conn,"password",JsonUtils.getStrFromJson(json, JDBC_PASSWORD),createModel);
+                replaceDataSourceInfoByCreateModel(conn,"jdbcUrl", Collections.singletonList(JsonUtils.getStrFromJson(json, JDBC_URL)),createModel);
             }
         } else {
             if (!param.containsKey("sourceIds")) {
@@ -745,26 +702,26 @@ public class DatasourceService {
                     && !DataSourceType.IMPALA.getVal().equals(sourceType)
                     && !DataSourceType.SparkThrift2_1.getVal().equals(sourceType)
                     && !DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-                replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
-                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
+                replaceDataSourceInfoByCreateModel(param,"username",JsonUtils.getStrFromJson(json, JDBC_USERNAME),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtils.getStrFromJson(json, JDBC_PASSWORD),createModel);
                 JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
                 if (conn.get("jdbcUrl") instanceof String) {
-                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
                 } else {
-                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",Arrays.asList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)),createModel);
+                    replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",Arrays.asList(JsonUtils.getStrFromJson(json, JDBC_URL)),createModel);
                 }
             } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HDFS.getVal().equals(sourceType)
                     || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
                 if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
                     if (param.containsKey("connection")) {
                         JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
-                        replaceDataSourceInfoByCreateModel(conn,JDBC_URL, JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                        replaceDataSourceInfoByCreateModel(conn,JDBC_URL, JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
                     }
                 }
                 //非meta数据源从高可用配置中取hadoopConf
                 if (0 == source.getIsDefault()){
-                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
-                    String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS),createModel);
+                    String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
                     if (StringUtils.isNotBlank(hadoopConfig)) {
                         replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
                     }
@@ -786,11 +743,11 @@ public class DatasourceService {
                         }
                         replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(consoleHadoopConfig),createModel);
                         JSONObject hadoopConfJson = JSONObject.parseObject(consoleHadoopConfig);
-                        String defaultFs = JsonUtil.getStringDefaultEmpty(hadoopConfJson, "fs.defaultFS");
+                        String defaultFs = JsonUtils.getStrFromJson(hadoopConfJson, "fs.defaultFS");
                         //替换defaultFs
                         replaceDataSourceInfoByCreateModel(param,"defaultFS",defaultFs,createModel);
                     } else {
-                        String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                        String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
                         if (StringUtils.isNotBlank(hadoopConfig)) {
                             replaceDataSourceInfoByCreateModel(param, HADOOP_CONFIG, JSONObject.parse(hadoopConfig), createModel);
                         }
@@ -825,41 +782,41 @@ public class DatasourceService {
             } else if ((DataSourceType.ES.getVal().equals(sourceType))) {
                 replaceDataSourceInfoByCreateModel(param,"address",json.get("address"),createModel);
             } else if (DataSourceType.REDIS.getVal().equals(sourceType)) {
-                replaceDataSourceInfoByCreateModel(param,"hostPort", JsonUtil.getStringDefaultEmpty(json, "hostPort"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"hostPort", JsonUtils.getStrFromJson(json, "hostPort"),createModel);
                 replaceDataSourceInfoByCreateModel(param,"database",json.getIntValue("database"),createModel);
-                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, "password"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtils.getStrFromJson(json, "password"),createModel);
             } else if (DataSourceType.MONGODB.getVal().equals(sourceType)) {
-                replaceDataSourceInfoByCreateModel(param,JDBC_HOSTPORTS,JsonUtil.getStringDefaultEmpty(json, JDBC_HOSTPORTS),createModel);
-                replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, "username"),createModel);
-                replaceDataSourceInfoByCreateModel(param,"database",JsonUtil.getStringDefaultEmpty(json, "database"),createModel);
-                replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, "password"),createModel);
+                replaceDataSourceInfoByCreateModel(param,JDBC_HOSTPORTS,JsonUtils.getStrFromJson(json, JDBC_HOSTPORTS),createModel);
+                replaceDataSourceInfoByCreateModel(param,"username",JsonUtils.getStrFromJson(json, "username"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"database",JsonUtils.getStrFromJson(json, "database"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"password",JsonUtils.getStrFromJson(json, "password"),createModel);
             } else if (DataSourceType.Kudu.getVal().equals(sourceType)) {
-                replaceDataSourceInfoByCreateModel(param,"masterAddresses",JsonUtil.getStringDefaultEmpty(json, JDBC_HOSTPORTS),createModel);
-                replaceDataSourceInfoByCreateModel(param,"others",JsonUtil.getStringDefaultEmpty(json, "others"),createModel);
+                replaceDataSourceInfoByCreateModel(param,"masterAddresses",JsonUtils.getStrFromJson(json, JDBC_HOSTPORTS),createModel);
+                replaceDataSourceInfoByCreateModel(param,"others",JsonUtils.getStrFromJson(json, "others"),createModel);
             } else if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
                 String tableLocation =  param.getString(TableLocationType.key());
                 replaceDataSourceInfoByCreateModel(param,"dataSourceType", DataSourceType.IMPALA.getVal(),createModel);
-                String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+                String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
                 if (StringUtils.isNotBlank(hadoopConfig)) {
                     replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
                 }
                 if (TableLocationType.HIVE.getValue().equals(tableLocation)) {
-                    replaceDataSourceInfoByCreateModel(param,"username",JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME),createModel);
-                    replaceDataSourceInfoByCreateModel(param,"password",JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD),createModel);
-                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"username",JsonUtils.getStrFromJson(json, JDBC_USERNAME),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"password",JsonUtils.getStrFromJson(json, JDBC_PASSWORD),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS),createModel);
                     if (param.containsKey("connection")) {
                         JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
-                        replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+                        replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
                     }
                 }
             } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
                 replaceInceptorDataSource(param, json, createModel, source, dtUicTenentId);
             } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
-                replaceDataSourceInfoByCreateModel(param, "username", JsonUtil.getStringDefaultEmpty(json, "username"), createModel);
-                replaceDataSourceInfoByCreateModel(param, "password", JsonUtil.getStringDefaultEmpty(json, "password"), createModel);
+                replaceDataSourceInfoByCreateModel(param, "username", JsonUtils.getStrFromJson(json, "username"), createModel);
+                replaceDataSourceInfoByCreateModel(param, "password", JsonUtils.getStrFromJson(json, "password"), createModel);
                 if (param.containsKey("connection")) {
                     JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
-                    String url = JsonUtil.getStringDefaultEmpty(json, "url");
+                    String url = JsonUtils.getStrFromJson(json, "url");
                     replaceDataSourceInfoByCreateModel(conn, "url", Lists.newArrayList(url), createModel);
                     replaceDataSourceInfoByCreateModel(conn, "measurement", conn.getJSONArray("table"), createModel);
                     replaceDataSourceInfoByCreateModel(conn, "database", conn.getString("schema"), createModel);
@@ -896,17 +853,17 @@ public class DatasourceService {
                                           Long dtUicTenentId){
         if (param.containsKey("connection")) {
             JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
-            replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtil.getStringDefaultEmpty(json, JDBC_URL),createModel);
+            replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
         }
 
-        replaceDataSourceInfoByCreateModel(param,HDFS_DEFAULTFS,JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS),createModel);
-        replaceDataSourceInfoByCreateModel(param,HIVE_METASTORE_URIS,JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS),createModel);
-        String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+        replaceDataSourceInfoByCreateModel(param,HDFS_DEFAULTFS,JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS),createModel);
+        replaceDataSourceInfoByCreateModel(param,HIVE_METASTORE_URIS,JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS),createModel);
+        String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
         JSONObject hadoopConfigJson = new JSONObject();
         if (StringUtils.isNotBlank(hadoopConfig)) {
             hadoopConfigJson.putAll(JSONObject.parseObject(hadoopConfig));
         }
-        hadoopConfigJson.put(HIVE_METASTORE_URIS, JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS));
+        hadoopConfigJson.put(HIVE_METASTORE_URIS, JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS));
         replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG, hadoopConfigJson, createModel);
 
         // 替换表相关的信息
@@ -1138,10 +1095,10 @@ public class DatasourceService {
                 JSONObject json = JSON.parseObject(batchDataSource.getDataJson());
                 JSONObject conn = new JSONObject();
                 if (!isFilter) {
-                    conn.put("username", JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME));
-                    conn.put("password", JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD));
+                    conn.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
+                    conn.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
                 }
-                conn.put("jdbcUrl", Collections.singletonList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)));
+                conn.put("jdbcUrl", Collections.singletonList(JsonUtils.getStrFromJson(json, JDBC_URL)));
 
                 if (sourceMap.get("tables") instanceof String) {
                     conn.put("table", Collections.singletonList(sourceMap.get("tables")));
@@ -1283,22 +1240,22 @@ public class DatasourceService {
                 && !DataSourceType.CarbonData.getVal().equals(sourceType)
                 && !DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
             map.put("type", sourceType);
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtil.getStringDefaultEmpty(json, JDBC_URL));
+            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
+            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
+            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             processTable(map);
         } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
             map.put("isDefaultSource", source.getIsDefault() == 1 ? true : false);
             map.put("type", sourceType);
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtil.getStringDefaultEmpty(json, JDBC_URL));
+            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
+            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
+            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             map.put("partition", map.get(HIVE_PARTITION));
-            map.put("defaultFS", JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS));
+            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map, json);
             setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HDFS.getVal().equals(sourceType)) {
-            map.put("defaultFS", JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS));
+            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map,json);
             setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
@@ -1318,37 +1275,37 @@ public class DatasourceService {
             map.put("endPoint", json.get("endPoint"));
         } else if ((DataSourceType.ES.getVal().equals(sourceType))) {
             map.put("address", json.get("address"));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, "username"));
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, "password"));
+            map.put("username", JsonUtils.getStrFromJson(json, "username"));
+            map.put("password", JsonUtils.getStrFromJson(json, "password"));
         } else if (DataSourceType.REDIS.getVal().equals(sourceType)) {
             map.put("type", "string");
-            map.put("hostPort", JsonUtil.getStringDefaultEmpty(json, "hostPort"));
+            map.put("hostPort", JsonUtils.getStrFromJson(json, "hostPort"));
             map.put("database", json.getIntValue("database"));
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, "password"));
+            map.put("password", JsonUtils.getStrFromJson(json, "password"));
         } else if (DataSourceType.MONGODB.getVal().equals(sourceType)) {
-            map.put(JDBC_HOSTPORTS, JsonUtil.getStringDefaultEmpty(json, JDBC_HOSTPORTS));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, "username"));
-            map.put("database", JsonUtil.getStringDefaultEmpty(json, "database"));
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, "password"));
+            map.put(JDBC_HOSTPORTS, JsonUtils.getStrFromJson(json, JDBC_HOSTPORTS));
+            map.put("username", JsonUtils.getStrFromJson(json, "username"));
+            map.put("database", JsonUtils.getStrFromJson(json, "database"));
+            map.put("password", JsonUtils.getStrFromJson(json, "password"));
         } else if (DataSourceType.AWS_S3.getVal().equals(sourceType)) {
-            map.put("accessKey", JsonUtil.getStringDefaultEmpty(json, "accessKey"));
-            map.put("secretKey", JsonUtil.getStringDefaultEmpty(json, "secretKey"));
-            map.put("region", JsonUtil.getStringDefaultEmpty(json, "region"));
+            map.put("accessKey", JsonUtils.getStrFromJson(json, "accessKey"));
+            map.put("secretKey", JsonUtils.getStrFromJson(json, "secretKey"));
+            map.put("region", JsonUtils.getStrFromJson(json, "region"));
         } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
             DataBaseType dataBaseType = DataSourceDataBaseType.getBaseTypeBySourceType(sourceType);
             map.put("type", dataBaseType);
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, JDBC_PASSWORD));
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtil.getStringDefaultEmpty(json, JDBC_URL));
+            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
+            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
+            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             map.put("partition", map.get(HIVE_PARTITION));
-            map.put("defaultFS", JsonUtil.getStringDefaultEmpty(json, HDFS_DEFAULTFS));
-            map.put("hiveMetastoreUris", JsonUtil.getStringDefaultEmpty(json, HIVE_METASTORE_URIS));
+            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
+            map.put("hiveMetastoreUris", JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS));
             checkLastHadoopConfig(map, json);
             setSftpConfig(sourceId, json, dtuicTenantId, map, "hadoopConfig");
         } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
-            map.put("username", JsonUtil.getStringDefaultEmpty(json, "username"));
-            map.put("password", JsonUtil.getStringDefaultEmpty(json, "password"));
-            map.put("url", JsonUtil.getStringDefaultEmpty(json, "url"));
+            map.put("username", JsonUtils.getStrFromJson(json, "username"));
+            map.put("password", JsonUtils.getStrFromJson(json, "password"));
+            map.put("url", JsonUtils.getStrFromJson(json, "url"));
         }
     }
 
@@ -1371,7 +1328,7 @@ public class DatasourceService {
      */
     private void checkLastHadoopConfig(Map<String, Object> map, JSONObject json) {
         //拿取最新配置
-        String hadoopConfig = JsonUtil.getStringDefaultEmpty(json, HADOOP_CONFIG);
+        String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
         if (StringUtils.isNotBlank(hadoopConfig)) {
             map.put(HADOOP_CONFIG, JSON.parse(hadoopConfig));
         }

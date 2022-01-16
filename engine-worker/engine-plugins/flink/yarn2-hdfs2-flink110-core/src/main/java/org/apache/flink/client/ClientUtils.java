@@ -18,7 +18,7 @@
 
 package org.apache.flink.client;
 
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.flink.constrant.ConfigConstrant;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +108,7 @@ public enum ClientUtils {
 				try (FileInputStream inputStream = new FileInputStream(urls[i].getPath())){
 					jarMd5s[i] = DigestUtils.md5Hex(inputStream);
 				} catch (Exception e) {
-					throw new RdosDefineException("Exceptions appears when read file:" + e);
+					throw new PluginDefineException("Exceptions appears when read file:" + e);
 				}
 			}
 			String keyCache = classLoaderResolveOrder + StringUtils.join(jarMd5s, "_");

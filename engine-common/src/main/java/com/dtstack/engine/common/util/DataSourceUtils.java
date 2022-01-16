@@ -3,7 +3,7 @@ package com.dtstack.engine.common.util;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
 import com.dtstack.engine.common.constrant.FormNames;
-import com.dtstack.engine.common.exception.PubSvcDefineException;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -75,7 +75,7 @@ public class DataSourceUtils {
             }
         } catch (Exception e) {
             log.error("数据源信息解码异常", e);
-            throw new PubSvcDefineException("数据源信息解码异常", e);
+            throw new RdosDefineException("数据源信息解码异常", e);
         }
     }
 
@@ -183,7 +183,7 @@ public class DataSourceUtils {
     public static JSONObject getOriginKerberosConfig(JSONObject dataJson, boolean check) {
         JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
         if (check && kerberosConfig == null) {
-            throw new PubSvcDefineException("kerberos配置缺失");
+            throw new RdosDefineException("kerberos配置缺失");
         }
         return kerberosConfig;
     }

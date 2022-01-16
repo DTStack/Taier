@@ -27,7 +27,7 @@ import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
 import com.dtstack.engine.pluginapi.enums.EJobType;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.flink.FlinkClientBuilder;
 import com.dtstack.engine.flink.FlinkConfig;
 import com.dtstack.engine.flink.base.enums.ClusterMode;
@@ -123,12 +123,12 @@ public class PerJobClientFactory extends AbstractClientFactory {
                         }
                     });
                 } catch (ExecutionException e) {
-                    throw new RdosDefineException(e);
+                    throw new PluginDefineException(e);
                 }
             }, flinkClientBuilder.getYarnConf());
         } catch (Exception e) {
             LOG.error("job[{}] get perJobClient exception:{}", jobId, e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
 
         return clusterClient;
@@ -197,7 +197,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             }
         } catch (Exception e) {
             LOG.error("Delete task error ", e);
-            throw new RdosDefineException("Delete task error");
+            throw new PluginDefineException("Delete task error");
         }
     }
 
@@ -257,7 +257,7 @@ public class PerJobClientFactory extends AbstractClientFactory {
             FileSystem.initialize(configuration);
         } catch (Exception e) {
             LOG.error("", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
         return configuration;
     }

@@ -19,17 +19,14 @@
 package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * Date: 2020/7/21
@@ -40,15 +37,6 @@ import java.util.Map;
 public class JsonUtils {
     public static ObjectMapper mapper = new ObjectMapper();
 
-
-    public static Map<String, Object> parseMap(String json) {
-        try {
-            return mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static Logger LOG = LoggerFactory.getLogger(JsonUtils.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -57,77 +45,13 @@ public class JsonUtils {
         objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    /**
-     * 类转换
-     *
-     * @param params
-     * @param clazz
-     * @param <T>
-     * @return
-     */
-    public static <T> T objectToObject(Object params, Class<T> clazz) {
-        return JSONObject.parseObject(JSONObject.toJSONString(params), clazz);
-    }
-
-    /**
-     * 类转化为 Map
-     *
-     * @param obj
-     * @return
-     */
-    public static Map<String, Object> objectToMap(Object obj) {
-        return JSONObject.parseObject(JSONObject.toJSONString(obj));
-    }
-
-    /**
-     * string 转化为 Map
-     *
-     * @param str
-     * @return
-     */
-    public static Map<String, Object> strToMap(String str) {
-        return JSONObject.parseObject(str);
-    }
-
-    /**
-     * String 转化为对象
-     *
-     * @param str
-     * @param clazz
-     * @param <T>
-     * @return
-     */
-    public static <T> T strToObject(String str, Class<T> clazz) {
-        return JSONObject.parseObject(str, clazz);
-    }
-
-    /**
-     * 对象转化为 String
-     *
-     * @param object
-     * @return
-     */
-    public static String objectToStr(Object object) {
-        return JSONObject.toJSONString(object);
-    }
-
-    /**
-     * 字符串转化为数组
-     *
-     * @param str
-     * @return
-     * @throws IOException
-     */
-    public static List<Object> objectToList(String str) throws IOException {
-        return JSONObject.parseObject(str, List.class);
-    }
 
     public static String formatJSON(String json) {
         String formatJson;
         try {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(json, Object.class));
         } catch (Exception e) {
-            LOG.warn("JOSN解析失败:{}", e);
+            LOG.warn("JOSN解析失败:{}",json, e);
             return json;
         }
         return formatJson;
@@ -139,8 +63,14 @@ public class JsonUtils {
             formatJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DtCenterDefException(ErrorCode.JSON_PARSING_FAILED);
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
         return formatJson;
+    }
+
+    public static String getStrFromJson(JSONObject dataJson, String key) {
+        Objects.requireNonNull(dataJson);
+        Objects.requireNonNull(key);
+        return dataJson.containsKey(key) ? dataJson.getString(key) : "";
     }
 }

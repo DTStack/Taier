@@ -1,10 +1,10 @@
 package com.dtstack.batch.utils;
 
 
-import com.dtstack.engine.common.exception.BizException;
 import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.lang.base.Validates;
-import com.dtstack.engine.common.util.Collections;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.util.Strings;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Collection;
 
@@ -39,7 +39,7 @@ public class Asserts {
      */
     public static void isTrue(boolean expression, String format, Object... args) {
         if (!expression) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -71,40 +71,10 @@ public class Asserts {
      */
     public static void isFalse(boolean expression, String format, Object... args) {
         if (expression) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
-    /**
-     * 判断对象是否为null,若非null则抛出参数校验失败异常
-     *
-     * @param object 需进行判断的对象
-     */
-    public static void isNull(Object object, ErrorCode errorCode, Object... args) {
-        isNull(object, errorCode.getDescription(), args);
-    }
-
-    /**
-     * 判断对象是否为null,若非null则抛出参数校验失败异常
-     *
-     * @param object 需进行判断的对象
-     */
-    public static void isNull(Object object) {
-        isNull(object, "[Assert Fail] - 入参必须为null对象");
-    }
-
-    /**
-     * 判断对象是否为null,若非null则抛出参数校验失败异常
-     *
-     * @param object 需进行判断的对象
-     * @param format 异常信息,支持slf4j式占位符替换
-     * @param args   占位符替换内容
-     */
-    public static void isNull(Object object, String format, Object... args) {
-        if (!Validates.isNull(object)) {
-            throw new BizException(Strings.format(format, args));
-        }
-    }
 
     public static void notNull(Object object, ErrorCode errorCode, Object... args) {
         notNull(object, errorCode.getDescription(), args);
@@ -127,8 +97,8 @@ public class Asserts {
      * @param args   占位符替换内容
      */
     public static void notNull(Object object, String format, Object... args) {
-        if (!Validates.nonNull(object)) {
-            throw new BizException(Strings.format(format, args));
+        if (null == object) {
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -143,37 +113,10 @@ public class Asserts {
      */
     public static void between(Integer number, Integer start, Integer end, String format, Object... args) {
         if (number < start || number > end) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
-    public static final void notNegative(Integer intNumber, ErrorCode errorCode, Object... args) {
-        notNegative(intNumber, errorCode.getDescription(), args);
-    }
-
-    /**
-     * 断言为非负数
-     *
-     * @param intNumber 需进行判断的参数
-     */
-    public static final void notNegative(Integer intNumber) {
-        notNegative(intNumber, "[Assert Fail] - ===> [{}] 入参不能为负数", intNumber);
-    }
-
-    /**
-     * 断言为非负数
-     *
-     * @param intNumber 需进行判断的参数
-     * @param format    异常信息,支持slf4j式占位符替换
-     * @param args      占位符替换内容
-     */
-    public static final void notNegative(Integer intNumber, String format, Object... args) {
-        isTrue(Validates.nonNegative(intNumber), format, args);
-    }
-
-    public static final void positive(Integer intNumber, ErrorCode errorCode, Object... args) {
-        positive(intNumber, errorCode.getDescription(), args);
-    }
 
     /**
      * 断言为正数
@@ -221,7 +164,7 @@ public class Asserts {
      */
     public static final void hasLength(String text, String format, Object... args) {
         if (text == null || Strings.isEmpty(text)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -242,7 +185,7 @@ public class Asserts {
         if (text == null
                 || text.length() < start
                 || text.length() > end) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -257,7 +200,7 @@ public class Asserts {
     public static final void lengthLessEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() > limit) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -277,7 +220,7 @@ public class Asserts {
     public static final void lengthEqual(String text, int limit, String format, Object... args) {
         if (text == null
                 || text.length() != limit) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 
@@ -303,12 +246,8 @@ public class Asserts {
      */
     public static final void hasText(String text, String format, Object... args) {
         if (text == null || Strings.isBlank(text)) {
-            throw new BizException(Strings.format(format, args));
+            throw new RdosDefineException(Strings.format(format, args));
         }
-    }
-
-    public static final void notEmpty(Collection collection, ErrorCode errorCode, Object... args) {
-        notEmpty(collection, errorCode.getDescription(), args);
     }
 
     /**
@@ -319,8 +258,8 @@ public class Asserts {
      * @param args       占位符替换内容
      */
     public static final void notEmpty(Collection collection, String format, Object... args) {
-        if (!Collections.nonEmpty(collection)) {
-            throw new BizException(Strings.format(format, args));
+        if (CollectionUtils.isEmpty(collection)) {
+            throw new RdosDefineException(Strings.format(format, args));
         }
     }
 }

@@ -18,8 +18,7 @@
 
 package com.dtstack.engine.pluginapi.http;
 
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -245,14 +244,14 @@ public class PoolHttpClient {
 				HttpEntity entity = response.getEntity();
 				respBody = EntityUtils.toString(entity,charset);
 			}else if (statusCode == HttpStatus.SC_UNAUTHORIZED){
-				throw new RdosDefineException("登陆状态失效", ErrorCode.NOT_LOGIN);
+				throw new PluginDefineException("登陆状态失效" + statusCode);
 			}else{
 				LOGGER.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
-					throw new RdosDefineException(HttpStatus.SC_NOT_FOUND + "", ErrorCode.HTTP_CALL_ERROR);
+					throw new PluginDefineException("status code " + HttpStatus.SC_NOT_FOUND);
 				}else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR){
-					throw new RdosDefineException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "", ErrorCode.HTTP_CALL_ERROR);
+					throw new PluginDefineException("status code " + HttpStatus.SC_INTERNAL_SERVER_ERROR);
 				}
 			}
 		} catch (IOException e) {

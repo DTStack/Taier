@@ -19,7 +19,7 @@
 package com.dtstack.engine.flink.parser;
 
 import com.dtstack.engine.pluginapi.JarFileInfo;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -36,7 +36,7 @@ public class PrepareOperator {
 
 		Matcher matcher = jarFilePattern.matcher(sql);
 		if(!matcher.find()){
-			throw new RdosDefineException("not a addJar operator:" + sql);
+			throw new PluginDefineException("not a addJar operator:" + sql);
 		}
 
 		JarFileInfo jarFileInfo = new JarFileInfo();
@@ -56,7 +56,7 @@ public class PrepareOperator {
 	public static File getResourceFile(String sql) {
 		Matcher matcher = resourceFilePattern.matcher(sql);
 		if(!matcher.find()){
-			throw new RdosDefineException("Get Resource File Error: " + sql);
+			throw new PluginDefineException("Get Resource File Error: " + sql);
 		}
 		String filePath = matcher.group(1);
 		return new File(filePath);
@@ -65,7 +65,7 @@ public class PrepareOperator {
 	public static String getResourceFileName(String sql) {
 		Matcher matcher = resourceFilePattern.matcher(sql);
 		if(!matcher.find()){
-			throw new RdosDefineException("Get Resource File Name Error: " + sql);
+			throw new PluginDefineException("Get Resource File Name Error: " + sql);
 		}
 
 		String fileName = matcher.group(3);

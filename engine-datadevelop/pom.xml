@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>com.dtstack.engine</groupId>
-            <artifactId>engine-master-server</artifactId>
+            <artifactId>engine-master</artifactId>
             <version>1.0.0</version>
         </dependency>
 
@@ -105,7 +105,6 @@
     </dependencies>
 
     <build>
-
         <resources>
             <resource>
                 <directory>src/main/java/</directory>
@@ -119,6 +118,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>2.2.4.RELEASE</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -134,7 +140,32 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
                                 </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                    <resource>META-INF/spring.factories</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.apache.hadoop.security.SecurityInfo</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org.apache.hadoop.fs.FileSystem</resource>
+                                </transformer>
                             </transformers>
+
                             <filters>
                                 <filter>
                                     <!-- filter out signature files from signed dependencies, else repackaging fails with security ex -->

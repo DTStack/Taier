@@ -23,15 +23,14 @@ package com.dtstack.engine.common.constrant;
  * @date 2021-08-03
  */
 public interface Cookies {
-    String DT_TOKEN = "dt_token";
     String TOKEN = "token";
 
-    String DT_USER_ID = "dt_user_id";
-    String DT_USER_NAME = "dt_username";
-    String DT_TENANT_ID = "dt_tenant_id";
-    String DT_TENANT_NAME = "dt_tenant_name";
+    String USER_NAME = "username";
+    String TENANT_NAME = "tenant_name";
 
     String USER_ID = "userId";
-    String CREATE_USER_ID = "createUserId";
-    String MODIFY_USER_ID = "modifyUserId";
+    String TENANT_ID = "tenantId";
+
+    String USER_FILED = "userId";
+    String TENANT_FILED = "tenantId";
 }

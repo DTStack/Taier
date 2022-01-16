@@ -31,7 +31,7 @@ import com.dtstack.engine.pluginapi.JobIdentifier;
 import com.dtstack.engine.pluginapi.client.AbstractClient;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.pluginapi.http.PoolHttpClient;
 import com.dtstack.engine.pluginapi.pojo.JobResult;
 import com.dtstack.engine.pluginapi.util.MD5Util;
@@ -161,7 +161,7 @@ public class DtYarnClient extends AbstractClient {
             testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
-            throw new RdosDefineException(e);
+            throw new PluginDefineException(e);
         }
         testResult.setResult(true);
         return testResult;
@@ -280,7 +280,7 @@ public class DtYarnClient extends AbstractClient {
             }, configuration);
 
         } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage());
+            throw new PluginDefineException(e.getMessage());
         }
         return clusterResource;
     }

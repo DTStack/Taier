@@ -23,10 +23,11 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.enums.ForceCancelFlag;
 import com.dtstack.engine.common.enums.OperatorType;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.*;
-import com.dtstack.engine.master.PluginWrapper;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.impl.ComponentService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
@@ -40,8 +41,6 @@ import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -75,10 +74,10 @@ public class ConsoleService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleService.class);
 
     @Autowired
-    private ScheduleJobDao scheduleJobDao;
+    private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    private EngineJobCacheDao engineJobCacheDao;
+    private EngineJobCacheMapper engineJobCacheMapper;
 
     @Autowired
     private ClusterMapper clusterMapper;
@@ -93,16 +92,13 @@ public class ConsoleService {
     private ZkService zkService;
 
     @Autowired
-    private ScheduleJobOperatorRecordDao engineJobStopRecordDao;
+    private ScheduleJobOperatorRecordMapper engineJobStopRecordMapper;
 
     @Autowired
     private TenantMapper tenantMapper;
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private PluginWrapper pluginWrapper;
 
     @Autowired
     private JobComputeResourcePlain jobComputeResourcePlain;
@@ -118,14 +114,14 @@ public class ConsoleService {
     public ConsoleJobVO searchJob(String jobName) {
         Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
-        ScheduleJob scheduleJob = scheduleJobDao.getByName(jobName);
+        ScheduleJob scheduleJob = scheduleJobMapper.getByName(jobName);
         if (scheduleJob != null) {
             jobId = scheduleJob.getJobId();
         }
         if (jobId == null) {
             return null;
         }
-        EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+        EngineJobCache engineJobCache = engineJobCacheMapper.getOne(jobId);
         if (engineJobCache == null) {
             return null;
         }
@@ -147,7 +143,7 @@ public class ConsoleService {
     public List<String> listNames( String jobName) {
         try {
             Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
-            return engineJobCacheDao.listNames(jobName);
+            return engineJobCacheMapper.listNames(jobName);
         } catch (Exception e) {
             LOGGER.error("", e);
         }
@@ -155,7 +151,7 @@ public class ConsoleService {
     }
 
     public List<String> jobResources() {
-        return engineJobCacheDao.getJobResources();
+        return engineJobCacheMapper.getJobResources();
     }
 
     /**
@@ -167,7 +163,7 @@ public class ConsoleService {
         }
 
         Map<String, Map<String, Object>> overview = new HashMap<>(16);
-        List<Map<String, Object>> groupResult = engineJobCacheDao.groupByJobResource(nodeAddress);
+        List<Map<String, Object>> groupResult = engineJobCacheMapper.groupByJobResource(nodeAddress);
         if (CollectionUtils.isNotEmpty(groupResult)) {
             List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
             for (Map<String, Object> record : groupResult) {
@@ -239,12 +235,12 @@ public class ConsoleService {
         Long count = 0L;
         int start = (currentPage - 1) * pageSize;
         try {
-            count = engineJobCacheDao.countByJobResource(jobResource, stage, nodeAddress);
+            count = engineJobCacheMapper.countByJobResource(jobResource, stage, nodeAddress);
 
             if (count > 0) {
-                List<EngineJobCache> engineJobCaches = engineJobCacheDao.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
+                List<EngineJobCache> engineJobCaches = engineJobCacheMapper.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
                 List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
-                List<ScheduleJob> rdosJobByJobIds = scheduleJobDao.getRdosJobByJobIds(jobIds);
+                List<ScheduleJob> rdosJobByJobIds = scheduleJobMapper.getRdosJobByJobIds(jobIds);
                 Map<String, ScheduleJob> scheduleJobMap = rdosJobByJobIds.stream().collect(Collectors.toMap(ScheduleJob::getJobId, u -> u));
                 Set<Long> tenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getTenantId).collect(Collectors.toSet());
                 Map<Long, Tenant> tenantMap = tenantMapper.selectBatchIds(tenantIds).stream()
@@ -295,7 +291,7 @@ public class ConsoleService {
         Preconditions.checkNotNull(jobId, "parameters of jobId is required");
 
         try {
-            EngineJobCache engineJobCache = engineJobCacheDao.getOne(jobId);
+            EngineJobCache engineJobCache = engineJobCacheMapper.getOne(jobId);
             if(null == engineJobCache){
                 return false;
             }
@@ -308,7 +304,7 @@ public class ConsoleService {
                     jobDealer.updateJobStatus(jobClient.getJobId(), jobStatus);
                 });
 
-                Long minPriority = engineJobCacheDao.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
+                Long minPriority = engineJobCacheMapper.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
                 minPriority = minPriority == null ? 0 : minPriority;
                 jobClient.setPriority(minPriority - 1);
 
@@ -327,7 +323,7 @@ public class ConsoleService {
 
     public void stopJob(String jobId, Integer isForce){
         Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
-        List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(Lists.newArrayList(jobId));
+        List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(Lists.newArrayList(jobId));
         if (alreadyExistJobIds.contains(jobId)) {
             LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
             return;
@@ -337,7 +333,7 @@ public class ConsoleService {
         stopRecord.setJobId(jobId);
         stopRecord.setForceCancelFlag(isForce);
         stopRecord.setOperatorType(OperatorType.STOP.getType());
-        engineJobStopRecordDao.insert(stopRecord);
+        engineJobStopRecordMapper.insert(stopRecord);
 
     }
 
@@ -367,11 +363,11 @@ public class ConsoleService {
             //杀死指定jobIdList的任务
 
             if (EJobCacheStage.unSubmitted().contains(stage)) {
-                Integer deleted = engineJobCacheDao.deleteByJobIds(jobIdList);
-                Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIdList);
+                Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
                 LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
-                List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIdList);
+                List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(jobIdList);
                 for (String jobId : jobIdList) {
                     if (alreadyExistJobIds.contains(jobId)) {
                         LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobId);
@@ -382,7 +378,7 @@ public class ConsoleService {
                     stopRecord.setJobId(jobId);
                     stopRecord.setForceCancelFlag(isForce);
                     stopRecord.setOperatorType(OperatorType.STOP.getType());
-                    engineJobStopRecordDao.insert(stopRecord);
+                    engineJobStopRecordMapper.insert(stopRecord);
                 }
             }
         } else {
@@ -396,7 +392,7 @@ public class ConsoleService {
 
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheDao.listByStage(startId, nodeAddress, stage, jobResource);
+                List<EngineJobCache> jobCaches = engineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -410,12 +406,12 @@ public class ConsoleService {
                 }
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
-                    Integer deleted = engineJobCacheDao.deleteByJobIds(jobIds);
-                    Integer updated = scheduleJobDao.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
+                    Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIds);
+                    Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
                     LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
-                    List<String> alreadyExistJobIds = engineJobStopRecordDao.listByJobIds(jobIds);
+                    List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(jobIds);
                     for (EngineJobCache jobCache : jobCaches) {
                         startId = jobCache.getId();
                         if (alreadyExistJobIds.contains(jobCache.getJobId())) {
@@ -427,7 +423,7 @@ public class ConsoleService {
                         stopRecord.setJobId(jobCache.getJobId());
                         stopRecord.setForceCancelFlag(isForce);
                         stopRecord.setOperatorType(OperatorType.STOP.getType());
-                        engineJobStopRecordDao.insert(stopRecord);
+                        engineJobStopRecordMapper.insert(stopRecord);
                     }
                 }
             }

@@ -34,40 +34,31 @@ import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.impl.BatchServerLogService;
 import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
 import com.dtstack.batch.service.job.IBatchJobExeService;
+import com.dtstack.batch.service.schedule.JobService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamShadeService;
 import com.dtstack.batch.service.task.impl.BatchTaskResourceShadeService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
-import com.dtstack.engine.common.enums.AppType;
-import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.ResourceRefType;
-import com.dtstack.engine.common.enums.TaskStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DateUtil;
 import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.SessionUtil;
-import com.dtstack.engine.domain.BatchTask;
-import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.domain.Tenant;
-import com.dtstack.engine.domain.User;
-import com.dtstack.engine.master.impl.ScheduleJobService;
-import com.dtstack.engine.master.impl.ScheduleTaskShadeService;
-import com.dtstack.engine.master.impl.UserService;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
 import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleJobService;
+import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleJobExeStaticsVO;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
@@ -84,12 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * company: www.dtstack.com
@@ -146,28 +132,11 @@ public class BatchJobService {
     @Autowired
     private ActionService actionService;
 
+    @Autowired
+    private JobService jobService;
+
     private static final String IS_CHECK_DDL_KEY = "isCheckDDL";
 
-
-    /**
-     * 根据任务id展示任务详情
-     *
-     * @author toutian
-     */
-    public ScheduleJob getJobById(long jobId) {
-        return this.scheduleJobService.getJobById(jobId);
-    }
-
-    public Integer getJobStatus(String jobId) {
-        if (StringUtils.isBlank(jobId)) {
-            return null;
-        }
-        final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
-        if (Objects.isNull(job)) {
-            return null;
-        }
-        return job.getStatus();
-    }
 
     public String updateStatusById(String jobId, Integer status) {
         BatchJobService.logger.info("jobId:{} status:{}", jobId, status);
@@ -275,18 +244,7 @@ public class BatchJobService {
         return extroInfo;
     }
 
-    /**
-     * 发送task 执行任务全部信息
-     */
-    public void sendTaskStartTrigger(Long taskId, Long userId, String commitId) throws Exception {
-        BatchTask batchTask = this.batchTaskDao.getOne(taskId);
-        if (batchTask == null) {
-            throw new RdosDefineException("can not find task by id:" + taskId);
-        }
-        String extroInfo = getExtraInfo(batchTask, userId, null);
-        //任务批量提交，调用infoCommit接口，此时只有调用taskCommit接口才会真正被engine调度
-        this.scheduleTaskShadeService.infoCommit(taskId, AppType.RDOS.getType(), extroInfo, commitId);
-    }
+
 
     private String getHadoopMRSqlText(final Long taskId) {
         final List<BatchResource> resources = this.batchTaskResourceShadeService.listResourceByTaskId(taskId, ResourceRefType.MAIN_RES.getType());
@@ -332,7 +290,7 @@ public class BatchJobService {
      * @param isRoot
      */
     private void checkJobOperateValid(final ScheduleJob ScheduleJob, final Long userId, final Long tenantId, final Boolean isRoot) {
-        final ScheduleTaskShade task = this.scheduleTaskShadeService.findTaskId(ScheduleJob.getTaskId(), Deleted.NORMAL.getStatus(), AppType.RDOS.getType());
+        final ScheduleTaskShade task = scheduleTaskShadeService.getByTaskId(ScheduleJob.getTaskId());
         if (task != null) {
 //            this.roleUserService.checkUserRole(userId, RoleValue.OPERATION.getRoleValue(), ErrorCode.PERMISSION_LIMIT.getDescription(), projectId, tenantId, isRoot);
         }
@@ -408,7 +366,7 @@ public class BatchJobService {
         resultVO.setStatus(TaskStatus.RUNNING.getStatus());
 
         try {
-            final ScheduleJob job = this.scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+            ScheduleJob job = jobService.getScheduleJob(jobId);
             if (job == null) {
                 resultVO.setMsg("无法获取engine数据");
                 return resultVO;

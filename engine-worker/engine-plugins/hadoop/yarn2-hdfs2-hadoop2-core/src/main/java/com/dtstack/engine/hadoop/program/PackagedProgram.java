@@ -18,8 +18,7 @@
 
 package com.dtstack.engine.hadoop.program;
 
-import com.dtstack.engine.pluginapi.exception.ErrorCode;
-import com.dtstack.engine.pluginapi.exception.RdosDefineException;
+import com.dtstack.engine.pluginapi.exception.PluginDefineException;
 import com.dtstack.engine.base.enums.ClassLoaderType;
 import org.apache.hadoop.conf.Configuration;
 
@@ -92,11 +91,11 @@ public class PackagedProgram {
 	 * @param args
 	 *        Optional. The arguments used to create the pact plan, depend on
 	 *        implementation of the pact plan. See getDescription().
-	 * @throws RdosDefineException
+	 * @throws PluginDefineException
 	 *         This invocation is thrown if the Program can't be properly loaded. Causes
 	 *         may be a missing / wrong class or manifest files.
 	 */
-	public PackagedProgram(File jarFile, List<URL> classpaths, ClassLoaderType classLoaderType, @Nullable String entryPointClassName, String... args) throws RdosDefineException {
+	public PackagedProgram(File jarFile, List<URL> classpaths, ClassLoaderType classLoaderType, @Nullable String entryPointClassName, String... args) throws PluginDefineException {
 		if (jarFile == null) {
 			throw new IllegalArgumentException("The jar file must not be null.");
 		}
@@ -141,7 +140,7 @@ public class PackagedProgram {
 	 * This method assumes that the context environment is prepared, or the execution
 	 * will be a local execution by default.
 	 */
-	public String invokeInteractiveModeForExecution(Configuration configuration) throws RdosDefineException{
+	public String invokeInteractiveModeForExecution(Configuration configuration) throws PluginDefineException{
 		return callMainMethod(mainClass, configuration, args);
 	}
 
@@ -207,47 +206,47 @@ public class PackagedProgram {
 		return Modifier.isStatic(mainMethod.getModifiers()) && Modifier.isPublic(mainMethod.getModifiers());
 	}
 
-	private static String callMainMethod(Class<?> entryClass, Configuration configuration, String[] args) throws RdosDefineException {
+	private static String callMainMethod(Class<?> entryClass, Configuration configuration, String[] args) throws PluginDefineException {
 		Method mainMethod;
 		if (!Modifier.isPublic(entryClass.getModifiers())) {
-			throw new RdosDefineException("The class " + entryClass.getName() + " must be public.");
+			throw new PluginDefineException("The class " + entryClass.getName() + " must be public.");
 		}
 
 		try {
 			mainMethod = entryClass.getMethod("main", Configuration.class, String[].class);
 		} catch (NoSuchMethodException e) {
-			throw new RdosDefineException("The class " + entryClass.getName() + " has no main(String[]) method.");
+			throw new PluginDefineException("The class " + entryClass.getName() + " has no main(String[]) method.");
 		}
 		catch (Throwable t) {
-			throw new RdosDefineException("Could not look up the main(String[]) method from the class " +
-					entryClass.getName() + ": " + t.getMessage(), ErrorCode.FUNCTION_CAN_NOT_FIND,t);
+			throw new PluginDefineException("Could not look up the main(String[]) method from the class " +
+					entryClass.getName() + ": " + t.getMessage() + " function not found",t);
 		}
 
 		if (!Modifier.isStatic(mainMethod.getModifiers())) {
-			throw new RdosDefineException("The class " + entryClass.getName() + " declares a non-static main method.");
+			throw new PluginDefineException("The class " + entryClass.getName() + " declares a non-static main method.");
 		}
 		if (!Modifier.isPublic(mainMethod.getModifiers())) {
-			throw new RdosDefineException("The class " + entryClass.getName() + " declares a non-public main method.");
+			throw new PluginDefineException("The class " + entryClass.getName() + " declares a non-public main method.");
 		}
 
 		try {
 			return (String) mainMethod.invoke(null, configuration, (Object) args);
 		}
 		catch (IllegalArgumentException e) {
-			throw new RdosDefineException("Could not invoke the main method, arguments are not matching.", e);
+			throw new PluginDefineException("Could not invoke the main method, arguments are not matching.", e);
 		}
 		catch (IllegalAccessException e) {
-			throw new RdosDefineException("Access to the main method was denied: " + e.getMessage(), e);
+			throw new PluginDefineException("Access to the main method was denied: " + e.getMessage(), e);
 		}
 		catch (InvocationTargetException e) {
-			throw new RdosDefineException("The main method caused an error: " + e.getTargetException().getMessage());
+			throw new PluginDefineException("The main method caused an error: " + e.getTargetException().getMessage());
 		}
 		catch (Throwable t) {
-			throw new RdosDefineException("An error occurred while invoking the program's main method: " + t.getMessage(), t);
+			throw new PluginDefineException("An error occurred while invoking the program's main method: " + t.getMessage(), t);
 		}
 	}
 
-	private static String getEntryPointClassNameFromJar(URL jarFile) throws RdosDefineException {
+	private static String getEntryPointClassNameFromJar(URL jarFile) throws PluginDefineException {
 		JarFile jar;
 		Manifest manifest;
 		String className;
@@ -256,9 +255,9 @@ public class PackagedProgram {
 		try {
 			jar = new JarFile(new File(jarFile.toURI()));
 		} catch (URISyntaxException use) {
-			throw new RdosDefineException("Invalid file path '" + jarFile.getPath() + "'", use);
+			throw new PluginDefineException("Invalid file path '" + jarFile.getPath() + "'", use);
 		} catch (IOException ioex) {
-			throw new RdosDefineException("Error while opening jar file '" + jarFile.getPath() + "'. "
+			throw new PluginDefineException("Error while opening jar file '" + jarFile.getPath() + "'. "
 				+ ioex.getMessage(), ioex);
 		}
 
@@ -268,12 +267,12 @@ public class PackagedProgram {
 			try {
 				manifest = jar.getManifest();
 			} catch (IOException ioex) {
-				throw new RdosDefineException("The Manifest in the jar file could not be accessed '"
+				throw new PluginDefineException("The Manifest in the jar file could not be accessed '"
 					+ jarFile.getPath() + "'. " + ioex.getMessage(), ioex);
 			}
 
 			if (manifest == null) {
-				throw new RdosDefineException("No manifest found in jar file '" + jarFile.getPath() + "'. The manifest is need to point to the program's main class.");
+				throw new PluginDefineException("No manifest found in jar file '" + jarFile.getPath() + "'. The manifest is need to point to the program's main class.");
 			}
 
 			Attributes attributes = manifest.getMainAttributes();
@@ -289,7 +288,7 @@ public class PackagedProgram {
 			if (className != null) {
 				return className;
 			} else {
-				throw new RdosDefineException("Neither a '" + MANIFEST_ATTRIBUTE_MAIN_CLASS + "', nor a '" +
+				throw new PluginDefineException("Neither a '" + MANIFEST_ATTRIBUTE_MAIN_CLASS + "', nor a '" +
 						MANIFEST_ATTRIBUTE_ASSEMBLER_CLASS + "' entry was found in the jar file.");
 			}
 		}
@@ -303,7 +302,7 @@ public class PackagedProgram {
 		}
 	}
 
-	private static Class<?> loadMainClass(String className, ClassLoader cl) throws RdosDefineException {
+	private static Class<?> loadMainClass(String className, ClassLoader cl) throws PluginDefineException {
 		ClassLoader contextCl = null;
 		try {
 			contextCl = Thread.currentThread().getContextClassLoader();
@@ -311,19 +310,19 @@ public class PackagedProgram {
 			return Class.forName(className, false, cl);
 		}
 		catch (ClassNotFoundException e) {
-			throw new RdosDefineException("The program's entry point class '" + className
+			throw new PluginDefineException("The program's entry point class '" + className
 				+ "' was not found in the jar file.", e);
 		}
 		catch (ExceptionInInitializerError e) {
-			throw new RdosDefineException("The program's entry point class '" + className
+			throw new PluginDefineException("The program's entry point class '" + className
 				+ "' threw an error during initialization.", e);
 		}
 		catch (LinkageError e) {
-			throw new RdosDefineException("The program's entry point class '" + className
+			throw new PluginDefineException("The program's entry point class '" + className
 				+ "' could not be loaded due to a linkage failure.", e);
 		}
 		catch (Throwable t) {
-			throw new RdosDefineException("The program's entry point class '" + className
+			throw new PluginDefineException("The program's entry point class '" + className
 				+ "' caused an exception during initialization: " + t.getMessage(), t);
 		} finally {
 			if (contextCl != null) {
@@ -337,9 +336,9 @@ public class PackagedProgram {
 	 * to the system's temp directory.
 	 *
 	 * @return The file names of the extracted temporary files.
-	 * @throws RdosDefineException Thrown, if the extraction process failed.
+	 * @throws PluginDefineException Thrown, if the extraction process failed.
 	 */
-	public static List<File> extractContainedLibraries(URL jarFile) throws RdosDefineException {
+	public static List<File> extractContainedLibraries(URL jarFile) throws PluginDefineException {
 
 		Random rnd = new Random();
 
@@ -382,7 +381,7 @@ public class PackagedProgram {
 							tempFile.deleteOnExit();
 						}
 						catch (IOException e) {
-							throw new RdosDefineException(
+							throw new PluginDefineException(
 								"An I/O error occurred while creating temporary file to extract nested library '" +
 										entry.getName() + "'.", e);
 						}
@@ -403,7 +402,7 @@ public class PackagedProgram {
 							}
 						}
 						catch (IOException e) {
-							throw new RdosDefineException("An I/O error occurred while extracting nested library '"
+							throw new PluginDefineException("An I/O error occurred while extracting nested library '"
 									+ entry.getName() + "' to temporary file '" + tempFile.getAbsolutePath() + "'.");
 						}
 						finally {
@@ -428,7 +427,7 @@ public class PackagedProgram {
 			}
 		}
 		catch (Throwable t) {
-			throw new RdosDefineException("Unknown I/O error while extracting contained jar files.", t);
+			throw new PluginDefineException("Unknown I/O error while extracting contained jar files.", t);
 		}
 		finally {
 			if (jar != null) {
@@ -445,15 +444,15 @@ public class PackagedProgram {
 		}
 	}
 
-	private static void checkJarFile(URL jarfile) throws RdosDefineException {
+	private static void checkJarFile(URL jarfile) throws PluginDefineException {
 		try {
 			JobWithJars.checkJarFile(jarfile);
 		}
 		catch (IOException e) {
-			throw new RdosDefineException(e.getMessage());
+			throw new PluginDefineException(e.getMessage());
 		}
 		catch (Throwable t) {
-			throw new RdosDefineException("Cannot access jar file" + (t.getMessage() == null ? "." : ": " + t.getMessage()), t);
+			throw new PluginDefineException("Cannot access jar file" + (t.getMessage() == null ? "." : ": " + t.getMessage()), t);
 		}
 	}
 
