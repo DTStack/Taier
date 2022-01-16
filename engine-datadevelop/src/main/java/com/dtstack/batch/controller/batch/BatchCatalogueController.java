@@ -61,7 +61,7 @@ public class BatchCatalogueController {
         return new APITemplate<BatchCatalogueResultVO>() {
             @Override
             protected BatchCatalogueResultVO process() {
-                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getUserId(), vo.getTenantId(), vo.getTaskType(), vo.getParentId());
+                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getUserId(), vo.getTenantId());
                 return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
