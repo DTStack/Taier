@@ -46,7 +46,7 @@ import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.service.ActionService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
@@ -89,7 +89,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private DatasourceService datasourceService;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private TenantEngineService tenantEngineService;
