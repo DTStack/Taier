@@ -49,10 +49,10 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     HTTP_CALL_ERROR(64, "http call error", "远程调用失败"),
 
     INVALID_PAGE_PARAM(102, "page params invalid","无效的分页数据"),
-    TENANT_ID_NOT_NULL(103, "dtuicTenantId cat not be null","租户id不能为空"),
+    TENANT_ID_NOT_NULL(103, "TenantId cat not be null","租户id不能为空"),
 
     SYSTEM_FUNCTION_CAN_NOT_MODIFY(29, "","系统方法不能修改"),
-    CATALOGUE_NO_EMPTY(130, "","目录非空"),
+    CATALOGUE_NO_EMPTY(130, "","目录不为空"),
     CAN_NOT_FIND_CATALOGUE(131,"", "该目录不存在"),
     CAN_NOT_MOVE_CATALOGUE(132, "","该目录不允许移动至当前目录和子目录"),
     CAN_NOT_DELETE_RESOURCE(133, "","该资源被引用,不能被删除"),
@@ -65,6 +65,13 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS(140,"", "当前目录下直接一层的子目录或者文件的个数总数不可超过2000"),
     CREATE_TENANT_CATALOGUE_LEVE(141, "","创建目录层级不能大于3"),
     FILE_NAME_REPETITION(142, "","同一路径下不能存在同名文件夹"),
+    CATALOGUE_NOT_EMPTY(143, "catalogue is not null","目录信息不能为空"),
+    CATALOGUE_NAME_NOT_EMPTY(144, "catalogue name cannot null","目录名称不能为空"),
+    CATALOGUE_NAME_CANNOT_CONTAIN_SPACES(145, "catalogue name cannot in space","目录名称中不能含有空格"),
+    CATALOGUE_EXISTS(146, "this catalogue exist","目录已存在"),
+    CATALOGUE_INIT_FAILED(147, "init catalogue failed","初始化目录失败"),
+    CATALOGUE_FUNCTION_MANAGE_UN_INIT(148, "function manage catalogue un init","函数管理未初始化"),
+
 
     CAN_NOT_FIND_DATA_SOURCE(150, "","数据源不存在"),
     CAN_NOT_FITABLE_SOURCE_TYPE(151, "not found table source table ","找不到对应source Type"),
@@ -93,8 +100,10 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     RESOURCE_COMPONENT_NOT_CONFIG(200,"please config resource component", "请先配置调度组件"),
     STORE_COMPONENT_NOT_CONFIG(201,"please config store component", "请先配置存储组件"),
     UNSUPPORTED_PLUGIN(203, "unsupported plugin", "插件不支持"),
+    COMPONENT_TYPE_UNDEFINED(204,"component type undefined", "该组件类型未定义"),
 
 
+    TEMPLATE_TASK_CONTENT_NOT_NULL(249, "Template task content can not be null","模板任务的内容不能为空"),
     CAN_NOT_FIND_TASK(250, "task can not found","该任务不存在"),
     CAN_NOT_DELETE_TASK(251, "","该任务不能被删除"),
     VIRTUAL_TASK_UNSUPPORTED_OPERATION(253, "","虚节点任务不支持该操作"),
@@ -125,7 +134,10 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CANT_NOT_FIND_CLUSTER(651, "cluster can not found","该集群不存在"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
     BIND_COMPONENT_NOT_DELETED(653, "component can not deleted","集群已绑定租户，对应计算和调度组件不能删除"),
-    METADATA_COMPONENT_NOT_DELETED(654, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),;
+    METADATA_COMPONENT_NOT_DELETED(654, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),
+
+
+    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
 
 
     private final int code;

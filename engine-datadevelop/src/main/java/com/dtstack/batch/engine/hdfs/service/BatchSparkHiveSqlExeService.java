@@ -255,7 +255,7 @@ public class BatchSparkHiveSqlExeService {
     protected ExecuteResultVO executeSql(ExecuteContent executeContent, EJobType eJobType) {
         // 判断血缘解析结果，防止空指针
         if (null == executeContent.getParseResult()) {
-            throw new RdosDefineException("血缘解析异常，结果为空");
+            throw new RdosDefineException("SQL解析异常，结果为空");
         }
         Long tenantId = executeContent.getTenantId();
         Long userId = executeContent.getUserId();
