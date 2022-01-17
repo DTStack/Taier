@@ -38,9 +38,6 @@ import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.EngineJobRetryMapper;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.ScheduleJobCacheService;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
@@ -73,12 +70,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * 接收http请求
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- * @author sishu.yss
- */
+
 @Service
 public class ScheduleActionService {
 

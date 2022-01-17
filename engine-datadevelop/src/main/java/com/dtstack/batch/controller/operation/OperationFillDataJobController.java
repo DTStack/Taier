@@ -4,6 +4,7 @@ import com.dtstack.batch.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.batch.service.schedule.JobService;
 import com.dtstack.batch.vo.fill.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.pager.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,18 +40,18 @@ public class OperationFillDataJobController {
 
     @RequestMapping(value = "/fillData", method = {RequestMethod.POST})
     @ApiOperation(value = "补数据接口:支持批量补数据和工程补数据")
-    public Long fillData(@RequestBody @Valid ScheduleFillJobParticipateVO scheduleFillJobParticipateVO, BindingResult bindingResult) {
-        return jobService.fillData(FillDataJobMapstructTransfer.INSTANCE.scheduleFillJobParticipateVoToScheduleFillJobParticipateDTO(scheduleFillJobParticipateVO));
+    public R<Long> fillData(@RequestBody @Valid ScheduleFillJobParticipateVO scheduleFillJobParticipateVO) {
+        return R.ok(jobService.fillData(FillDataJobMapstructTransfer.INSTANCE.scheduleFillJobParticipateVoToScheduleFillJobParticipateDTO(scheduleFillJobParticipateVO)));
     }
 
     @RequestMapping(value = "/queryFillDataList", method = {RequestMethod.POST})
-    public PageResult<List<ReturnFillDataListVO>> fillDataList(@RequestBody @Valid QueryFillDataListVO vo, BindingResult bindingResult) {
-        return jobService.fillDataList(FillDataJobMapstructTransfer.INSTANCE.fillDataListVOToFillDataListDTO(vo));
+    public R<PageResult<List<ReturnFillDataListVO>>> fillDataList(@RequestBody @Valid QueryFillDataListVO vo) {
+        return R.ok(jobService.fillDataList(FillDataJobMapstructTransfer.INSTANCE.fillDataListVOToFillDataListDTO(vo)));
     }
 
     @RequestMapping(value = "/queryFillDataJobList", method = {RequestMethod.POST})
-    public PageResult<ReturnFillDataJobListVO> fillDataJobList(@RequestBody @Valid QueryFillDataJobListVO vo, BindingResult bindingResult) {
-        return jobService.fillDataJobList(FillDataJobMapstructTransfer.INSTANCE.fillDataJobListVOToFillDataJobReturnListVO(vo));
+    public R<PageResult<ReturnFillDataJobListVO>> fillDataJobList(@RequestBody @Valid QueryFillDataJobListVO vo) {
+        return R.ok(jobService.fillDataJobList(FillDataJobMapstructTransfer.INSTANCE.fillDataJobListVOToFillDataJobReturnListVO(vo)));
     }
 
 }

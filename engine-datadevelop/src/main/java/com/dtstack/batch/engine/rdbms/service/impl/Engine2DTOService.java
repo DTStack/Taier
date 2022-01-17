@@ -21,28 +21,24 @@ package com.dtstack.batch.engine.rdbms.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.HiveVersion;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
-import com.dtstack.engine.common.engine.JdbcInfo;
-import com.dtstack.engine.common.engine.JdbcUrlPropertiesValue;
-import com.dtstack.engine.common.engine.KerberosConfig;
-import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.exception.DtCenterDefException;
-import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
-import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.dtcenter.loader.cache.pool.config.PoolConfig;
 import com.dtstack.dtcenter.loader.dto.source.*;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.common.enums.DbType;
+import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.engine.JdbcUrlPropertiesValue;
+import com.dtstack.engine.common.engine.KerberosConfig;
 import com.dtstack.engine.common.enums.EComponentApiType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.EngineService;
+import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.master.service.ClusterService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.components.ComponentsConfigOfComponentsVO;
-import com.dtstack.engine.master.vo.engine.EngineSupportVO;
 import com.google.common.base.Preconditions;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.collections.CollectionUtils;
@@ -155,118 +151,6 @@ public enum Engine2DTOService {
                     .build();
             return sourceDTO;
         }
-    },
-
-    ORACLE(DataSourceType.Oracle.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            return OracleSourceDTO.builder()
-                    .sourceType(DataSourceType.Oracle.getVal())
-                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
-    },
-
-    IMPALA(DataSourceType.IMPALA.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            return ImpalaSourceDTO.builder()
-                    .sourceType(DataSourceType.IMPALA.getVal())
-                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .kerberosConfig(jdbcInfo.getKerberosConfig())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
-    },
-
-    TIDB(DataSourceType.TiDB.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            return Mysql5SourceDTO.builder()
-                    .sourceType(DataSourceType.TiDB.getVal())
-                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
-    },
-
-    GREENPLUM(DataSourceType.GREENPLUM6.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            return Greenplum6SourceDTO.builder()
-                    .sourceType(DataSourceType.GREENPLUM6.getVal())
-                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
-    },
-
-    /**
-     * Inceptor数据源
-     */
-    INCEPTOR(DataSourceType.INCEPTOR.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            String config = buildHadoopConfig(dtUicTenantId);
-            ISourceDTO sourceDTO = InceptorSourceDTO.builder()
-                    .sourceType(DataSourceType.INCEPTOR.getVal())
-                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .kerberosConfig(jdbcInfo.getKerberosConfig())
-                    .defaultFS(HadoopConf.getDefaultFs(dtUicTenantId))
-                    .config(config)
-                    .poolConfig(buildPoolConfig())
-                    .build();
-            return sourceDTO;
-        }
-    },
-
-    LIBRA(DataSourceType.LIBRA.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            Map<String, String> params = new HashMap<>();
-            if (StringUtils.isNotBlank(dbName)) {
-                params.put("currentSchema", dbName);
-            }
-            String jdbcUrl = buildJdbcURLWithParam(jdbcInfo.getJdbcUrl(), params);
-            return LibraSourceDTO.builder()
-                    .sourceType(DataSourceType.LIBRA.getVal())
-                    .url(jdbcUrl)
-                    .schema(dbName)
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
-    },
-
-    ADB_FOR_PG(DataSourceType.ADB_FOR_PG.getVal()){
-        @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long dtUicTenantId, Long dtUicUserId, String dbName) {
-            Map<String, String> params = new HashMap<>();
-            if (StringUtils.isNotBlank(dbName)) {
-                params.put("currentSchema", dbName);
-            }
-            String jdbcUrl = buildJdbcURLWithParam(jdbcInfo.getJdbcUrl(), params);
-            return AdbForPgSourceDTO.builder()
-                    .sourceType(DataSourceType.ADB_FOR_PG.getVal())
-                    .url(jdbcUrl)
-                    .schema(dbName)
-                    .username(jdbcInfo.getUsername())
-                    .password(jdbcInfo.getPassword())
-                    .poolConfig(buildPoolConfig())
-                    .build();
-        }
     };
 
     /**
@@ -314,14 +198,12 @@ public enum Engine2DTOService {
      */
     private static final String ERROR_MSG_CLUSTER_INFO = "集群ID:%s，获取组件标识:%s，信息为空";
 
-    public static EngineService engineService;
     public static ClusterService clusterService;
     public static ComponentService componentService;
     public static EnvironmentContext environmentContext;
 
 
-    public static void init(ComponentService componentService, EngineService engineService, ClusterService clusterService, EnvironmentContext environmentContext) {
-        Engine2DTOService.engineService = engineService;
+    public static void init(ComponentService componentService, ClusterService clusterService, EnvironmentContext environmentContext) {
         Engine2DTOService.clusterService = clusterService;
         Engine2DTOService.componentService = componentService;
         Engine2DTOService.environmentContext = environmentContext;
@@ -395,21 +277,9 @@ public enum Engine2DTOService {
     public static JdbcInfo getJdbcInfo (Long dtUicTenantId, Long dtUicUserId, ETableType eTableType) {
         JdbcInfo jdbcInfo = null;
         if (dtUicTenantId != null) {
-            if (ETableType.TIDB.equals(eTableType)) {
-                jdbcInfo = getTiDBJDBC(dtUicTenantId, dtUicUserId);
-            } else if (ETableType.GREENPLUM.equals(eTableType)) {
-                jdbcInfo = getGreenplumJDBC(dtUicTenantId, dtUicUserId);
-            } else if (ETableType.ORACLE.equals(eTableType)) {
-                jdbcInfo = getOracleJDBC(dtUicTenantId, dtUicUserId);
-            } else if (ETableType.IMPALA.equals(eTableType)) {
-                jdbcInfo = getImpalaJDBC(dtUicTenantId);
-            } else if (ETableType.LIBRA.equals(eTableType)) {
-                jdbcInfo = getLibraJDBC(dtUicTenantId);
-            } else if (ETableType.HIVE.equals(eTableType)) {
+            if (ETableType.HIVE.equals(eTableType)) {
                 EJobType eJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
                 jdbcInfo = getJdbcInfo(dtUicTenantId, dtUicUserId, eJobType);
-            } else if (ETableType.ADB_FOR_PG.equals(eTableType)) {
-                jdbcInfo = getADBForPGJDBC(dtUicTenantId, dtUicUserId);
             }
         }
         if (jdbcInfo == null) {
@@ -431,24 +301,8 @@ public enum Engine2DTOService {
     public static JdbcInfo getJdbcInfo (Long dtUicTenantId, Long dtUicUserId, EJobType eJobType) {
         JdbcInfo jdbcInfo = null;
         if (clusterService != null && dtUicTenantId != null) {
-            if (EJobType.TIDB_SQL.equals(eJobType)) {
-                jdbcInfo = getTiDBJDBC(dtUicTenantId, dtUicUserId);
-            } else if (EJobType.GREENPLUM_SQL.equals(eJobType)) {
-                jdbcInfo = getGreenplumJDBC(dtUicTenantId, dtUicUserId);
-            } else if (EJobType.ORACLE_SQL.equals(eJobType)) {
-                jdbcInfo = getOracleJDBC(dtUicTenantId, dtUicUserId);
-            } else if (EJobType.IMPALA_SQL.equals(eJobType)) {
-                jdbcInfo = getImpalaJDBC(dtUicTenantId);
-            } else if (EJobType.GaussDB_SQL.equals(eJobType)) {
-                jdbcInfo = getLibraJDBC(dtUicTenantId);
-            } else if (EJobType.SPARK_SQL.equals(eJobType)) {
-                jdbcInfo = getSparkThrift(dtUicTenantId);
-            } else if (EJobType.HIVE_SQL.equals(eJobType)) {
+            if (EJobType.HIVE_SQL.equals(eJobType)) {
                 jdbcInfo = getHiveServer(dtUicTenantId);
-            } else if (EJobType.INCEPTOR_SQL.equals(eJobType)) {
-                jdbcInfo = getInceptorSqlJDBC(dtUicTenantId);
-            } else if (EJobType.ANALYTICDB_FOR_PG.equals(eJobType)) {
-                jdbcInfo = getADBForPGJDBC(dtUicTenantId, dtUicUserId);
             }
         }
         if (jdbcInfo == null) {
@@ -528,18 +382,6 @@ public enum Engine2DTOService {
         if (ETableType.HIVE.equals(eTableType)) {
             EJobType eJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
             return jobTypeTransitionDataSourceType(eJobType, version);
-        } else if (ETableType.IMPALA.equals(eTableType)) {
-            return DataSourceType.IMPALA;
-        } else if (ETableType.GREENPLUM.equals(eTableType)) {
-            return DataSourceType.GREENPLUM6;
-        } else if (ETableType.ORACLE.equals(eTableType)) {
-            return DataSourceType.Oracle;
-        } else if (ETableType.LIBRA.equals(eTableType)) {
-            return DataSourceType.LIBRA;
-        } else if (ETableType.TIDB.equals(eTableType)) {
-            return DataSourceType.TiDB;
-        } else if (ETableType.ADB_FOR_PG.equals(eTableType)) {
-            return DataSourceType.ADB_FOR_PG;
         } else {
             throw new RdosDefineException("tableType not transition dataSourceType");
         }
@@ -562,20 +404,6 @@ public enum Engine2DTOService {
             }
         } else if (EJobType.SPARK_SQL.equals(eJobType)) {
             return DataSourceType.SparkThrift2_1;
-        } else if (EJobType.IMPALA_SQL.equals(eJobType)) {
-            return DataSourceType.IMPALA;
-        } else if (EJobType.GREENPLUM_SQL.equals(eJobType)) {
-            return DataSourceType.GREENPLUM6;
-        } else if (EJobType.ORACLE_SQL.equals(eJobType)) {
-            return DataSourceType.Oracle;
-        } else if (EJobType.GaussDB_SQL.equals(eJobType)) {
-            return DataSourceType.LIBRA;
-        } else if (EJobType.TIDB_SQL.equals(eJobType)) {
-            return DataSourceType.TiDB;
-        } else if (EJobType.INCEPTOR_SQL.equals(eJobType)) {
-            return DataSourceType.INCEPTOR;
-        } else if (EJobType.ANALYTICDB_FOR_PG.equals(eJobType)) {
-            return DataSourceType.ADB_FOR_PG;
         } else {
             throw new RdosDefineException("jobType not transition dataSourceType");
         }
@@ -584,25 +412,24 @@ public enum Engine2DTOService {
     /**
      * 根据当前租户绑定集群的元数据方式 获取 对应的 JobType
      *
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      */
-    public static EJobType getJobTypeByHadoopMetaType(Long dtuicTenantId) {
-        List<EngineSupportVO> engineSupportVOS = engineService.listSupportEngine(dtuicTenantId, false);
-        for (EngineSupportVO engineSupportVO : engineSupportVOS) {
-            if (MultiEngineType.HADOOP.getType() == engineSupportVO.getEngineType()) {
-                if (EComponentType.HIVE_SERVER.getTypeCode() == engineSupportVO.getMetadataComponent()) {
-                    return EJobType.HIVE_SQL;
-                }
-                if (EComponentType.SPARK_THRIFT.getTypeCode() == engineSupportVO.getMetadataComponent()) {
-                    return EJobType.SPARK_SQL;
-                }
-                if (EComponentType.IMPALA_SQL.getTypeCode() == engineSupportVO.getMetadataComponent()) {
-                    return EJobType.IMPALA_SQL;
-                }
-            }
+    public static EJobType getJobTypeByHadoopMetaType(Long tenantId) {
+        Integer metaComponent = getMetaComponent(tenantId);
+        if(null == metaComponent){
+            throw new RdosDefineException("not find 'Hadoop' meta DataSource!");
         }
-        throw new RdosDefineException("not find 'Hadoop' meta DataSource!");
+        EComponentType componentType = EComponentType.getByCode(metaComponent);
+        switch (componentType){
+            case HIVE_SERVER:
+                return EJobType.HIVE_SQL;
+            case SPARK_THRIFT:
+                return EJobType.SPARK_SQL;
+            default:
+                throw new RdosDefineException("not support meta DataSource!");
+        }
+
     }
 
 
@@ -627,14 +454,6 @@ public enum Engine2DTOService {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (entry.getValue() == null ? null : entry.getValue().toString())));
     }
 
-    /**
-     * 获取集群在sftp上的路径
-     *
-     * @param uicTenantId
-     */
-    public static String getSftpDir(Long uicTenantId, Integer componentType) {
-        return clusterService.clusterSftpDir(uicTenantId, componentType);
-    }
 
     /**
      * 获取 Hadoop 集群信息，并填充 Kerberos 文件之类的操作
@@ -647,27 +466,6 @@ public enum Engine2DTOService {
         return checkKerberosWithPeriod(uicTenantId, data);
     }
 
-    /**
-     * 获取 CARBON 信息，并填充 Kerberos 文件之类的操作
-     *
-     * @param uicTenantId
-     * @return
-     */
-    public static JdbcInfo getCarbon(Long uicTenantId) {
-        JdbcInfo data = getPluginInfo(uicTenantId, EComponentApiType.CARBON_DATA);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
-
-    /**
-     * 获取 Libra 信息，并填充 Kerberos 文件之类的操作
-     *
-     * @param uicTenantId
-     * @return
-     */
-    public static JdbcInfo getLibraJDBC(Long uicTenantId) {
-        JdbcInfo data = getLibraJDBCInfo(uicTenantId);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
 
     /**
      * 获取 HiveServer 信息，并填充 Kerberos 文件之类的操作
@@ -680,10 +478,6 @@ public enum Engine2DTOService {
         return checkKerberosWithPeriod(uicTenantId, data);
     }
 
-    public static JdbcInfo getInceptorSqlJDBC(Long uicTenantId) {
-        JdbcInfo data = getPluginInfo(uicTenantId, EComponentApiType.INCEPTOR_SQL);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
 
     /**
      * 获取 SparkThrift 信息，并填充 Kerberos 文件之类的操作
@@ -696,52 +490,8 @@ public enum Engine2DTOService {
         return checkKerberosWithPeriod(uicTenantId, data);
     }
 
-    /**
-     * 获取 Impala 信息，并填充参数
-     *
-     * @param uicTenantId
-     * @return
-     */
-    public static JdbcInfo getImpalaJDBC(Long uicTenantId) {
-        JdbcInfo data = getPluginInfo(uicTenantId, EComponentApiType.IMPALA_SQL);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
 
-    /**
-     * 获取 TiDB 信息，并填充参数
-     *
-     * @param uicTenantId
-     * @param userId
-     * @return
-     */
-    public static JdbcInfo getTiDBJDBC(Long uicTenantId, Long userId) {
-        JdbcInfo data = getSlbDbInfo(uicTenantId, userId, DbType.TiDB);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
 
-    /**
-     * 获取 Oracle 信息，并填充参数
-     *
-     * @param uicTenantId
-     * @param userId
-     * @return
-     */
-    public static JdbcInfo getOracleJDBC(Long uicTenantId, Long userId) {
-        JdbcInfo data = getSlbDbInfo(uicTenantId, userId, DbType.Oracle);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
-
-    /**
-     * 获取 Greenplum 信息，并填充参数
-     *
-     * @param uicTenantId
-     * @param userId
-     * @return
-     */
-    public static JdbcInfo getGreenplumJDBC(Long uicTenantId, Long userId) {
-        JdbcInfo data = getSlbDbInfo(uicTenantId, userId, DbType.GREENPLUM6);
-        return checkKerberosWithPeriod(uicTenantId, data);
-    }
 
     /**
      * 获取 Hadoop 集群信息
@@ -772,53 +522,7 @@ public enum Engine2DTOService {
         return JSONObject.parseObject(configByKey.toString(), JdbcInfo.class);
     }
 
-    /**
-     * 获取 Libra 信息
-     *
-     * @param uicTenantId
-     * @return
-     */
-    private static JdbcInfo getLibraJDBCInfo(Long uicTenantId) {
-        List<ComponentsConfigOfComponentsVO> data = componentService.listConfigOfComponents(uicTenantId, MultiEngineType.LIBRA.getType(), null);
-        if (CollectionUtils.isEmpty(data)) {
-            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, MultiEngineType.LIBRA.name()));
-        }
-        for (ComponentsConfigOfComponentsVO cvo : data) {
-            if (EComponentType.LIBRA_SQL.getTypeCode() == cvo.getComponentTypeCode()) {
-                return JSONObject.parseObject(cvo.getComponentConfig(), JdbcInfo.class);
-            }
-        }
-        throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, MultiEngineType.LIBRA.name()));
-    }
 
-
-    /**
-     * 获取 ADB_FOR_PG 信息
-     *
-     * @param uicTenantId
-     * @return
-     */
-    public static JdbcInfo getADBForPGJDBC(Long uicTenantId, Long userId) {
-        JdbcInfo data = getSlbDbInfo(uicTenantId, userId, DbType.ANALYTICDB_FOR_PG);
-        return (JdbcInfo)checkKerberosWithPeriod(uicTenantId, data);
-    }
-
-
-    /**
-     * 获取控制台 DB 信息
-     *
-     * @param uicTenantId
-     * @param userId
-     * @param dbType
-     * @return
-     */
-    private static JdbcInfo getSlbDbInfo (Long uicTenantId, Long userId, DbType dbType) {
-        String data = clusterService.dbInfo(uicTenantId, userId == null ? null : userId, dbType.getTypeCode());
-        if (StringUtils.isBlank(data)) {
-            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, dbType.name()));
-        }
-        return JSONObject.parseObject(data, JdbcInfo.class);
-    }
 
     /**
      * 获取集群的信息
@@ -849,19 +553,12 @@ public enum Engine2DTOService {
         return enginePluginInfo.toJSONString();
     }
 
-    /**
-     * 获取console上配置的多引擎信息
-     *
-     * @param uicTenantId
-     * @return
-     */
-    public static List<EngineSupportVO> listSupportEngine(Long uicTenantId) {
-        List<EngineSupportVO> data = engineService.listSupportEngine(uicTenantId, false);
-        if (CollectionUtils.isEmpty(data)) {
-            throw new DtCenterDefException("该租户 console 未配置任何 集群");
-        }
-        return data;
+
+    public static Integer getMetaComponent(Long tenantId){
+       return clusterService.getMetaComponent(tenantId);
     }
+
+
 
     /**
      * 校验 Kerberos 参数及文件
