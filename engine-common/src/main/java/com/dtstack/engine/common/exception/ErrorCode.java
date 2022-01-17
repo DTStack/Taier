@@ -27,6 +27,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     USER_IS_NULL(5, "user is null", "用户不存在"),
     TOKEN_IS_INVALID(6, "dt_token is invalid", "无效token"),
     TENANT_IS_NULL(7, "tenant is null", "租户为空"),
+    PARAM_NULL(8, "param is null", "参数不能为空"),
 
     UNKNOWN_ERROR(10, "unknown error", "未知错误"),
     SERVER_EXCEPTION(11, "server exception", "服务异常"),
