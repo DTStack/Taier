@@ -24,7 +24,7 @@ import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.domain.Queue;
 import com.dtstack.engine.mapper.ClusterMapper;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
-import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.pluginapi.JobClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
