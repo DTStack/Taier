@@ -19,7 +19,7 @@
 package com.dtstack.batch.controller.console;
 
 import com.dtstack.engine.common.lang.web.R;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
