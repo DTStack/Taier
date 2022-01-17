@@ -1,8 +1,9 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
 
 
-import com.dtstack.engine.domain.datasource.DsClassify;
+
+import com.dtstack.engine.domain.DsClassify;
 
 import java.util.List;
 
