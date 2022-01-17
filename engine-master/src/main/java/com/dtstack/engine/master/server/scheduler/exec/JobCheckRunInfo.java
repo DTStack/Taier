@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.server.scheduler;
+package com.dtstack.engine.master.server.scheduler.exec;
+
+
+import com.dtstack.engine.common.enums.JobCheckStatus;
 
 /**
  * company: www.dtstack.com
@@ -24,25 +27,44 @@ package com.dtstack.engine.master.server.scheduler;
  * @author: toutian
  * create: 2019/10/30
  */
-public class JobErrorInfo {
+public class JobCheckRunInfo {
 
-    private String taskName;
+    /**
+     * 是否通过
+     */
+    private Boolean isPass;
 
-    private String jobKey;
+    /**
+     * 校验状态
+     */
+    private JobCheckStatus status;
 
-    public String getTaskName() {
-        return taskName;
+    /**
+     * 日志信息
+     */
+    private String logInfo;
+
+    public Boolean getPass() {
+        return isPass;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setPass(Boolean pass) {
+        isPass = pass;
     }
 
-    public String getJobKey() {
-        return jobKey;
+    public JobCheckStatus getStatus() {
+        return status;
     }
 
-    public void setJobKey(String jobKey) {
-        this.jobKey = jobKey;
+    public void setStatus(JobCheckStatus status) {
+        this.status = status;
+    }
+
+    public String getLogInfo() {
+        return logInfo;
+    }
+
+    public void setLogInfo(String logInfo) {
+        this.logInfo = logInfo;
     }
 }

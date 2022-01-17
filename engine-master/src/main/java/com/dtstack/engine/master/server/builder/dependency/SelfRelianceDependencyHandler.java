@@ -1,15 +1,12 @@
 package com.dtstack.engine.master.server.builder.dependency;
 
-import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.enums.RelyType;
-import com.dtstack.engine.master.server.builder.ScheduleConf;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
-import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
 import java.util.List;
@@ -39,7 +36,7 @@ public class SelfRelianceDependencyHandler extends AbstractDependencyHandler {
         scheduleJobJob.setTenantId(currentTaskShade.getTenantId());
         scheduleJobJob.setJobKey(currentJobKey);
         scheduleJobJob.setParentJobKey(lastJobKey);
-        scheduleJobJob.setParentJobKeyType(RelyType.SELF_RELIANCE.getType());
+        scheduleJobJob.setJobKeyType(RelyType.SELF_RELIANCE.getType());
         scheduleJobJob.setRule(getRule(corn.getScheduleConf()));
         jobJobList.add(scheduleJobJob);
         return jobJobList;

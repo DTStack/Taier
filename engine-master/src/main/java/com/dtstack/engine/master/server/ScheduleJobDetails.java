@@ -1,7 +1,8 @@
-package com.dtstack.engine.master.server.builder;
+package com.dtstack.engine.master.server;
 
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,6 +26,11 @@ public class ScheduleJobDetails {
     private List<ScheduleJobJob> jobJobList;
 
     /**
+     * 实例对应的任务信息
+     */
+    private ScheduleTaskShade scheduleTaskShade;
+
+    /**
      * 如果任务是工作流，那么会生成工作流的子任务
      */
     private List<ScheduleJobDetails> flowBean;
@@ -45,6 +51,14 @@ public class ScheduleJobDetails {
         this.jobJobList = jobJobList;
     }
 
+    public ScheduleTaskShade getScheduleTaskShade() {
+        return scheduleTaskShade;
+    }
+
+    public void setScheduleTaskShade(ScheduleTaskShade scheduleTaskShade) {
+        this.scheduleTaskShade = scheduleTaskShade;
+    }
+
     public List<ScheduleJobDetails> getFlowBean() {
         return flowBean;
     }
@@ -58,11 +72,21 @@ public class ScheduleJobDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ScheduleJobDetails that = (ScheduleJobDetails) o;
-        return Objects.equals(scheduleJob, that.scheduleJob) && Objects.equals(jobJobList, that.jobJobList) && Objects.equals(flowBean, that.flowBean);
+        return Objects.equals(scheduleJob, that.scheduleJob) && Objects.equals(jobJobList, that.jobJobList) && Objects.equals(scheduleTaskShade, that.scheduleTaskShade) && Objects.equals(flowBean, that.flowBean);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(scheduleJob, jobJobList, flowBean);
+        return Objects.hash(scheduleJob, jobJobList, scheduleTaskShade, flowBean);
+    }
+
+    @Override
+    public String toString() {
+        return "ScheduleJobDetails{" +
+                "scheduleJob=" + scheduleJob +
+                ", jobJobList=" + jobJobList +
+                ", scheduleTaskShade=" + scheduleTaskShade +
+                ", flowBean=" + flowBean +
+                '}';
     }
 }
