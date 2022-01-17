@@ -1,4 +1,4 @@
-package com.dtstack.engine.domain.datasource;
+package com.dtstack.engine.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
