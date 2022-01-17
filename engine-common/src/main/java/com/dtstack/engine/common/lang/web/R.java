@@ -47,7 +47,7 @@ public class R<T> {
     public final static <T> R<T> fail(ErrorCode errorCode) {
         return new R()
                 .code(errorCode.getCode())
-                .message(errorCode.getDescription());
+                .message(errorCode.getMsg());
     }
 
     public R<T> data(T data) {

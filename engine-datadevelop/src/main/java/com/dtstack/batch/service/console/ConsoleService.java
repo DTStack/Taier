@@ -112,7 +112,6 @@ public class ConsoleService {
     }
 
     public ConsoleJobVO searchJob(String jobName) {
-        Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         String jobId = null;
         ScheduleJob scheduleJob = scheduleJobMapper.getByName(jobName);
         if (scheduleJob != null) {
@@ -142,7 +141,6 @@ public class ConsoleService {
 
     public List<String> listNames( String jobName) {
         try {
-            Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
             return engineJobCacheMapper.listNames(jobName);
         } catch (Exception e) {
             LOGGER.error("", e);
@@ -223,11 +221,6 @@ public class ConsoleService {
                                   Integer stage,
                                   Integer pageSize,
                                   Integer currentPage) {
-        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
-        Preconditions.checkNotNull(stage, "parameters of stage is required");
-        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
-        Preconditions.checkArgument(pageSize != null && pageSize > 0, "parameters of pageSize is required");
-
         if (StringUtils.isBlank(nodeAddress)) {
             nodeAddress = null;
         }
@@ -288,8 +281,6 @@ public class ConsoleService {
     }
 
     public Boolean jobStick( String jobId) {
-        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
-
         try {
             EngineJobCache engineJobCache = engineJobCacheMapper.getOne(jobId);
             if(null == engineJobCache){
@@ -347,7 +338,6 @@ public class ConsoleService {
     public void stopAll( String jobResource,
                          String nodeAddress) throws Exception {
 
-        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
 
         for (Integer eJobCacheStage : EJobCacheStage.unSubmitted()) {
             this.stopJobList(jobResource, nodeAddress, eJobCacheStage, null);
@@ -361,7 +351,6 @@ public class ConsoleService {
                             Integer isForce){
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             //杀死指定jobIdList的任务
-
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIdList);
                 Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
