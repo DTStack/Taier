@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.engine.mapper.datasource.IMapper;
+import com.dtstack.engine.mapper.IMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -108,17 +108,6 @@ public abstract class BaseService<M extends IMapper<T>, T> extends ServiceImpl<M
      */
     public Long selectObjLong(QueryWrapper<T> qw) {
         return super.getObj(qw.last("limit 1"), GET_LONG);
-    }
-
-    /**
-     * 模型版本相关-物理删除（清除暂存模型数据）
-     *
-     * @param tab     表名
-     * @param modelId modelId
-     * @return 数据库影响的行数
-     */
-    public int clearModelStore(String tab, Long modelId) {
-        return getBaseMapper().clearModelStore(tab, modelId);
     }
 
 

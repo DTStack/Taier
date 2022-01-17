@@ -3,7 +3,7 @@ package com.dtstack.batch.mapstruct.datasource;
 
 import com.dtstack.batch.vo.datasource.DsTypeListVO;
 import com.dtstack.batch.vo.datasource.DsTypeVO;
-import com.dtstack.engine.domain.datasource.DsType;
+import com.dtstack.engine.domain.DsType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

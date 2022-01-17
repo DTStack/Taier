@@ -1,6 +1,6 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
-import com.dtstack.engine.domain.datasource.DsFormField;
+import com.dtstack.engine.domain.DsFormField;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
