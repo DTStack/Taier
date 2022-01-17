@@ -23,7 +23,7 @@ import com.dtstack.batch.mapstruct.console.ClusterTransfer;
 import com.dtstack.batch.vo.console.ClusterInfoVO;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Cluster;
-import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.vo.ClusterEngineVO;
 import com.dtstack.engine.master.vo.ClusterVO;
 import com.dtstack.engine.pager.PageResult;
