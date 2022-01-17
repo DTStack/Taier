@@ -1,6 +1,6 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
-import com.dtstack.engine.domain.datasource.DsInfo;
+import com.dtstack.engine.domain.DsInfo;
 import com.dtstack.engine.domain.po.DsListBO;
 import com.dtstack.engine.domain.po.DsListQuery;
 import org.apache.ibatis.annotations.Mapper;

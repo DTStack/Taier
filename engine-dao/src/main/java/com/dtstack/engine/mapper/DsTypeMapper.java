@@ -1,7 +1,7 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
 
-import com.dtstack.engine.domain.datasource.DsType;
+import com.dtstack.engine.domain.DsType;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

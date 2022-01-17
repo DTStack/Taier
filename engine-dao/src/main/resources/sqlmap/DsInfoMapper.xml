@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.dtstack.engine.mapper.datasource.DsInfoMapper">
+<mapper namespace="com.dtstack.engine.mapper.DsInfoMapper">
 
     <sql id="selectDsField">
         a.id as dataInfoId,
@@ -138,7 +138,7 @@
 
 
 
-    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.engine.domain.DsInfo">
 
         select
         <include refid="select_content_fragment" />
@@ -149,7 +149,7 @@
         and b.old_data_info_id = #{oldDataInfoId}
     </select>
 
-    <select id="getDsInfoListByIdList" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+    <select id="getDsInfoListByIdList" resultType="com.dtstack.engine.domain.DsInfo">
 
         select
         <include refid="select_content_fragment" />
@@ -172,7 +172,7 @@
                )
     </update>
 
-    <select id="queryByIds" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+    <select id="queryByIds" resultType="com.dtstack.engine.domain.DsInfo">
         select
          *
         from
@@ -187,7 +187,7 @@
 
 
 
-    <select id="queryListByDataTypeAndVersion" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+    <select id="queryListByDataTypeAndVersion" resultType="com.dtstack.engine.domain.DsInfo">
 
         select
         <include refid="select_content_fragment" />
@@ -240,7 +240,7 @@
         </if>
     </select>
 
-    <select id="queryByTenantId" resultType="com.dtstack.engine.domain.datasource.DsInfo">
+    <select id="queryByTenantId" resultType="com.dtstack.engine.domain.DsInfo">
         select
         <include refid="select_content_fragment" />
         from dsc_info a
