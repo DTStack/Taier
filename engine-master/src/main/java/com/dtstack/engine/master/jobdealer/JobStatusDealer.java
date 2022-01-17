@@ -27,7 +27,7 @@ import com.dtstack.engine.common.util.TaskParamsUtils;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.impl.ScheduleJobCacheService;
+import com.dtstack.engine.master.service.ScheduleJobCacheService;
 import com.dtstack.engine.master.jobdealer.bo.JobCompletedInfo;
 import com.dtstack.engine.master.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
