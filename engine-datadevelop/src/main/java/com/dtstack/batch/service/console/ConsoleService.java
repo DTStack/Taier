@@ -29,7 +29,7 @@ import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;

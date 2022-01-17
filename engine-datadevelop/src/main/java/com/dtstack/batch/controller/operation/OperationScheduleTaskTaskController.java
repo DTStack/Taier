@@ -4,6 +4,7 @@ import com.dtstack.batch.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.batch.service.schedule.TaskTaskService;
 import com.dtstack.batch.vo.schedule.QueryTaskDisplayVO;
 import com.dtstack.batch.vo.schedule.ReturnTaskDisplayVO;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,8 +28,8 @@ public class OperationScheduleTaskTaskController {
     private TaskTaskService tasktaskService;
 
     @PostMapping(value="/displayOffSpring")
-    public ReturnTaskDisplayVO displayOffSpring(@RequestBody QueryTaskDisplayVO vo) {
-        return tasktaskService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryTaskDisplayVOToQueryTaskDisplayDTO(vo));
+    public R<ReturnTaskDisplayVO> displayOffSpring(@RequestBody QueryTaskDisplayVO vo) {
+        return R.ok(tasktaskService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryTaskDisplayVOToQueryTaskDisplayDTO(vo)));
     }
 
     @PostMapping(value="/getAllFlowSubTasks")
@@ -36,8 +37,8 @@ public class OperationScheduleTaskTaskController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Long"),
     })
-    public ReturnTaskDisplayVO getAllFlowSubTasks(@RequestParam("taskId") Long taskId) {
-        return tasktaskService.getAllFlowSubTasks(taskId);
+    public R<ReturnTaskDisplayVO> getAllFlowSubTasks(@RequestParam("taskId") Long taskId) {
+        return R.ok(tasktaskService.getAllFlowSubTasks(taskId));
     }
 
 }

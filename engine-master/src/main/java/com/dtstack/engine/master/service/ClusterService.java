@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -490,6 +490,12 @@ public class ClusterService {
             vo.setEngines(engineVOS);
         }
         return vo;
+    }
+
+    public Integer getMetaComponent(Long tenantId) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        Component metadataComponent = componentService.getMetadataComponent(clusterId);
+        return null == metadataComponent ? null : metadataComponent.getComponentTypeCode();
     }
 }
 
