@@ -8,6 +8,7 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
 import com.dtstack.engine.master.server.builder.dependency.DependencyHandler;
@@ -62,7 +63,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
     protected EnvironmentContext environmentContext;
 
     @Autowired
-    protected ScheduleActionService scheduleActionService;
+    protected ScheduleActionService actionService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobBuilder.class);
 
@@ -167,7 +168,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         // 实例
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setTenantId(scheduleTaskShade.getTenantId());
-        scheduleJob.setJobId(scheduleActionService.generateUniqueSign());
+        scheduleJob.setJobId(actionService.generateUniqueSign());
         scheduleJob.setJobKey(jobKey);
         scheduleJob.setJobName(getName(scheduleTaskShade, name, cycTime));
         scheduleJob.setTaskId(scheduleTaskShade.getTaskId());

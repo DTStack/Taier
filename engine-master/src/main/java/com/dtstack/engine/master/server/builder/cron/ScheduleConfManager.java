@@ -19,26 +19,12 @@
 package com.dtstack.engine.master.server.builder.cron;
 
 import com.alibaba.fastjson.JSON;
-import com.dtstack.engine.master.server.builder.ScheduleConf;
-import com.dtstack.engine.master.server.scheduler.parser.*;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.pluginapi.util.DateUtil;
-import com.dtstack.engine.pluginapi.util.MathUtil;
-import com.google.common.base.Preconditions;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.quartz.CronExpression;
-import org.springframework.scheduling.support.CronSequenceGenerator;
+import com.dtstack.engine.master.enums.ESchedulePeriodType;
+import com.dtstack.engine.master.server.builder.ScheduleConf;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Reason:

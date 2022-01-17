@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.mapper.ScheduleJobOperatorRecordMapper;
 import com.google.common.collect.Lists;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,18 @@ import java.util.List;
 public class ScheduleJobOperatorRecordService extends ServiceImpl<ScheduleJobOperatorRecordMapper, ScheduleJobOperatorRecord> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleJobOperatorRecordService.class);
 
-    public List<ScheduleJobOperatorRecord> listStopJob(Long id) {
-        if (id != null && id > 0) {
-            return this.baseMapper.listStopJob(id);
+    /**
+     * 扫描操作记录
+     *
+     * @param startSort 开始位置
+     * @param nodeAddress 节点
+     * @param type 操作类型
+     * @param isEq 是否查询开始位置
+     * @return 操作记录
+     */
+    public List<ScheduleJobOperatorRecord> listOperatorRecord(Long startSort, String nodeAddress, Integer type, Boolean isEq) {
+        if (startSort != null && startSort > 0) {
+            return this.baseMapper.listOperatorRecord(startSort,nodeAddress,type,isEq);
         }
         return Lists.newArrayList();
     }
@@ -34,4 +44,6 @@ public class ScheduleJobOperatorRecordService extends ServiceImpl<ScheduleJobOpe
         }
         return 0;
     }
+
+
 }

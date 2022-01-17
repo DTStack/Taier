@@ -22,7 +22,7 @@ import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.master.server.executor.JobExecutorTrigger;
+import com.dtstack.engine.master.server.listener.JobSchedulerListener;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.exception.ExceptionUtil;
@@ -48,7 +48,7 @@ public class NodeRecoverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeRecoverService.class);
 
     @Autowired
-    private JobExecutorTrigger jobExecutorTrigger;
+    private JobSchedulerListener jobExecutorTrigger;
 
     @Autowired
     private EnvironmentContext environmentContext;

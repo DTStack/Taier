@@ -18,18 +18,8 @@
 
 package com.dtstack.engine.master.server.builder.cron;
 
-import com.dtstack.engine.master.server.builder.ScheduleConf;
-import com.dtstack.engine.master.server.scheduler.parser.CronStrUtil;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.pluginapi.util.MathUtil;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.dtstack.engine.master.server.builder.ScheduleConf;
 
 /**
  * 按周调度解析
