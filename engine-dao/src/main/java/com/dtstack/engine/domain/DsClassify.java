@@ -1,8 +1,7 @@
-package com.dtstack.engine.domain.datasource;
+package com.dtstack.engine.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.dtstack.engine.domain.BaseModel;
 import lombok.Data;
 
 /**

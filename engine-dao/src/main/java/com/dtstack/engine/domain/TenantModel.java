@@ -1,9 +1,8 @@
-package com.dtstack.engine.domain.datasource;
+package com.dtstack.engine.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.dtstack.engine.common.constrant.MP;
-import com.dtstack.engine.domain.BaseModel;
 
 /**
  * 带租户属性的数据模型类
