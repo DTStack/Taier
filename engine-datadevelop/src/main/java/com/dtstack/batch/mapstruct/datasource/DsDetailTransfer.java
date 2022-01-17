@@ -1,7 +1,7 @@
 package com.dtstack.batch.mapstruct.datasource;
 
 import com.dtstack.batch.vo.datasource.DsDetailVO;
-import com.dtstack.engine.domain.datasource.DsInfo;
+import com.dtstack.engine.domain.DsInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

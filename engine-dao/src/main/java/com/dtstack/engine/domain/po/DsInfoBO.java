@@ -3,7 +3,7 @@ package com.dtstack.engine.domain.po;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.constrant.FormNames;
 import com.dtstack.engine.common.util.DataSourceUtils;
-import com.dtstack.engine.domain.datasource.DsInfo;
+import com.dtstack.engine.domain.DsInfo;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
