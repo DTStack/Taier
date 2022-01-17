@@ -23,7 +23,6 @@ import com.dtstack.batch.bo.ExecuteContent;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
-import com.dtstack.batch.enums.TableRelationType;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.sql.ParseResult;
@@ -72,6 +71,9 @@ public class BatchSqlExeService {
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
+    @Autowired
+    private BatchFunctionService batchFunctionService;
+
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     @Autowired
@@ -112,7 +114,7 @@ public class BatchSqlExeService {
 
 
     /**
-     *
+     * 执行SQL
      */
     @Forbidden
     public ExecuteResultVO executeSql(final ExecuteContent executeContent) throws Exception {
@@ -147,23 +149,27 @@ public class BatchSqlExeService {
     }
 
     /**
-     * 该方法主要做语法校验，本质是 在sql语句之前+explain关键字
+     * 处理自定义函数 和 构建真正运行的SQL
      *
      * @param tenantId
      * @param taskType
      * @param sqlText
-     * @param userId
-     * @param checkSyntax
-     * @param isRoot
      * @param engineType
-     * @param taskParam
      * @return
      */
-    public CheckSyntaxResult processSqlText(final Long tenantId, Integer taskType, final String sqlText, final Long userId,
-                                            final boolean checkSyntax, final Boolean isRoot, final Integer engineType, String taskParam) {
+    public CheckSyntaxResult processSqlText(final Long tenantId, Integer taskType, final String sqlText, final Integer engineType) {
         CheckSyntaxResult result = new CheckSyntaxResult();
         TenantEngine tenantEngine = this.tenantEngineService.getByTenantAndEngineType(tenantId, engineType);
         Preconditions.checkNotNull(tenantEngine, String.format("tenantEngine %d not support engine type %d", tenantId, engineType));
+
+        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, taskType, tenantId);
+        // 处理自定义函数
+        String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
+
+        // 构建真正运行的SQL，去掉注释，加上use db 同时格式化SQL
+        String sqls = sqlExeService.process(sqlPlus, tenantEngine.getEngineIdentity());
+        result.setSql(sqls);
+
         result.setCheckResult(true);
         return result;
     }
@@ -309,13 +315,15 @@ public class BatchSqlExeService {
     }
 
 
+    /**
+     * 进行SQL解析
+     * @param executeContent
+     */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
         final Integer engineType = executeContent.getEngineType();
-        String taskParam = "";
-        if (TableRelationType.TASK.getType().equals(executeContent.getRelationType())) {
-            BatchTask one = batchTaskService.getOne(executeContent.getRelationId());
-            taskParam = one.getTaskParams();
-        }
+        BatchTask one = batchTaskService.getOne(executeContent.getRelationId());
+        String taskParam = one.getTaskParams();
+
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(engineType, executeContent.getDetailType(), executeContent.getTenantId());
         final String sql = executeContent.getSql();
         //TODO cache lazy table 暂时不解析血缘，不知道这种类型的sql如何处理
@@ -395,6 +403,24 @@ public class BatchSqlExeService {
             parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
         }
         return parseResult;
+    }
+
+    /**
+     * 处理spark sql自定义函数
+     * @param sqlText
+     * @param tenantId
+     * @param taskType
+     * @return
+     */
+    public String buildCustomFunctionSparkSql(String sqlText, Long tenantId, Integer taskType) {
+        String sqlPlus = SqlFormatUtil.formatSql(sqlText);
+        if (EJobType.SPARK_SQL.getType().equals(taskType)) {
+            String containFunction = batchFunctionService.buildContainFunction(sqlText, tenantId);
+            if (StringUtils.isNotBlank(containFunction)) {
+                sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL,containFunction,sqlPlus);
+            }
+        }
+        return sqlPlus;
     }
 
 }

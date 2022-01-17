@@ -89,7 +89,6 @@ const offlineReq = {
     GET_RESTART_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRestartChildJob`, // 获取restart job列表
     DOWNLOAD_SQL_RESULT: `${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`, // 下载运行结果
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
-    EXEC_SPARK_SQL_ADVANCED_MODE: `${RDOS_BASE_URL}/batch/batchJob/startSqlSophisticated`, // 执行sparkSQL高级模式
     STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
     SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchSelectSql/selectData`, // 轮询调度查询sql结果
     SELECT_SQL_STATUS: `${RDOS_BASE_URL}/batch/batchSelectSql/selectStatus`, // 轮询调度查询sql状态

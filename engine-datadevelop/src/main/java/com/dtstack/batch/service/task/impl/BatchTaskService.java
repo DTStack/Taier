@@ -993,7 +993,7 @@ public class BatchTaskService {
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
             boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && BooleanUtils.isTrue(ignoreCheck);
 
-            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText, userId, checkSyntax, isRoot, engineType, task.getTaskParams());
+            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText, engineType);
             if (!syntaxResult.getCheckResult()){
                 checkVo.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
                 checkVo.setErrorMessage(syntaxResult.getMessage());
