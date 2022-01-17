@@ -2,8 +2,8 @@ package com.dtstack.batch.service.datasource.impl;
 
 import com.dtstack.batch.mapstruct.datasource.DsClassifyTransfer;
 import com.dtstack.batch.vo.datasource.DsClassifyVO;
-import com.dtstack.engine.domain.datasource.DsClassify;
-import com.dtstack.engine.mapper.datasource.DsClassifyMapper;
+import com.dtstack.engine.domain.DsClassify;
+import com.dtstack.engine.mapper.DsClassifyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

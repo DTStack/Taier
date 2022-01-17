@@ -1,6 +1,6 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
-import com.dtstack.engine.domain.datasource.DsTypeFieldRef;
+import com.dtstack.engine.domain.DsTypeFieldRef;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
