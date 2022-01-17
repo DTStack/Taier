@@ -22,7 +22,7 @@ import com.dtstack.batch.mapstruct.console.KerberosConfigTransfer;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.domain.KerberosConfig;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.engine.master.vo.KerberosConfigVO;

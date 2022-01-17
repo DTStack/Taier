@@ -2,8 +2,8 @@ package com.dtstack.engine.master.jobdealer.resource;
 
 import com.dtstack.engine.mapper.ClusterMapper;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ClusterService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.pluginapi.JobClient;
 import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
