@@ -27,7 +27,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Cluster;
 import com.dtstack.engine.domain.Tenant;
-import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import io.swagger.annotations.Api;
