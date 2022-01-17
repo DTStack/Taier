@@ -1,8 +1,9 @@
-package com.dtstack.engine.mapper.datasource;
+package com.dtstack.engine.mapper;
 
 
 
-import com.dtstack.engine.domain.datasource.DsVersion;
+
+import com.dtstack.engine.domain.DsVersion;
 
 import java.util.List;
 
