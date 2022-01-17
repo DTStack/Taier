@@ -21,7 +21,7 @@ package com.dtstack.engine.master.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.common.enums.EJobCacheStage;
 import com.dtstack.engine.common.util.JobGraphUtil;
-import com.dtstack.engine.master.impl.ScheduleJobCacheService;
+import com.dtstack.engine.master.service.ScheduleJobCacheService;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.JobClient;

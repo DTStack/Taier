@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

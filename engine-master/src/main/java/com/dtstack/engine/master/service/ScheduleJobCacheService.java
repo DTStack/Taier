@@ -1,4 +1,4 @@
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
