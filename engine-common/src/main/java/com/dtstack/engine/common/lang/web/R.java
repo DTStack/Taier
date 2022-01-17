@@ -44,6 +44,12 @@ public class R<T> {
                 .message(Strings.isNotBlank(message) ? message : i18n.error(code));
     }
 
+    public final static <T> R<T> fail(ErrorCode errorCode) {
+        return new R()
+                .code(errorCode.getCode())
+                .message(errorCode.getMsg());
+    }
+
     public R<T> data(T data) {
         this.data = data;
         return this;
