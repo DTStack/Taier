@@ -38,7 +38,6 @@ import com.dtstack.batch.vo.BatchServerLogVO;
 import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -56,8 +55,8 @@ import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
@@ -78,12 +77,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BatchServerLogService {
@@ -115,7 +109,7 @@ public class BatchServerLogService {
     private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
-    private ActionService actionService;
+    private ScheduleActionService actionService;
 
     @Autowired
     private ClusterService clusterService;
