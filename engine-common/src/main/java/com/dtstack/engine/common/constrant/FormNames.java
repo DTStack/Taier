@@ -97,6 +97,8 @@ public interface FormNames {
 
     String HBASE_ZK_PARENT = "zookeeper.znode.parent";
 
+    String HBASE_CONFIG = "hbaseConfig";
+
     /**
      * Hbase根目录
      */
