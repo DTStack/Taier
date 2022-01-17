@@ -1,8 +1,8 @@
 package com.dtstack.batch.service.datasource.impl;
 
 
-import com.dtstack.engine.domain.datasource.DsTypeFieldRef;
-import com.dtstack.engine.mapper.datasource.DsTypeFieldRefMapper;
+import com.dtstack.engine.domain.DsTypeFieldRef;
+import com.dtstack.engine.mapper.DsTypeFieldRefMapper;
 import org.springframework.stereotype.Service;
 
 /**
