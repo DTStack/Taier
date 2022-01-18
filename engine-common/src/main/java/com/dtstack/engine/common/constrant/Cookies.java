@@ -29,6 +29,7 @@ public interface Cookies {
     String TENANT_NAME = "tenant_name";
 
     String USER_ID = "userId";
+    String CREATE_USER_ID = "createUserId";
     String TENANT_ID = "tenantId";
 
     String USER_FILED = "userId";

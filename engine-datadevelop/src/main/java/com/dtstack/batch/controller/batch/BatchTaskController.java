@@ -25,30 +25,21 @@ import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTraceVO;
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskCheckAndPublishTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckIsLoopVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckNameVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskDeleteTaskVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskFrozenTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetByNameVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetChildTasksVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetComponentVersionVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetDependencyTaskVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskGetSupportJobTypesVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskGetTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskGetTaskVersionRecordVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskGetTasksByNameVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskInfoVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskPublishTaskVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskQueryCatalogueTasksVO;
-import com.dtstack.batch.web.task.vo.query.BatchTaskRenameTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskResourceParamVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskSetOwnerUserVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskTaskVersionScheduleConfVO;
 import com.dtstack.batch.web.task.vo.result.BatchGetChildTasksResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchSysParameterResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetTaskByIdResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskPublishTaskResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskResultVO;
@@ -77,17 +68,6 @@ public class BatchTaskController {
     private BatchTaskService batchTaskService;
 
 
-    @PostMapping(value = "globalSearch")
-    @ApiOperation("数据开发-任务全局搜索")
-    public R<List<Map<String, Object>>> globalSearch(@RequestBody BatchTaskInfoVO infoVO) {
-        return new APITemplate<List<Map<String, Object>>>() {
-            @Override
-            protected List<Map<String, Object>> process() {
-                return batchTaskService.globalSearch(infoVO.getTaskName());
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
     public R<BatchTaskGetTaskByIdResultVO> getTaskById(@RequestBody BatchScheduleTaskVO batchScheduleTaskVO) {
@@ -100,29 +80,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "getTasksByProjectId")
-    @ApiOperation("数据开发-根据项目id获取已提交任务列表")
-    public R<List<BatchTaskResultVO> > getTasksByProjectId(@RequestBody BatchTaskGetTaskVO vo) {
-        return new APITemplate<List<BatchTaskResultVO> >() {
-            @Override
-            protected List<BatchTaskResultVO>  process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(batchTaskService.getTasksByTenantId(vo.getTenantId(), vo.getTaskName()));
-            }
-        }.execute();
-    }
-
-
-    @PostMapping(value = "getTasksByName")
-    @ApiOperation("根据项目id,任务名 获取任务列表")
-    public R<List<BatchTaskResultVO>> getTasksByName(@RequestBody BatchTaskGetTasksByNameVO infoVO) {
-        return new APITemplate<List<BatchTaskResultVO>>() {
-            @Override
-            protected List<BatchTaskResultVO>   process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(batchTaskService.getTasksByName(infoVO.getProjectId(),
-                        infoVO.getName()));
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "getDependencyTask")
     @ApiOperation("获取依赖任务")
@@ -146,30 +103,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "queryCatalogueTasks")
-    @ApiOperation("关键字搜索")
-    public R<TaskCatalogueResultVO> queryCatalogueTasks(@RequestBody BatchTaskQueryCatalogueTasksVO infoVO) {
-        return new APITemplate<TaskCatalogueResultVO>() {
-            @Override
-            protected TaskCatalogueResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.TaskCatalogueVOToResultVO(batchTaskService.queryCatalogueTasks(infoVO.getProjectId(),
-                        infoVO.getName()));
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "checkAndPublishTask")
-    @ApiOperation("任务发布权限判断、发布")
-    public R<Void> checkAndPublishTask(@RequestBody BatchTaskCheckAndPublishTaskVO detailVO) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                batchTaskService.checkAndPublishTask(detailVO.getTenantId(), detailVO.getId(), detailVO.getUserId(),
-                        detailVO.getPublishDesc(), detailVO.getIsRoot());
-                return null;
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "publishTask")
     @ApiOperation("任务发布")
@@ -208,17 +141,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "getJsonTemplate")
-    @ApiOperation("获取任务json模板，过滤账号密码")
-    public R<String> getJsonTemplate(@RequestBody BatchTaskResourceParamVO paramVO) {
-        return new APITemplate<String>() {
-            @Override
-            protected String process() {
-                TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-                return batchTaskService.getJsonTemplate(taskResourceParam);
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "addOrUpdateTask")
     @ApiOperation("数据开发-新建/更新 任务")
@@ -244,17 +166,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "renameTask")
-    @ApiOperation("强制任务重命名（不校验taskVersion、lockVersion）")
-    public R<Void> renameTask(@RequestBody BatchTaskRenameTaskVO detailVO) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                 batchTaskService.renameTask(detailVO.getTaskId(), detailVO.getTaskName(), detailVO.getProjectId());
-                 return null;
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "getChildTasks")
     @ApiOperation("获取子任务")
@@ -278,39 +189,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "frozenTask")
-    @ApiOperation("冻结任务")
-    public R<Void> frozenTask(@RequestBody BatchTaskFrozenTaskVO detailVO) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                 batchTaskService.frozenTask(detailVO.getTaskIdList(), detailVO.getScheduleStatus(), detailVO.getUserId(), detailVO.getTenantId(), detailVO.getIsRoot());
-                 return null;
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "getAllTaskList")
-    @ApiOperation("获取所有需要需要生成调度的task")
-    public R<List<BatchTaskResultVO>> getAllTaskList() {
-        return new APITemplate<List<BatchTaskResultVO>>() {
-            @Override
-            protected List<BatchTaskResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskListToBatchTaskResultVOList(batchTaskService.getAllTaskList());
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "getSupportJobTypes")
-    @ApiOperation("根据支持的引擎类型返回")
-    public R<List<BatchTaskGetSupportJobTypesResultVO>> getSupportJobTypes(@RequestBody(required = false) BatchTaskGetSupportJobTypesVO detailVO) {
-        return new APITemplate<List<BatchTaskGetSupportJobTypesResultVO>>() {
-            @Override
-            protected List<BatchTaskGetSupportJobTypesResultVO>  process() {
-                return batchTaskService.getSupportJobTypes(detailVO.getTenantId());
-            }
-        }.execute();
-    }
 
     @PostMapping(value = "forceUpdate")
     @ApiOperation("覆盖更新")
