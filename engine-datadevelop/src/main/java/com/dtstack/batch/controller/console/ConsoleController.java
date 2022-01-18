@@ -20,6 +20,8 @@ package com.dtstack.batch.controller.console;
 
 import com.dtstack.batch.service.console.ConsoleService;
 import com.dtstack.engine.common.lang.web.R;
+import com.dtstack.engine.master.service.ComponentConfigService;
+import com.dtstack.engine.master.utils.LocalCacheUtil;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
@@ -35,8 +37,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/node/console")
@@ -46,7 +50,10 @@ public class ConsoleController {
     @Autowired
     private ConsoleService consoleService;
 
-    @PostMapping(value="/nodeAddress")
+    @Autowired
+    private ComponentConfigService componentConfigService;
+
+    @PostMapping(value = "/nodeAddress")
     public R<List<String>> nodeAddress() {
         return R.ok(consoleService.nodeAddress());
     }
@@ -127,4 +134,89 @@ public class ConsoleController {
         return R.ok(consoleService.clusterResources(clusterName));
     }
 
+    // todo qiuyun test
+    @PostMapping(value = "/testCache")
+    public R<String> testCache(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
+        Map<String, Object> cacheComponentConfigMap = componentConfigService.getCacheComponentConfigMap(clusterId, componentType, isFilter, componentVersion, componentId);
+        return R.ok("ok");
+    }
+
+    //模拟数据库
+    private static final Map<String, Map<String, String>> db = new ConcurrentHashMap<>();
+
+    //模拟数据库数据
+    static {
+        Map<String, String> map = new HashMap();
+        map.put("uId", "1001");
+        map.put("name", "name_" + "1001");
+        db.put("1001", map);
+    }
+
+    // todo qiuyun test
+    @PostMapping(value = "/testCache2")
+    public R<String> testCache2() throws InterruptedException {
+        //1.测试读取缓存
+        for (int i = 0; i <= 1; i++) {
+            System.out.println(findUser("1001"));
+        }
+        //2.测试缓存失效
+        Thread.sleep(5000);
+        System.out.println("--------------");
+        System.out.println("过期后查询：" + findUser("1001"));
+        //3.测试缓存更新
+        updateUser("1001", "name_2");
+        System.out.println("更新后查询：" + findUser("1001"));
+        //4.测试缓存移除
+        // deleteUser("1001");
+        // System.out.println("删除后查询：" + findUser("1001"));
+        return R.ok("ok");
+    }
+
+    /**
+     * 读取缓存测试
+     *
+     * @param uId
+     * @return
+     */
+    private static Map<String, String> findUser(String uId) {
+        String group = "user";
+        Object o = LocalCacheUtil.get(group, uId);
+        if (o != null) {
+            System.out.println("------->缓存命中，key：" + uId);
+            return (Map<String, String>) o;
+        }
+        System.out.println("------->缓存未命中，key：" + uId);
+        Map<String, String> user = db.get(uId);
+        if (user != null) {
+            System.out.println("------->放缓存，key：" + uId);
+            LocalCacheUtil.put(group, uId, user, 3000L);
+        }
+        return user;
+    }
+
+    private static void updateUser(String uId, String name) {
+        String group = "user";
+        Map<String, String> user = findUser(uId);
+        if (user == null) {
+            throw new RuntimeException("user not exist,uId:" + uId);
+        }
+        System.out.println("------->删除缓存，key：" + uId);
+        LocalCacheUtil.remove(group, uId);
+        user.put("name", name);
+        db.put(uId, user);
+        //如果担心此期间其他请求刷新缓存，可以在db修改后再remove一次缓存（缓存双淘汰）
+    }
+
+    private static void deleteUser(String uId) {
+        String group = "user";
+        Map<String, String> user = findUser(uId);
+        if (user == null) {
+            //不存在直接认为成功
+            return;
+        }
+        System.out.println("------->删除缓存，key：" + uId);
+        LocalCacheUtil.remove(group, uId);
+        db.remove(uId);
+        //如果担心此期间其他请求刷新缓存，可以在db删除后再remove一次缓存（缓存双淘汰）
+    }
 }
