@@ -24,6 +24,7 @@ import com.dtstack.engine.master.server.listener.HeartBeatCheckListener;
 import com.dtstack.engine.master.server.listener.HeartBeatListener;
 import com.dtstack.engine.master.server.listener.Listener;
 import com.dtstack.engine.master.server.listener.MasterListener;
+import com.dtstack.engine.master.utils.PathUtil;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.master.zookeeper.data.BrokersNode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -31,7 +32,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.data.Stat;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +71,8 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private CuratorFramework zkClient;
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    private final String appPath = "taiga";
 
     /**
      * when normal stopped，need trigger Listener close();
@@ -247,6 +252,44 @@ public class ZkService implements InitializingBean, DisposableBean {
             } catch (Exception e) {
                 LOGGER.error("", e);
             }
+        }
+    }
+
+    /**
+     * todo test
+     * 设置 watcher
+     * @param group 分组
+     * @param key key
+     * @param curatorWatcher watcher 回调
+     */
+    public void setWatcher(String group, String key, CuratorWatcher curatorWatcher) {
+        String path = PathUtil.getPath(appPath, group, key);
+        try {
+            Stat stat = zkClient.checkExists().forPath(path);
+            if (stat == null) {
+                zkClient.create().creatingParentsIfNeeded().forPath(path);
+            }
+            zkClient.checkExists().usingWatcher(curatorWatcher).forPath(path);
+        } catch (Exception e) {
+            LOGGER.error("set watcher fail, path:{}", path, e);
+        }
+    }
+
+    /**
+     * 删除节点
+     *
+     * @param group 分组
+     * @param key   key
+     */
+    public void delete(String group, String key) {
+        String path = PathUtil.getPath(appPath, group, key);
+        try {
+            Stat stat = zkClient.checkExists().forPath(path);
+            if (stat != null) {
+                zkClient.delete().guaranteed().forPath(path);
+            }
+        } catch (Exception e) {
+            LOGGER.error("delete zNode fail, path:{}", path, e);
         }
     }
 
