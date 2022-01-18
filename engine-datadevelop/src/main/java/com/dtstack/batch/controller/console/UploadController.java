@@ -22,7 +22,7 @@ import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.dto.Resource;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import io.swagger.annotations.Api;

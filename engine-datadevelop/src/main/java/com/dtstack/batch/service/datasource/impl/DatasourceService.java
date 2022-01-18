@@ -46,7 +46,7 @@ import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.DsFormField;
 import com.dtstack.engine.domain.DsInfo;
-import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

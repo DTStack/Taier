@@ -4,6 +4,7 @@ import com.dtstack.batch.mapstruct.job.JobMapstructTransfer;
 import com.dtstack.batch.service.schedule.JobJobService;
 import com.dtstack.batch.vo.schedule.QueryJobDisplayVO;
 import com.dtstack.batch.vo.schedule.ReturnJobDisplayVO;
+import com.dtstack.engine.common.lang.web.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -26,8 +27,8 @@ public class OperationScheduleJobJobController {
     private JobJobService jobJobService;
 
     @RequestMapping(value = "/displayOffSpring", method = {RequestMethod.POST})
-    public ReturnJobDisplayVO displayOffSpring(@RequestBody QueryJobDisplayVO vo) {
-        return jobJobService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryJobDisplayVOToReturnJobDisplayVO(vo));
+    public R<ReturnJobDisplayVO> displayOffSpring(@RequestBody QueryJobDisplayVO vo) {
+        return R.ok(jobJobService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryJobDisplayVOToReturnJobDisplayVO(vo)));
     }
 
     @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
@@ -35,7 +36,7 @@ public class OperationScheduleJobJobController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "实例id", required = true, dataType = "String"),
     })
-    public ReturnJobDisplayVO displayOffSpringWorkFlow(@RequestParam("jobId") String jobId) {
-        return jobJobService.displayOffSpringWorkFlowJob(jobId);
+    public R<ReturnJobDisplayVO> displayOffSpringWorkFlow(@RequestParam("jobId") String jobId) {
+        return R.ok(jobJobService.displayOffSpringWorkFlowJob(jobId));
     }
 }

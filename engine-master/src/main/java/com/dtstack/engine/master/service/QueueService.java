@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.BaseEntity;

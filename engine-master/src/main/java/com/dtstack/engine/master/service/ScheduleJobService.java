@@ -11,13 +11,14 @@ import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.domain.po.SimpleScheduleJobPO;
 import com.dtstack.engine.dto.ScheduleJobDTO;
-import com.dtstack.engine.mapper.*;
+import com.dtstack.engine.mapper.ScheduleJobExpandMapper;
+import com.dtstack.engine.mapper.ScheduleJobMapper;
+import com.dtstack.engine.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.engine.master.enums.JobPhaseStatus;
-import com.dtstack.engine.master.impl.ActionService;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.jobdealer.JobStopDealer;
 import com.dtstack.engine.master.mapstruct.ScheduleJobMapStruct;
-import com.dtstack.engine.master.server.builder.ScheduleJobDetails;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.pager.PageQuery;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 /**
  * @Auther: dazhi
  * @Date: 2021/12/28 8:14 PM
- * @Email:dazhi@dtstack.com
+ * @Email: dazhi@dtstack.com
  * @Description:
  */
 @Service
@@ -53,6 +54,12 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ZkService zkService;
 
     @Autowired
+    private JobStopDealer jobStopDealer;
+
+    @Autowired
+    private ScheduleActionService actionService;
+
+    @Autowired
     private JobPartitioner jobPartitioner;
 
     @Autowired
@@ -62,22 +69,21 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobJobService scheduleJobJobService;
 
     @Autowired
+    private JobGraphTriggerService jobGraphTriggerService;
+
+    @Autowired
     private ScheduleJobExpandService scheduleJobExpandService;
+
+    @Autowired
+    private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
+
     @Autowired
     private ScheduleTaskShadeService batchTaskShadeService;
 
-    @Autowired
-    private ActionService actionService;
-
-    @Autowired
-    private JobStopDealer jobStopDealer;
-
-    @Autowired
-    private JobGraphTriggerService jobGraphTriggerService;
 
     @Autowired
     private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
@@ -92,12 +98,48 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobExpandMapper scheduleJobExpandMapper;
 
     /**
+     * 开始运行实例
+     *
+     * @param scheduleJobDetails 实例
+     */
+    public void startJob(ScheduleJobDetails scheduleJobDetails) throws Exception {
+        ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
+        ScheduleTaskShade scheduleTaskShade = scheduleJobDetails.getScheduleTaskShade();
+
+        ScheduleTaskShade extraInfoTaskShade = scheduleTaskShadeService.lambdaQuery()
+                .select(ScheduleTaskShade::getTaskId, ScheduleTaskShade::getExtraInfo)
+                .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .one();
+
+        // 解析任务运行信息
+        String extraInfo = extraInfoTaskShade.getExtraInfo();
+        if (StringUtils.isNotBlank(extraInfo)) {
+            JSONObject extObject = JSONObject.parseObject(extraInfo);
+
+            if (null != extObject ) {
+                JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
+
+                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, info);
+                if (paramActionExt != null) {
+                    updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),scheduleTaskShade.getVersionId());
+                    actionService.start(paramActionExt);
+                }
+            }
+        } else {
+            //额外信息为空 标记任务为失败
+            this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
+            LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+        }
+    }
+
+    /**
      * 批量设置实例状态
      *
      * @param resumeBatchJobs 实例集合
      */
     @Transactional(rollbackFor = Exception.class)
-    public void batchRestartScheduleJob(Map<String, String> resumeBatchJobs) {
+    public void restartScheduleJob(Map<String, String> resumeBatchJobs) {
         if (MapUtils.isNotEmpty(resumeBatchJobs)) {
             List<String> restartJobId = new ArrayList<>(resumeBatchJobs.size());
             resumeBatchJobs.entrySet()
@@ -264,7 +306,51 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         }
     }
 
+    /**
+     * 更新实例状态和版本
+     * @param jobId 实例id
+     * @param status 状态
+     * @param versionId 版本
+     */
+    private Boolean updateStatusByJobIdAndVersionId(String jobId, Integer status, Integer versionId) {
+        ScheduleJob scheduleJob = new ScheduleJob();
+        scheduleJob.setStatus(status);
+        scheduleJob.setVersionId(versionId);
+        return this.lambdaUpdate()
+                .eq(ScheduleJob::getJobId,jobId)
+                .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJob);
+    }
 
+    /**
+     * 更新状态和日志
+     *
+     * @param jobId   实例id
+     * @param status  实例状态
+     * @param logInfo 实例日志
+     */
+    public void updateStatusAndLogInfoById(String jobId, Integer status, String logInfo) {
+        if (StringUtils.isNotBlank(logInfo) && logInfo.length() > 5000) {
+            logInfo = logInfo.substring(0, 5000) + "...";
+        }
+        if (StringUtils.isNotBlank(jobId) && status != null) {
+            updateJobStatusAndExecTime(jobId, status);
+        }
+
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setLogInfo(logInfo);
+        scheduleJobExpandService.lambdaUpdate()
+                .eq(ScheduleJobExpand::getJobId, jobId)
+                .eq(ScheduleJobExpand::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .update(scheduleJobExpand);
+    }
+
+    /**
+     * 更新实例状态
+     * @param jobId 实例 id
+     * @param status 状态
+     * @return 更新数
+     */
     public Integer updateJobStatusAndExecTime(String jobId, Integer status) {
         if (StringUtils.isNotBlank(jobId) && status != null) {
             return this.baseMapper.updateJobStatusAndExecTime(jobId, status);
@@ -272,23 +358,27 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         return 0;
     }
 
+    /**
+     * 查询实例状态
+     * @param jobId 实例id
+     * @return 实例状态，如果查询不到，返回null
+     */
+    public Integer getJobStatusByJobId(String jobId){
+        if (StringUtils.isBlank(jobId)) {
+            return null;
+        }
+        ScheduleJob scheduleJob = this.lambdaQuery().eq(ScheduleJob::getJobId, jobId).eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
+
+        if (scheduleJob == null) {
+            return null;
+        }
+        return scheduleJob.getStatus();
+    }
 
     public ScheduleJob getJobByJobKeyAndType(String jobKey, int type) {
         return scheduleJobMapper.getByJobKeyAndType(jobKey, type);
     }
 
-
-    public Integer updateStatusAndLogInfoById(String jobId, Integer status, String msg) {
-        if (StringUtils.isNotBlank(msg) && msg.length() > 5000) {
-            msg = msg.substring(0, 5000) + "...";
-        }
-        ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setJobId(jobId);
-        scheduleJob.setStatus(status);
-        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        updateByJobId(scheduleJob);
-        return updateExpandByJobId(jobId,null,msg);
-    }
 
     public Integer updateStatusByJobId(String jobId, Integer status, Integer versionId) {
         ScheduleJob scheduleJob = new ScheduleJob();
@@ -298,12 +388,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         return updateByJobId(scheduleJob);
     }
-
-    public Long startJob(ScheduleJob scheduleJob) throws Exception {
-        sendTaskStartTrigger(scheduleJob);
-        return scheduleJob.getId();
-    }
-
 
     public Integer updateStatusWithExecTime(ScheduleJob updateJob) {
         if(null == updateJob || null == updateJob.getJobId() ){
@@ -315,7 +399,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         }
         return scheduleJobMapper.updateStatusWithExecTime(updateJob);
     }
-
 
     /**
      * 触发 engine 执行指定task
@@ -349,8 +432,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
         LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
     }
-
-
 
     private void runVirtualTask(ScheduleJob scheduleJob, ScheduleTaskShade batchTask) {
         ScheduleJob updateJob = new ScheduleJob();
@@ -387,7 +468,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if (scheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
-        ScheduleTaskShade task = batchTaskShadeService.getByTaskId(scheduleJob.getTaskId());
+        ScheduleTaskShade task = scheduleTaskShadeService.getByTaskId(scheduleJob.getTaskId());
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
@@ -423,7 +504,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
 
     public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType) {
-        ScheduleTaskShade task = batchTaskShadeService.getByName(taskName);
+        ScheduleTaskShade task = scheduleTaskShadeService.getByName(taskName);
         if (task != null) {
             return scheduleJobMapper.listJobIdByTaskIdAndStatus(task.getTaskId(), null ,statusList);
         }

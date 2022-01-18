@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -1886,7 +1886,7 @@ public class ComponentService {
     }
 
 
-    public List<Component> listComponents(Long tenantId, Integer engineType) {
+    public List<Component> listComponents(Long tenantId) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentMapper.listByClusterId(clusterId,null,true);
     }

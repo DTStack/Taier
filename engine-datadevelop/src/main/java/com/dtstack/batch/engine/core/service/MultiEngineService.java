@@ -19,28 +19,24 @@
 package com.dtstack.batch.engine.core.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.service.datasource.impl.DatasourceService;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.engine.core.domain.MultiEngineFactory;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-//import com.dtstack.batch.service.datasource.impl.BatchDataSourceService;
+import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.TenantEngineService;
 import com.dtstack.batch.service.multiengine.EngineInfo;
+import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EScriptType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.DtCenterDefException;
-import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.Component;
-import com.dtstack.engine.master.impl.EngineService;
-import com.dtstack.engine.master.vo.engine.EngineSupportVO;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -50,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,9 +69,6 @@ public class MultiEngineService implements IMultiEngineService {
     private DatasourceService datasourceService;
 
     @Autowired
-    public EngineService engineService;
-
-    @Autowired
     public ComponentService componentService;
 
     // 需要拼接jdbcUrl的引擎类型
@@ -88,8 +80,7 @@ public class MultiEngineService implements IMultiEngineService {
 
     @Override
     public List<Integer> getTenantSupportMultiEngine(Long dtuicTenantId) {
-        List<EngineSupportVO> engineSupportVOS = Engine2DTOService.listSupportEngine(dtuicTenantId);
-        return engineSupportVOS.stream().map(EngineSupportVO::getEngineType).collect(Collectors.toList());
+        return null;
     }
 
     /**
@@ -99,27 +90,20 @@ public class MultiEngineService implements IMultiEngineService {
      */
     @Override
     public DataSourceType getTenantSupportHadoopMetaDataSource(Long tenantId) {
-        List<EngineSupportVO> engineSupportVOS = Engine2DTOService.listSupportEngine(tenantId);
-        for (EngineSupportVO engineSupportVO : engineSupportVOS) {
-            if (MultiEngineType.HADOOP.getType() == engineSupportVO.getEngineType()) {
-                if (EComponentType.HIVE_SERVER.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
-                    JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EJobType.HIVE_SQL);
-                    SparkThriftConnectionUtils.HiveVersion hiveVersion = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
-                    if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(hiveVersion)){
-                        return DataSourceType.HIVE1X;
-                    }else if (SparkThriftConnectionUtils.HiveVersion.HIVE_3x.equals(hiveVersion)){
-                        return DataSourceType.HIVE3X;
-                    }else {
-                        return DataSourceType.HIVE;
-                    }
-                }
-                if (EComponentType.SPARK_THRIFT.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
-                    return DataSourceType.SparkThrift2_1;
-                }
-                if (EComponentType.IMPALA_SQL.getTypeCode().equals(engineSupportVO.getMetadataComponent())){
-                    return DataSourceType.IMPALA;
-                }
+        Integer metaComponent = Engine2DTOService.getMetaComponent(tenantId);
+        if (EComponentType.HIVE_SERVER.getTypeCode().equals(metaComponent)){
+            JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EJobType.HIVE_SQL);
+            SparkThriftConnectionUtils.HiveVersion hiveVersion = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
+            if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(hiveVersion)){
+                return DataSourceType.HIVE1X;
+            }else if (SparkThriftConnectionUtils.HiveVersion.HIVE_3x.equals(hiveVersion)){
+                return DataSourceType.HIVE3X;
+            }else {
+                return DataSourceType.HIVE;
             }
+        }
+        if (EComponentType.SPARK_THRIFT.getTypeCode().equals(metaComponent)){
+            return DataSourceType.SparkThrift2_1;
         }
         throw new RdosDefineException("not find 'Hadoop' meta DataSource!");
     }
@@ -130,7 +114,7 @@ public class MultiEngineService implements IMultiEngineService {
      */
     @Override
     public List<EJobType> getTenantSupportJobType(Long tenantId) {
-        List<Component> engineSupportVOS = componentService.listComponents(tenantId, null);
+        List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if(CollectionUtils.isEmpty(engineSupportVOS)){
             throw new DtCenterDefException("该租户 console 未配置任何 集群");
         }
@@ -218,40 +202,7 @@ public class MultiEngineService implements IMultiEngineService {
 
     @Override
     public List<EScriptType> getTenantSupportScriptType(Long tenantId) {
-        Set<EScriptType> scriptTypes = new LinkedHashSet<>();
-        List<Integer> tenantSupportMultiEngine = this.getTenantSupportMultiEngine(tenantId);
-        if (CollectionUtils.isNotEmpty(tenantSupportMultiEngine)) {
-            List<Integer> usedEngineTypeList = tenantEngineService.getUsedEngineTypeList(tenantId);
-            //项目配置  和 租户 支持 引擎交集
-            Sets.SetView<Integer> intersection = Sets.intersection(new HashSet<>(tenantSupportMultiEngine), new HashSet<>(usedEngineTypeList));
-            if (CollectionUtils.isNotEmpty(intersection)) {
-                if (intersection.contains(MultiEngineType.HADOOP.getType())) {
-                    scriptTypes.add(EScriptType.SparkSQL);
-                    scriptTypes.add(EScriptType.Python_2x);
-                    scriptTypes.add(EScriptType.Python_3x);
-                    scriptTypes.add(EScriptType.Shell);
-                    String  enginePluginInfo = Engine2DTOService.getEnginePluginInfo(tenantId, MultiEngineType.HADOOP.getType());
-                    Map<String,Object>  pluginMap = null;
-                    try {
-                        pluginMap = PublicUtil.strToMap(enginePluginInfo);
-                    } catch (IOException e) {
-                        LOG.error("Map转换错误，原因是:{}",e);
-                    }
-                    if(null!=pluginMap){
-                        Iterator<String> iterator = pluginMap.keySet().iterator();
-                        while(iterator.hasNext()){
-                            if (EComponentType.IMPALA_SQL.getTypeCode() == Integer.valueOf(iterator.next())){
-                                scriptTypes.add(EScriptType.ImpalaSQL);
-                            }
-                        }
-                    }
-                }
-                if (intersection.contains(MultiEngineType.LIBRA.getType())) {
-                    scriptTypes.add(EScriptType.GaussDBSQL);
-                }
-            }
-        }
-        return new ArrayList<>(scriptTypes);
+        return null;
     }
 
 

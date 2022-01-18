@@ -39,7 +39,7 @@ import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.QueueMapper;
 import com.dtstack.engine.mapper.TenantMapper;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.pager.PageQuery;

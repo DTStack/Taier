@@ -2,7 +2,6 @@ package com.dtstack.engine.master.server.builder.dependency;
 
 import com.dtstack.engine.domain.ScheduleJobJob;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.enums.RelyRule;
 import com.dtstack.engine.master.enums.RelyType;
 import com.dtstack.engine.master.server.builder.cron.ScheduleConfManager;
 import com.dtstack.engine.master.server.builder.cron.ScheduleCorn;
@@ -14,8 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +40,7 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
                 scheduleJobJob.setTenantId(currentTaskShade.getTenantId());
                 scheduleJobJob.setJobKey(currentJobKey);
                 scheduleJobJob.setParentJobKey(getJobKey(taskShade,currentDate));
-                scheduleJobJob.setParentJobKeyType(RelyType.UPSTREAM_NEXT_JOB.getType());
+                scheduleJobJob.setJobKeyType(RelyType.UPSTREAM_NEXT_JOB.getType());
                 scheduleJobJob.setRule(getRule(corn.getScheduleConf()));
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {
