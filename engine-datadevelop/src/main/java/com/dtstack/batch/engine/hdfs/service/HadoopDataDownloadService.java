@@ -410,7 +410,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      * @return userName
      */
     private String getSubmitUserNameByJobId(String jobId) {
-        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         String submitUserName = scheduleJob.getSubmitUserName();
         if (StringUtils.isEmpty(submitUserName)) {
             submitUserName = environmentContext.getHadoopUserName();

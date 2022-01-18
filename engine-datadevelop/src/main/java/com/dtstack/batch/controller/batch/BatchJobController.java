@@ -162,18 +162,18 @@ public class BatchJobController {
         }.execute();
     }
 
-    @ApiOperation(value = "运行报告")
-    @PostMapping(value = "statisticsTaskRecentInfo")
-    public R<BatchScheduleJobExeStaticsResultVO> statisticsTaskRecentInfo(@RequestBody BatchJobStatisticsTaskRecentInfoVO vo) {
-
-        return new APITemplate<BatchScheduleJobExeStaticsResultVO>() {
-            @Override
-            protected BatchScheduleJobExeStaticsResultVO process() throws RdosDefineException {
-                ScheduleJobExeStaticsVO scheduleJobExeStaticsVO = batchJobService.statisticsTaskRecentInfo(vo.getTaskId(), vo.getCount(), vo.getTenantId());
-                return BatchJobMapstructTransfer.INSTANCE.scheduleJobExeStaticsVOToBatchScheduleJobExeStaticsResultVO(scheduleJobExeStaticsVO);
-            }
-        }.execute();
-    }
+//    @ApiOperation(value = "运行报告")
+//    @PostMapping(value = "statisticsTaskRecentInfo")
+//    public R<BatchScheduleJobExeStaticsResultVO> statisticsTaskRecentInfo(@RequestBody BatchJobStatisticsTaskRecentInfoVO vo) {
+//
+//        return new APITemplate<BatchScheduleJobExeStaticsResultVO>() {
+//            @Override
+//            protected BatchScheduleJobExeStaticsResultVO process() throws RdosDefineException {
+//                ScheduleJobExeStaticsVO scheduleJobExeStaticsVO = batchJobService.statisticsTaskRecentInfo(vo.getTaskId(), vo.getCount(), vo.getTenantId());
+//                return BatchJobMapstructTransfer.INSTANCE.scheduleJobExeStaticsVOToBatchScheduleJobExeStaticsResultVO(scheduleJobExeStaticsVO);
+//            }
+//        }.execute();
+//    }
 
 
     @ApiOperation(value = "根据任务名称和状态列表得到实例Id")
