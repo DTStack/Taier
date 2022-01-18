@@ -127,6 +127,21 @@ public enum DataSourceTypeEnum {
         return value;
     }
 
+    /**
+     * 根据数据源val获取数据源枚举信息
+     * @param val
+     * @return
+     */
+    public static DataSourceTypeEnum valOf(Integer val) {
+        Objects.requireNonNull(val);
+        for (DataSourceTypeEnum value : DataSourceTypeEnum.values()) {
+            if (Objects.equals(value.getVal(), val)) {
+                return value;
+            }
+        }
+        LOGGER.error("can not find this dataTypeCode:{}",val);
+        throw new PubSvcDefineException(ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+    }
 
     /**
      * 数据源值
