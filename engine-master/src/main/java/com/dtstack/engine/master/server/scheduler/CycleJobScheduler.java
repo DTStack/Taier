@@ -1,18 +1,29 @@
 package com.dtstack.engine.master.server.scheduler;
 
 import com.dtstack.engine.common.enums.EScheduleType;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleJobJob;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.server.scheduler.exec.JudgeJobExecOperator;
 import com.dtstack.engine.master.server.scheduler.handler.JudgeNoPassJobHandler;
+import com.dtstack.engine.master.service.ScheduleJobJobService;
 import com.dtstack.engine.master.service.ScheduleJobService;
+import com.dtstack.engine.master.utils.JobExecuteOrderUtil;
+import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -28,21 +39,43 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     @Autowired
     private ScheduleJobService scheduleJobService;
 
+    @Autowired
+    private ScheduleJobJobService scheduleJobJobService;
+
     @Autowired(required = false)
     private List<JudgeJobExecOperator> judgeJobExecOperators;
 
     @Autowired(required = false)
     private List<JudgeNoPassJobHandler> judgeNoPassJobHandlers;
 
+    private final String CYC_TIME_FORMAT = "yyyyMMddHHmmss";
+    private final String DATA_YMD = "yyyyMMdd";
+
 
     @Override
     protected List<ScheduleJobDetails> listExecJob(Long startSort, String nodeAddress, Boolean isEq) {
-        return null;
+        List<ScheduleJob> scheduleJobList = scheduleJobService.listCycleJob(startSort, nodeAddress, getScheduleType().getType(), isEq, JobPhaseStatus.CREATE.getCode());
+
+        List<String> jobKeys = scheduleJobList.stream().map(ScheduleJob::getJobKey).collect(Collectors.toList());
+        List<ScheduleJobJob> scheduleJobJobList = scheduleJobJobService.listByJobKeys(jobKeys);
+        Map<String, List<ScheduleJobJob>> jobJobMap = scheduleJobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey));
+        List<ScheduleJobDetails> scheduleJobDetailsList = new ArrayList<>(scheduleJobList.size());
+
+        for (ScheduleJob scheduleJob : scheduleJobList) {
+            ScheduleJobDetails scheduleJobDetails = new ScheduleJobDetails();
+            scheduleJobDetails.setScheduleJob(scheduleJob);
+            scheduleJobDetails.setJobJobList(jobJobMap.get(scheduleJob.getJobKey()));
+            scheduleJobDetailsList.add(scheduleJobDetails);
+        }
+
+        return scheduleJobDetailsList;
     }
 
     @Override
     protected Long getMinSort() {
-        return null;
+        String triggerTime = new DateTime().toString(DATA_YMD);
+        triggerTime += triggerTime + "000000";
+        return JobExecuteOrderUtil.buildJobExecuteOrder(triggerTime,0L);
     }
 
     @Override

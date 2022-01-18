@@ -594,6 +594,30 @@
     <select id="getByName" parameterType="java.lang.String" resultType="ScheduleJob">
         select <include refid="select_filed_all"/> from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
     </select>
+    <select id="listCycleJob" resultType="com.dtstack.engine.domain.ScheduleJob">
+        SELECT
+        <include refid="select_content_fragment"/>
+        ,bj.job_execute_order
+        FROM schedule_job bj
+        WHERE
+        node_address = #{nodeAddress}
+        <if test="isEq">
+            AND job_execute_order >= #{startId}
+        </if>
+        <if test="!isEq">
+            AND job_execute_order > #{startId}
+        </if>
+        <if test="scheduleType != null">
+            AND type = #{scheduleType}
+        </if>
+        <if test="lastTime != null">
+            AND gmt_modified &gt;= #{lastTime}
+        </if>
+        AND status = 0
+        AND is_deleted = 0
+        AND `phase_status` = #{phaseStatus}
+        order by job_execute_order asc limit 500
+    </select>
 
     <update id="updateJobStatusByJobIds">
         update schedule_job
