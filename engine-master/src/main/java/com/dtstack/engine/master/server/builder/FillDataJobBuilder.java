@@ -8,6 +8,7 @@ import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.domain.ScheduleJobOperatorRecord;
 import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.master.enums.FillJobTypeEnum;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.service.ScheduleJobOperatorRecordService;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;

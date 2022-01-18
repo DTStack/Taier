@@ -23,8 +23,11 @@ import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
+import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,11 +53,13 @@ public class ConsoleController {
 
     @PostMapping(value="/searchJob")
     public R<ConsoleJobVO> searchJob(@RequestParam("jobName") String jobName) {
+        Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         return R.ok(consoleService.searchJob(jobName));
     }
 
     @PostMapping(value="/listNames")
     public R<List<String>> listNames(@RequestParam("jobName") String jobName) {
+        Preconditions.checkNotNull(jobName, "parameters of jobName not be null.");
         return R.ok(consoleService.listNames(jobName));
     }
 
@@ -75,16 +80,22 @@ public class ConsoleController {
                                   @RequestParam("stage") Integer stage,
                                   @RequestParam("pageSize") Integer pageSize,
                                   @RequestParam("currentPage") Integer currentPage) {
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+        Preconditions.checkNotNull(stage, "parameters of stage is required");
+        Preconditions.checkArgument(currentPage != null && currentPage > 0, "parameters of currentPage is required");
+        Preconditions.checkArgument(pageSize != null && pageSize > 0, "parameters of pageSize is required");
         return R.ok(consoleService.groupDetail(jobResource, nodeAddress, stage, pageSize, currentPage));
     }
 
     @PostMapping(value="/jobStick")
     public R<Boolean> jobStick(@RequestParam("jobId") String jobId) {
+        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
         return R.ok(consoleService.jobStick(jobId));
     }
 
     @PostMapping(value="/stopJob")
     public R<Void> stopJob(@RequestParam("jobId") String jobId) throws Exception {
+        Preconditions.checkArgument(StringUtils.isNotBlank(jobId), "parameters of jobId is required");
         consoleService.stopJob(jobId);
         return R.empty();
     }
@@ -93,6 +104,7 @@ public class ConsoleController {
     @PostMapping(value="/stopAll")
     public R<Void> stopAll(@RequestParam("jobResource") String jobResource,
                         @RequestParam("nodeAddress") String nodeAddress) throws Exception {
+        Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
         consoleService.stopAll(jobResource, nodeAddress);
         return R.empty();
     }
@@ -102,6 +114,10 @@ public class ConsoleController {
                             @RequestParam("nodeAddress") String nodeAddress,
                             @RequestParam("stage") Integer stage,
                             @RequestParam("jobIdList") List<String> jobIdList) throws Exception {
+        if (CollectionUtils.isEmpty(jobIdList)){
+            Preconditions.checkNotNull(jobResource, "parameters of jobResource is required");
+            Preconditions.checkNotNull(stage, "parameters of stage is required");
+        }
         consoleService.stopJobList(jobResource, nodeAddress, stage, jobIdList);
         return R.empty();
     }

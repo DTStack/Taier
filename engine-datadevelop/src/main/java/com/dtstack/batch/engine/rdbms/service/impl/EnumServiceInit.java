@@ -19,9 +19,8 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.dtstack.engine.common.env.EnvironmentContext;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.engine.master.impl.EngineService;
+import com.dtstack.engine.master.service.ClusterService;
+import com.dtstack.engine.master.service.ComponentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,13 +43,10 @@ public class EnumServiceInit {
     private ClusterService clusterService;
 
     @Autowired
-    private EngineService engineService;
-
-    @Autowired
     private ComponentService componentService;
 
     @PostConstruct
     public void init() {
-        Engine2DTOService.init(componentService, engineService, clusterService, environmentContext);
+        Engine2DTOService.init(componentService, clusterService, environmentContext);
     }
 }

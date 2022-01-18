@@ -5,6 +5,8 @@ import com.dtstack.batch.vo.schedule.QueryTaskListVO;
 import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.batch.vo.schedule.ReturnTaskSupportTypesVO;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.pager.PageResult;
 import io.swagger.annotations.Api;
@@ -33,8 +35,8 @@ public class OperationScheduleTaskController {
 
     @PostMapping(value = "/queryTasks")
     @ApiOperation(value = "运维中心任务管理 -> 任务列表接口")
-    public PageResult<List<ReturnScheduleTaskVO>> queryTasks(@RequestBody @Validated QueryTaskListVO vo) {
-        return taskService.queryTasks(ScheduleTaskMapstructTransfer.INSTANCE.queryTasksVoToDto(vo));
+    public R<PageResult<List<ReturnScheduleTaskVO>>> queryTasks(@RequestBody @Validated QueryTaskListVO vo) {
+        return R.ok(taskService.queryTasks(ScheduleTaskMapstructTransfer.INSTANCE.queryTasksVoToDto(vo)));
     }
 
     @PostMapping(value = "/frozenTask")
@@ -43,9 +45,12 @@ public class OperationScheduleTaskController {
             @ApiImplicitParam(name = "taskIdList", value = "任务id", required = true, dataType = "array"),
             @ApiImplicitParam(name = "scheduleStatus", value = " 调度状态：0 正常 1冻结 2停止", required = true, dataType = "Integer")
     })
-    public void frozenTask(@RequestParam("taskIdList") List<Long> taskIdList,
+    public R<Boolean> frozenTask(@RequestParam("taskIdList") List<Long> taskIdList,
                            @RequestParam("scheduleStatus") Integer scheduleStatus) {
-        taskService.frozenTask(taskIdList, scheduleStatus);
+        if (taskService.frozenTask(taskIdList, scheduleStatus)) {
+            return R.ok(true);
+        }
+        return R.fail(ErrorCode.UPDATE_EXCEPTION);
     }
 
     @RequestMapping(value = "/queryFlowWorkSubTasks", method = {RequestMethod.POST})
@@ -53,13 +58,13 @@ public class OperationScheduleTaskController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Long"),
     })
-    public List<ReturnScheduleTaskVO> queryFlowWorkSubTasks(@RequestParam("taskId") Long taskId) {
-        return taskService.dealFlowWorkTask(taskId);
+    public R<List<ReturnScheduleTaskVO>> queryFlowWorkSubTasks(@RequestParam("taskId") Long taskId) {
+        return R.ok(taskService.dealFlowWorkTask(taskId));
     }
 
     @PostMapping(value = "/querySupportJobTypes")
     @ApiOperation(value = "查询所有任务类型")
-    public List<ReturnTaskSupportTypesVO> querySupportJobTypes() {
-        return taskService.querySupportJobTypes();
+    public R<List<ReturnTaskSupportTypesVO>> querySupportJobTypes() {
+        return R.ok(taskService.querySupportJobTypes());
     }
 }
