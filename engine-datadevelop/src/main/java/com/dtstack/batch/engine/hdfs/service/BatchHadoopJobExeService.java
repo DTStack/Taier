@@ -21,10 +21,8 @@ package com.dtstack.batch.engine.hdfs.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
-import com.dtstack.batch.enums.TableRelationType;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
@@ -182,10 +180,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         ExecuteResultVO result;
         if (EJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setRelationId(taskId)
-                    .setRelationType(TableRelationType.TASK.getType()).setDetailType(task.getTaskType())
-                    .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd)
-                    .setEngineType(MultiEngineType.HADOOP.getType()).setTableType(ETableType.HIVE.getType()).setPreJobId(jobId);
+            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
+                    .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd);
 
             result = batchSqlExeService.executeSql(content);
         } else {
@@ -217,7 +213,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
 
             // 构建运行的SQL
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql, MultiEngineType.HADOOP.getType());
+            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql);
             sql = result.getSql();
         } else if (batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
             JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));

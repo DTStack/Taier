@@ -20,15 +20,15 @@ package com.dtstack.batch.service.console;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.mapstruct.console.TenantTransfer;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.impl.BatchCatalogueService;
-import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.batch.vo.console.ClusterTenantVO;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.Sort;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -39,8 +39,8 @@ import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.mapper.QueueMapper;
 import com.dtstack.engine.mapper.TenantMapper;
-import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.pager.PageQuery;
 import com.dtstack.engine.pager.PageResult;
@@ -84,7 +84,7 @@ public class TenantService {
     private BatchCatalogueService batchCatalogueService;
 
     @Autowired
-    private TenantEngineService tenantEngineService;
+    private TenantComponentService tenantEngineService;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -264,10 +264,10 @@ public class TenantService {
         datasourceService.initDefaultSource(tenantId, tenantName, tenantDesc, userId);
 
         //初始化租户引擎
-        TenantEngine tenantEngine = new TenantEngine();
-        tenantEngine.setEngineType(MultiEngineType.HADOOP.getType());
+        TenantComponent tenantEngine = new TenantComponent();
+        tenantEngine.setTaskType(EScheduleJobType.SPARK_SQL.getType());
         tenantEngine.setTenantId(tenantId);
-        tenantEngine.setEngineIdentity(tenantName);
+        tenantEngine.setComponentIdentity(tenantName);
         tenantEngine.setCreateUserId(userId);
         tenantEngine.setStatus(0);
         tenantEngineService.insert(tenantEngine);

@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.service.impl;
 
-import com.dtstack.batch.dao.TenantEngineDao;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.dao.TenantComponentDao;
+import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.engine.common.annotation.Forbidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,26 +37,26 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class TenantEngineService {
+public class TenantComponentService {
 
     @Autowired
-    private TenantEngineDao tenantEngineDao;
+    private TenantComponentDao tenantComponentDao;
 
 
     @Forbidden
-    public TenantEngine getByTenantAndEngineType(Long tenantId, Integer engineType) {
-        return tenantEngineDao.getByTenantAndEngineType(tenantId, engineType);
+    public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
+        return tenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
     }
 
     @Forbidden
     public List<Integer> getUsedEngineTypeList(Long tenantId) {
-        return tenantEngineDao.getUsedEngineTypeList(tenantId);
+        return tenantComponentDao.getUsedTaskTypeList(tenantId);
     }
 
     @Forbidden
     @Transactional(rollbackFor = Exception.class)
-    public boolean insert(TenantEngine projectEngine) {
-        return tenantEngineDao.insert(projectEngine);
+    public boolean insert(TenantComponent tenantComponent) {
+        return tenantComponentDao.insert(tenantComponent);
     }
 
 

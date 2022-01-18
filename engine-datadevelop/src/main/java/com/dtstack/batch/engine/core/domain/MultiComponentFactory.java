@@ -18,9 +18,8 @@
 
 package com.dtstack.batch.engine.core.domain;
 
-import com.dtstack.batch.service.multiengine.EngineInfo;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -33,30 +32,23 @@ import java.util.List;
  * @author xuchao
  */
 
-public class MultiEngineFactory {
-
-    public static EngineInfo createEngineInfo(int engineType) {
-        if (engineType == MultiEngineType.HADOOP.getType()) {
-            return new HadoopEngineInfo();
-        }
-        return null;
-    }
+public class MultiComponentFactory {
 
     /**
      * 根据engineType获取 所有的支持的组件
      *
-     * @param engineTypeList
+     * @param taskType
      * @return
      */
-    public static List<EComponentType> getComponentTypeByEngineType(List<Integer> engineTypeList) {
+    public static List<EComponentType> getComponentTypeByEngineType(List<Integer> taskType) {
         List<EComponentType> list = Lists.newArrayList();
         list.add(EComponentType.FLINK);
         list.add(EComponentType.DT_SCRIPT);
 
-        if (CollectionUtils.isEmpty(engineTypeList)){
+        if (CollectionUtils.isEmpty(taskType)){
             return list;
         }
-        if (engineTypeList.contains(MultiEngineType.HADOOP.getType())){
+        if (taskType.contains(EScheduleJobType.SPARK_SQL)){
             list.add(EComponentType.YARN);
             list.add(EComponentType.HDFS);
             list.add(EComponentType.SPARK_THRIFT);
