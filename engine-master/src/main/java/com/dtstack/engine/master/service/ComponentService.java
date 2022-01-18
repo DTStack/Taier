@@ -1886,7 +1886,7 @@ public class ComponentService {
     }
 
 
-    public List<Component> listComponents(Long tenantId, Integer engineType) {
+    public List<Component> listComponents(Long tenantId) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentMapper.listByClusterId(clusterId,null,true);
     }
