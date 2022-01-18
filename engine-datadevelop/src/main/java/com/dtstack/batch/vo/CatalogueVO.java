@@ -36,7 +36,7 @@ public class CatalogueVO {
         vo.setId(catalogue.getId());
         vo.setOrderVal(catalogue.getOrderVal());
         vo.setParentId(catalogue.getNodePid());
-        vo.setEngineType(catalogue.getEngineType());
+        vo.setTenantId(catalogue.getTenantId());
         return vo;
     }
 
@@ -77,9 +77,9 @@ public class CatalogueVO {
     private Integer isSubTask = 0;
 
     /**
-     *  引擎类型
+     * 租户Id
      */
-    private Integer engineType;
+    private Long tenantId;
 
     /**
      * 任务状态 0：未提交 ；1：已提交
@@ -88,12 +88,13 @@ public class CatalogueVO {
 
     public CatalogueVO(){}
 
-    public CatalogueVO(long id, long parentId, String name, Integer level, String type) {
+    public CatalogueVO(long id, long parentId, String name, Integer level, String type, Long tenantId) {
         this.id = id;
         this.parentId = parentId;
         this.name = name;
         this.level = level;
         this.type = type;
+        this.tenantId = tenantId;
     }
 
     public Integer getIsSubTask() {
@@ -104,4 +105,11 @@ public class CatalogueVO {
         this.isSubTask = isSubTask;
     }
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 }
