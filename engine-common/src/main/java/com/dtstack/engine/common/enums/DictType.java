@@ -19,7 +19,6 @@ public enum DictType {
 
     BATCH_TASK_TYPE_YARN(10),//集群部署时支持的任务类型
     BATCH_TASK_TYPE_STANDALONE(11),//单机部署支持的任务类型
-    BATCH_TASK_TYPE_GaussDB(12),//GaussDB 引擎类型支持的任务类型
 
     BATCH_FUNCTION(13),//引擎支持方法列表
 

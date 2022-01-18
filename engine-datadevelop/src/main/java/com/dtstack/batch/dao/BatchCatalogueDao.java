@@ -79,10 +79,10 @@ public interface BatchCatalogueDao {
 
     /**
      * 根据引擎类型 查询对应系统函数的根目录
-     * @param engineType
+     * @param nodePid
      * @return
      */
-    BatchCatalogue getSystemFunctionCatalogueOne(@Param("engineType") int engineType);
+    BatchCatalogue getSystemFunctionCatalogueOne(@Param("nodePid") int nodePid);
 
     /**
      * 插入数据
