@@ -80,6 +80,11 @@ public class EngineJobCache {
     private String waitReason;
 
     /**
+     * 租户 id
+     */
+    private Long tenantId;
+
+    /**
      * 新增时间
      */
     private Timestamp gmtCreate;
@@ -214,17 +219,25 @@ public class EngineJobCache {
         this.isDeleted = isDeleted;
     }
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EngineJobCache that = (EngineJobCache) o;
-        return Objects.equals(id, that.id) && Objects.equals(jobId, that.jobId) && Objects.equals(jobName, that.jobName) && Objects.equals(engineType, that.engineType) && Objects.equals(computeType, that.computeType) && Objects.equals(stage, that.stage) && Objects.equals(jobInfo, that.jobInfo) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(jobResource, that.jobResource) && Objects.equals(jobPriority, that.jobPriority) && Objects.equals(isFailover, that.isFailover) && Objects.equals(waitReason, that.waitReason) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+        return Objects.equals(id, that.id) && Objects.equals(jobId, that.jobId) && Objects.equals(jobName, that.jobName) && Objects.equals(engineType, that.engineType) && Objects.equals(computeType, that.computeType) && Objects.equals(stage, that.stage) && Objects.equals(jobInfo, that.jobInfo) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(jobResource, that.jobResource) && Objects.equals(jobPriority, that.jobPriority) && Objects.equals(isFailover, that.isFailover) && Objects.equals(waitReason, that.waitReason) && Objects.equals(tenantId, that.tenantId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, jobId, jobName, engineType, computeType, stage, jobInfo, nodeAddress, jobResource, jobPriority, isFailover, waitReason, gmtCreate, gmtModified, isDeleted);
+        return Objects.hash(id, jobId, jobName, engineType, computeType, stage, jobInfo, nodeAddress, jobResource, jobPriority, isFailover, waitReason, tenantId, gmtCreate, gmtModified, isDeleted);
     }
 
     @Override
@@ -242,6 +255,7 @@ public class EngineJobCache {
                 ", jobPriority=" + jobPriority +
                 ", isFailover=" + isFailover +
                 ", waitReason='" + waitReason + '\'' +
+                ", tenantId=" + tenantId +
                 ", gmtCreate=" + gmtCreate +
                 ", gmtModified=" + gmtModified +
                 ", isDeleted=" + isDeleted +
