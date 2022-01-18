@@ -19,44 +19,19 @@
 package com.dtstack.batch.service.task.impl;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.*;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.common.enums.EDeployType;
 import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.common.template.Reader;
-import com.dtstack.batch.dao.BatchCatalogueDao;
-import com.dtstack.batch.dao.BatchFunctionDao;
-import com.dtstack.batch.dao.BatchResourceDao;
-import com.dtstack.batch.dao.BatchTaskDao;
-import com.dtstack.batch.dao.BatchTaskResourceDao;
-import com.dtstack.batch.dao.BatchTaskVersionDao;
-import com.dtstack.batch.dao.ReadWriteLockDao;
+import com.dtstack.batch.dao.*;
 import com.dtstack.batch.dao.po.TaskOwnerAndTenantPO;
-import com.dtstack.batch.domain.BatchCatalogue;
-import com.dtstack.batch.domain.BatchResource;
-import com.dtstack.batch.domain.BatchSysParameter;
-import com.dtstack.batch.domain.BatchTaskParam;
-import com.dtstack.batch.domain.BatchTaskRecord;
-import com.dtstack.batch.domain.BatchTaskResource;
-import com.dtstack.batch.domain.BatchTaskTask;
-import com.dtstack.batch.domain.BatchTaskVersion;
-import com.dtstack.batch.domain.BatchTaskVersionDetail;
-import com.dtstack.batch.domain.Dict;
-import com.dtstack.batch.domain.ReadWriteLock;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.domain.*;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
 import com.dtstack.batch.enums.DependencyType;
 import com.dtstack.batch.enums.EScheduleStatus;
-import com.dtstack.batch.enums.RDBMSSourceType;
-import com.dtstack.batch.enums.SourceDTOType;
-import com.dtstack.batch.enums.SyncModel;
-import com.dtstack.batch.enums.TaskCreateModelType;
-import com.dtstack.batch.enums.TaskOperateType;
+import com.dtstack.batch.enums.*;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.parser.ESchedulePeriodType;
 import com.dtstack.batch.parser.ScheduleCron;
@@ -66,40 +41,18 @@ import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.datasource.impl.BatchDataSourceTaskRefService;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
-import com.dtstack.batch.service.impl.BatchFunctionService;
-import com.dtstack.batch.service.impl.BatchResourceService;
-import com.dtstack.batch.service.impl.BatchSqlExeService;
-import com.dtstack.batch.service.impl.BatchSysParamService;
-import com.dtstack.batch.service.impl.DictService;
-import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
-import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.service.impl.*;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.schedule.TaskService;
-import com.dtstack.batch.service.schedule.TaskTaskService;
 import com.dtstack.batch.service.table.ISqlExeService;
+import com.dtstack.batch.service.task.TaskParamTemplateService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.sync.handler.SyncBuilderFactory;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.job.SyncJobCheck;
-import com.dtstack.batch.sync.template.AwsS3Reader;
-import com.dtstack.batch.sync.template.CarbonDataReader;
-import com.dtstack.batch.sync.template.EsReader;
-import com.dtstack.batch.sync.template.FtpReader;
-import com.dtstack.batch.sync.template.HBaseReader;
-import com.dtstack.batch.sync.template.HDFSReader;
-import com.dtstack.batch.sync.template.HiveReader;
-import com.dtstack.batch.sync.template.InfluxDBReader;
-import com.dtstack.batch.sync.template.MongoDbReader;
-import com.dtstack.batch.sync.template.OdpsBase;
-import com.dtstack.batch.sync.template.OdpsReader;
-import com.dtstack.batch.sync.template.RDBBase;
-import com.dtstack.batch.sync.template.RDBReader;
-import com.dtstack.batch.vo.BatchTaskBatchVO;
-import com.dtstack.batch.vo.CheckSyntaxResult;
-import com.dtstack.batch.vo.ReadWriteLockVO;
-import com.dtstack.batch.vo.TaskCatalogueVO;
-import com.dtstack.batch.vo.TaskCheckResultVO;
-import com.dtstack.batch.vo.TaskResourceParam;
+import com.dtstack.batch.sync.template.*;
+import com.dtstack.batch.vo.*;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
@@ -111,41 +64,19 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.PatternConstant;
-import com.dtstack.engine.common.enums.AppType;
-import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.DictType;
-import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.ESubmitStatus;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.FuncType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.ReadWriteLockType;
-import com.dtstack.engine.common.enums.ResourceRefType;
-import com.dtstack.engine.common.enums.Sort;
-import com.dtstack.engine.common.enums.TaskLockStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
-import com.dtstack.engine.common.thread.RdosThreadFactory;
 import com.dtstack.engine.common.util.*;
-import com.dtstack.engine.domain.BaseEntity;
-import com.dtstack.engine.domain.BatchDataSource;
-import com.dtstack.engine.domain.BatchTask;
-import com.dtstack.engine.domain.Component;
-import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.domain.TaskParamTemplate;
-import com.dtstack.engine.domain.Tenant;
-import com.dtstack.engine.domain.User;
+import com.dtstack.engine.domain.*;
 import com.dtstack.engine.dto.UserDTO;
 import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.service.ComponentService;
-import com.dtstack.batch.service.task.TaskParamTemplateService;
-import com.dtstack.batch.service.user.UserService;
 import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
@@ -177,22 +108,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -251,12 +167,6 @@ public class BatchTaskService {
     private TaskService taskService;
 
     @Autowired
-    private TaskTaskService taskTaskService;
-
-    @Autowired
-    private BatchFunctionService batchFunctionService;
-
-    @Autowired
     private BatchTaskVersionDao batchTaskVersionDao;
 
     @Autowired
@@ -276,9 +186,6 @@ public class BatchTaskService {
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private BatchDataSourceTaskRefService batchDataSourceTaskRefService;
 
     @Autowired
     private IMultiEngineService multiEngineService;
@@ -316,8 +223,6 @@ public class BatchTaskService {
 
     private static final String COLUMN = "column";
 
-    private static final String hdfsCustomConfig = "hdfsCustomConfig";
-
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     @Autowired
@@ -347,29 +252,13 @@ public class BatchTaskService {
 
     private static final Integer IS_FILE = 1;
 
-    private static final Integer IS_SUBMIT = 1;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private static final Integer INIT_LOCK_VERSION = 0;
 
-    private static Boolean YES_IS_ROOT = true;
-
-    private static Boolean IGNORE_CHECK = false;
-
-    private static final String LOGGER_AGAIN_PUSH_TASK = "[id: %s , name : %s]";
-
-    private static final Long MIN_PERIOD = 300L;
 
     public static final String HADOOP_CONFIG = "hadoopConfig";
-
-    /**
-     * 任务自动提交异常信息模板
-     */
-    private static final String LOGGER_TENANT_PROJECT_TASK_ERROR = "租户名称：%s，项目名称：%s，任务名称：%s，异常提交，需要手动处理；";
-
-    private static final ExecutorService TASK_PUBLISH_JOB = new ThreadPoolExecutor(8, 8, 1L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(5000), new RdosThreadFactory("BatchPublishTaskFunction"));
-
 
     @Autowired
     private ReadWriteLockService readWriteLockService;
@@ -3072,31 +2961,17 @@ public class BatchTaskService {
         return AppType.RDOS.name() + "_" + Optional.ofNullable(sourceId).orElse(0L);
     }
 
-    private void downloadKerberosFromSftp(String kerberosFile, String localKerberosConf, Long dtuicTenantId, Timestamp kerberosFileTimestamp) {
+    private void downloadKerberosFromSftp(String kerberosFile, String localKerberosConf, Long tenantId, Timestamp kerberosFileTimestamp) {
         //需要读取配置文件
-        Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
+        Map<String, String> sftpMap =  clusterService.getComponentByTenantId(tenantId,EComponentType.SFTP.getTypeCode(), false,Map.class,null);
         try {
             KerberosConfigVerify.downloadKerberosFromSftp(kerberosFile, localKerberosConf, sftpMap, kerberosFileTimestamp);
         } catch (Exception e) {
             //允许下载失败
-            logger.info("download kerberosFile failed {}", e);
+            logger.info("download kerberosFile failed {}",kerberosFile, e);
         }
     }
 
-    public Map<String, String> getSftpMap(Long dtuicTenantId) {
-        Map<String, String> map = new HashMap<>();
-        String cluster = clusterService.clusterInfo(dtuicTenantId);
-        JSONObject clusterObj = JSON.parseObject(cluster);
-        JSONObject sftpConfig = clusterObj.getJSONObject(EComponentType.SFTP.getConfName());
-        if (Objects.isNull(sftpConfig)) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
-        } else {
-            for (String key : sftpConfig.keySet()) {
-                map.put(key, sftpConfig.getString(key));
-            }
-        }
-        return map;
-    }
 
     /**
      * kerberos配置预处理、替换相对路径为绝对路径等操作
