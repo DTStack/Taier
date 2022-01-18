@@ -334,12 +334,12 @@ public class ScheduleTaskShade implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ScheduleTaskShade that = (ScheduleTaskShade) o;
-        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(name, that.name) && Objects.equals(taskType, that.taskType) && Objects.equals(computeType, that.computeType) && Objects.equals(taskId, that.taskId) && Objects.equals(scheduleConf, that.scheduleConf) && Objects.equals(periodType, that.periodType) && Objects.equals(scheduleStatus, that.scheduleStatus) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(modifyUserId, that.modifyUserId) && Objects.equals(versionId, that.versionId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(taskDesc, that.taskDesc) && Objects.equals(flowId, that.flowId) && Objects.equals(componentVersion, that.componentVersion) && Objects.equals(extraInfo, that.extraInfo) && Objects.equals(ownerUserId, that.ownerUserId);
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(name, that.name) && Objects.equals(taskType, that.taskType) && Objects.equals(computeType, that.computeType) && Objects.equals(sqlText, that.sqlText) && Objects.equals(taskParams, that.taskParams) && Objects.equals(taskId, that.taskId) && Objects.equals(scheduleConf, that.scheduleConf) && Objects.equals(periodType, that.periodType) && Objects.equals(scheduleStatus, that.scheduleStatus) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(modifyUserId, that.modifyUserId) && Objects.equals(ownerUserId, that.ownerUserId) && Objects.equals(extraInfo, that.extraInfo) && Objects.equals(versionId, that.versionId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(taskDesc, that.taskDesc) && Objects.equals(flowId, that.flowId) && Objects.equals(componentVersion, that.componentVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tenantId, name, taskType, computeType, taskId, scheduleConf, periodType, scheduleStatus, gmtCreate, gmtModified, createUserId, modifyUserId, versionId, isDeleted, taskDesc, flowId, componentVersion, extraInfo, ownerUserId);
+        return Objects.hash(id, tenantId, name, taskType, computeType, sqlText, taskParams, taskId, scheduleConf, periodType, scheduleStatus, gmtCreate, gmtModified, createUserId, modifyUserId, ownerUserId, extraInfo, versionId, isDeleted, taskDesc, flowId, componentVersion);
     }
 
     @Override

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.server.scheduler.parser;
+package com.dtstack.engine.master.enums;
 
 /**
  * Reason:

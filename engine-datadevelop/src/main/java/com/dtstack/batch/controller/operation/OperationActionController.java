@@ -7,6 +7,7 @@ import com.dtstack.batch.vo.schedule.ActionJobKillVO;
 import com.dtstack.batch.vo.schedule.QueryJobLogVO;
 import com.dtstack.batch.vo.schedule.ReturnJobLogVO;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.ScheduleJob;
 import com.dtstack.engine.master.enums.RestartType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -41,9 +42,6 @@ public class OperationActionController {
     private JobService jobService;
 
     @Autowired
-    private com.dtstack.engine.master.impl.ActionService oldActionService;
-
-    @Autowired
     private ActionService actionService;
 
     @ApiOperation(value = "重跑任务")
@@ -52,15 +50,15 @@ public class OperationActionController {
             @ApiImplicitParam(name = "jobIds", value = "选择的实例id", required = true, dataType = "array"),
             @ApiImplicitParam(name = "restartType", value = "重跑当前节点: RESTART_CURRENT_NODE(0)\n重跑及其下游: RESTART_CURRENT_AND_DOWNSTREAM_NODE(1)\n置成功并恢复调度:SET_SUCCESSFULLY_AND_RESUME_SCHEDULING(2)\n", required = true, dataType = "Integer")
     })
-    public boolean restartJob(@RequestParam("jobIds") List<String> jobIds,
-                              @RequestParam("restartType") Integer restartType) {
+    public R<Boolean> restartJob(@RequestParam("jobIds") List<String> jobIds,
+                                 @RequestParam("restartType") Integer restartType) {
         RestartType byCode = RestartType.getByCode(restartType);
 
         if (byCode == null) {
             throw new RdosDefineException("请选择正确的重跑模式");
         }
 
-        return actionService.restartJob(byCode, jobIds);
+        return R.ok(actionService.restartJob(byCode, jobIds));
     }
 
     @ApiOperation(value = "批量停止任务")
@@ -68,8 +66,8 @@ public class OperationActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobIds", value = "选择的实例id", required = true, dataType = "array")
     })
-    public Integer batchStopJobs(@RequestParam("jobIds") List<String> jobIds) {
-        return actionService.batchStopJobs(jobIds);
+    public R<Integer> batchStopJobs(@RequestParam("jobIds") List<String> jobIds) {
+        return R.ok(actionService.batchStopJobs(jobIds));
     }
 
     @ApiOperation(value = "按照补数据停止任务")
@@ -77,24 +75,24 @@ public class OperationActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fillId", value = "选择的实例id", required = true, dataType = "array")
     })
-    public Integer stopFillDataJobs(@RequestParam("fillId") Long fillId) {
-        return actionService.stopFillDataJobs(fillId);
+    public R<Integer> stopFillDataJobs(@RequestParam("fillId") Long fillId) {
+        return R.ok(actionService.stopFillDataJobs(fillId));
     }
 
     @ApiOperation(value = "按照添加停止任务")
     @RequestMapping(value="/stopJobByCondition", method = {RequestMethod.POST})
-    public Integer stopJobByCondition(@RequestBody ActionJobKillVO vo) {
-        return actionService.stopJobByCondition(ActionMapStructTransfer.INSTANCE.actionJobKillVOToActionJobKillDTO(vo));
+    public R<Integer> stopJobByCondition(@RequestBody ActionJobKillVO vo) {
+        return R.ok(actionService.stopJobByCondition(ActionMapStructTransfer.INSTANCE.actionJobKillVOToActionJobKillDTO(vo)));
     }
 
     @ApiOperation(value = "查看实例日志")
     @PostMapping(value = "/queryJobLog")
-    public ReturnJobLogVO queryJobLog(@RequestBody @Valid QueryJobLogVO vo, BindingResult bindingResult) {
+    public R<ReturnJobLogVO> queryJobLog(@RequestBody @Valid QueryJobLogVO vo, BindingResult bindingResult) {
         if(bindingResult.hasErrors()){
             LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
             throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
         }
-        return actionService.queryJobLog(vo.getJobId(), vo.getPageInfo());
+        return R.ok(actionService.queryJobLog(vo.getJobId(), vo.getPageInfo()));
     }
 
     @ApiOperation(value = "查看实例状态")
@@ -102,8 +100,8 @@ public class OperationActionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "实例id", required = true, dataType = "String")
     })
-    public Integer status(@RequestParam("jobId") String jobId) throws Exception {
+    public R<Integer> status(@RequestParam("jobId") String jobId) throws Exception {
         ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
-        return null == scheduleJob ? RdosTaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus();
+        return R.ok(null == scheduleJob ? RdosTaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus());
     }
 }

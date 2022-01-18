@@ -19,7 +19,7 @@
 package com.dtstack.engine.master.impl.vo;
 
 import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.master.server.scheduler.parser.ESchedulePeriodType;
+import com.dtstack.engine.master.enums.ESchedulePeriodType;
 import com.dtstack.engine.pluginapi.util.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 

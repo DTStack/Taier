@@ -16,17 +16,21 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.server.executor;
+package com.dtstack.engine.master.server.listener;
 
-import com.dtstack.engine.mapper.ScheduleJobMapper;
-import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.env.EnvironmentContext;
+import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.server.queue.QueueInfo;
-import com.dtstack.engine.master.server.scheduler.JobRichOperator;
+import com.dtstack.engine.master.server.scheduler.AbstractJobSummitScheduler;
+import com.dtstack.engine.master.server.scheduler.CycleJobScheduler;
+import com.dtstack.engine.master.server.scheduler.FillDataJobScheduler;
+import com.dtstack.engine.master.server.scheduler.RestartJobScheduler;
 import com.dtstack.engine.master.zookeeper.ZkService;
+import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +40,9 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -50,24 +56,21 @@ import java.util.concurrent.TimeUnit;
  * create: 2019/10/22
  */
 @Component
-public class JobExecutorTrigger implements DisposableBean, ApplicationListener<ApplicationStartedEvent> {
+public class JobSchedulerListener implements DisposableBean, ApplicationListener<ApplicationStartedEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobExecutorTrigger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobSchedulerListener.class);
 
     @Autowired
     private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    private CronJobExecutor cronJobExecutor;
+    private RestartJobScheduler restartJobScheduler;
 
     @Autowired
-    private FillJobExecutor fillJobExecutor;
+    private FillDataJobScheduler fillDataJobScheduler;
 
     @Autowired
-    private RestartJobExecutor restartJobExecutor;
-
-    @Autowired
-    private JobRichOperator jobRichOperator;
+    private CycleJobScheduler cycleJobScheduler;
 
     @Autowired
     private ZkService zkService;
@@ -75,7 +78,7 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
     @Autowired
     private EnvironmentContext environmentContext;
 
-    private List<AbstractJobExecutor> executors = new ArrayList<>(EScheduleType.values().length);
+    private List<AbstractJobSummitScheduler> executors = new ArrayList<>(EScheduleType.values().length);
 
     private ExecutorService executorService;
 
@@ -88,7 +91,7 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
     public Map<String, Map<Integer, QueueInfo>> getAllNodesJobQueueInfo() {
 
         List<String> allNodeAddress = zkService.getAliveBrokersChildren();
-        Pair<String, String> cycTime = jobRichOperator.getCycTimeLimit();
+        Pair<String, String> cycTime = getCycTimeLimit();
         Map<String, Map<Integer, QueueInfo>> allNodeJobInfo = Maps.newHashMap();
         for (String nodeAddress : allNodeAddress) {
             if (StringUtils.isBlank(nodeAddress)) {
@@ -108,19 +111,27 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
         return allNodeJobInfo;
     }
 
+    public Pair<String, String> getCycTimeLimit() {
+        Integer dayGap = environmentContext.getCycTimeDayGap();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, dayGap-1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String startTime = sdf.format(calendar.getTime());
+        calendar.add(Calendar.DATE, dayGap+1);
+        String endTime = sdf.format(calendar.getTime());
+        return new ImmutablePair<>(startTime, endTime);
+    }
+
     @Override
     public void destroy() throws Exception {
-        for (AbstractJobExecutor executor : executors) {
-            executor.stop();
+        for (AbstractJobSummitScheduler scheduler : executors) {
+            scheduler.stop();
         }
 
         executorService.shutdownNow();
     }
 
     public void recoverOtherNode() {
-        for (AbstractJobExecutor executor : executors) {
-            executor.recoverOtherNode();
-        }
     }
 
 
@@ -131,14 +142,14 @@ public class JobExecutorTrigger implements DisposableBean, ApplicationListener<A
             LOGGER.info("job schedule is not open!!!");
             return;
         }
-        executors.add(fillJobExecutor);
-        executors.add(cronJobExecutor);
-        executors.add(restartJobExecutor);
+        executors.add(fillDataJobScheduler);
+        executors.add(cycleJobScheduler);
+        executors.add(restartJobScheduler);
 
         executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));
-        for (AbstractJobExecutor executor : executors) {
-            executorService.submit(executor);
+        for (AbstractJobSummitScheduler scheduler : executors) {
+            executorService.submit(scheduler);
         }
     }
 }
