@@ -47,7 +47,6 @@ import com.dtstack.batch.domain.BatchTaskVersion;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
 import com.dtstack.batch.domain.Dict;
 import com.dtstack.batch.domain.ReadWriteLock;
-import com.dtstack.batch.domain.TenantEngine;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
 import com.dtstack.batch.enums.DependencyType;
@@ -77,7 +76,8 @@ import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.schedule.TaskService;
 import com.dtstack.batch.service.schedule.TaskTaskService;
-import com.dtstack.batch.service.table.ISqlExeService;
+import com.dtstack.batch.service.task.TaskParamTemplateService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.sync.handler.SyncBuilderFactory;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.job.SyncJobCheck;
@@ -102,7 +102,6 @@ import com.dtstack.batch.vo.TaskCheckResultVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.batch.web.task.vo.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
@@ -130,8 +129,11 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.kerberos.KerberosConfigVerify;
 import com.dtstack.engine.common.thread.RdosThreadFactory;
-import com.dtstack.engine.common.util.*;
-import com.dtstack.engine.domain.BaseEntity;
+import com.dtstack.engine.common.util.Base64Util;
+import com.dtstack.engine.common.util.DataFilter;
+import com.dtstack.engine.common.util.JsonUtils;
+import com.dtstack.engine.common.util.PublicUtil;
+import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.Component;
@@ -144,12 +146,8 @@ import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.impl.ClusterService;
 import com.dtstack.engine.master.impl.ComponentService;
-import com.dtstack.batch.service.task.TaskParamTemplateService;
-import com.dtstack.batch.service.user.UserService;
-import com.dtstack.engine.master.vo.ScheduleTaskShadeVO;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
-import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -378,67 +376,12 @@ public class BatchTaskService {
 
     @PostConstruct
     public void init() {
-
         //初始化可以支持的任务类型
         final List<Dict> yarn = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_YARN.getValue());
         final List<Pair<Integer, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
-
-        final List<Dict> libraDict = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_GaussDB.getValue());
-        final List<Pair<Integer, String>> libraSupportType = libraDict.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
-
         jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
-        jobSupportTypeMap.put(EDeployType.LIBRA.getType(), libraSupportType);
     }
 
-
-    private void updateDataNode(final JSONObject node, final BatchTask subTask) {
-        if (subTask == null) {
-            return;
-        }
-
-        node.put("id", subTask.getId());
-        final JSONObject data = node.getJSONObject("data");
-        data.put("id", subTask.getId());
-        data.put("name", subTask.getName());
-        data.put("parentId", subTask.getNodePid());
-        data.put("submitStatus", "0");
-        data.put("version", "0");
-    }
-
-
-    /**
-     * 数据开发-任务全局搜索
-     *
-     * @param taskName
-     */
-    public List<Map<String, Object>> globalSearch(String taskName) {
-        final List<Map<String, Object>> result = Lists.newArrayList();
-        if (StringUtils.isEmpty(taskName)) {
-            return result;
-        }
-
-        final BatchTaskDTO batchTaskDTO = new BatchTaskDTO();
-        batchTaskDTO.setFlowId(null);
-        batchTaskDTO.setIsDeleted(Deleted.NORMAL.getStatus());
-        if (StringUtils.isNotBlank(taskName)) {
-            batchTaskDTO.setFuzzName(taskName);
-        }
-
-        final PageQuery<BatchTaskDTO> pageQuery = new PageQuery<BatchTaskDTO>(batchTaskDTO);
-
-        final List<BatchTask> batchTasks = this.batchTaskDao.generalQuery(pageQuery);
-
-        Map<String, Object> elem = null;
-        for (final BatchTask task : batchTasks) {
-            elem = new HashMap<>();
-            elem.put("name", task.getName());
-            elem.put("id", task.getId());
-            elem.put("createUser", userService.getUserName(task.getCreateUserId()));
-            elem.put("taskType", task.getTaskType());
-            result.add(elem);
-        }
-        return result;
-    }
 
     /**
      * 数据开发-根据任务id，查询详情
@@ -584,54 +527,6 @@ public class BatchTaskService {
         taskVO.setTaskVariables(mapParams);
     }
 
-    /**
-     * 数据开发-根据项目id获取任务列表
-     *
-     * @param tenantId
-     * @param taskName
-     * @return
-     * @author toutian
-     */
-    public List<BatchTask> getTasksByTenantId(Long tenantId, String taskName) {
-        //构建查询条件
-        ScheduleTaskShadeDTO dto = new ScheduleTaskShadeDTO();
-        dto.setTenantId(tenantId);
-
-        List<BatchTask> returnList = getTaskIdAndNameBySchedule(dto);
-        return returnList;
-    }
-
-    /**
-     * 根据信息 去dagScheduleX获取 任务信息 只返回taskId 和TaskName
-     *
-     * @param dto
-     * @return
-     */
-    public List<BatchTask> getTaskIdAndNameBySchedule(ScheduleTaskShadeDTO dto) {
-        // TODO 未完成
-        PageResult<List<ScheduleTaskShadeVO>> submitTaskList = null;//taskService.pageQuery(dto);
-        List<ScheduleTaskShadeVO> scheduleTaskVOS = submitTaskList.getData();
-        List<BatchTask> returnList=  new ArrayList<>();
-        scheduleTaskVOS.forEach(bean ->{
-            BatchTask task = new BatchTask();
-            task.setId(bean.getTaskId());
-            task.setName(bean.getName());
-            returnList.add(task);
-        });
-        return returnList;
-    }
-
-
-    /**
-     * 数据开发-根据项目id,任务名 获取任务列表
-     *
-     * @param tenantId
-     * @return
-     * @author toutian
-     */
-    public List<BatchTask> getTasksByName(Long tenantId, String name) {
-        return this.batchTaskDao.listByNameFuzzy(tenantId, name);
-    }
 
     /**
      * 数据开发-获取依赖任务
@@ -759,29 +654,6 @@ public class BatchTaskService {
         }
     }
 
-    /**
-     * 数据开发-关键字搜索
-     * 1. 模糊查询文件夹，点击可展开目录得到文件列表
-     * 2. 模糊查询文件
-     *
-     * @param tenantId 项目id
-     * @param name      名字
-     * @return
-     * @author toutian
-     */
-    public TaskCatalogueVO queryCatalogueTasks(Long tenantId, String name) {
-
-        final List<BatchCatalogue> catalogues = this.batchCatalogueDao.listByNameFuzzy(tenantId, name);
-
-        final List<BatchTask> tasks = this.batchTaskDao.listByNameFuzzy(tenantId, name);
-
-        final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
-        taskCatalogueVO.setCatalogues(catalogues);
-        taskCatalogueVO.setTasks(tasks);
-
-        return taskCatalogueVO;
-    }
-
 
     public void buildUserDTOInfo(final Map<Long, User> userMap, final ScheduleTaskVO vo) {
         if (Objects.nonNull(vo.getCreateUserId())) {
@@ -808,47 +680,6 @@ public class BatchTaskService {
     }
 
 
-    private BatchTaskBatchVO getBatchTaskUserDTO(final ScheduleTaskVO batchTask, final Map<Long, User> userMap) {
-        final BatchTaskBatchVO batchTaskBatchVO = new BatchTaskBatchVO(batchTask);
-        final User createUser = userMap.get(batchTask.getCreateUserId());
-        final UserDTO createDto = new UserDTO();
-        BeanUtils.copyProperties(createUser, createDto);
-        batchTaskBatchVO.setCreateUser(createDto);
-        if (batchTask.getCreateUserId().equals(batchTask.getModifyUserId())) {
-            batchTaskBatchVO.setModifyUser(createDto);
-        } else {
-            final User modifyUser = userMap.get(batchTask.getModifyUserId());
-            final UserDTO modifiyDto = new UserDTO();
-            BeanUtils.copyProperties(modifyUser, modifiyDto);
-            batchTaskBatchVO.setModifyUser(modifiyDto);
-        }
-        if (batchTask.getOwnerUserId().equals(batchTask.getOwnerUserId())) {
-            batchTaskBatchVO.setOwnerUser(createDto);
-        } else {
-            final User ownerUser = userMap.get(batchTask.getOwnerUserId());
-            final UserDTO ownerUserDTO = new UserDTO();
-            BeanUtils.copyProperties(ownerUser, ownerUserDTO);
-            batchTaskBatchVO.setOwnerUser(ownerUserDTO);
-        }
-        return batchTaskBatchVO;
-    }
-
-    /**
-     * 任务发布权限判断、发布
-     * @param tenantId
-     * @param id
-     * @param userId
-     * @param publishDesc
-     * @param isRoot
-     * @throws Exception
-     */
-    @Transactional
-    public void checkAndPublishTask(Long tenantId, Long id, Long userId, String publishDesc, Boolean isRoot) {
-        TaskCheckResultVO checkPermissionVO = publishTask(tenantId, id, userId, publishDesc, isRoot,false);
-        if (!PublishTaskStatusEnum.NOMAL.getType().equals(checkPermissionVO.getErrorSign())) {
-            throw new RdosDefineException(checkPermissionVO.getErrorMessage());
-        }
-    }
     /**
      * 任务发布
      * @param tenantId
@@ -982,9 +813,7 @@ public class BatchTaskService {
 
         String versionSqlText = StringUtils.EMPTY;
 
-        if (EJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()
-                || EJobType.GaussDB_SQL.getVal().intValue() == task.getTaskType().intValue()
-                || EJobType.HIVE_SQL.getVal().intValue() == task.getTaskType().intValue()) {
+        if (EJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()) {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
@@ -1000,14 +829,6 @@ public class BatchTaskService {
                 return checkVo;
             }
 
-        } else if (EJobType.TIDB_SQL.getVal().intValue() == task.getTaskType().intValue()) {
-            // 语法检测
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
-            versionSqlText = jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, sdf.format(new Date()));
-            TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, engineType);
-            ISqlExeService sqlExeService = multiEngineServiceFactory.getSqlExeService(engineType, null, tenantId);
-            String sql = sqlExeService.process(versionSqlText, tenantEngine.getEngineIdentity());
-
         } else if (EJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
                 final JSONObject jsonTask = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
@@ -1020,15 +841,6 @@ public class BatchTaskService {
                 // 检测job格式
                 SyncJobCheck.checkJobFormat(job.toJSONString(), createModelType);
                 versionSqlText = jsonTask.getString("job");
-            }
-        } else if (EJobType.PYTHON.getVal().equals(task.getTaskType())
-                || EJobType.SPARK_PYTHON.getVal().equals(task.getTaskType())) {
-            final JSONObject exeArgsJson = JSON.parseObject(task.getExeArgs());
-            if (exeArgsJson != null) {
-                final Integer operateModel = exeArgsJson.getInteger("operateModel");
-                if (TaskOperateType.EDIT.getType() == operateModel) {
-                    versionSqlText = task.getSqlText();
-                }
             }
         }
 
@@ -1144,22 +956,6 @@ public class BatchTaskService {
         return taskVersion;
     }
 
-    /**
-     * 获取任务json模板，过滤账号密码
-     *
-     * @param param
-     * @return
-     */
-    public String getJsonTemplate(final TaskResourceParam param) {
-        param.setCreateModel(Constant.CREATE_MODEL_TEMPLATE);  //脚本模式
-        param.getSourceMap().put("column", Lists.newArrayList());
-        param.getSourceMap().put("table", "");
-        param.getTargetMap().put("column", Lists.newArrayList());
-        param.getTargetMap().put("table", "");
-        param.setSettingMap(new HashMap<>());
-        final String syncSql = this.dataSourceService.getSyncSql(param,true);
-        return DataFilter.passwordFilter(syncSql);
-    }
 
     /**
      * 数据开发-新建/更新 任务
@@ -1328,43 +1124,8 @@ public class BatchTaskService {
      */
     private Integer checkBeforeUpdateTask(TaskResourceParam param) {
         Integer engineType = EngineType.Spark.getVal();
-        if (EJobType.SPARK.getVal().equals(param.getTaskType()) ||
-                EJobType.HADOOP_MR.getVal().equals(param.getTaskType())) {
-            if (param.getId() <= 0 && checkResourceType(param.getResourceIdList())) {
-                throw new RdosDefineException("MR 任务必须添加资源.", ErrorCode.INVALID_PARAMETERS);
-            }
-            if (EJobType.SPARK.getVal().equals(param.getTaskType())) {
-                engineType = EngineType.Spark.getVal();
-            } else {
-                engineType = EngineType.Hadoop.getVal();
-            }
-
-            final JSONObject exeArgs = new JSONObject(1);
-            exeArgs.put(CMD_OPTS, param.getOptions());
-            param.setExeArgs(exeArgs.toJSONString());
-        } else if (EJobType.SYNC.getVal().equals(param.getTaskType())) {
+        if (EJobType.SYNC.getVal().equals(param.getTaskType())) {
             engineType = operateSyncTask(param);
-        } else if (EJobType.SPARK_PYTHON.getVal().equals(param.getTaskType()) ||
-                EJobType.PYTHON.getVal().equals(param.getTaskType())
-                || EJobType.SHELL.getVal().equals(param.getTaskType())) {
-            engineType = operateShellOrPython(param);
-        } else if (EJobType.CARBON_SQL.getVal().equals(param.getTaskType())) {
-            if (param.getDataSourceId() == null) {
-                throw new RdosDefineException("Carbon SQL任务必须关联数据源.", ErrorCode.INVALID_PARAMETERS);
-            }
-        } else if (EJobType.GaussDB_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.GaussDB.getVal();
-        } else if (EJobType.HIVE_SQL.getVal().equals(param.getTaskType())) {
-            //HiveSql任务匹配
-            engineType = EngineType.HIVE.getVal();
-        } else if (EJobType.IMPALA_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.IMPALA.getVal();
-        } else if (EJobType.TIDB_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.TIDB.getVal();
-        } else if (EJobType.ORACLE_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.ORACLE.getVal();
-        } else if (EJobType.GREENPLUM_SQL.getVal().equals(param.getTaskType())) {
-            engineType = EngineType.GREENPLUM.getVal();
         } else {
             if (CollectionUtils.isNotEmpty(param.getResourceIdList())) {
                 throw new RdosDefineException("该任务不能添加资源.", ErrorCode.INVALID_PARAMETERS);
@@ -1427,57 +1188,6 @@ public class BatchTaskService {
         return engineType;
     }
 
-    /**
-     * 处理shell 、python任务 校验资源 设置默认值
-     * @param param
-     * @return
-     */
-    private Integer operateShellOrPython(TaskResourceParam param) {
-        Integer engineType;
-        if (param.getId() <= 0) {
-            if (param.getOperateModel() == TaskOperateType.RESOURCE.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType())) {
-                if (checkResourceType(param.getResourceIdList())) {
-                    throw new RdosDefineException("python 任务必须添加资源.", ErrorCode.INVALID_PARAMETERS);
-                }
-            } else if (param.getOperateModel() == TaskOperateType.EDIT.getType() && !EJobType.SHELL.getVal().equals(param.getTaskType())) {
-                if (StringUtils.isBlank(param.getSqlText())) {
-                    param.setSqlText("#coding=utf-8\n");
-                }
-            }
-        }
-        JSONObject exeArgs = new JSONObject();
-        engineType = EngineType.Spark.getVal();
-        exeArgs.put("operateModel", param.getOperateModel());
-        exeArgs.put(CMD_OPTS, param.getOptions());
-        if (EJobType.PYTHON.getVal().equals(param.getTaskType())
-                || EJobType.SHELL.getVal().equals(param.getTaskType())){
-            exeArgs.put("--app-name", param.getName());
-            exeArgs.put("--input", param.getInput());
-            exeArgs.put("--output", param.getOutput());
-            exeArgs.put("--files", param.getResourceIdList());
-            exeArgs.put("--python-version", param.getPythonVersion());
-
-            String appType = EngineType.Shell.getEngineName() ;
-            if (EJobType.SHELL.getVal().equals(param.getTaskType())) {
-                exeArgs.put("operateModel", TaskOperateType.EDIT.getType());
-                engineType = EngineType.DtScript.getVal();
-            } else if (EJobType.PYTHON.getVal().equals(param.getTaskType())) {
-                final EngineType pyEnginType = EngineType.getByPythonVersion(param.getPythonVersion());
-                appType = pyEnginType.getEngineName();
-                engineType = pyEnginType.getVal();
-            }
-            exeArgs.put("--app-type", appType);
-
-            final String exeArgsParam = param.getExeArgs();
-            if (StringUtils.isNotEmpty(exeArgsParam)) {
-                final JSONObject paramObj = JSON.parseObject(exeArgsParam);
-                paramObj.putAll(exeArgs);
-                exeArgs = paramObj;
-            }
-        }
-        param.setExeArgs(exeArgs.toJSONString());
-        return engineType;
-    }
 
     /**
      * 处理增量标识  主要处理两部分 1 处理增量标识字段  2.处理调度依赖
@@ -1615,16 +1325,9 @@ public class BatchTaskService {
         final StringBuilder sb = new StringBuilder();
 
         // 需要代码注释模版的任务类型
-        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal(), EJobType.CARBON_SQL.getVal(),
-                EJobType.GaussDB_SQL.getVal(), EJobType.IMPALA_SQL.getVal());
+        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal());
 
-        if (EJobType.PYTHON.getVal().equals(task.getTaskType())
-                || EJobType.SHELL.getVal().equals(task.getTaskType())) {
-            NOTE_SIGN = "#";
-            if (EJobType.PYTHON.getVal().equals(task.getTaskType())) {
-                type = "Python" + task.getPythonVersion();
-            }
-        } else if (shouldNoteSqlTypes.contains(task.getTaskType())) {
+        if (shouldNoteSqlTypes.contains(task.getTaskType())) {
             NOTE_SIGN = "-- ";
         } else {
             sb.append(StringUtils.isBlank(task.getSqlText()) ? "" : task.getSqlText());
@@ -1642,17 +1345,6 @@ public class BatchTaskService {
         return sb.toString();
     }
 
-    /**
-     * 查询资源是否存在
-     * @param resourceIdList
-     */
-    private Boolean checkResourceType(List<Long> resourceIdList) {
-        if (CollectionUtils.isEmpty(resourceIdList)) {
-            return true;
-        }
-        List<BatchResource> resourceList = batchResourceService.getResourceList(resourceIdList);
-        return CollectionUtils.isEmpty(resourceList);
-    }
 
     /**
      * 解析子任务依赖关系
@@ -1968,31 +1660,6 @@ public class BatchTaskService {
 
 
     /**
-     * 强制任务重命名（不校验taskVersion、lockVersion）
-     *
-     * @param taskId
-     * @param taskName
-     * @param tenantId
-     */
-    public void renameTask(Long taskId, String taskName, Long tenantId) {
-        final BatchTask task = this.batchTaskDao.getOne(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        if (!taskName.equals(task.getName())) {
-            final BatchTask batchTask = this.batchTaskDao.getByName(taskName, tenantId);
-            if (batchTask != null) {
-                throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
-            }
-            task.setName(taskName);
-            final Integer update = this.batchTaskDao.update(task);
-            if (update == 1) {
-                this.taskService.updateTaskName(task.getId(), task.getName());
-            }
-        }
-    }
-
-    /**
      * 向导模式下的数据同步需要json格式化
      *
      * @param taskVO
@@ -2174,61 +1841,11 @@ public class BatchTaskService {
 
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void frozenTask(List<Long> taskIdList, int scheduleStatus, Long userId, Long tenantId, Boolean isRoot) {
-
-        final List<BatchTask> batchTasks = this.batchTaskDao.listByIds(taskIdList);
-        if (CollectionUtils.isEmpty(batchTasks)) {
-            return;
-        }
-
-        final EScheduleStatus targetStatus = EScheduleStatus.getStatus(scheduleStatus);
-        if (targetStatus == null) {
-            throw new RdosDefineException("任务状态参数非法", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        //查询子节点 同步冻结
-        List<BatchTask> subList = new ArrayList<>();
-        for (BatchTask task : batchTasks){
-            if (EJobType.WORK_FLOW.getVal().equals(task.getTaskType())){
-                List<BatchTask> flowWorkSubTasks = getFlowWorkSubTasks(task.getId());
-                if (CollectionUtils.isNotEmpty(flowWorkSubTasks)){
-                    subList.addAll(flowWorkSubTasks);
-                }
-            }
-        }
-        batchTasks.addAll(subList);
-        taskIdList = batchTasks.stream().map(BaseEntity::getId).collect(Collectors.toList());
-        //更新taskShade表
-        this.taskService.frozenTask(taskIdList, scheduleStatus);
-        //更新task表
-        this.batchTaskDao.batchUpdateTaskScheduleStatus(taskIdList, scheduleStatus);
-        final List<BatchTaskRecord> taskRecords = new ArrayList<>(taskIdList.size());
-        final Timestamp now = new Timestamp(System.currentTimeMillis());
-        taskIdList.forEach(e -> {
-            final BatchTaskRecord record = new BatchTaskRecord();
-            record.setTenantId(tenantId);
-            record.setOperateTime(now);
-            record.setTaskId(e);
-            record.setOperatorId(userId);
-            record.setRecordType(scheduleStatus == 1 ? TaskOperateType.THAW.getType() : TaskOperateType.FROZEN.getType());
-            taskRecords.add(record);
-        });
-        this.batchTaskRecordService.saveTaskRecords(taskRecords);
-    }
 
     public BatchTask getBatchTaskById(final long taskId) {
         return this.batchTaskDao.getOne(taskId);
     }
 
-    /**
-     * 获取所有需要需要生成调度的task
-     *
-     * @return
-     */
-    public List<BatchTask> getAllTaskList() {
-        return this.batchTaskDao.listAll();
-    }
 
     public List<BatchTask> getTaskByIds(final List<Long> taskIdArray) {
         if (CollectionUtils.isEmpty(taskIdArray)) {
@@ -2258,7 +1875,7 @@ public class BatchTaskService {
             if (jsonObject.containsKey("parser")) {
                 final JSONObject parser = jsonObject.getJSONObject("parser");
                 if (parser.containsKey("targetMap")) {
-                    this.checkDataSource(parser.getJSONObject("targetMap").getLong("sourceId"));
+                    dataSourceService.checkConnectionById(parser.getJSONObject("targetMap").getLong("sourceId"));
                 }
 
                 if (parser.containsKey("sourceMap")) {
@@ -2267,10 +1884,10 @@ public class BatchTaskService {
                         final JSONArray sourceList = sourceMap.getJSONArray("sourceList");
                         for (final Object o : sourceList) {
                             final JSONObject source = (JSONObject) o;
-                            this.checkDataSource(source.getLong("sourceId"));
+                            dataSourceService.checkConnectionById(source.getLong("sourceId"));
                         }
                     } else {
-                        this.checkDataSource(parser.getJSONObject("sourceMap").getLong("sourceId"));
+                        dataSourceService.checkConnectionById(parser.getJSONObject("sourceMap").getLong("sourceId"));
                     }
                 }
             }
@@ -2279,31 +1896,6 @@ public class BatchTaskService {
         return true;
     }
 
-    private void checkDataSource(Long sourceId) {
-      /*  BatchDataSource dataSource = dataSourceService.getOne(sourceId);
-        Map<String, Object> kerberosConfig = dataSourceService.fillKerberosConfig(sourceId);
-        IClient iClient = ClientCache.getClient(dataSource.getType());
-        JSONObject jsonObject = JSONObject.parseObject(dataSource.getDataJson());
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(jsonObject, dataSource.getType(), kerberosConfig);
-        Boolean connStatus = iClient.testCon(sourceDTO);
-        if (!connStatus) {
-            throw new RdosDefineException("数据源:" + dataSource.getDataName() + "获取连接失败，不能正常发布任务:" );
-        }*/
-    }
-
-    /**
-     * 根据支持的引擎类型返回
-     *
-     * @return
-     */
-    public List<BatchTaskGetSupportJobTypesResultVO> getSupportJobTypes(Long tenantId) {
-
-        List<BatchTaskGetSupportJobTypesResultVO> resultSupportTypes = Lists.newArrayList();
-        final List<EJobType> engineInfos = this.multiEngineService.getTenantSupportJobType(tenantId);
-        engineInfos.forEach(engineInfo -> resultSupportTypes.add(new BatchTaskGetSupportJobTypesResultVO(engineInfo.getVal(), engineInfo.getName())));
-
-        return resultSupportTypes;
-    }
 
     public TaskCatalogueVO forceUpdate(final TaskResourceParam param) {
         return addOrUpdateTask(param);
@@ -2406,13 +1998,6 @@ public class BatchTaskService {
         return taskOwnerAndTenantId;
     }
 
-    public boolean capableOfCreate(Integer max) {
-        if (max == -1) {
-            return true;
-        }
-
-        return this.batchTaskDao.countAll() < max;
-    }
 
     public BatchTask getByName(String name, Long tenantId) {
         return this.batchTaskDao.getByName(name, tenantId);
@@ -2486,17 +2071,6 @@ public class BatchTaskService {
         batchTask.setOwnerUserId(targetUserId);
         batchTask.setIsDeleted(Deleted.NORMAL.getStatus());
         return batchTaskDao.generalCount(batchTask);
-    }
-
-    /**
-     * 将此用户创建的任务修改为项目负责人
-     *
-     * @param oldOwnerUserId
-     * @param newOwnerUserId
-     * @param tenantId
-     */
-    public void updateTaskOwnerUser(Long oldOwnerUserId, Long newOwnerUserId, Long tenantId) {
-        batchTaskDao.updateTaskOwnerUser(oldOwnerUserId, newOwnerUserId, tenantId);
     }
 
 
