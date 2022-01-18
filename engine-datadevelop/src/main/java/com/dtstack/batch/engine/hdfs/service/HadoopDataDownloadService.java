@@ -364,13 +364,8 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
-                 final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-                final String clusterConfig = Engine2DTOService.getCluster(tenantId);
-                Map<String, Object> yarnConf = null;
-                if (StringUtils.isNotBlank(clusterConfig)) {
-                    final JSONObject cluster = JSON.parseObject(clusterConfig);
-                    yarnConf = PublicUtil.strToMap(cluster.getString("yarnConf"));
-                }
+                final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
+                final JSONObject yarnConf = Engine2DTOService.getYarnConf(tenantId);
                 String submitUserName = getSubmitUserNameByJobId(jobId);
                 final LogPluginDownload downloader = new LogPluginDownload(applicationId, yarnConf, hadoopConf, submitUserName, limitNum);
                 return downloader;
@@ -395,12 +390,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
                 final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-                final String clusterConfig = Engine2DTOService.getCluster(tenantId);
-                Map<String, Object> yarnConf = null;
-                if (StringUtils.isNotBlank(clusterConfig)) {
-                    final JSONObject cluster = JSON.parseObject(clusterConfig);
-                    yarnConf = PublicUtil.strToMap(cluster.getString("yarnConf"));
-                }
+                JSONObject yarnConf = Engine2DTOService.getYarnConf(tenantId);
                 String submitUserName = getSubmitUserNameByJobId(jobId);
                 final LogPluginDownload downloader = new LogPluginDownload(applicationId,yarnConf,hadoopConf,submitUserName, limitNum);
                 downloader.configure();

@@ -114,7 +114,7 @@ public class MultiEngineService implements IMultiEngineService {
      */
     @Override
     public List<EJobType> getTenantSupportJobType(Long tenantId) {
-        List<Component> engineSupportVOS = componentService.listComponents(tenantId, null);
+        List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if(CollectionUtils.isEmpty(engineSupportVOS)){
             throw new DtCenterDefException("该租户 console 未配置任何 集群");
         }
