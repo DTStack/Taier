@@ -28,7 +28,6 @@ import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.engine.common.engine.KerberosConfig;
-import com.dtstack.engine.common.enums.EComponentApiType;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
@@ -447,7 +446,7 @@ public enum Engine2DTOService {
     public static Map<String, String> getSftp(Long uicTenantId) {
         JSONObject data = clusterService.getConfigByKey(uicTenantId, EComponentType.SFTP.getConfName(), null);
         if (data == null) {
-            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentApiType.SFTP.name()));
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentType.SFTP.name()));
         }
         Map<String, Object> conf = JSONObject.parseObject(data.toJSONString(), Map.class);
         return conf.entrySet().stream()
@@ -474,7 +473,7 @@ public enum Engine2DTOService {
      * @return
      */
     public static JdbcInfo getHiveServer(Long uicTenantId) {
-        JdbcInfo data = getPluginInfo(uicTenantId, EComponentApiType.HIVE_SERVER);
+        JdbcInfo data = getPluginInfo(uicTenantId, EComponentType.HIVE_SERVER);
         return checkKerberosWithPeriod(uicTenantId, data);
     }
 
@@ -486,7 +485,7 @@ public enum Engine2DTOService {
      * @return
      */
     public static JdbcInfo getSparkThrift(Long uicTenantId) {
-        JdbcInfo data = getPluginInfo(uicTenantId, EComponentApiType.SPARK_THRIFT);
+        JdbcInfo data = getPluginInfo(uicTenantId, EComponentType.SPARK_THRIFT);
         return checkKerberosWithPeriod(uicTenantId, data);
     }
 
@@ -502,7 +501,7 @@ public enum Engine2DTOService {
     private static Map<String, Object> getHdfsInfo(Long uicTenantId) {
         JSONObject data = clusterService.getConfigByKey(uicTenantId, EComponentType.HDFS.getConfName(), null);
         if (data == null) {
-            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentApiType.HDFS.name()));
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, EComponentType.HDFS.name()));
         }
         return JSONObject.parseObject(data.toJSONString(), Map.class);
     }
@@ -511,13 +510,13 @@ public enum Engine2DTOService {
      * 获取集群组件 JDBC 信息
      *
      * @param uicTenantId
-     * @param componentApiType
+     * @param componentType
      * @return
      */
-    private static JdbcInfo getPluginInfo(Long uicTenantId, EComponentApiType componentApiType) {
-        JSONObject configByKey = clusterService.getConfigByKey(uicTenantId, EComponentType.SPARK_THRIFT.getConfName(), null);
+    private static JdbcInfo getPluginInfo(Long uicTenantId, EComponentType componentType) {
+        JSONObject configByKey = clusterService.getConfigByKey(uicTenantId, componentType.getConfName(), null);
         if (configByKey == null) {
-            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, componentApiType.name()));
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, uicTenantId, componentType.getName()));
         }
         return JSONObject.parseObject(configByKey.toString(), JdbcInfo.class);
     }
@@ -527,11 +526,11 @@ public enum Engine2DTOService {
     /**
      * 获取集群的信息
      *
-     * @param uicTenantId
+     * @param tenantId
      * @return
      */
-    public static String getCluster(Long uicTenantId) {
-        return clusterService.clusterInfo(uicTenantId);
+    public static JSONObject getYarnConf(Long tenantId) {
+        return clusterService.getConfigByKey(tenantId,EComponentType.YARN.getConfName(),null);
     }
 
     /**
