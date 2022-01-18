@@ -70,7 +70,7 @@ import com.dtstack.batch.service.impl.BatchSqlExeService;
 import com.dtstack.batch.service.impl.BatchSysParamService;
 import com.dtstack.batch.service.impl.DictService;
 import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
-import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.schedule.TaskService;
@@ -275,7 +275,7 @@ public class BatchTaskService {
     private BatchTaskResourceShadeService batchTaskResourceShadeService;
 
     @Autowired
-    private TenantEngineService tenantEngineService;
+    private TenantComponentService tenantEngineService;
 
     @Autowired
     private BatchJobService batchJobService;
@@ -788,7 +788,7 @@ public class BatchTaskService {
             String sqlTextShade = null == taskShade ? "" : taskShade.getSqlText();
             boolean checkSyntax = !((sqlTextShade != null && sqlTextShade.equals(task.getSqlText()))) && BooleanUtils.isTrue(ignoreCheck);
 
-            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText, engineType);
+            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText);
             if (!syntaxResult.getCheckResult()){
                 checkVo.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
                 checkVo.setErrorMessage(syntaxResult.getMessage());

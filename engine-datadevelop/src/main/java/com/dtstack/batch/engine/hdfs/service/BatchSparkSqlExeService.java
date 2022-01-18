@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.hdfs.service;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.enums.SqlTypeEnums;
 import com.dtstack.batch.service.table.ISqlExeService;
 import com.dtstack.batch.sql.ParseResult;
@@ -31,8 +31,6 @@ import com.dtstack.batch.vo.SqlResultVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.enums.DataSourceType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.enums.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -65,11 +63,11 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
     @Override
     public ExecuteSqlParseVO batchExecuteSql(ExecuteContent executeContent) {
         String preJobId = executeContent.getPreJobId();
-        Integer relationType = executeContent.getRelationType();
+        Integer taskType = executeContent.getTaskType();
         String currDb = executeContent.getParseResult().getCurrentDb();
         Long tenantId = executeContent.getTenantId();
         Long userId = executeContent.getUserId();
-        Long relationId = executeContent.getRelationId();
+        Long taskId = executeContent.getTaskId();
 
 
         List<ParseResult> parseResultList = executeContent.getParseResultList();
@@ -83,7 +81,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         for (ParseResult parseResult : parseResultList) {
             // 简单查询
             if (Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
-                result = simpleQuery(tenantId, parseResult, currDb, userId, executeContent.getEngineType(), EJobType.SPARK_SQL);
+                result = simpleQuery(tenantId, parseResult, currDb, userId, EJobType.SPARK_SQL);
                 if (!result.getIsContinue()) {
                     SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                     sqlResultVO.setSqlId(result.getJobId());
@@ -94,7 +92,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
             }
 
             if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
-                buildSqlVO = batchHadoopSelectSqlService.getSqlIdAndSql(tenantId, parseResult, userId, currDb.toLowerCase(), true, relationId, relationType, preJobId);
+                buildSqlVO = batchHadoopSelectSqlService.getSqlIdAndSql(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, taskType);
                 SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                 sqlResultVO.setSqlId(buildSqlVO.getJobId());
                 sqlResultVO.setType(SqlTypeEnums.SELECT_DATA.getType());
@@ -105,21 +103,21 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
                     || SqlType.QUERY.equals(parseResult.getSqlType())
                     || useSelfFunction) {
 
-                buildSqlVO = batchHadoopSelectSqlService.getSqlIdAndSql(tenantId, parseResult, userId, currDb.toLowerCase(), false, relationId, relationType, preJobId);
+                buildSqlVO = batchHadoopSelectSqlService.getSqlIdAndSql(tenantId, parseResult, userId, currDb.toLowerCase(), false, taskId, taskType);
                 //insert和insert overwrite都没有返回结果
                 sqlIdList.add(new SqlResultVO().setSqlId(buildSqlVO.getJobId()).setType(SqlTypeEnums.SELECT_DATA.getType()));
                 sqlList.add(buildSqlVO.getSql());
 
             } else {
                 if (!executeContent.isExecuteSqlLater()) {
-                    TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), EngineType.Spark.getVal());
+                    TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
                     Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
                     SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                     sqlResultVO.setSqlText(parseResult.getStandardSql());
                     sqlResultVO.setType(SqlTypeEnums.NO_SELECT_DATA.getType());
                     if (SqlType.CREATE.equals(parseResult.getSqlType())
                             || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-                        executeCreateTableSql(parseResult, tenantId, tenantEngine.getEngineIdentity().toLowerCase(), EJobType.SPARK_SQL);
+                        executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), EJobType.SPARK_SQL);
                         sqlResultVO.setMsg(String.format(SHOW_LIFECYCLE, parseResult.getMainTable().getName(), parseResult.getMainTable().getLifecycle()));
                         sqlIdList.add(sqlResultVO);
                     } else {
@@ -133,10 +131,10 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
         String sqlToEngine = StringUtils.join(sqlList,";");
         //除简单查询，其他sql发送到engine执行
-        String jobId =  batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, relationId, relationType);
+        String jobId =  batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, executeContent.getTaskType());
 
         //记录发送到engine的id
-        selectSqlService.addSelectSql(jobId, StringUtils.EMPTY, 0, tenantId, sqlToEngine, userId, StringUtils.EMPTY, MultiEngineType.HADOOP.getType());
+        selectSqlService.addSelectSql(jobId, StringUtils.EMPTY, 0, tenantId, sqlToEngine, userId, StringUtils.EMPTY, taskType);
 
         sqlIdList.sort(Comparator.comparingInt(SqlResultVO::getType));
         executeSqlParseVO.setJobId(jobId);

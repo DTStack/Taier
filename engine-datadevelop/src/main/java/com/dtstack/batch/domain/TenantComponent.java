@@ -28,17 +28,27 @@ import lombok.Data;
  * @author xuchao
  */
 @Data
-public class TenantEngine extends BaseEntity {
+public class TenantComponent extends BaseEntity {
 
-    private Long projectId;
-
+    /**
+     * 租户Id
+     */
     private Long tenantId;
 
-    private Integer engineType;
+    /**
+     * 任务类型
+     */
+    private Integer taskType;
 
+    /**
+     * 状态
+     */
     private Integer status;
 
-    private String engineIdentity;
+    /**
+     * 组件标识
+     */
+    private String componentIdentity;
 
     /**
      * 创建人id
