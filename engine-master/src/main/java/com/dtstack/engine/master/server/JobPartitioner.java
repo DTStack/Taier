@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.server.scheduler;
+package com.dtstack.engine.master.server;
 
 import com.dtstack.engine.master.server.listener.QueueListener;
 import com.dtstack.engine.master.server.queue.GroupInfo;

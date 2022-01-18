@@ -32,7 +32,7 @@ import com.dtstack.engine.master.jobdealer.bo.SimpleJobDelay;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
-import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.master.server.JobPartitioner;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;

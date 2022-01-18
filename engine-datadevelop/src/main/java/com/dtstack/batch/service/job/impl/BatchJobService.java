@@ -224,7 +224,7 @@ public class BatchJobService {
         }
 
         this.checkJobOperateValid(ScheduleJob, userId, ScheduleJob.getTenantId(), isRoot);
-        this.scheduleJobService.stopJob(jobId, AppType.RDOS.getType());
+//        this.scheduleJobService.stopJob(jobId, AppType.RDOS.getType());
         return "success";
     }
 
@@ -511,90 +511,6 @@ public class BatchJobService {
         }
     }
 
-
-    /**
-     * 运行报告
-     *
-     * @param taskId
-     * @param count
-     * @param tenantId
-     * @return
-     */
-    //FIXME 任务类型只统计了完成和失败的。。然后其他状态呢？运行中。。提交中。。。
-    public ScheduleJobExeStaticsVO statisticsTaskRecentInfo(Long taskId, int count, Long tenantId)  {
-        final BatchTask task = this.batchTaskDao.getOne(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-
-        final ScheduleJobExeStaticsVO result = new ScheduleJobExeStaticsVO();
-        result.setTaskType(task.getTaskType());
-        Integer fillDataNum = 0;
-        Integer cronNum = 0;
-        Integer failNum = 0;
-
-        final List<Map<String, Object>> resultMap = this.scheduleJobService.statisticsTaskRecentInfo(taskId, AppType.RDOS.getType(), tenantId, count);
-        for ( Map<String, Object> map : resultMap) {
-            Object execStartTime = map.getOrDefault("execStartTime","0");
-            Object execEndTime = map.getOrDefault("execEndTime","0");
-            String jobId = MapUtils.getString(map, "jobId");
-            Object application = jobId;
-            //需要转化出ApplicationId
-            JSONObject logsBody = new JSONObject(2);
-            logsBody.put("jobId", jobId);
-            logsBody.put("computeType", ComputeType.BATCH.getType());
-
-            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
-            if (null != log){
-                JSONObject logInfo =  log.getLogInfo() != null && log.getLogInfo().contains("jobid") ? JSONObject.parseObject(log.getLogInfo()) : null;
-                if (logInfo != null){
-                    application = logInfo.getOrDefault("jobid",jobId);
-                }
-            }
-
-            final Object status = map.get("status");
-            final Object execTime = map.get("execTime");
-            final Integer type = MathUtil.getIntegerVal(map.get("type"));
-
-            if (EScheduleType.NORMAL_SCHEDULE.getType() == type) {
-                cronNum++;
-            } else {
-                fillDataNum++;
-            }
-            if (status != null) {
-                final Integer statusVal = MathUtil.getIntegerVal(status);
-                if (statusVal.equals(TaskStatus.FINISHED.getStatus())) {
-                    final ScheduleJobExeStaticsVO.BatchJobInfo vo = new ScheduleJobExeStaticsVO.BatchJobInfo();
-                    vo.setJobId(MathUtil.getString(jobId));
-                    vo.setExeTime(MathUtil.getIntegerVal(execTime));
-                    vo.setExeStartTime(MathUtil.getLongVal(execStartTime));
-
-                    if (EJobType.SYNC.getVal().equals(task.getTaskType())) {
-                        //需要添加读取数据条数和脏数据信息
-                        try {
-                            /**
-                             * engine_job表中得log_info字段获取jobid从prometheus中取任务执行信息
-                             */
-                            final SyncStatusLogInfoVO syncJobLogInfo = this.batchServerLogService.getSyncJobLogInfo(application.toString(),taskId,  Long.parseLong(execStartTime.toString()), Long.parseLong( execEndTime.toString()), this.tenantService.getDtuicTenantId(task.getTenantId()));
-                            vo.setTotalCount(Math.toIntExact(syncJobLogInfo.getNumRead()));
-                            vo.setDirtyNum(Math.toIntExact(syncJobLogInfo.getNErrors()));
-                        } catch (final Exception e) {
-                            BatchJobService.logger.error("", e);
-                        }
-                    }
-                    result.addBatchJob(vo);
-                } else if (statusVal.equals(TaskStatus.FAILED.getStatus())) {
-                    failNum++;
-                }
-            }
-        }
-
-        result.setFillDataExeNum(fillDataNum);
-        result.setCronExeNum(cronNum);
-        result.setFailNum(failNum);
-
-        return result;
-    }
 
     public List<String> listJobIdByTaskNameAndStatusList(String taskName, List<Integer> statusList, Long tenantId) {
         return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, tenantId, AppType.RDOS.getType());
