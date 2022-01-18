@@ -38,9 +38,9 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.impl.ClusterService;
-import com.dtstack.engine.master.impl.ComponentConfigService;
-import com.dtstack.engine.master.impl.ComponentService;
+import com.dtstack.engine.master.service.ClusterService;
+import com.dtstack.engine.master.service.ComponentConfigService;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
 import com.dtstack.engine.master.server.scheduler.JobParamReplace;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
@@ -111,7 +111,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
 
     private DateTimeFormatter dayFormatterAll = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    public SyncOperatorPipeline(){
+    public SyncOperatorPipeline() {
         super(null);
     }
 
@@ -127,13 +127,14 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
 
         String taskParams = (String) actionParam.get("taskParams");
         String job = (String) actionParam.get("job");
-        job = replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamShades, job, taskParams);
+        EDeployMode deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams, taskShade.getComputeType());
+        job = this.replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamShades, job, deployMode);
 
         // 构造savepoint参数
         String savepointArgs = null;
         String taskExeArgs = null;
         if (isRestore(job)) {
-            String savepointPath = this.getSavepointPath(taskShade.getTenantId());
+            String savepointPath = this.getSavepointPath(taskShade.getTenantId(), deployMode,taskShade.getComponentVersion());
             savepointArgs = buildSyncTaskExecArgs(savepointPath, taskParams);
 
             taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE);
@@ -149,7 +150,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     }
 
 
-    private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace, String job, String taskParams) {
+    private String replaceSyncJobString(Map<String, Object> actionParam, ScheduleTaskShade taskShade, ScheduleJob scheduleJob, List<ScheduleTaskParamShade> taskParamsToReplace,
+                                        String job, EDeployMode deployMode) {
         if (StringUtils.isBlank(job)) {
             throw new RdosDefineException("Data synchronization information cannot be empty");
         }
@@ -180,7 +182,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
 
         // 查找上一次同步位置
         if (EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
-            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(), taskParams, scheduleJob.getJobId(),taskShade.getComponentVersion());
+            job = getLastSyncLocation(taskShade.getTaskId(), job, scheduleJob.getCycTime(), scheduleJob.getJobId(), taskShade.getComponentVersion(), deployMode);
         } else {
             job = removeIncreConf(job);
         }
@@ -414,7 +416,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
      *
      * @return
      */
-    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, String taskParams, String jobId,String componentVersion) {
+    private String getLastSyncLocation(Long taskId, String jobContent, String cycTime, String jobId, String componentVersion, EDeployMode deployMode) {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
@@ -424,8 +426,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");
                 Object increCol = JSONPath.eval(reader, "$.parameter.increColumn");
                 if (null != increCol && null != job.getExecStartTime() && null != job.getExecEndTime()) {
-                    String lastEndLocation = queryLastLocation(job.getTenantId(),job.getEngineJobId(), job.getExecStartTime().getTime(),
-                            job.getExecEndTime().getTime(), taskParams, job.getComputeType(), jobId,componentVersion);
+                    String lastEndLocation = queryLastLocation(job.getTenantId(), job.getEngineJobId(), job.getExecStartTime().getTime(), job.getExecEndTime().getTime(), deployMode, jobId, componentVersion);
                     LOGGER.info("job {} last job {} applicationId {} startTime {} endTime {} location {}", job, job.getJobId(), job.getEngineJobId(), job.getExecStartTime(), job.getExecEndTime(), lastEndLocation);
                     reader.getJSONObject("parameter").put("startLocation", lastEndLocation);
                 }
@@ -438,28 +439,27 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return jsonJob.toJSONString();
     }
 
-    public String queryLastLocation(Long tenantId,String engineJobId, long startTime, long endTime, String taskParam, Integer computeType, String jobId,String componentVersion) {
+    public String queryLastLocation(Long tenantId, String engineJobId, long startTime, long endTime, EDeployMode deployMode, String jobId, String componentVersion) {
         endTime = endTime + 1000 * 60;
         List<Component> components = componentService.listComponentsByComponentType(tenantId, EComponentType.FLINK.getTypeCode());
         if (CollectionUtils.isEmpty(components)) {
             return null;
         }
         Optional<Component> componentOptional = components.stream().filter(c -> c.getHadoopVersion().equals(componentVersion)).findFirst();
-        if(!componentOptional.isPresent()){
+        if (!componentOptional.isPresent()) {
             return null;
         }
         Map<String, Object> componentConfigToMap = componentConfigService.convertComponentConfigToMap(componentOptional.get().getId(), true);
-        EDeployMode eDeployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
-        Map<String, Object> flinkConfig = (Map<String, Object>)componentConfigToMap.get(eDeployMode.getMode());
-        String prometheusHost = (String)flinkConfig.get("prometheusHost");
-        String prometheusPort = (String)flinkConfig.get("prometheusPort");
-        LOGGER.info("last job {} deployMode {} prometheus host {} port {}", jobId, eDeployMode.getType(), prometheusHost, prometheusPort);
+        Map<String, Object> flinkConfig = (Map<String, Object>) componentConfigToMap.get(deployMode.getMode());
+        String prometheusHost = (String) flinkConfig.get("prometheusHost");
+        String prometheusPort = (String) flinkConfig.get("prometheusPort");
+        LOGGER.info("last job {} deployMode {} prometheus host {} port {}", jobId, deployMode.getType(), prometheusHost, prometheusPort);
         //prometheus的配置信息 从控制台获取
         PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
         IMetric numReadMetric = MetricBuilder.buildMetric("endLocation", engineJobId, startTime, endTime, prometheusMetricQuery);
         if (numReadMetric != null) {
             String startLocation = String.valueOf(numReadMetric.getMetric());
-            LOGGER.info("job {} deployMode {} startLocation [{}]", jobId, eDeployMode.getType(), startLocation);
+            LOGGER.info("job {} deployMode {} startLocation [{}]", jobId, deployMode.getType(), startLocation);
             if (StringUtils.isEmpty(startLocation) || "0".equalsIgnoreCase(startLocation)) {
                 return null;
             }
@@ -494,20 +494,22 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     /**
      * 获取flink任务checkpoint的存储路径
      *
-     * @param dtuicTenantId 租户id
+     * @param tenantId 租户id
      * @return checkpoint存储路径
      */
-    private String getSavepointPath(Long dtuicTenantId) {
-        String clusterInfoStr = clusterService.clusterInfo(dtuicTenantId);
-        JSONObject clusterJson = JSONObject.parseObject(clusterInfoStr);
-        JSONObject flinkConf = clusterJson.getJSONObject(EComponentType.FLINK.getConfName());
-        if (!flinkConf.containsKey(KEY_SAVEPOINT)) {
+    private String getSavepointPath(Long tenantId, EDeployMode deployMode,String componentVersion) {
+        List<Component> components = componentService.listComponentsByComponentType(tenantId, EComponentType.FLINK.getTypeCode());
+        if (CollectionUtils.isEmpty(components)) {
             return null;
         }
-
-        String savepointPath = flinkConf.getString(KEY_SAVEPOINT);
+        Optional<Component> componentOptional = components.stream().filter(c -> c.getHadoopVersion().equals(componentVersion)).findFirst();
+        if (!componentOptional.isPresent()) {
+            return null;
+        }
+        Map<String, Object> componentConfigToMap = componentConfigService.convertComponentConfigToMap(componentOptional.get().getId(), true);
+        Map<String, Object> flinkConfig = (Map<String, Object>) componentConfigToMap.get(deployMode.getMode());
+        String savepointPath = (String) flinkConfig.get(KEY_SAVEPOINT);
         LOGGER.info("savepoint path:{}", savepointPath);
-
         if (StringUtils.isEmpty(savepointPath)) {
             throw new RdosDefineException("savepoint path can not be null");
         }

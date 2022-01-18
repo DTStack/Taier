@@ -1,13 +1,14 @@
 package com.dtstack.engine.master.server.builder;
 
 import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.master.server.ScheduleJobDetails;
 
 import java.util.List;
 
 /**
  * @Auther: dazhi
  * @Date: 2021/12/30 2:57 PM
- * @Email:dazhi@dtstack.com
+ * @Email: dazhi@dtstack.com
  * @Description:
  */
 public interface JobBuilder {

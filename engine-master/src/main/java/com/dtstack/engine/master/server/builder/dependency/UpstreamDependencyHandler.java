@@ -41,7 +41,7 @@ public class UpstreamDependencyHandler extends AbstractDependencyHandler {
                 scheduleJobJob.setTenantId(currentTaskShade.getTenantId());
                 scheduleJobJob.setJobKey(currentJobKey);
                 scheduleJobJob.setParentJobKey(getJobKey(taskShade,currentDate));
-                scheduleJobJob.setParentJobKeyType(RelyType.UPSTREAM.getType());
+                scheduleJobJob.setJobKeyType(RelyType.UPSTREAM.getType());
                 scheduleJobJob.setRule(RelyRule.RUN_SUCCESS.getType());
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {

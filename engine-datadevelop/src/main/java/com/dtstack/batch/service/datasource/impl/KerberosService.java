@@ -16,7 +16,7 @@ import com.dtstack.engine.common.sftp.SFTPHandler;
 import com.dtstack.engine.common.util.DataSourceUtils;
 import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.po.DsInfoBO;
-import com.dtstack.engine.master.impl.ClusterService;
+import com.dtstack.engine.master.service.ClusterService;
 import com.jcraft.jsch.SftpException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

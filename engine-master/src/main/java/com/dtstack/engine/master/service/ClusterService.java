@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-package com.dtstack.engine.master.impl;
+package com.dtstack.engine.master.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dtstack.engine.common.enums.EComponentScheduleType;
-import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EScheduleJobType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.Queue;
@@ -96,7 +94,9 @@ public class ClusterService {
 
     public IPage<Cluster> pageQuery(int currentPage, int pageSize) {
         Page<Cluster> page = new Page<>(currentPage, pageSize);
-        return clusterMapper.selectPage(page, null);
+        return clusterMapper.selectPage(page, Wrappers.lambdaQuery(Cluster.class).eq(
+                Cluster::getIsDeleted,Deleted.NORMAL.getStatus())
+        );
     }
 
 
@@ -156,31 +156,6 @@ public class ClusterService {
         }
     }
 
-    /**
-     * 获取集群在sftp上的路径
-     * 开启kerberos 带上kerberos路径
-     *
-     * @param tenantId
-     * @return
-     */
-    public String clusterSftpDir(Long tenantId, Integer componentType) {
-        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        if (clusterId != null) {
-            if (null == componentType) {
-                componentType = EComponentType.SPARK_THRIFT.getTypeCode();
-            }
-            Map<String, String> sftpConfig = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-            if (sftpConfig != null) {
-                KerberosConfig kerberosDaoByComponentType = kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.isMultiVersionComponent(componentType) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType) : null);
-                if (null != kerberosDaoByComponentType) {
-                    return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType) + File.separator +
-                            ComponentService.KERBEROS_PATH;
-                }
-                return sftpConfig.get("path") + File.separator + componentService.buildSftpPath(clusterId, componentType);
-            }
-        }
-        return null;
-    }
 
     public Queue getQueue(Long tenantId, Long clusterId) {
         //先获取绑定的
@@ -255,6 +230,11 @@ public class ClusterService {
             return configObj;
         }
         return null;
+    }
+
+    public <T> T getComponentByTenantId(Long tenantId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion) {
+        Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
+        return componentService.getComponentByClusterId(clusterId,componentType,isFilter,clazz,componentVersion,null);
     }
 
 
@@ -434,20 +414,13 @@ public class ClusterService {
         LOGGER.info("clear all standalone cache");
     }
 
-    public String clusterInfo(Long dtuicTenantId) {
-        return null;
-    }
-
-    public String dbInfo(Long uicTenantId, Long aLong, int typeCode) {
-        return null;
-    }
-
     public Boolean hasStandalone(Long dtUicTenantId, int typeCode) {
-        return null;
+        return false;
     }
 
     public List<Cluster> getAllCluster() {
-       return clusterMapper.selectList(null);
+       return clusterMapper.selectList(Wrappers.lambdaQuery(Cluster.class)
+               .eq(Cluster::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public ClusterEngineVO getClusterEngine(Long clusterId) {
@@ -490,6 +463,12 @@ public class ClusterService {
             vo.setEngines(engineVOS);
         }
         return vo;
+    }
+
+    public Integer getMetaComponent(Long tenantId) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        Component metadataComponent = componentService.getMetadataComponent(clusterId);
+        return null == metadataComponent ? null : metadataComponent.getComponentTypeCode();
     }
 }
 
