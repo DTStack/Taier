@@ -49,12 +49,6 @@ public class Catalogue extends TenantEntity {
     private Integer level;
 
 
-    /**
-     * 引擎类型
-     */
-    private Integer engineType;
-
-
     private Integer orderVal;
 
     private Integer catalogueType;
@@ -89,14 +83,6 @@ public class Catalogue extends TenantEntity {
 
     public void setLevel(Integer level) {
         this.level = level;
-    }
-
-    public Integer getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(Integer engineType) {
-        this.engineType = engineType;
     }
 
     public Integer getOrderVal() {
