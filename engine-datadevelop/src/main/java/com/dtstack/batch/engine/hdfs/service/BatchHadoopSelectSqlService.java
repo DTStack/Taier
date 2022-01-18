@@ -450,7 +450,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
         if ((TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.FAILED.getStatus().equals(status))
                 && EJobType.HIVE_SQL.getVal().equals(taskType)) {
-            ScheduleJob batchEngineJob = scheduleJobService.getByJobId(jobId, Deleted.NORMAL.getStatus());
+            ScheduleJob batchEngineJob = scheduleJobService.getByJobId(jobId);
 //            buildLog(engineEntity.getLogInfo(), batchEngineJob != null && StringUtils.isNotBlank(batchEngineJob.getEngineLog()) ?
 //                    batchEngineJob.getEngineLog() : null, tenantId, jobId, false, result);
             result.setDownload(null);

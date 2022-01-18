@@ -254,7 +254,7 @@ public class JobRestartDealer {
             batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
             engineJobRetryMapper.insert(batchJobRetry);
         } catch (Throwable e ){
-            LOGGER.error("{}",e);
+            LOGGER.error("",e);
         }
     }
 
