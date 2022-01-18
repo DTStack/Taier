@@ -31,7 +31,6 @@ import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.builder.CycleJobBuilder;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.service.NodeRecoverService;
-import com.dtstack.engine.master.server.scheduler.JobPartitioner;
 import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.data.BrokerHeartNode;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;

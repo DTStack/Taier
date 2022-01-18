@@ -137,7 +137,7 @@ public class BatchServerLogService {
             return null;
         }
 
-        final ScheduleJob job = scheduleJobService.getByJobId(jobId, null);
+        final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -632,7 +632,7 @@ public class BatchServerLogService {
 
     public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long dtUicTenantId) {
 
-        final ScheduleJob job = scheduleJobService.getByJobId(jobId, null);
+        final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
             BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);

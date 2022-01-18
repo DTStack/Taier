@@ -4,6 +4,7 @@ import com.dtstack.engine.common.enums.EScheduleType;
 import com.dtstack.engine.common.enums.IsDeletedEnum;
 import com.dtstack.engine.common.enums.JobCheckStatus;
 import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.master.enums.JobPhaseStatus;
 import com.dtstack.engine.master.server.scheduler.exec.JudgeJobExecOperator;
 import com.dtstack.engine.master.server.scheduler.handler.JudgeNoPassJobHandler;
 import com.dtstack.engine.master.service.ScheduleJobService;
@@ -65,6 +66,8 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
         return scheduleJobService.lambdaQuery().in(ScheduleJob::getJobId, jobIds)
                 .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .eq(ScheduleJob::getStatus, RdosTaskStatus.UNSUBMIT.getStatus())
+                .eq(ScheduleJob::getType, getScheduleType().getType())
+                .eq(ScheduleJob::getPhaseStatus, JobPhaseStatus.CREATE.getCode())
                 .ne(ScheduleJob::getFillId, 0).list();
     }
 
