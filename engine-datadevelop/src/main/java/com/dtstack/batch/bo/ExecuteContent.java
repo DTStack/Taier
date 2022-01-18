@@ -48,19 +48,14 @@ public class ExecuteContent {
     private ParseResult parseResult;
 
     /**
-     * 关联的id，任务或脚本id
+     * 任务id
      */
-    private Long relationId;
+    private Long taskId;
 
     /**
-     * 关联对象类型，0-脚本, 1-任务
+     * 任务类型
      */
-    private Integer relationType;
-
-    /**
-     * 管理对象的具体类型，比如任务的具体类型
-     */
-    private Integer detailType;
+    private Integer taskType;
 
     private boolean isdirtyDataTable;
 
@@ -78,10 +73,6 @@ public class ExecuteContent {
      * ?
      */
     private String preJobId;
-
-    private Integer engineType;
-
-    private Integer tableType;
 
     private boolean isExecuteSqlLater;
 
@@ -129,15 +120,6 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setTableType(Integer tableType) {
-        this.tableType = tableType;
-        return this;
-    }
-
-    public ExecuteContent setEngineType(Integer engineType) {
-        this.engineType = engineType;
-        return this;
-    }
 
     public ExecuteContent setSql(String sql) {
         this.sql = sql;
@@ -164,18 +146,13 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setRelationId(Long relationId) {
-        this.relationId = relationId;
+    public ExecuteContent setTaskId(Long taskId) {
+        this.taskId = taskId;
         return this;
     }
 
-    public ExecuteContent setRelationType(Integer relationType) {
-        this.relationType = relationType;
-        return this;
-    }
-
-    public ExecuteContent setDetailType(Integer detailType) {
-        this.detailType = detailType;
+    public ExecuteContent setTaskType(Integer taskType) {
+        this.taskType = taskType;
         return this;
     }
 

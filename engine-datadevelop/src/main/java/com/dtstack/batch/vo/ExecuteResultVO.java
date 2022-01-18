@@ -46,7 +46,7 @@ public class ExecuteResultVO<T> {
 
     private String download;
 
-    private Integer engineType;
+    private Integer taskType;
 
     private Boolean retryLog;
 

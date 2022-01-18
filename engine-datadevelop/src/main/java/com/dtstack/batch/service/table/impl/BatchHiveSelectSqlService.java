@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.service.table.impl;
 
-import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.dao.BatchSelectSqlDao;
+import com.dtstack.batch.domain.BatchSelectSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 public class BatchHiveSelectSqlService {
 
     @Autowired
-    private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
+    private BatchSelectSqlDao batchHiveSelectSqlDao;
 
     public void deleteByProjectId(Long projectId) {
         batchHiveSelectSqlDao.deleteByTenantId(projectId);
@@ -39,7 +39,7 @@ public class BatchHiveSelectSqlService {
      *
      * @param batchHiveSelectSql
      */
-    public void insert(BatchHiveSelectSql batchHiveSelectSql){
+    public void insert(BatchSelectSql batchHiveSelectSql){
         batchHiveSelectSqlDao.insert(batchHiveSelectSql);
     }
 }
