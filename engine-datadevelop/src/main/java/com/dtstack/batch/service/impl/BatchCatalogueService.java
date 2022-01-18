@@ -168,9 +168,6 @@ public class BatchCatalogueService {
         catalogue.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         catalogue.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
 
-        //保存上级节点引擎类型
-        BatchCatalogue parentDbCatalogue = batchCatalogueDao.getOne(catalogue.getNodePid());
-        catalogue.setEngineType(null == parentDbCatalogue ? 0 : parentDbCatalogue.getEngineType());
         if (null == catalogue.getCatalogueType()) {
             catalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
         }
@@ -241,7 +238,6 @@ public class BatchCatalogueService {
             zeroBatchCatalogue.setNodeName(zeroDict.getDictNameZH());
             zeroBatchCatalogue.setNodePid(DEFAULT_NODE_PID);
             zeroBatchCatalogue.setOrderVal(zeroDict.getDictSort());
-            zeroBatchCatalogue.setEngineType(0);
             zeroBatchCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
             zeroBatchCatalogue.setTenantId(tenantId);
             zeroBatchCatalogue.setCreateUserId(userId);
@@ -251,7 +247,6 @@ public class BatchCatalogueService {
                 for (String oneCatalogueName : oneCatalogueValueAndNameMapping.get(zeroDict.getDictValue())) {
                     //初始化 1 级目录
                     BatchCatalogue oneBatchCatalogue = new BatchCatalogue();
-                    oneBatchCatalogue.setEngineType(this.getMultiTypeByEngine(oneCatalogueName));
                     oneBatchCatalogue.setNodeName(oneCatalogueName);
                     oneBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
                     oneBatchCatalogue.setNodePid(zeroBatchCatalogue.getId());
@@ -300,7 +295,6 @@ public class BatchCatalogueService {
                 BatchCatalogue sqlCatalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.SECOND.getLevel(), tenantId, engineCatalogueType.getDesc());
                 if (Objects.isNull(sqlCatalogue)) {
                     BatchCatalogue addEngineCatalogue = new BatchCatalogue();
-                    addEngineCatalogue.setEngineType(componentType);
                     addEngineCatalogue.setNodeName(engineCatalogueType.getDesc());
                     addEngineCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
                     addEngineCatalogue.setNodePid(functionManager.getId());
@@ -361,7 +355,6 @@ public class BatchCatalogueService {
                     twoBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
                     twoBatchCatalogue.setNodePid(oneBatchCatalogue.getId());
                     twoBatchCatalogue.setTenantId(tenantId);
-                    twoBatchCatalogue.setEngineType(oneBatchCatalogue.getEngineType());
                     twoBatchCatalogue.setCreateUserId(userId);
                     twoBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
                     addOrUpdate(twoBatchCatalogue);
@@ -396,7 +389,6 @@ public class BatchCatalogueService {
         batchTempTaskCatalogue.setNodePid(oneCatalogue.getId());
         batchTempTaskCatalogue.setTenantId(tenantId);
         batchTempTaskCatalogue.setCreateUserId(userId);
-        batchTempTaskCatalogue.setEngineType(oneCatalogue.getEngineType());
 
         List<TemplateCatalogue> templateTaskCatalogues = TemplateCatalogue.getValues();
         HashMap<String, Long> idsMap = new HashMap<>();
@@ -674,11 +666,11 @@ public class BatchCatalogueService {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
 
+        currentCatalogueVO.setTenantId(currentCatalogue.getTenantId());
         currentCatalogueVO.setName(currentCatalogue.getNodeName());
         currentCatalogueVO.setLevel(currentCatalogue.getLevel());
         currentCatalogueVO.setParentId(currentCatalogue.getNodePid());
         currentCatalogueVO.setType(FILE_TYPE_FOLDER);
-        currentCatalogueVO.setEngineType(currentCatalogue.getEngineType());
 
         //获取目录下的资源或任务列表
         if (isGetFile) {
@@ -717,7 +709,7 @@ public class BatchCatalogueService {
                 }
             } else if (FUNCTION_CATALOGUE_TYPE.contains(currentCatalogueVO.getCatalogueType())) {
                 //处理函数目录
-                List<BatchFunction> functionList = batchFunctionService.listByNodePidAndTenantId(tenantId, currentCatalogueVO.getId());
+                List<BatchFunction> functionList = batchFunctionService.listByNodePidAndTenantId(currentCatalogueVO.getTenantId(), currentCatalogueVO.getId());
                 if (CollectionUtils.isNotEmpty(functionList)) {
                     functionList.sort(Comparator.comparing(BatchFunction::getName));
                     for (BatchFunction function : functionList) {

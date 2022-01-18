@@ -301,6 +301,19 @@ public class DatasourceService {
     public Boolean checkConnection(DataSourceVO source) {
         return checkConnectionWithConf(source, null, null);
     }
+
+    /**
+     * 测试联通性
+     * @param id
+     * @return
+     */
+    public Boolean checkConnectionById(Long id) {
+        BatchDataSource dataSource = getOne(id);
+        DataSourceVO dataSourceVO = new DataSourceVO();
+        BeanUtils.copyProperties(dataSource, dataSourceVO);
+        return checkConnectionWithConf(dataSourceVO, null, null);
+    }
+
     /**
      * 检测kerberos认证的数据源连通性
      * @param source

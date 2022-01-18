@@ -22,13 +22,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.CatalogueType;
 import com.dtstack.batch.dao.BatchFunctionDao;
 import com.dtstack.batch.dao.BatchFunctionResourceDao;
-import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchFunction;
 import com.dtstack.batch.domain.BatchFunctionResource;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.BatchFunctionVO;
 import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.engine.common.constrant.PatternConstant;
@@ -39,7 +39,6 @@ import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
-import com.dtstack.batch.service.user.UserService;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -154,10 +153,6 @@ public class BatchFunctionService {
             throw new RdosDefineException("新增函数必须添加资源", ErrorCode.INVALID_PARAMETERS);
         } else {
             checkResourceType(resourceId);
-        }
-        BatchCatalogue parentNode = batchCatalogueService.getOne(batchFunction.getNodePid());
-        if (null != parentNode && parentNode.getEngineType() > 0 && batchFunction.getEngineType() == null) {
-            batchFunction.setEngineType(parentNode.getEngineType());
         }
         try {
 			// id小于0走新增逻辑
