@@ -86,7 +86,7 @@ public class KerberosService {
      * @param userId
      * @return
      */
-    public String getTempLocalKerberosConf(Long userId, Long projectId) {
+    public String getTempLocalKerberosConf(Long userId) {
         return getLocalKerberosPath(null) + File.separator + "USER_" + userId.toString();
     }
 
