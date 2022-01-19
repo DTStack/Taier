@@ -35,7 +35,6 @@ import com.dtstack.batch.service.task.impl.BatchTaskParamShadeService;
 import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.service.task.impl.BatchTaskVersionService;
 import com.dtstack.batch.vo.BatchServerLogVO;
-import com.dtstack.batch.vo.SyncErrorCountInfoVO;
 import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
 import com.dtstack.engine.common.enums.EComponentType;
@@ -77,7 +76,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BatchServerLogService {
@@ -692,76 +696,6 @@ public class BatchServerLogService {
         return new Pair<>(prometheusHost,prometheusPort);
     }
 
-    public SyncStatusLogInfoVO getSyncJobLogInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
-
-        final ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getByTaskId(taskId);
-
-        final SyncStatusLogInfoVO syncStatusLogInfoVO = new SyncStatusLogInfoVO();
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");
-        if (prometheusHostAndPort == null){
-            return syncStatusLogInfoVO;
-        }
-        final PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
-
-        //TODO 之后查询是可以直接获取最后一条记录的方法
-        //防止数据同步执行时间太长 查询prometheus的时候返回exceeded maximum resolution of 11,000 points per timeseries
-        final long maxGapTime = 60 * 1000 * 60 * (long)8;
-        long gapStartTime = startTime;
-        if (endTime - startTime >= maxGapTime) {
-            //超过11,000 points 查询1小时间隔内
-            gapStartTime = endTime - 60 * 1000 * 60;
-        }
-
-        final IMetric numReadMetric = MetricBuilder.buildMetric("numRead", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric byteReadMetric = MetricBuilder.buildMetric("byteRead", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric readDurationMetric = MetricBuilder.buildMetric("readDuration", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric numWriteMetric = MetricBuilder.buildMetric("numWrite", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric byteWriteMetric = MetricBuilder.buildMetric("byteWrite", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric writeDurationMetric = MetricBuilder.buildMetric("writeDuration", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric numErrorMetric = MetricBuilder.buildMetric("nErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        return this.getFormatPerfLogInfo(numReadMetric, byteReadMetric, readDurationMetric, numWriteMetric, byteWriteMetric, writeDurationMetric, numErrorMetric);
-    }
-
-    /**
-     * 获取数据同步任务的脏数据统计信息
-     * @param jobId
-     * @param taskId
-     * @param startTime
-     * @param endTime
-     * @param dtUicTenantId
-     * @return
-     */
-    public SyncErrorCountInfoVO getSyncJobCountInfo(final String jobId, final Long taskId, final long startTime, final long endTime, final Long dtUicTenantId){
-         ScheduleTaskShade scheduleTaskShade = scheduleTaskShadeService.getByTaskId(taskId);
-
-         SyncErrorCountInfoVO countInfoVO = new SyncErrorCountInfoVO();
-         Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,"");
-        if (prometheusHostAndPort == null){
-            return countInfoVO;
-        }
-         PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
-
-        //TODO 之后查询是可以直接获取最后一条记录的方法
-        //防止数据同步执行时间太长 查询prometheus的时候返回exceeded maximum resolution of 11,000 points per timeseries
-        long maxGapTime = 60 * 1000 * 60 * 8L;
-        long gapStartTime = startTime;
-        if (endTime - startTime >= maxGapTime) {
-            //超过11,000 points 查询1小时间隔内
-            gapStartTime = endTime - 60 * 1000 * 60;
-        }
-
-        IMetric nullErrorsMetric = MetricBuilder.buildMetric("nullErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        IMetric duplicateErrorsMetric = MetricBuilder.buildMetric("duplicateErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        IMetric conversionErrorsMetric = MetricBuilder.buildMetric("conversionErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        IMetric otherErrorsMetric = MetricBuilder.buildMetric("otherErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        IMetric numErrorMetric = MetricBuilder.buildMetric("nErrors", jobId, gapStartTime, endTime, prometheusMetricQuery);
-        countInfoVO.setConversionErrors(getLongValue(conversionErrorsMetric.getMetric()));
-        countInfoVO.setNullErrors(getLongValue(nullErrorsMetric.getMetric()));
-        countInfoVO.setDuplicateErrors(getLongValue(duplicateErrorsMetric.getMetric()));
-        countInfoVO.setOtherErrors(getLongValue(otherErrorsMetric.getMetric()));
-        countInfoVO.setNumError(getLongValue(numErrorMetric.getMetric()));
-        return countInfoVO;
-    }
 
     private SyncStatusLogInfoVO getFormatPerfLogInfo(final IMetric numReadMetric, final IMetric byteReadMetric, final IMetric readDurationMetric,
                                                      final IMetric numWriteMetric, final IMetric byteWriteMetric, final IMetric writeDurationMetric,

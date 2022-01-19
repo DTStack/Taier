@@ -39,7 +39,6 @@ import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
 import com.dtstack.batch.domain.BatchTaskParam;
-import com.dtstack.batch.domain.BatchTaskRecord;
 import com.dtstack.batch.domain.BatchTaskResource;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.domain.BatchTaskVersion;
@@ -189,9 +188,6 @@ public class BatchTaskService {
 
     @Autowired
     private BatchTaskParamShadeService batchTaskParamShadeService;
-
-    @Autowired
-    private BatchTaskRecordService batchTaskRecordService;
 
     @Autowired
     private BatchTaskDao batchTaskDao;
@@ -717,13 +713,6 @@ public class BatchTaskService {
      * @param submitStatus 发布状态 {@link ESubmitStatus}
      */
     private void saveRecordAndUpdateSubmitStatus(BatchTask task, Long tenantId, Long userId, Integer taskOperateType, Integer submitStatus) {
-        final BatchTaskRecord record = new BatchTaskRecord();
-        record.setTaskId(this.batchTaskDao.getByName(task.getName(), tenantId).getId());
-        record.setTenantId(task.getTenantId());
-        record.setRecordType(taskOperateType);
-        record.setOperatorId(userId);
-        record.setOperateTime(new Timestamp(System.currentTimeMillis()));
-        this.batchTaskRecordService.saveTaskRecord(record);
         this.updateSubmitStatus(tenantId, task.getId(), submitStatus);
     }
 
@@ -1415,13 +1404,6 @@ public class BatchTaskService {
             batchTaskDao.insert(insertTask);
             task.setTaskId(insertTask.getId());
             task.setId(insertTask.getId());
-            BatchTaskRecord record = new BatchTaskRecord();
-            record.setTaskId(insertTask.getId());
-            record.setTenantId(task.getTenantId());
-            record.setRecordType(TaskOperateType.CREATE.getType());
-            record.setOperatorId(task.getUserId());
-            record.setOperateTime(new Timestamp(System.currentTimeMillis()));
-            batchTaskRecordService.saveTaskRecord(record);
 
 //            parseCreateTaskExeArgs(task);
 
@@ -1772,7 +1754,6 @@ public class BatchTaskService {
     public void deleteTaskInfos(Long taskId, Long tenantId, Long userId) {
         //软删除任务记录
         this.batchTaskDao.deleteById(taskId, Timestamp.valueOf(LocalDateTime.now()), tenantId, userId);
-        this.batchTaskRecordService.removeTaskRecords(taskId, tenantId, userId);
         //删除任务的依赖关系
         this.batchTaskTaskService.deleteTaskTaskByTaskId(taskId);
         //删除关联的数据源资源
