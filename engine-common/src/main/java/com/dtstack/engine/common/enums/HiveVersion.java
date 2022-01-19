@@ -16,34 +16,45 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
 /**
- * <p>分区文件备份状态
+ * hive版本枚举类
  *
  * @author ：wangchuan
- * date：Created in 2:24 下午 2020/12/14
+ * date：Created in 下午3:58 2020/11/9
  * company: www.dtstack.com
  */
-public enum EFileBakStatus {
-
+public enum HiveVersion {
     /**
-     * 未删除
+     * hive1
      */
-    NORMAL(0),
-
+    HIVE_1x("1.x"),
     /**
-     * 已经删除
+     * hive2
      */
-    DELETE(1);
+    HIVE_2x("2.x"),
+    /**
+     * hive3
+     */
+    HIVE_3x("3.x");
 
-    private final Integer val;
+    private String version;
 
-    public Integer getVal() {
-        return val;
+    public String getVersion() {
+        return version;
     }
 
-    EFileBakStatus(Integer val) {
-        this.val = val;
+    HiveVersion(String version) {
+        this.version = version;
+    }
+
+    public static HiveVersion getByVersion(String versionStr) {
+        for (HiveVersion version : values()) {
+            if (version.getVersion().equalsIgnoreCase(versionStr)) {
+                return version;
+            }
+        }
+        return null;
     }
 }
