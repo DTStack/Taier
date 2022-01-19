@@ -99,8 +99,7 @@ public class WorkerOperator {
     }
 
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
-        RdosTaskStatus status = clientOperator.getJobStatus(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
+        RdosTaskStatus status = clientOperator.getJobStatus(this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == status) {
             status = RdosTaskStatus.NOTFOUND;
         }
@@ -108,8 +107,7 @@ public class WorkerOperator {
     }
 
     public String getEngineLog(JobIdentifier jobIdentifier) {
-        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
-        String engineLog = clientOperator.getEngineLog(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
+        String engineLog = clientOperator.getEngineLog(this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == engineLog) {
             engineLog = StringUtils.EMPTY;
         }
@@ -117,8 +115,7 @@ public class WorkerOperator {
     }
 
     public String getCheckpoints(JobIdentifier jobIdentifier) {
-        String taskName = EScheduleJobType.getTaskType(jobIdentifier.getTaskType()).name();
-        String checkPoints = clientOperator.getCheckpoints(taskName, this.getPluginInfo(jobIdentifier), jobIdentifier);
+        String checkPoints = clientOperator.getCheckpoints(this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == checkPoints) {
             checkPoints = StringUtils.EMPTY;
         }
@@ -130,8 +127,8 @@ public class WorkerOperator {
         return clientOperator.stopJob(jobClient);
     }
 
-    public ComponentTestResult testConnect(String engineType, String pluginInfo) {
-        ComponentTestResult testResult = clientOperator.testConnect(engineType, pluginInfo);
+    public ComponentTestResult testConnect(String pluginInfo) {
+        ComponentTestResult testResult = clientOperator.testConnect(pluginInfo);
         if (null == testResult) {
             testResult = new ComponentTestResult();
         }
@@ -139,15 +136,15 @@ public class WorkerOperator {
     }
 
 
-    public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
-        return clientOperator.executeQuery(engineType, pluginInfo, sql, database);
+    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) throws Exception {
+        return clientOperator.executeQuery(pluginInfo, sql, database);
     }
 
-    public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
-        return clientOperator.uploadStringToHdfs(engineType, pluginInfo, bytes, hdfsPath);
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) throws Exception {
+        return clientOperator.uploadStringToHdfs(pluginInfo, bytes, hdfsPath);
     }
 
-    public ClusterResource clusterResource(String engineType, String pluginInfo) throws Exception {
-        return clientOperator.getClusterResource(engineType, pluginInfo);
+    public ClusterResource clusterResource(String pluginInfo) throws Exception {
+        return clientOperator.getClusterResource(pluginInfo);
     }
 }
