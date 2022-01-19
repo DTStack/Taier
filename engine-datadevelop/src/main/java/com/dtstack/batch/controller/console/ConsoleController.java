@@ -153,22 +153,14 @@ public class ConsoleController {
     }
 
     // todo qiuyun test
-    @PostMapping(value = "/testCache2")
-    public R<String> testCache2() throws InterruptedException {
-        //1.测试读取缓存
-        for (int i = 0; i <= 1; i++) {
-            System.out.println(findUser("1001"));
-        }
-        //2.测试缓存失效
-        Thread.sleep(5000);
-        System.out.println("--------------");
-        System.out.println("过期后查询：" + findUser("1001"));
-        //3.测试缓存更新
+    @PostMapping(value = "/findUser")
+    public R<Map<String, String>> findUser() {
+        return R.ok(findUser("1001"));
+    }
+
+    @PostMapping(value = "/removeUser")
+    public R<String> removeUser() {
         updateUser("1001", "name_2");
-        System.out.println("更新后查询：" + findUser("1001"));
-        //4.测试缓存移除
-        // deleteUser("1001");
-        // System.out.println("删除后查询：" + findUser("1001"));
         return R.ok("ok");
     }
 
@@ -189,7 +181,7 @@ public class ConsoleController {
         Map<String, String> user = db.get(uId);
         if (user != null) {
             System.out.println("------->放缓存，key：" + uId);
-            LocalCacheUtil.put(group, uId, user, 3000L);
+            LocalCacheUtil.put(group, uId, user, 100000000L);
         }
         return user;
     }
