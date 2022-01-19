@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.dtcenter.loader.source.DataSourceType;

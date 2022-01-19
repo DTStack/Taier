@@ -16,36 +16,54 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
 /**
- *
+ * @author jiangbo
+ * @date 2018/6/27 15:36
  */
-public enum HadoopConfig {
+public enum TempJobType {
 
     /**
-     * HDFS 配置
+     *
      */
-    HDFS_DEFAULTFS("defaultFS"),
-
+    SELECT(1),
     /**
-     * HDFS 正则
+     *
      */
-    DEFAULT_FS_REGEX("hdfs://.*"),
-
+    INSERT(0),
     /**
-     * 高可用配置
+     *
      */
-    HADOOP_CONFIG("hadoopConfig");
+    CREATE_AS(2),
+    /**
+     *
+     */
+    SIMPLE_SELECT(3),
+    /**
+     *
+     */
+    PYTHON_SHELL(4),
+    /**
+     *
+     */
+    SYNC_TASK(5),
+    /**
+     *
+     */
+    CARBON_SQL(6),
+    /**
+     *
+     */
+    CREATE(7);
 
-    private String val;
+    private Integer type;
 
-    public String getVal() {
-        return val;
+    TempJobType(Integer type) {
+        this.type = type;
     }
 
-    HadoopConfig(String val) {
-        this.val = val;
+    public Integer getType() {
+        return type;
     }
-
 }

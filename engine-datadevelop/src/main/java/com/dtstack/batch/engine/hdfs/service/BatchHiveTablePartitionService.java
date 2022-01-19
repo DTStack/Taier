@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.hdfs.service;
 
 
-import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.service.table.ITablePartitionService;
 import org.springframework.beans.factory.annotation.Autowired;

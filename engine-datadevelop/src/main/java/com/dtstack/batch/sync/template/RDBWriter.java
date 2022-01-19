@@ -20,13 +20,12 @@ package com.dtstack.batch.sync.template;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.constant.PublicConstent;
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.util.ColumnUtil;
 import com.dtstack.engine.common.exception.DtCenterDefException;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
  * create: 2017/5/12
  */
 public class RDBWriter extends RDBBase implements Writer {
+    public final String UPSERT = "upsert";
 
     public RDBWriter() {
     }
@@ -132,11 +132,11 @@ public class RDBWriter extends RDBBase implements Writer {
             case Phoenix:
                 writer.put("name", PluginName.Phoenix_W);
                 // 特殊处理写入模式，200302_3.10_beta2 只支持 upsert
-                parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? PublicConstent.UPSERT : this.getWriteMode());
+                parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? UPSERT : this.getWriteMode());
                 break;
             case Phoenix5:
                 writer.put("name", PluginName.Phoenix5_W);
-                parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? PublicConstent.UPSERT : this.getWriteMode());
+                parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? UPSERT : this.getWriteMode());
                 break;
             case DMDB:
                 writer.put("name", PluginName.DM_W);
