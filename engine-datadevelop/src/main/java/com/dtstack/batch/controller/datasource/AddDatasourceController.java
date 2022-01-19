@@ -170,7 +170,7 @@ public class AddDatasourceController {
                     throw new PubSvcDefineException("dataSource name empty");
                 }
                 params.put(RESOURCE, resource);
-                return datasourceService.addOrUpdateSourceWithKerberos(dataSourceVo, resource, dataSourceVo.getProjectId(), dataSourceVo.getUserId(), dataSourceVo.getTenantId());
+                return datasourceService.addOrUpdateSourceWithKerberos(dataSourceVo, resource, dataSourceVo.getUserId(), dataSourceVo.getTenantId());
             }
         }.execute();
     }
@@ -184,7 +184,7 @@ public class AddDatasourceController {
         params.remove(RESOURCE);
         DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
         params.put(RESOURCE, resource);
-        return R.ok(datasourceService.getPrincipalsWithConf(dataSourceVo, resource, dataSourceVo.getTenantId(), dataSourceVo.getProjectId(), dataSourceVo.getUserId()));
+        return R.ok(datasourceService.getPrincipalsWithConf(dataSourceVo, resource, dataSourceVo.getUserId()));
     }
 
     @PostMapping(value = "tablelist")
