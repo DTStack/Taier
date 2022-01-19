@@ -18,20 +18,16 @@
 
 package com.dtstack.batch.engine.core.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.domain.TenantEngine;
-import com.dtstack.batch.engine.core.domain.MultiEngineFactory;
+import com.dtstack.batch.engine.core.domain.MultiComponentFactory;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
-import com.dtstack.batch.service.impl.TenantEngineService;
-import com.dtstack.batch.service.multiengine.EngineInfo;
+import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EScriptType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -39,14 +35,18 @@ import com.dtstack.engine.domain.Component;
 import com.dtstack.engine.master.service.ComponentService;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -63,7 +63,7 @@ public class MultiEngineService implements IMultiEngineService {
     private static final Logger LOG = LoggerFactory.getLogger(MultiEngineService.class);
 
     @Autowired
-    private TenantEngineService tenantEngineService;
+    private TenantComponentService tenantEngineService;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -122,7 +122,7 @@ public class MultiEngineService implements IMultiEngineService {
         if (CollectionUtils.isNotEmpty(tenantSupportMultiEngine)) {
             List<Integer> usedEngineTypeList = tenantEngineService.getUsedEngineTypeList(tenantId);
 
-            List<EComponentType> componentTypeByEngineType = MultiEngineFactory.getComponentTypeByEngineType(usedEngineTypeList);
+            List<EComponentType> componentTypeByEngineType = MultiComponentFactory.getComponentTypeByEngineType(usedEngineTypeList);
             List<Integer> userEcomponentList = componentTypeByEngineType.stream().map(EComponentType::getTypeCode).collect(Collectors.toList());
             //项目配置  和 租户 支持 引擎交集
             Sets.SetView<Integer> intersection = Sets.intersection(new HashSet<>(tenantSupportMultiEngine), new HashSet<>(userEcomponentList));
@@ -199,70 +199,6 @@ public class MultiEngineService implements IMultiEngineService {
         return supportType;
     }
 
-
-    @Override
-    public List<EScriptType> getTenantSupportScriptType(Long tenantId) {
-        return null;
-    }
-
-
-    @Override
-    public EngineInfo getEnginePluginInfo(Long tenantId, Integer engineType) {
-        String jsonStr = Engine2DTOService.getEnginePluginInfo(tenantId, engineType);
-        if (StringUtils.isEmpty(jsonStr)) {
-            throw new RdosDefineException(String.format("该租户 console 集群类型 %d 未配置任何插件.", engineType));
-        }
-
-        Map<String, String> pluginMap;
-        try {
-            pluginMap = JSONObject.parseObject(jsonStr, HashMap.class);
-        } catch (Exception e) {
-            LOG.error("get engine plugin with tenantId:{}, type:{} , consoleResultJson:{}", tenantId, engineType, jsonStr);
-            throw new RdosDefineException(String.format("解析 console 返回json 失败。原因是：%s", e.getMessage()));
-        }
-
-        if (MapUtils.isEmpty(pluginMap)) {
-            throw new RdosDefineException("解析 console 返回json 为空! consoleResultJson:" + jsonStr);
-        }
-
-        EngineInfo engineInfo = MultiEngineFactory.createEngineInfo(engineType);
-        //如果是Hadoop、Libra、ADB For PG 引擎，则需要替换jdbc信息中的%s为数据库名称
-        if (buildUrlEngineType.contains(engineType)){
-            int eComponentType;
-            //处理Libra引擎
-            if(MultiEngineType.LIBRA.getType() == engineType){
-                eComponentType = EComponentType.LIBRA_SQL.getTypeCode();
-            } else if(MultiEngineType.ANALYTICDB_FOR_PG.getType() == engineType){
-                eComponentType = EComponentType.ANALYTICDB_FOR_PG.getTypeCode();
-            } else {
-                //处理Hadoop引擎，Hadoop引擎则获取mete数据源
-                DataSourceType dataSourceType = this.getTenantSupportHadoopMetaDataSource(tenantId);
-                eComponentType = datasourceService.getEComponentTypeByDataSourceType(dataSourceType.getVal());
-                pluginMap.put("metePluginInfo", pluginMap.get(eComponentType + ""));
-            }
-
-            TenantEngine projectEngine = tenantEngineService.getByTenantAndEngineType(tenantId, engineType);
-            String dbName = projectEngine == null? null : projectEngine.getEngineIdentity();
-            String pluginInfo = pluginMap.get(eComponentType + "");
-            if (StringUtils.isNotBlank(dbName) && StringUtils.isNotBlank(pluginInfo)) {
-                JSONObject pluginInfoJsonObj = JSONObject.parseObject(pluginInfo);
-                if(pluginInfoJsonObj != null  && pluginInfoJsonObj.getString("jdbcUrl") != null){
-                    //用dbName替换console返回的jdbcUrl中的%s
-                    pluginInfoJsonObj.put("jdbcUrl", buildUrl(pluginInfoJsonObj.getString("jdbcUrl"), dbName, engineType));
-                    pluginMap.put(eComponentType + "", pluginInfoJsonObj.toJSONString());
-                    //在下面的init方法中不知道Hadoop的组件类型，所以Hadoop使用单独的字段存放jdbc连接信息
-                    if (engineType.equals(MultiEngineType.HADOOP.getType())){
-                        pluginMap.put("metePluginInfo", pluginInfoJsonObj.toJSONString());
-                    }
-                }
-            }
-        }
-
-        if (Objects.nonNull(engineInfo)) {
-            engineInfo.init(pluginMap);
-        }
-        return engineInfo;
-    }
 
     /**
      * 拼接jdbcUrl中db或者schema信息

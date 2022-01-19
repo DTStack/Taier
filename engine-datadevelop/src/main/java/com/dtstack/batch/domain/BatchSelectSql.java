@@ -27,31 +27,47 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 @Data
-public class BatchHiveSelectSql extends TenantEntity {
+public class BatchSelectSql extends TenantEntity {
 
     /**
      * 高级运行时，复杂查询所在的批量提交到engine的job的jobId
      */
     private String fatherJobId;
 
+    /**
+     * 实例id
+     */
     private String jobId;
 
+    /**
+     * 临时表名称（临时表用于存放查询的结果）
+     */
     private String tempTableName;
 
     /**
-     * 当前这个名称标识taskType
+     * SQL语法的类型
      */
     private int isSelectSql;
 
+    /**
+     * 任务的SQL
+     */
     private String sqlText;
 
+    /**
+     * 字段信息
+     */
     private String parsedColumns;
 
+    /**
+     * 用户id
+     */
     private Long userId;
 
-    private int engineType;
-
-    private Integer otherType;
+    /**
+     * 引擎类型
+     */
+    private int taskType;
 
     public int getIsSelectSql() {
         return isSelectSql;

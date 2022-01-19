@@ -22,15 +22,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.ETableType;
 import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.domain.BatchHiveSelectSql;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.domain.BatchSelectSql;
+import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
 import com.dtstack.batch.engine.rdbms.hive.service.LogPluginDownload;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.mapping.JobTypeDataSourceTypeMapping;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
-import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.batch.service.job.impl.BatchJobService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
@@ -41,7 +41,7 @@ import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.domain.ScheduleJob;
@@ -49,7 +49,6 @@ import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
-import com.dtstack.engine.pluginapi.util.PublicUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -92,7 +91,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private ScheduleActionService actionService;
 
     @Autowired
-    private TenantEngineService tenantEngineService;
+    private TenantComponentService tenantEngineService;
 
     @Autowired
     private BatchJobService batchJobService;
@@ -123,16 +122,16 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         Integer jobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType.getVal());
 
-        BatchHiveSelectSql batchHiveSelectSql = batchSelectSqlService.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+        BatchSelectSql batchHiveSelectSql = batchSelectSqlService.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
         tableName = batchHiveSelectSql.getTempTableName();
 
-        TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(0L, MultiEngineType.HADOOP.getType());
+        TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, EScheduleJobType.SPARK_SQL.getType());
         Preconditions.checkNotNull(tenantEngine, String.format("tenant %d not support hadoop engine.", tenantId));
         // 简单查询逻辑更改
         if (batchHiveSelectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
             return getSimpleSelectDownLoader(tenantId, batchHiveSelectSql.getSqlText(), jobType);
         }
-        return getDownloader(tenantId, tableName, tenantEngine.getEngineIdentity(), dataSourceType.getVal());
+        return getDownloader(tenantId, tableName, tenantEngine.getComponentIdentity(), dataSourceType.getVal());
     }
 
     /**
@@ -252,9 +251,9 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         List<String> fieldNamesShow = BatchHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
         String db = matcher.group("db");
         if (StringUtils.isEmpty(db)) {
-            TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, MultiEngineType.HADOOP.getType());
+            TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, taskType);
             Preconditions.checkNotNull(tenantEngine, String.format("项目:%d 不支持引擎:HADOOP", tenantId));
-            db = tenantEngine.getEngineIdentity();
+            db = tenantEngine.getComponentIdentity();
         }
         String tableName = matcher.group("name");
         return getSelectDownLoader(tenantId, queryFieldNames, fieldNamesShow, false, db, tableName, null, taskType);
