@@ -4,6 +4,8 @@ import com.dtstack.engine.master.zookeeper.ZkService;
 import com.dtstack.engine.master.zookeeper.watcher.LocalCacheWatcher;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class LocalCacheUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalCacheUtil.class);
+
     /**
      * {group:Cache}
      */
@@ -79,21 +83,19 @@ public class LocalCacheUtil {
         if (cache != null) {
             cache.invalidate(key);
         }
-        // todo test
         zkService.delete(group, key);
     }
 
-    static void removeLocal(String group, String key) {
+    public static void removeLocal(String group, String key) {
         PathUtil.check(group, "group");
         PathUtil.check(key, "key");
         Cache cache = cacheMap.get(group);
         if (cache != null) {
             cache.invalidate(key);
         }
-        // todo why not delete
     }
 
-    static void removeAll() {
+    public static void removeAll() {
         for (String group : cacheMap.keySet()) {
             Cache cache = cacheMap.get(group);
             if (cache != null) {
@@ -110,7 +112,6 @@ public class LocalCacheUtil {
      * @return cache
      */
     private static Cache getCache(String group, Long expireInMillisecond) {
-        // todo test
         return cacheMap.computeIfAbsent(group, k -> CacheBuilder.newBuilder()
                 .maximumSize(2000)
                 .expireAfterWrite(expireInMillisecond, TimeUnit.MILLISECONDS)
