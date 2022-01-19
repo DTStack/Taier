@@ -16,41 +16,36 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
-public enum FileMergeType {
-
-    /**
-     * 周期性治理
-     */
-    PERIOD(1,"周期性治理"),
+/**
+ *
+ */
+public enum HadoopConfig {
 
     /**
-     * 一次性治理
+     * HDFS 配置
      */
-    ONECE(2,"一次性治理");
+    HDFS_DEFAULTFS("defaultFS"),
 
-    private Integer type;
-    private String desc;
+    /**
+     * HDFS 正则
+     */
+    DEFAULT_FS_REGEX("hdfs://.*"),
 
-    FileMergeType(Integer type, String desc) {
-        this.type = type;
-        this.desc = desc;
+    /**
+     * 高可用配置
+     */
+    HADOOP_CONFIG("hadoopConfig");
+
+    private String val;
+
+    public String getVal() {
+        return val;
     }
 
-    public Integer getType() {
-        return type;
+    HadoopConfig(String val) {
+        this.val = val;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
 }
