@@ -1,17 +1,14 @@
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
-import com.dtstack.batch.common.exception.PubSvcDefineException;
-import com.dtstack.batch.utils.Asserts;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.engine.common.util.Strings;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -115,7 +112,6 @@ public enum DataSourceTypeEnum {
      * @return
      */
     public static DataSourceTypeEnum typeVersionOf(String dataType, String dataVersion) {
-        Asserts.hasText(dataType, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE.getDescription());
         if (StringUtils.isBlank(dataVersion)) {
             dataVersion = StringUtils.EMPTY;
         }

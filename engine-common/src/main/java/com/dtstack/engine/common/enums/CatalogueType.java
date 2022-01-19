@@ -16,58 +16,57 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
+package com.dtstack.engine.common.enums;
 
 /**
- * Reason:
- * Date: 2017/11/10
- * Company: www.dtstack.com
- * @author xuchao
+ * @author jiangbo
+ * @time 2017/12/20
  */
-public enum EDeployType {
+public enum CatalogueType {
 
     /**
-     *
+     * 任务开发
      */
-    STANDALONE(0, "standlone"),
+    TASK_DEVELOP("TaskDevelop"),
 
     /**
-     *
+     * 资源管理
      */
-    YARN(1, "yarn"),
+    RESOURCE_MANAGER("ResourceManager"),
 
     /**
-     *
+     * 自定义函数
      */
-    MESOS(2, "mesos"),
+    CUSTOM_FUNCTION("CustomFunction"),
 
     /**
-     *
+     * 系统函数
      */
-    LIBRA(3, "libra");
+    SYSTEM_FUNCTION("SystemFunction"),
 
-    int type;
+    /**
+     * 存储过程
+     */
+    PROCEDURE_FUNCTION("ProcedureFunction"),
 
-    String name;
+    /**
+     * spark系统函数
+     */
+    SPARKSQL_FUNCTION("SparkSQLFunction"),
 
-    EDeployType(int type, String name){
+    /**
+     * 函数管理
+     */
+    FUNCTION_MANAGER("FunctionManager");
+
+
+    private String type;
+
+    CatalogueType(String type) {
         this.type = type;
-        this.name = name;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

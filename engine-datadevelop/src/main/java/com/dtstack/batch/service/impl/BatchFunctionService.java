@@ -19,7 +19,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.CatalogueType;
+import com.dtstack.engine.common.enums.CatalogueType;
 import com.dtstack.batch.dao.BatchFunctionDao;
 import com.dtstack.batch.dao.BatchFunctionResourceDao;
 import com.dtstack.batch.domain.BatchFunction;
