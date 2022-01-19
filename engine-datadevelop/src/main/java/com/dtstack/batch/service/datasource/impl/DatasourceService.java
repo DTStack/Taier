@@ -226,14 +226,14 @@ public class DatasourceService {
      * @param userId
      * @return
      */
-    public List<String> getPrincipalsWithConf(DataSourceVO source, Pair<String, String> resource, Long dtuicTenantId, Long projectId, Long userId) {
+    public List<String> getPrincipalsWithConf(DataSourceVO source, Pair<String, String> resource, Long userId) {
         String localKerberosPath;
         Map<String, Object> kerberosConfig;
         // 获取数据源类型，这里要做type version的改造
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(),source.getDataVersion());
         IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
         if (Objects.nonNull(resource)) {
-            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 // 解析Zip文件获取配置对象
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
@@ -336,7 +336,7 @@ public class DatasourceService {
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
         IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
         if (Objects.nonNull(resource)) {
-            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
             } catch (IOException e) {
@@ -414,13 +414,12 @@ public class DatasourceService {
      * 上传Kerberos添加和修改数据源
      * @param dataSourceVO
      * @param resource
-     * @param projectId
      * @param userId
      * @param dtuicTenantId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long projectId, Long userId, Long dtuicTenantId) {
+    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long dtuicTenantId) {
         Map<String, Object> confMap;
         JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
         dataSourceVO.setDataJson(dataJson);
@@ -430,7 +429,7 @@ public class DatasourceService {
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dataSourceVO.getDataType(), dataSourceVO.getDataVersion());
         if (Objects.nonNull(resource)) {
             //resource不为空表示本地上传文件
-            localKerberosConf = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosConf = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 confMap = ClientCache.getKerberos(typeEnum.getVal()).parseKerberosFromUpload(resource.getRight(), localKerberosConf);
             } catch (IOException e) {
