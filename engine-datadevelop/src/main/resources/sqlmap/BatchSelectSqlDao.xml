@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.batch.dao.BatchHiveSelectSqlDao">
+<mapper namespace="com.dtstack.batch.dao.BatchSelectSqlDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,engine_type, other_type
+      id,tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.batch.domain.BatchHiveSelectSql">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM rdos_batch_hive_select_sql
-        WHERE id = #{id} AND is_deleted = 0
-    </select>
 
-    <select id="getByJobId"  resultType="com.dtstack.batch.domain.BatchHiveSelectSql">
+    <select id="getByJobId"  resultType="com.dtstack.batch.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql
@@ -27,9 +21,9 @@
 
     <insert id="insert">
         insert into rdos_batch_hive_select_sql
-        (tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,engine_type, other_type)
+        (tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type)
         values
-        (#{tenantId},#{jobId},#{tempTableName},#{isSelectSql},now(),now(),0,#{sqlText},#{userId},#{parsedColumns},#{engineType},#{otherType})
+        (#{tenantId},#{jobId},#{tempTableName},#{isSelectSql},now(),now(),0,#{sqlText},#{userId},#{parsedColumns},#{taskType})
     </insert>
 
     <update id="updateGmtModify">
@@ -46,7 +40,7 @@
         and tenant_id = #{tenantId} and is_deleted = 0
     </update>
 
-    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.batch.domain.BatchHiveSelectSql">
+    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.batch.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql
@@ -72,7 +66,7 @@
         AND is_deleted = 0;
     </update>
 
-    <select id="listBySqlType"  resultType="com.dtstack.batch.domain.BatchHiveSelectSql">
+    <select id="listBySqlType"  resultType="com.dtstack.batch.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql

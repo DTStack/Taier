@@ -22,12 +22,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.common.enums.TempJobType;
 import com.dtstack.batch.dao.BatchTaskDao;
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.dto.BatchParamDTO;
 import com.dtstack.batch.enums.EScheduleType;
-import com.dtstack.batch.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.impl.BatchServerLogService;
@@ -44,13 +43,21 @@ import com.dtstack.batch.vo.SyncStatusLogInfoVO;
 import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.TaskStatus;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.JsonUtils;
 import com.dtstack.engine.common.util.MathUtil;
 import com.dtstack.engine.common.util.SessionUtil;
-import com.dtstack.engine.domain.*;
+import com.dtstack.engine.domain.BatchTask;
+import com.dtstack.engine.domain.ScheduleJob;
+import com.dtstack.engine.domain.ScheduleTaskShade;
+import com.dtstack.engine.domain.Tenant;
+import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
 import com.dtstack.engine.master.service.ScheduleActionService;
@@ -161,17 +168,11 @@ public class BatchJobService {
      * @throws Exception
      */
     public String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
-        //根据任务类型获取引擎类型
-        MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(batchTask.getTaskType());
-        if (Objects.isNull(multiEngineType)) {
-            throw new RdosDefineException(ErrorCode.COMPONENT_TYPE_UNDEFINED);
-        }
-
         //任务参数若为null，则表示是提交任务，否则就是临时运行任务
         if(taskParamsToReplace == null){
             taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(batchTask.getId());
         }
-        IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
+        IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(batchTask.getTaskType());
 
         //构建任务运行完整信息
         final Map<String, Object> actionParam = Maps.newHashMap();
@@ -185,7 +186,6 @@ public class BatchJobService {
         actionParam.put("tenantId", batchTask.getTenantId());
         actionParam.put("isFailRetry", false);
         actionParam.put("maxRetryNum", 0);
-        actionParam.put("multiEngineType", multiEngineType.getType());
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
 
         User user;
@@ -250,7 +250,7 @@ public class BatchJobService {
      *
      * @return
      */
-    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId, String taskParams) {
+    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId) {
         BatchStartSyncResultVO batchStartSyncResultVO = new BatchStartSyncResultVO();
         batchStartSyncResultVO.setMsg(null);
         batchStartSyncResultVO.setJobId(null);
@@ -267,7 +267,7 @@ public class BatchJobService {
 
         try {
 
-            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(MultiEngineType.HADOOP.getType());
+            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
             final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
             String extroInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
@@ -285,7 +285,7 @@ public class BatchJobService {
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
             this.batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
-                    job, userId, MultiEngineType.HADOOP.getType());
+                    job, userId, EJobType.SPARK_SQL.getType());
 
             batchStartSyncResultVO.setMsg("任务提交成功,名称为:" + name);
             batchStartSyncResultVO.setJobId(jobId);
@@ -404,7 +404,7 @@ public class BatchJobService {
                         logBuild.append("\n");
                     }
 
-                    final BatchHiveSelectSql batchHiveSelectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, 0);
+                    final BatchSelectSql batchHiveSelectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, 0);
                     if (batchHiveSelectSql != null) {
                         logBuild.append("====================任务信息====================\n");
                         final String sqlLog=batchHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")","$1**$3");
@@ -464,12 +464,12 @@ public class BatchJobService {
         final User user = userService.getById(userId);
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;", dtToken, user.getId(), user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
-        MultiEngineType multiEngineType = null;
         try {
             final BatchTask task = this.batchTaskDao.getOne(taskId);
             if (task == null) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
             }
+            result.setTaskType(task.getTaskType());
             //真正运行的SQL是页面传入的SQL
             task.setSqlText(sql);
 
@@ -484,8 +484,7 @@ public class BatchJobService {
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
 
-            multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(multiEngineType.getType());
+            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, isRoot, task, dtToken, isEnd, jobId);
         } catch (final Exception e) {
             BatchJobService.logger.warn("startSqlImmediately-->", e);
@@ -493,10 +492,6 @@ public class BatchJobService {
             result.setStatus(TaskStatus.FAILED.getStatus());
             result.setSqlText(sql);
             return result;
-        } finally {
-            if (null != multiEngineType && Objects.nonNull(result)) {
-                result.setEngineType(multiEngineType.getType());
-            }
         }
         return result;
     }

@@ -18,9 +18,9 @@
 
 package com.dtstack.batch.service.table.impl;
 
-import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
+import com.dtstack.batch.dao.BatchSelectSqlDao;
 import com.dtstack.batch.dao.BatchTaskDao;
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import com.dtstack.batch.vo.ExecuteResultVO;
@@ -54,7 +54,7 @@ public class BatchSelectSqlService {
     private BatchTaskDao batchTaskDao;
 
     @Autowired
-    private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
+    private BatchSelectSqlDao batchHiveSelectSqlDao;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -142,14 +142,14 @@ public class BatchSelectSqlService {
      * @return
      */
     private ExecuteSelectSqlData beforeGetResult(String jobId, Long taskId, Long tenantId, Integer type, String sqlId){
-        BatchHiveSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
+        BatchSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
         Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
         if (StringUtils.isNotEmpty(sqlId)){
             batchHiveSelectSql.setFatherJobId(jobId);
             batchHiveSelectSql.setJobId(sqlId);
         }
-        IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getEngineType());
-        Preconditions.checkNotNull(selectSqlService, String.format("不支持引擎类型 %d", batchHiveSelectSql.getEngineType()));
+        IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getTaskType());
+        Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", batchHiveSelectSql.getTaskType()));
         BatchTask batchTask = batchTaskDao.getOne(taskId);;
         Integer taskType = null;
         if (Objects.nonNull(batchTask)) {
@@ -162,8 +162,8 @@ public class BatchSelectSqlService {
     }
 
 
-    public BatchHiveSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
-        BatchHiveSelectSql selectSql = batchHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
+    public BatchSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
+        BatchSelectSql selectSql = batchHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
         if (selectSql == null){
             throw new RdosDefineException("select job not exists");
         }
@@ -181,13 +181,13 @@ public class BatchSelectSqlService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId, Integer engineType) {
-        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, null,engineType);
+    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId, Integer taskType) {
+        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, null, taskType);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer engineType){
-        BatchHiveSelectSql hiveSelectSql = new BatchHiveSelectSql();
+    public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer taskType){
+        BatchSelectSql hiveSelectSql = new BatchSelectSql();
         hiveSelectSql.setJobId(jobId);
         hiveSelectSql.setTempTableName(tempTable);
         hiveSelectSql.setTenantId(tenantId);
@@ -195,7 +195,7 @@ public class BatchSelectSqlService {
         hiveSelectSql.setSqlText(sql);
         hiveSelectSql.setUserId(userId);
         hiveSelectSql.setParsedColumns(parsedColumns);
-        hiveSelectSql.setEngineType(engineType);
+        hiveSelectSql.setTaskType(taskType);
 
         batchHiveSelectSqlDao.insert(hiveSelectSql);
     }

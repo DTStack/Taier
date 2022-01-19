@@ -105,7 +105,7 @@ public class BatchJobController {
 
             @Override
             protected BatchStartSyncResultVO process() throws RdosDefineException {
-                return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId(), vo.getTaskParams());
+                return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId());
             }
         }.execute();
     }

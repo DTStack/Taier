@@ -18,10 +18,8 @@
 
 package com.dtstack.batch.service.datasource.impl;
 
-import com.dtstack.batch.service.multiengine.EngineInfo;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.EScriptType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.common.enums.EJobType;
 
 import java.util.List;
 
@@ -50,7 +48,4 @@ public interface IMultiEngineService {
 
     List<EJobType> getTenantSupportJobType(Long tenantId);
 
-    EngineInfo getEnginePluginInfo(Long tenantId, Integer type);
-
-    List<EScriptType> getTenantSupportScriptType(Long tenantId);
 }
