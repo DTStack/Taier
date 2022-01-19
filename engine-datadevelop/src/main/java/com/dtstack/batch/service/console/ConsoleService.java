@@ -29,10 +29,9 @@ import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.console.ConsoleJobInfoVO;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
@@ -99,9 +98,6 @@ public class ConsoleService {
 
     @Autowired
     private WorkerOperator workerOperator;
-
-    @Autowired
-    private JobComputeResourcePlain jobComputeResourcePlain;
 
     @Autowired
     private KerberosMapper kerberosMapper;
@@ -457,7 +453,7 @@ public class ConsoleService {
                         EComponentType.YARN.getTypeCode(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
-            return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
+            return workerOperator.clusterResource(pluginInfo.toJSONString());
         } catch (Exception e) {
             LOGGER.error("getResources error: ", e);
             throw new RdosDefineException("acquire flink resources error.");
