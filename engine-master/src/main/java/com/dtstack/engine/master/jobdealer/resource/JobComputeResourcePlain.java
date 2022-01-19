@@ -26,12 +26,8 @@ import com.dtstack.engine.mapper.ClusterMapper;
 import com.dtstack.engine.mapper.ClusterTenantMapper;
 import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.pluginapi.JobClient;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.SPLIT;
@@ -67,12 +63,12 @@ public class JobComputeResourcePlain {
         String plainType = environmentContext.getComputeResourcePlain();
         String jobResource = null;
         if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
-            jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName();
+            jobResource = jobClient.getTaskType() + SPLIT + jobClient.getGroupName();
         } else {
-            jobResource = jobClient.getEngineType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
+            jobResource = jobClient.getTaskType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
 
-        String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType())?jobClient.getType()+"":"";
+        String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType()) ? jobClient.getType() + "" : "";
         return jobResource + SPLIT + computeResourceType.name() + type;
     }
 
@@ -95,28 +91,6 @@ public class JobComputeResourcePlain {
             groupName = clusterName + SPLIT + queue.getQueueName();
         }
         jobClient.setGroupName(groupName);
-    }
-
-
-    public String parseClusterFromJobResource(String jobResource) {
-        if (StringUtils.isBlank(jobResource)) {
-            return "";
-        }
-        String plainType = environmentContext.getComputeResourcePlain();
-        List<String> clusterArray = new ArrayList<>();
-        String[] split = jobResource.split(SPLIT);
-        if (ComputeResourcePlain.EngineTypeClusterQueueComputeType.name().equalsIgnoreCase(plainType)) {
-            //engineType_cluster_queue_computeType_computeResourceType 拼接方式
-            for (int i = 1; i < split.length - 3; i++) {
-                clusterArray.add(split[i]);
-            }
-        } else {
-            // engineType_cluster_queue_computeResourceType 拼接方式
-            for (int i = 1; i < split.length - 2; i++) {
-                clusterArray.add(split[i]);
-            }
-        }
-        return String.join(SPLIT, clusterArray);
     }
 
 
