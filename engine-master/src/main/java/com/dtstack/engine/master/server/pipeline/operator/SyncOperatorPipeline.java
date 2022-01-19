@@ -42,7 +42,7 @@ import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.service.ComponentConfigService;
 import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.server.pipeline.IPipeline;
-import com.dtstack.engine.master.server.scheduler.JobParamReplace;
+import com.dtstack.engine.master.server.pipeline.JobParamReplace;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;

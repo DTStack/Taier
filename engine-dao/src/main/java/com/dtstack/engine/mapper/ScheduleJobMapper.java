@@ -101,14 +101,15 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
     Integer updateListPhaseStatus(@Param("jobIds") List<String> ids, @Param("update") Integer update);
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 扫描周期实例接口
+     *
+     * @param startSort 开始id
+     * @param nodeAddress 节点
+     * @param type 类型
+     * @param isEq 是否查询出第一个
+     * @param jobPhaseStatus 队列状态
+     * @return 周期实例列表
+     */
+    List<ScheduleJob> listCycleJob(@Param("startSort") Long startSort, @Param("nodeAddress") String nodeAddress, @Param("type") Integer type, @Param("isEq") Boolean isEq, @Param("jobPhaseStatus") Integer jobPhaseStatus);
 }

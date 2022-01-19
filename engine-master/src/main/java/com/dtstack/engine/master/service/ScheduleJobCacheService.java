@@ -65,7 +65,7 @@ public class ScheduleJobCacheService extends ServiceImpl<EngineJobCacheMapper, E
                 .in(EngineJobCache::getJobId, jobIds));
     }
 
-    public void insert(String jobId, String engineType, Integer computeType, int stage, String jobInfo, String nodeAddress, String jobName, long priority, String jobResource) {
+    public void insert(String jobId, String engineType, Integer computeType, int stage, String jobInfo, String nodeAddress, String jobName, long priority, String jobResource, Long tenantId) {
         EngineJobCache engineJobCache = new EngineJobCache();
         engineJobCache.setJobId(jobId);
         engineJobCache.setNodeAddress(nodeAddress);
@@ -76,6 +76,7 @@ public class ScheduleJobCacheService extends ServiceImpl<EngineJobCacheMapper, E
         engineJobCache.setComputeType(computeType);
         engineJobCache.setJobResource(jobResource);
         engineJobCache.setJobName(jobName);
+        engineJobCache.setTenantId(tenantId);
         this.save(engineJobCache);
     }
 }
