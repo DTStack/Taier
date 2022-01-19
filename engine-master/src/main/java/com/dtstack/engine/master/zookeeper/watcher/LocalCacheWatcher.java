@@ -1,5 +1,6 @@
 package com.dtstack.engine.master.zookeeper.watcher;
 
+import com.dtstack.engine.master.utils.LocalCacheUtil;
 import com.dtstack.engine.master.utils.PathUtil;
 import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.zookeeper.WatchedEvent;
@@ -23,21 +24,20 @@ public class LocalCacheWatcher implements CuratorWatcher {
 
     @Override
     public void process(WatchedEvent watchedEvent) throws Exception {
-        LOGGER.info("receive event:{}", watchedEvent.toString());
-        // 空事件不处理，只做监控 todo test
+        LOGGER.info("receive event:【{}】", watchedEvent.toString());
+        // 空事件不处理，只做监控
         if (Watcher.Event.EventType.None.equals(watchedEvent.getType())) {
             if (Watcher.Event.KeeperState.Expired.equals(watchedEvent.getState())) {
                 LOGGER.info("clear all local cache...");
-                // fixme LocalCacheUtil.removeAll();
+                LocalCacheUtil.removeAll();
             }
             return;
         }
 
         String path = watchedEvent.getPath();
-        // todo test
         String[] pathSplit = PathUtil.splitPath(path);
-        LOGGER.info("GROUP = {}, KEY = {}", pathSplit[1], pathSplit[2]);
-        // fixme  LocalCacheUtil.removeLocal(pathSplit[1],pathSplit[2]);
+        LOGGER.info("GROUP={}, KEY={}", pathSplit[1], pathSplit[2]);
+        LocalCacheUtil.removeLocal(pathSplit[1], pathSplit[2]);
     }
 
     private static class LocalCacheWatcherInstance {
