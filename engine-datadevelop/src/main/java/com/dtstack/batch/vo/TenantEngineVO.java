@@ -18,7 +18,6 @@
 
 package com.dtstack.batch.vo;
 
-import com.dtstack.batch.common.enums.ProjectCreateModel;
 import lombok.Data;
 
 /**

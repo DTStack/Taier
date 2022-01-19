@@ -30,23 +30,8 @@ public enum ComputeResourceType {
     FlinkStandalone,
     FlinkYarnSession,
     FlinkKubernetesSession,
-    SparkStandalone,
-    Mysql,
-    Oracle,
-    Sqlserver,
-    Maxcompute,
     Hive,
-    PostgreSQL,
-    Kylin,
-    Impala,
-    TiDB,
-    GreenPlum,
     Dummy,
-    Presto,
-    KingBase,
-    InceptorSQL,
-    DtScriptAgent,
-    AnalyticdbForPg,
     FlinkOnStandalone;
 
 }

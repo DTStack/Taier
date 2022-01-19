@@ -19,7 +19,7 @@
 package com.dtstack.batch.engine.hdfs.service;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;

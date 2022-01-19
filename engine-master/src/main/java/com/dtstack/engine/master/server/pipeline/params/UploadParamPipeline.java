@@ -108,8 +108,7 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
             if (EScheduleJobType.SHELL.getVal().equals(taskType)) {
                 content = content.replaceAll("\r\n", System.getProperty("line.separator"));
             }
-            String typeName = pluginInfo.getString(ConfigConstant.TYPE_NAME_KEY);
-            String hdfsUploadPath = workerOperator.uploadStringToHdfs(typeName, pluginInfo.toJSONString(), content, hdfsPath);
+            String hdfsUploadPath = workerOperator.uploadStringToHdfs(pluginInfo.toJSONString(), content, hdfsPath);
             if (StringUtils.isBlank(hdfsUploadPath)) {
                 throw new RdosDefineException("Update task to HDFS failure hdfsUploadPath is blank");
             }

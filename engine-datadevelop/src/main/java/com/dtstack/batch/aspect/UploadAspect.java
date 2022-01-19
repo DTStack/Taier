@@ -1,7 +1,6 @@
 package com.dtstack.batch.aspect;
 
-import com.dtstack.batch.utils.PublicUtil;
-import com.dtstack.engine.common.param.DataSourceParam;
+import com.dtstack.engine.common.util.PublicUtil;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.aspectj.lang.JoinPoint;

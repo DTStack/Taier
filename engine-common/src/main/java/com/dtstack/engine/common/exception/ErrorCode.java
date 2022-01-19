@@ -43,6 +43,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     JOB_CACHE_NOT_EXIST(22, "job cache not exist this job","任务不存在cache"),
     JOB_STATUS_IS_SAME(23, "job status is same as cluster","任务状态与集群一致"),
     FUNCTION_CAN_NOT_FIND(28, "function can not found","方法不存在"),
+    SFTP_NOT_FOUND(29, "sftp can not found","sftp不存在"),
 
     UPDATE_EXCEPTION(30, "update exception", "更新异常"),
     CONFIG_ERROR(51, "config error","配置错误"),

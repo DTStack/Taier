@@ -24,9 +24,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
-import com.dtstack.batch.common.enums.CatalogueType;
-import com.dtstack.batch.common.enums.EDeployType;
-import com.dtstack.batch.common.enums.PublishTaskStatusEnum;
+import com.dtstack.engine.common.enums.CatalogueType;
+import com.dtstack.engine.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionDao;
@@ -48,8 +47,6 @@ import com.dtstack.batch.domain.Dict;
 import com.dtstack.batch.domain.ReadWriteLock;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.engine.rdbms.common.enums.Constant;
-import com.dtstack.batch.enums.DependencyType;
-import com.dtstack.batch.enums.EScheduleStatus;
 import com.dtstack.batch.enums.RDBMSSourceType;
 import com.dtstack.batch.enums.SourceDTOType;
 import com.dtstack.batch.enums.SyncModel;
@@ -107,19 +104,7 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.PatternConstant;
-import com.dtstack.engine.common.enums.AppType;
-import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.DictType;
-import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.ESubmitStatus;
-import com.dtstack.engine.common.enums.EngineType;
-import com.dtstack.engine.common.enums.FuncType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.ReadWriteLockType;
-import com.dtstack.engine.common.enums.ResourceRefType;
-import com.dtstack.engine.common.enums.Sort;
-import com.dtstack.engine.common.enums.TaskLockStatus;
+import com.dtstack.engine.common.enums.*;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -955,12 +940,7 @@ public class BatchTaskService {
             }
         }
 
-        BatchTaskBatchVO task = null;
-        try {
-            task = PublicUtil.objectToObject(param, BatchTaskBatchVO.class);
-        } catch (IOException e) {
-            throw new RdosDefineException(e.getMessage(), e);
-        }
+        BatchTaskBatchVO task = PublicUtil.objectToObject(param, BatchTaskBatchVO.class);
         task.setModifyUserId(param.getUserId());
         task.setVersion(Objects.isNull(param.getVersion()) ? 0 : param.getVersion());
         task.parsePeriodType();

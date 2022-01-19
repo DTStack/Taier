@@ -20,7 +20,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.service.table.ISqlExeService;

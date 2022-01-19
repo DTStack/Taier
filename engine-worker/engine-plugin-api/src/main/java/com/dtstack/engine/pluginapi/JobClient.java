@@ -80,8 +80,6 @@ public class JobClient implements Serializable {
 
     private ComputeType computeType;
 
-    private String engineType;
-
     private JobResult jobResult;
 
     /**
@@ -168,7 +166,6 @@ public class JobClient implements Serializable {
         this.applicationId = paramAction.getApplicationId();
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
-        this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
         this.generateTime = paramAction.getGenerateTime();
         this.lackingCount = paramAction.getLackingCount();
@@ -214,7 +211,6 @@ public class JobClient implements Serializable {
         action.setEngineTaskId(engineTaskId);
         action.setComputeType(computeType.getType());
         action.setExternalPath(externalPath);
-        action.setEngineType(engineType);
         action.setExeArgs(classArgs);
         action.setGroupName(groupName);
         action.setGenerateTime(generateTime);
@@ -318,14 +314,6 @@ public class JobClient implements Serializable {
 
     public void setComputeType(ComputeType computeType) {
         this.computeType = computeType;
-    }
-
-    public String getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
     }
 
     public Properties getConfProperties() {
@@ -528,7 +516,6 @@ public class JobClient implements Serializable {
                 ", applicationId='" + applicationId + '\'' +
                 ", jobType=" + jobType +
                 ", computeType=" + computeType +
-                ", engineType='" + engineType + '\'' +
                 ", jobResult=" + jobResult +
                 ", externalPath='" + externalPath + '\'' +
                 ", classArgs='" + classArgs + '\'' +

@@ -20,8 +20,8 @@ package com.dtstack.batch.engine.hdfs.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.common.enums.ETableType;
+import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
