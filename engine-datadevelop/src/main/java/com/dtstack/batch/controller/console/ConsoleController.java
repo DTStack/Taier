@@ -71,6 +71,7 @@ public class ConsoleController {
     @PostMapping(value="/overview")
     @ApiOperation(value = "根据计算引擎类型显示任务")
     public R<Collection<Map<String, Object>>> overview(@RequestParam("nodeAddress") String nodeAddress, @RequestParam("clusterName") String clusterName) {
+        Preconditions.checkNotNull(clusterName, "clusterName can not be null.");
         return R.ok(consoleService.overview(nodeAddress, clusterName));
     }
 

@@ -42,7 +42,7 @@ public class PublicUtil {
 
     public static Map<String, Object> objectToMap(Object obj) {
         try {
-            return obj == null ? null : (Map) objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
+            return obj == null ? new HashMap<>() : (Map) objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
         } catch (IOException e) {
             throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
         }

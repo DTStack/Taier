@@ -12,6 +12,7 @@ import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.enums.*;
+import com.dtstack.batch.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.sync.format.TypeFormat;
 import com.dtstack.batch.sync.format.writer.HiveWriterFormat;
@@ -19,6 +20,7 @@ import com.dtstack.batch.sync.handler.SyncBuilderFactory;
 import com.dtstack.batch.sync.job.JobTemplate;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.template.*;
+import com.dtstack.batch.utils.Asserts;
 import com.dtstack.batch.utils.PublicUtil;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.TaskResourceParam;
@@ -183,6 +185,12 @@ public class DatasourceService {
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
+    private static final String KRB5_CONF = "java.security.krb5.conf";
+
+    private static final String KRB5_FILE = "krb5.conf";
+
+    private static final String PRINCIPLE_FILE = "principalFile";
+
     // 数据同步-模版导入 writer 不需要添加默认值的数据源类型
     private static final Set<Integer> notPutValueFoeWriterSourceTypeSet = Sets.newHashSet(DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(),
             DataSourceType.HIVE1X.getVal(), DataSourceType.CarbonData.getVal(), DataSourceType.INCEPTOR.getVal(), DataSourceType.SparkThrift2_1.getVal());
@@ -218,14 +226,14 @@ public class DatasourceService {
      * @param userId
      * @return
      */
-    public List<String> getPrincipalsWithConf(DataSourceVO source, Pair<String, String> resource, Long dtuicTenantId, Long projectId, Long userId) {
+    public List<String> getPrincipalsWithConf(DataSourceVO source, Pair<String, String> resource, Long userId) {
         String localKerberosPath;
         Map<String, Object> kerberosConfig;
         // 获取数据源类型，这里要做type version的改造
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(),source.getDataVersion());
         IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
         if (Objects.nonNull(resource)) {
-            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 // 解析Zip文件获取配置对象
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
@@ -328,7 +336,7 @@ public class DatasourceService {
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
         IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
         if (Objects.nonNull(resource)) {
-            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosPath = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
             } catch (IOException e) {
@@ -406,13 +414,12 @@ public class DatasourceService {
      * 上传Kerberos添加和修改数据源
      * @param dataSourceVO
      * @param resource
-     * @param projectId
      * @param userId
      * @param dtuicTenantId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long projectId, Long userId, Long dtuicTenantId) {
+    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long dtuicTenantId) {
         Map<String, Object> confMap;
         JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
         dataSourceVO.setDataJson(dataJson);
@@ -422,7 +429,7 @@ public class DatasourceService {
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dataSourceVO.getDataType(), dataSourceVO.getDataVersion());
         if (Objects.nonNull(resource)) {
             //resource不为空表示本地上传文件
-            localKerberosConf = kerberosService.getTempLocalKerberosConf(userId, projectId);
+            localKerberosConf = kerberosService.getTempLocalKerberosConf(userId);
             try {
                 confMap = ClientCache.getKerberos(typeEnum.getVal()).parseKerberosFromUpload(resource.getRight(), localKerberosConf);
             } catch (IOException e) {
@@ -1997,11 +2004,47 @@ public class DatasourceService {
         return batchDataSource;
     }
 
-    public void createMateDataSource(Long tenantId, Long userId, String toJSONString, String dataSourceName, Integer dataSourceType, String tenantDesc, String dbName) {
+
+    /**
+     * 转换成datasourceVo
+     * @param tenantId
+     * @param userId
+     * @param dscJson
+     * @param dataName
+     * @param dataSourceType
+     * @param dbName
+     * @return
+     */
+    private DataSourceVO convertParamToVO(Long tenantId, Long userId, String dscJson, String dataName, Integer dataSourceType, String dbName) {
+        DataSourceVO dataSourceVO = new DataSourceVO();
+        dataSourceVO.setUserId(userId);
+        dataSourceVO.setTenantId(tenantId);
+        dataSourceVO.setGmtCreate(new Date());
+        dataSourceVO.setGmtModified(new Date());
+        dataSourceVO.setDataName(dataName);
+        dataSourceVO.setType(dataSourceType);
+        dataSourceVO.setSchemaName(dbName);
+        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.valOf(dataSourceType);
+        Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
+        dataSourceVO.setDataType(typeEnum.getDataType());
+        dataSourceVO.setDataVersion(typeEnum.getDataVersion());
+        if (Strings.isNotBlank(dscJson)) {
+            dataSourceVO.setDataJson(DataSourceUtils.getDataSourceJson(dscJson));
+        }
+        dataSourceVO.setIsMeta(1);
+        return dataSourceVO;
+    }
+
+    public void createMateDataSource(Long tenantId, Long userId, String dscJson, String dataName, Integer dataSourceType, String tenantDesc, String dbName) {
+
+        DataSourceVO dataSourceVO = convertParamToVO(tenantId,userId,dscJson,dataName,dataSourceType,dbName);
+        addOrUpdate(dataSourceVO, userId);
+
     }
 
     public Integer getEComponentTypeByDataSourceType(Integer val) {
-        return null;
+
+        return ComponentTypeDataSourceTypeMapping.getEComponentType(val);
     }
 
     /**
