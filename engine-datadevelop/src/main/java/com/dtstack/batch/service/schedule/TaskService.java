@@ -138,11 +138,11 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (dbTaskShade != null) {
             scheduleTaskShade.setId(dbTaskShade.getId());
             this.updateById(scheduleTaskShade);
-            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
-        } else {
-            this.save(scheduleTaskShade);
             scheduleTaskShadeInfoMapper.update(scheduleTaskShadeInfo,
                     Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class).eq(ScheduleTaskShadeInfo::getTaskId,scheduleTaskShade.getTaskId()));
+        } else {
+            this.save(scheduleTaskShade);
+            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
         }
 
 
