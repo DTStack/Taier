@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.service.impl;
 
-import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.utils.TableOperateUtils;
 import com.dtstack.dtcenter.loader.client.ClientCache;
@@ -31,11 +31,8 @@ import com.dtstack.engine.pluginapi.pojo.Column;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

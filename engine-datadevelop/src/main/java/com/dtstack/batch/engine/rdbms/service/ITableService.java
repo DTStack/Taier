@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.service;
 
-import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.engine.pluginapi.pojo.Column;
 
 import java.util.List;

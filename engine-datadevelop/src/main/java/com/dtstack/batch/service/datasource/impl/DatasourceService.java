@@ -3,8 +3,8 @@ package com.dtstack.batch.service.datasource.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.DataSourceTypeEnum;
-import com.dtstack.batch.common.exception.PubSvcDefineException;
+import com.dtstack.engine.common.enums.DataSourceTypeEnum;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
@@ -21,7 +21,6 @@ import com.dtstack.batch.sync.job.JobTemplate;
 import com.dtstack.batch.sync.job.PluginName;
 import com.dtstack.batch.sync.template.*;
 import com.dtstack.batch.utils.Asserts;
-import com.dtstack.batch.utils.PublicUtil;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.dtcenter.loader.client.ClientCache;
@@ -44,6 +43,7 @@ import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DataSourceUtils;
 import com.dtstack.engine.common.util.JsonUtils;
+import com.dtstack.engine.common.util.PublicUtil;
 import com.dtstack.engine.common.util.Strings;
 import com.dtstack.engine.domain.BatchDataSource;
 import com.dtstack.engine.domain.DsFormField;
@@ -952,7 +952,12 @@ public class DatasourceService {
 
     public Map<String, String> getSftpMap(Long tenantId) {
         JSONObject configByKey = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
-        return PublicUtil.objectToObject(configByKey,Map.class);
+        try {
+            return PublicUtil.objectToObject(configByKey,Map.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new PubSvcDefineException(ErrorCode.SFTP_NOT_FOUND);
     }
 
 

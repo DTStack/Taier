@@ -19,7 +19,7 @@
 
 package com.dtstack.batch.sql.parse;
 
-import com.dtstack.batch.common.enums.ETableType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.batch.sql.SqlParserImpl;
 import com.dtstack.batch.sql.handler.HiveUglySqlHandler;
 import com.dtstack.batch.sql.handler.ImpalaUglySqlHandler;

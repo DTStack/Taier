@@ -26,12 +26,9 @@ import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.pluginapi.JobClient;
-import com.dtstack.engine.pluginapi.enums.EJobType;
-import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.pojo.ParamAction;
 import com.dtstack.engine.pluginapi.util.PublicUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Map;
 
 
 /**
@@ -136,18 +132,7 @@ public class JobRestartDealer {
         jobClient.setEngineTaskId(scheduleJob.getEngineJobId());
         jobClient.setApplicationId(scheduleJob.getApplicationId());
 
-        jobClient.setCallBack((jobStatus)->{
-            updateJobStatus(scheduleJob.getJobId(), jobStatus);
-        });
-
-        if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
-            setRetryTag(jobClient);
-        }
-
-        //checkpoint的路径
-        if(EJobType.SYNC.equals(jobClient.getJobType())){
-            setCheckpointPath(jobClient);
-        }
+        jobClient.setCallBack((jobStatus)-> updateJobStatus(scheduleJob.getJobId(), jobStatus));
 
         boolean retry = restartJob(jobClient);
         LOGGER.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getJobId(), alreadyRetryNum);
@@ -155,38 +140,7 @@ public class JobRestartDealer {
         return retry;
     }
 
-    private void setRetryTag(JobClient jobClient){
-        try {
-            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), Map.class);
-            pluginInfoMap.put("retry", true);
-            jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
-        } catch (IOException e) {
-            LOGGER.error("Set retry tag error:", e);
-        }
-    }
 
-    /**
-     * 设置这次实例重试的checkpoint path为上次任务实例生成的最后一个checkpoint path
-     * @param jobClient client
-     */
-    private void setCheckpointPath(JobClient jobClient){
-
-        String checkpoint = jobClient.getConfProperties().getProperty("openCheckpoint");
-        boolean openCheckpoint = checkpoint != null && Boolean.parseBoolean(checkpoint.trim());
-        if (!openCheckpoint){
-            return;
-        }
-
-        if(StringUtils.isEmpty(jobClient.getJobId())){
-            return;
-        }
-
-      /*  EngineJobCheckpoint taskCheckpoint = engineJobCheckpointDao.getByTaskId(jobClient.getJobId());
-        if(taskCheckpoint != null){
-            jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
-        }*/
-        LOGGER.info("jobId:{} set checkpoint path:{}", jobClient.getJobId(), jobClient.getExternalPath());
-    }
 
     private Pair<Boolean, JobClient> checkJobInfo(String jobId, EngineJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
