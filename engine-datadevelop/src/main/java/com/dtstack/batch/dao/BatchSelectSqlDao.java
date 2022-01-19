@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.domain.BatchSelectSql;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,25 +27,35 @@ import java.util.List;
  * TODO 修改为非特定hive
  * @author jiangbo
  */
-public interface BatchHiveSelectSqlDao {
+public interface BatchSelectSqlDao {
 
-    BatchHiveSelectSql getOne(@Param("id") Long id);
+    /**
+     * 根据 jobId 查询SQL记录
+     * @param jobId
+     * @param tenantId
+     * @param isDeleted
+     * @return
+     */
+    BatchSelectSql getByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("isDeleted") Integer isDeleted);
 
-    BatchHiveSelectSql getByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("isDeleted") Integer isDeleted);
-
-    Integer insert(BatchHiveSelectSql selectSql);
+    /**
+     * 插入 sql执行记录
+     * @param selectSql
+     * @return
+     */
+    Integer insert(BatchSelectSql selectSql);
 
     Integer updateGmtModify(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
     Integer deleteByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
-    List<BatchHiveSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
+    List<BatchSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
 
     Integer deleteByIds(@Param("list") List<Long> list);
 
     Integer deleteByJobIds(@Param("list") List<String> list);
 
-    List<BatchHiveSelectSql> listBySqlType(@Param("type") Integer type);
+    List<BatchSelectSql> listBySqlType(@Param("type") Integer type);
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

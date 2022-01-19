@@ -40,8 +40,8 @@ public class BatchExecuteResultVO<T> {
     @ApiModelProperty(value = "发送到引擎生成的jobid", example = "1")
     private String  jobId;
 
-    @ApiModelProperty(value = "引擎类型", example = "1")
-    private Integer engineType;
+    @ApiModelProperty(value = "任务类型", example = "1")
+    private Integer taskType;
 
     @ApiModelProperty(value = "结果")
     private List<T> result;

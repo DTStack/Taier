@@ -38,6 +38,6 @@ public class BatchExecuteDataResultVO<T> {
     private List<T> result;
 
     @ApiModelProperty(value = "引擎类别", example = "1")
-    private Integer engineType;
+    private Integer taskType;
 
 }
