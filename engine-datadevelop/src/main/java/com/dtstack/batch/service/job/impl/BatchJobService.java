@@ -35,13 +35,11 @@ import com.dtstack.batch.service.schedule.JobService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.service.task.impl.BatchTaskParamShadeService;
-import com.dtstack.batch.service.task.impl.BatchTaskResourceShadeService;
 import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.batch.web.job.vo.result.BatchStartSyncResultVO;
 import com.dtstack.engine.common.constrant.TaskStatusConstrant;
-import com.dtstack.engine.common.enums.AppType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EngineType;
@@ -75,7 +73,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -93,15 +90,10 @@ public class BatchJobService {
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
-    private static final String ADD_JAR_WITH = "ADD JAR WITH %s AS ;";
-
     private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
     private BatchTaskDao batchTaskDao;
-
-    @Autowired
-    private BatchTaskResourceShadeService batchTaskResourceShadeService;
 
     @Autowired
     private BatchServerLogService batchServerLogService;
@@ -115,9 +107,6 @@ public class BatchJobService {
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
 
-    @Resource(name = "batchJobParamReplace")
-    private JobParamReplace jobParamReplace;
-
     @Autowired
     private TenantService tenantService;
 
@@ -125,13 +114,7 @@ public class BatchJobService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private ScheduleJobService scheduleJobService;
-
-    @Autowired
     private BatchTaskParamShadeService batchTaskParamShadeService;
-
-    @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -141,19 +124,6 @@ public class BatchJobService {
 
     private static final String IS_CHECK_DDL_KEY = "isCheckDDL";
 
-
-    public String updateStatusById(String jobId, Integer status) {
-        BatchJobService.logger.info("jobId:{} status:{}", jobId, status);
-        this.scheduleJobService.updateJobStatusAndLogInfo(jobId, status, "");
-        return jobId;
-    }
-
-
-    public String updateStatus(String jobId, Integer status, String msg) {
-        BatchJobService.logger.info("jobId:{} status:{} msg:{}", jobId, status, msg);
-        this.scheduleJobService.updateJobStatusAndLogInfo(jobId, status, "");
-        return jobId;
-    }
 
     /**
      * 构建运行任务的完整命令(包含真正执行的SQL内容)
@@ -212,33 +182,6 @@ public class BatchJobService {
     }
 
 
-    public String stopJob(long jobId, Long userId, Boolean isRoot) {
-
-        final ScheduleJob ScheduleJob = this.scheduleJobService.getById(jobId);
-        if (ScheduleJob == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
-        }
-
-        this.checkJobOperateValid(ScheduleJob, userId, ScheduleJob.getTenantId(), isRoot);
-//        this.scheduleJobService.stopJob(jobId, AppType.RDOS.getType());
-        return "success";
-    }
-
-    /**
-     * 校验实例的操作权限
-     * （主要针对跨项目实例）
-     *
-     * @param ScheduleJob
-     * @param userId
-     * @param tenantId
-     * @param isRoot
-     */
-    private void checkJobOperateValid(final ScheduleJob ScheduleJob, final Long userId, final Long tenantId, final Boolean isRoot) {
-        final ScheduleTaskShade task = scheduleTaskShadeService.getByTaskId(ScheduleJob.getTaskId());
-        if (task != null) {
-//            this.roleUserService.checkUserRole(userId, RoleValue.OPERATION.getRoleValue(), ErrorCode.PERMISSION_LIMIT.getDescription(), projectId, tenantId, isRoot);
-        }
-    }
 
     /**
      * 运行同步任务
@@ -502,24 +445,6 @@ public class BatchJobService {
         }
     }
 
-
-    public List<String> listJobIdByTaskNameAndStatusList(String taskName, List<Integer> statusList, Long tenantId) {
-        return this.scheduleJobService.listJobIdByTaskNameAndStatusList(taskName, statusList, tenantId, AppType.RDOS.getType());
-    }
-
-
-    /**
-     * 返回这些jobId对应的父节点的jobMap
-     *
-     * @param jobIdList
-     * @param tenantId
-     * @return
-     */
-    public Map<String, ScheduleJob> getLabTaskRelationMap(List<String> jobIdList, Long tenantId) {
-        return this.scheduleJobService.getLabTaskRelationMap(jobIdList, tenantId);
-    }
-
-
     public String getEngineJobId(String jobId) {
         List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId));
         if (CollectionUtils.isNotEmpty(engineEntities)) {
@@ -527,7 +452,6 @@ public class BatchJobService {
         }
         return "";
     }
-
     /**
      * 初始化engine paramActionExt 入参
      * @param batchTask
