@@ -1,6 +1,7 @@
 package com.dtstack.batch.service.user;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.engine.common.enums.Deleted;
 import com.dtstack.engine.domain.User;
 import com.dtstack.engine.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,9 @@ public class UserService {
        return userMapper.selectById(userId);
     }
 
-    public List<User> listByIds(List<Long> userIds) {
-        return userMapper.selectBatchIds(userIds);
+
+    public List<User> listAll() {
+        return userMapper.selectList(Wrappers.lambdaQuery(User.class).eq(User::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public User getByUserName(String username) {
