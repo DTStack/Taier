@@ -25,7 +25,7 @@ import com.dtstack.engine.domain.EngineJobCache;
 import com.dtstack.engine.master.WorkerOperator;
 import com.dtstack.engine.master.jobdealer.JobDealer;
 import com.dtstack.engine.master.jobdealer.JobSubmitDealer;
-import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.master.server.JobPartitioner;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
