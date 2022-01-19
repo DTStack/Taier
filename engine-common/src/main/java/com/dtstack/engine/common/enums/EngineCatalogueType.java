@@ -16,9 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.common.enums;
-
-import com.dtstack.engine.common.enums.EComponentType;
+package com.dtstack.engine.common.enums;
 
 /**
  * @author yuebai

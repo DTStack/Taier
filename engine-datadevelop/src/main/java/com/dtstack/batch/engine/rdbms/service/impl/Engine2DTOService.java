@@ -19,8 +19,8 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.ETableType;
-import com.dtstack.batch.common.enums.HiveVersion;
+import com.dtstack.engine.common.enums.ETableType;
+import com.dtstack.engine.common.enums.HiveVersion;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.dtcenter.loader.cache.pool.config.PoolConfig;
 import com.dtstack.dtcenter.loader.dto.source.*;
