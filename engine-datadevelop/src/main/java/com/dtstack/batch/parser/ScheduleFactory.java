@@ -19,7 +19,6 @@
 package com.dtstack.batch.parser;
 
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.batch.enums.DependencyType;
 import com.dtstack.engine.common.util.MathUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -82,14 +81,7 @@ public class ScheduleFactory {
         String endDateStr = (String) jsonMap.get(END_DATE_KEY);
         if(jsonMap.containsKey(SELFRELIANCE_KEY) ){
             String obj = MapUtils.getString(jsonMap, SELFRELIANCE_KEY);
-            Integer type = 0;
-            if("true".equals(obj)){
-                type = DependencyType.SELF_DEPENDENCY_SUCCESS.getType();
-            }else if("false".equals(obj)){
-                type = DependencyType.NO_SELF_DEPENDENCY.getType();
-            }else {
-                type = MathUtil.getIntegerVal(obj);
-            }
+            Integer type  = MathUtil.getIntegerVal(obj);
             scheduleCron.setSelfReliance(type);
         }
 

@@ -20,7 +20,6 @@ package com.dtstack.engine.rdbs.common.executor;
 
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
-import com.dtstack.engine.pluginapi.enums.EngineType;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.engine.pluginapi.logstore.LogStoreFactory;
 import com.dtstack.engine.pluginapi.util.DateUtil;
@@ -458,7 +457,7 @@ public class RdbsExeQueue {
                     RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId, jobClient.getTaskParams());
                     try {
                         boolean tidbDDLCheck = false;
-                        if (EngineType.TiDB.name().equalsIgnoreCase(jobClient.getEngineType())) {
+                        /*if (EngineType.TiDB.name().equalsIgnoreCase(jobClient.getEngineType())) {
                             try {
                                 //TiDB 有些SQL 并发操作会有  Table '(Schema ID 1673).(Table ID 5949)' doesn't exist
                                 Matcher matcher = SINGLE_SQL.matcher(jobClient.getSql());
@@ -468,7 +467,7 @@ public class RdbsExeQueue {
                             } catch (Exception e) {
                                 LOG.error("check tidb {} sql error ",jobId, e);
                             }
-                        }
+                        }*/
                         if (tidbDDLCheck) {
                             tidbDDLJobExecutor.submit(rdbsExe);
                         } else {

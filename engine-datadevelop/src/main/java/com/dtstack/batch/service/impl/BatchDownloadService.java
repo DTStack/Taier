@@ -19,7 +19,7 @@
 package com.dtstack.batch.service.impl;
 
 import com.csvreader.CsvWriter;
-import com.dtstack.batch.common.enums.TempJobType;
+import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.batch.dao.BatchSelectSqlDao;
 import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.engine.hdfs.service.BatchHadoopSelectSqlService;

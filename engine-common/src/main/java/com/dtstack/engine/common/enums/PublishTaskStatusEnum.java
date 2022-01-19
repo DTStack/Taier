@@ -16,36 +16,36 @@
  * limitations under the License.
  */
 
-package com.dtstack.batch.enums;
+package com.dtstack.engine.common.enums;
 
 /**
- * Reason:
- * Date: 2017/5/5
- * Company: www.dtstack.com
- * @author xuchao
+ * 任务提交状态  判断使用
  */
-public enum EScheduleStatus {
+public enum  PublishTaskStatusEnum {
+    /**
+     * 无错误
+     */
+    NOMAL(0),
+    /**
+     * 权限校验错误
+     */
+    PERMISSIONERROR(1),
+    /**
+     * 语法校验错误
+     */
+    CHECKSYNTAXERROR(2);
 
-    //1正常调度,2暂停
-    NORMAL(1), PAUSE(2), UNSTARTED(0);
+    private Integer type;
 
-    private Integer val;
-
-    EScheduleStatus(Integer val){
-        this.val = val;
+    PublishTaskStatusEnum(Integer type) {
+        this.type = type;
     }
 
-    public Integer getVal() {
-        return val;
+    public Integer getType() {
+        return type;
     }
 
-    public static EScheduleStatus getStatus(Integer val){
-        for(EScheduleStatus status : EScheduleStatus.values()){
-            if(status.getVal().equals(val)){
-                return status;
-            }
-        }
-
-        return null;
+    public void setType(Integer type) {
+        this.type = type;
     }
 }
