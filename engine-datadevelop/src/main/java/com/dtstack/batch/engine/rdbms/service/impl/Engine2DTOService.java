@@ -300,8 +300,8 @@ public enum Engine2DTOService {
     public static JdbcInfo getJdbcInfo (Long dtUicTenantId, Long dtUicUserId, EJobType eJobType) {
         JdbcInfo jdbcInfo = null;
         if (clusterService != null && dtUicTenantId != null) {
-            if (EJobType.HIVE_SQL.equals(eJobType)) {
-                jdbcInfo = getHiveServer(dtUicTenantId);
+            if (EJobType.SPARK_SQL.equals(eJobType)) {
+                jdbcInfo = getSparkThrift(dtUicTenantId);
             }
         }
         if (jdbcInfo == null) {
