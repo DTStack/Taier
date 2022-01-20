@@ -100,9 +100,6 @@ public class DatasourceService {
     private DsTypeService typeService;
 
     @Autowired
-    private BatchDataSourceTaskRefService dataSourceTaskRefService;
-
-    @Autowired
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
@@ -1030,9 +1027,6 @@ public class DatasourceService {
         final Map<String, Object> targetMap = param.getTargetMap();//目标集合
         final Map<String, Object> settingMap = param.getSettingMap();//流控、错误集合
         try {
-            //清空资源和任务的关联关系
-            this.dataSourceTaskRefService.removeRef(param.getId());
-
             this.setReaderJson(sourceMap, param.getId(), param.getTenantId(), isFilter);
             this.setWriterJson(targetMap, param.getId(), param.getTenantId(), isFilter);
             Reader reader = null;
@@ -1183,13 +1177,6 @@ public class DatasourceService {
         }
 
         map.put("sourceIds", sourceIds);
-
-        if (taskId != null) {
-            for (Long sourceId : sourceIds) {
-                //插入资源和任务的关联关系
-                dataSourceTaskRefService.addRef(sourceId, taskId, tenantId);
-            }
-        }
     }
 
     /**
@@ -1236,11 +1223,6 @@ public class DatasourceService {
             if(!DataSourceType.AWS_S3.getVal().equals(sourceType)){
                 map.remove("accessKey");
             }
-        }
-
-        if (taskId != null) {
-            //插入资源和任务的关联关系
-            dataSourceTaskRefService.addRef(sourceId, taskId, tenantId);
         }
     }
 

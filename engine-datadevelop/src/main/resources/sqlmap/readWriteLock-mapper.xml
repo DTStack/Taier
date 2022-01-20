@@ -59,12 +59,6 @@
         (#{lockName},#{createUserId},#{createUserId},#{tenantId},#{relationId},#{type})
     </insert>
 
-    <select id="getByLockName" resultType="com.dtstack.batch.domain.ReadWriteLock">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM rdos_read_write_lock
-        WHERE lock_name = #{lockName} AND is_deleted = 0 limit 1
-    </select>
 
     <update id="updateVersionAndModifyUserId">
         UPDATE

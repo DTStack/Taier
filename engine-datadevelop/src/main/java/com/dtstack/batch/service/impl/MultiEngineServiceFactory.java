@@ -26,7 +26,6 @@ import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.IFunctionService;
 import com.dtstack.batch.service.table.ISqlExeService;
-import com.dtstack.batch.service.table.ITablePartitionService;
 import com.dtstack.batch.service.tenant.ITenantService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.enums.EJobType;
@@ -56,9 +55,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "batchSparkSqlExeService")
     private ISqlExeService batchSparkSqlExeService;
-
-    @Resource(name = "batchHiveTablePartitionService")
-    private ITablePartitionService batchHiveTablePartitionService;
 
     @Resource(name = "batchHadoopJobExeService")
     private IBatchJobExeService batchHadoopJobExeService;
@@ -144,13 +140,6 @@ public class MultiEngineServiceFactory {
         throw new RdosDefineException(String.format("not support task type %d now", taskType));
     }
 
-    public ITablePartitionService getTablePartitionService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            return batchHiveTablePartitionService;
-        }
-
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
-    }
 
     public IBatchJobExeService getBatchJobExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType)) {

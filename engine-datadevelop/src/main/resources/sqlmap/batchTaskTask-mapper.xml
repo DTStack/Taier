@@ -76,22 +76,6 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <update id="deleteByTenantId">
-        UPDATE rdos_batch_task_task
-        SET is_deleted = 1, gmt_modified = now()
-        WHERE tenant_id = #{tenantId} AND is_deleted = 0
-    </update>
-
-    <select id="listTaskTaskByTaskIds" resultType="com.dtstack.batch.domain.BatchTaskTask">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_task
-        WHERE task_id in
-        <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
-            #{taskId}
-        </foreach>
-        and is_deleted = 0
-    </select>
 
     <select id="listParentTaskIdByTaskId" resultType="long">
         SELECT parent_task_id
