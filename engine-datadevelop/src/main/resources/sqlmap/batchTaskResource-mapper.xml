@@ -65,16 +65,6 @@
         </if>
     </delete>
 
-    <update id="logicDeleteByTaskId">
-        UPDATE
-        rdos_batch_task_resource
-        SET is_deleted = 1 WHERE
-        task_id = #{taskId}
-        and is_deleted = 0
-        <if test="resourceType != null">
-            and resource_type = #{resourceType}
-        </if>
-    </update>
 
     <select id="listByResourceId" resultType="com.dtstack.batch.domain.BatchTaskResource">
         SELECT

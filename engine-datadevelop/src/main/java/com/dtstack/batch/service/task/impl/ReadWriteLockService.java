@@ -18,15 +18,15 @@
 
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.engine.common.exception.ErrorCode;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.ReadWriteLockDao;
 import com.dtstack.batch.domain.ReadWriteLock;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.ReadWriteLockVO;
 import com.dtstack.engine.common.Callback;
 import com.dtstack.engine.common.enums.ReadWriteLockType;
 import com.dtstack.engine.common.enums.TaskLockStatus;
-import com.dtstack.batch.service.user.UserService;
+import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -294,6 +293,14 @@ public class ReadWriteLockService {
 
     }
 
+    /**
+     * 添加锁对象
+     * @param tenantId
+     * @param fileId
+     * @param type
+     * @param userId
+     * @return
+     */
     private ReadWriteLockVO insert(Long tenantId, Long fileId, String type, Long userId) {
         ReadWriteLock readWriteLock = new ReadWriteLock();
         readWriteLock.setTenantId(tenantId);
@@ -369,16 +376,4 @@ public class ReadWriteLockService {
     }
 
 
-
-    /**
-     * 使用HashMap做个简单的<UserId,UserName>缓存
-     */
-    private String getUserNameMapCached(Long userId, HashMap<Long, String> userMap) {
-        String userName = userMap.get(userId);
-        if (userName == null) {
-            userName = userService.getUserName(userId);
-            userMap.put(userId, userName);
-        }
-        return userName;
-    }
 }

@@ -18,20 +18,16 @@
 
 package com.dtstack.batch.service.task.impl;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.batch.dao.BatchTaskResourceShadeDao;
-import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskResource;
 import com.dtstack.batch.domain.BatchTaskResourceShade;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -78,25 +74,6 @@ public class BatchTaskResourceShadeService {
         }
     }
 
-    public List<Long> getResourceIdList(long taskId, int type) {
-        List<BatchTaskResourceShade> resourceList = batchTaskResourceShadeDao.listByTaskId(taskId, type);
-        List<Long> resultIdList = Lists.newArrayList();
-        if (resourceList == null) {
-            return resultIdList;
-        }
-
-        resourceList.forEach(record -> resultIdList.add(record.getResourceId()));
-        return resultIdList;
-    }
-
-    public List<BatchResource> listResourceByTaskId (Long taskId, Integer resourceType) {
-        List<BatchResource> resourceList = batchTaskResourceShadeDao.listResourceByTaskId(taskId, resourceType);
-        if (CollectionUtils.isEmpty(resourceList)) {
-            return new ArrayList<>();
-        } else {
-            return resourceList;
-        }
-    }
 
     public void deleteByTenantId(Long tenantId) {
         batchTaskResourceShadeDao.deleteByTenantId(tenantId);
