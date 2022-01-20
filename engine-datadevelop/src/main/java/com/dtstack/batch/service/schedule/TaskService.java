@@ -17,6 +17,7 @@ import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.pager.PageResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -275,5 +276,9 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             returnTaskSupportTypesVOS.add(vo);
         }
         return returnTaskSupportTypesVOS;
+    }
+
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String taskName, Integer appType, Long uicTenantId, Long projectId) {
+        return null;
     }
 }

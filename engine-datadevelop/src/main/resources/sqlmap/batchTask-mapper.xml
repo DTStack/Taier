@@ -402,11 +402,6 @@
         WHERE name = #{name} and tenant_id = #{tenantId} and is_deleted=0
     </delete>
 
-    <select id="getTaskOwnerAndTenantId" resultType="com.dtstack.batch.dao.po.TaskOwnerAndTenantPO">
-        select distinct owner_user_id as ownerId , tenant_id  as tenantId
-        from rdos_batch_task
-        where is_deleted = 0
-    </select>
 
     <select id="listAllSubmitTask" resultType="com.dtstack.engine.domain.BatchTask">
         SELECT
