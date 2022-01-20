@@ -22,10 +22,10 @@ import com.dtstack.batch.dao.BatchTaskTaskDao;
 import com.dtstack.batch.domain.BatchTaskTask;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.schedule.TaskService;
+import com.dtstack.batch.service.user.UserService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.domain.ScheduleTaskShade;
-import com.dtstack.engine.master.impl.ScheduleTaskTaskShadeService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,7 +54,7 @@ public class BatchTaskTaskService {
     private TenantService tenantService;
 
     @Autowired
-    private ScheduleTaskTaskShadeService scheduleTaskTaskShadeService;
+    private UserService userService;
 
     @Autowired
     private TaskService taskService;
@@ -105,7 +105,7 @@ public class BatchTaskTaskService {
         for (BatchTask task : tasks) {
             BatchTaskTask taskTask = new BatchTaskTask();
             taskTask.setParentTaskId(task.getId());
-//            taskTask.setTenantId(task.getTenantId());
+            taskTask.setTenantId(task.getTenantId());
             taskTask.setTaskId(taskId);
             taskTasks.add(taskTask);
         }
@@ -121,23 +121,6 @@ public class BatchTaskTaskService {
         return batchTaskTask;
     }
 
-    public List<Long> getTopTask(long taskId) {
-        List<BatchTaskTask> taskTaskList = batchTaskTaskDao.listByTaskId(taskId);
-        if (CollectionUtils.isEmpty(taskTaskList)) {
-            return Lists.newArrayList();
-        }
-
-        List<Long> parentTaskList = Lists.newArrayList();
-        for (BatchTaskTask taskTask : taskTaskList) {
-            if (taskTask.getParentTaskId() == -1) {
-                parentTaskList.add(taskTask.getTaskId());
-            } else {
-                parentTaskList.addAll(getTopTask(taskTask.getParentTaskId()));
-            }
-        }
-
-        return parentTaskList;
-    }
 
     public List<BatchTaskTask> getByParentTaskId(long parentId) {
         return batchTaskTaskDao.listByParentTaskId(parentId);
@@ -156,20 +139,6 @@ public class BatchTaskTaskService {
         return batchTaskTaskDao.listParentTaskIdByTaskId(taskId);
     }
 
-    /**
-     * 所有的任务关联关系的显示都是基于已经发布的任务数据（而不是已经保存的任务）
-     *
-     * @author toutian
-     */
-    public ScheduleTaskVO displayOffSpring(Long taskId,
-                                           Long projectId,
-                                           Long userId,
-                                           Integer level,
-                                           Integer type,
-                                           Integer appType) {
-        ScheduleTaskVO scheduleTaskVO = scheduleTaskTaskShadeService.displayOffSpring(taskId, projectId, level, type, appType);
-        return scheduleTaskVO;
-    }
 
     /**
      * 展开上一个父节点
@@ -181,9 +150,9 @@ public class BatchTaskTaskService {
         BatchTaskBatchVO vo = new BatchTaskBatchVO();
         BeanUtils.copyProperties(task, vo);
         vo.setVersion(task.getVersion());
-//        vo.setCreateUser(userService.getUserByDTO(task.getCreateUserId()));
-//        vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
-//        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
+        vo.setCreateUser(userService.getUserByDTO(task.getCreateUserId()));
+        vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
+        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
 
         List<BatchTaskTask> taskTasks = batchTaskTaskDao.listByTaskId(task.getId());

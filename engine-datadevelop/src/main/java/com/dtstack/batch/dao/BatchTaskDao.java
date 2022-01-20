@@ -18,7 +18,6 @@
 
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.dao.po.TaskOwnerAndTenantPO;
 import com.dtstack.batch.dto.BatchTaskDTO;
 import com.dtstack.batch.web.pager.PageQuery;
 import com.dtstack.engine.domain.BatchTask;
@@ -104,8 +103,6 @@ public interface BatchTaskDao {
     List<BatchTask> listSubmitTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("tenantId") Long tenantId);
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("userId") Long userId);
-
-    List<TaskOwnerAndTenantPO> getTaskOwnerAndTenantId();
 
     /**
      * 更新此项目下的任务负责人
