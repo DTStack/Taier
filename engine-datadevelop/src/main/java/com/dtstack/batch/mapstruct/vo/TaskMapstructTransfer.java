@@ -20,17 +20,30 @@ package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
-import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.domain.BatchTaskVersionDetail;
-import com.dtstack.batch.vo.*;
-import com.dtstack.batch.web.task.vo.query.*;
-import com.dtstack.batch.web.task.vo.result.*;
-import com.dtstack.engine.dto.ScheduleTaskShadeDTO;
-import com.dtstack.engine.master.vo.ScheduleDetailsVO;
+import com.dtstack.batch.vo.BatchTaskBatchVO;
+import com.dtstack.batch.vo.ReadWriteLockVO;
+import com.dtstack.batch.vo.TaskCatalogueVO;
+import com.dtstack.batch.vo.TaskCheckResultVO;
+import com.dtstack.batch.vo.TaskResourceParam;
+import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskResultVO;
+import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO;
+import com.dtstack.batch.web.task.vo.query.BatchTaskResourceParamVO;
+import com.dtstack.batch.web.task.vo.query.BatchTaskTaskAddOrUpdateDependencyVO;
+import com.dtstack.batch.web.task.vo.result.BatchGetChildTasksResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchResourceResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchSysParameterResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskGetTaskByIdResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskPublishTaskResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskResultVO;
+import com.dtstack.batch.web.task.vo.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.batch.web.task.vo.result.ReadWriteLockResultVO;
+import com.dtstack.batch.web.task.vo.result.ScheduleTaskShadeResultVO;
+import com.dtstack.batch.web.task.vo.result.TaskCatalogueResultVO;
+import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
 import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
-import com.dtstack.engine.pager.PageResult;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -87,12 +100,6 @@ public interface TaskMapstructTransfer {
      */
     TaskCatalogueResultVO TaskCatalogueVOToResultVO(TaskCatalogueVO taskCatalogueVO);
 
-    /**
-     * BatchTaskBatchVO -> BatchTaskBatchResultVO
-     * @param batchTaskBatchVO
-     * @return
-     */
-    BatchTaskBatchResultVO BatchTaskBatchVOToBatchTaskBatchResultVO(BatchTaskBatchVO batchTaskBatchVO);
 
     /**
      * List<BatchTaskVersionDetail>  -> List<BatchTaskVersionDetailResultVO>
@@ -109,12 +116,6 @@ public interface TaskMapstructTransfer {
      */
     BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(BatchTaskVersionDetail batchTaskVersionDetail);
 
-    /**
-     * TaskCatalogueVO -> TaskCatalogueResultVO
-     * @param taskCatalogueVO
-     * @return
-     */
-    TaskCatalogueResultVO TaskCatalogueVOToTaskCatalogueResultVO(TaskCatalogueVO taskCatalogueVO);
 
     /**
      * ollection<BatchSysParameter>  -> Collection<BatchSysParameterResultVO>
@@ -137,13 +138,6 @@ public interface TaskMapstructTransfer {
      * @return
      */
     List<BatchResourceResultVO> BatchResourceListToBatchResourceResultVOList(List<BatchResource> batchResourceList);
-
-    /**
-     * List<BatchTaskRecordVO> -> List<BatchTaskRecordResultVO>
-     * @param batchTaskRecordVOList
-     * @return
-     */
-    List<BatchTaskRecordResultVO> BatchTaskRecordVOListToBatchTaskRecordResultVOList(List<BatchTaskRecordVO> batchTaskRecordVOList);
 
 
     /**
@@ -168,21 +162,6 @@ public interface TaskMapstructTransfer {
      */
     BatchTaskPublishTaskResultVO TaskCheckResultVOToBatchTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
 
-    /**
-     * BatchScheduleTaskShadeVO -> ScheduleTaskShadeDTO
-     *
-     * @param batchScheduleTaskShadeVO
-     * @return
-     */
-    ScheduleTaskShadeDTO BatchScheduleTaskShadeVOToScheduleTaskShadeDTO(BatchScheduleTaskShadeVO batchScheduleTaskShadeVO);
-
-    /**
-     * com.dtstack.engine.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> -> com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>>
-     *
-     * @param pageResult
-     * @return
-     */
-    com.dtstack.batch.web.pager.PageResult<List<BatchTaskShadePageQueryResultVO>> BatchTaskShadePageQueryResultVOListTOBatchTaskShadePageQueryResultVOList(PageResult<List<BatchTaskShadePageQueryResultVO>> pageResult);
 
     /**
      * List<ScheduleTaskShadeTypeVO> -> List<ScheduleTaskResultVO>
@@ -205,11 +184,5 @@ public interface TaskMapstructTransfer {
      */
     List<BatchTask> batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(List<BatchTaskTaskAddOrUpdateDependencyVO> dependencyVOS);
 
-    /**
-     * ScheduleDetailsVO --> BatchTaskTaskFindTaskRuleTaskResultVO
-     * @param scheduleDetailsVO
-     * @return
-     */
-    BatchTaskTaskFindTaskRuleTaskResultVO scheduleDetailsVOToBatchTaskTaskFindTaskRuleTaskResultVO(ScheduleDetailsVO scheduleDetailsVO);
 
 }
