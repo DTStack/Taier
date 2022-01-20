@@ -31,7 +31,7 @@ public interface BatchServerLogMapstructTransfer {
     /**
      * BatchServerLogVO -> BatchServerLogResultVO
      *
-     * @param addVO
+     * @param serverLogVO
      * @return
      */
     BatchServerLogResultVO batchServerLogVOToBatchServerLogResultVO(BatchServerLogVO serverLogVO);

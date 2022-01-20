@@ -20,13 +20,11 @@ package com.dtstack.batch.service.job.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.domain.BatchTaskParam;
 import com.dtstack.batch.domain.BatchTaskParamShade;
 import com.dtstack.batch.dto.BatchParamDTO;
-import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.impl.BatchServerLogService;
 import com.dtstack.batch.service.impl.MultiEngineServiceFactory;
@@ -44,6 +42,7 @@ import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.EngineType;
 import com.dtstack.engine.common.enums.TaskStatus;
+import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.JsonUtils;
@@ -57,8 +56,6 @@ import com.dtstack.engine.domain.User;
 import com.dtstack.engine.master.impl.pojo.ParamActionExt;
 import com.dtstack.engine.master.impl.pojo.ParamTaskAction;
 import com.dtstack.engine.master.service.ScheduleActionService;
-import com.dtstack.engine.master.service.ScheduleJobService;
-import com.dtstack.engine.master.service.ScheduleTaskShadeService;
 import com.dtstack.engine.master.vo.action.ActionJobEntityVO;
 import com.dtstack.engine.master.vo.action.ActionLogVO;
 import com.dtstack.engine.pluginapi.enums.ComputeType;
@@ -185,7 +182,6 @@ public class BatchJobService {
 
     /**
      * 运行同步任务
-     * TODO 内容也需要迁移出去
      *
      * @return
      */
