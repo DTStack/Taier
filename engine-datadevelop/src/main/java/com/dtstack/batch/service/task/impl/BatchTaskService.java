@@ -24,8 +24,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
-import com.dtstack.engine.common.enums.CatalogueType;
-import com.dtstack.engine.common.enums.PublishTaskStatusEnum;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionDao;
@@ -34,7 +32,6 @@ import com.dtstack.batch.dao.BatchTaskDao;
 import com.dtstack.batch.dao.BatchTaskResourceDao;
 import com.dtstack.batch.dao.BatchTaskVersionDao;
 import com.dtstack.batch.dao.ReadWriteLockDao;
-import com.dtstack.batch.dao.po.TaskOwnerAndTenantPO;
 import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchSysParameter;
@@ -58,7 +55,6 @@ import com.dtstack.batch.parser.ScheduleCron;
 import com.dtstack.batch.parser.ScheduleFactory;
 import com.dtstack.batch.schedule.JobParamReplace;
 import com.dtstack.batch.service.console.TenantService;
-import com.dtstack.batch.service.datasource.impl.BatchDataSourceTaskRefService;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.BatchResourceService;
@@ -95,6 +91,7 @@ import com.dtstack.batch.vo.TaskCatalogueVO;
 import com.dtstack.batch.vo.TaskCheckResultVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.pager.PageQuery;
+import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
@@ -104,7 +101,24 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.PatternConstant;
-import com.dtstack.engine.common.enums.*;
+import com.dtstack.engine.common.enums.AppType;
+import com.dtstack.engine.common.enums.CatalogueType;
+import com.dtstack.engine.common.enums.Deleted;
+import com.dtstack.engine.common.enums.DependencyType;
+import com.dtstack.engine.common.enums.DictType;
+import com.dtstack.engine.common.enums.EComponentType;
+import com.dtstack.engine.common.enums.EDeployType;
+import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleStatus;
+import com.dtstack.engine.common.enums.ESubmitStatus;
+import com.dtstack.engine.common.enums.EngineType;
+import com.dtstack.engine.common.enums.FuncType;
+import com.dtstack.engine.common.enums.MultiEngineType;
+import com.dtstack.engine.common.enums.PublishTaskStatusEnum;
+import com.dtstack.engine.common.enums.ReadWriteLockType;
+import com.dtstack.engine.common.enums.ResourceRefType;
+import com.dtstack.engine.common.enums.Sort;
+import com.dtstack.engine.common.enums.TaskLockStatus;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
@@ -128,6 +142,7 @@ import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.ScheduleTaskVO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.master.vo.task.NotDeleteTaskVO;
 import com.dtstack.engine.pluginapi.util.MathUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -215,9 +230,6 @@ public class BatchTaskService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private BatchDataSourceTaskRefService dataSourceTaskRefService;
 
     @Autowired
     private TaskService taskService;
@@ -1418,7 +1430,7 @@ public class BatchTaskService {
             logger.info("success insert batchTask, taskId:{}", task.getId());
         }
 
-        //fixme 右键编辑使用另一个接口
+        // 右键编辑时会调用另一个接口
         if (BooleanUtils.isNotTrue(isEditBaseInfo)) {
             if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())  &&
                     !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
@@ -1756,8 +1768,6 @@ public class BatchTaskService {
         this.batchTaskDao.deleteById(taskId, Timestamp.valueOf(LocalDateTime.now()), tenantId, userId);
         //删除任务的依赖关系
         this.batchTaskTaskService.deleteTaskTaskByTaskId(taskId);
-        //删除关联的数据源资源
-        this.dataSourceTaskRefService.removeRef(taskId);
         //删除关联的函数资源
         this.batchTaskResourceService.deleteTaskResource(taskId);
         this.batchTaskResourceShadeService.deleteByTaskId(taskId);
@@ -1918,11 +1928,6 @@ public class BatchTaskService {
         final PageQuery<BatchTaskDTO> pageQuery = new PageQuery<>(batchTaskDTO);
         final List<BatchTask> batchTasks = this.batchTaskDao.generalQueryWithoutSql(pageQuery);
         return batchTasks;
-    }
-
-    public List<TaskOwnerAndTenantPO> getTaskOwnerAndTenantId(){
-        List<TaskOwnerAndTenantPO> taskOwnerAndTenantId = batchTaskDao.getTaskOwnerAndTenantId();
-        return taskOwnerAndTenantId;
     }
 
 
@@ -2604,4 +2609,16 @@ public class BatchTaskService {
         }
         return tmpKerberosConfig;
     }
+
+    /**
+     * 查找所有产品提交的任务
+     * @param searchVO
+     * @return
+     */
+    public List<ScheduleTaskShadeTypeVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
+        List<ScheduleTaskShadeTypeVO> apiResponse = taskService.findFuzzyTaskNameByCondition(
+                searchVO.getTaskName(), searchVO.getAppType(), searchVO.getUicTenantId(), searchVO.getProjectId());
+        return apiResponse;
+    }
+
 }

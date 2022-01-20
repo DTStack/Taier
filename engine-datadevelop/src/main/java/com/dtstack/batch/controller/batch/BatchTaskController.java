@@ -24,6 +24,7 @@ import com.dtstack.batch.service.task.impl.BatchTaskService;
 import com.dtstack.batch.vo.BatchTaskBatchVO;
 import com.dtstack.batch.vo.TaskResourceParam;
 import com.dtstack.batch.web.datasource.vo.query.BatchDataSourceTraceVO;
+import com.dtstack.batch.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.batch.web.task.vo.query.BatchScheduleTaskVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckIsLoopVO;
 import com.dtstack.batch.web.task.vo.query.BatchTaskCheckNameVO;
@@ -44,6 +45,7 @@ import com.dtstack.batch.web.task.vo.result.BatchTaskGetTaskByIdResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskPublishTaskResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskResultVO;
 import com.dtstack.batch.web.task.vo.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.batch.web.task.vo.result.ScheduleTaskShadeResultVO;
 import com.dtstack.batch.web.task.vo.result.TaskCatalogueResultVO;
 import com.dtstack.engine.common.lang.coc.APITemplate;
 import com.dtstack.engine.common.lang.web.R;
@@ -267,6 +269,17 @@ public class BatchTaskController {
             @Override
             protected JSONObject process() {
                 return batchTaskService.trace(vo.getTaskId());
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "allProductGlobalSearch")
+    @ApiOperation("所有产品的已提交任务查询")
+    public R<List<ScheduleTaskShadeResultVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
+        return new APITemplate<List<ScheduleTaskShadeResultVO>>() {
+            @Override
+            protected List<ScheduleTaskShadeResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.scheduleTaskShadeTypeVOsToBatchTaskResultVOs(batchTaskService.allProductGlobalSearch(allProductGlobalSearchVO));
             }
         }.execute();
     }
