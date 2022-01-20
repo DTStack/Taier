@@ -652,7 +652,7 @@ public class BatchServerLogService {
         }
         final PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHostAndPort.getKey(), prometheusHostAndPort.getValue()));
 
-        //TODO 之后查询是可以直接获取最后一条记录的方法
+        //之后查询是可以直接获取最后一条记录的方法
         //防止数据同步执行时间太长 查询prometheus的时候返回exceeded maximum resolution of 11,000 points per timeseries
         final long maxGapTime = 60 * 1000 * 60 * (long)8;
         long gapStartTime = startTime;

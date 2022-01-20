@@ -26,8 +26,6 @@ import java.util.List;
 public interface ReadWriteLockDao {
     ReadWriteLock getOne(@Param("id") long id);
 
-    ReadWriteLock getByLockName(@Param("lockName") String lockName);
-
     Integer insert(ReadWriteLock readWriteLock);
 
     Integer updateVersionAndModifyUserId(@Param("id") Long id, @Param("version") Integer version, @Param("modifyUserId")Long modifyUserId);

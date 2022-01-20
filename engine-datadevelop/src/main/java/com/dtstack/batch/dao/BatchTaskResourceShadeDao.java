@@ -18,28 +18,46 @@
 
 package com.dtstack.batch.dao;
 
-import com.dtstack.batch.domain.BatchResource;
 import com.dtstack.batch.domain.BatchTaskResourceShade;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * Created by jiangbo on 2017/5/3 0003.
  */
 public interface BatchTaskResourceShadeDao {
 
+    /**
+     * 根据 Id 查询
+     * @param id
+     * @return
+     */
     BatchTaskResourceShade getOne(@Param("id") Long id);
 
-    List<BatchTaskResourceShade> listByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType);
-
+    /**
+     * 根据 任务Id 查询
+     * @param taskId
+     * @return
+     */
     Integer deleteByTaskId(@Param("taskId") long taskId);
 
+    /**
+     * 插入任务资源
+     * @param batchTaskResourceShade
+     * @return
+     */
     Integer insert(BatchTaskResourceShade batchTaskResourceShade);
 
+    /**
+     * 更新任务资源
+     * @param batchTaskResourceShade
+     * @return
+     */
     Integer update(BatchTaskResourceShade batchTaskResourceShade);
 
-    List<BatchResource> listResourceByTaskId(@Param("taskId") long taskId, @Param("resourceType") Integer resourceType);
-
+    /**
+     * 根据 租户id 删除任务资源
+     * @param tenantId
+     * @return
+     */
     Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

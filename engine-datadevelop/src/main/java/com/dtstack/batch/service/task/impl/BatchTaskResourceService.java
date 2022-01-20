@@ -145,10 +145,4 @@ public class BatchTaskResourceService {
         return batchTaskResource;
     }
 
-    public void copyTaskResource(Long srcTaskId, BatchTask distTask, Integer type){
-        List<Long> resourceIds = getResourceIdList(srcTaskId, type);
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(resourceIds)){
-            save(distTask,resourceIds, type);
-        }
-    }
 }
