@@ -31,7 +31,7 @@ import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.batch.vo.SqlResultVO;
 import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.enums.DataSourceType;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +57,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
     @Forbidden
     @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
-        return executeSql(executeContent, EJobType.SPARK_SQL);
+        return executeSql(executeContent, EScheduleJobType.SPARK_SQL);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         List<ParseResult> parseResultList = executeContent.getParseResultList();
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
 
-        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null);
+        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null, executeContent.getTaskType());
         ExecuteSqlParseVO executeSqlParseVO = new ExecuteSqlParseVO();
         List<SqlResultVO> sqlIdList = Lists.newArrayList();
         List<String> sqlList = Lists.newArrayList();
@@ -81,7 +81,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         for (ParseResult parseResult : parseResultList) {
             // 简单查询
             if (Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
-                result = simpleQuery(tenantId, parseResult, currDb, userId, EJobType.SPARK_SQL);
+                result = simpleQuery(tenantId, parseResult, currDb, userId, EScheduleJobType.SPARK_SQL);
                 if (!result.getIsContinue()) {
                     SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                     sqlResultVO.setSqlId(result.getJobId());
@@ -117,7 +117,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
                     sqlResultVO.setType(SqlTypeEnums.NO_SELECT_DATA.getType());
                     if (SqlType.CREATE.equals(parseResult.getSqlType())
                             || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-                        executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), EJobType.SPARK_SQL);
+                        executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), EScheduleJobType.SPARK_SQL);
                         sqlResultVO.setMsg(String.format(SHOW_LIFECYCLE, parseResult.getMainTable().getName(), parseResult.getMainTable().getLifecycle()));
                         sqlIdList.add(sqlResultVO);
                     } else {
@@ -152,7 +152,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
     @Override
     public void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam) {
-        checkSingleSqlSyntax(tenantId, sql, db, taskParam, EJobType.SPARK_SQL);
+        checkSingleSqlSyntax(tenantId, sql, db, taskParam, EScheduleJobType.SPARK_SQL);
     }
 
 }

@@ -56,8 +56,8 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "函数类型 0自定义 1系统 2存储过程", example = "0", required = true)
     private Integer type;
 
-    @ApiModelProperty(value = "engine类型", example = "1", required = true)
-    private Integer engineType;
+    @ApiModelProperty(value = "任务类型", example = "0", required = true)
+    private Integer taskType;
 
     @ApiModelProperty(value = "函数资源名称", example = "test_name")
     private String resourceName;

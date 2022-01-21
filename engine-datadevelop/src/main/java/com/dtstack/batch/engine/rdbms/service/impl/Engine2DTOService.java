@@ -19,17 +19,20 @@
 package com.dtstack.batch.engine.rdbms.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.enums.ETableType;
-import com.dtstack.engine.common.enums.HiveVersion;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.dtcenter.loader.cache.pool.config.PoolConfig;
-import com.dtstack.dtcenter.loader.dto.source.*;
+import com.dtstack.dtcenter.loader.dto.source.Hive1SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Hive3SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.HiveSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.SparkSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.engine.common.engine.KerberosConfig;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -46,7 +49,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -241,12 +249,12 @@ public enum Engine2DTOService {
      *
      * @param dtUicTenantId uic租户id
      * @param dtUicUserId uic用户id
-     * @param jobType  任务类型
+     * @param eScheduleJobType  任务类型
      * @return 对应的sourceDTO
      */
-    public static ISourceDTO get(Long dtUicTenantId, Long dtUicUserId, EJobType jobType, String dbName) {
-        JdbcInfo jdbcInfo = getJdbcInfo(dtUicTenantId, dtUicUserId, jobType);
-        DataSourceType dataSourceType = jobTypeTransitionDataSourceType(jobType, jdbcInfo.getVersion());
+    public static ISourceDTO get(Long dtUicTenantId, Long dtUicUserId, EScheduleJobType eScheduleJobType, String dbName) {
+        JdbcInfo jdbcInfo = getJdbcInfo(dtUicTenantId, dtUicUserId, eScheduleJobType);
+        DataSourceType dataSourceType = jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion());
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
         return engine2DTOEnum.getSourceDTO(jdbcInfo, dtUicTenantId, dtUicUserId, dbName);
     }
@@ -277,8 +285,8 @@ public enum Engine2DTOService {
         JdbcInfo jdbcInfo = null;
         if (dtUicTenantId != null) {
             if (ETableType.HIVE.equals(eTableType)) {
-                EJobType eJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
-                jdbcInfo = getJdbcInfo(dtUicTenantId, dtUicUserId, eJobType);
+                EScheduleJobType eScheduleJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
+                jdbcInfo = getJdbcInfo(dtUicTenantId, dtUicUserId, eScheduleJobType);
             }
         }
         if (jdbcInfo == null) {
@@ -294,13 +302,13 @@ public enum Engine2DTOService {
      *
      * @param dtUicTenantId uic租户id
      * @param dtUicUserId uic用户id
-     * @param eJobType 任务类型
+     * @param eScheduleJobType 任务类型
      * @return 数据源连接信息
      */
-    public static JdbcInfo getJdbcInfo (Long dtUicTenantId, Long dtUicUserId, EJobType eJobType) {
+    public static JdbcInfo getJdbcInfo (Long dtUicTenantId, Long dtUicUserId, EScheduleJobType eScheduleJobType) {
         JdbcInfo jdbcInfo = null;
         if (clusterService != null && dtUicTenantId != null) {
-            if (EJobType.SPARK_SQL.equals(eJobType)) {
+            if (EScheduleJobType.SPARK_SQL.equals(eScheduleJobType)) {
                 jdbcInfo = getSparkThrift(dtUicTenantId);
             }
         }
@@ -379,8 +387,8 @@ public enum Engine2DTOService {
      */
     public static DataSourceType tableTypeTransitionDataSourceType(ETableType eTableType, String version, Long dtUicTenantId){
         if (ETableType.HIVE.equals(eTableType)) {
-            EJobType eJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
-            return jobTypeTransitionDataSourceType(eJobType, version);
+            EScheduleJobType eScheduleJobType = getJobTypeByHadoopMetaType(dtUicTenantId);
+            return jobTypeTransitionDataSourceType(eScheduleJobType, version);
         } else {
             throw new RdosDefineException("tableType not transition dataSourceType");
         }
@@ -392,16 +400,8 @@ public enum Engine2DTOService {
      *
      * @return
      */
-    public static DataSourceType jobTypeTransitionDataSourceType(EJobType eJobType, String version) {
-        if (EJobType.HIVE_SQL.equals(eJobType)) {
-            if (HiveVersion.HIVE_1x.getVersion().equals(version)) {
-                return DataSourceType.HIVE1X;
-            } else if (HiveVersion.HIVE_3x.getVersion().equals(version)) {
-                return DataSourceType.HIVE3X;
-            } else {
-                return DataSourceType.HIVE;
-            }
-        } else if (EJobType.SPARK_SQL.equals(eJobType)) {
+    public static DataSourceType jobTypeTransitionDataSourceType(EScheduleJobType eScheduleJobType, String version) {
+        if (EScheduleJobType.SPARK_SQL.equals(eScheduleJobType)) {
             return DataSourceType.SparkThrift2_1;
         } else {
             throw new RdosDefineException("jobType not transition dataSourceType");
@@ -414,17 +414,15 @@ public enum Engine2DTOService {
      * @param tenantId
      * @return
      */
-    public static EJobType getJobTypeByHadoopMetaType(Long tenantId) {
+    public static EScheduleJobType getJobTypeByHadoopMetaType(Long tenantId) {
         Integer metaComponent = getMetaComponent(tenantId);
         if(null == metaComponent){
             throw new RdosDefineException("not find 'Hadoop' meta DataSource!");
         }
         EComponentType componentType = EComponentType.getByCode(metaComponent);
         switch (componentType){
-            case HIVE_SERVER:
-                return EJobType.HIVE_SQL;
             case SPARK_THRIFT:
-                return EJobType.SPARK_SQL;
+                return EScheduleJobType.SPARK_SQL;
             default:
                 throw new RdosDefineException("not support meta DataSource!");
         }

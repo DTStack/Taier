@@ -1864,7 +1864,7 @@ public class ComponentService {
 
 
     public List<Component> getComponentVersionByEngineType(Long tenantId, Integer taskType) {
-        EScheduleJobType scheduleJobType = EScheduleJobType.getTaskType(taskType);
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
         EComponentType componentType = scheduleJobType.getComponentType();
         List<Component> componentVersionList = componentMapper.getComponentVersionByEngineType(tenantId, componentType.getTypeCode());
         if (CollectionUtils.isEmpty(componentVersionList)) {

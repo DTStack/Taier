@@ -3,15 +3,18 @@ package com.dtstack.batch.service.datasource.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.engine.common.enums.DataSourceTypeEnum;
-import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.batch.common.template.Reader;
 import com.dtstack.batch.common.template.Setting;
 import com.dtstack.batch.common.template.Writer;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.batch.enums.*;
+import com.dtstack.batch.enums.DataSourceDataBaseType;
+import com.dtstack.batch.enums.EDataSourcePermission;
+import com.dtstack.batch.enums.RDBMSSourceType;
+import com.dtstack.batch.enums.SourceDTOType;
+import com.dtstack.batch.enums.TableLocationType;
+import com.dtstack.batch.enums.TaskCreateModelType;
 import com.dtstack.batch.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.batch.service.task.impl.BatchTaskParamService;
 import com.dtstack.batch.sync.format.TypeFormat;
@@ -19,7 +22,32 @@ import com.dtstack.batch.sync.format.writer.HiveWriterFormat;
 import com.dtstack.batch.sync.handler.SyncBuilderFactory;
 import com.dtstack.batch.sync.job.JobTemplate;
 import com.dtstack.batch.sync.job.PluginName;
-import com.dtstack.batch.sync.template.*;
+import com.dtstack.batch.sync.template.AwsS3Reader;
+import com.dtstack.batch.sync.template.AwsS3Writer;
+import com.dtstack.batch.sync.template.CarbonDataReader;
+import com.dtstack.batch.sync.template.CarbonDataWriter;
+import com.dtstack.batch.sync.template.DefaultSetting;
+import com.dtstack.batch.sync.template.EsReader;
+import com.dtstack.batch.sync.template.EsWriter;
+import com.dtstack.batch.sync.template.FtpReader;
+import com.dtstack.batch.sync.template.FtpWriter;
+import com.dtstack.batch.sync.template.HBaseReader;
+import com.dtstack.batch.sync.template.HBaseWriter;
+import com.dtstack.batch.sync.template.HDFSReader;
+import com.dtstack.batch.sync.template.HDFSWriter;
+import com.dtstack.batch.sync.template.HiveReader;
+import com.dtstack.batch.sync.template.HiveWriter;
+import com.dtstack.batch.sync.template.InceptorWriter;
+import com.dtstack.batch.sync.template.InfluxDBReader;
+import com.dtstack.batch.sync.template.MongoDbReader;
+import com.dtstack.batch.sync.template.MongoDbWriter;
+import com.dtstack.batch.sync.template.OdpsBase;
+import com.dtstack.batch.sync.template.OdpsReader;
+import com.dtstack.batch.sync.template.OdpsWriter;
+import com.dtstack.batch.sync.template.RDBBase;
+import com.dtstack.batch.sync.template.RDBReader;
+import com.dtstack.batch.sync.template.RDBWriter;
+import com.dtstack.batch.sync.template.RedisWriter;
 import com.dtstack.batch.utils.Asserts;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.TaskResourceParam;
@@ -34,12 +62,14 @@ import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.constrant.FormNames;
 import com.dtstack.engine.common.engine.JdbcInfo;
+import com.dtstack.engine.common.enums.DataSourceTypeEnum;
 import com.dtstack.engine.common.enums.EComponentType;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.DtCenterDefException;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.DataSourceUtils;
 import com.dtstack.engine.common.util.JsonUtils;
@@ -68,7 +98,20 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -218,8 +261,6 @@ public class DatasourceService {
      * 解析kerberos文件获取principal列表
      * @param source
      * @param resource
-     * @param dtuicTenantId
-     * @param projectId
      * @param userId
      * @return
      */
@@ -1924,7 +1965,7 @@ public class DatasourceService {
     }
 
     public void initDefaultSource(Long tenantId, String dataSourceName, String dataSourceDesc, Long userId) throws Exception {
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, EJobType.SPARK_SQL);
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, EScheduleJobType.SPARK_SQL);
         String jdbcUrl = jdbcInfo.getJdbcUrl();
         SparkThriftConnectionUtils.HiveVersion version = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
         JSONObject dataJson = new JSONObject();
