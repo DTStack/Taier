@@ -19,13 +19,11 @@
 package com.dtstack.batch.engine.core.service;
 
 import com.dtstack.batch.engine.core.domain.MultiComponentFactory;
-import com.dtstack.batch.engine.rdbms.hive.util.SparkThriftConnectionUtils;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.IMultiEngineService;
 import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.EComponentType;
 import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
@@ -91,17 +89,6 @@ public class MultiEngineService implements IMultiEngineService {
     @Override
     public DataSourceType getTenantSupportHadoopMetaDataSource(Long tenantId) {
         Integer metaComponent = Engine2DTOService.getMetaComponent(tenantId);
-        if (EComponentType.HIVE_SERVER.getTypeCode().equals(metaComponent)){
-            JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EJobType.HIVE_SQL);
-            SparkThriftConnectionUtils.HiveVersion hiveVersion = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
-            if (SparkThriftConnectionUtils.HiveVersion.HIVE_1x.equals(hiveVersion)){
-                return DataSourceType.HIVE1X;
-            }else if (SparkThriftConnectionUtils.HiveVersion.HIVE_3x.equals(hiveVersion)){
-                return DataSourceType.HIVE3X;
-            }else {
-                return DataSourceType.HIVE;
-            }
-        }
         if (EComponentType.SPARK_THRIFT.getTypeCode().equals(metaComponent)){
             return DataSourceType.SparkThrift2_1;
         }

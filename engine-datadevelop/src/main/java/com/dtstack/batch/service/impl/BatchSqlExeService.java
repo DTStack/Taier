@@ -20,7 +20,6 @@
 package com.dtstack.batch.service.impl;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.service.table.ISqlExeService;
@@ -32,7 +31,8 @@ import com.dtstack.batch.vo.CheckSyntaxResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.batch.vo.ExecuteSqlParseVO;
 import com.dtstack.engine.common.annotation.Forbidden;
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.enums.ETableType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.util.PublicUtil;
@@ -51,9 +51,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -89,14 +87,6 @@ public class BatchSqlExeService {
 
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 
-    private static final Set<Integer> notDataMapOpera = new HashSet<>();
-
-    static {
-        notDataMapOpera.add(EJobType.ORACLE_SQL.getVal());
-        notDataMapOpera.add(EJobType.GaussDB_SQL.getVal());
-        notDataMapOpera.add(EJobType.GREENPLUM_SQL.getVal());
-        notDataMapOpera.add(EJobType.INCEPTOR_SQL.getVal());
-    }
 
     private String getDbName(final ExecuteContent executeContent) {
         if (StringUtils.isNotBlank(executeContent.getDatabase())) {
@@ -413,8 +403,8 @@ public class BatchSqlExeService {
      */
     public String buildCustomFunctionSparkSql(String sqlText, Long tenantId, Integer taskType) {
         String sqlPlus = SqlFormatUtil.formatSql(sqlText);
-        if (EJobType.SPARK_SQL.getType().equals(taskType)) {
-            String containFunction = batchFunctionService.buildContainFunction(sqlText, tenantId);
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
+            String containFunction = batchFunctionService.buildContainFunction(sqlText, tenantId, taskType);
             if (StringUtils.isNotBlank(containFunction)) {
                 sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL,containFunction,sqlPlus);
             }

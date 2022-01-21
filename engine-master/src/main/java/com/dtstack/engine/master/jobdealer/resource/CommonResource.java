@@ -37,7 +37,7 @@ public class CommonResource {
 
 
     public ComputeResourceType newInstance(JobClient jobClient) {
-        EScheduleJobType taskType = EScheduleJobType.getTaskType(jobClient.getTaskType());
+        EScheduleJobType taskType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         CommonResource resource = resources.computeIfAbsent(taskType, k -> {
             CommonResource commonResource = null;
             switch (taskType) {
@@ -62,7 +62,7 @@ public class CommonResource {
     }
 
     public ComputeResourceType getComputeResourceType(JobClient jobClient) {
-        EScheduleJobType taskType = EScheduleJobType.getTaskType(jobClient.getTaskType());
+        EScheduleJobType taskType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         switch (taskType) {
             case SPARK_SQL:
             case SPARK:

@@ -18,9 +18,9 @@
 
 package com.dtstack.batch.mapping;
 
-import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -32,21 +32,10 @@ import java.util.Map;
  */
 public class DataSourceTypeJobTypeMapping {
 
-    private final static Map<Integer, EJobType> mappingMap = Maps.newHashMap();
+    private final static Map<Integer, EScheduleJobType> mappingMap = Maps.newHashMap();
 
     static {
-        mappingMap.put(DataSourceType.SparkThrift2_1.getVal(), EJobType.SPARK_SQL);
-        mappingMap.put(DataSourceType.Spark.getVal(), EJobType.SPARK_SQL);
-        mappingMap.put(DataSourceType.HIVE.getVal(), EJobType.HIVE_SQL);
-        mappingMap.put(DataSourceType.HIVE1X.getVal(), EJobType.HIVE_SQL);
-        mappingMap.put(DataSourceType.HIVE3X.getVal(), EJobType.HIVE_SQL);
-        mappingMap.put(DataSourceType.IMPALA.getVal(), EJobType.IMPALA_SQL);
-        mappingMap.put(DataSourceType.Oracle.getVal(), EJobType.ORACLE_SQL);
-        mappingMap.put(DataSourceType.TiDB.getVal(), EJobType.TIDB_SQL);
-        mappingMap.put(DataSourceType.GREENPLUM6.getVal(), EJobType.GREENPLUM_SQL);
-        mappingMap.put(DataSourceType.LIBRA.getVal(), EJobType.GaussDB_SQL);
-        mappingMap.put(DataSourceType.INCEPTOR.getVal(), EJobType.INCEPTOR_SQL);
-        mappingMap.put(DataSourceType.ADB_FOR_PG.getVal(), EJobType.ANALYTICDB_FOR_PG);
+        mappingMap.put(DataSourceType.SparkThrift2_1.getVal(), EScheduleJobType.SPARK_SQL);
     }
 
     public static Integer getJobTypeByDataSourceType(Integer dataSourceType){
@@ -59,11 +48,11 @@ public class DataSourceTypeJobTypeMapping {
      * @param dataSourceType
      * @return
      */
-    public static EJobType getTaskTypeByDataSourceType(Integer dataSourceType){
-        EJobType jobType = mappingMap.get(dataSourceType);
-        if(jobType == null){
-            throw new RdosDefineException("无法通过dataSourceType获取jobType");
+    public static EScheduleJobType getTaskTypeByDataSourceType(Integer dataSourceType){
+        EScheduleJobType eScheduleJobType = mappingMap.get(dataSourceType);
+        if(eScheduleJobType == null){
+            throw new RdosDefineException("无法通过dataSourceType获取EScheduleJobType");
         }
-        return jobType;
+        return eScheduleJobType;
     }
 }
