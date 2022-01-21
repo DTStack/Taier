@@ -58,7 +58,7 @@ public class PluginWrapper {
         Map<String, Object> pluginInfo = wrapperPluginInfo(jobClient.getTaskType(), jobClient.getTaskParams(), jobClient.getComputeType().getType(),
                 jobClient.getComponentVersion(), jobClient.getTenantId());
         jobClient.setPluginInfo(JSONObject.toJSONString(pluginInfo));
-        jobClient.setJobType(EJobType.getEjobType(EScheduleJobType.getTaskType(jobClient.getTaskType()).getEngineJobType()));
+        jobClient.setJobType(EJobType.getEjobType(EScheduleJobType.getByTaskType(jobClient.getTaskType()).getEngineJobType()));
         if (pluginInfo.containsKey(DEPLOY_MODEL)) {
             jobClient.setDeployMode((Integer) pluginInfo.get(DEPLOY_MODEL));
         }
