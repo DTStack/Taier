@@ -21,6 +21,7 @@ package com.dtstack.batch.engine.hdfs.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.batch.dao.BatchSelectSqlDao;
 import com.dtstack.batch.domain.BatchSelectSql;
@@ -202,9 +203,9 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      * @param addCustomFunction
      * @return
      */
-    public String buildCustomFunctionAndDbSql(String originSql, Long tenantId, String database, Boolean addCustomFunction) {
+    public String buildCustomFunctionAndDbSql(String originSql, Long tenantId, String database, Boolean addCustomFunction, Integer taskType) {
         if (BooleanUtils.isTrue(addCustomFunction)) {
-            String functionSql = batchFunctionService.buildContainFunction(originSql, tenantId);
+            String functionSql = batchFunctionService.buildContainFunction(originSql, tenantId, taskType);
             if (StringUtils.isNotBlank(functionSql)) {
                 return String.format(USER_DB_TEMP_FUNCTION, database, functionSql, originSql);
             }
@@ -221,9 +222,9 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      * @param tempTable
      * @return
      */
-    public String buildSelectSqlCustomFunction(String originSql, Long tenantId, String database, String tempTable) {
+    public String buildSelectSqlCustomFunction(String originSql, Long tenantId, String database, String tempTable, Integer taskType) {
         // 判断是否是自定义函数
-        String createFunction = batchFunctionService.buildContainFunction(originSql, tenantId);
+        String createFunction = batchFunctionService.buildContainFunction(originSql, tenantId, taskType);
         if (StringUtils.isNotBlank(createFunction)) {
             return String.format(CREATE_FUNCTION_TEMP_TABLE, database, createFunction, tempTable, originSql);
         }
@@ -244,6 +245,8 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      * @return
      */
     public BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Boolean isCreateAs, Long taskId) {
+        BatchTask batchTask = batchTaskService.getBatchTaskById(taskId);
+
         String originSql = parseResult.getStandardSql();
         // 生成临时表名
         String tempTable = TEMP_TABLE_PREFIX + System.nanoTime();
@@ -258,24 +261,23 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         String sql = null;
         if (SqlType.CREATE.equals(parseResult.getSqlType())) {
             isSelectSql = TempJobType.CREATE.getType();
-            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true);
+            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true, batchTask.getTaskType());
         } else if (isCreateAs) {
             isSelectSql = TempJobType.CREATE_AS.getType();
-            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true);
+            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true, batchTask.getTaskType());
         } else if (SqlType.INSERT.equals(parseResult.getSqlType()) || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())) {
             isSelectSql = TempJobType.INSERT.getType();
-            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true);
+            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true, batchTask.getTaskType());
         } else if (witchMatcher.find()) {
             TempJobType jobType = getTempJobType(witchMatcher.group("option"));
             isSelectSql = jobType.getType();
             sql = formatSql(jobType, database, tempTable, originSql);
         } else {
             isSelectSql = TempJobType.SELECT.getType();
-            sql = buildSelectSqlCustomFunction(originSql, tenantId, database, tempTable);
+            sql = buildSelectSqlCustomFunction(originSql, tenantId, database, tempTable, batchTask.getTaskType());
         }
 
         //设置需要环境参数
-        BatchTask batchTask = batchTaskService.getBatchTaskById(taskId);
         String taskParam = batchTask.getTaskParams();
 
         return new BuildSqlVO().
@@ -597,7 +599,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if (StringUtils.isNotEmpty(limitStr)) {
             num = Integer.parseInt(limitStr);
         }
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EJobType.getEJobType(taskType));
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EScheduleJobType.getByTaskType(taskType));
         if (num == null || num > jdbcInfo.getMaxRows()) {
             num = jdbcInfo.getMaxRows();
         }

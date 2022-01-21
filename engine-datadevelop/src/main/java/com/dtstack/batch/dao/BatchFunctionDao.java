@@ -45,19 +45,19 @@ public interface BatchFunctionDao {
 
     /**
      * 根据引擎类型 查询对应函数的跟目录
-     * @param engineType
+     * @param taskType
      * @return
      */
-    List<BatchFunction> listSystemFunction(@Param("engineType") Integer engineType);
+    List<BatchFunction> listSystemFunction(@Param("taskType") Integer taskType);
 
     /**
      * 根据 租户 查询
      * @param tenantId
      * @param functionType
-     * @param engineType
+     * @param taskType
      * @return
      */
-    List<BatchFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType, @Param("engineType") Integer engineType);
+    List<BatchFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType, @Param("taskType") Integer taskType);
 
     /**
      * 根据 租户、名称、类型 查询
@@ -93,10 +93,10 @@ public interface BatchFunctionDao {
     /**
      * 根据 租户、名称查询
      * @param tenantId
-     * @param engineType
+     * @param taskType
      * @return
      */
-    List<String> listNameByTenantId(@Param("tenantId") Long tenantId, @Param("engineType") Integer engineType);
+    List<String> listNameByTenantId(@Param("tenantId") Long tenantId, @Param("taskType") Integer taskType);
 
     /**
      * 通用查询

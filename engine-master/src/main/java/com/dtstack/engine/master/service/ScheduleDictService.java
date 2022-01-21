@@ -156,7 +156,7 @@ public class ScheduleDictService {
         if (StringUtils.isBlank(componentVersion)) {
             return "";
         }
-        EScheduleJobType scheduleJobType = EScheduleJobType.getTaskType(taskType);
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
         EComponentType componentType = scheduleJobType.getComponentType();
         Integer dictType = DictType.getByEComponentType(componentType);
         if (null != dictType) {

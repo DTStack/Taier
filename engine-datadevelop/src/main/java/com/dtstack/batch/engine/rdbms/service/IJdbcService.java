@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.engine.rdbms.service;
 
-import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 
 import java.sql.Connection;
 import java.util.List;
@@ -39,7 +39,7 @@ public interface IJdbcService {
      * @param dtuicUserId
      * @return
      */
-    Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String dbName);
+    Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String dbName);
 
 
     /**
@@ -47,12 +47,12 @@ public interface IJdbcService {
      *
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param dbName
      * @param taskParam
      * @return
      */
-    Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String dbName, String taskParam);
+    Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String dbName, String taskParam);
 
     /**
      * 执行查询
@@ -63,58 +63,58 @@ public interface IJdbcService {
      * @return
      * @throws Exception
      */
-    List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql);
+    List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql);
 
     /**
      * 执行查询 加limit
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @param limit
      * @return
      */
-    List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, Integer limit);
+    List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, Integer limit);
 
     /**
      * 执行查询，带前缀信息
      *
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @param variables
      * @return
      */
-    List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, List<String> variables);
+    List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables);
 
     /**
      * 执行查询
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @param variables
      * @param connection
      * @return
      */
-    List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, List<String> variables, Connection connection);
+    List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, Connection connection);
 
     /**
      * 执行查询  传入taskParam
      * @param tenantId
      * @param userId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @param variables
      * @param taskParam
      * @return
      */
-    List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EJobType eJobType, String schema, String sql, List<String> variables, String taskParam);
+    List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, String taskParam);
 
     /**
      * 执行查询 返回map结构
@@ -125,49 +125,49 @@ public interface IJdbcService {
      * @return
      * @throws Exception
      */
-    List<Map<String, Object>>  executeQueryMapResult(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql);
+    List<Map<String, Object>>  executeQueryMapResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql);
 
     /**
      *  执行sql 忽略查询结果
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @return
      */
-    Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql);
+    Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql);
 
     /**
      * 执行查询
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @param sql
      * @param connection
      * @return
      */
-    Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema, String sql, Connection connection);
+    Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, Connection connection);
 
     /**
      * 获取当前schema下面所有的表
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @return
      */
-    List<String> getTableList(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema);
+    List<String> getTableList(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema);
 
     /**
      * 获取所有的databases
      * @param dtuicTenantId
      * @param dtuicUserId
-     * @param eJobType
+     * @param eScheduleJobType
      * @param schema
      * @return
      */
-    List<String> getAllDataBases(Long dtuicTenantId, Long dtuicUserId, EJobType eJobType, String schema);
+    List<String> getAllDataBases(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema);
 
 }
