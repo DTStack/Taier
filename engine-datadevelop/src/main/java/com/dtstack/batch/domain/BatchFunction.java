@@ -21,6 +21,10 @@ package com.dtstack.batch.domain;
 import com.dtstack.engine.domain.TenantEntity;
 import lombok.Data;
 
+/**
+ * 函数
+ * @author jiangyue@dtstack.com
+ */
 @Data
 public class BatchFunction extends TenantEntity {
 
@@ -63,7 +67,10 @@ public class BatchFunction extends TenantEntity {
      */
     private Integer type;
 
-    private Integer engineType;
+    /**
+     * 任务类型
+     */
+    private Integer taskType;
 
     /**
      * 导入导出添加，函数资源名称
