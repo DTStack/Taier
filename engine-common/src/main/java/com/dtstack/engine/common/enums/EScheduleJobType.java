@@ -96,7 +96,7 @@ public enum EScheduleJobType {
     }
 
 
-    public static EScheduleJobType getTaskType(int type) {
+    public static EScheduleJobType getByTaskType(int type) {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {
             if (eJobType.type == type) {
