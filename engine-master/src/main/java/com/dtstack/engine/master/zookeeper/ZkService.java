@@ -256,7 +256,6 @@ public class ZkService implements InitializingBean, DisposableBean {
     }
 
     /**
-     * todo test
      * 设置 watcher
      * @param group 分组
      * @param key key
@@ -267,6 +266,7 @@ public class ZkService implements InitializingBean, DisposableBean {
         try {
             Stat stat = zkClient.checkExists().forPath(path);
             if (stat == null) {
+                // 递归创建节点
                 zkClient.create().creatingParentsIfNeeded().forPath(path);
             }
             zkClient.checkExists().usingWatcher(curatorWatcher).forPath(path);
@@ -290,6 +290,24 @@ public class ZkService implements InitializingBean, DisposableBean {
             }
         } catch (Exception e) {
             LOGGER.error("delete zNode fail, path:{}", path, e);
+        }
+    }
+
+    /**
+     * 删除组节点
+     *
+     * @param group 分组
+     */
+    public void deleteGroup(String group) {
+        String path = PathUtil.getPath(appPath, group);
+        try {
+            Stat stat = zkClient.checkExists().forPath(path);
+            if (stat != null) {
+                // 递归删除节点
+                zkClient.delete().deletingChildrenIfNeeded().forPath(path);
+            }
+        } catch (Exception e) {
+            LOGGER.error("delete group zNode fail, path:{}", path, e);
         }
     }
 
