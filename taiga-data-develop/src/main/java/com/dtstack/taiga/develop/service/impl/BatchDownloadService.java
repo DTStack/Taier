@@ -1,0 +1,517 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dtstack.taiga.develop.service.impl;
+
+import com.csvreader.CsvWriter;
+import com.dtstack.taiga.common.enums.ComputeType;
+import com.dtstack.taiga.common.enums.Deleted;
+import com.dtstack.taiga.common.enums.MultiEngineType;
+import com.dtstack.taiga.common.enums.TempJobType;
+import com.dtstack.taiga.common.exception.RdosDefineException;
+import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
+import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.develop.engine.hdfs.service.BatchHadoopSelectSqlService;
+import com.dtstack.taiga.develop.engine.hdfs.service.SyncDownload;
+import com.dtstack.taiga.develop.engine.rdbms.common.IDownload;
+import com.dtstack.taiga.develop.enums.DownloadType;
+import com.dtstack.taiga.develop.mapping.TaskTypeEngineTypeMapping;
+import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
+import com.dtstack.taiga.develop.service.table.IDataDownloadService;
+import com.dtstack.taiga.scheduler.service.ScheduleActionService;
+import com.dtstack.taiga.scheduler.vo.action.ActionLogVO;
+import com.dtstack.taiga.scheduler.vo.action.ActionRetryLogVO;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+/**
+ * 下载功能
+ * Date: 2018/5/25
+ * Company: www.dtstack.com
+ *
+ * @author xuchao
+ */
+
+@Service
+public class BatchDownloadService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BatchDownloadService.class);
+
+    public static final Integer DEFAULT_LOG_PREVIEW_BYTES = 16383;
+
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
+
+    @Resource
+    private BatchSelectSqlDao batchHiveSelectSqlDao;
+
+    @Autowired
+    private ScheduleActionService actionService;
+
+    @Autowired
+    private DatasourceService datasourceService;
+
+    private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>(\\*|[a-zA-Z0-9_,\\s]*?))\\s+from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
+
+    private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
+
+    public IDownload downloadSqlExeResult(String jobId, Long tenantId) {
+
+        BatchSelectSql batchSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+        Preconditions.checkNotNull(batchSelectSql, "不存在该临时查询");
+
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(batchSelectSql.getTaskType());
+                Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持该任务类型 %d", batchSelectSql.getTaskType()));
+
+        return dataDownloadService.downloadSqlExeResult(jobId, tenantId);
+    }
+
+    /**
+     * @param tenantId
+     * @param tableName
+     * @param db
+     * @param num
+     * @param fieldNameList
+     * @param permissionStyle 显示全部字段（包括fieldNameList），无权限字段显示 noPemrission， 需要和fieldNameList配合使用
+     * @return
+     * @throws Exception
+     */
+    public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num,
+                                           List<String> fieldNameList, Boolean permissionStyle, Integer engineType) throws Exception {
+
+        Integer otherTypes = null;
+        // 特殊处理Hadoop引擎
+        if(MultiEngineType.HADOOP.getType() == engineType){
+           /* DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
+            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
+                // 1 代表Impala
+                otherTypes = 1;
+            }*/
+        }
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType);
+        Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
+
+        return dataDownloadService.queryDataFromTable(tenantId, tableName, db, num, fieldNameList, permissionStyle);
+    }
+
+
+    /**
+     * 按行数获取job的log
+     *
+     * @param tenantId
+     * @param taskType      除数据同步和虚节点都可以导出jobLog
+     * @param jobId
+     * @param byteNum
+     * @return
+     * @throws Exception
+     */
+    public String loadJobLog(Long tenantId, Integer taskType, String jobId, Integer byteNum) {
+        logger.info("获取job日志下载器-->jobId:{}", jobId);
+        IDownload downloader = null;
+        downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
+        logger.info("获取job日志下载器完成-->jobId:{}", jobId);
+
+        if (downloader == null) {
+            logger.error("-----日志文件导出失败-----");
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder();
+        while (!downloader.reachedEnd()) {
+            Object row = downloader.readNext();
+            result.append(row);
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * 返回下载jobLog的downloader
+     *
+     * @param jobId
+     * @param taskType      除数据同步、虚节点和工作流都可以导出jobLog
+     * @param tenantId
+     * @return
+     * @throws Exception
+     */
+    public IDownload downloadJobLog(String jobId, Integer taskType, Long tenantId) {
+
+        return buildIDownLoad(jobId, taskType, tenantId, Integer.MAX_VALUE);
+    }
+
+    private IDownload buildIDownLoad(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
+        if (StringUtils.isBlank(jobId)) {
+            throw new RdosDefineException("engineJobId 不能为空");
+        }
+
+        MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
+        Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", multiEngineType.getType()));
+
+        return dataDownloadService.buildIDownLoad(jobId, taskType, tenantId, limitNum);
+    }
+
+
+    public String downloadAppTypeLog(Long tenantId, String jobId, Integer limitNum, String logType, Integer taskType) {
+        MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
+        IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
+
+        if (downloader == null) {
+            logger.error("-----日志文件导出失败-----");
+            return "-----日志文件不存在-----";
+        }
+
+        StringBuilder result = new StringBuilder();
+        while (!downloader.reachedEnd()) {
+            Object row = downloader.readNext();
+            result.append(row);
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * 根据类型生成下载的文件名
+     * @param downloadType 文件下载类型
+     * @return
+     */
+    private String getDownloadFileName(DownloadType downloadType) {
+        String downFileNameSuf;
+        if (downloadType == DownloadType.TABLE) {
+            downFileNameSuf = ".csv";
+        } else if (downloadType == DownloadType.LOG) {
+            downFileNameSuf = ".log";
+        } else if (downloadType == DownloadType.XML) {
+            downFileNameSuf = ".xml";
+        } else {
+            throw new RdosDefineException("未知的文件下载类型");
+        }
+        return String.format("dtstack_ide_%s%s", UUID.randomUUID().toString(), downFileNameSuf);
+    }
+
+    /**
+     * 文件下载处理
+     * @param response
+     * @param iDownload
+     * @param downloadType
+     * @param jobId
+     * @param tenantId
+     * @param tenantId
+     * @param userId
+     * @param isRoot
+     */
+    public void handleDownload(HttpServletResponse response, IDownload iDownload, DownloadType downloadType, String jobId,
+                               Long tenantId, Long userId, Boolean isRoot) {
+
+        String downFileName = getDownloadFileName(downloadType);
+        response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", String.format("attachment;filename=%s", downFileName));
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        try {
+            if (iDownload == null) {
+                writeFileWithEngineLog(response, jobId);
+            } else {
+                if (downloadType == DownloadType.TABLE) {
+                    BatchSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+                    if (batchHiveSelectSql == null) {
+                        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                            bos.write(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
+                        }
+                        return;
+                    }
+
+                    // 非简单查询
+                    if (batchHiveSelectSql.getIsSelectSql() == TempJobType.SELECT.getType()) {
+                        downloadForQueryTaskTempTable(iDownload, response);
+                        // 简单查询
+                    } else if (batchHiveSelectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
+                        Integer limitNum = null;
+                        try {
+                            //简单sql中如果包含limit  需要下载对应条数
+                           Matcher matcher = BatchHadoopSelectSqlService.SIMPLE_QUERY_PATTERN.matcher(batchHiveSelectSql.getSqlText());
+                            if (matcher.find()) {
+                                String limitStr = matcher.group("num");
+                                if (StringUtils.isNotEmpty(limitStr)) {
+                                    limitNum = Integer.parseInt(limitStr);
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            logger.error("download simple select {} error", batchHiveSelectSql.getSqlText(), e);
+                        }
+                        downloadForSimpleQueryOriginTable(iDownload, response, limitNum);
+                    }
+                } else {
+                    if (iDownload instanceof SyncDownload) {
+                        writeFileWithSyncLog(response, iDownload);
+                    } else {
+                        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                            while (!iDownload.reachedEnd()) {
+                                Object row = iDownload.readNext();
+                                bos.write(row.toString().getBytes());
+                            }
+                        } catch (Exception e) {
+                            logger.error("下载日志异常，{}", e);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("",e);
+            if (e instanceof FileNotFoundException) {
+                writeFileWithEngineLog(response, jobId);
+            } else {
+                try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    bos.write(String.format("下载文件异常:", e.getMessage()).getBytes());
+                } catch (Exception e1) {
+                    logger.error("", e1);
+                }
+            }
+        } finally {
+            if (iDownload != null) {
+                try {
+                    iDownload.close();
+                } catch (Exception e) {
+                    logger.error("", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * 下载临时运行表数据（非简单查询）
+     * @param downloadInvoke
+     * @param response
+     * @param
+     */
+    private void downloadForQueryTaskTempTable(IDownload downloadInvoke, HttpServletResponse response) {
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            List<String> alias = downloadInvoke.getMetaInfo();
+            for (int i = 0; i < alias.size(); i++) {
+                String alia = alias.get(i);
+            }
+            //下载表数据-添加metaInfo表列名
+            bos.write((StringUtils.join(alias, ",") + "\n").getBytes());
+
+            StringWriter writer = new StringWriter();
+            int bufferSize = 0;
+            while (!downloadInvoke.reachedEnd()) {
+                Object rowDataObject =  downloadInvoke.readNext();
+                List<Object> rowDataTypeJudge = (List<Object>) rowDataObject;
+                if (CollectionUtils.isEmpty(rowDataTypeJudge)) {
+                    continue;
+                }
+                if (rowDataTypeJudge.get(0) instanceof List) {
+                    List<List<String>> rowDataList = (List<List<String>>) rowDataObject;
+                    for (List<String> row : rowDataList) {
+                        writeRowData(row, writer);
+                        bufferSize++;
+                    }
+                } else {
+                    List<String> row = (List<String>) rowDataObject;
+                    writeRowData(row, writer);
+                    bufferSize++;
+                }
+
+                if (bufferSize > 1000) {
+                    bos.write(writer.toString().getBytes());
+                    bufferSize = 0;
+                    writer = new StringWriter();
+                }
+            }
+            if (bufferSize > 0) {
+                bos.write(writer.toString().getBytes());
+            }
+
+        } catch (Exception e) {
+            logger.error("downloadForQueryTaskTempTable end with error", e);
+        }
+    }
+
+    /**
+     * 写入行数据
+     *
+     * @param row
+     * @param writer
+     * @throws IOException
+     */
+    private void writeRowData(List<String> row, StringWriter writer) throws IOException {
+        CsvWriter csvWriter = new CsvWriter(writer, ',');
+        csvWriter.writeRecord(row.toArray(new String[0]));
+    }
+
+    /**
+     * 下载临时运行表数据（简单查询）
+     * @param downloadInvoke
+     * @param response
+     * @param limit
+     */
+    private void downloadForSimpleQueryOriginTable(IDownload downloadInvoke, HttpServletResponse response, Integer limit) {
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            //下载表数据-添加metaInfo表列名
+            bos.write((StringUtils.join(downloadInvoke.getMetaInfo(), ",") + "\n").getBytes(StandardCharsets.UTF_8));
+            StringWriter writer = new StringWriter();
+            int bufferSize = 0;
+            int readCounter = 0;
+            while (!downloadInvoke.reachedEnd()) {
+                if ((Objects.nonNull(limit) && readCounter >= limit)) {
+                    break;
+                }
+                List<String> row = (List<String>) downloadInvoke.readNext();
+                CsvWriter csvWriter = new CsvWriter(writer, ',');
+                csvWriter.writeRecord(row.toArray(new String[0]));
+                bufferSize++;
+                readCounter++;
+                if (bufferSize > 1000) {
+                    bos.write(writer.toString().getBytes(StandardCharsets.UTF_8));
+                    bufferSize = 0;
+                    writer = new StringWriter();
+                }
+            }
+            if (bufferSize > 0) {
+                bos.write(writer.toString().getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (Exception e) {
+            logger.error("downloadForQueryTaskTempTable end with error", e);
+        }
+    }
+
+    /**
+     * 输出engine提供的日志
+     * @param response
+     * @param jobId
+     */
+    private void writeFileWithEngineLog(HttpServletResponse response, String jobId) {
+        //hdfs没有日志就下载engine里的日志
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            String log = getLog(jobId);
+            if (StringUtils.isNotBlank(log)) {
+                bos.write(log.getBytes());
+            }
+        }catch (Exception e) {
+            logger.error("下载engineLog异常，{}", e);
+        }
+    }
+
+    /**
+     * 获取log
+     *
+     * @param jobId
+     */
+    private String getLog(String jobId) {
+        StringBuilder log = new StringBuilder();
+        //hdfs没有日志就下载engine里的日志
+        if (StringUtils.isNotBlank(jobId)) {
+            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
+            log.append("=====================提交日志========================\n");
+            if (StringUtils.isNotBlank(actionLogVO.getLogInfo())) {
+                log.append(actionLogVO.getLogInfo().replace("\\n", "\n").replace("\\t", " "));
+            }
+            log.append("\n\n\n");
+            if (StringUtils.isNotBlank(actionLogVO.getEngineLog())) {
+                log.append("=====================运行日志========================\n");
+                log.append(actionLogVO.getEngineLog().replace("\\n", "\n").replace("\\t", " "));
+                log.append("\n\n\n");
+            }
+            // 添加重试日志
+            Map<String, Object> retryParamsMap = Maps.newHashMap();
+            retryParamsMap.put("jobId", jobId);
+            retryParamsMap.put("computeType", ComputeType.BATCH.getType());
+            //先获取engine的日志总数信息
+            List<ActionRetryLogVO> actionRetryLogVOs = actionService.retryLog(jobId);
+            if (CollectionUtils.isNotEmpty(actionRetryLogVOs)){
+                int size = actionRetryLogVOs.size();
+                for (int i = size - 1; i >= 0; i--) {
+                    log.append(buildRetryLog(actionRetryLogVOs.get(i), size - i));
+                }
+            }
+        }
+        return log.toString();
+    }
+
+    /**
+     * 构建重试日志
+     *
+     * @param retryLogContent
+     * @param pageInfo
+     * @return
+     */
+    private String buildRetryLog(ActionRetryLogVO retryLogContent, Integer pageInfo){
+        StringBuilder builder = new StringBuilder();
+        if (Objects.isNull(retryLogContent)) {
+            return "";
+        }
+        String logInfo = retryLogContent.getLogInfo();
+        String engineInfo = retryLogContent.getEngineLog();
+        String retryTaskParams = retryLogContent.getRetryTaskParams();
+        builder.append("====================第 ").append(pageInfo).append("次重试====================").append("\n");
+
+        if (!Strings.isNullOrEmpty(logInfo)) {
+            builder.append("====================LogInfo start====================").append("\n");
+            builder.append(logInfo).append("\n");
+            builder.append("=====================LogInfo end=====================").append("\n");
+        }
+        if (!Strings.isNullOrEmpty(engineInfo)) {
+            builder.append("==================EngineInfo  start==================").append("\n");
+            builder.append(engineInfo).append("\n");
+            builder.append("===================EngineInfo  end===================").append("\n");
+        }
+        if (!Strings.isNullOrEmpty(retryTaskParams)) {
+            builder.append("==================RetryTaskParams  start==================").append("\n");
+            builder.append(retryTaskParams).append("\n");
+            builder.append("===================RetryTaskParams  end===================").append("\n");
+        }
+        builder.append("==================第").append(pageInfo).append("次重试结束==================").append("\n\n\n");
+        return builder.toString();
+    }
+
+    /**
+     * 输出数据同步任务日志
+     * @param response
+     * @param downloadInvoke
+     */
+    private void writeFileWithSyncLog(HttpServletResponse response, IDownload downloadInvoke) {
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            String logInfo = ((SyncDownload) downloadInvoke).getLogInfo()
+                    .replace("\\n\"","\n").replace("\\n\\t","\n");
+            bos.write(logInfo.getBytes());
+        } catch (Exception e) {
+            logger.error("下载数据同步任务运行日志异常，{}", e);
+        }
+    }
+}
