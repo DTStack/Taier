@@ -27,6 +27,7 @@ import com.dtstack.engine.mapper.ComponentConfigMapper;
 import com.dtstack.engine.mapper.ComponentMapper;
 import com.dtstack.engine.mapper.DictMapper;
 import com.dtstack.engine.master.impl.pojo.ClientTemplate;
+import com.dtstack.engine.master.utils.LocalCacheUtil;
 import com.dtstack.engine.master.vo.ComponentMultiVersionVO;
 import com.dtstack.engine.master.vo.ComponentVO;
 import com.dtstack.engine.master.vo.IComponentVO;
@@ -41,16 +42,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.dtstack.engine.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
@@ -72,6 +68,8 @@ public class ComponentConfigService {
 
     @Autowired
     private DictMapper dictMapper;
+
+    private static final String componentCacheGroup = "component";
 
     /**
      * 保存页面展示数据
@@ -254,9 +252,24 @@ public class ComponentConfigService {
         componentConfigMapper.update(componentConfig);
     }
 
-    // todo not take effect
-    @Cacheable(cacheNames = "component")
     public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
+        String cacheKey = LocalCacheUtil.generateKey(clusterId, componentType, isFilter, componentVersion, componentId);
+        Map<String, Object> result = (Map<String, Object>)LocalCacheUtil.get(componentCacheGroup, cacheKey);
+        // 如果缓存中存在，直接返回
+        if (result != null) {
+            return result;
+        }
+        // 缓存中不存在，查询 DB
+        result = this.innerGetCacheComponentConfigMap(clusterId, componentType, isFilter, componentVersion, componentId);
+        if (result == null) {
+            result = Collections.emptyMap();
+        }
+        // 塞入缓存
+        LocalCacheUtil.put(componentCacheGroup, cacheKey, result, LocalCacheUtil.ONE_WEEK_IN_MS);
+        return result;
+    }
+
+    public Map<String, Object> innerGetCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
         if (null != componentId) {
             return convertComponentConfigToMap(componentId, isFilter);
         }
@@ -267,8 +280,8 @@ public class ComponentConfigService {
         return convertComponentConfigToMap(component.getId(), isFilter);
     }
 
-    @CacheEvict(cacheNames = "component", allEntries = true)
     public void clearComponentCache() {
+        LocalCacheUtil.removeGroup(componentCacheGroup);
         LOGGER.info(" clear all component cache ");
     }
 }

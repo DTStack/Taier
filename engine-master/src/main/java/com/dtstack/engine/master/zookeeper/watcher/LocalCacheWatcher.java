@@ -22,6 +22,11 @@ public class LocalCacheWatcher implements CuratorWatcher {
         return LocalCacheWatcherInstance.LOCAL_CACHE_WATCHER;
     }
 
+    /**
+     * zk 发现 path 路径发生变化，会回调该方法
+     * @param watchedEvent
+     * @throws Exception
+     */
     @Override
     public void process(WatchedEvent watchedEvent) throws Exception {
         LOGGER.info("receive event:【{}】", watchedEvent.toString());
@@ -29,14 +34,13 @@ public class LocalCacheWatcher implements CuratorWatcher {
         if (Watcher.Event.EventType.None.equals(watchedEvent.getType())) {
             if (Watcher.Event.KeeperState.Expired.equals(watchedEvent.getState())) {
                 LOGGER.info("clear all local cache...");
-                LocalCacheUtil.removeAll();
+                LocalCacheUtil.removeLocalAll();
             }
             return;
         }
-
         String path = watchedEvent.getPath();
         String[] pathSplit = PathUtil.splitPath(path);
-        LOGGER.info("GROUP={}, KEY={}", pathSplit[1], pathSplit[2]);
+        LOGGER.info("GROUP={},KEY={},EVENT={}", pathSplit[1], pathSplit[2], watchedEvent);
         LocalCacheUtil.removeLocal(pathSplit[1], pathSplit[2]);
     }
 
