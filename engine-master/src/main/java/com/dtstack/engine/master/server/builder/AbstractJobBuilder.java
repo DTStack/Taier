@@ -16,6 +16,7 @@ import com.dtstack.engine.master.server.builder.dependency.DependencyManager;
 import com.dtstack.engine.master.service.ScheduleActionService;
 import com.dtstack.engine.master.service.ScheduleJobService;
 import com.dtstack.engine.master.service.ScheduleTaskShadeService;
+import com.dtstack.engine.master.utils.JobExecuteOrderUtil;
 import com.dtstack.engine.master.utils.JobKeyUtils;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -187,7 +188,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         scheduleJob.setVersionId(scheduleTaskShade.getVersionId());
         scheduleJob.setComputeType(scheduleTaskShade.getComputeType());
         scheduleJob.setNextCycTime(DateUtil.getDate(corn.next(currentData), DateUtil.STANDARD_DATETIME_FORMAT));
-        scheduleJob.setJobExecuteOrder(buildJobExecuteOrder(cycTime,jobSortWorker.getSort()));
+        scheduleJob.setJobExecuteOrder(JobExecuteOrderUtil.buildJobExecuteOrder(cycTime,jobSortWorker.getSort()));
 
         // 获得依赖
         List<ScheduleJobJob> jobJobList = Lists.newArrayList();
@@ -298,24 +299,6 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
-    }
-
-    /**
-     * 按照计划时间生成具体排列序号
-     *
-     * @param triggerTime 计划时间
-     * @param count
-     * @return
-     */
-    protected Long buildJobExecuteOrder(String triggerTime, Long count) {
-        if (StringUtils.isBlank(triggerTime)) {
-            throw new RuntimeException("cycTime is not null");
-        }
-
-        // 时间格式 yyyyMMddHHmmss  截取 jobExecuteOrder = yyMMddHHmm +  9位的自增
-        String substring = triggerTime.substring(2, triggerTime.length() - 2);
-        String increasing = String.format("%09d", count);
-        return Long.parseLong(substring+increasing);
     }
 
     @Override

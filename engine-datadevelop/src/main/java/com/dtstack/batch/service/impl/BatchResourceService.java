@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.service.impl;
 
-import com.dtstack.batch.common.enums.CatalogueType;
+import com.dtstack.engine.common.enums.CatalogueType;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.dao.BatchFunctionResourceDao;
 import com.dtstack.batch.dao.BatchResourceDao;
@@ -127,12 +127,8 @@ public class BatchResourceService {
 
             batchResourceAddDTO.setUrl(hdfsPath);
             batchResourceAddDTO.setCreateUserId(userId);
-            try {
-                batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
-                batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
-            } catch (IOException e) {
-                throw new RdosDefineException(String.format("转化失败：%s", e.getMessage()));
-            }
+            batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
+            batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
             batchResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
 

@@ -171,6 +171,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 			setBaseInfo(arg, servletRequest, Cookies.USER_ID, Cookies.USER_FILED, (request) -> null);
 			setBaseInfo(arg, servletRequest, Cookies.TOKEN, Cookies.TOKEN, (request) -> null);
 			setBaseInfo(arg, servletRequest, Cookies.CREATE_USER_ID, Cookies.USER_FILED, (request) -> null);
+			setBaseInfo(arg, servletRequest, Cookies.CREATE_USER_ID, Cookies.USER_FILED, (request) -> null);
 		}
 		return arg;
 	}

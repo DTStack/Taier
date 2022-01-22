@@ -38,11 +38,11 @@ import com.dtstack.engine.domain.ScheduleTaskShade;
 import com.dtstack.engine.dto.ScheduleTaskParamShade;
 import com.dtstack.engine.mapper.ScheduleJobMapper;
 import com.dtstack.engine.master.WorkerOperator;
+import com.dtstack.engine.master.server.pipeline.IPipeline;
+import com.dtstack.engine.master.server.pipeline.JobParamReplace;
 import com.dtstack.engine.master.service.ClusterService;
 import com.dtstack.engine.master.service.ComponentConfigService;
 import com.dtstack.engine.master.service.ComponentService;
-import com.dtstack.engine.master.server.pipeline.IPipeline;
-import com.dtstack.engine.master.server.scheduler.JobParamReplace;
 import com.dtstack.engine.pluginapi.constrant.ConfigConstant;
 import com.dtstack.engine.pluginapi.enums.EDeployMode;
 import com.dtstack.engine.pluginapi.enums.RdosTaskStatus;
@@ -230,8 +230,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 if (DataSourceType.IMPALA.getVal() == sourceType) {
                     JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, EComponentType.IMPALA_SQL.getConfName(), null);
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
-                    workerOperator.executeQuery(DataBaseType.Impala.getTypeName(), pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, DataBaseType.Impala.getTypeName(), String.format("DESCRIBE formatted %s", tableName));
+                    workerOperator.executeQuery(pluginInfo.toJSONString(), alterSql, db);
+                    location = this.getTableLocation(pluginInfo, db, String.format("DESCRIBE formatted %s", tableName));
                 } else if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
                     Cluster cluster = clusterService.getCluster(tenantId);
                     Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
@@ -246,8 +246,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                         }
                         return jdbcUrlVal.replace("/%s", environmentContext.getComponentJdbcToReplace());
                     });
-                    workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, engineType, String.format("desc formatted %s", tableName));
+                    workerOperator.executeQuery(pluginInfo.toJSONString(), alterSql, db);
+                    location = this.getTableLocation(pluginInfo, db, String.format("desc formatted %s", tableName));
                 }
                 if (StringUtils.isBlank(location)) {
                     LOGGER.warn("table {} replace dirty path is null,dirtyType {} ", tableName, sourceType);
@@ -264,9 +264,9 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         return sqlObject.toJSONString();
     }
 
-    public String getTableLocation(JSONObject pluginInfo, String dbName, String engineType, String sql) throws Exception {
+    public String getTableLocation(JSONObject pluginInfo, String dbName,String sql) throws Exception {
         String location = null;
-        List<List<Object>> result = workerOperator.executeQuery(engineType, pluginInfo.toJSONString(), sql, dbName);
+        List<List<Object>> result = workerOperator.executeQuery(pluginInfo.toJSONString(), sql, dbName);
         Iterator<List<Object>> iterator = result.iterator();
 
         while (iterator.hasNext()) {
@@ -328,7 +328,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                     LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase = pluginInfo.getString("realDataBase");
-                    workerOperator.executeQuery(DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)), pluginInfo.toJSONString(), sql, null != realDataBase ? realDataBase : "");
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)));
+                    workerOperator.executeQuery(pluginInfo.toJSONString(), sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
                 }, environmentContext.getRetryFrequency(), environmentContext.getRetryInterval(), false, null);

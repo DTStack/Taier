@@ -1,13 +1,11 @@
 package com.dtstack.engine.common.util;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.google.common.base.Splitter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.springframework.beans.BeanUtils;
@@ -15,10 +13,7 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,16 +31,8 @@ public class PublicUtil {
 	static {
 		objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}
-
-	@Deprecated
-	public static <T> T objectToObject(Object params,Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
-		if(params ==null) {return null;}
-		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
-	}
-	
 	
 	@SuppressWarnings("unchecked")
-	@Deprecated
 	public static Map<String,Object> objectToMap(Object obj) throws IOException{
 		if(obj ==null){
 			return null;
@@ -54,7 +41,7 @@ public class PublicUtil {
 		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
 	}
 
-	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> strToMap(String str) throws  IOException{
 		if(str ==null){
 			return null;
@@ -63,7 +50,7 @@ public class PublicUtil {
 		return objectMapper.readValue(str, Map.class);
 	}
 
-	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static <T> T strToObject(String str,Class<T> classzz) throws  IOException{
 		if(str ==null){
 			return null;
@@ -72,7 +59,7 @@ public class PublicUtil {
 		return objectMapper.readValue(str,classzz);
 	}
 
-	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static String objectToStr(Object object) throws  IOException{
 		if(object ==null){
 			return null;
@@ -81,7 +68,7 @@ public class PublicUtil {
 		return objectMapper.writeValueAsString(object);
 	}
 
-	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static <T> T strToObject(String str, TypeReference valueTypeRef) throws  IOException{
 		if(str ==null){
 			return null;
@@ -90,7 +77,7 @@ public class PublicUtil {
 		return objectMapper.readValue(str, valueTypeRef);
 	}
 
-	@Deprecated
+	@SuppressWarnings("unchecked")
 	public static List<Object> objectToList(String str) throws IOException {
 		if(str == null){
 		    return null;
@@ -98,6 +85,23 @@ public class PublicUtil {
 
 		return objectMapper.readValue(str, List.class);
 	}
+
+	public static <T> T mapToObject(Map<String, Object> params, Class<T> clazz) {
+		try {
+			return objectMapper.readValue(objectMapper.writeValueAsBytes(params), clazz);
+		} catch (IOException e) {
+			throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
+		}
+	}
+
+	public static <T> T objectToObject(Object params, Class<T> clazz) {
+		try {
+			return params == null ? null : objectMapper.readValue(objectMapper.writeValueAsBytes(params), clazz);
+		} catch (IOException e) {
+			throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
+		}
+	}
+
 
 	public static boolean count(int index,int multiples){
 		return index%multiples==0;
@@ -212,6 +216,19 @@ public class PublicUtil {
 		}
 		matcher.appendTail(sb);
 		return sb.toString();
+	}
+
+	public static void removeEmptyValue(Map<String, Object> paramMap) {
+		Set<String> set = paramMap.keySet();
+		Iterator<String> it = set.iterator();
+		while (it.hasNext()) {
+			String str = it.next();
+			if (paramMap.get(str) == null) {
+				paramMap.remove(str);
+				set = paramMap.keySet();
+				it = set.iterator();
+			}
+		}
 	}
 
 }

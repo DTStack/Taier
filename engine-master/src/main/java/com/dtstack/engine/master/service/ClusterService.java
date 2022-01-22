@@ -103,7 +103,7 @@ public class ClusterService {
      * 内部使用
      */
     public JSONObject pluginInfoJSON(Long tenantId, Integer taskType, Integer deployMode, String componentVersion) {
-        EScheduleJobType engineJobType = EScheduleJobType.getTaskType(taskType);
+        EScheduleJobType engineJobType = EScheduleJobType.getByTaskType(taskType);
         EComponentType componentType = engineJobType.getComponentType();
         if (componentType == null) {
             return null;

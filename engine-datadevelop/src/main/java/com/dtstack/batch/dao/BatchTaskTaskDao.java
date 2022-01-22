@@ -33,16 +33,46 @@ import java.util.List;
 
 public interface BatchTaskTaskDao {
 
+    /**
+     * 根据 任务Id 查询锁列表
+     * @param taskId
+     * @return
+     */
     List<BatchTaskTask> listByTaskId(@Param("taskId") Long taskId);
 
+    /**
+     * 根据 父任务Id 查询锁列表
+     * @param parentTaskId
+     * @return
+     */
     List<BatchTaskTask> listByParentTaskId(@Param("parentTaskId") Long parentTaskId);
 
+    /**
+     * 根据 任务id  删除锁
+     * @param taskId
+     * @return
+     */
     Integer deleteByTaskId(@Param("taskId") Long taskId);
 
+    /**
+     * 根据 Id 删除锁
+     * @param id
+     * @return
+     */
     Integer delete(@Param("id") Long id);
 
+    /**
+     * 插入锁
+     * @param batchTaskTask
+     * @return
+     */
     Integer insert(BatchTaskTask batchTaskTask);
 
+    /**
+     * 更新锁
+     * @param batchTaskTask
+     * @return
+     */
     Integer update(BatchTaskTask batchTaskTask);
 
     /**
@@ -52,14 +82,6 @@ public interface BatchTaskTaskDao {
      */
     Integer deleteByParentId(@Param("parentId") Long parentId);
 
-    /**
-     * 根据租户Id删除数据
-     * @param tenantId
-     * @return
-     */
-    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
-
-    List<BatchTaskTask> listTaskTaskByTaskIds(@Param("taskIds") List<Long> taskIds);
 
     /**
      * 根据任务Id，获取所有父任务的id

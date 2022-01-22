@@ -20,16 +20,18 @@ package com.dtstack.batch.controller.login;
 
 import com.dtstack.batch.domain.login.DTToken;
 import com.dtstack.batch.domain.login.DtUser;
+import com.dtstack.batch.mapstruct.user.UserTransfer;
 import com.dtstack.batch.service.console.TenantService;
 import com.dtstack.batch.service.user.CookieService;
 import com.dtstack.batch.service.user.LoginService;
 import com.dtstack.batch.service.user.TokenService;
+import com.dtstack.batch.service.user.UserService;
+import com.dtstack.batch.vo.user.UserVO;
 import com.dtstack.engine.common.exception.ErrorCode;
+import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.lang.web.R;
 import com.dtstack.engine.domain.Tenant;
 import com.dtstack.engine.domain.User;
-import com.dtstack.batch.service.user.UserService;
-import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.pluginapi.util.MD5Util;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @author yuebai
@@ -48,7 +51,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/node/user")
-@Api(value = "/node/user", tags = {"登录接口"})
+@Api(value = "/node/user", tags = {"用户接口"})
 public class UserController {
 
     @Autowired
@@ -123,5 +126,13 @@ public class UserController {
         dtUser.setTenantName(tenant.getTenantName());
         loginService.onAuthenticationSuccess(request, response, dtUser);
         return R.ok(user.getUserName());
+    }
+
+
+    @RequestMapping(value = "/queryUser")
+    public R<List<UserVO>> queryUser() {
+        List<User> users = userService.listAll();
+        List<UserVO> userVOS = UserTransfer.INSTANCE.toVo(users);
+        return R.ok(userVOS);
     }
 }

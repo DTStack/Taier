@@ -60,8 +60,32 @@
         count(1) as jobSize
         FROM schedule_engine_job_cache
         WHERE is_deleted = 0
-        <if test="nodeAddress != null">
+        <if test="nodeAddress != null and nodeAddress != ''">
             and node_address = #{nodeAddress}
+        </if>
+        group by job_resource, stage
+        order by job_resource, stage asc
+    </select>
+
+    <select id="groupByJobResourceFilterByCluster" resultType="java.util.HashMap">
+        SELECT
+        job_resource as jobResource,
+        stage as stage,
+        unix_timestamp(min(gmt_create)) as generateTime,
+        count(1) as jobSize
+        FROM schedule_engine_job_cache
+        WHERE is_deleted = 0
+        <if test="nodeAddress != null and nodeAddress != ''">
+            and node_address = #{nodeAddress}
+        </if>
+        <if test="clusterName != null and clusterName != ''">
+            and tenant_id in (
+            <!--cluster 》 tenant -->
+            SELECT ct.tenant_id FROM console_cluster_tenant ct, console_cluster r
+             WHERE ct.cluster_id = r.id
+              AND r.cluster_name = #{clusterName,jdbcType=VARCHAR}
+              AND ct.is_deleted = 0 AND r.is_deleted = 0
+            )
         </if>
         group by job_resource, stage
         order by job_resource, stage asc
@@ -186,8 +210,8 @@
     </update>
 
     <insert id="insert" parameterType="EngineJobCache">
-        insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource)
-        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource});
+        insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource, tenant_id)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource}, #{tenantId});
     </insert>
 
     <delete id="delete">

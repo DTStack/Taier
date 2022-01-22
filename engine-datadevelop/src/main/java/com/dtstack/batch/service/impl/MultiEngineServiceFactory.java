@@ -26,10 +26,10 @@ import com.dtstack.batch.service.job.ITaskService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.batch.service.table.IFunctionService;
 import com.dtstack.batch.service.table.ISqlExeService;
-import com.dtstack.batch.service.table.ITablePartitionService;
 import com.dtstack.batch.service.tenant.ITenantService;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.engine.common.enums.EJobType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +55,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "batchSparkSqlExeService")
     private ISqlExeService batchSparkSqlExeService;
-
-    @Resource(name = "batchHiveTablePartitionService")
-    private ITablePartitionService batchHiveTablePartitionService;
 
     @Resource(name = "batchHadoopJobExeService")
     private IBatchJobExeService batchHadoopJobExeService;
@@ -136,52 +133,44 @@ public class MultiEngineServiceFactory {
     }
 
 
-    public ISqlExeService getSqlExeService(int multiEngineType, Integer taskType, Long tenantId) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            if (EJobType.SPARK_SQL.getVal().equals(taskType)) {
-                return batchSparkSqlExeService;
-            }
-            if (tenantId != null) {
-                DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
-                if (DataSourceType.SparkThrift2_1.equals(dataSourceType)) {
-                    return batchSparkSqlExeService;
-                }
-            }
+    public ISqlExeService getSqlExeService(Integer taskType) {
+        if (EJobType.SPARK_SQL.getVal().equals(taskType)) {
+            return batchSparkSqlExeService;
         }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
+        throw new RdosDefineException(String.format("not support task type %d now", taskType));
     }
 
-    public ITablePartitionService getTablePartitionService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
-            return batchHiveTablePartitionService;
-        }
 
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
-    }
-
-    public IBatchJobExeService getBatchJobExeService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
+    public IBatchJobExeService getBatchJobExeService(Integer taskType) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType)) {
             return batchHadoopJobExeService;
         }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
+        throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
 
-    public IBatchSelectSqlService getBatchSelectSqlService(int multiEngineType) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
+
+    /**
+     * 根据任务类型获取sql查询Service
+     * @param taskType
+     * @return
+     */
+    public IBatchSelectSqlService getBatchSelectSqlService(Integer taskType) {
+        if (EJobType.SPARK_SQL.getType().equals(taskType)) {
             return batchHadoopSelectSqlService;
         }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
+        throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
 
-    public IDataDownloadService getDataDownloadService(int multiEngineType) {
-        return getDataDownloadService(multiEngineType, null);
-    }
-
-    public IDataDownloadService getDataDownloadService(int multiEngineType, Integer otherTypes) {
-        if (MultiEngineType.HADOOP.getType() == multiEngineType) {
+    /**
+     * 根据任务类型获取下载的Service
+     * @param taskType
+     * @return
+     */
+    public IDataDownloadService getDataDownloadService(Integer taskType) {
+        if (EJobType.SPARK_SQL.getType().equals(taskType)) {
             return hadoopDataDownloadService;
         }
-        throw new RdosDefineException(String.format("not support engine type %d now", multiEngineType));
+        throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
 
 

@@ -1113,16 +1113,16 @@ public class ComponentService {
                 return componentTestResult;
             }
 
-            String pluginType = null;
+            String typeName = null;
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 //HDFS 测试连通性走hdfs2 其他走yarn2-hdfs2-hadoop
-                pluginType = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
+                typeName = EComponentType.HDFS.name().toLowerCase() + this.formatHadoopVersion(hadoopVersion, EComponentType.HDFS);
             } else {
-                pluginType = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType,deployType);
+                typeName = this.convertComponentTypeToClient(clusterName, componentType, hadoopVersion,storeType,deployType);
             }
-
-            componentTestResult = workerOperator.testConnect(pluginType,
-                    this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName));
+            String pluginInfo = this.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName);
+            JSONObject.parseObject(pluginInfo).put(TYPE_NAME_KEY,typeName);
+            componentTestResult = workerOperator.testConnect(pluginInfo);
             if (null == componentTestResult) {
                 componentTestResult = new ComponentTestResult();
                 componentTestResult.setResult(false);
@@ -1846,7 +1846,7 @@ public class ComponentService {
 
 
     public List<Component> getComponentVersionByEngineType(Long tenantId, Integer taskType) {
-        EScheduleJobType scheduleJobType = EScheduleJobType.getTaskType(taskType);
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
         EComponentType componentType = scheduleJobType.getComponentType();
         List<Component> componentVersionList = componentMapper.getComponentVersionByEngineType(tenantId, componentType.getTypeCode());
         if (CollectionUtils.isEmpty(componentVersionList)) {

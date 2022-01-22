@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.batch.dao.BatchFunctionDao">
 
     <sql id="select_content_fragment">
-        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,type,gmt_create,gmt_modified,is_deleted,engine_type,sql_text
+        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,type,gmt_create,gmt_modified,is_deleted,task_type,sql_text
     </sql>
 
     <sql id="update_fragment">
@@ -50,8 +50,8 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
-            <if test="engineType !=null">
-                engine_type = #{engineType},
+            <if test="taskType !=null">
+                task_type = #{taskType},
             </if>
             <if test="sqlText !=null">
                 sql_text = #{sqlText}
@@ -78,8 +78,8 @@
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
         WHERE type=1 and is_deleted = 0 and tenant_id=-1
-        <if test="engineType !=null">
-           AND  engine_type = #{engineType}
+        <if test="taskType !=null">
+           AND  task_type = #{taskType}
         </if>
     </select>
 
@@ -99,8 +99,8 @@
                 AND tenant_Id = -1
             </otherwise>
         </choose>
-        <if test="engineType !=null">
-            AND engine_type = #{engineType}
+        <if test="taskType !=null">
+            AND task_type = #{taskType}
         </if>
     </select>
 
@@ -121,9 +121,9 @@
     <insert id="insert" parameterType="com.dtstack.batch.domain.BatchFunction" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_function
         (name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id,
-         modify_user_id, type, gmt_create, gmt_modified, is_deleted,engine_type,sql_text)
+         modify_user_id, type, gmt_create, gmt_modified, is_deleted,task_type,sql_text)
         VALUES (#{name}, #{className}, #{purpose}, #{commandFormate}, #{paramDesc}, #{nodePid}, #{tenantId},
-                #{createUserId}, #{modifyUserId}, #{type}, now(), now(), 0,#{engineType},#{sqlText})
+                #{createUserId}, #{createUserId}, #{type}, now(), now(), 0,#{taskType},#{sqlText})
     </insert>
 
     <update id="update" parameterType="com.dtstack.batch.domain.BatchFunction">
@@ -139,8 +139,8 @@
         FROM rdos_batch_function
         WHERE tenant_id = #{tenantId}
           and is_deleted = 0
-        <if test="engineType !=null">
-            AND  engine_type = #{engineType}
+        <if test="taskType !=null">
+            AND  task_type = #{taskType}
         </if>
     </select>
 
