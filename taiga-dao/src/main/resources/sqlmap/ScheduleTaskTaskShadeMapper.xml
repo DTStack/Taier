@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taiga.dao.mapper.ScheduleTaskTaskShadeMapper">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,task_id,parent_task_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="parentTaskId != null">
+                parent_task_id = #{parentTaskId},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="gmtModified == null">
+                gmt_modified = NOW(),
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="listChildTask" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0
+    </select>
+
+    <select id="listChildTaskLimit" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0 LIMIT #{limit}
+    </select>
+
+    <select id="listParentTask" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE task_id = #{childTaskId} and is_deleted = 0
+    </select>
+
+    <delete id="deleteByTaskId">
+        DELETE FROM schedule_task_task_shade
+        WHERE task_id = #{taskId}
+    </delete>
+
+    <update id="update" parameterType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        UPDATE
+        schedule_task_task_shade
+        <include refid="update_fragment"/>
+        WHERE
+        task_id = #{taskId} AND is_deleted = 0
+    </update>
+
+    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <select id="getOneByTaskId" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE task_id = #{taskId} and parent_task_id = #{parentTaskId} AND is_deleted = 0 LIMIT 1
+    </select>
+    <select id="listParentTaskKeys" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0
+        <!--AND parent_task_key IN
+        <foreach collection="taskKeys" separator="," close=")" open="(" item="taskKey" >
+            #{taskKey}
+        </foreach>-->
+    </select>
+
+    <select id="listTaskKeys" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM schedule_task_task_shade
+        WHERE is_deleted = 0
+    </select>
+    <select id="getTaskOtherPlatformByProjectId"
+            resultType="com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade">
+        SELECT
+            tts.id,
+            tts.tenant_id,
+            tts.task_id,
+            tts.parent_task_id,
+            tts.gmt_create,
+            tts.gmt_modified,
+            tts.is_deleted,
+        FROM
+        schedule_task_task_shade tts
+        LEFT JOIN schedule_task_shade ts ON ts.task_id = tts.task_id
+        WHERE
+        tts.parent_task_id IN (SELECT task_id FROM schedule_task_shade)
+        LIMIT #{listChildTaskLimit}
+    </select>
+
+
+</mapper>
