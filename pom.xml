@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.dtstack.engine</groupId>
-    <artifactId>engine-all</artifactId>
+    <groupId>com.dtstack.taiga</groupId>
+    <artifactId>taiga-all</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>engine</name>
+    <name>taiga</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <zookeeper.version>3.4.6</zookeeper.version>
@@ -30,27 +30,16 @@
     </properties>
 
     <modules>
-        <module>engine-common</module>
-        <module>engine-dao</module>
-        <module>engine-master</module>
-        <module>engine-datadevelop</module>
-        <module>engine-ui</module>
-        <module>engine-worker</module>
+        <module>taiga-common</module>
+        <module>taiga-dao</module>
+        <module>taiga-scheduler</module>
+        <module>taiga-data-develop</module>
+        <module>taiga-ui</module>
+        <module>taiga-worker</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-lang</artifactId>
-                <version>${dt-insight-lang.version}</version>
-            </dependency>
-            <!-- 鉴权包 -->
-            <dependency>
-                <groupId>dt.insight.plat</groupId>
-                <artifactId>dt-insight-web-security-starter</artifactId>
-                <version>${dt-insight-web-security.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>

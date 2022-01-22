@@ -80,7 +80,7 @@
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.engine" level="info" additivity="false">
+    <logger name="com.dtstack.taiga" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
@@ -88,26 +88,26 @@
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.server.listener" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.master.server.listener" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.engine.flink" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.flink" level="info" additivity="false">
         <appender-ref ref="flinkmonitor" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.server" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.master.server" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 
-    <logger name="com.dtstack.engine.master.server.scheduler" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.master.server.scheduler" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.engine.master.server.queue.JopPriorityQueue" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.master.server.queue.JopPriorityQueue" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 
-    <logger name="com.dtstack.engine.alert" level="info" additivity="false">
+    <logger name="com.dtstack.taiga.alert" level="info" additivity="false">
         <appender-ref ref="alert" />
     </logger>
 
