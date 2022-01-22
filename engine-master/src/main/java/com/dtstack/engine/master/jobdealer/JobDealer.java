@@ -234,7 +234,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     public void saveCache(JobClient jobClient, String jobResource, int stage, boolean insert) {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
-            scheduleJobCacheService.insert(jobClient.getJobId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource);
+            scheduleJobCacheService.insert(jobClient.getJobId(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource, jobClient.getTenantId());
             jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
         } else {
             scheduleJobCacheService.updateStage(jobClient.getJobId(), stage, nodeAddress, jobClient.getPriority(), null);

@@ -7,6 +7,7 @@ import com.dtstack.engine.master.druid.DtDruidRemoveAbandoned;
 import com.dtstack.engine.master.server.ScheduleJobDetails;
 import com.dtstack.engine.master.service.JobGraphTriggerService;
 import com.dtstack.engine.common.exception.RdosDefineException;
+import com.dtstack.engine.master.utils.JobExecuteOrderUtil;
 import com.dtstack.engine.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -163,7 +164,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
         LOGGER.info("start saveJobGraph to db {}", triggerDay);
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
-        Long minJobId = buildJobExecuteOrder(triggerTimeStr,0L);
+        Long minJobId = JobExecuteOrderUtil.buildJobExecuteOrder(triggerTimeStr,0L);
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
         try {
             RetryUtil.executeWithRetry(() -> {

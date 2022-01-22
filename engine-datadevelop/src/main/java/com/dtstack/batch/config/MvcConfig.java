@@ -22,26 +22,19 @@ package com.dtstack.batch.config;
 
 import com.dtstack.batch.interceptor.LoginInterceptor;
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(MvcConfig.class);
 
     private static final List<String> INTERCEPT_LIST;
 
@@ -108,6 +101,9 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
         super.addResourceHandlers(registry);
     }
 
-
+    @Override
+    protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer.defaultContentType(MediaType.APPLICATION_JSON);
+    }
 }
 

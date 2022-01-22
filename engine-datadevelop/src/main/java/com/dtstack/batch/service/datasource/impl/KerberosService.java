@@ -1,8 +1,8 @@
 package com.dtstack.batch.service.datasource.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.DataSourceTypeEnum;
-import com.dtstack.batch.common.exception.PubSvcDefineException;
+import com.dtstack.engine.common.enums.DataSourceTypeEnum;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
@@ -86,7 +86,7 @@ public class KerberosService {
      * @param userId
      * @return
      */
-    public String getTempLocalKerberosConf(Long userId, Long projectId) {
+    public String getTempLocalKerberosConf(Long userId) {
         return getLocalKerberosPath(null) + File.separator + "USER_" + userId.toString();
     }
 

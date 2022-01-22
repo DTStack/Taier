@@ -20,7 +20,7 @@ package com.dtstack.batch.enums;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.batch.common.enums.HadoopConfig;
+import com.dtstack.engine.common.enums.HadoopConfig;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.common.exception.DtCenterDefException;

@@ -17,6 +17,7 @@ import com.dtstack.engine.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.engine.master.dto.schedule.QueryTaskListDTO;
 import com.dtstack.engine.master.dto.schedule.SavaTaskDTO;
 import com.dtstack.engine.master.dto.schedule.ScheduleTaskShadeDTO;
+import com.dtstack.engine.master.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.engine.pager.PageResult;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -138,11 +139,11 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (dbTaskShade != null) {
             scheduleTaskShade.setId(dbTaskShade.getId());
             this.updateById(scheduleTaskShade);
-            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
-        } else {
-            this.save(scheduleTaskShade);
             scheduleTaskShadeInfoMapper.update(scheduleTaskShadeInfo,
                     Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class).eq(ScheduleTaskShadeInfo::getTaskId,scheduleTaskShade.getTaskId()));
+        } else {
+            this.save(scheduleTaskShade);
+            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
         }
 
 
@@ -275,5 +276,9 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             returnTaskSupportTypesVOS.add(vo);
         }
         return returnTaskSupportTypesVOS;
+    }
+
+    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String taskName, Integer appType, Long uicTenantId, Long projectId) {
+        return null;
     }
 }
