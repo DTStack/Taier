@@ -6,13 +6,12 @@ import com.dtstack.batch.bo.datasource.AddDataSourceParam;
 import com.dtstack.batch.bo.datasource.DsTypeSearchParam;
 import com.dtstack.batch.bo.datasource.DsVersionSearchParam;
 import com.dtstack.batch.common.convert.DataSourceParam2SourceVOConverter;
-import com.dtstack.batch.common.exception.PubSvcDefineException;
+import com.dtstack.engine.common.exception.PubSvcDefineException;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.datasource.impl.DsClassifyService;
 import com.dtstack.batch.service.datasource.impl.DsTypeService;
 import com.dtstack.batch.service.datasource.impl.DsVersionService;
 import com.dtstack.batch.utils.Asserts;
-import com.dtstack.batch.utils.PublicUtil;
 import com.dtstack.batch.vo.DataSourceVO;
 import com.dtstack.batch.vo.datasource.DsClassifyVO;
 import com.dtstack.batch.vo.datasource.DsTypeVO;
@@ -30,7 +29,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.dtstack.engine.common.util.PublicUtil;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -170,7 +171,7 @@ public class AddDatasourceController {
                     throw new PubSvcDefineException("dataSource name empty");
                 }
                 params.put(RESOURCE, resource);
-                return datasourceService.addOrUpdateSourceWithKerberos(dataSourceVo, resource, dataSourceVo.getProjectId(), dataSourceVo.getUserId(), dataSourceVo.getTenantId());
+                return datasourceService.addOrUpdateSourceWithKerberos(dataSourceVo, resource, dataSourceVo.getUserId(), dataSourceVo.getTenantId());
             }
         }.execute();
     }
@@ -184,7 +185,7 @@ public class AddDatasourceController {
         params.remove(RESOURCE);
         DataSourceVO dataSourceVo = PublicUtil.mapToObject(params, DataSourceVO.class);
         params.put(RESOURCE, resource);
-        return R.ok(datasourceService.getPrincipalsWithConf(dataSourceVo, resource, dataSourceVo.getTenantId(), dataSourceVo.getProjectId(), dataSourceVo.getUserId()));
+        return R.ok(datasourceService.getPrincipalsWithConf(dataSourceVo, resource, dataSourceVo.getUserId()));
     }
 
     @PostMapping(value = "tablelist")

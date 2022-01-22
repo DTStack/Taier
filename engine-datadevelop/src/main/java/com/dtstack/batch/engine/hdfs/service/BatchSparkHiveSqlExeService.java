@@ -19,23 +19,22 @@
 package com.dtstack.batch.engine.hdfs.service;
 
 import com.dtstack.batch.bo.ExecuteContent;
-import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.domain.TenantEngine;
+import com.dtstack.batch.domain.TenantComponent;
 import com.dtstack.batch.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.impl.BatchFunctionService;
 import com.dtstack.batch.service.impl.BatchSqlExeService;
-import com.dtstack.batch.service.impl.TenantEngineService;
+import com.dtstack.batch.service.impl.TenantComponentService;
 import com.dtstack.batch.service.table.impl.BatchSelectSqlService;
 import com.dtstack.batch.sql.ParseResult;
+import com.dtstack.batch.sql.SqlType;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.engine.common.enums.DataSourceType;
-import com.dtstack.engine.common.enums.EJobType;
-import com.dtstack.engine.common.enums.MultiEngineType;
-import com.dtstack.engine.common.enums.SqlType;
+import com.dtstack.engine.common.enums.EScheduleJobType;
 import com.dtstack.engine.common.enums.TaskStatus;
+import com.dtstack.engine.common.enums.TempJobType;
 import com.dtstack.engine.common.env.EnvironmentContext;
 import com.dtstack.engine.common.exception.ErrorCode;
 import com.dtstack.engine.common.exception.RdosDefineException;
@@ -92,7 +91,7 @@ public class BatchSparkHiveSqlExeService {
     protected BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
     @Autowired
-    protected TenantEngineService tenantEngineService;
+    protected TenantComponentService tenantEngineService;
 
     @Autowired
     protected BatchSelectSqlService selectSqlService;
@@ -113,15 +112,15 @@ public class BatchSparkHiveSqlExeService {
      * @param tenantEngine
      * @param dataSourceType
      */
-    protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, TenantEngine tenantEngine, DataSourceType dataSourceType) {
+    protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, TenantComponent tenantEngine, DataSourceType dataSourceType) {
         try {
             if (SqlType.getShowType().contains(parseResult.getSqlType())
                     && !parseResult.getStandardSql().matches(INSERT_REGEX)) {
-                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getEngineIdentity(), parseResult.getStandardSql());
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
                 batchSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
             } else {
-                jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getEngineIdentity(), parseResult.getStandardSql());
+                jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
             }
         } catch (Exception e) {
             log.error("exeHiveSqlDirect error {}", executeContent.getSql(),e);
@@ -164,15 +163,15 @@ public class BatchSparkHiveSqlExeService {
      * @param parseResult
      * @param tenantId
      * @param db
-     * @param eJobType
+     * @param eScheduleJobType
      */
-    protected void executeCreateTableSql(ParseResult parseResult, Long tenantId, String db, EJobType eJobType) {
+    protected void executeCreateTableSql(ParseResult parseResult, Long tenantId, String db, EScheduleJobType eScheduleJobType) {
         Connection connection = null;
         try {
-            connection = jdbcServiceImpl.getConnection(tenantId, null, eJobType, db);
-            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eJobType, db, String.format("set hive.default.fileformat=%s", environmentContext.getCreateTableType()), connection);
+            connection = jdbcServiceImpl.getConnection(tenantId, null, eScheduleJobType, db);
+            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, db, String.format("set hive.default.fileformat=%s", environmentContext.getCreateTableType()), connection);
             parseResult.getMainTable().setStoreType(environmentContext.getCreateTableType());
-            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eJobType, db, parseResult.getStandardSql(), connection);
+            jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, db, parseResult.getStandardSql(), connection);
         } catch (Exception e) {
             log.error("", e);
             throw new RdosDefineException(ErrorCode.CREATE_TABLE_ERR, e);
@@ -217,13 +216,13 @@ public class BatchSparkHiveSqlExeService {
         return false;
     }
 
-    protected void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam, EJobType eJobType) {
+    protected void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam, EScheduleJobType eScheduleJobType) {
         try {
             if (sql.trim().matches(EXPLAIN_REDEX)) {
                 return;
             }
             List<String> variables = Lists.newArrayList();
-            if (EJobType.SPARK_SQL == eJobType) {
+            if (EScheduleJobType.SPARK_SQL == eScheduleJobType) {
                 //添加set spark.sql.crossJoin.enabled=true
                 variables.add("set spark.sql.crossJoin.enabled=true");
             }
@@ -231,9 +230,9 @@ public class BatchSparkHiveSqlExeService {
             sql = SqlFormatUtil.init(sql).removeCatalogue().removeLifecycle().getSql();
             String explainSql = "explain " + sql;
             // 处理自定义函数逻辑
-            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, tenantId);
+            List<String> functionVariables = batchFunctionService.buildContainFunctions(sql, tenantId, eScheduleJobType.getType());
             variables.addAll(functionVariables);
-            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(tenantId, null, eJobType, db, explainSql, variables, taskParam);
+            List<List<Object>> result = jdbcServiceImpl.executeQueryWithVariables(tenantId, null, eScheduleJobType, db, explainSql, variables, taskParam);
             if (CollectionUtils.isNotEmpty(result)) {
                 String plan = result.get(1).get(0).toString();
                 if (plan.matches(SQL_EXCEPTION_REDEX)) {
@@ -249,34 +248,33 @@ public class BatchSparkHiveSqlExeService {
     /**
      * 执行sql
      * @param executeContent
-     * @param eJobType
+     * @param scheduleJobType
      * @return
      */
-    protected ExecuteResultVO executeSql(ExecuteContent executeContent, EJobType eJobType) {
+    protected ExecuteResultVO executeSql(ExecuteContent executeContent, EScheduleJobType scheduleJobType) {
         // 判断血缘解析结果，防止空指针
         if (null == executeContent.getParseResult()) {
             throw new RdosDefineException("SQL解析异常，结果为空");
         }
         Long tenantId = executeContent.getTenantId();
         Long userId = executeContent.getUserId();
-        Long relationId = executeContent.getRelationId();
+        Long taskId = executeContent.getTaskId();
         String preJobId = executeContent.getPreJobId();
-        Integer relationType = executeContent.getRelationType();
         String currDb = executeContent.getParseResult().getCurrentDb();
         ParseResult parseResult = executeContent.getParseResult();
-        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null);
+        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null, scheduleJobType.getType());
 
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
-            result = simpleQuery(tenantId, parseResult, currDb, userId, executeContent.getEngineType(), eJobType);
+            result = simpleQuery(tenantId, parseResult, currDb, userId, scheduleJobType);
             if (!result.getIsContinue()) {
                 return result;
             }
         }
 
-        DataSourceType dataSourceType = eJobType == EJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
+        DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
         if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
-            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, relationId, relationType, preJobId);
+            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
             result.setIsContinue(false);
             return result;
@@ -284,15 +282,15 @@ public class BatchSparkHiveSqlExeService {
                 || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
                 || SqlType.QUERY.equals(parseResult.getSqlType())
                 || useSelfFunction) {
-            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), relationId, relationType, preJobId);
+            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
         } else {
             if (!executeContent.isExecuteSqlLater()) {
-                TenantEngine tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), MultiEngineType.HADOOP.getType());
+                TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
                 Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
                 if (SqlType.CREATE.equals(parseResult.getSqlType())
                         || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-                    executeCreateTableSql(parseResult, tenantId, tenantEngine.getEngineIdentity().toLowerCase(), eJobType);
+                    executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), scheduleJobType);
                 } else {
                     this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, dataSourceType);
                 }
@@ -309,11 +307,10 @@ public class BatchSparkHiveSqlExeService {
      * @param currentDb
      * @param tenantId
      * @param userId
-     * @param engineType
-     * @param eJobType
+     * @param scheduleJobType
      * @return
      */
-    protected ExecuteResultVO<List<Object>> simpleQuery(Long tenantId, ParseResult parseResult, String currentDb, Long userId, Integer engineType, EJobType eJobType) {
+    protected ExecuteResultVO<List<Object>> simpleQuery(Long tenantId, ParseResult parseResult, String currentDb, Long userId, EScheduleJobType scheduleJobType) {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(parseResult.getStandardSql());
         if (matcher.find()) {
@@ -324,12 +321,12 @@ public class BatchSparkHiveSqlExeService {
             String jobId = UUID.randomUUID().toString();
 
             String parseColumnsString = "{}";
-            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, parseResult.getStandardSql(), userId, parseColumnsString, engineType);
+            selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, parseResult.getStandardSql(), userId, parseColumnsString, scheduleJobType.getType());
             result.setJobId(jobId);
             result.setIsContinue(false);
         } else {
             try {
-                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, scheduleJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
                 batchSqlExeService.dealResultDoubleList(executeResult);
                 result.setStatus(TaskStatus.FINISHED.getStatus());
                 result.setResult(executeResult);

@@ -19,26 +19,16 @@
 package com.dtstack.batch.mapstruct.vo;
 
 import com.dtstack.batch.vo.ExecuteResultVO;
-import com.dtstack.batch.vo.ExecuteSqlParseVO;
-import com.dtstack.batch.web.job.vo.result.*;
-import com.dtstack.engine.domain.ScheduleJob;
-import com.dtstack.engine.master.vo.*;
+import com.dtstack.batch.web.job.vo.result.BatchExecuteResultVO;
+import com.dtstack.batch.web.job.vo.result.BatchJobFindTaskRuleJobResultVO;
+import com.dtstack.engine.master.vo.ScheduleDetailsVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-
-import java.util.Map;
 
 @Mapper
 public interface BatchJobMapstructTransfer {
     BatchJobMapstructTransfer INSTANCE = Mappers.getMapper(BatchJobMapstructTransfer.class);
 
-    /**
-     * ExecuteSqlParseVO --> BatchExecuteSqlParseResultVO
-     *
-     * @param executeSqlParseVO
-     * @return
-     */
-    BatchExecuteSqlParseResultVO executeSqlParseVOToBatchExecuteSqlParseResultVO(ExecuteSqlParseVO executeSqlParseVO);
 
     /**
      * ExecuteResultVO --> BatchExecuteResultVO
@@ -49,21 +39,6 @@ public interface BatchJobMapstructTransfer {
     BatchExecuteResultVO executeResultVOToBatchExecuteResultVO(ExecuteResultVO executeResultVO);
 
 
-    /**
-     * ScheduleJobExeStaticsVO --> BatchScheduleJobExeStaticsResultVO
-     *
-     * @param scheduleJobExeStaticsVO
-     * @return
-     */
-    BatchScheduleJobExeStaticsResultVO scheduleJobExeStaticsVOToBatchScheduleJobExeStaticsResultVO(ScheduleJobExeStaticsVO scheduleJobExeStaticsVO);
-
-    /**
-     * Map<String, ScheduleJob> --> BMap<String, BatchGetLabTaskRelationMapResultVO>
-     *
-     * @param scheduleJobMap
-     * @return
-     */
-    Map<String, BatchGetLabTaskRelationMapResultVO> scheduleJobMapToBatchGetLabTaskRelationMapResultVOMap(Map<String, ScheduleJob> scheduleJobMap);
 
     /**
      * ScheduleDetailsVO --> BatchJobFindTaskRuleJobResultVO

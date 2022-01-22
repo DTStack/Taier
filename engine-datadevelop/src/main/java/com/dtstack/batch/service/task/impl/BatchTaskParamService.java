@@ -96,13 +96,7 @@ public class BatchTaskParamService {
         if (CollectionUtils.isNotEmpty(parameterSet)) {
             for (Object paramObj : parameterSet) {
 
-                BatchTaskParam batchTaskParam = null;
-                try {
-                    batchTaskParam = PublicUtil.objectToObject(paramObj, BatchTaskParam.class);
-                } catch (final IOException e) {
-                    logger.error("转换batchTaskParam对象失败,{}", e);
-                }
-
+                BatchTaskParam batchTaskParam = PublicUtil.objectToObject(paramObj, BatchTaskParam.class);
                 if(batchTaskParam != null){
                     if (StringUtils.isBlank(batchTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(batchTaskParam.getParamCommand())) {
                         throw new RdosDefineException("自定义参数赋值不能为空");

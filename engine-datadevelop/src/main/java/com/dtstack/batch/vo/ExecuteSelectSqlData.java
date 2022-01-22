@@ -19,7 +19,7 @@
 
 package com.dtstack.batch.vo;
 
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.engine.domain.BatchTask;
 import com.dtstack.batch.service.job.IBatchSelectSqlService;
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ public class ExecuteSelectSqlData {
     /**
      * 查询sql信息
      */
-    private BatchHiveSelectSql batchHiveSelectSql;
+    private BatchSelectSql batchHiveSelectSql;
 
     /**
      * 任务信息
