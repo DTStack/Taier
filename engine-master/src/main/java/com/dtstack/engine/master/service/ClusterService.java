@@ -41,7 +41,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -408,8 +407,6 @@ public class ClusterService {
         return schedulingVos;
     }
 
-
-    @CacheEvict(cacheNames = "standalone", allEntries = true)
     public void clearStandaloneCache() {
         LOGGER.info("clear all standalone cache");
     }
