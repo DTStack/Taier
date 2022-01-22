@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taiga.dao.mapper.EngineJobCacheMapper">
+
+
+    <sql id="engine_simple">
+        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`
+    </sql>
+
+    <sql id="engine_cache_filed">
+        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
+    </sql>
+
+    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        select
+        <include refid="engine_cache_filed" />
+        from schedule_engine_job_cache
+        where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
+    </select>
+
+    <select id="getByJobIds" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        select
+        <include refid="engine_cache_filed"/>
+        from schedule_engine_job_cache
+        WHERE job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0
+    </select>
+
+    <select id="listNames" resultType="java.lang.String">
+        select job_name from schedule_engine_job_cache
+        where job_name like '%${jobName}%' and is_deleted=0;
+    </select>
+
+    <select id="getJobResources" resultType="java.lang.String">
+        SELECT DISTINCT(job_resource) as jobResource
+        FROM schedule_engine_job_cache
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="listByJobResource" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        SELECT
+        <include refid="engine_cache_filed"/>
+        FROM schedule_engine_job_cache
+        WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+        order by stage desc, job_priority asc
+        limit #{start} , #{pageSize}
+    </select>
+
+    <select id="groupByJobResource" resultType="java.util.HashMap">
+        SELECT
+        job_resource as jobResource,
+        stage as stage,
+        unix_timestamp(min(gmt_create)) as generateTime,
+        count(1) as jobSize
+        FROM schedule_engine_job_cache
+        WHERE is_deleted = 0
+        <if test="nodeAddress != null and nodeAddress != ''">
+            and node_address = #{nodeAddress}
+        </if>
+        group by job_resource, stage
+        order by job_resource, stage asc
+    </select>
+
+    <select id="groupByJobResourceFilterByCluster" resultType="java.util.HashMap">
+        SELECT
+        job_resource as jobResource,
+        stage as stage,
+        unix_timestamp(min(gmt_create)) as generateTime,
+        count(1) as jobSize
+        FROM schedule_engine_job_cache
+        WHERE is_deleted = 0
+        <if test="nodeAddress != null and nodeAddress != ''">
+            and node_address = #{nodeAddress}
+        </if>
+        <if test="clusterName != null and clusterName != ''">
+            and tenant_id in (
+            <!--cluster 》 tenant -->
+            SELECT ct.tenant_id FROM console_cluster_tenant ct, console_cluster r
+             WHERE ct.cluster_id = r.id
+              AND r.cluster_name = #{clusterName,jdbcType=VARCHAR}
+              AND ct.is_deleted = 0 AND r.is_deleted = 0
+            )
+        </if>
+        group by job_resource, stage
+        order by job_resource, stage asc
+    </select>
+
+    <select id="countByJobResource" resultType="java.lang.Long">
+        SELECT
+        count(1) as count
+        FROM schedule_engine_job_cache
+        WHERE job_resource = #{jobResource} and stage = #{stage} and is_deleted = 0
+        <if test="nodeAddress != null">
+            and node_address = #{nodeAddress}
+        </if>
+    </select>
+
+    <select id="listByStage" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        select
+        <include refid="engine_simple"/>
+        from schedule_engine_job_cache
+        where id > #{startId}
+        <if test="nodeAddress != null">
+            and (node_address = #{nodeAddress} or node_address is null)
+        </if>
+        <if test="stage != null">
+            and stage = #{stage}
+        </if>
+        <if test="jobResource != null">
+            and job_resource = #{jobResource}
+        </if>
+        and is_deleted=0
+        order by id, job_priority asc
+        limit 500;
+    </select>
+
+    <select id="minPriorityByStage" resultType="java.lang.Long">
+        select min(job_priority) from schedule_engine_job_cache
+        where job_resource = #{jobResource} and node_address = #{nodeAddress}
+        <if test="stages != null">
+            and stage in
+            <foreach collection="stages" item="stage" open="(" separator="," close=")">
+                #{stage}
+            </foreach>
+        </if>
+        and is_deleted=0;
+    </select>
+
+    <select id="countByStage" resultType="java.lang.Integer">
+        select count(1) from schedule_engine_job_cache
+        where job_resource = #{jobResource} and node_address = #{nodeAddress}
+        <if test="stages != null">
+            and stage in
+            <foreach collection="stages" item="stage" open="(" separator="," close=")">
+                #{stage}
+            </foreach>
+        </if>
+        and is_deleted=0;
+    </select>
+
+    <select id="getAllNodeAddress" resultType="java.lang.String">
+        SELECT DISTINCT(node_address) as nodeAddress
+        FROM schedule_engine_job_cache
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="listByFailover" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        select
+        <include refid="engine_cache_filed"/>
+        from schedule_engine_job_cache
+        where id > #{startId} and is_failover = 1
+        and (node_address = #{nodeAddress} or node_address is null)
+        and stage = #{stage}
+        and is_deleted=0
+        order by id, job_priority asc
+        limit 500;
+    </select>
+
+    <update id="updateStage">
+        update schedule_engine_job_cache
+        set
+        node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority},
+        <if test="waitReason != null">
+            wait_reason = #{waitReason},
+        </if>
+        is_failover = 0, gmt_modified=now()
+        where job_id = #{jobId}
+    </update>
+
+    <update id="updateStageBatch">
+        update schedule_engine_job_cache
+        set
+        node_address = #{nodeAddress}, stage = #{stage},
+        is_failover = 0, gmt_modified=now()
+        where job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </update>
+
+    <delete id="deleteByJobIds">
+        delete from schedule_engine_job_cache
+        where job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
+
+    <update id="updateJobInfo">
+        UPDATE
+        schedule_engine_job_cache
+        set job_info = #{jobInfo}
+        WHERE job_id = #{jobId}
+    </update>
+
+    <update id="updateNodeAddressFailover">
+        UPDATE
+        schedule_engine_job_cache
+        set node_address = #{nodeAddress}, stage = #{stage}, is_failover = 1
+        WHERE job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </update>
+
+    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.EngineJobCache">
+        insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource, tenant_id)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource}, #{tenantId});
+    </insert>
+
+    <delete id="delete">
+        delete from schedule_engine_job_cache where job_id=#{jobId}
+    </delete>
+</mapper>
