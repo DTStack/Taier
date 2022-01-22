@@ -142,7 +142,7 @@ public class ComponentService {
     }
 
     public void updateCache(Long clusterId,Integer componentCode) {
-        clearComponentCache();
+        componentConfigService.clearComponentCache();
         clusterService.clearStandaloneCache();
         List<Long> tenantIds = new ArrayList<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
@@ -1566,7 +1566,6 @@ public class ComponentService {
         return "";
     }
 
-
     /**
      * 删除组件
      *
@@ -1614,7 +1613,7 @@ public class ComponentService {
      */
     @SuppressWarnings("unchecked")
     public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion,Long componentId) {
-        Map<String, Object> configMap = getCacheComponentConfigMap(clusterId, componentType, isFilter,componentVersion,componentId);
+        Map<String, Object> configMap = componentConfigService.getCacheComponentConfigMap(clusterId, componentType, isFilter,componentVersion,componentId);
         if(MapUtils.isEmpty(configMap)){
             return null;
         }
@@ -1630,23 +1629,6 @@ public class ComponentService {
 
     public <T> T getComponentByClusterId(Long clusterId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion) {
         return getComponentByClusterId(clusterId,componentType,isFilter,clazz,componentVersion,null);
-    }
-
-    @Cacheable(cacheNames = "component")
-    public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
-        if (null != componentId) {
-            return componentConfigService.convertComponentConfigToMap(componentId, isFilter);
-        }
-        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion,null);
-        if (null == component) {
-            return null;
-        }
-        return componentConfigService.convertComponentConfigToMap(component.getId(), isFilter);
-    }
-
-    @CacheEvict(cacheNames = "component", allEntries = true)
-    public void clearComponentCache() {
-        LOGGER.info(" clear all component cache ");
     }
 
     public ComponentTestResult testConnect(String clusterName, Integer componentType, String componentVersion) {

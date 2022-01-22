@@ -20,6 +20,8 @@ package com.dtstack.batch.controller.console;
 
 import com.dtstack.batch.service.console.ConsoleService;
 import com.dtstack.engine.common.lang.web.R;
+import com.dtstack.engine.master.service.ComponentConfigService;
+import com.dtstack.engine.master.utils.LocalCacheUtil;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.pager.PageResult;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
@@ -35,8 +37,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/node/console")
@@ -46,7 +50,10 @@ public class ConsoleController {
     @Autowired
     private ConsoleService consoleService;
 
-    @PostMapping(value="/nodeAddress")
+    @Autowired
+    private ComponentConfigService componentConfigService;
+
+    @PostMapping(value = "/nodeAddress")
     public R<List<String>> nodeAddress() {
         return R.ok(consoleService.nodeAddress());
     }
@@ -127,5 +134,4 @@ public class ConsoleController {
     public R<ClusterResource> clusterResources(@RequestParam("clusterName") String clusterName) {
         return R.ok(consoleService.clusterResources(clusterName));
     }
-
 }
