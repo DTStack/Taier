@@ -2,5 +2,5 @@
 echo 'DAGSchedulex Building...'
 
 mvn clean package -DskipTests  -pl \
-engine-datadevelop \
+taiga-data-develop \
 -am
