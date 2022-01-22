@@ -18,7 +18,7 @@
 
 package com.dtstack.batch.service.job;
 
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.sql.ParseResult;
 import com.dtstack.batch.vo.ExecuteResultVO;
 import com.dtstack.engine.domain.BatchTask;
@@ -49,7 +49,7 @@ public interface IBatchSelectSqlService {
      * @return
      * @throws Exception
      */
-    ExecuteResultVO selectData(BatchTask task, BatchHiveSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;
+    ExecuteResultVO selectData(BatchTask task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;
 
     /**
      * 根据jobId 获取任务执行状态
@@ -62,7 +62,7 @@ public interface IBatchSelectSqlService {
      * @param taskType
      * @return
      */
-    ExecuteResultVO selectStatus(BatchTask task, BatchHiveSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType);
+    ExecuteResultVO selectStatus(BatchTask task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType);
 
     /**
      * 根据jobId 获取任务执行日志
@@ -76,7 +76,7 @@ public interface IBatchSelectSqlService {
      * @return
      * @throws Exception
      */
-    ExecuteResultVO selectRunLog(BatchTask task, BatchHiveSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;;
+    ExecuteResultVO selectRunLog(BatchTask task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;;
 
     ActionJobEntityVO getTaskStatus(String jobId);
 }

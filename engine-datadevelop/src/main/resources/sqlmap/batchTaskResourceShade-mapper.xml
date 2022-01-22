@@ -43,18 +43,6 @@
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="listByTaskId" resultType="com.dtstack.batch.domain.BatchTaskResourceShade">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM rdos_batch_task_resource_shade
-        WHERE task_id = #{taskId}
-
-        <if test="resourceType != null">
-            and resource_type = #{resourceType}
-        </if>
-
-        and tenant_id = #{tenantId} and is_deleted = 0
-    </select>
 
     <delete id="deleteByTaskId">
         DELETE FROM rdos_batch_task_resource_shade
@@ -76,19 +64,6 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="listResourceByTaskId" resultType="com.dtstack.batch.domain.BatchResource">
-        SELECT
-        re.id,re.tenant_id,re.node_pid,re.url,re.resource_type,re.resource_name,re.origin_file_name,re.resource_desc,re.gmt_create,re.gmt_modified,re.create_user_id,re.modify_user_id,re.is_deleted,re.node_id
-        FROM rdos_batch_task_resource_shade tr
-        LEFT JOIN rdos_batch_resource re ON re.id = tr.resource_id
-        WHERE tr.task_id = #{taskId}
-
-        <if test="resourceType != null">
-            and tr.resource_type = #{resourceType}
-        </if>
-
-        and tr.is_deleted = 0 and re.is_deleted = 0
-    </select>
 
     <update id="deleteByTenantId" parameterType="java.lang.Long">
         UPDATE rdos_batch_task_resource_shade

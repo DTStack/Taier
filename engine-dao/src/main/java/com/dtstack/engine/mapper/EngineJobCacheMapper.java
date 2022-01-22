@@ -40,6 +40,8 @@ public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
 
     List<Map<String,Object>> groupByJobResource(@Param("nodeAddress") String nodeAddress);
 
+    List<Map<String,Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
+
     Long countByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
     List<EngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource);
@@ -65,7 +67,7 @@ public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
     int insert(@Param("jobId")String jobId, @Param("engineType") String engineType,
                @Param("computeType") Integer computeType, @Param("stage") int stage,
                @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("jobResource") String jobResource);
+               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("jobResource") String jobResource, @Param("tenantId")Long tenantId);
 
     int delete(@Param("jobId")String jobId);
 }

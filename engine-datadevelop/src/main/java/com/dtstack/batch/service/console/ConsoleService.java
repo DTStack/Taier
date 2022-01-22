@@ -29,10 +29,9 @@ import com.dtstack.engine.common.util.ComponentVersionUtil;
 import com.dtstack.engine.domain.*;
 import com.dtstack.engine.mapper.*;
 import com.dtstack.engine.master.WorkerOperator;
-import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.jobdealer.JobDealer;
-import com.dtstack.engine.master.jobdealer.resource.JobComputeResourcePlain;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
+import com.dtstack.engine.master.service.ComponentService;
 import com.dtstack.engine.master.vo.console.ConsoleJobInfoVO;
 import com.dtstack.engine.master.vo.console.ConsoleJobVO;
 import com.dtstack.engine.master.zookeeper.ZkService;
@@ -101,9 +100,6 @@ public class ConsoleService {
     private WorkerOperator workerOperator;
 
     @Autowired
-    private JobComputeResourcePlain jobComputeResourcePlain;
-
-    @Autowired
     private KerberosMapper kerberosMapper;
 
 
@@ -155,66 +151,61 @@ public class ConsoleService {
     /**
      * 根据计算引擎类型显示任务
      */
-    public Collection<Map<String, Object>> overview( String nodeAddress,  String clusterName) {
-        if (StringUtils.isBlank(nodeAddress)) {
-            nodeAddress = null;
+    public Collection<Map<String, Object>> overview(String nodeAddress, String clusterName) {
+        List<Map<String, Object>> groupResult = engineJobCacheMapper.groupByJobResourceFilterByCluster(nodeAddress, clusterName);
+        if (CollectionUtils.isEmpty(groupResult)) {
+            Map<String, Map<String, Object>> overview = new HashMap<>(16);
+            return overview.values();
+        }
+        return this.dealGroupResult(groupResult);
+    }
+
+    private Collection<Map<String, Object>> dealGroupResult(List<Map<String, Object>> groupResult) {
+        // {jobResource, Map<String, Object> overviewRecord}
+        Map<String, Map<String, Object>> overview = new HashMap<>(16);
+        List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
+        // 处理 DB 返回结果
+        for (Map<String, Object> record : groupResult) {
+            long generateTime = MapUtils.getLong(record, "generateTime");
+            String waitTime = com.dtstack.engine.common.util.DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
+            record.put("waitTime", waitTime);
+            finalResult.add(record);
         }
 
-        Map<String, Map<String, Object>> overview = new HashMap<>(16);
-        List<Map<String, Object>> groupResult = engineJobCacheMapper.groupByJobResource(nodeAddress);
-        if (CollectionUtils.isNotEmpty(groupResult)) {
-            List<Map<String, Object>> finalResult = new ArrayList<>(groupResult.size());
-            for (Map<String, Object> record : groupResult) {
-                String jobResource = MapUtils.getString(record, "jobResource");
-                if(!isBelongCluster(clusterName,jobResource)){
+        for (Map<String, Object> record : finalResult) {
+            String jobResource = MapUtils.getString(record, "jobResource");
+            int stage = MapUtils.getInteger(record, "stage");
+            String waitTime = MapUtils.getString(record, "waitTime");
+            long jobSize = MapUtils.getLong(record, "jobSize");
+            EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
+
+            Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
+                Map<String, Object> overviewEle = new HashMap<>(16);
+                overviewEle.put("jobResource", jobResource);
+                return overviewEle;
+            });
+            String stageName = eJobCacheStage.name().toLowerCase();
+            overviewRecord.put(stageName, stage);
+            overviewRecord.put(stageName + "JobSize", jobSize);
+            overviewRecord.put(stageName + "WaitTime", waitTime);
+        }
+
+        Collection<Map<String, Object>> overviewValues = overview.values();
+        for (Map<String, Object> record : overviewValues) {
+            // 针对单个 jobResource，归集所有 stage
+            for (EJobCacheStage checkStage : EJobCacheStage.values()) {
+                String checkStageName = checkStage.name().toLowerCase();
+                if (record.containsKey(checkStageName)) {
                     continue;
                 }
-                long generateTime = MapUtils.getLong(record, "generateTime");
-                String waitTime = DateUtil.getTimeDifference(System.currentTimeMillis() - (generateTime * 1000));
-                record.put("waitTime", waitTime);
-                finalResult.add(record);
+
+                record.put(checkStageName, checkStage.getStage());
+                record.put(checkStageName + "JobSize", 0);
+                record.put(checkStageName + "WaitTime", "");
             }
-
-            for (Map<String, Object> record : finalResult) {
-                String jobResource = MapUtils.getString(record, "jobResource");
-                int stage = MapUtils.getInteger(record, "stage");
-                String waitTime = MapUtils.getString(record, "waitTime");
-                long jobSize = MapUtils.getLong(record, "jobSize");
-                EJobCacheStage eJobCacheStage = EJobCacheStage.getStage(stage);
-
-                Map<String, Object> overviewRecord = overview.computeIfAbsent(jobResource, k -> {
-                    Map<String, Object> overviewEle = new HashMap<>(16);
-                    overviewEle.put("jobResource", jobResource);
-                    return overviewEle;
-                });
-                String stageName = eJobCacheStage.name().toLowerCase();
-                overviewRecord.put(stageName, stage);
-                overviewRecord.put(stageName + "JobSize", jobSize);
-                overviewRecord.put(stageName + "WaitTime", waitTime);
-            }
-
-            Collection<Map<String, Object>> overviewValues = overview.values();
-            for (Map<String, Object> record : overviewValues) {
-                for (EJobCacheStage checkStage : EJobCacheStage.values()) {
-                    String checkStageName = checkStage.name().toLowerCase();
-                    if (record.containsKey(checkStageName)) {
-                        continue;
-                    }
-
-                    record.put(checkStageName, checkStage.getStage());
-                    record.put(checkStageName + "JobSize", 0);
-                    record.put(checkStageName + "WaitTime", "");
-                }
-            }
-            return overviewValues;
         }
-        return overview.values();
+        return overviewValues;
     }
-
-    private boolean isBelongCluster(String clusterName,String jobResource){
-        return clusterName.equalsIgnoreCase(jobComputeResourcePlain.parseClusterFromJobResource(jobResource));
-    }
-
 
     public PageResult groupDetail(String jobResource,
                                   String nodeAddress,
@@ -462,7 +453,7 @@ public class ConsoleService {
                         EComponentType.YARN.getTypeCode(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
-            return workerOperator.clusterResource(typeName, pluginInfo.toJSONString());
+            return workerOperator.clusterResource(pluginInfo.toJSONString());
         } catch (Exception e) {
             LOGGER.error("getResources error: ", e);
             throw new RdosDefineException("acquire flink resources error.");

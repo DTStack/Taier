@@ -18,6 +18,7 @@
 
 package com.dtstack.engine.common.client;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.engine.pluginapi.client.IClient;
 import com.dtstack.engine.pluginapi.pojo.ClusterResource;
 import com.dtstack.engine.pluginapi.pojo.ComponentTestResult;
@@ -68,8 +69,8 @@ public class ClientOperator {
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        checkoutOperator(engineType, pluginInfo, jobIdentifier);
+    public RdosTaskStatus getJobStatus(String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(pluginInfo, jobIdentifier);
 
         String jobId = jobIdentifier.getEngineJobId();
         if (Strings.isNullOrEmpty(jobId)) {
@@ -77,7 +78,7 @@ public class ClientOperator {
         }
 
         try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
+            IClient client = clientCache.getClient(pluginInfo);
             Object result = client.getJobStatus(jobIdentifier);
 
             if (result == null) {
@@ -92,12 +93,12 @@ public class ClientOperator {
     }
 
 
-    public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        checkoutOperator(engineType, pluginInfo, jobIdentifier);
+    public String getEngineLog(String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(pluginInfo, jobIdentifier);
 
         String logInfo;
         try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
+            IClient client = clientCache.getClient(pluginInfo);
             logInfo = client.getJobLog(jobIdentifier);
         } catch (Exception e) {
             logInfo = ExceptionUtil.getErrorMessage(e);
@@ -106,10 +107,10 @@ public class ClientOperator {
         return logInfo;
     }
 
-    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        checkoutOperator(engineType, pluginInfo, jobIdentifier);
+    public String getCheckpoints(String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(pluginInfo, jobIdentifier);
         try {
-            IClient client = clientCache.getClient(engineType, pluginInfo);
+            IClient client = clientCache.getClient(pluginInfo);
             return client.getCheckpoints(jobIdentifier);
         } catch (Exception e) {
             throw new RdosDefineException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
@@ -124,10 +125,10 @@ public class ClientOperator {
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
         ,jobClient.getTenantId(),jobClient.getTaskType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
-        checkoutOperator(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
+        checkoutOperator(jobClient.getPluginInfo(), jobIdentifier);
 
         jobIdentifier.setTimeout(getCheckoutTimeout(jobClient));
-        IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        IClient client = clientCache.getClient(jobClient.getPluginInfo());
         return client.cancelJob(jobIdentifier);
     }
 
@@ -145,39 +146,41 @@ public class ClientOperator {
         return timeout;
     }
 
-    private void checkoutOperator(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
-        if (null == engineType || null == pluginInfo || null == jobIdentifier) {
-            throw new IllegalArgumentException("engineType|pluginInfo|jobIdentifier is null.");
+    private void checkoutOperator(String pluginInfo, JobIdentifier jobIdentifier) {
+        if (null == pluginInfo || null == jobIdentifier) {
+            throw new IllegalArgumentException("pluginInfo|jobIdentifier is null.");
         }
     }
 
     public JudgeResult judgeSlots(JobClient jobClient) throws ClientAccessException {
-        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        IClient clusterClient = clientCache.getClient(jobClient.getPluginInfo());
         return clusterClient.judgeSlots(jobClient);
     }
 
     public JobResult submitJob(JobClient jobClient) throws ClientAccessException {
-        IClient clusterClient = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        IClient clusterClient = clientCache.getClient(jobClient.getPluginInfo());
         return clusterClient.submitJob(jobClient);
     }
 
-    public ComponentTestResult testConnect(String engineType, String pluginInfo){
-        IClient clusterClient = clientCache.getDefaultPlugin(engineType);
+    public ComponentTestResult testConnect(String pluginInfo){
+        JSONObject pluginConfig = JSONObject.parseObject(pluginInfo);
+        String typeName = pluginConfig.getString(ConfigConstant.TYPE_NAME_KEY);
+        IClient clusterClient = clientCache.getDefaultPlugin(typeName);
         return clusterClient.testConnect(pluginInfo);
     }
 
-    public List<List<Object>> executeQuery(String engineType, String pluginInfo, String sql, String database) throws Exception {
-        IClient client = clientCache.getClient(engineType, pluginInfo);
+    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) throws Exception {
+        IClient client = clientCache.getClient(pluginInfo);
         return client.executeQuery(sql, database);
     }
 
-    public String uploadStringToHdfs(String engineType, String pluginInfo, String bytes, String hdfsPath) throws Exception {
-        IClient client = clientCache.getClient(engineType, pluginInfo);
+    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) throws Exception {
+        IClient client = clientCache.getClient(pluginInfo);
         return client.uploadStringToHdfs(bytes, hdfsPath);
     }
 
-    public ClusterResource getClusterResource(String engineType, String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(engineType, pluginInfo);
+    public ClusterResource getClusterResource(String pluginInfo) throws ClientAccessException{
+        IClient client = clientCache.getClient(pluginInfo);
         return client.getClusterResource();
     }
 }

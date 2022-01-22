@@ -39,7 +39,7 @@ public class BatchExecuteRunLogResultVO<T> {
     private String download;
 
     @ApiModelProperty(value = "引擎类别", example = "1")
-    private Integer engineType;
+    private Integer taskType;
 
     @ApiModelProperty(value = "是否需要重新获取日志", example = "false")
     private Boolean retryLog;

@@ -32,7 +32,7 @@ import com.dtstack.engine.master.jobdealer.bo.SimpleJobDelay;
 import com.dtstack.engine.master.jobdealer.cache.ShardCache;
 import com.dtstack.engine.master.server.queue.GroupInfo;
 import com.dtstack.engine.master.server.queue.GroupPriorityQueue;
-import com.dtstack.engine.master.server.scheduler.JobPartitioner;
+import com.dtstack.engine.master.server.JobPartitioner;
 import com.dtstack.engine.master.service.EngineJobCacheService;
 import com.dtstack.engine.pluginapi.CustomThreadFactory;
 import com.dtstack.engine.pluginapi.JobClient;
@@ -306,7 +306,7 @@ public class JobSubmitDealer implements Runnable {
             // 判断资源
             JudgeResult judgeResult = workerOperator.judgeSlots(jobClient);
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
-                LOGGER.info("jobId:{} engineType:{} submit to engine start.", jobClient.getJobId(), jobClient.getEngineType());
+                LOGGER.info("jobId:{} taskType:{} submit to engine start.", jobClient.getJobId(), jobClient.getTaskType());
 
                 jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
 
@@ -314,27 +314,27 @@ public class JobSubmitDealer implements Runnable {
                 jobResult = workerOperator.submitJob(jobClient);
 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("jobId:{} engineType:{} submit jobResult:{}.", jobClient.getJobId(), jobClient.getEngineType(), jobResult);
+                    LOGGER.debug("jobId:{} taskType:{} submit jobResult:{}.", jobClient.getJobId(), jobClient.getTaskType(), jobResult);
                 }
 
                 String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                 jobClient.setEngineTaskId(jobId);
                 addToTaskListener(jobClient, jobResult);
-                LOGGER.info("jobId:{} engineType:{} submit to engine end.", jobClient.getJobId(), jobClient.getEngineType());
+                LOGGER.info("jobId:{} taskType:{} submit to engine end.", jobClient.getJobId(), jobClient.getTaskType());
             } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {
-                LOGGER.info("jobId:{} engineType:{} submitJob happens system limitError:{}", jobClient.getJobId(), jobClient.getEngineType(), judgeResult.getReason());
+                LOGGER.info("jobId:{} taskType:{} submitJob happens system limitError:{}", jobClient.getJobId(), jobClient.getTaskType(), judgeResult.getReason());
                 jobClient.setEngineTaskId(null);
                 jobResult = JobResult.createErrorResult(false, judgeResult.getReason());
                 addToTaskListener(jobClient, jobResult);
             } else if (JudgeResult.JudgeType.EXCEPTION == judgeResult.getResult()) {
-                LOGGER.info("jobId:{} engineType:{} judgeSlots result is exception {}", jobClient.getJobId(), jobClient.getEngineType(), judgeResult.getReason());
+                LOGGER.info("jobId:{} taskType:{} judgeSlots result is exception {}", jobClient.getJobId(), jobClient.getTaskType(), judgeResult.getReason());
                 handlerFailedWithRetry(jobClient, true, new Exception(judgeResult.getReason()));
             } else {
-                LOGGER.info("jobId:{} engineType:{} judgeSlots result is false.", jobClient.getJobId(), jobClient.getEngineType());
+                LOGGER.info("jobId:{} taskType:{} judgeSlots result is false.", jobClient.getJobId(), jobClient.getTaskType());
                 handlerNoResource(jobClient, judgeResult);
             }
         } catch (WorkerAccessException e) {
-            LOGGER.info(" jobId:{} engineType:{} worker not find.", jobClient.getJobId(), jobClient.getEngineType());
+            LOGGER.info(" jobId:{} taskType:{} worker not find.", jobClient.getJobId(), jobClient.getTaskType());
             handlerNoResource(jobClient, workerNotFindResult);
         } catch (ClientAccessException | ClientArgumentException e) {
             handlerFailedWithRetry(jobClient, false, e);
@@ -344,7 +344,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private void handlerFailedWithRetry(JobClient jobClient, boolean checkRetry, Throwable e) {
-        LOGGER.error("jobId:{} engineType:{} submitJob happens system error:", jobClient.getJobId(), jobClient.getEngineType(), e);
+        LOGGER.error("jobId:{} taskType:{} submitJob happens system error:", jobClient.getJobId(), jobClient.getTaskType(), e);
         jobClient.setEngineTaskId(null);
         addToTaskListener(jobClient, JobResult.createErrorResult(checkRetry, e));
     }

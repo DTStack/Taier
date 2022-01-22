@@ -19,9 +19,9 @@
 package com.dtstack.batch.service.impl;
 
 import com.csvreader.CsvWriter;
-import com.dtstack.batch.common.enums.TempJobType;
-import com.dtstack.batch.dao.BatchHiveSelectSqlDao;
-import com.dtstack.batch.domain.BatchHiveSelectSql;
+import com.dtstack.engine.common.enums.TempJobType;
+import com.dtstack.batch.dao.BatchSelectSqlDao;
+import com.dtstack.batch.domain.BatchSelectSql;
 import com.dtstack.batch.engine.hdfs.service.BatchHadoopSelectSqlService;
 import com.dtstack.batch.engine.hdfs.service.SyncDownload;
 import com.dtstack.batch.engine.rdbms.common.IDownload;
@@ -31,7 +31,6 @@ import com.dtstack.batch.service.datasource.impl.DatasourceService;
 import com.dtstack.batch.service.table.IDataDownloadService;
 import com.dtstack.engine.common.enums.ComputeType;
 import com.dtstack.engine.common.enums.Deleted;
-import com.dtstack.engine.common.enums.EJobType;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
 import com.dtstack.engine.master.service.ScheduleActionService;
@@ -82,7 +81,7 @@ public class BatchDownloadService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Resource
-    private BatchHiveSelectSqlDao batchHiveSelectSqlDao;
+    private BatchSelectSqlDao batchHiveSelectSqlDao;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -94,19 +93,13 @@ public class BatchDownloadService {
 
     private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
 
-    public IDownload downloadSqlExeResult(String jobId, Long tenantId, Long userId, Boolean isRoot) {
+    public IDownload downloadSqlExeResult(String jobId, Long tenantId) {
 
-        BatchHiveSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
-        Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
+        BatchSelectSql batchSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+        Preconditions.checkNotNull(batchSelectSql, "不存在该临时查询");
 
-        if (MultiEngineType.HADOOP.getType() != batchHiveSelectSql.getEngineType()) {
-            throw new RdosDefineException("临时表查询仅支持Hadoop 引擎类型的任务");
-        }
-
-        MultiEngineType engineType = MultiEngineType.getByType(batchHiveSelectSql.getEngineType());
-
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType.getType(), batchHiveSelectSql.getOtherType());
-                Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType.getType()));
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(batchSelectSql.getTaskType());
+                Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持该任务类型 %d", batchSelectSql.getTaskType()));
 
         return dataDownloadService.downloadSqlExeResult(jobId, tenantId);
     }
@@ -133,7 +126,7 @@ public class BatchDownloadService {
                 otherTypes = 1;
             }*/
         }
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType, otherTypes);
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType);
         Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
 
         return dataDownloadService.queryDataFromTable(tenantId, tableName, db, num, fieldNameList, permissionStyle);
@@ -189,13 +182,6 @@ public class BatchDownloadService {
             throw new RdosDefineException("engineJobId 不能为空");
         }
 
-        if (EJobType.VIRTUAL.getVal().equals(taskType)
-                || EJobType.WORK_FLOW.getVal().equals(taskType)
-                || EJobType.GaussDB_SQL.getVal().equals(taskType)
-                || EJobType.TIDB_SQL.getVal().equals(taskType)
-                || EJobType.GREENPLUM_SQL.getVal().equals(taskType)) {
-            throw new RdosDefineException("(虚节点、工作流、LIBRA_SQL、greenplum SQL)的任务日志不支持下载");
-        }
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
         Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", multiEngineType.getType()));
@@ -266,7 +252,7 @@ public class BatchDownloadService {
                 writeFileWithEngineLog(response, jobId);
             } else {
                 if (downloadType == DownloadType.TABLE) {
-                    BatchHiveSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+                    BatchSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
                     if (batchHiveSelectSql == null) {
                         try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
                             bos.write(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));

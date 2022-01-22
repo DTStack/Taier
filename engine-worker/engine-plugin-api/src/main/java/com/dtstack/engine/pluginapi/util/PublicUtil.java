@@ -162,16 +162,5 @@ public class PublicUtil {
 		return objectMapper.writeValueAsString(object);
 	}
 
-	public static void removeEmptyValue(Map<String, Object> paramMap) {
-		Set<String> set = paramMap.keySet();
-		Iterator<String> it = set.iterator();
-		while (it.hasNext()) {
-			String str = it.next();
-			if (paramMap.get(str) == null) {
-				paramMap.remove(str);
-				set = paramMap.keySet();
-				it = set.iterator();
-			}
-		}
-	}
+
 }

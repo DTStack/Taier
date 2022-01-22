@@ -18,8 +18,8 @@
 
 package com.dtstack.batch.service.impl;
 
-import com.dtstack.batch.common.enums.CatalogueType;
-import com.dtstack.batch.common.enums.EngineCatalogueType;
+import com.dtstack.engine.common.enums.CatalogueType;
+import com.dtstack.engine.common.enums.EngineCatalogueType;
 import com.dtstack.batch.dao.BatchCatalogueDao;
 import com.dtstack.batch.domain.BatchCatalogue;
 import com.dtstack.batch.domain.BatchCatalogueVO;

@@ -22,7 +22,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.batch.engine.core.service.MultiEngineService;
 import com.dtstack.batch.engine.rdbms.common.HadoopConf;
 import com.dtstack.batch.engine.rdbms.service.IJdbcService;
-import com.dtstack.batch.engine.rdbms.service.ITableService;
 import com.dtstack.batch.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.batch.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.batch.service.datasource.impl.DatasourceService;
@@ -32,7 +31,6 @@ import com.dtstack.engine.common.annotation.Forbidden;
 import com.dtstack.engine.common.engine.JdbcInfo;
 import com.dtstack.engine.common.enums.MultiEngineType;
 import com.dtstack.engine.common.exception.RdosDefineException;
-import com.dtstack.batch.service.user.UserService;
 import com.google.common.collect.Lists;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
@@ -59,13 +57,7 @@ public class HadoopTenantService implements ITenantService {
     private IJdbcService jdbcServiceImpl;
 
     @Autowired
-    private ITableService iTableServiceImpl;
-
-    @Autowired
     private DatasourceService datasourceService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private MultiEngineService multiEngineService;
