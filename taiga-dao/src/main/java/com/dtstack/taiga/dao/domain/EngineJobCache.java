@@ -35,11 +35,6 @@ public class EngineJobCache {
     private String jobName;
 
     /**
-     * 任务的执行引擎类型
-     */
-    private String engineType;
-
-    /**
      * 计算类型stream/batch
      */
     private Integer computeType;
@@ -121,14 +116,6 @@ public class EngineJobCache {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
-    }
-
-    public String getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(String engineType) {
-        this.engineType = engineType;
     }
 
     public Integer getComputeType() {
@@ -232,12 +219,12 @@ public class EngineJobCache {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EngineJobCache that = (EngineJobCache) o;
-        return Objects.equals(id, that.id) && Objects.equals(jobId, that.jobId) && Objects.equals(jobName, that.jobName) && Objects.equals(engineType, that.engineType) && Objects.equals(computeType, that.computeType) && Objects.equals(stage, that.stage) && Objects.equals(jobInfo, that.jobInfo) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(jobResource, that.jobResource) && Objects.equals(jobPriority, that.jobPriority) && Objects.equals(isFailover, that.isFailover) && Objects.equals(waitReason, that.waitReason) && Objects.equals(tenantId, that.tenantId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+        return Objects.equals(id, that.id) && Objects.equals(jobId, that.jobId) && Objects.equals(jobName, that.jobName) && Objects.equals(computeType, that.computeType) && Objects.equals(stage, that.stage) && Objects.equals(jobInfo, that.jobInfo) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(jobResource, that.jobResource) && Objects.equals(jobPriority, that.jobPriority) && Objects.equals(isFailover, that.isFailover) && Objects.equals(waitReason, that.waitReason) && Objects.equals(tenantId, that.tenantId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, jobId, jobName, engineType, computeType, stage, jobInfo, nodeAddress, jobResource, jobPriority, isFailover, waitReason, tenantId, gmtCreate, gmtModified, isDeleted);
+        return Objects.hash(id, jobId, jobName, computeType, stage, jobInfo, nodeAddress, jobResource, jobPriority, isFailover, waitReason, tenantId, gmtCreate, gmtModified, isDeleted);
     }
 
     @Override
@@ -246,7 +233,6 @@ public class EngineJobCache {
                 "id=" + id +
                 ", jobId='" + jobId + '\'' +
                 ", jobName='" + jobName + '\'' +
-                ", engineType='" + engineType + '\'' +
                 ", computeType=" + computeType +
                 ", stage=" + stage +
                 ", jobInfo='" + jobInfo + '\'' +
