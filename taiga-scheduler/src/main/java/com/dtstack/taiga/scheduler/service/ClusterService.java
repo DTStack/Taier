@@ -385,9 +385,7 @@ public class ClusterService {
                         KerberosConfig kerberosConfig;
                         EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
                         if (type == EComponentType.YARN || type == EComponentType.SPARK_THRIFT ||
-                                type == EComponentType.DT_SCRIPT || type == EComponentType.HIVE_SERVER ||
-                                type == EComponentType.IMPALA_SQL || type == EComponentType.LEARNING ||
-                                type == EComponentType.INCEPTOR_SQL) {
+                                type == EComponentType.HIVE_SERVER) {
                             kerberosConfig = kerberosTable.get(type.getTypeCode(), StringUtils.EMPTY);
                         } else {
                             kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getHadoopVersion()) ?
