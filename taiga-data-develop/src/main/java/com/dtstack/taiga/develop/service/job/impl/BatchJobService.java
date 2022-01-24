@@ -21,17 +21,22 @@ package com.dtstack.taiga.develop.service.job.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.constrant.TaskStatusConstrant;
-import com.dtstack.taiga.common.enums.*;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
+import com.dtstack.taiga.common.enums.TaskStatus;
+import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.JsonUtils;
 import com.dtstack.taiga.common.util.MathUtil;
 import com.dtstack.taiga.common.util.SessionUtil;
-import com.dtstack.taiga.dao.domain.*;
-import com.dtstack.taiga.dao.mapper.BatchTaskDao;
 import com.dtstack.taiga.dao.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.domain.BatchTaskParam;
 import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.domain.ScheduleJob;
+import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.domain.Tenant;
+import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.develop.dto.BatchParamDTO;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.service.impl.BatchServerLogService;
@@ -41,6 +46,7 @@ import com.dtstack.taiga.develop.service.schedule.JobService;
 import com.dtstack.taiga.develop.service.table.impl.BatchSelectSqlService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskParamService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskParamShadeService;
+import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
 import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
 import com.dtstack.taiga.develop.web.job.vo.result.BatchGetSyncTaskStatusInnerResultVO;
@@ -82,7 +88,7 @@ public class BatchJobService {
     private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
-    private BatchTaskDao batchTaskDao;
+    private BatchTaskService batchTaskService;
 
     @Autowired
     private BatchServerLogService batchServerLogService;
@@ -183,10 +189,7 @@ public class BatchJobService {
         batchStartSyncResultVO.setJobId(null);
         batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
 
-        final BatchTask batchTask = this.batchTaskDao.getOne(taskId);
-        if (batchTask == null) {
-            throw new RdosDefineException("can not find task by id:" + taskId);
-        }
+        final BatchTask batchTask = batchTaskService.getOneWithError(taskId);
 
         if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
@@ -229,11 +232,11 @@ public class BatchJobService {
     /**
      * 获取同步任务运行状态
      */
-    public BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId, Long userId) {
-        return this.getSyncTaskStatusInner(tenantId, jobId, userId, 0);
+    public BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId) {
+        return this.getSyncTaskStatusInner(tenantId, jobId, 0);
     }
 
-    private BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, final Long userId, int retryTimes) {
+    private BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, int retryTimes) {
         final BatchGetSyncTaskStatusInnerResultVO resultVO = new BatchGetSyncTaskStatusInnerResultVO();
         resultVO.setMsg(null);
         resultVO.setStatus(TaskStatus.RUNNING.getStatus());
@@ -312,7 +315,7 @@ public class BatchJobService {
                         if (StringUtils.isEmpty(engineLog.getString("root-exception")) && retryTimes < 3) {
                             retryTimes++;
                             Thread.sleep(500);
-                            return this.getSyncTaskStatusInner(tenantId, jobId, userId, retryTimes);
+                            return this.getSyncTaskStatusInner(tenantId, jobId, retryTimes);
                         } else {
                             if (engineLog.containsKey("engineLogErr")) {
                                 // 有这个字段表示日志没有获取到，目前engine端只对flink任务做了这种处理，这里先提前加上
@@ -339,7 +342,7 @@ public class BatchJobService {
                 } else if (TaskStatus.FINISHED.getStatus().equals(status) && retryTimes < 3) {
                     // FIXME perjob模式运行任务，任务完成后统计信息可能还没收集到，这里等待1秒后再请求一次结果
                     Thread.sleep(1000);
-                    return this.getSyncTaskStatusInner(tenantId, jobId, userId, 3);
+                    return this.getSyncTaskStatusInner(tenantId, jobId, 3);
                 }
                 if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                         || TaskStatus.FAILED.getStatus().equals(status)) {
@@ -390,10 +393,8 @@ public class BatchJobService {
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;", dtToken, user.getId(), user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
         try {
-            final BatchTask task = this.batchTaskDao.getOne(taskId);
-            if (task == null) {
-                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-            }
+            final BatchTask task = batchTaskService.getOneWithError(taskId);
+
             result.setTaskType(task.getTaskType());
             //真正运行的SQL是页面传入的SQL
             task.setSqlText(sql);
