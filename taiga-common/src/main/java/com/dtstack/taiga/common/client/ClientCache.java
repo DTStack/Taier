@@ -65,7 +65,6 @@ public class ClientCache {
     }
 
     /**
-     * engineType是不带版本信息的
      *
      * @param pluginInfo 集群配置信息
      * @return
