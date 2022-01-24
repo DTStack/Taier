@@ -1,0 +1,106 @@
+@import '@/styles/variables.scss';
+
+.dt-cluster {
+	height: 100%;
+
+	.dt-cluster-component {
+		> .ant-tabs-nav {
+			margin-bottom: 0;
+		}
+
+		.dt-cluster-title {
+			width: 200px;
+			padding-left: 20px;
+			color: #333;
+			font-weight: bold;
+			font-size: 14px;
+		}
+
+		.dt-cluster-component-tab-title {
+			display: flex;
+			align-items: center;
+			height: 19px;
+			font-size: 12px;
+		}
+	}
+
+	.c-editCluster__container__componentTabs {
+		height: calc(100vh - $statusBar-size - $menuBar-size - 55px - 59px - 48px);
+
+		> .ant-tabs-nav {
+			width: 200px;
+			padding: 20px 0 0;
+			border-right: 1px solid #e8e8e8;
+
+			.ant-tabs-tab {
+				font-size: 12px;
+
+				.ant-tabs-tab-btn {
+					flex: 1;
+					text-align: left;
+				}
+
+				&.ant-tabs-tab-active {
+					background-color: rgba(36, 145, 247, 0.1);
+				}
+
+				.success-icon {
+					margin: 0 0 0 auto;
+					color: #12bc6a;
+					font-size: 12px;
+					font-family: anticon;
+				}
+			}
+
+			.ant-tabs-extra-content {
+				width: 100%;
+			}
+		}
+
+		.ant-tabs-content {
+			height: 100%;
+		}
+
+		div.ant-tabs-content-holder .ant-tabs-tabpane {
+			height: 100%;
+			padding-left: 0;
+		}
+
+		.dt-cluster-content {
+			position: relative;
+			display: flex;
+			height: 100%;
+			font-size: 12px;
+
+			.c-toolbar__container {
+				position: absolute;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				height: 40px;
+				line-height: 40px;
+				text-align: center;
+				background: #fff;
+				border-top: 1px solid #e8e8e8;
+
+				button {
+					height: 28px;
+					padding: 0 12px;
+				}
+			}
+		}
+	}
+
+	.empty-logo {
+		position: absolute;
+		top: 50%;
+		left: 55%;
+		z-index: 1;
+		margin-top: -100px;
+		margin-left: -100px;
+		> img {
+			width: 200px;
+			height: 200px;
+		}
+	}
+}
