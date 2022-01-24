@@ -20,10 +20,10 @@ package com.dtstack.taiga.develop.service.task.impl;
 
 import com.dtstack.taiga.common.enums.EParamType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.dao.BatchTaskParamShadeDao;
-import com.dtstack.taiga.develop.domain.BatchSysParameter;
-import com.dtstack.taiga.develop.domain.BatchTaskParam;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.domain.BatchTaskParam;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.mapper.BatchTaskParamShadeDao;
 import com.dtstack.taiga.develop.service.impl.BatchSysParamService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;

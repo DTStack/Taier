@@ -18,9 +18,9 @@
 
 package com.dtstack.taiga.develop.vo;
 
+import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.domain.BatchResource;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
+import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.develop.parser.ESchedulePeriodType;
 import com.dtstack.taiga.develop.parser.ScheduleCron;
 import com.dtstack.taiga.develop.parser.ScheduleFactory;
@@ -222,7 +222,7 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     private List<BatchResource> refResourceList;
 
-    private List<BatchTaskVersionDetail> taskVersions;
+    private List<BatchTaskVersionDetailDTO> taskVersions;
 
     /**
      * 工作流父任务版本号  用于子任务获取父任务锁
@@ -399,11 +399,11 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.cron = cron;
     }
 
-    public List<BatchTaskVersionDetail> getTaskVersions() {
+    public List<BatchTaskVersionDetailDTO> getTaskVersions() {
         return taskVersions;
     }
 
-    public void setTaskVersions(List<BatchTaskVersionDetail> taskVersions) {
+    public void setTaskVersions(List<BatchTaskVersionDetailDTO> taskVersions) {
         this.taskVersions = taskVersions;
     }
 

@@ -18,12 +18,24 @@
 
 package com.dtstack.taiga.develop.service.impl;
 
-import com.dtstack.taiga.common.enums.*;
+import com.dtstack.taiga.common.enums.CatalogueLevel;
+import com.dtstack.taiga.common.enums.CatalogueType;
+import com.dtstack.taiga.common.enums.ComputeType;
+import com.dtstack.taiga.common.enums.Deleted;
+import com.dtstack.taiga.common.enums.DictType;
+import com.dtstack.taiga.common.enums.EComponentType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
+import com.dtstack.taiga.common.enums.EngineCatalogueType;
+import com.dtstack.taiga.common.enums.ReadWriteLockType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
+import com.dtstack.taiga.dao.domain.BatchCatalogue;
+import com.dtstack.taiga.dao.domain.BatchFunction;
+import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.dao.BatchCatalogueDao;
-import com.dtstack.taiga.develop.domain.*;
+import com.dtstack.taiga.dao.domain.Dict;
+import com.dtstack.taiga.dao.mapper.BatchCatalogueDao;
+import com.dtstack.taiga.develop.domain.BatchCatalogueVO;
 import com.dtstack.taiga.develop.enums.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taiga.develop.enums.TemplateCatalogue;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
@@ -49,7 +61,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -219,7 +237,7 @@ public class BatchCatalogueService {
                     addOrUpdate(oneBatchCatalogue);
                     if (TASK_DEVELOPE.equals(oneCatalogueName)) {
                         //初始化任务模版
-                        this.initTemplateCatalogue(oneBatchCatalogue, tenantId, userId);
+                        initTemplateCatalogue(oneBatchCatalogue, tenantId, userId);
                     }
                     this.initEngineCatalogue(tenantId, userId, oneCatalogueName, oneBatchCatalogue);
                 }
@@ -294,7 +312,7 @@ public class BatchCatalogueService {
      * @param userId
      * @return
      */
-    private List<BatchCatalogue> initTemplateCatalogue(Catalogue oneCatalogue, Long tenantId, Long userId) {
+    private List<BatchCatalogue> initTemplateCatalogue(BatchCatalogue oneCatalogue, Long tenantId, Long userId) {
         List<BatchCatalogue> templateCatalogueList = new ArrayList<>(TemplateCatalogue.getValues().size());
 
         //需要初始化的模板任务所在的目录
@@ -414,7 +432,7 @@ public class BatchCatalogueService {
     /**
      * 更新目录（移动和重命名）
      */
-    public void updateCatalogue(BatchCatalogueVO catalogueInput, Long userId) {
+    public void updateCatalogue(BatchCatalogueVO catalogueInput) {
 
         BatchCatalogue catalogue = batchCatalogueDao.getOne(catalogueInput.getId());
         catalogueOneNotUpdate(catalogue);
@@ -658,7 +676,7 @@ public class BatchCatalogueService {
 
         //获取目录下的子目录
         List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), currentCatalogue.getTenantId());
-        childCatalogues = keepInitCatalogueBeTop(childCatalogues, currentCatalogue, userId);
+        childCatalogues = keepInitCatalogueBeTop(childCatalogues, currentCatalogue);
         List<CatalogueVO> children = new ArrayList<>();
         for (BatchCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
@@ -753,7 +771,7 @@ public class BatchCatalogueService {
      * @param childCatalogues
      * @return
      */
-    private List<BatchCatalogue> keepInitCatalogueBeTop(List<BatchCatalogue> childCatalogues, Catalogue parentCatalogue, Long userId) {
+    private List<BatchCatalogue> keepInitCatalogueBeTop(List<BatchCatalogue> childCatalogues, BatchCatalogue parentCatalogue) {
         if (parentCatalogue.getLevel().equals(CatalogueLevel.SECOND.getLevel()) &&
                 parentCatalogue.getNodeName().equals(TASK_DEVELOPE)) {
             //初始化默认目录
