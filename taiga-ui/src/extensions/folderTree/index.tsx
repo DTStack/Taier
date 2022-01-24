@@ -1,0 +1,546 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { message } from 'antd';
+import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { localize } from '@dtinsight/molecule/esm/i18n/localize';
+import molecule from '@dtinsight/molecule/esm';
+import Open from '@/components/task/open';
+import EditFolder from '@/components/task/editFolder';
+import DataSync from '@/components/dataSync';
+import {
+	transformCatalogueToTree,
+	loadTreeNode,
+	resetEditorGroup,
+	updateStatusBarLanguage,
+	getCatalogueViaNode,
+} from '@/utils/extensions';
+import api from '@/api';
+import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import { getStatusBarLanguage } from '../statusBar';
+import {
+	CATELOGUE_TYPE,
+	MENU_TYPE_ENUM,
+	TASK_TYPE_ENUM,
+	CREATE_FOLDER_PREFIX,
+	CREATE_TASK_PREFIX,
+	EDIT_FOLDER_PREFIX,
+	EDIT_TASK_PREFIX,
+	FOLDERTREE_CONTEXT_EDIT,
+	TASK_RUN_ID,
+	TASK_SAVE_ID,
+	TASK_SUBMIT_ID,
+} from '@/constant';
+import type { CatalogueDataProps } from '@/interface';
+
+/**
+ * Update task tree node
+ * @param data the back-end data
+ */
+function updateTree(data: Partial<CatalogueDataProps>) {
+	getCatalogueViaNode({
+		id: data.parentId,
+		catalogueType: MENU_TYPE_ENUM.TASK_DEV,
+	}).then((treeData) => {
+		const nextNode = transformCatalogueToTree(treeData, CATELOGUE_TYPE.TASK);
+		if (nextNode) {
+			molecule.folderTree.update(nextNode);
+		}
+	});
+}
+
+/**
+ * Open a tab for creating task
+ */
+function openCreateTab(id?: string) {
+	const onSubmit = (values: any) => {
+		return new Promise<boolean>((resolve) => {
+			const params = {
+				...values,
+				computeType: 1,
+				lockVersion: 0,
+				version: 0,
+			};
+			api.addOfflineTask(params)
+				.then((res) => {
+					if (res.code === 1) {
+						const { data } = res;
+						const groupId = molecule.editor.getGroupIdByTab(tabId);
+						if (!groupId) return;
+						molecule.editor.closeTab(tabId, groupId);
+						molecule.explorer.forceUpdate();
+						updateTree(data);
+						const { current } = molecule.editor.getState();
+						if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+							molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
+						}
+					}
+				})
+				.finally(() => {
+					resolve(false);
+				});
+		});
+	};
+
+	const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
+	const { folderTree } = molecule.folderTree.getState();
+	if (!folderTree) return;
+	const tabData = {
+		id: tabId,
+		modified: false,
+		name: localize('create task', '新建任务'),
+		data: {
+			// always create task under the root node or create task from context menu
+			nodePid: id || folderTree.data?.[0].id,
+		},
+		renderPane: () => {
+			return <Open key={tabId} onSubmit={onSubmit} />;
+		},
+	};
+
+	molecule.editor.open(tabData);
+	molecule.explorer.forceUpdate();
+}
+
+function init() {
+	molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
+		const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
+		const { SAMPLE_FOLDER_PANEL_ID } = molecule.builtin.getConstants();
+		// 如果是任务刷新，执行重新加载
+		if (panel.id === SAMPLE_FOLDER_PANEL_ID && toolbarId === 'refresh') {
+			const rootNode = getRootNode();
+			if (rootNode) {
+				loadTreeNode(rootNode.data, CATELOGUE_TYPE.TASK);
+			}
+		}
+	});
+}
+
+// 初始化右键菜单
+function initContextMenu() {
+	molecule.folderTree.onRightClick((treeNode, menu) => {
+		if (!treeNode.isLeaf) {
+			// insert these menus into folder context
+			menu.splice(0, 1, { id: 'task.create', name: '新建任务' });
+			menu.splice(3, 0, {
+				id: FOLDERTREE_CONTEXT_EDIT,
+				name: '编辑',
+			});
+		} else {
+			menu.splice(2, 0, {
+				id: FOLDERTREE_CONTEXT_EDIT,
+				name: '编辑',
+			});
+		}
+	});
+}
+
+function createTask() {
+	molecule.folderTree.onCreate((type, id) => {
+		if (type === 'File') {
+			resetEditorGroup();
+			openCreateTab();
+		} else if (type === 'Folder') {
+			// work through addNode function
+			molecule.folderTree.add(
+				new TreeNodeModel({
+					id: `${CREATE_FOLDER_PREFIX}_${new Date().getTime()}`,
+					name: '',
+					isLeaf: false,
+					fileType: FileTypes.Folder,
+					isEditable: true,
+					data: {
+						parentId: id,
+					},
+				}),
+				id,
+			);
+		}
+	});
+}
+
+function editTreeNodeName() {
+	function renameFile(file: any) {
+		const { data, name } = file;
+		if (!name) {
+			updateTree({
+				parentId: data.parentId,
+			});
+			return;
+		}
+		api.saveOfflineJobData({
+			...data,
+			name,
+		}).then((res: any) => {
+			if (res.code === 1) {
+				updateTree({
+					parentId: data.parentId,
+				});
+				molecule.explorer.forceUpdate();
+			}
+		});
+	}
+
+	// 创建文件夹
+	function createFolder(file: IFolderTreeNodeProps) {
+		const {
+			name,
+			data: { parentId },
+			id,
+		} = file;
+		if (!name) {
+			return;
+		}
+		api.addOfflineCatalogue({
+			nodeName: name,
+			nodePid: parentId,
+		}).then((res: any) => {
+			if (res.code === 1) {
+				updateTree({ parentId });
+				molecule.explorer.forceUpdate();
+			} else {
+				molecule.folderTree.remove(id);
+			}
+		});
+	}
+
+	function renameFolder(file: any) {
+		const {
+			name,
+			data: { id, parentId },
+		} = file;
+		if (!name) {
+			updateTree({ parentId });
+			return;
+		}
+		api.editOfflineCatalogue({
+			type: 'folder',
+			engineCatalogueType: 0,
+			id,
+			nodeName: name,
+			nodePid: parentId,
+		}).then((res: any) => {
+			if (res.code === 1) {
+				molecule.explorer.forceUpdate();
+			}
+		});
+	}
+	molecule.folderTree.onUpdateFileName((file) => {
+		const { fileType, id } = file;
+		if (fileType === 'File') {
+			renameFile(file);
+		} else if (`${id}`.startsWith(CREATE_FOLDER_PREFIX)) {
+			createFolder(file);
+		} else {
+			renameFolder(file);
+		}
+	});
+}
+
+export function openTaskInTab(taskId: any, file?: any) {
+	if (!file) {
+		// 通过id打开任务
+		// eslint-disable-next-line no-param-reassign
+		file = molecule.folderTree.get(taskId);
+		if (!file) return message.error('此任务不存在');
+	}
+	if (molecule.editor.isOpened(taskId.toString())) {
+		const groupId = molecule.editor.getGroupIdByTab(taskId.toString())!;
+		molecule.editor.setActive(groupId, taskId.toString());
+		return;
+	}
+
+	const { id: fileId, name: fileName, data: fileData, location, icon } = file;
+	api.getOfflineTaskByID({ id: fileId }).then((res) => {
+		if (fileData.taskType === TASK_TYPE_ENUM.SQL) {
+			const { success, data } = res;
+			if (success) {
+				const tabData = {
+					id: fileId.toString(),
+					name: fileName,
+					data: {
+						...data,
+						value: data.sqlText,
+						language: 'sql',
+					},
+					icon,
+					breadcrumb:
+						location?.split('/')?.map((item: string) => ({
+							id: item,
+							name: item,
+						})) || [],
+				};
+				molecule.editor.open(tabData);
+				molecule.editor.updateActions([
+					{ id: TASK_RUN_ID, disabled: false },
+					{ id: TASK_SAVE_ID, disabled: false },
+					{ id: TASK_SUBMIT_ID, disabled: false },
+				]);
+			}
+		} else if (fileData.taskType === TASK_TYPE_ENUM.SYNC) {
+			const { success, data } = res;
+			if (success) {
+				// open in molecule
+				const tabData = {
+					id: fileId.toString(),
+					name: fileName,
+					data: {
+						...data,
+						value: data.sqlText,
+						taskDesc: fileData.taskDesc,
+					},
+					icon,
+					breadcrumb:
+						location?.split('/')?.map((item: string) => ({
+							id: item,
+							name: item,
+						})) || [],
+					renderPane: () => {
+						return <DataSync key={fileId} />;
+					},
+				};
+				molecule.editor.open(tabData);
+				molecule.editor.updateActions([
+					{ id: TASK_RUN_ID, disabled: false },
+					{ id: TASK_SAVE_ID, disabled: false },
+					{ id: TASK_SUBMIT_ID, disabled: false },
+				]);
+			}
+		} else {
+			resetEditorGroup();
+		}
+	});
+
+	molecule.explorer.forceUpdate();
+	updateStatusBarLanguage(getStatusBarLanguage(fileData.taskType)!);
+}
+
+function onSelectFile() {
+	molecule.folderTree.onSelectFile((file) => {
+		molecule.folderTree.setActive(file.id);
+		openTaskInTab(file.id, file);
+	});
+}
+
+function onRemove() {
+	molecule.folderTree.onRemove((id) => {
+		const treeNode = molecule.folderTree.get(id);
+		if (treeNode?.data?.type === 'folder') {
+			api.delOfflineFolder({ id }).then((res) => {
+				if (res.code === 1) {
+					message.success('删除成功');
+					molecule.folderTree.remove(id);
+				}
+				return res;
+			});
+		} else if (treeNode?.data?.type === 'file') {
+			api.delOfflineTask({ taskId: id }).then((res) => {
+				if (res.code === 1) {
+					message.success('删除成功');
+					molecule.folderTree.remove(id);
+				}
+				return res;
+			});
+		}
+	});
+}
+
+function contextMenu() {
+	molecule.folderTree.onContextMenu((menu, treeNode) => {
+		switch (menu.id) {
+			case 'task.create': {
+				resetEditorGroup();
+
+				openCreateTab(treeNode!.data.id);
+				break;
+			}
+			case FOLDERTREE_CONTEXT_EDIT: {
+				resetEditorGroup();
+				const isFile = treeNode!.fileType === 'File';
+
+				const tabId = isFile
+					? `${EDIT_TASK_PREFIX}_${new Date().getTime()}`
+					: `${EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
+
+				const afterSubmit = (params: any, values: any) => {
+					// 更新旧结点所在的文件夹
+					updateTree({
+						parentId: treeNode!.data.parentId,
+					});
+
+					// 如果文件的位置发生了移动，则还需要更新新结点所在的文件夹
+					if (treeNode!.data.parentId !== params.nodePid) {
+						updateTree({
+							parentId: params.nodePid,
+						});
+					}
+
+					// 确保 editor 的 tab 的 id 和 tree 的 id 保持一致
+					// 同步去更新 tab 的 name
+					const isOpened = molecule.editor.isOpened(treeNode!.id);
+					if (isOpened) {
+						molecule.editor.updateTab({
+							id: treeNode!.id,
+							name: values.name,
+						});
+					}
+
+					// 关闭当前编辑的 tab
+					const groupId = molecule.editor.getGroupIdByTab(tabId)!;
+					molecule.editor.closeTab(tabId, groupId);
+
+					// 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
+					const { current } = molecule.editor.getState();
+					if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+						molecule.editor.updateActions([
+							{
+								id: TASK_RUN_ID,
+								disabled: false,
+							},
+						]);
+					}
+				};
+
+				const onSubmit = (values: any) => {
+					return new Promise<boolean>((resolve) => {
+						const params = {
+							id: treeNode!.data.id,
+							isUseComponent: 0,
+							computeType: 1,
+							lockVersion: 0,
+							version: 0,
+							...values,
+						};
+						api.addOfflineTask(params)
+							.then((res: any) => {
+								if (res.code === 1) {
+									afterSubmit(params, values);
+								}
+							})
+							.finally(() => {
+								resolve(false);
+							});
+					});
+				};
+
+				const onSubmitFolder = (values: any) => {
+					return new Promise<boolean>((resolve) => {
+						const params = {
+							id: treeNode!.data.id,
+							type: 'folder',
+							...values,
+						};
+						api.editOfflineCatalogue(params)
+							.then((res: any) => {
+								if (res.code === 1) {
+									afterSubmit(params, values);
+								}
+							})
+							.finally(() => {
+								resolve(false);
+							});
+					});
+				};
+
+				const tabData = {
+					id: tabId,
+					modified: false,
+					data: isFile
+						? {
+								name: treeNode?.name,
+								taskType: treeNode?.data.taskType,
+								nodePid: treeNode?.data.parentId,
+								taskDesc: treeNode?.data.taskDesc,
+						  }
+						: {
+								id: treeNode?.id,
+								nodePid: treeNode?.data.parentId,
+								dt_nodeName: treeNode?.name,
+						  },
+					name: isFile
+						? localize('update task', '编辑任务')
+						: localize('update folder', '编辑文件夹'),
+					renderPane: () => {
+						return (
+							<>
+								{isFile ? (
+									<Open key={tabId} record={treeNode!.data} onSubmit={onSubmit} />
+								) : (
+									<EditFolder
+										tabId={tabId}
+										key={tabId}
+										record={treeNode!.data}
+										onSubmitFolder={onSubmitFolder}
+									/>
+								)}
+							</>
+						);
+					},
+				};
+
+				const { groups = [] } = molecule.editor.getState();
+				const isExist = groups.some((group) => group.data?.some((tab) => tab.id === tabId));
+				if (!isExist) {
+					molecule.editor.open(tabData);
+					molecule.explorer.forceUpdate();
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	});
+}
+
+// 文件夹树异步加载
+function onLoadTree() {
+	molecule.folderTree.onLoadData((treeNode, callback) => {
+		loadTreeNode(treeNode.data, CATELOGUE_TYPE.TASK).then((res) => {
+			if (res) {
+				callback(res);
+			}
+		});
+	});
+}
+
+export default class FolderTreeExtension implements IExtension {
+	id: UniqueId = 'folderTree';
+	name: string = 'folderTree';
+	dispose(): void {
+		throw new Error('Method not implemented.');
+	}
+	activate() {
+		// 初始化 entry 样式和刷新
+		init();
+		// 初始化右键菜单
+		initContextMenu();
+		// 文件夹异步加载
+		onLoadTree();
+		// 新建任务
+		createTask();
+		// 目录树点击事件
+		onSelectFile();
+		// 右键菜单点击事件
+		contextMenu();
+		// 删除事件
+		onRemove();
+		// 重命名
+		editTreeNodeName();
+	}
+}

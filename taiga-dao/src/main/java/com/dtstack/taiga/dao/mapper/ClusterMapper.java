@@ -26,13 +26,9 @@ import java.util.List;
 
 public interface ClusterMapper extends BaseMapper<Cluster> {
 
-    Integer insertWithId(Cluster cluster);
-
     Cluster getByClusterName(@Param("clusterName") String clusterName);
 
     Cluster getOne(@Param("id") Long clusterId);
-
-    List<Cluster> listAll();
 
     void updateGmtModified(Long clusterId);
 }

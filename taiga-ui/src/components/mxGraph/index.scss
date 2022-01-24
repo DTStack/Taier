@@ -1,0 +1,200 @@
+div.mxPopupMenu {
+	-webkit-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+	-moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+	box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+	position: absolute;
+	background: #ffffff;
+	border-radius: 2px;
+	border: 0;
+}
+
+table.mxPopupMenu {
+	border-collapse: collapse;
+	margin: 1px 0;
+}
+
+tr.mxPopupMenuItem {
+	color: black;
+	cursor: pointer;
+}
+
+td.mxPopupMenuItem {
+	color: #666666;
+	letter-spacing: 0;
+	padding: 2px 30px 2px 10px;
+	white-space: nowrap;
+	font-family: 'Arial', sans-serif;
+	font-size: 8pt;
+}
+
+td.mxPopupMenuIcon {
+	background-color: #d0d0d0;
+	padding: 2px 4px 2px 4px;
+}
+
+tr.mxPopupMenuItemHover {
+	background-color: #000066;
+	color: #ffffff;
+	cursor: pointer;
+
+	.mxPopupMenuItem {
+		color: #2491f7;
+	}
+}
+
+table.mxPopupMenu hr {
+	border-top: solid 1px #cccccc;
+}
+
+table.mxPopupMenu tr {
+	font-size: 4pt;
+}
+
+.mxTooltip {
+	display: block !important;
+	padding: 10px !important;
+	background: #ffffff !important;
+	box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.08) !important;
+	border: none !important;
+	box-sizing: border-box;
+	margin: 0;
+	font-variant: tabular-nums;
+	line-height: 1.5;
+	list-style: none;
+	font-feature-settings: 'tnum';
+	word-wrap: break-word;
+	border-radius: 4px;
+	font-family: 'Arial', sans-serif;
+	font-size: 8pt;
+	position: absolute;
+	cursor: default;
+	color: black;
+}
+
+.mxPopupMenu {
+	border-collapse: collapse;
+	margin: 4px 0px !important;
+}
+
+div.mxPopupMenu {
+	box-shadow: 3px 3px 12px #c0c0c0;
+	position: absolute;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+}
+
+.mxBasicColor {
+	width: 36px;
+	display: inline-block;
+	height: 14px;
+	border-radius: 2px;
+	position: relative;
+	top: 2px;
+	margin-right: 10px;
+}
+
+.mxYellow {
+	@extend .mxBasicColor;
+
+	border: 1px solid #fdb313;
+	background: #fffbe6;
+}
+
+.mxBlue {
+	@extend .mxBasicColor;
+
+	border: 1px solid #3f87ff;
+	background: rgba(63, 135, 255, 0.06);
+}
+
+.mxGreen {
+	@extend .mxBasicColor;
+
+	border: 1px solid #12bc6a;
+	background: rgba(18, 188, 106, 0.06);
+}
+
+.mxRed {
+	@extend .mxBasicColor;
+
+	border: 1px solid #fe615c;
+	background: #fff1f0;
+}
+
+.mxGray {
+	@extend .mxBasicColor;
+
+	border: 1px solid #5b6da6;
+	background: #e6e9f2;
+}
+
+.vertex {
+	user-select: none;
+	margin-top: -2px;
+
+	.vertex-across-logo {
+		float: right;
+		width: 14px;
+		height: 14px;
+	}
+
+	.vertex-title,
+	.blood-vertex-title {
+		width: 105px;
+		text-align: center;
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
+		font-size: 14px;
+		color: #333333;
+		letter-spacing: 0;
+		line-height: 18px;
+		font-weight: normal;
+		white-space: nowrap;
+		font-weight: 500;
+	}
+
+	.blood-vertex-title,
+	.vertex-title {
+		width: 160px;
+	}
+
+	.blood-title-flag {
+		font-weight: 500;
+		color: #333333;
+		font-size: 14px;
+	}
+
+	.vertex-desc {
+		font-family: 'PingFang-SC-Medium', sans-serif;
+		font-size: 10px;
+		color: #666666;
+		letter-spacing: 0;
+		line-height: 14px;
+		font-weight: initial;
+	}
+
+	.vertex-input {
+		border: 0;
+		padding: 0;
+		height: 16px;
+		margin: 0;
+		position: absolute;
+		background: #f5f5f5;
+		left: 0;
+		top: 3;
+		width: 100%;
+		display: none;
+	}
+
+	.vertex-editing {
+		border: 1px solid inherit;
+	}
+}
+
+.mxDisabled {
+	opacity: 0.2 !important;
+	cursor: default !important;
+}

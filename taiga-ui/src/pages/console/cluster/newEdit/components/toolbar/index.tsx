@@ -1,0 +1,234 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { useMemo, useState } from 'react';
+import type { FormInstance } from 'antd';
+import { Popconfirm, Button, message, Modal } from 'antd';
+import Api from '@/api/console';
+import { convertToObj } from '@/utils';
+import { CloseCircleOutlined } from '@ant-design/icons';
+import {
+	COMPONENT_CONFIG_NAME,
+	COMP_ACTION,
+	FLINK_DEPLOY_NAME,
+	FLINK_DEPLOY_TYPE,
+} from '../../const';
+import {
+	handleComponentConfigAndCustom,
+	handleComponentConfig,
+	isNeedTemp,
+	handleCustomParam,
+	isKubernetes,
+	isMultiVersion,
+	isFLink,
+} from '../../help';
+
+interface IProps {
+	form: FormInstance;
+	comp: any;
+	clusterInfo: any;
+	mulitple?: boolean;
+	saveComp: (params: any, type?: string) => void;
+	handleConfirm?: (action: string, comps: any | any[], mulitple?: boolean) => void;
+	testConnects?: Function;
+}
+
+export default function ToolBar({
+	form,
+	comp,
+	clusterInfo,
+	mulitple,
+	saveComp,
+	testConnects: onTestConnects,
+	handleConfirm,
+}: IProps) {
+	const [loading, setLoading] = useState(false);
+
+	const onOk = () => {
+		const typeCode = comp?.componentTypeCode ?? '';
+		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const deployType = comp?.deployType ?? '';
+
+		form.validateFields()
+			.then((rawValues) => {
+				const values = convertToObj(rawValues);
+
+				/**
+				 * componentTemplate yarn等组件直接传自定义参数，其他组件需处理自定义参数和入group中
+				 * componentConfig yarn等组件传值specialConfig，合并自定义参数，其他组件需处理自定义参数合并到对应config中
+				 */
+				let currentComp = values[typeCode];
+				if (mulitple && hadoopVersion) {
+					currentComp = values[typeCode][hadoopVersion];
+				}
+
+				let componentConfig: any;
+				if (!isNeedTemp(typeCode)) {
+					componentConfig = JSON.stringify(
+						handleComponentConfigAndCustom(currentComp, typeCode),
+					);
+				}
+				if (isNeedTemp(typeCode)) {
+					componentConfig = JSON.stringify({
+						...currentComp?.specialConfig,
+						...handleCustomParam(currentComp.customParam, true),
+					});
+				}
+				if (isKubernetes(typeCode))
+					componentConfig = JSON.stringify(currentComp?.specialConfig);
+
+				const params = {
+					isDefault: currentComp?.isDefault ?? '',
+					storeType: currentComp?.storeType ?? '',
+					principal: currentComp?.principal ?? '',
+					principals: currentComp?.principals ?? [],
+					hadoopVersion: mulitple ? hadoopVersion : currentComp.hadoopVersion || '',
+					isMetadata: currentComp.isMetadata ? 1 : 0,
+					componentTemplate: '',
+				};
+
+				if (isNeedTemp(typeCode)) {
+					params.componentTemplate = !currentComp.customParam
+						? '[]'
+						: JSON.stringify(handleCustomParam(currentComp.customParam));
+				} else {
+					params.componentTemplate = componentConfig;
+				}
+				/**
+				 * TODO LIST
+				 * resources2, kerberosFileName 这个两个参数后期可以去掉
+				 * 保存组件后不加上组件id，防止出现上传文件后立即点击不能下载的现象，后续交互优化
+				 */
+				Api.saveComponent({
+					...params,
+					deployType,
+					clusterId: clusterInfo.clusterId,
+					componentCode: typeCode,
+					clusterName: clusterInfo.clusterName,
+					resources1: currentComp?.uploadFileName ?? '',
+					resources2: '',
+					kerberosFileName: currentComp?.kerberosFileName?.name ?? '',
+				}).then((res: any) => {
+					if (res.code === 1) {
+						saveComp({
+							...params,
+							id: res.data.id,
+							componentTypeCode: typeCode,
+							deployType,
+							uploadFileName: currentComp?.uploadFileName ?? '',
+							kerberosFileName: currentComp?.kerberosFileName ?? '',
+						});
+						message.success('保存成功');
+					}
+				});
+			})
+			.catch((err) => {
+				if (err && Object.keys(err).includes(String(typeCode))) {
+					message.error('请检查配置');
+				}
+			});
+	};
+
+	const testConnects = () => {
+		const typeCode = comp?.componentTypeCode ?? '';
+		const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : '';
+		const deployType = comp?.deployType ?? '';
+		onTestConnects?.({ typeCode, hadoopVersion, deployType }, (testLoading: boolean) => {
+			setLoading(testLoading);
+		});
+	};
+
+	const onConfirm = () => {
+		const typeCode = comp?.componentTypeCode ?? '';
+		const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : '';
+		const componentConfig = handleComponentConfig(
+			{
+				componentConfig: comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {},
+			},
+			true,
+		);
+		const fieldValue = isMultiVersion(typeCode)
+			? { [hadoopVersion]: { componentConfig } }
+			: { componentConfig };
+
+		form.setFieldsValue({ [typeCode]: fieldValue });
+	};
+
+	const showModal = () => {
+		Modal.confirm({
+			title: '确认要删除组件？',
+			content: '此操作执行后不可逆，是否确认将当前组件删除？',
+			icon: <CloseCircleOutlined color="#FF5F5C" />,
+			okText: '删除',
+			okType: 'danger',
+			cancelText: '取消',
+			onOk: () => {
+				handleConfirm?.(COMP_ACTION.DELETE, comp, mulitple);
+			},
+		});
+	};
+
+	const typeCode = comp?.componentTypeCode ?? '';
+	const hadoopVersion = comp?.hadoopVersion ?? '';
+	const deployType = comp?.deployType ?? '';
+	const defaultText = (COMPONENT_CONFIG_NAME as any)[typeCode];
+
+	const text = useMemo(
+		() =>
+			isFLink(typeCode)
+				? FLINK_DEPLOY_NAME[deployType ?? FLINK_DEPLOY_TYPE.YARN]
+				: (COMPONENT_CONFIG_NAME as any)[typeCode],
+		[typeCode, deployType],
+	);
+	const multipleText = useMemo(
+		() => `${text} ${(Number(hadoopVersion) / 100).toFixed(2)}`,
+		[text, hadoopVersion],
+	);
+
+	if (isMultiVersion(typeCode) && !mulitple) {
+		return (
+			<div className="c-toolbar__container">
+				<Button style={{ marginLeft: 8 }} onClick={showModal}>
+					删除{`${defaultText}`}组件
+				</Button>
+			</div>
+		);
+	}
+
+	return (
+		<div className="c-toolbar__container">
+			<Popconfirm
+				title="确认取消当前更改？"
+				okText="确认"
+				cancelText="取消"
+				onConfirm={onConfirm}
+			>
+				<Button>取消</Button>
+			</Popconfirm>
+			<Button style={{ marginLeft: 8 }} onClick={showModal}>
+				{mulitple ? `删除${multipleText}组件` : `删除${defaultText}组件`}
+			</Button>
+			<Button style={{ marginLeft: 8 }} loading={loading} onClick={testConnects}>
+				{mulitple ? `测试${multipleText}连通性` : `测试${defaultText}连通性`}
+			</Button>
+			<Button style={{ marginLeft: 8 }} type="primary" onClick={onOk}>
+				{mulitple ? `保存${multipleText}组件` : `保存${defaultText}组件`}
+			</Button>
+		</div>
+	);
+}

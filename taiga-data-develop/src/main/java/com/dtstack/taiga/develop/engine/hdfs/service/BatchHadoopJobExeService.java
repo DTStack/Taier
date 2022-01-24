@@ -21,7 +21,7 @@ package com.dtstack.taiga.develop.engine.hdfs.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.enums.EJobType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.RdosDefineException;
@@ -85,7 +85,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
     @Override
     public Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot) {
-        if (!batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
+        if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
 
@@ -108,7 +108,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String name = "run_sync_task_" + batchTask.getName() + "_" + System.currentTimeMillis();
             String taskExeArgs = String.format(JOB_ARGS_TEMPLATE, name, job);
             actionParam.put("taskSourceId",batchTask.getId());
-            actionParam.put("taskType", EJobType.SYNC.getVal());
+            actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
             actionParam.put("name", name);
             actionParam.put("computeType", batchTask.getComputeType());
             actionParam.put("sqlText", "");
@@ -178,14 +178,14 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
                                                Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception {
         ExecuteResultVO result;
-        if (EJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
             content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd);
 
             result = batchSqlExeService.executeSql(content);
         } else {
-            throw new RdosDefineException("不支持" + EJobType.getEJobType(task.getTaskType()).getName() + "类型的任务直接运行");
+            throw new RdosDefineException("不支持" + EScheduleJobType.getByTaskType(task.getTaskType()).getName() + "类型的任务直接运行");
         }
 
         return result;
@@ -207,7 +207,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
         String taskParams = batchTask.getTaskParams();
 
-        if (EJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
             //Spark SQL任务默认在前面加上建表的类型
             sql = String.format("set hive.default.fileformat=%s;\n ", environmentContext.getCreateTableType()) + sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
@@ -215,7 +215,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             // 构建运行的SQL
             CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql);
             sql = result.getSql();
-        } else if (batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
+        } else if (batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 

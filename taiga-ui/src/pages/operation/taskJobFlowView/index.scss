@@ -1,0 +1,9 @@
+.c-jobflow__modal {
+	.ant-modal-content {
+		height: 100%;
+
+		> .ant-modal-body {
+			height: calc(100% - 48px);
+		}
+	}
+}

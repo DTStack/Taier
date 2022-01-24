@@ -1,0 +1,13 @@
+.c-clusterManage__modal {
+	width: 460px;
+
+	.ant-modal-footer {
+		border-top: unset;
+
+		.ant-btn {
+			width: 68px;
+			height: 32px;
+			padding: 0;
+		}
+	}
+}
