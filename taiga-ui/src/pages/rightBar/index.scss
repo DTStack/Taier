@@ -1,0 +1,50 @@
+@import '../../styles/variables.scss';
+
+.dt-right-bar {
+	display: flex;
+	height: 100%;
+
+	.dt-right-bar-content {
+		flex: 1;
+	}
+
+	.dt-right-bar-title {
+		width: 30px;
+	}
+
+	.dt-right-bar-title-item {
+		width: 30px;
+		margin-bottom: 0;
+		padding: 5px 0;
+		font-size: 12px;
+		line-height: 30px;
+		letter-spacing: 4px;
+		border-bottom: 1px solid #e8e8e8;
+		cursor: pointer;
+		transition: border-color 0.3s;
+		writing-mode: vertical-rl;
+
+		&:hover {
+			color: $main-color;
+			background-color: #eef6fe;
+		}
+
+		&.active {
+			position: relative;
+			color: $main-color;
+			background-color: #fff;
+			transform: translateX(-1px);
+
+			&::after {
+				position: absolute;
+				top: 0;
+				right: -1px;
+				bottom: 0;
+				width: 3px;
+				height: 100%;
+				background-color: $main-color;
+				content: '';
+			}
+		}
+	}
+}

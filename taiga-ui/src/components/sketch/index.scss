@@ -1,0 +1,47 @@
+.dt-sketch {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	height: 100%;
+
+	&-header {
+		display: flex;
+		margin-bottom: 8px;
+	}
+
+	&-extra {
+		margin: 0 0 0 auto;
+	}
+
+	&-header-bar {
+		&:not(:empty) {
+			padding: 16px 10px;
+		}
+	}
+
+	&-table {
+		flex: 1;
+
+		.ant-spin-container,
+		.ant-spin-nested-loading,
+		.ant-table {
+			height: 100%;
+		}
+
+		.ant-table-container {
+			height: calc(100% - 64px);
+		}
+
+		.ant-table-footer {
+			background-color: #fff;
+		}
+	}
+
+	.flex-between {
+		display: flex;
+
+		> :nth-child(2) {
+			margin: 0 0 0 auto;
+		}
+	}
+}
