@@ -135,7 +135,7 @@ public class BatchJobService {
         jobExecuteService.readyForTaskStartTrigger(actionParam, batchTask.getTenantId(), batchTask, taskParamsToReplace);
 
         actionParam.put("taskId", batchTask.getId());
-        actionParam.put("taskType", EJobType.getEngineJobType(batchTask.getTaskType()));
+        actionParam.put("taskType", EScheduleJobType.getByTaskType(batchTask.getTaskType()).getEngineJobType());
         actionParam.put("name", batchTask.getName());
         actionParam.put("computeType", batchTask.getComputeType());
         actionParam.put("tenantId", batchTask.getTenantId());
@@ -188,7 +188,7 @@ public class BatchJobService {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
 
-        if (!batchTask.getTaskType().equals(EJobType.SYNC.getVal())) {
+        if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
 
@@ -210,7 +210,7 @@ public class BatchJobService {
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
             this.batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
-                    job, userId, EJobType.SPARK_SQL.getType());
+                    job, userId, EScheduleJobType.SPARK_SQL.getType());
 
             batchStartSyncResultVO.setMsg("任务提交成功,名称为:" + name);
             batchStartSyncResultVO.setJobId(jobId);
@@ -269,7 +269,7 @@ public class BatchJobService {
                     if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                             || TaskStatus.FAILED.getStatus().equals(status)) {
                         resultVO.setMsg(engineLogStr);
-                        resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), tenantId));
+                        resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EScheduleJobType.SYNC.getVal(), tenantId));
                     }
                     return resultVO;
                 }
@@ -343,7 +343,7 @@ public class BatchJobService {
                 }
                 if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                         || TaskStatus.FAILED.getStatus().equals(status)) {
-                    resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EJobType.SYNC.getVal(), tenantId));
+                    resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EScheduleJobType.SYNC.getVal(), tenantId));
                 }
                 resultVO.setMsg(logBuild.toString());
             } catch (final Exception e) {

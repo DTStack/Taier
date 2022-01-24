@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.mapping;
 
-import com.dtstack.taiga.common.enums.EJobType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.google.common.collect.Maps;
 
@@ -37,9 +37,9 @@ public class TaskTypeEngineTypeMapping {
     private final static Map<Integer, MultiEngineType> REF_MAP = Maps.newHashMap();
 
     static {
-        REF_MAP.put(EJobType.SPARK_SQL.getVal(), MultiEngineType.HADOOP);
-        REF_MAP.put(EJobType.SPARK.getVal(), MultiEngineType.HADOOP);
-        REF_MAP.put(EJobType.SYNC.getVal(), MultiEngineType.HADOOP);
+        REF_MAP.put(EScheduleJobType.SPARK_SQL.getVal(), MultiEngineType.HADOOP);
+        REF_MAP.put(EScheduleJobType.SPARK.getVal(), MultiEngineType.HADOOP);
+        REF_MAP.put(EScheduleJobType.SYNC.getVal(), MultiEngineType.HADOOP);
     }
 
     public static MultiEngineType getEngineTypeByTaskType(Integer taskType){
