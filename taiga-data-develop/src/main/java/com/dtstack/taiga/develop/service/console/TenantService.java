@@ -35,7 +35,7 @@ import com.dtstack.taiga.dao.mapper.QueueMapper;
 import com.dtstack.taiga.dao.mapper.TenantMapper;
 import com.dtstack.taiga.dao.pager.PageQuery;
 import com.dtstack.taiga.dao.pager.PageResult;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taiga.develop.service.impl.BatchCatalogueService;

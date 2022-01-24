@@ -27,7 +27,7 @@ import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.PublicUtil;
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.develop.bo.ExecuteContent;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.service.table.ISqlExeService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;

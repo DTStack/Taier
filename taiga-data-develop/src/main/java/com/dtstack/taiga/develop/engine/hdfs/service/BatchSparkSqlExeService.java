@@ -22,7 +22,7 @@ import com.dtstack.taiga.common.annotation.Forbidden;
 import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.develop.bo.ExecuteContent;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.enums.SqlTypeEnums;
 import com.dtstack.taiga.develop.service.table.ISqlExeService;
 import com.dtstack.taiga.develop.sql.ParseResult;

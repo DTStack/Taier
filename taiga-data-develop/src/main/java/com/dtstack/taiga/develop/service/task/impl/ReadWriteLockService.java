@@ -23,8 +23,8 @@ import com.dtstack.taiga.common.enums.ReadWriteLockType;
 import com.dtstack.taiga.common.enums.TaskLockStatus;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.dao.ReadWriteLockDao;
-import com.dtstack.taiga.develop.domain.ReadWriteLock;
+import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
+import com.dtstack.taiga.dao.mapper.ReadWriteLockDao;
 import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
 import com.google.common.collect.Maps;
@@ -87,7 +87,7 @@ public class ReadWriteLockService {
     @Transactional(rollbackFor = Exception.class)
     public ReadWriteLockVO addOrUpdateLock(Long tenantId, Long userId, String type, Long fileId) {
         ReadWriteLockVO readWriteLockVO;
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, fileId, type);
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, fileId, type);
         if (readWriteLock == null) {
             readWriteLockVO = this.insert(tenantId, fileId, type, userId);
         } else {
@@ -133,7 +133,7 @@ public class ReadWriteLockService {
      * @return
      */
     private ReadWriteLockVO checkLock(Long userId, Long tenantId, Long relationId, ReadWriteLockType type, Integer lockVersion, Integer relationLocalVersion, Integer relationVersion) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
@@ -169,8 +169,8 @@ public class ReadWriteLockService {
      * @param type
      * @return
      */
-    public ReadWriteLock getReadWriteLock(Long tenantId, Long relationId, String type) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type);
+    public BatchReadWriteLock getReadWriteLock(Long tenantId, Long relationId, String type) {
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type);
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
@@ -203,7 +203,7 @@ public class ReadWriteLockService {
      * @return
      */
     public ReadWriteLockVO getDetail(Long tenantId, Long relationId, ReadWriteLockType type, Long userId, Long modifyUserId, Timestamp gmtModified) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
             readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
@@ -228,13 +228,13 @@ public class ReadWriteLockService {
      * @return
      */
     public Map<Long, ReadWriteLockVO> getLocks(Long tenantId, ReadWriteLockType type, List<Long> relationIds, long userId, Map<Long, String> names) {
-        List<ReadWriteLock> ls = readWriteLockDao.getLocksByIds(tenantId, type.name(), relationIds);
-        Map<Long, ReadWriteLock> records = ls.stream()
+        List<BatchReadWriteLock> ls = readWriteLockDao.getLocksByIds(tenantId, type.name(), relationIds);
+        Map<Long, BatchReadWriteLock> records = ls.stream()
                 .collect(Collectors.toMap(r -> r.getRelationId(), r -> r, (v1, v2) -> v2));
         Map<Long, ReadWriteLockVO> result = Maps.newHashMap();
         for (Long id : relationIds) {
             if (records.containsKey(id)) {
-                ReadWriteLock readWriteLock = records.get(id);
+                BatchReadWriteLock readWriteLock = records.get(id);
                 ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
                 readWriteLockVO = this.isGetLock(readWriteLockVO, userId);
                 readWriteLockVO.setLastKeepLockUserName(getUserNameInMemory(names, readWriteLockVO.getModifyUserId()));
@@ -277,7 +277,7 @@ public class ReadWriteLockService {
      * @return
      */
     private ReadWriteLockVO forceUpdateLock(Long userId, ReadWriteLockType type, Long relationId, Long tenantId) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock != null) {
             readWriteLockDao.updateVersionAndModifyUserIdDefinitized(readWriteLock.getId(), userId);
 
@@ -302,7 +302,7 @@ public class ReadWriteLockService {
      * @return
      */
     private ReadWriteLockVO insert(Long tenantId, Long fileId, String type, Long userId) {
-        ReadWriteLock readWriteLock = new ReadWriteLock();
+        BatchReadWriteLock readWriteLock = new BatchReadWriteLock();
         readWriteLock.setTenantId(tenantId);
         readWriteLock.setLockName(uniteName(fileId, tenantId, type));
         readWriteLock.setCreateUserId(userId);
@@ -365,7 +365,7 @@ public class ReadWriteLockService {
     }
 
     private ReadWriteLockVO getLockBasicInfo(Long tenantId, long relationId, ReadWriteLockType type) {
-        ReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
@@ -374,6 +374,5 @@ public class ReadWriteLockService {
         readWriteLockVO.setLastKeepLockUserName(userService.getUserName(readWriteLock.getModifyUserId()));
         return readWriteLockVO;
     }
-
 
 }

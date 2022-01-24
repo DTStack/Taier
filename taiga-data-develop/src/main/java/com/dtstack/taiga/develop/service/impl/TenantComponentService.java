@@ -19,8 +19,8 @@
 package com.dtstack.taiga.develop.service.impl;
 
 import com.dtstack.taiga.common.annotation.Forbidden;
-import com.dtstack.taiga.develop.dao.TenantComponentDao;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.mapper.TenantComponentDao;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,15 +42,9 @@ public class TenantComponentService {
     @Autowired
     private TenantComponentDao tenantComponentDao;
 
-
     @Forbidden
     public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
         return tenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
-    }
-
-    @Forbidden
-    public List<Integer> getUsedEngineTypeList(Long tenantId) {
-        return tenantComponentDao.getUsedTaskTypeList(tenantId);
     }
 
     @Forbidden

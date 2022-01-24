@@ -27,11 +27,11 @@ import com.dtstack.taiga.common.enums.FunctionType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.PublicUtil;
-import com.dtstack.taiga.develop.dao.BatchFunctionDao;
-import com.dtstack.taiga.develop.dao.BatchFunctionResourceDao;
-import com.dtstack.taiga.develop.domain.BatchFunction;
-import com.dtstack.taiga.develop.domain.BatchFunctionResource;
-import com.dtstack.taiga.develop.domain.BatchResource;
+import com.dtstack.taiga.dao.domain.BatchFunction;
+import com.dtstack.taiga.dao.domain.BatchFunctionResource;
+import com.dtstack.taiga.dao.domain.BatchResource;
+import com.dtstack.taiga.dao.mapper.BatchFunctionDao;
+import com.dtstack.taiga.dao.mapper.BatchFunctionResourceDao;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
 import com.dtstack.taiga.develop.service.user.UserService;
@@ -81,9 +81,6 @@ public class BatchFunctionService {
 
     @Autowired
     private BatchTaskService batchTaskService;
-
-    @Autowired
-    private BatchCatalogueService batchCatalogueService;
 
     /**
      * 系统函数缓存
