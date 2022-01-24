@@ -840,7 +840,7 @@ public class BatchTaskService {
         //检查密码回填操作
         this.checkFillPassword(param);
         //数据预处理 主要是数据同步任务 生成sqlText
-        final Integer engineType = this.checkBeforeUpdateTask(param);
+        this.checkBeforeUpdateTask(param);
         if (StringUtils.isNotBlank(param.getScheduleConf())) {
             //处理调度配置
             JSONObject schduleConf = JSON.parseObject(param.getScheduleConf());
@@ -986,17 +986,14 @@ public class BatchTaskService {
      * @param param
      * @return
      */
-    private Integer checkBeforeUpdateTask(TaskResourceParam param) {
-        Integer engineType = EngineType.Spark.getVal();
+    private void checkBeforeUpdateTask(TaskResourceParam param) {
         if (EJobType.SYNC.getVal().equals(param.getTaskType())) {
-            engineType = operateSyncTask(param);
+            operateSyncTask(param);
         } else {
             if (CollectionUtils.isNotEmpty(param.getResourceIdList())) {
                 throw new RdosDefineException("该任务不能添加资源.", ErrorCode.INVALID_PARAMETERS);
             }
         }
-
-        return engineType;
     }
 
     /**
@@ -1004,8 +1001,7 @@ public class BatchTaskService {
      * @param param
      * @return
      */
-    private Integer operateSyncTask(TaskResourceParam param) {
-        Integer engineType;
+    private void operateSyncTask(TaskResourceParam param) {
         Map<String, Object> sourceMap = param.getSourceMap();
         Map<String, Object> settingMap = param.getSettingMap();
         //下面代码 是为了 拿到断点续传在字段列表的第几位
@@ -1024,7 +1020,6 @@ public class BatchTaskService {
             settingMap.put("restoreColumnIndex", restoreColumnIndex);
             param.setSettingMap(settingMap);
         }
-        engineType = EngineType.Flink.getVal();
         logger.info("addOrUpdateTask with createModel {}", param.getCreateModel());
 
         if (param.getIsEditBaseInfo()) {
@@ -1049,7 +1044,6 @@ public class BatchTaskService {
             this.checkIncreSyncTask(param);
             param.setSqlText(Base64Util.baseEncode(param.getSqlText()));
         }
-        return engineType;
     }
 
 
