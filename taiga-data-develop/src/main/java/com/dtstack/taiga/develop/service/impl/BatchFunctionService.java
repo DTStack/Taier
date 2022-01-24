@@ -31,7 +31,6 @@ import com.dtstack.taiga.dao.domain.BatchFunction;
 import com.dtstack.taiga.dao.domain.BatchFunctionResource;
 import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.mapper.BatchFunctionDao;
-import com.dtstack.taiga.dao.mapper.BatchFunctionResourceDao;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
 import com.dtstack.taiga.develop.service.user.UserService;
@@ -71,7 +70,7 @@ public class BatchFunctionService {
     private BatchFunctionDao batchFunctionDao;
 
     @Autowired
-    private BatchFunctionResourceDao batchResourceFunctionDao;
+    private BatchFunctionResourceService batchFunctionResourceService;
 
     @Autowired
     private UserService userService;
@@ -126,7 +125,7 @@ public class BatchFunctionService {
         }
         BatchFunctionVO vo = BatchFunctionVO.toVO(batchFunction);
         //如果函数有资源，则设置函数的资源
-        BatchFunctionResource resourceFunctionByFunctionId = batchResourceFunctionDao.getResourceFunctionByFunctionId(batchFunction.getId());
+        BatchFunctionResource resourceFunctionByFunctionId = batchFunctionResourceService.getResourceFunctionByFunctionId(batchFunction.getId());
         if (Objects.nonNull(resourceFunctionByFunctionId)){
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
         }
@@ -200,10 +199,9 @@ public class BatchFunctionService {
         batchFunctionResource.setGmtModified(new Timestamp(System.currentTimeMillis()));
         BatchFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
         if (Objects.isNull(resourceFunctionByFunctionId)) {
-            batchFunctionResource.setGmtCreate(new Timestamp(System.currentTimeMillis()));
-            batchResourceFunctionDao.insert(batchFunctionResource);
+            batchFunctionResourceService.insert(batchFunctionResource);
         }else {
-            batchResourceFunctionDao.update(batchFunctionResource);
+            batchFunctionResourceService.updateByFunctionId(batchFunctionResource);
         }
     }
 
@@ -213,7 +211,7 @@ public class BatchFunctionService {
      * @return
      */
     private BatchFunctionResource getResourceFunctionByFunctionId(Long functionId) {
-        return batchResourceFunctionDao.getResourceFunctionByFunctionId(functionId);
+        return batchFunctionResourceService.getResourceFunctionByFunctionId(functionId);
     }
 
 
@@ -283,7 +281,7 @@ public class BatchFunctionService {
             throw new RdosDefineException(ErrorCode.SYSTEM_FUNCTION_CAN_NOT_MODIFY);
         }
 
-        batchResourceFunctionDao.deleteByFunctionId(functionId);
+        batchFunctionResourceService.deleteByFunctionId(functionId);
         batchFunction = new BatchFunction();
         batchFunction.setId(functionId);
         batchFunction.setIsDeleted(Deleted.DELETED.getStatus());
@@ -429,6 +427,18 @@ public class BatchFunctionService {
             }
         }
         return false;
+    }
+
+    /**
+     * 根据 租户、名称、类型 查询
+     *
+     * @param tenantId 租户ID
+     * @param name     名称
+     * @param type     类型
+     * @return
+     */
+    public List<BatchFunction> listByNameAndTenantId(Long tenantId, String name, Integer type){
+        return batchFunctionDao.listByNameAndTenantId(tenantId, name, type);
     }
 
 }

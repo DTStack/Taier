@@ -78,12 +78,7 @@ import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.dto.BatchTaskDTO;
 import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.dao.dto.UserDTO;
-import com.dtstack.taiga.dao.mapper.BatchCatalogueDao;
-import com.dtstack.taiga.dao.mapper.BatchFunctionDao;
-import com.dtstack.taiga.dao.mapper.BatchResourceDao;
 import com.dtstack.taiga.dao.mapper.BatchTaskDao;
-import com.dtstack.taiga.dao.mapper.BatchTaskResourceDao;
-import com.dtstack.taiga.dao.mapper.BatchTaskVersionDao;
 import com.dtstack.taiga.dao.mapper.ReadWriteLockDao;
 import com.dtstack.taiga.dao.pager.PageQuery;
 import com.dtstack.taiga.develop.common.template.Reader;
@@ -100,6 +95,9 @@ import com.dtstack.taiga.develop.parser.ScheduleFactory;
 import com.dtstack.taiga.develop.schedule.JobParamReplace;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
+import com.dtstack.taiga.develop.service.impl.BatchCatalogueService;
+import com.dtstack.taiga.develop.service.impl.BatchFunctionService;
+import com.dtstack.taiga.develop.service.impl.BatchResourceService;
 import com.dtstack.taiga.develop.service.impl.BatchSqlExeService;
 import com.dtstack.taiga.develop.service.impl.BatchSysParamService;
 import com.dtstack.taiga.develop.service.impl.DictService;
@@ -210,9 +208,6 @@ public class BatchTaskService {
     private BatchTaskResourceService batchTaskResourceService;
 
     @Autowired
-    private BatchTaskResourceDao batchTaskResourceDao;
-
-    @Autowired
     private BatchTaskParamService batchTaskParamService;
 
     @Autowired
@@ -222,7 +217,7 @@ public class BatchTaskService {
     private DatasourceService dataSourceService;
 
     @Autowired
-    private BatchCatalogueDao batchCatalogueDao;
+    private BatchCatalogueService batchCatalogueService;
 
     @Autowired
     private UserService userService;
@@ -231,16 +226,16 @@ public class BatchTaskService {
     private TaskService taskService;
 
     @Autowired
-    private BatchTaskVersionDao batchTaskVersionDao;
+    private BatchTaskVersionService batchTaskVersionService;
 
     @Autowired
     private BatchSysParamService batchSysParamService;
 
     @Autowired
-    private BatchResourceDao batchResourceDao;
+    private BatchResourceService batchResourceService;
 
     @Autowired
-    private BatchFunctionDao batchFunctionDao;
+    private BatchFunctionService batchFunctionService;
 
     @Autowired
     private DictService dictService;
@@ -367,7 +362,7 @@ public class BatchTaskService {
             }
         }
 
-        final BatchCatalogue catalogue = this.batchCatalogueDao.getOne(task.getNodePid());
+        final BatchCatalogue catalogue = batchCatalogueService.getOne(task.getNodePid());
         if (catalogue != null) {
             taskVO.setNodePName(catalogue.getNodeName());
         }
@@ -376,7 +371,7 @@ public class BatchTaskService {
         taskVO.setRefResourceList(refResourceIdList);
 
         PageQuery pageQuery = new PageQuery(1, 5, "gmt_create", Sort.DESC.name());
-        List<BatchTaskVersionDetailDTO> taskVersions = this.batchTaskVersionDao.listByTaskId(scheduleTaskVO.getId(), pageQuery).stream()
+        List<BatchTaskVersionDetailDTO> taskVersions = batchTaskVersionService.listByTaskId(scheduleTaskVO.getId(), pageQuery).stream()
                 .map(ver -> {
                     if (StringUtils.isNotBlank(ver.getOriginSql())) {
                         if (task.getTaskType().intValue() == EScheduleJobType.SYNC.getVal().intValue()) {
@@ -673,7 +668,7 @@ public class BatchTaskService {
 
         // 提交任务参数信息并保存任务记录和更新任务状态
         try {
-            BatchTask batchTask = getOne(scheduleTaskShadeDTO.getTaskId());
+            BatchTask batchTask = getOneWithError(scheduleTaskShadeDTO.getTaskId());
             String extraInfo = this.batchJobService.getExtraInfo(batchTask, userId, null);
             scheduleTaskShadeDTO.setExtraInfo(extraInfo);
             // 无异常保存一条任务记录并更新任务状态
@@ -795,7 +790,7 @@ public class BatchTaskService {
         version.setDependencyTaskIds(dependencyTaskIds);
         version.setPublishDesc(null == publishDesc ? "" : publishDesc);
         // 插入一条记录信息
-        this.batchTaskVersionDao.insert(version);
+        batchTaskVersionService.insert(version);
         task.setVersion(version.getId().intValue());
         return checkVo;
     }
@@ -851,7 +846,7 @@ public class BatchTaskService {
             pageSize = 10;
         }
         PageQuery pageQuery = new PageQuery(pageNo, pageSize, "gmt_create", Sort.DESC.name());
-        List<BatchTaskVersionDetailDTO> res = batchTaskVersionDao.listByTaskId(taskId, pageQuery);
+        List<BatchTaskVersionDetailDTO> res = batchTaskVersionService.listByTaskId(taskId, pageQuery);
         for (BatchTaskVersionDetailDTO detail : res) {
             detail.setUserName(userService.getUserName(detail.getCreateUserId()));
         }
@@ -859,7 +854,7 @@ public class BatchTaskService {
     }
 
     public BatchTaskVersionDetailDTO taskVersionScheduleConf(Long versionId) {
-        BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionDao.getByVersionId(versionId);
+        BatchTaskVersionDetailDTO taskVersion = batchTaskVersionService.getByVersionId(versionId);
         if (taskVersion == null) {
             return null;
         }
@@ -1320,7 +1315,7 @@ public class BatchTaskService {
 
         boolean isAdd = false;
         if (task.getId() > 0) {//update
-            BatchTask specialTask = this.getOne(task.getId());
+            BatchTask specialTask = getOneWithError(task.getId());
             if (task.getTaskType() == null) {
                 task.setTaskType(specialTask.getTaskType());
             }
@@ -1562,13 +1557,13 @@ public class BatchTaskService {
         Preconditions.checkNotNull(task, "can not find task by id " + id);
 
         //删除旧的资源
-        this.batchTaskResourceDao.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
+        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
 
         //添加新的资源
         if (CollectionUtils.isNotEmpty(oriResourceList)) {
-            final List<Long> resourceIdList = Lists.newArrayList();
+            List<Long> resourceIdList = Lists.newArrayList();
             oriResourceList.forEach(tmpId -> resourceIdList.add(MathUtil.getLongVal(tmpId)));
-            this.batchTaskResourceService.save(task, resourceIdList, ResourceRefType.MAIN_RES.getType());
+            batchTaskResourceService.save(task, resourceIdList, ResourceRefType.MAIN_RES.getType());
         }
 
     }
@@ -1589,11 +1584,10 @@ public class BatchTaskService {
         final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
         final List<Object> refResourceList = (List<Object>) taskResourceMap.get("refResource");
 
-        final BatchTask task = this.batchTaskDao.getOne(id);
-        Preconditions.checkNotNull(task, "can not find task by id " + id);
+        final BatchTask task = getOneWithError(id);
 
         //删除旧的资源
-        this.batchTaskResourceDao.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
+        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
 
         //添加新的关联资源
         if (CollectionUtils.isNotEmpty(refResourceList)) {
@@ -1763,7 +1757,7 @@ public class BatchTaskService {
     public void checkName(String name, String type, Integer pid, Integer isFile, Long tenantId) {
         if (StringUtils.isNotEmpty(name)) {
             if (!isFile.equals(IS_FILE)) {
-                final BatchCatalogue batchCatalogue = this.batchCatalogueDao.getByPidAndName(tenantId, pid.longValue(), name);
+                BatchCatalogue batchCatalogue = batchCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
                 if (batchCatalogue != null) {
                     throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
                 }
@@ -1772,11 +1766,11 @@ public class BatchTaskService {
                 if (type.equals(CatalogueType.TASK_DEVELOP.name())) {
                     obj = this.batchTaskDao.getByName(name, tenantId);
                 } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
-                    obj = this.batchResourceDao.listByNameAndTenantId(tenantId, name);
+                    obj = batchResourceService.listByNameAndTenantId(tenantId, name);
                 } else if (type.equals(CatalogueType.CUSTOM_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
+                    obj = batchFunctionService.listByNameAndTenantId(tenantId, name, FuncType.CUSTOM.getType());
                 } else if (type.equals(CatalogueType.PROCEDURE_FUNCTION.name())) {
-                    obj = this.batchFunctionDao.listByNameAndTenantId(tenantId, name, FuncType.PROCEDURE.getType());
+                    obj = batchFunctionService.listByNameAndTenantId(tenantId, name, FuncType.PROCEDURE.getType());
                 } else if (type.equals(CatalogueType.SYSTEM_FUNCTION.name())) {
                     throw new RdosDefineException("不能添加系统函数");
                 } else {
@@ -1844,21 +1838,29 @@ public class BatchTaskService {
         return this.batchTaskDao.updateSubmitStatus(tenantId, taskId, submitStatus, Timestamp.valueOf(LocalDateTime.now()));
     }
 
-    public BatchTask getOne(final Long taskId) {
-        final BatchTask one = this.batchTaskDao.getOne(taskId);
+    /**
+     * 根据ID查询信息
+     *  如果不存在，则抛异常
+     *
+     * @param taskId 任务ID
+     * @return
+     */
+    public BatchTask getOneWithError(final Long taskId) {
+        BatchTask one = getOne(taskId);
         if (Objects.isNull(one)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
         return one;
     }
 
-    public Integer maxTaskVersion(final Long taskId) {
-        final Integer maxVersionId = this.batchTaskVersionDao.getMaxVersionId(taskId);
-        if (maxVersionId == null) {
-            logger.error("maxVersion cannot be null, taskId={}", taskId) ;
-            throw new RdosDefineException("任务无提交记录");
-        }
-        return maxVersionId;
+    /**
+     * 根据ID查询信息
+     *
+     * @param taskId 任务ID
+     * @return
+     */
+    public BatchTask getOne(Long taskId) {
+        return this.batchTaskDao.getOne(taskId);
     }
 
     /**
