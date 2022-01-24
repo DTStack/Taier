@@ -80,17 +80,6 @@ public class BatchFunctionResourceService {
     }
 
     /**
-     * 根据 functionId 和 resourceId 获取关联记录
-     *
-     * @param resourceId
-     * @param functionId
-     * @return
-     */
-    public BatchFunctionResource getBeanByResourceIdAndFunctionId(Long resourceId, Long functionId) {
-        return batchFunctionResourceDao.getBeanByResourceIdAndFunctionId(resourceId, functionId);
-    }
-
-    /**
      * 根据资源id 获取列表
      * @param resourceId
      * @return

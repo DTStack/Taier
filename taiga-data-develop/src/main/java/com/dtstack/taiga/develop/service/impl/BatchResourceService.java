@@ -29,8 +29,6 @@ import com.dtstack.taiga.dao.domain.BatchCatalogue;
 import com.dtstack.taiga.dao.domain.BatchFunctionResource;
 import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTaskResource;
-import com.dtstack.taiga.dao.mapper.BatchCatalogueDao;
-import com.dtstack.taiga.dao.mapper.BatchFunctionResourceDao;
 import com.dtstack.taiga.dao.mapper.BatchResourceDao;
 import com.dtstack.taiga.develop.dto.BatchResourceAddDTO;
 import com.dtstack.taiga.develop.engine.rdbms.common.HadoopConf;
@@ -61,16 +59,16 @@ import java.util.Objects;
 @Service
 public class BatchResourceService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchResourceService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchResourceService.class);
 
     @Autowired
     private BatchResourceDao batchResourceDao;
     
     @Autowired
-    private BatchFunctionResourceDao batchFunctionResourceDao;
+    private BatchFunctionResourceService batchFunctionResourceService;
     
     @Autowired
-    private BatchCatalogueDao batchCatalogueDao;
+    private BatchCatalogueService batchCatalogueService;
 
     @Autowired
     private BatchTaskResourceService batchTaskResourceService;
@@ -82,16 +80,16 @@ public class BatchResourceService {
     private UserService userService;
 
     @Autowired
-    EnvironmentContext environmentContext;
+    private EnvironmentContext environmentContext;
 
     /**
      * 添加资源
      */
     public CatalogueVO addResource(BatchResourceAddDTO batchResourceAddDTO) {
-        final Long tenantId = batchResourceAddDTO.getTenantId();
-        final Long userId = batchResourceAddDTO.getUserId();
+        Long tenantId = batchResourceAddDTO.getTenantId();
+        Long userId = batchResourceAddDTO.getUserId();
 
-        final String resourceName;
+        String resourceName;
         Long resourceId = null;
         BatchResource resourceDB = null;
         Integer resourceType = null;
@@ -122,7 +120,7 @@ public class BatchResourceService {
             batchResource.setUrl(hdfsPath);
         } else {
             //判断是否已经存在相同的资源了
-            this.batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
+            batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
 
             batchResourceAddDTO.setUrl(hdfsPath);
             batchResourceAddDTO.setCreateUserId(userId);
@@ -137,10 +135,10 @@ public class BatchResourceService {
         batchResource.setResourceType(resourceType);
         batchResource.setModifyUserId(userId);
         batchResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        batchResource = this.addOrUpdate(batchResource);
+        batchResource = addOrUpdate(batchResource);
 
-        final BatchCatalogue catalogue = this.batchCatalogueDao.getOne(batchResource.getNodePid());
-        final CatalogueVO catalogueVO = new CatalogueVO();
+        BatchCatalogue catalogue = batchCatalogueService.getOne(batchResource.getNodePid());
+        CatalogueVO catalogueVO = new CatalogueVO();
         catalogueVO.setId(batchResource.getId());
         catalogueVO.setName(batchResource.getResourceName());
         catalogueVO.setType("file");
@@ -155,8 +153,6 @@ public class BatchResourceService {
         return catalogueVO;
     }
 
-
-
     /**
      * 新增或修改
      * @param batchResource
@@ -168,29 +164,27 @@ public class BatchResourceService {
         } else {
             this.batchResourceDao.insert(batchResource);
         }
-
         return batchResource;
     }
-
 
     /**
      * 删除资源
      */
     public Long deleteResource(Long tenantId, Long resourceId) {
-        final List<BatchTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
+        List<BatchTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
         if (!CollectionUtils.isEmpty(taskResources)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
-        final List<BatchFunctionResource> functionResources = this.batchFunctionResourceDao.listByResourceId(resourceId);
+        List<BatchFunctionResource> functionResources = batchFunctionResourceService.listByResourceId(resourceId);
         if (!CollectionUtils.isEmpty(functionResources)) {
         	throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
         //删除资源在hdfs的实际存储文件
-        final BatchResource resource = getResource(resourceId);
+        BatchResource resource = getResource(resourceId);
         try {
             HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),resource.getUrl());
-        } catch (final Exception e) {
-            BatchResourceService.logger.error(" tenantId:{} taskId:{}  userId:{} fail delete resource from HDFS", e);
+        } catch (Exception e) {
+            LOGGER.error(String.format("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId), e);
         }
 
         //删除资源记录
@@ -212,7 +206,6 @@ public class BatchResourceService {
         return null;
     }
 
-
     /**
      * 获取离线上传的资源到HDFS上的路径
      * @param tenantId
@@ -223,7 +216,6 @@ public class BatchResourceService {
         String hdfsURI = HadoopConf.getDefaultFs(tenantId);
         return hdfsURI + environmentContext.getHdfsBatchPath() + fileName;
     }
-
 
     /**
      * 根据资源ids 查询资源列表
@@ -240,24 +232,22 @@ public class BatchResourceService {
      * @return
      */
     public BatchResource getResource(long resourceId) {
-        return this.batchResourceDao.getOne(resourceId);
+        return batchResourceDao.getOne(resourceId);
     }
-
 
     /**
      * 替换资源
      */
     public void replaceResource(BatchResourceAddDTO batchResourceAddDTO) {
-        final long tenantId = batchResourceAddDTO.getTenantId();
-        final long resourceId = batchResourceAddDTO.getId();
+        long tenantId = batchResourceAddDTO.getTenantId();
+        long resourceId = batchResourceAddDTO.getId();
 
-        final BatchResource resourceDb = this.batchResourceDao.getOne(resourceId);
+        BatchResource resourceDb = batchResourceDao.getOne(resourceId);
         if (Objects.isNull(resourceDb)) {
             throw new RdosDefineException("替换字段不存在");
         }
 
-        final String resourceName = resourceDb.getResourceName();
-
+        String resourceName = resourceDb.getResourceName();
         String hdfsPath = uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         resourceDb.setUrl(hdfsPath);
@@ -266,13 +256,11 @@ public class BatchResourceService {
         resourceDb.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         batchResourceDao.update(resourceDb);
 
-        final List<BatchFunctionResource> batchFunctionResources = this.batchFunctionResourceDao.listByFunctionResourceId(resourceDb.getId());
+        List<BatchFunctionResource> batchFunctionResources = batchFunctionResourceService.listByFunctionResourceId(resourceDb.getId());
         if (CollectionUtils.isEmpty(batchFunctionResources)) {
             return;
         }
-
     }
-
 
     /**
      * 上次资源文件到hdsf上
@@ -287,16 +275,15 @@ public class BatchResourceService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        final String hdfsFileName = tenantId + "_" + resourceName + "_" + originalFilename;
-        final String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
+        String hdfsFileName = tenantId + "_" + resourceName + "_" + originalFilename;
+        String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {
             HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),tmpPath, hdfsPath);
-        } catch (final Exception e) {
-            BatchResourceService.logger.error("{}", e);
+        } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {
-            final File tmpFile = new File(tmpPath);
+            File tmpFile = new File(tmpPath);
             if (tmpFile.exists()) {
                 tmpFile.delete();
             }
@@ -322,4 +309,16 @@ public class BatchResourceService {
     public List<BatchResource> listByPidAndTenantId(Long tenantId, Long nodePid) {
         return batchResourceDao.listByPidAndTenantId(tenantId, nodePid);
     }
+
+    /**
+     * 根据 租户、名称 获取资源列表
+     *
+     * @param tenantId     租户ID
+     * @param resourceName 资源名称
+     * @return
+     */
+    public List<BatchResource> listByNameAndTenantId(Long tenantId, String resourceName) {
+        return batchResourceDao.listByNameAndTenantId(tenantId, resourceName);
+    }
+
 }
