@@ -19,7 +19,11 @@
 package com.dtstack.taiga.develop.service.task.impl;
 
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.TypeReference;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
@@ -28,21 +32,66 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taiga.common.constrant.PatternConstant;
-import com.dtstack.taiga.common.enums.*;
+import com.dtstack.taiga.common.enums.AppType;
+import com.dtstack.taiga.common.enums.CatalogueType;
+import com.dtstack.taiga.common.enums.Deleted;
+import com.dtstack.taiga.common.enums.DependencyType;
+import com.dtstack.taiga.common.enums.DictType;
+import com.dtstack.taiga.common.enums.EComponentType;
+import com.dtstack.taiga.common.enums.EDeployType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
+import com.dtstack.taiga.common.enums.EScheduleStatus;
+import com.dtstack.taiga.common.enums.ESubmitStatus;
+import com.dtstack.taiga.common.enums.FuncType;
+import com.dtstack.taiga.common.enums.MultiEngineType;
+import com.dtstack.taiga.common.enums.PublishTaskStatusEnum;
+import com.dtstack.taiga.common.enums.ReadWriteLockType;
+import com.dtstack.taiga.common.enums.ResourceRefType;
+import com.dtstack.taiga.common.enums.Sort;
+import com.dtstack.taiga.common.enums.TaskLockStatus;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.kerberos.KerberosConfigVerify;
-import com.dtstack.taiga.common.util.*;
-import com.dtstack.taiga.dao.domain.*;
+import com.dtstack.taiga.common.util.Base64Util;
+import com.dtstack.taiga.common.util.DataFilter;
+import com.dtstack.taiga.common.util.JsonUtils;
+import com.dtstack.taiga.common.util.PublicUtil;
+import com.dtstack.taiga.common.util.Strings;
+import com.dtstack.taiga.dao.domain.BatchDataSource;
+import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.domain.Component;
+import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.domain.TaskParamTemplate;
+import com.dtstack.taiga.dao.domain.Tenant;
+import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.dto.UserDTO;
 import com.dtstack.taiga.develop.common.template.Reader;
-import com.dtstack.taiga.develop.dao.*;
-import com.dtstack.taiga.develop.domain.*;
+import com.dtstack.taiga.develop.dao.BatchCatalogueDao;
+import com.dtstack.taiga.develop.dao.BatchFunctionDao;
+import com.dtstack.taiga.develop.dao.BatchResourceDao;
+import com.dtstack.taiga.develop.dao.BatchTaskDao;
+import com.dtstack.taiga.develop.dao.BatchTaskResourceDao;
+import com.dtstack.taiga.develop.dao.BatchTaskVersionDao;
+import com.dtstack.taiga.develop.dao.ReadWriteLockDao;
+import com.dtstack.taiga.develop.domain.BatchCatalogue;
+import com.dtstack.taiga.develop.domain.BatchResource;
+import com.dtstack.taiga.develop.domain.BatchSysParameter;
+import com.dtstack.taiga.develop.domain.BatchTaskParam;
+import com.dtstack.taiga.develop.domain.BatchTaskResource;
+import com.dtstack.taiga.develop.domain.BatchTaskTask;
+import com.dtstack.taiga.develop.domain.BatchTaskVersion;
+import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
+import com.dtstack.taiga.develop.domain.Dict;
+import com.dtstack.taiga.develop.domain.ReadWriteLock;
 import com.dtstack.taiga.develop.dto.BatchTaskDTO;
 import com.dtstack.taiga.develop.engine.rdbms.common.enums.Constant;
-import com.dtstack.taiga.develop.enums.*;
+import com.dtstack.taiga.develop.enums.RDBMSSourceType;
+import com.dtstack.taiga.develop.enums.SourceDTOType;
+import com.dtstack.taiga.develop.enums.SyncModel;
+import com.dtstack.taiga.develop.enums.TaskCreateModelType;
+import com.dtstack.taiga.develop.enums.TaskOperateType;
 import com.dtstack.taiga.develop.mapping.TaskTypeEngineTypeMapping;
 import com.dtstack.taiga.develop.parser.ESchedulePeriodType;
 import com.dtstack.taiga.develop.parser.ScheduleCron;
@@ -50,8 +99,12 @@ import com.dtstack.taiga.develop.parser.ScheduleFactory;
 import com.dtstack.taiga.develop.schedule.JobParamReplace;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taiga.develop.service.datasource.impl.IMultiEngineService;
-import com.dtstack.taiga.develop.service.impl.*;
+import com.dtstack.taiga.develop.service.impl.BatchResourceService;
+import com.dtstack.taiga.develop.service.impl.BatchSqlExeService;
+import com.dtstack.taiga.develop.service.impl.BatchSysParamService;
+import com.dtstack.taiga.develop.service.impl.DictService;
+import com.dtstack.taiga.develop.service.impl.MultiEngineServiceFactory;
+import com.dtstack.taiga.develop.service.impl.TenantComponentService;
 import com.dtstack.taiga.develop.service.job.ITaskService;
 import com.dtstack.taiga.develop.service.job.impl.BatchJobService;
 import com.dtstack.taiga.develop.service.schedule.TaskService;
@@ -60,8 +113,25 @@ import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taiga.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.sync.job.SyncJobCheck;
-import com.dtstack.taiga.develop.sync.template.*;
-import com.dtstack.taiga.develop.vo.*;
+import com.dtstack.taiga.develop.sync.template.AwsS3Reader;
+import com.dtstack.taiga.develop.sync.template.CarbonDataReader;
+import com.dtstack.taiga.develop.sync.template.EsReader;
+import com.dtstack.taiga.develop.sync.template.FtpReader;
+import com.dtstack.taiga.develop.sync.template.HBaseReader;
+import com.dtstack.taiga.develop.sync.template.HDFSReader;
+import com.dtstack.taiga.develop.sync.template.HiveReader;
+import com.dtstack.taiga.develop.sync.template.InfluxDBReader;
+import com.dtstack.taiga.develop.sync.template.MongoDbReader;
+import com.dtstack.taiga.develop.sync.template.OdpsBase;
+import com.dtstack.taiga.develop.sync.template.OdpsReader;
+import com.dtstack.taiga.develop.sync.template.RDBBase;
+import com.dtstack.taiga.develop.sync.template.RDBReader;
+import com.dtstack.taiga.develop.vo.BatchTaskBatchVO;
+import com.dtstack.taiga.develop.vo.CheckSyntaxResult;
+import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
+import com.dtstack.taiga.develop.vo.TaskCatalogueVO;
+import com.dtstack.taiga.develop.vo.TaskCheckResultVO;
+import com.dtstack.taiga.develop.vo.TaskResourceParam;
 import com.dtstack.taiga.develop.web.pager.PageQuery;
 import com.dtstack.taiga.develop.web.task.vo.query.AllProductGlobalSearchVO;
 import com.dtstack.taiga.develop.web.task.vo.result.BatchTaskGetComponentVersionResultVO;
@@ -99,7 +169,18 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -171,9 +252,6 @@ public class BatchTaskService {
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private IMultiEngineService multiEngineService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -276,7 +354,7 @@ public class BatchTaskService {
 
         final BatchTaskBatchVO taskVO = new BatchTaskBatchVO(this.batchTaskTaskService.getForefathers(task));
         taskVO.setVersion(task.getVersion());
-        if (task.getTaskType().intValue() == EJobType.SYNC.getVal().intValue()) {  //同步任务类型
+        if (task.getTaskType().intValue() == EScheduleJobType.SYNC.getVal().intValue()) {  //同步任务类型
             final String taskJson = Base64Util.baseDecode(task.getSqlText());
             if (StringUtils.isBlank(taskJson)) {
                 taskVO.setCreateModel(Constant.CREATE_MODEL_GUIDE);  //向导模式存在为空的情况
@@ -309,7 +387,7 @@ public class BatchTaskService {
         final List<BatchTaskVersionDetail> taskVersions = this.batchTaskVersionDao.listByTaskId(scheduleTaskVO.getId(), pageQuery).stream()
                 .map(ver -> {
                     if (StringUtils.isNotBlank(ver.getOriginSql())) {
-                        if (task.getTaskType().intValue() == EJobType.SYNC.getVal().intValue()) {
+                        if (task.getTaskType().intValue() == EScheduleJobType.SYNC.getVal().intValue()) {
                             ver.setSqlText(ver.getSqlText());
                         } else {
                             ver.setSqlText(ver.getOriginSql());
@@ -323,7 +401,7 @@ public class BatchTaskService {
         taskVO.setTaskVersions(taskVersions);
 
         // 密码脱敏 --2019/10/25 茂茂-- 同步任务 密码脱敏 仅 向导模式 修改成 全部模式
-        if (task.getTaskType().intValue() == EJobType.SYNC.getVal().intValue()) {
+        if (task.getTaskType().intValue() == EScheduleJobType.SYNC.getVal().intValue()) {
             try {
                 taskVO.setSqlText(JsonUtils.formatJSON(DataFilter.passwordFilter(taskVO.getSqlText())));
             }catch (final Exception e){
@@ -358,11 +436,7 @@ public class BatchTaskService {
     }
 
     private void setTaskOperatorModelAndOptions(final ScheduleTaskVO taskVO, final BatchTask task) {
-        if (task.getTaskType().equals(EJobType.PYTHON.getVal())
-                || task.getTaskType().equals(EJobType.SPARK_PYTHON.getVal())
-                || task.getTaskType().equals(EJobType.ML_LIb.getVal())
-                || task.getTaskType().equals(EJobType.SPARK.getVal())
-                || task.getTaskType().equals(EJobType.HADOOP_MR.getVal())) {
+        if (task.getTaskType().equals(EScheduleJobType.SPARK.getVal())) {
             if (StringUtils.isBlank(task.getExeArgs())) {
                 //  兼容之前v3.3及以前生成的task
                 taskVO.setOperateModel(TaskOperateType.RESOURCE.getType());
@@ -375,12 +449,6 @@ public class BatchTaskService {
                     exeArgsJson = new JSONObject();
                     exeArgsJson.put(CMD_OPTS, task.getExeArgs());
                     exeArgsJson.put(OPERATE_MODEL, TaskOperateType.RESOURCE.getType());
-                }
-                if (task.getTaskType().equals(EJobType.PYTHON.getVal())) {
-                    taskVO.setPythonVersion(exeArgsJson.getInteger("--python-version"));
-                    taskVO.setLearningType(0);
-                    taskVO.setInput(exeArgsJson.getString("--input"));
-                    taskVO.setOutput(exeArgsJson.getString("--output"));
                 }
                 taskVO.setOptions(exeArgsJson.getString(CMD_OPTS));
                 taskVO.setOperateModel(exeArgsJson.getIntValue(OPERATE_MODEL));
@@ -422,7 +490,7 @@ public class BatchTaskService {
         if (task == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        if (task.getTaskType().intValue() == EJobType.VIRTUAL.getVal().intValue()) {
+        if (task.getTaskType().intValue() == EScheduleJobType.VIRTUAL.getVal().intValue()) {
             throw new RdosDefineException(ErrorCode.VIRTUAL_TASK_UNSUPPORTED_OPERATION);
         }
         final List<BatchTaskTask> taskTasks = this.batchTaskTaskService.getByParentTaskId(taskId);
@@ -663,13 +731,10 @@ public class BatchTaskService {
 
         task.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
 
-        Integer engineType = null;
-        if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())
-                && !EJobType.ALGORITHM_LAB.getVal().equals(task.getTaskType())
-                && !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
-            final MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
-            engineType = multiEngineType.getType();
-            final ITaskService taskService = this.multiEngineServiceFactory.getTaskService(multiEngineType.getType());
+        if (!EScheduleJobType.WORK_FLOW.getVal().equals(task.getTaskType())
+                && !EScheduleJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
+            MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(task.getTaskType());
+            ITaskService taskService = this.multiEngineServiceFactory.getTaskService(multiEngineType.getType());
             if (Objects.nonNull(taskService)) {
                 taskService.readyForPublishTaskInfo(task);
             }
@@ -682,7 +747,7 @@ public class BatchTaskService {
 
         String versionSqlText = StringUtils.EMPTY;
 
-        if (EJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()) {
+        if (EScheduleJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()) {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
@@ -698,7 +763,7 @@ public class BatchTaskService {
                 return checkVo;
             }
 
-        } else if (EJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
+        } else if (EScheduleJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
                 final JSONObject jsonTask = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
 
@@ -850,7 +915,7 @@ public class BatchTaskService {
             }
             param.setPeriodType(schduleConf.getInteger("periodType"));
         }
-        if (param.getId() > 0 && param.getTaskType().equals(EJobType.WORK_FLOW.getVal())) {
+        if (param.getId() > 0 && param.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())) {
             //更新子任务间的依赖关系
             final String sqlText = param.getSqlText();
             if (StringUtils.isNotBlank(sqlText)) {
@@ -918,7 +983,7 @@ public class BatchTaskService {
      **/
     private void checkFillPassword(final TaskResourceParam param) {
         // 单独对同步任务中密码进行补全处理 将未变更的 ****** 填充为原密码信息 --2019/10/25 茂茂--
-        if (param.getId() > 0 && EJobType.SYNC.getVal().equals(param.getTaskType())) {
+        if (param.getId() > 0 && EScheduleJobType.SYNC.getVal().equals(param.getTaskType())) {
             final String context = param.getSqlText();
             if (null == context) {
                 return;
@@ -987,7 +1052,7 @@ public class BatchTaskService {
      * @return
      */
     private void checkBeforeUpdateTask(TaskResourceParam param) {
-        if (EJobType.SYNC.getVal().equals(param.getTaskType())) {
+        if (EScheduleJobType.SYNC.getVal().equals(param.getTaskType())) {
             operateSyncTask(param);
         } else {
             if (CollectionUtils.isNotEmpty(param.getResourceIdList())) {
@@ -1106,7 +1171,7 @@ public class BatchTaskService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        if (!EJobType.SYNC.getVal().equals(task.getTaskType())) {
+        if (!EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             return false;
         }
 
@@ -1179,11 +1244,11 @@ public class BatchTaskService {
         }
         final String ENTER = "\n";
         final String NOTE_SIGN;
-        String type = EJobType.getEJobType(task.getTaskType()).getName();
+        String type = EScheduleJobType.getByTaskType(task.getTaskType()).getName();
         final StringBuilder sb = new StringBuilder();
 
         // 需要代码注释模版的任务类型
-        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EJobType.SPARK_SQL.getVal());
+        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EScheduleJobType.SPARK_SQL.getVal());
 
         if (shouldNoteSqlTypes.contains(task.getTaskType())) {
             NOTE_SIGN = "-- ";
@@ -1297,7 +1362,7 @@ public class BatchTaskService {
 
             task.setReadWriteLockVO(readWriteLockVO);
             //如果是工作流任务 更新父节点调度类型时，需要同样更新子节点
-            if (EJobType.WORK_FLOW.getVal().equals(task.getTaskType()) && task.getFlowId() == 0 && StringUtils.isNotEmpty(task.getScheduleConf())){
+            if (EScheduleJobType.WORK_FLOW.getVal().equals(task.getTaskType()) && task.getFlowId() == 0 && StringUtils.isNotEmpty(task.getScheduleConf())){
                 updateSonTaskPeriodType(task.getId(),task.getPeriodType(),task.getScheduleConf());
             }
             if (!oriTaskName.equals(task.getName())) {//修改名字需要同步到taskShade
@@ -1343,8 +1408,8 @@ public class BatchTaskService {
 
         // 右键编辑时会调用另一个接口
         if (BooleanUtils.isNotTrue(isEditBaseInfo)) {
-            if (!EJobType.WORK_FLOW.getVal().equals(task.getTaskType())  &&
-                    !EJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
+            if (!EScheduleJobType.WORK_FLOW.getVal().equals(task.getTaskType())  &&
+                    !EScheduleJobType.VIRTUAL.getVal().equals(task.getTaskType())) {
                 //新增加不校验自定义参数
                 if (!isAdd) {
                     this.batchTaskParamService.checkParams(task.getSqlText(), task.getTaskVariables());
@@ -1647,8 +1712,7 @@ public class BatchTaskService {
             throw new RdosDefineException("(当前任务未被冻结)", ErrorCode.CAN_NOT_DELETE_TASK);
         }
 
-        if (batchTask.getTaskType().intValue() == EJobType.WORK_FLOW.getVal() ||
-                batchTask.getTaskType().intValue() == EJobType.ALGORITHM_LAB.getVal()) {
+        if (batchTask.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
             final List<BatchTask> batchTasks = this.getFlowWorkSubTasks(taskId);
             //删除所有子任务相关
             batchTasks.forEach(task -> this.deleteTaskInfos(task.getId(), tenantId, userId));
@@ -1712,9 +1776,9 @@ public class BatchTaskService {
      */
     private boolean checkTaskCanSubmit(final BatchTask task) {
 
-        if ((task.getTaskType().equals(EJobType.SPARK_SQL.getVal()) || task.getTaskType().equals(EJobType.HIVE_SQL.getVal())) && StringUtils.isEmpty(task.getSqlText())) {
+        if (task.getTaskType().equals(EScheduleJobType.SPARK_SQL.getVal()) && StringUtils.isEmpty(task.getSqlText())) {
             throw new RdosDefineException(task.getName() + "任务的SQL为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
-        } else if (task.getTaskType().equals(EJobType.SYNC.getVal())) {
+        } else if (task.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             if (StringUtils.isBlank(task.getSqlText())) {
                 throw new RdosDefineException(task.getName() + "任务配置信息为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
             }

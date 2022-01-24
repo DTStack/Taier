@@ -1,0 +1,23 @@
+// @import '~antd/dist/antd.dark.css';
+@import './styles/common.scss';
+@import './styles/theme.scss';
+@import './styles/reset.scss';
+@import './styles/molecule.scss';
+@import './styles/variables.scss';
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+code {
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+#root {
+	height: 100%;
+}
+
+:root {
+	--list-focusOutline: #3f87ff;
+}

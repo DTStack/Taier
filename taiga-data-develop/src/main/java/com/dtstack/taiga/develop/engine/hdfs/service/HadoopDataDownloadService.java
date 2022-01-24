@@ -144,8 +144,8 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     @Override
     public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num, List<String> fieldNameList, Boolean permissionStyle) throws Exception {
         DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
-        Integer eJobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType.getVal());
-        IDownload selectDownLoader = getSelectDownLoader(tenantId, fieldNameList.contains("*") ? null : fieldNameList, Lists.newArrayList(fieldNameList), permissionStyle, db, tableName, null, eJobType);
+        Integer EScheduleJobType = DataSourceTypeJobTypeMapping.getJobTypeByDataSourceType(dataSourceType.getVal());
+        IDownload selectDownLoader = getSelectDownLoader(tenantId, fieldNameList.contains("*") ? null : fieldNameList, Lists.newArrayList(fieldNameList), permissionStyle, db, tableName, null, EScheduleJobType);
         JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()));
         if (num == null || num > jdbcInfo.getMaxRows()) {
             num = jdbcInfo.getMaxRows();
@@ -192,41 +192,6 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     }
 
     /**
-     * 通过HiveServer获取临时表数据
-     *
-     * @param tenantId
-     * @param tableName
-     * @param db
-     * @return
-     * @throws Exception
-     */
-    public List<Object> queryDataFromHiveServerTempTable(Long tenantId, String tableName, String db) throws Exception {
-        List<Object> result = new ArrayList<>();
-        IDownload downloader = getHiveServerDownloader(tenantId, tableName, db);
-        List<String> alias = downloader.getMetaInfo();
-        result.add(alias);
-
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId,null, ETableType.HIVE);
-        int readCounter = 0;
-        while (!downloader.reachedEnd() && readCounter < jdbcInfo.getMaxRows()) {
-            List<String> row = (List<String>) downloader.readNext();
-            result.add(row);
-            readCounter++;
-        }
-        return result;
-    }
-
-    public IDownload getHiveServerDownloader(Long tenantId, String tableName, String db){
-        try {
-            return getSelectDownLoader(tenantId, null, null, true,
-                    db, tableName, null, EJobType.HIVE_SQL.getType());
-        } catch (final Exception e) {
-            HadoopDataDownloadService.logger.error("",e);
-            return null;
-        }
-    }
-
-    /**
      * 获取简单查询下载器
      *
      * @param tenantId 租户id
@@ -269,15 +234,9 @@ public class HadoopDataDownloadService implements IDataDownloadService {
                                          String db, String tableName, String partition, Integer taskType){
         Map<String, Object> hadoop = Engine2DTOService.getHdfs(tenantId);
         JdbcInfo jdbcInfo = null;
-        if (EJobType.HIVE_SQL.getVal().equals(taskType) || EJobType.SPARK_SQL.getVal().equals(taskType)) {
-            if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
-                // hiveSql查询，获取hiveServer jdbc配置
-                jdbcInfo = Engine2DTOService.getHiveServer(tenantId);
-            } else {
-                // sparkSql查询，获取sparkThrift jdbc配置
-                jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
-            }
-
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
+            // sparkSql查询，获取sparkThrift jdbc配置
+            jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
             try {
                 return new HiveSelectDownload(hadoop, jdbcInfo, queryFieldNames, fieldNamesShow, permissionStyle, tenantId,
                         db, tableName, partition, JobTypeDataSourceTypeMapping.getDataSourceTypeByJobType(taskType, jdbcInfo.getVersion()));
@@ -314,7 +273,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             throw new RdosDefineException("jobId 不能为空");
         }
 
-        if (EJobType.SYNC.getVal().equals(taskType)) {
+        if (EScheduleJobType.SYNC.getVal().equals(taskType)) {
             //standalone模式的不支持日志下载直接返回null
             Boolean isStandalone = clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode());
             if (isStandalone){
