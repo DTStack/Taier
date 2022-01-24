@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.mapping;
 
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.enums.EJobType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.HiveVersion;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
@@ -31,9 +31,7 @@ public class JobTypeDataSourceTypeMapping {
     private final static Map<Integer, Integer> mappingMap = Maps.newHashMap();
 
     static {
-        mappingMap.put(EJobType.SPARK_SQL.getVal(), DataSourceType.SparkThrift2_1.getVal());
-        mappingMap.put(EJobType.HIVE_SQL.getVal(), DataSourceType.HIVE.getVal());
-        mappingMap.put(EJobType.IMPALA_SQL.getVal(), DataSourceType.IMPALA.getVal());
+        mappingMap.put(EScheduleJobType.SPARK_SQL.getVal(), DataSourceType.SparkThrift2_1.getVal());
     }
 
     /**

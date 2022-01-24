@@ -23,12 +23,15 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.constrant.TaskStatusConstrant;
 import com.dtstack.taiga.common.engine.JdbcInfo;
-import com.dtstack.taiga.common.enums.*;
+import com.dtstack.taiga.common.enums.AppType;
+import com.dtstack.taiga.common.enums.ComputeType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
+import com.dtstack.taiga.common.enums.TaskStatus;
+import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.Strings;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
 import com.dtstack.taiga.develop.domain.BatchSelectSql;
 import com.dtstack.taiga.develop.domain.TenantComponent;
@@ -63,7 +66,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -370,15 +377,12 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         }
         Integer status = TaskStatusConstrant.getShowStatus(engineEntity.getStatus());
         result.setStatus(status);
-
-        if (EJobType.HIVE_SQL.getVal().equals(taskType)) {
-            buildHiveSqlRunLog(result, status, jobId, taskType, engineEntity, tenantId);
-        } else {
-            if (buildLogsWithCheckTaskStatus(batchTask, selectSql, tenantId, userId, result,
-                    StringUtils.isNotEmpty(selectSql.getFatherJobId()) ? selectSql.getFatherJobId() : jobId, engineEntity, status)) {
-                return result;
-            }
+        
+        if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
+                StringUtils.isNotEmpty(selectSql.getFatherJobId()) ? selectSql.getFatherJobId() : jobId, engineEntity, status)) {
+            return result;
         }
+        
         // update time
         batchSelectSqlService.updateGmtModify(jobId, tenantId);
         return result;
@@ -426,34 +430,10 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     }
 
     /**
-     * 组装HiveSql 运行日志
-     *
-     * @param result
-     * @param status
-     * @param jobId
-     * @param taskType
-     * @param engineEntity
-     * @param tenantId
-     * @throws Exception
-     */
-    private void buildHiveSqlRunLog(ExecuteResultVO result, Integer status, String jobId, Integer taskType, ActionJobEntityVO engineEntity, Long tenantId) throws Exception {
-        // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
-        if ((TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.FAILED.getStatus().equals(status))
-                && EJobType.HIVE_SQL.getVal().equals(taskType)) {
-            ScheduleJob batchEngineJob = scheduleJobService.getByJobId(jobId);
-//            buildLog(engineEntity.getLogInfo(), batchEngineJob != null && StringUtils.isNotBlank(batchEngineJob.getEngineLog()) ?
-//                    batchEngineJob.getEngineLog() : null, tenantId, jobId, false, result);
-            result.setDownload(null);
-        }
-    }
-
-    /**
      * 组装运行日志
      *
-     * @param batchTask
      * @param selectSql
      * @param tenantId
-     * @param userId
      * @param result
      * @param jobId
      * @param engineEntity
@@ -461,13 +441,13 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      * @return
      * @throws Exception
      */
-    private boolean buildLogsWithCheckTaskStatus(BatchTask batchTask, BatchSelectSql selectSql, Long tenantId, Long userId, ExecuteResultVO result, String jobId, ActionJobEntityVO engineEntity, Integer status) throws Exception {
+    private boolean buildLogsWithCheckTaskStatus(BatchSelectSql selectSql, Long tenantId, ExecuteResultVO result, String jobId, ActionJobEntityVO engineEntity, Integer status) {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
             List<TempJobType> values = Arrays.asList(TempJobType.values());
             List<Integer> types = values.stream().map(TempJobType::getType).collect(Collectors.toList());
             if (types.contains(selectSql.getIsSelectSql()) && StringUtils.isEmpty(selectSql.getFatherJobId())) {
                 buildLog(engineEntity.getLogInfo(), engineEntity.getEngineLog(), tenantId, jobId, true, result);
-                result.setDownload(String.format(DOWNLOAD_LOG, jobId, EJobType.SPARK_SQL.getVal(),tenantId));
+                result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(),tenantId));
             }
             if (TempJobType.INSERT.getType().equals(selectSql.getIsSelectSql())
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())
@@ -476,7 +456,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             }
         } else if (TaskStatus.FAILED.getStatus().equals(status)) {
             buildLog(engineEntity.getLogInfo(), engineEntity.getEngineLog(), tenantId, jobId, true, result);
-            result.setDownload(String.format(DOWNLOAD_LOG, jobId, EJobType.SPARK_SQL.getVal(),tenantId));
+            result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(),tenantId));
         }
         return false;
     }
@@ -695,7 +675,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         String log = "";
         if (needDownload) {
             try {
-                log = batchDownloadService.loadJobLog(tenantId, EJobType.SPARK_SQL.getVal(), jobId, 30000);
+                log = batchDownloadService.loadJobLog(tenantId, EScheduleJobType.SPARK_SQL.getVal(), jobId, 30000);
             } catch (Exception e) {
                 LOGGER.error("", e);
             }
