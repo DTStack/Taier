@@ -16,7 +16,6 @@
         </foreach>
     </insert>
 
-
     <sql id="update_fragment">
         <set>
             <if test="key!=null">
@@ -34,7 +33,7 @@
             <if test="dependencyValue!=null">
                 dependencyValue = #{dependencyValue},
             </if>
-            gmt_modified = now(),
+            gmt_modified = now()
         </set>
     </sql>
 
@@ -58,13 +57,6 @@
         </if>
     </select>
 
-    <select id="listByComponentTypeAndKey" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
-        select
-        <include refid="select_content_fragment"/>
-        from console_component_config
-        where cluster_id = #{clusterId} and is_deleted = 0 AND `key` = #{key} AND component_type_code = #{componentTypeCode}
-    </select>
-
     <select id="listByKey" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
         select
         <include refid="select_content_fragment"/>
@@ -80,11 +72,8 @@
         where component_id = #{componentId}
     </delete>
 
-    <select id="listFirst" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
-        select
-        <include refid="select_content_fragment"/>
-        from console_component_config where component_id > 0
-        limit 1
-    </select>
-
+    <update id="updateValueById">
+        update console_component_config
+        <include refid="update_fragment"/> where id = #{id}
+    </update>
 </mapper>

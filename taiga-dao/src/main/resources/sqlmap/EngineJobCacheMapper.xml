@@ -18,17 +18,6 @@
         where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
-    <select id="getByJobIds" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
-        select
-        <include refid="engine_cache_filed"/>
-        from schedule_engine_job_cache
-        WHERE job_id in
-        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
-            #{jobId}
-        </foreach>
-        and is_deleted=0
-    </select>
-
     <select id="listNames" resultType="java.lang.String">
         select job_name from schedule_engine_job_cache
         where job_name like '%${jobName}%' and is_deleted=0;
@@ -50,21 +39,6 @@
         </if>
         order by stage desc, job_priority asc
         limit #{start} , #{pageSize}
-    </select>
-
-    <select id="groupByJobResource" resultType="java.util.HashMap">
-        SELECT
-        job_resource as jobResource,
-        stage as stage,
-        unix_timestamp(min(gmt_create)) as generateTime,
-        count(1) as jobSize
-        FROM schedule_engine_job_cache
-        WHERE is_deleted = 0
-        <if test="nodeAddress != null and nodeAddress != ''">
-            and node_address = #{nodeAddress}
-        </if>
-        group by job_resource, stage
-        order by job_resource, stage asc
     </select>
 
     <select id="groupByJobResourceFilterByCluster" resultType="java.util.HashMap">
@@ -132,84 +106,11 @@
         and is_deleted=0;
     </select>
 
-    <select id="countByStage" resultType="java.lang.Integer">
-        select count(1) from schedule_engine_job_cache
-        where job_resource = #{jobResource} and node_address = #{nodeAddress}
-        <if test="stages != null">
-            and stage in
-            <foreach collection="stages" item="stage" open="(" separator="," close=")">
-                #{stage}
-            </foreach>
-        </if>
-        and is_deleted=0;
-    </select>
-
-    <select id="getAllNodeAddress" resultType="java.lang.String">
-        SELECT DISTINCT(node_address) as nodeAddress
-        FROM schedule_engine_job_cache
-        WHERE is_deleted = 0
-    </select>
-
-    <select id="listByFailover" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
-        select
-        <include refid="engine_cache_filed"/>
-        from schedule_engine_job_cache
-        where id > #{startId} and is_failover = 1
-        and (node_address = #{nodeAddress} or node_address is null)
-        and stage = #{stage}
-        and is_deleted=0
-        order by id, job_priority asc
-        limit 500;
-    </select>
-
-    <update id="updateStage">
-        update schedule_engine_job_cache
-        set
-        node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority},
-        <if test="waitReason != null">
-            wait_reason = #{waitReason},
-        </if>
-        is_failover = 0, gmt_modified=now()
-        where job_id = #{jobId}
-    </update>
-
-    <update id="updateStageBatch">
-        update schedule_engine_job_cache
-        set
-        node_address = #{nodeAddress}, stage = #{stage},
-        is_failover = 0, gmt_modified=now()
-        where job_id in
-        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
-            #{jobId}
-        </foreach>
-    </update>
-
     <delete id="deleteByJobIds">
         delete from schedule_engine_job_cache
         where job_id in
         <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
             #{jobId}
         </foreach>
-    </delete>
-
-    <update id="updateJobInfo">
-        UPDATE
-        schedule_engine_job_cache
-        set job_info = #{jobInfo}
-        WHERE job_id = #{jobId}
-    </update>
-
-    <update id="updateNodeAddressFailover">
-        UPDATE
-        schedule_engine_job_cache
-        set node_address = #{nodeAddress}, stage = #{stage}, is_failover = 1
-        WHERE job_id IN
-        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
-            #{jobId}
-        </foreach>
-    </update>
-
-    <delete id="delete">
-        delete from schedule_engine_job_cache where job_id=#{jobId}
     </delete>
 </mapper>
