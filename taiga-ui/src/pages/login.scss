@@ -1,0 +1,21 @@
+.dt-login {
+	.dt-input-borderless {
+		height: 40px;
+		padding: 0 16px;
+		background: #f8f8f8;
+		border: none;
+		border-radius: 4px;
+
+		&:focus,
+		&:hover {
+			background: #f8f8f8;
+		}
+	}
+
+	button.dt-button {
+		height: 40px;
+		font-size: 16px;
+		background: #3f87ff;
+		border-radius: 4px;
+	}
+}

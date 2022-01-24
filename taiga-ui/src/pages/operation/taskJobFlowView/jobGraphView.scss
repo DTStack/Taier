@@ -1,0 +1,30 @@
+.c-jobGraph__spin-box {
+	height: 100%;
+
+	> .ant-spin-container {
+		height: 100%;
+	}
+}
+
+.graphInfo {
+	width: 300px;
+	position: absolute;
+	z-index: 901;
+	right: 10px;
+	bottom: 65px;
+
+	.ant-card-body {
+		p,
+		h2 {
+			margin: 10px;
+			white-space: normal;
+			word-wrap: break-word;
+
+			span {
+				display: inline-block;
+				width: 80px;
+				color: #666666;
+			}
+		}
+	}
+}

@@ -2,23 +2,19 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
+/npm-debug.log*
+/yarn-error.log
+/yarn.lock
+/package-lock.json
 
 # production
-/build
-/out
+/dist
 
 # misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# umi
+/src/.umi
+/src/.umi-production
+/src/.umi-test
+/.env.local

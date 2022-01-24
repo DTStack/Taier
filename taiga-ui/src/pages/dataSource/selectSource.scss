@@ -1,0 +1,82 @@
+.dt-select-source {
+	height: 100%;
+
+	.show-type {
+		display: flex;
+		height: calc(100% - 32px);
+		margin-top: 12px;
+		border: 1px solid #ddd;
+
+		.left-menu {
+			width: 134px;
+			overflow: auto;
+
+			.dt-datasource-menu {
+				font-size: 12px;
+				background-color: transparent;
+				border: none;
+
+				.ant-menu-item {
+					height: 32px;
+					margin: 0;
+					padding-left: 24px;
+					color: #666;
+					line-height: 32px;
+
+					&-selected {
+						color: #3f87ff;
+						background-color: #ebebeb;
+
+						&::after {
+							content: initial;
+						}
+					}
+				}
+			}
+		}
+
+		.right-menu {
+			flex: 1;
+			padding: 27px 40px;
+			overflow-y: auto;
+			background-color: #fff;
+			border-left: 1px solid #ddd;
+
+			&-main {
+				width: 100%;
+				margin: 0 auto;
+
+				&-content {
+					display: flex;
+					flex-wrap: wrap;
+					margin-left: -16px;
+				}
+			}
+
+			&-item {
+				margin-left: 16px;
+				font-size: 12px;
+			}
+
+			img {
+				display: block;
+				width: 100%;
+				background: #fff;
+				border-radius: 3px;
+				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
+
+				&:hover {
+					background: #fff;
+					border: 1px solid #4285f5;
+					border-radius: 3px;
+				}
+
+				&.selected {
+					border: 1px solid #4285f5;
+					border-radius: 3px;
+					box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
+				}
+			}
+		}
+	}
+}
