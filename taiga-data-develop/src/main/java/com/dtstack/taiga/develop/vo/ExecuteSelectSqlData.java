@@ -20,7 +20,7 @@
 package com.dtstack.taiga.develop.vo;
 
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.develop.service.job.IBatchSelectSqlService;
 import lombok.AllArgsConstructor;
 import lombok.Data;

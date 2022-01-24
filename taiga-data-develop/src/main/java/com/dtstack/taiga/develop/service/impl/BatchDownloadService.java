@@ -24,8 +24,8 @@ import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.mapper.BatchSelectSqlDao;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.develop.engine.hdfs.service.BatchHadoopSelectSqlService;
 import com.dtstack.taiga.develop.engine.hdfs.service.SyncDownload;
 import com.dtstack.taiga.develop.engine.rdbms.common.IDownload;
@@ -112,16 +112,6 @@ public class BatchDownloadService {
      */
     public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num,
                                            List<String> fieldNameList, Boolean permissionStyle, Integer engineType) throws Exception {
-
-        Integer otherTypes = null;
-        // 特殊处理Hadoop引擎
-        if(MultiEngineType.HADOOP.getType() == engineType){
-           /* DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
-            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
-                // 1 代表Impala
-                otherTypes = 1;
-            }*/
-        }
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType);
         Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
 
