@@ -249,7 +249,7 @@ public class ComponentConfigService {
     }
 
     public void updateValueComponentConfig(ComponentConfig componentConfig) {
-        componentConfigMapper.update(componentConfig);
+        componentConfigMapper.updateValueById(componentConfig);
     }
 
     public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {

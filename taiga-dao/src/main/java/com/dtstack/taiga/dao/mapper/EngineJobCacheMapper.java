@@ -30,15 +30,11 @@ public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
 
     EngineJobCache getOne(@Param("jobId")String jobId);
 
-    List<EngineJobCache> getByJobIds(@Param("jobIds") List<String> jobIds);
-
     List<String> listNames(@Param("jobName") String jobName);
 
     List<String> getJobResources();
 
     List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
-
-    List<Map<String,Object>> groupByJobResource(@Param("nodeAddress") String nodeAddress);
 
     List<Map<String,Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
 
@@ -48,26 +44,5 @@ public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
 
     Long minPriorityByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 
-    int countByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
-
-    List<String> getAllNodeAddress();
-
-    List<EngineJobCache> listByFailover(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage);
-
-    int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress, @Param("jobPriority") Long jobPriority, @Param("waitReason") String waitReason);
-
-    int updateStageBatch(@Param("jobIds") List<String> jobIds, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress);
-
     Integer deleteByJobIds(@Param("jobIds") List<String> jobIds);
-
-    Integer updateJobInfo(@Param("jobInfo") String jobInfo, @Param("jobId") String jobId);
-
-    Integer updateNodeAddressFailover(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids, @Param("stage") Integer stage);
-
-    int insert(@Param("jobId")String jobId, @Param("engineType") String engineType,
-               @Param("computeType") Integer computeType, @Param("stage") int stage,
-               @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("jobResource") String jobResource, @Param("tenantId")Long tenantId);
-
-    int delete(@Param("jobId")String jobId);
 }

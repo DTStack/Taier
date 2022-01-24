@@ -38,19 +38,6 @@
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <insert id="insertWithId" parameterType="com.dtstack.taiga.dao.domain.Cluster">
-        INSERT INTO console_cluster(id,cluster_name,hadoop_version)
-        VALUES (#{id},#{clusterName},#{hadoopVersion})
-        on duplicate key update cluster_name=values(cluster_name)
-    </insert>
-
-    <select id="listAll" resultType="com.dtstack.taiga.dao.domain.Cluster">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM console_cluster
-        WHERE is_deleted = 0
-    </select>
-
     <update id="updateGmtModified">
         UPDATE console_cluster
         set gmt_modified  = CURRENT_TIMESTAMP
