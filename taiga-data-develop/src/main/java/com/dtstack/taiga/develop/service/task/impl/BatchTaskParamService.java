@@ -57,7 +57,7 @@ import java.util.regex.Pattern;
 @Service
 public class BatchTaskParamService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchTaskParamService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchTaskParamService.class);
 
     @Autowired
     private BatchTaskParamDao batchTaskParamDao;
@@ -126,7 +126,7 @@ public class BatchTaskParamService {
             Matcher matcher = PARAM_REGEX_PATTERN.matcher(sqlWithoutComments);
             if (matcher.find()) {
                 if (CollectionUtils.isEmpty(parameterSet)) {
-                    logger.error("jobContent:{}", jobContent);
+                    LOGGER.error("jobContent:{}", jobContent);
                     throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
                 }
             }
@@ -204,8 +204,7 @@ public class BatchTaskParamService {
 
             return jsonObject.toString();
         } catch (final Exception e) {
-            logger.error("jobContent:{}", jobContent);
-            logger.error("", e);
+            LOGGER.error(String.format("jobContent: %s", jobContent), e);
         }
         return jobContent;
     }

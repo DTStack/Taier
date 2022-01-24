@@ -32,7 +32,7 @@
         </set>
     </sql>
 
-    <update id="update" parameterType="BatchTaskTemplate">
+    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchTaskTemplate">
         UPDATE
         rdos_batch_task_template
         <include refid="update_fragment"/>

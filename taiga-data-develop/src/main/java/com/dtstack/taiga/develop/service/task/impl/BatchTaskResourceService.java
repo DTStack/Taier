@@ -145,4 +145,15 @@ public class BatchTaskResourceService {
         return batchTaskResource;
     }
 
+    /**
+     * 根据 任务Id、资源类型 查询
+     *
+     * @param taskId       任务ID
+     * @param resourceType 资源类型
+     * @return
+     */
+    public Integer deleteByTaskId(Long taskId, Integer resourceType) {
+        return batchTaskResourceDao.deleteByTaskId(taskId, resourceType);
+    }
+
 }

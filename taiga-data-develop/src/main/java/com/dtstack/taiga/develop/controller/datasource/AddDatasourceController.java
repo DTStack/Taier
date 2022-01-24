@@ -193,9 +193,7 @@ public class AddDatasourceController {
         return new APITemplate<List<String>>() {
             @Override
             protected List<String> process() {
-                return datasourceService.tablelist(sourceVO.getSourceId(),
-                        sourceVO.getTenantId(), sourceVO.getSchema(), sourceVO.getName(), sourceVO.getIsAll(),
-                        sourceVO.getIsRead());
+                return datasourceService.tablelist(sourceVO.getSourceId(), sourceVO.getSchema(), sourceVO.getName());
             }
         }.execute();
     }

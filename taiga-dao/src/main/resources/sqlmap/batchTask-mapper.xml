@@ -207,7 +207,7 @@
         </if>
     </select>
 
-    <select id="generalQueryWithoutSql" parameterType="com.dtstack.taiga.develop.web.pager.PageQuery" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="generalQueryWithoutSql" parameterType="com.dtstack.taiga.dao.pager.PageQuery" resultType="com.dtstack.taiga.dao.domain.BatchTask">
         SELECT
         id,tenant_id,node_pid,name,task_type,compute_type,task_params,schedule_conf,period_type,
         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id

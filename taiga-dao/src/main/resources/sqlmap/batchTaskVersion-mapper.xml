@@ -91,7 +91,7 @@
         WHERE task_id = #{taskId} and is_deleted = 0
     </select>
 
-    <select id="getByTaskIdAndVersion" resultType="BatchTaskVersion">
+    <select id="getByTaskIdAndVersion" resultType="com.dtstack.taiga.dao.domain.BatchTaskVersion">
         select
         <include refid="select_content_fragment"/>
         from rdos_batch_task_version
