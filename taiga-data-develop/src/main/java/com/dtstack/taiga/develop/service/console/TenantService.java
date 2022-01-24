@@ -152,7 +152,7 @@ public class TenantService {
         msg.append("此集群不可用,测试连通性为通过：\n");
         for (ComponentMultiTestResult testResult : testConnectionVO) {
             EComponentType componentType = EComponentType.getByCode(testResult.getComponentTypeCode());
-            if (!noNeedCheck(componentType) && !testResult.getResult()) {
+            if (!EComponentType.notCheckComponent.contains(componentType)) {
                 canUse = false;
                 msg.append("组件:").append(componentType.getName()).append(" ").append(JSON.toJSONString(testResult.getErrorMsg())).append("\n");
             }
@@ -163,19 +163,6 @@ public class TenantService {
         }
     }
 
-    private Boolean noNeedCheck(EComponentType componentType) {
-        switch (componentType) {
-            case LIBRA_SQL:
-            case IMPALA_SQL:
-            case TIDB_SQL:
-            case SPARK_THRIFT:
-            case CARBON_DATA:
-            case SFTP:
-                return true;
-            default:
-                return false;
-        }
-    }
 
     private void addClusterTenant(Long tenantId, Long clusterId) {
         ClusterTenant et = new ClusterTenant();
