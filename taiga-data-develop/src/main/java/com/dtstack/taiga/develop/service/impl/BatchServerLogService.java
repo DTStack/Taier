@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EJobType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.enums.TaskStatus;
 import com.dtstack.taiga.common.env.EnvironmentContext;
@@ -181,16 +181,14 @@ public class BatchServerLogService {
         }
 
         info.put("status", job.getStatus());
-        if (EJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType()) || EJobType.GaussDB_SQL.getVal().equals(scheduleTaskShade.getTaskType())
-                || EJobType.ORACLE_SQL.getVal().equals(scheduleTaskShade.getTaskType()) || EJobType.TIDB_SQL.getVal().equals(scheduleTaskShade.getTaskType())
-                || EJobType.IMPALA_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
             // 处理sql注释，先把注释base64编码，再处理非注释的自定义参数
             String sql = SqlFormatterUtil.dealAnnotationBefore(scheduleTaskShade.getSqlText());
             final List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             sql = this.jobParamReplace.paramReplace(sql, taskParamsToReplace, job.getCycTime());
             sql = SqlFormatterUtil.dealAnnotationAfter(sql);
             info.put("sql", sql);
-        } else if (EJobType.SYNC.getVal().equals(scheduleTaskShade.getTaskType())) {
+        } else if (EScheduleJobType.SYNC.getVal().equals(scheduleTaskShade.getTaskType())) {
             final JSONObject jobJson;
             //taskShade 需要解码
             JSONObject sqlJson = null;
@@ -241,10 +239,9 @@ public class BatchServerLogService {
         this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, null,
                 null, null, batchServerLogVO, tenantId,jobId);
 
-        if (!scheduleTaskShade.getTaskType().equals(EJobType.SYNC.getVal())
-                && !scheduleTaskShade.getTaskType().equals(EJobType.VIRTUAL.getVal())
-                && !scheduleTaskShade.getTaskType().equals(EJobType.WORK_FLOW.getVal())
-                && !scheduleTaskShade.getTaskType().equals(EJobType.ALGORITHM_LAB.getVal())
+        if (!scheduleTaskShade.getTaskType().equals(EScheduleJobType.SYNC.getVal())
+                && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.VIRTUAL.getVal())
+                && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())
                 && finish_status.contains(job.getStatus())) {
             batchServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType(),0L));
         }
@@ -544,7 +541,7 @@ public class BatchServerLogService {
 
     private void formatForLogInfo(final JSONObject jobInfo, final Integer jobType, final Integer taskType, final String retryLog, final Timestamp startTime,
                                   final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long dtUicTenantId, final String jobId) {
-        if (!taskType.equals(EJobType.SYNC.getVal())) {
+        if (!taskType.equals(EScheduleJobType.SYNC.getVal())) {
             if (jobInfo.containsKey("engineLogErr")) {
                 // 有这个字段表示日志没有获取到，目前engine端只对flink任务做了这种处理，这里先提前加上
                 jobInfo.put("msg_info", jobInfo.getString("engineLogErr"));
@@ -731,9 +728,9 @@ public class BatchServerLogService {
 
 
     public JSONObject getLogsByAppId(Long dtuicTenantId, Integer taskType, String jobId, Long projectId) {
-        if (EJobType.SYNC.getVal().equals(taskType)
-                || EJobType.VIRTUAL.getVal().equals(taskType)
-                || EJobType.WORK_FLOW.getVal().equals(taskType)) {
+        if (EScheduleJobType.SYNC.getVal().equals(taskType)
+                || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
+                || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
             throw new RdosDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
         }
         final JSONObject result = new JSONObject(YarnAppLogType.values().length);
@@ -750,9 +747,9 @@ public class BatchServerLogService {
     }
 
     public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long dtuicTenantId, Integer taskType, String jobId, String logType, Long projectId) {
-        if (EJobType.SYNC.getVal().equals(taskType)
-                || EJobType.VIRTUAL.getVal().equals(taskType)
-                || EJobType.WORK_FLOW.getVal().equals(taskType)) {
+        if (EScheduleJobType.SYNC.getVal().equals(taskType)
+                || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
+                || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
             throw new RdosDefineException("数据同步、虚节点、工作流的任务日志不支持下载");
         }
 

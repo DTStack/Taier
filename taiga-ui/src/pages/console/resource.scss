@@ -1,0 +1,35 @@
+$form-size: 32px;
+
+.resource-wrapper {
+	height: 100%;
+
+	.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+		text-shadow: none;
+	}
+
+	.dt-resource-form {
+		display: inline-flex;
+		height: $form-size;
+		line-height: $form-size;
+	}
+
+	.dt-resource-tenant {
+		float: right;
+	}
+
+	> .ant-spin-nested-loading {
+		height: calc(100% - $form-size);
+
+		> .ant-spin-container {
+			height: 100%;
+		}
+	}
+
+	.dt-resource-tabs {
+		height: 100%;
+
+		.ant-tabs-content-holder {
+			flex: 1;
+		}
+	}
+}
