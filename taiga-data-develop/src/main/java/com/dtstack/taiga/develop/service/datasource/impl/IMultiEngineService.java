@@ -19,9 +19,6 @@
 package com.dtstack.taiga.develop.service.datasource.impl;
 
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.enums.EJobType;
-
-import java.util.List;
 
 /**
  * Reason:
@@ -33,19 +30,10 @@ import java.util.List;
 public interface IMultiEngineService {
 
     /**
-     * 获取支持的引擎信息
-     * @param dtuicTenantId
-     * @return
-     */
-    List<Integer> getTenantSupportMultiEngine(Long dtuicTenantId);
-
-    /**
      * 从console获取Hadoop的meta数据源
      * @param tenantId
      * @return
      */
     DataSourceType getTenantSupportHadoopMetaDataSource(Long tenantId);
-
-    List<EJobType> getTenantSupportJobType(Long tenantId);
 
 }
