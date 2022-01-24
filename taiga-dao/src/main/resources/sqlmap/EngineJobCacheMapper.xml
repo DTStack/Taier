@@ -4,11 +4,11 @@
 
 
     <sql id="engine_simple">
-        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`
+        `id`,`job_id`,`job_name`,`compute_type`,`stage`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`
     </sql>
 
     <sql id="engine_cache_filed">
-        `id`,`job_id`,`job_name`,`engine_type`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
+        `id`,`job_id`,`job_name`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
     </sql>
 
     <select id="getOne" resultType="com.dtstack.taiga.dao.domain.EngineJobCache">
@@ -208,11 +208,6 @@
             #{jobId}
         </foreach>
     </update>
-
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.EngineJobCache">
-        insert into schedule_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, job_resource, tenant_id)
-        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{jobResource}, #{tenantId});
-    </insert>
 
     <delete id="delete">
         delete from schedule_engine_job_cache where job_id=#{jobId}

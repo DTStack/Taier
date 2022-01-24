@@ -15,7 +15,7 @@ LS_LIB_DIR=$CMD_HOME/lib
 COMPONENT=$1
 echo 'start component is' $COMPONENT
 
-ENTRY_POINT_CLASS='com.dtstack.batch.EngineApplication'
+ENTRY_POINT_CLASS='com.dtstack.taiga.develop.TaigaApplication'
 
 unset CDPATH
 export basedir=$(cd `dirname $0`/..; pwd)
