@@ -227,18 +227,13 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 Long time = Timestamp.valueOf(LocalDateTime.now()).getTime();
                 String alterSql = String.format(ADD_PART_TEMP, tableName, taskName, time);
                 String location = "";
-                if (DataSourceType.IMPALA.getVal() == sourceType) {
-                    JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, EComponentType.IMPALA_SQL.getConfName(), null);
-                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.Impala.getTypeName());
-                    workerOperator.executeQuery(pluginInfo.toJSONString(), alterSql, db);
-                    location = this.getTableLocation(pluginInfo, db, String.format("DESCRIBE formatted %s", tableName));
-                } else if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
+                if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
                     Cluster cluster = clusterService.getCluster(tenantId);
                     Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
                     EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
                     JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, metadataComponentType.getConfName(), null);
-                    String engineType = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
-                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, engineType);
+                    String typeName = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, typeName);
                     pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
                         String jdbcUrlVal = (String) val;
                         if (StringUtils.isBlank(jdbcUrlVal)) {
