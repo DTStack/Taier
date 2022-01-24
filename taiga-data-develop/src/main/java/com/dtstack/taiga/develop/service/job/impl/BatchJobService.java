@@ -196,12 +196,10 @@ public class BatchJobService {
 
             final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
             final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
-            String extroInfo = JSON.toJSONString(actionParam);
+            String extraInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
-            ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extroInfo, ScheduleTaskShade.class);
-            JSONObject extroInfoObj = JSON.parseObject(extroInfo);
-            extroInfoObj.put("engineType", EngineType.Flink.getEngineName());
-            scheduleTaskShade.setExtraInfo(JSON.toJSONString(extroInfoObj));
+            ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
+            scheduleTaskShade.setExtraInfo(extraInfo);
             scheduleTaskShade.setTaskId(batchTask.getId());
             scheduleTaskShade.setScheduleConf(batchTask.getScheduleConf());
             scheduleTaskShade.setComponentVersion(batchTask.getComponentVersion());
