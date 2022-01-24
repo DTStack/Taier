@@ -30,24 +30,4 @@ import java.util.List;
  * create: 2019/10/22
  */
 public interface ScheduleTaskTaskShadeMapper extends BaseMapper<ScheduleTaskTaskShade> {
-    ScheduleTaskTaskShade getOne(@Param("id") long id);
-
-    ScheduleTaskTaskShade getOneByTaskId(@Param("taskId") Long taskId, @Param("parentTaskId") Long parentTaskId,@Param("appType")Integer appType);
-
-    List<ScheduleTaskTaskShade> listChildTask(@Param("parentTaskId") long parentTaskId, @Param("appType")Integer appType);
-
-    List<ScheduleTaskTaskShade> listChildTaskLimit(@Param("parentTaskId") Long taskId, @Param("appType") Integer appType, @Param("limit") Integer limit);
-
-    List<ScheduleTaskTaskShade> listParentTask(@Param("childTaskId") long childTaskId,@Param("appType")Integer appType);
-
-    Integer deleteByTaskId(@Param("taskId") long taskId,@Param("appType")Integer appType);
-
-    Integer update(ScheduleTaskTaskShade scheduleTaskTaskShade);
-
-    List<ScheduleTaskTaskShade> listParentTaskKeys(@Param("taskKeys") List<String> taskKeys);
-
-    List<ScheduleTaskTaskShade> listTaskKeys(@Param("taskKeys") List<String> taskKeys);
-
-    List<ScheduleTaskTaskShade> getTaskOtherPlatformByProjectId(@Param("projectId") Long projectId, @Param("appType") Integer appType, @Param("listChildTaskLimit") Integer listChildTaskLimit);
-
 }
