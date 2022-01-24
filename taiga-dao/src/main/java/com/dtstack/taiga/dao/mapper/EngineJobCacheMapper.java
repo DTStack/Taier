@@ -64,10 +64,5 @@ public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
 
     Integer updateNodeAddressFailover(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids, @Param("stage") Integer stage);
 
-    int insert(@Param("jobId")String jobId, @Param("engineType") String engineType,
-               @Param("computeType") Integer computeType, @Param("stage") int stage,
-               @Param("jobInfo")String jobInfo, @Param("nodeAddress") String nodeAddress,
-               @Param("jobName") String jobName, @Param("jobPriority") Long jobPriority, @Param("jobResource") String jobResource, @Param("tenantId")Long tenantId);
-
     int delete(@Param("jobId")String jobId);
 }
