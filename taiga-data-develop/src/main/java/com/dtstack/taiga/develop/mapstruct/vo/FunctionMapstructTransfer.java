@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.domain.BatchFunction;
+import com.dtstack.taiga.dao.domain.BatchFunction;
 import com.dtstack.taiga.develop.vo.BatchFunctionVO;
 import com.dtstack.taiga.develop.vo.TaskCatalogueVO;
 import com.dtstack.taiga.develop.web.function.vo.query.BatchFunctionAddVO;

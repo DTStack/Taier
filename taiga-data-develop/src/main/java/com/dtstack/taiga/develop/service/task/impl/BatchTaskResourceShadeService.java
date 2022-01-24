@@ -19,9 +19,9 @@
 package com.dtstack.taiga.develop.service.task.impl;
 
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.dao.BatchTaskResourceShadeDao;
-import com.dtstack.taiga.develop.domain.BatchTaskResource;
-import com.dtstack.taiga.develop.domain.BatchTaskResourceShade;
+import com.dtstack.taiga.dao.mapper.BatchTaskResourceShadeDao;
+import com.dtstack.taiga.dao.domain.BatchTaskResource;
+import com.dtstack.taiga.dao.domain.BatchTaskResourceShade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;

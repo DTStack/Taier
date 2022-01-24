@@ -18,7 +18,8 @@
 
 package com.dtstack.taiga.develop.service.table;
 
-import com.dtstack.taiga.develop.domain.BatchFunction;
+
+import com.dtstack.taiga.dao.domain.BatchFunction;
 
 /**
  * 函数操作相关

@@ -18,12 +18,12 @@
 
 package com.dtstack.taiga.develop.vo;
 
-import com.dtstack.taiga.develop.domain.ReadWriteLock;
+import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 @Data
-public class ReadWriteLockVO extends ReadWriteLock {
+public class ReadWriteLockVO extends BatchReadWriteLock {
 
     private String lastKeepLockUserName;    //上一个持有锁的用户名
 
@@ -31,7 +31,7 @@ public class ReadWriteLockVO extends ReadWriteLock {
 
     private Boolean isGetLock = false;      //是否持有锁
 
-    public static ReadWriteLockVO toVO(ReadWriteLock readWriteLock) {
+    public static ReadWriteLockVO toVO(BatchReadWriteLock readWriteLock) {
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         BeanUtils.copyProperties(readWriteLock,readWriteLockVO);
         return readWriteLockVO;
