@@ -853,7 +853,6 @@ public class BatchCatalogueService {
         return ids.contains(catalogueId);
     }
 
-
     /**
      * 根据 目录Id 查询目录信息
      * @param nodePid
@@ -862,4 +861,17 @@ public class BatchCatalogueService {
     public BatchCatalogue getOne(Long nodePid) {
         return batchCatalogueDao.getOne(nodePid);
     }
+
+    /**
+     * 根据名称和父目录Id查询
+     *
+     * @param tenantId 租户ID
+     * @param nodePid  父目录ID
+     * @param name     名称
+     * @return
+     */
+    public BatchCatalogue getByPidAndName(Long tenantId, Long nodePid, String name) {
+        return batchCatalogueDao.getByPidAndName(tenantId, nodePid, name);
+    }
+
 }

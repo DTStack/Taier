@@ -28,9 +28,6 @@ import lombok.Data;
 public class BatchJobSyncTaskVO extends DtInsightAuthParam {
 
     @ApiModelProperty(hidden = true)
-    private Long userId;
-
-    @ApiModelProperty(hidden = true)
     private Long tenantId;
 
     @ApiModelProperty(value = "任务实例Id", example = "bd0619ba", required = true)

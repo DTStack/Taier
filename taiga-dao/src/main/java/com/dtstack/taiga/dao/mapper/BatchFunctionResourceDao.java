@@ -50,14 +50,6 @@ public interface BatchFunctionResourceDao {
     int insert(BatchFunctionResource batchFunctionResource);
 
     /**
-     * 根据 资源id、函数id 获取函数和资源的关联关系
-     * @param resourceId
-     * @param functionId
-     * @return
-     */
-    BatchFunctionResource getBeanByResourceIdAndFunctionId(@Param("resourceId") Long resourceId, @Param("functionId") Long functionId);
-
-    /**
      * 根据 函数id 查询函数和资源的关联关系的列表
      * @param functionId
      * @return

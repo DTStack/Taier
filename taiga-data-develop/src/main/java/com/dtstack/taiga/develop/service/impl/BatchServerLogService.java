@@ -86,7 +86,7 @@ import java.util.Optional;
 @Service
 public class BatchServerLogService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchServerLogService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchServerLogService.class);
 
     @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
@@ -143,14 +143,14 @@ public class BatchServerLogService {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
-            BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
+            LOGGER.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         final Long tenantId = job.getTenantId();
 
         final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.getByTaskId(job.getTaskId());
         if (Objects.isNull(scheduleTaskShade)) {
-            BatchServerLogService.logger.info("can not find task shade  by jobId:{}.", jobId);
+            LOGGER.info("can not find task shade  by jobId:{}.", jobId);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
         }
 
@@ -166,7 +166,7 @@ public class BatchServerLogService {
             try {
                 info = JSON.parseObject(actionLogVO.getLogInfo());
             } catch (final Exception e) {
-                BatchServerLogService.logger.error("parse jobId {} } logInfo error {}", jobId, actionLogVO.getLogInfo());
+                LOGGER.error(String.format("parse jobId： %s  logInfo：%s", jobId, actionLogVO.getLogInfo()), e);
                 info.put("msg_info", actionLogVO.getLogInfo());
             }
         }
@@ -235,7 +235,7 @@ public class BatchServerLogService {
             } catch (final Exception e) {
                 // 非json格式的日志也返回
                 info.put("msg_info", actionLogVO.getEngineLog());
-                BatchServerLogService.logger.error("", e);
+                LOGGER.error("", e);
             }
         }
 
@@ -435,8 +435,8 @@ public class BatchServerLogService {
             increStrBuild.append("开始位置:\t").append(startLocation).append("\n");
             increStrBuild.append("结束位置:\t").append(endLocation).append("\n");
             info.put("increInfo", increStrBuild.toString());
-        } catch (final Exception e) {
-            BatchServerLogService.logger.warn("{}", e);
+        } catch (Exception e) {
+            LOGGER.warn("{}", e);
         }
     }
 
@@ -625,7 +625,7 @@ public class BatchServerLogService {
             final BatchServerLogVO.SyncJobInfo syncJobInfo = this.parseExecLog(perfLogInfo, execTime);
             batchServerLogVO.setSyncJobInfo(syncJobInfo);
         } catch (final Exception e) {
-            BatchServerLogService.logger.error("logInfo 解析失败", e);
+            LOGGER.error("logInfo 解析失败", e);
             batchServerLogVO.setLogInfo(jobInfo.toString());
         }
     }
@@ -635,7 +635,7 @@ public class BatchServerLogService {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
-            BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
+            LOGGER.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         if (job.getTaskId() == null || job.getTaskId() == -1){
@@ -677,7 +677,7 @@ public class BatchServerLogService {
         }else {
             String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             if (StringUtils.isBlank(enginePluginInfo)) {
-                BatchServerLogService.logger.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
+                LOGGER.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
                 return null;
             }
             DeployModeEnum deployModeEnum = DeployModeEnum.parseDeployTypeByTaskParams(taskParams);
@@ -687,7 +687,7 @@ public class BatchServerLogService {
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
         String prometheusPort = flinkJsonObject.getString("prometheusPort");
         if (StringUtils.isBlank(prometheusHost) || StringUtils.isBlank(prometheusPort)) {
-            BatchServerLogService.logger.info("prometheus http info is blank {} {}", prometheusHost, prometheusPort);
+            LOGGER.info("prometheus http info is blank prometheusHost：{} prometheusPort：{}", prometheusHost, prometheusPort);
             return null;
         }
         return new Pair<>(prometheusHost,prometheusPort);
