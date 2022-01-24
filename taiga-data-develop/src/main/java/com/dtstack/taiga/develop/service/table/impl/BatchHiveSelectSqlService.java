@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.service.table.impl;
 
-import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.mapper.BatchSelectSqlDao;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

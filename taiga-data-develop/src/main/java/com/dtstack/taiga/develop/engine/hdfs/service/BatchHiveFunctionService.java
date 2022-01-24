@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.engine.hdfs.service;
 
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.develop.domain.BatchFunction;
+import com.dtstack.taiga.dao.domain.BatchFunction;
 import com.dtstack.taiga.develop.engine.rdbms.service.IJdbcService;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.HiveSqlBuildService;
 import com.dtstack.taiga.develop.mapping.DataSourceTypeJobTypeMapping;
@@ -49,21 +49,20 @@ public class BatchHiveFunctionService implements IFunctionService {
     private DatasourceService datasourceService;
 
     @Override
-    public void addFunction(Long tenantId, String dbName, String funcName, String className, String resource) throws Exception {
+    public void addFunction(Long tenantId, String dbName, String funcName, String className, String resource) {
         DataSourceType metaDataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         String sql = hiveSqlBuildService.buildAddFuncSql(funcName, className, resource);
         jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), dbName, sql);
     }
 
     @Override
-    public void deleteFunction(Long tenantId, String dbName, String functionName) throws Exception {
+    public void deleteFunction(Long tenantId, String dbName, String functionName) {
         DataSourceType metaDataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
         String sql = hiveSqlBuildService.buildDropFuncSql(functionName);
         jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(metaDataSourceType.getVal()), dbName, sql);
     }
 
     @Override
-    public void addProcedure(Long tenantId, String dbName, BatchFunction batchFunction) {
+    public void addProcedure(Long tenantId, String dbName, BatchFunction batchFunction) {}
 
-    }
 }

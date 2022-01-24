@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.vo;
 
-import com.dtstack.taiga.develop.domain.Catalogue;
+import com.dtstack.taiga.dao.domain.BatchCatalogue;
 import lombok.Data;
 
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
 @Data
 public class CatalogueVO {
 
-    public static CatalogueVO toVO(Catalogue catalogue) {
+    public static CatalogueVO toVO(BatchCatalogue catalogue) {
         CatalogueVO vo = new CatalogueVO();
         vo.setName(catalogue.getNodeName());
         vo.setLevel(catalogue.getLevel());
