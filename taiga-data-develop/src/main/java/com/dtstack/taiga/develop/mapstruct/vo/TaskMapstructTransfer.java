@@ -18,16 +18,29 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
+import com.dtstack.taiga.dao.domain.BatchResource;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.domain.BatchResource;
-import com.dtstack.taiga.develop.domain.BatchSysParameter;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
-import com.dtstack.taiga.develop.vo.*;
+import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taiga.develop.vo.BatchTaskBatchVO;
+import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
+import com.dtstack.taiga.develop.vo.TaskCatalogueVO;
+import com.dtstack.taiga.develop.vo.TaskCheckResultVO;
+import com.dtstack.taiga.develop.vo.TaskResourceParam;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchScheduleTaskVO;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchTaskResourceParamVO;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchTaskTaskAddOrUpdateDependencyVO;
-import com.dtstack.taiga.develop.web.task.vo.result.*;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchGetChildTasksResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchResourceResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchSysParameterResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchTaskGetTaskByIdResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchTaskPublishTaskResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchTaskResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.ReadWriteLockResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.ScheduleTaskShadeResultVO;
+import com.dtstack.taiga.develop.web.task.vo.result.TaskCatalogueResultVO;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
 import com.dtstack.taiga.scheduler.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.dtstack.taiga.scheduler.vo.task.NotDeleteTaskVO;
@@ -93,7 +106,7 @@ public interface TaskMapstructTransfer {
      * @param batchTaskVersionDetailList
      * @return
      */
-    List<BatchTaskVersionDetailResultVO> BatchTaskVersionDetailListToResultVOList(List<BatchTaskVersionDetail> batchTaskVersionDetailList);
+    List<BatchTaskVersionDetailResultVO> BatchTaskVersionDetailListToResultVOList(List<BatchTaskVersionDetailDTO> batchTaskVersionDetailList);
 
 
     /**
@@ -101,7 +114,7 @@ public interface TaskMapstructTransfer {
      * @param batchTaskVersionDetail
      * @return
      */
-    BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(BatchTaskVersionDetail batchTaskVersionDetail);
+    BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(BatchTaskVersionDetailDTO batchTaskVersionDetail);
 
 
     /**
@@ -170,6 +183,5 @@ public interface TaskMapstructTransfer {
      * @return
      */
     List<BatchTask> batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(List<BatchTaskTaskAddOrUpdateDependencyVO> dependencyVOS);
-
 
 }

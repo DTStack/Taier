@@ -37,11 +37,11 @@ import com.dtstack.taiga.common.util.DataFilter;
 import com.dtstack.taiga.common.util.JsonUtils;
 import com.dtstack.taiga.common.util.MathUtil;
 import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.develop.common.convert.BinaryConversion;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatterUtil;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.taiga.develop.enums.DeployModeEnum;
@@ -76,7 +76,12 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BatchServerLogService {
@@ -168,7 +173,7 @@ public class BatchServerLogService {
 
         if (null != job.getVersionId()) {
             // 需要获取执行任务时候版本对应的sql
-            final BatchTaskVersionDetail taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
+            final BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
             if (null != taskVersion) {
                 if (StringUtils.isEmpty(taskVersion.getOriginSql())){
                     String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText())?"{}":taskVersion.getSqlText();

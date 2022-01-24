@@ -73,7 +73,7 @@ public class BatchCatalogueController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                batchCatalogueService.updateCatalogue(BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueUpdateVoToCatalogueVo(vo), vo.getUserId());
+                batchCatalogueService.updateCatalogue(BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueUpdateVoToCatalogueVo(vo));
                 return null;
             }
         }.execute();

@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.vo;
 
+import com.dtstack.taiga.dao.domain.BatchFunction;
 import com.dtstack.taiga.dao.domain.User;
-import com.dtstack.taiga.develop.domain.BatchFunction;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
