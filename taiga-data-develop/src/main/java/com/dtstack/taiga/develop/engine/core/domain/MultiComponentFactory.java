@@ -43,7 +43,6 @@ public class MultiComponentFactory {
     public static List<EComponentType> getComponentTypeByEngineType(List<Integer> taskType) {
         List<EComponentType> list = Lists.newArrayList();
         list.add(EComponentType.FLINK);
-        list.add(EComponentType.DT_SCRIPT);
 
         if (CollectionUtils.isEmpty(taskType)){
             return list;
