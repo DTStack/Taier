@@ -26,7 +26,7 @@ public enum EScheduleJobType {
     SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK),
     SPARK(1, "Spark", 1, 2, EComponentType.SPARK),
     SYNC(2, "数据同步", 2, 3, EComponentType.FLINK),
-    SHELL(3, "Shell", 2, 3, EComponentType.DT_SCRIPT),
+    SHELL(3, "Shell", 2, 3, null),
     WORK_FLOW(10, "工作流", -1, 9, null),
     ;
 
