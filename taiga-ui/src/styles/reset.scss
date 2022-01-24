@@ -1,0 +1,25 @@
+/* Reset some ant design styles */
+@import './variables.scss';
+
+table,
+input.ant-input,
+span.form-label,
+input.ant-select-selection-search-input,
+div.ant-select,
+label.select-task,
+.ant-btn,
+li.ant-dropdown-menu-item,
+div.ant-picker-input > input,
+ul.ant-pagination,
+.ant-form label,
+.ant-legacy-form-item,
+.ant-legacy-form label,
+.ant-form-item-label > label,
+.ant-tooltip,
+.ant-empty {
+	font-size: $font-size;
+}
+
+.ant-tooltip-inner {
+	max-width: 300px;
+}
