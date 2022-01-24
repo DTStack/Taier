@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.service.impl;
 
-import com.dtstack.taiga.develop.dao.BatchFunctionResourceDao;
-import com.dtstack.taiga.develop.domain.BatchFunctionResource;
+import com.dtstack.taiga.dao.mapper.BatchFunctionResourceDao;
+import com.dtstack.taiga.dao.domain.BatchFunctionResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
