@@ -179,23 +179,6 @@ public class BatchCatalogueService {
         return batchCatalogue;
     }
 
-
-    /**
-     * 根据目录名称获取Engine类型
-     * @param name
-     * @return
-     */
-    private Integer getMultiTypeByEngine(String name) {
-        if (StringUtils.isEmpty(name)) {
-            return 0;
-        }
-        if (name.equals(EngineCatalogueType.SPARK.getDesc())) {
-            return MultiEngineType.HADOOP.getType();
-        }
-        return 0;
-    }
-
-
     /**
      * 绑定租户时，初始化目录信息
      * @param tenantId
@@ -243,55 +226,6 @@ public class BatchCatalogueService {
             }
         }
     }
-
-
-    /**
-     * 租户添加新的组件后，初始组件的目录
-     *
-     * @param tenantId
-     * @param userId
-     * @param componentTypeList
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void initComponentCatalogue(Long tenantId, Long userId, List<Integer> componentTypeList) {
-        if (CollectionUtils.isNotEmpty(componentTypeList)) {
-            for (Integer componentType : componentTypeList) {
-                BatchCatalogue catalogue = null;
-                EngineCatalogueType engineCatalogueType = EngineCatalogueType.getByComponentType(componentType);
-                if(engineCatalogueType == null){
-                    continue;
-                }
-                //判断函数管理下的一级目录是否存在
-                catalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.SECOND.getLevel(), tenantId, engineCatalogueType.getDesc());
-                if (null != catalogue) {
-                    continue;
-                }
-                BatchCatalogue functionManager = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.ONE.getLevel(), tenantId, FUNCTION_MANAGER_NAME);
-                if (null == functionManager) {
-                    throw new RdosDefineException(ErrorCode.CATALOGUE_FUNCTION_MANAGE_UN_INIT);
-                }
-
-                //函数管理下的一级目录
-                BatchCatalogue sqlCatalogue = batchCatalogueDao.getByLevelAndTenantIdAndName(CatalogueLevel.SECOND.getLevel(), tenantId, engineCatalogueType.getDesc());
-                if (Objects.isNull(sqlCatalogue)) {
-                    BatchCatalogue addEngineCatalogue = new BatchCatalogue();
-                    addEngineCatalogue.setNodeName(engineCatalogueType.getDesc());
-                    addEngineCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
-                    addEngineCatalogue.setNodePid(functionManager.getId());
-                    addEngineCatalogue.setTenantId(tenantId);
-                    addEngineCatalogue.setCreateUserId(userId);
-                    addEngineCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-
-                    //添加spark 这一层
-                    addOrUpdate(addEngineCatalogue);
-                    //初始化下一层目录
-                    this.initEngineCatalogue(tenantId, userId, engineCatalogueType.getDesc(), addEngineCatalogue);
-                }
-            }
-        }
-
-    }
-
 
     /**
      * 根据控制台配置的组件信息，获取需要初始化的 1 级目录，任务开发、SparkSQL、资源管理 等
@@ -384,11 +318,11 @@ public class BatchCatalogueService {
             templateCatalogueList.add(batchTempTaskCatalogue);
 
             try {
-                String content = batchTaskTemplateService.getContentByType(EJobType.SPARK_SQL.getVal(), templateCatalogue.getType());
+                String content = batchTaskTemplateService.getContentByType(EScheduleJobType.SPARK_SQL.getVal(), templateCatalogue.getType());
                 //初始化任务
                 TaskResourceParam batchTask = new TaskResourceParam();
                 batchTask.setName(templateCatalogue.getFileName());
-                batchTask.setTaskType(EJobType.SPARK_SQL.getVal());
+                batchTask.setTaskType(EScheduleJobType.SPARK_SQL.getVal());
                 batchTask.setNodePid(idsMap.get(templateCatalogue.getValue()));
                 batchTask.setComputeType(ComputeType.BATCH.getType());
                 batchTask.setLockVersion(0);
@@ -413,7 +347,7 @@ public class BatchCatalogueService {
                 batchTask.setTaskVariables(taskVariables);
 
                 //SparkSQL任务支持多版本运行，添加默认的组件版本
-                List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantId, EJobType.SPARK_SQL.getVal());
+                List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantId, EScheduleJobType.SPARK_SQL.getVal());
                 if (CollectionUtils.isNotEmpty(hadoopVersions)) {
                     batchTask.setComponentVersion(hadoopVersions.get(0).getComponentVersion());
                 }
