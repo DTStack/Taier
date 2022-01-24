@@ -1,0 +1,11 @@
+.ide-editor .ide-toolbar {
+	height: 36px;
+}
+
+.ide-editor
+	.ide-console
+	> .ant-tabs
+	> .ant-tabs-content
+	> .ant-tabs-tabpane-inactive {
+	height: 0;
+}
