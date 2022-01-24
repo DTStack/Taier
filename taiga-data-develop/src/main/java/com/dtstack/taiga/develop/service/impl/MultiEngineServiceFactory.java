@@ -29,7 +29,6 @@ import com.dtstack.taiga.develop.service.job.ITaskService;
 import com.dtstack.taiga.develop.service.table.IDataDownloadService;
 import com.dtstack.taiga.develop.service.table.IFunctionService;
 import com.dtstack.taiga.develop.service.table.ISqlExeService;
-import com.dtstack.taiga.develop.service.tenant.ITenantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,9 +63,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "batchHadoopTaskService")
     private ITaskService batchHadoopTaskService;
-
-    @Resource(name = "hadoopTenantService")
-    public ITenantService hadoopTenantService;
 
     @Resource(name = "batchHiveFunctionService")
     private IFunctionService batchHiveFunctionService;

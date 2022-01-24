@@ -20,8 +20,8 @@ package com.dtstack.taiga.develop.service.task.impl;
 
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
-import com.dtstack.taiga.develop.dao.BatchTaskTaskDao;
-import com.dtstack.taiga.develop.domain.BatchTaskTask;
+import com.dtstack.taiga.dao.mapper.BatchTaskTaskDao;
+import com.dtstack.taiga.dao.domain.BatchTaskTask;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.service.schedule.TaskService;
 import com.dtstack.taiga.develop.service.user.UserService;

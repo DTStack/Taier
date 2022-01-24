@@ -19,8 +19,8 @@
 package com.dtstack.taiga.develop.service.impl;
 
 import com.dtstack.taiga.common.annotation.Forbidden;
-import com.dtstack.taiga.develop.dao.BatchSysParamDao;
-import com.dtstack.taiga.develop.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.mapper.BatchSysParamDao;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
