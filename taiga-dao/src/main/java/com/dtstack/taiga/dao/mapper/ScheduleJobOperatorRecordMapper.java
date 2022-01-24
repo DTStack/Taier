@@ -49,9 +49,5 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
 
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 
-    Timestamp getJobCreateTimeById(@Param("id") Long id);
-
-    Long insertBatch(@Param("records") Collection<ScheduleJobOperatorRecord> records);
-
     void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
 }

@@ -1,0 +1,22 @@
+.cover-mask {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 999;
+	height: 96vh;
+	cursor: not-allowed;
+}
+
+.taskParams {
+	color: var(--foreground);
+
+	.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+		color: var(--foreground);
+	}
+
+	.ant-form-item-label > label {
+		color: var(--foreground);
+	}
+}

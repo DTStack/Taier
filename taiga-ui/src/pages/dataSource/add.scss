@@ -1,0 +1,71 @@
+.source {
+	height: 100%;
+	padding: 20px;
+	background: #f2f7fa;
+
+	.content {
+		display: grid;
+		grid-template-rows: 52px auto 55px;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		background-color: #fff;
+		border: 1px solid rgba(6, 14, 26, 0.08);
+		border-radius: 2px;
+
+		.top-steps {
+			padding: 12px 20%;
+			border-bottom: 1px solid rgba(6, 14, 26, 0.08);
+		}
+
+		//step content
+		.step-info {
+			width: 100%;
+			height: 100%;
+			padding: 20px;
+			overflow: scroll;
+			background-color: #fafafa;
+		}
+
+		//footer
+		.footer-select {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			margin: 0 auto;
+			line-height: 55px;
+			border-top: 1px solid rgba(6, 14, 26, 0.08);
+		}
+	}
+
+	.ant-steps-item-icon {
+		width: 28px;
+		height: 28px;
+		line-height: 28px;
+	}
+
+	.edit-steps {
+		.ant-steps-item-disabled {
+			.ant-steps-item-icon {
+				background-color: #e8e8e8 !important;
+				border-color: #bfbfbf !important;
+			}
+
+			.ant-steps-icon {
+				color: #999 !important;
+			}
+
+			.ant-steps-item-title {
+				color: #bfbfbf !important;
+			}
+		}
+
+		.ant-steps-item-finish
+			> .ant-steps-item-container
+			> .ant-steps-item-content
+			> .ant-steps-item-title::after {
+			background-color: #e8e8e8 !important;
+		}
+	}
+}

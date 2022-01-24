@@ -1,0 +1,20 @@
+@import './variables.scss';
+
+.mo-menuBar--horizontal {
+	height: $menuBar-size;
+	background: var(--activityBar-background);
+
+	> .mo-menu {
+		height: $menuBar-size;
+		color: var(--activityBar-inactiveForeground);
+		background: inherit;
+
+		.mo-menu__item:hover {
+			background-color: $main-color;
+		}
+	}
+}
+
+.mo-statusBar {
+	background: $main-color;
+}

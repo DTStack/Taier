@@ -1,0 +1,80 @@
+.c-fileConfig__container {
+	width: 216px;
+	height: 100%;
+	padding-bottom: 40px;
+	overflow-y: scroll;
+	font-size: 12px;
+	background-color: #fafafa;
+	border-right: 1px solid #e8e8e8;
+
+	.ant-form-item {
+		padding: 20px;
+		border-bottom: 1px solid #e8e8e8;
+	}
+
+	.ant-form-item-label > label {
+		font-size: 12px;
+	}
+
+	.c-fileConfig__downloadTemp {
+		margin-left: 55px;
+		color: #3f87ff;
+		cursor: pointer;
+	}
+
+	.c-fileConfig__config {
+		font-size: 12px;
+
+		.config-desc {
+			display: inline-block;
+			color: #999;
+			font-size: 10px;
+			line-height: 24px;
+			word-break: break-all;
+		}
+	}
+
+	.config-file {
+		position: relative;
+		display: block;
+		width: 176px;
+		height: 20px;
+		padding: 0 52px 0 16px;
+		overflow: hidden;
+		color: rgb(51, 51, 51);
+		font-size: 12px;
+		line-height: 20px;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+
+		.anticon-delete,
+		.anticon-paper-clip,
+		.anticon-edit,
+		.anticon-download {
+			position: absolute;
+			top: 4px;
+			color: #666;
+			font-size: 12px;
+		}
+
+		.anticon-paper-clip {
+			left: 0;
+		}
+
+		.anticon-delete {
+			right: 0;
+		}
+
+		.anticon-download {
+			right: 20px;
+		}
+
+		.anticon-edit {
+			right: 40px;
+		}
+
+		&:hover {
+			background-color: #f2f9ff;
+		}
+	}
+}
