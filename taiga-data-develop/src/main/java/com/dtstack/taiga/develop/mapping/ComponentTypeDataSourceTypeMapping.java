@@ -40,13 +40,6 @@ public class ComponentTypeDataSourceTypeMapping {
         mappingMap.put(DataSourceType.HIVE.getVal(), EComponentType.HIVE_SERVER);
         mappingMap.put(DataSourceType.HIVE1X.getVal(), EComponentType.HIVE_SERVER);
         mappingMap.put(DataSourceType.HIVE3X.getVal(), EComponentType.HIVE_SERVER);
-        mappingMap.put(DataSourceType.IMPALA.getVal(), EComponentType.IMPALA_SQL);
-        mappingMap.put(DataSourceType.Oracle.getVal(), EComponentType.ORACLE_SQL);
-        mappingMap.put(DataSourceType.TiDB.getVal(), EComponentType.TIDB_SQL);
-        mappingMap.put(DataSourceType.GREENPLUM6.getVal(),EComponentType.GREENPLUM_SQL);
-        mappingMap.put(DataSourceType.LIBRA.getVal(), EComponentType.LIBRA_SQL);
-        mappingMap.put(DataSourceType.INCEPTOR.getVal(), EComponentType.INCEPTOR_SQL);
-        mappingMap.put(DataSourceType.ADB_FOR_PG.getVal(), EComponentType.ANALYTICDB_FOR_PG);
     }
 
 
