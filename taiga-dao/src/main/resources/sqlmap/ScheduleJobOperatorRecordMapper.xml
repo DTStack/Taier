@@ -36,20 +36,6 @@
         and is_deleted =0 and operator_type = 0;
     </select>
 
-    <select id="getJobCreateTimeById" parameterType="java.lang.Long" resultType="java.sql.Timestamp">
-        select gmt_create from schedule_job_operator_record where id=#{id} and is_deleted=0;
-    </select>
-
-    <insert id="insertBatch">
-        insert ignore into
-        schedule_job_operator_record(job_id,force_cancel_flag,operator_type,node_address)
-        values
-        <foreach collection="records" item="record" separator=",">
-            (#{record.jobId}, #{record.forceCancelFlag},#{record.operatorType},#{record.nodeAddress})
-        </foreach>
-    </insert>
-
-
     <update id="updateNodeAddress">
         UPDATE
         schedule_job_operator_record

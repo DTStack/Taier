@@ -22,10 +22,6 @@
         from schedule_engine_job_retry where job_id=#{jobId} and retry_num = #{retryNum} and is_deleted=0 limit 1;
     </select>
 
-    <select id="getRetryTaskParams" resultType="java.lang.String">
-        SELECT `retry_task_params` FROM `schedule_engine_job_retry` WHERE job_id=#{jobId}  and retry_num = #{retryNum} and is_deleted=0;
-    </select>
-
     <update id="updateEngineLog">
         update schedule_engine_job_retry set engine_log = #{engineLog},gmt_modified=now() where id = #{id}
     </update>
