@@ -21,24 +21,23 @@ package com.dtstack.taiga.develop.engine.core.service;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EJobType;
-import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.develop.engine.core.domain.MultiComponentFactory;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taiga.develop.service.datasource.impl.IMultiEngineService;
 import com.dtstack.taiga.develop.service.impl.TenantComponentService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -52,23 +51,11 @@ import java.util.stream.Collectors;
 @Service
 public class MultiEngineService implements IMultiEngineService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MultiEngineService.class);
-
     @Autowired
     private TenantComponentService tenantEngineService;
 
     @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
     public ComponentService componentService;
-
-    // 需要拼接jdbcUrl的引擎类型
-    private final static Set<Integer> buildUrlEngineType = Sets.newHashSet(MultiEngineType.HADOOP.getType(), MultiEngineType.LIBRA.getType(),
-            MultiEngineType.ANALYTICDB_FOR_PG.getType());
-
-    // 需要拼接schema的引擎类型
-    private final static Set<Integer> buildUrlWithSchemaEngineType = Sets.newHashSet(MultiEngineType.LIBRA.getType(), MultiEngineType.ANALYTICDB_FOR_PG.getType());
 
     @Override
     public List<Integer> getTenantSupportMultiEngine(Long dtuicTenantId) {
@@ -142,60 +129,12 @@ public class MultiEngineService implements IMultiEngineService {
                 supportType.add(EJobType.SPARK);
                 supportType.add(EJobType.SPARK_PYTHON);
             }
-            if(component.contains(EComponentType.DT_SCRIPT.getTypeCode())){
-                supportType.add(EJobType.PYTHON);
-                supportType.add(EJobType.SHELL);
-            }
-            if(component.contains(EComponentType.CARBON_DATA.getTypeCode())){
-                supportType.add(EJobType.CARBON_SQL);
-            }
-            if(component.contains(EComponentType.LIBRA_SQL.getTypeCode())){
-                supportType.add(EJobType.GaussDB_SQL);
-            }
-            if(component.contains(EComponentType.TIDB_SQL.getTypeCode())){
-                supportType.add(EJobType.TIDB_SQL);
-            }
-            if(component.contains(EComponentType.ORACLE_SQL.getTypeCode())){
-                supportType.add(EJobType.ORACLE_SQL);
-            }
             if(component.contains(EComponentType.HIVE_SERVER.getTypeCode())){
                 supportType.add(EJobType.HIVE_SQL);
-            }
-            if (component.contains(EComponentType.IMPALA_SQL.getTypeCode())) {
-                supportType.add(EJobType.IMPALA_SQL);
-            }
-            if (component.contains(EComponentType.GREENPLUM_SQL.getTypeCode())) {
-                supportType.add(EJobType.GREENPLUM_SQL);
-            }
-            if (component.contains(EComponentType.INCEPTOR_SQL.getTypeCode())) {
-                supportType.add(EJobType.INCEPTOR_SQL);
-            }
-            if (component.contains(EComponentType.DTSCRIPT_AGENT.getTypeCode())) {
-                supportType.add(EJobType.SHELL_ON_AGENT);
-            }
-            if (component.contains(EComponentType.ANALYTICDB_FOR_PG.getTypeCode())) {
-                supportType.add(EJobType.ANALYTICDB_FOR_PG);
             }
         }
         return supportType;
     }
 
-
-    /**
-     * 拼接jdbcUrl中db或者schema信息
-     *
-     * @param jdbcUrl
-     * @param dbName
-     * @param engineType
-     * @return
-     */
-    private String buildUrl(String jdbcUrl, String dbName, Integer engineType) {
-        if (buildUrlWithSchemaEngineType.contains(engineType)) {
-            Map<String, String> params = new HashMap<>();
-            params.put("currentSchema", dbName);
-            return Engine2DTOService.buildJdbcURLWithParam(jdbcUrl, params);
-        }
-        return Engine2DTOService.buildUrlWithDb(jdbcUrl, dbName);
-    }
 
 }
