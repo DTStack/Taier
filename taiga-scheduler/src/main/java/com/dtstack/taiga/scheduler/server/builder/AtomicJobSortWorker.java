@@ -17,7 +17,7 @@ public class AtomicJobSortWorker implements JobSortWorker {
     }
 
     @Override
-    public Long getSort() {
-        return atomicInteger.longValue();
+    public Integer getSort() {
+        return atomicInteger.getAndIncrement();
     }
 }
