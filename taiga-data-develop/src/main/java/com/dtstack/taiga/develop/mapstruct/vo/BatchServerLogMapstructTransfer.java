@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.vo.BatchServerLogVO;
-import com.dtstack.taiga.develop.web.server.vo.result.BatchServerLogResultVO;
+import com.dtstack.taiga.develop.dto.devlop.BatchServerLogVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchServerLogResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

@@ -33,12 +33,17 @@ import com.dtstack.taiga.dao.domain.DsInfo;
 import com.dtstack.taiga.develop.common.template.Reader;
 import com.dtstack.taiga.develop.common.template.Setting;
 import com.dtstack.taiga.develop.common.template.Writer;
-import com.dtstack.taiga.develop.engine.rdbms.common.HadoopConf;
-import com.dtstack.taiga.develop.engine.rdbms.hive.util.SparkThriftConnectionUtils;
-import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.taiga.develop.enums.*;
-import com.dtstack.taiga.develop.mapping.ComponentTypeDataSourceTypeMapping;
-import com.dtstack.taiga.develop.service.task.impl.BatchTaskParamService;
+import com.dtstack.taiga.develop.enums.develop.DataSourceDataBaseType;
+import com.dtstack.taiga.develop.enums.develop.EDataSourcePermission;
+import com.dtstack.taiga.develop.enums.develop.RDBMSSourceType;
+import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
+import com.dtstack.taiga.develop.enums.develop.TableLocationType;
+import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
+import com.dtstack.taiga.develop.utils.develop.hive.util.SparkThriftConnectionUtils;
+import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
+import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
 import com.dtstack.taiga.develop.sync.format.TypeFormat;
 import com.dtstack.taiga.develop.sync.format.writer.HiveWriterFormat;
 import com.dtstack.taiga.develop.sync.handler.SyncBuilderFactory;
@@ -46,8 +51,8 @@ import com.dtstack.taiga.develop.sync.job.JobTemplate;
 import com.dtstack.taiga.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.sync.template.*;
 import com.dtstack.taiga.develop.utils.Asserts;
-import com.dtstack.taiga.develop.vo.DataSourceVO;
-import com.dtstack.taiga.develop.vo.TaskResourceParam;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -940,8 +945,8 @@ public class DatasourceService {
                 conf.put("java.security.krb5.conf", getFileName(krb5Conf));
             }
             // 开启kerberos认证需要的参数
-            conf.put(com.dtstack.taiga.develop.engine.rdbms.common.HadoopConfTool.IS_HADOOP_AUTHORIZATION, "true");
-            conf.put(com.dtstack.taiga.develop.engine.rdbms.common.HadoopConfTool.HADOOP_AUTH_TYPE, "kerberos");
+            conf.put(com.dtstack.taiga.develop.utils.develop.common.HadoopConfTool.IS_HADOOP_AUTHORIZATION, "true");
+            conf.put(com.dtstack.taiga.develop.utils.develop.common.HadoopConfTool.HADOOP_AUTH_TYPE, "kerberos");
         }
     }
 

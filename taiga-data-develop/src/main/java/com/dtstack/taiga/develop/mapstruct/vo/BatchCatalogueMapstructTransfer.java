@@ -19,12 +19,12 @@
 package com.dtstack.taiga.develop.mapstruct.vo;
 
 import com.dtstack.taiga.dao.domain.BatchCatalogue;
-import com.dtstack.taiga.develop.domain.BatchCatalogueVO;
-import com.dtstack.taiga.develop.vo.CatalogueVO;
-import com.dtstack.taiga.develop.web.catalogue.vo.query.BatchCatalogueAddVO;
-import com.dtstack.taiga.develop.web.catalogue.vo.query.BatchCatalogueUpdateVO;
-import com.dtstack.taiga.develop.web.catalogue.vo.result.BatchCatalogueResultVO;
-import com.dtstack.taiga.develop.web.catalogue.vo.result.ReadWriteLockVO;
+import com.dtstack.taiga.develop.dto.devlop.BatchCatalogueVO;
+import com.dtstack.taiga.develop.dto.devlop.CatalogueVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchCatalogueAddVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchCatalogueUpdateVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchCatalogueResultVO;
+import com.dtstack.taiga.develop.web.develop.result.ReadWriteLockVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -56,7 +56,7 @@ public interface BatchCatalogueMapstructTransfer {
      * @return
      */
     @Mapping(source = "isGetLock", target = "getLock")
-    ReadWriteLockVO readWriteLockVOToReadWriteLockVO(com.dtstack.taiga.develop.vo.ReadWriteLockVO readWriteLockVO);
+    ReadWriteLockVO readWriteLockVOToReadWriteLockVO(com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO readWriteLockVO);
 
     /**
      * CatalogueVO  ->  BatchCatalogueResultVO
