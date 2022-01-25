@@ -48,7 +48,6 @@ public class BatchTaskResourceShadeService {
     public void clearDataByTaskId(Long taskId) {
         batchTaskResourceShadeDao.deleteByTaskId(taskId);
         logger.info(String.format("clear taskResource success  taskId = %s",taskId));
-
     }
 
     public void saveTaskResource(List<BatchTaskResource> taskResourceList) {
@@ -72,11 +71,6 @@ public class BatchTaskResourceShadeService {
         } else {
             batchTaskResourceShadeDao.insert(batchTaskResourceShade);
         }
-    }
-
-
-    public void deleteByTenantId(Long tenantId) {
-        batchTaskResourceShadeDao.deleteByTenantId(tenantId);
     }
 
     /**
