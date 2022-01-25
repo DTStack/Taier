@@ -251,7 +251,7 @@ public class BatchTaskParamService {
         return batchTaskParam;
     }
 
-    public void deleteTaskParam(final long taskId) {
+    public void deleteTaskParam(long taskId) {
         this.batchTaskParamDao.deleteByTaskId(taskId);
     }
 
@@ -278,7 +278,6 @@ public class BatchTaskParamService {
         return saves;
     }
 
-
     /**
      * 将SQL中的系统参数和自定义参数对象转换为 BatchTaskParamShade 对象
      * @param params
@@ -294,7 +293,6 @@ public class BatchTaskParamService {
         }
         return shades;
     }
-
 
     /**
      * 将 系统参数和自定义参数 的DTO对象转换为PO对象
@@ -314,20 +312,17 @@ public class BatchTaskParamService {
 
     public List<BatchTaskParam> getTaskParam(final long taskId) {
         List<BatchTaskParam> taskParams = batchTaskParamDao.listByTaskId(taskId);
-
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParam taskParamShade : taskParams) {
             if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {
                 continue;
             }
-
             // 将 command 属性设置为系统表的 command
             BatchSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParams;
     }
-
 
 }
 

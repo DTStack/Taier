@@ -25,8 +25,6 @@ import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.develop.engine.rdbms.common.HadoopConf;
 import com.dtstack.taiga.develop.engine.rdbms.common.HdfsOperator;
 import com.dtstack.taiga.develop.service.job.ITaskService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,19 +32,19 @@ import org.springframework.stereotype.Service;
  * hadoop平台上关联任务
  * Date: 2019/5/23
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
 @Service
 public class BatchHadoopTaskService implements ITaskService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BatchHadoopTaskService.class);
-
     @Autowired
     private EnvironmentContext env;
 
     /**
      * 执行sql或者脚本上传到hdfs
+     *
      * @param tenantId
      * @param content
      * @param taskType
@@ -68,11 +66,10 @@ public class BatchHadoopTaskService implements ITaskService {
                 if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                     content = content.replaceAll("\r\n", System.getProperty("line.separator"));
                 }
-                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(tenantId),HadoopConf.getHadoopKerberosConf(tenantId), content.getBytes(), hdfsPath);
+                HdfsOperator.uploadInputStreamToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), content.getBytes(), hdfsPath);
             }
         } catch (final Exception e) {
-            BatchHadoopTaskService.LOG.error("", e);
-            throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
+            throw new RdosDefineException(String.format("Update task to HDFS failure: %s", e.getMessage()), e);
         }
 
         return HadoopConf.getDefaultFs(tenantId) + hdfsPath;
@@ -80,4 +77,5 @@ public class BatchHadoopTaskService implements ITaskService {
 
     @Override
     public void readyForPublishTaskInfo(final BatchTask task) {}
+
 }

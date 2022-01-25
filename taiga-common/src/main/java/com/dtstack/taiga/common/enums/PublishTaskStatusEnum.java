@@ -21,7 +21,7 @@ package com.dtstack.taiga.common.enums;
 /**
  * 任务提交状态  判断使用
  */
-public enum  PublishTaskStatusEnum {
+public enum PublishTaskStatusEnum {
     /**
      * 无错误
      */

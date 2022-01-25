@@ -218,8 +218,7 @@ public class HiveSelectDownload implements IDownload {
         try {
             pluginDownloader.configure();
         } catch (Exception e) {
-            LOGGER.error("", e);
-            throw new DtCenterDefException("下载器configure失败");
+            throw new DtCenterDefException("下载器configure失败", e);
         }
     }
 
@@ -242,7 +241,7 @@ public class HiveSelectDownload implements IDownload {
             excludeCol.forEach(index -> data.add(NO_PERMISSION));
             return data;
         } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器readNext失败:%s", e.getMessage()));
+            throw new DtCenterDefException(String.format("下载器readNext失败:%s", e.getMessage()), e);
         }
     }
 
@@ -251,8 +250,7 @@ public class HiveSelectDownload implements IDownload {
         try {
             return pluginDownloader.reachedEnd();
         } catch (Exception e) {
-            LOGGER.error("", e);
-            throw new DtCenterDefException("下载器reachedEnd失败");
+            throw new DtCenterDefException("下载器reachedEnd失败", e);
         }
     }
 
@@ -261,8 +259,7 @@ public class HiveSelectDownload implements IDownload {
         try {
             pluginDownloader.close();
         } catch (Exception e) {
-            LOGGER.error("", e);
-            throw new DtCenterDefException("下载器close失败");
+            throw new DtCenterDefException("下载器close失败", e);
         }
     }
 
