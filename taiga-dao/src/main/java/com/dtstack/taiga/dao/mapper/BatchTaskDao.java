@@ -19,8 +19,8 @@
 package com.dtstack.taiga.dao.mapper;
 
 import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.dto.BatchTaskDTO;
 import com.dtstack.taiga.dao.pager.PageQuery;
-import com.dtstack.taiga.develop.dto.BatchTaskDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;

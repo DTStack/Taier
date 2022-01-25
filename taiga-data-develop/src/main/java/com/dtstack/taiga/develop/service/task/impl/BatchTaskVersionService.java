@@ -18,10 +18,10 @@
 
 package com.dtstack.taiga.develop.service.task.impl;
 
+import com.dtstack.taiga.dao.domain.BatchTaskVersion;
+import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taiga.dao.mapper.BatchTaskVersionDao;
 import com.dtstack.taiga.dao.pager.PageQuery;
-import com.dtstack.taiga.develop.dao.BatchTaskVersionDao;
-import com.dtstack.taiga.develop.domain.BatchTaskVersion;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
