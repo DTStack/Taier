@@ -45,8 +45,6 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
 
     Integer updateOperatorExpiredVersion(@Param("id") Long id, @Param("operatorExpired") Timestamp operatorExpired, @Param("version") Integer version);
 
-    Integer deleteByJobIdAndType(@Param("jobId") String jobId,@Param("type")Integer type);
-
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 
     void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
