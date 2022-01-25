@@ -48,6 +48,7 @@ import com.dtstack.taiga.develop.enums.DeployModeEnum;
 import com.dtstack.taiga.develop.enums.EScheduleType;
 import com.dtstack.taiga.develop.enums.YarnAppLogType;
 import com.dtstack.taiga.develop.schedule.JobParamReplace;
+import com.dtstack.taiga.develop.service.schedule.TaskService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskParamShadeService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskVersionService;
@@ -110,7 +111,7 @@ public class BatchServerLogService {
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
+    private TaskService taskService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -148,7 +149,7 @@ public class BatchServerLogService {
         }
         final Long tenantId = job.getTenantId();
 
-        final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.getByTaskId(job.getTaskId());
+        final ScheduleTaskShade scheduleTaskShade = this.taskService.findTaskByTaskId(job.getTaskId());
         if (Objects.isNull(scheduleTaskShade)) {
             LOGGER.info("can not find task shade  by jobId:{}.", jobId);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);

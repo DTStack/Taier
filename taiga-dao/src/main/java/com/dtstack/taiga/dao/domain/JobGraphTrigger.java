@@ -34,11 +34,6 @@ public class JobGraphTrigger {
     private Integer triggerType;
 
     /**
-     * 当前生成的schedule_job的最小id
-     */
-    private Long minJobId;
-
-    /**
      * 创建时间
      */
     private Timestamp gmtCreate;
@@ -77,14 +72,6 @@ public class JobGraphTrigger {
         this.triggerType = triggerType;
     }
 
-    public Long getMinJobId() {
-        return minJobId;
-    }
-
-    public void setMinJobId(Long minJobId) {
-        this.minJobId = minJobId;
-    }
-
     public Timestamp getGmtCreate() {
         return gmtCreate;
     }
@@ -114,12 +101,12 @@ public class JobGraphTrigger {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JobGraphTrigger that = (JobGraphTrigger) o;
-        return Objects.equals(id, that.id) && Objects.equals(triggerTime, that.triggerTime) && Objects.equals(triggerType, that.triggerType) && Objects.equals(minJobId, that.minJobId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
+        return Objects.equals(id, that.id) && Objects.equals(triggerTime, that.triggerTime) && Objects.equals(triggerType, that.triggerType) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, triggerTime, triggerType, minJobId, gmtCreate, gmtModified, isDeleted);
+        return Objects.hash(id, triggerTime, triggerType, gmtCreate, gmtModified, isDeleted);
     }
 
     @Override
@@ -128,7 +115,6 @@ public class JobGraphTrigger {
                 "id=" + id +
                 ", triggerTime=" + triggerTime +
                 ", triggerType=" + triggerType +
-                ", minJobId=" + minJobId +
                 ", gmtCreate=" + gmtCreate +
                 ", gmtModified=" + gmtModified +
                 ", isDeleted=" + isDeleted +
