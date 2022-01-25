@@ -24,7 +24,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.develop.common.template.CheckFormat;
-import com.dtstack.taiga.develop.enums.TaskCreateModelType;
+import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taiga.develop.sync.template.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;

@@ -20,7 +20,7 @@ package com.dtstack.taiga.develop.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.develop.common.template.Writer;
-import com.dtstack.taiga.develop.engine.rdbms.common.enums.StoredType;
+import com.dtstack.taiga.develop.utils.develop.common.enums.StoredType;
 import com.dtstack.taiga.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.sync.job.WriteMode;
 import com.dtstack.taiga.develop.sync.util.ColumnUtil;
