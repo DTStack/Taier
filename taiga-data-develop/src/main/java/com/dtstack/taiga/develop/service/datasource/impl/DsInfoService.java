@@ -7,21 +7,19 @@ import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.PubSvcDefineException;
-import com.dtstack.taiga.common.pager.PageResult;
 import com.dtstack.taiga.common.util.DataSourceUtils;
 import com.dtstack.taiga.dao.domain.DsInfo;
 import com.dtstack.taiga.dao.domain.po.DsListBO;
 import com.dtstack.taiga.dao.domain.po.DsListQuery;
 import com.dtstack.taiga.dao.mapper.DsInfoMapper;
+import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.bo.datasource.DsListParam;
 import com.dtstack.taiga.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taiga.develop.mapstruct.datasource.DsListTransfer;
 import com.dtstack.taiga.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taiga.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taiga.develop.vo.datasource.DsListVO;
-import com.dtstack.taiga.develop.web.pager.PageUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,11 +64,11 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
         listQuery.turn();
         Integer total = this.baseMapper.countDsPage(listQuery);
         if (total == 0) {
-            return PageUtil.transfer(ListUtils.EMPTY_LIST, dsListParam, total);
+            return new PageResult<>(0,0,0,0,new ArrayList<>());
         }
         List<DsListBO> dsListBOList = baseMapper.queryDsPage(listQuery);
         if (CollectionUtils.isEmpty(dsListBOList)) {
-            return PageUtil.transfer(ListUtils.EMPTY_LIST, dsListParam, total);
+            return new PageResult<>(0,0,0,0,new ArrayList<>());
         }
         List<DsListVO> dsListVOS = new ArrayList<>();
         for (DsListBO dsListBO : dsListBOList) {
@@ -81,7 +79,7 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
             dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData,true));
             dsListVOS.add(dsListVO);
         }
-        return PageUtil.transfer(dsListVOS, dsListParam, total);
+        return new PageResult<>(dsListParam.getCurrentPage(),dsListParam.getPageSize(),total,dsListVOS);
     }
 
     /**

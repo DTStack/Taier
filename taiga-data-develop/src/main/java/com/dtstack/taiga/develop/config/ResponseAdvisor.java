@@ -25,7 +25,7 @@ import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.util.List;
 
-@ControllerAdvice("com.dtstack.batch.controller")
+@ControllerAdvice("com.dtstack.taiga.develop.controller")
 public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ResponseAdvisor.class);

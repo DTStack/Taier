@@ -171,7 +171,6 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 			setBaseInfo(arg, servletRequest, Cookies.USER_ID, Cookies.USER_FILED, (request) -> null);
 			setBaseInfo(arg, servletRequest, Cookies.TOKEN, Cookies.TOKEN, (request) -> null);
 			setBaseInfo(arg, servletRequest, Cookies.CREATE_USER_ID, Cookies.USER_FILED, (request) -> null);
-			setBaseInfo(arg, servletRequest, Cookies.CREATE_USER_ID, Cookies.USER_FILED, (request) -> null);
 		}
 		return arg;
 	}
@@ -203,7 +202,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 				}
 			}
 			if (StringUtils.isNotBlank(infoValue)) {
-				ReflectionUtils.setField(field, arg, Long.parseLong(infoValue));
+				if (field.getType().isAssignableFrom(String.class)) {
+					ReflectionUtils.setField(field, arg, infoValue);
+				} else if (field.getType().isAssignableFrom(Long.class)) {
+					ReflectionUtils.setField(field, arg, Long.parseLong(infoValue));
+				}
 			}
 		}
 	}

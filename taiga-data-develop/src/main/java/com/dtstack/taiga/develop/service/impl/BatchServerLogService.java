@@ -22,20 +22,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.MultiEngineType;
-import com.dtstack.taiga.common.enums.TaskStatus;
+import com.dtstack.taiga.common.enums.*;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.metric.batch.IMetric;
 import com.dtstack.taiga.common.metric.batch.MetricBuilder;
 import com.dtstack.taiga.common.metric.prometheus.PrometheusMetricQuery;
-import com.dtstack.taiga.common.util.Base64Util;
-import com.dtstack.taiga.common.util.DataFilter;
-import com.dtstack.taiga.common.util.JsonUtils;
-import com.dtstack.taiga.common.util.MathUtil;
+import com.dtstack.taiga.common.util.*;
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
@@ -44,8 +38,6 @@ import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
 import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatterUtil;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
-import com.dtstack.taiga.develop.enums.DeployModeEnum;
-import com.dtstack.taiga.develop.enums.EScheduleType;
 import com.dtstack.taiga.develop.enums.YarnAppLogType;
 import com.dtstack.taiga.develop.schedule.JobParamReplace;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskParamShadeService;
@@ -55,6 +47,7 @@ import com.dtstack.taiga.develop.vo.BatchServerLogVO;
 import com.dtstack.taiga.develop.vo.SyncStatusLogInfoVO;
 import com.dtstack.taiga.develop.web.server.vo.result.BatchServerLogByAppLogTypeResultVO;
 import com.dtstack.taiga.pluginapi.enums.ComputeType;
+import com.dtstack.taiga.pluginapi.enums.EDeployMode;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.dtstack.taiga.scheduler.service.ScheduleActionService;
 import com.dtstack.taiga.scheduler.service.ScheduleJobService;
@@ -366,12 +359,12 @@ public class BatchServerLogService {
             return;
         }
         try {
-            final DeployModeEnum deployModeEnum = DeployModeEnum.parseDeployTypeByTaskParams(taskParams);
+            final EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
             final String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             final JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
             final JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
-            final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.getName()).getString("prometheusHost");
-            final String prometheusPort = flinkJsonObject.getJSONObject(deployModeEnum.getName()).getString("prometheusPort");
+            final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusHost");
+            final String prometheusPort = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusPort");
             //prometheus的配置信息 从控制台获取
             final PrometheusMetricQuery prometheusMetricQuery = new PrometheusMetricQuery(String.format("%s:%s", prometheusHost, prometheusPort));
             final IMetric startLocationMetric = MetricBuilder.buildMetric("startLocation", jobId, startTime, endTime, prometheusMetricQuery);
@@ -587,7 +580,7 @@ public class BatchServerLogService {
 
             logInfoJson.put("perf", perfLogInfo);
             //补数据没有增量标志信息
-            if (EScheduleType.NORMAL_SCHEDULE.getType() == jobType){
+            if (EScheduleType.NORMAL_SCHEDULE.getType().equals(jobType)){
                 logInfoJson.put("increInfo", jobInfo.getString("increInfo"));
             }
             logInfoJson.put("sql", res);
@@ -675,9 +668,9 @@ public class BatchServerLogService {
                 BatchServerLogService.logger.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
                 return null;
             }
-            DeployModeEnum deployModeEnum = DeployModeEnum.parseDeployTypeByTaskParams(taskParams);
+            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
             JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
-            flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "").getJSONObject(deployModeEnum.getName());
+            flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "").getJSONObject(deployModeEnum.name());
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
         String prometheusPort = flinkJsonObject.getString("prometheusPort");
