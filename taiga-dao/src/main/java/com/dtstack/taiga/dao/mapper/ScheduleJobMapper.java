@@ -41,19 +41,11 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
 
     List<ScheduleJob> listAfterOrBeforeJobs(@Param("taskId") Long taskId, @Param("isAfter") Boolean isAfter, @Param("cycTime") String cycTime, @Param("type") Integer type);
 
-    List<String> listJobIdByTaskIdAndStatus(@Param("taskId") Long taskId, @Param("appType") Integer appType, @Param("statuses") List<Integer> status);
-
-    ScheduleJob getByJobId(@Param("jobId") String jobId, @Param("isDeleted") Integer isDeleted);
-
-    List<ScheduleJob> listByJobIdList(@Param("jobIds") Collection<String> jobIds, @Param("projectId") Long projectId);
-
     Integer countTasksByCycTimeTypeAndAddress(@Param("nodeAddress") String nodeAddress, @Param("scheduleType") Integer scheduleType, @Param("cycStartTime") String cycStartTime, @Param("cycEndTime") String cycEndTime);
 
     List<SimpleScheduleJobPO> listSimpleJobByStatusAddress(@Param("startId") Long startId, @Param("statuses") List<Integer> statuses, @Param("nodeAddress") String nodeAddress);
 
     Integer updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds") List<String> ids);
-
-    Integer updateStatusByJobId(@Param("jobId") String jobId, @Param("status") Integer status, @Param("logInfo") String logInfo, @Param("versionId") Integer versionId, @Param("execStartTime") Date execStartTime, @Param("execEndTime") Date execEndTime);
 
     void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
 
@@ -70,12 +62,12 @@ public interface ScheduleJobMapper extends BaseMapper<ScheduleJob> {
     /**
      * 扫描周期实例接口
      *
-     * @param startSort 开始id
+     * @param startId 开始id
      * @param nodeAddress 节点
      * @param type 类型
      * @param isEq 是否查询出第一个
      * @param jobPhaseStatus 队列状态
      * @return 周期实例列表
      */
-    List<ScheduleJob> listCycleJob(@Param("startSort") Long startSort, @Param("nodeAddress") String nodeAddress, @Param("type") Integer type, @Param("isEq") Boolean isEq, @Param("jobPhaseStatus") Integer jobPhaseStatus);
+    List<ScheduleJob> listCycleJob(@Param("startId") Long startId, @Param("nodeAddress") String nodeAddress, @Param("type") Integer type, @Param("isEq") Boolean isEq, @Param("jobPhaseStatus") Integer jobPhaseStatus);
 }
