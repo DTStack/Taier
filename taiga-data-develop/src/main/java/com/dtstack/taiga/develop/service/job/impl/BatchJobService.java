@@ -28,7 +28,6 @@ import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.JsonUtils;
 import com.dtstack.taiga.common.util.MathUtil;
-import com.dtstack.taiga.common.util.SessionUtil;
 import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.domain.BatchTaskParam;
@@ -384,11 +383,6 @@ public class BatchJobService {
      * @return
      */
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String uniqueKey, String sql, List<Map> taskVariables, String dtToken, Integer isCheckDDL, Boolean isRoot, Boolean isEnd) {
-
-        // 更新ddl检查设置
-        if (!Objects.isNull(isCheckDDL)) {
-            SessionUtil.setValue(dtToken, BatchJobService.IS_CHECK_DDL_KEY, isCheckDDL);
-        }
         final User user = userService.getById(userId);
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;", dtToken, user.getId(), user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
