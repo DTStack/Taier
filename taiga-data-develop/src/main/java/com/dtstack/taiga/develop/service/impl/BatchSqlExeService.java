@@ -26,8 +26,8 @@ import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.PublicUtil;
 import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.bo.ExecuteContent;
-import com.dtstack.taiga.develop.domain.TenantComponent;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.service.table.ISqlExeService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
@@ -36,7 +36,6 @@ import com.dtstack.taiga.develop.sql.SqlParserImpl;
 import com.dtstack.taiga.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taiga.develop.vo.CheckSyntaxResult;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
-import com.dtstack.taiga.develop.vo.ExecuteSqlParseVO;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,14 +53,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * @author jiangbo
- * @date 2019/6/14
- */
 @Service
 public class BatchSqlExeService {
 
-    public static Logger LOG = LoggerFactory.getLogger(BatchSqlExeService.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(BatchSqlExeService.class);
 
     @Autowired
     private TenantComponentService tenantEngineService;
@@ -76,12 +71,6 @@ public class BatchSqlExeService {
 
     @Autowired
     private BatchTaskService batchTaskService;
-
-    private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
-
-    private static final String NOT_GET_COLUMN_SQL_REGEX = "(?i)(create|drop)[\\s|\\S]*";
-
-    private static final String CREATE_AS_REGEX = "(?i)create\\s+((table)|(view))\\s*[\\s\\S]+\\s*as\\s+select\\s+[\\s\\S]+";
 
     public static final Pattern CACHE_LAZY_SQL_PATTEN = Pattern.compile("(?i)cache\\s+(lazy\\s+)?table.*");
 
@@ -121,21 +110,6 @@ public class BatchSqlExeService {
         PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
 
         return result;
-    }
-
-    /**
-     * 解析sqlList返回sqlId并且封装sql到引擎执行
-     *
-     * @param executeContent
-     * @return
-     * @throws Exception
-     */
-    public ExecuteSqlParseVO batchExeSqlParse(final ExecuteContent executeContent) throws Exception {
-
-        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
-        ExecuteSqlParseVO executeSqlParseVO = sqlExeService.batchExecuteSql(executeContent);
-
-        return executeSqlParseVO;
     }
 
     /**
@@ -309,8 +283,7 @@ public class BatchSqlExeService {
      * @param executeContent
      */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
-        final Integer engineType = executeContent.getTaskType();
-        BatchTask one = batchTaskService.getOne(executeContent.getTaskId());
+        BatchTask one = batchTaskService.getOneWithError(executeContent.getTaskId());
         String taskParam = one.getTaskParams();
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
@@ -382,7 +355,7 @@ public class BatchSqlExeService {
         try {
             parseResult = sqlParser.parseSql(executeContent.getSql(), tenantEngine.getComponentIdentity(), new HashMap<>());
         } catch (final Exception e) {
-            BatchSqlExeService.LOG.error("解析sql异常:{}", e);
+            LOGGER.error(String.format("解析sql异常，sql：{}", executeContent.getSql()), e);
             parseResult = new ParseResult();
             //libra解析失败也提交sql执行
             if (MultiEngineType.HADOOP.getType() == executeContent.getTaskType()) {

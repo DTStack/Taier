@@ -18,7 +18,10 @@
 
 package com.dtstack.taiga.scheduler.zookeeper;
 
+import com.dtstack.taiga.common.LockService;
 import com.dtstack.taiga.common.env.EnvironmentContext;
+import com.dtstack.taiga.common.exception.LockServiceException;
+import com.dtstack.taiga.common.exception.LockTimeoutException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.scheduler.server.FailoverStrategy;
 import com.dtstack.taiga.scheduler.server.listener.HeartBeatCheckListener;
@@ -29,10 +32,12 @@ import com.dtstack.taiga.scheduler.utils.PathUtil;
 import com.dtstack.taiga.scheduler.zookeeper.data.BrokerHeartNode;
 import com.dtstack.taiga.scheduler.zookeeper.data.BrokersNode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CuratorWatcher;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.data.Stat;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -43,10 +48,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -58,8 +61,10 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZkService.class);
 
+    private final static Integer LOCK_WAIT_SECONDS = 5;
     private final static String HEART_NODE = "heart";
     private final static String WORKER_NODE = "workers";
+    private final static String LOCK_NODE = "locks";
 
     private ZkConfig zkConfig;
     private String zkAddress;
@@ -68,6 +73,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private String brokersNode;
     private String localNode;
     private String workersNode;
+    private String lockNode;
 
     private CuratorFramework zkClient;
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -84,6 +90,65 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     @Autowired
     private FailoverStrategy failoverStrategy;
+
+    private static class LockServiceImpl implements LockService {
+        private final CuratorFramework zkClient;
+        private final String lockNode;
+        private final Map<String, InterProcessMutex> mutexes = Maps.newConcurrentMap();
+
+        private LockServiceImpl(CuratorFramework zkClient, String lockNode) {
+            this.zkClient = zkClient;
+            this.lockNode = lockNode;
+        }
+
+        @Override
+        public void execWithLock(String lockName, Runnable runnable) {
+            boolean locked = tryLock(lockName, LOCK_WAIT_SECONDS, TimeUnit.SECONDS);
+            if (locked) {
+                try {
+                    runnable.run();
+                } finally {
+                    release(lockName);
+                }
+            } else {
+                throw new LockTimeoutException("Lock " + lockName + " timeout.");
+            }
+        }
+
+        @Override
+        public synchronized boolean tryLock(String lockName, int time, TimeUnit timeUnit) {
+            InterProcessMutex mutex = this.mutexes.computeIfAbsent(lockName,
+                    ln -> new InterProcessMutex(zkClient, String.format("%s/%s", this.lockNode, ln)));
+            try {
+                return mutex.acquire(time, timeUnit);
+            } catch (Exception e) {
+                throw new LockServiceException("ZK errors, connection interruptions", e);
+            }
+        }
+
+        @Override
+        public void lock(String lockName) {
+            InterProcessMutex mutex = this.mutexes.computeIfAbsent(lockName,
+                    ln -> new InterProcessMutex(zkClient, String.format("%s/%s", this.lockNode, ln)));
+            try {
+                mutex.acquire();
+            } catch (Exception e) {
+                throw new LockServiceException("ZK errors, connection interruptions", e);
+            }
+        }
+
+        @Override
+        public synchronized void release(String lockName) {
+            InterProcessMutex mutex = this.mutexes.get(lockName);
+            try {
+                if (mutex != null) {
+                    mutex.release();
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Couldn't release lock " + lockName, e);
+            }
+        }
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -117,6 +182,8 @@ public class ZkService implements InitializingBean, DisposableBean {
         createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
         createNodeIfNotExists(this.localNode, "");
         createNodeIfNotExists(this.workersNode, new HashSet<>());
+        // 初始化分布式锁节点
+        createNodeIfNotExists(this.lockNode, null);
         createLocalBrokerHeartNode();
         initScheduledExecutorService();
         LOGGER.warn("init zk server success...");
@@ -154,8 +221,12 @@ public class ZkService implements InitializingBean, DisposableBean {
 
     public void createNodeIfNotExists(String node, Object obj) throws Exception {
         if (zkClient.checkExists().forPath(node) == null) {
-            zkClient.create().forPath(node,
-                    objectMapper.writeValueAsBytes(obj));
+            if (obj != null) {
+                zkClient.create().forPath(node,
+                        objectMapper.writeValueAsBytes(obj));
+            } else {
+                zkClient.create().forPath(node);
+            }
         }
     }
 
@@ -174,6 +245,8 @@ public class ZkService implements InitializingBean, DisposableBean {
         this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
         this.localNode = String.format("%s/%s", this.brokersNode, this.localAddress);
         this.workersNode = String.format("%s/%s", this.localNode, WORKER_NODE);
+        // 初始化分布式锁节点名称
+        this.lockNode = String.format("%s/%s", this.distributeRootNode, LOCK_NODE);
     }
 
     public BrokerHeartNode getBrokerHeartNode(String node) {

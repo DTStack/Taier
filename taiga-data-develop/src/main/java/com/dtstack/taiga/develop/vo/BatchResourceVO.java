@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.vo;
 
+import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.User;
-import com.dtstack.taiga.develop.domain.BatchResource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;

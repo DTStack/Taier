@@ -30,10 +30,9 @@ import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.Strings;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.engine.rdbms.common.IDownload;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.taiga.develop.service.impl.BatchDownloadService;
@@ -42,7 +41,6 @@ import com.dtstack.taiga.develop.service.impl.TenantComponentService;
 import com.dtstack.taiga.develop.service.job.IBatchSelectSqlService;
 import com.dtstack.taiga.develop.service.table.impl.BatchSelectSqlService;
 import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
-import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.sql.ParseResult;
 import com.dtstack.taiga.develop.sql.SqlType;
 import com.dtstack.taiga.develop.sync.job.SourceType;
@@ -50,7 +48,6 @@ import com.dtstack.taiga.develop.vo.BuildSqlVO;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
 import com.dtstack.taiga.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taiga.scheduler.service.ScheduleActionService;
-import com.dtstack.taiga.scheduler.service.ScheduleJobService;
 import com.dtstack.taiga.scheduler.vo.action.ActionJobEntityVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -62,7 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.*;
@@ -81,10 +77,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     public static final Logger LOGGER = LoggerFactory.getLogger(BatchHadoopSelectSqlService.class);
 
     @Autowired
-    private BatchSelectSqlDao batchHiveSelectSqlDao;
-
-
-    @Autowired
     private HadoopDataDownloadService hadoopDataDownloadService;
 
     @Autowired
@@ -100,13 +92,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchSelectSqlService batchSelectSqlService;
 
     @Autowired
-    private ScheduleJobService scheduleJobService;
-
-    @Autowired
     private BatchFunctionService batchFunctionService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -132,8 +118,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private static final String WITH_SQL_REGET = "(?i)with[a-zA-Z0-9_,\\s]*as\\s*\\(\\s*select\\s*(\\*|[a-zA-Z0-9_,\\s]*?)\\s*from[a-zA-Z0-9_,\\s]*\\)\\s*(?<option>[a-zA-Z]+)\\s*";
 
     private static final Pattern WITH_SQL_PATTERN = Pattern.compile(WITH_SQL_REGET);
-
-    private static final Pattern SELECT_PATTERN = Pattern.compile("(?i)select\\s+(?<cols>(\\*|[a-zA-Z0-9_,\\s]*?))\\s+from\\s+");
 
     public static final String SQL_AS_REDEX = "(?i)[0-9a-z_]+\\s+?as\\s+[0-9a-z_]+";
 
@@ -178,7 +162,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
      * @param taskId
      * @return
      */
-    public BuildSqlVO  getSqlIdAndSql(Long tenantId, ParseResult parseResult, Long userId, String database, Boolean isCreateAs, Long taskId, Integer taskType){
+    public BuildSqlVO getSqlIdAndSql(Long tenantId, ParseResult parseResult, Long userId, String database, Boolean isCreateAs, Long taskId, Integer taskType) {
         BuildSqlVO buildSqlVO = buildSql(parseResult, tenantId, userId, database, isCreateAs, taskId);
         String jobId = UUID.randomUUID().toString();
         // 记录job
@@ -222,10 +206,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             return String.format(CREATE_FUNCTION_TEMP_TABLE, database, createFunction, tempTable, originSql);
         }
         return String.format(CREATE_TEMP_TABLE, database, tempTable, originSql);
-
     }
-
-
 
     /**
      * 解析sql
@@ -588,43 +569,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         return null;
     }
 
-    public BatchSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted) {
-        BatchSelectSql selectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, isDeleted);
-        if (selectSql == null) {
-            throw new RdosDefineException("select job not exists");
-        }
-        return selectSql;
-    }
-
-    public void stopSelectJob(String jobId, Long tenantId) {
-        try {
-            actionService.stop(Collections.singletonList(jobId));
-            // 这里用逻辑删除，是为了在调度端删除可能生成的临时表
-            batchHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
-        } catch (Exception e) {
-            LOGGER.error("{}", e);
-        }
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId) {
-        this.addSelectSql(jobId, tempTable, isSelectSql, tenantId, sql, userId, "");
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public void addSelectSql(String jobId, String tempTable, int isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns) {
-        BatchSelectSql hiveSelectSql = new BatchSelectSql();
-        hiveSelectSql.setJobId(jobId);
-        hiveSelectSql.setTempTableName(tempTable);
-        hiveSelectSql.setTenantId(tenantId);
-        hiveSelectSql.setIsSelectSql(isSelectSql);
-        hiveSelectSql.setSqlText(sql);
-        hiveSelectSql.setUserId(userId);
-        hiveSelectSql.setParsedColumns(parsedColumns);
-
-        batchHiveSelectSqlDao.insert(hiveSelectSql);
-    }
-
     public String sendSqlTask(Long tenantId, String sql, SourceType sourceType, String taskParams, String jobId, Long taskId, Integer taskType) {
         JSONObject taskParam = new JSONObject();
         taskParam.put("taskType", taskType);
@@ -654,7 +598,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         actionService.start(actionExt);
         return jobId;
     }
-
 
     /**
      * 生成日志，优先取hdfs前30000个字节，如果hdfs日志获取失败，则取engine日志
