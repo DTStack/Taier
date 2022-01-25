@@ -26,21 +26,14 @@ public abstract class AbstractDependencyHandler implements DependencyHandler {
     protected ScheduleTaskShade currentTaskShade;
 
     /**
-     * 上游任务
-     */
-    protected List<ScheduleTaskShade> taskShadeList;
-
-    /**
      * 下一个依赖处理器
      */
     private DependencyHandler nextDependencyHandler;
 
     public AbstractDependencyHandler(String keyPreStr,
-                                     ScheduleTaskShade currentTaskShade,
-                                     List<ScheduleTaskShade> taskShadeList) {
+                                     ScheduleTaskShade currentTaskShade) {
         this.keyPreStr = keyPreStr;
         this.currentTaskShade = currentTaskShade;
-        this.taskShadeList = taskShadeList;
     }
 
     /**

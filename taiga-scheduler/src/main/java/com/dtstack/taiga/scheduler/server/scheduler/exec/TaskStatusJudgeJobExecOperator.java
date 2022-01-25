@@ -29,7 +29,7 @@ public class TaskStatusJudgeJobExecOperator implements JudgeJobExecOperator {
         JobCheckRunInfo checkRunInfo = new JobCheckRunInfo();
 
         // 任务已经删除
-        if (scheduleTaskShade == null || IsDeletedEnum.NOT_DELETE.getType().equals(scheduleTaskShade.getIsDeleted())) {
+        if (scheduleTaskShade == null || IsDeletedEnum.DELETE.getType().equals(scheduleTaskShade.getIsDeleted())) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.TASK_DELETE);
             checkRunInfo.setLogInfo(JobCheckStatus.TASK_DELETE.getMsg());
@@ -46,7 +46,7 @@ public class TaskStatusJudgeJobExecOperator implements JudgeJobExecOperator {
 
         // 任务冻结:冻结任务只对正常的周期实例有效，补数据还是可以正常运行
         if (EScheduleStatus.FREEZE.getVal().equals(scheduleTaskShade.getScheduleStatus())
-                || EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
+                && EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.TASK_STATUS_STOP);
             checkRunInfo.setLogInfo(String.format(JobCheckStatus.TASK_STATUS_STOP.getMsg(),scheduleTaskShade.getName(),scheduleTaskShade.getScheduleStatus()));

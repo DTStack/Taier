@@ -22,8 +22,8 @@ import java.util.List;
 public class SelfRelianceDependencyHandler extends AbstractDependencyHandler {
 
 
-    public SelfRelianceDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList) {
-        super(keyPreStr, currentTaskShade, taskShadeList);
+    public SelfRelianceDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade) {
+        super(keyPreStr, currentTaskShade);
     }
 
     @Override

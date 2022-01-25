@@ -28,8 +28,14 @@ public class UpstreamDependencyHandler extends AbstractDependencyHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpstreamDependencyHandler.class);
 
+    /**
+     * 上游任务
+     */
+    protected List<ScheduleTaskShade> taskShadeList;
+
     public UpstreamDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList) {
-        super(keyPreStr, currentTaskShade, taskShadeList);
+        super(keyPreStr, currentTaskShade);
+        this.taskShadeList = taskShadeList;
     }
 
     @Override
