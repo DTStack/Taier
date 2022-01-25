@@ -14,7 +14,6 @@ public class PageResult<T> {
     private long totalCount;
     private int totalPage;
     private T data;
-    private Object attachment;
 
     private PageResult() {
     }
@@ -105,14 +104,6 @@ public class PageResult<T> {
         return this;
     }
 
-    public Object getAttachment() {
-        return attachment;
-    }
-
-    public PageResult<T> setAttachment(Object attachment) {
-        this.attachment = attachment;
-        return this;
-    }
 
     @Override
     public String toString() {
@@ -122,7 +113,6 @@ public class PageResult<T> {
                 ", totalCount=" + totalCount +
                 ", totalPage=" + totalPage +
                 ", data=" + data +
-                ", attachment=" + attachment +
                 '}';
     }
 }
