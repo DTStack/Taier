@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.dto.user.login;
+package com.dtstack.taiga.develop.dto.user;
 
 /**
  * @author toutian
