@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.dao;
+package com.dtstack.taiga.dao.mapper;
 
+import com.dtstack.taiga.dao.domain.BatchFunction;
+import com.dtstack.taiga.dao.dto.BatchFunctionDTO;
 import com.dtstack.taiga.dao.pager.PageQuery;
-import com.dtstack.taiga.develop.domain.BatchFunction;
-import com.dtstack.taiga.develop.dto.BatchFunctionDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

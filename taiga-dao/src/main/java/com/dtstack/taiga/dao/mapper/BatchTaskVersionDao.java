@@ -18,9 +18,6 @@
 
 package com.dtstack.taiga.dao.mapper;
 
-import com.dtstack.taiga.dao.pager.PageQuery;
-import com.dtstack.taiga.develop.domain.BatchTaskVersion;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
 import com.dtstack.taiga.dao.domain.BatchTaskVersion;
 import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.dao.pager.PageQuery;
