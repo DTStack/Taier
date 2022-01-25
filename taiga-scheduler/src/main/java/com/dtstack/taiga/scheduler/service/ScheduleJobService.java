@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taiga.common.constrant.TaskConstant;
-import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.ForceCancelFlag;
 import com.dtstack.taiga.common.enums.IsDeletedEnum;
 import com.dtstack.taiga.common.enums.OperatorType;
@@ -14,7 +13,6 @@ import com.dtstack.taiga.dao.domain.*;
 import com.dtstack.taiga.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taiga.dao.mapper.ScheduleJobExpandMapper;
 import com.dtstack.taiga.dao.mapper.ScheduleJobMapper;
-import com.dtstack.taiga.dao.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taiga.pluginapi.util.RetryUtil;
 import com.dtstack.taiga.scheduler.enums.JobPhaseStatus;
@@ -25,7 +23,6 @@ import com.dtstack.taiga.scheduler.server.JobPartitioner;
 import com.dtstack.taiga.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taiga.scheduler.zookeeper.ZkService;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Auther: dazhi
@@ -82,16 +78,10 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
     @Autowired
-    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
-
-    @Autowired
     private EngineJobCacheService engineJobCacheService;
 
-    @Autowired
-    private ScheduleJobMapper scheduleJobMapper;
-
-    @Autowired
-    private ScheduleJobExpandMapper scheduleJobExpandMapper;
+//    @Autowired
+//    private ScheduleJobExpandMapper scheduleJobExpandMapper;
 
     /**
      * 开始运行实例
@@ -371,50 +361,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         return scheduleJob.getStatus();
     }
 
-    public List<String> listJobIdByTaskNameAndStatusList( String taskName,  List<Integer> statusList,  Long projectId, Integer appType) {
-        ScheduleTaskShade task = scheduleTaskShadeService.getByName(taskName);
-        if (task != null) {
-            return scheduleJobMapper.listJobIdByTaskIdAndStatus(task.getTaskId(), null ,statusList);
-        }
-        return new ArrayList<>();
-    }
-
-
-    /**
-     * 返回这些jobId对应的父节点的jobMap
-     *
-     * @param jobIdList
-     * @param tenantId
-     * @return
-     */
-    public Map<String, ScheduleJob> getLabTaskRelationMap( List<String> jobIdList,  Long tenantId) {
-
-        if(CollectionUtils.isEmpty(jobIdList)){
-            return Maps.newHashMap();
-        }
-        List<ScheduleJob> scheduleJobs = scheduleJobMapper.listByJobIdList(jobIdList, tenantId);
-        if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-            Map<String, ScheduleJob> jobMap = new HashMap<>();
-            for (ScheduleJob scheduleJob : scheduleJobs) {
-                ScheduleJob flowJob = scheduleJobMapper.getByJobId(scheduleJob.getFlowJobId(), Deleted.NORMAL.getStatus());
-                jobMap.put(scheduleJob.getJobId(), flowJob);
-            }
-            return jobMap;
-        }
-        return new HashMap<>();
-    }
-
-    /**
-     * 更新任务状态和日志
-     *
-     * @param jobId
-     * @param status
-     * @param logInfo
-     */
-    public void updateJobStatusAndLogInfo( String jobId,  Integer status,  String logInfo) {
-        scheduleJobMapper.updateStatusByJobId(jobId, status, logInfo,null,null,null);
-    }
-
     /**
      * 更新实例队列状态
      * @param id 实例id
@@ -427,44 +373,12 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
             return Boolean.FALSE;
         }
 
-        Integer integer = scheduleJobMapper.updatePhaseStatusById(id, original.getCode(), update.getCode());
+        Integer integer = this.baseMapper.updatePhaseStatusById(id, original.getCode(), update.getCode());
 
         if (integer != null && !integer.equals(0)) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
-    }
-
-    /**
-     * 移除满足条件的job 操作记录
-     * @param jobIds
-     * @param records
-     */
-    public void removeOperatorRecord(Collection<String> jobIds, Collection<ScheduleJobOperatorRecord> records) {
-        Map<String, ScheduleJobOperatorRecord> recordMap = records.stream().collect(Collectors.toMap(ScheduleJobOperatorRecord::getJobId, k -> k));
-        for (String jobId : jobIds) {
-            ScheduleJobOperatorRecord record = recordMap.get(jobId);
-            if (null == record) {
-                continue;
-            }
-            EngineJobCache cache = engineJobCacheService.getByJobId(jobId);
-            if (cache != null && cache.getGmtCreate().after(record.getGmtCreate())) {
-                //has submit to cache
-                scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
-                LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] stage:[{}] type:[{}]", record.getJobId(), record.getId(), cache.getGmtCreate(), cache.getStage(), record.getOperatorType());
-            }
-            ScheduleJob scheduleJob = scheduleJobMapper.getByJobId(jobId, null);
-            if (null == scheduleJob) {
-                LOGGER.info("schedule job is null ,remove schedule:[{}] operator record:[{}] type:[{}] ", record.getJobId(), record.getId(), record.getOperatorType());
-                scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
-            } else if (scheduleJob.getGmtModified().after(record.getGmtCreate())) {
-                if (RdosTaskStatus.STOPPED_STATUS.contains(scheduleJob.getStatus()) || RdosTaskStatus.RUNNING.getStatus().equals(scheduleJob.getStatus())) {
-                    //has running or finish
-                    scheduleJobOperatorRecordMapper.deleteByJobIdAndType(record.getJobId(), record.getOperatorType());
-                    LOGGER.info("remove schedule:[{}] operator record:[{}] time: [{}] status:[{}] type:[{}]", record.getJobId(), record.getId(), scheduleJob.getGmtModified(), scheduleJob.getStatus(), record.getOperatorType());
-                }
-            }
-        }
     }
 
     /**
@@ -493,7 +407,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return 实例
      */
     public ScheduleJob getByJobId(String jobId) {
-        return scheduleJobMapper
+        return this.baseMapper
                 .selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
     }
 
@@ -503,7 +417,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return 实例
      */
     public List<ScheduleJob> getByJobIds(List<String> jobIds) {
-        return scheduleJobMapper
+        return this.baseMapper
                 .selectList(Wrappers.lambdaQuery(ScheduleJob.class).in(ScheduleJob::getJobId, jobIds));
     }
 
@@ -517,7 +431,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if (null == scheduleJob || StringUtils.isBlank(scheduleJob.getJobId())) {
             return 0;
         }
-        return scheduleJobMapper.update(scheduleJob,
+        return this.baseMapper.update(scheduleJob,
                 Wrappers.lambdaQuery(ScheduleJob.class)
                         .eq(ScheduleJob::getJobId, scheduleJob.getJobId()));
     }
@@ -529,17 +443,18 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param logInfo 提交日志
      * @return 更新记录数
      */
-    public int updateExpandByJobId(String jobId,String engineLog,String logInfo) {
+    public Boolean updateExpandByJobId(String jobId,String engineLog,String logInfo) {
         if (StringUtils.isBlank(jobId)) {
-            return 0;
+            return Boolean.FALSE;
         }
         ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
         scheduleJobExpand.setJobId(jobId);
         scheduleJobExpand.setEngineLog(engineLog);
         scheduleJobExpand.setLogInfo(logInfo);
-        return scheduleJobExpandMapper.update(scheduleJobExpand,
-                Wrappers.lambdaQuery(ScheduleJobExpand.class)
-                        .eq(ScheduleJobExpand::getJobId, scheduleJobExpand.getJobId()));
+        return scheduleJobExpandService
+                .lambdaUpdate()
+                .eq(ScheduleJobExpand::getJobId, scheduleJobExpand.getJobId())
+                .update(scheduleJobExpand);
     }
 
     /**
@@ -548,7 +463,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return 插入实例数
      */
     public int insert(ScheduleJob scheduleJob) {
-        int insert = scheduleJobMapper.insert(scheduleJob);
+        int insert = this.baseMapper.insert(scheduleJob);
         ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
         scheduleJobExpand.setJobId(scheduleJob.getJobId());
         scheduleJobExpandService.save(scheduleJobExpand);
@@ -566,7 +481,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleJob updateScheduleJob = new ScheduleJob();
         updateScheduleJob.setJobId(jobId);
         updateScheduleJob.setStatus(status);
-        scheduleJobMapper.updateById(updateScheduleJob);
+        this.baseMapper.updateById(updateScheduleJob);
         updateExpandByJobId(jobId,null,generateErrorMsg);
     }
 
@@ -581,7 +496,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setStatus(status);
         scheduleJob.setPhaseStatus(phaseStatus);
-        return scheduleJobMapper.update(scheduleJob,Wrappers.lambdaQuery(ScheduleJob.class)
+        return this.baseMapper.update(scheduleJob,Wrappers.lambdaQuery(ScheduleJob.class)
                 .in(ScheduleJob::getJobId, jobIds));
     }
 
@@ -595,7 +510,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @return 简单的实例封装
      */
     public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
-        return scheduleJobMapper.listJobByStatusAddressAndPhaseStatus(jobStartId,unSubmitStatus,localAddress,phaseStatus);
+        return this.baseMapper.listJobByStatusAddressAndPhaseStatus(jobStartId,unSubmitStatus,localAddress,phaseStatus);
     }
 
     /**
@@ -624,7 +539,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleJob updateScheduleJob = new ScheduleJob();
         updateScheduleJob.setJobId(jobId);
         updateScheduleJob.setStatus(status);
-        scheduleJobMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
+        this.baseMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
                 .eq(ScheduleJob::getJobId, jobId));
     }
 
@@ -638,7 +553,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleJob updateScheduleJob = new ScheduleJob();
         updateScheduleJob.setJobId(jobId);
         updateScheduleJob.setRetryNum(retryNum);
-        scheduleJobMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
+        this.baseMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
                 .eq(ScheduleJob::getJobId, jobId));
     }
 

@@ -23,7 +23,6 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.constrant.TaskStatusConstrant;
 import com.dtstack.taiga.common.engine.JdbcInfo;
-import com.dtstack.taiga.common.enums.AppType;
 import com.dtstack.taiga.common.enums.ComputeType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.TaskStatus;
@@ -62,11 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -585,7 +580,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         taskParam.put("isFailRetry", false);
         taskParam.put("maxRetryNum", 0);
         taskParam.put("userId", tenantId);
-        taskParam.put("appType", AppType.RDOS.getType());
         taskParam.put("taskSourceId", taskId);
         if (taskParam.containsKey("job")){
             taskParam.remove("job").toString();
