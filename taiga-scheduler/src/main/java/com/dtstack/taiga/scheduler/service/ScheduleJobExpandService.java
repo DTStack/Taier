@@ -21,6 +21,11 @@ import java.util.Set;
 public class ScheduleJobExpandService extends ServiceImpl<ScheduleJobExpandMapper, ScheduleJobExpand> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleJobExpandService.class);
 
+    /**
+     * 清楚扩展表数据
+     * @param jobIds 需要清楚的实例id
+     * @return 具体清楚的记录数
+     */
     public Integer clearData(Set<String> jobIds) {
         if (CollectionUtils.isNotEmpty(jobIds)) {
             return this.baseMapper.updateLogByJobIds(jobIds, IsDeletedEnum.NOT_DELETE.getType(),"","");
