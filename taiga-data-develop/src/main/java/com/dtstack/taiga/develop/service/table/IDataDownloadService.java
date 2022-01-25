@@ -21,8 +21,6 @@ package com.dtstack.taiga.develop.service.table;
 
 import com.dtstack.taiga.develop.engine.rdbms.common.IDownload;
 
-import java.util.List;
-
 /**
  * 下载相关逻辑
  * Date: 2019/5/22
@@ -31,31 +29,6 @@ import java.util.List;
  */
 
 public interface IDataDownloadService {
-    /**
-     * 下载sql查询的数据
-     * @param jobId
-     * @param tenantId
-     * @return
-     * @throws Exception
-     */
-    IDownload downloadSqlExeResult(String jobId, Long tenantId);
-
-
-    /**
-     * 数据查询
-     * 比如用在:
-     *    数据预览
-     *    临时表查询数据
-     * @param tenantId
-     * @param tableName
-     * @param db
-     * @param num
-     * @param fieldNameList
-     * @param permissionStyle
-     * @return
-     * @throws Exception
-     */
-    List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num, List<String> fieldNameList, Boolean permissionStyle) throws Exception;
 
     IDownload buildIDownLoad(String jobId, Integer taskType, Long tenantId, Integer limitNum);
 
