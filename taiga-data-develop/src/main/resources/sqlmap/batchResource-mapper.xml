@@ -118,7 +118,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="generalQuery" parameterType="com.dtstack.taiga.develop.web.pager.PageQuery" resultType="com.dtstack.taiga.develop.domain.BatchResource">
+    <select id="generalQuery" parameterType="com.dtstack.taiga.dao.pager.PageQuery" resultType="com.dtstack.taiga.develop.domain.BatchResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_resource

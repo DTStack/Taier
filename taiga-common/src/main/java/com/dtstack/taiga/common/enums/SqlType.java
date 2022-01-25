@@ -132,18 +132,6 @@ public enum SqlType {
         );
     }
 
-    public static List<SqlType> getForbidenType(){
-        return Arrays.asList(
-                DATABASE_OPERATE,
-                CREATE_FUNCTION,
-                DROP_FUNCTION,
-                SHOW_TBLPROPERTIES,
-                LOAD
-        );
-    }
-
-
-
 
     public static SqlType getByValue(Integer value) {
         for (SqlType sqlType : SqlType.values()) {
