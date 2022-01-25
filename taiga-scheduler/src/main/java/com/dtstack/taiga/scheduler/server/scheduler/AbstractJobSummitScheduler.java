@@ -28,7 +28,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
 
     private final Logger LOGGER = LoggerFactory.getLogger(AbstractJobScanningScheduler.class);
 
-    protected final AtomicBoolean RUNNING = new AtomicBoolean(false);
+    protected final AtomicBoolean RUNNING = new AtomicBoolean(true);
 
     /**
      * 提交任务线程池
