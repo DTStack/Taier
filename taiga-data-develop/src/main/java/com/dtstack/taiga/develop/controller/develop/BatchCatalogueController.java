@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.controller.batch;
+package com.dtstack.taiga.develop.controller.develop;
 
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
