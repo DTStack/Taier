@@ -177,7 +177,7 @@ public class ScheduleJobJob {
                 ", tenantId=" + tenantId +
                 ", jobKey='" + jobKey + '\'' +
                 ", parentJobKey='" + parentJobKey + '\'' +
-                ", type=" + jobKeyType +
+                ", jobKeyType=" + jobKeyType +
                 ", rule=" + rule +
                 ", gmtCreate=" + gmtCreate +
                 ", gmtModified=" + gmtModified +

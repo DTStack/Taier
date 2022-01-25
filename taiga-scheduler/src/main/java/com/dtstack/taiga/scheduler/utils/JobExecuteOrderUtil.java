@@ -17,7 +17,7 @@ public class JobExecuteOrderUtil {
      * @param count
      * @return
      */
-    public static Long buildJobExecuteOrder(String triggerTime, Long count) {
+    public static Long buildJobExecuteOrder(String triggerTime, Integer count) {
         if (StringUtils.isBlank(triggerTime)) {
             throw new RuntimeException("cycTime is not null");
         }
