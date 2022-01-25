@@ -2,6 +2,7 @@ package com.dtstack.taiga.scheduler.server.builder;
 
 import com.dtstack.taiga.common.enums.EScheduleStatus;
 import com.dtstack.taiga.common.enums.EScheduleType;
+import com.dtstack.taiga.common.enums.IsDeletedEnum;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.pluginapi.util.RetryUtil;
@@ -10,6 +11,7 @@ import com.dtstack.taiga.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taiga.scheduler.service.JobGraphTriggerService;
 import com.dtstack.taiga.scheduler.utils.JobExecuteOrderUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +61,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                 return;
             }
 
-            // 1. 如果今天已经生成实例，是需要把今天生成的实例清理调
-            cleanDirtyJobGraph(triggerDay);
-
-            // 2. 获得今天预计要生成的所有周期实例
+            // 1. 获得今天预计要生成的所有周期实例
             Integer totalTask = getTotalTask();
 
             LOGGER.info("{} need build job : {}",triggerTimeStr, totalTask);
@@ -70,7 +69,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                 return;
             }
 
-            // 3. 切割总数 限制 thread 并发
+            // 2. 切割总数 限制 thread 并发
             int totalBatch = totalTask / environmentContext.getJobLimitSize();
             if (totalTask % environmentContext.getJobLimitSize() != 0) {
                 totalBatch++;
@@ -80,7 +79,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             CountDownLatch ctl = new CountDownLatch(totalBatch);
             AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();
 
-            // 4. 查询db多线程生成周期实例
+            // 3. 查询db多线程生成周期实例
             Long startId = 0L;
             for (int i = 0; i < totalBatch; i++) {
                 // 取50个任务
@@ -164,11 +163,10 @@ public class CycleJobBuilder extends AbstractJobBuilder {
         LOGGER.info("start saveJobGraph to db {}", triggerDay);
         //记录当天job已经生成
         String triggerTimeStr = triggerDay + " 00:00:00";
-        Long minJobId = JobExecuteOrderUtil.buildJobExecuteOrder(triggerTimeStr,0L);
         Timestamp timestamp = Timestamp.valueOf(triggerTimeStr);
         try {
             RetryUtil.executeWithRetry(() -> {
-                jobGraphTriggerService.addJobTrigger(timestamp,minJobId);
+                jobGraphTriggerService.addJobTrigger(timestamp);
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
@@ -179,11 +177,10 @@ public class CycleJobBuilder extends AbstractJobBuilder {
     }
 
     private Integer getTotalTask() {
-        return 0;
-    }
-
-    private void cleanDirtyJobGraph(String triggerDay) {
-
+        return scheduleTaskService.lambdaQuery()
+                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .in(ScheduleTaskShade::getScheduleStatus, Sets.newHashSet(EScheduleStatus.NORMAL.getVal(),EScheduleStatus.FREEZE.getVal()))
+                .count();
     }
 
     @Override
