@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.service.impl;
 
-import com.dtstack.taiga.develop.dao.BatchFunctionResourceDao;
-import com.dtstack.taiga.develop.domain.BatchFunctionResource;
+import com.dtstack.taiga.dao.mapper.BatchFunctionResourceDao;
+import com.dtstack.taiga.dao.domain.BatchFunctionResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,17 +77,6 @@ public class BatchFunctionResourceService {
      */
     public void deleteByFunctionId(Long functionId) {
         batchFunctionResourceDao.deleteByFunctionId(functionId);
-    }
-
-    /**
-     * 根据 functionId 和 resourceId 获取关联记录
-     *
-     * @param resourceId
-     * @param functionId
-     * @return
-     */
-    public BatchFunctionResource getBeanByResourceIdAndFunctionId(Long resourceId, Long functionId) {
-        return batchFunctionResourceDao.getBeanByResourceIdAndFunctionId(resourceId, functionId);
     }
 
     /**

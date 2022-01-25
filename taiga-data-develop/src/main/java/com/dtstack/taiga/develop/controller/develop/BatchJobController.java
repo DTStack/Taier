@@ -67,7 +67,7 @@ public class BatchJobController {
         return new APITemplate<BatchGetSyncTaskStatusInnerResultVO>() {
             @Override
             protected BatchGetSyncTaskStatusInnerResultVO process() throws RdosDefineException {
-                return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId(), vo.getUserId());
+                return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId());
             }
         }.execute();
     }

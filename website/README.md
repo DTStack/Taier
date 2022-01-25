@@ -5,11 +5,16 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 12.x + 
+- [Yarn](https://classic.yarnpkg.com/en/docs/install#mac-stable)
 
 ### Installation
 
-```
+```bash
 $ yarn
+```
+Or
+```bash
+$ npm install
 ```
 
 ### Local Development

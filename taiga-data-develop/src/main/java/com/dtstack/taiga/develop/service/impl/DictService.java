@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.service.impl;
 
-import com.dtstack.taiga.develop.dao.DictDao;
-import com.dtstack.taiga.develop.domain.Dict;
+import com.dtstack.taiga.dao.mapper.DictDao;
+import com.dtstack.taiga.dao.domain.Dict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

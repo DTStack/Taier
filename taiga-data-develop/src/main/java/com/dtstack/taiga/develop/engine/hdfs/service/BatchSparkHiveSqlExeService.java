@@ -27,7 +27,7 @@ import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.develop.bo.ExecuteContent;
-import com.dtstack.taiga.develop.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.engine.rdbms.service.IJdbcService;
 import com.dtstack.taiga.develop.mapping.DataSourceTypeJobTypeMapping;

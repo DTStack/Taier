@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.domain.ReadWriteLock;
+import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
 import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
 import com.dtstack.taiga.develop.web.task.vo.result.ReadWriteLockGetLockResultVO;
 import com.dtstack.taiga.develop.web.task.vo.result.ReadWriteLockResultVO;
@@ -36,7 +36,7 @@ public interface BatchReadWriteLockMapstructTransfer {
      * @param readWriteLock
      * @return
      */
-    ReadWriteLockResultVO ReadWriteLockToResultVO(ReadWriteLock readWriteLock);
+    ReadWriteLockResultVO ReadWriteLockToResultVO(BatchReadWriteLock readWriteLock);
 
     /**
      * ReadWriteLockVO -> ReadWriteLockGetLockResultVO

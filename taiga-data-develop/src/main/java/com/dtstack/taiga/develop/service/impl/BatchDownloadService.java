@@ -24,15 +24,14 @@ import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.develop.engine.hdfs.service.BatchHadoopSelectSqlService;
 import com.dtstack.taiga.develop.engine.hdfs.service.SyncDownload;
 import com.dtstack.taiga.develop.engine.rdbms.common.IDownload;
 import com.dtstack.taiga.develop.enums.DownloadType;
 import com.dtstack.taiga.develop.mapping.TaskTypeEngineTypeMapping;
-import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taiga.develop.service.table.IDataDownloadService;
+import com.dtstack.taiga.develop.service.table.impl.BatchSelectSqlService;
 import com.dtstack.taiga.scheduler.service.ScheduleActionService;
 import com.dtstack.taiga.scheduler.vo.action.ActionLogVO;
 import com.dtstack.taiga.scheduler.vo.action.ActionRetryLogVO;
@@ -48,14 +47,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -69,7 +71,7 @@ import java.util.regex.Pattern;
 @Service
 public class BatchDownloadService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchDownloadService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchDownloadService.class);
 
     public static final Integer DEFAULT_LOG_PREVIEW_BYTES = 16383;
 
@@ -77,22 +79,14 @@ public class BatchDownloadService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Resource
-    private BatchSelectSqlDao batchHiveSelectSqlDao;
+    private BatchSelectSqlService batchSelectSqlService;
 
     @Autowired
     private ScheduleActionService actionService;
 
-    @Autowired
-    private DatasourceService datasourceService;
-
-    private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>(\\*|[a-zA-Z0-9_,\\s]*?))\\s+from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
-
-    private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
-
     public IDownload downloadSqlExeResult(String jobId, Long tenantId) {
 
-        BatchSelectSql batchSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
-        Preconditions.checkNotNull(batchSelectSql, "不存在该临时查询");
+        BatchSelectSql batchSelectSql = batchSelectSqlService.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
 
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(batchSelectSql.getTaskType());
                 Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持该任务类型 %d", batchSelectSql.getTaskType()));
@@ -112,16 +106,6 @@ public class BatchDownloadService {
      */
     public List<Object> queryDataFromTable(Long tenantId, String tableName, String db, Integer num,
                                            List<String> fieldNameList, Boolean permissionStyle, Integer engineType) throws Exception {
-
-        Integer otherTypes = null;
-        // 特殊处理Hadoop引擎
-        if(MultiEngineType.HADOOP.getType() == engineType){
-           /* DataSourceType dataSourceType = datasourceService.getHadoopDefaultDataSourceByTenantId(tenantId);
-            if(DataSourceType.IMPALA.getVal() == (dataSourceType.getVal())){
-                // 1 代表Impala
-                otherTypes = 1;
-            }*/
-        }
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(engineType);
         Preconditions.checkNotNull(dataDownloadService, String.format("暂时不支持引擎类型 %d", engineType));
 
@@ -140,13 +124,13 @@ public class BatchDownloadService {
      * @throws Exception
      */
     public String loadJobLog(Long tenantId, Integer taskType, String jobId, Integer byteNum) {
-        logger.info("获取job日志下载器-->jobId:{}", jobId);
+        LOGGER.info("获取job日志下载器-->jobId:{}", jobId);
         IDownload downloader = null;
         downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
-        logger.info("获取job日志下载器完成-->jobId:{}", jobId);
+        LOGGER.info("获取job日志下载器完成-->jobId:{}", jobId);
 
         if (downloader == null) {
-            logger.error("-----日志文件导出失败-----");
+            LOGGER.error("-----日志文件导出失败-----");
             return "";
         }
 
@@ -192,7 +176,7 @@ public class BatchDownloadService {
         IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
 
         if (downloader == null) {
-            logger.error("-----日志文件导出失败-----");
+            LOGGER.error("-----日志文件导出失败-----");
             return "-----日志文件不存在-----";
         }
 
@@ -248,7 +232,7 @@ public class BatchDownloadService {
                 writeFileWithEngineLog(response, jobId);
             } else {
                 if (downloadType == DownloadType.TABLE) {
-                    BatchSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
+                    BatchSelectSql batchHiveSelectSql = batchSelectSqlService.getByJobId(jobId, tenantId, Deleted.NORMAL.getStatus());
                     if (batchHiveSelectSql == null) {
                         try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
                             bos.write(StringUtils.EMPTY.getBytes(StandardCharsets.UTF_8));
@@ -272,7 +256,7 @@ public class BatchDownloadService {
                                 }
                             }
                         } catch (NumberFormatException e) {
-                            logger.error("download simple select {} error", batchHiveSelectSql.getSqlText(), e);
+                            LOGGER.error(String.format("download simple select %s error", batchHiveSelectSql.getSqlText()), e);
                         }
                         downloadForSimpleQueryOriginTable(iDownload, response, limitNum);
                     }
@@ -286,20 +270,20 @@ public class BatchDownloadService {
                                 bos.write(row.toString().getBytes());
                             }
                         } catch (Exception e) {
-                            logger.error("下载日志异常，{}", e);
+                            LOGGER.error("下载日志异常", e);
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("",e);
+            LOGGER.error("",e);
             if (e instanceof FileNotFoundException) {
                 writeFileWithEngineLog(response, jobId);
             } else {
                 try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     bos.write(String.format("下载文件异常:", e.getMessage()).getBytes());
                 } catch (Exception e1) {
-                    logger.error("", e1);
+                    LOGGER.error("", e1);
                 }
             }
         } finally {
@@ -307,7 +291,7 @@ public class BatchDownloadService {
                 try {
                     iDownload.close();
                 } catch (Exception e) {
-                    logger.error("", e);
+                    LOGGER.error("", e);
                 }
             }
         }
@@ -359,7 +343,7 @@ public class BatchDownloadService {
             }
 
         } catch (Exception e) {
-            logger.error("downloadForQueryTaskTempTable end with error", e);
+            LOGGER.error("downloadForQueryTaskTempTable end with error", e);
         }
     }
 
@@ -407,7 +391,7 @@ public class BatchDownloadService {
                 bos.write(writer.toString().getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {
-            logger.error("downloadForQueryTaskTempTable end with error", e);
+            LOGGER.error("downloadForQueryTaskTempTable end with error", e);
         }
     }
 
@@ -424,7 +408,7 @@ public class BatchDownloadService {
                 bos.write(log.getBytes());
             }
         }catch (Exception e) {
-            logger.error("下载engineLog异常，{}", e);
+            LOGGER.error("下载engineLog异常", e);
         }
     }
 
@@ -511,7 +495,7 @@ public class BatchDownloadService {
                     .replace("\\n\"","\n").replace("\\n\\t","\n");
             bos.write(logInfo.getBytes());
         } catch (Exception e) {
-            logger.error("下载数据同步任务运行日志异常，{}", e);
+            LOGGER.error("下载数据同步任务运行日志异常", e);
         }
     }
 }

@@ -39,7 +39,7 @@ public class BatchTaskVersionService {
      * @param pageQuery
      * @return
      */
-    public List<BatchTaskVersionDetail> listByTaskId(Long taskId, PageQuery pageQuery) {
+    public List<BatchTaskVersionDetailDTO> listByTaskId(Long taskId, PageQuery pageQuery) {
         return batchTaskVersionDao.listByTaskId(taskId, pageQuery);
     }
 
@@ -57,7 +57,7 @@ public class BatchTaskVersionService {
      * @param versionId
      * @return
      */
-    public BatchTaskVersionDetail getByVersionId(Long versionId){
+    public BatchTaskVersionDetailDTO getByVersionId(Long versionId){
         return batchTaskVersionDao.getByVersionId(versionId);
     }
 
@@ -66,7 +66,7 @@ public class BatchTaskVersionService {
      * @param versionId
      * @return
      */
-    public List<BatchTaskVersionDetail> getByVersionIds(List<Integer> versionId){
+    public List<BatchTaskVersionDetailDTO> getByVersionIds(List<Integer> versionId){
         return batchTaskVersionDao.getByVersionIds(versionId);
     }
 
@@ -75,7 +75,7 @@ public class BatchTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetail> getByTaskIds(List<Long> taskIds){
+    public List<BatchTaskVersionDetailDTO> getByTaskIds(List<Long> taskIds){
         return batchTaskVersionDao.getByTaskIds(taskIds);
     }
 
@@ -84,7 +84,7 @@ public class BatchTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetail> getWithoutSqlByTaskIds(List<Long> taskIds){
+    public List<BatchTaskVersionDetailDTO> getWithoutSqlByTaskIds(List<Long> taskIds){
         return batchTaskVersionDao.getWithoutSqlByTaskIds(taskIds);
     }
 
@@ -93,7 +93,7 @@ public class BatchTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetail> getLatestTaskVersionByTaskIds(List<Long> taskIds){
+    public List<BatchTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(List<Long> taskIds){
         return batchTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
     }
 
@@ -112,7 +112,7 @@ public class BatchTaskVersionService {
      * @param versionId
      * @return
      */
-    public BatchTaskVersionDetail getBytaskIdAndVersionId(Long taskId, Long versionId){
+    public BatchTaskVersionDetailDTO getBytaskIdAndVersionId(Long taskId, Long versionId){
         return batchTaskVersionDao.getBytaskIdAndVersionId(taskId, versionId);
     }
 

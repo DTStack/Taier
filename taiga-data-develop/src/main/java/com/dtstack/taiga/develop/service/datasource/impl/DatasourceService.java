@@ -2036,14 +2036,11 @@ public class DatasourceService {
      * 数据同步-获得数据库中相关的表信息
      *
      * @param sourceId  数据源id
-     * @param tenantId 租户id
      * @param schema 查询的schema
      * @param name 模糊查询表名
-     * @param isAll 是否获取所有表
-     * @param isRead 是否读取类型
      * @return
      */
-    public List<String> tablelist(Long sourceId,Long tenantId,String schema, String name, Boolean isAll, Boolean isRead) {
+    public List<String> tablelist(Long sourceId, String schema, String name) {
         List<String> tables = new ArrayList<>();
         BatchDataSource source = getOne(sourceId);
         String dataJson = source.getDataJson();

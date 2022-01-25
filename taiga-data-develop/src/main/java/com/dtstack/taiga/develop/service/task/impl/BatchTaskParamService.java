@@ -26,10 +26,10 @@ import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.util.MathUtil;
 import com.dtstack.taiga.common.util.PublicUtil;
-import com.dtstack.taiga.develop.dao.BatchTaskParamDao;
-import com.dtstack.taiga.develop.domain.BatchSysParameter;
-import com.dtstack.taiga.develop.domain.BatchTaskParam;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.domain.BatchTaskParam;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.mapper.BatchTaskParamDao;
 import com.dtstack.taiga.develop.dto.BatchParamDTO;
 import com.dtstack.taiga.develop.service.impl.BatchSqlExeService;
 import com.dtstack.taiga.develop.service.impl.BatchSysParamService;
@@ -45,7 +45,11 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +57,7 @@ import java.util.regex.Pattern;
 @Service
 public class BatchTaskParamService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchTaskParamService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchTaskParamService.class);
 
     @Autowired
     private BatchTaskParamDao batchTaskParamDao;
@@ -122,7 +126,7 @@ public class BatchTaskParamService {
             Matcher matcher = PARAM_REGEX_PATTERN.matcher(sqlWithoutComments);
             if (matcher.find()) {
                 if (CollectionUtils.isEmpty(parameterSet)) {
-                    logger.error("jobContent:{}", jobContent);
+                    LOGGER.error("jobContent:{}", jobContent);
                     throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
                 }
             }
@@ -200,8 +204,7 @@ public class BatchTaskParamService {
 
             return jsonObject.toString();
         } catch (final Exception e) {
-            logger.error("jobContent:{}", jobContent);
-            logger.error("", e);
+            LOGGER.error(String.format("jobContent: %s", jobContent), e);
         }
         return jobContent;
     }
