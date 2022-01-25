@@ -35,11 +35,6 @@ public class BatchTask extends TenantEntity {
     private Integer computeType;
 
     /**
-     * '执行引擎类型 0 flink, 1 spark'
-     */
-    private Integer engineType;
-
-    /**
      * 'sql 文本'
      */
     private String sqlText;
@@ -152,14 +147,6 @@ public class BatchTask extends TenantEntity {
 
     public void setComputeType(Integer computeType) {
         this.computeType = computeType;
-    }
-
-    public Integer getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(Integer engineType) {
-        this.engineType = engineType;
     }
 
     public String getSqlText() {
