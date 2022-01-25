@@ -144,7 +144,7 @@
         </if>
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.taiga.develop.web.pager.PageQuery" resultType="com.dtstack.taiga.develop.domain.BatchFunction">
+    <select id="generalQuery" parameterType="com.dtstack.taiga.dao.pager.PageQuery" resultType="com.dtstack.taiga.develop.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_function
