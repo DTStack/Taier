@@ -20,8 +20,8 @@ package com.dtstack.taiga.develop.service.user;
 
 
 import com.dtstack.taiga.common.constrant.Cookies;
-import com.dtstack.taiga.develop.domain.login.DTToken;
-import com.dtstack.taiga.develop.domain.login.DtUser;
+import com.dtstack.taiga.develop.dto.user.login.DTToken;
+import com.dtstack.taiga.develop.dto.user.login.DtUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

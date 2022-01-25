@@ -366,9 +366,7 @@ public class BatchServerLogService {
         }
         try {
             final EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
-            final String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
-            final JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
-            final JSONObject flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "");
+            JSONObject flinkJsonObject = Engine2DTOService.getComponentConfig(dtUicTenantId, EComponentType.FLINK);
             final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusHost");
             final String prometheusPort = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusPort");
             //prometheus的配置信息 从控制台获取
@@ -669,13 +667,13 @@ public class BatchServerLogService {
         if (hasStandAlone) {
             flinkJsonObject = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), null);
         }else {
-            String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
-            if (StringUtils.isBlank(enginePluginInfo)) {
+
+            JSONObject jsonObject = Engine2DTOService.getComponentConfig(dtUicTenantId, EComponentType.FLINK);
+            if (null == jsonObject) {
                 LOGGER.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
                 return null;
             }
             EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
-            JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
             flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "").getJSONObject(deployModeEnum.name());
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
