@@ -18,10 +18,10 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.vo.ExecuteResultVO;
-import com.dtstack.taiga.develop.web.table.vo.result.BatchExecuteDataResultVO;
-import com.dtstack.taiga.develop.web.table.vo.result.BatchExecuteRunLogResultVO;
-import com.dtstack.taiga.develop.web.table.vo.result.BatchExecuteStatusResultVO;
+import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchExecuteDataResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchExecuteRunLogResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchExecuteStatusResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
