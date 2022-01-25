@@ -135,39 +135,6 @@
         </choose>
     </select>
 
-    <select id="listJobIdByTaskIdAndStatus" resultType="java.lang.String">
-        SELECT
-        bj.job_id
-        FROM schedule_job bj
-        where  bj.task_id = #{taskId}
-        <!--AND bj.app_type =#{appType}-->
-        AND bj.status IN
-        <foreach item="status" index="index" collection="statuses" open="(" separator="," close=")">
-            #{status}
-        </foreach>
-        AND bj.is_deleted = 0
-    </select>
-
-    <select id="getByJobId" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM schedule_job bj
-        where job_id = #{jobId}
-        <if test="isDeleted!=null">
-            and is_deleted = #{isDeleted}
-        </if>
-    </select>
-
-    <select id="listByJobIdList" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM schedule_job bj
-        where job_id in
-        <foreach collection="jobIds" item="item" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-    </select>
-
     <select id="countTasksByCycTimeTypeAndAddress" resultType="java.lang.Integer">
         SELECT COUNT(1)
         FROM schedule_job
@@ -208,27 +175,6 @@
         </foreach>
     </update>
 
-    <update id="updateStatusByJobId">
-        UPDATE schedule_job
-        <set>
-            <if test="status != null">
-                status = #{status},
-            </if>
-            <if test="versionId != null">
-                version_id = #{versionId},
-            </if>
-            <if test="execStartTime != null">
-                exec_start_time = #{execStartTime},
-            </if>
-            <if test="execEndTime != null">
-                exec_end_time = #{execEndTime},
-            </if>
-            gmt_modified = now()
-        </set>
-        WHERE job_id = #{jobId}
-        AND is_deleted=0
-    </update>
-
     <update id="jobFail">
         update schedule_job set exec_start_time = IFNULL(exec_start_time,now()), exec_end_time=now(), exec_time=timestampdiff(SECOND, exec_start_time, now()),gmt_modified=now(),status=#{status}  where job_id=#{jobId};
     </update>
@@ -260,15 +206,12 @@
         <if test="!isEq">
             AND job_execute_order > #{startId}
         </if>
-        <if test="scheduleType != null">
-            AND type = #{scheduleType}
-        </if>
-        <if test="lastTime != null">
-            AND gmt_modified &gt;= #{lastTime}
+        <if test="type != null">
+            AND type = #{type}
         </if>
         AND status = 0
         AND is_deleted = 0
-        AND `phase_status` = #{phaseStatus}
+        AND `phase_status` = #{jobPhaseStatus}
         order by job_execute_order asc limit 500
     </select>
 

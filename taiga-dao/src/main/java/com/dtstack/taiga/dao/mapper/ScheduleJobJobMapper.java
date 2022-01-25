@@ -15,23 +15,5 @@ import java.util.List;
  * @Description:
  */
 public interface ScheduleJobJobMapper extends BaseMapper<ScheduleJobJob> {
-    List<ScheduleJobJob> listByJobKey(@Param("jobKey") String jobKey);
 
-    List<ScheduleJobJob> listByJobKeys(@Param("list") List<String> jobKeys);
-
-    List<ScheduleJobJob> listByParentJobKey(@Param("jobKey") String jobKey);
-
-    Integer batchInsert(Collection batchJobJobs);
-
-    Integer update(ScheduleJobJob scheduleJobJob);
-
-    List<ScheduleJobJob> listSelfDependency(@Param("pjobKey") String pjobKey);
-
-    List<ScheduleJobJob> listByParentJobKeys(@Param("list") List<String> list);
-
-    List<ScheduleJobJobTaskDTO> listByParentJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeyList);
-
-    List<ScheduleJobJobTaskDTO> listByJobKeysWithOutSelfTask(@Param("jobKeyList") List<String> jobKeys);
-
-    void deleteByJobKey(@Param("jobKeyList") List<String> jobKeyList);
 }
