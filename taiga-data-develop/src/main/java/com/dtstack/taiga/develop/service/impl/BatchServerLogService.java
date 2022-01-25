@@ -31,11 +31,11 @@ import com.dtstack.taiga.common.metric.batch.MetricBuilder;
 import com.dtstack.taiga.common.metric.prometheus.PrometheusMetricQuery;
 import com.dtstack.taiga.common.util.*;
 import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.develop.common.convert.BinaryConversion;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
-import com.dtstack.taiga.develop.domain.BatchTaskVersionDetail;
 import com.dtstack.taiga.develop.engine.rdbms.common.util.SqlFormatterUtil;
 import com.dtstack.taiga.develop.engine.rdbms.service.impl.Engine2DTOService;
 import com.dtstack.taiga.develop.enums.YarnAppLogType;
@@ -69,12 +69,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BatchServerLogService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchServerLogService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchServerLogService.class);
 
     @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
@@ -131,14 +136,14 @@ public class BatchServerLogService {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
-            BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
+            LOGGER.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         final Long tenantId = job.getTenantId();
 
         final ScheduleTaskShade scheduleTaskShade = this.scheduleTaskShadeService.getByTaskId(job.getTaskId());
         if (Objects.isNull(scheduleTaskShade)) {
-            BatchServerLogService.logger.info("can not find task shade  by jobId:{}.", jobId);
+            LOGGER.info("can not find task shade  by jobId:{}.", jobId);
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
         }
 
@@ -154,14 +159,14 @@ public class BatchServerLogService {
             try {
                 info = JSON.parseObject(actionLogVO.getLogInfo());
             } catch (final Exception e) {
-                BatchServerLogService.logger.error("parse jobId {} } logInfo error {}", jobId, actionLogVO.getLogInfo());
+                LOGGER.error(String.format("parse jobId： %s  logInfo：%s", jobId, actionLogVO.getLogInfo()), e);
                 info.put("msg_info", actionLogVO.getLogInfo());
             }
         }
 
         if (null != job.getVersionId()) {
             // 需要获取执行任务时候版本对应的sql
-            final BatchTaskVersionDetail taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
+            final BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
             if (null != taskVersion) {
                 if (StringUtils.isEmpty(taskVersion.getOriginSql())){
                     String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText())?"{}":taskVersion.getSqlText();
@@ -223,7 +228,7 @@ public class BatchServerLogService {
             } catch (final Exception e) {
                 // 非json格式的日志也返回
                 info.put("msg_info", actionLogVO.getEngineLog());
-                BatchServerLogService.logger.error("", e);
+                LOGGER.error("", e);
             }
         }
 
@@ -423,8 +428,8 @@ public class BatchServerLogService {
             increStrBuild.append("开始位置:\t").append(startLocation).append("\n");
             increStrBuild.append("结束位置:\t").append(endLocation).append("\n");
             info.put("increInfo", increStrBuild.toString());
-        } catch (final Exception e) {
-            BatchServerLogService.logger.warn("{}", e);
+        } catch (Exception e) {
+            LOGGER.warn("{}", e);
         }
     }
 
@@ -613,7 +618,7 @@ public class BatchServerLogService {
             final BatchServerLogVO.SyncJobInfo syncJobInfo = this.parseExecLog(perfLogInfo, execTime);
             batchServerLogVO.setSyncJobInfo(syncJobInfo);
         } catch (final Exception e) {
-            BatchServerLogService.logger.error("logInfo 解析失败", e);
+            LOGGER.error("logInfo 解析失败", e);
             batchServerLogVO.setLogInfo(jobInfo.toString());
         }
     }
@@ -623,7 +628,7 @@ public class BatchServerLogService {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
-            BatchServerLogService.logger.info("can not find job by id:{}.", jobId);
+            LOGGER.info("can not find job by id:{}.", jobId);
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
         }
         if (job.getTaskId() == null || job.getTaskId() == -1){
@@ -665,7 +670,7 @@ public class BatchServerLogService {
         }else {
             String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
             if (StringUtils.isBlank(enginePluginInfo)) {
-                BatchServerLogService.logger.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
+                LOGGER.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
                 return null;
             }
             EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
@@ -675,7 +680,7 @@ public class BatchServerLogService {
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
         String prometheusPort = flinkJsonObject.getString("prometheusPort");
         if (StringUtils.isBlank(prometheusHost) || StringUtils.isBlank(prometheusPort)) {
-            BatchServerLogService.logger.info("prometheus http info is blank {} {}", prometheusHost, prometheusPort);
+            LOGGER.info("prometheus http info is blank prometheusHost：{} prometheusPort：{}", prometheusHost, prometheusPort);
             return null;
         }
         return new Pair<>(prometheusHost,prometheusPort);

@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.job;
 
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
 
 import java.util.List;

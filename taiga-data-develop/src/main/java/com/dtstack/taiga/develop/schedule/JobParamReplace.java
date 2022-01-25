@@ -20,9 +20,9 @@ package com.dtstack.taiga.develop.schedule;
 
 import com.dtstack.taiga.common.enums.EParamType;
 import com.dtstack.taiga.common.util.TimeParamOperator;
-import com.dtstack.taiga.develop.domain.BatchSysParameter;
-import com.dtstack.taiga.develop.domain.BatchTaskParam;
-import com.dtstack.taiga.develop.domain.BatchTaskParamShade;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.domain.BatchTaskParam;
+import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
 import com.dtstack.taiga.develop.service.impl.BatchSysParamService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;

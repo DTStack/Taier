@@ -21,12 +21,12 @@ package com.dtstack.taiga.develop.service.table.impl;
 import com.dtstack.taiga.common.enums.ComputeType;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.RdosDefineException;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.dao.BatchSelectSqlDao;
-import com.dtstack.taiga.develop.dao.BatchTaskDao;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.mapper.BatchSelectSqlDao;
 import com.dtstack.taiga.develop.service.impl.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.service.job.IBatchSelectSqlService;
+import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
 import com.dtstack.taiga.develop.vo.ExecuteSelectSqlData;
 import com.dtstack.taiga.scheduler.service.ScheduleActionService;
@@ -51,7 +51,7 @@ public class BatchSelectSqlService {
     public static final Logger LOGGER = LoggerFactory.getLogger(BatchSelectSqlService.class);
 
     @Autowired
-    private BatchTaskDao batchTaskDao;
+    private BatchTaskService batchTaskService;
 
     @Autowired
     private BatchSelectSqlDao batchHiveSelectSqlDao;
@@ -150,7 +150,7 @@ public class BatchSelectSqlService {
         }
         IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getTaskType());
         Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", batchHiveSelectSql.getTaskType()));
-        BatchTask batchTask = batchTaskDao.getOne(taskId);;
+        BatchTask batchTask = batchTaskService.getOneWithError(taskId);;
         Integer taskType = null;
         if (Objects.nonNull(batchTask)) {
             taskType = batchTask.getTaskType();
