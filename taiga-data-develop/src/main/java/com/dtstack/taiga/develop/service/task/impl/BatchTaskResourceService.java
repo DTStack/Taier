@@ -20,10 +20,10 @@ package com.dtstack.taiga.develop.service.task.impl;
 
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
+import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.dao.BatchTaskResourceDao;
-import com.dtstack.taiga.develop.domain.BatchResource;
-import com.dtstack.taiga.develop.domain.BatchTaskResource;
+import com.dtstack.taiga.dao.domain.BatchTaskResource;
+import com.dtstack.taiga.dao.mapper.BatchTaskResourceDao;
 import com.dtstack.taiga.develop.service.impl.BatchResourceService;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -143,6 +143,17 @@ public class BatchTaskResourceService {
             batchTaskResourceDao.insert(batchTaskResource);
         }
         return batchTaskResource;
+    }
+
+    /**
+     * 根据 任务Id、资源类型 查询
+     *
+     * @param taskId       任务ID
+     * @param resourceType 资源类型
+     * @return
+     */
+    public Integer deleteByTaskId(Long taskId, Integer resourceType) {
+        return batchTaskResourceDao.deleteByTaskId(taskId, resourceType);
     }
 
 }

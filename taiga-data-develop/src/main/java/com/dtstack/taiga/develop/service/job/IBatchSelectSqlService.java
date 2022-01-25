@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.job;
 
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.develop.domain.BatchSelectSql;
+import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.develop.sql.ParseResult;
 import com.dtstack.taiga.develop.vo.ExecuteResultVO;
 import com.dtstack.taiga.scheduler.vo.action.ActionJobEntityVO;
