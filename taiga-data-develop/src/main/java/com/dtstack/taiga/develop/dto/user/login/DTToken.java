@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.domain.login;
+package com.dtstack.taiga.develop.dto.user.login;
 
 import java.io.Serializable;
 import java.util.Date;
