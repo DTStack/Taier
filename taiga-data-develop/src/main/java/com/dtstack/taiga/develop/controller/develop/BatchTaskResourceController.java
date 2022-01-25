@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.controller.batch;
+package com.dtstack.taiga.develop.controller.develop;
 
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.develop.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.taiga.develop.service.task.impl.BatchTaskTaskService;
-import com.dtstack.taiga.develop.web.task.vo.query.BatchTaskTaskAddOrUpdateVO;
+import com.dtstack.taiga.develop.service.task.impl.BatchTaskResourceService;
+import com.dtstack.taiga.develop.web.task.vo.query.BatchTaskResourceGetResourcesVO;
+import com.dtstack.taiga.develop.web.task.vo.result.BatchResourceResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,27 +32,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 
-@Api(value = "任务依赖管理", tags = {"任务依赖管理"})
+@Api(value = "资源任务管理", tags = {"资源任务管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchTaskTask")
-public class BatchTaskTaskController {
+@RequestMapping(value = "/api/rdos/batch/batchTaskResource")
+public class BatchTaskResourceController {
 
     @Autowired
-    private BatchTaskTaskService batchTaskTaskService;
+    private BatchTaskResourceService resourceService;
 
-    @PostMapping(value = "addOrUpdateTaskTask")
-    @ApiOperation("添加或者修改任务依赖")
-    public R<Void> addOrUpdateTaskTask(@RequestBody BatchTaskTaskAddOrUpdateVO taskVO) {
-        return new APITemplate<Void>() {
+    @PostMapping(value = "getResources")
+    @ApiOperation("获得 资源-任务 列表")
+    public R<List<BatchResourceResultVO>> getResources(@RequestBody BatchTaskResourceGetResourcesVO vo) {
+        return new APITemplate<List<BatchResourceResultVO> >() {
             @Override
-            protected Void process() {
-                batchTaskTaskService.addOrUpdateTaskTask(taskVO.getTaskId(), TaskMapstructTransfer.INSTANCE.
-                        batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(taskVO.getDependencyVOS()));
-                return null;
+            protected List<BatchResourceResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.BatchResourceListToBatchResourceResultVOList(resourceService.getResources(vo.getTaskId(), vo.getType()));
             }
         }.execute();
     }
-
-
 }

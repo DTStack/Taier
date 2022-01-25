@@ -21,7 +21,6 @@ package com.dtstack.taiga.scheduler.server.pipeline.operator;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taiga.common.constrant.TaskConstant;
-import com.dtstack.taiga.common.enums.DataBaseType;
 import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleType;
@@ -232,7 +231,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                     Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
                     EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
                     JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, metadataComponentType.getConfName(), null);
-                    String typeName = DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType));
+                    String typeName = getHiveTypeName(DataSourceType.getSourceType(sourceType));
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, typeName);
                     pluginInfo.compute(ConfigConstant.JDBCURL, (jdbcUrl, val) -> {
                         String jdbcUrlVal = (String) val;
@@ -323,7 +322,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                     LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase = pluginInfo.getString("realDataBase");
-                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)));
+                    pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,getHiveTypeName(DataSourceType.getSourceType(sourceType)));
                     workerOperator.executeQuery(pluginInfo.toJSONString(), sql, null != realDataBase ? realDataBase : "");
                     cleanFileName(parameter);
                     return null;
@@ -365,7 +364,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         }
         pluginInfo.put(ConfigConstant.USERNAME, username);
         pluginInfo.put(ConfigConstant.PASSWORD, password);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, DataBaseType.getHiveTypeName(DataSourceType.getSourceType(sourceType)));
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, getHiveTypeName(DataSourceType.getSourceType(sourceType)));
         if (null == hadoopConfig) {
             return pluginInfo;
         }
@@ -523,6 +522,21 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         confProp.put(KEY_CHECKPOINT_STATE_BACKEND, savepointPath);
         confProp.put(KEY_CHECKPOINT_INTERVAL, interval);
         return String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, URLEncoder.encode(confProp.toJSONString(), Charsets.UTF_8.name()));
+    }
+
+
+    public String getHiveTypeName(DataSourceType sourceType){
+        switch (sourceType) {
+            case HIVE1X:
+                return "hive";
+            case HIVE:
+            case SPARKTHRIFT2_1:
+                return "hive2";
+            case HIVE3:
+                return "hive3";
+            default:
+                return null;
+        }
     }
 }
 
