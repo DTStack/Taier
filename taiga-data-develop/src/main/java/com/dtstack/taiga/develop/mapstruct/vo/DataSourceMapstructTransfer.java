@@ -18,8 +18,8 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.vo.DataSourceVO;
-import com.dtstack.taiga.develop.web.datasource.vo.result.BatchDataSourceResultVO;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchDataSourceResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
