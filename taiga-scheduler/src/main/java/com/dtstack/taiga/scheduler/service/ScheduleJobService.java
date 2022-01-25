@@ -92,26 +92,15 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
         ScheduleTaskShade scheduleTaskShade = scheduleJobDetails.getScheduleTaskShade();
 
-        ScheduleTaskShade extraInfoTaskShade = scheduleTaskShadeService.lambdaQuery()
-                .select(ScheduleTaskShade::getTaskId, ScheduleTaskShade::getExtraInfo)
-                .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
-                .one();
-
         // 解析任务运行信息
-        String extraInfo = extraInfoTaskShade.getExtraInfo();
+        String extraInfo = scheduleTaskShade.getExtraInfo();
         if (StringUtils.isNotBlank(extraInfo)) {
             JSONObject extObject = JSONObject.parseObject(extraInfo);
-
-            if (null != extObject ) {
-                JSONObject info = extObject.getJSONObject(TaskConstant.INFO);
-
-                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, info);
+                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extObject);
                 if (paramActionExt != null) {
                     updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),scheduleTaskShade.getVersionId());
                     actionService.start(paramActionExt);
                 }
-            }
         } else {
             //额外信息为空 标记任务为失败
             this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");

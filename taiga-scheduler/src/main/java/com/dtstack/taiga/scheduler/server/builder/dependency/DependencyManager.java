@@ -45,17 +45,20 @@ public class DependencyManager {
                 .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
                 .list();
         DependencyHandler dependencyHandler = null;
-        // 说明有上游任务
         List<Long> parentTaskIds = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
 
-        // 查询任务
-        List<ScheduleTaskShade> taskShadeList = scheduleTaskService.lambdaQuery()
-                .in(ScheduleTaskShade::getTaskId, parentTaskIds)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
-                .list();
+        // 如果没有上游任务，就不需要UpstreamDependencyHandler
+        List<ScheduleTaskShade> taskShadeList = null;
+        if (CollectionUtils.isNotEmpty(parentTaskIds)) {
+            // 查询任务
+            taskShadeList = scheduleTaskService.lambdaQuery()
+                    .in(ScheduleTaskShade::getTaskId, parentTaskIds)
+                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .list();
 
-        if (CollectionUtils.isNotEmpty(taskShadeList)) {
-            dependencyHandler = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+            if (CollectionUtils.isNotEmpty(taskShadeList)) {
+                dependencyHandler = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+            }
         }
 
         // 判断是否设置自依赖
@@ -63,16 +66,18 @@ public class DependencyManager {
         if (DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
             if (dependencyHandler == null) {
-                dependencyHandler = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+                dependencyHandler = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade);
             } else {
-                dependencyHandler.setNext(new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade, taskShadeList));
+                dependencyHandler.setNext(new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade));
             }
         } else if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
-            if (dependencyHandler == null) {
-                dependencyHandler = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
-            } else {
-                dependencyHandler.setNext(new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList));
+            if (CollectionUtils.isNotEmpty(taskShadeList)) {
+                if (dependencyHandler == null) {
+                    dependencyHandler = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+                } else {
+                    dependencyHandler.setNext(new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList));
+                }
             }
         }
 
