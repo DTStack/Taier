@@ -64,7 +64,7 @@ import java.util.Properties;
 @Service
 public class BatchHadoopJobExeService implements IBatchJobExeService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BatchHadoopJobExeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchHadoopJobExeService.class);
 
     @Autowired
     private DatasourceService datasourceService;
@@ -130,8 +130,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             }
 
         } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosDefineException("创建数据同步job失败:" + e.getMessage());
+            throw new RdosDefineException(String.format("创建数据同步job失败: %s", e.getMessage()), e);
         }
 
         return actionParam;
@@ -177,20 +176,14 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     @Override
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
                                                Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception {
-        ExecuteResultVO result;
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
             content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd);
-
-            result = batchSqlExeService.executeSql(content);
-        } else {
-            throw new RdosDefineException("不支持" + EScheduleJobType.getByTaskType(task.getTaskType()).getName() + "类型的任务直接运行");
+            return batchSqlExeService.executeSql(content);
         }
-
-        return result;
+        throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));
     }
-
 
     /**
      * 构建 exeArgs、sqlText、taskParams
@@ -202,11 +195,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
      */
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
-
         String sql = batchTask.getSqlText() == null ? "" : batchTask.getSqlText();
-
         String taskParams = batchTask.getTaskParams();
-
         if (EScheduleJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
             //Spark SQL任务默认在前面加上建表的类型
             sql = String.format("set hive.default.fileformat=%s;\n ", environmentContext.getCreateTableType()) + sql;
@@ -232,7 +222,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         actionParam.put("taskParams", taskParams);
     }
 
-
     private Integer parseSyncChannel(JSONObject syncJob) {
         //解析出并发度---sync 消耗资源是: 并发度*1
         try {
@@ -241,13 +230,11 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             JSONObject speedJson = settingJson.getJSONObject("speed");
             return speedJson.getInteger("channel");
         } catch (Exception e) {
-            LOG.error("", e);
+            LOGGER.error("", e);
             //默认1
             return 1;
         }
-
     }
-
 
     public String replaceSyncParll(String taskParams, int parallelism) throws IOException {
         Properties properties = new Properties();
