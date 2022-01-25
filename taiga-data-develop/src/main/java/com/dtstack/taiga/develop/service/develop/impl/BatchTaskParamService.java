@@ -31,7 +31,7 @@ import com.dtstack.taiga.dao.domain.BatchTaskParam;
 import com.dtstack.taiga.dao.domain.BatchTaskParamShade;
 import com.dtstack.taiga.dao.mapper.BatchTaskParamDao;
 import com.dtstack.taiga.develop.dto.devlop.BatchParamDTO;
-import com.dtstack.taiga.develop.sync.job.SyncJob;
+import com.dtstack.taiga.develop.utils.develop.sync.job.SyncJob;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
