@@ -983,19 +983,15 @@ public class DatasourceService {
 
     /**
      * 获取hadoopconfig最新配置
-     * @param dtUicTenantId
+     * @param tenantId
      * @return
      */
-    private String getConsoleHadoopConfig(Long dtUicTenantId){
-        if(null == dtUicTenantId){
+    private String getConsoleHadoopConfig(Long tenantId){
+        if(null == tenantId){
             return null;
         }
-        String enginePluginInfo = Engine2DTOService.getEnginePluginInfo(dtUicTenantId, MultiEngineType.HADOOP.getType());
-        if(StringUtils.isBlank(enginePluginInfo)){
-            return null;
-        }
-        JSONObject jsonObject = JSON.parseObject(enginePluginInfo);
-        return jsonObject.getString(EComponentType.HDFS.getTypeCode() + "");
+        Map<String, Object> hdfs = Engine2DTOService.getHdfs(tenantId);
+        return JSONObject.toJSONString(hdfs);
     }
 
 
