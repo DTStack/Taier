@@ -9,16 +9,15 @@
     <select id="listRunnableTask" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment_with_sql"/>
-        FROM schedule_task_shade
+        FROM `schedule_task_shade`
         WHERE
-            id > #{startId}
-            AND submit_status IN
+            `id` > #{startId}
+            AND `schedule_status` IN
             <foreach collection="scheduleStatusList" open="(" close=")" item="scheduleStatus" separator=",">
                 #{scheduleStatus}
             </foreach>
-        #{submitStatus}
-            AND is_deleted = 0
-        ORDER BY id ASC
+            AND `is_deleted` = 0
+        ORDER BY `id` ASC
         <if test="taskSize!=null">
             LIMIT #{taskSize}
         </if>
