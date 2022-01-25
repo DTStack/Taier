@@ -26,7 +26,7 @@ import com.dtstack.taiga.develop.enums.develop.SqlTypeEnums;
 import com.dtstack.taiga.develop.service.develop.ISqlExeService;
 import com.dtstack.taiga.develop.sql.ParseResult;
 import com.dtstack.taiga.develop.sql.SqlType;
-import com.dtstack.taiga.develop.sync.job.SourceType;
+import com.dtstack.taiga.develop.utils.develop.sync.job.SourceType;
 import com.dtstack.taiga.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taiga.develop.dto.devlop.ExecuteSqlParseVO;
