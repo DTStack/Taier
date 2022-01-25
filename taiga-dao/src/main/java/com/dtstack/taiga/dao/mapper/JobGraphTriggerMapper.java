@@ -14,11 +14,12 @@ import java.sql.Timestamp;
  */
 public interface JobGraphTriggerMapper extends BaseMapper<JobGraphTrigger> {
 
-
-    JobGraphTrigger getByTriggerTimeAndTriggerType(@Param("triggerTime") Timestamp timestamp, @Param("triggerType") int triggerType);
-
     /**
-     * 根据触发时间查询关联最小任务ID
+     * 按照时间查询JobGraphTrigger
+     *
+     * @param timestamp JobGraphTrigger的生成具体时间
+     * @param triggerType JobGraph类型： 周期，立即，补数据
+     * @return JobGraphTrigger
      */
-    String  getMinJobIdByTriggerTime(@Param("triggerStartTime")String triggerStartTime,@Param("triggerEndTime")String triggerEndTime);
+    JobGraphTrigger getByTriggerTimeAndTriggerType(@Param("triggerTime") Timestamp timestamp, @Param("triggerType") int triggerType);
 }

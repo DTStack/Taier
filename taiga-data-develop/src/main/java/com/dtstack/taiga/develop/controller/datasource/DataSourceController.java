@@ -3,7 +3,7 @@ package com.dtstack.taiga.develop.controller.datasource;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
-import com.dtstack.taiga.common.pager.PageResult;
+import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.bo.datasource.DsInfoIdParam;
 import com.dtstack.taiga.develop.bo.datasource.DsListParam;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
