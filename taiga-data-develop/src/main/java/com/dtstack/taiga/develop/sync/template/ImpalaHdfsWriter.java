@@ -20,7 +20,7 @@ package com.dtstack.taiga.develop.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.develop.common.template.Writer;
-import com.dtstack.taiga.develop.enums.TableLocationType;
+import com.dtstack.taiga.develop.enums.develop.TableLocationType;
 import com.dtstack.taiga.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.sync.util.ColumnUtil;
 import com.google.common.collect.Lists;

@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.sync.template;
 
-import com.dtstack.taiga.develop.engine.rdbms.common.enums.StoredType;
+import com.dtstack.taiga.develop.utils.develop.common.enums.StoredType;
 import lombok.Data;
 
 import java.util.List;
