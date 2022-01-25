@@ -4,7 +4,7 @@ import com.dtstack.taiga.common.lang.convert.Converter;
 import com.dtstack.taiga.common.util.DataSourceUtils;
 import com.dtstack.taiga.common.util.Strings;
 import com.dtstack.taiga.develop.bo.datasource.AddDataSourceParam;
-import com.dtstack.taiga.develop.vo.DataSourceVO;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
 
 /**
  * AddDataSourceParam 转 DataSourceVO

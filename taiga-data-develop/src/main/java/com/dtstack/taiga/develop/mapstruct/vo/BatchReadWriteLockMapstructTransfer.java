@@ -19,9 +19,9 @@
 package com.dtstack.taiga.develop.mapstruct.vo;
 
 import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
-import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
-import com.dtstack.taiga.develop.web.task.vo.result.ReadWriteLockGetLockResultVO;
-import com.dtstack.taiga.develop.web.task.vo.result.ReadWriteLockResultVO;
+import com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO;
+import com.dtstack.taiga.develop.web.develop.result.ReadWriteLockGetLockResultVO;
+import com.dtstack.taiga.develop.web.develop.result.ReadWriteLockResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

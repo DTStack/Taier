@@ -18,9 +18,9 @@
 
 package com.dtstack.taiga.develop.mapstruct.vo;
 
-import com.dtstack.taiga.develop.vo.ExecuteResultVO;
-import com.dtstack.taiga.develop.web.job.vo.result.BatchExecuteResultVO;
-import com.dtstack.taiga.develop.web.job.vo.result.BatchJobFindTaskRuleJobResultVO;
+import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchExecuteResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchJobFindTaskRuleJobResultVO;
 import com.dtstack.taiga.scheduler.vo.ScheduleDetailsVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
