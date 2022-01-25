@@ -147,13 +147,16 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
             for (JudgeJobExecOperator jobExecOperator : judgeJobExecOperator) {
                 JobCheckRunInfo exec = jobExecOperator.isExec(scheduleJobDetails);
 
+
                 if (!exec.getPass() && exec.getStatus() != null) {
+                    ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
+                    LOGGER.info("jobId:{} no arrive exec run . exec : {}",scheduleJob.getJobId(),exec.getLogInfo());
                     // 没有通过校验 处理
                     List<JudgeNoPassJobHandler> judgeNoPassJobHandlerList = getJudgeNoPassJobHandler();
 
                     for (JudgeNoPassJobHandler judgeNoPassJobHandler : judgeNoPassJobHandlerList) {
                         if (judgeNoPassJobHandler.isSupportJobCheckStatus(exec.getStatus())) {
-                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails,exec.getStatus());
+                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec.getStatus());
                         }
                     }
 
