@@ -18,9 +18,9 @@
 
 package com.dtstack.taiga.dao.mapper;
 
+import com.dtstack.taiga.dao.domain.BatchResource;
+import com.dtstack.taiga.dao.dto.BatchResourceDTO;
 import com.dtstack.taiga.dao.pager.PageQuery;
-import com.dtstack.taiga.develop.domain.BatchResource;
-import com.dtstack.taiga.develop.dto.BatchResourceDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
