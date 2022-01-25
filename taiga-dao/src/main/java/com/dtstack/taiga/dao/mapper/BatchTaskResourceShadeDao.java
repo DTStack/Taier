@@ -54,10 +54,4 @@ public interface BatchTaskResourceShadeDao {
      */
     Integer update(BatchTaskResourceShade batchTaskResourceShade);
 
-    /**
-     * 根据 租户id 删除任务资源
-     * @param tenantId
-     * @return
-     */
-    Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

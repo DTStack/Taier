@@ -18,11 +18,10 @@
 
 package com.dtstack.taiga.develop.engine.hdfs.service;
 
-import com.dtstack.taiga.common.annotation.Forbidden;
 import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.develop.bo.ExecuteContent;
 import com.dtstack.taiga.dao.domain.TenantComponent;
+import com.dtstack.taiga.develop.bo.ExecuteContent;
 import com.dtstack.taiga.develop.enums.SqlTypeEnums;
 import com.dtstack.taiga.develop.service.table.ISqlExeService;
 import com.dtstack.taiga.develop.sql.ParseResult;
@@ -54,7 +53,6 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
     private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
 
-    @Forbidden
     @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
         return executeSql(executeContent, EScheduleJobType.SPARK_SQL);
@@ -68,7 +66,6 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         Long tenantId = executeContent.getTenantId();
         Long userId = executeContent.getUserId();
         Long taskId = executeContent.getTaskId();
-
 
         List<ParseResult> parseResultList = executeContent.getParseResultList();
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
@@ -129,9 +126,9 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
             }
         }
 
-        String sqlToEngine = StringUtils.join(sqlList,";");
+        String sqlToEngine = StringUtils.join(sqlList, ";");
         //除简单查询，其他sql发送到engine执行
-        String jobId =  batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, executeContent.getTaskType());
+        String jobId = batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, executeContent.getTaskType());
 
         //记录发送到engine的id
         selectSqlService.addSelectSql(jobId, StringUtils.EMPTY, 0, tenantId, sqlToEngine, userId, StringUtils.EMPTY, taskType);
@@ -139,16 +136,13 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
         sqlIdList.sort(Comparator.comparingInt(SqlResultVO::getType));
         executeSqlParseVO.setJobId(jobId);
         executeSqlParseVO.setSqlIdList(sqlIdList);
-
         return executeSqlParseVO;
-
     }
 
     @Override
     public String process(String sqlText, String database) {
         return processSql(sqlText, database);
     }
-
 
     @Override
     public void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam) {

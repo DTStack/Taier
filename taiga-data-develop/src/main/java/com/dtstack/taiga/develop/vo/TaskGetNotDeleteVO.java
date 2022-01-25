@@ -16,24 +16,16 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.service.datasource.impl;
+package com.dtstack.taiga.develop.vo;
 
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import lombok.Data;
 
-/**
- * Reason:
- * Date: 2019/5/30
- * Company: www.dtstack.com
- * @author xuchao
- */
 
-public interface IMultiEngineService {
+@Data
+public class TaskGetNotDeleteVO {
 
-    /**
-     * 从console获取Hadoop的meta数据源
-     * @param tenantId
-     * @return
-     */
-    DataSourceType getTenantSupportHadoopMetaDataSource(Long tenantId);
+    private Long taskId;
+
+    private String name;
 
 }
