@@ -26,6 +26,7 @@ import com.dtstack.taiga.develop.vo.BatchTaskBatchVO;
 import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
 import com.dtstack.taiga.develop.vo.TaskCatalogueVO;
 import com.dtstack.taiga.develop.vo.TaskCheckResultVO;
+import com.dtstack.taiga.develop.vo.TaskGetNotDeleteVO;
 import com.dtstack.taiga.develop.vo.TaskResourceParam;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchScheduleTaskResultVO;
 import com.dtstack.taiga.develop.web.task.vo.query.BatchScheduleTaskVO;
@@ -43,7 +44,6 @@ import com.dtstack.taiga.develop.web.task.vo.result.ScheduleTaskShadeResultVO;
 import com.dtstack.taiga.develop.web.task.vo.result.TaskCatalogueResultVO;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
 import com.dtstack.taiga.scheduler.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
-import com.dtstack.taiga.scheduler.vo.task.NotDeleteTaskVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -171,11 +171,11 @@ public interface TaskMapstructTransfer {
     List<ScheduleTaskShadeResultVO> scheduleTaskShadeTypeVOsToBatchTaskResultVOs(List<ScheduleTaskShadeTypeVO> scheduleTaskShadeTypeVOS);
 
     /**
-     * List<NotDeleteTaskVO> -> List<BatchPreDeleteTaskResultVO>
+     * List<TaskGetNotDeleteVO> -> List<BatchPreDeleteTaskResultVO>
      * @param notDeleteTaskVOS
      * @return
      */
-    List<BatchGetChildTasksResultVO> notDeleteTaskVOsToBatchGetChildTasksResultVOs(List<NotDeleteTaskVO> notDeleteTaskVOS);
+    List<BatchGetChildTasksResultVO> notDeleteTaskVOsToBatchGetChildTasksResultVOs(List<TaskGetNotDeleteVO> notDeleteTaskVOS);
 
     /**
      * List<BatchTaskTaskAddOrUpdateDependencyVO> -> List<BatchTask>

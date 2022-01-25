@@ -31,7 +31,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public interface TenantComponentDao {
+public interface BatchTenantComponentDao {
 
     /**
      * 根据 tenantId 查询租户下所有的组件
