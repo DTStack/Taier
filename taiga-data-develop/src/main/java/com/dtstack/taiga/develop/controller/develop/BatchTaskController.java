@@ -22,12 +22,32 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.develop.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.taiga.develop.service.task.impl.BatchTaskService;
-import com.dtstack.taiga.develop.vo.BatchTaskBatchVO;
-import com.dtstack.taiga.develop.vo.TaskResourceParam;
-import com.dtstack.taiga.develop.web.datasource.vo.query.BatchDataSourceTraceVO;
-import com.dtstack.taiga.develop.web.task.vo.query.*;
-import com.dtstack.taiga.develop.web.task.vo.result.*;
+import com.dtstack.taiga.develop.service.develop.impl.BatchTaskService;
+import com.dtstack.taiga.develop.dto.devlop.BatchTaskBatchVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.web.develop.query.BatchDataSourceTraceVO;
+import com.dtstack.taiga.develop.web.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchScheduleTaskVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskCheckIsLoopVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskCheckNameVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskDeleteTaskVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetByNameVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetChildTasksVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetComponentVersionVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetDependencyTaskVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetTaskVersionRecordVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskPublishTaskVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskResourceParamVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchTaskTaskVersionScheduleConfVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchGetChildTasksResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchSysParameterResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetTaskByIdResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchTaskPublishTaskResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchTaskResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.taiga.develop.web.develop.result.ScheduleTaskShadeResultVO;
+import com.dtstack.taiga.develop.web.develop.result.TaskCatalogueResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +68,6 @@ public class BatchTaskController {
     @Autowired
     private BatchTaskService batchTaskService;
 
-
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
     public R<BatchTaskGetTaskByIdResultVO> getTaskById(@RequestBody BatchScheduleTaskVO batchScheduleTaskVO) {
@@ -60,7 +79,6 @@ public class BatchTaskController {
             }
         }.execute();
     }
-
 
     @PostMapping(value = "getDependencyTask")
     @ApiOperation("获取依赖任务")
@@ -83,7 +101,6 @@ public class BatchTaskController {
             }
         }.execute();
     }
-
 
     @PostMapping(value = "publishTask")
     @ApiOperation("任务发布")
@@ -122,7 +139,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-
     @PostMapping(value = "addOrUpdateTask")
     @ApiOperation("数据开发-新建/更新 任务")
     public R<TaskCatalogueResultVO> addOrUpdateTask(@RequestBody BatchTaskResourceParamVO paramVO) {
@@ -147,7 +163,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-
     @PostMapping(value = "getChildTasks")
     @ApiOperation("获取子任务")
     public R<List<BatchGetChildTasksResultVO>> getChildTasks(@RequestBody BatchTaskGetChildTasksVO tasksVO) {
@@ -169,7 +184,6 @@ public class BatchTaskController {
             }
         }.execute();
     }
-
 
     @PostMapping(value = "forceUpdate")
     @ApiOperation("覆盖更新")
@@ -206,18 +220,6 @@ public class BatchTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "setOwnerUser")
-    @ApiOperation("设置修改负责人")
-    public R<Void> setOwnerUser(@RequestBody BatchTaskSetOwnerUserVO detailVO) {
-        return new APITemplate<Void>() {
-            @Override
-            protected Void process() {
-                batchTaskService.setOwnerUser(detailVO.getOwnerUserId(), detailVO.getTaskId());
-                return null;
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "getByName")
     @ApiOperation("根据名称查询任务")
     public R<BatchTaskResultVO> getByName(@RequestBody BatchTaskGetByNameVO detailVO) {
@@ -228,7 +230,6 @@ public class BatchTaskController {
             }
         }.execute();
     }
-
 
     @PostMapping(value = "getComponentVersionByTaskType")
     @ApiOperation("获取组件版本号")
