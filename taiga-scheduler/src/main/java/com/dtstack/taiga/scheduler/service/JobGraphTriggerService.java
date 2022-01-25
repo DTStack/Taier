@@ -1,6 +1,7 @@
 package com.dtstack.taiga.scheduler.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.dao.domain.JobGraphTrigger;
 import com.dtstack.taiga.dao.mapper.JobGraphTriggerMapper;
 import org.springframework.stereotype.Service;
@@ -16,32 +17,25 @@ import java.sql.Timestamp;
 @Service
 public class JobGraphTriggerService extends ServiceImpl<JobGraphTriggerMapper, JobGraphTrigger> {
 
+    /**
+     * 判断在triggerTime时间里是否存在JobGraphTrigger
+     * @param triggerTime JobGraphTrigger生成时间
+     * @return ture 存在，false 不存在
+     */
     public boolean checkHasBuildJobGraph(Timestamp triggerTime) {
-        return false;
+        return this.baseMapper.getByTriggerTimeAndTriggerType(triggerTime, EScheduleType.NORMAL_SCHEDULE.getType()) != null;
+
     }
 
     /**
      * 新增jobTrigger
      * @param timestamp 生成的时间搓
-     * @param minJobId 今天扫描的最小id
      */
-    public void addJobTrigger(Timestamp timestamp, Long minJobId) {
+    public void addJobTrigger(Timestamp timestamp) {
         JobGraphTrigger jobGraphTrigger = new JobGraphTrigger();
         jobGraphTrigger.setTriggerTime(timestamp);
         jobGraphTrigger.setTriggerType(0);
-        jobGraphTrigger.setMinJobId(minJobId);
         //新增jobTrigger
         this.save(jobGraphTrigger);
-    }
-
-    /**
-     *
-     *
-     * @param left
-     * @param right
-     * @return
-     */
-    public String getMinJobIdByTriggerTime(String left, String right) {
-        return this.baseMapper.getMinJobIdByTriggerTime(left,right);
     }
 }

@@ -777,7 +777,7 @@ public class ComponentService {
         if (null == one) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        return "confPath" + File.separator + AppType.CONSOLE + "_" + one.getClusterName();
+        return "confPath" + File.separator + one.getClusterName();
     }
 
     /**
@@ -1075,7 +1075,7 @@ public class ComponentService {
         if (null == one) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        return AppType.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name();
+        return ConfigConstant.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name();
     }
 
 
@@ -1235,7 +1235,7 @@ public class ComponentService {
         if (null == one) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        return env.getLocalKerberosDir() + File.separator + AppType.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
+        return env.getLocalKerberosDir() + File.separator + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS_PATH;
     }
 
     /**
