@@ -19,11 +19,11 @@
 package com.dtstack.taiga.develop.mapstruct.vo;
 
 import com.dtstack.taiga.dao.domain.BatchFunction;
-import com.dtstack.taiga.develop.vo.BatchFunctionVO;
-import com.dtstack.taiga.develop.vo.TaskCatalogueVO;
-import com.dtstack.taiga.develop.web.function.vo.query.BatchFunctionAddVO;
-import com.dtstack.taiga.develop.web.function.vo.result.BatchFunctionAddResultVO;
-import com.dtstack.taiga.develop.web.function.vo.result.BatchFunctionQueryResultVO;
+import com.dtstack.taiga.develop.dto.devlop.BatchFunctionVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchFunctionAddVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchFunctionAddResultVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchFunctionQueryResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

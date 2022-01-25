@@ -28,7 +28,7 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.Table;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.develop.enums.SourceDTOType;
+import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
