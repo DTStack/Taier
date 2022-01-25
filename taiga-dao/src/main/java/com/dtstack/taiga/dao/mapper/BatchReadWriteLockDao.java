@@ -23,7 +23,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface ReadWriteLockDao {
+public interface BatchReadWriteLockDao {
 
     BatchReadWriteLock getOne(@Param("id") long id);
 

@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.impl;
 
 import com.dtstack.taiga.dao.domain.TenantComponent;
-import com.dtstack.taiga.dao.mapper.TenantComponentDao;
+import com.dtstack.taiga.dao.mapper.BatchTenantComponentDao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,15 +37,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class TenantComponentService {
 
     @Autowired
-    private TenantComponentDao tenantComponentDao;
+    private BatchTenantComponentDao batchTenantComponentDao;
 
     public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
-        return tenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
+        return batchTenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(TenantComponent tenantComponent) {
-        return tenantComponentDao.insert(tenantComponent);
+        return batchTenantComponentDao.insert(tenantComponent);
     }
 
 

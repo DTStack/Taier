@@ -130,7 +130,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
     private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
-
     @Override
     public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database, Long taskId, Integer taskType, String preJobId) {
         return runSqlByTask(tenantId, parseResult, userId, database, false, taskId, taskType, preJobId);
@@ -151,8 +150,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
                     parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
             return preJobId;
         } catch (Exception e) {
-            LOGGER.error("{}", e);
-            throw new RdosDefineException("任务执行sql失败");
+            throw new RdosDefineException("任务执行sql失败", e);
         }
     }
 
@@ -467,7 +465,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         return false;
     }
 
-
     /**
      * 获取简单查询的查询结果字段
      *
@@ -598,8 +595,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         try {
             actionExt = objectMapper.readValue(taskParam.toJSONString(), ParamActionExt.class);
         } catch (IOException e) {
-            LOGGER.error("",e);
-            throw new DtCenterDefException("参数异常");
+            throw new DtCenterDefException("参数异常", e);
         }
         actionService.start(actionExt);
         return jobId;

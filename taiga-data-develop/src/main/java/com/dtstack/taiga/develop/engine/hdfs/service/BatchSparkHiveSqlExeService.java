@@ -75,12 +75,6 @@ public class BatchSparkHiveSqlExeService {
 
     private static final String SQL_EXCEPTION_REDEX = "(?i)[\\w\\W]*AnalysisException[\\w\\W]*";
 
-    private static final Pattern TABLE_NOT_FOUND_PATTERN = Pattern.compile("Table\\sor\\sview\\snot\\sfound:\\s(?<table>[^;]*)");
-
-    private static final String TABLE_NOT_FOUND = "Table or view not found:";
-
-    private static final String CREATE_TEMP_FUNCTION = "create temporary function";
-
     @Autowired
     private IJdbcService jdbcServiceImpl;
 
@@ -105,6 +99,7 @@ public class BatchSparkHiveSqlExeService {
 
     /**
      * 直连jdbc执行sql
+     *
      * @param executeContent
      * @param tenantId
      * @param parseResult
@@ -123,13 +118,14 @@ public class BatchSparkHiveSqlExeService {
                 jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
             }
         } catch (Exception e) {
-            log.error("exeHiveSqlDirect error {}", executeContent.getSql(),e);
+            log.error("exeHiveSqlDirect error {}", executeContent.getSql(), e);
             throw e;
         }
     }
 
     /**
      * 逐条处理sql
+     *
      * @param sqlText
      * @param database
      * @return
@@ -160,6 +156,7 @@ public class BatchSparkHiveSqlExeService {
 
     /**
      * 执行create语句
+     *
      * @param parseResult
      * @param tenantId
      * @param db
@@ -173,7 +170,6 @@ public class BatchSparkHiveSqlExeService {
             parseResult.getMainTable().setStoreType(environmentContext.getCreateTableType());
             jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, db, parseResult.getStandardSql(), connection);
         } catch (Exception e) {
-            log.error("", e);
             throw new RdosDefineException(ErrorCode.CREATE_TABLE_ERR, e);
         } finally {
             DBUtil.closeDBResources(null, null, connection);
@@ -182,6 +178,7 @@ public class BatchSparkHiveSqlExeService {
 
     /**
      * 判断是否简单查询
+     *
      * @param sql
      * @return
      */
@@ -202,11 +199,11 @@ public class BatchSparkHiveSqlExeService {
             } catch (IllegalStateException e) {
                 log.info("can not match 'cols',{}", e);
             }
-            if (StringUtils.isNotEmpty(cols)){
+            if (StringUtils.isNotEmpty(cols)) {
                 String[] split = cols.split(",");
                 for (int i = 0; i < split.length; i++) {
                     String col = split[i].toUpperCase();
-                    if (col.startsWith("DISTINCT ")){
+                    if (col.startsWith("DISTINCT ")) {
                         return false;
                     }
                 }
@@ -240,13 +237,13 @@ public class BatchSparkHiveSqlExeService {
                 }
             }
         } catch (Exception e) {
-            log.error("", e);
             throw new RdosDefineException(e.getMessage(), e);
         }
     }
 
     /**
      * 执行sql
+     *
      * @param executeContent
      * @param scheduleJobType
      * @return
@@ -302,6 +299,7 @@ public class BatchSparkHiveSqlExeService {
 
     /**
      * 简单查询结果
+     *
      * @param tenantId
      * @param parseResult
      * @param currentDb
@@ -335,7 +333,6 @@ public class BatchSparkHiveSqlExeService {
                 result.setStatus(TaskStatus.FAILED.getStatus());
                 result.setMsg(e.getMessage());
             }
-
             result.setIsContinue(false);
         }
         return result;

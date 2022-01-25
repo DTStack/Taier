@@ -24,7 +24,7 @@ import com.dtstack.taiga.common.enums.TaskLockStatus;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
-import com.dtstack.taiga.dao.mapper.ReadWriteLockDao;
+import com.dtstack.taiga.dao.mapper.BatchReadWriteLockDao;
 import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.vo.ReadWriteLockVO;
 import com.google.common.collect.Maps;
@@ -48,8 +48,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ReadWriteLockService {
+
     @Autowired
-    private ReadWriteLockDao readWriteLockDao;
+    private BatchReadWriteLockDao readWriteLockDao;
 
     @Autowired
     private UserService userService;
