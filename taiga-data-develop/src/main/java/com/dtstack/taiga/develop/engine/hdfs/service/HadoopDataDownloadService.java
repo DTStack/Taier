@@ -317,7 +317,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
                 final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-                final JSONObject yarnConf = Engine2DTOService.getYarnConf(tenantId);
+                final JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId,EComponentType.YARN);
                 String submitUserName = getSubmitUserNameByJobId(jobId);
                 final LogPluginDownload downloader = new LogPluginDownload(applicationId, yarnConf, hadoopConf, submitUserName, limitNum);
                 return downloader;
@@ -342,7 +342,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
                 final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-                JSONObject yarnConf = Engine2DTOService.getYarnConf(tenantId);
+                JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId,EComponentType.YARN);
                 String submitUserName = getSubmitUserNameByJobId(jobId);
                 final LogPluginDownload downloader = new LogPluginDownload(applicationId,yarnConf,hadoopConf,submitUserName, limitNum);
                 downloader.configure();
