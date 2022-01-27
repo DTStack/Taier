@@ -656,16 +656,16 @@ public class BatchServerLogService {
         return formatPerfLogInfo.buildReadableLog();
     }
 
-    private Pair<String,String> getPrometheusHostAndPort(final Long dtUicTenantId, final String taskParams){
-        Boolean hasStandAlone = clusterService.hasStandalone(dtUicTenantId, EComponentType.FLINK.getTypeCode());
+    private Pair<String,String> getPrometheusHostAndPort(final Long tenantId, final String taskParams){
+        Boolean hasStandAlone = clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode());
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
-            flinkJsonObject = clusterService.getConfigByKey(dtUicTenantId, EComponentType.FLINK.getConfName(), null);
+            flinkJsonObject = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
         }else {
 
-            JSONObject jsonObject = Engine2DTOService.getComponentConfig(dtUicTenantId, EComponentType.FLINK);
+            JSONObject jsonObject = Engine2DTOService.getComponentConfig(tenantId, EComponentType.FLINK);
             if (null == jsonObject) {
-                LOGGER.info("console uicTenantId {} pluginInfo is null", dtUicTenantId);
+                LOGGER.info("console uicTenantId {} pluginInfo is null", tenantId);
                 return null;
             }
             EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
