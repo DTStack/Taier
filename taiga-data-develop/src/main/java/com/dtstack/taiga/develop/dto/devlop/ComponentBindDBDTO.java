@@ -16,30 +16,27 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.mapstruct.console;
+package com.dtstack.taiga.develop.dto.devlop;
 
 
-import com.dtstack.taiga.dao.domain.Cluster;
-import com.dtstack.taiga.develop.dto.devlop.ComponentBindDBDTO;
-import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
-import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import lombok.Data;
 
-import java.util.List;
+@Data
+public class ComponentBindDBDTO {
 
-@Mapper
-public interface ClusterTransfer {
+    /**
+     * 组件类型
+     */
+    private Integer componentCode;
 
-    ClusterTransfer INSTANCE = Mappers.getMapper(ClusterTransfer.class);
+    /**
+     * 创建/对接
+     */
+    private Boolean createFlag;
 
-    @Mapping(source = "id", target = "clusterId")
-    ClusterInfoVO toInfoVO(Cluster cluster);
-
-
-    List<ClusterInfoVO> toInfoVOs(List<Cluster> cluster);
-
-    List<ComponentBindDBDTO> bindDBtoDTOList(List<ComponentBindDBVO> componentBindDBVOList);
+    /**
+     * db 名称
+     */
+    private String dbName;
 
 }

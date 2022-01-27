@@ -16,30 +16,33 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.mapstruct.console;
+package com.dtstack.taiga.develop.service.develop;
 
-
-import com.dtstack.taiga.dao.domain.Cluster;
-import com.dtstack.taiga.develop.dto.devlop.ComponentBindDBDTO;
-import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
-import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import com.dtstack.taiga.common.enums.EComponentType;
 
 import java.util.List;
 
-@Mapper
-public interface ClusterTransfer {
 
-    ClusterTransfer INSTANCE = Mappers.getMapper(ClusterTransfer.class);
+public interface IComponentService {
 
-    @Mapping(source = "id", target = "clusterId")
-    ClusterInfoVO toInfoVO(Cluster cluster);
+    /**
+     * 获取数据源下所有的db
+     *
+     * @param clusterId      租户ID
+     * @param eComponentType 组件类型
+     * @param schema         schema
+     * @return
+     */
+    List<String> getAllDataBases(Long clusterId, EComponentType eComponentType, String schema);
 
-
-    List<ClusterInfoVO> toInfoVOs(List<Cluster> cluster);
-
-    List<ComponentBindDBDTO> bindDBtoDTOList(List<ComponentBindDBVO> componentBindDBVOList);
+    /**
+     * 创建对应的DB
+     *
+     * @param clusterId      集群ID
+     * @param eComponentType 组件类型
+     * @param dbName         db名称
+     * @param comment        db备注
+     */
+    void createDatabase(Long clusterId, EComponentType eComponentType, String dbName, String comment);
 
 }
