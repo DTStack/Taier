@@ -39,6 +39,10 @@ public class HadoopConf {
         return Engine2DTOService.getHdfs(dtuicTenantId);
     }
 
+    public static Map<String, Object> getConfigurationByClusterId(Long clusterId) {
+        return Engine2DTOService.getHdfsByClusterId(clusterId);
+    }
+
     public static Map<String, Object> getHadoopKerberosConf(long dtuicTenantId) {
         try {
             Map<String, Object> hadoop = Engine2DTOService.getHdfs(dtuicTenantId);
@@ -63,4 +67,9 @@ public class HadoopConf {
     public static String getDefaultFs(Long dtuicTenantId) {
         return getConfiguration(dtuicTenantId).getOrDefault("fs.defaultFS", "").toString();
     }
+
+    public static String getDefaultFsByClusterId(Long clusterId) {
+        return getConfigurationByClusterId(clusterId).getOrDefault("fs.defaultFS", "").toString();
+    }
+
 }
