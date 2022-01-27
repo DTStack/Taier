@@ -32,9 +32,6 @@ public class BatchDataSourcePreviewVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "数据源id", example = "1", required = true)
     private Long sourceId;
 

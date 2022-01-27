@@ -35,9 +35,6 @@ public class BatchDataSourceTableColumnVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "项目id", hidden = true)
     private Long projectId;
 
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "数据源id", example = "1", required = true)
     private Long sourceId;
 
