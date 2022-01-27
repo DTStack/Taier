@@ -28,12 +28,18 @@ import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.vo.console.ClusterTenantVO;
+import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
 import com.dtstack.taiga.develop.vo.console.TenantVO;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -64,12 +70,12 @@ public class TenantController {
 
     @PostMapping(value = "/bindingTenant")
     public R<Void> bindingTenant(@RequestParam("tenantId") Long tenantId, @RequestParam("clusterId") Long clusterId,
-                              @RequestParam("queueId") Long queueId) throws Exception {
+                                 @RequestParam("queueId") Long queueId, @RequestParam("bindDBList") List<ComponentBindDBVO> bindDBVOList) throws Exception {
         Cluster cluster = clusterService.getCluster(clusterId);
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        tenantService.bindingTenant(tenantId, clusterId, queueId, cluster.getClusterName());
+        tenantService.bindingTenant(tenantId, clusterId, queueId, cluster.getClusterName(), bindDBVOList);
         return R.empty();
     }
 

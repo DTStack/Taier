@@ -18,6 +18,7 @@
 
 package com.dtstack.taiga.develop.utils.develop.service;
 
+import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 
 import java.sql.Connection;
@@ -153,21 +154,30 @@ public interface IJdbcService {
     /**
      * 获取当前schema下面所有的表
      * @param dtuicTenantId
-     * @param dtuicUserId
      * @param eScheduleJobType
      * @param schema
      * @return
      */
-    List<String> getTableList(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema);
+    List<String> getTableList(Long dtuicTenantId, EScheduleJobType eScheduleJobType, String schema);
 
     /**
      * 获取所有的databases
-     * @param dtuicTenantId
-     * @param dtuicUserId
-     * @param eScheduleJobType
+     *
+     * @param clusterId      集群ID
+     * @param eComponentType 组件类型
      * @param schema
      * @return
      */
-    List<String> getAllDataBases(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema);
+    List<String> getAllDataBases(Long clusterId, EComponentType eComponentType, String schema);
+
+    /**
+     * 创建对应的db/schema
+     *
+     * @param clusterId      集群ID
+     * @param eComponentType 组件类型
+     * @param schema
+     * @param comment
+     */
+    void createDatabase(Long clusterId, EComponentType eComponentType, String schema, String comment);
 
 }
