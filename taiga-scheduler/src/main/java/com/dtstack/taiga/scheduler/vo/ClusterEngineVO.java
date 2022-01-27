@@ -36,16 +36,16 @@ public class ClusterEngineVO extends Cluster {
 
     private List<EngineVO> engines;
 
-    private Long dtUicTenantId;
+    private Long tenantId;
 
     private Long dtUicUserId;
 
-    public Long getDtUicTenantId() {
-        return dtUicTenantId;
+    public Long getTenantId() {
+        return tenantId;
     }
 
-    public void setDtUicTenantId(Long dtUicTenantId) {
-        this.dtUicTenantId = dtUicTenantId;
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Long getDtUicUserId() {
