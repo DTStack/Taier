@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.constrant.PatternConstant;
+import com.dtstack.taiga.common.constant.PatternConstant;
 import com.dtstack.taiga.common.enums.CatalogueType;
 import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.FuncType;
