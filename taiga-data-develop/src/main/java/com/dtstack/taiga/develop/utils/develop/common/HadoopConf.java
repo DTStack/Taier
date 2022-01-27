@@ -35,13 +35,13 @@ public class HadoopConf {
 
     private static Logger logger = LoggerFactory.getLogger(HadoopConf.class);
 
-    public static Map<String, Object> getConfiguration(long dtuicTenantId) {
-        return Engine2DTOService.getHdfs(dtuicTenantId);
+    public static Map<String, Object> getConfiguration(Long tenantId) {
+        return Engine2DTOService.getHdfs(tenantId);
     }
 
-    public static Map<String, Object> getHadoopKerberosConf(long dtuicTenantId) {
+    public static Map<String, Object> getHadoopKerberosConf(Long tenantId) {
         try {
-            Map<String, Object> hadoop = Engine2DTOService.getHdfs(dtuicTenantId);
+            Map<String, Object> hadoop = Engine2DTOService.getHdfs(tenantId);
             if (MapUtils.isNotEmpty(hadoop)) {
                 Object kerberosConfig = hadoop.get("kerberosConfig");
                 if (Objects.isNull(kerberosConfig)) {
@@ -60,7 +60,7 @@ public class HadoopConf {
         return new HashMap<>(4);
     }
 
-    public static String getDefaultFs(Long dtuicTenantId) {
-        return getConfiguration(dtuicTenantId).getOrDefault("fs.defaultFS", "").toString();
+    public static String getDefaultFs(Long tenantId) {
+        return getConfiguration(tenantId).getOrDefault("fs.defaultFS", "").toString();
     }
 }
