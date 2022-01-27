@@ -45,15 +45,15 @@ export default function UpstreamDependentTasks({
 		}
 		API.allProductGlobalSearch({
 			taskName: value,
-			uicTenantId: form.getFieldValue('tenantId'),
+			selectTenantId: form.getFieldValue('tenantId'),
 		}).then((res) => {
 			if (res.code === 1) {
-				if (!res.data.length) {
+				if (!res.data?.length) {
 					form.setFieldsValue({
 						taskId: { errors: [new Error('没有符合条件的任务')] },
 					});
 				}
-				setTasks(res.data);
+				setTasks(res.data || []);
 			}
 		});
 	};

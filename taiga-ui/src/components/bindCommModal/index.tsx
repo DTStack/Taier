@@ -2,12 +2,20 @@ import { useState, useEffect } from 'react';
 import { Modal, Select, Input, Checkbox, Form } from 'antd';
 import api from '@/api/console';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { formItemLayout, ENGINE_SOURCE_TYPE_ENUM, ENGINE_SOURCE_TYPE } from '@/constant';
+import {
+	formItemLayout,
+	ENGINE_SOURCE_TYPE_ENUM,
+	ENGINE_SOURCE_TYPE,
+	PROJECT_CREATE_MODEL,
+	COMPONENT_CONFIG_NAME,
+	COMPONENT_TYPE_VALUE,
+} from '@/constant';
 import { useEnv } from '../customHooks';
 import HelpDoc from '../helpDoc';
 import EngineConfigItem from './engineForm';
-import './index.scss';
 import { getEngineSourceTypeName } from '@/utils/enums';
+import { convertToObj } from '@/utils';
+import './index.scss';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -76,7 +84,6 @@ export default ({
 	clusterList,
 	clusterId,
 	isBindTenant,
-	isBindNamespace,
 	disabled,
 	tenantInfo,
 	onCancel,
@@ -84,6 +91,9 @@ export default ({
 }: IBindModal) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [tenantList, setTenantList] = useState<ITenantProps[]>([]);
+	const [metaComponent, setMetaComponent] = useState<
+		Valueof<typeof COMPONENT_TYPE_VALUE> | undefined
+	>(undefined);
 	const { env, queueList } = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
 		visible,
@@ -99,8 +109,27 @@ export default ({
 		});
 	};
 
+	const getMetaComponent = (value: number) => {
+		api.getMetaComponent({
+			clusterId: value,
+		}).then((res) => {
+			if (res.code === 1) {
+				setMetaComponent(res.data);
+			}
+		});
+	};
+
+	const handleClusterChanged = (value: number) => {
+		if (typeof value !== 'undefined') {
+			getMetaComponent(value);
+		}
+	};
+
 	useEffect(() => {
 		onSearchTenantUser();
+		if (typeof clusterId !== 'undefined') {
+			getMetaComponent(clusterId);
+		}
 	}, []);
 
 	const getEnginName = () => {
@@ -119,27 +148,24 @@ export default ({
 	};
 
 	const handleModalOk = () => {
-		form.validateFields().then((values) => {
-			const params: {
-				canSubmit: boolean;
-				hasKubernetes: boolean;
-				// Only namespace mode have queueId
-				reqParams: IFormFieldProps & { queueId?: number };
-			} = {
-				canSubmit: true,
-				reqParams: { ...values },
-				hasKubernetes: env[ENGINE_SOURCE_TYPE.KUBERNETES],
+		form.validateFields().then((rawValues) => {
+			const values = convertToObj(rawValues);
+
+			const params: any = {
+				tenantId: values.tenantId,
+				clusterId: values.clusterId,
+				bindDBList: [],
 			};
 
-			// 切换队列覆盖默认值name
-			if (!isBindTenant) params.reqParams = { ...values, tenantId: tenantInfo.tenantId };
-			if (isBindNamespace) {
-				params.reqParams = {
-					...values,
-					tenantId: tenantInfo.tenantId,
-					queueId: tenantInfo.queueId,
-				};
-			}
+			params.bindDBList.push({
+				componentCode: metaComponent,
+				createFlag: !!PROJECT_CREATE_MODEL.NORMAL,
+				dbName:
+					values.hadoop.createModel === PROJECT_CREATE_MODEL.NORMAL
+						? undefined
+						: values.hadoop.database,
+			});
+
 			onOk?.(params);
 		});
 	};
@@ -213,7 +239,12 @@ export default ({
 						]}
 						initialValue={clusterId || ''}
 					>
-						<Select allowClear placeholder="请选择集群" disabled={disabled}>
+						<Select
+							allowClear
+							placeholder="请选择集群"
+							disabled={disabled}
+							onChange={handleClusterChanged}
+						>
 							{clusterList.map((clusterItem) => {
 								return (
 									<Option
@@ -226,31 +257,48 @@ export default ({
 							})}
 						</Select>
 					</FormItem>
-					<FormItem {...formItemLayout} label="计算引擎配置">
-						<FormItem
-							noStyle
-							name="enableHadoop"
-							initialValue={true}
-							valuePropName="checked"
-						>
-							<Checkbox>Hadoop</Checkbox>
-						</FormItem>
-						<HelpDoc param="Hive 2.x" doc="extraHive" />
+					<FormItem noStyle dependencies={['clusterId']}>
+						{({ getFieldValue: getValue }) => {
+							const hadoopName = metaComponent
+								? COMPONENT_CONFIG_NAME[metaComponent]
+								: '未知';
+							return (
+								(getValue('clusterId') || getValue('clusterId') === 0) && (
+									<>
+										<FormItem {...formItemLayout} label="计算引擎配置">
+											<FormItem
+												noStyle
+												name="enableHadoop"
+												initialValue={true}
+												valuePropName="checked"
+											>
+												<Checkbox>Hadoop</Checkbox>
+											</FormItem>
+											<HelpDoc param="Hive 2.x" doc="extraHive" />
+										</FormItem>
+										<FormItem
+											noStyle
+											dependencies={['clusterId', 'enableHadoop']}
+										>
+											{({ getFieldValue }) => (
+												<EngineConfigItem
+													form={form}
+													formParentField="hadoop"
+													formItemLayout={formItemLayout}
+													checked={getFieldValue('enableHadoop')}
+													metaComponent={metaComponent}
+													hadoopName={hadoopName}
+													clusterId={getFieldValue('clusterId')}
+													engineType={ENGINE_SOURCE_TYPE_ENUM.HADOOP}
+												/>
+											)}
+										</FormItem>
+									</>
+								)
+							);
+						}}
 					</FormItem>
-					<FormItem
-						noStyle
-						shouldUpdate={(pre, cur) => pre.enableHadoop !== cur.enableHadoop}
-					>
-						{({ getFieldValue }) => (
-							<EngineConfigItem
-								form={form}
-								formParentField="hadoop"
-								formItemLayout={formItemLayout}
-								checked={getFieldValue('enableHadoop')}
-								engineType={ENGINE_SOURCE_TYPE_ENUM.HADOOP}
-							/>
-						)}
-					</FormItem>
+
 					{env[ENGINE_SOURCE_TYPE.KUBERNETES] && (
 						<div className="border-item">
 							<div className="engine-title">Kubernetes</div>

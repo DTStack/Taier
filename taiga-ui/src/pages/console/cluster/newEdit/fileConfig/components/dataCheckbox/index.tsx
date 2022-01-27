@@ -18,7 +18,7 @@
 
 import type { FormInstance } from 'antd';
 import { Checkbox, Modal, Form } from 'antd';
-import { MAPPING_DATA_CHECK, COMPONENT_CONFIG_NAME } from '../../../const';
+import { COMPONENT_CONFIG_NAME, MAPPING_DATA_CHECK } from '@/constant';
 
 const { confirm } = Modal;
 
@@ -38,7 +38,7 @@ export default function DataCheckbox({ comp, form, view, isCheckBoxs, disabledMe
 	};
 
 	const handleChange = (e: any) => {
-		const typeCode = comp?.componentTypeCode ?? '';
+		const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
 		const showConfirm = () => {
 			/**
 			 * 勾选后保持勾选之前的状态，使用setState过度平缓，使用setTimeOut会有闪现的效果
@@ -49,16 +49,20 @@ export default function DataCheckbox({ comp, form, view, isCheckBoxs, disabledMe
 				});
 			}, 0);
 			const source = !e.target.checked
-				? (COMPONENT_CONFIG_NAME as any)[typeCode]
-				: (COMPONENT_CONFIG_NAME as any)[MAPPING_DATA_CHECK[typeCode]];
+				? COMPONENT_CONFIG_NAME[typeCode]
+				: COMPONENT_CONFIG_NAME[
+						MAPPING_DATA_CHECK[typeCode as keyof typeof MAPPING_DATA_CHECK]
+				  ];
 			const target = !e.target.checked
-				? (COMPONENT_CONFIG_NAME as any)[MAPPING_DATA_CHECK[typeCode]]
-				: (COMPONENT_CONFIG_NAME as any)[typeCode];
+				? COMPONENT_CONFIG_NAME[
+						MAPPING_DATA_CHECK[typeCode as keyof typeof MAPPING_DATA_CHECK]
+				  ]
+				: COMPONENT_CONFIG_NAME[typeCode];
 			confirm({
 				title: `确认将元数据获取方式由${source}切换为${target}？`,
 				onOk: () => {
 					form.setFieldsValue({
-						[`${MAPPING_DATA_CHECK[typeCode]}.isMetadata`]: !e.target.checked,
+						[`${MAPPING_DATA_CHECK[typeCode as keyof typeof MAPPING_DATA_CHECK]}.isMetadata`]: !e.target.checked,
 						[`${typeCode}.isMetadata`]: e.target.checked,
 					});
 				},
