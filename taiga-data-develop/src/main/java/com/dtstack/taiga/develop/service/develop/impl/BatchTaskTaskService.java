@@ -168,7 +168,7 @@ public class BatchTaskTaskService {
                 ScheduleTaskVO scheduleTaskVO = new ScheduleTaskVO();
                 BeanUtils.copyProperties(taskShade, scheduleTaskVO);
                 scheduleTaskVO.setId(taskShade.getTaskId());
-                scheduleTaskVO.setTenantName(tenantService.getByDtUicTenantId(taskShade.getTenantId()).getTenantName());
+                scheduleTaskVO.setTenantName(tenantService.getByDtTenantId(taskShade.getTenantId()).getTenantName());
                 fatherTaskVOs.add(scheduleTaskVO);
             }
         }

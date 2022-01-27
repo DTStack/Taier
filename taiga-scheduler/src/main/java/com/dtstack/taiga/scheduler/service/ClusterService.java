@@ -409,7 +409,7 @@ public class ClusterService {
         LOGGER.info("clear all standalone cache");
     }
 
-    public Boolean hasStandalone(Long dtUicTenantId, int typeCode) {
+    public Boolean hasStandalone(Long tenantId, int typeCode) {
         return false;
     }
 

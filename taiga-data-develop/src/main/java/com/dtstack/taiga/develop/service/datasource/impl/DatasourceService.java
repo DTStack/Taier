@@ -415,11 +415,11 @@ public class DatasourceService {
      * @param dataSourceVO
      * @param resource
      * @param userId
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long dtuicTenantId) {
+    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long tenantId) {
         Map<String, Object> confMap;
         JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
         dataSourceVO.setDataJson(dataJson);
@@ -464,7 +464,7 @@ public class DatasourceService {
                     dataSourceVO.setLocalKerberosConf(localKerberosConf);
                     dataSourceId = addOrUpdate(dataSourceVO, userId);
                 }
-                Map<String, String> sftpMap = kerberosService.getSftpMap(dtuicTenantId);
+                Map<String, String> sftpMap = kerberosService.getSftpMap(tenantId);
                 //目录转换 - 将临时目录根据数据源ID转移到新的kerberos文件目录
                 File localKerberosConfDir = new File(localKerberosConf);
                 File newConfDir = new File(kerberosService.getLocalKerberosPath(dataSourceId));

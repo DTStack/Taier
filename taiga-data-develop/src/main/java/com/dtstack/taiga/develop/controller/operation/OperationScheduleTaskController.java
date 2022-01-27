@@ -58,7 +58,7 @@ public class OperationScheduleTaskController {
             @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Long"),
     })
     public R<List<ReturnScheduleTaskVO>> queryFlowWorkSubTasks(@RequestParam("taskId") Long taskId) {
-        return R.ok(taskService.dealFlowWorkTask(taskId));
+        return R.ok(ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(taskService.findAllFlowTasks(taskId)));
     }
 
     @PostMapping(value = "/querySupportJobTypes")

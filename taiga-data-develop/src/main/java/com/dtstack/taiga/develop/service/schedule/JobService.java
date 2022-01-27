@@ -11,6 +11,7 @@ import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleFillDataJob;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.domain.po.CountFillDataJobStatusPO;
 import com.dtstack.taiga.dao.domain.po.JobsStatusStatisticsPO;
 import com.dtstack.taiga.dao.domain.po.StatusCountPO;
@@ -19,6 +20,7 @@ import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.event.FillStatusUpdateFinishEvent;
 import com.dtstack.taiga.develop.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.taiga.develop.mapstruct.job.JobMapstructTransfer;
+import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.vo.fill.FillDataJobVO;
 import com.dtstack.taiga.develop.vo.fill.ReturnFillDataJobListVO;
 import com.dtstack.taiga.develop.vo.fill.ReturnFillDataListVO;
@@ -61,6 +63,9 @@ import java.util.stream.Collectors;
 public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private TaskService taskService;
 
     @Autowired
@@ -87,7 +92,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
             } else {
@@ -137,7 +142,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIdList = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return Lists.newArrayList();
             } else {
@@ -299,7 +304,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 关联任务
         List<Long> taskIds = null;
         if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(), dto.getOwnerId());
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
             } else {
@@ -335,17 +340,22 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             List<FillDataJobVO> fillDataJobVOS = Lists.newArrayList();
 
             List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-            List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list();
-            Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+            Map<Long, ScheduleTaskShade> taskShadeMap = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list().stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+            Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
 
             records.forEach(record ->{
                 FillDataJobVO vo = FillDataJobMapstructTransfer.INSTANCE.scheduleJobToFillDataJobVO(record);
-                vo.setTaskName(taskShadeMap.get(record.getTaskId()) != null ? taskShadeMap.get(record.getTaskId()).getName() : "");
                 vo.setStartExecTime(DateUtil.getDate(record.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setEndExecTime(DateUtil.getDate(record.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
                 vo.setExecTime(getExecTime(record));
-                vo.setOwnerId(taskShadeMap.get(record.getTaskId()) != null ? taskShadeMap.get(record.getTaskId()).getOwnerUserId() : 0L);
+
+                ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(record.getTaskId());
+                if (scheduleTaskShade != null) {
+                    vo.setTaskName(scheduleTaskShade.getName());
+                    vo.setOwnerId(scheduleTaskShade.getOwnerUserId());
+                    vo.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+                }
                 fillDataJobVOS.add(vo);
             });
 
@@ -580,16 +590,21 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
         List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+        Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
 
         // 封装返回值
         for (ScheduleJob scheduleJob : records) {
             ReturnJobListVO returnJobListVO = JobMapstructTransfer.INSTANCE.scheduleJobToReturnJobListVO(scheduleJob);
-            returnJobListVO.setTaskName(taskShadeMap.get(returnJobListVO.getTaskId()) != null ? taskShadeMap.get(returnJobListVO.getTaskId()).getName() : "");
             returnJobListVO.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
             returnJobListVO.setStartExecTime(DateUtil.getDate(scheduleJob.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setEndExecTime(DateUtil.getDate(scheduleJob.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setExecTime(getExecTime(scheduleJob));
-            returnJobListVO.setOwnerId(taskShadeMap.get(scheduleJob.getTaskId()) != null ? taskShadeMap.get(scheduleJob.getTaskId()).getOwnerUserId() : 0L);
+            ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(returnJobListVO.getTaskId());
+            if (scheduleTaskShade != null) {
+                returnJobListVO.setTaskName(scheduleTaskShade.getName());
+                returnJobListVO.setOwnerId(scheduleTaskShade.getOwnerUserId());
+                returnJobListVO.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+            }
             returnJobListVOS.add(returnJobListVO);
         }
     }

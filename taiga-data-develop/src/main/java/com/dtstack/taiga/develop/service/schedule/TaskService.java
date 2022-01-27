@@ -9,16 +9,17 @@ import com.dtstack.taiga.common.enums.IsDeletedEnum;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShadeInfo;
 import com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade;
+import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.mapper.ScheduleTaskShadeInfoMapper;
 import com.dtstack.taiga.dao.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.mapstruct.task.ScheduleTaskMapstructTransfer;
+import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.taiga.develop.vo.schedule.ReturnTaskSupportTypesVO;
 import com.dtstack.taiga.scheduler.dto.schedule.QueryTaskListDTO;
 import com.dtstack.taiga.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taiga.scheduler.dto.schedule.ScheduleTaskShadeDTO;
-import com.dtstack.taiga.scheduler.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +42,9 @@ import java.util.stream.Collectors;
 public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTaskShade> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private TaskTaskService tasktaskService;
@@ -188,7 +193,8 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .page(page);
 
         List<ReturnScheduleTaskVO> scheduleTaskVOS = ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(resultPage.getRecords());
-
+        Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
+        scheduleTaskVOS.forEach(vo -> vo.setOwnerUserName(userMap.get(vo.getOwnerUserId()) != null ? userMap.get(vo.getOwnerUserId()).getUserName() : ""));
         return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), resultPage.getTotal(), (int) resultPage.getPages(), scheduleTaskVOS);
     }
 
@@ -219,36 +225,28 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     }
 
     /**
-     * 查询工作流子节点
-     *
-     * @param taskId 任务id
-     * @return
-     */
-    public List<ReturnScheduleTaskVO> dealFlowWorkTask(Long taskId) {
-        return ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(findAllFlowTasks(taskId));
-    }
-
-    /**
      * 通过任务名称和所属idc哈希任务
      *
      * @param taskName 任务名称
      * @param ownerId 所属用户id
      * @return taskIds
      */
-    public List<ScheduleTaskShade> findTaskByTaskName(String taskName, Long ownerId) {
+    public List<ScheduleTaskShade> findTaskByTaskName(String taskName, Long tenantId, Long ownerId) {
         if (StringUtils.isBlank(taskName) && ownerId == null) {
             return Lists.newArrayList();
         }
         return this.lambdaQuery()
-                .eq(ownerId != null, ScheduleTaskShade::getOwnerUserId, ownerId)
                 .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
+                .eq(ownerId != null, ScheduleTaskShade::getOwnerUserId, ownerId)
+                .eq(tenantId != null, ScheduleTaskShade::getTenantId, tenantId)
                 .list();
     }
 
     /**
      * 查询工作有下的所有任务
      *
-     * @param taskId 任务i     * @return
+     * @param taskId 任务i
+     * @return 工作流子任务
      */
     public List<ScheduleTaskShade> findAllFlowTasks(Long taskId) {
         if (taskId == null) {
@@ -276,9 +274,5 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             returnTaskSupportTypesVOS.add(vo);
         }
         return returnTaskSupportTypesVOS;
-    }
-
-    public List<ScheduleTaskShadeTypeVO> findFuzzyTaskNameByCondition(String taskName, Integer appType, Long uicTenantId, Long projectId) {
-        return null;
     }
 }

@@ -1,26 +1,14 @@
 package com.dtstack.taiga.scheduler.service;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
-import com.dtstack.taiga.dao.dto.ScheduleTaskShadeDTO;
 import com.dtstack.taiga.dao.mapper.ScheduleTaskShadeMapper;
-import com.dtstack.taiga.dao.pager.PageResult;
-import com.dtstack.taiga.pluginapi.util.MathUtil;
-import com.dtstack.taiga.scheduler.vo.ScheduleTaskShadeVO;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 @Service

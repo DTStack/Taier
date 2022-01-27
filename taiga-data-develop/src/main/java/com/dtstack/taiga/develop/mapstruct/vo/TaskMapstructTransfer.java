@@ -22,28 +22,14 @@ import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchSysParameter;
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
-import com.dtstack.taiga.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskCheckResultVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskGetNotDeleteVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.dto.devlop.*;
 import com.dtstack.taiga.develop.web.develop.query.BatchScheduleTaskResultVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchScheduleTaskVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchTaskResourceParamVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchTaskTaskAddOrUpdateDependencyVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchGetChildTasksResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchResourceResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchSysParameterResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetTaskByIdResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskPublishTaskResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskVersionDetailResultVO;
-import com.dtstack.taiga.develop.web.develop.result.ReadWriteLockResultVO;
-import com.dtstack.taiga.develop.web.develop.result.ScheduleTaskShadeResultVO;
-import com.dtstack.taiga.develop.web.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taiga.develop.web.develop.result.*;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
-import com.dtstack.taiga.scheduler.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -161,14 +147,6 @@ public interface TaskMapstructTransfer {
      * @return
      */
     BatchTaskPublishTaskResultVO TaskCheckResultVOToBatchTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
-
-
-    /**
-     * List<ScheduleTaskShadeTypeVO> -> List<ScheduleTaskResultVO>
-     * @param scheduleTaskShadeTypeVOS
-     * @return
-     */
-    List<ScheduleTaskShadeResultVO> scheduleTaskShadeTypeVOsToBatchTaskResultVOs(List<ScheduleTaskShadeTypeVO> scheduleTaskShadeTypeVOS);
 
     /**
      * List<TaskGetNotDeleteVO> -> List<BatchPreDeleteTaskResultVO>

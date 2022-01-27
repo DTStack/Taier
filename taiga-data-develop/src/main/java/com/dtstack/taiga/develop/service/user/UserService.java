@@ -1,9 +1,12 @@
 package com.dtstack.taiga.develop.service.user;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taiga.common.enums.Deleted;
+import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.dto.UserDTO;
+import com.dtstack.taiga.dao.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.taiga.dao.mapper.UserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,18 +17,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService extends ServiceImpl<UserMapper, User> {
 
-    @Autowired
-    private UserMapper userMapper;
 
     public String getUserName(Long userId) {
-        User user = userMapper.selectById(userId);
+        User user = this.baseMapper.selectById(userId);
         return null == user ? "" : user.getUserName();
     }
 
     public Map<Long, User> getUserMap(Collection<Long> userIds) {
-        List<User> users = userMapper.selectBatchIds(userIds);
+        List<User> users = this.baseMapper.selectBatchIds(userIds);
         if(CollectionUtils.isEmpty(users)){
             return new HashMap<>();
         }
@@ -33,16 +34,16 @@ public class UserService {
     }
 
     public User getById(Long userId) {
-       return userMapper.selectById(userId);
+       return this.baseMapper.selectById(userId);
     }
 
 
     public List<User> listAll() {
-        return userMapper.selectList(Wrappers.lambdaQuery(User.class).eq(User::getIsDeleted, Deleted.NORMAL.getStatus()));
+        return this.baseMapper.selectList(Wrappers.lambdaQuery(User.class).eq(User::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 
     public User getByUserName(String username) {
-        return userMapper.selectOne(Wrappers.lambdaQuery(User.class).eq(User::getUserName, username));
+        return this.baseMapper.selectOne(Wrappers.lambdaQuery(User.class).eq(User::getUserName, username));
     }
 
     public UserDTO getUserByDTO(Long userId) {
