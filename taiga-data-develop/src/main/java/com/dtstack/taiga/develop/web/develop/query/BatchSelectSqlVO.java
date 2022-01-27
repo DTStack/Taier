@@ -39,9 +39,6 @@ public class BatchSelectSqlVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "项目 ID", hidden = true)
     private Long projectId;
 
-    @ApiModelProperty(value = "uic 租户 ID", hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "dtToken", hidden = true)
     private String dtToken;
 

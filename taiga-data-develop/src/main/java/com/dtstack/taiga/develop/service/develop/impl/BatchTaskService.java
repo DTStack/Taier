@@ -2180,12 +2180,12 @@ public class BatchTaskService {
      */
     public Map<String, Object> fillKerberosConfig(Long sourceId) {
         BatchDataSource source = dataSourceService.getOne(sourceId);
-        Long dtuicTenantId = tenantService.getDtTenantId(source.getTenantId());
+        Long tenantId = tenantService.getDtTenantId(source.getTenantId());
         JSONObject dataJson = JSON.parseObject(source.getDataJson());
         JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
         if (MapUtils.isNotEmpty(kerberosConfig)) {
             String localKerberosConf = getLocalKerberosConf(sourceId);
-            downloadKerberosFromSftp(kerberosConfig.getString(KERBEROS_DIR), localKerberosConf, dtuicTenantId, dataJson.getTimestamp(KERBEROS_FILE_TIMESTAMP));
+            downloadKerberosFromSftp(kerberosConfig.getString(KERBEROS_DIR), localKerberosConf, tenantId, dataJson.getTimestamp(KERBEROS_FILE_TIMESTAMP));
             return handleKerberos(source.getType(), kerberosConfig, localKerberosConf);
         }
         return new HashMap<>();

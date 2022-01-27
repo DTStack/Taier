@@ -33,9 +33,6 @@ public class BatchDataSourceUserVO {
     @ApiModelProperty(value = "电话号码", example = "18888888888")
     private String phoneNumber;
 
-    @ApiModelProperty(value = "dtuic用户id")
-    private Long dtuicUserId;
-
     @ApiModelProperty(value = "邮箱", example = "test@dtstack.com")
     private String email;
 
