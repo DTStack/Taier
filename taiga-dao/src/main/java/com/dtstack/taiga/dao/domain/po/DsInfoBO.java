@@ -40,7 +40,7 @@ public class DsInfoBO {
     private String dataName;
 
 
-    private Long dtuicTenantId;
+    private Long tenantId;
 
 
     /**

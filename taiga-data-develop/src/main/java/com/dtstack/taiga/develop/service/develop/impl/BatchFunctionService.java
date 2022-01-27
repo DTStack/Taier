@@ -172,7 +172,7 @@ public class BatchFunctionService {
 			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
-            LOGGER.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
+            LOGGER.error("addFunction, functions={},resource={},tenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
             LOGGER.error(e.getMessage(), e);
             if (e instanceof RdosDefineException) {
                 throw e;

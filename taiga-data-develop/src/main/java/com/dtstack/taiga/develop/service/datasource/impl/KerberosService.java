@@ -124,12 +124,12 @@ public class KerberosService {
      * @param sourceId
      * @param dataJson
      * @param localKerberosConf
-     * @param dtuicTenantId
+     * @param tenantId
      * @throws SftpException
      */
-    public void downloadKerberosFromSftp(Integer isMeta, Long sourceId, JSONObject dataJson, String localKerberosConf, Long dtuicTenantId) throws SftpException {
+    public void downloadKerberosFromSftp(Integer isMeta, Long sourceId, JSONObject dataJson, String localKerberosConf, Long tenantId) throws SftpException {
         // 需要读取配置文件
-        Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
+        Map<String, String> sftpMap = getSftpMap(tenantId);
         String kerberosDir;
         if (isMeta == 1){
             JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
@@ -173,7 +173,7 @@ public class KerberosService {
             // 获取kerberos本地路径
             String localKerberosConf = getLocalKerberosPath(dsInfoBO.getId());
             downloadKerberosFromSftp(dsInfoBO.getIsMeta(), dsInfoBO.getId(),
-                    DataSourceUtils.getDataSourceJson(dsInfoBO.getDataJson()), localKerberosConf, dsInfoBO.getDtuicTenantId());
+                    DataSourceUtils.getDataSourceJson(dsInfoBO.getDataJson()), localKerberosConf, dsInfoBO.getTenantId());
         } catch (SftpException e) {
             throw new DtCenterDefException(String.format("获取kerberos认证文件失败,Caused by: %s", e.getMessage()), e);
         }

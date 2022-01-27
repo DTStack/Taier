@@ -188,11 +188,11 @@ public class TenantService {
         throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
-    public Tenant getByDtUicTenantId(Long tenantId) {
+    public Tenant getByDtTenantId(Long tenantId) {
         return getTenantById(tenantId);
     }
 
-    public Long getDtuicTenantId(Long id) {
+    public Long getDtTenantId(Long id) {
         return id;
     }
 
