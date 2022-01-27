@@ -25,7 +25,7 @@ import javax.servlet.http.Cookie;
 
 public class CookieUtil {
 
-    public static String getDtUicToken(Cookie[] cookies) {
+    public static String getToken(Cookie[] cookies) {
         Object value = getCookieValue(cookies, Cookies.TOKEN);
         return value == null ? "" : value.toString();
     }

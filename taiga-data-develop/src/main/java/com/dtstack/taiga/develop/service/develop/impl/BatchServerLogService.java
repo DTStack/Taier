@@ -355,13 +355,13 @@ public class BatchServerLogService {
     /**
      * 解析增量同步信息
      */
-    private void parseIncreInfo(final JSONObject info, final String job, final Long dtUicTenantId, final String jobId, final long startTime, final long endTime, final String taskParams) {
+    private void parseIncreInfo(final JSONObject info, final String job, final Long tenantId, final String jobId, final long startTime, final long endTime, final String taskParams) {
         if (StringUtils.isEmpty(jobId)) {
             return;
         }
         try {
             final EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
-            JSONObject flinkJsonObject = Engine2DTOService.getComponentConfig(dtUicTenantId, EComponentType.FLINK);
+            JSONObject flinkJsonObject = Engine2DTOService.getComponentConfig(tenantId, EComponentType.FLINK);
             final String prometheusHost = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusHost");
             final String prometheusPort = flinkJsonObject.getJSONObject(deployModeEnum.name()).getString("prometheusPort");
             //prometheus的配置信息 从控制台获取
@@ -532,7 +532,7 @@ public class BatchServerLogService {
     }
 
     private void formatForLogInfo(final JSONObject jobInfo, final Integer jobType, final Integer taskType, final String retryLog, final Timestamp startTime,
-                                  final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long dtUicTenantId, final String jobId) {
+                                  final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long tenantId, final String jobId) {
         if (!taskType.equals(EScheduleJobType.SYNC.getVal())) {
             if (jobInfo.containsKey("engineLogErr")) {
                 // 有这个字段表示日志没有获取到，目前engine端只对flink任务做了这种处理，这里先提前加上
@@ -546,11 +546,11 @@ public class BatchServerLogService {
             return;
         }
 
-        this.formatForSyncLogInfo(jobInfo, jobType,retryLog, startTime, endTime, execTime, batchServerLogVO, dtUicTenantId,jobId);
+        this.formatForSyncLogInfo(jobInfo, jobType,retryLog, startTime, endTime, execTime, batchServerLogVO, tenantId,jobId);
     }
 
     private void formatForSyncLogInfo(final JSONObject jobInfo, final Integer jobType, final String retryLog, final Timestamp startTime,
-                                      final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long dtUicTenantId, final String jobId) {
+                                      final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long tenantId, final String jobId) {
 
         try {
             final Map<String, Object> sqlInfoMap = (Map<String, Object>) BatchServerLogService.objectMapper.readValue(jobInfo.getString("sql"), Object.class);
@@ -574,7 +574,7 @@ public class BatchServerLogService {
                     && jobInfoMap.get("jobid") != null && this.environmentContext.getSyncLogPromethues();
 
             if (parsePerfLog) {
-                perfLogInfo = this.formatPerfLogInfo(jobInfoMap.get("jobid").toString(),jobId, startTime.getTime(), endTime.getTime(), dtUicTenantId);
+                perfLogInfo = this.formatPerfLogInfo(jobInfoMap.get("jobid").toString(),jobId, startTime.getTime(), endTime.getTime(), tenantId);
             }
 
             logInfoJson.put("perf", perfLogInfo);
@@ -618,7 +618,7 @@ public class BatchServerLogService {
     }
 
 
-    public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long dtUicTenantId) {
+    public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long tenantId) {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
@@ -630,7 +630,7 @@ public class BatchServerLogService {
         }
         BatchTask batchTaskById = batchTaskService.getBatchTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(dtUicTenantId,batchTaskById.getTaskParams());
+        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,batchTaskById.getTaskParams());
         if (prometheusHostAndPort == null){
             return "promethues配置为空";
         }
@@ -665,7 +665,7 @@ public class BatchServerLogService {
 
             JSONObject jsonObject = Engine2DTOService.getComponentConfig(tenantId, EComponentType.FLINK);
             if (null == jsonObject) {
-                LOGGER.info("console uicTenantId {} pluginInfo is null", tenantId);
+                LOGGER.info("console tenantId {} pluginInfo is null", tenantId);
                 return null;
             }
             EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
@@ -719,7 +719,7 @@ public class BatchServerLogService {
     }
 
 
-    public JSONObject getLogsByAppId(Long dtuicTenantId, Integer taskType, String jobId, Long projectId) {
+    public JSONObject getLogsByAppId(Long tenantId, Integer taskType, String jobId, Long projectId) {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
@@ -727,7 +727,7 @@ public class BatchServerLogService {
         }
         final JSONObject result = new JSONObject(YarnAppLogType.values().length);
         for (final YarnAppLogType type : YarnAppLogType.values()) {
-            final String msg = this.batchDownloadService.downloadAppTypeLog(dtuicTenantId, jobId, 100,
+            final String msg = this.batchDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
                     type.name().toUpperCase(), taskType);
             final JSONObject typeLog = new JSONObject(2);
             typeLog.put("msg", msg);
@@ -738,7 +738,7 @@ public class BatchServerLogService {
         return result;
     }
 
-    public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long dtuicTenantId, Integer taskType, String jobId, String logType, Long projectId) {
+    public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long tenantId, Integer taskType, String jobId, String logType, Long projectId) {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
@@ -749,7 +749,7 @@ public class BatchServerLogService {
             throw new RdosDefineException("not support the logType:" + logType);
         }
 
-        final String msg = this.batchDownloadService.downloadAppTypeLog(dtuicTenantId, jobId, 100,
+        final String msg = this.batchDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
                 logType.toUpperCase(), taskType);
         BatchServerLogByAppLogTypeResultVO resultVO = new BatchServerLogByAppLogTypeResultVO();
         resultVO.setMsg(msg);

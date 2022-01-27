@@ -47,21 +47,21 @@ public class LoginService {
     private TokenService tokenService;
 
 
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, DtUser dtUicUser) {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, DtUser dtUser) {
         String dtToken = cookieService.token(request);
 
         //若Token不存在,则生成Token
         if (Objects.isNull(dtToken)
         ) {
-            cookie(request, response, dtUicUser);
+            cookie(request, response, dtUser);
         } else {
             DTToken token = tokenService.decryption(dtToken);
-            boolean equalsUserId = dtUicUser.getUserId().equals(token.getUserId());
-            boolean nonNullTenantId = Objects.nonNull(dtUicUser.getTenantId());
-            if (nonNullTenantId && !dtUicUser.getTenantId().equals(token.getTenantId())) {
-                cookie(request, response, dtUicUser);
+            boolean equalsUserId = dtUser.getUserId().equals(token.getUserId());
+            boolean nonNullTenantId = Objects.nonNull(dtUser.getTenantId());
+            if (nonNullTenantId && !dtUser.getTenantId().equals(token.getTenantId())) {
+                cookie(request, response, dtUser);
             } else if (!equalsUserId) {
-                cookie(request, response, dtUicUser);
+                cookie(request, response, dtUser);
             }
         }
     }
