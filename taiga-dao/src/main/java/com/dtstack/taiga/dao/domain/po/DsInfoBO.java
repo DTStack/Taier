@@ -1,7 +1,7 @@
 package com.dtstack.taiga.dao.domain.po;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.util.DataSourceUtils;
 import com.dtstack.taiga.dao.domain.DsInfo;
 import lombok.Data;
