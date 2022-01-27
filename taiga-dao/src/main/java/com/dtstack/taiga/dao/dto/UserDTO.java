@@ -6,8 +6,6 @@ public class UserDTO  {
 
     private String phoneNumber;
 
-    private Long dtuicUserId;
-
     private String email;
 
     private Integer status;
@@ -48,14 +46,6 @@ public class UserDTO  {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public Long getDtuicUserId() {
-        return dtuicUserId;
-    }
-
-    public void setDtuicUserId(Long dtuicUserId) {
-        this.dtuicUserId = dtuicUserId;
     }
 
     public String getEmail() {

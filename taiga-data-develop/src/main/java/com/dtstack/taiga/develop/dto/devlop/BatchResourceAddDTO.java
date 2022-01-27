@@ -57,11 +57,6 @@ public class BatchResourceAddDTO {
     private Long nodePid;
 
     /**
-     * uic租户ID
-     */
-    private Long dtuicTenantId =1L;
-
-    /**
      * 资源类型
      */
     private Integer resourceType;

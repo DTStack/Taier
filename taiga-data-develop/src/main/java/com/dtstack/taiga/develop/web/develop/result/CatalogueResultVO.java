@@ -58,9 +58,6 @@ public class CatalogueResultVO {
     @ApiModelProperty(value = "项目 ID", example = "")
     private Long projectId;
 
-    @ApiModelProperty(value = "uic 租户 ID", example = "3")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "平台类别", example = "1")
     private Integer appType;
 
