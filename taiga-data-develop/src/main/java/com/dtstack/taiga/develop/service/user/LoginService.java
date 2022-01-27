@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.user;
 
 
-import com.dtstack.taiga.common.constrant.Cookies;
+import com.dtstack.taiga.common.constant.Cookies;
 import com.dtstack.taiga.develop.dto.user.DTToken;
 import com.dtstack.taiga.develop.dto.user.DtUser;
 import org.slf4j.Logger;

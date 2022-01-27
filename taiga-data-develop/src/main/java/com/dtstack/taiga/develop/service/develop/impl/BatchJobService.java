@@ -20,7 +20,7 @@ package com.dtstack.taiga.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.constrant.TaskStatusConstrant;
+import com.dtstack.taiga.common.constant.TaskStatusConstant;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.TaskStatus;
 import com.dtstack.taiga.common.enums.TempJobType;
@@ -242,7 +242,7 @@ public class BatchJobService {
                 return resultVO;
             }
 
-            final Integer status = TaskStatusConstrant.getShowStatus(job.getStatus());
+            final Integer status = TaskStatusConstant.getShowStatus(job.getStatus());
             resultVO.setStatus(status);
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");

@@ -2,7 +2,7 @@ package com.dtstack.taiga.common.util;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONValidator;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
