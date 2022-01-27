@@ -25,21 +25,31 @@ import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.dao.domain.*;
+import com.dtstack.taiga.dao.domain.ClusterTenant;
+import com.dtstack.taiga.dao.domain.Component;
+import com.dtstack.taiga.dao.domain.Queue;
+import com.dtstack.taiga.dao.domain.Tenant;
+import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.QueueMapper;
 import com.dtstack.taiga.dao.mapper.TenantMapper;
 import com.dtstack.taiga.dao.pager.PageQuery;
 import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.dao.pager.Sort;
+import com.dtstack.taiga.develop.dto.devlop.ComponentBindDBDTO;
+import com.dtstack.taiga.develop.mapstruct.console.ClusterTransfer;
 import com.dtstack.taiga.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
+import com.dtstack.taiga.develop.service.develop.IComponentService;
+import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.service.develop.impl.BatchCatalogueService;
 import com.dtstack.taiga.develop.service.develop.impl.TenantComponentService;
 import com.dtstack.taiga.develop.vo.console.ClusterTenantVO;
+import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +95,8 @@ public class TenantService {
     @Autowired
     private DatasourceService datasourceService;
 
-
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
@@ -121,7 +132,8 @@ public class TenantService {
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant(Long tenantId, Long clusterId,
-                              Long queueId, String clusterName) throws Exception {
+                              Long queueId, String clusterName,
+                              List<ComponentBindDBVO> bindDBDTOList) throws Exception {
         Tenant tenant = getTenant(tenantId);
         checkTenantBindStatus(tenantId);
         checkClusterCanUse(clusterName);
@@ -130,7 +142,8 @@ public class TenantService {
             //hadoop
             updateTenantQueue(tenantId, clusterId, queueId);
         }
-        initBatch(tenantId, tenant.getCreateUserId(), tenant.getTenantName(), tenant.getTenantDesc());
+        List<ComponentBindDBDTO> bindDTOList = ClusterTransfer.INSTANCE.bindDBtoDTOList(bindDBDTOList);
+        initDataDevelop(clusterId, tenantId, tenant.getCreateUserId(), tenant.getTenantName(), tenant.getTenantDesc(), bindDTOList);
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -237,12 +250,24 @@ public class TenantService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void initBatch(Long tenantId, Long userId, String tenantName, String tenantDesc) throws Exception {
+    public void initDataDevelop(Long clusterId, Long tenantId, Long userId, String tenantName, String tenantDesc, List<ComponentBindDBDTO> bindDBDTOList) throws Exception {
         //初始化目录
         List<Component> components = componentService.listAllComponents(tenantId);
         List<ComponentVO> componentVOS = ComponentVO.toVOS(components);
         batchCatalogueService.initCatalogue(tenantId, userId, componentVOS);
 
+        // 初始化db
+        IComponentService componentService = null;
+        for (ComponentBindDBDTO componentBindDBDTO : bindDBDTOList) {
+            if (BooleanUtils.isNotTrue(componentBindDBDTO.getCreateFlag())) {
+                continue;
+            }
+            EComponentType eComponentType = EComponentType.getByCode(componentBindDBDTO.getComponentCode());
+            componentService = multiEngineServiceFactory.getComponentService(eComponentType.getTypeCode());
+            componentService.createDatabase(clusterId, eComponentType, componentBindDBDTO.getDbName(), "");
+        }
+
+        // TODO 这个地方需要根据不同的组件类型去初始化数据源信息
         //初始化数据源
         datasourceService.initDefaultSource(tenantId, tenantName, tenantDesc, userId);
 

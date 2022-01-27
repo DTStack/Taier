@@ -16,30 +16,21 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.mapstruct.console;
+package com.dtstack.taiga.develop.web.develop.query;
 
+import com.dtstack.taiga.common.param.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-import com.dtstack.taiga.dao.domain.Cluster;
-import com.dtstack.taiga.develop.dto.devlop.ComponentBindDBDTO;
-import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
-import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+@Data
+@ApiModel("集群组件database信息")
+public class BatchComponentGetDatabasesVO extends DtInsightAuthParam {
 
-import java.util.List;
+    @ApiModelProperty(value = "集群ID", example = "1", required = true)
+    private Long clusterId;
 
-@Mapper
-public interface ClusterTransfer {
-
-    ClusterTransfer INSTANCE = Mappers.getMapper(ClusterTransfer.class);
-
-    @Mapping(source = "id", target = "clusterId")
-    ClusterInfoVO toInfoVO(Cluster cluster);
-
-
-    List<ClusterInfoVO> toInfoVOs(List<Cluster> cluster);
-
-    List<ComponentBindDBDTO> bindDBtoDTOList(List<ComponentBindDBVO> componentBindDBVOList);
+    @ApiModelProperty(value = "组件类型ID", example = "1", required = true)
+    private Integer componentTypeCode;
 
 }
