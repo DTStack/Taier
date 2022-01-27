@@ -102,4 +102,13 @@ public class ClusterController {
         return R.ok(clusterService.getClusterEngine(clusterId));
     }
 
+    @ApiOperation(value = "getMetaComponent", notes = "获取单个集群meta属性的组件标识")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
+    })
+    @GetMapping(value = "/getMetaComponent")
+    public R<Integer> getMetaComponent(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(clusterService.getMetaComponentByClusterId(clusterId));
+    }
+
 }

@@ -16,28 +16,30 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.develop.dto.devlop;
+package com.dtstack.taiga.develop.vo.console;
 
 
+import com.dtstack.taiga.common.param.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class ComponentBindDBDTO {
+@ApiModel("租户对接集群信息")
+public class ComponentBindTenantVO extends DtInsightAuthParam {
 
-    /**
-     * 组件类型
-     */
-    private Integer componentCode;
+    @ApiModelProperty(value = "租户ID", example = "1", required = true)
+    private Long tenantId;
 
-    /**
-     * 创建/对接
-     */
-    private Boolean createFlag;
+    @ApiModelProperty(value = "集群ID", example = "2", required = true)
+    private Long clusterId;
 
-    /**
-     * db 名称
-     *
-     */
-    private String dbName;
+    @ApiModelProperty(value = "队列ID", example = "12")
+    private Long queueId;
+
+    @ApiModelProperty(value = "计算引擎对接信息")
+    private List<ComponentBindDBVO> bindDBList;
 
 }
