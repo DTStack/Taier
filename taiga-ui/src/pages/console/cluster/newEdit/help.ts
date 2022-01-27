@@ -16,25 +16,33 @@
  * limitations under the License.
  */
 
+import { TABS_TITLE_KEY } from '@/constant';
 import _ from 'lodash';
 import {
-	TABS_TITLE_KEY,
 	COMPONENT_TYPE_VALUE,
-	CONFIG_ITEM_TYPE,
-	FILE_TYPE,
-	DEFAULT_PARAMS,
 	COMPONENT_CONFIG_NAME,
-} from './const';
+	FILE_TYPE,
+	CONFIG_ITEM_TYPE,
+} from '@/constant';
+
+const DEFAULT_PARAMS = [
+	'storeType',
+	'principal',
+	'hadoopVersion',
+	'kerberosFileName',
+	'uploadFileName',
+	'isMetadata',
+	'isDefault',
+];
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp(typeCode: number): boolean {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.YARN,
-			COMPONENT_TYPE_VALUE.HDFS,
-			COMPONENT_TYPE_VALUE.KUBERNETES,
-		].indexOf(typeCode) > -1
-	);
+	const temp: number[] = [
+		COMPONENT_TYPE_VALUE.YARN,
+		COMPONENT_TYPE_VALUE.HDFS,
+		COMPONENT_TYPE_VALUE.KUBERNETES,
+	];
+	return temp.indexOf(typeCode) > -1;
 }
 
 export function isKubernetes(typeCode: number): boolean {
@@ -54,69 +62,69 @@ export function isDtscriptAgent(typeCode: number): boolean {
 }
 
 export function isHaveGroup(typeCode: number): boolean {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.FLINK,
-			COMPONENT_TYPE_VALUE.SPARK,
-			COMPONENT_TYPE_VALUE.LEARNING,
-			COMPONENT_TYPE_VALUE.DTYARNSHELL,
-		].indexOf(typeCode) > -1
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.FLINK,
+		COMPONENT_TYPE_VALUE.SPARK,
+		COMPONENT_TYPE_VALUE.LEARNING,
+		COMPONENT_TYPE_VALUE.DTYARNSHELL,
+	];
+	return tmp.indexOf(typeCode) > -1;
 }
 
 export function notCustomParam(typeCode: number): boolean {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.SFTP,
-			COMPONENT_TYPE_VALUE.LIBRA_SQL,
-			COMPONENT_TYPE_VALUE.ORACLE_SQL,
-			COMPONENT_TYPE_VALUE.TIDB_SQL,
-			COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL,
-			COMPONENT_TYPE_VALUE.IMPALA_SQL,
-			COMPONENT_TYPE_VALUE.PRESTO_SQL,
-		].indexOf(typeCode) > -1
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.SFTP,
+		COMPONENT_TYPE_VALUE.LIBRA_SQL,
+		COMPONENT_TYPE_VALUE.ORACLE_SQL,
+		COMPONENT_TYPE_VALUE.TIDB_SQL,
+		COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL,
+		COMPONENT_TYPE_VALUE.IMPALA_SQL,
+		COMPONENT_TYPE_VALUE.PRESTO_SQL,
+	];
+	return tmp.indexOf(typeCode) > -1;
 }
 
 export function isOtherVersion(code: number): boolean {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.FLINK,
-			COMPONENT_TYPE_VALUE.SPARK,
-			COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
-			COMPONENT_TYPE_VALUE.HIVE_SERVER,
-			COMPONENT_TYPE_VALUE.INCEPTOR_SQL,
-		].indexOf(code) > -1
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.FLINK,
+		COMPONENT_TYPE_VALUE.SPARK,
+		COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
+		COMPONENT_TYPE_VALUE.HIVE_SERVER,
+		COMPONENT_TYPE_VALUE.INCEPTOR_SQL,
+	];
+	return tmp.indexOf(code) > -1;
 }
 
 export function isSameVersion(code: number): boolean {
-	return [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN].indexOf(code) > -1;
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN];
+	return tmp.indexOf(code) > -1;
 }
 
 export function isMultiVersion(code: number): boolean {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.FLINK,
-			COMPONENT_TYPE_VALUE.SPARK,
-			COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE,
-		].indexOf(code) > -1
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.FLINK,
+		COMPONENT_TYPE_VALUE.SPARK,
+		COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE,
+	];
+	return tmp.indexOf(code) > -1;
 }
 
 export function needZipFile(type: number): boolean {
-	return [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS].indexOf(type) > -1;
+	const tmp: number[] = [FILE_TYPE.KERNEROS, FILE_TYPE.CONFIGS];
+	return tmp.indexOf(type) > -1;
 }
 
 export function showDataCheckBox(code: number): boolean {
-	return (
-		[COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER].indexOf(code) >
-		-1
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.HIVE_SERVER,
+		COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
+	];
+	return tmp.indexOf(code) > -1;
 }
 
 export function notFileConfig(code: number): boolean {
-	return [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT].indexOf(code) > -1;
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT];
+	return tmp.indexOf(code) > -1;
 }
 
 export function getActionType(mode: string): string {
@@ -690,12 +698,11 @@ export function getModifyComp(comps: any, initialCompData: any[]): any {
 
 /** 指定引擎的 jdbcUrl 项展示 hover 提示 */
 export function showHover(componentTypeValue: number, label: string) {
-	return (
-		[
-			COMPONENT_TYPE_VALUE.MYSQL,
-			COMPONENT_TYPE_VALUE.DB2,
-			COMPONENT_TYPE_VALUE.OCEANBASE,
-			COMPONENT_TYPE_VALUE.SQLSERVER,
-		].includes(componentTypeValue) && label === 'jdbcUrl'
-	);
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.MYSQL,
+		COMPONENT_TYPE_VALUE.DB2,
+		COMPONENT_TYPE_VALUE.OCEANBASE,
+		COMPONENT_TYPE_VALUE.SQLSERVER,
+	];
+	return tmp.includes(componentTypeValue) && label === 'jdbcUrl';
 }
