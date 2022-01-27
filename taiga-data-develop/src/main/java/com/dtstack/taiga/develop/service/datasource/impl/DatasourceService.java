@@ -16,8 +16,6 @@ import com.dtstack.taiga.common.constrant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
@@ -33,26 +31,50 @@ import com.dtstack.taiga.dao.domain.DsInfo;
 import com.dtstack.taiga.develop.common.template.Reader;
 import com.dtstack.taiga.develop.common.template.Setting;
 import com.dtstack.taiga.develop.common.template.Writer;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taiga.develop.enums.develop.DataSourceDataBaseType;
 import com.dtstack.taiga.develop.enums.develop.EDataSourcePermission;
 import com.dtstack.taiga.develop.enums.develop.RDBMSSourceType;
 import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import com.dtstack.taiga.develop.enums.develop.TableLocationType;
 import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
-import com.dtstack.taiga.develop.utils.develop.hive.util.SparkThriftConnectionUtils;
-import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
-import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
+import com.dtstack.taiga.develop.utils.Asserts;
+import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
+import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
+import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taiga.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.format.writer.HiveWriterFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taiga.develop.utils.develop.sync.job.JobTemplate;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
-import com.dtstack.taiga.develop.utils.develop.sync.template.*;
-import com.dtstack.taiga.develop.utils.Asserts;
-import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Reader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Writer;
+import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.DefaultSetting;
+import com.dtstack.taiga.develop.utils.develop.sync.template.EsReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.EsWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.FtpReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.FtpWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HiveReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HiveWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.InceptorWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.InfluxDBReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsBase;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBBase;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RedisWriter;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -73,7 +95,21 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1919,67 +1955,74 @@ public class DatasourceService {
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
-
     }
 
-    public void initDefaultSource(Long tenantId, String dataSourceName, String dataSourceDesc, Long userId) throws Exception {
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, EScheduleJobType.SPARK_SQL);
-        String jdbcUrl = jdbcInfo.getJdbcUrl();
-        SparkThriftConnectionUtils.HiveVersion version = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
-        JSONObject dataJson = new JSONObject();
-        dataJson.put("username",jdbcInfo.getUsername());
-        dataJson.put("password",jdbcInfo.getPassword());
-        if (!jdbcUrl.contains("%s")) {
-            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
-        }
-        jdbcUrl = String.format(jdbcUrl, dataSourceName);
-        dataJson.put("jdbcUrl", jdbcUrl);
-        String defaultFs = HadoopConf.getDefaultFs(tenantId);
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(defaultFs)) {
-            dataJson.put("defaultFS", defaultFs);
-        }else {
-            throw new RdosDefineException("默认数据源的defaultFs未找到");
-        }
+    public void initDefaultSource(Long clusterId, EComponentType eComponentType,
+                                  Long tenantId, String dataSourceName,
+                                  String dataSourceDesc, Long userId) {
 
-        JSONObject hdpConfig = createHadoopConfigObject(tenantId);
-        if (!hdpConfig.isEmpty()) {
-            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
-        }
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfoByClusterId(clusterId, eComponentType);
+        JSONObject dataJson = buildDataSourceDataJson(clusterId, eComponentType, jdbcInfo, dataSourceName);
 
-        dataSourceName = dataSourceName + "_" + MultiEngineType.HADOOP.name();
-        dataJson.put("hasHdfsConfig", true);
         DataSourceVO dataSourceVO = new DataSourceVO();
         dataSourceVO.setDataDesc(org.apache.commons.lang3.StringUtils.isNotEmpty(dataSourceDesc) ? dataSourceDesc : "");
         dataSourceVO.setDataJson(dataJson);
         dataSourceVO.setCreateUserId(userId);
         dataSourceVO.setActive(1);
-        dataSourceVO.setDataName(dataSourceName);
+        dataSourceVO.setDataName(String.format("%s_%s", dataSourceName, eComponentType.getName().toUpperCase(Locale.ROOT)));
         dataSourceVO.setTenantId(tenantId);
-        dataSourceVO.setDataType(DataSourceTypeEnum.SparkThrift2_1.getDataType());
+        dataSourceVO.setDataType(getDatasourceTypeByComponent(eComponentType, jdbcInfo).getDataType());
         dataSourceVO.setIsMeta(1);
 
         addOrUpdate(dataSourceVO, userId);
     }
 
-    public JSONObject createHadoopConfigObject(Long tenantId) {
-        JSONObject hadoop = new JSONObject();
-        Map<String, Object> config = HadoopConf.getConfiguration(tenantId);
-        String nameServices = config.getOrDefault("dfs.nameservices","").toString();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(nameServices)) {
-            hadoop.put("dfs.nameservices", nameServices);
-            String nameNodes = config.getOrDefault(String.format("dfs.ha.namenodes.%s", nameServices),"").toString();
-            if (org.apache.commons.lang3.StringUtils.isNotBlank(nameNodes)) {
-                hadoop.put(String.format("dfs.ha.namenodes.%s", nameServices), nameNodes);
-                for (String nameNode : nameNodes.split(",")) {
-                    String key = String.format("dfs.namenode.rpc-address.%s.%s", nameServices, nameNode);
-                    hadoop.put(key, config.get(key));
-                }
-            }
-            String failoverKey = String.format("dfs.client.failover.proxy.provider.%s", nameServices);
-            hadoop.put(failoverKey, config.get(failoverKey));
+    public DataSourceTypeEnum getDatasourceTypeByComponent(EComponentType eComponentType, JdbcInfo jdbcInfo){
+        if (EComponentType.SPARK_THRIFT == eComponentType){
+            return DataSourceTypeEnum.SparkThrift2_1;
+        }
+        throw new RdosDefineException("not get datasourceType by componentType");
+    }
+
+    public JSONObject buildDataSourceDataJson(Long clusterId, EComponentType eComponentType, JdbcInfo jdbcInfo, String dataSourceName) {
+        // @TODO 目前先只写SparkThrift类型，后期可扩展
+        if (EComponentType.SPARK_THRIFT == eComponentType) {
+            return buildSparkThriftDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
+        }
+        return null;
+    }
+
+    public JSONObject buildSparkThriftDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
+        String jdbcUrl = jdbcInfo.getJdbcUrl();
+        JSONObject dataJson = new JSONObject();
+        dataJson.put("username", jdbcInfo.getUsername());
+        dataJson.put("password", jdbcInfo.getPassword());
+
+        if (!jdbcUrl.contains("%s")) {
+            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
+        }
+        jdbcUrl = String.format(jdbcUrl, dataSourceName);
+        dataJson.put("jdbcUrl", jdbcUrl);
+        String defaultFs = HadoopConf.getDefaultFsByClusterId(clusterId);
+
+        if (StringUtils.isNotBlank(defaultFs)) {
+            dataJson.put("defaultFS", defaultFs);
+        } else {
+            throw new RdosDefineException("默认数据源的defaultFs未找到");
         }
 
-        return hadoop;
+        JSONObject hdpConfig = createHadoopConfigObject(clusterId);
+        if (!hdpConfig.isEmpty()) {
+            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
+        }
+
+        dataJson.put("hasHdfsConfig", true);
+        return dataJson;
+    }
+
+    private JSONObject createHadoopConfigObject(Long clusterId) {
+        Map<String, Object> config = HadoopConf.getConfigurationByClusterId(clusterId);
+        return new JSONObject(config);
     }
 
     public BatchDataSource getOne(Long id) {
