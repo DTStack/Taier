@@ -74,6 +74,20 @@ public enum Engine2DTOService {
                     .poolConfig(buildPoolConfig())
                     .build();
         }
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            String config = buildHadoopConfigByClusterId(clusterId);
+            return SparkSourceDTO.builder()
+                    .sourceType(DataSourceType.Spark.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .kerberosConfig(jdbcInfo.getKerberosConfig())
+                    .defaultFS(HadoopConf.getDefaultFs(clusterId))
+                    .config(config)
+                    .poolConfig(buildPoolConfig())
+                    .build();
+        }
     },
 
     SPARK_THRIFT2_1(DataSourceType.SparkThrift2_1.getVal() ){
@@ -87,6 +101,20 @@ public enum Engine2DTOService {
                     .password(jdbcInfo.getPassword())
                     .kerberosConfig(jdbcInfo.getKerberosConfig())
                     .defaultFS(HadoopConf.getDefaultFs(tenantId))
+                    .config(config)
+                    .poolConfig(buildPoolConfig())
+                    .build();
+        }
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            String config = buildHadoopConfigByClusterId(clusterId);
+            return SparkSourceDTO.builder()
+                    .sourceType(DataSourceType.SparkThrift2_1.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .kerberosConfig(jdbcInfo.getKerberosConfig())
+                    .defaultFS(HadoopConf.getDefaultFs(clusterId))
                     .config(config)
                     .poolConfig(buildPoolConfig())
                     .build();
@@ -109,6 +137,21 @@ public enum Engine2DTOService {
                         .build();
             return sourceDTO;
         }
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            String config = buildHadoopConfigByClusterId(clusterId);
+            ISourceDTO sourceDTO = HiveSourceDTO.builder()
+                    .sourceType(DataSourceType.HIVE.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .kerberosConfig(jdbcInfo.getKerberosConfig())
+                    .defaultFS(HadoopConf.getDefaultFsByClusterId(clusterId))
+                    .config(config)
+                    .poolConfig(buildPoolConfig())
+                    .build();
+            return sourceDTO;
+        }
     },
 
     HIVE3(DataSourceType.HIVE3X.getVal()){
@@ -122,6 +165,21 @@ public enum Engine2DTOService {
                     .password(jdbcInfo.getPassword())
                     .kerberosConfig(jdbcInfo.getKerberosConfig())
                     .defaultFS(HadoopConf.getDefaultFs(tenantId))
+                    .config(config)
+                    .poolConfig(buildPoolConfig())
+                    .build();
+            return sourceDTO;
+        }
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            String config = buildHadoopConfigByClusterId(clusterId);
+            ISourceDTO sourceDTO = Hive3SourceDTO.builder()
+                    .sourceType(DataSourceType.HIVE3X.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .kerberosConfig(jdbcInfo.getKerberosConfig())
+                    .defaultFS(HadoopConf.getDefaultFsByClusterId(clusterId))
                     .config(config)
                     .poolConfig(buildPoolConfig())
                     .build();
@@ -143,6 +201,21 @@ public enum Engine2DTOService {
                     .password(jdbcInfo.getPassword())
                     .kerberosConfig(jdbcInfo.getKerberosConfig())
                     .defaultFS(HadoopConf.getDefaultFs(tenantId))
+                    .config(config)
+                    .poolConfig(buildPoolConfig())
+                    .build();
+            return sourceDTO;
+        }
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            String config = buildHadoopConfigByClusterId(clusterId);
+            ISourceDTO sourceDTO = Hive1SourceDTO.builder()
+                    .sourceType(DataSourceType.HIVE1X.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .kerberosConfig(jdbcInfo.getKerberosConfig())
+                    .defaultFS(HadoopConf.getDefaultFsByClusterId(clusterId))
                     .config(config)
                     .poolConfig(buildPoolConfig())
                     .build();
@@ -182,6 +255,8 @@ public enum Engine2DTOService {
 
     protected abstract ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName);
 
+    protected abstract ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName);
+
     /**
      * 根据tenantId、dtUicUserId、tableType、dbName获取对应的sourceDTO，供外部调用
      *
@@ -212,6 +287,20 @@ public enum Engine2DTOService {
         return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, dtUicUserId, dbName);
     }
 
+    /**
+     * 根据clusterId、eComponentType、dbName获取对应的sourceDTO，供外部调用
+     *
+     * @param clusterId      集群ID
+     * @param eComponentType 组件类型
+     * @param dbName         db名称
+     * @return 对应的sourceDTO
+     */
+    public static ISourceDTO getByClusterId(Long clusterId, EComponentType eComponentType, String dbName) {
+        JdbcInfo jdbcInfo = getJdbcInfoByClusterId(clusterId, eComponentType);
+        DataSourceType dataSourceType = componentTypeToDataSourceType(eComponentType, jdbcInfo.getVersion());
+        Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
+        return engine2DTOEnum.getSourceDTOByClusterId(jdbcInfo, clusterId, dbName);
+    }
 
     /**
      * 根据tenantId、dtUicUserId、engineType、dbName、jdbcinfo获取对应的sourceDTO，供外部调用
@@ -271,6 +360,25 @@ public enum Engine2DTOService {
     }
 
     /**
+     * 获取引擎对应的jdbcInfo
+     *
+     * @param clusterId 集群ID
+     * @param eComponentType 组件信息
+     * @return 数据源连接信息
+     */
+    public static JdbcInfo getJdbcInfoByClusterId (Long clusterId, EComponentType eComponentType) {
+        JdbcInfo jdbcInfo = null;
+        if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
+            jdbcInfo = getSparkThriftByClusterId(clusterId);
+        }
+        if (jdbcInfo == null) {
+            throw new DtCenterDefException("can't get jdbc conf from console");
+        }
+        JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
+        return jdbcInfo;
+    }
+
+    /**
      * 根据枚举值获取对应的枚举类
      * @param val 引擎类型
      * @return {@link Engine2DTOService}
@@ -306,6 +414,22 @@ public enum Engine2DTOService {
         String config;
         try {
             config = PublicUtil.objectToStr(HadoopConf.getConfiguration(dtUicUserId));
+        } catch (IOException e) {
+            throw new DtCenterDefException(String.format("hadoop配置转换异常，原因是：%s", e.getMessage()));
+        }
+        return config;
+    }
+
+    /**
+     * 构建hadoop配置参数
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    protected String buildHadoopConfigByClusterId(Long clusterId) {
+        String config;
+        try {
+            config = PublicUtil.objectToStr(HadoopConf.getConfigurationByClusterId(clusterId));
         } catch (IOException e) {
             throw new DtCenterDefException(String.format("hadoop配置转换异常，原因是：%s", e.getMessage()));
         }
@@ -360,6 +484,20 @@ public enum Engine2DTOService {
     }
 
     /**
+     * eComponentType 转化为 对应的dataSourceType
+     * 如果没有对应的数据源类型 抛出异常
+     *
+     * @return
+     */
+    public static DataSourceType componentTypeToDataSourceType(EComponentType eComponentType, String version) {
+        if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
+            return DataSourceType.SparkThrift2_1;
+        } else {
+            throw new RdosDefineException("eComponentType not transition dataSourceType");
+        }
+    }
+
+    /**
      * 根据当前租户绑定集群的元数据方式 获取 对应的 JobType
      *
      * @param tenantId
@@ -396,6 +534,22 @@ public enum Engine2DTOService {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> (entry.getValue() == null ? null : entry.getValue().toString())));
     }
 
+    /**
+     * 获取 SFTP 信息
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    public static Map<String, String> getSftpByClusterId(Long clusterId) {
+        JSONObject data = getComponentConfigByClusterId(clusterId, EComponentType.SFTP);
+        if (data == null) {
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, clusterId, EComponentType.SFTP.name()));
+        }
+        Map<String, Object> conf = JSONObject.parseObject(data.toJSONString(), Map.class);
+        return conf.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> (entry.getValue() == null ? null : entry.getValue().toString())));
+    }
+
 
     /**
      * 获取 Hadoop 集群信息，并填充 Kerberos 文件之类的操作
@@ -408,7 +562,16 @@ public enum Engine2DTOService {
         return checkKerberosWithPeriod(tenantId, data);
     }
 
-
+    /**
+     * 获取 Hadoop 集群信息，并填充 Kerberos 文件之类的操作
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    public static Map<String, Object> getHdfsByClusterId(Long clusterId) {
+        Map<String, Object> data = getHdfsInfoByClusterId(clusterId);
+        return checkKerberosWithPeriodByClusterId(clusterId, data);
+    }
 
     /**
      * 获取 SparkThrift 信息，并填充 Kerberos 文件之类的操作
@@ -421,8 +584,16 @@ public enum Engine2DTOService {
         return checkKerberosWithPeriod(tenantId, data);
     }
 
-
-
+    /**
+     * 获取 SparkThrift 信息，并填充 Kerberos 文件之类的操作
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    public static JdbcInfo getSparkThriftByClusterId(Long clusterId) {
+        JdbcInfo data = getPluginInfoByClusterId(clusterId, EComponentType.SPARK_THRIFT);
+        return checkKerberosWithPeriodByClusterId(clusterId, data);
+    }
 
     /**
      * 获取 Hadoop 集群信息
@@ -434,6 +605,20 @@ public enum Engine2DTOService {
         JSONObject data = getComponentConfig(tenantId, EComponentType.HDFS);
         if (data == null) {
             throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, tenantId, EComponentType.HDFS.name()));
+        }
+        return JSONObject.parseObject(data.toJSONString(), Map.class);
+    }
+
+    /**
+     * 获取 Hadoop 集群信息
+     *
+     * @param clusterId 集群信息
+     * @return
+     */
+    private static Map<String, Object> getHdfsInfoByClusterId(Long clusterId) {
+        JSONObject data = getComponentConfigByClusterId(clusterId, EComponentType.HDFS);
+        if (data == null) {
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, clusterId, EComponentType.HDFS.name()));
         }
         return JSONObject.parseObject(data.toJSONString(), Map.class);
     }
@@ -453,8 +638,34 @@ public enum Engine2DTOService {
         return JSONObject.parseObject(configByKey.toString(), JdbcInfo.class);
     }
 
+    /**
+     * 获取集群组件 JDBC 信息
+     *
+     * @param cluster       集群ID
+     * @param componentType 组件类型
+     * @return
+     */
+    private static JdbcInfo getPluginInfoByClusterId(Long cluster, EComponentType componentType) {
+        JSONObject configByKey = getComponentConfigByClusterId(cluster, componentType);
+        if (configByKey == null) {
+            throw new DtCenterDefException(String.format(ERROR_MSG_CLUSTER_INFO, cluster, componentType.getName()));
+        }
+        return JSONObject.parseObject(configByKey.toString(), JdbcInfo.class);
+    }
+
     public static JSONObject getComponentConfig(Long tenantId, EComponentType componentType) {
         return clusterService.getConfigByKey(tenantId, componentType.getConfName(), null);
+    }
+
+    /**
+     * 根据集群ID获取对应的组件信息
+     *
+     * @param clusterId     集群ID
+     * @param componentType 组件类型
+     * @return
+     */
+    public static JSONObject getComponentConfigByClusterId(Long clusterId, EComponentType componentType) {
+        return clusterService.getConfigByKeyByClusterId(clusterId, componentType.getConfName(), null);
     }
     
     public static Integer getMetaComponent(Long tenantId){
@@ -486,6 +697,27 @@ public enum Engine2DTOService {
     }
 
     /**
+     * 校验 Kerberos 参数及文件
+     *
+     * @param clusterId 集群ID
+     * @param data
+     */
+    private static <T> T checkKerberosWithPeriodByClusterId(Long clusterId, T data) {
+        if (data instanceof JdbcInfo) {
+            JSONObject kerberosConfig = ((JdbcInfo) data).getKerberosConfig();
+            if (kerberosConfig != null) {
+                data = fullKerberosFilePathByClusterId(clusterId, data);
+            }
+        } else if (data instanceof Map) {
+            Set keySet = ((Map) data).keySet();
+            if (keySet.contains("kerberosConfig")) {
+                data = fullKerberosFilePathByClusterId(clusterId, data);
+            }
+        }
+        return data;
+    }
+
+    /**
      * 填充 Kerberos 参数
      *
      * @param tenantId
@@ -495,6 +727,31 @@ public enum Engine2DTOService {
      */
     public static <T> T fullKerberosFilePath(Long tenantId, T data) {
         Map<String, String> sftp = getSftp(tenantId);
+        return dealKerberos(data, sftp);
+    }
+
+    /**
+     * 填充 Kerberos 参数
+     *
+     * @param clusterId
+     * @param data
+     * @param <T>
+     * @return
+     */
+    public static <T> T fullKerberosFilePathByClusterId(Long clusterId, T data) {
+        Map<String, String> sftp = getSftpByClusterId(clusterId);
+        return dealKerberos(data, sftp);
+    }
+
+    /**
+     * 处理kerberos 信息
+     *
+     * @param data
+     * @param sftp
+     * @param <T>
+     * @return
+     */
+    private static <T> T dealKerberos( T data, Map<String, String> sftp){
         if (MapUtils.isEmpty(sftp)) {
             return data;
         }

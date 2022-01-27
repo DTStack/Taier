@@ -26,6 +26,7 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.taiga.common.engine.JdbcInfo;
+import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.develop.utils.develop.service.IJdbcService;
 import lombok.extern.slf4j.Slf4j;
@@ -146,8 +147,8 @@ public class JdbcServiceImpl implements IJdbcService {
         ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
         iSourceDTO.setConnection(connection);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         log.info("集群执行SQL，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
 
@@ -167,30 +168,36 @@ public class JdbcServiceImpl implements IJdbcService {
     public Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql) {
         ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         log.info("集群执行SQL，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
 
-
     @Override
-    public List<String> getTableList(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
+    public List<String> getTableList(Long dtuicTenantId, EScheduleJobType eScheduleJobType, String schema) {
+        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, null, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         List<String> tableList = client.getTableList(iSourceDTO, SqlQueryDTO.builder().build());
-        log.info("集群查询底层获取所有表名称，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema);
+        log.info("集群查询底层获取所有表名称，dtUicTenantId:{}，jobType:{}，schema:{}", dtuicTenantId, eScheduleJobType.getType(), schema);
         return tableList;
     }
 
     @Override
-    public List<String> getAllDataBases(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
+    public List<String> getAllDataBases(Long clusterId, EComponentType eComponentType, String schema) {
+        ISourceDTO iSourceDTO = Engine2DTOService.getByClusterId(clusterId,  eComponentType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
+        log.info("集群查询底层获取所有数据库名称，clusterId:{}，eComponentType:{}，schema:{}", clusterId, eComponentType.getTypeCode(), schema);
         List<String> allDatabases = client.getAllDatabases(iSourceDTO, SqlQueryDTO.builder().build());
-        log.info("集群查询底层获取所有数据库名称，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema);
         return allDatabases;
     }
 
+    @Override
+    public void createDatabase(Long clusterId, EComponentType eComponentType, String schema, String comment) {
+        ISourceDTO iSourceDTO = Engine2DTOService.getByClusterId(clusterId,  eComponentType, "");
+        IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
+        log.info("集群创建数据库操作，clusterId:{}，sourceType:{}，dbName:{}", clusterId, iSourceDTO.getSourceType(), schema);
+        client.createDatabase(iSourceDTO, schema, comment);
+    }
 
     public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, Integer limit, String taskParam) {
         List<List<Object>> returnList = new ArrayList<>();

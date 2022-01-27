@@ -202,6 +202,10 @@ public class ClusterService {
 
     public JSONObject getConfigByKey(Long tenantId, String componentConfName, String componentVersion) {
         Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
+        return getConfigByKeyByClusterId(clusterId, componentConfName, componentVersion);
+    }
+
+    public JSONObject getConfigByKeyByClusterId(Long clusterId, String componentConfName, String componentVersion) {
         //根据组件区分kerberos
         EComponentType componentType = EComponentType.getByConfName(componentConfName);
         Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), componentVersion, null);

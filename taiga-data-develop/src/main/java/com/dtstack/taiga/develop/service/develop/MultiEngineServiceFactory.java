@@ -18,6 +18,7 @@
 
 package com.dtstack.taiga.develop.service.develop;
 
+import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,9 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
+
+    @Resource(name = "componentSparkThriftService")
+    private IComponentService componentSparkThriftService;
 
     public ISqlExeService getSqlExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
@@ -83,6 +87,19 @@ public class MultiEngineServiceFactory {
             return hadoopDataDownloadService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
+    }
+
+    /**
+     * 根据组件类型类型获取组件操作
+     *
+     * @param typeCode
+     * @return
+     */
+    public IComponentService getComponentService(Integer typeCode){
+        if (EComponentType.SPARK_THRIFT.getTypeCode().equals(typeCode)) {
+            return componentSparkThriftService;
+        }
+        throw new RdosDefineException(String.format("not support component type %d now", typeCode));
     }
 
 }
