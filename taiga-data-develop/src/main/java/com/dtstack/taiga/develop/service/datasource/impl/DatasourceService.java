@@ -12,7 +12,7 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;

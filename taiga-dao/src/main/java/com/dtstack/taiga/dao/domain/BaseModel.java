@@ -3,7 +3,7 @@ package com.dtstack.taiga.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.dtstack.taiga.common.constrant.MP;
+import com.dtstack.taiga.common.constant.MP;
 
 import java.util.Date;
 

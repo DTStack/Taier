@@ -21,6 +21,7 @@ package com.dtstack.taiga.scheduler.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taiga.common.constant.CommonConstant;
 import com.dtstack.taiga.common.enums.*;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
@@ -53,7 +54,6 @@ import com.dtstack.taiga.scheduler.utils.XmlFileUtil;
 import com.dtstack.taiga.scheduler.vo.ClusterVO;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import com.dtstack.taiga.scheduler.vo.IComponentVO;
-import com.dtstack.taiga.scheduler.vo.components.ComponentsConfigOfComponentsVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -70,7 +70,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -140,8 +139,7 @@ public class ComponentService {
     }
 
     public void updateCache(Long clusterId,Integer componentCode) {
-        componentConfigService.clearComponentCache();
-        clusterService.clearStandaloneCache();
+        clearConfigCache();
         List<Long> tenantIds = new ArrayList<>();
         if ( null != componentCode && EComponentType.sqlComponent.contains(EComponentType.getByCode(componentCode))) {
             //tidb 和libra 没有queue
@@ -172,79 +170,38 @@ public class ComponentService {
         }
     }
 
-
     private Map<String, Map<String,Object>> parseUploadFileToMap(List<Resource> resources) {
-
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("The uploaded file cannot be empty");
         }
 
         Resource resource = resources.get(0);
-        if (!resource.getFileName().endsWith(ZIP_SUFFIX)) {
+        if (!resource.getFileName().endsWith(CommonConstant.ZIP_SUFFIX)) {
             throw new RdosDefineException("The compressed package format only supports ZIP format");
         }
 
-        String upzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
+        String unzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
+        String xmlZipLocation = resource.getUploadedFileName();
         try {
-            Map<String, Map<String,Object>> confMap = new HashMap<>();
             //解压缩获得配置文件
-            String xmlZipLocation = resource.getUploadedFileName();
-            List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
+            List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, unzipLocation, null);
             if(CollectionUtils.isEmpty(xmlFiles)){
                 throw new RdosDefineException("The configuration file cannot be empty");
             }
-            for (File file : xmlFiles) {
-                Map<String, Object> fileMap = null;
-                if (file.getName().startsWith(".")) {
-                    //.开头过滤
-                    continue;
-                }
-                if (file.getName().endsWith("xml")) {
-                    //xml文件
-                    fileMap = Xml2JsonUtil.xml2map(file);
-                } else if(file.getName().endsWith("json")){
-                    //json文件
-                    String jsonStr = Xml2JsonUtil.readFile(file);
-                    if (StringUtils.isBlank(jsonStr)) {
-                        continue;
-                    }
-                    fileMap = (Map<String, Object>) JSONObject.parseObject(jsonStr,Map.class);
-                }
-                if (null != fileMap) {
-                    confMap.put(file.getName(), fileMap);
-                }
-            }
-            return confMap;
+            return FileUtil.parse2Map(xmlFiles);
         } catch (Exception e) {
             LOGGER.error("parseAndUploadXmlFile file error ", e);
             throw new RdosDefineException(ExceptionUtil.getErrorMessage(e));
         } finally {
-            if (StringUtils.isNotBlank(upzipLocation)) {
-                ZipUtil.deletefile(upzipLocation);
+            if (StringUtils.isNotBlank(unzipLocation)) {
+                ZipUtil.deletefile(unzipLocation);
             }
         }
     }
-    
-
-    private File getFileWithSuffix(String dir, String suffix) {
-        if (StringUtils.isBlank(suffix)) {
-            throw new RdosDefineException("File suffix cannot be empty");
-        }
-        File file = null;
-        File dirFile = new File(dir);
-        if (dirFile.exists() && dirFile.isDirectory()) {
-            File[] files = dirFile.listFiles();
-            if (files.length > 0) {
-                file = Arrays.stream(files).filter(f -> f.getName().endsWith(suffix)).findFirst().orElse(null);
-            }
-        }
-        return file;
-    }
-
 
     private List<PrincipalName> getPrincipal(File file) {
+        Keytab keytab;
         if (null != file) {
-            Keytab keytab = null;
             try {
                 keytab = Keytab.loadKeytab(file);
             } catch (IOException e) {
@@ -256,34 +213,19 @@ public class ComponentService {
         throw new RdosDefineException("The current keytab file does not contain principal information");
     }
 
-    private void unzipKeytab(String localKerberosConf, Resource resource) {
-        try {
-            ZipUtil.upzipFile(resource.getUploadedFileName(), localKerberosConf);
-        } catch (Exception e) {
-            try {
-                FileUtils.deleteDirectory(new File(localKerberosConf));
-            } catch (IOException ioException) {
-                LOGGER.error("delete zip directory {} error ", localKerberosConf);
-            }
-        }
-    }
-
-
     public KerberosConfig getKerberosConfig(Long clusterId, Integer componentType, String componentVersion) {
         return kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.formatMultiVersion(componentType, componentVersion));
     }
 
-
     @Transactional(rollbackFor = Exception.class)
     public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode,String componentVersion) {
-
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("Please upload a kerberos file!");
         }
 
         Resource resource = resources.get(0);
         String kerberosFileName = resource.getFileName();
-        if (!kerberosFileName.endsWith(ZIP_SUFFIX)) {
+        if (!kerberosFileName.endsWith(CommonConstant.ZIP_SUFFIX)) {
             throw new RdosDefineException("Kerberos upload files are not in zip format");
         }
         String sftpComponent = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, String.class,null);
@@ -708,42 +650,14 @@ public class ComponentService {
         String confRemotePath = sftpConfig.getPath() + File.separator;
         String buildPath = File.separator + buildConfRemoteDir(clusterId);
         String confPath = System.getProperty("user.dir") + buildPath;
-        File localFile = new File(confPath);
-        try {
-            //删除本地目录
-            FileUtils.forceDelete(localFile);
-        } catch (IOException e) {
-            LOGGER.info("delete  local path  {} error ", localFile, e);
+        List<File> filesWithXmlSuffix = FileUtil.getXmlFileFromZip(confPath, resource.getUploadedFileName());
+        if (CollectionUtils.isEmpty(filesWithXmlSuffix)) {
+            throw new RdosDefineException(ErrorCode.FILE_NOT_EXISTS);
         }
-        //解压到本地
-        this.unzipKeytab(confPath, resource);
-        if (localFile.isDirectory()) {
-            File xmlFile = this.getFileWithSuffix(localFile.getPath(), ".xml");
-            File dirFiles = null;
-            if (null == xmlFile) {
-                //包含文件夹目录
-                File[] files = localFile.listFiles();
-                if (null != files && files.length > 0 && files[0].isDirectory()) {
-                    dirFiles = files[0];
-                }
-            } else {
-                //直接是文件
-                dirFiles = xmlFile.getParentFile();
-            }
-            if (null != dirFiles) {
-                File[] files = dirFiles.listFiles();
-                if (null == files) {
-                    return;
-                }
-                for (File file : files) {
-                    if (file.getName().contains(".xml")) {
-                        beforeUploadAddExtraConfig(file, templates, componentType);
-                        sftpFileManage.uploadFile(confRemotePath + buildPath, file.getPath());
-                    }
-                }
-            }
+        for (File file : filesWithXmlSuffix) {
+            beforeUploadAddExtraConfig(file, templates, componentType);
+            sftpFileManage.uploadFile(confRemotePath + buildPath, file.getPath());
         }
-
     }
 
     /**
@@ -777,7 +691,7 @@ public class ComponentService {
         if (null == one) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        return "confPath" + File.separator + one.getClusterName();
+        return CommonConstant.USER_CONF_PATH + File.separator + one.getClusterName();
     }
 
     /**
@@ -1013,7 +927,6 @@ public class ComponentService {
                     }
                 }
             }
-
         }
     }
 
@@ -1035,49 +948,31 @@ public class ComponentService {
     private List<Object> parseXmlFileConfig(List<Resource> resources, List<String> xmlName) {
         List<Object> datas = new ArrayList<>();
         Map<String, Map<String,Object>> xmlConfigMap = this.parseUploadFileToMap(resources);
-        boolean isLostXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
-        if(!isLostXmlFile){
+        boolean containsAllXmlFile = xmlConfigMap.keySet().containsAll(xmlName);
+        if(!containsAllXmlFile){
             LOGGER.error("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
             throw new RdosDefineException("Missing necessary configuration file, maybe the Zip file corrupt, please retry zip files.");
         }
+        if (MapUtils.isEmpty(xmlConfigMap)) {
+            return Collections.emptyList();
+        }
         //多个配置文件合并为一个map
-        if(MapUtils.isNotEmpty(xmlConfigMap)){
-            Map<String,Object> data = new HashMap<>();
-            for (String key : xmlConfigMap.keySet()) {
-                data.putAll(xmlConfigMap.get(key));
-            }
-            datas.add(data);
+        Map<String,Object> data = new HashMap<>();
+        for (Map.Entry<String, Map<String, Object>> entry : xmlConfigMap.entrySet()) {
+            data.putAll(entry.getValue());
         }
+        datas.add(data);
         return datas;
     }
-
-    private List<Object> parseKubernetesData(List<Resource> resources) {
-        List<Object> datas = new ArrayList<>();
-        Resource resource = resources.get(0);
-        //解压缩获得配置文件
-        String xmlZipLocation = resource.getUploadedFileName();
-        String upzipLocation = USER_DIR_UNZIP + File.separator + resource.getFileName();
-        //解析zip 带换行符号
-        List<File> xmlFiles = XmlFileUtil.getFilesFromZip(xmlZipLocation, upzipLocation, null);
-        if(CollectionUtils.isNotEmpty(xmlFiles)){
-            try {
-                datas.add(FileUtil.getContentFromFile(xmlFiles.get(0).getPath()));
-            } catch (FileNotFoundException e) {
-                LOGGER.error("parse Kubernetes resource error {} ", resource.getUploadedFileName());
-            }
-        }
-        return datas;
-    }
-
 
     public String buildSftpPath(Long clusterId, Integer componentCode) {
         Cluster one = clusterMapper.getOne(clusterId);
         if (null == one) {
             throw new RdosDefineException("Cluster does not exist");
         }
-        return ConfigConstant.CONSOLE + "_" + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name();
+        return ConfigConstant.CONSOLE + CommonConstant.UNDERLINE + one.getClusterName()
+                + File.separator + EComponentType.getByCode(componentCode).name();
     }
-
 
     /**
      * 测试单个组件联通性
@@ -1254,7 +1149,7 @@ public class ComponentService {
             List<ClientTemplate> clientTemplates = this.loadTemplate(componentType, clusterName, componentVersion,null,null,deployType);
             if (CollectionUtils.isNotEmpty(clientTemplates)) {
                 Map<String, Object> fileMap = ComponentConfigUtils.convertClientTemplateToMap(clientTemplates);
-                uploadFileName = EComponentType.getByCode(componentType).name() + ".json";
+                uploadFileName = EComponentType.getByCode(componentType).name() + CommonConstant.JSON_SUFFIX;
                 localDownLoadPath = USER_DIR_DOWNLOAD + File.separator + uploadFileName;
                 try {
                     FileUtils.write(new File(localDownLoadPath), JSONObject.toJSONString(fileMap));
@@ -1269,7 +1164,7 @@ public class ComponentService {
             }
             Long clusterId = componentMapper.getClusterIdByComponentId(componentId);
             SftpConfig sftpConfig = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(),false,SftpConfig.class,null);
-            if ( null == sftpConfig ) {
+            if ( null == sftpConfig) {
                 throw new RdosDefineException("sftp component does not exist");
             }
 
@@ -1287,7 +1182,7 @@ public class ComponentService {
                     EComponentType type = EComponentType.getByCode(componentType);
                     String componentConfig = getComponentByClusterId(clusterId,type.getTypeCode(),true,String.class,componentVersion);
                     try {
-                        localDownLoadPath = localDownLoadPath + ".json";
+                        localDownLoadPath = localDownLoadPath + CommonConstant.JSON_SUFFIX;
                         FileUtils.write(new File(localDownLoadPath), filterConfigMessage(componentConfig));
                     } catch (IOException e) {
                         LOGGER.error("write upload file {} error", componentConfig, e);
@@ -1301,16 +1196,13 @@ public class ComponentService {
             uploadFileName = component.getUploadFileName();
         }
 
-        File file = new File(localDownLoadPath);
-        if (!file.exists()) {
-            throw new RdosDefineException("file does not exist");
-        }
+        File file = FileUtil.newFile(localDownLoadPath);
         String zipFilename = StringUtils.isBlank(uploadFileName) ? "download.zip" : uploadFileName;
         if (file.isDirectory()) {
             //将文件夹压缩成zip文件
             return zipFile(componentId, downloadType, componentType, file, zipFilename);
         } else {
-            return new File(localDownLoadPath);
+            return FileUtil.newFile(localDownLoadPath);
         }
     }
 
@@ -1331,12 +1223,12 @@ public class ComponentService {
     private File zipFile(Long componentId, Integer downloadType, Integer componentType, File file, String zipFilename) {
         File[] files = file.listFiles();
         //压缩成zip包
-        if (null != files ) {
+        if (null != files) {
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 Long clusterId = componentMapper.getClusterIdByComponentId(componentId);
                 KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType,ComponentVersionUtil.isMultiVersionComponent(componentType)?componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId,componentType):null);
                 if ( null != kerberosConfig ) {
-                    zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
+                    zipFilename = kerberosConfig.getName() + CommonConstant.ZIP_SUFFIX;
                 }
             }
             ZipUtil.zipFile(USER_DIR_DOWNLOAD + File.separator + zipFilename, Arrays.asList(files));
@@ -1796,22 +1688,21 @@ public class ComponentService {
         return components;
     }
 
-
     public Component getMetadataComponent(Long clusterId){
         return componentMapper.getMetadataComponent(clusterId);
     }
-
 
     public List<Component> listComponentsByComponentType(Long tenantId, Integer componentType) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentMapper.listByClusterId(clusterId,componentType,false);
     }
 
-    public List<ComponentsConfigOfComponentsVO> listConfigOfComponents(Long tenantId, int type, Object o) {
-        return null;
-    }
-
     public List<Component> listAllComponents(Long clusterId) {
        return componentMapper.selectList(Wrappers.lambdaQuery(Component.class).eq(Component::getClusterId,clusterId));
+    }
+
+    public void clearConfigCache() {
+        componentConfigService.clearComponentCache();
+        clusterService.clearStandaloneCache();
     }
 }
