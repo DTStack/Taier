@@ -18,14 +18,12 @@
 
 package com.dtstack.taiga.develop.utils.develop.mapping;
 
-import com.dtstack.taiga.common.enums.EComponentScheduleType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class ComponentTypeToEScheduleJobMapping {
 
@@ -41,12 +39,11 @@ public class ComponentTypeToEScheduleJobMapping {
      * @param componentCode 组件code
      * @return
      */
-    public static EScheduleJobType getEScheduleTypeByComponentCode(Integer componentCode){
-        EComponentScheduleType componentScheduleType = EComponentType.getScheduleTypeByComponent(componentCode);
-        EScheduleJobType eScheduleJobType = MAPPING_MAP.get(componentScheduleType);
-        if(Objects.isNull(eScheduleJobType)){
+    public static EScheduleJobType getEScheduleTypeByComponentCode(Integer componentCode) {
+        EComponentType eComponentType = EComponentType.getByCode(componentCode);
+        if (!MAPPING_MAP.containsKey(eComponentType)) {
             throw new RdosDefineException(String.format("无法通过componentCode[%s]获取EScheduleJobType", componentCode));
         }
-        return eScheduleJobType;
+        return MAPPING_MAP.get(eComponentType);
     }
 }
