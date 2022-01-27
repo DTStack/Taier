@@ -498,7 +498,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     /**
      * 查询表数据 - 简单查询
      *
-     * @param tenantId uic租户id
+     * @param tenantId 租户id
      * @param sql 查询sql
      * @param taskType 任务类型
      * @return 查询数据

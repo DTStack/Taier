@@ -673,17 +673,17 @@ public class DatasourceService {
         return DataSourceType.SparkThrift2_1;
     }
 
-    public String setJobDataSourceInfo(String jobStr, Long dtUicTenentId, Integer createModel) {
+    public String setJobDataSourceInfo(String jobStr, Long tenantId, Integer createModel) {
         JSONObject job = JSONObject.parseObject(jobStr);
         JSONObject jobContent = job.getJSONObject("job");
         JSONObject content = jobContent.getJSONArray("content").getJSONObject(0);
-        setPluginDataSourceInfo(content.getJSONObject("reader"), dtUicTenentId, createModel);
-        setPluginDataSourceInfo(content.getJSONObject("writer"), dtUicTenentId, createModel);
+        setPluginDataSourceInfo(content.getJSONObject("reader"), tenantId, createModel);
+        setPluginDataSourceInfo(content.getJSONObject("writer"), tenantId, createModel);
         return job.toJSONString();
     }
 
 
-    private void setPluginDataSourceInfo(JSONObject plugin, Long dtUicTenentId, Integer createModel) {
+    private void setPluginDataSourceInfo(JSONObject plugin, Long tenantId, Integer createModel) {
         String pluginName = plugin.getString("name");
         JSONObject param = plugin.getJSONObject("parameter");
         if (PluginName.MySQLD_R.equals(pluginName)) {
@@ -748,7 +748,7 @@ public class DatasourceService {
                 }else {
                     //meta数据源从console取配置
                     //拿取最新配置
-                    String consoleHadoopConfig = this.getConsoleHadoopConfig(dtUicTenentId);
+                    String consoleHadoopConfig = this.getConsoleHadoopConfig(tenantId);
                     if (StringUtils.isNotBlank(consoleHadoopConfig)) {
                         //替换新path 页面运行fix
                         JSONArray connections = param.getJSONArray("connection");
@@ -773,7 +773,7 @@ public class DatasourceService {
                         }
                     }
                 }
-                setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+                setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
             } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
                 String jsonStr = json.getString(HBASE_CONFIG);
                 Map jsonMap = new HashMap();
@@ -786,7 +786,7 @@ public class DatasourceService {
                 }
                 replaceDataSourceInfoByCreateModel(param,HBASE_CONFIG,jsonMap,createModel);
                 if (TaskCreateModelType.GUIDE.getType().equals(createModel)) {
-                    setSftpConfig(source.getId(), json, dtUicTenentId, param, HBASE_CONFIG, false);
+                    setSftpConfig(source.getId(), json, tenantId, param, HBASE_CONFIG, false);
                 }
             } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
                 if (json != null){
@@ -830,7 +830,7 @@ public class DatasourceService {
                     }
                 }
             } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-                replaceInceptorDataSource(param, json, createModel, source, dtUicTenentId);
+                replaceInceptorDataSource(param, json, createModel, source, tenantId);
             } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
                 replaceDataSourceInfoByCreateModel(param, "username", JsonUtils.getStrFromJson(json, "username"), createModel);
                 replaceDataSourceInfoByCreateModel(param, "password", JsonUtils.getStrFromJson(json, "password"), createModel);
@@ -867,10 +867,10 @@ public class DatasourceService {
      * @param json
      * @param createModel
      * @param source
-     * @param dtUicTenentId
+     * @param tenantId
      */
     public void replaceInceptorDataSource(JSONObject param, JSONObject json, Integer createModel, BatchDataSource source,
-                                          Long dtUicTenentId){
+                                          Long tenantId){
         if (param.containsKey("connection")) {
             JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
             replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
@@ -898,7 +898,7 @@ public class DatasourceService {
         replaceDataSourceInfoByCreateModel(param,"table", hiveTableName, createModel);
         replaceDataSourceInfoByCreateModel(param,"isTransaction", tableInfo.getIsTransTable(), createModel);
 
-        setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+        setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
     }
 
 
@@ -906,14 +906,14 @@ public class DatasourceService {
      * 添加ftp地址
      * @param sourceId
      * @param json
-     * @param dtuicTenantId
+     * @param tenantId
      * @param map
      * @param confKey
      */
-    private void setSftpConfig(Long sourceId, JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey, boolean downloadKerberos) {
+    private void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey, boolean downloadKerberos) {
         JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
         if (MapUtils.isNotEmpty(kerberosConfig)) {
-            Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
+            Map<String, String> sftpMap = getSftpMap(tenantId);
             Map<String, Object> conf = null;
             Object confObj = map.get(confKey);
             if (confObj instanceof String) {
@@ -1231,12 +1231,12 @@ public class DatasourceService {
      * @param map
      * @param sourceId
      * @param source
-     * @param dtuicTenantId
+     * @param tenantId
      * @param json
      * @param sourceType
      * @throws Exception
      */
-    private void replaceJdbcInfoByDataJsonToMap(Map<String, Object> map, Long sourceId, BatchDataSource source, Long dtuicTenantId, JSONObject json, Integer sourceType) throws Exception {
+    private void replaceJdbcInfoByDataJsonToMap(Map<String, Object> map, Long sourceId, BatchDataSource source, Long tenantId, JSONObject json, Integer sourceType) throws Exception {
         if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
                 && !DataSourceType.HIVE.getVal().equals(sourceType)
                 && !DataSourceType.HIVE3X.getVal().equals(sourceType)
@@ -1259,11 +1259,11 @@ public class DatasourceService {
             map.put("partition", map.get(HIVE_PARTITION));
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
+            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HDFS.getVal().equals(sourceType)) {
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map,json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
+            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
             String jsonStr = json.getString(HBASE_CONFIG);
             Map jsonMap = new HashMap();
@@ -1271,7 +1271,7 @@ public class DatasourceService {
                 jsonMap = objectMapper.readValue(jsonStr,Map.class);
             }
             map.put("hbaseConfig", jsonMap);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, "hbaseConfig");
+            setSftpConfig(sourceId, json, tenantId, map, "hbaseConfig");
         } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
             map.putAll(json);
         } else if (DataSourceType.MAXCOMPUTE.getVal().equals(sourceType)) {
@@ -1307,7 +1307,7 @@ public class DatasourceService {
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             map.put("hiveMetastoreUris", JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS));
             checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, "hadoopConfig");
+            setSftpConfig(sourceId, json, tenantId, map, "hadoopConfig");
         } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
             map.put("username", JsonUtils.getStrFromJson(json, "username"));
             map.put("password", JsonUtils.getStrFromJson(json, "password"));
@@ -1523,8 +1523,8 @@ public class DatasourceService {
         throw new RdosDefineException("暂不支持" + DataSourceType.getSourceType(targetType).name() +"作为数据同步的目标");
     }
 
-    private void setSftpConfig(Long sourceId, JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey) {
-        setSftpConfig(sourceId, json, dtuicTenantId, map, confKey, true);
+    private void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey) {
+        setSftpConfig(sourceId, json, tenantId, map, confKey, true);
     }
 
     /**
@@ -2225,14 +2225,12 @@ public class DatasourceService {
     /**
      * 数据同步-获得预览数据，默认展示3条
      *
-     * @param userId    用户id
      * @param sourceId  数据源id
      * @param tableName 表名
      * @return
      * @author toutian
      */
-    public JSONObject preview(Long userId, Long sourceId, String tableName, String partition,
-                              Long tenantId, Long dtuicTenantId, Boolean isRoot, String schema) {
+    public JSONObject preview(Long sourceId, String tableName, String schema) {
 
         BatchDataSource source = getOne(sourceId);
         StringBuffer newTableName = new StringBuffer();

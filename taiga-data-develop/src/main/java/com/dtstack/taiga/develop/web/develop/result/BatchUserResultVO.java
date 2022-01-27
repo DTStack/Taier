@@ -34,9 +34,6 @@ public class BatchUserResultVO {
     @ApiModelProperty(value = "电话号码", example = "135xxxxx892")
     private String phoneNumber;
 
-    @ApiModelProperty(value = "uic 用户 ID", example = "32")
-    private Long dtuicUserId;
-
     @ApiModelProperty(value = "邮箱", example = "xxx@163.com")
     private String email;
 
@@ -48,9 +45,6 @@ public class BatchUserResultVO {
 
     @ApiModelProperty(value = "rootUser", example = "1")
     private Integer rootUser;
-
-    @ApiModelProperty(value = "uic 租户 ID", example = "13")
-    private Long dtuicTenantId;
 
     @ApiModelProperty(value = "平台类别", example = "1")
     private Integer appType;

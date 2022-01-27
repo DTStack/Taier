@@ -59,9 +59,6 @@ public class BatchResourceResultVO  {
     @ApiModelProperty(value = "项目ID")
     private Long projectId;
 
-    @ApiModelProperty(value = "UIC租户ID")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "平台类型", example = "1")
     private Integer appType;
 
