@@ -1,5 +1,8 @@
 package com.dtstack.taiga.dao.domain;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+
+@TableName("console_cluster_tenant")
 public class ClusterTenant extends BaseEntity {
 
     private Long tenantId;

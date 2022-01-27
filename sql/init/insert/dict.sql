@@ -112,7 +112,6 @@ VALUES
   ('6', 'GreenPlumSQLFunction', '4', 'Greenplum SQL', 'GreenPlumSQLFunction', '5', now(), now(), '0'),
   ('13', 'SystemFunction', '6', '系统函数', 'SystemFunction', '2', now(), now(), '0'),
   ('13', 'CustomFunction', '6', '自定义函数', 'CustomFunction', '4', now(), now(), '0'),
-  ('13', 'ProcedureFunction', '6', '存储过程', 'ProcedureFunction', '6', now(), now(), '0'),
   ('13', 'GreenPlumCustomFunction', '6', '自定义函数', 'GreenPlumCustomFunction', '8', now(), now(), '0')
 
 on duplicate key update gmt_create=values(gmt_create);
