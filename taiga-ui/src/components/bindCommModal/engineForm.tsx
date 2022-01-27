@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'antd';
-import { Select, Radio, message, Form } from 'antd';
+import { Select, Radio, Form } from 'antd';
 import { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
-import { isOracleEngine, isSparkEngine } from '@/utils';
+import { isOracleEngine } from '@/utils';
 import { PROJECT_CREATE_MODEL } from '@/constant';
 import api from '../../api';
-import CatalogueSelect from '../folderPicker';
-import LifeCycleSelect from '../lifeCycleSelect';
 import PreviewMetaData from '../previewMetaData';
 
 const { Option } = Select;
@@ -20,6 +18,14 @@ interface IConfigItemProps {
 	form: FormInstance;
 	engineType: ENGINE_SOURCE_TYPE_ENUM;
 	formParentField?: string;
+	/**
+	 * 组件 id
+	 */
+	metaComponent?: number;
+	/**
+	 * 当前选中的集群 id
+	 */
+	clusterId?: number;
 	/**
 	 * 父组件控制 layout
 	 */
@@ -40,13 +46,15 @@ export default ({
 	formParentField,
 	formItemLayout,
 	checked,
+	metaComponent,
+	clusterId,
 	hadoopName = 'Hive2.x',
 }: IConfigItemProps) => {
 	const [targetDb, setTargetDb] = useState<string[]>([]);
 	const [visible, setVisible] = useState(false);
 
-	const getRetainDBList = (type: ENGINE_SOURCE_TYPE_ENUM) => {
-		api.getRetainDBList({ engineType: type }).then((res) => {
+	const getRetainDBList = () => {
+		api.getRetainDBList({ clusterId, componentTypeCode: metaComponent }).then((res) => {
 			if (res.code === 1) {
 				const data = res.data || [];
 				setTargetDb([...data]);
@@ -75,18 +83,9 @@ export default ({
 		];
 	};
 
-	const changeType = (value: PROJECT_CREATE_MODEL, type: ENGINE_SOURCE_TYPE_ENUM) => {
+	const changeType = (value: PROJECT_CREATE_MODEL) => {
 		if (value === PROJECT_CREATE_MODEL.IMPORT) {
-			getRetainDBList(type);
-		}
-	};
-
-	const onPreviewMetaData = () => {
-		const dbName = form.getFieldValue(`${parentField}.database`);
-		if (dbName) {
-			setVisible(true);
-		} else {
-			message.error('请先选择对接目标！');
+			getRetainDBList();
 		}
 	};
 
@@ -105,7 +104,7 @@ export default ({
 
 	useEffect(() => {
 		if (engineType === ENGINE_SOURCE_TYPE_ENUM.ORACLE) {
-			getRetainDBList(engineType);
+			getRetainDBList();
 		}
 	}, []);
 
@@ -113,7 +112,6 @@ export default ({
 	const createModelInitialValue = isOracleEngine(engineType)
 		? PROJECT_CREATE_MODEL.IMPORT
 		: PROJECT_CREATE_MODEL.NORMAL;
-	const isHadoop = isSparkEngine(engineType);
 
 	const createModelOptions = useMemo<
 		{
@@ -149,7 +147,7 @@ export default ({
 					},
 				];
 		}
-	}, [engineType]);
+	}, [engineType, hadoopName]);
 
 	return (
 		<>
@@ -160,7 +158,7 @@ export default ({
 				initialValue={createModelInitialValue}
 			>
 				<RadioGroup
-					onChange={(e) => changeType(e.target.value, engineType)}
+					onChange={(e) => changeType(e.target.value)}
 					options={createModelOptions}
 				/>
 			</FormItem>
@@ -185,54 +183,11 @@ export default ({
 										},
 									]}
 								>
-									<Select style={{ width: '80%' }} placeholder="请选择对接目标">
+									<Select style={{ width: '100%' }} placeholder="请选择对接目标">
 										{renderDbOptions(targetDb)}
 									</Select>
 								</FormItem>
-								<a
-									onClick={() => onPreviewMetaData()}
-									style={{ marginLeft: 10, fontSize: 12 }}
-								>
-									预览元数据
-								</a>
 							</FormItem>
-							{isHadoop && (
-								<>
-									<FormItem
-										label="表类目"
-										{...formItemLayout}
-										name={`${parentField}.catalogueId`}
-										rules={[
-											{
-												required: checked,
-												message: '请选择表类目',
-											},
-										]}
-									>
-										<CatalogueSelect
-											showFile={false}
-											dataType="task"
-											style={{
-												width: '100%',
-											}}
-											placeholder="请选择表类目"
-										/>
-									</FormItem>
-									<FormItem
-										label="生命周期"
-										{...formItemLayout}
-										name={`${parentField}.lifecycle`}
-										rules={[
-											{
-												required: checked,
-												message: '生命周期不可为空',
-											},
-										]}
-									>
-										<LifeCycleSelect width="40%" inputWidth="50%" />
-									</FormItem>
-								</>
-							)}
 						</>
 					) : null
 				}
