@@ -41,7 +41,7 @@ public class ScheduleFillJobParticipateDTO {
     private String endTime;
 
     /**
-     * 触发补数据事件的用户uicId
+     * 触发补数据事件的用户Id
      * 必填
      */
     private Long userId;

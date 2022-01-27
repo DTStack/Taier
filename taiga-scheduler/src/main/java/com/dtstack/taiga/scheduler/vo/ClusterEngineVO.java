@@ -38,22 +38,12 @@ public class ClusterEngineVO extends Cluster {
 
     private Long tenantId;
 
-    private Long dtUicUserId;
-
     public Long getTenantId() {
         return tenantId;
     }
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getDtUicUserId() {
-        return dtUicUserId;
-    }
-
-    public void setDtUicUserId(Long dtUicUserId) {
-        this.dtUicUserId = dtUicUserId;
     }
 
     public static ClusterEngineVO toVO(Cluster cluster) {

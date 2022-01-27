@@ -31,7 +31,7 @@ public class BatchServerGetLogByAppTypeVO extends DtInsightAuthParam {
     private String jobId;
 
     @ApiModelProperty(hidden = true)
-    private Long dtuicTenantId;
+    private Long tenantId;
 
     @ApiModelProperty(hidden = true)
     private Long projectId;

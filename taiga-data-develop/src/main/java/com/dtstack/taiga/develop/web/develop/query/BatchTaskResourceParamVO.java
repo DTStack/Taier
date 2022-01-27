@@ -177,9 +177,6 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "项目 ID",  hidden = true)
     private Long projectId;
-
-    @ApiModelProperty(value = "uic 租户 ID", hidden = true)
-    private Long dtuicTenantId;
    
     @ApiModelProperty(value = "平台类别", hidden = true)
     private Integer appType;

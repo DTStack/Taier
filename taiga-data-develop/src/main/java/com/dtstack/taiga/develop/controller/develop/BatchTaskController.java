@@ -204,7 +204,7 @@ public class BatchTaskController {
         return new APITemplate<List<BatchTaskGetComponentVersionResultVO>>() {
             @Override
             protected List<BatchTaskGetComponentVersionResultVO> process() {
-                return batchTaskService.getComponentVersionByTaskType(getComponentVersionVO.getDtuicTenantId(), getComponentVersionVO.getTaskType());
+                return batchTaskService.getComponentVersionByTaskType(getComponentVersionVO.getTenantId(), getComponentVersionVO.getTaskType());
             }
         }.execute();
     }

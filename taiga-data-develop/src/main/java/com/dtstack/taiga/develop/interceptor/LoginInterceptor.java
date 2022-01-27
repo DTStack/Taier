@@ -40,7 +40,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{}:{}", requestURI, request.getParameterMap());
         }
-        String token = CookieUtil.getDtUicToken(request.getCookies());
+        String token = CookieUtil.getToken(request.getCookies());
         if (StringUtils.isBlank(token)) {
             throw new RdosDefineException(ErrorCode.NOT_LOGIN);
         }
