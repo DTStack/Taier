@@ -1,4 +1,4 @@
-package com.dtstack.taiga.common.constrant;
+package com.dtstack.taiga.common.constant;
 
 import com.dtstack.taiga.common.enums.TaskStatus;
 import com.google.common.collect.Lists;
@@ -12,7 +12,7 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-public class TaskStatusConstrant {
+public class TaskStatusConstant {
 
     public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(TaskStatus.UNSUBMIT.getStatus());
     public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(TaskStatus.RUNNING.getStatus(), TaskStatus.FAILING.getStatus(), TaskStatus.NOTFOUND.getStatus());

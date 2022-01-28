@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.utils;
 
 
-import com.dtstack.taiga.common.constrant.Cookies;
+import com.dtstack.taiga.common.constant.Cookies;
 
 import javax.servlet.http.Cookie;
 

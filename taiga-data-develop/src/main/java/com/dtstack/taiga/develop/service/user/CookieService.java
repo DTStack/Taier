@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.service.user;
 
-import com.dtstack.taiga.common.constrant.Cookies;
+import com.dtstack.taiga.common.constant.Cookies;
 import com.dtstack.taiga.common.util.AddressUtil;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
