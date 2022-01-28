@@ -35,11 +35,11 @@ import { formItemLayout, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '@/consta
 import './index.scss';
 
 const HOVER_TEXT: Record<number, string> = {
-	[COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
-	[COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
-	[COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:mysql://localhost:2881',
-	[COMPONENT_TYPE_VALUE.SQLSERVER]:
-		'示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev',
+	// [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
+	// [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
+	// [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:mysql://localhost:2881',
+	// [COMPONENT_TYPE_VALUE.SQLSERVER]:
+	// 	'示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev',
 };
 
 interface IProps {
@@ -111,13 +111,13 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 	// 渲染单个配置项
 	const renderConfigItem = (temp: any, groupKey?: string) => {
 		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		const layout = itemLayout ?? formItemLayout;
 		const initialValue =
 			temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value;
 
 		let formField: number | string = typeCode;
-		if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
+		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
 
 		const fieldName = groupKey
 			? `${formField}.componentConfig.${groupKey}`
@@ -171,10 +171,10 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 	// 渲染group级别配置项
 	const renderGroupConfigItem = (temps: any, notParams?: boolean) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		let formField = typeCode;
 		if (isMultiVersion(typeCode)) {
-			formField = `${formField}.${hadoopVersion}`;
+			formField = `${formField}.${versionName}`;
 		}
 
 		const dependencyValue = temps?.dependencyKey
@@ -196,7 +196,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 						})}
 						<CustomParams
 							typeCode={typeCode}
-							hadoopVersion={hadoopVersion}
+							hadoopVersion={versionName}
 							form={form}
 							view={view}
 							template={temps}
@@ -210,7 +210,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 
 	const rendeConfigForm = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		const template = getValueByJson(comp?.componentTemplate) ?? [];
 
 		return template.map((temps: any, index: number) => {
@@ -222,9 +222,13 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 				return (
 					<React.Fragment key={temps.key}>
 						{renderConfigItem(temps)}
-						{temps.values.map((temp: any) =>
-							renderGroupConfigItem(temp, isRadioLinkage(temps.type)),
-						)}
+						<FormItem shouldUpdate noStyle>
+							{() =>
+								temps.values.map((temp: any) =>
+									renderGroupConfigItem(temp, isRadioLinkage(temps.type)),
+								)
+							}
+						</FormItem>
 					</React.Fragment>
 				);
 			}
@@ -239,7 +243,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 					{index === template.length - 1 ? (
 						<CustomParams
 							typeCode={typeCode}
-							hadoopVersion={hadoopVersion}
+							hadoopVersion={versionName}
 							form={form}
 							view={view}
 							template={template}
@@ -251,25 +255,6 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 				</React.Fragment>
 			);
 		});
-	};
-
-	const renderKubernetsConfig = () => {
-		const typeCode = comp?.componentTypeCode ?? '';
-		const config =
-			form.getFieldValue(`${typeCode}.specialConfig`) ?? comp?.componentConfig ?? '';
-
-		return (
-			<>
-				{config ? (
-					<div className="c-formConfig__kubernetsContent">
-						配置文件参数已被加密，此处不予显示
-					</div>
-				) : null}
-				<FormItem name={`${typeCode}.specialConfig`} initialValue={config || {}} noStyle>
-					<></>
-				</FormItem>
-			</>
-		);
 	};
 
 	const renderYarnOrHdfsConfig = () => {
@@ -325,31 +310,15 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 		switch (typeCode) {
 			case COMPONENT_TYPE_VALUE.YARN:
 			case COMPONENT_TYPE_VALUE.HDFS:
-				return renderYarnOrHdfsConfig();
-			case COMPONENT_TYPE_VALUE.KUBERNETES:
-				return renderKubernetsConfig();
-			case COMPONENT_TYPE_VALUE.MYSQL:
-			case COMPONENT_TYPE_VALUE.SQLSERVER:
-			case COMPONENT_TYPE_VALUE.DB2:
-			case COMPONENT_TYPE_VALUE.OCEANBASE:
+				return (
+					<FormItem noStyle dependencies={[`${typeCode}.specialConfig`]}>
+						{() => renderYarnOrHdfsConfig()}
+					</FormItem>
+				);
 			case COMPONENT_TYPE_VALUE.SFTP:
-			case COMPONENT_TYPE_VALUE.TIDB_SQL:
-			case COMPONENT_TYPE_VALUE.LIBRA_SQL:
-			case COMPONENT_TYPE_VALUE.ORACLE_SQL:
-			case COMPONENT_TYPE_VALUE.IMPALA_SQL:
-			case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-			case COMPONENT_TYPE_VALUE.PRESTO_SQL:
 			case COMPONENT_TYPE_VALUE.FLINK:
 			case COMPONENT_TYPE_VALUE.SPARK:
-			case COMPONENT_TYPE_VALUE.DTYARNSHELL:
-			case COMPONENT_TYPE_VALUE.LEARNING:
-			case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-			case COMPONENT_TYPE_VALUE.NFS:
-			case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-			case COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT:
-			case COMPONENT_TYPE_VALUE.INCEPTOR_SQL:
-			case COMPONENT_TYPE_VALUE.ANALYTIC_DB:
-			case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
+			case COMPONENT_TYPE_VALUE.SPARK_THRIFT: {
 				return rendeConfigForm();
 			}
 			default:
