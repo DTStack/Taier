@@ -20,7 +20,7 @@ package com.dtstack.taiga.scheduler.server.pipeline.operator;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taiga.common.constrant.TaskConstant;
+import com.dtstack.taiga.common.constant.TaskConstant;
 import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleType;

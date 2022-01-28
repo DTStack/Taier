@@ -18,7 +18,7 @@
 
 package com.dtstack.taiga.develop.controller.console;
 
-import com.dtstack.taiga.common.constrant.Cookies;
+import com.dtstack.taiga.common.constant.Cookies;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.lang.web.R;

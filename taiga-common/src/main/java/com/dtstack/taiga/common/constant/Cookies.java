@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.common.constrant;
+package com.dtstack.taiga.common.constant;
 
 /**
  * @author yuebai
