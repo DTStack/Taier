@@ -69,7 +69,7 @@ public interface IComponentVO {
         for (ComponentVO componentVO : componentVOList) {
             if (needDefault && BooleanUtils.isTrue(componentVO.getIsDefault())){
                 return componentVO;
-            }else if (StringUtils.isNotBlank(componentVersion) && componentVersion.equals(componentVO.getHadoopVersion())){
+            }else if (StringUtils.isNotBlank(componentVersion) && componentVersion.equals(componentVO.getVersionName())){
                 return componentVO;
             }
         }

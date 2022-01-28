@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.scheduler.vo;
+package com.dtstack.taiga.develop.vo.console;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

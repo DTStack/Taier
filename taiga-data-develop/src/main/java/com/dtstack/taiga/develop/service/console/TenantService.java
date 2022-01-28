@@ -25,11 +25,7 @@ import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.dao.domain.ClusterTenant;
-import com.dtstack.taiga.dao.domain.Component;
-import com.dtstack.taiga.dao.domain.Queue;
-import com.dtstack.taiga.dao.domain.Tenant;
-import com.dtstack.taiga.dao.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.*;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.QueueMapper;
 import com.dtstack.taiga.dao.mapper.TenantMapper;
@@ -98,6 +94,9 @@ public class TenantService {
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
+    @Autowired
+    private ConsoleComponentService consoleComponentService;
+
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
                                                        int pageSize,
@@ -155,7 +154,7 @@ public class TenantService {
 
 
     public void checkClusterCanUse(String clusterName) throws Exception {
-        List<ComponentMultiTestResult> testConnectionVO = componentService.testConnects(clusterName);
+        List<ComponentMultiTestResult> testConnectionVO = consoleComponentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");

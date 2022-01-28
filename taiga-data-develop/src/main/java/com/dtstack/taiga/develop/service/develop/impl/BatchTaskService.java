@@ -1859,7 +1859,7 @@ public class BatchTaskService {
         List<BatchTaskGetComponentVersionResultVO> componentVersionResultVOS = Lists.newArrayList();
         for (Component component : components) {
             BatchTaskGetComponentVersionResultVO resultVO = new BatchTaskGetComponentVersionResultVO();
-            resultVO.setComponentVersion(component.getHadoopVersion());
+            resultVO.setComponentVersion(component.getVersionValue());
             resultVO.setIsDefault(component.getIsDefault());
             componentVersionResultVOS.add(resultVO);
         }

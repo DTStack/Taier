@@ -412,35 +412,6 @@ public class ComponentConfigUtils {
         return configs;
     }
 
-    /**
-     * 原sftp数据clientTemplate结构变更无法做转换
-     * 将原来数据的password 和rsaPath移除 将其内嵌到auth下的input
-     *
-     * @param componentConfig
-     * @return
-     */
-    @Deprecated
-    public static List<ClientTemplate> convertOldSftpTemplate(String componentConfig) {
-        if (StringUtils.isEmpty(componentConfig)) {
-            return new ArrayList<>(0);
-        }
-        String templateStr = "[{\"key\":\"auth\",\"required\":true,\"type\":\"RADIO_LINKAGE\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth\",\"dependencyValue\":\"1\",\"key\":\"password\",\"required\":true,\"type\":\"\"," +
-                "\"value\":\"1\",\"values\":[{\"dependencyKey\":\"auth$password\",\"dependencyValue\":\"\",\"key\":\"password\",\"required\":true,\"type\":\"PASSWORD\",\"value\":\"\"}]}," +
-                "{\"dependencyKey\":\"auth\",\"dependencyValue\":\"2\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"\",\"value\":\"2\",\"values\":[{\"dependencyKey\":\"auth$rsaPath\"," +
-                "\"dependencyValue\":\"\",\"key\":\"rsaPath\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]}]},{\"key\":\"fileTimeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"300000\"}," +
-                "{\"key\":\"host\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"isUsePool\",\"required\":true,\"type\":\"INPUT\",\"value\":\"true\"}," +
-                "{\"key\":\"maxIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"},{\"key\":\"maxTotal\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"}," +
-                "{\"key\":\"maxWaitMillis\",\"required\":true,\"type\":\"INPUT\",\"value\":\"3600000\"},{\"key\":\"minIdle\",\"required\":true,\"type\":\"INPUT\",\"value\":\"16\"}," +
-                "{\"key\":\"path\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"},{\"key\":\"port\",\"required\":true,\"type\":\"INPUT\",\"value\":\"22\"}," +
-                "{\"key\":\"timeout\",\"required\":true,\"type\":\"INPUT\",\"value\":\"0\"},{\"key\":\"username\",\"required\":true,\"type\":\"INPUT\",\"value\":\"\"}]\n";
-        List<ClientTemplate> clientTemplates = JSONObject.parseArray(templateStr, ClientTemplate.class);
-        JSONObject originConfig = JSONObject.parseObject(componentConfig);
-        for (ClientTemplate clientTemplate : clientTemplates) {
-            fillClientTemplate(clientTemplate, originConfig);
-        }
-        return clientTemplates;
-    }
-
 
     public static void fillClientTemplate(ClientTemplate clientTemplate, JSONObject config) {
         String value = config.getString(clientTemplate.getKey());
@@ -485,24 +456,29 @@ public class ComponentConfigUtils {
         return clientTemplates;
     }
 
-    public static SftpConfig getSFTPConfig(String sftpConfigStr, Integer componentCode, String componentTemplate) {
-        // sftpConfigStr 不为空，则直接作为 SftpConfig 解析
-        if (StringUtils.isNotBlank(sftpConfigStr)) {
-            return JSONObject.parseObject(sftpConfigStr, SftpConfig.class);
-        }
 
-        // only parse sftp
-        if (!EComponentType.SFTP.getTypeCode().equals(componentCode)) {
-            throw new RdosDefineException("Please configure the sftp server to upload files!");
+    /**
+     * 处理hdfs 和yarn的自定义参数
+     *
+     * @param componentType
+     * @param componentTemplate
+     * @return
+     */
+    public static List<ClientTemplate> dealXmlCustomControl(EComponentType componentType, String componentTemplate) {
+        List<ClientTemplate> extraClient = new ArrayList<>(0);
+        if (StringUtils.isBlank(componentTemplate)) {
+            return extraClient;
         }
-
-        try {
-            // 获取 config
-            List<ClientTemplate> clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
-            Map<String, Object> configMap = convertClientTemplateToMap(clientTemplates);
-            return PublicUtil.mapToObject(configMap, SftpConfig.class);
-        } catch (IOException e) {
-            throw new RdosDefineException("sftp配置信息不正确");
+        if (EComponentType.HDFS.getTypeCode().equals(componentType.getTypeCode()) || EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
+            JSONArray keyValues = JSONObject.parseArray(componentTemplate);
+            for (int i = 0; i < keyValues.size(); i++) {
+                ClientTemplate clientTemplate = ComponentConfigUtils.buildCustom(
+                        keyValues.getJSONObject(i).getString("key"),
+                        keyValues.getJSONObject(i).getString("value"),
+                        EFrontType.CUSTOM_CONTROL.name());
+                extraClient.add(clientTemplate);
+            }
         }
+        return extraClient;
     }
 }

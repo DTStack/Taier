@@ -30,7 +30,7 @@ public enum EDeployType {
     //
     YARN(1, "yarn"),
     //
-    MESOS(2, "mesos");
+    KUBERNETES(2, "kubernetes");
 
     int type;
 

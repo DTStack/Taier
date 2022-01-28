@@ -41,8 +41,8 @@ import com.dtstack.taiga.scheduler.WorkerOperator;
 import com.dtstack.taiga.scheduler.jobdealer.JobDealer;
 import com.dtstack.taiga.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taiga.scheduler.service.ComponentService;
-import com.dtstack.taiga.scheduler.vo.console.ConsoleJobInfoVO;
-import com.dtstack.taiga.scheduler.vo.console.ConsoleJobVO;
+import com.dtstack.taiga.develop.vo.console.ConsoleJobInfoVO;
+import com.dtstack.taiga.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taiga.scheduler.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -101,6 +101,9 @@ public class ConsoleService {
 
     @Autowired
     private KerberosMapper kerberosMapper;
+
+    @Autowired
+    private ConsoleComponentService consoleComponentService;
 
 
     public List<String> nodeAddress() {
@@ -441,15 +444,15 @@ public class ConsoleService {
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
             if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
                 //开启kerberos 添加信息
-                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getHadoopVersion()));
+                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
-                pluginInfo = JSONObject.parseObject(componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName()));
+                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName());
             }
             String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                typeName = componentService.convertComponentTypeToClient(cluster.getClusterName(),
+                typeName = consoleComponentService.convertComponentTypeToClient(cluster.getClusterName(),
                         EComponentType.YARN.getTypeCode(),null,null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);
