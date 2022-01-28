@@ -19,11 +19,12 @@
 package com.dtstack.taiga.develop.controller.console;
 
 import com.dtstack.taiga.common.enums.EComponentType;
+import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.dao.dto.Resource;
-import com.dtstack.taiga.scheduler.service.ComponentService;
+import com.dtstack.taiga.develop.service.console.ConsoleComponentService;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,7 @@ import java.util.List;
 @Api(value = "/node/upload", tags = {"上传接口"})
 public class UploadController {
     @Autowired
-    private ComponentService componentService;
+    private ConsoleComponentService consoleComponentService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
@@ -57,16 +59,15 @@ public class UploadController {
     @ApiOperation(value = "解析zip中xml或者json")
     public R<List<Object>> upload(@RequestParam("fileName") List<MultipartFile> files, @RequestParam("componentType") Integer componentType,
                                @RequestParam(value = "autoDelete", required = false) Boolean autoDelete,@RequestParam(value = "version", required = false) String componentVersion) {
-        return R.ok(componentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion));
+        return R.ok(consoleComponentService.config(getResourcesFromFiles(files), componentType, autoDelete,componentVersion));
     }
 
     @PostMapping(value="/component/addOrUpdateComponent")
     public R<ComponentVO> addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
-                                            @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("hadoopVersion") String hadoopVersion,
+                                            @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName")@NotNull String versionName,
                                             @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
                                             @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
                                             @RequestParam("principals")String principals,@RequestParam("principal")String principal,@RequestParam("isMetadata")boolean isMetadata,
-
                                             @RequestParam(value = "isDefault",required = false) Boolean isDefault,@RequestParam(value = "deployType",required = false)Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
@@ -74,8 +75,6 @@ public class UploadController {
         return new APITemplate<ComponentVO>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
-
-
                 if (null == componentCode) {
                     throw new RdosDefineException("Component type cannot be empty");
                 }
@@ -86,6 +85,10 @@ public class UploadController {
                     //上传二份文件 需要kerberosFileName文件名字段
                     throw new RdosDefineException("kerberosFileName不能为空");
                 }
+                //校验引擎是否添加
+                if (EComponentType.deployTypeComponents.contains(componentCode) && null == deployType) {
+                    throw new RdosDefineException(ErrorCode.EMPTY_PARAMETERS.getMsg() + ":deployType");
+                }
             }
 
             @Override
@@ -95,8 +98,8 @@ public class UploadController {
                 if (EComponentType.deployTypeComponents.contains(componentType) && null == deployType) {
                     throw new RdosDefineException("deploy type cannot be empty");
                 }
-                return componentService.addOrUpdateComponent(clusterId, componentConfig, resources,
-                        hadoopVersion, kerberosFileName, componentTemplate, componentType, storeType, principals, principal, isMetadata, isDefault, deployType);
+                return consoleComponentService.addOrUpdateComponent(clusterId, componentConfig, resources,
+                        versionName, kerberosFileName, componentTemplate, componentType, storeType, principals, principal, isMetadata, isDefault, deployType);
             }
         }.execute();
 
@@ -106,14 +109,14 @@ public class UploadController {
     @PostMapping(value="/component/parseKerberos")
     @ApiOperation(value = "解析kerberos文件中信息")
     public R<List<String>> parseKerberos(@RequestParam("fileName") List<MultipartFile> files) {
-        return R.ok(componentService.parseKerberos(getResourcesFromFiles(files)));
+        return R.ok(consoleComponentService.parseKerberos(getResourcesFromFiles(files)));
     }
 
     @PostMapping(value="/component/uploadKerberos")
     public R<String> uploadKerberos(@RequestParam("kerberosFile") List<MultipartFile> files, @RequestParam("clusterId") Long clusterId,
                                  @RequestParam("componentCode") Integer componentCode,@RequestParam("componentVersion") String componentVersion) {
         List<Resource> resources = getResourcesFromFiles(files);
-        return R.ok(componentService.uploadKerberos(resources, clusterId, componentCode,componentVersion));
+        return R.ok(consoleComponentService.uploadKerberos(resources, clusterId, componentCode,componentVersion));
     }
 
     private List<Resource> getResourcesFromFiles(List<MultipartFile> files) {

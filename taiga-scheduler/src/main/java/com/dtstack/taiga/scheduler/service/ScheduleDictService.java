@@ -48,7 +48,7 @@ public class ScheduleDictService {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleDictService.class);
     public static final Predicate<String> defaultVersion = version -> "hadoop2".equalsIgnoreCase(version) || "hadoop3".equalsIgnoreCase(version)
-   || "Hadoop 2.x".equalsIgnoreCase(version) || "Hadoop 3.x".equalsIgnoreCase(version);
+            || "Hadoop 2.x".equalsIgnoreCase(version) || "Hadoop 3.x".equalsIgnoreCase(version);
 
     @Autowired
     private DictMapper dictMapper;
@@ -61,6 +61,7 @@ public class ScheduleDictService {
 
     /**
      * 获取hadoop 和 flink spark组件的版本(有版本选择的才会在这获取)
+     *
      * @return
      */
     public Map<String, List<ClientTemplate>> getVersion() {
@@ -98,8 +99,8 @@ public class ScheduleDictService {
         return dictMapper.getTypeDefault(type);
     }
 
-    public ScheduleDict getByNameAndValue(Integer dictType,String dictName,String dictValue,String dependName){
-        return dictMapper.getByNameValue(dictType, dictName, dictValue,dependName);
+    public ScheduleDict getByNameAndValue(Integer dictType, String dictName, String dictValue, String dependName) {
+        return dictMapper.getByNameValue(dictType, dictName, dictValue, dependName);
     }
 
     private List<ClientTemplate> getNormalVersion(Integer type) {
@@ -126,28 +127,19 @@ public class ScheduleDictService {
         List<ScheduleDict> scheduleDicts = dictMapper.listDictByType(DictType.HADOOP_VERSION.type);
         Map<String, List<ScheduleDict>> versions = scheduleDicts
                 .stream()
-                .collect(Collectors.groupingBy(ScheduleDict::getDictCode));
+                .collect(Collectors.groupingBy(ScheduleDict::getDependName));
         List<ClientTemplate> clientTemplates = new ArrayList<>(versions.size());
-        for (String key : versions.keySet()) {
-            List<ScheduleDict> keyDicts = versions.get(key);
-            Map<String, List<ScheduleDict>> dependName = keyDicts
-                    .stream()
-                    .collect(Collectors.groupingBy(s -> Optional.ofNullable(s.getDependName()).orElse("")));
-            for (ScheduleDict keyDict : keyDicts) {
-                //最外部
-                if (StringUtils.isBlank(keyDict.getDependName())) {
-                    ClientTemplate clientTemplate = new ClientTemplate(keyDict.getDictName(), keyDict.getDictValue());
-                    List<ScheduleDict> dependDict = dependName.get(keyDict.getDictName());
-                    if (!CollectionUtils.isEmpty(dependDict)) {
-                        clientTemplate.setValues(dependDict
-                                .stream()
-                                .map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
-                                .collect(Collectors.toList()));
-                    }
-                    clientTemplates.add(clientTemplate);
-                }
-            }
+        for (String dependName : versions.keySet()) {
+            List<ScheduleDict> keyDicts = versions.get(dependName);
+            keyDicts = keyDicts.stream().sorted(Comparator.comparing(ScheduleDict::getSort)).collect(Collectors.toList());
+            List<ClientTemplate> templates = keyDicts.stream().map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
+                    .collect(Collectors.toList());
+            ClientTemplate vendorFolder = new ClientTemplate();
+            vendorFolder.setKey(dependName);
+            vendorFolder.setValues(templates);
+            clientTemplates.add(vendorFolder);
         }
+        clientTemplates.sort(Comparator.comparing(ClientTemplate::getKey));
         return clientTemplates;
     }
 
@@ -166,4 +158,9 @@ public class ScheduleDictService {
         }
         return "";
     }
+
+    public List<ScheduleDict> listByDictType(DictType dictType) {
+        return dictMapper.listDictByType(dictType.type);
+    }
+
 }

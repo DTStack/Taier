@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.scheduler.vo.console;
+package com.dtstack.taiga.develop.vo.console;
 
 import com.dtstack.taiga.pluginapi.pojo.ParamAction;
 

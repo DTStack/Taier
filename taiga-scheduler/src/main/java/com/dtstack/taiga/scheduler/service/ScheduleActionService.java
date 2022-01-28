@@ -39,7 +39,6 @@ import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.ComponentMapper;
 import com.dtstack.taiga.dao.mapper.EngineJobRetryMapper;
 import com.dtstack.taiga.pluginapi.JobClient;
-import com.dtstack.taiga.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taiga.pluginapi.enums.ComputeType;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taiga.pluginapi.util.PublicUtil;
@@ -93,9 +92,6 @@ public class ScheduleActionService {
 
     @Autowired
     private ClusterService clusterService;
-
-    @Autowired
-    private ComponentService componentService;
 
     @Autowired
     private ComponentMapper componentMapper;
@@ -274,7 +270,7 @@ public class ScheduleActionService {
             JSONObject pluginInfo = clusterService.pluginInfoJSON(batchTask.getTenantId(), batchTask.getTaskType(), null, null);
             Long clusterId = clusterTenantMapper.getClusterIdByTenantId(batchTask.getTenantId());
             String hadoopVersion = componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, EComponentType.HDFS.getTypeCode());
-            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, EComponentType.HDFS.name().toLowerCase() + componentService.formatHadoopVersion(hadoopVersion, EComponentType.HDFS));
+//            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, EComponentType.HDFS.name().toLowerCase() + console.formatHadoopVersion(hadoopVersion, EComponentType.HDFS));
             uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
             uploadPipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
         });
