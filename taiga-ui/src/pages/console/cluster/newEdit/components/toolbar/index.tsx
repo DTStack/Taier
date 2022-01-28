@@ -37,6 +37,7 @@ import {
 	isKubernetes,
 	isMultiVersion,
 	isFLink,
+	handleComponentTemplate,
 } from '../../help';
 
 interface IProps {
@@ -62,7 +63,7 @@ export default function ToolBar({
 
 	const onOk = () => {
 		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		const deployType = comp?.deployType ?? '';
 
 		form.validateFields()
@@ -74,8 +75,12 @@ export default function ToolBar({
 				 * componentConfig yarn等组件传值specialConfig，合并自定义参数，其他组件需处理自定义参数合并到对应config中
 				 */
 				let currentComp = values[typeCode];
-				if (mulitple && hadoopVersion) {
-					currentComp = values[typeCode][hadoopVersion];
+				if (mulitple && versionName) {
+					const versionArr: string[] = versionName.split('.');
+					currentComp = versionArr.reduce((pre, cur) => {
+						const next = pre;
+						return next[cur];
+					}, values[typeCode]);
 				}
 
 				let componentConfig: any;
@@ -98,9 +103,10 @@ export default function ToolBar({
 					storeType: currentComp?.storeType ?? '',
 					principal: currentComp?.principal ?? '',
 					principals: currentComp?.principals ?? [],
-					hadoopVersion: mulitple ? hadoopVersion : currentComp.hadoopVersion || '',
+					versionName: mulitple ? versionName : currentComp.versionName || '',
 					isMetadata: currentComp.isMetadata ? 1 : 0,
 					componentTemplate: '',
+					componentConfig,
 				};
 
 				if (isNeedTemp(typeCode)) {
@@ -108,7 +114,9 @@ export default function ToolBar({
 						? '[]'
 						: JSON.stringify(handleCustomParam(currentComp.customParam));
 				} else {
-					params.componentTemplate = componentConfig;
+					params.componentTemplate = JSON.stringify(
+						handleComponentTemplate(currentComp, comp),
+					);
 				}
 				/**
 				 * TODO LIST
@@ -147,16 +155,16 @@ export default function ToolBar({
 
 	const testConnects = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : '';
+		const versionName = comp?.versionName;
 		const deployType = comp?.deployType ?? '';
-		onTestConnects?.({ typeCode, hadoopVersion, deployType }, (testLoading: boolean) => {
+		onTestConnects?.({ typeCode, versionName, deployType }, (testLoading: boolean) => {
 			setLoading(testLoading);
 		});
 	};
 
 	const onConfirm = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : '';
+		const versionName = isMultiVersion(typeCode) ? comp?.versionName : '';
 		const componentConfig = handleComponentConfig(
 			{
 				componentConfig: comp?.componentConfig ? JSON.parse(comp?.componentConfig) : {},
@@ -164,7 +172,7 @@ export default function ToolBar({
 			true,
 		);
 		const fieldValue = isMultiVersion(typeCode)
-			? { [hadoopVersion]: { componentConfig } }
+			? { [versionName]: { componentConfig } }
 			: { componentConfig };
 
 		form.setFieldsValue({ [typeCode]: fieldValue });
@@ -185,7 +193,7 @@ export default function ToolBar({
 	};
 
 	const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
-	const hadoopVersion = comp?.hadoopVersion ?? '';
+	const versionName = comp?.versionName ?? '';
 	const deployType: keyof typeof FLINK_DEPLOY_NAME = comp?.deployType ?? '';
 	const defaultText = COMPONENT_CONFIG_NAME[typeCode];
 
@@ -197,8 +205,8 @@ export default function ToolBar({
 		[typeCode, deployType],
 	);
 	const multipleText = useMemo(
-		() => `${text} ${(Number(hadoopVersion) / 100).toFixed(2)}`,
-		[text, hadoopVersion],
+		() => `${text} ${(Number(versionName) / 100).toFixed(2)}`,
+		[text, versionName],
 	);
 
 	if (isMultiVersion(typeCode) && !mulitple) {
