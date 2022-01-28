@@ -87,6 +87,9 @@ export default {
 	getTenantList(params?: any) {
 		return http.get(req.GET_TENANT_LIST, params);
 	},
+	getMetaComponent(params?: any) {
+		return http.get(req.GET_META_COMPONENT, params);
+	},
 	testCluster(params: any) {
 		return http.post(req.TEST_CLUSTER_CONNECT, params);
 	},
@@ -112,11 +115,7 @@ export default {
 	},
 
 	// 上传kerberos文件
-	uploadKerberos(params: {
-		kerberosFile: any;
-		clusterId: number;
-		componentCode: number;
-	}) {
+	uploadKerberos(params: { kerberosFile: any; clusterId: number; componentCode: number }) {
 		return http.postAsFormData(req.UPLOAD_KERBEROS, params);
 	},
 
@@ -314,10 +313,7 @@ export default {
 	getAlarmConfig() {
 		return http.post(req.GET_ALARM_CONFIG);
 	},
-	updateAlarmConfig(params: {
-		componentConfig: string;
-		componentTemplate: string;
-	}) {
+	updateAlarmConfig(params: { componentConfig: string; componentTemplate: string }) {
 		return http.post(req.UPDATE_ALARM_CONFIG, params);
 	},
 	testAlarmConfig() {

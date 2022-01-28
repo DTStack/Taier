@@ -78,20 +78,20 @@ const DataSourceView = () => {
 
 	// 获取表格数据
 	const requestTableData = async (query?: any, appendMode: boolean = false) => {
-		const {
-			data,
-			success,
-			message: resMessage,
-		} = await API.dataSourcepage({
+		const requestParams = {
 			...params,
 			...other,
 			...query,
-		});
+		};
+		if (typeof requestParams.isMeta === 'boolean') {
+			requestParams.isMeta = Number(requestParams.isMeta);
+		}
+		const { data, success, message: resMessage } = await API.dataSourcepage(requestParams);
 		if (success) {
-			const { currentPage, pageSize, totalCount } = data;
+			const { currentPage, totalCount } = data;
 			setParams({
 				currentPage, // 当前页码
-				pageSize, // 分页个数
+				pageSize: 20, // 分页个数
 			});
 			const nextData: IDataSourceProps[] = ((data.data as IDataSourceProps[]) || []).map(
 				(ele) => {
