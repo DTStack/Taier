@@ -208,7 +208,7 @@ public class BatchTaskService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
+    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":1, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer DEFAULT_SCHEDULE_PERIOD = ESchedulePeriodType.DAY.getVal();
 
