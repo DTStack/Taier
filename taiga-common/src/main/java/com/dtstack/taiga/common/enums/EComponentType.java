@@ -26,19 +26,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author jiangbo
- * @date 2019/5/30
- */
+
 public enum EComponentType {
 
     FLINK(0, "Flink", "flinkConf"),
     SPARK(1, "Spark", "sparkConf"),
-    HDFS(4, "HDFS", "hadoopConf"),
-    YARN(5, "YARN", "yarnConf"),
-    SPARK_THRIFT(6, "SparkThrift", "hiveConf"),
-    HIVE_SERVER(9, "HiveServer", "hiveServerConf"),
-    SFTP(10, "SFTP", "sftpConf");
+    HDFS(2, "HDFS", "hadoopConf"),
+    YARN(3, "YARN", "yarnConf"),
+    SPARK_THRIFT(4, "SparkThrift", "hiveConf"),
+    HIVE_SERVER(5, "HiveServer", "hiveServerConf"),
+    SFTP(6, "SFTP", "sftpConf");
 
     private Integer typeCode;
 

@@ -31,6 +31,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
 
     UNKNOWN_ERROR(10, "unknown error", "未知错误"),
     SERVER_EXCEPTION(11, "server exception", "服务异常"),
+    EMPTY_PARAMETERS(12, "empty parameters", "必填参数为空"),
 
 
 
@@ -50,10 +51,10 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
 
     HTTP_CALL_ERROR(64, "http call error", "远程调用失败"),
 
-    INVALID_PAGE_PARAM(102, "page params invalid","无效的分页数据"),
-    TENANT_ID_NOT_NULL(103, "TenantId cat not be null","租户id不能为空"),
+    INVALID_PAGE_PARAM(65, "page params invalid","无效的分页数据"),
+    TENANT_ID_NOT_NULL(66, "TenantId cat not be null","租户id不能为空"),
 
-    SYSTEM_FUNCTION_CAN_NOT_MODIFY(29, "","系统方法不能修改"),
+    SYSTEM_FUNCTION_CAN_NOT_MODIFY(67, "","系统方法不能修改"),
     CATALOGUE_NO_EMPTY(130, "","目录不为空"),
     CAN_NOT_FIND_CATALOGUE(131,"", "该目录不存在"),
     CAN_NOT_MOVE_CATALOGUE(132, "","该目录不允许移动至当前目录和子目录"),
@@ -80,6 +81,29 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     STORE_COMPONENT_NOT_CONFIG(201,"please config store component", "请先配置存储组件"),
     UNSUPPORTED_PLUGIN(203, "unsupported plugin", "插件不支持"),
     COMPONENT_TYPE_UNDEFINED(204,"component type undefined", "该组件类型未定义"),
+    CAN_NOT_FIND_SFTP(205, "","开启kerberos认证后，需配置SFTP服务"),
+    GET_COLUMN_ERROR(206, "","获取数据库中相关表、字段信息时失败. 请联系 DBA 核查该库、表信息。"),
+    TABLE_CAN_NOT_FIND(207, "","该表不存在"),
+    CANT_NOT_FIND_CLUSTER(208, "cluster can not found","该集群不存在"),
+    METADATA_COMPONENT_NOT_DELETED(209, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),
+    BIND_COMPONENT_NOT_DELETED(210, "component can not deleted","集群已绑定租户，对应计算和调度组件不能删除"),
+    COMPONENT_TYPE_CODE_NOT_NULL(211, "component type code cat not be null","组件code不能为空"),
+    STORE_COMPONENT_CONFIG_NULL(212, "storage component is null","存储组件配置为空"),
+    RESOURCE_COMPONENT_CONFIG_NULL(213, "resource component is null","资源组件配置为空"),
+    RESOURCE_NOT_SUPPORT_COMPONENT_VERSION(214, "resource component {} not support {} version {}","资源组件 {} 不支持 {} 版本 {}"),
+    COMPONENT_CONFIG_NOT_SUPPORT_VERSION(215, "component {} config not support {} version {}","组件 {} 配置不支持版本 {}"),
+    NOT_SUPPORT_COMPONENT(216, "not support component {} version {} ,pluginName is empty","不支持组件 {} 版本 {}，找不到插件名称"),
+    DEPEND_ON_COMPONENT_NOT_CONFIG(217, "depend_on_component_not_config","依赖组件未配置"),
+    RESOURCE_COMPONENT_NOT_SUPPORT_DEPLOY_TYPE(218, "resource component {} not support deployType {}","资源组件不支持部署版本 {}"),
+    COMPONENT_INVALID(219, "component_invalid","组件不支持"),
+    CLUSTER_ID_EMPTY(220, "cluster id is empty","集群id为空"),
+    S3_STORE_COMPONENT_NOT_CONFIG(221, "Please configure s3 storage components first", "请先配置 S3 存储组件"),
+    STORE_COMPONENT_NOT_CHOOSE(222, "Please choose storeType first", "请先选择存储组件"),
+    SFTP_SERVER_NOT_CONFIG(223, "Please configure the sftp server to upload files", "请先配置SFTP公共组件"),
+    CHANGE_META_NOT_PERMIT_WHEN_BIND_CLUSTER(224, "cluster has bind tenant can not change metadata component", "集群已经绑定过租户,不允许修改"),
+    PRE_COMPONENT_NOT_EXISTS(225, "pre Component does not exist", "前置组件不存在"),
+
+
 
 
     TEMPLATE_TASK_CONTENT_NOT_NULL(249, "Template task content can not be null","模板任务的内容不能为空"),
@@ -125,19 +149,12 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     IMPORT_DATA_SOURCE_AUTH_FAIL(473, "","存在数据源未授权, 引入失败"),
     CANCEL_AUTH_DATA_SOURCE_FAIL(474, "","取消授权的产品已引入该数据源，授权失败"),
 
-
-    CAN_NOT_FIND_SFTP(158, "","开启kerberos认证后，需配置SFTP服务"),
-    GET_COLUMN_ERROR(547, "","获取数据库中相关表、字段信息时失败. 请联系 DBA 核查该库、表信息。"),
-    TABLE_CAN_NOT_FIND(600, "","该表不存在"),
     NOT_EXISTS_PROJECT(601, "","不存在项目对应的数据库"),
     TABLE_INFO_ERR(602, "","table info ref not right"),
     CREATE_TABLE_ERR(603, "","创建表失败"),
     ALTER_TABLE_ERR(604, "","修改表出错"),
     GET_DIRTY_ERROR(605, "","get dirty data error"),
-    CANT_NOT_FIND_CLUSTER(651, "cluster can not found","该集群不存在"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
-    BIND_COMPONENT_NOT_DELETED(653, "component can not deleted","集群已绑定租户，对应计算和调度组件不能删除"),
-    METADATA_COMPONENT_NOT_DELETED(654, "metadata component can not deleted","集群已绑定租户，对应元数据不能删除"),
 
 
     TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
