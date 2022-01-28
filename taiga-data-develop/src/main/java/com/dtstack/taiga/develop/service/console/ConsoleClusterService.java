@@ -14,10 +14,15 @@ import com.dtstack.taiga.dao.domain.ClusterTenant;
 import com.dtstack.taiga.dao.domain.KerberosConfig;
 import com.dtstack.taiga.dao.domain.Queue;
 import com.dtstack.taiga.dao.mapper.*;
-import com.dtstack.taiga.develop.vo.console.*;
+import com.dtstack.taiga.develop.vo.console.ClusterEngineVO;
+import com.dtstack.taiga.develop.vo.console.ClusterVO;
+import com.dtstack.taiga.develop.vo.console.EngineVO;
+import com.dtstack.taiga.develop.vo.console.QueueVO;
 import com.dtstack.taiga.scheduler.service.ComponentConfigService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
-import com.dtstack.taiga.scheduler.vo.*;
+import com.dtstack.taiga.scheduler.vo.ComponentVO;
+import com.dtstack.taiga.scheduler.vo.IComponentVO;
+import com.dtstack.taiga.scheduler.vo.SchedulingVo;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,6 +37,7 @@ import static com.dtstack.taiga.pluginapi.constrant.ConfigConstant.DEFAULT_CLUST
 
 @Component
 public class ConsoleClusterService {
+
     @Autowired
     private ClusterMapper clusterMapper;
 
@@ -219,6 +225,17 @@ public class ConsoleClusterService {
             vo.setEngines(engineVOS);
         }
         return vo;
+    }
+
+    public Integer getMetaComponent(Long tenantId) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        return getMetaComponentByClusterId(clusterId);
+    }
+
+
+    public Integer getMetaComponentByClusterId(Long clusterId) {
+        com.dtstack.taiga.dao.domain.Component metadataComponent = componentService.getMetadataComponent(clusterId);
+        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
     }
 
 }

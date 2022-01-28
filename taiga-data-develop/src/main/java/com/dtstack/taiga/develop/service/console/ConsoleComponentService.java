@@ -3,7 +3,6 @@ package com.dtstack.taiga.develop.service.console;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EFrontType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
@@ -40,7 +39,6 @@ import com.dtstack.taiga.scheduler.service.ScheduleDictService;
 import com.dtstack.taiga.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taiga.scheduler.utils.Krb5FileUtil;
 import com.dtstack.taiga.scheduler.utils.XmlFileUtil;
-import com.dtstack.taiga.develop.vo.console.ClusterVO;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import com.dtstack.taiga.scheduler.vo.IComponentVO;
 import com.google.common.collect.Lists;
@@ -66,6 +64,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.dtstack.taiga.common.constant.CommonConstant.ZIP_SUFFIX;
 import static com.dtstack.taiga.pluginapi.constrant.ConfigConstant.*;
 
 
