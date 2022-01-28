@@ -51,7 +51,7 @@ export default {
 	testConnect(params: {
 		clusterName: string;
 		componentType: number;
-		componentVersion: string;
+		versionName: string;
 		deployType: number | string;
 	}) {
 		return http.post(req.TEST_CONNECT, params);
