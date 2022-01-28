@@ -1,6 +1,7 @@
-package com.dtstack.taiga.scheduler.vo;
+package com.dtstack.taiga.develop.vo.console;
 
 import com.dtstack.taiga.dao.domain.BaseEntity;
+import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import io.swagger.annotations.ApiModel;
 
 import java.util.List;

@@ -20,7 +20,7 @@ package com.dtstack.taiga.develop.mapstruct.console;
 
 
 import com.dtstack.taiga.dao.domain.KerberosConfig;
-import com.dtstack.taiga.scheduler.vo.KerberosConfigVO;
+import com.dtstack.taiga.develop.vo.console.KerberosConfigVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
