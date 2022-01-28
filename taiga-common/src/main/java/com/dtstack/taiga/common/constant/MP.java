@@ -1,4 +1,4 @@
-package com.dtstack.taiga.common.constrant;
+package com.dtstack.taiga.common.constant;
 
 import com.google.common.base.CaseFormat;
 
