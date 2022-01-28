@@ -76,8 +76,6 @@ public class ConfigConstant {
     public static final String KERBEROS_CONFIG = "kerberosConfig";
 
 
-
-    public static final String ZIP_SUFFIX = ".zip";
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
 

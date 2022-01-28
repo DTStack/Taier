@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.env.EnvironmentContext;

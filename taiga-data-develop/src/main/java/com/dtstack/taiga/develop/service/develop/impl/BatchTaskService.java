@@ -27,7 +27,7 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.constrant.PatternConstant;
+import com.dtstack.taiga.common.constant.PatternConstant;
 import com.dtstack.taiga.common.enums.*;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
