@@ -43,9 +43,6 @@ public class BatchScheduleEngineJobResultVO {
     @ApiModelProperty(value = "版本ID", example = "1")
     private Integer versionId;
 
-    @ApiModelProperty(value = "UIC 租户ID", example = "1")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "任务实例ID", example = "1")
     private String jobId;
 

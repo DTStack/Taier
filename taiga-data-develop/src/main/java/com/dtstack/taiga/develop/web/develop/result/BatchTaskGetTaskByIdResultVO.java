@@ -178,9 +178,6 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "所属工作流id", example = "32")
     private Long flowId;
 
-    @ApiModelProperty(value = "uic 租户 ID", example = "11")
-    private Long dtuicTenantId = 0L;
-
     @ApiModelProperty(value = "平台类型", example = "11")
     private Integer appType;
 

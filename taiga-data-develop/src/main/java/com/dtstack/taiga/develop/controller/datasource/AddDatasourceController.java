@@ -242,8 +242,7 @@ public class AddDatasourceController {
         return new APITemplate<JSONObject>() {
             @Override
             protected JSONObject process() {
-                return datasourceService.preview(vo.getUserId(), vo.getSourceId(), vo.getTableName(),
-                        vo.getPartition(), vo.getTenantId(), vo.getDtuicTenantId(), vo.getIsRoot(), vo.getSchema());
+                return datasourceService.preview(vo.getSourceId(), vo.getTableName(),vo.getSchema());
             }
         }.execute();
     }

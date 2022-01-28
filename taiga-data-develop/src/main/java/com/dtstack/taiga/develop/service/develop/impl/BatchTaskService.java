@@ -19,11 +19,7 @@
 package com.dtstack.taiga.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.*;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
@@ -31,46 +27,15 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.constrant.PatternConstant;
-import com.dtstack.taiga.common.enums.CatalogueType;
-import com.dtstack.taiga.common.enums.Deleted;
-import com.dtstack.taiga.common.enums.DependencyType;
-import com.dtstack.taiga.common.enums.DictType;
-import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EDeployType;
-import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.EScheduleStatus;
-import com.dtstack.taiga.common.enums.ESubmitStatus;
-import com.dtstack.taiga.common.enums.FuncType;
-import com.dtstack.taiga.common.enums.PublishTaskStatusEnum;
-import com.dtstack.taiga.common.enums.ReadWriteLockType;
-import com.dtstack.taiga.common.enums.ResourceRefType;
-import com.dtstack.taiga.common.enums.TaskLockStatus;
+import com.dtstack.taiga.common.constant.PatternConstant;
+import com.dtstack.taiga.common.enums.*;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.kerberos.KerberosConfigVerify;
-import com.dtstack.taiga.common.util.Base64Util;
-import com.dtstack.taiga.common.util.DataFilter;
-import com.dtstack.taiga.common.util.JsonUtils;
-import com.dtstack.taiga.common.util.PublicUtil;
-import com.dtstack.taiga.common.util.Strings;
-import com.dtstack.taiga.dao.domain.BatchCatalogue;
-import com.dtstack.taiga.dao.domain.BatchDataSource;
-import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
-import com.dtstack.taiga.dao.domain.BatchResource;
-import com.dtstack.taiga.dao.domain.BatchSysParameter;
-import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.dao.domain.BatchTaskParam;
-import com.dtstack.taiga.dao.domain.BatchTaskResource;
-import com.dtstack.taiga.dao.domain.BatchTaskTask;
-import com.dtstack.taiga.dao.domain.BatchTaskVersion;
-import com.dtstack.taiga.dao.domain.Component;
-import com.dtstack.taiga.dao.domain.Dict;
-import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
-import com.dtstack.taiga.dao.domain.TaskParamTemplate;
-import com.dtstack.taiga.dao.domain.User;
+import com.dtstack.taiga.common.util.*;
+import com.dtstack.taiga.dao.domain.*;
 import com.dtstack.taiga.dao.dto.BatchTaskDTO;
 import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.dao.dto.UserDTO;
@@ -78,13 +43,7 @@ import com.dtstack.taiga.dao.mapper.BatchReadWriteLockDao;
 import com.dtstack.taiga.dao.mapper.BatchTaskDao;
 import com.dtstack.taiga.dao.pager.PageQuery;
 import com.dtstack.taiga.dao.pager.Sort;
-import com.dtstack.taiga.develop.dto.devlop.BatchTaskBatchVO;
-import com.dtstack.taiga.develop.dto.devlop.CheckSyntaxResult;
-import com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskCheckResultVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskGetNotDeleteVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.dto.devlop.*;
 import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import com.dtstack.taiga.develop.enums.develop.SyncModel;
 import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
@@ -98,10 +57,11 @@ import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.service.schedule.TaskService;
 import com.dtstack.taiga.develop.service.task.TaskParamTemplateService;
 import com.dtstack.taiga.develop.service.user.UserService;
+import com.dtstack.taiga.develop.utils.develop.common.enums.Constant;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.utils.develop.sync.job.SyncJobCheck;
-import com.dtstack.taiga.develop.utils.develop.common.enums.Constant;
 import com.dtstack.taiga.develop.web.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taiga.develop.web.develop.result.BatchAllProductGlobalReturnVO;
 import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taiga.pluginapi.util.MathUtil;
 import com.dtstack.taiga.scheduler.dto.schedule.SavaTaskDTO;
@@ -109,7 +69,6 @@ import com.dtstack.taiga.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
-import com.dtstack.taiga.scheduler.vo.schedule.task.shade.ScheduleTaskShadeTypeVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -136,18 +95,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -165,6 +113,9 @@ public class BatchTaskService {
 
     @Resource(name = "batchJobParamReplace")
     private JobParamReplace jobParamReplace;
+
+    @Autowired
+    private TenantService tenantService;
 
     @Autowired
     private BatchTaskParamShadeService batchTaskParamShadeService;
@@ -212,9 +163,6 @@ public class BatchTaskService {
     private DictService dictService;
 
     @Autowired
-    private TenantService tenantService;
-
-    @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
@@ -260,7 +208,7 @@ public class BatchTaskService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
+    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":1, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer DEFAULT_SCHEDULE_PERIOD = ESchedulePeriodType.DAY.getVal();
 
@@ -424,53 +372,6 @@ public class BatchTaskService {
             }
         }
         taskVO.setTaskVariables(mapParams);
-    }
-
-
-    /**
-     * 数据开发-获取依赖任务
-     * 可以被依赖的任务必须是已经发布的
-     *
-     * @param tenantId
-     * @param taskId
-     * @return
-     * @author toutian
-     */
-    public List<Map<String, Object>> getDependencyTask(Long tenantId, Long taskId, String name, Long searchTenantId) {
-
-        /**
-         * 虚节点不支持查询依赖（前段隐藏该功能，后端验证判断）
-         */
-        final BatchTask task = this.batchTaskDao.getOne(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        if (task.getTaskType().intValue() == EScheduleJobType.VIRTUAL.getVal().intValue()) {
-            throw new RdosDefineException(ErrorCode.VIRTUAL_TASK_UNSUPPORTED_OPERATION);
-        }
-        final List<BatchTaskTask> taskTasks = this.batchTaskTaskService.getByParentTaskId(taskId);
-        final List<Long> excludeIds = new ArrayList<>(taskTasks.size());
-        excludeIds.add(taskId);
-        taskTasks.forEach(taskTask -> {
-            excludeIds.add(taskTask.getTaskId());
-        });
-        if (searchTenantId == null) {
-            searchTenantId = tenantId;
-        }
-
-        //查询已经提交的任务
-        List<ScheduleTaskShade> taskShadeList = this.taskService.findTaskByTaskName(name, null);
-        if (CollectionUtils.isNotEmpty(taskShadeList)) {
-
-            List<Long> createUserIds = taskShadeList.stream().map(taskShade -> taskShade.getCreateUserId()).collect(Collectors.toList());
-
-
-            final Map<Long, User> userMap = userService.getUserMap(createUserIds);
-            for (ScheduleTaskShade taskShade : taskShadeList) {
-                userMap.get(taskShade.getCreateUserId());
-            }
-        }
-        return null;
     }
 
     /**
@@ -2279,12 +2180,12 @@ public class BatchTaskService {
      */
     public Map<String, Object> fillKerberosConfig(Long sourceId) {
         BatchDataSource source = dataSourceService.getOne(sourceId);
-        Long dtuicTenantId = tenantService.getDtuicTenantId(source.getTenantId());
+        Long tenantId = tenantService.getDtTenantId(source.getTenantId());
         JSONObject dataJson = JSON.parseObject(source.getDataJson());
         JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
         if (MapUtils.isNotEmpty(kerberosConfig)) {
             String localKerberosConf = getLocalKerberosConf(sourceId);
-            downloadKerberosFromSftp(kerberosConfig.getString(KERBEROS_DIR), localKerberosConf, dtuicTenantId, dataJson.getTimestamp(KERBEROS_FILE_TIMESTAMP));
+            downloadKerberosFromSftp(kerberosConfig.getString(KERBEROS_DIR), localKerberosConf, tenantId, dataJson.getTimestamp(KERBEROS_FILE_TIMESTAMP));
             return handleKerberos(source.getType(), kerberosConfig, localKerberosConf);
         }
         return new HashMap<>();
@@ -2332,13 +2233,48 @@ public class BatchTaskService {
 
     /**
      * 查找所有产品提交的任务
+     *
      * @param searchVO
      * @return
      */
-    public List<ScheduleTaskShadeTypeVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
-        List<ScheduleTaskShadeTypeVO> apiResponse = taskService.findFuzzyTaskNameByCondition(
-                searchVO.getTaskName(), searchVO.getAppType(), searchVO.getUicTenantId(), searchVO.getProjectId());
-        return apiResponse;
+    public List<BatchAllProductGlobalReturnVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
+        BatchTask batchTask = batchTaskDao.getOne(searchVO.getTaskId());
+
+        if (batchTask == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+        if (batchTask.getTaskType().intValue() == EScheduleJobType.VIRTUAL.getVal().intValue()) {
+            throw new RdosDefineException(ErrorCode.VIRTUAL_TASK_UNSUPPORTED_OPERATION);
+        }
+
+        // 过滤掉已经依赖的任务
+        final List<BatchTaskTask> taskTasks = this.batchTaskTaskService.getByParentTaskId(searchVO.getTaskId());
+        final List<Long> excludeIds = new ArrayList<>(taskTasks.size());
+        excludeIds.add(searchVO.getTaskId());
+        taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
+
+        List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(searchVO.getTaskName(), searchVO.getSelectTenantId(), searchVO.getUserId());
+        List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
+        Map<Long, Tenant> tenantMap = tenantService.listAllTenant().stream().collect(Collectors.toMap(Tenant::getId, g -> (g)));
+
+        List<BatchAllProductGlobalReturnVO> voList = Lists.newArrayList();
+        for (ScheduleTaskShade scheduleTaskShade : filterTask) {
+            BatchAllProductGlobalReturnVO vo = new BatchAllProductGlobalReturnVO();
+            vo.setTaskId(scheduleTaskShade.getTaskId());
+            vo.setTaskName(scheduleTaskShade.getName());
+
+            Tenant tenant = tenantMap.get(scheduleTaskShade.getTenantId());
+
+            if (tenant != null) {
+                vo.setTenantId(tenant.getId());
+                vo.setTenantName(tenant.getTenantName());
+            }
+
+            voList.add(vo);
+        }
+
+        return voList;
     }
+
 
 }

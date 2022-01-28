@@ -28,6 +28,8 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     TOKEN_IS_INVALID(6, "dt_token is invalid", "无效token"),
     TENANT_IS_NULL(7, "tenant is null", "租户为空"),
     PARAM_NULL(8, "param is null", "参数不能为空"),
+    FILE_PARSE_ERROR(9, "file parse error","文件解析异常"),
+
 
     UNKNOWN_ERROR(10, "unknown error", "未知错误"),
     SERVER_EXCEPTION(11, "server exception", "服务异常"),

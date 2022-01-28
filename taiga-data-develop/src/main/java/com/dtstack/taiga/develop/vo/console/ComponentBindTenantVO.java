@@ -16,23 +16,30 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.scheduler.vo.components;
+package com.dtstack.taiga.develop.vo.console;
 
-/**
- * @Auther: dazhi
- * @Date: 2020/7/29 5:46 下午
- * @Email:dazhi@dtstack.com
- * @Description:
- */
-public class ComponentsResultVO {
 
+import com.dtstack.taiga.common.param.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+@ApiModel("租户对接集群信息")
+public class ComponentBindTenantVO extends DtInsightAuthParam {
+
+    @ApiModelProperty(value = "租户ID", example = "1", required = true)
+    private Long tenantId;
+
+    @ApiModelProperty(value = "集群ID", example = "2", required = true)
     private Long clusterId;
 
-    public Long getClusterId() {
-        return clusterId;
-    }
+    @ApiModelProperty(value = "队列ID", example = "12")
+    private Long queueId;
 
-    public void setClusterId(Long clusterId) {
-        this.clusterId = clusterId;
-    }
+    @ApiModelProperty(value = "计算引擎对接信息")
+    private List<ComponentBindDBVO> bindDBList;
+
 }

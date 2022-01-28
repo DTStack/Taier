@@ -21,35 +21,28 @@ import type { FormInstance } from 'antd';
 import { Tabs, Menu, Dropdown, Button, Radio, Row, Col } from 'antd';
 import { DownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import TestRestIcon from '@/components/testResultIcon';
-import {
-	VERSION_TYPE,
-	COMP_ACTION,
-	COMPONENT_CONFIG_NAME,
-	FLINK_DEPLOY_TYPE,
-	FLINK_DEPLOY_NAME,
-} from '../../const';
 import { isFLink } from '../../help';
 import FileConfig from '../../fileConfig';
 import FormConfig from '../../formConfig';
 import ToolBar from '../toolbar';
+import {
+	VERSION_TYPE,
+	COMPONENT_CONFIG_NAME,
+	COMP_ACTION,
+	FLINK_DEPLOY_TYPE,
+	FLINK_DEPLOY_NAME,
+} from '@/constant';
+import type { IVersionData } from '../..';
 import './index.scss';
 
 const { TabPane } = Tabs;
 const MenuItem = Menu.Item;
-
-/** getComponentVersion 接口获取 versionData 的数组类型 */
-interface VersionInfo {
-	deployTypes: number[];
-	key: string;
-	value: string;
-}
-
 interface IProps {
 	comp: any;
 	form: FormInstance;
 	view: boolean;
 	saveCompsData: any[];
-	versionData: Record<string, VersionInfo[]>;
+	versionData: IVersionData;
 	clusterInfo: any;
 	testStatus: any;
 	saveComp: (params: any, type?: string) => void;
@@ -73,7 +66,7 @@ export default function MultiVersionComp({
 	handleConfirm,
 	testConnects,
 }: IProps) {
-	const [deployType, setDeployType] = useState(
+	const [deployType, setDeployType] = useState<keyof typeof FLINK_DEPLOY_NAME>(
 		comp?.multiVersion[0]?.deployType ?? FLINK_DEPLOY_TYPE.YARN,
 	);
 
@@ -92,8 +85,8 @@ export default function MultiVersionComp({
 		getLoadTemplate(typeCode, { compVersion: e.key, deployType });
 	};
 
-	const getMeunItem = (displayVersion: VersionInfo[]) => {
-		const typeCode = comp?.componentTypeCode ?? '';
+	const getMeunItem = (displayVersion: IVersionData[string]) => {
+		const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
 
 		return (
 			<Menu onClick={handleMenuClick}>
@@ -105,7 +98,7 @@ export default function MultiVersionComp({
 						<MenuItem disabled={disabled > -1} key={value}>
 							{isFLink(typeCode)
 								? FLINK_DEPLOY_NAME[deployType]
-								: (COMPONENT_CONFIG_NAME as any)[typeCode]}{' '}
+								: COMPONENT_CONFIG_NAME[typeCode]}{' '}
 							{getCompVersion(value)}
 						</MenuItem>
 					);
@@ -134,9 +127,12 @@ export default function MultiVersionComp({
 		return (Number(value) / 100).toFixed(keep2Decimal.includes(value) ? 2 : 1);
 	};
 
-	const getComponentName = (typeCode: number, type: number = FLINK_DEPLOY_TYPE.YARN) => {
+	const getComponentName = (
+		typeCode: keyof typeof COMPONENT_CONFIG_NAME,
+		type: keyof typeof FLINK_DEPLOY_NAME = FLINK_DEPLOY_TYPE.YARN,
+	) => {
 		if (isFLink(typeCode)) return FLINK_DEPLOY_NAME[type];
-		return (COMPONENT_CONFIG_NAME as any)[typeCode];
+		return COMPONENT_CONFIG_NAME[typeCode];
 	};
 
 	const getDefaultVerionCompStatus = (component: any) => {
@@ -146,14 +142,16 @@ export default function MultiVersionComp({
 		return false;
 	};
 
-	const typeCode = comp?.componentTypeCode ?? '';
+	const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
 	const isDefault = useMemo(() => getDefaultVerionCompStatus(comp), [comp]);
 
 	// flink 由后端 deployTypes 字段控制展示版本
 	const displayVersion = useMemo(() => {
 		let tempVersion = versionData[(VERSION_TYPE as any)[typeCode]] || [];
 		if (isFLink(typeCode)) {
-			tempVersion = tempVersion.filter((item) => item?.deployTypes?.includes(deployType));
+			tempVersion = tempVersion.filter((item) =>
+				item?.deployTypes?.includes(deployType.toString()),
+			);
 		}
 		return tempVersion;
 	}, [typeCode]);
@@ -198,7 +196,7 @@ export default function MultiVersionComp({
 											/>
 											<span>
 												{!isFLink(typeCode) &&
-													`${(COMPONENT_CONFIG_NAME as any)[typeCode]} `}
+													`${COMPONENT_CONFIG_NAME[typeCode]} `}
 												{getCompVersion(value)}
 											</span>
 										</span>

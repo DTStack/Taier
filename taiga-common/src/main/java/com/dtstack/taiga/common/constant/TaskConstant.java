@@ -16,52 +16,33 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.scheduler.vo.task;
+package com.dtstack.taiga.common.constant;
 
 /**
- * @Auther: dazhi
- * @Date: 2021/7/21 1:37 下午
- * @Email:dazhi@dtstack.com
- * @Description:
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2020/3/19
  */
-public class TaskTypeVO {
+public class TaskConstant {
 
     /**
-     * 任务类型名称
-     */
-    private String name;
+     * -----extraInfo中json key------
+     **/
+    public static final String INFO = "info";
+
 
     /**
-     * 枚举名称
+     * jobId 占位标识符
      */
-    private String enumName;
+    public static final String JOB_ID = "${jobId}";
+    public static final String UPLOADPATH = "${uploadPath}";
+    public static final String LAUNCH = "${launch}";
+    public static final String LAUNCH_CMD = "launch-cmd";
+    public static final String MODEL_PARAM = "${modelParam}";
+    public static final String FILE_NAME = "${file}";
+    public static final String CMD = "${cmd}";
+    public static final String DQ_JOB_ID = "#{jobId}";
+    public static final String DQ_FLOW_JOB_ID = "#{flowJobId}";
 
-    /**
-     * 任务类型对应的code
-     */
-    private Integer code;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getEnumName() {
-        return enumName;
-    }
-
-    public void setEnumName(String enumName) {
-        this.enumName = enumName;
-    }
+    public static final String CMD_OPTS = "--cmd-opts";
 }
