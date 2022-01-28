@@ -227,15 +227,7 @@ public class ConsoleClusterService {
         return vo;
     }
 
-    public Integer getMetaComponent(Long tenantId) {
-        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        return getMetaComponentByClusterId(clusterId);
-    }
-
-
     public Integer getMetaComponentByClusterId(Long clusterId) {
-        com.dtstack.taiga.dao.domain.Component metadataComponent = componentService.getMetadataComponent(clusterId);
-        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
+        return componentService.getMetaComponentByClusterId(clusterId);
     }
-
 }

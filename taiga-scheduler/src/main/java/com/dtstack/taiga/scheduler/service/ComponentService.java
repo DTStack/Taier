@@ -234,4 +234,9 @@ public class ComponentService {
         }
         return "confPath" + File.separator + one.getClusterName();
     }
+
+    public Integer getMetaComponentByClusterId(Long clusterId) {
+        com.dtstack.taiga.dao.domain.Component metadataComponent = getMetadataComponent(clusterId);
+        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
+    }
 }
