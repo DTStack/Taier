@@ -23,9 +23,9 @@ import ClusterManage from './console/cluster';
 import EditCluster from './console/cluster/newEdit';
 import { getCookie } from '@/utils/operation';
 import { isViewMode } from './console/cluster/newEdit/help';
+import 'antd/dist/antd.less';
 import '@dtinsight/molecule/esm/style/mo.css';
 import '@ant-design/compatible/assets/index.css';
-import 'antd/dist/antd.less';
 import './index.scss';
 
 export default function HomePage() {

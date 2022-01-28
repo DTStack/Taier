@@ -92,15 +92,12 @@
 	}
 
 	.empty-logo {
-		position: absolute;
-		top: 50%;
-		left: 55%;
-		z-index: 1;
-		margin-top: -100px;
-		margin-left: -100px;
+		width: 100%;
+		height: 100%;
 		> img {
 			width: 200px;
 			height: 200px;
+			margin: 0 auto;
 		}
 	}
 }
