@@ -32,6 +32,8 @@ public interface ComponentMapper extends BaseMapper<Component> {
 
     Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion,@Param("deployType") Integer deployType);
 
+    Component getByVersionName(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("versionName")String versionName,@Param("deployType") Integer deployType);
+
     Long getClusterIdByComponentId(@Param("componentId") Long componentId);
 
     String getDefaultComponentVersionByClusterAndComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer type);

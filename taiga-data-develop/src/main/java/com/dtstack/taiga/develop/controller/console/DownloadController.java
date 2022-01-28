@@ -19,6 +19,7 @@
 package com.dtstack.taiga.develop.controller.console;
 
 import com.dtstack.taiga.common.lang.web.R;
+import com.dtstack.taiga.develop.service.console.ConsoleComponentService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -47,7 +48,7 @@ public class DownloadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadController.class);
 
     @Autowired
-    private ComponentService componentService;
+    private ConsoleComponentService consoleComponentService;
 
     @Value("${user.dir}")
     private String path;
@@ -60,8 +61,8 @@ public class DownloadController {
     public R<Void> handleDownload(@RequestParam(value = "componentId",required = false) Long componentId,
                                   @RequestParam("type") Integer downloadType,
                                   @RequestParam("componentType") Integer componentType,
-                                  @RequestParam("hadoopVersion") String componentVersion,
-                                  @RequestParam("clusterName") String clusterName,
+                                  @RequestParam("versionName") String versionName,
+                                  @RequestParam("clusterId") Long clusterId,
                                   @RequestParam(value = "deployType",required = false) Integer deployType,
                                   HttpServletResponse response) {
         response.setHeader("Content-Type", "application/octet-stream;charset=UTF-8");
@@ -69,7 +70,7 @@ public class DownloadController {
         response.setHeader("Cache-Control", "no-cache");
         File downLoadFile = null;
         try {
-            downLoadFile = componentService.downloadFile(componentId, downloadType, componentType, componentVersion, clusterName,deployType);
+            downLoadFile = consoleComponentService.downloadFile(componentId, downloadType, componentType, versionName, clusterId,deployType);
             if (null != downLoadFile && downLoadFile.isFile()) {
                 response.setHeader("Content-Disposition", "attachment;filename=" + encodeURIComponent(downLoadFile.getName()));
                 ServletOutputStream outputStream = response.getOutputStream();

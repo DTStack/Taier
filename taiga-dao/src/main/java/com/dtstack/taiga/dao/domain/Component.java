@@ -30,7 +30,7 @@ public class Component extends BaseEntity {
 
     private Long clusterId;
 
-    private String hadoopVersion;
+    private String versionValue;
 
 
     private String uploadFileName;
@@ -51,6 +51,16 @@ public class Component extends BaseEntity {
     private Integer isMetadata;
 
     private Integer deployType;
+
+    private String versionName;
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setVersionName(String versionName) {
+        this.versionName = versionName;
+    }
 
     public Integer getDeployType() {
         return deployType;
@@ -84,12 +94,20 @@ public class Component extends BaseEntity {
         this.kerberosFileName = kerberosFileName;
     }
 
-    public String getHadoopVersion() {
-        return hadoopVersion;
+    public String getVersionValue() {
+        return versionValue;
     }
 
-    public void setHadoopVersion(String hadoopVersion) {
-        this.hadoopVersion = hadoopVersion;
+    public void setVersionValue(String versionValue) {
+        this.versionValue = versionValue;
+    }
+
+    public Boolean getDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(Boolean aDefault) {
+        isDefault = aDefault;
     }
 
     public String getUploadFileName() {

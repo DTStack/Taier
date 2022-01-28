@@ -1,20 +1,19 @@
 package com.dtstack.taiga.common.util;
 
+import java.lang.reflect.Array;
 import java.util.Objects;
 
-public abstract class Strings {
+public final class Strings {
     /**
      * 空字符串
      */
     public static final String EMPTY_STRING = "";
-    public static final String EMPTY_PLACEHOLDER = "-";
     /**
      * null字符串
      */
-    public static final String NULL_STRING = null;
     public static final char BLANK_CHAR = ' ';
-    public static final String DELIM_COMMA = ",";
-    private static final String DELIM_STR = "{}";
+    public static final String EMPTY = "";
+    private static final String REFERENCE = "{}";
 
     private Strings() {
     }
@@ -110,70 +109,6 @@ public abstract class Strings {
         }
     }
 
-    public final static String center(String string, int length) {
-        return center(string, BLANK_CHAR, length);
-    }
-
-    /**
-     * 字符串居中
-     *
-     * @param string 需要居中显示的字符串
-     * @param ch     除字符串之外的其余字符占位符
-     * @param length 总长度
-     * @return 居中的字符串
-     */
-    public final static String center(String string, char ch, int length) {
-        if (string.length() < length) {
-            int pad = (length - string.length()) / 2;
-            return new StringBuffer()
-                    .append(repeat(ch, pad))
-                    .append(string)
-                    .append(repeat(ch, pad))
-                    .toString();
-        } else {
-            return string;
-        }
-    }
-
-    public final static String leftPad(String string, int size) {
-        Objects.requireNonNull(string);
-        if (string.length() < size) {
-            return repeat(' ', size - string.length()) + string;
-        } else {
-            return string;
-        }
-    }
-
-    public final static String rightPad(String string, int size) {
-        Objects.requireNonNull(string);
-        if (string.length() < size) {
-            return string + repeat(' ', size - string.length());
-        } else {
-            return string;
-        }
-    }
-
-    public final static String format(String format, Object... objects) {
-        Objects.requireNonNull(format);
-
-        StringBuilder sbuf = new StringBuilder(format.length() + 60);
-        if (Objects.nonNull(objects)) {
-            int i = 0, k = 0;
-            for (Object object : objects) {
-                k = format.indexOf(DELIM_STR, i);
-                if (k == -1) {
-                } else {
-                    sbuf.append(format, i, k)
-                            .append(object);
-                    i = k + 2;
-                }
-            }
-            if (format.length() > i) {
-                sbuf.append(format.substring(i));
-            }
-        }
-        return sbuf.toString();
-    }
 
     /**
      * 判断在字符串中是否包含中文字符
@@ -197,40 +132,6 @@ public abstract class Strings {
         return c >= 19968 && c <= '龥';
     }
 
-    /**
-     * 若字符串为null或为空字符串,则返回默认值
-     *
-     * @param text        需处理的字符串
-     * @param defaultText 默认值
-     * @return 字符串
-     */
-    public static final String def(String text, String defaultText) {
-        if (isNullOrEmpty(text)) {
-            return defaultText;
-        } else {
-            return text;
-        }
-    }
-
-    /**
-     * 若字符串为null则返回空字符串
-     *
-     * @param text 待处理的字符串
-     * @return 原字符串或空字符串
-     */
-    public static final String nullToEmpty(String text) {
-        return Objects.isNull(text) ? EMPTY_STRING : text;
-    }
-
-    /**
-     * 是否是字符串类型
-     *
-     * @param object 需进行判断的
-     * @return 若非null并且为字符串则返回true
-     */
-    public static boolean isCharSequence(Object object) {
-        return Objects.nonNull(object) && CharSequence.class.isAssignableFrom(object.getClass());
-    }
 
     /**
      * 后去第一个非空字符串的值
@@ -260,5 +161,42 @@ public abstract class Strings {
     public static String[] splitIgnoreQuotaBrackets(String str, String delimter){
         String splitPatternStr = delimter + "(?![^()]*+\\))(?![^{}]*+})(?![^\\[\\]]*+\\])(?=(?:[^\"]|\"[^\"]*\")*$)";
         return str.split(splitPatternStr);
+    }
+
+    public static String format(String format, Object... objects) {
+        Objects.requireNonNull(format);
+
+        StringBuilder sbuf = new StringBuilder(format.length() + 60);
+        if (Objects.nonNull(objects)) {
+            int i = 0, k = 0;
+            for (Object object : objects) {
+                k = format.indexOf(REFERENCE, i);
+                if (k == -1) {
+                } else {
+                    sbuf.append(format, i, k)
+                            .append(toString(object));
+                    i = k + 2;
+                }
+            }
+            if (format.length() > i) {
+                sbuf.append(format.substring(i));
+            }
+        }
+        return sbuf.toString();
+    }
+
+    public static String toString(Object object) {
+        if (null == object) {
+            return "";
+        } else if (object.getClass().isArray()) {
+            StringBuilder sb = new StringBuilder();
+            int len = Array.getLength(object);
+            for (int k = 0; k < len; k++) {
+                sb.append(toString(Array.get(object, k))).append(',');
+            }
+            return sb.length() > 0 ? sb.substring(0, sb.length() - 1) : sb.toString();
+        } else {
+            return object.toString();
+        }
     }
 }

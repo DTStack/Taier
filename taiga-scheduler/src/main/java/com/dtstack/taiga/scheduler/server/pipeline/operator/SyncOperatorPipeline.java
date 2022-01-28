@@ -440,7 +440,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         if (CollectionUtils.isEmpty(components)) {
             return null;
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> c.getHadoopVersion().equals(componentVersion)).findFirst();
+        Optional<Component> componentOptional = components.stream().filter(c -> c.getVersionValue().equals(componentVersion)).findFirst();
         if (!componentOptional.isPresent()) {
             return null;
         }
@@ -497,7 +497,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         if (CollectionUtils.isEmpty(components)) {
             return null;
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> c.getHadoopVersion().equals(componentVersion)).findFirst();
+        Optional<Component> componentOptional = components.stream().filter(c -> c.getVersionValue().equals(componentVersion)).findFirst();
         if (!componentOptional.isPresent()) {
             return null;
         }

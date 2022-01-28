@@ -18,16 +18,17 @@
 
 package com.dtstack.taiga.develop.controller.console;
 
+import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.KerberosConfig;
 import com.dtstack.taiga.develop.mapstruct.console.KerberosConfigTransfer;
+import com.dtstack.taiga.develop.service.console.ConsoleComponentService;
 import com.dtstack.taiga.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.taiga.scheduler.service.ComponentService;
-import com.dtstack.taiga.scheduler.vo.KerberosConfigVO;
+import com.dtstack.taiga.develop.vo.console.KerberosConfigVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
 public class ComponentController {
 
     @Autowired
-    private ComponentService componentService;
+    private ConsoleComponentService consoleComponentService;
 
     @ApiOperation(value = "getKerberosConfig", notes = "获取kerberos配置信息")
     @ApiImplicitParams({
@@ -58,7 +59,7 @@ public class ComponentController {
     })
     @PostMapping(value = "/getKerberosConfig")
     public R<KerberosConfigVO> getKerberosConfig(@RequestParam("clusterId") Long clusterId, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
-        KerberosConfig kerberosConfig = componentService.getKerberosConfig(clusterId, componentType, componentVersion);
+        KerberosConfig kerberosConfig = consoleComponentService.getKerberosConfig(clusterId, componentType, componentVersion);
         return R.ok(KerberosConfigTransfer.INSTANCE.toVO(kerberosConfig));
     }
 
@@ -68,7 +69,7 @@ public class ComponentController {
             @ApiImplicitParam(name = "krb5Content", value = "krb5配置内容", required = true, dataType = "String")
     })
     public R<Void> updateKrb5Conf(@RequestParam("krb5Content") String krb5Content) {
-        componentService.updateKrb5Conf(krb5Content);
+        consoleComponentService.updateKrb5Conf(krb5Content);
         return R.empty();
     }
 
@@ -78,24 +79,25 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
     })
     public R<Void> closeKerberos(@RequestParam("componentId") Long componentId) {
-        componentService.closeKerberos(componentId);
+        consoleComponentService.closeKerberos(componentId);
         return R.empty();
     }
 
     @PostMapping(value = "/loadTemplate")
     @ApiOperation(value = "加载各个组件的前端渲染模版")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "version", value = "组件版本", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "storeType", value = "存储组件code", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "originVersion", value = "组件版本值", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "deployType", value = "组件deployType类型", required = true, dataType = "int"),
+            @ApiImplicitParam(name="clusterId",value="集群id",required=true, dataType = "long",example = "-1L"),
+            @ApiImplicitParam(name="versionName",value="组件版本名称",required=true, dataType = "string"),
+            @ApiImplicitParam(name="deployType",value="deploy类型",required=true, dataType = "int"),
+            @ApiImplicitParam(name="componentType",value="组件code",required=true, dataType = "int"),
+            @ApiImplicitParam(name="storeType",value="存储组件code",required=true, dataType = "int"),
     })
-    public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterName") String clusterName,
-                                             @RequestParam("version") String version, @RequestParam("storeType") Integer storeType,
-                                             @RequestParam("originVersion") String originVersion, @RequestParam("deployType") Integer deployType) {
-        return R.ok(componentService.loadTemplate(componentType, clusterName, version, storeType, originVersion, deployType));
+    public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterId") Long clusterId,
+                                             @RequestParam("versionName") String versionName, @RequestParam("storeType") Integer storeType,
+                                             @RequestParam("deployType") Integer deployType) {
+        EComponentType type = EComponentType.getByCode(componentType);
+        EComponentType storeComponentType = storeType == null ? null : EComponentType.getByCode(storeType);
+        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, storeComponentType,deployType));
     }
 
 
@@ -105,7 +107,7 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
     })
     public R<Void> delete(@RequestParam("componentId") long componentId) {
-        componentService.delete(componentId);
+        consoleComponentService.delete(componentId);
         return R.empty();
     }
 
@@ -113,7 +115,7 @@ public class ComponentController {
     @GetMapping(value = "/getComponentVersion")
     @ApiOperation(value = "获取对应的组件能版本信息")
     public R<Map> getComponentVersion() {
-        return R.ok(componentService.getComponentVersion());
+        return R.ok(consoleComponentService.getComponentVersion());
     }
 
     @PostMapping(value = "/getComponentStore")
@@ -123,7 +125,7 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int")
     })
     public R<List<Integer>> getComponentStore(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType) {
-        List<Component> componentStore = componentService.getComponentStore(clusterName, componentType);
+        List<Component> componentStore = consoleComponentService.getComponentStore(clusterName, componentType);
         if (CollectionUtils.isEmpty(componentStore)) {
             return R.ok(new ArrayList<>());
         }
@@ -141,7 +143,7 @@ public class ComponentController {
         if (StringUtils.isBlank(clusterName)) {
             throw new RdosDefineException("clusterName is null");
         }
-        return R.ok(componentService.testConnects(clusterName));
+        return R.ok(consoleComponentService.testConnects(clusterName));
     }
 
     @PostMapping(value = "/testConnect")
@@ -149,10 +151,10 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "componentVersion", value = "组件版本", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "versionName", value = "组件版本", required = true, dataType = "String"),
     })
-    public R<ComponentTestResult> testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("componentVersion") String componentVersion) {
-        return R.ok(componentService.testConnect(clusterName, componentType, StringUtils.isBlank(componentVersion) ? null : componentVersion));
+    public R<ComponentTestResult> testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("versionName") String versionName) {
+        return R.ok(consoleComponentService.testConnect(clusterName, componentType, versionName));
     }
 
 }
