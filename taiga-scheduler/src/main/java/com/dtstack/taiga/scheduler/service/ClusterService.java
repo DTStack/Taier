@@ -283,11 +283,14 @@ public class ClusterService {
         return "";
     }
 
-
     public Boolean hasStandalone(Long tenantId, int typeCode) {
         return false;
     }
 
+    public Integer getMetaComponent(Long tenantId) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        return componentService.getMetaComponentByClusterId(clusterId);
+    }
 
 }
 
