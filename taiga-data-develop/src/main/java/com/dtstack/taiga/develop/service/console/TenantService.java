@@ -24,12 +24,7 @@ import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.dao.domain.Cluster;
-import com.dtstack.taiga.dao.domain.ClusterTenant;
-import com.dtstack.taiga.dao.domain.Component;
-import com.dtstack.taiga.dao.domain.Queue;
-import com.dtstack.taiga.dao.domain.Tenant;
-import com.dtstack.taiga.dao.domain.TenantComponent;
+import com.dtstack.taiga.dao.domain.*;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.QueueMapper;
 import com.dtstack.taiga.dao.mapper.TenantMapper;
@@ -101,6 +96,9 @@ public class TenantService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
+    private ConsoleComponentService consoleComponentService;
+
+    @Autowired
     private ClusterService clusterService;
 
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
@@ -159,8 +157,8 @@ public class TenantService {
     }
 
 
-    public void checkClusterCanUse(String clusterName) {
-        List<ComponentMultiTestResult> testConnectionVO = componentService.testConnects(clusterName);
+    public void checkClusterCanUse(String clusterName) throws Exception {
+        List<ComponentMultiTestResult> testConnectionVO = consoleComponentService.testConnects(clusterName);
         boolean canUse = true;
         StringBuilder msg = new StringBuilder();
         msg.append("此集群不可用,测试连通性为通过：\n");

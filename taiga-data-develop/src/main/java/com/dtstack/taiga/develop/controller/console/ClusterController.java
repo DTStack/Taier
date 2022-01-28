@@ -23,10 +23,10 @@ import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.dao.domain.Cluster;
 import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.mapstruct.console.ClusterTransfer;
+import com.dtstack.taiga.develop.service.console.ConsoleClusterService;
+import com.dtstack.taiga.develop.vo.console.ClusterEngineVO;
 import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
-import com.dtstack.taiga.scheduler.service.ClusterService;
-import com.dtstack.taiga.scheduler.vo.ClusterEngineVO;
-import com.dtstack.taiga.scheduler.vo.ClusterVO;
+import com.dtstack.taiga.develop.vo.console.ClusterVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -42,7 +42,7 @@ import java.util.List;
 public class ClusterController {
 
     @Autowired
-    private ClusterService clusterService;
+    private ConsoleClusterService consoleClusterService;
 
     @ApiOperation(value = "addCluster", notes = "创建集群")
     @ApiImplicitParams({
@@ -50,7 +50,7 @@ public class ClusterController {
     })
     @PostMapping(value = "/addCluster")
     public R<Boolean> addCluster(@RequestParam("clusterName") String clusterName) {
-        return R.ok(clusterService.addCluster(clusterName));
+        return R.ok(consoleClusterService.addCluster(clusterName));
     }
 
 
@@ -61,7 +61,7 @@ public class ClusterController {
     })
     @PostMapping(value = "/pageQuery")
     public R<PageResult<List<ClusterInfoVO>>> pageQuery(@RequestParam("currentPage") int currentPage, @RequestParam("pageSize") int pageSize) {
-        IPage<Cluster> clusterIPage = clusterService.pageQuery(currentPage, pageSize);
+        IPage<Cluster> clusterIPage = consoleClusterService.pageQuery(currentPage, pageSize);
         List<Cluster> clusters = clusterIPage.getRecords();
         List<ClusterInfoVO> clusterInfoVOS = ClusterTransfer.INSTANCE.toInfoVOs(clusters);
         PageResult<List<ClusterInfoVO>> pageResult = new PageResult<>(currentPage, pageSize, clusterIPage.getTotal(), clusterInfoVOS);
@@ -74,7 +74,7 @@ public class ClusterController {
     })
     @PostMapping(value = "/deleteCluster")
     public R<Boolean> deleteCluster(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(clusterService.deleteCluster(clusterId));
+        return R.ok(consoleClusterService.deleteCluster(clusterId));
     }
 
     @ApiOperation(value = "getCluster", notes = "获取集群详细信息 包含组件")
@@ -83,13 +83,13 @@ public class ClusterController {
     })
     @GetMapping(value = "/getCluster")
     public R<ClusterVO> getCluster(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(clusterService.getConsoleClusterInfo(clusterId));
+        return R.ok(consoleClusterService.getConsoleClusterInfo(clusterId));
     }
 
     @ApiOperation(value = "getAllCluster", notes = "获取所有集群名称")
     @GetMapping(value = "/getAllCluster")
     public R<List<ClusterInfoVO>> getAllCluster() {
-        List<Cluster> clusters = clusterService.getAllCluster();
+        List<Cluster> clusters = consoleClusterService.getAllCluster();
         return R.ok(ClusterTransfer.INSTANCE.toInfoVOs(clusters));
     }
 
@@ -99,8 +99,9 @@ public class ClusterController {
     })
     @GetMapping(value = "/getClusterEngine")
     public R<ClusterEngineVO> getClusterEngine(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(clusterService.getClusterEngine(clusterId));
+        return R.ok(consoleClusterService.getClusterEngine(clusterId));
     }
+
 
     @ApiOperation(value = "getMetaComponent", notes = "获取单个集群meta属性的组件标识")
     @ApiImplicitParams({
@@ -108,7 +109,7 @@ public class ClusterController {
     })
     @GetMapping(value = "/getMetaComponent")
     public R<Integer> getMetaComponent(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(clusterService.getMetaComponentByClusterId(clusterId));
+        return R.ok(consoleClusterService.getMetaComponentByClusterId(clusterId));
     }
 
 }

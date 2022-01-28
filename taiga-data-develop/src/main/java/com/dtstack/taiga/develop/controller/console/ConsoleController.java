@@ -23,7 +23,7 @@ import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.service.console.ConsoleService;
 import com.dtstack.taiga.pluginapi.pojo.ClusterResource;
 import com.dtstack.taiga.scheduler.service.ComponentConfigService;
-import com.dtstack.taiga.scheduler.vo.console.ConsoleJobVO;
+import com.dtstack.taiga.develop.vo.console.ConsoleJobVO;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

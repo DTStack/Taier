@@ -18,10 +18,10 @@
 
 package com.dtstack.taiga.scheduler.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EFrontType;
+import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.ComponentConfig;
@@ -48,8 +48,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.dtstack.taiga.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
 
 /**
  * @author yuebai
@@ -106,60 +104,6 @@ public class ComponentConfigService {
     }
 
 
-    /**
-     * 仅在第一次将console_component中component_template 转换为 console_component_config的数据使用
-     * component_template旧数据默认最大深度不超过三层
-     * typeName必须要从componentConfig获取
-     *
-     * @param componentConfig
-     * @param componentTemplate
-     */
-    @Deprecated
-    public void deepOldClientTemplate(String componentConfig, String componentTemplate, Long componentId, Long clusterId, Integer componentTypeCode) {
-        if (null == clusterId || null == componentId || null == componentTypeCode || StringUtils.isBlank(componentTemplate)) {
-            throw new RdosDefineException("参数不能为空");
-        }
-        List<ClientTemplate> clientTemplates = null;
-        if (EComponentType.noControlComponents.contains(EComponentType.getByCode(componentTypeCode))) {
-            clientTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfig);
-        } else {
-            clientTemplates = JSONArray.parseArray(componentTemplate, ClientTemplate.class);
-        }
-        for (ClientTemplate clientTemplate : clientTemplates) {
-            if (clientTemplate.getId() > 0L && StringUtils.isBlank(clientTemplate.getType())) {
-                //兼容旧数据 前端的自定义参数标识
-                clientTemplate.setType(EFrontType.CUSTOM_CONTROL.name());
-            }
-            if (ComponentConfigUtils.DEPLOY_MODE.equalsIgnoreCase(clientTemplate.getKey()) && clientTemplate.getValue() instanceof String) {
-                // {
-                //     "deploymode":"perjob",
-                //}
-                //兼容为数组
-                String templateValue = (String) clientTemplate.getValue();
-                if(!templateValue.startsWith("[")){
-                    JSONArray templateArray = new JSONArray();
-                    templateArray.add(templateValue);
-                    clientTemplate.setValue(templateArray);
-                }
-            }
-        }
-
-        if (EComponentType.SFTP.getTypeCode().equals(componentTypeCode)) {
-            clientTemplates = ComponentConfigUtils.convertOldSftpTemplate(componentConfig);
-        } else {
-            clientTemplates = ComponentConfigUtils.convertOldClientTemplateToTree(clientTemplates);
-        }
-        //提取typeName
-        if (StringUtils.isNotBlank(componentConfig)) {
-            String typeNameValue = JSONObject.parseObject(componentConfig).getString(TYPE_NAME_KEY);
-            if (StringUtils.isNotBlank(typeNameValue)) {
-                clientTemplates.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, typeNameValue));
-            }
-        }
-        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
-        batchSaveComponentConfig(componentConfigs);
-    }
-
     public ComponentConfig getComponentConfigByKey(Long componentId,String key) {
         return componentConfigMapper.listByKey(componentId,key);
     }
@@ -178,7 +122,7 @@ public class ComponentConfigService {
     public List<ComponentConfig> loadDefaultTemplate(String typeName) {
         ScheduleDict typeNameMapping = dictMapper.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
         if (null == typeNameMapping) {
-            throw new RdosDefineException("不支持的插件类型");
+            throw new RdosDefineException(ErrorCode.NOT_SUPPORT_COMPONENT);
         }
         return componentConfigMapper.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
     }
@@ -229,13 +173,13 @@ public class ComponentConfigService {
                 //设置hadoopVersion 的key 如cdh 5.1.x
                 ComponentConfig componentConfig = componentConfigMapper.listByKey(component.getId(), ConfigConstant.HADOOP_VERSION);
                 if (null != componentConfig) {
-                    componentVO.setHadoopVersion(componentConfig.getValue());
-                } else if (StringUtils.isNotBlank(component.getHadoopVersion())) {
+                    componentVO.setVersionValue(componentConfig.getValue());
+                } else if (StringUtils.isNotBlank(component.getVersionValue())) {
                     //兼容老数据
-                    String dependName = "hadoop3".equalsIgnoreCase(component.getHadoopVersion()) || component.getHadoopVersion().startsWith("3") ? "Hadoop3" : "Hadoop2";
+                    String dependName = "hadoop3".equalsIgnoreCase(component.getVersionValue()) || component.getVersionValue().startsWith("3") ? "Hadoop3" : "Hadoop2";
                     List<ScheduleDict> hadoopVersion = dictMapper.getByDependName(DictType.HADOOP_VERSION.type, dependName);
                     if (!CollectionUtils.isEmpty(hadoopVersion)) {
-                        componentVO.setHadoopVersion(hadoopVersion.get(0).getDictName());
+                        componentVO.setVersionValue(hadoopVersion.get(0).getDictName());
                     }
                 }
             }
@@ -283,5 +227,14 @@ public class ComponentConfigService {
     public void clearComponentCache() {
         LocalCacheUtil.removeGroup(componentCacheGroup);
         LOGGER.info(" clear all component cache ");
+    }
+
+    public List<ComponentConfig> listByComponentIds(List<Long> componentIds, boolean excludeCustom) {
+        List<ComponentConfig> result = new ArrayList<>();
+        for (Long componentId : componentIds) {
+            List<ComponentConfig> componentConfigs = componentConfigMapper.listByComponentId(componentId, excludeCustom);
+            result.addAll(componentConfigs);
+        }
+        return result;
     }
 }
