@@ -20,7 +20,7 @@ import { useState } from 'react';
 import type { FormInstance } from 'antd';
 import { Modal, Alert, Col, Row, Table, Input, message, Select } from 'antd';
 import Api from '@/api/console';
-import { COMPONENT_TYPE_VALUE } from '../../../const';
+import { COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
 
 interface TableData {

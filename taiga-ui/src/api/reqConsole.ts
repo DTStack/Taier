@@ -28,6 +28,7 @@ export default {
 	DA_GET_USER_BY_ID: `${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
 	DA_GET_USER_AUTH_BY_ID: `${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户权限
 	GET_TENANT_LIST: `${CONSOLE_BASE_URL}/tenant/listTenant`, // 租户列表
+	GET_META_COMPONENT: `${CONSOLE_BASE_URL}/cluster/getMetaComponent`,
 	GET_RESOURCE_USER_LIST: `${CONSOLE_BASE_URL}/tenant/listByQueueId`, // 获取资源已绑定的租户
 	BIND_USER_TO_RESOURCE: `${CONSOLE_BASE_URL}/tenant/addToQueue`, // 绑定用户到资源队列
 	CONFIRM_SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/updateQueueId`, // 确认切换队列
