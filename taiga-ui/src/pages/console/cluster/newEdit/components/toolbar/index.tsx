@@ -21,13 +21,14 @@ import type { FormInstance } from 'antd';
 import { Popconfirm, Button, message, Modal } from 'antd';
 import Api from '@/api/console';
 import { convertToObj } from '@/utils';
-import { CloseCircleOutlined } from '@ant-design/icons';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import {
 	COMPONENT_CONFIG_NAME,
 	COMP_ACTION,
-	FLINK_DEPLOY_NAME,
 	FLINK_DEPLOY_TYPE,
-} from '../../const';
+	FLINK_DEPLOY_NAME,
+} from '@/constant';
+import { CloseCircleOutlined } from '@ant-design/icons';
 import {
 	handleComponentConfigAndCustom,
 	handleComponentConfig,
@@ -60,7 +61,7 @@ export default function ToolBar({
 	const [loading, setLoading] = useState(false);
 
 	const onOk = () => {
-		const typeCode = comp?.componentTypeCode ?? '';
+		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
 		const hadoopVersion = comp?.hadoopVersion ?? '';
 		const deployType = comp?.deployType ?? '';
 
@@ -183,16 +184,16 @@ export default function ToolBar({
 		});
 	};
 
-	const typeCode = comp?.componentTypeCode ?? '';
+	const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
 	const hadoopVersion = comp?.hadoopVersion ?? '';
-	const deployType = comp?.deployType ?? '';
-	const defaultText = (COMPONENT_CONFIG_NAME as any)[typeCode];
+	const deployType: keyof typeof FLINK_DEPLOY_NAME = comp?.deployType ?? '';
+	const defaultText = COMPONENT_CONFIG_NAME[typeCode];
 
 	const text = useMemo(
 		() =>
 			isFLink(typeCode)
 				? FLINK_DEPLOY_NAME[deployType ?? FLINK_DEPLOY_TYPE.YARN]
-				: (COMPONENT_CONFIG_NAME as any)[typeCode],
+				: COMPONENT_CONFIG_NAME[typeCode],
 		[typeCode, deployType],
 	);
 	const multipleText = useMemo(

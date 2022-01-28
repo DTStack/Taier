@@ -20,7 +20,9 @@ import { useLayoutEffect } from 'react';
 import type { FormInstance } from 'antd';
 import { Checkbox, Tooltip, Form } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { MAPPING_DEFAULT_VERSION } from '../../../const';
+
+/** 用于设置了默认版本，取消勾选其他默认版本 */
+const MAPPING_DEFAULT_VERSION = ['180', '110', '112'];
 
 interface IProps {
 	comp: any;

@@ -1,40 +1,37 @@
 div.mxPopupMenu {
-	-webkit-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
-	-moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
-	box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
 	position: absolute;
-	background: #ffffff;
-	border-radius: 2px;
+	background: #fff;
 	border: 0;
+	border-radius: 2px;
+	box-shadow: 0 0 6px 0 rgb(0 0 0 / 15%);
 }
 
 table.mxPopupMenu {
+	margin: 4px 0;
 	border-collapse: collapse;
-	margin: 1px 0;
 }
 
 tr.mxPopupMenuItem {
-	color: black;
-	cursor: pointer;
+	color: #666;
+	cursor: default;
 }
 
 td.mxPopupMenuItem {
-	color: #666666;
+	padding: 6px 60px 6px 30px;
+	color: #666;
+	font-size: 12px;
+	font-family: 'PingFangSC-Regular', sans-serif;
 	letter-spacing: 0;
-	padding: 2px 30px 2px 10px;
-	white-space: nowrap;
-	font-family: 'Arial', sans-serif;
-	font-size: 8pt;
 }
 
 td.mxPopupMenuIcon {
-	background-color: #d0d0d0;
-	padding: 2px 4px 2px 4px;
+	padding: 0;
+	background-color: white;
 }
 
 tr.mxPopupMenuItemHover {
-	background-color: #000066;
-	color: #ffffff;
+	color: #fff;
+	background-color: #e6f7ff;
 	cursor: pointer;
 
 	.mxPopupMenuItem {
@@ -43,7 +40,7 @@ tr.mxPopupMenuItemHover {
 }
 
 table.mxPopupMenu hr {
-	border-top: solid 1px #cccccc;
+	border-top: solid 1px #ccc;
 }
 
 table.mxPopupMenu tr {
@@ -51,87 +48,78 @@ table.mxPopupMenu tr {
 }
 
 .mxTooltip {
+	position: absolute;
 	display: block !important;
-	padding: 10px !important;
-	background: #ffffff !important;
-	box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.08) !important;
-	border: none !important;
 	box-sizing: border-box;
 	margin: 0;
+	padding: 10px !important;
+	color: black;
+	font-size: 8pt;
+	font-family: 'Arial', sans-serif;
 	font-variant: tabular-nums;
 	line-height: 1.5;
-	list-style: none;
-	font-feature-settings: 'tnum';
 	word-wrap: break-word;
+	list-style: none;
+	background: #fff !important;
+	border: none !important;
 	border-radius: 4px;
-	font-family: 'Arial', sans-serif;
-	font-size: 8pt;
-	position: absolute;
+	box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.08) !important;
 	cursor: default;
-	color: black;
+	font-feature-settings: 'tnum';
 }
 
 .mxPopupMenu {
-	border-collapse: collapse;
-	margin: 4px 0px !important;
-}
-
-div.mxPopupMenu {
-	box-shadow: 3px 3px 12px #c0c0c0;
-	position: absolute;
-	border-style: solid;
-	border-width: 1px;
-	border-color: black;
+	margin: 4px 0 !important;
 }
 
 .mxBasicColor {
-	width: 36px;
-	display: inline-block;
-	height: 14px;
-	border-radius: 2px;
 	position: relative;
 	top: 2px;
+	display: inline-block;
+	width: 36px;
+	height: 14px;
 	margin-right: 10px;
+	border-radius: 2px;
 }
 
 .mxYellow {
 	@extend .mxBasicColor;
 
-	border: 1px solid #fdb313;
 	background: #fffbe6;
+	border: 1px solid #fdb313;
 }
 
 .mxBlue {
 	@extend .mxBasicColor;
 
-	border: 1px solid #3f87ff;
 	background: rgba(63, 135, 255, 0.06);
+	border: 1px solid #3f87ff;
 }
 
 .mxGreen {
 	@extend .mxBasicColor;
 
-	border: 1px solid #12bc6a;
 	background: rgba(18, 188, 106, 0.06);
+	border: 1px solid #12bc6a;
 }
 
 .mxRed {
 	@extend .mxBasicColor;
 
-	border: 1px solid #fe615c;
 	background: #fff1f0;
+	border: 1px solid #fe615c;
 }
 
 .mxGray {
 	@extend .mxBasicColor;
 
-	border: 1px solid #5b6da6;
 	background: #e6e9f2;
+	border: 1px solid #5b6da6;
 }
 
 .vertex {
-	user-select: none;
 	margin-top: -2px;
+	user-select: none;
 
 	.vertex-across-logo {
 		float: right;
@@ -141,19 +129,19 @@ div.mxPopupMenu {
 
 	.vertex-title,
 	.blood-vertex-title {
-		width: 105px;
-		text-align: center;
 		display: inline-block;
+		width: 105px;
 		overflow: hidden;
-		text-overflow: ellipsis;
-		font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
-		font-size: 14px;
-		color: #333333;
-		letter-spacing: 0;
-		line-height: 18px;
+		color: #333;
 		font-weight: normal;
-		white-space: nowrap;
 		font-weight: 500;
+		font-size: 14px;
+		font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
+		line-height: 18px;
+		letter-spacing: 0;
+		white-space: nowrap;
+		text-align: center;
+		text-overflow: ellipsis;
 	}
 
 	.blood-vertex-title,
@@ -162,31 +150,31 @@ div.mxPopupMenu {
 	}
 
 	.blood-title-flag {
+		color: #333;
 		font-weight: 500;
-		color: #333333;
 		font-size: 14px;
 	}
 
 	.vertex-desc {
-		font-family: 'PingFang-SC-Medium', sans-serif;
-		font-size: 10px;
-		color: #666666;
-		letter-spacing: 0;
-		line-height: 14px;
+		color: #666;
 		font-weight: initial;
+		font-size: 10px;
+		font-family: 'PingFang-SC-Medium', sans-serif;
+		line-height: 14px;
+		letter-spacing: 0;
 	}
 
 	.vertex-input {
-		border: 0;
-		padding: 0;
+		position: absolute;
+		top: 3;
+		left: 0;
+		display: none;
+		width: 100%;
 		height: 16px;
 		margin: 0;
-		position: absolute;
+		padding: 0;
 		background: #f5f5f5;
-		left: 0;
-		top: 3;
-		width: 100%;
-		display: none;
+		border: 0;
 	}
 
 	.vertex-editing {
@@ -195,6 +183,6 @@ div.mxPopupMenu {
 }
 
 .mxDisabled {
-	opacity: 0.2 !important;
 	cursor: default !important;
+	opacity: 0.2 !important;
 }
