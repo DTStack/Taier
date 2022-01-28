@@ -2,18 +2,13 @@ declare module '*.css';
 declare module '*.less';
 declare module '*.png';
 declare module '*.svg' {
-	export function ReactComponent(
-		props: React.SVGProps<SVGSVGElement>,
-	): React.ReactElement;
+	export function ReactComponent(props: React.SVGProps<SVGSVGElement>): React.ReactElement;
 	const url: string;
 	export default url;
 }
 
 declare module 'mirror-creator' {
-	function mc(
-		strs: string[],
-		options?: { prefix?: string },
-	): Record<string, string>;
+	function mc(strs: string[], options?: { prefix?: string }): Record<string, string>;
 	export default mc;
 }
 
@@ -27,3 +22,5 @@ interface BrowserInter {
 }
 
 type numOrStr = number | string;
+
+type Valueof<T> = T[keyof T];

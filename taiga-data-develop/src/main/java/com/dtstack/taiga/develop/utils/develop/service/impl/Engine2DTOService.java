@@ -48,7 +48,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 提供根据tenantId、dtUicUserId、engine类型获取对应的SourceDTO
+ * 提供根据tenantId、tenantId、engine类型获取对应的SourceDTO
  *
  * @author ：wangchuan
  * date：Created in 下午9:12 2020/11/4
@@ -61,7 +61,7 @@ public enum Engine2DTOService {
      */
     SPARK(DataSourceType.Spark.getVal()){
         @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName) {
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
             String config = buildHadoopConfig(tenantId);
             return SparkSourceDTO.builder()
                     .sourceType(DataSourceType.Spark.getVal())
@@ -74,6 +74,7 @@ public enum Engine2DTOService {
                     .poolConfig(buildPoolConfig())
                     .build();
         }
+
         @Override
         public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
             String config = buildHadoopConfigByClusterId(clusterId);
@@ -92,7 +93,7 @@ public enum Engine2DTOService {
 
     SPARK_THRIFT2_1(DataSourceType.SparkThrift2_1.getVal() ){
         @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName) {
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
             String config = buildHadoopConfig(tenantId);
             return SparkSourceDTO.builder()
                     .sourceType(DataSourceType.SparkThrift2_1.getVal())
@@ -123,7 +124,7 @@ public enum Engine2DTOService {
 
     HIVE(DataSourceType.HIVE.getVal()){
         @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName) {
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
             String config = buildHadoopConfig(tenantId);
             ISourceDTO sourceDTO = HiveSourceDTO.builder()
                         .sourceType(DataSourceType.HIVE.getVal())
@@ -156,7 +157,7 @@ public enum Engine2DTOService {
 
     HIVE3(DataSourceType.HIVE3X.getVal()){
         @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName) {
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
             String config = buildHadoopConfig(tenantId);
             ISourceDTO sourceDTO = Hive3SourceDTO.builder()
                     .sourceType(DataSourceType.HIVE3X.getVal())
@@ -192,7 +193,7 @@ public enum Engine2DTOService {
      */
     HIVE1(DataSourceType.HIVE1X.getVal()){
         @Override
-        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName) {
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
             String config = buildHadoopConfig(tenantId);
             ISourceDTO sourceDTO = Hive1SourceDTO.builder()
                     .sourceType(DataSourceType.HIVE1X.getVal())
@@ -253,38 +254,38 @@ public enum Engine2DTOService {
         return val;
     }
 
-    protected abstract ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long dtUicUserId, String dbName);
+    protected abstract ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName);
 
     protected abstract ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName);
 
     /**
-     * 根据tenantId、dtUicUserId、tableType、dbName获取对应的sourceDTO，供外部调用
+     * 根据tenantId、userId、tableType、dbName获取对应的sourceDTO，供外部调用
      *
-     * @param tenantId uic租户id
-     * @param dtUicUserId uic用户id
+     * @param tenantId 租户id
+     * @param userId 用户id
      * @param tableType 表类型 {@link DataSourceType}
      * @return 对应的sourceDTO
      */
-    public static ISourceDTO get(Long tenantId, Long dtUicUserId, ETableType tableType, String dbName) {
-        JdbcInfo jdbcInfo = getJdbcInfo(tenantId, dtUicUserId, tableType);
+    public static ISourceDTO get(Long tenantId, Long userId, ETableType tableType, String dbName) {
+        JdbcInfo jdbcInfo = getJdbcInfo(tenantId, userId, tableType);
         DataSourceType dataSourceType = tableTypeTransitionDataSourceType(tableType, jdbcInfo.getVersion(), tenantId);
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
-        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, dtUicUserId, dbName);
+        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, userId, dbName);
     }
 
     /**
-     * 根据tenantId、dtUicUserId、tableType、dbName获取对应的sourceDTO，供外部调用
+     * 根据tenantId、userId、tableType、dbName获取对应的sourceDTO，供外部调用
      *
-     * @param tenantId uic租户id
-     * @param dtUicUserId uic用户id
+     * @param tenantId 租户id
+     * @param userId 用户id
      * @param eScheduleJobType  任务类型
      * @return 对应的sourceDTO
      */
-    public static ISourceDTO get(Long tenantId, Long dtUicUserId, EScheduleJobType eScheduleJobType, String dbName) {
-        JdbcInfo jdbcInfo = getJdbcInfo(tenantId, dtUicUserId, eScheduleJobType);
+    public static ISourceDTO get(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String dbName) {
+        JdbcInfo jdbcInfo = getJdbcInfo(tenantId, userId, eScheduleJobType);
         DataSourceType dataSourceType = jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion());
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
-        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, dtUicUserId, dbName);
+        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, userId, dbName);
     }
 
     /**
@@ -297,38 +298,39 @@ public enum Engine2DTOService {
      */
     public static ISourceDTO getByClusterId(Long clusterId, EComponentType eComponentType, String dbName) {
         JdbcInfo jdbcInfo = getJdbcInfoByClusterId(clusterId, eComponentType);
+        jdbcInfo.setUsername("admin");
         DataSourceType dataSourceType = componentTypeToDataSourceType(eComponentType, jdbcInfo.getVersion());
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
         return engine2DTOEnum.getSourceDTOByClusterId(jdbcInfo, clusterId, dbName);
     }
 
     /**
-     * 根据tenantId、dtUicUserId、engineType、dbName、jdbcinfo获取对应的sourceDTO，供外部调用
+     * 根据tenantId、userId、engineType、dbName、jdbcinfo获取对应的sourceDTO，供外部调用
      *
-     * @param tenantId uic租户id
-     * @param dtUicUserId uic用户id
+     * @param tenantId 租户id
+     * @param userId 用户id
      * @param dataSourceType 引擎类型 {@link DataSourceType}
      * @return 对应的sourceDTO
      */
-    public static ISourceDTO get(Long tenantId, Long dtUicUserId, Integer dataSourceType, String dbName, JdbcInfo jdbcInfo) {
+    public static ISourceDTO get(Long tenantId, Long userId, Integer dataSourceType, String dbName, JdbcInfo jdbcInfo) {
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType);
-        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, dtUicUserId, dbName);
+        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, userId, dbName);
     }
 
     /**
      * 获取引擎对应的jdbcInfo
      *
-     * @param tenantId uic租户id
-     * @param dtUicUserId uic用户id
+     * @param tenantId 租户id
+     * @param userId 用户id
      * @param eTableType 表类型
      * @return 数据源连接信息
      */
-    public static JdbcInfo getJdbcInfo (Long tenantId, Long dtUicUserId, ETableType eTableType) {
+    public static JdbcInfo getJdbcInfo (Long tenantId, Long userId, ETableType eTableType) {
         JdbcInfo jdbcInfo = null;
         if (tenantId != null) {
             if (ETableType.HIVE.equals(eTableType)) {
                 EScheduleJobType eScheduleJobType = getJobTypeByHadoopMetaType(tenantId);
-                jdbcInfo = getJdbcInfo(tenantId, dtUicUserId, eScheduleJobType);
+                jdbcInfo = getJdbcInfo(tenantId, userId, eScheduleJobType);
             }
         }
         if (jdbcInfo == null) {
@@ -342,12 +344,12 @@ public enum Engine2DTOService {
     /**
      * 获取引擎对应的jdbcInfo
      *
-     * @param tenantId uic租户id
-     * @param dtUicUserId uic用户id
+     * @param tenantId 租户id
+     * @param userId 用户id
      * @param eScheduleJobType 任务类型
      * @return 数据源连接信息
      */
-    public static JdbcInfo getJdbcInfo (Long tenantId, Long dtUicUserId, EScheduleJobType eScheduleJobType) {
+    public static JdbcInfo getJdbcInfo (Long tenantId, Long userId, EScheduleJobType eScheduleJobType) {
         JdbcInfo jdbcInfo = null;
         if (EScheduleJobType.SPARK_SQL.equals(eScheduleJobType)) {
             jdbcInfo = getSparkThrift(tenantId);
@@ -407,13 +409,13 @@ public enum Engine2DTOService {
     /**
      * 构建hadoop配置参数
      *
-     * @param dtUicUserId
+     * @param tenantId
      * @return
      */
-    protected String buildHadoopConfig(Long dtUicUserId){
+    protected String buildHadoopConfig(Long tenantId){
         String config;
         try {
-            config = PublicUtil.objectToStr(HadoopConf.getConfiguration(dtUicUserId));
+            config = PublicUtil.objectToStr(HadoopConf.getConfiguration(tenantId));
         } catch (IOException e) {
             throw new DtCenterDefException(String.format("hadoop配置转换异常，原因是：%s", e.getMessage()));
         }

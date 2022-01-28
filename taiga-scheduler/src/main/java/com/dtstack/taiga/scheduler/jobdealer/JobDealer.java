@@ -251,7 +251,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         scheduleJobCacheService.updateStage(jobClient.getJobId(), stage, nodeAddress, jobClient.getPriority(), null);
     }
 
-    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long dtuicTenantId) {
+    public String getAndUpdateEngineLog(String jobId, String engineJobId, String appId, Long tenantId) {
 
         if(StringUtils.isBlank(engineJobId)){
             return "";
@@ -264,7 +264,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             }
             ParamAction paramAction = PublicUtil.jsonStrToObject(engineJobCache.getJobInfo(), ParamAction.class);
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
-            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,dtuicTenantId,paramAction.getTaskType(),
+            JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,tenantId,paramAction.getTaskType(),
                     TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType()).getType(),
                     null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
             //从engine获取log

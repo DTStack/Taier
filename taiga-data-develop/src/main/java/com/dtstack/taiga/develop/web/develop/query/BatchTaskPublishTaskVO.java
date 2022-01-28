@@ -44,8 +44,4 @@ public class BatchTaskPublishTaskVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "忽略检查", example = "true", required = true)
     private Boolean ignoreCheck;
-
-    @ApiModelProperty(value = "uic 租户 ID", hidden = true)
-    private Long dtuicTenantId;
-    
 }

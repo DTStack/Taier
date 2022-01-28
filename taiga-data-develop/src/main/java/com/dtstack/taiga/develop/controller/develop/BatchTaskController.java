@@ -21,33 +21,12 @@ package com.dtstack.taiga.develop.controller.develop;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.lang.coc.APITemplate;
 import com.dtstack.taiga.common.lang.web.R;
-import com.dtstack.taiga.develop.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.taiga.develop.service.develop.impl.BatchTaskService;
 import com.dtstack.taiga.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taiga.develop.web.develop.query.BatchDataSourceTraceVO;
-import com.dtstack.taiga.develop.web.develop.query.AllProductGlobalSearchVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchScheduleTaskVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskCheckIsLoopVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskCheckNameVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskDeleteTaskVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetByNameVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetChildTasksVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetComponentVersionVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetDependencyTaskVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskGetTaskVersionRecordVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskPublishTaskVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskResourceParamVO;
-import com.dtstack.taiga.develop.web.develop.query.BatchTaskTaskVersionScheduleConfVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchGetChildTasksResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchSysParameterResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetTaskByIdResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskPublishTaskResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskResultVO;
-import com.dtstack.taiga.develop.web.develop.result.BatchTaskVersionDetailResultVO;
-import com.dtstack.taiga.develop.web.develop.result.ScheduleTaskShadeResultVO;
-import com.dtstack.taiga.develop.web.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taiga.develop.mapstruct.vo.TaskMapstructTransfer;
+import com.dtstack.taiga.develop.service.develop.impl.BatchTaskService;
+import com.dtstack.taiga.develop.web.develop.query.*;
+import com.dtstack.taiga.develop.web.develop.result.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @Api(value = "任务管理", tags = {"任务管理"})
 @RestController
@@ -76,17 +54,6 @@ public class BatchTaskController {
             protected BatchTaskGetTaskByIdResultVO process() {
                 BatchTaskBatchVO batchTaskBatchVO =  batchTaskService.getTaskById(TaskMapstructTransfer.INSTANCE.BatchScheduleTaskVToScheduleTaskVO(batchScheduleTaskVO));
                 return TaskMapstructTransfer.INSTANCE.BatchTaskBatchVOToBatchTaskGetTaskByIdResultVO(batchTaskBatchVO);
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "getDependencyTask")
-    @ApiOperation("获取依赖任务")
-    public R<List<Map<String, Object>>> getDependencyTask(@RequestBody BatchTaskGetDependencyTaskVO infoVO) {
-        return new APITemplate<List<Map<String, Object>>>() {
-            @Override
-            protected List<Map<String, Object>>  process() {
-                return batchTaskService.getDependencyTask(infoVO.getProjectId(), infoVO.getTaskId(), infoVO.getName(), infoVO.getSearchProjectId());
             }
         }.execute();
     }
@@ -237,7 +204,7 @@ public class BatchTaskController {
         return new APITemplate<List<BatchTaskGetComponentVersionResultVO>>() {
             @Override
             protected List<BatchTaskGetComponentVersionResultVO> process() {
-                return batchTaskService.getComponentVersionByTaskType(getComponentVersionVO.getDtuicTenantId(), getComponentVersionVO.getTaskType());
+                return batchTaskService.getComponentVersionByTaskType(getComponentVersionVO.getTenantId(), getComponentVersionVO.getTaskType());
             }
         }.execute();
     }
@@ -255,11 +222,11 @@ public class BatchTaskController {
 
     @PostMapping(value = "allProductGlobalSearch")
     @ApiOperation("所有产品的已提交任务查询")
-    public R<List<ScheduleTaskShadeResultVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
-        return new APITemplate<List<ScheduleTaskShadeResultVO>>() {
+    public R<List<BatchAllProductGlobalReturnVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
+        return new APITemplate<List<BatchAllProductGlobalReturnVO>>() {
             @Override
-            protected List<ScheduleTaskShadeResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.scheduleTaskShadeTypeVOsToBatchTaskResultVOs(batchTaskService.allProductGlobalSearch(allProductGlobalSearchVO));
+            protected List<BatchAllProductGlobalReturnVO> process() {
+                return batchTaskService.allProductGlobalSearch(allProductGlobalSearchVO);
             }
         }.execute();
     }

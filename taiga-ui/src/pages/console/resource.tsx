@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { Form, Select, Button, Tabs, Spin, message } from 'antd';
 import BindCommModal from '@/components/bindCommModal';
 import ResourceManageModal from '@/components/resourceManageModal';
@@ -41,6 +41,8 @@ export default () => {
 	// 多个 tab 下用到，父组件存个值
 	const [queueList, setQueueList] = useState<ICapacityProps[]>([]);
 	const [tenantInfo, setTenantInfo] = useState<ITableProps | undefined>(undefined);
+
+	const bindTenantRef = useRef<any>(null);
 
 	const getClusterList = async () => {
 		setTabLoading(true);
@@ -97,21 +99,15 @@ export default () => {
 		setTenantInfo(record);
 	};
 
-	const bindTenant = (params: {
-		canSubmit: boolean;
-		reqParams: Record<string, any>;
-		hasKubernetes: boolean;
-	}) => {
-		const { canSubmit, reqParams } = params;
-		if (canSubmit) {
-			Api.bindTenant({ ...reqParams }).then((res) => {
-				if (res.code === 1) {
-					setTenantVisible(false);
-					message.success('租户绑定成功');
-					// this.searchTenant();
-				}
-			});
-		}
+	const bindTenant = (params: Record<string, any>) => {
+		Api.bindTenant({ ...params }).then((res) => {
+			if (res.code === 1) {
+				setTenantVisible(false);
+				message.success('租户绑定成功');
+				// 刷新租户列表
+				bindTenantRef.current?.getTenant();
+			}
+		});
 	};
 
 	const sourceManage = () => {
@@ -200,6 +196,7 @@ export default () => {
 						) : null}
 						<TabPane tab="租户绑定" key="bindTenant">
 							<BindTenant
+								ref={bindTenantRef}
 								clusterId={form.getFieldValue('clusterId')}
 								clusterName={
 									clusterOptions.find(

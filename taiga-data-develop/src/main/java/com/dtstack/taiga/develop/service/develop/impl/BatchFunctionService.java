@@ -19,7 +19,7 @@
 package com.dtstack.taiga.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.constrant.PatternConstant;
+import com.dtstack.taiga.common.constant.PatternConstant;
 import com.dtstack.taiga.common.enums.CatalogueType;
 import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.FuncType;
@@ -172,7 +172,7 @@ public class BatchFunctionService {
 			taskCatalogueVO.setCreateUser(username);
 			return taskCatalogueVO;
 		} catch (Exception e) {
-            LOGGER.error("addFunction, functions={},resource={},uicTenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
+            LOGGER.error("addFunction, functions={},resource={},tenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
             LOGGER.error(e.getMessage(), e);
             if (e instanceof RdosDefineException) {
                 throw e;

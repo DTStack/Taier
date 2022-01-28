@@ -20,7 +20,6 @@ import { isArray } from 'lodash';
 import type { FormInstance } from 'antd';
 import { Input, Radio, Select, Checkbox, Tooltip, Row, Col, Form } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE, HOVER_TEXT } from '../const';
 import {
 	getValueByJson,
 	isDeployMode,
@@ -32,8 +31,16 @@ import {
 } from '../help';
 import CustomParams from './components/customParams';
 import NodeLabel from './components/nodeLabel';
-import { formItemLayout } from '@/constant';
+import { formItemLayout, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '@/constant';
 import './index.scss';
+
+const HOVER_TEXT: Record<number, string> = {
+	[COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
+	[COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
+	[COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:mysql://localhost:2881',
+	[COMPONENT_TYPE_VALUE.SQLSERVER]:
+		'示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev',
+};
 
 interface IProps {
 	comp: any;
@@ -103,13 +110,13 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 
 	// 渲染单个配置项
 	const renderConfigItem = (temp: any, groupKey?: string) => {
-		const typeCode = comp?.componentTypeCode ?? '';
+		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
 		const hadoopVersion = comp?.hadoopVersion ?? '';
 		const layout = itemLayout ?? formItemLayout;
 		const initialValue =
 			temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value;
 
-		let formField = typeCode;
+		let formField: number | string = typeCode;
 		if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
 
 		const fieldName = groupKey
@@ -279,7 +286,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 						<Row key={key} className="zipConfig-item">
 							<Col
 								className="formitem-textname"
-								span={formItemLayout.labelCol.sm.span + 2}
+								span={formItemLayout.labelCol.sm.span}
 							>
 								<Tooltip title={key} placement="topRight">
 									<span className="form-text-name">{key}</span>
@@ -288,7 +295,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 							</Col>
 							<Col
 								className="formitem-textvalue"
-								span={formItemLayout.wrapperCol.sm.span + 1}
+								span={formItemLayout.wrapperCol.sm.span}
 							>
 								{`${value}`}
 							</Col>
@@ -305,8 +312,8 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 					comp={comp}
 					view={view}
 					template={template}
-					labelCol={formItemLayout.labelCol.sm.span + 2}
-					wrapperCol={formItemLayout.wrapperCol.sm.span - 3}
+					labelCol={formItemLayout.labelCol.sm.span}
+					wrapperCol={formItemLayout.wrapperCol.sm.span}
 				/>
 			</>
 		);

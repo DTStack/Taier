@@ -1,4 +1,4 @@
-package com.dtstack.taiga.common.constrant;
+package com.dtstack.taiga.common.constant;
 
 /**
  * 表单name属性常量定义

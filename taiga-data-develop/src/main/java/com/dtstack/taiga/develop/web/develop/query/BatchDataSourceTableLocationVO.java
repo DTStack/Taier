@@ -34,7 +34,4 @@ public class BatchDataSourceTableLocationVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
-
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
 }

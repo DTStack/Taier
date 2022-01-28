@@ -190,9 +190,6 @@ public class BatchScheduleTaskVO {
     @ApiModelProperty(value = "是否过期", example = "1")
     private Integer isExpire;
 
-    @ApiModelProperty(value = "uic 租户 ID", example = "11")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "平台类型", example = "11")
     private Integer appType;
 
