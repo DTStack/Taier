@@ -23,7 +23,7 @@ import { cloneDeep } from 'lodash';
 import TestRestIcon from '@/components/testResultIcon';
 import MultiVersionComp from './components/multiVerComp';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import type { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
+import { DRAWER_MENU_ENUM, ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
 import {
 	TABS_TITLE_KEY,
 	COMPONENT_CONFIG_NAME,
@@ -85,7 +85,7 @@ export type IVersionData = Record<
 	{
 		dependencyKey: string | null;
 		dependencyValue: string | null;
-		deployTypes: string | null;
+		deployTypes: number[] | null;
 		id: number;
 		key: string;
 		required: boolean;
@@ -104,7 +104,7 @@ interface IComponentProps {
 	engineId: ENGINE_SOURCE_TYPE_ENUM;
 	gmtCreate: number;
 	gmtModified: number;
-	hadoopVersion: string;
+	versionName: string;
 	id: number;
 	isDefault: boolean;
 	storeType: number;
@@ -153,14 +153,22 @@ export default forwardRef((_, ref) => {
 					cancelText: '取消',
 					onOk: () => {},
 					onCancel: () => {
-						history.push('/console/clusterManage');
+						history.push({
+							query: {
+								drawer: DRAWER_MENU_ENUM.CLUSTER,
+							},
+						});
 					},
 				});
 			};
 			form.validateFields().then((values) => {
 				const modifyCompsArr = getModifyComp(values, schedulingComponent);
 				if (!modifyCompsArr.size) {
-					// history.push('/console/clusterManage');
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.CLUSTER,
+						},
+					});
 					return;
 				}
 				showConfirm(modifyCompsArr);
@@ -193,7 +201,7 @@ export default forwardRef((_, ref) => {
 			});
 	};
 
-	const getSaveComponentList = async (clusterName: string) => {
+	const getSaveComponentList = async (clusterName: string): Promise<number[]> => {
 		const res = await Api.getComponentStore({ clusterName });
 		if (res.code === 1 && res.data) {
 			const nextSaveCompsData: any[] = [];
@@ -204,7 +212,11 @@ export default forwardRef((_, ref) => {
 				});
 			});
 			setSaveCompsData(nextSaveCompsData);
+
+			return res.data;
 		}
+
+		return [];
 	};
 
 	const getVersionData = () => {
@@ -223,37 +235,36 @@ export default forwardRef((_, ref) => {
 	) => {
 		const components = nextScheduling || schedulingComponent;
 		const clusterName = history.location.query?.clusterName;
+		const clusterId = history.location.query?.clusterId;
 		const typeCode = (
-			key ? Number(key) : components[activeKey][0]?.componentTypeCode
+			typeof key !== 'undefined' ? Number(key) : components[activeKey][0]?.componentTypeCode
 		) as keyof typeof DEFAULT_COMP_VERSION;
 		const comp = getCurrentComp(components[activeKey], {
 			typeCode,
 		});
 		const saveParams: any = {
 			componentTypeCode: Number(typeCode),
-			hadoopVersion: params?.compVersion ?? '',
+			versionName: params?.compVersion ?? '',
 		};
-		const version = params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '';
-		const originVersion = isSameVersion(Number(typeCode)) ? version : '';
+		const versionName = params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '';
 
 		if (isMultiVersion(typeCode) && !params?.compVersion) return;
 
+		const resLists = await getSaveComponentList(clusterName as string);
 		if (
 			(!comp?.componentTemplate && components[activeKey]?.length) ||
 			params?.compVersion ||
 			params?.storeType
 		) {
 			const res = await Api.getLoadTemplate({
-				clusterName,
+				clusterId,
 				componentType: typeCode,
-				version,
-				originVersion,
-				storeType: params?.storeType ?? form.getFieldValue(`${typeCode}.storeType`) ?? '',
+				versionName,
+				storeType: params?.storeType ?? resLists[0] ?? '',
 				deployType: params?.deployType ?? '',
 			});
 			if (res.code === 1) saveParams.componentTemplate = JSON.stringify(res.data);
 			saveComp(saveParams);
-			getSaveComponentList(clusterName as string);
 		}
 	};
 
@@ -266,7 +277,7 @@ export default forwardRef((_, ref) => {
 			comp.multiVersion = comp.multiVersion.map((vcomp: any) => {
 				if (!vcomp) return { ...params };
 				if (!isMultiVersion(params.componentTypeCode)) return { ...vcomp, ...params };
-				if (!vcomp?.hadoopVersion || vcomp?.hadoopVersion === params.hadoopVersion)
+				if (!vcomp?.versionName || vcomp?.versionName === params.versionName)
 					return { ...vcomp, ...params };
 				return vcomp;
 			});
@@ -277,7 +288,7 @@ export default forwardRef((_, ref) => {
 
 	const testConnects = (params?: any, callBack?: (bool: boolean) => void) => {
 		const typeCode = params?.typeCode ?? '';
-		const hadoopVersion = params?.hadoopVersion ?? '';
+		const versionName = params?.versionName ?? '';
 		const deployType = params?.deployType ?? '';
 		form.validateFields()
 			.then((rawValues) => {
@@ -288,12 +299,12 @@ export default forwardRef((_, ref) => {
 						modifyComps.size > 0 &&
 						includesCurrentComp(Array.from(modifyComps), {
 							typeCode,
-							hadoopVersion,
+							versionName,
 						})
 					) {
 						let desc = (COMPONENT_CONFIG_NAME as any)[typeCode];
 						if (isMultiVersion(typeCode))
-							desc = `${desc} ${(Number(hadoopVersion) / 100).toFixed(2)}`;
+							desc = `${desc} ${(Number(versionName) / 100).toFixed(2)}`;
 						message.error(`组件 ${desc} 参数变更未保存，请先保存再测试组件连通性`);
 						return;
 					}
@@ -302,7 +313,7 @@ export default forwardRef((_, ref) => {
 						clusterName: history.location.query?.clusterName as string,
 						deployType,
 						componentType: typeCode,
-						componentVersion: hadoopVersion ?? '',
+						versionName: versionName ?? '',
 					})
 						.then((res) => {
 							if (res.code === 1) {
@@ -338,10 +349,7 @@ export default forwardRef((_, ref) => {
 			.catch((err) => {
 				// 当前组件错误校验
 				const currentCompErr = err ? err[String(typeCode)] || {} : {};
-				if (
-					isMultiVersion(typeCode) &&
-					Object.keys(currentCompErr).includes(hadoopVersion)
-				) {
+				if (isMultiVersion(typeCode) && Object.keys(currentCompErr).includes(versionName)) {
 					message.error('请检查配置');
 					return;
 				}
@@ -373,7 +381,7 @@ export default forwardRef((_, ref) => {
 			let multiVersion = getSingleTestStatus(
 				{
 					typeCode: status.componentTypeCode,
-					hadoopVersion: status?.componentVersion,
+					versionName: status?.componentVersion,
 				},
 				status,
 				testStatus,
@@ -435,7 +443,7 @@ export default forwardRef((_, ref) => {
 		}
 
 		if (action === COMP_ACTION.DELETE) {
-			const { componentTypeCode, hadoopVersion, id = '' } = comps;
+			const { componentTypeCode, versionName, id = '' } = comps;
 			const componentIds = getCompsId(currentCompArr, id);
 			let res: any;
 			if (componentIds.length) {
@@ -448,7 +456,7 @@ export default forwardRef((_, ref) => {
 					if (isMultiVersion(comp.componentTypeCode) && mulitple) {
 						// eslint-disable-next-line no-param-reassign
 						comp.multiVersion = comp.multiVersion.filter(
-							(vComp) => vComp?.hadoopVersion !== hadoopVersion,
+							(vComp) => vComp?.versionName !== versionName,
 						);
 						wrapper.add(comp);
 					}
@@ -457,13 +465,13 @@ export default forwardRef((_, ref) => {
 				currentCompArr = Array.from(wrapper);
 
 				const multiVersion = getSingleTestStatus(
-					{ typeCode: componentTypeCode, hadoopVersion },
+					{ typeCode: componentTypeCode, versionName },
 					null,
 					testStatus,
 				);
 				let fieldValue: any = {};
 				if (isMultiVersion(componentTypeCode)) {
-					fieldValue = { [hadoopVersion]: {} };
+					fieldValue = { [versionName]: {} };
 				}
 
 				form.setFieldsValue({
@@ -494,13 +502,13 @@ export default forwardRef((_, ref) => {
 
 	const handleCompVersion = (typeCode: string, version: string) => {
 		if (!isSameVersion(Number(typeCode))) {
-			form.setFieldsValue({ [`${typeCode}.hadoopVersion`]: version });
+			form.setFieldsValue({ [`${typeCode}.versionName`]: version });
 			getLoadTemplate(typeCode, { compVersion: version });
 			return;
 		}
 		form.setFieldsValue({
 			[typeCode]: {
-				hadoopVersion: version[version.length - 1],
+				versionName: version[version.length - 1],
 				hadoopVersionSelect: version,
 			},
 		});
@@ -561,13 +569,13 @@ export default forwardRef((_, ref) => {
 						}
 						// 存在HiveServer、SparkThrift两个组件
 						const isCheckBoxs = isDataCheckBoxs(comps);
-						if (comps?.length === 0) {
-							return (
-								<div key={activeKey} className="empty-logo">
-									<img src="assets/imgs/emptyLogo.svg" />
-								</div>
-							);
-						}
+						// if (comps?.length === 0) {
+						// 	return (
+						// 		<div key={activeKey} className="empty-logo">
+						// 			<img src="assets/imgs/emptyLogo.svg" />
+						// 		</div>
+						// 	);
+						// }
 
 						return (
 							<div>
@@ -591,7 +599,7 @@ export default forwardRef((_, ref) => {
 										}
 									}}
 								>
-									{comps?.length > 0 &&
+									{comps?.length > 0 ? (
 										comps.map((comp) => {
 											return (
 												<TabPane
@@ -626,6 +634,7 @@ export default forwardRef((_, ref) => {
 													<>
 														{isMultiVersion(comp.componentTypeCode) ? (
 															<Form
+																preserve={false}
 																className="dt-cluster-content"
 																form={form}
 															>
@@ -660,6 +669,7 @@ export default forwardRef((_, ref) => {
 															comp?.multiVersion?.map((vcomp) => {
 																return (
 																	<Form
+																		preserve={false}
 																		className="dt-cluster-content"
 																		form={form}
 																	>
@@ -744,7 +754,14 @@ export default forwardRef((_, ref) => {
 													</>
 												</TabPane>
 											);
-										})}
+										})
+									) : (
+										<TabPane key="empty">
+											<div key={activeKey} className="empty-logo">
+												<img src="assets/imgs/emptyLogo.svg" />
+											</div>
+										</TabPane>
+									)}
 								</Tabs>
 							</div>
 						);

@@ -28,7 +28,7 @@ import {
 const DEFAULT_PARAMS = [
 	'storeType',
 	'principal',
-	'hadoopVersion',
+	'versionName',
 	'kerberosFileName',
 	'uploadFileName',
 	'isMetadata',
@@ -37,16 +37,12 @@ const DEFAULT_PARAMS = [
 
 // 是否为yarn、hdfs、Kubernetes组件
 export function isNeedTemp(typeCode: number): boolean {
-	const temp: number[] = [
-		COMPONENT_TYPE_VALUE.YARN,
-		COMPONENT_TYPE_VALUE.HDFS,
-		COMPONENT_TYPE_VALUE.KUBERNETES,
-	];
+	const temp: number[] = [COMPONENT_TYPE_VALUE.YARN, COMPONENT_TYPE_VALUE.HDFS];
 	return temp.indexOf(typeCode) > -1;
 }
 
 export function isKubernetes(typeCode: number): boolean {
-	return COMPONENT_TYPE_VALUE.KUBERNETES === typeCode;
+	return false;
 }
 
 export function isYarn(typeCode: number): boolean {
@@ -58,29 +54,16 @@ export function isFLink(typeCode: number): boolean {
 }
 
 export function isDtscriptAgent(typeCode: number): boolean {
-	return COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT === typeCode;
+	return false;
 }
 
 export function isHaveGroup(typeCode: number): boolean {
-	const tmp: number[] = [
-		COMPONENT_TYPE_VALUE.FLINK,
-		COMPONENT_TYPE_VALUE.SPARK,
-		COMPONENT_TYPE_VALUE.LEARNING,
-		COMPONENT_TYPE_VALUE.DTYARNSHELL,
-	];
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK];
 	return tmp.indexOf(typeCode) > -1;
 }
 
 export function notCustomParam(typeCode: number): boolean {
-	const tmp: number[] = [
-		COMPONENT_TYPE_VALUE.SFTP,
-		COMPONENT_TYPE_VALUE.LIBRA_SQL,
-		COMPONENT_TYPE_VALUE.ORACLE_SQL,
-		COMPONENT_TYPE_VALUE.TIDB_SQL,
-		COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL,
-		COMPONENT_TYPE_VALUE.IMPALA_SQL,
-		COMPONENT_TYPE_VALUE.PRESTO_SQL,
-	];
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.SFTP];
 	return tmp.indexOf(typeCode) > -1;
 }
 
@@ -88,9 +71,8 @@ export function isOtherVersion(code: number): boolean {
 	const tmp: number[] = [
 		COMPONENT_TYPE_VALUE.FLINK,
 		COMPONENT_TYPE_VALUE.SPARK,
-		COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
+		COMPONENT_TYPE_VALUE.SPARK_THRIFT,
 		COMPONENT_TYPE_VALUE.HIVE_SERVER,
-		COMPONENT_TYPE_VALUE.INCEPTOR_SQL,
 	];
 	return tmp.indexOf(code) > -1;
 }
@@ -101,11 +83,7 @@ export function isSameVersion(code: number): boolean {
 }
 
 export function isMultiVersion(code: number): boolean {
-	const tmp: number[] = [
-		COMPONENT_TYPE_VALUE.FLINK,
-		COMPONENT_TYPE_VALUE.SPARK,
-		COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE,
-	];
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK];
 	return tmp.indexOf(code) > -1;
 }
 
@@ -115,16 +93,12 @@ export function needZipFile(type: number): boolean {
 }
 
 export function showDataCheckBox(code: number): boolean {
-	const tmp: number[] = [
-		COMPONENT_TYPE_VALUE.HIVE_SERVER,
-		COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
-	];
+	const tmp: number[] = [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT];
 	return tmp.indexOf(code) > -1;
 }
 
 export function notFileConfig(code: number): boolean {
-	const tmp: number[] = [COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT];
-	return tmp.indexOf(code) > -1;
+	return false;
 }
 
 export function getActionType(mode: string): string {
@@ -230,7 +204,7 @@ export function getCompsName(comps: any[]): any[] {
 	return Array.from(comps).map((comp: any) => {
 		if (isMultiVersion(comp.typeCode)) {
 			return `${(COMPONENT_CONFIG_NAME as any)[comp.typeCode]} ${(
-				Number(comp.hadoopVersion) / 100
+				Number(comp.versionName) / 100
 			).toFixed(2)}`;
 		}
 		return (COMPONENT_CONFIG_NAME as any)[comp.typeCode];
@@ -523,19 +497,19 @@ export function handleComponentConfigAndCustom(comp: any, typeCode: number): any
 }
 
 export function getSingleTestStatus(
-	params: { typeCode: number; hadoopVersion?: string },
+	params: { typeCode: number; versionName?: string },
 	value: any,
 	testStatus: any,
 ): any[] {
 	const typeCode = params.typeCode ?? '';
-	const hadoopVersion = params.hadoopVersion ?? '';
+	const versionName = params.versionName ?? '';
 	const currentStatus = testStatus[String(typeCode)] ?? {};
 	let multiVersion = currentStatus?.multiVersion ?? [];
 
 	if (multiVersion.length) {
 		let sign = false;
 		multiVersion = multiVersion.map((version: any) => {
-			if (version?.componentVersion === hadoopVersion) {
+			if (version?.componentVersion === versionName) {
 				sign = true;
 				return value;
 			}
@@ -549,29 +523,29 @@ export function getSingleTestStatus(
 
 export function includesCurrentComp(
 	modifyComps: any[],
-	params: { typeCode: number; hadoopVersion?: string },
+	params: { typeCode: number; versionName?: string },
 ): boolean {
-	const { typeCode, hadoopVersion } = params;
+	const { typeCode, versionName } = params;
 	modifyComps.forEach((comp) => {
-		if (comp.typeCode === typeCode && !comp.hadoopVersion) return true;
-		if (comp.typeCode === typeCode && comp.hadoopVersion === hadoopVersion) return true;
+		if (comp.typeCode === typeCode && !comp.versionName) return true;
+		if (comp.typeCode === typeCode && comp.versionName === versionName) return true;
 	});
 	return false;
 }
 
 export function getCurrentComp(
 	initialCompDataArr: any[],
-	params: { typeCode: number; hadoopVersion?: string },
+	params: { typeCode: number; versionName?: string },
 ): any {
-	const { typeCode, hadoopVersion } = params;
+	const { typeCode, versionName } = params;
 	let currentComp = {};
 	// eslint-disable-next-line no-restricted-syntax
 	for (const comp of initialCompDataArr) {
 		// eslint-disable-next-line no-restricted-syntax
 		for (const vcomp of comp?.multiVersion ?? []) {
 			if (vcomp?.componentTypeCode === typeCode) {
-				if (!hadoopVersion && vcomp) currentComp = vcomp;
-				if (vcomp?.hadoopVersion === hadoopVersion) currentComp = vcomp;
+				if (!versionName && vcomp) currentComp = vcomp;
+				if (vcomp?.versionName === versionName) currentComp = vcomp;
 			}
 		}
 	}
@@ -580,9 +554,9 @@ export function getCurrentComp(
 
 export function getCurrent1Comp(
 	initialCompDataArr: any[],
-	params: { typeCode: number; hadoopVersion?: string },
+	params: { typeCode: number; versionName?: string },
 ): any {
-	const { typeCode, hadoopVersion } = params;
+	const { typeCode, versionName } = params;
 	let currentComp = {};
 	// eslint-disable-next-line no-restricted-syntax
 	for (const compArr of initialCompDataArr) {
@@ -591,8 +565,8 @@ export function getCurrent1Comp(
 			// eslint-disable-next-line no-restricted-syntax
 			for (const vcomp of comp?.multiVersion ?? []) {
 				if (vcomp?.componentTypeCode === typeCode) {
-					if (!hadoopVersion && vcomp) currentComp = vcomp;
-					if (vcomp?.hadoopVersion === hadoopVersion) currentComp = vcomp;
+					if (!versionName && vcomp) currentComp = vcomp;
+					if (vcomp?.versionName === versionName) currentComp = vcomp;
 				}
 			}
 		}
@@ -669,16 +643,16 @@ export function getModifyComp(comps: any, initialCompData: any[]): any {
 	const modifyComps = new Set();
 	Object.entries(comps).forEach(([typeCode, comp]) => {
 		if (isMultiVersion(Number(typeCode))) {
-			Object.entries(comp as any).forEach(([hadoopVersion, vcomp]) => {
-				if (!DEFAULT_PARAMS.includes(hadoopVersion)) {
+			Object.entries(comp as any).forEach(([versionName, vcomp]) => {
+				if (!DEFAULT_PARAMS.includes(versionName)) {
 					const initialComp = getCurrent1Comp(initialCompData, {
 						typeCode: Number(typeCode),
-						hadoopVersion,
+						versionName,
 					});
 					if (handleCurrentComp(vcomp, initialComp, Number(typeCode))) {
 						modifyComps.add({
 							typeCode: Number(typeCode),
-							hadoopVersion,
+							versionName,
 						});
 					}
 				}
@@ -698,11 +672,5 @@ export function getModifyComp(comps: any, initialCompData: any[]): any {
 
 /** 指定引擎的 jdbcUrl 项展示 hover 提示 */
 export function showHover(componentTypeValue: number, label: string) {
-	const tmp: number[] = [
-		COMPONENT_TYPE_VALUE.MYSQL,
-		COMPONENT_TYPE_VALUE.DB2,
-		COMPONENT_TYPE_VALUE.OCEANBASE,
-		COMPONENT_TYPE_VALUE.SQLSERVER,
-	];
-	return tmp.includes(componentTypeValue) && label === 'jdbcUrl';
+	return false;
 }

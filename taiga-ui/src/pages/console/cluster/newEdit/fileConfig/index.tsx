@@ -41,10 +41,10 @@ import {
 } from '../help';
 import {
 	COMPONENT_TYPE_VALUE,
-	VERSION_TYPE,
 	FILE_TYPE,
 	DEFAULT_COMP_VERSION,
 	CONFIG_FILE_DESC,
+	COMPONENT_CONFIG_NAME,
 } from '@/constant';
 import './index.scss';
 
@@ -97,17 +97,17 @@ export default function FileConfig({
 	const renderCompsVersion = () => {
 		const typeCode: keyof typeof DEFAULT_COMP_VERSION = comp?.componentTypeCode ?? '';
 		const version = isOtherVersion(typeCode)
-			? versionData[(VERSION_TYPE as any)[typeCode]]
+			? versionData[COMPONENT_CONFIG_NAME[typeCode]]
 			: versionData.hadoopVersion;
 		let initialValue = isOtherVersion(typeCode)
 			? DEFAULT_COMP_VERSION[typeCode]
-			: [version[0].key, version[0].values[0]?.key];
-		initialValue = comp?.hadoopVersion || initialValue;
+			: [version[0]?.key, version[0]?.values[0]?.key];
+		initialValue = comp?.versionName || initialValue;
 		let versionValue = initialValue;
 		if (isSameVersion(typeCode)) {
-			versionValue = comp?.hadoopVersion || version[0].values[0]?.key || '';
-			initialValue = comp?.hadoopVersion
-				? getInitialValue(version, comp?.hadoopVersion)
+			versionValue = comp?.versionName || version[0]?.values[0]?.key || '';
+			initialValue = comp?.versionName
+				? getInitialValue(version, comp?.versionName)
 				: initialValue;
 		}
 
@@ -155,7 +155,7 @@ export default function FileConfig({
 						/>
 					)}
 				</FormItem>
-				<FormItem name={`${typeCode}.hadoopVersion`} initialValue={versionValue} noStyle>
+				<FormItem name={`${typeCode}.versionName`} initialValue={versionValue} noStyle>
 					<span style={{ display: 'none' }} />
 				</FormItem>
 			</>
@@ -170,7 +170,7 @@ export default function FileConfig({
 
 	const getPrincipalsList = async (file: any) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		const res = await Api.parseKerberos({ fileName: file });
 		if (res.code === 1) {
 			const principal = {
@@ -178,7 +178,7 @@ export default function FileConfig({
 				principals: res.data,
 			};
 			const fieldValue = isMultiVersion(typeCode)
-				? { [hadoopVersion]: principal }
+				? { [versionName]: principal }
 				: { ...principal };
 			form.setFieldsValue({ [typeCode]: fieldValue });
 			setPrincipals(res.data ?? []);
@@ -209,12 +209,12 @@ export default function FileConfig({
 	const downloadFile = (type: number) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const deployType = comp?.deployType ?? '';
-		let version = form.getFieldValue(`${typeCode}.hadoopVersion`) || '';
-		if (isMultiVersion(typeCode)) version = comp?.hadoopVersion ?? '';
+		let version = form.getFieldValue(`${typeCode}.versionName`) || '';
+		if (isMultiVersion(typeCode)) version = comp?.versionName ?? '';
 
 		const a = document.createElement('a');
 		let param = comp?.id ? `?componentId=${comp.id}&` : '?';
-		param = `${param}type=${type}&componentType=${typeCode}&hadoopVersion=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
+		param = `${param}type=${type}&componentType=${typeCode}&versionName=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
 		a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
 		a.click();
 	};
@@ -229,7 +229,7 @@ export default function FileConfig({
 
 	const uploadFile = async (file: any, loadingType: number, callBack: Function) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = isMultiVersion(typeCode) ? comp?.hadoopVersion : '';
+		const versionName = isMultiVersion(typeCode) ? comp?.versionName : '';
 		const deployType = comp?.deployType ?? '';
 		setLoading((loadings) => ({
 			...loadings,
@@ -249,7 +249,7 @@ export default function FileConfig({
 				deployType,
 				clusterId: clusterInfo?.clusterId ?? '',
 				componentCode: typeCode,
-				componentVersion: hadoopVersion,
+				componentVersion: versionName,
 			};
 			res = await Api.uploadKerberos(params);
 			getPrincipalsList(file);
@@ -267,7 +267,7 @@ export default function FileConfig({
 				true,
 			);
 			const fieldValue = isMultiVersion(typeCode)
-				? { [hadoopVersion]: { componentConfig } }
+				? { [versionName]: { componentConfig } }
 				: { componentConfig };
 			form.setFieldsValue({ [typeCode]: fieldValue });
 		}
@@ -283,9 +283,7 @@ export default function FileConfig({
 					break;
 				case FILE_TYPE.CONFIGS:
 					form.setFieldsValue({
-						[typeCode]: {
-							specialConfig: res.data[0],
-						},
+						[`${typeCode}.specialConfig`]: res.data[0],
 					});
 					break;
 				default:
@@ -319,7 +317,7 @@ export default function FileConfig({
 					value: comp.kerberosFileName,
 					desc: '仅支持.zip格式',
 					loading: loading[FILE_TYPE.KERNEROS],
-					hadoopVersion: comp?.hadoopVersion ?? '',
+					versionName: comp?.versionName ?? '',
 					uploadProps: {
 						name: 'kerberosFile',
 						accept: '.zip',
@@ -361,7 +359,7 @@ export default function FileConfig({
 					value: comp.paramsFile,
 					desc: '仅支持json格式',
 					loading: loading[FILE_TYPE.PARAMES],
-					hadoopVersion: comp?.hadoopVersion ?? '',
+					versionName: comp?.versionName ?? '',
 					uploadProps: {
 						name: 'paramsFile',
 						accept: '.json',
@@ -409,7 +407,7 @@ export default function FileConfig({
 					value: comp.uploadFileName,
 					desc: CONFIG_FILE_DESC[typeCode],
 					loading: loading[FILE_TYPE.CONFIGS],
-					hadoopVersion: comp?.hadoopVersion ?? '',
+					versionName: comp?.versionName ?? '',
 					uploadProps: {
 						name: 'uploadFileName',
 						accept: '.zip',
@@ -434,9 +432,9 @@ export default function FileConfig({
 
 	const renderStorageComponents = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		let formField = typeCode;
-		if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
+		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
 		formField = `${formField}.storeType`;
 
 		if (saveCompsData.length === 0) {
@@ -478,10 +476,10 @@ export default function FileConfig({
 	const renderPrincipal = () => {
 		let principalsList = principals;
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 
 		let formField = typeCode;
-		if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
+		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
 
 		const kerberosFile =
 			form.getFieldValue(`${formField}.kerberosFileName`) ?? comp?.kerberosFileName;
@@ -544,11 +542,11 @@ export default function FileConfig({
 
 	const setKrbConfig = (krbconfig: any) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 		saveComp({
 			mergeKrb5Content: krbconfig,
 			componentTypeCode: typeCode,
-			hadoopVersion,
+			versionName,
 		});
 	};
 
@@ -571,35 +569,11 @@ export default function FileConfig({
 					</>
 				);
 			}
-			case COMPONENT_TYPE_VALUE.KUBERNETES: {
-				return (
-					<>
-						{renderConfigsFile()}
-						{renderKerberosFile()}
-						{renderPrincipal()}
-					</>
-				);
-			}
-			case COMPONENT_TYPE_VALUE.SFTP:
-			case COMPONENT_TYPE_VALUE.NFS:
-			case COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE: {
+			case COMPONENT_TYPE_VALUE.SFTP: {
 				return renderParamsFile();
 			}
-			case COMPONENT_TYPE_VALUE.MYSQL:
-			case COMPONENT_TYPE_VALUE.SQLSERVER:
-			case COMPONENT_TYPE_VALUE.DB2:
-			case COMPONENT_TYPE_VALUE.OCEANBASE:
-			case COMPONENT_TYPE_VALUE.ORACLE_SQL:
-			case COMPONENT_TYPE_VALUE.LIBRA_SQL:
-			case COMPONENT_TYPE_VALUE.TIDB_SQL:
-			case COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL:
-			case COMPONENT_TYPE_VALUE.PRESTO_SQL:
-			case COMPONENT_TYPE_VALUE.ANALYTIC_DB: {
-				return <>{renderParamsFile()}</>;
-			}
 			case COMPONENT_TYPE_VALUE.HIVE_SERVER:
-			case COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER:
-			case COMPONENT_TYPE_VALUE.INCEPTOR_SQL: {
+			case COMPONENT_TYPE_VALUE.SPARK_THRIFT: {
 				return (
 					<>
 						{renderMeta()}
@@ -611,23 +585,11 @@ export default function FileConfig({
 					</>
 				);
 			}
-			case COMPONENT_TYPE_VALUE.IMPALA_SQL:
 			case COMPONENT_TYPE_VALUE.SPARK:
 			case COMPONENT_TYPE_VALUE.FLINK: {
 				return (
 					<>
 						{renderDefaultVersion()}
-						{renderKerberosFile()}
-						{renderPrincipal()}
-						{renderParamsFile()}
-						{renderStorageComponents()}
-					</>
-				);
-			}
-			case COMPONENT_TYPE_VALUE.LEARNING:
-			case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-				return (
-					<>
 						{renderKerberosFile()}
 						{renderPrincipal()}
 						{renderParamsFile()}
