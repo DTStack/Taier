@@ -63,7 +63,7 @@ public class BatchServerLogController {
         return new APITemplate<JSONObject>() {
             @Override
             protected JSONObject process() {
-                return batchServerLogService.getLogsByAppId(vo.getDtuicTenantId(), vo.getTaskType(), vo.getJobId(), vo.getProjectId());
+                return batchServerLogService.getLogsByAppId(vo.getTenantId(), vo.getTaskType(), vo.getJobId(), vo.getProjectId());
             }
         }.execute();
     }
@@ -74,7 +74,7 @@ public class BatchServerLogController {
         return new APITemplate<BatchServerLogByAppLogTypeResultVO>() {
             @Override
             protected BatchServerLogByAppLogTypeResultVO process() {
-                return batchServerLogService.getLogsByAppLogType(vo.getDtuicTenantId(), vo.getTaskType(), vo.getJobId(), vo.getLogType(), vo.getProjectId());
+                return batchServerLogService.getLogsByAppLogType(vo.getTenantId(), vo.getTaskType(), vo.getJobId(), vo.getLogType(), vo.getProjectId());
             }
         }.execute();
     }

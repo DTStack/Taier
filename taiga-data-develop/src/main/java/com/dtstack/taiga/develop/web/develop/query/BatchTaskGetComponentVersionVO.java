@@ -27,8 +27,8 @@ import lombok.Data;
 @ApiModel("获取组件版本号")
 public class BatchTaskGetComponentVersionVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "uic 租户 ID", hidden = true)
-    private Long dtuicTenantId;
+    @ApiModelProperty(value = "租户 ID", hidden = true)
+    private Long tenantId;
 
     @ApiModelProperty(value = "任务类型")
     private Integer taskType;

@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 /**
  * @Auther: dazhi
  * @Date: 2021/12/6 9:07 PM
- * @Email:dazhi@dtstack.com
+ * @Email: dazhi@dtstack.com
  * @Description:
  */
 public class ReturnScheduleTaskVO {

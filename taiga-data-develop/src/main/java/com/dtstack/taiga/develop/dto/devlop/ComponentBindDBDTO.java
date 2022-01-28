@@ -36,6 +36,7 @@ public class ComponentBindDBDTO {
 
     /**
      * db 名称
+     *
      */
     private String dbName;
 

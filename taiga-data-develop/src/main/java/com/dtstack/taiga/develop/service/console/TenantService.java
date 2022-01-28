@@ -22,7 +22,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.*;
@@ -40,9 +39,11 @@ import com.dtstack.taiga.develop.service.develop.IComponentService;
 import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.service.develop.impl.BatchCatalogueService;
 import com.dtstack.taiga.develop.service.develop.impl.TenantComponentService;
+import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeToEScheduleJobMapping;
 import com.dtstack.taiga.develop.vo.console.ClusterTenantVO;
 import com.dtstack.taiga.develop.vo.console.ComponentBindDBVO;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import org.apache.commons.lang3.BooleanUtils;
@@ -96,6 +97,9 @@ public class TenantService {
 
     @Autowired
     private ConsoleComponentService consoleComponentService;
+
+    @Autowired
+    private ClusterService clusterService;
 
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
@@ -187,11 +191,11 @@ public class TenantService {
         throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
-    public Tenant getByDtUicTenantId(Long tenantId) {
+    public Tenant getByDtTenantId(Long tenantId) {
         return getTenantById(tenantId);
     }
 
-    public Long getDtuicTenantId(Long id) {
+    public Long getDtTenantId(Long id) {
         return id;
     }
 
@@ -251,32 +255,38 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void initDataDevelop(Long clusterId, Long tenantId, Long userId, String tenantName, String tenantDesc, List<ComponentBindDBDTO> bindDBDTOList) throws Exception {
         //初始化目录
-        List<Component> components = componentService.listAllComponents(tenantId);
+        List<Component> components = componentService.listAllComponents(clusterId);
+
         List<ComponentVO> componentVOS = ComponentVO.toVOS(components);
         batchCatalogueService.initCatalogue(tenantId, userId, componentVOS);
 
-        // 初始化db
+        Cluster cluster = clusterService.getCluster(clusterId);
+
+        // 初始化数据源相关的信息
         IComponentService componentService = null;
         for (ComponentBindDBDTO componentBindDBDTO : bindDBDTOList) {
-            if (BooleanUtils.isNotTrue(componentBindDBDTO.getCreateFlag())) {
-                continue;
-            }
             EComponentType eComponentType = EComponentType.getByCode(componentBindDBDTO.getComponentCode());
-            componentService = multiEngineServiceFactory.getComponentService(eComponentType.getTypeCode());
-            componentService.createDatabase(clusterId, eComponentType, componentBindDBDTO.getDbName(), "");
+            String componentIdentity = cluster.getClusterName();
+
+            // db相关的操作
+            if (BooleanUtils.isTrue(componentBindDBDTO.getCreateFlag())) {
+                componentService = multiEngineServiceFactory.getComponentService(eComponentType.getTypeCode());
+                componentService.createDatabase(clusterId, eComponentType, componentIdentity, tenantDesc);
+            } else {
+                componentIdentity = componentBindDBDTO.getDbName();
+            }
+
+            // 初始化数据源
+            datasourceService.initDefaultSource(clusterId, eComponentType, tenantId, componentIdentity, tenantDesc, userId);
+
+            // 初始化租户引擎关系
+            TenantComponent tenantEngine = new TenantComponent();
+            tenantEngine.setTaskType(ComponentTypeToEScheduleJobMapping.getEScheduleTypeByComponentCode(eComponentType.getTypeCode()).getType());
+            tenantEngine.setTenantId(tenantId);
+            tenantEngine.setComponentIdentity(componentIdentity);
+            tenantEngine.setCreateUserId(userId);
+            tenantEngine.setStatus(0);
+            tenantEngineService.insert(tenantEngine);
         }
-
-        // TODO 这个地方需要根据不同的组件类型去初始化数据源信息
-        //初始化数据源
-        datasourceService.initDefaultSource(tenantId, tenantName, tenantDesc, userId);
-
-        //初始化租户引擎
-        TenantComponent tenantEngine = new TenantComponent();
-        tenantEngine.setTaskType(EScheduleJobType.SPARK_SQL.getType());
-        tenantEngine.setTenantId(tenantId);
-        tenantEngine.setComponentIdentity(tenantName);
-        tenantEngine.setCreateUserId(userId);
-        tenantEngine.setStatus(0);
-        tenantEngineService.insert(tenantEngine);
     }
 }

@@ -19,13 +19,13 @@
 package com.dtstack.taiga.develop.utils;
 
 
-import com.dtstack.taiga.common.constrant.Cookies;
+import com.dtstack.taiga.common.constant.Cookies;
 
 import javax.servlet.http.Cookie;
 
 public class CookieUtil {
 
-    public static String getDtUicToken(Cookie[] cookies) {
+    public static String getToken(Cookie[] cookies) {
         Object value = getCookieValue(cookies, Cookies.TOKEN);
         return value == null ? "" : value.toString();
     }

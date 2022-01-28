@@ -20,7 +20,7 @@ package com.dtstack.taiga.scheduler.server.pipeline.operator;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taiga.common.constrant.TaskConstant;
+import com.dtstack.taiga.common.constant.TaskConstant;
 import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleType;
@@ -276,7 +276,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     /**
      * 创建分区
      */
-    public String createPartition(Long dtuicTenantId, String job, Integer sourceType) {
+    public String createPartition(Long tenantId, String job, Integer sourceType) {
         JSONObject jobJSON = JSONObject.parseObject(job);
         JSONObject jobObj = jobJSON.getJSONObject("job");
         JSONObject parameter = jobObj.getJSONArray("content").getJSONObject(0)
@@ -319,7 +319,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             String sql = String.format("alter table %s add if not exists partition (%s)", table, partition);
             try {
                 RetryUtil.executeWithRetry(() -> {
-                    LOGGER.info("create partition dtuicTenantId {} {}", dtuicTenantId, sql);
+                    LOGGER.info("create partition tenantId {} {}", tenantId, sql);
                     JSONObject pluginInfo = buildDataSourcePluginInfo(parameter.getJSONObject("hadoopConfig"), sourceType, username, password, jdbcUrl);
                     String realDataBase = pluginInfo.getString("realDataBase");
                     pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,getHiveTypeName(DataSourceType.getSourceType(sourceType)));

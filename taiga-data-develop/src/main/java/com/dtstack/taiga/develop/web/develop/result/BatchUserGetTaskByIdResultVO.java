@@ -35,9 +35,6 @@ public class BatchUserGetTaskByIdResultVO {
     @ApiModelProperty(value = "手机号", example = "110")
     private String phoneNumber;
 
-    @ApiModelProperty(value = "UIC用户 ID", example = "1L")
-    private Long dtuicUserId;
-
     @ApiModelProperty(value = "邮箱", example = "1208686186@qq.com")
     private String email;
 

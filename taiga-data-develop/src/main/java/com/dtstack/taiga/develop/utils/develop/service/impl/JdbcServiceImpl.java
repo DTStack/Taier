@@ -51,37 +51,37 @@ import java.util.Map;
 public class JdbcServiceImpl implements IJdbcService {
 
     @Override
-    public Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String dbName) {
-        return getConnection(dtuicTenantId, dtuicUserId, eScheduleJobType, dbName,null);
+    public Connection getConnection(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String dbName) {
+        return getConnection(tenantId, userId, eScheduleJobType, dbName,null);
     }
 
     @Override
-    public Connection getConnection(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String dbName, String taskParam) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, dbName);
+    public Connection getConnection(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String dbName, String taskParam) {
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, eScheduleJobType, dbName);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         return client.getCon(iSourceDTO, taskParam);
     }
 
     @Override
-    public List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql) {
-        return executeQueryWithVariables(dtuicTenantId, dtuicUserId, eScheduleJobType, schema, sql, Collections.emptyList());
+    public List<List<Object>> executeQuery(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql) {
+        return executeQueryWithVariables(tenantId, userId, eScheduleJobType, schema, sql, Collections.emptyList());
     }
 
     @Override
-    public List<List<Object>> executeQuery(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, Integer limit) {
-        return executeQueryWithVariables(dtuicTenantId, dtuicUserId, eScheduleJobType, schema, sql, null, limit, null);
+    public List<List<Object>> executeQuery(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, Integer limit) {
+        return executeQueryWithVariables(tenantId, userId, eScheduleJobType, schema, sql, null, limit, null);
     }
 
     @Override
-    public List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables) {
-        return executeQueryWithVariables(dtuicTenantId, dtuicUserId, eScheduleJobType, schema, sql, variables, null, null);
+    public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables) {
+        return executeQueryWithVariables(tenantId, userId, eScheduleJobType, schema, sql, variables, null, null);
     }
 
 
     /**
      * 执行查询
-     * @param dtuicTenantId
-     * @param dtuicUserId
+     * @param tenantId
+     * @param userId
      * @param eScheduleJobType
      * @param schema
      * @param sql
@@ -90,11 +90,11 @@ public class JdbcServiceImpl implements IJdbcService {
      * @return
      */
     @Override
-    public List<List<Object>> executeQueryWithVariables(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, Connection connection) {
+    public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, Connection connection) {
         List<List<Object>> returnList = new ArrayList<>();
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(dtuicTenantId, dtuicUserId, eScheduleJobType);
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, eScheduleJobType);
         DataSourceType dataSourceType = Engine2DTOService.jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion());
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, dataSourceType.getVal(), schema, jdbcInfo);
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, dataSourceType.getVal(), schema, jdbcInfo);
 
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         List<Map<String, Object>> list = null;
@@ -112,7 +112,7 @@ public class JdbcServiceImpl implements IJdbcService {
             list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(jdbcInfo.getMaxRows())
                     .queryTimeout(jdbcInfo.getQueryTimeout()).build());
         }
-        log.info("集群执行SQL查询，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         //数据源插件化 查询出值不符合要求  进行转化
         if (CollectionUtils.isNotEmpty(list)) {
             List<Object> column = new ArrayList<>();
@@ -134,8 +134,8 @@ public class JdbcServiceImpl implements IJdbcService {
 
     /**
      * 执行查询
-     * @param dtuicTenantId
-     * @param dtuicUserId
+     * @param tenantId
+     * @param userId
      * @param eScheduleJobType
      * @param schema
      * @param sql
@@ -143,42 +143,42 @@ public class JdbcServiceImpl implements IJdbcService {
      * @return
      */
     @Override
-    public Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql, Connection connection) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
+    public Boolean executeQueryWithoutResult(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, Connection connection) {
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, eScheduleJobType, schema);
         iSourceDTO.setConnection(connection);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        log.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
 
 
     @Override
-    public List<Map<String, Object>> executeQueryMapResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql) {
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(dtuicTenantId, dtuicUserId, eScheduleJobType);
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, Engine2DTOService.jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion()).getVal(), schema, jdbcInfo);
+    public List<Map<String, Object>> executeQueryMapResult(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql) {
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, eScheduleJobType);
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, Engine2DTOService.jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion()).getVal(), schema, jdbcInfo);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL查询，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         List<Map<String, Object>> list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(jdbcInfo.getMaxRows())
                 .queryTimeout(jdbcInfo.getQueryTimeout()).build());
         return list;
     }
 
     @Override
-    public Boolean executeQueryWithoutResult(Long dtuicTenantId, Long dtuicUserId, EScheduleJobType eScheduleJobType, String schema, String sql) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, dtuicUserId, eScheduleJobType, schema);
+    public Boolean executeQueryWithoutResult(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql) {
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", dtuicTenantId, dtuicUserId, eScheduleJobType.getType(), schema, sql);
+        log.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
 
     @Override
-    public List<String> getTableList(Long dtuicTenantId, EScheduleJobType eScheduleJobType, String schema) {
-        ISourceDTO iSourceDTO = Engine2DTOService.get(dtuicTenantId, null, eScheduleJobType, schema);
+    public List<String> getTableList(Long tenantId, EScheduleJobType eScheduleJobType, String schema) {
+        ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, null, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         List<String> tableList = client.getTableList(iSourceDTO, SqlQueryDTO.builder().build());
-        log.info("集群查询底层获取所有表名称，dtUicTenantId:{}，jobType:{}，schema:{}", dtuicTenantId, eScheduleJobType.getType(), schema);
+        log.info("集群查询底层获取所有表名称，tenantId:{}，jobType:{}，schema:{}", tenantId, eScheduleJobType.getType(), schema);
         return tableList;
     }
 
@@ -226,7 +226,7 @@ public class JdbcServiceImpl implements IJdbcService {
                 list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(maxRows)
                         .queryTimeout(jdbcInfo.getQueryTimeout()).build());
             }
-            log.info("集群执行SQL查询，dtUicTenantId:{}，dtUicUserId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+            log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
 
             List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(0)
                     .queryTimeout(jdbcInfo.getQueryTimeout()).build());

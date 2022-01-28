@@ -24,6 +24,12 @@ import TestRestIcon from '@/components/testResultIcon';
 import MultiVersionComp from './components/multiVerComp';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import type { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
+import {
+	TABS_TITLE_KEY,
+	COMPONENT_CONFIG_NAME,
+	DEFAULT_COMP_VERSION,
+	COMP_ACTION,
+} from '@/constant';
 import type { CarouselRef } from 'antd/lib/carousel';
 import { convertToObj } from '@/utils';
 import Api from '@/api/console';
@@ -42,13 +48,6 @@ import {
 	getCompsName,
 	isSchedulings,
 } from './help';
-import {
-	TABS_TITLE,
-	COMPONENT_CONFIG_NAME,
-	DEFAULT_COMP_VERSION,
-	TABS_POP_VISIBLE,
-	COMP_ACTION,
-} from './const';
 import FileConfig from './fileConfig';
 import FormConfig from './formConfig';
 import ToolBar from './components/toolbar';
@@ -59,7 +58,29 @@ import './index.scss';
 const { TabPane } = Tabs;
 const { confirm } = Modal;
 
-type IVersionData = Record<
+const TABS_TITLE = {
+	[TABS_TITLE_KEY.COMMON]: {
+		iconName: 'icon-gonggongzujian',
+		name: '公共组件',
+	},
+	[TABS_TITLE_KEY.SOURCE]: {
+		iconName: 'icon-ziyuantiaodu',
+		name: '资源调度组件',
+	},
+	[TABS_TITLE_KEY.STORE]: { iconName: 'icon-cunchuzujian', name: '存储组件' },
+	[TABS_TITLE_KEY.COMPUTE]: {
+		iconName: 'icon-jisuanzujian',
+		name: '计算组件',
+	},
+};
+const TABS_POP_VISIBLE = {
+	[TABS_TITLE_KEY.COMMON]: false,
+	[TABS_TITLE_KEY.SOURCE]: false,
+	[TABS_TITLE_KEY.STORE]: false,
+	[TABS_TITLE_KEY.COMPUTE]: false,
+};
+
+export type IVersionData = Record<
 	string,
 	{
 		dependencyKey: string | null;
@@ -71,7 +92,7 @@ type IVersionData = Record<
 		type: string | null;
 		value: string;
 		values: string | null;
-	}
+	}[]
 >;
 
 interface IComponentProps {
@@ -202,7 +223,9 @@ export default forwardRef((_, ref) => {
 	) => {
 		const components = nextScheduling || schedulingComponent;
 		const clusterName = history.location.query?.clusterName;
-		const typeCode = key ? Number(key) : components[activeKey][0]?.componentTypeCode;
+		const typeCode = (
+			key ? Number(key) : components[activeKey][0]?.componentTypeCode
+		) as keyof typeof DEFAULT_COMP_VERSION;
 		const comp = getCurrentComp(components[activeKey], {
 			typeCode,
 		});

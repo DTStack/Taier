@@ -27,13 +27,6 @@ import KerberosModal from './components/kerberosModal';
 import DataCheckbox from './components/dataCheckbox';
 import DefaultVersionCheckbox from './components/defaultVersionCheckbox';
 import {
-	COMPONENT_TYPE_VALUE,
-	VERSION_TYPE,
-	FILE_TYPE,
-	CONFIG_FILE_DESC,
-	DEFAULT_COMP_VERSION,
-} from '../const';
-import {
 	isOtherVersion,
 	isSameVersion,
 	handleComponentConfig,
@@ -46,6 +39,13 @@ import {
 	notFileConfig,
 	isFLink,
 } from '../help';
+import {
+	COMPONENT_TYPE_VALUE,
+	VERSION_TYPE,
+	FILE_TYPE,
+	DEFAULT_COMP_VERSION,
+	CONFIG_FILE_DESC,
+} from '@/constant';
 import './index.scss';
 
 interface IProps {
@@ -95,7 +95,7 @@ export default function FileConfig({
 	};
 
 	const renderCompsVersion = () => {
-		const typeCode = comp?.componentTypeCode ?? '';
+		const typeCode: keyof typeof DEFAULT_COMP_VERSION = comp?.componentTypeCode ?? '';
 		const version = isOtherVersion(typeCode)
 			? versionData[(VERSION_TYPE as any)[typeCode]]
 			: versionData.hadoopVersion;
@@ -389,7 +389,7 @@ export default function FileConfig({
 
 	// 配置文件
 	const renderConfigsFile = () => {
-		const typeCode = comp?.componentTypeCode ?? '';
+		const typeCode: keyof typeof CONFIG_FILE_DESC = comp?.componentTypeCode ?? '';
 		return (
 			<UploadFile
 				label={
