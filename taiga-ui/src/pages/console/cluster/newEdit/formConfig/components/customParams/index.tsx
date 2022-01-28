@@ -26,12 +26,13 @@ import {
 	isGroupType,
 	isMultiVersion,
 } from '../../../help';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import { formItemLayout } from '@/constant';
 import { useEffect, useState } from 'react';
 import './index.scss';
 
 interface IProp {
-	typeCode: number;
+	typeCode: Valueof<typeof COMPONENT_TYPE_VALUE>;
 	form: FormInstance;
 	view: boolean;
 	template: any;

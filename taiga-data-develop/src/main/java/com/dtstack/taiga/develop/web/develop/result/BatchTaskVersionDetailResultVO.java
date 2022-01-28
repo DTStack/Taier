@@ -75,9 +75,6 @@ public class BatchTaskVersionDetailResultVO {
     @ApiModelProperty(value = "项目 ID", example = "3")
     private Long projectId;
 
-    @ApiModelProperty(value = "UIC 租户 ID", example = "111")
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "平台类型", example = "1")
     private Integer appType;
 

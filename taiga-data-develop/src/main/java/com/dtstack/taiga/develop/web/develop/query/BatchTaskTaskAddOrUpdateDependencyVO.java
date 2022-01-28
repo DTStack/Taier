@@ -30,7 +30,7 @@ public class BatchTaskTaskAddOrUpdateDependencyVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "任务 ID", example = "1", required = true)
     private Long id;
 
-    @ApiModelProperty(value = "uic 租户 ID", example = "1")
+    @ApiModelProperty(value = "租户 ID", example = "1")
     private Long tenantId;
 
     @ApiModelProperty(value = "产品类型", example = "1")

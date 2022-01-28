@@ -21,7 +21,7 @@ package com.dtstack.taiga.develop.service.develop.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.constrant.TaskStatusConstrant;
+import com.dtstack.taiga.common.constant.TaskStatusConstant;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.ComputeType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
@@ -303,7 +303,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             if (engineEntity == null) {
                 return result;
             }
-            Integer status = TaskStatusConstrant.getShowStatus(engineEntity.getStatus());
+            Integer status = TaskStatusConstant.getShowStatus(engineEntity.getStatus());
             result.setStatus(status);
 
             if (buildDataWithCheckTaskStatus(selectSql, tenantId, result, status)) {
@@ -344,7 +344,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if (engineEntity == null) {
             return result;
         }
-        Integer status = TaskStatusConstrant.getShowStatus(engineEntity.getStatus());
+        Integer status = TaskStatusConstant.getShowStatus(engineEntity.getStatus());
         result.setStatus(status);
         
         if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
@@ -395,7 +395,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if (engineEntity == null) {
             return status;
         }
-        return TaskStatusConstrant.getShowStatus(engineEntity.getStatus());
+        return TaskStatusConstant.getShowStatus(engineEntity.getStatus());
     }
 
     /**
@@ -498,7 +498,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     /**
      * 查询表数据 - 简单查询
      *
-     * @param tenantId uic租户id
+     * @param tenantId 租户id
      * @param sql 查询sql
      * @param taskType 任务类型
      * @return 查询数据

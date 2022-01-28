@@ -288,14 +288,19 @@ public class ClusterService {
         LOGGER.info("clear all standalone cache");
     }
 
-    public Boolean hasStandalone(Long dtUicTenantId, int typeCode) {
+    public Boolean hasStandalone(Long tenantId, int typeCode) {
         return false;
     }
 
     public Integer getMetaComponent(Long tenantId) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        Component metadataComponent = componentService.getMetadataComponent(clusterId);
-        return null == metadataComponent ? null : metadataComponent.getComponentTypeCode();
+        return getMetaComponentByClusterId(clusterId);
     }
+
+    public Integer getMetaComponentByClusterId(Long clusterId) {
+        Component metadataComponent = componentService.getMetadataComponent(clusterId);
+        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
+    }
+
 }
 

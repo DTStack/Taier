@@ -2,7 +2,7 @@ package com.dtstack.taiga.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.dtstack.taiga.common.constrant.MP;
+import com.dtstack.taiga.common.constant.MP;
 
 /**
  * 带租户属性的数据模型类

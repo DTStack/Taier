@@ -12,12 +12,10 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
@@ -33,26 +31,50 @@ import com.dtstack.taiga.dao.domain.DsInfo;
 import com.dtstack.taiga.develop.common.template.Reader;
 import com.dtstack.taiga.develop.common.template.Setting;
 import com.dtstack.taiga.develop.common.template.Writer;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taiga.develop.enums.develop.DataSourceDataBaseType;
 import com.dtstack.taiga.develop.enums.develop.EDataSourcePermission;
 import com.dtstack.taiga.develop.enums.develop.RDBMSSourceType;
 import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import com.dtstack.taiga.develop.enums.develop.TableLocationType;
 import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
-import com.dtstack.taiga.develop.utils.develop.hive.util.SparkThriftConnectionUtils;
-import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
-import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
+import com.dtstack.taiga.develop.utils.Asserts;
+import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
+import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
+import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taiga.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.format.writer.HiveWriterFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taiga.develop.utils.develop.sync.job.JobTemplate;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
-import com.dtstack.taiga.develop.utils.develop.sync.template.*;
-import com.dtstack.taiga.develop.utils.Asserts;
-import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
-import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Reader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Writer;
+import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.DefaultSetting;
+import com.dtstack.taiga.develop.utils.develop.sync.template.EsReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.EsWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.FtpReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.FtpWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HiveReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.HiveWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.InceptorWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.InfluxDBReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsBase;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBBase;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBReader;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RDBWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.RedisWriter;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -73,7 +95,21 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -415,11 +451,11 @@ public class DatasourceService {
      * @param dataSourceVO
      * @param resource
      * @param userId
-     * @param dtuicTenantId
+     * @param tenantId
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long dtuicTenantId) {
+    public Long addOrUpdateSourceWithKerberos(DataSourceVO dataSourceVO, Pair<String, String> resource, Long userId, Long tenantId) {
         Map<String, Object> confMap;
         JSONObject dataJson = DataSourceUtils.getDataSourceJson(dataSourceVO.getDataJsonString());
         dataSourceVO.setDataJson(dataJson);
@@ -464,7 +500,7 @@ public class DatasourceService {
                     dataSourceVO.setLocalKerberosConf(localKerberosConf);
                     dataSourceId = addOrUpdate(dataSourceVO, userId);
                 }
-                Map<String, String> sftpMap = kerberosService.getSftpMap(dtuicTenantId);
+                Map<String, String> sftpMap = kerberosService.getSftpMap(tenantId);
                 //目录转换 - 将临时目录根据数据源ID转移到新的kerberos文件目录
                 File localKerberosConfDir = new File(localKerberosConf);
                 File newConfDir = new File(kerberosService.getLocalKerberosPath(dataSourceId));
@@ -673,17 +709,17 @@ public class DatasourceService {
         return DataSourceType.SparkThrift2_1;
     }
 
-    public String setJobDataSourceInfo(String jobStr, Long dtUicTenentId, Integer createModel) {
+    public String setJobDataSourceInfo(String jobStr, Long tenantId, Integer createModel) {
         JSONObject job = JSONObject.parseObject(jobStr);
         JSONObject jobContent = job.getJSONObject("job");
         JSONObject content = jobContent.getJSONArray("content").getJSONObject(0);
-        setPluginDataSourceInfo(content.getJSONObject("reader"), dtUicTenentId, createModel);
-        setPluginDataSourceInfo(content.getJSONObject("writer"), dtUicTenentId, createModel);
+        setPluginDataSourceInfo(content.getJSONObject("reader"), tenantId, createModel);
+        setPluginDataSourceInfo(content.getJSONObject("writer"), tenantId, createModel);
         return job.toJSONString();
     }
 
 
-    private void setPluginDataSourceInfo(JSONObject plugin, Long dtUicTenentId, Integer createModel) {
+    private void setPluginDataSourceInfo(JSONObject plugin, Long tenantId, Integer createModel) {
         String pluginName = plugin.getString("name");
         JSONObject param = plugin.getJSONObject("parameter");
         if (PluginName.MySQLD_R.equals(pluginName)) {
@@ -748,7 +784,7 @@ public class DatasourceService {
                 }else {
                     //meta数据源从console取配置
                     //拿取最新配置
-                    String consoleHadoopConfig = this.getConsoleHadoopConfig(dtUicTenentId);
+                    String consoleHadoopConfig = this.getConsoleHadoopConfig(tenantId);
                     if (StringUtils.isNotBlank(consoleHadoopConfig)) {
                         //替换新path 页面运行fix
                         JSONArray connections = param.getJSONArray("connection");
@@ -773,7 +809,7 @@ public class DatasourceService {
                         }
                     }
                 }
-                setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+                setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
             } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
                 String jsonStr = json.getString(HBASE_CONFIG);
                 Map jsonMap = new HashMap();
@@ -786,7 +822,7 @@ public class DatasourceService {
                 }
                 replaceDataSourceInfoByCreateModel(param,HBASE_CONFIG,jsonMap,createModel);
                 if (TaskCreateModelType.GUIDE.getType().equals(createModel)) {
-                    setSftpConfig(source.getId(), json, dtUicTenentId, param, HBASE_CONFIG, false);
+                    setSftpConfig(source.getId(), json, tenantId, param, HBASE_CONFIG, false);
                 }
             } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
                 if (json != null){
@@ -830,7 +866,7 @@ public class DatasourceService {
                     }
                 }
             } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-                replaceInceptorDataSource(param, json, createModel, source, dtUicTenentId);
+                replaceInceptorDataSource(param, json, createModel, source, tenantId);
             } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
                 replaceDataSourceInfoByCreateModel(param, "username", JsonUtils.getStrFromJson(json, "username"), createModel);
                 replaceDataSourceInfoByCreateModel(param, "password", JsonUtils.getStrFromJson(json, "password"), createModel);
@@ -867,10 +903,10 @@ public class DatasourceService {
      * @param json
      * @param createModel
      * @param source
-     * @param dtUicTenentId
+     * @param tenantId
      */
     public void replaceInceptorDataSource(JSONObject param, JSONObject json, Integer createModel, BatchDataSource source,
-                                          Long dtUicTenentId){
+                                          Long tenantId){
         if (param.containsKey("connection")) {
             JSONObject conn = param.getJSONArray("connection").getJSONObject(0);
             replaceDataSourceInfoByCreateModel(conn,"jdbcUrl",JsonUtils.getStrFromJson(json, JDBC_URL),createModel);
@@ -898,7 +934,7 @@ public class DatasourceService {
         replaceDataSourceInfoByCreateModel(param,"table", hiveTableName, createModel);
         replaceDataSourceInfoByCreateModel(param,"isTransaction", tableInfo.getIsTransTable(), createModel);
 
-        setSftpConfig(source.getId(), json, dtUicTenentId, param, HADOOP_CONFIG, false);
+        setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
     }
 
 
@@ -906,14 +942,14 @@ public class DatasourceService {
      * 添加ftp地址
      * @param sourceId
      * @param json
-     * @param dtuicTenantId
+     * @param tenantId
      * @param map
      * @param confKey
      */
-    private void setSftpConfig(Long sourceId, JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey, boolean downloadKerberos) {
+    private void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey, boolean downloadKerberos) {
         JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
         if (MapUtils.isNotEmpty(kerberosConfig)) {
-            Map<String, String> sftpMap = getSftpMap(dtuicTenantId);
+            Map<String, String> sftpMap = getSftpMap(tenantId);
             Map<String, Object> conf = null;
             Object confObj = map.get(confKey);
             if (confObj instanceof String) {
@@ -1231,12 +1267,12 @@ public class DatasourceService {
      * @param map
      * @param sourceId
      * @param source
-     * @param dtuicTenantId
+     * @param tenantId
      * @param json
      * @param sourceType
      * @throws Exception
      */
-    private void replaceJdbcInfoByDataJsonToMap(Map<String, Object> map, Long sourceId, BatchDataSource source, Long dtuicTenantId, JSONObject json, Integer sourceType) throws Exception {
+    private void replaceJdbcInfoByDataJsonToMap(Map<String, Object> map, Long sourceId, BatchDataSource source, Long tenantId, JSONObject json, Integer sourceType) throws Exception {
         if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
                 && !DataSourceType.HIVE.getVal().equals(sourceType)
                 && !DataSourceType.HIVE3X.getVal().equals(sourceType)
@@ -1259,11 +1295,11 @@ public class DatasourceService {
             map.put("partition", map.get(HIVE_PARTITION));
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
+            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HDFS.getVal().equals(sourceType)) {
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map,json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, HADOOP_CONFIG);
+            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
         } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
             String jsonStr = json.getString(HBASE_CONFIG);
             Map jsonMap = new HashMap();
@@ -1271,7 +1307,7 @@ public class DatasourceService {
                 jsonMap = objectMapper.readValue(jsonStr,Map.class);
             }
             map.put("hbaseConfig", jsonMap);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, "hbaseConfig");
+            setSftpConfig(sourceId, json, tenantId, map, "hbaseConfig");
         } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
             map.putAll(json);
         } else if (DataSourceType.MAXCOMPUTE.getVal().equals(sourceType)) {
@@ -1307,7 +1343,7 @@ public class DatasourceService {
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             map.put("hiveMetastoreUris", JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS));
             checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, dtuicTenantId, map, "hadoopConfig");
+            setSftpConfig(sourceId, json, tenantId, map, "hadoopConfig");
         } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
             map.put("username", JsonUtils.getStrFromJson(json, "username"));
             map.put("password", JsonUtils.getStrFromJson(json, "password"));
@@ -1523,8 +1559,8 @@ public class DatasourceService {
         throw new RdosDefineException("暂不支持" + DataSourceType.getSourceType(targetType).name() +"作为数据同步的目标");
     }
 
-    private void setSftpConfig(Long sourceId, JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey) {
-        setSftpConfig(sourceId, json, dtuicTenantId, map, confKey, true);
+    private void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey) {
+        setSftpConfig(sourceId, json, tenantId, map, confKey, true);
     }
 
     /**
@@ -1919,67 +1955,74 @@ public class DatasourceService {
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.GET_COLUMN_ERROR, e);
         }
-
     }
 
-    public void initDefaultSource(Long tenantId, String dataSourceName, String dataSourceDesc, Long userId) throws Exception {
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, EScheduleJobType.SPARK_SQL);
-        String jdbcUrl = jdbcInfo.getJdbcUrl();
-        SparkThriftConnectionUtils.HiveVersion version = SparkThriftConnectionUtils.HiveVersion.getByVersion(jdbcInfo.getVersion());
-        JSONObject dataJson = new JSONObject();
-        dataJson.put("username",jdbcInfo.getUsername());
-        dataJson.put("password",jdbcInfo.getPassword());
-        if (!jdbcUrl.contains("%s")) {
-            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
-        }
-        jdbcUrl = String.format(jdbcUrl, dataSourceName);
-        dataJson.put("jdbcUrl", jdbcUrl);
-        String defaultFs = HadoopConf.getDefaultFs(tenantId);
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(defaultFs)) {
-            dataJson.put("defaultFS", defaultFs);
-        }else {
-            throw new RdosDefineException("默认数据源的defaultFs未找到");
-        }
+    public void initDefaultSource(Long clusterId, EComponentType eComponentType,
+                                  Long tenantId, String dataSourceName,
+                                  String dataSourceDesc, Long userId) {
 
-        JSONObject hdpConfig = createHadoopConfigObject(tenantId);
-        if (!hdpConfig.isEmpty()) {
-            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
-        }
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfoByClusterId(clusterId, eComponentType);
+        JSONObject dataJson = buildDataSourceDataJson(clusterId, eComponentType, jdbcInfo, dataSourceName);
 
-        dataSourceName = dataSourceName + "_" + MultiEngineType.HADOOP.name();
-        dataJson.put("hasHdfsConfig", true);
         DataSourceVO dataSourceVO = new DataSourceVO();
         dataSourceVO.setDataDesc(org.apache.commons.lang3.StringUtils.isNotEmpty(dataSourceDesc) ? dataSourceDesc : "");
         dataSourceVO.setDataJson(dataJson);
         dataSourceVO.setCreateUserId(userId);
         dataSourceVO.setActive(1);
-        dataSourceVO.setDataName(dataSourceName);
+        dataSourceVO.setDataName(String.format("%s_%s", dataSourceName, eComponentType.getName().toUpperCase(Locale.ROOT)));
         dataSourceVO.setTenantId(tenantId);
-        dataSourceVO.setDataType(DataSourceTypeEnum.SparkThrift2_1.getDataType());
+        dataSourceVO.setDataType(getDatasourceTypeByComponent(eComponentType, jdbcInfo).getDataType());
         dataSourceVO.setIsMeta(1);
 
         addOrUpdate(dataSourceVO, userId);
     }
 
-    public JSONObject createHadoopConfigObject(Long tenantId) {
-        JSONObject hadoop = new JSONObject();
-        Map<String, Object> config = HadoopConf.getConfiguration(tenantId);
-        String nameServices = config.getOrDefault("dfs.nameservices","").toString();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(nameServices)) {
-            hadoop.put("dfs.nameservices", nameServices);
-            String nameNodes = config.getOrDefault(String.format("dfs.ha.namenodes.%s", nameServices),"").toString();
-            if (org.apache.commons.lang3.StringUtils.isNotBlank(nameNodes)) {
-                hadoop.put(String.format("dfs.ha.namenodes.%s", nameServices), nameNodes);
-                for (String nameNode : nameNodes.split(",")) {
-                    String key = String.format("dfs.namenode.rpc-address.%s.%s", nameServices, nameNode);
-                    hadoop.put(key, config.get(key));
-                }
-            }
-            String failoverKey = String.format("dfs.client.failover.proxy.provider.%s", nameServices);
-            hadoop.put(failoverKey, config.get(failoverKey));
+    public DataSourceTypeEnum getDatasourceTypeByComponent(EComponentType eComponentType, JdbcInfo jdbcInfo){
+        if (EComponentType.SPARK_THRIFT == eComponentType){
+            return DataSourceTypeEnum.SparkThrift2_1;
+        }
+        throw new RdosDefineException("not get datasourceType by componentType");
+    }
+
+    public JSONObject buildDataSourceDataJson(Long clusterId, EComponentType eComponentType, JdbcInfo jdbcInfo, String dataSourceName) {
+        // @TODO 目前先只写SparkThrift类型，后期可扩展
+        if (EComponentType.SPARK_THRIFT == eComponentType) {
+            return buildSparkThriftDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
+        }
+        return null;
+    }
+
+    public JSONObject buildSparkThriftDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
+        String jdbcUrl = jdbcInfo.getJdbcUrl();
+        JSONObject dataJson = new JSONObject();
+        dataJson.put("username", jdbcInfo.getUsername());
+        dataJson.put("password", jdbcInfo.getPassword());
+
+        if (!jdbcUrl.contains("%s")) {
+            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
+        }
+        jdbcUrl = String.format(jdbcUrl, dataSourceName);
+        dataJson.put("jdbcUrl", jdbcUrl);
+        String defaultFs = HadoopConf.getDefaultFsByClusterId(clusterId);
+
+        if (StringUtils.isNotBlank(defaultFs)) {
+            dataJson.put("defaultFS", defaultFs);
+        } else {
+            throw new RdosDefineException("默认数据源的defaultFs未找到");
         }
 
-        return hadoop;
+        JSONObject hdpConfig = createHadoopConfigObject(clusterId);
+        if (!hdpConfig.isEmpty()) {
+            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
+        }
+
+        dataJson.put("hasHdfsConfig", true);
+        return dataJson;
+    }
+
+    private JSONObject createHadoopConfigObject(Long clusterId) {
+        Map<String, Object> config = HadoopConf.getConfigurationByClusterId(clusterId);
+        return new JSONObject(config);
     }
 
     public BatchDataSource getOne(Long id) {
@@ -2225,14 +2268,12 @@ public class DatasourceService {
     /**
      * 数据同步-获得预览数据，默认展示3条
      *
-     * @param userId    用户id
      * @param sourceId  数据源id
      * @param tableName 表名
      * @return
      * @author toutian
      */
-    public JSONObject preview(Long userId, Long sourceId, String tableName, String partition,
-                              Long tenantId, Long dtuicTenantId, Boolean isRoot, String schema) {
+    public JSONObject preview(Long sourceId, String tableName, String schema) {
 
         BatchDataSource source = getOne(sourceId);
         StringBuffer newTableName = new StringBuffer();

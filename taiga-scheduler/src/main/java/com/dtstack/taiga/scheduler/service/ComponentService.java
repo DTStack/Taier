@@ -202,11 +202,9 @@ public class ComponentService {
         return components;
     }
 
-
     public Component getMetadataComponent(Long clusterId){
         return componentMapper.getMetadataComponent(clusterId);
     }
-
 
     public List<Component> listComponentsByComponentType(Long tenantId, Integer componentType) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
@@ -234,5 +232,10 @@ public class ComponentService {
             throw new RdosDefineException("Cluster does not exist");
         }
         return "confPath" + File.separator + one.getClusterName();
+    }
+
+    public void clearConfigCache() {
+        componentConfigService.clearComponentCache();
+        clusterService.clearStandaloneCache();
     }
 }

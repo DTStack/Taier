@@ -2,7 +2,7 @@ package com.dtstack.taiga.develop.service.datasource.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.dtstack.taiga.common.constrant.FormNames;
+import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;

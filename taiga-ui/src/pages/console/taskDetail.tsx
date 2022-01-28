@@ -323,7 +323,8 @@ export default () => {
 			render: (_, record) => {
 				const isSaved = record.stage === JOB_STAGE_ENUM.Saved;
 				const isQueueing = record.stage === JOB_STAGE_ENUM.Queueing;
-				const stickTxt = isQueueing ? '置顶' : isSaved ? '插入队列头' : null;
+				const insert = isSaved ? '插入队列头' : null;
+				const stickTxt = isQueueing ? '置顶' : insert;
 				return (
 					<Space split={<span style={{ color: '#3F87FF' }}>|</span>}>
 						<a onClick={() => viewDetails(record)}>查看详情</a>
