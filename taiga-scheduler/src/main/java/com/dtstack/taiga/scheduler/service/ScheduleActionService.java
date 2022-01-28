@@ -458,9 +458,6 @@ public class ScheduleActionService {
                 ActionJobEntityVO vo = new ActionJobEntityVO();
                 vo.setJobId(scheduleJob.getJobId());
                 vo.setStatus(scheduleJob.getStatus());
-//                vo.setExecStartTime(scheduleJob.getExecStartTime());
-//                vo.setLogInfo(scheduleJob.getLogInfo());
-//                vo.setEngineLog(scheduleJob.getEngineLog());
                 vo.setEngineJobId(scheduleJob.getEngineJobId());
                 vo.setApplicationId(scheduleJob.getApplicationId());
         		result.add(vo);
