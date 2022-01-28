@@ -59,6 +59,7 @@ public class ComponentService {
     @Autowired
     private ComponentConfigService componentConfigService;
 
+
     /**
      * 将页面配置参数转换为插件需要的参数
      *
@@ -232,10 +233,5 @@ public class ComponentService {
             throw new RdosDefineException("Cluster does not exist");
         }
         return "confPath" + File.separator + one.getClusterName();
-    }
-
-    public void clearConfigCache() {
-        componentConfigService.clearComponentCache();
-        clusterService.clearStandaloneCache();
     }
 }
