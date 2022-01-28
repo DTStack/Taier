@@ -24,8 +24,8 @@ import com.dtstack.taiga.dao.domain.Cluster;
 import com.dtstack.taiga.dao.pager.PageResult;
 import com.dtstack.taiga.develop.mapstruct.console.ClusterTransfer;
 import com.dtstack.taiga.develop.service.console.ConsoleClusterService;
-import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
 import com.dtstack.taiga.develop.vo.console.ClusterEngineVO;
+import com.dtstack.taiga.develop.vo.console.ClusterInfoVO;
 import com.dtstack.taiga.develop.vo.console.ClusterVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -109,7 +109,7 @@ public class ClusterController {
     })
     @GetMapping(value = "/getMetaComponent")
     public R<Integer> getMetaComponent(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(clusterService.getMetaComponentByClusterId(clusterId));
+        return R.ok(consoleClusterService.getMetaComponentByClusterId(clusterId));
     }
 
 }
