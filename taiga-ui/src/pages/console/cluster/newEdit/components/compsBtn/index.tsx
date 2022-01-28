@@ -21,7 +21,7 @@ import { Button, Popconfirm, Checkbox, Radio, Row, Col, message } from 'antd';
 import _ from 'lodash';
 
 import { isSourceTab } from '../../help';
-import { CONFIG_BUTTON_TYPE, COMP_ACTION, COMPONENT_CONFIG_NAME } from '../../const';
+import { CONFIG_BUTTON_TYPE, COMPONENT_CONFIG_NAME, COMP_ACTION } from '@/constant';
 import './index.scss';
 
 const CheckboxGroup = Checkbox.Group;
@@ -100,8 +100,8 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 		if (!_.isEqual(initialValues[0], e.target.value)) {
 			if (initialValues[0]) {
 				message.error(
-					`先删除${(COMPONENT_CONFIG_NAME as any)[initialValues[0]]}，才能切换为${
-						(COMPONENT_CONFIG_NAME as any)[e.target.value]
+					`先删除${COMPONENT_CONFIG_NAME[initialValues[0] as keyof typeof COMPONENT_CONFIG_NAME]}，才能切换为${
+						COMPONENT_CONFIG_NAME[e.target.value as keyof typeof COMPONENT_CONFIG_NAME]
 					}`,
 				);
 				return;
