@@ -22,7 +22,7 @@ import com.dtstack.taiga.scheduler.service.ComponentConfigService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import com.dtstack.taiga.scheduler.vo.IComponentVO;
-import com.dtstack.taiga.scheduler.vo.SchedulingVo;
+import com.dtstack.taiga.develop.vo.console.SchedulingVo;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;

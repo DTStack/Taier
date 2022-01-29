@@ -21,7 +21,6 @@ package com.dtstack.taiga.scheduler.service;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EFrontType;
-import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.ComponentConfig;
@@ -111,20 +110,6 @@ public class ComponentConfigService {
     public Map<String, Object> convertComponentConfigToMap(Long componentId, boolean isFilter) {
         List<ComponentConfig> componentConfigs = componentConfigMapper.listByComponentId(componentId, isFilter);
         return ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
-    }
-
-    /**
-     * 加载typeName默认的控件
-     *
-     * @param typeName
-     * @return
-     */
-    public List<ComponentConfig> loadDefaultTemplate(String typeName) {
-        ScheduleDict typeNameMapping = dictMapper.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
-        if (null == typeNameMapping) {
-            throw new RdosDefineException(ErrorCode.NOT_SUPPORT_COMPONENT);
-        }
-        return componentConfigMapper.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
     }
 
 

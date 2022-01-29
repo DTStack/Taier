@@ -19,7 +19,6 @@
 package com.dtstack.taiga.develop.vo.console;
 
 import com.dtstack.taiga.dao.domain.Cluster;
-import com.dtstack.taiga.scheduler.vo.SchedulingVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
