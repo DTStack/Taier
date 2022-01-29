@@ -28,10 +28,10 @@ export const CREATE_DATASOURCE_PREFIX = 'create-datasource';
  * 高可用配置的 placeholder
  */
 export const HDFSCONG = `{
-    "dfs.nameservices": "defaultDfs", 
-    "dfs.ha.namenodes.defaultDfs": "namenode1", 
-    "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
-    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
+    "dfs.nameservices": "defaultDfs",
+    "dfs.ha.namenodes.defaultDfs": "namenode1",
+    "dfs.namenode.rpc-address.defaultDfs.namenode1": "",
+    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider"
     }`;
 
 // 表单正常布局
@@ -777,59 +777,28 @@ export const TABS_TITLE_KEY = {
 export const COMPONENT_TYPE_VALUE = {
 	FLINK: 0,
 	SPARK: 1,
-	LEARNING: 2,
-	DTYARNSHELL: 3,
-	HDFS: 4,
-	YARN: 5,
-	SPARK_THRIFT_SERVER: 6,
-	CARBONDATA: 7,
-	LIBRA_SQL: 8,
-	HIVE_SERVER: 9,
-	SFTP: 10,
-	IMPALA_SQL: 11,
-	TIDB_SQL: 12,
-	ORACLE_SQL: 13,
-	GREEN_PLUM_SQL: 14,
-	KUBERNETES: 15,
-	PRESTO_SQL: 16,
-	NFS: 17,
-	DTSCRIPT_AGENT: 18,
-	INCEPTOR_SQL: 19,
-	FLINK_ON_STANDALONE: 20,
-	ANALYTIC_DB: 21,
-	MYSQL: 22,
-	SQLSERVER: 23,
-	DB2: 24,
-	OCEANBASE: 25,
+	HDFS: 2,
+	YARN: 3,
+	SPARK_THRIFT: 4,
+	HIVE_SERVER: 5,
+	SFTP: 6,
 } as const;
 
 export const COMPONENT_CONFIG_NAME = {
 	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
 	[COMPONENT_TYPE_VALUE.SPARK]: 'Spark',
-	[COMPONENT_TYPE_VALUE.LEARNING]: 'Learning',
-	[COMPONENT_TYPE_VALUE.DTYARNSHELL]: 'DtScript',
 	[COMPONENT_TYPE_VALUE.HDFS]: 'HDFS',
 	[COMPONENT_TYPE_VALUE.YARN]: 'YARN',
-	[COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: 'SparkThrift',
-	[COMPONENT_TYPE_VALUE.CARBONDATA]: 'CarbonData ThriftServer',
-	[COMPONENT_TYPE_VALUE.LIBRA_SQL]: 'LibrA SQL',
+	[COMPONENT_TYPE_VALUE.SPARK_THRIFT]: 'SparkThrift',
 	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: 'HiveServer',
 	[COMPONENT_TYPE_VALUE.SFTP]: 'SFTP',
-	[COMPONENT_TYPE_VALUE.IMPALA_SQL]: 'Impala SQL',
-	[COMPONENT_TYPE_VALUE.TIDB_SQL]: 'TiDB SQL',
-	[COMPONENT_TYPE_VALUE.ORACLE_SQL]: 'Oracle SQL',
-	[COMPONENT_TYPE_VALUE.GREEN_PLUM_SQL]: 'Greenplum SQL',
-	[COMPONENT_TYPE_VALUE.KUBERNETES]: 'Kubernetes',
-	[COMPONENT_TYPE_VALUE.PRESTO_SQL]: 'Presto SQL',
-	[COMPONENT_TYPE_VALUE.NFS]: 'NFS',
-	[COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT]: 'DtScript Agent',
-	[COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: 'Inceptor SQL',
-	[COMPONENT_TYPE_VALUE.FLINK_ON_STANDALONE]: 'Flink on Standalone',
-	[COMPONENT_TYPE_VALUE.ANALYTIC_DB]: 'AnalyticDB PostgreSQL',
-	[COMPONENT_TYPE_VALUE.MYSQL]: 'MySQL',
-	[COMPONENT_TYPE_VALUE.SQLSERVER]: 'SQLServer',
-	[COMPONENT_TYPE_VALUE.DB2]: 'DB2',
-	[COMPONENT_TYPE_VALUE.OCEANBASE]: 'OceanBase',
+} as const;
+
+export const VERSION_TYPE = {
+	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
+	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: 'HiveServer',
+	[COMPONENT_TYPE_VALUE.SPARK]: 'Spark',
+	[COMPONENT_TYPE_VALUE.SPARK_THRIFT]: 'SparkThrift',
 } as const;
 
 export const CONFIG_BUTTON_TYPE = {
@@ -857,8 +826,8 @@ export const CONFIG_BUTTON_TYPE = {
 			componentName: (COMPONENT_CONFIG_NAME as any)[COMPONENT_TYPE_VALUE.SPARK],
 		},
 		{
-			code: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
-			componentName: (COMPONENT_CONFIG_NAME as any)[COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER],
+			code: COMPONENT_TYPE_VALUE.SPARK_THRIFT,
+			componentName: (COMPONENT_CONFIG_NAME as any)[COMPONENT_TYPE_VALUE.SPARK_THRIFT],
 		},
 		{
 			code: COMPONENT_TYPE_VALUE.FLINK,
@@ -866,15 +835,6 @@ export const CONFIG_BUTTON_TYPE = {
 		},
 	],
 };
-
-export const VERSION_TYPE = {
-	0: 'Flink',
-	9: 'HiveServer',
-	1: 'Spark',
-	6: 'SparkThrift',
-	19: 'InceptorSql',
-	20: 'FlinkOnStandalone',
-} as const;
 
 export const FILE_TYPE = {
 	KERNEROS: 0,
@@ -896,16 +856,13 @@ export const CONFIG_ITEM_TYPE = {
 export const DEFAULT_COMP_VERSION = {
 	[COMPONENT_TYPE_VALUE.FLINK]: '180',
 	[COMPONENT_TYPE_VALUE.SPARK]: '210',
-	[COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: '2.x',
+	[COMPONENT_TYPE_VALUE.SPARK_THRIFT]: '2.x',
 	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: '2.x',
-	[COMPONENT_TYPE_VALUE.INCEPTOR_SQL]: '6.2.x',
-	[COMPONENT_TYPE_VALUE.MYSQL]: '8.0',
 } as const;
 
 export const CONFIG_FILE_DESC = {
 	[COMPONENT_TYPE_VALUE.YARN]: 'zip格式，至少包括yarn-site.xml和core-site.xml',
 	[COMPONENT_TYPE_VALUE.HDFS]: 'zip格式，至少包括core-site.xml、hdfs-site.xml、hive-site.xml',
-	[COMPONENT_TYPE_VALUE.KUBERNETES]: 'zip格式，至少包括kubernetes.config',
 } as const;
 
 export const COMP_ACTION = {
@@ -914,8 +871,8 @@ export const COMP_ACTION = {
 } as const;
 
 export const MAPPING_DATA_CHECK = {
-	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER,
-	[COMPONENT_TYPE_VALUE.SPARK_THRIFT_SERVER]: COMPONENT_TYPE_VALUE.HIVE_SERVER,
+	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: COMPONENT_TYPE_VALUE.SPARK_THRIFT,
+	[COMPONENT_TYPE_VALUE.SPARK_THRIFT]: COMPONENT_TYPE_VALUE.HIVE_SERVER,
 } as const;
 
 export const FLINK_DEPLOY_TYPE = {

@@ -26,7 +26,6 @@ import FileConfig from '../../fileConfig';
 import FormConfig from '../../formConfig';
 import ToolBar from '../toolbar';
 import {
-	VERSION_TYPE,
 	COMPONENT_CONFIG_NAME,
 	COMP_ACTION,
 	FLINK_DEPLOY_TYPE,
@@ -72,11 +71,10 @@ export default function MultiVersionComp({
 
 	const handleMenuClick = (e: any) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-
 		saveComp(
 			{
 				componentTypeCode: typeCode,
-				hadoopVersion: e.key,
+				versionName: e.key,
 				deployType,
 				isDefault: false,
 			},
@@ -92,7 +90,7 @@ export default function MultiVersionComp({
 			<Menu onClick={handleMenuClick}>
 				{displayVersion?.map(({ value }) => {
 					const disabled = comp?.multiVersion?.findIndex(
-						(vcomp: any) => vcomp.hadoopVersion === value,
+						(vcomp: any) => vcomp.versionName === value,
 					);
 					return (
 						<MenuItem disabled={disabled > -1} key={value}>
@@ -107,19 +105,19 @@ export default function MultiVersionComp({
 		);
 	};
 
-	const addMultiVersionComp = (value: string) => {
+	const addMultiVersionComp = (key: string) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 
 		saveComp(
 			{
 				deployType,
 				componentTypeCode: typeCode,
-				hadoopVersion: value,
+				versionName: key,
 				isDefault: true,
 			},
 			COMP_ACTION.ADD,
 		);
-		getLoadTemplate(typeCode, { compVersion: value, deployType });
+		getLoadTemplate(typeCode, { compVersion: key, deployType });
 	};
 
 	const getCompVersion = (value: string) => {
@@ -147,16 +145,14 @@ export default function MultiVersionComp({
 
 	// flink 由后端 deployTypes 字段控制展示版本
 	const displayVersion = useMemo(() => {
-		let tempVersion = versionData[(VERSION_TYPE as any)[typeCode]] || [];
+		let tempVersion = versionData[COMPONENT_CONFIG_NAME[typeCode]] || [];
 		if (isFLink(typeCode)) {
-			tempVersion = tempVersion.filter((item) =>
-				item?.deployTypes?.includes(deployType.toString()),
-			);
+			tempVersion = tempVersion.filter((item) => item?.deployTypes?.includes(deployType));
 		}
 		return tempVersion;
 	}, [typeCode]);
 
-	if (!comp?.multiVersion[0]?.hadoopVersion) {
+	if (!comp?.multiVersion[0]?.versionName) {
 		return (
 			<div className={className}>
 				<div className={`${className}__intail`}>
@@ -171,9 +167,6 @@ export default function MultiVersionComp({
 									<Radio value={FLINK_DEPLOY_TYPE.YARN}>
 										{FLINK_DEPLOY_NAME[FLINK_DEPLOY_TYPE.YARN]}
 									</Radio>
-									<Radio value={FLINK_DEPLOY_TYPE.STANDALONE}>
-										{FLINK_DEPLOY_NAME[FLINK_DEPLOY_TYPE.STANDALONE]}
-									</Radio>
 								</Radio.Group>
 							</Col>
 						</Row>
@@ -186,13 +179,11 @@ export default function MultiVersionComp({
 									<div
 										key={key}
 										className={`${className}__intail__container__desc`}
-										onClick={() => addMultiVersionComp(value)}
+										onClick={() => addMultiVersionComp(key)}
 									>
 										<span className="comp-name">
 											<img
-												src={`public/img/${
-													(VERSION_TYPE as any)[typeCode]
-												}.png`}
+												src={`public/img/${COMPONENT_CONFIG_NAME[typeCode]}.png`}
 											/>
 											<span>
 												{!isFLink(typeCode) &&
@@ -240,22 +231,22 @@ export default function MultiVersionComp({
 				}
 			>
 				{comp?.multiVersion.map((vcomp: any) => {
-					const { deployType: type, componentTypeCode, hadoopVersion } = vcomp;
+					const { deployType: type, componentTypeCode, versionName } = vcomp;
 					return (
 						<TabPane
 							tab={
 								<span>
 									{getComponentName(componentTypeCode, type)}
-									{getCompVersion(hadoopVersion)}
+									{versionName}
 									<TestRestIcon
 										testStatus={testStatus.find(
 											(status: any) =>
-												status?.componentVersion === hadoopVersion,
+												status?.componentVersion === versionName,
 										)}
 									/>
 								</span>
 							}
-							key={String(hadoopVersion)}
+							key={String(versionName)}
 						>
 							<>
 								<FileConfig

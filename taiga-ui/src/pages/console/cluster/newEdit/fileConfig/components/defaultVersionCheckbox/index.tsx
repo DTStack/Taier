@@ -22,7 +22,7 @@ import { Checkbox, Tooltip, Form } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
 /** 用于设置了默认版本，取消勾选其他默认版本 */
-const MAPPING_DEFAULT_VERSION = ['180', '110', '112'];
+const MAPPING_DEFAULT_VERSION = ['1.10'];
 
 interface IProps {
 	comp: any;
@@ -40,19 +40,18 @@ export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: 
 	useLayoutEffect(() => {
 		if (isDefault) {
 			const typeCode = comp?.componentTypeCode ?? '';
-			const hadoopVersion = comp?.hadoopVersion ?? '';
+			const versionName = comp?.versionName ?? '';
 			form.setFieldsValue({
-				[`${typeCode}.${hadoopVersion}.isDefault`]: true,
+				[`${typeCode}.${versionName}.isDefault`]: true,
 			});
 		}
 	}, [isDefault]);
 
-	const validDefaultdata = (rule: any, value: any, callback: any) => {
-		const error = '请设置默认版本';
+	const validDefaultdata = (_: any, value: any) => {
+		const error = new Error('请设置默认版本');
 		// 只有一个版本时
 		if (isDefault && !value) {
-			callback(error);
-			return;
+			return Promise.reject(error);
 		}
 		// 有多个版本时，都没选得提示
 		let hasTrue = false;
@@ -63,20 +62,19 @@ export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: 
 		}
 		// 传 null 或者 undefined 回调都不会继续，没法三元
 		if (hasTrue) {
-			callback();
-		} else {
-			callback(error);
+			return Promise.resolve();
 		}
+		return Promise.reject(error);
 	};
 
 	const handleChange = (e: any) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const hadoopVersion = comp?.hadoopVersion ?? '';
+		const versionName = comp?.versionName ?? '';
 
 		if (!isDefault && e.target.checked) {
 			// eslint-disable-next-line no-restricted-syntax
 			for (const v of MAPPING_DEFAULT_VERSION) {
-				if (v !== hadoopVersion) {
+				if (v !== versionName) {
 					form.setFieldsValue({
 						[`${typeCode}.${v}.isDefault`]: !e.target.checked,
 					});
@@ -84,19 +82,19 @@ export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: 
 			}
 		}
 		form.setFieldsValue({
-			[`${typeCode}.${hadoopVersion}.isDefault`]: e.target.checked,
+			[`${typeCode}.${versionName}.isDefault`]: e.target.checked,
 		});
 	};
 
 	const typeCode = comp?.componentTypeCode ?? '';
-	const hadoopVersion = comp?.hadoopVersion ?? '';
+	const versionName = comp?.versionName ?? '';
 
 	return (
 		<>
 			<Form.Item label={null} colon={false}>
 				<Form.Item
 					noStyle
-					name={`${typeCode}.${hadoopVersion}.isDefault`}
+					name={`${typeCode}.${versionName}.isDefault`}
 					valuePropName="checked"
 					initialValue={getCheckValue()}
 					rules={[
