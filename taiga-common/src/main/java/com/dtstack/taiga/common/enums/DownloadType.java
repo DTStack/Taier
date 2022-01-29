@@ -16,33 +16,28 @@
  * limitations under the License.
  */
 
-package com.dtstack.taiga.scheduler.vo.components;
+package com.dtstack.taiga.common.enums;
 
 /**
- * @Auther: dazhi
- * @Date: 2020/7/29 5:35 下午
- * @Email:dazhi@dtstack.com
- * @Description:
+ * @author yuebai
+ * @date 2020-05-09
  */
-public class ComponentsConfigOfComponentsVO {
+public enum DownloadType {
+    Kerberos(0),
+    Config(1),
+    Template(2);
 
-    private Integer componentTypeCode;
+    private int code;
 
-    private String componentConfig;
-
-    public Integer getComponentTypeCode() {
-        return componentTypeCode;
+    public int getCode() {
+        return code;
     }
 
-    public void setComponentTypeCode(Integer componentTypeCode) {
-        this.componentTypeCode = componentTypeCode;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public String getComponentConfig() {
-        return componentConfig;
-    }
-
-    public void setComponentConfig(String componentConfig) {
-        this.componentConfig = componentConfig;
+    DownloadType(int code) {
+        this.code = code;
     }
 }
