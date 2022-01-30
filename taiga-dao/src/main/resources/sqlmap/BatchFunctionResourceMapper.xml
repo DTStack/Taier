@@ -20,15 +20,10 @@
             <if test="tenantId != null">
                 tenant_id = #{tenantId},
             </if>
-            <if test="gmtCreate != null">
-                gmt_create = #{gmtCreate},
-            </if>
-            <if test="gmtModified != null">
-                gmt_modified = #{gmtModified},
-            </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
+            gmt_modified = now()
         </set>
     </sql>
 

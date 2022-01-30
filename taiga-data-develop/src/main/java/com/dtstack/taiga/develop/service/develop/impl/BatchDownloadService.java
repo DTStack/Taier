@@ -20,11 +20,10 @@ package com.dtstack.taiga.develop.service.develop.impl;
 
 import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
+import com.dtstack.taiga.develop.service.develop.IDataDownloadService;
+import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.utils.develop.common.IDownload;
 import com.dtstack.taiga.develop.utils.develop.mapping.TaskTypeEngineTypeMapping;
-import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taiga.develop.service.develop.IDataDownloadService;
-import com.dtstack.taiga.scheduler.service.ScheduleActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import java.util.Objects;
 
 
 /**
@@ -53,12 +52,6 @@ public class BatchDownloadService {
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
-    @Resource
-    private BatchSelectSqlService batchSelectSqlService;
-
-    @Autowired
-    private ScheduleActionService actionService;
-
     /**
      * 按行数获取job的log
      *
@@ -71,21 +64,17 @@ public class BatchDownloadService {
      */
     public String loadJobLog(Long tenantId, Integer taskType, String jobId, Integer byteNum) {
         LOGGER.info("获取job日志下载器-->jobId:{}", jobId);
-        IDownload downloader = null;
-        downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
+        IDownload downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
         LOGGER.info("获取job日志下载器完成-->jobId:{}", jobId);
-
-        if (downloader == null) {
+        if (Objects.isNull(downloader)) {
             LOGGER.error("-----日志文件导出失败-----");
             return "";
         }
-
         StringBuilder result = new StringBuilder();
         while (!downloader.reachedEnd()) {
             Object row = downloader.readNext();
             result.append(row);
         }
-
         return result.toString();
     }
 
@@ -93,11 +82,9 @@ public class BatchDownloadService {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("engineJobId 不能为空");
         }
-
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
         Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", multiEngineType.getType()));
-
         return dataDownloadService.buildIDownLoad(jobId, taskType, tenantId, limitNum);
     }
 
@@ -105,7 +92,7 @@ public class BatchDownloadService {
         MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
         IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
         IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
-        if (downloader == null) {
+        if (Objects.isNull(downloader)) {
             LOGGER.error("-----日志文件导出失败-----");
             return "-----日志文件不存在-----";
         }

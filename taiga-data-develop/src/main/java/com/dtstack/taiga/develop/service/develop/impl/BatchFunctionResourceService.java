@@ -31,17 +31,6 @@ public class BatchFunctionResourceService {
     @Autowired
     private BatchFunctionResourceDao batchFunctionResourceDao;
 
-
-    /**
-     * 根据functionId 获取 和资源的关联关系
-     *
-     * @param functionId
-     * @return
-     */
-    public List<BatchFunctionResource> listByFunctionId(Long functionId) {
-        return batchFunctionResourceDao.listByFunctionId(functionId);
-    }
-
     /**
      * 新增记录
      *
