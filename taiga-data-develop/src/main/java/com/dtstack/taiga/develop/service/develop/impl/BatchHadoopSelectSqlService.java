@@ -392,7 +392,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         } else {
             engineEntity = getTaskStatus(selectSql.getJobId());
         }
-        if (engineEntity == null) {
+        if (Objects.isNull(engineEntity)) {
             return status;
         }
         return TaskStatusConstant.getShowStatus(engineEntity.getStatus());
@@ -539,7 +539,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             num = Integer.parseInt(limitStr);
         }
         JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EScheduleJobType.getByTaskType(taskType));
-        if (num == null || num > jdbcInfo.getMaxRows()) {
+        if (Objects.isNull(num) || num > jdbcInfo.getMaxRows()) {
             num = jdbcInfo.getMaxRows();
         }
         return num;

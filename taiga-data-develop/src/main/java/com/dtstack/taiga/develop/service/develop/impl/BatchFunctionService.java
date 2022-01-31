@@ -177,7 +177,7 @@ public class BatchFunctionService {
             if (e instanceof RdosDefineException) {
                 throw e;
             } else {
-               throw new RdosDefineException("添加函数失败" + e.getMessage());
+                throw new RdosDefineException(String.format("添加函数失败：%s", e.getMessage()));
             }
 		}
     }
@@ -194,8 +194,6 @@ public class BatchFunctionService {
         batchFunctionResource.setTenantId(function.getTenantId());
         batchFunctionResource.setResourceId(resourceId);
         batchFunctionResource.setResource_Id(resourceId);
-        batchFunctionResource.setIsDeleted(0);
-        batchFunctionResource.setGmtModified(new Timestamp(System.currentTimeMillis()));
         BatchFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
         if (Objects.isNull(resourceFunctionByFunctionId)) {
             batchFunctionResourceService.insert(batchFunctionResource);
@@ -220,7 +218,7 @@ public class BatchFunctionService {
      */
     private void checkResourceType(Long resourceId) {
         BatchResource resource = batchResourceService.getResource(resourceId);
-        if (resource == null) {
+        if (Objects.isNull(resource)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
         }
     }
@@ -237,7 +235,6 @@ public class BatchFunctionService {
         } else {
             batchFunctionDao.insert(batchFunction);
         }
-
         return batchFunction;
     }
 
@@ -248,9 +245,8 @@ public class BatchFunctionService {
      * @param nodePid
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
-
         BatchFunction bf = batchFunctionDao.getOne(functionId);
-        if (bf == null) {
+        if (Objects.isNull(bf)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
         if (FuncType.SYSTEM.getType().equals(bf.getType())) {
@@ -260,7 +256,6 @@ public class BatchFunctionService {
         bf.setId(functionId);
         bf.setNodePid(nodePid);
         bf.setModifyUserId(userId);
-        bf.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         addOrUpdate(bf);
     }
 
@@ -272,10 +267,9 @@ public class BatchFunctionService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteFunction(Long userId, Long functionId) {
         BatchFunction batchFunction = batchFunctionDao.getOne(functionId);
-        if (batchFunction == null) {
+        if (Objects.isNull(batchFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
-
         if (FuncType.SYSTEM.getType().equals(batchFunction.getType())) {
             throw new RdosDefineException(ErrorCode.SYSTEM_FUNCTION_CAN_NOT_MODIFY);
         }
@@ -285,7 +279,6 @@ public class BatchFunctionService {
         batchFunction.setId(functionId);
         batchFunction.setIsDeleted(Deleted.DELETED.getStatus());
         batchFunction.setModifyUserId(userId);
-        batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         addOrUpdate(batchFunction);
     }
 
@@ -403,7 +396,7 @@ public class BatchFunctionService {
      * @return
      */
     public boolean validContainSelfFunction(String sql, Long tenantId, Integer functionType, Integer taskType) {
-        if (StringUtils.isBlank(sql) || tenantId == null) {
+        if (StringUtils.isBlank(sql) || Objects.isNull(tenantId)) {
             return false;
         }
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
