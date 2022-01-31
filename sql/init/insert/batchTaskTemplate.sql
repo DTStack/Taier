@@ -10,7 +10,7 @@ VALUES
     ,pay_date            bigint comment ''支付日期''
 
 )comment ''销售订单明细表''
-PARTITIONED BY (ds string) lifecycle 1000;
+PARTITIONED BY (ds string) ;
 
 create table if not exists ods_order_detail (
      order_header_id     string comment ''订单头id''
@@ -20,7 +20,7 @@ create table if not exists ods_order_detail (
     ,unit_price          double comment ''商品单价''
     ,dist_amout          double comment ''折扣金额''
 )comment ''销售订单明细表''
-PARTITIONED BY (ds string) lifecycle 1000;
+PARTITIONED BY (ds string) ;
 
 
 create table if not exists exam_ods_shop_info (
@@ -30,7 +30,7 @@ create table if not exists exam_ods_shop_info (
     ,address                string comment ''店铺地址''
     ,status                 string comment ''店铺状态,open/closed''
 )comment ''店铺维度表''
-PARTITIONED BY (ds string) lifecycle 1000;'),
+PARTITIONED BY (ds string) ;'),
 ('0','2',
 'create table if not exists exam_dwd_sales_ord_df (
      order_header_id     string comment ''订单头id''
@@ -44,7 +44,7 @@ PARTITIONED BY (ds string) lifecycle 1000;'),
     ,unit_price          double comment ''商品单价''
     ,amount              double comment ''总金额''
 )comment ''销售订单明细表''
-PARTITIONED BY (ds string) lifecycle 1000;
+PARTITIONED BY (ds string) ;
 
 
 INSERT OVERWRITE TABLE exam_dwd_sales_ord_df PARTITION(ds = ''${bdp.system.bizdate}'')
@@ -72,7 +72,7 @@ and h.order_status = 0;
     ,pay_quantity_1d        bigint comment ''最近一天付款数量''
     ,pay_amount_1d          double comment ''最近一天付款金额''
 )comment ''最近一天门店粒度销售汇总表''
-PARTITIONED BY (ds string) lifecycle 1000;
+PARTITIONED BY (ds string) ;
 
 INSERT OVERWRITE TABLE exam_dws_sales_shop_1d PARTITION(ds = ''${bdp.system.bizdate}'')
 select
@@ -245,7 +245,7 @@ value(15,3,'create table if not exists exam_dws_sales_shop_1d (
     ,pay_quantity_1d        bigint comment ''最近一天付款数量''
     ,pay_amount_1d          double comment ''最近一天付款金额''
 )comment ''最近一天门店粒度销售汇总表''
-PARTITIONED BY (ds string) lifecycle 1000;
+PARTITIONED BY (ds string) ;
 
 INSERT OVERWRITE TABLE exam_dws_sales_shop_1d PARTITION(ds = ''${bdp.system.bizdate}'')
 select

@@ -160,14 +160,14 @@ public class BatchServerLogService {
             }
         }
 
-        if (null != job.getVersionId()) {
+        if (Objects.nonNull(job.getVersionId())) {
             // 需要获取执行任务时候版本对应的sql
-            final BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
-            if (null != taskVersion) {
+            BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
+            if (Objects.nonNull(taskVersion)) {
                 if (StringUtils.isEmpty(taskVersion.getOriginSql())){
-                    String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText())?"{}":taskVersion.getSqlText();
+                    String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText()) ? "{}" : taskVersion.getSqlText();
                     scheduleTaskShade.setSqlText(jsonSql);
-                }else {
+                } else {
                     scheduleTaskShade.setSqlText(taskVersion.getOriginSql());
                 }
             }
@@ -221,7 +221,7 @@ public class BatchServerLogService {
                     // 去掉统计信息，界面不展示，调度端统计使用
                     info.remove("countInfo");
                 }
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 // 非json格式的日志也返回
                 info.put("msg_info", actionLogVO.getEngineLog());
                 LOGGER.error("", e);
