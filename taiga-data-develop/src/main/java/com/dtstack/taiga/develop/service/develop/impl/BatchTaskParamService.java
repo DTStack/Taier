@@ -41,8 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +68,11 @@ public class BatchTaskParamService {
 
     private static final Pattern PARAM_REGEX_PATTERN = Pattern.compile(PARAM_REGEX);
 
+    /**
+     * kerberos认证配置中包含${}
+     */
+    private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
+
     public void addOrUpdateTaskParam(final ScheduleTaskVO batchTask) {
         if (batchTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
@@ -82,12 +85,6 @@ public class BatchTaskParamService {
     }
 
     /**
-     * kerberos认证配置中包含${}
-     */
-    private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
-
-
-    /**
      * 校验任务中的 系统参数 和 自定义参数
      * @param jobContent SQL内容
      * @param parameterSet 任务参数
@@ -96,7 +93,6 @@ public class BatchTaskParamService {
         //校验任务参数不能为空参数
         if (CollectionUtils.isNotEmpty(parameterSet)) {
             for (Object paramObj : parameterSet) {
-
                 BatchTaskParam batchTaskParam = PublicUtil.objectToObject(paramObj, BatchTaskParam.class);
                 if(batchTaskParam != null){
                     if (StringUtils.isBlank(batchTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(batchTaskParam.getParamCommand())) {
@@ -107,29 +103,29 @@ public class BatchTaskParamService {
         }
 
         String jobStr = jobContent;
-        if (StringUtils.isNotEmpty(jobStr)) {
-
-            //校验任务参数时，先清除sql中的注释
-            String sqlWithoutComments = this.batchSqlExeService.removeComment(jobStr);
-            if (StringUtils.isNotEmpty(sqlWithoutComments)) {
-                sqlWithoutComments = sqlWithoutComments.replaceAll("\\s*", "");
-            }
-
-            //校验任务参数时，先删除 数据同步任务 配置项
-            if (sqlWithoutComments.contains(FormNames.HBASE_CONFIG) || sqlWithoutComments.contains(FormNames.HADOOP_CONFIG) || sqlWithoutComments.contains(FormNames.KERBEROS_CONFIG)) {
-                sqlWithoutComments = removeConfig(sqlWithoutComments);
-            }
-
-            //正则解析SQL中的 系统参数 和 自定义参数
-            Matcher matcher = PARAM_REGEX_PATTERN.matcher(sqlWithoutComments);
-            if (matcher.find()) {
-                if (CollectionUtils.isEmpty(parameterSet)) {
-                    LOGGER.error("jobContent:{}", jobContent);
-                    throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
-                }
-            }
+        if (StringUtils.isBlank(jobStr)){
+            return;
         }
 
+        //校验任务参数时，先清除sql中的注释
+        String sqlWithoutComments = this.batchSqlExeService.removeComment(jobStr);
+        if (StringUtils.isNotEmpty(sqlWithoutComments)) {
+            sqlWithoutComments = sqlWithoutComments.replaceAll("\\s*", "");
+        }
+
+        //校验任务参数时，先删除 数据同步任务 配置项
+        if (sqlWithoutComments.contains(FormNames.HBASE_CONFIG) || sqlWithoutComments.contains(FormNames.HADOOP_CONFIG) || sqlWithoutComments.contains(FormNames.KERBEROS_CONFIG)) {
+            sqlWithoutComments = removeConfig(sqlWithoutComments);
+        }
+
+        //正则解析SQL中的 系统参数 和 自定义参数
+        Matcher matcher = PARAM_REGEX_PATTERN.matcher(sqlWithoutComments);
+        if (matcher.find()) {
+            if (CollectionUtils.isEmpty(parameterSet)) {
+                LOGGER.error("jobContent:{}", jobContent);
+                throw new RdosDefineException(ErrorCode.TASK_PARAM_CONTENT_NOT_NULL);
+            }
+        }
     }
 
     private  String removeConfig(String sql) {
@@ -219,7 +215,7 @@ public class BatchTaskParamService {
         }
 
         final List<BatchParamDTO> parameters = new ArrayList<>(taskVariables.size());
-        for (final Map<String, Object> var : taskVariables) {
+        for (Map<String, Object> var : taskVariables) {
             final BatchParamDTO batchParamDTO = new BatchParamDTO(MathUtil.getIntegerVal(var.get("type")),
                     MathUtil.getString(var.get("paramName")), MathUtil.getString(var.get("paramCommand")));
             parameters.add(batchParamDTO);
@@ -256,20 +252,16 @@ public class BatchTaskParamService {
     public List<BatchTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
 
         final List<BatchTaskParam> saves = new ArrayList<>(batchParamDTOS.size());
-        final Timestamp nowTime = Timestamp.valueOf(LocalDateTime.now());
 
         for (final BatchParamDTO tmp : batchParamDTOS) {
             if (StringUtils.isBlank(tmp.getParamCommand())) {
                 throw new RdosDefineException("自定义参数赋值不能为空");
             }
-            final BatchTaskParam batchTaskParam = new BatchTaskParam();
+            BatchTaskParam batchTaskParam = new BatchTaskParam();
             batchTaskParam.setTaskId(taskId);
             batchTaskParam.setType(tmp.getType());
             batchTaskParam.setParamName(tmp.getParamName());
             batchTaskParam.setParamCommand(tmp.getParamCommand());
-            batchTaskParam.setGmtCreate(nowTime);
-            batchTaskParam.setGmtModified(nowTime);
-
             saves.add(this.addOrUpdate(batchTaskParam));
         }
 

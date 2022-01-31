@@ -31,12 +31,11 @@ import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTaskResource;
 import com.dtstack.taiga.dao.mapper.BatchResourceDao;
 import com.dtstack.taiga.develop.dto.devlop.BatchResourceAddDTO;
-import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
-import com.dtstack.taiga.develop.utils.develop.common.HdfsOperator;
-import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.dto.devlop.BatchResourceVO;
 import com.dtstack.taiga.develop.dto.devlop.CatalogueVO;
-import lombok.extern.slf4j.Slf4j;
+import com.dtstack.taiga.develop.service.user.UserService;
+import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
+import com.dtstack.taiga.develop.utils.develop.common.HdfsOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +52,6 @@ import java.util.Objects;
 /**
  * @author sishu.yss
  */
-@Slf4j
 @Service
 public class BatchResourceService {
 
@@ -108,9 +106,9 @@ public class BatchResourceService {
 
         BatchResource batchResource = null;
         //重新上传资源
-        if (resourceId != null) {
+        if (Objects.nonNull(resourceId)) {
             batchResource = resourceDB;
-            if (batchResource == null || batchResource.getIsDeleted().equals(Deleted.DELETED.getStatus())) {
+            if (Deleted.DELETED.getStatus().equals(batchResource.getIsDeleted())) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             batchResource.setResourceDesc(batchResourceAddDTO.getResourceDesc());
@@ -123,8 +121,10 @@ public class BatchResourceService {
             batchResourceAddDTO.setUrl(hdfsPath);
             batchResourceAddDTO.setCreateUserId(userId);
             batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
+            if (Objects.isNull(batchResource)){
+                throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+            }
             batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
-            batchResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
 
         //resourceType 设置默认值
@@ -132,8 +132,7 @@ public class BatchResourceService {
 
         batchResource.setResourceType(resourceType);
         batchResource.setModifyUserId(userId);
-        batchResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        batchResource = addOrUpdate(batchResource);
+        addOrUpdate(batchResource);
 
         BatchCatalogue catalogue = batchCatalogueService.getOne(batchResource.getNodePid());
         CatalogueVO catalogueVO = new CatalogueVO();
@@ -156,13 +155,12 @@ public class BatchResourceService {
      * @param batchResource
      * @return
      */
-    private BatchResource addOrUpdate(BatchResource batchResource) {
+    private void addOrUpdate(BatchResource batchResource) {
         if (batchResource.getId() != null && batchResource.getId() > 0) {
-            this.batchResourceDao.update(batchResource);
-        } else {
-            this.batchResourceDao.insert(batchResource);
+            batchResourceDao.update(batchResource);
+            return;
         }
-        return batchResource;
+        batchResourceDao.insert(batchResource);
     }
 
     /**
@@ -182,7 +180,7 @@ public class BatchResourceService {
         try {
             HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),resource.getUrl());
         } catch (Exception e) {
-            LOGGER.error(String.format("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId), e);
+            LOGGER.error("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId, e);
         }
 
         //删除资源记录
@@ -212,7 +210,7 @@ public class BatchResourceService {
      */
     private String getBatchHdfsPath(Long tenantId, String fileName) {
         String hdfsURI = HadoopConf.getDefaultFs(tenantId);
-        return hdfsURI + environmentContext.getHdfsBatchPath() + fileName;
+        return String.format("%s%s%s", hdfsURI, environmentContext.getHdfsBatchPath(), fileName);
     }
 
     /**
@@ -221,7 +219,7 @@ public class BatchResourceService {
      * @return
      */
     public List<BatchResource> getResourceList(List<Long> resourceIdList) {
-        return this.batchResourceDao.listByIds(resourceIdList);
+        return batchResourceDao.listByIds(resourceIdList);
     }
 
     /**
@@ -237,8 +235,8 @@ public class BatchResourceService {
      * 替换资源
      */
     public void replaceResource(BatchResourceAddDTO batchResourceAddDTO) {
-        long tenantId = batchResourceAddDTO.getTenantId();
-        long resourceId = batchResourceAddDTO.getId();
+        Long tenantId = batchResourceAddDTO.getTenantId();
+        Long resourceId = batchResourceAddDTO.getId();
 
         BatchResource resourceDb = batchResourceDao.getOne(resourceId);
         if (Objects.isNull(resourceDb)) {
@@ -253,11 +251,6 @@ public class BatchResourceService {
         resourceDb.setResourceDesc(batchResourceAddDTO.getResourceDesc());
         resourceDb.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         batchResourceDao.update(resourceDb);
-
-        List<BatchFunctionResource> batchFunctionResources = batchFunctionResourceService.listByFunctionResourceId(resourceDb.getId());
-        if (CollectionUtils.isEmpty(batchFunctionResources)) {
-            return;
-        }
     }
 
     /**
@@ -269,11 +262,11 @@ public class BatchResourceService {
      * @return
      */
     private String uploadHDFSFileWithResource(Long tenantId, String resourceName, String originalFilename, String tmpPath) {
-        if (originalFilename == null || tmpPath == null){
+        if (StringUtils.isBlank(originalFilename) || StringUtils.isBlank(tmpPath)) {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
 
-        String hdfsFileName = tenantId + "_" + resourceName + "_" + originalFilename;
+        String hdfsFileName = String.format("%s_%s_%s", tenantId, resourceName, originalFilename);
         String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {

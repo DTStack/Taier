@@ -26,19 +26,20 @@ import com.dtstack.taiga.common.enums.TempJobType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.develop.bo.ExecuteContent;
 import com.dtstack.taiga.dao.domain.TenantComponent;
-import com.dtstack.taiga.develop.utils.develop.common.util.SqlFormatUtil;
-import com.dtstack.taiga.develop.utils.develop.service.IJdbcService;
-import com.dtstack.taiga.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
+import com.dtstack.taiga.develop.bo.ExecuteContent;
+import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taiga.develop.sql.ParseResult;
 import com.dtstack.taiga.develop.sql.SqlType;
-import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taiga.develop.utils.develop.common.util.SqlFormatUtil;
+import com.dtstack.taiga.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
+import com.dtstack.taiga.develop.utils.develop.service.IJdbcService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,8 +51,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@Slf4j
 public class BatchSparkHiveSqlExeService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchSparkHiveSqlExeService.class);
 
     private static final String INSERT_REGEX = "(?i)insert\\s+.*";
 
@@ -114,7 +116,7 @@ public class BatchSparkHiveSqlExeService {
                 jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, DataSourceTypeJobTypeMapping.getTaskTypeByDataSourceType(dataSourceType.getVal()), tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
             }
         } catch (Exception e) {
-            log.error("exeHiveSqlDirect error {}", executeContent.getSql(), e);
+            LOGGER.error("exeHiveSqlDirect error {}", executeContent.getSql(), e);
             throw e;
         }
     }
@@ -193,7 +195,7 @@ public class BatchSparkHiveSqlExeService {
             try {
                 cols = matcherSimple.group("cols");
             } catch (IllegalStateException e) {
-                log.info("can not match 'cols',{}", e);
+                LOGGER.info("can not match 'cols',{}", e);
             }
             if (StringUtils.isNotEmpty(cols)) {
                 String[] split = cols.split(",");
@@ -308,7 +310,6 @@ public class BatchSparkHiveSqlExeService {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(parseResult.getStandardSql());
         if (matcher.find()) {
-            String db = StringUtils.isEmpty(parseResult.getMainTable().getDb()) ? currentDb : parseResult.getMainTable().getDb();
             String tableName = parseResult.getMainTable().getName();
 
             //这里增加一条记录，保证简单查询sql也能下载数据
@@ -325,7 +326,7 @@ public class BatchSparkHiveSqlExeService {
                 result.setStatus(TaskStatus.FINISHED.getStatus());
                 result.setResult(executeResult);
             } catch (Exception e) {
-                log.error("", e);
+                LOGGER.error("", e);
                 result.setStatus(TaskStatus.FAILED.getStatus());
                 result.setMsg(e.getMessage());
             }

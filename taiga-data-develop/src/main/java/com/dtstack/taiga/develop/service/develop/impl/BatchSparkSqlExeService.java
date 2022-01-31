@@ -51,8 +51,6 @@ import java.util.Objects;
 @Service
 public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService implements ISqlExeService {
 
-    private static final String SHOW_LIFECYCLE = "%s表的生命周期为%s天";
-
     @Override
     public ExecuteResultVO executeSql(ExecuteContent executeContent) {
         return executeSql(executeContent, EScheduleJobType.SPARK_SQL);
@@ -115,10 +113,9 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
                     if (SqlType.CREATE.equals(parseResult.getSqlType())
                             || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
                         executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), EScheduleJobType.SPARK_SQL);
-                        sqlResultVO.setMsg(String.format(SHOW_LIFECYCLE, parseResult.getMainTable().getName(), parseResult.getMainTable().getLifecycle()));
                         sqlIdList.add(sqlResultVO);
                     } else {
-                        this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, DataSourceType.Spark);
+                        exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, DataSourceType.Spark);
                         sqlResultVO.setResult(result.getResult());
                         sqlIdList.add(sqlResultVO);
                     }

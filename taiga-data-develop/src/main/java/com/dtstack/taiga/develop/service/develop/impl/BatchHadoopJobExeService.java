@@ -80,15 +80,12 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
     private static final String JOB_ARGS_TEMPLATE = "-jobid %s -job %s";
 
-
     @Override
     public Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot) {
         if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
-
         Map<String, Object> actionParam = Maps.newHashMap();
-
         try {
             String taskParams = batchTask.getTaskParams();
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(batchTask.getId());
@@ -123,10 +120,9 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             if (Objects.nonNull(writerDataSourceType)) {
                 actionParam.put("dataSourceType", writerDataSourceType.getVal());
             }
-            if (taskExeArgs != null) {
+            if (Objects.nonNull(taskExeArgs)) {
                 actionParam.put("exeArgs", taskExeArgs);
             }
-
         } catch (Exception e) {
             throw new RdosDefineException(String.format("创建数据同步job失败: %s", e.getMessage()), e);
         }
@@ -203,7 +199,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             // 构建运行的SQL
             CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql);
             sql = result.getSql();
-        } else if (batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
+        } else if (EScheduleJobType.SYNC.getVal().equals(batchTask.getTaskType())) {
             JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 
@@ -215,7 +211,6 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
             actionParam.put("job", job);
         }
-
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
     }
@@ -240,10 +235,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
         properties.put("mr.job.parallelism", parallelism);
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<Object, Object> tmp : properties.entrySet()) {
-            sb.append(tmp.getKey())
-                    .append(" = ")
-                    .append(tmp.getValue())
-                    .append(LINE_SEPARATOR);
+            sb.append(String.format("%s = %s%s", tmp.getKey(), tmp.getValue(), LINE_SEPARATOR));
         }
         return sb.toString();
     }

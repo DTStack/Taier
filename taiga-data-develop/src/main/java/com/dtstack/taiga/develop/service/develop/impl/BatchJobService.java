@@ -75,7 +75,7 @@ import java.util.Objects;
 @Service
 public class BatchJobService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchJobService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchJobService.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
@@ -111,9 +111,6 @@ public class BatchJobService {
     @Autowired
     private JobService jobService;
 
-    private static final String IS_CHECK_DDL_KEY = "isCheckDDL";
-
-
     /**
      * 构建运行任务的完整命令(包含真正执行的SQL内容)
      * @param batchTask
@@ -130,7 +127,7 @@ public class BatchJobService {
         IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(batchTask.getTaskType());
 
         //构建任务运行完整信息
-        final Map<String, Object> actionParam = Maps.newHashMap();
+        Map<String, Object> actionParam = Maps.newHashMap();
         //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
         jobExecuteService.readyForTaskStartTrigger(actionParam, batchTask.getTenantId(), batchTask, taskParamsToReplace);
 
@@ -144,22 +141,21 @@ public class BatchJobService {
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
 
         User user;
-        if (userId == null) {
+        if (Objects.isNull(userId)) {
             user = userService.getById(batchTask.getOwnerUserId());
         } else {
             user = userService.getById(userId);
         }
-        if (user != null) {
-            actionParam.put("userId", user.getId());
-        } else {
+        if (Objects.isNull(user)) {
             throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getOwnerUserId() : userId));
         }
+        actionParam.put("userId", user.getId());
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
-        final JSONObject scheduleConf = JSON.parseObject(batchTask.getScheduleConf());
+        JSONObject scheduleConf = JSON.parseObject(batchTask.getScheduleConf());
         if (scheduleConf.containsKey("isFailRetry")) {
             actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
             if (scheduleConf.getBooleanValue("isFailRetry")) {
-                final int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
+                int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
                 actionParam.put("maxRetryNum", maxRetryNum);
             } else {
                 actionParam.put("maxRetryNum", 0);
@@ -169,8 +165,6 @@ public class BatchJobService {
         extraInfo = extraInfo.replaceAll("\r\n", System.getProperty("line.separator"));
         return extraInfo;
     }
-
-
 
     /**
      * 运行同步任务
@@ -183,16 +177,15 @@ public class BatchJobService {
         batchStartSyncResultVO.setJobId(null);
         batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
 
-        final BatchTask batchTask = batchTaskService.getOneWithError(taskId);
+        BatchTask batchTask = batchTaskService.getOneWithError(taskId);
 
         if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
 
         try {
-
-            final IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
-            final Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
+            IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
+            Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
             String extraInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
@@ -206,20 +199,17 @@ public class BatchJobService {
             actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
-            this.batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
+            batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
                     job, userId, EScheduleJobType.SPARK_SQL.getType());
 
-            batchStartSyncResultVO.setMsg("任务提交成功,名称为:" + name);
+            batchStartSyncResultVO.setMsg(String.format("任务提交成功,名称为: %s", name));
             batchStartSyncResultVO.setJobId(jobId);
             batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
-
-        } catch (final Exception e) {
-            BatchJobService.logger.warn("startSyncImmediately-->", e);
-
+        } catch (Exception e) {
+            LOGGER.warn("startSyncImmediately-->", e);
             batchStartSyncResultVO.setMsg(e.getMessage());
             batchStartSyncResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
         }
-
         return batchStartSyncResultVO;
     }
 
@@ -237,12 +227,12 @@ public class BatchJobService {
 
         try {
             ScheduleJob job = jobService.getScheduleJob(jobId);
-            if (job == null) {
+            if (Objects.isNull(job)) {
                 resultVO.setMsg("无法获取engine数据");
                 return resultVO;
             }
 
-            final Integer status = TaskStatusConstant.getShowStatus(job.getStatus());
+            Integer status = TaskStatusConstant.getShowStatus(job.getStatus());
             resultVO.setStatus(status);
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");
@@ -254,15 +244,15 @@ public class BatchJobService {
             logsBody.put("computeType", ComputeType.BATCH.getType());
             ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
             String engineLogStr = actionLogVO.getEngineLog();
-            final String logInfoStr = actionLogVO.getLogInfo();
+            String logInfoStr = actionLogVO.getLogInfo();
             if(StringUtils.isNotBlank(engineLogStr)){
                 //移除increConf 信息
                 try {
-                    final JSONObject engineLogJson = JSON.parseObject(engineLogStr);
+                    JSONObject engineLogJson = JSON.parseObject(engineLogStr);
                     engineLogJson.remove("increConf");
                     engineLogStr = engineLogJson.toJSONString();
-                } catch (final Exception e) {
-                    logger.error("", e);
+                } catch (Exception e) {
+                    LOGGER.error("", e);
                     if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                             || TaskStatus.FAILED.getStatus().equals(status)) {
                         resultVO.setMsg(engineLogStr);
@@ -282,9 +272,9 @@ public class BatchJobService {
                 final StringBuilder logBuild = new StringBuilder();
 
                 // 读取prometheus的相关信息
-                final Tenant tenantById = this.tenantService.getTenantById(tenantId);
-                if (tenantById == null) {
-                    BatchJobService.logger.info("can not find job tenent{}.", tenantId);
+                Tenant tenantById = this.tenantService.getTenantById(tenantId);
+                if (Objects.isNull(tenantById)) {
+                    LOGGER.info("can not find job tenent{}.", tenantId);
                     throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
                 }
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
@@ -303,7 +293,6 @@ public class BatchJobService {
                     // 失败的话打印失败日志
                     logBuild.append("\n");
                     logBuild.append("====================Flink日志====================\n");
-
 
                     if (engineLog != null) {
                         if (StringUtils.isEmpty(engineLog.getString("root-exception")) && retryTimes < 3) {
@@ -343,13 +332,13 @@ public class BatchJobService {
                     resultVO.setDownload(String.format(BatchJobService.DOWNLOAD_URL, jobId, EScheduleJobType.SYNC.getVal(), tenantId));
                 }
                 resultVO.setMsg(logBuild.toString());
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 // 日志解析失败，可能是任务失败，日志信息为非json格式
-                BatchJobService.logger.error("", e);
+                LOGGER.error("", e);
                 resultVO.setMsg(StringUtils.isEmpty(engineLogStr) ? "engine调度失败" : engineLogStr);
             }
-        } catch (final Exception e) {
-            BatchJobService.logger.error("获取同步任务状态失败", e);
+        } catch (Exception e) {
+            LOGGER.error("获取同步任务状态失败", e);
         }
 
         return resultVO;
@@ -399,10 +388,10 @@ public class BatchJobService {
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
 
-            final IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
+            IBatchJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, isRoot, task, dtToken, isEnd, jobId);
-        } catch (final Exception e) {
-            BatchJobService.logger.warn("startSqlImmediately-->", e);
+        } catch (Exception e) {
+            LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(e.getMessage());
             result.setStatus(TaskStatus.FAILED.getStatus());
             result.setSqlText(sql);

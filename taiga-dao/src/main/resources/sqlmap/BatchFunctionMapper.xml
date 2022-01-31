@@ -44,9 +44,6 @@
             <if test="gmtCreate != null">
                 gmt_create = #{gmtCreate},
             </if>
-            <if test="gmtModified != null">
-                gmt_modified = #{gmtModified},
-            </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
@@ -54,8 +51,9 @@
                 task_type = #{taskType},
             </if>
             <if test="sqlText !=null">
-                sql_text = #{sqlText}
+                sql_text = #{sqlText},
             </if>
+            gmt_modified = now()
         </set>
     </sql>
 
