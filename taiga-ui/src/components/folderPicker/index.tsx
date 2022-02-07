@@ -49,14 +49,14 @@ export default function FolderPicker(props: FolderPickerProps) {
 			case 'resource': {
 				// resource manager NOT support to insert data into root folder
 				const resourceData = (resourceManagerTree.getState().folderTree?.data || [])[0];
-				return resourceData.children?.find(
+				return resourceData?.children?.find(
 					(item) => item.data.catalogueType === MENU_TYPE_ENUM.RESOURCE,
 				);
 			}
 			case 'function': {
 				// function manager only support to insert data into custom function
 				const functionData = (functionManagerService.getState().folderTree?.data || [])[0];
-				return functionData.children?.find(
+				return functionData?.children?.find(
 					(item) => item.data.catalogueType === MENU_TYPE_ENUM.SPARKFUNC,
 				);
 			}

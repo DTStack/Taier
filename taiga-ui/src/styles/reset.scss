@@ -16,7 +16,10 @@ ul.ant-pagination,
 .ant-legacy-form label,
 .ant-form-item-label > label,
 .ant-tooltip,
-.ant-empty {
+.ant-empty,
+.ant-checkbox-wrapper,
+.ant-radio-wrapper,
+.ant-select-item {
 	font-size: $font-size;
 }
 

@@ -374,6 +374,24 @@ export const convertToObj = (values: Record<string, any>) => {
 };
 
 /**
+ * 上述方法的逆运算
+ */
+export const convertToStr = (values: Record<string, any>, prefix = '') => {
+	let res: Record<string, any> = {};
+
+	Object.keys(values).forEach((key) => {
+		if (typeof values[key] === 'object' && !Array.isArray(values[key])) {
+			const obj = convertToStr(values[key], `${prefix ? `${prefix}.` : ''}${key}`);
+			res = { ...res, ...obj };
+		} else {
+			res[`${prefix ? `${prefix}.` : ''}${key}`] = values[key];
+		}
+	});
+
+	return res;
+};
+
+/**
  * 不区分大小写的过滤 value Option
  */
 export const filterValueOption = (input: any, option: any) => {
