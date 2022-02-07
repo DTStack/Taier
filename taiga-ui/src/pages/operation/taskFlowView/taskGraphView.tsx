@@ -22,7 +22,7 @@ import { Tooltip, Spin } from 'antd';
 import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
 import { taskTypeText } from '@/utils/enums';
-import { formatDateTime } from '@/utils/operation';
+import { formatDateTime } from '@/utils';
 import { SCHEDULE_STATUS } from '@/constant';
 import type { ITaskStreamProps } from '@/interface';
 

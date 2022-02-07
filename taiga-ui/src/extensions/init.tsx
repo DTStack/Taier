@@ -13,7 +13,7 @@ import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
-import { deleteCookie, getCookie } from '@/utils/operation';
+import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
 
 export default class InitializeExtension implements IExtension {
@@ -69,8 +69,8 @@ function initializeEntry() {
 	functionManagerService.setEntry(
 		<div className={classNames('mt-20px', 'text-center')}>
 			未找到函数开发目录，请联系管理员
-		</div>
-	)
+		</div>,
+	);
 }
 
 /**

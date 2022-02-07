@@ -7,7 +7,6 @@ span.form-label,
 input.ant-select-selection-search-input,
 div.ant-select,
 label.select-task,
-.ant-btn,
 li.ant-dropdown-menu-item,
 div.ant-picker-input > input,
 ul.ant-pagination,
@@ -19,7 +18,8 @@ ul.ant-pagination,
 .ant-empty,
 .ant-checkbox-wrapper,
 .ant-radio-wrapper,
-.ant-select-item {
+.ant-select-item,
+button.ant-btn {
 	font-size: $font-size;
 }
 

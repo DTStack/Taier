@@ -2,8 +2,7 @@ import { useState, useLayoutEffect, useEffect } from 'react';
 import { Button, Checkbox, Form, Input, message, Modal, Select } from 'antd';
 import api from '@/api/console';
 import { formItemLayout } from '@/constant';
-import { getCookie } from '@/utils/operation';
-import { getTenantId } from '@/utils';
+import { getTenantId, getCookie } from '@/utils';
 import './login.scss';
 
 const { Option } = Select;

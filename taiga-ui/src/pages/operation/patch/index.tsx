@@ -4,7 +4,7 @@ import { history } from 'umi';
 import type { FormInstance } from 'antd';
 import { message, Checkbox, Modal } from 'antd';
 import Api from '@/api/operation';
-import { getCookie } from '@/utils/operation';
+import { getCookie } from '@/utils';
 import type { ColumnsType } from 'antd/lib/table';
 import Sketch from '@/components/sketch';
 import { DRAWER_MENU_ENUM } from '@/constant';
