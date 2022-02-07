@@ -13,15 +13,15 @@
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
-
     docs: [
+        'overview',
         {
             type: 'category',
             label: '关于 Taiga',
             collapsed: false,
             items: [
-                'guides/introduction.md',
-                'guides/work-deployment.md',
+                'guides/introduction',
+                'guides/work-deployment',
             ],
         },
         {
