@@ -44,6 +44,7 @@ const sidebars = {
                 'functions/maintenance',
             ],
         },
+        'contributing',
     ],
 
 };
