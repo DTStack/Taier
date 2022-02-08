@@ -17,7 +17,6 @@
  */
 
 import * as React from 'react';
-// import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import * as echarts from 'echarts/lib/echarts';
 import 'echarts/lib/component/title';
@@ -70,11 +69,9 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 
 	styleFormat = (param: string | number) => {
 		if (typeof param === 'string') {
-			return param.indexOf('%') > -1
-				? param
-				: param.replace(/[px]/gi, '') + 'px';
+			return param.indexOf('%') > -1 ? param : `${param.replace(/[px]/gi, '')}px`;
 		}
-		return param + 'px';
+		return `${param}px`;
 	};
 
 	render() {
@@ -86,9 +83,11 @@ export default class Chart extends React.PureComponent<IProps, IState> {
 		};
 		return (
 			<div
-				ref={(chart) => (this.chart = chart)}
+				ref={(chart) => {
+					this.chart = chart;
+				}}
 				style={styleParams}
-			></div>
+			/>
 		);
 	}
 }

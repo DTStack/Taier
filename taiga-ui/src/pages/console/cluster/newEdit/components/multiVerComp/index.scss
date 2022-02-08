@@ -1,4 +1,6 @@
 .c-multiVersionComp__intail {
+	margin-top: 20px;
+
 	&__row {
 		margin-bottom: 20px;
 
@@ -75,7 +77,7 @@
 			margin: 0;
 			border: unset;
 
-			&::before{
+			&::before {
 				z-index: 99;
 			}
 

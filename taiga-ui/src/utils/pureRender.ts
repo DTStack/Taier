@@ -17,6 +17,7 @@
  */
 
 function isEqual(a: any, b: any) {
+	// eslint-disable-next-line no-restricted-syntax
 	for (const key in a) {
 		if (
 			{}.hasOwnProperty.call(a, key) &&
@@ -25,6 +26,7 @@ function isEqual(a: any, b: any) {
 			return false;
 		}
 	}
+	// eslint-disable-next-line no-restricted-syntax
 	for (const key in b) {
 		if ({}.hasOwnProperty.call(b, key) && !{}.hasOwnProperty.call(a, key)) {
 			return false;
@@ -34,10 +36,8 @@ function isEqual(a: any, b: any) {
 }
 
 export default function shouldRender(targetComponent: any) {
-	targetComponent.prototype.shouldComponentUpdate = function (
-		props: any,
-		state: any,
-	) {
+	// eslint-disable-next-line no-param-reassign
+	targetComponent.prototype.shouldComponentUpdate = function (props: any, state: any) {
 		return !isEqual(this.state, state) || !isEqual(this.props, props);
 	};
 }

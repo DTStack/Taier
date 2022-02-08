@@ -15,7 +15,7 @@ import {
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
 } from '@/constant';
-import { goToTaskDev } from '@/utils/operation';
+import { goToTaskDev } from '@/utils';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
