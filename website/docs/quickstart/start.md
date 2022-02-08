@@ -12,13 +12,13 @@ sidebar_label: 快速上手
     * 先执行 `sql/init/create`
     * 再执行 `sql/init/insert`
 
-    <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />
-    </div>
-
+<div align="center"> 
+    <img src="./sqlinit.jpg" width="300" />
+</div>
 
 
 ## 如何编译
+
 ```Shell
     ./build/mvn-build.sh
 ```
