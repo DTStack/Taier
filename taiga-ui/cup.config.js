@@ -6,10 +6,10 @@
  * > cup config // 按配置文件运行
  */
 
-const publicURL = 'http://schedule.dtstack.cn';
+const publicURL = 'http://taiga.dtstack.cn';
 
 module.exports = {
-	name: 'DAGScheduleX',
+	name: 'taiga',
 	listen: 8080,
 	root: './dist',
 	proxyTable: {
