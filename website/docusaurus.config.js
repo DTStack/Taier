@@ -50,15 +50,10 @@ const config = {
                 items: [
                     {
                         type: 'doc',
-                        docId: 'overview',
+                        docId: 'guides/introduction',
                         position: 'left',
                         label: 'DOCS',
                     },
-                    // {
-                    //     to: 'case',
-                    //     label: 'SHOWCASE',
-                    //     position: 'left',
-                    // },
                     {
                         href: 'https://github.com/DTStack/Taiga',
                         label: 'GITHUB',
