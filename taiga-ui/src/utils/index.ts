@@ -20,7 +20,7 @@ export function getCookie(name: string) {
 	return null;
 }
 
-export function deleteCookie(name: string, domain: string | undefined, path: string = '/') {
+export function deleteCookie(name: string, domain?: string, path: string = '/') {
 	const d = new Date(0);
 	const cookieDomain = domain ? `; domain=${domain}` : '';
 	document.cookie = `${name}=; expires=${d.toUTCString()}${cookieDomain}; path=${path}`;

@@ -50,7 +50,10 @@ export default () => {
 						// 判断是否有默认绑定的租户，如果有则绑定默认租户
 						const userId = getCookie('userId');
 						const defaultTenant = localStorage.getItem(`${userId}_default_tenant`);
-						if (defaultTenant) {
+						const isValidTenant = tenants.some(
+							(t) => t.tenantId.toString() === defaultTenant,
+						);
+						if (defaultTenant && isValidTenant) {
 							doTenantChange(Number(doTenantChange), true);
 						} else {
 							setLogin(true);
