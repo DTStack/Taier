@@ -15,10 +15,11 @@ jobs:
         with:
           node-version: 14.x
           cache: yarn
+          working-directory: website
       - name: Build website
         working-directory: website
         run: |
-          yarn install
+          yarn install --frozen-lockfile
           yarn build
 
       # Popular action to deploy to GitHub Pages:
