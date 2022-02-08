@@ -69,6 +69,6 @@ the [LICENSE](http://www.apache.org/licenses/LICENSE-2.0) file for details.
 
 ## 技术交流
 我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
-<div align=center> 
- <img src=/img/readme/ding.jpeg width=300 />
+<div align="center"> 
+ <img src="/img/readme/ding.jpeg" width="300" />
 </div>
