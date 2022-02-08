@@ -2,7 +2,7 @@ import { defineConfig } from 'umi';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
-	title: 'Taiga | DTstack',
+	title: 'Taiga | DTStack',
 	targets: {
 		ios: false,
 	},
