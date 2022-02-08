@@ -18,5 +18,5 @@ jobs:
       - name: Test build
         working-directory: website
         run: |
-          yarn install --frozen-lockfile
+          yarn install
           yarn build
