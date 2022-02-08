@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-echo 'DAGSchedulex Building...'
+echo 'Taiga Building...'
 
 mvn clean package -DskipTests  -pl \
 taiga-data-develop \

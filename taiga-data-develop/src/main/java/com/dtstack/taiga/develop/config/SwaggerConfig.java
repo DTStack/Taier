@@ -50,8 +50,8 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("DAGScheduleX接口文档")
-                .contact(new Contact("DAGScheduleX", "", "engine@dtstack.com"))
+                .title("Taiga 接口文档")
+                .contact(new Contact("Taiga", "", "taiga@dtstack.com"))
                 .version("1.0.0")
                 .build();
     }

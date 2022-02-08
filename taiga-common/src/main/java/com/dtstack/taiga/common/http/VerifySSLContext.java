@@ -7,7 +7,6 @@ import java.security.cert.CertificateException;
 
 /**
  * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
  * @description:
  * @create: 2021-12-16 00:08
  **/

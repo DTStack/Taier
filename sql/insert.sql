@@ -1152,5 +1152,5 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 
 
 INSERT INTO console_cluster (id,cluster_name, gmt_create, gmt_modified, is_deleted) VALUES (-1,'default', '2022-01-28 10:26:01', '2022-01-28 11:39:17', 0);
-INSERT INTO tenant (tenant_name, tenant_desc, gmt_create, gmt_modified, create_user_id, is_deleted) VALUES ('DAGScheduleX', null, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0);
+INSERT INTO tenant (tenant_name, tenant_desc, gmt_create, gmt_modified, create_user_id, is_deleted) VALUES ('Taiga', null, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0);
 INSERT INTO console_user (user_name, password, phone_number, email, status, gmt_create, gmt_modified, is_deleted) VALUES ('admin@dtstack.com', '0192023A7BBD73250516F069DF18B500', '11111111111', 'admin@dtstack.com', 0, '2017-06-05 20:35:16', '2017-06-05 20:35:16', 0);
