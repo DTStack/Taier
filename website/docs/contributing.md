@@ -12,8 +12,8 @@ Taiga 使用了Apache的多个开源项目如Flink、Spark 作为计算组件实
 
 ### 联系我们
 我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
-<div align=center> 
- <img src=./readme/ding.jpeg width=300 />
+<div align="center"> 
+ <img src="./readme/ding.jpeg" width="300" />
 </div>
 
 ### 报告问题
