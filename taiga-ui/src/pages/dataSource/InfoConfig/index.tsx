@@ -43,7 +43,7 @@ import moment from 'moment';
 import Base64 from 'base-64';
 import { API } from '@/api/dataSource';
 import { HDFSCONG } from '@/constant';
-import { utf8to16 } from '@/utils/datasources';
+import { utf8to16 } from '@/utils';
 import { formItemLayout } from '@/constant';
 import type { RcFile } from 'antd/lib/upload';
 import { getRules } from './formRules';
@@ -952,6 +952,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 							}
 						>
 							{({ getFieldValue }) =>
+								// eslint-disable-next-line no-nested-ternary
 								getFieldValue('kafkaType') === KAFKA_CONNECTION_TYPE.CLUSTER ? (
 									<Form.Item
 										label="集群地址"

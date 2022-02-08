@@ -27,11 +27,10 @@ import { Tooltip, Spin, Card } from 'antd';
 import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
 import StatusColumn from '@/components/statusColumn';
-import { formatDateTime, getVertxtStyle, goToTaskDev, removeToolTips } from '@/utils/operation';
-import { taskStatusText } from '@/utils/enums';
-import { taskTypeText } from '@/utils/enums';
-import type { IScheduleTaskProps } from '../schedule';
+import { taskStatusText, taskTypeText } from '@/utils/enums';
+import { formatDateTime, goToTaskDev, removeToolTips, getVertxtStyle } from '@/utils';
 import type { ITaskStreamProps } from '@/interface';
+import type { IScheduleTaskProps } from '../schedule';
 import './jobGraphView.scss';
 
 const Mx = MxFactory.create();

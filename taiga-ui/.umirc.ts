@@ -40,14 +40,14 @@ export default defineConfig({
 	tailwindcss: {},
 	proxy: {
 		'/node': {
-			target: 'http://172.16.101.187:8090',
-			// target: 'http://192.168.96.190:8090',
+			target: 'http://172.16.100.225:7001/proxy/121',
+			// target: 'http://192.168.96.94:8090',
 			changeOrigin: true,
 			secure: false,
 		},
 		'/api/rdos': {
-			target: 'http://172.16.101.187:8090/',
-			// target: 'http://192.168.96.190:8090',
+			target: 'http://172.16.100.225:7001/proxy/121',
+			// target: 'http://192.168.96.94:8090',
 			changeOrigin: true,
 			secure: false,
 		},
