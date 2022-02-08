@@ -6,7 +6,7 @@ import { Scrollable } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import { CREATE_DATASOURCE_PREFIX } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
-import { utf16to8 } from '@/utils/datasources';
+import { utf16to8 } from '@/utils';
 import { API } from '@/api/dataSource';
 import Version from './version';
 import SelectSource from './selectSource';

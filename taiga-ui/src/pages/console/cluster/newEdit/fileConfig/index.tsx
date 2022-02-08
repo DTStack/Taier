@@ -46,6 +46,7 @@ import {
 	CONFIG_FILE_DESC,
 	COMPONENT_CONFIG_NAME,
 } from '@/constant';
+import { convertToStr } from '@/utils';
 import './index.scss';
 
 interface IProps {
@@ -212,11 +213,30 @@ export default function FileConfig({
 		let version = form.getFieldValue(`${typeCode}.versionName`) || '';
 		if (isMultiVersion(typeCode)) version = comp?.versionName ?? '';
 
-		const a = document.createElement('a');
 		let param = comp?.id ? `?componentId=${comp.id}&` : '?';
 		param = `${param}type=${type}&componentType=${typeCode}&versionName=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
-		a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
-		a.click();
+		// TODO
+		window
+			.fetch(`${req.DOWNLOAD_RESOURCE}${param}`, {
+				method: 'get',
+			})
+			.then((res) => {
+				if (res.status === 200) {
+					return res.blob();
+				}
+				throw new Error('下载文件失败');
+			})
+			.then((blob) => {
+				const a = document.createElement('a');
+				a.href = window.URL.createObjectURL(blob);
+				document.body.appendChild(a);
+				a.click();
+				window.URL.revokeObjectURL(a.href);
+				document.body.removeChild(a);
+			})
+			.catch((err) => {
+				message.error(err);
+			});
 	};
 
 	const validateFileType = (val: string) => {
@@ -227,7 +247,7 @@ export default function FileConfig({
 		return result;
 	};
 
-	const uploadFile = async (file: any, loadingType: number, callBack: Function) => {
+	const uploadFile = async (file: any, loadingType: number, callBack: () => void) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = isMultiVersion(typeCode) ? comp?.versionName : '';
 		const deployType = comp?.deployType ?? '';
@@ -269,7 +289,8 @@ export default function FileConfig({
 			const fieldValue = isMultiVersion(typeCode)
 				? { [versionName]: { componentConfig } }
 				: { componentConfig };
-			form.setFieldsValue({ [typeCode]: fieldValue });
+			const formField = convertToStr({ [typeCode]: fieldValue });
+			form.setFieldsValue(formField);
 		}
 		if (res.code === 1) {
 			switch (loadingType) {

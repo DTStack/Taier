@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-// eslint-disable-next-line max-classes-per-file
 import React, { useEffect, useState } from 'react';
 import type { FormInstance } from 'antd';
 import { Modal, Button, Input, message, Select, Form } from 'antd';
@@ -64,7 +63,7 @@ function FnForm({
 
 	const getNodePidDefaultValue = () => {
 		if (formData) return formData.nodePid;
-		if (isCreateNormal) return functionTreeData.id;
+		if (isCreateNormal) return functionTreeData?.id;
 		if (isCreateFromMenu) return defaultData?.parentId;
 		return undefined;
 	};

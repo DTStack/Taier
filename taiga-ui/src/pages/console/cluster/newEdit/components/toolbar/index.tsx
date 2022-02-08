@@ -204,10 +204,8 @@ export default function ToolBar({
 				: COMPONENT_CONFIG_NAME[typeCode],
 		[typeCode, deployType],
 	);
-	const multipleText = useMemo(
-		() => `${text} ${(Number(versionName) / 100).toFixed(2)}`,
-		[text, versionName],
-	);
+
+	const multipleText = useMemo(() => `${text} ${versionName}`, [text, versionName]);
 
 	if (isMultiVersion(typeCode) && !mulitple) {
 		return (

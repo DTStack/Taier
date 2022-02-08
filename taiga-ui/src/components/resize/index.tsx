@@ -1,24 +1,25 @@
-import React from 'react'
+import React from 'react';
 
-export interface ResizeProps {
-    onResize?: Function;
-    children?: React.ReactNode;
+export interface IResizeProps {
+	onResize?: () => void;
+	children?: React.ReactNode;
 }
-export default class Resize extends React.Component<ResizeProps, any> {
-    componentDidMount () {
-        window.addEventListener('resize', this.resize, false)
-    }
 
-    componentWillUnmount () {
-        window.removeEventListener('resize', this.resize, false);
-    }
+export default class Resize extends React.Component<IResizeProps, void> {
+	componentDidMount() {
+		window.addEventListener('resize', this.resize, false);
+	}
 
-    resize = () => {
-        const { onResize } = this.props;
-        if (onResize) onResize()
-    }
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.resize, false);
+	}
 
-    render () {
-        return this.props.children
-    }
+	resize = () => {
+		const { onResize } = this.props;
+		if (onResize) onResize();
+	};
+
+	render() {
+		return this.props.children;
+	}
 }

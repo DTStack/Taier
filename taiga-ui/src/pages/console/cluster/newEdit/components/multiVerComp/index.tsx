@@ -183,7 +183,7 @@ export default function MultiVersionComp({
 									>
 										<span className="comp-name">
 											<img
-												src={`public/img/${COMPONENT_CONFIG_NAME[typeCode]}.png`}
+												src={`assets/imgs/${COMPONENT_CONFIG_NAME[typeCode]}.png`}
 											/>
 											<span>
 												{!isFLink(typeCode) &&
