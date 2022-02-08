@@ -43,10 +43,11 @@
 				border: 1px solid #3f87ff;
 			}
 
-			.comp-name {
+			span.comp-name {
 				line-height: 48px;
 
 				img {
+					display: inline-block;
 					width: 28px;
 					margin-right: 8px;
 				}

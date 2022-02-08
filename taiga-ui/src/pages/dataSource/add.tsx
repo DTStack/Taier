@@ -34,9 +34,10 @@ interface IDataSource {
 
 interface IAddProps {
 	record?: IDataSourceProps;
+	onSubmit?: () => void;
 }
 
-export default function Add({ record }: IAddProps) {
+export default function Add({ record, onSubmit }: IAddProps) {
 	const isEdit = !!record;
 	const [current, setCurrent] = useState<number>(isEdit ? STEPS.length - 1 : 0);
 	const [submitBtnStatus, setSubmitBtnStatus] = useState(false);
@@ -109,6 +110,7 @@ export default function Add({ record }: IAddProps) {
 							const groupId =
 								molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX);
 							molecule.editor.closeTab(CREATE_DATASOURCE_PREFIX, groupId!);
+							onSubmit?.();
 						}, 500);
 					} else {
 						message.error(`${msg}` || '保存失败');
@@ -122,6 +124,7 @@ export default function Add({ record }: IAddProps) {
 							const groupId =
 								molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX);
 							molecule.editor.closeTab(CREATE_DATASOURCE_PREFIX, groupId!);
+							onSubmit?.();
 						}, 500);
 					} else {
 						message.error(`${msg}` || '保存失败');
