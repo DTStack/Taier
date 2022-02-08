@@ -7,7 +7,10 @@ import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { getRootFolderViaSource } from '@/utils';
 
-function getCatalogueTree() {
+/**
+ * 获取根目录
+ */
+export function getCatalogueTree() {
 	getCatalogueViaNode({ id: 0 }).then(async (res) => {
 		if (!res) return;
 		const { children } = res;

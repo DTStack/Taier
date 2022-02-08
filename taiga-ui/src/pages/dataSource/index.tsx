@@ -225,6 +225,14 @@ const DataSourceView = () => {
 		setVisible(false);
 	};
 
+	const handleSubmitDataSource = () => {
+		const nextParams = {
+			currentPage: 1,
+		};
+		setParams((p) => ({ ...p, ...nextParams }));
+		requestTableData(nextParams);
+	};
+
 	const handleHeaderBarClick = () => {
 		if (molecule.editor.isOpened(CREATE_DATASOURCE_PREFIX)) {
 			const groupId = molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX)!;
@@ -233,7 +241,7 @@ const DataSourceView = () => {
 			molecule.editor.open({
 				id: CREATE_DATASOURCE_PREFIX,
 				name: '新增数据源',
-				renderPane: <Add />,
+				renderPane: <Add onSubmit={handleSubmitDataSource} />,
 				breadcrumb: [
 					{
 						id: 'root',

@@ -19,9 +19,10 @@
 		font-size: 12px;
 		line-height: 30px;
 		letter-spacing: 4px;
-		border-bottom: 1px solid #e8e8e8;
+		border-bottom: 1px solid var(--sideBarSectionHeader-border);
 		cursor: pointer;
 		transition: border-color 0.3s;
+		user-select: none;
 		writing-mode: vertical-rl;
 
 		&:hover {
