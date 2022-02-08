@@ -79,7 +79,7 @@ function initializeEntry() {
 function initResourceManager() {
 	const resourceManager = {
 		id: 'ResourceManager',
-		icon: 'icon_ziyuan iconfont',
+		icon: 'package',
 		name: '资源管理',
 		title: '资源管理',
 	};
@@ -112,7 +112,7 @@ function initResourceManager() {
 function initFunctionManager() {
 	const functionManager = {
 		id: 'FunctionManager',
-		icon: 'icon_hanshu iconfont',
+		icon: 'variable-group',
 		name: '函数管理',
 		title: '函数管理',
 	};
@@ -277,7 +277,8 @@ function initExplorer() {
 function initDataSource() {
 	const dataSource = {
 		id: 'dataSource',
-		icon: 'gear',
+		sortIndex: -1,
+		icon: 'database',
 		name: '数据源',
 		title: '数据源',
 	};
