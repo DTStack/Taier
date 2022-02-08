@@ -248,6 +248,7 @@ function initLogin() {
 
 	molecule.statusBar.add(
 		{
+			sortIndex: 0,
 			id: 'login',
 			name: usename || '未登陆',
 		},
