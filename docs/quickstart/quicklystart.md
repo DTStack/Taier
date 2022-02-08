@@ -18,7 +18,7 @@
     * 再执行 `sql/init/insert`
     
     <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />ActionService.java:409
+     <img src= ./sqlinit.jpg width=300 />
     </div>
 
 #### 表结构升级
