@@ -69,6 +69,7 @@ export default function Search({ onSearch }: IProps) {
 			<Form<IFormFieldProps>
 				form={form}
 				wrapperCol={{ span: 24 }}
+				autoComplete='off'
 				initialValues={{
 					dataTypeList: [ALL],
 				}}

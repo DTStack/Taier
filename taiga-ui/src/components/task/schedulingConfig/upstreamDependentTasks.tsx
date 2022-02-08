@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Form, Modal, Select } from 'antd';
 import type { FormInstance } from 'antd/lib/form/Form';
 import { formItemLayout } from '@/constant';
-import { getCookie } from '@/utils/operation';
+import { getCookie } from '@/utils';
 import api from '@/api/console';
 import API from '@/api';
 import { debounce } from 'lodash';

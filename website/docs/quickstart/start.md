@@ -12,15 +12,17 @@ sidebar_label: 快速上手
     * 先执行 `sql/init/create`
     * 再执行 `sql/init/insert`
 
-    <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />
-    </div>
+<div align="center"> 
+    <img src="/img/readme/sqlinit.jpg" width="300" />
+</div>
 
 3. 导入 sql/increament 目录下文件夹内的sql文件进行表结构升级，包含升级 Taiga 所需的增量sql文件
    * 增量sql文件命名规范： `YYYYMMDDHHmm_{release_version}.sql`
    * 对比 `tag` 确定需要增量执行的文件
 
+
 ## 如何编译
+
 ```Shell
     ./build/mvn-build.sh
 ```

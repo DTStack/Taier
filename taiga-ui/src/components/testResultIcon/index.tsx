@@ -16,60 +16,55 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { Icon } from '@ant-design/compatible';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Tooltip, Modal } from 'antd';
 import { isArray } from 'lodash';
+import classNames from 'classnames';
 import './index.scss';
 
-const TEST_STATUS: any = {
+const TEST_STATUS = {
 	SUCCESS: true,
 	FAIL: false,
 };
-export default class TestRestIcon extends React.Component<any, any> {
-	constructor(props: any) {
-		super(props);
-		this.state = {};
-	}
-	// show err message
-	showDetailErrMessage(engine: any) {
+
+interface ITestRestIconProps {
+	testStatus: {
+		componentVersion: null | string;
+		errorMsg: null | string;
+		result: null | boolean;
+	};
+}
+
+export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
+	const showDetailErrMessage = (engine: ITestRestIconProps['testStatus']) => {
 		Modal.error({
 			title: `错误信息`,
 			content: `${engine.errorMsg}`,
 			zIndex: 1061,
 		});
-	}
-	matchCompTest(testResult: any) {
+	};
+
+	const matchCompTest = (testResult: ITestRestIconProps['testStatus']) => {
 		switch (testResult?.result) {
 			case TEST_STATUS.SUCCESS: {
-				return (
-					<Icon
-						className="success-icon"
-						type="check-circle"
-						theme="filled"
-					/>
-				);
+				return <CheckCircleFilled className="success-icon" />;
 			}
 			case TEST_STATUS.FAIL: {
 				return (
 					<Tooltip
 						title={
 							<a
-								style={{ color: '#fff', overflow: 'scroll' }}
-								onClick={this.showDetailErrMessage.bind(
-									this,
-									testResult,
-								)}
+								className={classNames('text-white', 'overflow-scroll')}
+								onClick={() => showDetailErrMessage(testResult)}
 							>
 								{!isArray(testResult?.errorMsg) ? (
 									<span>{testResult?.errorMsg}</span>
 								) : (
-									testResult?.errorMsg?.map((msg: any) => {
+									testResult?.errorMsg?.map((msg) => {
 										return (
 											<p key={msg.componentVersion}>
 												{msg.componentVersion
-													? msg.componentVersion +
-													  ' : '
+													? `${msg.componentVersion} : `
 													: ''}
 												{msg.errorMsg}
 											</p>
@@ -80,11 +75,7 @@ export default class TestRestIcon extends React.Component<any, any> {
 						}
 						placement="right"
 					>
-						<Icon
-							className="err-icon"
-							type="close-circle"
-							theme="filled"
-						/>
+						<CloseCircleFilled className="err-icon" />
 					</Tooltip>
 				);
 			}
@@ -92,9 +83,6 @@ export default class TestRestIcon extends React.Component<any, any> {
 				return null;
 			}
 		}
-	}
-	render() {
-		const { testStatus } = this.props;
-		return this.matchCompTest(testStatus);
-	}
+	};
+	return matchCompTest(testStatus);
 }
