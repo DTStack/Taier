@@ -14,8 +14,7 @@ const config = {
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.ico',
     organizationName: 'DTStack', // Usually your GitHub org/user name.
-    projectName: 'taiga', // Usually your repo name.
-
+    projectName: 'Taiga', // Usually your repo name.
     presets: [
         [
             'classic',
