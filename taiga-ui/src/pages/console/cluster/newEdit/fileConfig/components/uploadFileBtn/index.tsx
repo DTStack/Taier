@@ -18,7 +18,7 @@
 
 import type { FormInstance } from 'antd';
 import { Form, Upload, Button, Tooltip } from 'antd';
-import { PaperClipOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PaperClipOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { isMultiVersion } from '../../../help';
 
 interface IProp {
@@ -85,7 +85,11 @@ export default function UploadFile({
 				{!view && (
 					<div className="c-fileConfig__config">
 						<Upload {...uploadFileProps}>
-							<Button style={{ width: 172 }} icon="upload" loading={fileInfo.loading}>
+							<Button
+								style={{ width: 172 }}
+								icon={<UploadOutlined />}
+								loading={fileInfo.loading}
+							>
 								点击上传
 							</Button>
 						</Upload>
