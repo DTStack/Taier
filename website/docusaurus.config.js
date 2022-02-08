@@ -8,8 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
     title: 'Taiga',
     tagline: 'A Distributed dispatching system',
-    url: 'https://dtstack.github.io',
-    baseUrl: '/taiga/',
+    url: 'https://taiga.vercel.app/',
+    baseUrl: '/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.ico',
