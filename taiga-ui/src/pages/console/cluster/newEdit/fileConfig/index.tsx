@@ -209,34 +209,16 @@ export default function FileConfig({
 	// 下载配置文件
 	const downloadFile = (type: number) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const deployType = comp?.deployType ?? '';
 		let version = form.getFieldValue(`${typeCode}.versionName`) || '';
 		if (isMultiVersion(typeCode)) version = comp?.versionName ?? '';
 
+		const a = document.createElement('a');
 		let param = comp?.id ? `?componentId=${comp.id}&` : '?';
-		param = `${param}type=${type}&componentType=${typeCode}&versionName=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
-		// TODO
-		window
-			.fetch(`${req.DOWNLOAD_RESOURCE}${param}`, {
-				method: 'get',
-			})
-			.then((res) => {
-				if (res.status === 200) {
-					return res.blob();
-				}
-				throw new Error('下载文件失败');
-			})
-			.then((blob) => {
-				const a = document.createElement('a');
-				a.href = window.URL.createObjectURL(blob);
-				document.body.appendChild(a);
-				a.click();
-				window.URL.revokeObjectURL(a.href);
-				document.body.removeChild(a);
-			})
-			.catch((err) => {
-				message.error(err);
-			});
+		param += `type=${type}&componentType=${typeCode}&versionName=${version}&clusterId=${clusterInfo?.clusterId}`;
+
+		a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
+		a.click();
+		a.remove();
 	};
 
 	const validateFileType = (val: string) => {
