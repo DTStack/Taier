@@ -100,7 +100,7 @@ function openCreateTab(id?: string) {
 
 	const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
 	const { folderTree } = molecule.folderTree.getState();
-	if (!folderTree) return;
+	if (!folderTree?.current && !folderTree?.data?.length) return;
 	const tabData = {
 		id: tabId,
 		modified: false,

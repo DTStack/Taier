@@ -1,34 +1,38 @@
+/* eslint-disable no-bitwise */
 import { debounce, endsWith } from 'lodash';
 import moment from 'moment';
 import { createLogger } from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
-import {
-	CATELOGUE_TYPE,
-	ENGINE_SOURCE_TYPE_ENUM,
-	MENU_TYPE_ENUM,
-	TASK_TYPE_ENUM,
-} from '@/constant';
+import type { TASK_TYPE_ENUM } from '@/constant';
+import { TASK_STATUS } from '@/constant';
+import { CATELOGUE_TYPE, ENGINE_SOURCE_TYPE_ENUM, MENU_TYPE_ENUM } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
 import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY } from '@/constant';
-import { getCookie } from './operation';
-import { CatalogueDataProps } from '@/interface';
+import type { CatalogueDataProps } from '@/interface';
+import { history } from 'umi';
+
+export function getCookie(name: string) {
+	const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`));
+	if (arr != null) {
+		return unescape(decodeURI(arr[2]));
+	}
+	return null;
+}
+
+export function deleteCookie(name: string, domain: string | undefined, path: string = '/') {
+	const d = new Date(0);
+	const cookieDomain = domain ? `; domain=${domain}` : '';
+	document.cookie = `${name}=; expires=${d.toUTCString()}${cookieDomain}; path=${path}`;
+}
 
 // 请求防抖动
 export function debounceEventHander(func: any, wait?: number, options?: any) {
 	const debounced = debounce(func, wait, options);
-	return function (e: any) {
+	return (e: any) => {
 		e.persist();
 		return debounced(e);
 	};
-}
-
-/**
- * 是否属于关系型数据源
- * @param {*} type
- */
-export function isRDB(type: any) {
-	return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1;
 }
 
 /**
@@ -36,9 +40,9 @@ export function isRDB(type: any) {
  * @param {Array} taskCustomParams
  * @param {String} sqlText
  */
-export function matchTaskParams(taskCustomParams: any, sqlText: any) {
+export function matchTaskParams(taskCustomParams: any[], sqlText: string) {
 	const regx = /\$\{([.\w]+)\}/g;
-	const data: any = [];
+	const data: any[] = [];
 	let res = null;
 	// eslint-disable-next-line no-cond-assign
 	while ((res = regx.exec(sqlText)) !== null) {
@@ -47,7 +51,7 @@ export function matchTaskParams(taskCustomParams: any, sqlText: any) {
 			paramName: name,
 			paramCommand: '',
 		};
-		const sysParam = taskCustomParams.find((item: any) => item.paramName === name);
+		const sysParam = taskCustomParams.find((item) => item.paramName === name);
 		if (sysParam) {
 			param.type = 0;
 			param.paramCommand = sysParam.paramCommand;
@@ -55,7 +59,7 @@ export function matchTaskParams(taskCustomParams: any, sqlText: any) {
 			param.type = 1;
 		}
 		// 去重
-		const exist = data.find((item: any) => name === item.paramName);
+		const exist = data.find((item) => name === item.paramName);
 		if (!exist) {
 			data.push(param);
 		}
@@ -69,14 +73,6 @@ export function formatDateTime(timestap: string | number | Date) {
 
 export function checkExist(prop: TASK_TYPE_ENUM | string) {
 	return prop !== undefined && prop !== null && prop !== '';
-}
-
-/**
- * 是否为HDFS类型
- * @param {*} type
- */
-export function isHdfsType(type: any) {
-	return DATA_SOURCE_ENUM.HDFS === parseInt(type, 10);
 }
 
 export function formJsonValidator(rule: any, value: any, callback: any) {
@@ -374,6 +370,24 @@ export const convertToObj = (values: Record<string, any>) => {
 };
 
 /**
+ * 上述方法的逆运算
+ */
+export const convertToStr = (values: Record<string, any>, prefix = '') => {
+	let res: Record<string, any> = {};
+
+	Object.keys(values).forEach((key) => {
+		if (typeof values[key] === 'object' && !Array.isArray(values[key])) {
+			const obj = convertToStr(values[key], `${prefix ? `${prefix}.` : ''}${key}`);
+			res = { ...res, ...obj };
+		} else {
+			res[`${prefix ? `${prefix}.` : ''}${key}`] = values[key];
+		}
+	});
+
+	return res;
+};
+
+/**
  * 不区分大小写的过滤 value Option
  */
 export const filterValueOption = (input: any, option: any) => {
@@ -418,6 +432,135 @@ export function getRootFolderViaSource(data: CatalogueDataProps[], source: CATEL
 		}
 		default:
 			return undefined;
+	}
+}
+
+function isUtf8(s: string) {
+	const lastnames = new Array('ä', 'å', 'æ', 'ç', 'è', 'é');
+	for (let i = 0; i < lastnames.length; i += 1) {
+		if (s && s.indexOf(lastnames[i]) > -1) {
+			return false;
+		}
+	}
+	return true;
+}
+
+export const utf16to8 = (str: string) => {
+	if (typeof str !== 'string') return str;
+	if (!isUtf8(str)) return str;
+	let out = '';
+	const len = str.length || 0;
+	for (let i = 0; i < len; i += 1) {
+		const c = str.charCodeAt(i);
+		if (c >= 0x0001 && c <= 0x007f) {
+			out += str.charAt(i);
+		} else if (c > 0x07ff) {
+			out += String.fromCharCode(0xe0 | ((c >> 12) & 0x0f));
+			out += String.fromCharCode(0x80 | ((c >> 6) & 0x3f));
+			out += String.fromCharCode(0x80 | ((c >> 0) & 0x3f));
+		} else {
+			out += String.fromCharCode(0xc0 | ((c >> 6) & 0x1f));
+			out += String.fromCharCode(0x80 | ((c >> 0) & 0x3f));
+		}
+	}
+	return out;
+};
+
+export const utf8to16 = (str: string) => {
+	if (typeof str !== 'string') return str;
+	if (isUtf8(str)) return str;
+	let out = '';
+	const len = str.length;
+	let char2;
+	let char3;
+	let i = 0;
+	while (i < len) {
+		const c = str.charCodeAt(i);
+		i += 1;
+		switch (c >> 4) {
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				out += str.charAt(i - 1);
+				break;
+			case 12:
+			case 13:
+				// 110x xxxx 10xx xxxx
+				char2 = str.charCodeAt(i);
+				i += 1;
+				out += String.fromCharCode(((c & 0x1f) << 6) | (char2 & 0x3f));
+				break;
+			case 14:
+				// 1110 xxxx 10xx xxxx 10xx xxxx
+				char2 = str.charCodeAt(i);
+				i += 1;
+				char3 = str.charCodeAt(i);
+				i += 1;
+				out += String.fromCharCode(
+					((c & 0x0f) << 12) | ((char2 & 0x3f) << 6) | ((char3 & 0x3f) << 0),
+				);
+				break;
+			default:
+		}
+	}
+	return out;
+};
+
+export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
+	const { id } = record ?? {};
+	history.push({
+		query: {
+			taskId: id.toString(),
+		},
+	});
+}
+
+/**
+ * 从 document.body 隐藏 mxGraph 所产生的 tooltip
+ */
+export const removeToolTips = () => {
+	const remove = () => {
+		const tips = document.querySelectorAll<HTMLDivElement>('.mxTooltip');
+		if (tips) {
+			tips.forEach((o) => {
+				// eslint-disable-next-line no-param-reassign
+				o.style.visibility = 'hidden';
+			});
+		}
+	};
+	setTimeout(remove, 500);
+};
+
+export function getVertxtStyle(type: TASK_STATUS): string {
+	switch (type) {
+		case TASK_STATUS.FINISHED: // 完成
+		case TASK_STATUS.SET_SUCCESS:
+			return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
+		case TASK_STATUS.SUBMITTING:
+		case TASK_STATUS.TASK_STATUS_NOT_FOUND:
+		case TASK_STATUS.RUNNING:
+			return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
+		case TASK_STATUS.RESTARTING:
+		case TASK_STATUS.STOPING:
+		case TASK_STATUS.DEPLOYING:
+		case TASK_STATUS.WAIT_SUBMIT:
+		case TASK_STATUS.WAIT_RUN:
+			return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
+		case TASK_STATUS.RUN_FAILED:
+		case TASK_STATUS.PARENT_FAILD:
+		case TASK_STATUS.SUBMIT_FAILED:
+			return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
+		case TASK_STATUS.FROZEN:
+			return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
+		case TASK_STATUS.STOPED: // 已停止
+		default:
+			// 默认
+			return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
 	}
 }
 
@@ -473,4 +616,31 @@ export function isBindAccount(engineType: number): boolean {
 		ENGINE_SOURCE_TYPE_ENUM.GREEN_PLUM,
 		ENGINE_SOURCE_TYPE_ENUM.ADB,
 	].includes(engineType);
+}
+
+/**
+ * 是否属于关系型数据源
+ * @param {*} type
+ */
+export function isRDB(type: any) {
+	return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1;
+}
+
+/**
+ * 是否为HDFS类型
+ * @param {*} type
+ */
+export function isHdfsType(type: string) {
+	return DATA_SOURCE_ENUM.HDFS === parseInt(type, 10);
+}
+
+/**
+ * simply judge whether the array is equal
+ * @param arr1
+ * @param arr2
+ * @returns arr1 === arr2
+ */
+export function isEqualArr(arr1: string[], arr2: string[]): boolean {
+	const toString = JSON.stringify;
+	return toString(arr1.sort()) === toString(arr2.sort());
 }

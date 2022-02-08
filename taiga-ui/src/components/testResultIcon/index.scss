@@ -1,7 +1,16 @@
-.err-icon {
-	font-family: anticon;
+.baseIcon {
+	margin: 0 0 0 auto;
 	font-size: 12px;
+}
+
+span.err-icon {
+	@extend .baseIcon;
+
 	color: #ff5f5c;
-	margin-top: 14px;
-	float: right;
+}
+
+span.success-icon {
+	@extend .baseIcon;
+
+	color: #12bc6a;
 }

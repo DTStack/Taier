@@ -18,8 +18,8 @@
 
 import { Row, Pagination } from 'antd';
 
-import Editor from '@/components/code-editor';
-import { createLinkMark, createLogMark } from '@/components/code-editor/utils';
+import Editor from '@/components/codeEditor';
+import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
 import { formatDateTime } from '@/utils';
 
 const editorOptions: any = {

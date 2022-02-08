@@ -23,7 +23,8 @@ import { cloneDeep } from 'lodash';
 import TestRestIcon from '@/components/testResultIcon';
 import MultiVersionComp from './components/multiVerComp';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { DRAWER_MENU_ENUM, ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
+import type { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
+import { DRAWER_MENU_ENUM } from '@/constant';
 import {
 	TABS_TITLE_KEY,
 	COMPONENT_CONFIG_NAME,
@@ -110,7 +111,20 @@ interface IComponentProps {
 	storeType: number;
 }
 
-type ITestStatus = Record<number, any>;
+/**
+ * 测试连通性返回结果类型
+ */
+type ITestStatus = Record<
+	number,
+	{
+		clusterResourceDescription: null | string;
+		componentTypeCode: keyof typeof COMPONENT_CONFIG_NAME;
+		componentVersion: string | null;
+		multiVersion?: any;
+		errorMsg: string | null;
+		result: null | boolean;
+	}
+>;
 
 interface IScheduleComponent {
 	components: {
@@ -569,16 +583,9 @@ export default forwardRef((_, ref) => {
 						}
 						// 存在HiveServer、SparkThrift两个组件
 						const isCheckBoxs = isDataCheckBoxs(comps);
-						// if (comps?.length === 0) {
-						// 	return (
-						// 		<div key={activeKey} className="empty-logo">
-						// 			<img src="assets/imgs/emptyLogo.svg" />
-						// 		</div>
-						// 	);
-						// }
 
 						return (
-							<div>
+							<div className="relative">
 								<Tabs
 									tabPosition="left"
 									tabBarExtraContent={
@@ -599,12 +606,12 @@ export default forwardRef((_, ref) => {
 										}
 									}}
 								>
-									{comps?.length > 0 ? (
+									{comps?.length > 0 &&
 										comps.map((comp) => {
 											return (
 												<TabPane
 													tab={
-														<div className="flex">
+														<div className="flex items-center">
 															{
 																COMPONENT_CONFIG_NAME[
 																	comp.componentTypeCode
@@ -754,15 +761,13 @@ export default forwardRef((_, ref) => {
 													</>
 												</TabPane>
 											);
-										})
-									) : (
-										<TabPane key="empty">
-											<div key={activeKey} className="empty-logo">
-												<img src="assets/imgs/emptyLogo.svg" />
-											</div>
-										</TabPane>
-									)}
+										})}
 								</Tabs>
+								{comps?.length === 0 && (
+									<div key={activeKey} className="empty-logo">
+										<img src="assets/imgs/emptyLogo.svg" />
+									</div>
+								)}
 							</div>
 						);
 					})}

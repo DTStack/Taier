@@ -108,7 +108,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	}, [current, isInValidTab]);
 
 	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取调度依赖</div>;
+		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务参数</div>;
 	}
 
 	const tabData = current!.tab!.data!;
