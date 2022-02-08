@@ -240,7 +240,7 @@ git push origin your_awesome_patch
 ### 命名规范
 1. dao统一后缀为mapper 统一放入engine-dao 模块
 2. datadevelop中 按照功能划分包为console、datasource、develop、schedule
-3. controller对应的接口需要补充swagger、 统一返回值为 R<Boolean>
+3. controller对应的接口需要补充swagger、 统一返回值为 `R<Boolean>`
     * 如果controller未使用参数校验，禁止使用
     ```Java
        //        return new APITemplate<Boolean>() {
@@ -251,10 +251,7 @@ git push origin your_awesome_patch
        //        }.execute();
     ```
 
-    * 直接使用
-    ```Java
-       R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));
-    ```
+    * 直接使用 `R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));`
 
 4. id、tenantId、userId等常见id 使用long类型
 5. 组件枚举统一使用EComponentType
