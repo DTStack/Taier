@@ -18,9 +18,8 @@
 		"allowSyntheticDefaultImports": true
 	},
 	"include": [
-		"mock/**/*",
 		"src/**/*",
-		"config/**/*",
+		"scripts/*",
 		".umirc.ts",
 		"typings.d.ts",
 		".eslintrc.js",
