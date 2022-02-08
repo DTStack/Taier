@@ -1,4 +1,4 @@
-insert into `console_dtuic_tenant` ( `id`, `dt_uic_tenant_id`, `gmt_modified`, `is_deleted`, `gmt_create`, `tenant_name`, `tenant_desc`) values ( '1', '1', now(), '0', now(), 'DAGScheduleX', null);
+insert into `console_dtuic_tenant` ( `id`, `dt_uic_tenant_id`, `gmt_modified`, `is_deleted`, `gmt_create`, `tenant_name`, `tenant_desc`) values ( '1', '1', now(), '0', now(), 'Taiga', null);
 insert into `console_engine_tenant` ( `engine_id`, `id`, `tenant_id`, `gmt_modified`, `is_deleted`, `queue_id`, `gmt_create`) values ( '1', '1', '1', now(), '0', '1', now());
 
 
@@ -18,9 +18,9 @@ insert into `rdos_batch_catalogue` ( `create_user_id`, `id`, `catalogue_type`, `
 insert into `rdos_batch_catalogue` ( `create_user_id`, `id`, `catalogue_type`, `order_val`, `gmt_create`, `engine_type`, `node_name`, `node_pid`, `level`, `tenant_id`, `is_deleted`, `project_id`, `gmt_modified`) values ( '1', '259', '0', null, '2020-06-18 16:08:06', '1', '自定义函数', '255', '1', '1', '0', '1', '2020-06-18 16:08:06');
 
 insert into `console_user` ( `status`, `dtuic_user_id`, `default_project_id`, `email`, `gmt_modified`, `gmt_create`, `user_name`, `is_deleted`, `phone_number`) values ( '0', '1', 1, 'admin@dtstack.com', '2017-06-05 20:35:16', '2017-06-05 20:35:16', 'admin@dtstack.com', '0', '11111111111');
-insert into `console_dtuic_tenant` ( `id`, `dt_uic_tenant_id`, `gmt_modified`, `is_deleted`, `gmt_create`, `tenant_name`, `tenant_desc`) values ( '1', '1', '2021-08-13 16:39:40', '0', '2021-08-13 16:39:40', 'DAGScheduleX', null);
+insert into `console_dtuic_tenant` ( `id`, `dt_uic_tenant_id`, `gmt_modified`, `is_deleted`, `gmt_create`, `tenant_name`, `tenant_desc`) values ( '1', '1', '2021-08-13 16:39:40', '0', '2021-08-13 16:39:40', 'Taiga', null);
 
 
 insert into `schedule_engine_project` ( `id`, `create_user_id`, `project_name`, `is_deleted`, `white_status`, `gmt_create`, `uic_tenant_id`, `project_alias`, `project_id`, `project_desc`, `app_type`, `gmt_modified`, `status`, `project_Identifier`)
-values ( '1', '1', 'DAGScheduleX', '0', '0', '2021-07-27 16:41:16', '1', 'DAGScheduleX', '1', null, '1', '2021-07-27 16:39:41', '0', 'DAGScheduleX');
-insert into `rdos_project_engine` ( `status`, `create_user_id`, `modify_user_id`, `id`, `tenant_id`, `gmt_modified`, `gmt_create`, `project_id`, `engine_type`, `engine_identity`, `is_deleted`) values ( '1', null, '1', '1', '1', '2021-07-07 17:00:41', '2021-04-20 14:08:19', '1', '1', 'DAGScheduleX', '1');
+values ( '1', '1', 'Taiga', '0', '0', '2021-07-27 16:41:16', '1', 'Taiga', '1', null, '1', '2021-07-27 16:39:41', '0', 'Taiga');
+insert into `rdos_project_engine` ( `status`, `create_user_id`, `modify_user_id`, `id`, `tenant_id`, `gmt_modified`, `gmt_create`, `project_id`, `engine_type`, `engine_identity`, `is_deleted`) values ( '1', null, '1', '1', '1', '2021-07-07 17:00:41', '2021-04-20 14:08:19', '1', '1', 'Taiga', '1');

@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
  * @description:
  * @create: 2021-12-16 00:17
  **/
