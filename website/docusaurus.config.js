@@ -8,14 +8,13 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
     title: 'Taiga',
     tagline: 'A Distributed dispatching system',
-    url: 'https://dtstack.github.io',
-    baseUrl: '/taiga/',
+    url: 'https://taiga.vercel.app/',
+    baseUrl: '/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.ico',
     organizationName: 'DTStack', // Usually your GitHub org/user name.
-    projectName: 'taiga', // Usually your repo name.
-
+    projectName: 'Taiga', // Usually your repo name.
     presets: [
         [
             'classic',
@@ -51,15 +50,10 @@ const config = {
                 items: [
                     {
                         type: 'doc',
-                        docId: 'overview',
+                        docId: 'guides/introduction',
                         position: 'left',
                         label: 'DOCS',
                     },
-                    // {
-                    //     to: 'case',
-                    //     label: 'SHOWCASE',
-                    //     position: 'left',
-                    // },
                     {
                         href: 'https://github.com/DTStack/Taiga',
                         label: 'GITHUB',
@@ -75,7 +69,7 @@ const config = {
                         items: [
                             {
                                 label: 'Quick Start',
-                                to: '/docs/quick-start',
+                                to: '/docs/quickstart/start',
                             },
                         ],
                     },

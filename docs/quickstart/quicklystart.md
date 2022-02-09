@@ -12,13 +12,13 @@
 
 ## 数据库操作
 #### 数据库&表 初始化
-1. 请登录 MySQL 数据库，创建名为 dagschedulex 数据库
+1. 请登录 MySQL 数据库，创建名为 Taiga 数据库
 2. 初始化数据库，导入 `sql/init` 目录下的sql文件进行创建表及基础数据导入
     * 先执行 `sql/init/create`
     * 再执行 `sql/init/insert`
     
     <div align=center> 
-     <img src= ./sqlinit.jpg width=300 />ActionService.java:409
+     <img src= ./sqlinit.jpg width=300 />
     </div>
 
 #### 表结构升级
@@ -86,22 +86,22 @@
 
 
 ## 文档
-* [什么是DAGScheduleX](https://github.com/DTStack/DAGScheduleX/blob/master/docs/DAGScheduleX%20github.pdf)
-    * [DAGScheduleX 任务提交快速开始](https://github.com/DTStack/DAGScheduleX/blob/master/docs/submit_CH.md)
+* [什么是DAGScheduleX](https://github.com/DTStack/Taiga/blob/master/docs/Taiga%20github.pdf)
+    * [Taiga 任务提交快速开始](https://github.com/DTStack/Taiga/blob/master/docs/submit_CH.md)
     
 
 #### 插件文档
-* [flink插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/flink.md)
-* [spark插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/spark_yarn.md)
-* [dtscript插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/dtscript.md)
-* [mysql插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/mysql.md)
+* [flink插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/flink.md)
+* [spark插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/spark_yarn.md)
+* [dtscript插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/dtscript.md)
+* [mysql插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/mysql.md)
   * 使用 mysql插件 用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF，gtid_mode=OFF
-* [oracle插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/oracle.md)
-* [sqlserver插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/sqlserver.md)
-* [hive插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/hive.md)
-* [postgresql插件](https://github.com/DTStack/DAGScheduleX/blob/master/docs/plugins/postgresql.md)
+* [oracle插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/oracle.md)
+* [sqlserver插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/sqlserver.md)
+* [hive插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/hive.md)
+* [postgresql插件](https://github.com/DTStack/Taiga/blob/master/docs/plugins/postgresql.md)
 
 #### 其他参考资料
-* [开源集群配置Kerberos认证](https://github.com/DTStack/DAGScheduleX/blob/master/docs/hadoopWithKerberos.docx) 
-* [在CDH集群中启用及配置Kerberos](https://github.com/DTStack/DAGScheduleX/blob/master/docs/chdWhithKerberos.docx) 
+* [开源集群配置Kerberos认证](https://github.com/DTStack/Taiga/blob/master/docs/hadoopWithKerberos.docx) 
+* [在CDH集群中启用及配置Kerberos](https://github.com/DTStack/Taiga/blob/master/docs/chdWhithKerberos.docx) 
 

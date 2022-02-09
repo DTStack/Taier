@@ -10,6 +10,7 @@ import BindTenant from './bindTenant';
 import type { IClusterProps } from '@/components/bindCommModal';
 import type { ITableProps } from './bindTenant';
 import type { ICapacityProps } from './resourceView/helper';
+import { getCatalogueTree } from '@/extensions/catalogue';
 import './resource.scss';
 
 const FormItem = Form.Item;
@@ -106,6 +107,10 @@ export default () => {
 				message.success('租户绑定成功');
 				// 刷新租户列表
 				bindTenantRef.current?.getTenant();
+				// 刷新目录树
+				getCatalogueTree();
+				// 刷新资源管理
+				getClusterList();
 			}
 		});
 	};

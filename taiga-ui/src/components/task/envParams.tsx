@@ -21,7 +21,13 @@ import { MonacoEditor } from '@dtinsight/molecule/esm/components';
 import { editor as monacoEditor, Uri } from '@dtinsight/molecule/esm/monaco';
 import type { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { editor } from '@dtinsight/molecule/esm/monaco';
-import { CREATE_TASK_PREFIX, EDIT_FOLDER_PREFIX, EDIT_TASK_PREFIX, ENV_PARAMS } from '@/constant';
+import {
+	CREATE_DATASOURCE_PREFIX,
+	CREATE_TASK_PREFIX,
+	EDIT_FOLDER_PREFIX,
+	EDIT_TASK_PREFIX,
+	ENV_PARAMS,
+} from '@/constant';
 
 const getUniqPath = (path: string) => {
 	return Uri.parse(`file://tab/${path}`);
@@ -48,7 +54,12 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 		}
 	}, [current?.id && current.tab?.id]);
 
-	const INVALID_TASK = [EDIT_TASK_PREFIX, EDIT_FOLDER_PREFIX, CREATE_TASK_PREFIX];
+	const INVALID_TASK = [
+		EDIT_TASK_PREFIX,
+		EDIT_FOLDER_PREFIX,
+		CREATE_TASK_PREFIX,
+		CREATE_DATASOURCE_PREFIX,
+	];
 
 	if (!current || !current.activeTab || INVALID_TASK.includes(current.activeTab.toString())) {
 		return (

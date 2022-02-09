@@ -1,4 +1,6 @@
 .c-multiVersionComp__intail {
+	margin-top: 20px;
+
 	&__row {
 		margin-bottom: 20px;
 
@@ -41,10 +43,11 @@
 				border: 1px solid #3f87ff;
 			}
 
-			.comp-name {
+			span.comp-name {
 				line-height: 48px;
 
 				img {
+					display: inline-block;
 					width: 28px;
 					margin-right: 8px;
 				}
@@ -75,7 +78,7 @@
 			margin: 0;
 			border: unset;
 
-			&::before{
+			&::before {
 				z-index: 99;
 			}
 

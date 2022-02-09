@@ -22,12 +22,12 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import type { ILayoutController } from '@dtinsight/molecule/esm/controller/layout';
 import { LayoutController } from '@dtinsight/molecule/esm/controller/layout';
 import type { ILayout } from '@dtinsight/molecule/esm/model/workbench/layout';
-import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
 import type { IWorkbench } from '@dtinsight/molecule/esm/model';
 import { Display } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
 import { useState } from 'react';
+import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
 
 const mainBenchClassName = prefixClaName('mainBench');
 const workbenchClassName = prefixClaName('workbench');

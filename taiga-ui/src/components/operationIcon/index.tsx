@@ -25,7 +25,7 @@ const imgDarkBase = '/assets/operation-imgs/theme-dark';
 
 export default class Icon extends React.Component<any, any> {
 	render() {
-		const props = this.props;
+		const { props } = this;
 		const base = !props.themeDark ? imgBase : imgDarkBase;
 		return (
 			<img

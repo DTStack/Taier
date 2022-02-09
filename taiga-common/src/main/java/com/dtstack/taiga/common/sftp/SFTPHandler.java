@@ -16,7 +16,6 @@ import java.util.Vector;
 
 /**
  * @author: 小北(xiaobei @ dtstack.com)
- * @program: DAGScheduleX
  * @description:
  * @create: 2021-12-15 22:44
  **/
