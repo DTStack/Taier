@@ -35,7 +35,7 @@ class BaseParam {
      * 通道 -- 默认是 RDOS_SDK
      */
     @ApiModelProperty(hidden = true)
-    private String channel = "DAGScheduleX";
+    private String channel = "Taiga";
 
     /**
      * SDK 版本

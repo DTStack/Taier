@@ -46,6 +46,7 @@ import {
 	CONFIG_FILE_DESC,
 	COMPONENT_CONFIG_NAME,
 } from '@/constant';
+import { convertToStr } from '@/utils';
 import './index.scss';
 
 interface IProps {
@@ -208,15 +209,16 @@ export default function FileConfig({
 	// 下载配置文件
 	const downloadFile = (type: number) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const deployType = comp?.deployType ?? '';
 		let version = form.getFieldValue(`${typeCode}.versionName`) || '';
 		if (isMultiVersion(typeCode)) version = comp?.versionName ?? '';
 
 		const a = document.createElement('a');
 		let param = comp?.id ? `?componentId=${comp.id}&` : '?';
-		param = `${param}type=${type}&componentType=${typeCode}&versionName=${version}&deployType=${deployType}&clusterName=${clusterInfo?.clusterName}`;
+		param += `type=${type}&componentType=${typeCode}&versionName=${version}&clusterId=${clusterInfo?.clusterId}`;
+
 		a.href = `${req.DOWNLOAD_RESOURCE}${param}`;
 		a.click();
+		a.remove();
 	};
 
 	const validateFileType = (val: string) => {
@@ -227,7 +229,7 @@ export default function FileConfig({
 		return result;
 	};
 
-	const uploadFile = async (file: any, loadingType: number, callBack: Function) => {
+	const uploadFile = async (file: any, loadingType: number, callBack: () => void) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = isMultiVersion(typeCode) ? comp?.versionName : '';
 		const deployType = comp?.deployType ?? '';
@@ -269,7 +271,8 @@ export default function FileConfig({
 			const fieldValue = isMultiVersion(typeCode)
 				? { [versionName]: { componentConfig } }
 				: { componentConfig };
-			form.setFieldsValue({ [typeCode]: fieldValue });
+			const formField = convertToStr({ [typeCode]: fieldValue });
+			form.setFieldsValue(formField);
 		}
 		if (res.code === 1) {
 			switch (loadingType) {

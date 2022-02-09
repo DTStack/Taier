@@ -100,7 +100,7 @@ function openCreateTab(id?: string) {
 
 	const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
 	const { folderTree } = molecule.folderTree.getState();
-	if (!folderTree) return;
+	if (!folderTree?.current && !folderTree?.data?.length) return;
 	const tabData = {
 		id: tabId,
 		modified: false,
@@ -153,6 +153,10 @@ function initContextMenu() {
 
 function createTask() {
 	molecule.folderTree.onCreate((type, id) => {
+		if (!id && !molecule.folderTree.getState().folderTree?.data?.length) {
+			message.error('获取任务开发目录失败，请联系管理员');
+			return;
+		}
 		if (type === 'File') {
 			resetEditorGroup();
 			openCreateTab();

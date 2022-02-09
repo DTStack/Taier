@@ -1,10 +1,8 @@
 import { useState, useLayoutEffect, useEffect } from 'react';
 import { Button, Checkbox, Form, Input, message, Modal, Select } from 'antd';
-import { history } from 'umi';
 import api from '@/api/console';
 import { formItemLayout } from '@/constant';
-import { getCookie } from '@/utils/operation';
-import { getTenantId } from '@/utils';
+import { getTenantId, getCookie } from '@/utils';
 import './login.scss';
 
 const { Option } = Select;
@@ -52,7 +50,10 @@ export default () => {
 						// 判断是否有默认绑定的租户，如果有则绑定默认租户
 						const userId = getCookie('userId');
 						const defaultTenant = localStorage.getItem(`${userId}_default_tenant`);
-						if (defaultTenant) {
+						const isValidTenant = tenants.some(
+							(t) => t.tenantId.toString() === defaultTenant,
+						);
+						if (defaultTenant && isValidTenant) {
 							doTenantChange(Number(doTenantChange), true);
 						} else {
 							setLogin(true);
@@ -84,7 +85,7 @@ export default () => {
 					localStorage.setItem(`${userId}_default_tenant`, tenantId.toString());
 				}
 				setVisible(false);
-				history.push('/');
+				window.location.reload();
 			} else {
 				message.error(res.message);
 			}

@@ -1,5 +1,7 @@
 @import '@/styles/variables.scss';
 
+$sideMenuSize: 200px;
+
 .dt-cluster {
 	height: 100%;
 
@@ -28,9 +30,10 @@
 		height: calc(100vh - $statusBar-size - $menuBar-size - 55px - 59px - 48px);
 
 		> .ant-tabs-nav {
-			width: 200px;
+			width: $sideMenuSize;
 			padding: 20px 0 0;
 			border-right: 1px solid #e8e8e8;
+			box-shadow: 4px 0 6px 0 rgb(0 0 0 / 6%);
 
 			.ant-tabs-tab {
 				font-size: 12px;
@@ -42,13 +45,6 @@
 
 				&.ant-tabs-tab-active {
 					background-color: rgba(36, 145, 247, 0.1);
-				}
-
-				.success-icon {
-					margin: 0 0 0 auto;
-					color: #12bc6a;
-					font-size: 12px;
-					font-family: anticon;
 				}
 			}
 
@@ -92,12 +88,18 @@
 	}
 
 	.empty-logo {
-		width: 100%;
+		position: absolute;
+		top: 0;
+		right: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: calc(100% - $sideMenuSize);
 		height: 100%;
+
 		> img {
 			width: 200px;
 			height: 200px;
-			margin: 0 auto;
 		}
 	}
 }

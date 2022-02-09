@@ -1,6 +1,9 @@
 .c-editCluster__container__componentTabs {
 	.c-editCluster__componentButton {
-		width: 210px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
 		height: 40px;
 		padding: 0;
 		background: rgba(250, 250, 250, 1);
@@ -16,23 +19,24 @@
 			border-color: #ddd;
 		}
 	}
+}
 
-	.c-componentButton__title {
-		width: 240px;
-		height: 40px;
-		margin: -16px -16px 10px -36px;
-		padding-left: 20px;
-		font-weight: 500;
-		font-size: 14px;
-		line-height: 40px;
-		border-bottom: 1px solid #e8e8e8;
-	}
+.c-componentButton__title {
+	width: 240px;
+	height: 40px;
+	margin: -16px -16px 10px -36px;
+	padding-left: 20px;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 40px;
+	border-bottom: 1px solid #e8e8e8;
+}
 
-	.c-componentButton__content {
-		margin-left: -16px;
+div.c-componentButton__content {
+	margin-left: -16px;
+	font-size: 12px;
 
-		.ant-col {
-			margin-bottom: 12px;
-		}
+	.ant-col {
+		margin-bottom: 12px;
 	}
 }

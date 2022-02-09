@@ -23,7 +23,7 @@ import { Modal, Row, message, Col, Tree, Checkbox } from 'antd';
 
 import Api from '@/api/operation';
 import { TASK_STATUS } from '@/constant';
-import { isEqualArr } from '@/utils/operation';
+import { isEqualArr } from '@/utils';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import './restartModal.scss';
 
