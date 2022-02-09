@@ -36,6 +36,8 @@ export default defineConfig({
 	esbuild: {},
 	theme: {
 		'primary-color': '#3f87ff',
+		// 'link-color': 'var(--textLink-foreground)',
+		'border-radius-base': '0px',
 	},
 	tailwindcss: {},
 	proxy: {

@@ -165,18 +165,16 @@ function initMenuBar() {
 	const state = molecule.menuBar.getState();
 	const nextData = state.data.concat();
 	molecule.layout.setMenuBarMode('horizontal');
-	nextData.push(
-		{
-			id: 'operation',
-			name: '运维中心',
-			data: [...OPERATIONS],
-		},
-		{
-			id: 'console',
-			name: '控制台',
-			data: [...CONSOLE],
-		},
-	);
+	nextData.splice(1, 0, {
+		id: 'operation',
+		name: '运维中心',
+		data: [...OPERATIONS],
+	});
+	nextData.splice(2, 0, {
+		id: 'console',
+		name: '控制台',
+		data: [...CONSOLE],
+	});
 	molecule.menuBar.setState({
 		data: nextData,
 	});
