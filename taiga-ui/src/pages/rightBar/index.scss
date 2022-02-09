@@ -6,10 +6,12 @@
 
 	.dt-right-bar-content {
 		flex: 1;
+		background: var(--sideBar-background);
 	}
 
 	.dt-right-bar-title {
 		width: 30px;
+		background: var(--editorGroupHeader-tabsBackground);
 	}
 
 	.dt-right-bar-title-item {
@@ -33,15 +35,14 @@
 		&.active {
 			position: relative;
 			color: $main-color;
-			background-color: #fff;
-			transform: translateX(-1px);
+			background-color: var(--activityBar-activeBorder);
 
 			&::after {
 				position: absolute;
 				top: 0;
-				right: -1px;
+				right: 0px;
 				bottom: 0;
-				width: 3px;
+				width: 2px;
 				height: 100%;
 				background-color: $main-color;
 				content: '';
