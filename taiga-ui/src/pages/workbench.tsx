@@ -28,6 +28,7 @@ import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
 import { useState } from 'react';
 import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
+import { LocalDB } from '@dtinsight/dt-utils/lib';
 
 const mainBenchClassName = prefixClaName('mainBench');
 const workbenchClassName = prefixClaName('workbench');
@@ -57,7 +58,7 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 	const [rightBarSize, setRightBarSize] = useState('30px');
 
 	const handleClickTab = (key?: string) => {
-		setRightBarSize(key ? '450px' : '30px');
+		setRightBarSize(key ? '350px' : '30px');
 	};
 
 	const getContent = (panelMaximized: boolean, panelHidden: boolean) => {
