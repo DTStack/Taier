@@ -27,12 +27,12 @@ sidebar_label: 贡献指南
 :::tip 
 具体操作如下：
 
-git remote add upstream git@github.com:DTStack/Taiga.git
-git fetch upstream
-git rebase upstream/master
-git checkout -b your_awesome_patch
-... add some work
-git push origin your_awesome_patch
+* git remote add upstream git@github.com:DTStack/Taiga.git
+* git fetch upstream
+* git rebase upstream/master
+* git checkout -b your_awesome_patch
+* ... add some work
+* git push origin your_awesome_patch
 :::
 
 ### 代码约定
@@ -257,13 +257,11 @@ git push origin your_awesome_patch
 6. 任务枚举统一使用`EScheduleJobType`
 7. 数据源枚举统一使用`DataSourceType`
 8. 日志打印规范 统一使用`LOGGER`大写、`debug`日志需要判断是否开启了`debug`
-
- ```Java
-    if (LOG.isDebugEnabled()) {
-        LOG.debug("using local user:"+user);
-    }
-```
-
+   ```Java
+       if (LOG.isDebugEnabled()) {
+           LOG.debug("using local user:"+user);
+       }
+   ```
 9. 异常错误 统一使用`errorCode`
 
 ### Commitment 规范
