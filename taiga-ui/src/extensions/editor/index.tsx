@@ -417,7 +417,7 @@ export default class EditorExtension implements IExtension {
 			const group = molecule.editor.getGroupById(groupId || current.id!);
 			if (group) {
 				const targetTab = group.data?.find(searchById(tabId));
-				if (targetTab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SQL) {
 					molecule.editor.updateActions([
 						{ id: TASK_RUN_ID, disabled: false },
 						{ id: TASK_SAVE_ID, disabled: false },
