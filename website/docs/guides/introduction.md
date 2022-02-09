@@ -20,31 +20,31 @@ sidebar_position: 1
 ## 功能特征
 
 #### 稳定性
-    * 单点故障：去中心化的分布式模式
-    * 高可用方式：Zookeeper
-    * 过载处理：分布式节点 + 两级存储策略 + 队列机制。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
-    * 实战检验：经近百家客户实战检验，部分客户的生产日均调度任务超过100万个
+* 单点故障：去中心化的分布式模式
+* 高可用方式：Zookeeper
+* 过载处理：分布式节点 + 两级存储策略 + 队列机制。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
+* 实战检验：经近百家客户实战检验，部分客户的生产日均调度任务超过100万个
 
 #### 易用性
-    * 支持大数据作业Spark、Flink、Hive、MR的调度，第一版本支持 Spark SQL、Spark MR、PySpark、Flinkx、Flink MR
-        * 后续会开源 Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure、Sub_Process
-    * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
-    * DAG监控界面：运维中心、支持集群资源查看，了解当前集群资源的剩余情况、支持对调度队列中的任务批量停止、任务状态、任务类型、重试次数、任务运行机器、可视化变量等关键信息一目了然
-    * 调度时间配置：可视化配置
-    * 多集群连接：支持一套调度系统连接多套Hadoop集群
+* 支持大数据作业Spark、Flink、Hive、MR的调度，第一版本支持 Spark SQL、Spark MR、PySpark、Flinkx、Flink MR
+    * 后续会开源 Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure、Sub_Process
+* 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
+* DAG监控界面：运维中心、支持集群资源查看，了解当前集群资源的剩余情况、支持对调度队列中的任务批量停止、任务状态、任务类型、重试次数、任务运行机器、可视化变量等关键信息一目了然
+* 调度时间配置：可视化配置
+* 多集群连接：支持一套调度系统连接多套Hadoop集群
 
 #### 多版本引擎
-    * 支持Spark 、Flink、Hive、MR等引擎的多个版本共存，例如可同时支持Flink1.10、Flink1.12（后续开源）
+* 支持Spark 、Flink、Hive、MR等引擎的多个版本共存，例如可同时支持Flink1.10、Flink1.12（后续开源）
 
 #### Kerberos支持
-    * Flink、SparkSQL、HiveSQL
+* Flink、SparkSQL、HiveSQL
 
 #### 系统参数
-    * 丰富，支持3种时间基准，且可以灵活设置输出格式
+* 丰富，支持3种时间基准，且可以灵活设置输出格式
 
 #### 扩展性
-    * 设计之处就考虑分布式模式，目前支持 整体 Taiga 水平扩容 和 拆分Master/Worker 水平扩容方式；
-    * 调度能力随集群线性增长；  
+* 设计之处就考虑分布式模式，目前支持 整体 Taiga 水平扩容 和 拆分Master/Worker 水平扩容方式；
+* 调度能力随集群线性增长；  
 
 ## 用户界面
 ![datasource](/img/readme/datasource.png)
