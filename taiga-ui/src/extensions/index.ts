@@ -24,8 +24,10 @@ import FolderTreeExtension from './folderTree';
 import { ExtendsSparkSQL } from './languages';
 import StatusBarExtension from './statusBar';
 import MenuExtension from './menu';
+import { LocaleExtension } from './i18n';
 
 export const extensions: IExtension[] = [
+	LocaleExtension,
 	new InitializeExtension(),
 	new CatalogueExtension(),
 	new EditorExtension(),
