@@ -265,11 +265,11 @@ sidebar_label: 贡献指南
 9. 异常错误 统一使用`errorCode`
 
 ### Commitment 规范
-对 **Commit Message** 的格式有一定要求，三段式 commit 信息：`[${jira-issue-id}][${affected-component}] ${jira-issue-title}`
-* 根据`issue-id`，如: [Taiga-issueId][taiga-common] Translate "common module" page into Chinese
+ **Commit Message** 三段式格式要求，模板：`[${jira-issue-id}]``[${affected-component}]` `${jira-issue-title}`
+* 根据`issue-id`，如: **[Taiga-issueId][taiga-common] Translate "common module" page into Chinese**
 
 :::tip 
-无`issue-id`时，可以分支命名，如：[feat_doc][taiga-common] Translate "common module" page into Chinese
+无`issue-id`时，可以分支命名，如：**[feat_doc][taiga-common] Translate "common module" page into Chinese**
 :::
 
 
