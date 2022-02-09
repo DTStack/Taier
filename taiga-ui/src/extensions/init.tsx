@@ -175,6 +175,10 @@ function initMenuBar() {
 		name: '控制台',
 		data: [...CONSOLE],
 	});
+	const menuRunning = nextData.findIndex(menu => menu.id === 'Run');
+	if (menuRunning > -1) {
+		nextData.splice(menuRunning, 1);
+	}
 	molecule.menuBar.setState({
 		data: nextData,
 	});
