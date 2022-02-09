@@ -28,26 +28,31 @@ Taiga 使用了Apache的多个开源项目如Flink、Spark 作为计算组件实
 4. 确保提交消息的格式正确。
 5. 将新分支推送到您克隆的代码库中。
 6. 执行检查表 pull request模版。
-7. 在提交 pull request 请求前, 请将您克隆的代码和远程代码库同步，这样您的 pull request 会简单清晰。具体操作如下
+7. 在提交 pull request 请求前, 请将您克隆的代码和远程代码库同步，这样您的 pull request 会简单清晰。
+  
+:::tip 
+具体操作如下：
 
-```shell
 git remote add upstream git@github.com:DTStack/Taiga.git
 git fetch upstream
 git rebase upstream/master
 git checkout -b your_awesome_patch
 ... add some work
 git push origin your_awesome_patch
-
-```
+:::
 
 ### 代码约定
-保持代码的一致性，提高代码的可读性来保证代码的高质量及高维护性。我们的代码风格和标准 Java 约定一致，并参考《阿里巴巴Java开发手册》，额外附加限制：
+保持代码的一致性，提高代码的可读性来保证代码的高质量及高维护性。我们的代码风格和标准 Java 约定一致，并参考《阿里巴巴Java开发手册》。
+
+:::tip
+额外附加限制：
 * 将ASF许可注释添加到所有新的 .java 文件（从项目中的现有文件复制）
 
 * 对于新的特征或重要的修复程序，应该添加单元测试。
 
 * 如果没有其他人使用您的分支，请将它与 master（或主项目中的其他目标分支）同步。
-
+:::
+  
 ### 代码风格
 1. 点击Browse repositories–>再搜索CheckStyle–>找到CheckStyle-IDEA–>再点击Install–>自动安装完成后重启
 2. 找到Other Settings –>点击Checkstyle–>再点击Configuration File的加号
@@ -252,27 +257,26 @@ git push origin your_awesome_patch
     ```
 
     * 直接使用 `R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));`
-
+   
 4. id、tenantId、userId等常见id 使用long类型
 5. 组件枚举统一使用EComponentType
 6. 任务枚举统一使用EScheduleJobType
 7. 数据源枚举统一使用DataSourceType
 8. 日志打印规范 统一使用LOGGER大写、debug日志需要判断是否开启了debug
 
-    ```Java
-       if (LOG.isDebugEnabled()) {
-       LOG.debug("using local user:"+user);
-       }
-   ```
+ ```Java
+    if (LOG.isDebugEnabled()) {
+        LOG.debug("using local user:"+user);
+    }
+```
 9. 异常错误 统一使用errorCode
 
 
 ### Commitment 规范
-对 Commit Message 的格式有一定要求，三段式 commit 信息：[${jira-issue-id}][${affected-component}] ${jira-issue-title}
-1. 根据 Issue-Id
-    * 如: [Taiga-issueId][taiga-common] Translate "common module" page into Chinese
+对 Commit Message 的格式有一定要求，三段式 commit 信息：`[${jira-issue-id}][${affected-component}] ${jira-issue-title}`
+* 如: [Taiga-issueId][taiga-common] Translate "common module" page into Chinese
 
-2. 无 Issue-Id 以分支名字命名
-    * 如：[feat_doc][taiga-common] Translate "common module" page into Chinese
-
+:::tip
+无 Issue-Id 以分支名字命名，如：[feat_doc][taiga-common] Translate "common module" page into Chinese
+:::
 
