@@ -164,7 +164,7 @@ public class TenantService {
         msg.append("此集群不可用,测试连通性为通过：\n");
         for (ComponentMultiTestResult testResult : testConnectionVO) {
             EComponentType componentType = EComponentType.getByCode(testResult.getComponentTypeCode());
-            if (!EComponentType.notCheckComponent.contains(componentType)) {
+            if (!EComponentType.notCheckComponent.contains(componentType) && !testResult.getResult()) {
                 canUse = false;
                 msg.append("组件:").append(componentType.getName()).append(" ").append(JSON.toJSONString(testResult.getErrorMsg())).append("\n");
             }
