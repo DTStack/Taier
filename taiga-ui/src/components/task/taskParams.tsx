@@ -24,6 +24,7 @@ import {
 	EDIT_FOLDER_PREFIX,
 	CREATE_TASK_PREFIX,
 	PARAMS_ENUM,
+	CREATE_DATASOURCE_PREFIX,
 } from '@/constant';
 import classNames from 'classnames';
 import HelpDoc from '../../components/helpDoc';
@@ -50,7 +51,12 @@ interface ITaskParamsProps {
 /**
  * 不存在调度配置的 tab，譬如修改任务 tab 等
  */
-const TAB_WITHOUT_SCHEDULE = [EDIT_TASK_PREFIX, EDIT_FOLDER_PREFIX, CREATE_TASK_PREFIX];
+const TAB_WITHOUT_SCHEDULE = [
+	EDIT_TASK_PREFIX,
+	EDIT_FOLDER_PREFIX,
+	CREATE_TASK_PREFIX,
+	CREATE_DATASOURCE_PREFIX,
+];
 
 export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	const [form] = Form.useForm();
@@ -108,7 +114,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	}, [current, isInValidTab]);
 
 	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取调度依赖</div>;
+		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务参数</div>;
 	}
 
 	const tabData = current!.tab!.data!;

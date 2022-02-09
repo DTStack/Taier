@@ -1,0 +1,12 @@
+export default {
+    {{#result}}
+    /* -------- {{{name}}} {{{description}}} -------- */
+    {{#data}}
+    {{operationId}}: { // {{{summary}}}
+        method: '{{method}}',
+        url: `{{{path}}}` 
+    }, 
+    {{/data}}
+
+    {{/result}}
+}

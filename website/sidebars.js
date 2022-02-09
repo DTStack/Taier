@@ -14,7 +14,6 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
     docs: [
-        'overview',
         {
             type: 'category',
             label: '关于 Taiga',

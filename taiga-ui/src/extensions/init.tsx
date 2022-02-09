@@ -2,7 +2,6 @@ import molecule from '@dtinsight/molecule';
 import { CONSOLE, folderMenu, OPERATIONS, OUTPUT_LOG } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
-import { history } from 'umi';
 import classNames from 'classnames';
 import FunctionManager from '@/components/functionManager';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -11,8 +10,10 @@ import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm
 import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
 import Markdown from '@/components/markdown';
 import http from '@/api/http';
+import resourceManagerService from '@/services/resourceManagerService';
+import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
-import { getCookie } from '@/utils/operation';
+import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
 
 export default class InitializeExtension implements IExtension {
@@ -54,6 +55,20 @@ function initializeEntry() {
 	molecule.folderTree.setEntry(
 		<div className={classNames('mt-20px', 'text-center')}>
 			未找到任务开发目录，请联系管理员
+		</div>,
+	);
+
+	// 设置资源管理的入口页面
+	resourceManagerService.setEntry(
+		<div className={classNames('mt-20px', 'text-center')}>
+			未找到资源开发目录，请联系管理员
+		</div>,
+	);
+
+	// 设置函数管理的入口页面
+	functionManagerService.setEntry(
+		<div className={classNames('mt-20px', 'text-center')}>
+			未找到函数开发目录，请联系管理员
 		</div>,
 	);
 }
@@ -182,6 +197,7 @@ function updateAccountContext(contextMenu: IActivityMenuItemProps[]) {
  */
 function initLogin() {
 	const usename = getCookie('username');
+	const tenantName = getCookie('tenant_name') || 'Unknown';
 	updateAccountContext(
 		usename
 			? [
@@ -196,7 +212,7 @@ function initLogin() {
 					},
 					{
 						id: 'tenant-change',
-						name: '切换租户',
+						name: tenantName,
 						onClick: () => showLoginModal(),
 					},
 					{
@@ -205,10 +221,15 @@ function initLogin() {
 						onClick: () => {
 							http.post('/node/user/logout')
 								.then((res) => {
-									history.push('/');
 									if (!res.data) {
 										return message.error('登出失败');
 									}
+									// clear login infos in cookie
+									deleteCookie('userId');
+									deleteCookie('username');
+									deleteCookie('tenantId');
+									deleteCookie('tenant_name');
+									window.location.reload();
 								})
 								.catch(() => {
 									message.error('登出失败');
@@ -223,6 +244,14 @@ function initLogin() {
 						onClick: () => showLoginModal(),
 					},
 			  ],
+	);
+
+	molecule.statusBar.add(
+		{
+			id: 'login',
+			name: usename || '未登陆',
+		},
+		molecule.model.Float.left,
 	);
 }
 

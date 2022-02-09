@@ -18,7 +18,7 @@
 
 import * as React from 'react';
 import { message, Modal } from 'antd';
-import Editor from '@/components/code-editor';
+import Editor from '@/components/codeEditor';
 import { debounce } from 'lodash';
 import Api from '@/api/console';
 import './index.scss';

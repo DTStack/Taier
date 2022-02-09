@@ -23,7 +23,7 @@ import { TASK_TYPE_ENUM } from '@/constant';
 import { useMemo, useState } from 'react';
 import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
-import { getCookie } from '@/utils/operation';
+import { getCookie } from '@/utils';
 import UpstreamDependentTasks from './upstreamDependentTasks';
 
 interface ITaskDependenceProps {
