@@ -13,7 +13,7 @@ sidebar_position: 1
 
 **Taiga** 名字由来中国古代十大名剑之一 —— 太阿。
 
-**Taiga** 是一个分布式可视化的DAG任务调度系统。旨在降低ETL开发成本、提高大数据平台稳定性，大数据开发人员可以在 **Taiga** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中。
+**Taiga** 是一个分布式可视化的DAG任务调度系统。旨在降低**ETL开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taiga** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中。
 
 **Taiga** 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎DAGScheduleX，是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责平台所有任务实例的调度和提交运行。
 
@@ -27,10 +27,9 @@ sidebar_position: 1
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`、`Hive`、`MR`的调度，
-  
-:::tip 
-第一版本支持 Spark SQL、Spark MR、PySpark、Flinkx、Flink MR，
-后续会开源 Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure、Sub_Process
+* 支持众多的任务类型，目前支持 Spark SQL、Spark MR、PySpark、Flinkx、Flink MR
+:::tip
+后续将开源：Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure
 :::
 
 * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
@@ -45,7 +44,7 @@ sidebar_position: 1
 * `Flink`、`SparkSQL`、`HiveSQL`
 
 #### 系统参数
-* 丰富，支持3种时间基准，且可以灵活设置输出格式
+* 丰富，支持**3**种时间基准，且可以灵活设置输出格式
 
 #### 扩展性
 * 设计之处就考虑分布式模式，目前支持 整体 **Taiga** 水平扩容 和 拆分`Master`/`Worker` 水平扩容方式；
