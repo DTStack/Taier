@@ -1,8 +1,6 @@
 package com.dtstack.taiga.scheduler.server.scheduler;
 
-import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.common.enums.OperatorType;
-import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
 import com.dtstack.taiga.dao.domain.ScheduleJobOperatorRecord;
@@ -43,7 +41,7 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
 
     @Override
     protected List<ScheduleJobDetails> listExecJob(Long startSort, String nodeAddress, Boolean isEq) {
-        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordService.listOperatorRecord(startSort, nodeAddress, getType(), isEq);
+        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordService.listOperatorRecord(startSort, nodeAddress, getOperatorType().getType(), isEq);
 
         if (CollectionUtils.isNotEmpty(records)) {
             Set<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toSet());
@@ -87,19 +85,7 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
      * 获得operator类型
      * @return 类型值
      */
-    private Integer getType() {
-        EScheduleType scheduleType = getScheduleType();
-
-        if (EScheduleType.FILL_DATA.equals(scheduleType)) {
-            return OperatorType.FILL_DATA.getType();
-        } else if (EScheduleType.RESTART.equals(scheduleType)) {
-            return OperatorType.RESTART.getType();
-        } else if (EScheduleType.STOP.equals(scheduleType)) {
-            return OperatorType.STOP.getType();
-        }
-
-        throw new RdosDefineException("operator record is not type:" + getScheduleType());
-    }
+    public abstract OperatorType getOperatorType();
 
     /**
      * 查询实例方法

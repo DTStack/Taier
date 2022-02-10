@@ -7,12 +7,12 @@
         FROM schedule_job_operator_record
         WHERE
         <if test="isEq">
-            id >= #{startId}
+            id >= #{startSort}
         </if>
         <if test="!isEq">
-            id > #{startId}
+            id > #{startSort}
         </if>
-        node_address = #{nodeAddress}
+        AND node_address = #{nodeAddress}
         AND operator_type = #{type}
         AND is_deleted =0
         order by id asc limit 100;

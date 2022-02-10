@@ -31,7 +31,7 @@ public class ScheduleJobOperatorRecordService extends ServiceImpl<ScheduleJobOpe
      * @return 操作记录
      */
     public List<ScheduleJobOperatorRecord> listOperatorRecord(Long startSort, String nodeAddress, Integer type, Boolean isEq) {
-        if (startSort != null && startSort > 0) {
+        if (startSort != null && startSort >= 0) {
             return this.baseMapper.listOperatorRecord(startSort,nodeAddress,type,isEq);
         }
         return Lists.newArrayList();

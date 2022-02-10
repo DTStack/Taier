@@ -49,7 +49,7 @@ public class ClusterController {
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
     })
     @PostMapping(value = "/addCluster")
-    public R<Boolean> addCluster(@RequestParam("clusterName") String clusterName) {
+    public R<Long> addCluster(@RequestParam("clusterName") String clusterName) {
         return R.ok(consoleClusterService.addCluster(clusterName));
     }
 
