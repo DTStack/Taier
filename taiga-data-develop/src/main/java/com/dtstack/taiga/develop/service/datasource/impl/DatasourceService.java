@@ -2030,6 +2030,7 @@ public class DatasourceService {
         BatchDataSource batchDataSource = new BatchDataSource();
         BeanUtils.copyProperties(dsInfo, batchDataSource);
         batchDataSource.setType(dsInfo.getDataTypeCode());
+        batchDataSource.setIsDefault(dsInfo.getIsMeta());
         return batchDataSource;
     }
 
