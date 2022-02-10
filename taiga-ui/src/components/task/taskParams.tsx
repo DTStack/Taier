@@ -118,7 +118,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	}
 
 	const tabData = current!.tab!.data!;
-	const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+	const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
 
 	return (
 		<molecule.component.Scrollable>

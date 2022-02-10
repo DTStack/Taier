@@ -1,0 +1,9 @@
+{
+    "id": "Taier-zh-CN",
+    "name": "简体中文 - 太阿",
+    "inherit": "zh-CN",
+    "source": {
+        "menu.file": "任务",
+        "menu.newFile": "新建任务"
+    }
+}
