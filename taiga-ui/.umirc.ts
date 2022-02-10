@@ -2,7 +2,7 @@ import { defineConfig } from 'umi';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
-	title: 'Taiga | DTstack',
+	title: 'Taiga | DTStack',
 	targets: {
 		ios: false,
 	},
@@ -36,6 +36,8 @@ export default defineConfig({
 	esbuild: {},
 	theme: {
 		'primary-color': '#3f87ff',
+		// 'link-color': 'var(--textLink-foreground)',
+		'border-radius-base': '0px',
 	},
 	tailwindcss: {},
 	proxy: {

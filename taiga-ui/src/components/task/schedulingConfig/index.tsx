@@ -304,14 +304,14 @@ export default function SchedulingConfig({
 					<Panel key="1" header="调度属性">
 						<FormWrap
 							scheduleConf={scheduleConf}
-							status={tabData.scheduleStatus}
+							status={tabData?.scheduleStatus}
 							handleScheduleStatus={handleScheduleStatus}
 							handleScheduleConf={handleScheduleConf}
 							handleScheduleType={handleScheduleType}
 							ref={form}
 						/>
 					</Panel>
-					{!isWorkflowNode && tabData.taskType !== TASK_TYPE_ENUM.VIRTUAL_NODE && (
+					{!isWorkflowNode && tabData && tabData.taskType !== TASK_TYPE_ENUM.VIRTUAL_NODE && (
 						<Panel key="2" header="任务间依赖">
 							<TaskDependence
 								handleAddVOS={handleAddVOS}

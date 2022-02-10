@@ -1,7 +1,14 @@
+
+.mo-editor .mo-editor__group-breadcrumb {
+	// padding-left: 10px;
+    font-size: 12px;
+}
+
 .source {
 	height: 100%;
 	padding: 20px;
-	background: #f2f7fa;
+    padding-top: 15px;
+	background: var(--editor-background);
 
 	.content {
 		display: grid;
@@ -11,7 +18,6 @@
 		overflow: hidden;
 		background-color: #fff;
 		border: 1px solid rgba(6, 14, 26, 0.08);
-		border-radius: 2px;
 
 		.top-steps {
 			padding: 12px 20%;

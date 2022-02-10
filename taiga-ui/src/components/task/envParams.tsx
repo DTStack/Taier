@@ -92,15 +92,15 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 				editorInstance.onDidChangeModelContent(() => {
 					const currentValue = editorIns.current?.getModel()?.getValue() || '';
 
-					onChange?.(current.tab!, currentValue);
+					onChange?.(current?.tab!, currentValue);
 				});
 
 				const model =
-					monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
+					monacoEditor.getModel(getUniqPath(current?.tab?.data.path)) ||
 					monacoEditor.createModel(
-						current.tab?.data.taskParams || '',
+						current?.tab?.data.taskParams || '',
 						'ini',
-						getUniqPath(current.tab?.data.path),
+						getUniqPath(current?.tab?.data.path),
 					);
 
 				editorInstance.setModel(model);

@@ -62,18 +62,15 @@
 				display: block;
 				width: 100%;
 				background: #fff;
-				border-radius: 3px;
 				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
 
 				&:hover {
 					background: #fff;
 					border: 1px solid #4285f5;
-					border-radius: 3px;
 				}
 
 				&.selected {
 					border: 1px solid #4285f5;
-					border-radius: 3px;
 					box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.12);
 				}
 			}
