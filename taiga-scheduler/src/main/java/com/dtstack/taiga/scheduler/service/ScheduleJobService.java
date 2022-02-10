@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taiga.common.enums.ForceCancelFlag;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.OperatorType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.RdosDefineException;
@@ -147,7 +147,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
                 // 更新状态
                  this.lambdaUpdate()
-                        .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .in(ScheduleJob::getJobId, jobIds)
                         .update(scheduleJob);
 
@@ -291,7 +291,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         scheduleJob.setVersionId(versionId);
         return this.lambdaUpdate()
                 .eq(ScheduleJob::getJobId,jobId)
-                .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
     }
 
@@ -314,7 +314,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         scheduleJobExpand.setLogInfo(logInfo);
         scheduleJobExpandService.lambdaUpdate()
                 .eq(ScheduleJobExpand::getJobId, jobId)
-                .eq(ScheduleJobExpand::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJobExpand::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJobExpand);
     }
 
@@ -340,7 +340,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if (StringUtils.isBlank(jobId)) {
             return null;
         }
-        ScheduleJob scheduleJob = this.lambdaQuery().eq(ScheduleJob::getJobId, jobId).eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
+        ScheduleJob scheduleJob = this.lambdaQuery().eq(ScheduleJob::getJobId, jobId).eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()).one();
 
         if (scheduleJob == null) {
             return null;

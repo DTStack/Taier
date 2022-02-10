@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.scheduler;
 
 import com.dtstack.taiga.common.enums.EScheduleType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.OperatorType;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
@@ -69,7 +69,7 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
     @Override
     protected List<ScheduleJob> getScheduleJob(Set<String> jobIds) {
         return scheduleJobService.lambdaQuery().in(ScheduleJob::getJobId, jobIds)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(ScheduleJob::getStatus, RdosTaskStatus.UNSUBMIT.getStatus())
                 .eq(ScheduleJob::getType, getScheduleType().getType())
                 .eq(ScheduleJob::getPhaseStatus, JobPhaseStatus.CREATE.getCode())

@@ -3,7 +3,7 @@ package com.dtstack.taiga.develop.service.schedule;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taiga.common.enums.DisplayDirect;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
@@ -53,7 +53,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         // 查询实例是否存在,如不不存在，直接抛异常，下面的逻辑不需要在走了
         ScheduleJob scheduleJob = jobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, dto.getJobId())
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
         if (scheduleJob == null) {
@@ -82,7 +82,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         // 查询实例是否存在,如不不存在，直接抛异常，下面的逻辑不需要在走了
         ScheduleJob scheduleJob = jobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
         if (scheduleJob == null) {
@@ -100,7 +100,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     private ReturnJobDisplayVO displayAllFlowSubJobs(ScheduleJob scheduleJob) {
         List<ScheduleJob> scheduleJobList = jobService.lambdaQuery()
                 .eq(ScheduleJob::getFlowJobId, scheduleJob.getJobId())
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.toMap(ScheduleJob::getJobKey,g->(g)));
 
@@ -108,7 +108,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         Set<String> jobKeySet = jobMap.keySet();
         jobKeySet.add(scheduleJob.getJobKey());
         List<ScheduleJobJob> scheduleJobJobs = this.lambdaQuery().in(ScheduleJobJob::getJobKey, jobKeySet)
-                .in(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .in(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         Map<String, List<String>> jobJobMaps = scheduleJobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJob::getParentJobKey, Collectors.mapping(ScheduleJobJob::getJobKey, Collectors.toList())));
 
@@ -117,7 +117,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         taskIdList.add(scheduleJob.getTaskId());
         List<ScheduleTaskShade> taskShades = taskService.lambdaQuery()
                 .in(ScheduleTaskShade::getTaskId, taskIdList)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShades.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
 
@@ -226,7 +226,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         }
         List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery()
                 .in(ScheduleTaskShade::getTaskId, taskIdList)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         return taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
     }
@@ -249,7 +249,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         }
         return jobService.lambdaQuery()
                 .in(ScheduleJob::getJobKey, jobKeySet)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(ScheduleJob::getFlowJobId, 0)
                 .list();
     }
@@ -274,7 +274,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向下查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getParentJobKey, jobKeys)
-                        .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 
                 jobJobKeyMap.putAll(jobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getParentJobKey, Collectors.mapping(ScheduleJobJob::getJobKey, Collectors.toList()))));
@@ -283,7 +283,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向上查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getJobKey, jobKeys)
-                        .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 
                 jobJobKeyMap.putAll(jobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey, Collectors.mapping(ScheduleJobJob::getParentJobKey, Collectors.toList()))));
