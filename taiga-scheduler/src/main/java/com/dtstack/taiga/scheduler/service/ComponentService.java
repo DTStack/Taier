@@ -27,9 +27,11 @@ import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.Cluster;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.KerberosConfig;
+import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.ClusterMapper;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.ComponentMapper;
+import com.dtstack.taiga.scheduler.enums.DictType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +60,9 @@ public class ComponentService {
 
     @Autowired
     private ComponentConfigService componentConfigService;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
 
 
     /**
@@ -238,5 +243,26 @@ public class ComponentService {
     public Integer getMetaComponentByClusterId(Long clusterId) {
         com.dtstack.taiga.dao.domain.Component metadataComponent = getMetadataComponent(clusterId);
         return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
+    }
+
+    public String buildHdfsTypeName(Long tenantId,Long clusterId) {
+        if(null == clusterId){
+            clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        }
+        Component component = getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
+        if (null == component || StringUtils.isBlank(component.getVersionName())) {
+            return "hdfs2";
+        }
+        String versionName = component.getVersionName();
+        List<ScheduleDict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
+        Optional<ScheduleDict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
+        if (dbTypeNames.isPresent()) {
+            return dbTypeNames.get().getDictValue();
+        }
+        String hadoopVersion = component.getVersionValue();
+        if(StringUtils.isBlank(hadoopVersion)){
+            return "hdfs2";
+        }
+        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
     }
 }
