@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.builder.dependency;
 
 import com.dtstack.taiga.common.enums.DependencyType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taiga.scheduler.server.builder.ScheduleConf;
@@ -42,7 +42,7 @@ public class DependencyManager {
         // 查询上游任务
         List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList = scheduleTaskTaskService.lambdaQuery()
                 .eq(ScheduleTaskTaskShade::getTaskId, currentTaskShade.getTaskId())
-                .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         DependencyHandler dependencyHandler = null;
         List<Long> parentTaskIds = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
@@ -53,7 +53,7 @@ public class DependencyManager {
             // 查询任务
             taskShadeList = scheduleTaskService.lambdaQuery()
                     .in(ScheduleTaskShade::getTaskId, parentTaskIds)
-                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
 
             if (CollectionUtils.isNotEmpty(taskShadeList)) {

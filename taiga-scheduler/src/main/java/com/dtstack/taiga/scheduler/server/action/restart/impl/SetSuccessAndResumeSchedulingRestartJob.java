@@ -1,6 +1,6 @@
 package com.dtstack.taiga.scheduler.server.action.restart.impl;
 
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.scheduler.server.action.restart.AbstractRestartJob;
@@ -35,7 +35,7 @@ public class SetSuccessAndResumeSchedulingRestartJob extends AbstractRestartJob 
             if (!"0".equalsIgnoreCase(job.getFlowJobId())) {
                 ScheduleJob workFlowJob = scheduleJobService.lambdaQuery()
                         .eq(ScheduleJob::getJobId,job.getFlowJobId())
-                        .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .one();
                 if (null != workFlowJob) {
                     resumeBatchJobs.put(workFlowJob.getJobId(), workFlowJob.getCycTime());
