@@ -231,4 +231,16 @@ public class BatchTaskController {
         }.execute();
     }
 
+    @PostMapping(value = "frozenTask")
+    @ApiOperation("所有产品的已提交任务查询")
+    public R<Void> frozenTask(@RequestBody BatchFrozenTaskVO vo) {
+        return new APITemplate<Void>() {
+            @Override
+            protected Void process() {
+                batchTaskService.frozenTask(vo.getTaskId(), vo.getScheduleStatus(), vo.getUserId());
+                return null;
+            }
+        }.execute();
+    }
+
 }
