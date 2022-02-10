@@ -132,10 +132,10 @@ function emitEvent() {
 					// active 日志 窗口
 					const { data } = molecule.panel.getState();
 					const {
-						menuBar: { hidden },
+						panel: { hidden },
 					} = molecule.layout.getState();
 					if (hidden) {
-						molecule.layout.toggleMenuBarVisibility();
+						molecule.layout.togglePanelVisibility();
 					}
 					molecule.panel.setState({
 						current: data?.find((item) => item.id === OUTPUT_LOG),
@@ -173,7 +173,22 @@ function emitEvent() {
 							taskParams: currentTabData.taskParams,
 						};
 
-						const sqls = filterSql(value);
+						// 需要被执行的 sql 语句
+						const sqls = [];
+						const selections = molecule.editor.editorInstance.getSelections();
+						// 如果存在选中行，则执行选中行
+						if (selections?.length) {
+							selections?.forEach((s) => {
+								const text = molecule.editor.editorInstance
+									.getModel()
+									?.getValueInRange(s);
+								if (text) {
+									sqls.push(...filterSql(text));
+								}
+							});
+						} else {
+							sqls.push(...filterSql(value));
+						}
 						executeService
 							.execSql(currentTabData.id, currentTabData, params, sqls)
 							.then(() => {
