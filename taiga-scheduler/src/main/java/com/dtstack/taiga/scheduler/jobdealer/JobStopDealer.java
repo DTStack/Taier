@@ -141,7 +141,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         // 查询一遍Operator表，过滤数据
         List<ScheduleJobOperatorRecord> scheduleJobOperatorRecordList = scheduleJobOperatorRecordService.lambdaQuery()
                 .in(ScheduleJobOperatorRecord::getJobId, scheduleJobList.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()))
-                .eq(ScheduleJobOperatorRecord::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJobOperatorRecord::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         List<String> alreadyExistJobIds = scheduleJobOperatorRecordList.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
 
@@ -190,7 +190,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setStatus(RdosTaskStatus.CANCELED.getStatus());
         scheduleJobService
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
     }
 
@@ -284,7 +284,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             scheduleJob.setStatus(RdosTaskStatus.CANCELED.getStatus());
                             scheduleJobService.lambdaUpdate()
                                     .eq(ScheduleJob::getJobId,jobStopRecord.getJobId())
-                                    .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                                    .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
                                     .in(ScheduleJob::getStatus, RdosTaskStatus.getUnfinishedStatuses())
                                     .update(scheduleJob);
                             LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
@@ -365,7 +365,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         EngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobElement.jobId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
         if (jobCache == null) {
             if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {

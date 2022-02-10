@@ -2,7 +2,7 @@ package com.dtstack.taiga.scheduler.server.builder;
 
 import com.dtstack.taiga.common.enums.EScheduleStatus;
 import com.dtstack.taiga.common.enums.EScheduleType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.pluginapi.util.RetryUtil;
@@ -178,7 +178,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
 
     private Integer getTotalTask() {
         return scheduleTaskService.lambdaQuery()
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .in(ScheduleTaskShade::getScheduleStatus, Sets.newHashSet(EScheduleStatus.NORMAL.getVal(),EScheduleStatus.FREEZE.getVal()))
                 .count();
     }

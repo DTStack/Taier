@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleJobExpand;
 import com.dtstack.taiga.dao.mapper.ScheduleJobExpandMapper;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,7 +28,7 @@ public class ScheduleJobExpandService extends ServiceImpl<ScheduleJobExpandMappe
      */
     public Integer clearData(Set<String> jobIds) {
         if (CollectionUtils.isNotEmpty(jobIds)) {
-            return this.baseMapper.updateLogByJobIds(jobIds, IsDeletedEnum.NOT_DELETE.getType(),"","");
+            return this.baseMapper.updateLogByJobIds(jobIds, Deleted.NORMAL.getStatus(),"","");
         }
         return 0;
     }

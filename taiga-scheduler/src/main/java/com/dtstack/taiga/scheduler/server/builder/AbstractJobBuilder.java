@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.builder;
 
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.Restarted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.RdosDefineException;
@@ -102,7 +102,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
                 // 该任务是工作流任务 先生成子任务
                 List<ScheduleTaskShade> subTasks = scheduleTaskService.lambdaQuery()
                         .eq(ScheduleTaskShade::getFlowId, scheduleTaskShade.getTaskId())
-                        .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
                 List<ScheduleJobDetails> flowBean = Lists.newArrayList();
                 ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
@@ -174,7 +174,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         scheduleJob.setJobName(getName(scheduleTaskShade, name, cycTime));
         scheduleJob.setTaskId(scheduleTaskShade.getTaskId());
         scheduleJob.setCreateUserId(scheduleTaskShade.getCreateUserId());
-        scheduleJob.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        scheduleJob.setIsDeleted(Deleted.NORMAL.getStatus());
         scheduleJob.setType(getType());
         scheduleJob.setIsRestart(Restarted.NORMAL.getStatus());
         scheduleJob.setCycTime(cycTime);

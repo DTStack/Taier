@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.action.restart;
 
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
@@ -56,7 +56,7 @@ public abstract class AbstractRestart {
         if (CollectionUtils.isNotEmpty(subFlowJob)) {
             List<ScheduleJob> jobList = scheduleJobService.lambdaQuery()
                     .in(ScheduleJob::getFlowJobId, subFlowJob)
-                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
             if(CollectionUtils.isNotEmpty(jobList)){
                 resumeBatchJobs.putAll(jobList.stream().collect(Collectors.toMap(ScheduleJob::getJobId,ScheduleJob::getCycTime)));
@@ -76,7 +76,7 @@ public abstract class AbstractRestart {
             //如果任务为工作流类型 需要补充自己的子节点
             List<ScheduleJob> flowJobList = scheduleJobService.lambdaQuery()
                     .eq(ScheduleJob::getFlowJobId, batchJob.getJobId())
-                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
             if (CollectionUtils.isNotEmpty(flowJobList)) {
                 subJobIds.addAll(flowJobList.stream()
@@ -122,7 +122,7 @@ public abstract class AbstractRestart {
         scheduleJob.setStatus(RdosTaskStatus.MANUALSUCCESS.getStatus());
         scheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobService.lambdaUpdate().in(ScheduleJob::getFlowJobId,jobIds)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
 
         LOGGER.info("ids  {} manual success", jobIds);
