@@ -79,7 +79,7 @@ function initializeEntry() {
 function initResourceManager() {
 	const resourceManager = {
 		id: 'ResourceManager',
-		icon: 'icon_ziyuan iconfont',
+		icon: 'package',
 		name: '资源管理',
 		title: '资源管理',
 	};
@@ -112,7 +112,7 @@ function initResourceManager() {
 function initFunctionManager() {
 	const functionManager = {
 		id: 'FunctionManager',
-		icon: 'icon_hanshu iconfont',
+		icon: 'variable-group',
 		name: '函数管理',
 		title: '函数管理',
 	};
@@ -165,18 +165,20 @@ function initMenuBar() {
 	const state = molecule.menuBar.getState();
 	const nextData = state.data.concat();
 	molecule.layout.setMenuBarMode('horizontal');
-	nextData.push(
-		{
-			id: 'operation',
-			name: '运维中心',
-			data: [...OPERATIONS],
-		},
-		{
-			id: 'console',
-			name: '控制台',
-			data: [...CONSOLE],
-		},
-	);
+	nextData.splice(1, 0, {
+		id: 'operation',
+		name: '运维中心',
+		data: [...OPERATIONS],
+	});
+	nextData.splice(2, 0, {
+		id: 'console',
+		name: '控制台',
+		data: [...CONSOLE],
+	});
+	const menuRunning = nextData.findIndex(menu => menu.id === 'Run');
+	if (menuRunning > -1) {
+		nextData.splice(menuRunning, 1);
+	}
 	molecule.menuBar.setState({
 		data: nextData,
 	});
@@ -248,6 +250,7 @@ function initLogin() {
 
 	molecule.statusBar.add(
 		{
+			sortIndex: 0,
 			id: 'login',
 			name: usename || '未登陆',
 		},
@@ -277,7 +280,8 @@ function initExplorer() {
 function initDataSource() {
 	const dataSource = {
 		id: 'dataSource',
-		icon: 'gear',
+		sortIndex: -1,
+		icon: 'database',
 		name: '数据源',
 		title: '数据源',
 	};
