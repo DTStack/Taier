@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
 import com.dtstack.taiga.dao.mapper.ScheduleJobJobMapper;
 import com.google.common.collect.Lists;
@@ -28,7 +28,7 @@ public class ScheduleJobJobService extends ServiceImpl<ScheduleJobJobMapper, Sch
     public List<ScheduleJobJob> listByJobKeys(List<String> jobKeys) {
         if (CollectionUtils.isNotEmpty(jobKeys)) {
             return this.lambdaQuery().in(ScheduleJobJob::getJobKey,jobKeys)
-                    .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
         }
         return Lists.newArrayList();

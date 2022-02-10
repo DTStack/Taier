@@ -1,6 +1,6 @@
 package com.dtstack.taiga.scheduler.server.scheduler;
 
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.JobCheckStatus;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
@@ -102,7 +102,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
                 List<Long> taskIds = scheduleJobDetails.stream().map(ScheduleJobDetails::getScheduleJob).map(ScheduleJob::getTaskId).collect(Collectors.toList());
                 Map<Long, ScheduleTaskShade> scheduleTaskShadeMap = scheduleTaskService.lambdaQuery()
                         .in(ScheduleTaskShade::getTaskId, taskIds)
-                        .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list()
                         .stream()
                         .collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));

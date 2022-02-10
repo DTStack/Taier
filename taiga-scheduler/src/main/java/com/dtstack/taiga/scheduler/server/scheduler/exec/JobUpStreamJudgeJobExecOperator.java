@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.scheduler.exec;
 
 import com.dtstack.taiga.common.enums.EScheduleType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.JobCheckStatus;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
@@ -46,7 +46,7 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
             Map<String, ScheduleJob> scheduleJobMap = scheduleJobService.lambdaQuery()
                     .select(ScheduleJob::getStatus, ScheduleJob::getJobId, ScheduleJob::getJobKey, ScheduleJob::getJobName)
                     .in(ScheduleJob::getJobKey, parentJobKeys)
-                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list().stream().collect(Collectors.toMap(ScheduleJob::getJobKey, g -> (g)));
 
 

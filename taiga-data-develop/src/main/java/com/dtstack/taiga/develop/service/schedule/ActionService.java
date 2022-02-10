@@ -1,6 +1,6 @@
 package com.dtstack.taiga.develop.service.schedule;
 
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleEngineJobRetry;
@@ -78,7 +78,7 @@ public class ActionService {
     public Integer batchStopJobs(List<String> jobIds) {
         List<ScheduleJob> scheduleJobList = jobService.lambdaQuery()
                 .in(ScheduleJob::getJobId, jobIds)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         return jobStopDealer.addStopJobs(scheduleJobList);
     }
@@ -92,7 +92,7 @@ public class ActionService {
     public Integer stopFillDataJobs(Long fillId) {
         List<ScheduleJob> scheduleJobList = jobService.lambdaQuery()
                 .eq(ScheduleJob::getFillId, fillId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         return jobStopDealer.addStopJobs(scheduleJobList);
     }
@@ -107,7 +107,7 @@ public class ActionService {
         List<ScheduleJob> scheduleJobList = jobService.lambdaQuery()
                 .eq(ScheduleJob::getTenantId, dto.getTenantId())
                 .eq(ScheduleJob::getCreateUserId, dto.getUserId())
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .between(dto.getCycStartDay() != null && dto.getCycEndTimeDay() != null, ScheduleJob::getCycTime, jobService.getCycTime(dto.getCycStartDay()), jobService.getCycTime(dto.getCycEndTimeDay()))
                 .eq(dto.getType() != null, ScheduleJob::getType, dto.getType())
                 .in(CollectionUtils.isNotEmpty(dto.getTaskPeriodList()), ScheduleJob::getPeriodType, dto.getTaskPeriodList())
@@ -129,7 +129,7 @@ public class ActionService {
 
         // 查询周期实例
         ScheduleJob scheduleJob = jobService.lambdaQuery().eq(ScheduleJob::getJobId, jobId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
         if (scheduleJob == null) {
@@ -143,7 +143,7 @@ public class ActionService {
             ScheduleEngineJobRetry scheduleEngineJobRetry = jobRetryService.lambdaQuery()
                     .eq(ScheduleEngineJobRetry::getJobId, jobId)
                     .eq(ScheduleEngineJobRetry::getRetryNum, pageInfo)
-                    .eq(ScheduleEngineJobRetry::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleEngineJobRetry::getIsDeleted, Deleted.NORMAL.getStatus())
                     .orderBy(true, false, ScheduleEngineJobRetry::getId)
                     .one();
 
@@ -157,7 +157,7 @@ public class ActionService {
         } else {
             // 查询当前日志
             ScheduleJobExpand scheduleJobExpand = jobExpandService.lambdaQuery()
-                    .eq(ScheduleJobExpand::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJobExpand::getIsDeleted, Deleted.NORMAL.getStatus())
                     .eq(ScheduleJobExpand::getJobId, jobId)
                     .one();
 
@@ -170,7 +170,7 @@ public class ActionService {
         // 封装sql信息
         ScheduleTaskShade scheduleTaskShade = taskService.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, scheduleJob.getTaskId())
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
         if (null != scheduleTaskShade) {

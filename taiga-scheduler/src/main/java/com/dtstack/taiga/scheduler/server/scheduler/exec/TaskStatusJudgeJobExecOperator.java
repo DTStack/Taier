@@ -2,7 +2,7 @@ package com.dtstack.taiga.scheduler.server.scheduler.exec;
 
 import com.dtstack.taiga.common.enums.EScheduleStatus;
 import com.dtstack.taiga.common.enums.EScheduleType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.JobCheckStatus;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
@@ -29,7 +29,7 @@ public class TaskStatusJudgeJobExecOperator implements JudgeJobExecOperator {
         JobCheckRunInfo checkRunInfo = new JobCheckRunInfo();
 
         // 任务已经删除
-        if (scheduleTaskShade == null || IsDeletedEnum.DELETE.getType().equals(scheduleTaskShade.getIsDeleted())) {
+        if (scheduleTaskShade == null || Deleted.DELETED.getStatus().equals(scheduleTaskShade.getIsDeleted())) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.TASK_DELETE);
             checkRunInfo.setLogInfo(JobCheckStatus.TASK_DELETE.getMsg());

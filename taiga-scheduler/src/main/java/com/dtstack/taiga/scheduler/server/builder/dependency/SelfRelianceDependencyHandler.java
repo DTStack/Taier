@@ -1,6 +1,6 @@
 package com.dtstack.taiga.scheduler.server.builder.dependency;
 
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.pluginapi.util.DateUtil;
@@ -39,7 +39,7 @@ public class SelfRelianceDependencyHandler extends AbstractDependencyHandler {
         scheduleJobJob.setParentJobKey(lastJobKey);
         scheduleJobJob.setJobKeyType(RelyType.SELF_RELIANCE.getType());
         scheduleJobJob.setRule(getRule(corn.getScheduleConf()));
-        scheduleJobJob.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+        scheduleJobJob.setIsDeleted(Deleted.NORMAL.getStatus());
         jobJobList.add(scheduleJobJob);
         return jobJobList;
     }
