@@ -24,6 +24,7 @@ import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jiangyue@dtstack.com">江月 At 袋鼠云</a>.
@@ -50,7 +51,7 @@ public class DataSourceTypeJobTypeMapping {
      */
     public static EScheduleJobType getTaskTypeByDataSourceType(Integer dataSourceType){
         EScheduleJobType eScheduleJobType = mappingMap.get(dataSourceType);
-        if(eScheduleJobType == null){
+        if (Objects.isNull(eScheduleJobType)) {
             throw new RdosDefineException("无法通过dataSourceType获取EScheduleJobType");
         }
         return eScheduleJobType;
