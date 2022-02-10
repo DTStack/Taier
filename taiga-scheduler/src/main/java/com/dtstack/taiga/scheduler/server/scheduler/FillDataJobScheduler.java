@@ -2,6 +2,7 @@ package com.dtstack.taiga.scheduler.server.scheduler;
 
 import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.OperatorType;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taiga.scheduler.enums.JobPhaseStatus;
@@ -10,6 +11,7 @@ import com.dtstack.taiga.scheduler.server.scheduler.handler.JudgeNoPassJobHandle
 import com.dtstack.taiga.scheduler.service.ScheduleJobService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.zookeeper.Op;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +62,11 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
     }
 
     @Override
+    public OperatorType getOperatorType() {
+        return OperatorType.FILL_DATA;
+    }
+
+    @Override
     protected List<ScheduleJob> getScheduleJob(Set<String> jobIds) {
         return scheduleJobService.lambdaQuery().in(ScheduleJob::getJobId, jobIds)
                 .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
@@ -69,8 +76,12 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
                 .ne(ScheduleJob::getFillId, 0).list();
     }
 
-    @Override
     public EScheduleType getScheduleType() {
         return EScheduleType.FILL_DATA;
+    }
+
+    @Override
+    public String getSchedulerName() {
+        return getScheduleType().name();
     }
 }

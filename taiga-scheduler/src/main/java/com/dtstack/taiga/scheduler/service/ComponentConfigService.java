@@ -38,6 +38,7 @@ import com.dtstack.taiga.scheduler.vo.ComponentMultiVersionVO;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import com.dtstack.taiga.scheduler.vo.IComponentVO;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,7 +201,7 @@ public class ComponentConfigService {
         String cacheKey = LocalCacheUtil.generateKey(clusterId, componentType, isFilter, componentVersion, componentId);
         Map<String, Object> result = (Map<String, Object>)LocalCacheUtil.get(componentCacheGroup, cacheKey);
         // 如果缓存中存在，直接返回
-        if (result != null) {
+        if (MapUtils.isNotEmpty(result)) {
             return result;
         }
         // 缓存中不存在，查询 DB

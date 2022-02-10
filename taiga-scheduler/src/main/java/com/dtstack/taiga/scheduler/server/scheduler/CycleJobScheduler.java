@@ -92,8 +92,12 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
         return Lists.newArrayList();
     }
 
-    @Override
     public EScheduleType getScheduleType() {
         return EScheduleType.NORMAL_SCHEDULE;
+    }
+
+    @Override
+    public String getSchedulerName() {
+        return getScheduleType().name();
     }
 }

@@ -89,11 +89,11 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
             if (StringUtils.isBlank(nodeAddress)) {
                 return;
             }
-            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getScheduleType().name(),nodeAddress);
+            LOGGER.info("scanningJob start scheduleType : {} nodeAddress:{}", getSchedulerName(),nodeAddress);
 
             // 2. 获得排序最小序号
             Long minSort = getMinSort();
-            LOGGER.info("scanning start param: scheduleType {} nodeAddress {} minSort {} ", getScheduleType(), nodeAddress, minSort);
+            LOGGER.info("scanning start param: scheduleType {} nodeAddress {} minSort {} ", getSchedulerName(), nodeAddress, minSort);
 
             // 3. 扫描实例
             List<ScheduleJobDetails> scheduleJobDetails = listExecJob(minSort, nodeAddress, Boolean.TRUE);
@@ -115,7 +115,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
                     if (scheduleTaskShade == null) {
                         String errMsg = JobCheckStatus.NO_TASK.getMsg();
                         scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.SUBMITFAILD.getStatus(), errMsg);
-                        LOGGER.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleJob.getJobId(), getScheduleType(), scheduleJob.getTaskId());
+                        LOGGER.warn("jobId:{} scheduleType:{} submit failed for taskId:{} already deleted.", scheduleJob.getJobId(), getSchedulerName(), scheduleJob.getTaskId());
                         continue;
                     }
                     scheduleJobDetail.setScheduleTaskShade(scheduleTaskShade);
@@ -131,7 +131,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
                 scheduleJobDetails = listExecJob(minSort, nodeAddress, Boolean.FALSE);
             }
         } catch (Exception e) {
-            LOGGER.error("scheduleType:{} emitJob2Queue error:", getScheduleType(), e);
+            LOGGER.error("scheduleType:{} emitJob2Queue error:", getSchedulerName(), e);
         }
     }
 
@@ -169,8 +169,8 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOGGER.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getScheduleType(), env.getAcquireQueueJobInterval(), env.getQueueSize());
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getScheduleType() + "_AcquireJob"));
+        LOGGER.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getSchedulerName(), env.getAcquireQueueJobInterval(), env.getQueueSize());
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getSchedulerName() + "_AcquireJob"));
         scheduledService.scheduleWithFixedDelay(this::scanningJob, 0, env.getAcquireQueueJobInterval(), TimeUnit.MILLISECONDS);
     }
 
