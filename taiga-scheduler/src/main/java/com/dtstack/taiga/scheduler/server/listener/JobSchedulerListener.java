@@ -99,12 +99,14 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
             }
             allNodeJobInfo.computeIfAbsent(nodeAddress, na -> {
                 Map<Integer, QueueInfo> nodeJobInfo = Maps.newHashMap();
-                executors.forEach(executor -> nodeJobInfo.computeIfAbsent(executor.getScheduleType().getType(), k -> {
-                    int queueSize = scheduleJobMapper.countTasksByCycTimeTypeAndAddress(nodeAddress, executor.getScheduleType().getType(), cycTime.getLeft(), cycTime.getRight());
-                    QueueInfo queueInfo = new QueueInfo();
-                    queueInfo.setSize(queueSize);
-                    return queueInfo;
-                }));
+                for (EScheduleType scheduleType : EScheduleType.values()) {
+                    executors.forEach(executor -> nodeJobInfo.computeIfAbsent(scheduleType.getType(), k -> {
+                        int queueSize = scheduleJobMapper.countTasksByCycTimeTypeAndAddress(nodeAddress,scheduleType.getType(), cycTime.getLeft(), cycTime.getRight());
+                        QueueInfo queueInfo = new QueueInfo();
+                        queueInfo.setSize(queueSize);
+                        return queueInfo;
+                    }));
+                }
                 return nodeJobInfo;
             });
         }
@@ -144,7 +146,6 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
         }
         executors.add(fillDataJobScheduler);
         executors.add(cycleJobScheduler);
-        executors.add(restartJobScheduler);
 
         executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));

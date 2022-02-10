@@ -54,7 +54,7 @@
     <select id="getByClusterIdAndComponentType" resultType="com.dtstack.taiga.dao.domain.Component">
         SELECT
         c.id,c.cluster_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type
+        c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type,c.version_name
         FROM
         console_component c
         WHERE

@@ -1,6 +1,5 @@
 package com.dtstack.taiga.scheduler.server.scheduler;
 
-import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.scheduler.server.ScheduleJobDetails;
 
 /**
@@ -11,11 +10,6 @@ import com.dtstack.taiga.scheduler.server.ScheduleJobDetails;
  */
 public interface Scheduler {
 
-    /**
-     * 获得调度类型
-     * @return 调度类型
-     */
-    EScheduleType getScheduleType();
 
     /**
      * 提交实例
@@ -24,4 +18,11 @@ public interface Scheduler {
      * @return 是否提交成功
      */
     Boolean submitJob(ScheduleJobDetails scheduleJobDetails);
+
+
+    /**
+     * 获取调度名称
+     * @return
+     */
+    String getSchedulerName();
 }

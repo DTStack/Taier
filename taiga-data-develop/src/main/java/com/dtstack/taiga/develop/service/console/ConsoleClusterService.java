@@ -59,13 +59,14 @@ public class ConsoleClusterService {
     @Autowired
     private QueueMapper queueMapper;
 
-    public boolean addCluster(String clusterName) {
+    public Long addCluster(String clusterName) {
         if (clusterMapper.getByClusterName(clusterName) != null) {
             throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST.getDescription());
         }
         Cluster cluster = new Cluster();
         cluster.setClusterName(clusterName);
-        return clusterMapper.insert(cluster) > 0;
+        clusterMapper.insert(cluster);
+        return cluster.getId();
     }
 
 
