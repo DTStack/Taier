@@ -38,10 +38,6 @@ public class DataSourceTypeJobTypeMapping {
         mappingMap.put(DataSourceType.SparkThrift2_1.getVal(), EScheduleJobType.SPARK_SQL);
     }
 
-    public static Integer getJobTypeByDataSourceType(Integer dataSourceType){
-        return getTaskTypeByDataSourceType(dataSourceType).getType();
-    }
-
     /**
      * 获取 根据dataSourceType 获取jobType
      *

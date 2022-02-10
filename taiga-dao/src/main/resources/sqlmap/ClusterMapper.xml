@@ -17,9 +17,6 @@
             <if test="model.isDeleted != null">
                 AND is_deleted = #{model.isDeleted}
             </if>
-            <if test="model.hadoopVersion != null">
-                AND hadoop_version = #{model.hadoopVersion}
-            </if>
         </trim>
     </sql>
 

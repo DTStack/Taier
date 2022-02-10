@@ -1201,7 +1201,7 @@ public class ConsoleComponentService {
 
             String typeName = null;
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
-                typeName = buildHdfsTypeName(null,clusterId);
+                typeName = componentService.buildHdfsTypeName(null,clusterId);
             } else {
                 typeName = convertComponentTypeToClient(clusterName, componentType, versionName, storeType, deployType);
             }
@@ -1400,24 +1400,17 @@ public class ConsoleComponentService {
         return part.getPluginName();
     }
 
-    public String buildHdfsTypeName(Long tenantId,Long clusterId) {
-        if(null == clusterId){
-            clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        }
-        Component component = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
-        if (null == component || StringUtils.isBlank(component.getVersionName())) {
-            return "hdfs2";
-        }
-        String versionName = component.getVersionName();
-        List<ScheduleDict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
-        Optional<ScheduleDict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
-        if (dbTypeNames.isPresent()) {
-            return dbTypeNames.get().getDictValue();
-        }
-        String hadoopVersion = component.getVersionValue();
-        if(StringUtils.isBlank(hadoopVersion)){
-            return "hdfs2";
-        }
-        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
+    /**
+     * 刷新组件信息
+     *
+     * @param clusterName
+     * @return
+     */
+    public List<ComponentTestResult> refresh(String clusterName) {
+        List<ComponentTestResult> refreshResults = new ArrayList<>();
+        ComponentTestResult componentTestResult = testConnect(clusterName, EComponentType.YARN.getTypeCode(),null);
+        refreshResults.add(componentTestResult);
+        return refreshResults;
     }
+
 }
