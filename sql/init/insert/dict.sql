@@ -102,7 +102,6 @@ VALUES
   ('12', 'WORK_FLOW', '10', '工作流', 'WORKFLOW', '3', now(), now(), '0'),
   ('6', 'SparkSQLFunction', '4', 'SparkSQL', 'SparkSQLFunction', '4', now(), now(), '0'),
   ('13', 'SystemFunction', '6', '系统函数', 'SystemFunction', '2', now(), now(), '0'),
-  ('13', 'CustomFunction', '6', '自定义函数', 'CustomFunction', '4', now(), now(), '0'),
-  ('13', 'GreenPlumCustomFunction', '6', '自定义函数', 'GreenPlumCustomFunction', '8', now(), now(), '0')
+  ('13', 'CustomFunction', '6', '自定义函数', 'CustomFunction', '4', now(), now(), '0')
 
 on duplicate key update gmt_create=values(gmt_create);
