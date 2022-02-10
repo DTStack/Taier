@@ -56,15 +56,15 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
             boolean updateStatus = scheduleJobService.updatePhaseStatusById(scheduleJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
             if (updateStatus && scheduleJobQueue.contains(scheduleJobDetails)) {
                 //元素已存在，返回true
-                LOGGER.info("jobId:{} scheduleType:{} queue has contains ", scheduleJob.getJobId(), getScheduleType());
+                LOGGER.info("jobId:{} scheduleType:{} queue has contains ", scheduleJob.getJobId(), getSchedulerName());
                 return false;
             }
             scheduleJobQueue.put(scheduleJobDetails);
-            LOGGER.info("jobId:{} scheduleType:{} enter queue", scheduleJob.getJobId(), getScheduleType());
+            LOGGER.info("jobId:{} scheduleType:{} enter queue", scheduleJob.getJobId(), getSchedulerName());
             return true;
         } catch (InterruptedException e) {
             ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-            LOGGER.error("jobId:{} scheduleType:{} job phase rollback, error", scheduleJob.getJobId(), getScheduleType(), e);
+            LOGGER.error("jobId:{} scheduleType:{} job phase rollback, error", scheduleJob.getJobId(), getSchedulerName(), e);
             scheduleJobService.updatePhaseStatusById(scheduleJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
             return false;
         }
@@ -82,9 +82,9 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
                 try {
                     //提交代码里面会将jobStatus设置为submitting
                     scheduleJobService.startJob(scheduleJobDetails);
-                    LOGGER.info("--- jobId:{} scheduleType:{} send to engine.", scheduleJob.getJobId(), getScheduleType());
+                    LOGGER.info("--- jobId:{} scheduleType:{} send to engine.", scheduleJob.getJobId(), getSchedulerName());
                 } catch (Exception e) {
-                    LOGGER.info("--- jobId:{} scheduleType:{} send to engine error:", scheduleJob.getJobId(), getScheduleType(), e);
+                    LOGGER.info("--- jobId:{} scheduleType:{} send to engine error:", scheduleJob.getJobId(), getSchedulerName(), e);
                     scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
                 } finally {
                     scheduleJobService.updatePhaseStatusById(scheduleJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.EXECUTE_OVER);
@@ -92,7 +92,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
             });
         } catch (Exception e) {
             ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-            LOGGER.info("--- jobId:{} scheduleType:{} executorService submit to engine error:", scheduleJob.getJobId(), getScheduleType(), e);
+            LOGGER.info("--- jobId:{} scheduleType:{} executorService submit to engine error:", scheduleJob.getJobId(), getSchedulerName(), e);
         }
     }
 
@@ -101,7 +101,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
      */
     public void stop() {
         RUNNING.set(false);
-        LOGGER.info("---stop {}----",getScheduleType());
+        LOGGER.info("---stop {}----",getSchedulerName());
     }
 
     @Override
@@ -109,11 +109,11 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         super.afterPropertiesSet();
         scheduleJobQueue = new LinkedBlockingQueue<>(env.getQueueSize());
 
-        String threadName = this.getClass().getSimpleName() + "_" + getScheduleType() + "_startJobProcessor";
+        String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
         executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
                 new CustomThreadFactory(threadName),
-                new CustomThreadRunsPolicy(threadName, getScheduleType().name()));
+                new CustomThreadRunsPolicy(threadName, getSchedulerName()));
     }
 
 
@@ -125,7 +125,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
             try {
                 ScheduleJobDetails scheduleJobDetails = scheduleJobQueue.take();
                 scheduleJob = scheduleJobDetails.getScheduleJob();
-                LOGGER.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getScheduleType());
+                LOGGER.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getSchedulerName());
                 this.submit(scheduleJobDetails);
             } catch (InterruptedException ie){
                 // swallow the interrupt as it's only possible from either a background
@@ -136,10 +136,10 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
                 try {
                     if (scheduleJob != null) {
                         scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
-                        LOGGER.error("jobId:{} scheduleType:{} submit failed.", scheduleJob.getJobId(), getScheduleType());
+                        LOGGER.error("jobId:{} scheduleType:{} submit failed.", scheduleJob.getJobId(), getSchedulerName());
                     }
                 } catch (Exception ex) {
-                    LOGGER.error("jobId:{} scheduleType:{} update status happens error:", scheduleJob.getJobId(), getScheduleType(), ex);
+                    LOGGER.error("jobId:{} scheduleType:{} update status happens error:", scheduleJob.getJobId(), getSchedulerName(), ex);
                 }
             }
         }
