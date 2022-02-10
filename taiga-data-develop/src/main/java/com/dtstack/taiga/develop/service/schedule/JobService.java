@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.EScheduleType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleFillDataJob;
@@ -104,7 +104,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Page<ScheduleJob> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         page = this.lambdaQuery()
                 .eq(ScheduleJob::getFlowJobId, 0)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .in(ScheduleJob::getFillType, Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()))
                 .eq(ScheduleJob::getType, EScheduleType.NORMAL_SCHEDULE.getType())
                 .eq(ScheduleJob::getTenantId, dto.getTenantId())
@@ -168,7 +168,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * @return
      */
     public List<ReturnJobListVO> queryFlowWorkSubJobs(String jobId) {
-        List<ScheduleJob> jobs = this.lambdaQuery().eq(ScheduleJob::getFlowJobId, jobId).eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).list();
+        List<ScheduleJob> jobs = this.lambdaQuery().eq(ScheduleJob::getFlowJobId, jobId).eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()).list();
         List<ReturnJobListVO> returnJobListVOS = Lists.newArrayList();
         buildReturnJobListVO(returnJobListVOS,jobs);
         return returnJobListVOS;
@@ -184,7 +184,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     public List<ReturnDisplayPeriodVO> displayPeriods(Boolean isAfter, String jobId, Integer limit) {
         ScheduleJob scheduleJob = this.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
         if (scheduleJob == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_JOB);
@@ -316,7 +316,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Page<ScheduleJob> page = new Page<>(dto.getCurrentPage(), dto.getPageSize());
         page = this.lambdaQuery()
                 .eq(ScheduleJob::getFlowJobId,0)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(ScheduleJob::getTenantId, dto.getTenantId())
                 .eq(ScheduleJob::getFillId, dto.getFillId())
                 .eq(ScheduleJob::getType, EScheduleType.FILL_DATA.getType())
@@ -340,7 +340,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             List<FillDataJobVO> fillDataJobVOS = Lists.newArrayList();
 
             List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-            Map<Long, ScheduleTaskShade> taskShadeMap = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list().stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+            Map<Long, ScheduleTaskShade> taskShadeMap = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list().stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
             Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
 
             records.forEach(record ->{
@@ -588,7 +588,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     private void buildReturnJobListVO(List<ReturnJobListVO> returnJobListVOS, List<ScheduleJob> records) {
         List<Long> taskIdList = records.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-        List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE).list();
+        List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery().in(ScheduleTaskShade::getTaskId, taskIdList).eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
         Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
 

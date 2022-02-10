@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.action.restart;
 
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
 import com.dtstack.taiga.scheduler.service.ScheduleJobJobService;
@@ -48,7 +48,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
     protected ConcurrentHashMap<String,String> compute() {
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobId)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
         if (null == scheduleJob) {
             return null;
@@ -63,7 +63,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
 
         //查询子工作任务
         List<ScheduleJobJob> scheduleJobJobList = scheduleJobJobService.lambdaQuery().eq(ScheduleJobJob::getParentJobKey, jobKey)
-                .eq(ScheduleJobJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         if (CollectionUtils.isEmpty(scheduleJobJobList)) {
             return null;
@@ -74,7 +74,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
         if (SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType())) {
             flowJobList = scheduleJobService.lambdaQuery()
                     .eq(ScheduleJob::getFlowJobId, scheduleJob.getJobId())
-                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
         }
 
@@ -86,7 +86,7 @@ public class ForkJoinJobTask extends RecursiveTask<Map<String,String>> {
 
         List<ScheduleJob> childJobList = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobKey, jobKeyList)
-                .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
 
         List<ForkJoinJobTask> tasks = new ArrayList<>();

@@ -1,7 +1,7 @@
 package com.dtstack.taiga.scheduler.server.action.restart;
 
 import com.dtstack.taiga.common.enums.Deleted;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
@@ -55,7 +55,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
             LOGGER.info("reset start jobIds:{},restartType:{}",jobIds,restartType);
             List<ScheduleJob> jobList = scheduleJobService.lambdaQuery()
                     .in(ScheduleJob::getJobId,jobIds)
-                    .eq(ScheduleJob::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
 
             if (CollectionUtils.isEmpty(jobList)) {
@@ -66,7 +66,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
             List<Long> taskIds = jobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
             List<ScheduleTaskShade> taskShadeList = scheduleTaskShadeService.lambdaQuery()
                     .in(ScheduleTaskShade::getTaskId, taskIds)
-                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
             Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect((Collectors.toMap(ScheduleTaskShade::getTaskId, g->(g))));
 
@@ -116,7 +116,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
             if (!StringUtils.equals("0", job.getFlowJobId())) {
                 ScheduleJob flowJob = scheduleJobService.lambdaQuery()
                         .eq(ScheduleJob::getFlowJobId,job.getFlowJobId())
-                        .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
+                        .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
                         .one();
                 if (flowJob != null) {
                     resumeBatchJobs.put(flowJob.getJobId(),flowJob.getCycTime());

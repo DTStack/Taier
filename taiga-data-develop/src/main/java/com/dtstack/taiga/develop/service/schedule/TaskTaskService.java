@@ -3,7 +3,7 @@ package com.dtstack.taiga.develop.service.schedule;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taiga.common.enums.DisplayDirect;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.domain.ScheduleTaskTaskShade;
@@ -49,7 +49,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         // 查询任务
         ScheduleTaskShade taskShade = taskService.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, dto.getTaskId())
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType()).one();
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).one();
 
         if (taskShade == null) {
             return null;
@@ -80,7 +80,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         // 查询任务
         ScheduleTaskShade taskShade = taskService.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, taskId)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
         if (taskShade == null) {
@@ -118,14 +118,14 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
             // 向下
             taskTaskShades = this.lambdaQuery()
                     .eq(ScheduleTaskTaskShade::getParentTaskId, taskShade.getTaskId())
-                    .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
             taskIdList = taskTaskShades.stream().map(ScheduleTaskTaskShade::getTaskId).collect(Collectors.toList());
         } else {
             // 向上
             taskTaskShades = this.lambdaQuery()
                     .eq(ScheduleTaskTaskShade::getTaskId, taskShade.getTaskId())
-                    .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                    .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
             taskIdList = taskTaskShades.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
         }
@@ -138,7 +138,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery()
                 .in(ScheduleTaskShade::getTaskId, taskIdList)
                 .eq(ScheduleTaskShade::getFlowId,0)
-                .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
 
@@ -190,7 +190,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         taskSet.add(taskShade.getTaskId());
         List<ScheduleTaskTaskShade> taskTaskShades = this.lambdaQuery()
                 .in(ScheduleTaskTaskShade::getTaskId, taskSet)
-                .eq(ScheduleTaskTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         if (CollectionUtils.isEmpty(taskTaskShades)) {
             return vo;

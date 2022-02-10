@@ -2,7 +2,7 @@ package com.dtstack.taiga.scheduler.server.builder;
 
 import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.common.enums.ForceCancelFlag;
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.enums.OperatorType;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
 import com.dtstack.taiga.dao.domain.ScheduleJobOperatorRecord;
@@ -102,7 +102,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
                             ScheduleTaskShade scheduleTaskShade = scheduleTaskService
                                     .lambdaQuery()
                                     .eq(ScheduleTaskShade::getTaskId, taskId)
-                                    .eq(ScheduleTaskShade::getIsDeleted, IsDeletedEnum.NOT_DELETE.getType())
+                                    .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                                     .one();
 
                             if (scheduleTaskShade != null) {

@@ -1,6 +1,6 @@
 package com.dtstack.taiga.scheduler.server.builder.dependency;
 
-import com.dtstack.taiga.common.enums.IsDeletedEnum;
+import com.dtstack.taiga.common.enums.Deleted;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.ScheduleJobJob;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
@@ -50,7 +50,7 @@ public class UpstreamDependencyHandler extends AbstractDependencyHandler {
                 scheduleJobJob.setParentJobKey(getJobKey(taskShade,currentDate));
                 scheduleJobJob.setJobKeyType(RelyType.UPSTREAM.getType());
                 scheduleJobJob.setRule(RelyRule.RUN_SUCCESS.getType());
-                scheduleJobJob.setIsDeleted(IsDeletedEnum.NOT_DELETE.getType());
+                scheduleJobJob.setIsDeleted(Deleted.NORMAL.getStatus());
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {
                 LOGGER.error("",e);
