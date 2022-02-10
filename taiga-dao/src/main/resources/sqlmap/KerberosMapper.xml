@@ -67,8 +67,7 @@
 
     <update id="deleteByComponentId">
         UPDATE console_kerberos SET is_deleted = 1
-        WHERE cluster_id =  (SELECT cluster_id from console_engine cn WHERE cn.id =(SELECT engine_id from console_component WHERE id = #{componentId}))
-        AND component_type = (SELECT component_type_code from console_component WHERE id = #{componentId})
+        WHERE cluster_id = (SELECT cluster_id from console_component WHERE id = #{componentId})
     </update>
 
     <select id="listAll" resultType="com.dtstack.taiga.dao.domain.KerberosConfig">

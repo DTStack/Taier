@@ -1284,7 +1284,7 @@ public class ConsoleComponentService {
                 if (StringUtils.isBlank(component.getUploadFileName())) {
                     // 一种是  全部手动填写的 如flink
                     EComponentType type = EComponentType.getByCode(componentType);
-                    String componentConfig = componentService.getComponentByClusterId(clusterId, type.getTypeCode(), true, String.class, versionName);
+                    String componentConfig = componentService.getComponentByClusterId(clusterId, type.getTypeCode(), true, String.class, component.getVersionValue());
                     try {
                         localDownLoadPath = localDownLoadPath + ".json";
                         FileUtils.write(new File(localDownLoadPath), filterConfigMessage(componentConfig));

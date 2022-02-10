@@ -177,6 +177,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         jobStopRecord.setJobId(scheduleJob.getJobId());
         jobStopRecord.setOperatorType(OperatorType.STOP.getType());
         jobStopRecord.setForceCancelFlag(finalIsForce);
+        jobStopRecord.setNodeAddress(environmentContext.getLocalAddress());
         return jobStopRecord;
     }
 
@@ -236,7 +237,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             while (true) {
                 try {
                     //根据条件判断是否有数据存在
-                    List<ScheduleJobOperatorRecord> jobStopRecords = Lists.newArrayList();
+                    List<ScheduleJobOperatorRecord> jobStopRecords = scheduleJobOperatorRecordService.listOperatorRecord(tmpStartId, environmentContext.getLocalAddress(), OperatorType.STOP.getType(), true);
                     if (jobStopRecords.isEmpty()) {
                         break;
                     }
@@ -284,7 +285,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             scheduleJobService.lambdaUpdate()
                                     .eq(ScheduleJob::getJobId,jobStopRecord.getJobId())
                                     .eq(ScheduleJob::getIsDeleted,IsDeletedEnum.NOT_DELETE.getType())
-                                    .in(ScheduleJob::getStatus, RdosTaskStatus.getStoppedStatus())
+                                    .in(ScheduleJob::getStatus, RdosTaskStatus.getUnfinishedStatuses())
                                     .update(scheduleJob);
                             LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
                             shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
