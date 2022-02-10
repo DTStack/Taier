@@ -482,8 +482,8 @@ interface IResModalProps {
 	 */
 	isCoverUpload: boolean;
 	toggleUploadModal: () => void;
-	replaceResource: (values: IFormFieldProps) => Promise<void>;
-	addResource: (values: IFormFieldProps) => Promise<void>;
+	replaceResource: (values: IFormFieldProps) => Promise<boolean>;
+	addResource: (values: IFormFieldProps) => Promise<boolean>;
 }
 
 let dtcount = 0;
@@ -508,18 +508,22 @@ export default function ResModal(props: IResModalProps) {
 			setLoading(true);
 			if (isCoverUpload) {
 				replaceResource(values)
-					.then(() => {
-						closeModal();
-						form.current?.resetFields();
+					.then((res) => {
+						if (res) {
+							closeModal();
+							form.current?.resetFields();
+						}
 					})
 					.finally(() => {
 						setLoading(false);
 					});
 			} else {
 				addResource(values)
-					.then(() => {
-						closeModal();
-						form.current?.resetFields();
+					.then((res) => {
+						if (res) {
+							closeModal();
+							form.current?.resetFields();
+						}
 					})
 					.finally(() => {
 						setLoading(false);

@@ -15,6 +15,7 @@ import {
 import Sketch, { useSketchRef } from '@/components/sketch';
 import TaskJobFlowView from '../taskJobFlowView';
 import type { IScheduleTaskProps } from '../schedule';
+import { removePopUpMenu } from '@/utils';
 import './detail.scss';
 
 const { confirm, warning } = Modal;
@@ -239,6 +240,7 @@ export default () => {
 	const closeSlidePane = () => {
 		setSlideVisible(false);
 		setSelectedTask(null);
+		removePopUpMenu();
 	};
 
 	const renderStatus = (list: typeof statusList) => {

@@ -67,6 +67,7 @@ export interface ITaskStreamProps {
 	taskPeriodId: TASK_PERIOD_ENUM;
 	gmtCreate: number;
 	isFlowTask: boolean;
+	jobId: string;
 	tenantId: number;
 	tenantName: string;
 	/**

@@ -22,7 +22,6 @@ import './taskInfo.scss';
 
 export function TaskInfo(props: { task: ITaskStreamProps }) {
 	const { task } = props;
-
 	return (
 		<div className="ant-table bd task-detail">
 			<table>
@@ -30,8 +29,8 @@ export function TaskInfo(props: { task: ITaskStreamProps }) {
 					<tr>
 						<td>任务名称：</td>
 						<td>{task.taskName || '-'}</td>
-						<td>任务ID：</td>
-						<td>{task.taskId || '-'}</td>
+						<td>实例ID：</td>
+						<td>{task.jobId || '-'}</td>
 					</tr>
 					<tr>
 						<td>任务类型：</td>
