@@ -224,6 +224,10 @@ class TargetForm extends React.Component<any, any> {
 			this.getTableColumn(value, schema);
 			// 检测是否有 native hive
 			this.checkIsNativeHive(value);
+			// 获取 Hive 分区字段
+			if (type !== DATA_SOURCE_ENUM.IMPALA) {
+				this.getHivePartitions(value);
+			}
 		}
 		this.submitForm();
 	}
@@ -546,7 +550,15 @@ class TargetForm extends React.Component<any, any> {
 						</FormItem>
 						{this.renderDynamicForm()}
 						{!isEmpty(targetMap) ? (
-							<FormItem {...formItemLayout} label="高级配置">
+							<FormItem
+								{...formItemLayout}
+								label={
+									<span>
+										高级配置
+										<HelpDoc doc={'dataSyncExtralConfigHelp'} />
+									</span>
+								}
+							>
 								{getFieldDecorator('extralConfig', {
 									rules: [
 										{
@@ -563,7 +575,6 @@ class TargetForm extends React.Component<any, any> {
 										autoSize={{ minRows: 2, maxRows: 6 }}
 									/>,
 								)}
-								<HelpDoc doc={'dataSyncExtralConfigHelp'} />
 							</FormItem>
 						) : null}
 					</Form>
@@ -634,15 +645,14 @@ class TargetForm extends React.Component<any, any> {
 			showCreateTableSource &&
 			(loading ? (
 				<Icon type="loading" />
-			) : (
-				<a
-					style={{ top: '0px', right: '-103px' }}
-					onClick={this.showCreateModal.bind(this)}
-					className="help-doc"
-				>
-					一键生成目标表
-				</a>
-			));
+			) : // <a
+			// 	style={{ top: '0px', right: '-103px' }}
+			// 	onClick={this.showCreateModal.bind(this)}
+			// 	className="help-doc"
+			// >
+			// 	一键生成目标表
+			// </a>
+			null);
 
 		if (isEmpty(targetMap)) return null;
 		switch (targetMap.type.type) {
@@ -883,7 +893,7 @@ class TargetForm extends React.Component<any, any> {
 								<Select
 									getPopupContainer={getPopupContainer}
 									showSearch
-									onBlur={this.checkData}
+									// onBlur={(e) => {console.log(e.target.value);this.checkData(e.target.value)}}
 									onSearch={(str) => {
 										this.onSearchTable(str);
 									}}
@@ -904,7 +914,16 @@ class TargetForm extends React.Component<any, any> {
 						</FormItem>
 					),
 					havePartition ? (
-						<FormItem {...formItemLayout} label="分区" key="partition">
+						<FormItem
+							{...formItemLayout}
+							label={
+								<span>
+									分区
+									<HelpDoc doc="partitionDesc" />
+								</span>
+							}
+							key="partition"
+						>
 							{getFieldDecorator('partition', {
 								rules: [
 									{
@@ -930,7 +949,6 @@ class TargetForm extends React.Component<any, any> {
 									})}
 								</AutoComplete>,
 							)}
-							<HelpDoc doc="partitionDesc" />
 						</FormItem>
 					) : (
 						''

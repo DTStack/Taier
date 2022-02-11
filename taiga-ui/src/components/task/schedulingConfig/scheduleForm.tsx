@@ -536,7 +536,7 @@ export default forwardRef(
 				className="schedule-form"
 				initialValues={{
 					scheduleStatus:
-						status === SCHEDULE_STATUS.NORMAL || status === SCHEDULE_STATUS.STOPPED,
+						status === SCHEDULE_STATUS.FORZON || status === SCHEDULE_STATUS.STOPPED,
 					selfReliance: scheduleConf.selfReliance,
 				}}
 			>

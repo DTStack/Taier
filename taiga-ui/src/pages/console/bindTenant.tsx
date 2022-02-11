@@ -108,10 +108,6 @@ export default forwardRef(
 				tableProps={{
 					rowSelection: undefined,
 					rowKey: (record) => `${record.tenantId}-${record.queueId}`,
-					pagination: {
-						showSizeChanger: false,
-						showQuickJumper: false,
-					},
 				}}
 			/>
 		);

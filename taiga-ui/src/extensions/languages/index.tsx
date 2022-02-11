@@ -119,6 +119,9 @@ function registerWorkers() {
 				// case 'sql': {
 				//   return './sql.worker.js';
 				// }
+				case 'json': {
+					return './json.worker.js';
+				}
 				default: {
 					return './editor.worker.js';
 				}

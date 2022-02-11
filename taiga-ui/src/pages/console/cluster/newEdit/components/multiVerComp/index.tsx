@@ -90,7 +90,7 @@ export default function MultiVersionComp({
 			<Menu onClick={handleMenuClick}>
 				{displayVersion?.map(({ value }) => {
 					const disabled = comp?.multiVersion?.findIndex(
-						(vcomp: any) => vcomp.versionName === value,
+						(vcomp: any) => vcomp.versionValue === value,
 					);
 					return (
 						<MenuItem disabled={disabled > -1} key={value}>

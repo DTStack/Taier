@@ -13,6 +13,7 @@ const { Option } = Select;
 
 interface IUpstreamTaskProps {
 	form: FormInstance;
+	taskId: number;
 	submitData: (task: ITaskVOProps) => void;
 	onCancel: () => void;
 	visible: boolean;
@@ -25,6 +26,7 @@ interface ITenantProps {
 
 export default function UpstreamDependentTasks({
 	form,
+	taskId: currentTaskId,
 	submitData,
 	visible,
 	onCancel,
@@ -46,6 +48,7 @@ export default function UpstreamDependentTasks({
 		API.allProductGlobalSearch({
 			taskName: value,
 			selectTenantId: form.getFieldValue('tenantId'),
+			taskId: currentTaskId,
 		}).then((res) => {
 			if (res.code === 1) {
 				if (!res.data?.length) {

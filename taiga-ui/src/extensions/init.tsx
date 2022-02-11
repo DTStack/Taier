@@ -195,7 +195,7 @@ function updateAccountContext(contextMenu: IActivityMenuItemProps[]) {
 }
 
 /**
- * 初始化登陆
+ * 初始化登录
  */
 function initLogin() {
 	const usename = getCookie('username');
@@ -242,7 +242,7 @@ function initLogin() {
 			: [
 					{
 						id: 'login',
-						name: '去登陆',
+						name: '去登录',
 						onClick: () => showLoginModal(),
 					},
 			  ],
@@ -252,7 +252,7 @@ function initLogin() {
 		{
 			sortIndex: 0,
 			id: 'login',
-			name: usename || '未登陆',
+			name: usename || '未登录',
 		},
 		molecule.model.Float.left,
 	);
