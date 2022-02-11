@@ -29,6 +29,7 @@ import com.dtstack.dtcenter.loader.dto.Table;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -202,7 +203,7 @@ public abstract class HiveBase extends HDFSBase {
             dataJson.put(SourceDTOType.JDBC_URL, jdbcUrl);
             dataJson.put(SourceDTOType.JDBC_USERNAME, username);
             dataJson.put(SourceDTOType.JDBC_PASSWORD, password);
-            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, sourceType.getVal(), kerberosConfig);
+            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, sourceType.getVal(), kerberosConfig, Maps.newHashMap());
             IClient client = ClientCache.getClient(sourceType.getVal());
             Table tableInfo = client.getTable(sourceDTO, SqlQueryDTO.builder().tableName(this.table).build());
             List<ColumnMetaDTO> columnMetaData = tableInfo.getColumns();

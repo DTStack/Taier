@@ -34,6 +34,7 @@ import com.dtstack.taiga.develop.utils.develop.sync.template.KuduReader;
 import com.dtstack.taiga.develop.utils.develop.sync.template.KuduWriter;
 import com.dtstack.taiga.develop.utils.develop.sync.util.ImpalaUtils;
 import com.dtstack.taiga.pluginapi.pojo.Column;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -209,7 +210,7 @@ public class ImpalaSyncBuilder implements SyncBuilder {
     public JSONObject tableLocation(Map<String, Object> dataSource, String tableName, Map<String, Object> kerberos) {
         JSONObject result = new JSONObject();
         try {
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(new JSONObject(dataSource), DataSourceType.IMPALA.getVal(), kerberos);
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(new JSONObject(dataSource), DataSourceType.IMPALA.getVal(), kerberos, Maps.newHashMap());
             //获取表存储文件类型
             String fileType = ImpalaUtils.getTableFileType(iSourceDTO, tableName);
             Assert.isTrue(StringUtils.isNotBlank(fileType), "暂不支持的hive表文件类型");
