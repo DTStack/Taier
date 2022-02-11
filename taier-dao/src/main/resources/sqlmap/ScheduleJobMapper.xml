@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.ScheduleJobMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.ScheduleJobMapper">
 
     <sql id="select_content_fragment">
         bj.id,bj.tenant_id,bj.job_id,bj.job_key,bj.job_name,bj.task_id,bj.gmt_create,bj.gmt_modified,bj.create_user_id,bj.is_deleted,bj.type,bj.is_restart,
@@ -14,7 +14,7 @@
             ,`next_cyc_time`,`engine_job_id`,`application_id`,`compute_type`,`phase_status`,`submit_user_name`,`fill_type`
     </sql>
 
-    <select id="countByFillIdGetAllStatus" resultType="com.dtstack.taiga.dao.domain.po.CountFillDataJobStatusPO">
+    <select id="countByFillIdGetAllStatus" resultType="com.dtstack.taier.dao.domain.po.CountFillDataJobStatusPO">
         SELECT
             status*1 AS status,
             count(status) AS count,
@@ -33,7 +33,7 @@
             GROUP BY fill_id,status
     </select>
 
-    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
+    <select id="getByTaskIdAndStatusOrderByIdLimit" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
         SELECT
         *
         FROM schedule_job job
@@ -47,7 +47,7 @@
     </select>
 
     <select id="listJobByStatusAddressAndPhaseStatus"
-            resultType="com.dtstack.taiga.dao.domain.po.SimpleScheduleJobPO">
+            resultType="com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO">
         SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
@@ -66,7 +66,7 @@
         update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
     </update>
 
-    <select id="queryJobsStatusStatistics" resultType="com.dtstack.taiga.dao.domain.po.StatusCountPO">
+    <select id="queryJobsStatusStatistics" resultType="com.dtstack.taier.dao.domain.po.StatusCountPO">
         SELECT
             status,
             COUNT(1) as count
@@ -119,7 +119,7 @@
 
     </select>
 
-    <select id="listAfterOrBeforeJobs" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
+    <select id="listAfterOrBeforeJobs" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
         SELECT
             `job_id`,`cyc_time`,`status`
         FROM `schedule_job`
@@ -151,7 +151,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listSimpleJobByStatusAddress" resultType="com.dtstack.taiga.dao.domain.po.SimpleScheduleJobPO">
+    <select id="listSimpleJobByStatusAddress" resultType="com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO">
         SELECT id, job_id, type, phase_status
         FROM schedule_job
         WHERE id > #{startId} AND (node_address = #{nodeAddress} or node_address is null)
@@ -179,7 +179,7 @@
         update schedule_job set exec_start_time = IFNULL(exec_start_time,now()), exec_end_time=now(), exec_time=timestampdiff(SECOND, exec_start_time, now()),gmt_modified=now(),status=#{status}  where job_id=#{jobId};
     </update>
 
-    <select id="getRdosJobByJobIds" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
+    <select id="getRdosJobByJobIds" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
         select id,job_id, engine_job_id,application_id,status,exec_start_time,exec_end_time,exec_time,retry_num,gmt_create,gmt_modified,is_deleted,compute_type,cyc_time
         from schedule_job
         where job_id IN
@@ -189,11 +189,11 @@
         and is_deleted=0;
     </select>
 
-    <select id="getByName" parameterType="java.lang.String" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
+    <select id="getByName" parameterType="java.lang.String" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
         select <include refid="select_filed_all"/> from schedule_job where job_name = #{jobName} and is_deleted=0 LIMIT 1;
     </select>
 
-    <select id="listCycleJob" resultType="com.dtstack.taiga.dao.domain.ScheduleJob">
+    <select id="listCycleJob" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
         SELECT
         <include refid="select_content_fragment"/>
         ,bj.job_execute_order

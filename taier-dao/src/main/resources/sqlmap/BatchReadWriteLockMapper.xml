@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchReadWriteLockDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchReadWriteLockDao">
 
-    <resultMap type="com.dtstack.taiga.dao.domain.BatchReadWriteLock" id="ReadWriteLockMap">
+    <resultMap type="com.dtstack.taier.dao.domain.BatchReadWriteLock" id="ReadWriteLockMap">
     </resultMap>
 
     <sql id="select_content_fragment">
@@ -45,14 +45,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.BatchReadWriteLock">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchReadWriteLock">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.BatchReadWriteLock" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchReadWriteLock" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_read_write_lock
         (lock_name,create_user_id,modify_user_id,tenant_id,relation_id,type)
         VALUES
@@ -67,14 +67,14 @@
         WHERE id = #{id}
     </update>
 
-    <select id="getByTenantIdAndRelationIdAndType" resultType="com.dtstack.taiga.dao.domain.BatchReadWriteLock">
+    <select id="getByTenantIdAndRelationIdAndType" resultType="com.dtstack.taier.dao.domain.BatchReadWriteLock">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock
         WHERE tenant_id = #{tenantId} AND relation_id = #{relationId} AND type = #{type} AND is_deleted = 0 limit 1
     </select>
 
-    <select id="getLocksByIds" resultType="com.dtstack.taiga.dao.domain.BatchReadWriteLock">
+    <select id="getLocksByIds" resultType="com.dtstack.taier.dao.domain.BatchReadWriteLock">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_read_write_lock

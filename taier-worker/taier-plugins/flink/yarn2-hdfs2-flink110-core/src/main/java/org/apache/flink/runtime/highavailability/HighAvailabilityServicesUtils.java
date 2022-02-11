@@ -18,7 +18,7 @@
 
 package org.apache.flink.runtime.highavailability;
 
-import com.dtstack.taiga.flink.constrant.ConfigConstrant;
+import com.dtstack.taier.flink.constrant.ConfigConstrant;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.*;

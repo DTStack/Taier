@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchSelectSqlDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchSelectSqlDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,job_id,temp_table_name,is_select_sql,gmt_create,gmt_modified,is_deleted,sql_text,user_id,parsed_columns,task_type
     </sql>
 
 
-    <select id="getByJobId"  resultType="com.dtstack.taiga.dao.domain.BatchSelectSql">
+    <select id="getByJobId"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql
@@ -40,7 +40,7 @@
         and tenant_id = #{tenantId} and is_deleted = 0
     </update>
 
-    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.taiga.dao.domain.BatchSelectSql">
+    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql
@@ -66,7 +66,7 @@
         AND is_deleted = 0;
     </update>
 
-    <select id="listBySqlType"  resultType="com.dtstack.taiga.dao.domain.BatchSelectSql">
+    <select id="listBySqlType"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_hive_select_sql

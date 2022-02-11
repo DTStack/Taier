@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchTaskDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchTaskDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
@@ -169,7 +169,7 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -178,14 +178,14 @@
 
 
 
-    <select id="getOneWithDeleted" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="getOneWithDeleted" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
         WHERE id = #{id}
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.taiga.dao.pager.PageQuery" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -207,7 +207,7 @@
         </if>
     </select>
 
-    <select id="generalQueryWithoutSql" parameterType="com.dtstack.taiga.dao.pager.PageQuery" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="generalQueryWithoutSql" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         id,tenant_id,node_pid,name,task_type,compute_type,task_params,schedule_conf,period_type,
         schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id
@@ -237,14 +237,14 @@
         limit 1
     </select>
 
-    <select id="listBatchTaskByNodePid" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listBatchTaskByNodePid" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
         WHERE node_pid = #{nodePid} and tenant_id = #{tenantId} and is_deleted = 0
     </select>
 
-    <select id="listByNameFuzzy" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listByNameFuzzy" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
@@ -256,14 +256,14 @@
         WHERE id = #{id} AND is_deleted = 0 AND tenant_id = #{tenantId}
     </delete>
 
-    <select id="listByTenantId" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
         WHERE tenant_id = #{tenantId} and is_deleted = 0
     </select>
 
-    <select id="listByIds" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listByIds" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -274,21 +274,21 @@
 
     </select>
 
-    <select id="listByFlowId" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listByFlowId" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
         where is_deleted = 0 and flow_id = #{flowId}
     </select>
 
-    <select id="listAll" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listAll" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
         WHERE is_deleted = 0 and submit_status != 0
     </select>
 
-    <select id="getByName" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="getByName" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -296,7 +296,7 @@
         and is_deleted=0 limit 1
     </select>
 
-    <select id="getByNameList" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="getByNameList" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
@@ -308,7 +308,7 @@
         and is_deleted=0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.BatchTask" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task
           (tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
           schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
@@ -317,7 +317,7 @@
           #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchTask">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTask">
         UPDATE
         rdos_batch_task
         <include refid="update_fragment"/>
@@ -329,7 +329,7 @@
         UPDATE rdos_batch_task set submit_status=#{submitStatus},gmt_modified=#{time} where id=#{id} and tenant_id=#{tenantId}
     </update>
 
-    <select id="listTaskByType" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listTaskByType" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="simple_select_content_fragment"/>
         FROM rdos_batch_task
@@ -371,7 +371,7 @@
     </select>
 
     <!--适用于任务列表的目录信息list查询,不查询sql_text等无用的大字段 -->
-    <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
         t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.owner_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
@@ -380,7 +380,7 @@
         WHERE t.node_pid = #{nodePid} and t.tenant_id = #{tenantId} and t.is_deleted = 0
     </select>
 
-    <update id="updateSqlText" parameterType="com.dtstack.taiga.dao.domain.BatchTask">
+    <update id="updateSqlText" parameterType="com.dtstack.taier.dao.domain.BatchTask">
         UPDATE
         rdos_batch_task
         <include refid="update_fragment"/>
@@ -388,7 +388,7 @@
         id = #{id}  AND is_deleted = 0
     </update>
 
-    <update id="updateScheduleConf" parameterType="com.dtstack.taiga.dao.domain.BatchTask">
+    <update id="updateScheduleConf" parameterType="com.dtstack.taier.dao.domain.BatchTask">
         UPDATE
         rdos_batch_task
         set period_type = #{periodType},
@@ -403,7 +403,7 @@
     </delete>
 
 
-    <select id="listAllSubmitTask" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listAllSubmitTask" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task
@@ -417,7 +417,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="listSubmitTaskByIds" resultType="com.dtstack.taiga.dao.domain.BatchTask">
+    <select id="listSubmitTaskByIds" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task

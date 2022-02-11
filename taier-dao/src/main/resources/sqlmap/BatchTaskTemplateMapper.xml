@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchTaskTemplateDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchTaskTemplateDao">
 
     <sql id="select_content_fragment">
         id,task_type,type,content,gmt_create,gmt_modified,is_deleted
@@ -32,7 +32,7 @@
         </set>
     </sql>
 
-    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchTaskTemplate">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskTemplate">
         UPDATE
         rdos_batch_task_template
         <include refid="update_fragment"/>

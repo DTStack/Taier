@@ -9,7 +9,7 @@
     </settings>
 
     <plugins>
-        <plugin interceptor="com.dtstack.taiga.scheduler.config.StatusChangeInterceptor"/>
+        <plugin interceptor="com.dtstack.taier.scheduler.config.StatusChangeInterceptor"/>
     </plugins>
 
 </configuration>
