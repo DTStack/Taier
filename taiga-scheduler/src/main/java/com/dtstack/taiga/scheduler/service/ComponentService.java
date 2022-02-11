@@ -20,6 +20,7 @@ package com.dtstack.taiga.scheduler.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taiga.common.enums.DictType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
@@ -27,6 +28,7 @@ import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.dao.domain.Cluster;
 import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.KerberosConfig;
+import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.ClusterMapper;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.ComponentMapper;
@@ -37,7 +39,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.dtstack.taiga.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 
@@ -58,6 +67,9 @@ public class ComponentService {
 
     @Autowired
     private ComponentConfigService componentConfigService;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
 
 
     /**
@@ -238,5 +250,26 @@ public class ComponentService {
     public Integer getMetaComponentByClusterId(Long clusterId) {
         com.dtstack.taiga.dao.domain.Component metadataComponent = getMetadataComponent(clusterId);
         return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
+    }
+
+    public String buildHdfsTypeName(Long tenantId,Long clusterId) {
+        if(null == clusterId){
+            clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        }
+        Component component = getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
+        if (null == component || StringUtils.isBlank(component.getVersionName())) {
+            return "hdfs2";
+        }
+        String versionName = component.getVersionName();
+        List<ScheduleDict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
+        Optional<ScheduleDict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
+        if (dbTypeNames.isPresent()) {
+            return dbTypeNames.get().getDictValue();
+        }
+        String hadoopVersion = component.getVersionValue();
+        if(StringUtils.isBlank(hadoopVersion)){
+            return "hdfs2";
+        }
+        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
     }
 }

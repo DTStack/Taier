@@ -1,41 +1,58 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.dtstack.taiga.develop.enums.develop;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.dto.source.*;
+import com.dtstack.dtcenter.loader.dto.source.AdbForPgSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.AwsS3SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ClickHouseSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Db2SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.DmSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.DorisRestfulSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ES7SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ESSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.FtpSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.GBaseSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Greenplum6SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.HbaseSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.HdfsSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Hive1SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Hive3CDPSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Hive3SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.HiveSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.ImpalaSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.InceptorSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.InfluxDBSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.KingbaseSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.KuduSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.KylinSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.LibraSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.MongoSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Mysql5SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Mysql8SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.OdpsSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.OpenTSDBSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.OracleSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.Phoenix5SourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.PhoenixSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.PostgresqlSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.RedisSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.SparkSourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.SqlserverSourceDTO;
 import com.dtstack.dtcenter.loader.enums.RedisMode;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.enums.HadoopConfig;
-import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
-import com.dtstack.taiga.common.util.DataSourceUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
 /**
  * shixi
+ *
  * @Description：获取数据源对应的sourceDTO
  */
 public enum SourceDTOType {
@@ -45,12 +62,12 @@ public enum SourceDTOType {
      */
     Clickhouse(DataSourceType.Clickhouse.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -72,12 +89,12 @@ public enum SourceDTOType {
      */
     DB2(DataSourceType.DB2.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("schema");
             }
@@ -102,12 +119,12 @@ public enum SourceDTOType {
      */
     DMDB(DataSourceType.DMDB.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -124,17 +141,45 @@ public enum SourceDTOType {
         }
     },
 
+
+    /**
+     * 达梦数据库
+     */
+    DMDB_For_Oracle(DataSourceType.DMDB_For_Oracle.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            DmSourceDTO sourceDTO = DmSourceDTO
+                    .builder()
+                    .url(jdbcUrl)
+                    .username(username)
+                    .password(password)
+                    .schema(schema)
+                    .sourceType(DataSourceType.DMDB_For_Oracle.getVal())
+                    .kerberosConfig(confMap)
+                    .build();
+            return sourceDTO;
+        }
+    },
+
     /**
      * CarbonData
      */
     CarbonData(DataSourceType.CarbonData.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -164,12 +209,12 @@ public enum SourceDTOType {
      */
     FTP(DataSourceType.FTP.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String host = dataJson.containsKey("host") ? dataJson.getString("host") : "";
             String port = dataJson.containsKey("port") ? dataJson.getString("port") : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
@@ -199,12 +244,12 @@ public enum SourceDTOType {
      */
     GBase_8a(DataSourceType.GBase_8a.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -226,12 +271,12 @@ public enum SourceDTOType {
      */
     GREENPLUM6(DataSourceType.GREENPLUM6.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -253,12 +298,12 @@ public enum SourceDTOType {
      */
     ES(DataSourceType.ES.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String address = dataJson.containsKey("address") ? dataJson.getString("address") : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -275,26 +320,77 @@ public enum SourceDTOType {
     },
 
     /**
+     * es6
+     */
+    ES6(DataSourceType.ES6.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String address = dataJson.containsKey("address") ? dataJson.getString("address") : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            ESSourceDTO esSourceDTO = ESSourceDTO
+                    .builder()
+                    .url(address)
+                    .schema(schema)
+                    .username(username)
+                    .password(password)
+                    .sourceType(DataSourceType.ES6.getVal())
+                    .build();
+            return esSourceDTO;
+        }
+    },
+
+    /**
+     * es7
+     */
+    ES7(DataSourceType.ES7.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String address = dataJson.containsKey("address") ? dataJson.getString("address") : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            ES7SourceDTO esSourceDTO = ES7SourceDTO
+                    .builder()
+                    .url(address)
+                    .schema(schema)
+                    .username(username)
+                    .password(password)
+                    .keyPath((String)expandConfig.get(SSL_LOCAL_DIR))
+                    .sourceType(DataSourceType.ES7.getVal())
+                    .build();
+            return esSourceDTO;
+        }
+    },
+
+    /**
      * hbase
      */
     HBASE(DataSourceType.HBASE.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String hbaseQuorum = dataJson.containsKey("hbase_quorum") ? dataJson.getString("hbase_quorum") : "";
             String hbaseParent = dataJson.containsKey("hbase_parent") ? dataJson.getString("hbase_parent") : "";
             String hbaseOther = dataJson.containsKey("hbase_other") ? dataJson.getString("hbase_other") : "";
-            String hbaseConfig = dataJson.containsKey("hbaseConfig") ? dataJson.getString("hbaseConfig") : "";
             HbaseSourceDTO hbaseSourceDTO = HbaseSourceDTO
                     .builder()
                     .url(hbaseQuorum)
                     .path(hbaseParent)
                     .schema(schema)
-                    .config(hbaseConfig)
                     .sourceType(DataSourceType.HBASE.getVal())
                     .others(hbaseOther)
                     .kerberosConfig(confMap)
@@ -309,12 +405,12 @@ public enum SourceDTOType {
      */
     SparkThrift2_1(DataSourceType.SparkThrift2_1.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -347,12 +443,12 @@ public enum SourceDTOType {
      */
     HDFS(DataSourceType.HDFS.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String defaultFS = dataJson.getString(HadoopConfig.HDFS_DEFAULTFS.getVal());
             if (!defaultFS.matches(HadoopConfig.DEFAULT_FS_REGEX.getVal())) {
                 throw new RdosDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
@@ -378,14 +474,14 @@ public enum SourceDTOType {
     /**
      * hive
      */
-    HIVE3 (DataSourceType.HIVE3X.getVal()) {
+    HIVE3(DataSourceType.HIVE3X.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -416,14 +512,52 @@ public enum SourceDTOType {
     /**
      * hive
      */
-    HIVE(DataSourceType.HIVE.getVal()) {
+    HIVE3_CDP (DataSourceType.HIVE3_CDP.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            String defaultFS = null;
+            String hadoopConfig = null;
+            if (dataJson.containsKey(HadoopConfig.HADOOP_CONFIG.getVal()) && StringUtils.isNotBlank(dataJson.getString(HadoopConfig.HADOOP_CONFIG.getVal()))) {
+                defaultFS = dataJson.getString(HadoopConfig.HDFS_DEFAULTFS.getVal());
+                if (!defaultFS.matches(HadoopConfig.DEFAULT_FS_REGEX.getVal())) {
+                    throw new RdosDefineException(ErrorCode.ERROR_DEFAULT_FS_FORMAT);
+                }
+                hadoopConfig = dataJson.getString(HadoopConfig.HADOOP_CONFIG.getVal());
+            }
+            Hive3CDPSourceDTO hiveSourceDTO = Hive3CDPSourceDTO
+                    .builder()
+                    .url(url)
+                    .username(username)
+                    .password(password)
+                    .schema(schema)
+                    .sourceType(DataSourceType.HIVE3_CDP.getVal())
+                    .defaultFS(defaultFS)
+                    .config(hadoopConfig)
+                    .kerberosConfig(confMap)
+                    .build();
+            return hiveSourceDTO;
+        }
+    },
+
+    /**
+     * hive
+     */
+    HIVE(DataSourceType.HIVE.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -456,12 +590,12 @@ public enum SourceDTOType {
      */
     HIVE1X(DataSourceType.HIVE1X.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -494,12 +628,12 @@ public enum SourceDTOType {
      */
     IMPALA(DataSourceType.IMPALA.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -532,19 +666,18 @@ public enum SourceDTOType {
      */
     Kudu(DataSourceType.Kudu.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
-            String hostPorts = dataJson.getString("hostPorts");
-            if (null == dataJson || StringUtils.isBlank(hostPorts)) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            if (null == dataJson || StringUtils.isBlank(dataJson.getString("hostPorts"))) {
                 return KuduSourceDTO.builder().build();
             }
             KuduSourceDTO kuduSourceDTO = KuduSourceDTO
                     .builder()
-                    .url(hostPorts)
+                    .url(dataJson.getString("hostPorts"))
                     .schema(schema)
                     .sourceType(DataSourceType.Kudu.getVal())
                     .kerberosConfig(confMap)
@@ -558,12 +691,12 @@ public enum SourceDTOType {
      */
     AWSS3(DataSourceType.AWS_S3.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String accessKey = dataJson.containsKey("accessKey") ? dataJson.getString("accessKey") : "";
             String region = dataJson.containsKey("region") ? dataJson.getString("region") : "";
             String secretKey = dataJson.containsKey("secretKey") ? dataJson.getString("secretKey") : "";
@@ -582,12 +715,12 @@ public enum SourceDTOType {
      */
     Kylin(DataSourceType.Kylin.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -609,12 +742,12 @@ public enum SourceDTOType {
      */
     LIBRA(DataSourceType.LIBRA.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -636,12 +769,12 @@ public enum SourceDTOType {
      */
     MONGODB(DataSourceType.MONGODB.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("database");
             }
@@ -665,12 +798,12 @@ public enum SourceDTOType {
      */
     MySQL(DataSourceType.MySQL.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -692,13 +825,13 @@ public enum SourceDTOType {
      */
     TiDB(DataSourceType.TiDB.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
-            return MySQL.getSourceDTO(dataJson, confMap, schema);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            return MySQL.getSourceDTO(dataJson, confMap, schema, expandConfig);
         }
     },
 
@@ -707,12 +840,12 @@ public enum SourceDTOType {
      */
     MySQL8(DataSourceType.MySQL8.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -734,21 +867,20 @@ public enum SourceDTOType {
      */
     MAXCOMPUTE(DataSourceType.MAXCOMPUTE.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             Map<String, String> properties = JSONObject.parseObject(dataJson.toString(), Map.class);
-            OdpsSourceDTO
+            return OdpsSourceDTO
                     .builder()
                     .config(JSON.toJSONString(properties))
                     .sourceType(DataSourceType.MAXCOMPUTE.getVal())
                     .kerberosConfig(confMap)
                     .schema(schema)
                     .build();
-            return null;
         }
     },
 
@@ -757,12 +889,12 @@ public enum SourceDTOType {
      */
     Phoenix(DataSourceType.Phoenix.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -784,12 +916,12 @@ public enum SourceDTOType {
      */
     Phoenix5X(DataSourceType.PHOENIX5.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -811,12 +943,12 @@ public enum SourceDTOType {
      */
     PostgreSQL(DataSourceType.PostgreSQL.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("schema");
             }
@@ -841,12 +973,12 @@ public enum SourceDTOType {
      */
     REDIS(DataSourceType.REDIS.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("database");
             }
@@ -875,12 +1007,12 @@ public enum SourceDTOType {
      */
     SQLSERVER_2017_LATER(DataSourceType.SQLSERVER_2017_LATER.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.getString(JDBC_URL);
             String username = dataJson.getString(JDBC_USERNAME);
             String password = dataJson.getString(JDBC_PASSWORD);
@@ -902,12 +1034,12 @@ public enum SourceDTOType {
      */
     SQLServer(DataSourceType.SQLServer.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String jdbcUrl = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -929,12 +1061,12 @@ public enum SourceDTOType {
      */
     Oracle(DataSourceType.Oracle.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("schema");
             }
@@ -954,18 +1086,17 @@ public enum SourceDTOType {
     },
 
 
-
     /**
      * kingbaseES
      */
     Kingbase(DataSourceType.KINGBASE8.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("schema");
             }
@@ -989,12 +1120,12 @@ public enum SourceDTOType {
      */
     Inceptor(DataSourceType.INCEPTOR.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey(JDBC_URL) ? dataJson.getString(JDBC_URL) : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -1029,12 +1160,12 @@ public enum SourceDTOType {
      */
     InfluxDB(DataSourceType.INFLUXDB.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             String url = dataJson.containsKey("url") ? dataJson.getString("url") : "";
             String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
             String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
@@ -1056,12 +1187,12 @@ public enum SourceDTOType {
      */
     ADB_FOR_PG(DataSourceType.ADB_FOR_PG.getVal()) {
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap) {
-            return getSourceDTO(dataJson, confMap, null);
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
         }
 
         @Override
-        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema) {
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
             if (StringUtils.isBlank(schema)) {
                 schema = dataJson.getString("schema");
             }
@@ -1079,11 +1210,58 @@ public enum SourceDTOType {
                     .build();
             return sourceDTO;
         }
-    }
+    },
+
+    /**
+     * Open_TSDB
+     */
+    OPEN_TSDB(DataSourceType.OPENTSDB.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String jdbcUrl = dataJson.containsKey(URL) ? dataJson.getString(URL) : "";
+            OpenTSDBSourceDTO sourceDTO = OpenTSDBSourceDTO
+                    .builder()
+                    .url(jdbcUrl)
+                    .build();
+            return sourceDTO;
+        }
+    },
+
+    /**
+     * Doris_Restful
+     */
+    DORIS_RESTFUL(DataSourceType.DorisRestful.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, "", new HashMap<>());
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String jdbcUrl = dataJson.containsKey(URL) ? dataJson.getString(URL) : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            DorisRestfulSourceDTO sourceDTO = DorisRestfulSourceDTO
+                    .builder()
+                    .url(jdbcUrl)
+                    .userName(username)
+                    .password(password)
+                    .build();
+            return sourceDTO;
+        }
+    },
     ;
-    public static String JDBC_URL = "jdbcUrl";
-    public static String JDBC_USERNAME = "username";
-    public static String JDBC_PASSWORD = "password";
+    public static final String JDBC_URL = "jdbcUrl";
+    public static final String JDBC_USERNAME = "username";
+    public static final String JDBC_PASSWORD = "password";
+    // ssl 认证文件路径
+    public static final String SSL_LOCAL_DIR = "sslLocalDir";
+    public static final String URL = "url";
     /**
      * 数据源类型的值
      */
@@ -1097,36 +1275,9 @@ public enum SourceDTOType {
         this.val = val;
     }
 
-    public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap);
+    public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig);
 
-    public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema);
-
-
-    /**
-     * 根据数据源获取对应的sourceDTO，供外调用
-     *
-     * @param data       未解码的数据信息
-     * @param sourceType
-     * @param confMap
-     * @return
-     */
-    public static ISourceDTO getSourceDTO(String data, Integer sourceType, Map<String, Object> confMap) {
-        JSONObject dataJson = DataSourceUtils.getDataSourceJson(data);
-        SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
-        return sourceDTOType.getSourceDTO(dataJson, confMap);
-    }
-
-    /**
-     * 根据数据源获取对应的sourceDTO，供外调用
-     *
-     * @param dataJson
-     * @param sourceType
-     * @return
-     */
-    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType) {
-        JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
-        return getSourceDTO(dataJson, sourceType, kerberosConfig);
-    }
+    public abstract ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig);
 
     /**
      * 根据枚举值获取数据源类型
@@ -1140,7 +1291,7 @@ public enum SourceDTOType {
                 return sourceDTOType;
             }
         }
-        throw new DtCenterDefException("数据源类型不存在");
+        throw new RdosDefineException("数据源类型不存在");
     }
 
     /**
@@ -1151,9 +1302,9 @@ public enum SourceDTOType {
      * @param confMap
      * @return
      */
-    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap) {
+    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap, Map<String, Object> expandConfig) {
         SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
-        return sourceDTOType.getSourceDTO(dataJson, confMap);
+        return sourceDTOType.getSourceDTO(dataJson, confMap, expandConfig);
     }
 
     /**
@@ -1164,8 +1315,8 @@ public enum SourceDTOType {
      * @param confMap
      * @return
      */
-    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap, String schema) {
+    public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
         SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
-        return sourceDTOType.getSourceDTO(dataJson, confMap, schema);
+        return sourceDTOType.getSourceDTO(dataJson, confMap, schema,expandConfig);
     }
 }

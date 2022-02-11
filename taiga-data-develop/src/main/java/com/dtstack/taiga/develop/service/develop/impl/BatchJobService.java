@@ -242,7 +242,7 @@ public class BatchJobService {
             logsBody.put("jobId", jobId);
             logsBody.put("jobIds", Lists.newArrayList(jobId));
             logsBody.put("computeType", ComputeType.BATCH.getType());
-            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
+            ActionLogVO actionLogVO = actionService.log(jobId);
             String engineLogStr = actionLogVO.getEngineLog();
             String logInfoStr = actionLogVO.getLogInfo();
             if(StringUtils.isNotBlank(engineLogStr)){
@@ -274,7 +274,7 @@ public class BatchJobService {
                 // 读取prometheus的相关信息
                 Tenant tenantById = this.tenantService.getTenantById(tenantId);
                 if (Objects.isNull(tenantById)) {
-                    LOGGER.info("can not find job tenent{}.", tenantId);
+                    LOGGER.info("can not find job tenant{}.", tenantId);
                     throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
                 }
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
