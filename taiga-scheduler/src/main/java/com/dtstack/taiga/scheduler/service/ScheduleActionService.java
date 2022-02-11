@@ -21,7 +21,6 @@ package com.dtstack.taiga.scheduler.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
-import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.common.enums.ForceCancelFlag;
@@ -33,12 +32,12 @@ import com.dtstack.taiga.common.util.DtJobIdWorker;
 import com.dtstack.taiga.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taiga.dao.domain.EngineJobRetry;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
+import com.dtstack.taiga.dao.domain.ScheduleJobExpand;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
-import com.dtstack.taiga.dao.mapper.ComponentMapper;
 import com.dtstack.taiga.dao.mapper.EngineJobRetryMapper;
 import com.dtstack.taiga.pluginapi.JobClient;
+import com.dtstack.taiga.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taiga.pluginapi.enums.ComputeType;
 import com.dtstack.taiga.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taiga.pluginapi.util.PublicUtil;
@@ -94,16 +93,16 @@ public class ScheduleActionService {
     private ClusterService clusterService;
 
     @Autowired
-    private ComponentMapper componentMapper;
-
-    @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private ClusterTenantMapper clusterTenantMapper;
+    private SyncOperatorPipeline syncOperatorPipeline;
 
     @Autowired
-    private SyncOperatorPipeline syncOperatorPipeline;
+    private ComponentService componentService;
+
+    @Autowired
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -268,9 +267,8 @@ public class ScheduleActionService {
         Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, batchTask, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
             JSONObject pluginInfo = clusterService.pluginInfoJSON(batchTask.getTenantId(), batchTask.getTaskType(), null, null);
-            Long clusterId = clusterTenantMapper.getClusterIdByTenantId(batchTask.getTenantId());
-            String hadoopVersion = componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, EComponentType.HDFS.getTypeCode());
-//            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, EComponentType.HDFS.name().toLowerCase() + console.formatHadoopVersion(hadoopVersion, EComponentType.HDFS));
+            String hdfsTypeName = componentService.buildHdfsTypeName(batchTask.getTenantId(),null);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,hdfsTypeName);
             uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
             uploadPipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
         });
@@ -354,18 +352,21 @@ public class ScheduleActionService {
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public ActionLogVO log(String jobId, Integer computeType) {
+    public ActionLogVO log(String jobId) {
 
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         ActionLogVO vo = new ActionLogVO();
-        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
-        if (scheduleJob != null) {
-//            vo.setLogInfo(scheduleJob.getLogInfo());
-            String engineLog = getEngineLog(jobId, scheduleJob);
-            vo.setEngineLog(engineLog);
+        ScheduleJobExpand scheduleJobExpand = scheduleJobExpandService.getByJobId(jobId);
+        if (scheduleJobExpand != null) {
+            vo.setEngineLog(scheduleJobExpand.getEngineLog());
+            vo.setLogInfo(scheduleJobExpand.getLogInfo());
+            if(StringUtils.isBlank(scheduleJobExpand.getEngineLog())){
+                ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
+                vo.setEngineLog(getEngineLog(jobId,scheduleJob));
+            }
         }
         return vo;
     }

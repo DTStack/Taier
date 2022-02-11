@@ -69,13 +69,13 @@ public class BatchDataSource extends TenantEntity {
     /**
      * 是不是项目下的默认数据库
      */
-    private Integer isDefault;
+    private int isDefault;
 
-    public Integer getIsDefault() {
+    public int getIsDefault() {
         return isDefault;
     }
 
-    public void setIsDefault(Integer isDefault) {
+    public void setIsDefault(int isDefault) {
         this.isDefault = isDefault;
     }
 

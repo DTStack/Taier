@@ -872,8 +872,10 @@ public class SparkYarnClient extends AbstractClient {
             yarnClient1.start();
             yarnClient = yarnClient1;
         } finally {
-            long endTime= System.currentTimeMillis();
-            logger.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
+            if (logger.isDebugEnabled()) {
+                long endTime= System.currentTimeMillis();
+                logger.debug("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
+            }
         }
         return yarnClient;
     }

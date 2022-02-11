@@ -17,7 +17,6 @@ import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.PubSvcDefineException;
@@ -34,12 +33,7 @@ import com.dtstack.taiga.develop.common.template.Setting;
 import com.dtstack.taiga.develop.common.template.Writer;
 import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
 import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taiga.develop.enums.develop.DataSourceDataBaseType;
-import com.dtstack.taiga.develop.enums.develop.EDataSourcePermission;
-import com.dtstack.taiga.develop.enums.develop.RDBMSSourceType;
-import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
-import com.dtstack.taiga.develop.enums.develop.TableLocationType;
-import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taiga.develop.enums.develop.*;
 import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
 import com.dtstack.taiga.develop.sql.formate.SqlFormatter;
 import com.dtstack.taiga.develop.utils.Asserts;
@@ -1141,7 +1135,7 @@ public class DatasourceService {
             this.batchTaskParamService.checkParams(this.batchTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
             return sql.toJSONString();
         } catch (final Exception e) {
-            LOGGER.error("{}", e);
+            LOGGER.error("", e);
             throw new RdosDefineException("解析同步任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION);
         }
     }
@@ -1160,7 +1154,7 @@ public class DatasourceService {
             throw new RdosDefineException("传入信息有误");
         }
 
-        if (map != null && !map.containsKey("sourceId")) {
+        if (!map.containsKey("sourceId")) {
             throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
         }
         Long dataSourceId = MapUtils.getLong(map, "sourceId", 0L);
@@ -1197,9 +1191,7 @@ public class DatasourceService {
                 sourceIds.add(sourceId);
 
                 sourceMap.put("name", batchDataSource.getDataName());
-                if (map.get("source") == null) {
-                    map.put("source", batchDataSource);
-                }
+                map.putIfAbsent("source", batchDataSource);
                 if (map.get("datasourceType") == null) {
                     map.put("dataSourceType", batchDataSource.getType());
                 }
@@ -1317,7 +1309,7 @@ public class DatasourceService {
             map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             processTable(map);
         } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            map.put("isDefaultSource", source.getIsDefault() == 1 ? true : false);
+            map.put("isDefaultSource",  1 == source.getIsDefault());
             map.put("type", sourceType);
             map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
             map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
