@@ -267,7 +267,7 @@ public class BatchSparkHiveSqlExeService {
             }
         }
 
-        DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.Spark : DataSourceType.HIVE;
+        DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.SPARKTHRIFT2_1 : null;
         if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
             String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);

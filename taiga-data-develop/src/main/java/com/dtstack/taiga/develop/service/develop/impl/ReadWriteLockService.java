@@ -326,41 +326,21 @@ public class ReadWriteLockService {
      * @param relationId
      * @param type
      * @param userId
-     * @param lockVersion
-     * @param relationLocalVersion
-     * @param relationVersion
      * @param callback
-     * @param forceUpdate
      * @return
      */
     public ReadWriteLockVO dealWithLock(Long tenantId, Long relationId, ReadWriteLockType type, Long userId,
-                                        Integer lockVersion, Integer relationLocalVersion, Integer relationVersion,
-                                        Callback<Void> callback, Boolean forceUpdate) {
+                                        Callback<Void> callback) {
 
         ReadWriteLockVO readWriteLockVO = null;
-        if (forceUpdate) {
-            Integer update = (Integer) callback.submit(null);
-            if (update != 1) {
-                readWriteLockVO = getLockBasicInfo(tenantId, relationId, type);
-                readWriteLockVO.setResult(TaskLockStatus.UPDATE_COMPLETED.getVal());
-                return readWriteLockVO;
-            } else {
-                readWriteLockVO = forceUpdateLock(userId, type, relationId, tenantId);
-                readWriteLockVO.setResult(TaskLockStatus.TO_UPDATE.getVal());
-                return readWriteLockVO;
-            }
+        Integer update = (Integer) callback.submit(null);
+        if (update != 1) {
+            readWriteLockVO = getLockBasicInfo(tenantId, relationId, type);
+            readWriteLockVO.setResult(TaskLockStatus.UPDATE_COMPLETED.getVal());
+            return readWriteLockVO;
         } else {
-            readWriteLockVO = checkLock(
-                    userId, tenantId,
-                    relationId, type,
-                    lockVersion, relationLocalVersion,
-                    relationVersion);
-            if (readWriteLockVO.getResult() == TaskLockStatus.TO_UPDATE.getVal()) {
-                Integer update = (Integer) callback.submit(null);
-                if (update != 1) {
-                    readWriteLockVO.setResult(TaskLockStatus.UPDATE_COMPLETED.getVal());
-                }
-            }
+            readWriteLockVO = forceUpdateLock(userId, type, relationId, tenantId);
+            readWriteLockVO.setResult(TaskLockStatus.TO_UPDATE.getVal());
             return readWriteLockVO;
         }
     }
