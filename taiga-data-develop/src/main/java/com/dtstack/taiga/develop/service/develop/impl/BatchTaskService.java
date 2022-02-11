@@ -2202,7 +2202,7 @@ public class BatchTaskService {
                     .schema(schema)
                     .filterPartitionColumns(part)
                     .build();
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig);
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig, Maps.newHashMap());
             List<ColumnMetaDTO> columnMetaData = iClient.getColumnMetaData(iSourceDTO, sqlQueryDTO);
             List<JSONObject> list = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(columnMetaData)) {
