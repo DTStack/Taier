@@ -465,10 +465,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      */
     @Transactional(rollbackFor = Exception.class)
     public void jobFail(String jobId, Integer status, String generateErrorMsg) {
-        ScheduleJob updateScheduleJob = new ScheduleJob();
-        updateScheduleJob.setJobId(jobId);
-        updateScheduleJob.setStatus(status);
-        this.baseMapper.updateById(updateScheduleJob);
+        updateStatus(jobId,status);
         updateExpandByJobId(jobId,null,generateErrorMsg);
     }
 

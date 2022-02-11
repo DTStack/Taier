@@ -64,11 +64,11 @@ public class UploadController {
 
     @PostMapping(value="/component/addOrUpdateComponent")
     public R<ComponentVO> addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
-                                            @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName")@NotNull String versionName,
-                                            @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
-                                            @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
-                                            @RequestParam("principals")String principals,@RequestParam("principal")String principal,@RequestParam("isMetadata")boolean isMetadata,
-                                            @RequestParam(value = "isDefault",required = false) Boolean isDefault,@RequestParam(value = "deployType",required = false)Integer deployType) {
+                                               @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName")@NotNull String versionName,
+                                               @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
+                                               @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
+                                               @RequestParam("principals")String principals, @RequestParam("principal")String principal, @RequestParam(value = "isMetadata",defaultValue = "false")Boolean isMetadata,
+                                               @RequestParam(value = "isDefault",defaultValue = "false") Boolean isDefault, @RequestParam(value = "deployType")Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
