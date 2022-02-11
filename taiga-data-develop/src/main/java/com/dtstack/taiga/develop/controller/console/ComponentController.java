@@ -25,10 +25,10 @@ import com.dtstack.taiga.dao.domain.Component;
 import com.dtstack.taiga.dao.domain.KerberosConfig;
 import com.dtstack.taiga.develop.mapstruct.console.KerberosConfigTransfer;
 import com.dtstack.taiga.develop.service.console.ConsoleComponentService;
+import com.dtstack.taiga.develop.vo.console.KerberosConfigVO;
 import com.dtstack.taiga.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.taiga.develop.vo.console.KerberosConfigVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -86,18 +86,18 @@ public class ComponentController {
     @PostMapping(value = "/loadTemplate")
     @ApiOperation(value = "加载各个组件的前端渲染模版")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="clusterId",value="集群id",required=true, dataType = "long",example = "-1L"),
-            @ApiImplicitParam(name="versionName",value="组件版本名称",required=true, dataType = "string"),
-            @ApiImplicitParam(name="deployType",value="deploy类型",required=true, dataType = "int"),
-            @ApiImplicitParam(name="componentType",value="组件code",required=true, dataType = "int"),
-            @ApiImplicitParam(name="storeType",value="存储组件code",required=true, dataType = "int"),
+            @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long", example = "-1L"),
+            @ApiImplicitParam(name = "versionName", value = "组件版本名称", required = true, dataType = "string"),
+            @ApiImplicitParam(name = "deployType", value = "deploy类型", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
+            @ApiImplicitParam(name = "storeType", value = "存储组件code", required = true, dataType = "int"),
     })
     public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterId") Long clusterId,
-                                             @RequestParam("versionName") String versionName, @RequestParam("storeType") Integer storeType,
-                                             @RequestParam("deployType") Integer deployType) {
+                                                @RequestParam("versionName") String versionName, @RequestParam("storeType") Integer storeType,
+                                                @RequestParam("deployType") Integer deployType) {
         EComponentType type = EComponentType.getByCode(componentType);
         EComponentType storeComponentType = storeType == null ? null : EComponentType.getByCode(storeType);
-        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, storeComponentType,deployType));
+        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, storeComponentType, deployType));
     }
 
 
@@ -157,6 +157,18 @@ public class ComponentController {
         return R.ok(consoleComponentService.testConnect(clusterName, componentType, versionName));
     }
 
+
+    @PostMapping(value = "/refresh")
+    @ApiOperation(value = "刷新组件信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
+    })
+    public R<List<ComponentTestResult>> refresh(@RequestParam("clusterName") String clusterName) {
+        if (StringUtils.isBlank(clusterName)) {
+            throw new RdosDefineException("clusterName is null");
+        }
+        return R.ok(consoleComponentService.refresh(clusterName));
+    }
 }
 
 
