@@ -566,28 +566,15 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     }
 
     public String sendSqlTask(Long tenantId, String sql, String taskParams, String jobId, Long taskId, Integer taskType) {
-        JSONObject taskParam = new JSONObject();
-        taskParam.put("taskType", taskType);
-        taskParam.put("sqlText", sql);
-        taskParam.put("computeType", ComputeType.BATCH.getType());
-        taskParam.put("taskId", taskId);
-        taskParam.put("jobId", jobId);
-        taskParam.put("name", String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
-        taskParam.put("pluginInfo", null);
-        taskParam.put("taskParams", taskParams);
-        taskParam.put("tenantId", tenantId);
-        taskParam.put("maxRetryNum", 0);
-        if (taskParam.containsKey("job")){
-            taskParam.remove("job").toString();
-        }
-
-        ParamActionExt actionExt = null;
-        try {
-            actionExt = objectMapper.readValue(taskParam.toJSONString(), ParamActionExt.class);
-        } catch (IOException e) {
-            throw new DtCenterDefException("参数异常", e);
-        }
-        actionService.start(actionExt);
+        ParamActionExt paramActionExt = new ParamActionExt();
+        paramActionExt.setTaskType(taskType);
+        paramActionExt.setSqlText(sql);
+        paramActionExt.setComputeType(ComputeType.BATCH.getType());
+        paramActionExt.setJobId(jobId);
+        paramActionExt.setName(String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
+        paramActionExt.setTaskParams(taskParams);
+        paramActionExt.setTenantId(tenantId);
+        actionService.start(paramActionExt);
         return jobId;
     }
 

@@ -15,8 +15,11 @@
             <if test="uploadFileName!=null">
                 upload_file_name = #{uploadFileName},
             </if>
-            <if test="hadoopVersion!=null">
-                hadoop_version = #{hadoopVersion},
+            <if test="versionName!=null">
+                version_name = #{versionName},
+            </if>
+            <if test="versionValue!=null">
+                version_value = #{versionValue},
             </if>
             <if test="kerberosFileName != null">
                 kerberos_file_name = #{kerberosFileName},
@@ -106,7 +109,7 @@
 
 
     <select id="getDefaultComponentVersionByClusterAndComponentType" resultType="java.lang.String">
-        SELECT cc.hadoop_version
+        SELECT cc.version_value
         FROM console_component cc
                  LEFT JOIN console_cluster ccl ON ccl.id = cc.cluster_id
         WHERE cc.component_type_code = #{componentType}
@@ -116,7 +119,7 @@
     </select>
 
     <select id="getComponentVersionByEngineType" resultType="com.dtstack.taiga.dao.domain.Component">
-        SELECT sd.dict_name as hadoop_version,
+        SELECT sd.dict_name as versionName,
                cc.gmt_create,
                cc.is_default
         FROM console_component cc
