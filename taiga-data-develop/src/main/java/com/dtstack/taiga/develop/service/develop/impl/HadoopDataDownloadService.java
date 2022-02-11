@@ -205,7 +205,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             //同步任务
             StringBuilder syncLog = new StringBuilder();
             SyncDownload syncDownload = new SyncDownload();
-            ActionLogVO log = actionService.log(jobId, ComputeType.BATCH.getType());
+            ActionLogVO log = actionService.log(jobId);
             if (!Objects.isNull(log)) {
                 String engineLogStr = log.getEngineLog();
                 String logInfoStr = log.getLogInfo();

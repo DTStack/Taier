@@ -58,6 +58,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -220,13 +221,15 @@ public class TenantService {
      * 绑定/切换队列
      */
     @Transactional(rollbackFor = Exception.class)
-    public void bindingQueue(Long queueId,
+    public void bindingQueue(String queueName,Long clusterId,
                              Long tenantId) {
-        Queue queue = queueMapper.selectById(queueId);
-        if (queue == null) {
+        List<Queue> queues = queueMapper.listByClusterId(clusterId);
+        Optional<Queue> queueOptional = queues.stream().filter(queue -> queue.getQueueName().equals(queueName)).findFirst();
+        if (!queueOptional.isPresent()) {
             throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);
         }
-
+        Queue queue = queueOptional.get();
+        Long queueId = queue.getId();
         try {
             LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} clusterId:{}", tenantId, queueId, queue.getQueueName(), queue.getClusterId());
             updateTenantQueue(tenantId, queue.getClusterId(), queueId);
