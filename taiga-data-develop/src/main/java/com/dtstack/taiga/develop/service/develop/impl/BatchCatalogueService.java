@@ -33,16 +33,17 @@ import com.dtstack.taiga.dao.domain.BatchCatalogue;
 import com.dtstack.taiga.dao.domain.BatchFunction;
 import com.dtstack.taiga.dao.domain.BatchResource;
 import com.dtstack.taiga.dao.domain.BatchTask;
-import com.dtstack.taiga.dao.domain.Dict;
+import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.BatchCatalogueDao;
 import com.dtstack.taiga.develop.dto.devlop.BatchCatalogueVO;
-import com.dtstack.taiga.develop.enums.develop.RdosBatchCatalogueTypeEnum;
-import com.dtstack.taiga.develop.enums.develop.TemplateCatalogue;
-import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO;
 import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taiga.develop.enums.develop.RdosBatchCatalogueTypeEnum;
+import com.dtstack.taiga.develop.enums.develop.TemplateCatalogue;
+import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taiga.scheduler.service.ScheduleDictService;
 import com.dtstack.taiga.scheduler.vo.ComponentVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -87,7 +88,7 @@ public class BatchCatalogueService {
     private BatchFunctionService batchFunctionService;
 
     @Autowired
-    private DictService dictService;
+    private ScheduleDictService dictService;
 
     @Autowired
     private UserService userService;
@@ -203,19 +204,19 @@ public class BatchCatalogueService {
     @Transactional(rollbackFor = Exception.class)
     public void initCatalogue(Long tenantId, Long userId, List<ComponentVO> componentVOS) {
         //离线各模块的 0 级目录，任务管理、函数管理、资源管理
-        List<Dict> zeroBatchCatalogueDictList = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
+        List<ScheduleDict> zeroBatchCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
         List<Integer> componentTypes = componentVOS.stream().map(ComponentVO::getComponentTypeCode).collect(Collectors.toList());
         //根据控制台配置的组件信息，获取需要初始化的 1 级目录，任务开发、SparkSQL、资源管理 等
-        List<Dict> oneBatchCatalogueDictList = this.initCatalogueDictLevelByEngineType(componentTypes);
+        List<ScheduleDict> oneBatchCatalogueDictList = this.initCatalogueDictLevelByEngineType(componentTypes);
 
-        Map<Integer, Set<String>> oneCatalogueValueAndNameMapping = oneBatchCatalogueDictList.stream()
-                .collect(Collectors.groupingBy(Dict::getDictValue, Collectors.mapping(Dict::getDictNameZH, Collectors.toSet())));
-        for (Dict zeroDict : zeroBatchCatalogueDictList) {
+        Map<String, Set<String>> oneCatalogueValueAndNameMapping = oneBatchCatalogueDictList.stream()
+                .collect(Collectors.groupingBy(ScheduleDict::getDictValue, Collectors.mapping(ScheduleDict::getDictDesc, Collectors.toSet())));
+        for (ScheduleDict zeroDict : zeroBatchCatalogueDictList) {
             //初始化 0 级目录
             BatchCatalogue zeroBatchCatalogue = new BatchCatalogue();
-            zeroBatchCatalogue.setNodeName(zeroDict.getDictNameZH());
+            zeroBatchCatalogue.setNodeName(zeroDict.getDictDesc());
             zeroBatchCatalogue.setNodePid(DEFAULT_NODE_PID);
-            zeroBatchCatalogue.setOrderVal(zeroDict.getDictSort());
+            zeroBatchCatalogue.setOrderVal(zeroDict.getSort());
             zeroBatchCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
             zeroBatchCatalogue.setTenantId(tenantId);
             zeroBatchCatalogue.setCreateUserId(userId);
@@ -247,14 +248,14 @@ public class BatchCatalogueService {
      * @param componentType
      * @return
      */
-    private List<Dict> initCatalogueDictLevelByEngineType(List<Integer> componentType) {
-        List<Dict> dictByType = dictService.getDictByType(DictType.BATCH_CATALOGUE_L1.getValue());
+    private List<ScheduleDict> initCatalogueDictLevelByEngineType(List<Integer> componentType) {
+        List<ScheduleDict> dictByType = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE_L1);
         //根据组件类型初始化对应的函数管理目录
         if (CollectionUtils.isNotEmpty(componentType)) {
             //如果没有选择SparkThrift组件，则不初始化目录
             if (!componentType.contains(EComponentType.SPARK_THRIFT.getTypeCode())) {
                 dictByType = dictByType.stream()
-                        .filter(dict -> !dict.getDictNameZH().equals(EngineCatalogueType.SPARK.getDesc()))
+                        .filter(dict -> !dict.getDictDesc().equals(EngineCatalogueType.SPARK.getDesc()))
                         .collect(Collectors.toList());
             }
             return dictByType;
@@ -275,12 +276,12 @@ public class BatchCatalogueService {
         //一级菜单初始化的时候  函数管理的一级菜单为引擎 原有的一级菜单 系统函数 自定义函数 挂在引擎下 作为二级菜单
         if (isNeedFunction(name)) {
             //离线需要初始化的函数目录
-            List<Dict> batchFunctionDictList = dictService.getDictByType(DictType.BATCH_FUNCTION.getValue());
+            List<ScheduleDict> batchFunctionDictList = dictService.listByDictType(DictType.DATA_DEVELOP_FUNCTION);
             if (CollectionUtils.isNotEmpty(batchFunctionDictList)) {
-                for (Dict functionDict : batchFunctionDictList) {
+                for (ScheduleDict functionDict : batchFunctionDictList) {
                     //需要 系统函数、自定义函数 挂在当前目录下
                     BatchCatalogue twoBatchCatalogue = new BatchCatalogue();
-                    twoBatchCatalogue.setNodeName(functionDict.getDictNameZH());
+                    twoBatchCatalogue.setNodeName(functionDict.getDictDesc());
                     twoBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
                     twoBatchCatalogue.setNodePid(oneBatchCatalogue.getId());
                     twoBatchCatalogue.setTenantId(tenantId);
@@ -537,14 +538,14 @@ public class BatchCatalogueService {
         //查询 0 级目录
         List<BatchCatalogue> zeroCatalogues = batchCatalogueDao.listByLevelAndTenantId(0, tenantId);
         //从字典表中查询出初始化的 0 级目录
-        List<Dict> zeroCatalogueDictList = dictService.getDictByType(DictType.BATCH_CATALOGUE.getValue());
+        List<ScheduleDict> zeroCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
         //从字典表中查询出初始化的 1 级目录
-        List<Dict> oneCatalogueDictList = dictService.getDictByType(DictType.BATCH_CATALOGUE_L1.getValue());
+        List<ScheduleDict> oneCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE_L1);
 
         // 0 级目录的中文和英文名称
-        Map<String, String> zeroCatalogueType = zeroCatalogueDictList.stream().collect(Collectors.toMap(Dict::getDictNameZH, Dict::getDictNameEN, (key1, key2) -> key1));
+        Map<String, String> zeroCatalogueType = zeroCatalogueDictList.stream().collect(Collectors.toMap(ScheduleDict::getDictDesc, ScheduleDict::getDictName, (key1, key2) -> key1));
         // 1 级目录的中文和英文名称
-        Map<String, String> oneCatalogueType = oneCatalogueDictList.stream().collect(Collectors.toMap(Dict::getDictNameZH, Dict::getDictNameEN, (key1, key2) -> key1));
+        Map<String, String> oneCatalogueType = oneCatalogueDictList.stream().collect(Collectors.toMap(ScheduleDict::getDictDesc, ScheduleDict::getDictName, (key1, key2) -> key1));
 
         List<CatalogueVO> zeroCatalogueVOList = new ArrayList<>(zeroCatalogues.size());
         for (BatchCatalogue zeroCatalogue : zeroCatalogues) {
