@@ -18,12 +18,10 @@
 
 package com.dtstack.taiga.develop.service.develop.impl;
 
-import com.dtstack.taiga.common.enums.MultiEngineType;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.develop.service.develop.IDataDownloadService;
 import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.utils.develop.common.IDownload;
-import com.dtstack.taiga.develop.utils.develop.mapping.TaskTypeEngineTypeMapping;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -82,15 +80,13 @@ public class BatchDownloadService {
         if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("engineJobId 不能为空");
         }
-        MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
-        Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", multiEngineType.getType()));
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(taskType);
+        Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", taskType));
         return dataDownloadService.buildIDownLoad(jobId, taskType, tenantId, limitNum);
     }
 
     public String downloadAppTypeLog(Long tenantId, String jobId, Integer limitNum, String logType, Integer taskType) {
-        MultiEngineType multiEngineType = TaskTypeEngineTypeMapping.getEngineTypeByTaskType(taskType);
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(multiEngineType.getType());
+        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(taskType);
         IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
         if (Objects.isNull(downloader)) {
             LOGGER.error("-----日志文件导出失败-----");

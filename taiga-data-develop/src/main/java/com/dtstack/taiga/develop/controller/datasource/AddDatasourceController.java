@@ -12,12 +12,12 @@ import com.dtstack.taiga.develop.bo.datasource.AddDataSourceParam;
 import com.dtstack.taiga.develop.bo.datasource.DsTypeSearchParam;
 import com.dtstack.taiga.develop.bo.datasource.DsVersionSearchParam;
 import com.dtstack.taiga.develop.common.convert.DataSourceParam2SourceVOConverter;
+import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taiga.develop.service.datasource.impl.DsClassifyService;
 import com.dtstack.taiga.develop.service.datasource.impl.DsTypeService;
 import com.dtstack.taiga.develop.service.datasource.impl.DsVersionService;
 import com.dtstack.taiga.develop.utils.Asserts;
-import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
 import com.dtstack.taiga.develop.vo.datasource.DsClassifyVO;
 import com.dtstack.taiga.develop.vo.datasource.DsTypeVO;
 import com.dtstack.taiga.develop.vo.datasource.DsVersionVO;
@@ -27,13 +27,19 @@ import com.dtstack.taiga.develop.web.develop.query.BatchDataSourcePreviewVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchDataSourceTableColumnVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchDataSourceTableListVO;
 import com.dtstack.taiga.develop.web.develop.query.BatchDataSourceTableLocationVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchDatasourceTableCreateSQLVO;
+import com.dtstack.taiga.develop.web.develop.query.BatchDatasourceTableCreateVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -254,6 +260,29 @@ public class AddDatasourceController {
             @Override
             protected List<String> process() {
                 return datasourceService.getAllSchemas(vo.getSourceId(), vo.getSchema());
+            }
+        }.execute();
+    }
+
+    @ApiOperation(value = "获取生成目标表建表SQL")
+    @PostMapping(value = "getCreateTargetTableSql")
+    public R<String> getCreateTargetTableSql(@RequestBody BatchDatasourceTableCreateSQLVO tableVO) {
+        return new APITemplate<String>() {
+            @Override
+            protected String process() {
+                return datasourceService.getCreateTargetTableSql(tableVO.getOriginSourceId(), tableVO.getTargetSourceId(),
+                        tableVO.getTableName(), tableVO.getPartition(), tableVO.getOriginSchema(), tableVO.getTargetSchema());
+            }
+        }.execute();
+    }
+
+    @ApiOperation(value = "执行生成目标表SQL")
+    @PostMapping(value = "ddlCreateTable")
+    public R<String> ddlCreateTable(@RequestBody BatchDatasourceTableCreateVO tableVO) {
+        return new APITemplate<String>() {
+            @Override
+            protected String process() {
+                return datasourceService.ddlCreateTable(tableVO.getSql(), tableVO.getSourceId(), tableVO.getTargetSchema());
             }
         }.execute();
     }

@@ -12,6 +12,7 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
 import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
@@ -40,12 +41,16 @@ import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import com.dtstack.taiga.develop.enums.develop.TableLocationType;
 import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
+import com.dtstack.taiga.develop.sql.formate.SqlFormatter;
 import com.dtstack.taiga.develop.utils.Asserts;
 import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
+import com.dtstack.taiga.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taiga.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taiga.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taiga.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.format.writer.HiveWriterFormat;
+import com.dtstack.taiga.develop.utils.develop.sync.format.writer.PostgreSqlWriterFormat;
 import com.dtstack.taiga.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taiga.develop.utils.develop.sync.job.JobTemplate;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
@@ -75,18 +80,22 @@ import com.dtstack.taiga.develop.utils.develop.sync.template.RDBBase;
 import com.dtstack.taiga.develop.utils.develop.sync.template.RDBReader;
 import com.dtstack.taiga.develop.utils.develop.sync.template.RDBWriter;
 import com.dtstack.taiga.develop.utils.develop.sync.template.RedisWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.util.ADBForPGUtil;
+import com.dtstack.taiga.develop.utils.develop.sync.util.CreateTableSqlParseUtil;
+import com.dtstack.taiga.pluginapi.util.DtStringUtil;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jcraft.jsch.SftpException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,6 +104,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,6 +122,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 有关数据源中心
@@ -119,14 +130,10 @@ import java.util.regex.Pattern;
  * @author: liuxx
  * @date: 2021/3/16
  */
-@Slf4j
 @Service
 public class DatasourceService {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    @Autowired
-    private EnvironmentContext env;
+    public static final Logger LOGGER = LoggerFactory.getLogger(DatasourceService.class);
 
     @Autowired
     private KerberosService kerberosService;
@@ -144,15 +151,16 @@ public class DatasourceService {
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
-    private DsTypeService dsTypeService;
-
-    public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
-
-    @Autowired
     private BatchTaskParamService batchTaskParamService;
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private DatasourceService datasourceService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     /**
      * FIMXE 暂时将数据源读写权限设置在程序    里面
@@ -163,7 +171,6 @@ public class DatasourceService {
     public static final String JDBC_USERNAME = "username";
     public static final String JDBC_PASSWORD = "password";
     public static final String JDBC_HOSTPORTS = "hostPorts";
-    public static final String SECRET_KEY = "secretKey";
 
     public static final String HDFS_DEFAULTFS = "defaultFS";
 
@@ -175,15 +182,7 @@ public class DatasourceService {
 
     public static final String HIVE_PARTITION = "partition";
 
-    public static final String TEMP_TABLE_PREFIX = "select_sql_temp_table_";
-
-    public static final String TEMP_TABLE_PREFIX_FROM_DQ = "temp_data_";
-
-    private static final String KEY = "key";
-
     private static final String TYPE = "type";
-
-    private static final String COLUMN = "column";
 
     private static final String EXTRAL_CONFIG = "extralConfig";
 
@@ -217,21 +216,45 @@ public class DatasourceService {
 
     private static final TypeFormat TYPE_FORMAT = new HiveWriterFormat();
 
-    private static final String NO_PERMISSION = "NO PERMISSION";
-
-    private static final String hdfsCustomConfig = "hdfsCustomConfig";
-
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
-    private static final String KRB5_CONF = "java.security.krb5.conf";
+    /**
+     * ssl 认证文件路径
+     */
+    private static final String KEY_PATH = "keyPath";
 
-    private static final String KRB5_FILE = "krb5.conf";
+    /**
+     * ssl 认证文件路径
+     */
+    private static final String SSL_LOCAL_DIR = "sslLocalDir";
 
-    private static final String PRINCIPLE_FILE = "principalFile";
+    // 底层是postgresql的类型
+    private static final Set<Integer> CREATE_TABLE_TO_PG_TABLE = Sets.newHashSet(DataSourceType.LIBRA.getVal(), DataSourceType.GREENPLUM6.getVal(),
+            DataSourceType.PostgreSQL.getVal());
+    private static final List ORIGIN_TABLE_ALLOW_TYPES = new ArrayList();
+
+    // 一键生成目标表，不同数据源表名处理正则，像"a"."b" 、 `a`.`b` 、 'a'.'b' 、 [a].[b]
+    private static final String TABLE_FORMAT_REGEX = "`|'|\"|\\[|\\]";
+
+    // 关系型数据库建表模版
+    private static final String RDB_CREATE_TABLE_SQL_TEMPLATE = "create table %s ( %s );";
+
+    static {
+        ORIGIN_TABLE_ALLOW_TYPES.addAll(RDBMSSourceType.getRDBMS());
+        ORIGIN_TABLE_ALLOW_TYPES.add(DataSourceType.MAXCOMPUTE.getVal());
+    }
 
     // 数据同步-模版导入 writer 不需要添加默认值的数据源类型
     private static final Set<Integer> notPutValueFoeWriterSourceTypeSet = Sets.newHashSet(DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(),
             DataSourceType.HIVE1X.getVal(), DataSourceType.CarbonData.getVal(), DataSourceType.INCEPTOR.getVal(), DataSourceType.SparkThrift2_1.getVal());
+
+    // 支持一键建表的数据源类型
+    private static final Set<DataSourceType> SUPPORT_CREATE_TABLE_DATASOURCES = Sets.newHashSet(DataSourceType.HIVE, DataSourceType.SparkThrift2_1,
+            DataSourceType.LIBRA, DataSourceType.PostgreSQL, DataSourceType.HIVE1X, DataSourceType.HIVE3X, DataSourceType.HIVE3_CDP, DataSourceType.IMPALA,
+            DataSourceType.TiDB, DataSourceType.Oracle, DataSourceType.GREENPLUM6, DataSourceType.MySQL, DataSourceType.ADB_FOR_PG, DataSourceType.DorisRestful, DataSourceType.SAP_HANA1, DataSourceType.SAP_HANA2);
+
+    // 支持一键建表的数据源类型名称
+    private static final String SUPPORT_CREATE_TABLE_DATASOURCES_NAMES = SUPPORT_CREATE_TABLE_DATASOURCES.stream().map(DataSourceType::getName).collect(Collectors.joining("、"));
 
 
     static {
@@ -274,7 +297,7 @@ public class DatasourceService {
                 // 解析Zip文件获取配置对象
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
             } catch (IOException e) {
-                log.error("解析principals， kerberos config 解析异常,{}", e.getMessage(), e);
+                LOGGER.error("解析principals， kerberos config 解析异常,{}", e.getMessage(), e);
                 throw new PubSvcDefineException(String.format("kerberos config 解析异常,Caused by: %s", e.getMessage()), e);
             }
             // 连接 Kerberos 前的准备工作
@@ -305,7 +328,7 @@ public class DatasourceService {
             try {
                 kerberos.prepareKerberosForConnect(tmpKerberosConfig, localKerberosPath);
             } catch (Exception e) {
-                log.error("kerberos连接预处理失败！{}", e.getMessage(), e);
+                LOGGER.error("kerberos连接预处理失败！{}", e.getMessage(), e);
                 throw new DtCenterDefException(String.format("kerberos连接预处理失败,Caused by: %s", e.getMessage()), e);
             }
         }
@@ -335,6 +358,26 @@ public class DatasourceService {
             throw new DtCenterDefException(String.format("获取kerberos认证文件失败,Caused by: %s", e.getMessage()), e);
         }
         return kerberosConfig;
+    }
+
+    /**
+     * 拓展配置 ssl 配置信息等
+     *
+     * @param sourceId
+     * @return
+     */
+    public Map<String, Object> expandConfigPrepare(Long sourceId) {
+        BatchDataSource sourceInfo = getOne(sourceId);
+        JSONObject dataJson = JSONObject.parseObject(sourceInfo.getDataJson());
+        String sftpDir = dataJson.getString(KEY_PATH);
+        if (StringUtils.isEmpty(sftpDir)) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> config = new HashMap<>();
+        Map<String, String> sftpMap = getSftpMap(sourceInfo.getTenantId());
+        DataSourceUtils.downloadFileFromSftp(sftpDir, DataSourceUtils.getLocalSslDir(sourceId), sftpMap, null);
+        config.put(SSL_LOCAL_DIR, DataSourceUtils.getLocalSslDir(sourceId));
+        return config;
     }
 
     /**
@@ -376,7 +419,7 @@ public class DatasourceService {
             try {
                 kerberosConfig = kerberos.parseKerberosFromUpload(resource.getRight(), localKerberosPath);
             } catch (IOException e) {
-                log.error("检测连通性， kerberos config 解析异常,{}", e.getMessage(), e);
+                LOGGER.error("检测连通性， kerberos config 解析异常,{}", e.getMessage(), e);
                 throw new PubSvcDefineException(String.format("kerberos config 解析异常,Caused by: %s", e.getMessage()), e);
             }
         } else {
@@ -386,7 +429,7 @@ public class DatasourceService {
         try {
             source.setDataJson(DataSourceUtils.getDataSourceJson(source.getDataJsonString()));
         } catch (Exception e) {
-            log.error("检查数据源连接，DataJsonString 转化异常", e);
+            LOGGER.error("检查数据源连接，DataJsonString 转化异常", e);
             throw new PubSvcDefineException("JSONObject 转化异常", e);
         }
         // 设置前台传入的principals
@@ -418,7 +461,7 @@ public class DatasourceService {
             kerberos.prepareKerberosForConnect(tempConfMap, localKerberosPath);
         }
         // 测试连通性
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(source.getDataJson(), typeEnum.getVal(), tempConfMap);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(source.getDataJson(), typeEnum.getVal(), tempConfMap, Maps.newHashMap());
         return ClientCache.getClient(typeEnum.getVal()).testCon(sourceDTO);
     }
 
@@ -469,7 +512,7 @@ public class DatasourceService {
             try {
                 confMap = ClientCache.getKerberos(typeEnum.getVal()).parseKerberosFromUpload(resource.getRight(), localKerberosConf);
             } catch (IOException e) {
-                log.error("添加数据源， kerberos config 解析异常,{}", e.getMessage(), e);
+                LOGGER.error("添加数据源， kerberos config 解析异常,{}", e.getMessage(), e);
                 throw new PubSvcDefineException(String.format("kerberos config 解析异常,Caused by: %s", e.getMessage()), e);
             }
             //设置openKerberos变量表示开启kerberos认证
@@ -508,7 +551,7 @@ public class DatasourceService {
                 try {
                     FileUtils.deleteDirectory(newConfDir);
                 } catch (IOException e) {
-                    log.error("删除历史的kerberos文件失败", e);
+                    LOGGER.error("删除历史的kerberos文件失败", e);
                 }
                 //目录转换, temp路径转换成新路径
                 localKerberosConfDir.renameTo(newConfDir);
@@ -523,7 +566,7 @@ public class DatasourceService {
             dataSourceVO.setId(dataSourceId);
             id = addOrUpdate(dataSourceVO, userId);
         } catch (Exception e) {
-            log.error("addOrUpdateSourceWithKerberos error",e);
+            LOGGER.error("addOrUpdateSourceWithKerberos error",e);
             throw new PubSvcDefineException(e.getMessage());
         }
         return id;
@@ -675,13 +718,13 @@ public class DatasourceService {
      */
     private void colMap(JSONObject json, Integer type, Map<String, Object> kerberosConfig) {
         if (DataSourceType.getKafkaS().contains(type)) {
-            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, type);
+            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, type, Maps.newHashMap(), Maps.newHashMap());
             String brokersAddress = null;
 
             try {
                 brokersAddress = ClientCache.getKafka(type).getAllBrokersAddress(sourceDTO);
             } catch (Exception e) {
-                log.error("获取kafka brokersAddress 异常!", e);
+                LOGGER.error("获取kafka brokersAddress 异常!", e);
                 throw new PubSvcDefineException("获取kafka brokersAddress 异常!", e);
             }
             json.put("bootstrapServers", brokersAddress);
@@ -690,19 +733,6 @@ public class DatasourceService {
         if (kerberosConfig != null) {
             json.put(FormNames.KERBEROS_CONFIG, kerberosConfig);
         }
-    }
-
-
-    /**
-     * 通过数据源信息判断数据源的联通性
-     * @param dsInfo
-     * @return
-     */
-    public Boolean checkConnectByDsInfo(DsInfo dsInfo) {
-        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfo.getDataType(), dsInfo.getDataVersion());
-        // 测试连通性
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dsInfo.getDataJson(), typeEnum.getVal(), null);
-        return ClientCache.getClient(typeEnum.getVal()).testCon(sourceDTO);
     }
 
     public DataSourceType getHadoopDefaultDataSourceByTenantId(Long tenantId) {
@@ -817,7 +847,7 @@ public class DatasourceService {
                     try {
                         jsonMap = objectMapper.readValue(jsonStr,Map.class);
                     } catch (IOException e) {
-                        log.error("", e);
+                        LOGGER.error("", e);
                     }
                 }
                 replaceDataSourceInfoByCreateModel(param,HBASE_CONFIG,jsonMap,createModel);
@@ -1016,7 +1046,7 @@ public class DatasourceService {
      */
     private  com.dtstack.dtcenter.loader.dto.Table  getTableInfo(Integer sourceType, String table, JSONObject dataJson, Map<String, Object> kerberosConfig){
         IClient client = ClientCache.getClient(sourceType);
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, sourceType, kerberosConfig);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, sourceType, kerberosConfig, Maps.newHashMap());
 
         com.dtstack.dtcenter.loader.dto.Table tableInfo = client.getTable(sourceDTO, SqlQueryDTO.builder().tableName(table).build());
         return tableInfo;
@@ -1111,7 +1141,7 @@ public class DatasourceService {
             this.batchTaskParamService.checkParams(this.batchTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
             return sql.toJSONString();
         } catch (final Exception e) {
-            log.error("{}", e);
+            LOGGER.error("", e);
             throw new RdosDefineException("解析同步任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION);
         }
     }
@@ -1130,7 +1160,7 @@ public class DatasourceService {
             throw new RdosDefineException("传入信息有误");
         }
 
-        if (map != null && !map.containsKey("sourceId")) {
+        if (!map.containsKey("sourceId")) {
             throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
         }
         Long dataSourceId = MapUtils.getLong(map, "sourceId", 0L);
@@ -1167,9 +1197,7 @@ public class DatasourceService {
                 sourceIds.add(sourceId);
 
                 sourceMap.put("name", batchDataSource.getDataName());
-                if (map.get("source") == null) {
-                    map.put("source", batchDataSource);
-                }
+                map.putIfAbsent("source", batchDataSource);
                 if (map.get("datasourceType") == null) {
                     map.put("dataSourceType", batchDataSource.getType());
                 }
@@ -1287,7 +1315,7 @@ public class DatasourceService {
             map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             processTable(map);
         } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            map.put("isDefaultSource", source.getIsDefault() == 1 ? true : false);
+            map.put("isDefaultSource",  1 == source.getIsDefault());
             map.put("type", sourceType);
             map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
             map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
@@ -1939,7 +1967,7 @@ public class DatasourceService {
                     .schema(schema)
                     .filterPartitionColumns(part)
                     .build();
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig);
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig, Maps.newHashMap());
             List<ColumnMetaDTO> columnMetaData = iClient.getColumnMetaData(iSourceDTO, sqlQueryDTO);
             List<JSONObject> list = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(columnMetaData)) {
@@ -2094,7 +2122,7 @@ public class DatasourceService {
         String dataSource = schema;
 
         IClient client = ClientCache.getClient(source.getType());
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(source.getId()));
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(source.getId()), Maps.newHashMap());
         SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableNamePattern(name).limit(5000).build();
         sqlQueryDTO.setView(true);
         sqlQueryDTO.setSchema(dataSource);
@@ -2144,7 +2172,7 @@ public class DatasourceService {
 
         BatchDataSource source = getOne(sourceId);
         if (Objects.isNull(RDBMSSourceType.getByDataSourceType(source.getType())) && !DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
-            log.error("切分键只支关系型数据库");
+            LOGGER.error("切分键只支关系型数据库");
             throw new RdosDefineException("切分键只支持关系型数据库");
         }
         if (StringUtils.isEmpty(tableName)) {
@@ -2249,7 +2277,7 @@ public class DatasourceService {
         JSONObject json = JSON.parseObject(source.getDataJson());
         Map<String, Object> kerberosConfig = this.fillKerberosConfig(sourceId);
 
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig, Maps.newHashMap());
         IClient iClient = ClientCache.getClient(source.getType());
         List<ColumnMetaDTO> partitionColumn = iClient.getPartitionColumn(sourceDTO, SqlQueryDTO.builder().tableName(tableName).build());
 
@@ -2264,7 +2292,6 @@ public class DatasourceService {
         }
         return partitionNameSet;
     }
-
 
     /**
      * 数据同步-获得预览数据，默认展示3条
@@ -2302,7 +2329,7 @@ public class DatasourceService {
                 }
             }
             IClient iClient = ClientCache.getClient(source.getType());
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig);
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig, Maps.newHashMap());
             SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().schema(schema).tableName(tableName).previewNum(3).build();
             dataList = iClient.getPreview(iSourceDTO, sqlQueryDTO);
             if (DataSourceType.getRDBMS().contains(source.getType())) {
@@ -2310,7 +2337,7 @@ public class DatasourceService {
                 dataList = dataList.subList(1, dataList.size());
             }
         } catch (Exception e) {
-            log.error("datasource preview end with error.", e);
+            LOGGER.error("datasource preview end with error.", e);
             throw new RdosDefineException(String.format("%s获取预览数据失败", source.getDataName()), e);
         }
 
@@ -2330,9 +2357,343 @@ public class DatasourceService {
         BatchDataSource source = getOne(sourceId);
         String dataJson = source.getDataJson();
         JSONObject json = JSON.parseObject(dataJson);
-        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(sourceId));
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), fillKerberosConfig(sourceId), Maps.newHashMap());
         IClient client = ClientCache.getClient(source.getType());
         return client.getAllDatabases(sourceDTO, SqlQueryDTO.builder().schema(schema).build());
+    }
+
+    /**
+     * 一键生成目标表
+     *
+     * @param originSourceId
+     * @param tableName
+     * @param partition
+     */
+    public String getCreateTargetTableSql(Long originSourceId,
+                                          Long targetSourceId,
+                                          String tableName,
+                                          String partition,
+                                          String sourceSchema,
+                                          String targetSchema) {
+        try {
+            BatchDataSource originSource = getOne(originSourceId);
+            JSONObject reader = JSON.parseObject(originSource.getDataJson());
+            if (!ORIGIN_TABLE_ALLOW_TYPES.contains(originSource.getType())) {
+                throw new RdosDefineException("一键生成目标表，只支持关系型数据库、hive和maxCompute类型");
+            }
+            Map<String, Object> kerberosConfig = datasourceService.fillKerberosConfig(originSourceId);
+            Map<String, Object> expandConfigPrepare = datasourceService.expandConfigPrepare(originSourceId);
+            List<JSONObject> columnMetaData = new ArrayList<>();
+
+            IClient iClient = ClientCache.getClient(originSource.getType());
+            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(reader, originSource.getType(), kerberosConfig, expandConfigPrepare);
+            SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().schema(sourceSchema).tableName(tableName).build();
+            List<ColumnMetaDTO> columnMeta = iClient.getColumnMetaData(sourceDTO, sqlQueryDTO);
+            if (CollectionUtils.isNotEmpty(columnMeta)) {
+                for (ColumnMetaDTO columnMetaDTO : columnMeta) {
+                    JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(columnMetaDTO));
+                    jsonObject.put("isPart", columnMetaDTO.getPart());
+                    columnMetaData.add(jsonObject);
+                }
+            }
+            String comment = iClient.getTableMetaComment(sourceDTO, sqlQueryDTO);
+            List<String> partList = null;
+            if (StringUtils.isNotBlank(partition)) {
+                String[] parts = partition.split("/");
+                partList = new ArrayList<>();
+                for (String part : parts) {
+                    String[] partDetail = part.split("=");
+                    String partCol = partDetail[0];
+                    if (!partCol.equals("pt")) {
+                        partList.add(partCol);
+                    }
+                }
+            }
+            List<JSONObject> columns = null;
+            BatchDataSource targetDataSource = getOne(targetSourceId);
+
+            String sql;
+            //'CHARNT.'CUSTMERS_10_MIN' 需要做处理
+            tableName = this.formatTableName(tableName);
+            int sourceType = 0;
+            if (targetDataSource != null) {
+                sourceType = Objects.isNull(targetDataSource) ? DataSourceType.HIVE.getVal() : targetDataSource.getType();
+            }
+            if (CREATE_TABLE_TO_PG_TABLE.contains(sourceType)) {
+                // 注意：ADB For PG不会在此处理，后面单独处理
+                columns = convertWriterColumns(columnMetaData, new PostgreSqlWriterFormat());
+                sql = generalLibraCreateSql(columns, tableName, targetSchema);
+            } else if (sourceType == DataSourceType.TiDB.getVal() || sourceType == DataSourceType.MySQL.getVal()) {
+                columns = convertTidbWriterColumns(columnMetaData, TYPE_FORMAT);
+                sql = generalTidbCreateSql(columns, tableName, comment);
+            } else if (sourceType == DataSourceType.Oracle.getVal()) {
+                columns = convertWriterColumns(columnMetaData, TYPE_FORMAT);
+                sql = this.generalTidbCreateSql(columns, tableName, comment);
+            } else if (sourceType == DataSourceType.ADB_FOR_PG.getVal()) {
+                columns = ADBForPGUtil.convertADBForPGWriterColumns(columnMetaData);
+                sql = ADBForPGUtil.generalCreateSql(targetSchema, tableName, columns, comment);
+            } else {
+                //默认走hive建表
+                columns = convertWriterColumns(columnMetaData, TYPE_FORMAT);
+                sql = generalCreateSql(columns, partList, tableName, comment);
+            }
+            return sqlFormat(sql);
+        } catch (Exception e) {
+            throw new RdosDefineException("一键生成目标表失败", e);
+        }
+    }
+
+    private String formatTableName(String tableName) {
+        try {
+            if (StringUtils.isNotBlank(tableName)) {
+                tableName = tableName.replaceAll(TABLE_FORMAT_REGEX, "");
+                String[] split = tableName.split("\\.");
+                if (split.length > 1) {
+                    return split[split.length - 1];
+                }
+                return split[0];
+            }
+        } catch (Exception e) {
+            LOGGER.error("tableName split error", e);
+        }
+        return tableName;
+    }
+
+    private List convertWriterColumns(List<JSONObject> dbColumns, TypeFormat format) {
+        if (null == format) {
+            return dbColumns;
+        }
+        List<JSONObject> hiveColumns = new ArrayList<>(dbColumns.size());
+        for (int i = 0; i < dbColumns.size(); i++) {
+            JSONObject hiveColumn = new JSONObject(4);
+            JSONObject dbColumn = dbColumns.get(i);
+            hiveColumn.put("key", dbColumn.getString("key"));
+            hiveColumn.put("index", i);
+            hiveColumn.put("comment", dbColumn.getString("comment"));
+            String type = format.formatToString(dbColumn.getString("type"));
+            if (type.equalsIgnoreCase(ColumnType.DECIMAL.name())) {
+                if (dbColumn.containsKey("precision") && dbColumn.containsKey("scale")) {
+                    Integer precision = dbColumn.getInteger("precision");
+                    Integer scale = dbColumn.getInteger("scale");
+                    precision = precision == null ? 10 : precision;
+                    scale = scale == null ? 0 : scale;
+                    type = String.format("%s(%s,%s)", type, precision, scale);
+                } else {
+                    type = String.format("%s(%s,%s)", type, 15, 0);
+                }
+            } else if (type.equalsIgnoreCase(ColumnType.DOUBLE_PRECISION.name())) {
+                // DOUBLE PRECISION
+                type = type.replaceAll("_", " ");
+            }
+            if (dbColumn.getLong("precision") != null && type.equalsIgnoreCase(ColumnType.INT.name()) && dbColumn.getLong("precision") >= 11) {
+                type = ColumnType.BIGINT.name();
+            } else if (type.equalsIgnoreCase("unsigned") || dbColumn.getString("type").toLowerCase().contains("unsigned")) {
+                type = ColumnType.BIGINT.name();
+            } else if (Lists.newArrayList("UINT8", "UINT16", "INT8", "INT16", "INT32").contains(type.toUpperCase())) {
+                type = ColumnType.INT.name();
+            } else if (Lists.newArrayList("UINT32", "UINT64", "INT64").contains(type.toUpperCase())) {
+                type = ColumnType.BIGINT.name();
+            } else if (ColumnType.FLOAT32.name().equalsIgnoreCase(type)) {
+                type = ColumnType.FLOAT.name();
+            } else if (ColumnType.FLOAT64.name().equalsIgnoreCase(type)) {
+                type = ColumnType.DOUBLE.name();
+            }
+            hiveColumn.put("type", type);
+            hiveColumns.add(hiveColumn);
+        }
+        return hiveColumns;
+    }
+
+    /**
+     * 生成pg建表sql
+     *
+     * @param columns
+     * @param tableName
+     * @return
+     */
+    private String generalLibraCreateSql(List<JSONObject> columns, String tableName, String targetSchema) {
+        List<String> columnList = new ArrayList<>();
+        for (JSONObject column : columns) {
+            columnList.add(String.format("%s %s", column.getString("key"), column.getString("type")));
+        }
+        if (StringUtils.isNotBlank(targetSchema)) {
+            tableName = targetSchema.trim() + "." + tableName;
+        }
+        String sql = String.format(RDB_CREATE_TABLE_SQL_TEMPLATE, tableName, StringUtils.join(columnList, ","));
+        return SqlFormatUtil.formatSql(sql);
+    }
+
+    private List convertTidbWriterColumns(List<JSONObject> dbColumns, TypeFormat format) {
+        if (null == format) {
+            return dbColumns;
+        }
+        List<JSONObject> hiveColumns = new ArrayList<>(dbColumns.size());
+        for (int i = 0; i < dbColumns.size(); i++) {
+            JSONObject hiveColumn = new JSONObject(4);
+            JSONObject dbColumn = dbColumns.get(i);
+            hiveColumn.put("key", dbColumn.getString("key"));
+            hiveColumn.put("index", i);
+            hiveColumn.put("comment", dbColumn.getString("comment"));
+            String type = format.formatToString(dbColumn.getString("type"));
+            if (type.equalsIgnoreCase(ColumnType.DECIMAL.name())) {
+                if (dbColumn.containsKey("precision") && dbColumn.containsKey("scale")) {
+                    Integer precision = dbColumn.getInteger("precision");
+                    Integer scale = dbColumn.getInteger("scale");
+                    precision = precision == null ? 10 : precision;
+                    scale = scale == null ? 0 : scale;
+                    type = String.format("%s(%s,%s)", type, precision, scale);
+                }
+            } else if (type.equalsIgnoreCase(ColumnType.DOUBLE_PRECISION.name())) {
+                // DOUBLE PRECISION
+                type = type.replaceAll("_", " ");
+            }
+            if (dbColumn.getLong("precision") != null && type.equalsIgnoreCase(ColumnType.INT.name()) && dbColumn.getLong("precision") >= 11) {
+                type = ColumnType.BIGINT.name();
+            } else if (type.equalsIgnoreCase("unsigned") || dbColumn.getString("type").toLowerCase().contains("unsigned")) {
+                type = ColumnType.BIGINT.name();
+            } else if (Lists.newArrayList("UINT8", "UINT16", "INT8", "INT16", "INT32").contains(type.toUpperCase())) {
+                type = ColumnType.INT.name();
+            } else if (Lists.newArrayList("UINT32", "UINT64", "INT64").contains(type.toUpperCase())) {
+                type = ColumnType.BIGINT.name();
+            } else if (ColumnType.FLOAT32.name().equalsIgnoreCase(type)) {
+                type = ColumnType.FLOAT.name();
+            } else if (ColumnType.FLOAT64.name().equalsIgnoreCase(type)) {
+                type = ColumnType.DOUBLE.name();
+            } else if (ColumnType.STRING.name().equalsIgnoreCase(type)) {
+                type = ColumnType.VARCHAR.name() + "(255)";
+            }
+            hiveColumn.put("type", type);
+            hiveColumns.add(hiveColumn);
+        }
+        return hiveColumns;
+    }
+
+    private String generalTidbCreateSql(List<JSONObject> writerColumns, String tableName, String tableComment) {
+        StringBuilder createSql = new StringBuilder();
+        createSql.append("CREATE TABLE ").append("`" + tableName + "`").append(" (");
+        Iterator<JSONObject> it = writerColumns.iterator();
+        while (true) {
+            JSONObject writerColumn = it.next();
+            createSql.append("`" + writerColumn.getString("key") + "`").append(" ").append(writerColumn.getString("type"))
+                    .append(" COMMENT '" + (StringUtils.isNotEmpty(writerColumn.getString("comment")) ? writerColumn.getString("comment") : "") + "'");
+            if (!it.hasNext()) {
+                break;
+            }
+            createSql.append(",");
+        }
+        createSql.append(")").append(" ");
+        createSql.append(String.format("comment '%s'", (StringUtils.isNotEmpty(tableComment) ? tableComment : "")));
+        return createSql.toString();
+    }
+
+    public String generalCreateSql(List<JSONObject> writerColumns, List<String> partList, String
+            tableName, String tableComment) {
+        StringBuilder createSql = new StringBuilder();
+        createSql.append("CREATE TABLE ").append("`" + tableName + "`").append(" (");
+        Iterator<JSONObject> it = writerColumns.iterator();
+        while (true) {
+            JSONObject writerColumn = it.next();
+            createSql.append("`" + writerColumn.getString("key") + "`").append(" ").append(writerColumn.getString("type"))
+                    .append(" COMMENT '" + (StringUtils.isNotEmpty(writerColumn.getString("comment")) ? writerColumn.getString("comment") : "") + "'");
+            if (!it.hasNext()) {
+                break;
+            }
+            createSql.append(",");
+        }
+        createSql.append(")").append(" ");
+        createSql.append(String.format("comment '%s'", (StringUtils.isNotEmpty(tableComment) ? tableComment : "")));
+        createSql.append(" partitioned by (pt STRING");
+        if (CollectionUtils.isNotEmpty(partList)) {
+            for (String part : partList) {
+                createSql.append(",").append(part).append(" STRING");
+            }
+        }
+        createSql.append(String.format(") stored as %s \n ", environmentContext.getCreateTableType()));
+        return createSql.toString();
+    }
+
+    /**
+     * 格式化sql
+     */
+    public String sqlFormat(String sql) {
+        if (StringUtils.isNotBlank(sql)) {
+            try {
+                return SqlFormatter.format(sql);
+            } catch (Exception e) {
+                LOGGER.error("failure to format sql, e : {}", e);
+            }
+        }
+        return sql;
+    }
+
+    /**
+     * ddl建表
+     *
+     * @param sql          建表SQL
+     * @param sourceId     数据源ID
+     * @param targetSchema 目标schema
+     * @return
+     */
+    public String ddlCreateTable(String sql, Long sourceId, String targetSchema) {
+        if (StringUtils.isNotBlank(sql)) {
+            sql = sql.trim();
+        } else {
+            throw new RdosDefineException("Sql不能为空");
+        }
+        onlyNeedOneSql(sql);
+        if (!SqlFormatUtil.isCreateSql(sql)) {
+            throw new RdosDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
+        }
+        sql = SqlFormatUtil.init(sql).removeEndChar().getSql();
+        String tableName = CreateTableSqlParseUtil.parseTableName(sql);
+        executeOnSpecifySourceWithOutResult(sourceId, sql, targetSchema);
+        return tableName;
+    }
+
+    /**
+     *
+     * @param sourceId  数据源id
+     * @param sql  拼写sql
+     * @param targetSchema 只做doris入参,其他类型不用传
+     */
+    private void executeOnSpecifySourceWithOutResult(Long sourceId, String sql, String targetSchema) {
+
+        BatchDataSource source = getOne(sourceId);
+        DataSourceType dataSourceType = DataSourceType.getSourceType(source.getType());
+        if (!SUPPORT_CREATE_TABLE_DATASOURCES.contains(dataSourceType)) {
+            throw new RdosDefineException(String.format("只支持创建%s数据源表", SUPPORT_CREATE_TABLE_DATASOURCES_NAMES));
+        }
+        JSONObject json = JSON.parseObject(source.getDataJson());
+
+        try {
+            Map<String, Object> kerberosConfig = fillKerberosConfig(sourceId);
+            Map<String, Object> expandConfigPrepare = expandConfigPrepare(sourceId);
+            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig, expandConfigPrepare);
+            IClient iClient = ClientCache.getClient(dataSourceType.getVal());
+            if (DataSourceType.DorisRestful.getVal().equals(source.getType())||DataSourceType.SAP_HANA2.getVal().equals(source.getType())||DataSourceType.SAP_HANA1.getVal().equals(source.getType())){
+                iClient.executeSqlWithoutResultSet(sourceDTO,SqlQueryDTO.builder().schema(targetSchema).sql(sql).build());
+                return;
+            }
+            Connection con = iClient.getCon(sourceDTO);
+            DBUtil.executeSqlWithoutResultSet(con, sql,false);
+        } catch (Exception e) {
+            throw new RdosDefineException(e.getMessage() + "。 执行sql = " + sql, e);
+        }
+    }
+
+    private void onlyNeedOneSql(String sql) {
+        int unEmptySqlNum = 0;
+        List<String> split = DtStringUtil.splitIgnoreQuota(sql,';');
+        for (String s : split) {
+            if (StringUtils.isNotEmpty(s.trim())) {
+                unEmptySqlNum++;
+            }
+        }
+        if (unEmptySqlNum == 0) {
+            throw new RdosDefineException("Sql不能为空");
+        } else if (unEmptySqlNum > 1) {
+            throw new RdosDefineException("仅支持执行一条sql语句");
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package com.dtstack.taiga.develop.service.console;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taiga.common.enums.DownloadType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
@@ -10,7 +11,10 @@ import com.dtstack.taiga.common.util.ComponentVersionUtil;
 import com.dtstack.taiga.common.util.MathUtil;
 import com.dtstack.taiga.common.util.Xml2JsonUtil;
 import com.dtstack.taiga.common.util.ZipUtil;
-import com.dtstack.taiga.dao.domain.*;
+import com.dtstack.taiga.dao.domain.Cluster;
+import com.dtstack.taiga.dao.domain.Component;
+import com.dtstack.taiga.dao.domain.ComponentConfig;
+import com.dtstack.taiga.dao.domain.KerberosConfig;
 import com.dtstack.taiga.dao.dto.Resource;
 import com.dtstack.taiga.dao.mapper.ClusterMapper;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
@@ -109,10 +113,6 @@ public class ConsoleComponentService {
     @Autowired
     private ComponentService componentService;
 
-    @Autowired
-    private ConsoleClusterService consoleClusterService;
-
-
     /**
      * 组件配置文件映射
      */
@@ -124,7 +124,7 @@ public class ConsoleComponentService {
 
     static {
         //hdfs core 需要合并
-        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml", "hive-site.xml"));
+        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml", "core-site.xml"));
     }
 
@@ -1201,7 +1201,7 @@ public class ConsoleComponentService {
 
             String typeName = null;
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
-                typeName = buildHdfsTypeName(null,clusterId);
+                typeName = componentService.buildHdfsTypeName(null,clusterId);
             } else {
                 typeName = convertComponentTypeToClient(clusterName, componentType, versionName, storeType, deployType);
             }
@@ -1400,24 +1400,17 @@ public class ConsoleComponentService {
         return part.getPluginName();
     }
 
-    public String buildHdfsTypeName(Long tenantId,Long clusterId) {
-        if(null == clusterId){
-            clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        }
-        Component component = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
-        if (null == component || StringUtils.isBlank(component.getVersionName())) {
-            return "hdfs2";
-        }
-        String versionName = component.getVersionName();
-        List<ScheduleDict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
-        Optional<ScheduleDict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
-        if (dbTypeNames.isPresent()) {
-            return dbTypeNames.get().getDictValue();
-        }
-        String hadoopVersion = component.getVersionValue();
-        if(StringUtils.isBlank(hadoopVersion)){
-            return "hdfs2";
-        }
-        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
+    /**
+     * 刷新组件信息
+     *
+     * @param clusterName
+     * @return
+     */
+    public List<ComponentTestResult> refresh(String clusterName) {
+        List<ComponentTestResult> refreshResults = new ArrayList<>();
+        ComponentTestResult componentTestResult = testConnect(clusterName, EComponentType.YARN.getTypeCode(),null);
+        refreshResults.add(componentTestResult);
+        return refreshResults;
     }
+
 }

@@ -2210,7 +2210,7 @@ public class BatchTaskService {
                     .schema(schema)
                     .filterPartitionColumns(part)
                     .build();
-            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig);
+            ISourceDTO iSourceDTO = SourceDTOType.getSourceDTO(dataJson, source.getType(), kerberosConfig, Maps.newHashMap());
             List<ColumnMetaDTO> columnMetaData = iClient.getColumnMetaData(iSourceDTO, sqlQueryDTO);
             List<JSONObject> list = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(columnMetaData)) {
@@ -2311,7 +2311,6 @@ public class BatchTaskService {
         taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
 
         List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(searchVO.getTaskName(), searchVO.getSelectTenantId(), searchVO.getUserId());
-
         List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> !excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
         Map<Long, Tenant> tenantMap = tenantService.listAllTenant().stream().collect(Collectors.toMap(Tenant::getId, g -> (g)));
 
