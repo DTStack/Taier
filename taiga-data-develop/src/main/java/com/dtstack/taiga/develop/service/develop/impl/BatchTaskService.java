@@ -99,6 +99,7 @@ import com.dtstack.taiga.develop.service.schedule.TaskService;
 import com.dtstack.taiga.develop.service.task.TaskParamTemplateService;
 import com.dtstack.taiga.develop.service.user.UserService;
 import com.dtstack.taiga.develop.utils.develop.common.enums.Constant;
+import com.dtstack.taiga.develop.utils.develop.mapping.EScheduleJobTypeToComponentTypeMapping;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taiga.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taiga.develop.web.develop.query.AllProductGlobalSearchVO;
@@ -1351,7 +1352,7 @@ public class BatchTaskService {
         // 增加注释
         task.setSqlText(this.createAnnotationText(task));
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        task.setTaskParams(getDefaultTaskParam(task.getTaskType()));
+        task.setTaskParams(getDefaultTaskParam(task.getTenantId(), task.getTaskType()));
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
         String scConf = DEFAULT_SCHEDULE_CONF;
@@ -1493,11 +1494,19 @@ public class BatchTaskService {
     /**
      * 获取任务的默认参数
      *
+     * @param tenantId 租户ID
      * @param taskType 任务类型
      * @return
      */
-    private String getDefaultTaskParam(Integer taskType) {
-        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate("2.1", taskType);
+    private String getDefaultTaskParam(Long tenantId, Integer taskType) {
+        EComponentType eComponentType = EScheduleJobTypeToComponentTypeMapping.getEScheduleTypeByComponentCode(taskType);
+        List<Component> componentList = componentService.listComponentsByComponentType(tenantId, eComponentType.getTypeCode());
+        if (CollectionUtils.isEmpty(componentList)){
+            return Strings.EMPTY_STRING;
+        }
+        // todo 后续多版本再进行扩展
+        String version = componentList.get(0).getVersionName();
+        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate(version, taskType);
         return Objects.isNull(taskParamTemplate) ? Strings.EMPTY_STRING : taskParamTemplate.getParams();
     }
 
@@ -2303,7 +2312,8 @@ public class BatchTaskService {
         taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
 
         List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(searchVO.getTaskName(), searchVO.getSelectTenantId(), searchVO.getUserId());
-        List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
+
+        List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> !excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
         Map<Long, Tenant> tenantMap = tenantService.listAllTenant().stream().collect(Collectors.toMap(Tenant::getId, g -> (g)));
 
         List<BatchAllProductGlobalReturnVO> voList = Lists.newArrayList();
