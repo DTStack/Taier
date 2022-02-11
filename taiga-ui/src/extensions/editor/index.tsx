@@ -175,7 +175,13 @@ function emitEvent() {
 
 						// 需要被执行的 sql 语句
 						const sqls = [];
-						const selections = molecule.editor.editorInstance.getSelections();
+						const rawSelections = molecule.editor.editorInstance.getSelections() || [];
+						// 排除鼠标 focus 在 editor 中的情况
+						const selections = rawSelections.filter(
+							(s) =>
+								s.startLineNumber !== s.endLineNumber ||
+								s.startColumn !== s.endColumn,
+						);
 						// 如果存在选中行，则执行选中行
 						if (selections?.length) {
 							selections?.forEach((s) => {

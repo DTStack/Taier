@@ -159,6 +159,7 @@ export default function TaskDependence({
 			</Row>
 			<UpstreamDependentTasks
 				form={form}
+				taskId={tabData.id}
 				visible={modalVisible}
 				onCancel={dependencyModalShow}
 				submitData={submitData}

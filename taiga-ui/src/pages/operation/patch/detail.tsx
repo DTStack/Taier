@@ -614,6 +614,7 @@ export default () => {
 			>
 				<TaskJobFlowView
 					taskJob={selectedTask}
+					visibleSlidePane={visibleSlidePane}
 					reload={() => actionRef.current?.submit()}
 				/>
 			</SlidePane>

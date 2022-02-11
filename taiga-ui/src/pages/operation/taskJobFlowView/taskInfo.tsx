@@ -16,7 +16,10 @@
  * limitations under the License.
  */
 
+import { message, Tooltip } from 'antd';
 import type { ITaskStreamProps } from '@/interface';
+import { CopyOutlined } from '@ant-design/icons';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import './taskInfo.scss';
 
@@ -30,7 +33,19 @@ export function TaskInfo(props: { task: ITaskStreamProps }) {
 						<td>任务名称：</td>
 						<td>{task.taskName || '-'}</td>
 						<td>实例ID：</td>
-						<td>{task.jobId || '-'}</td>
+						<td>
+							{task.jobId || '-'}
+							{task.jobId && (
+								<CopyToClipboard
+									text={task.jobId}
+									onCopy={() => message.success('复制成功')}
+								>
+									<Tooltip placement="right" title="复制">
+										<CopyOutlined />
+									</Tooltip>
+								</CopyToClipboard>
+							)}
+						</td>
 					</tr>
 					<tr>
 						<td>任务类型：</td>

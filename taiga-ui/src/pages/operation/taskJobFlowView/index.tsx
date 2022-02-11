@@ -65,7 +65,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 	_originData: any;
 
 	/* eslint-disable-next-line */
-	componentWillReceiveProps(nextProps: any) {
+	UNSAFE_componentWillReceiveProps(nextProps: any) {
 		const currentJob: IScheduleTaskProps = this.props.taskJob;
 		const { taskJob, visibleSlidePane } = nextProps;
 		if (taskJob && visibleSlidePane && (!currentJob || taskJob.jobId !== currentJob.jobId)) {
