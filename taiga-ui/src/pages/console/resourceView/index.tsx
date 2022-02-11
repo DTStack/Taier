@@ -102,7 +102,7 @@ export default ({
 
 	useEffect(() => {
 		getClusterResources();
-	}, []);
+	}, [clusterName]);
 
 	const queueColumns = useMemo(() => {
 		switch (scheduleType) {

@@ -15,7 +15,7 @@ import {
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
 } from '@/constant';
-import { goToTaskDev } from '@/utils';
+import { goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
@@ -116,6 +116,7 @@ export default () => {
 	const handleSlideClose = () => {
 		setSlideVisible(false);
 		setSelectedTask(null);
+		removePopUpMenu();
 	};
 
 	// 批量按照业务日期杀死任务

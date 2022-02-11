@@ -103,6 +103,7 @@ function FnForm({
 		<>
 			<Form
 				form={form}
+				autoComplete='off'
 				initialValues={{
 					taskType: getTaskTypeDefaultValue(),
 				}}

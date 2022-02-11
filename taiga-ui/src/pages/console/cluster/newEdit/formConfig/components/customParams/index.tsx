@@ -28,7 +28,7 @@ import {
 } from '../../../help';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import { formItemLayout } from '@/constant';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import './index.scss';
 
 interface IProp {
@@ -45,7 +45,7 @@ interface IProp {
 
 const FormItem = Form.Item;
 
-export default function CustomParams({
+function CustomParams({
 	typeCode,
 	form,
 	view,
@@ -108,8 +108,9 @@ export default function CustomParams({
 			sameAtTemp = keyAndValue.findIndex(([key]: any[]) => key === value);
 		}
 
+		const customParamsValues = form.getFieldValue(feildName) || {};
 		// eslint-disable-next-line no-restricted-syntax
-		for (const [key, name] of Object.entries(form.getFieldValue(feildName))) {
+		for (const [key, name] of Object.entries(customParamsValues)) {
 			if (key.startsWith('%') && key.endsWith('-key') && value === name) {
 				sameAtParams = true;
 				break;
@@ -132,7 +133,7 @@ export default function CustomParams({
 	const renderAddCustomParam = () => {
 		return (
 			<Row>
-				<Col span={labelCol ?? formItemLayout.labelCol.sm.span}></Col>
+				<Col span={labelCol ?? formItemLayout.labelCol.sm.span} />
 				<Col
 					className="m-card"
 					style={{ marginBottom: '20px' }}
@@ -170,24 +171,27 @@ export default function CustomParams({
 								span={labelCol ?? formItemLayout.labelCol.sm.span}
 								style={{ textAlign: 'right' }}
 							>
-								<FormItem
-									name={`${fieldName}.%${publicKey}-key`}
-									rules={[
-										{
-											required: true,
-											message: '请输入参数属性名',
-										},
-									]}
-									initialValue={param.key || ''}
-								>
-									<Input
-										disabled={view}
-										style={{
-											width: 'calc(100% - 18px)',
-											maxWidth: 200,
-										}}
-										onChange={(e) => handleCustomParam(e, index)}
-									/>
+								<FormItem required>
+									<FormItem
+										noStyle
+										name={`${fieldName}.%${publicKey}-key`}
+										rules={[
+											{
+												required: true,
+												message: '请输入参数属性名',
+											},
+										]}
+										initialValue={param.key || ''}
+									>
+										<Input
+											disabled={view}
+											style={{
+												width: 'calc(100% - 18px)',
+												maxWidth: 200,
+											}}
+											onBlur={(e) => handleCustomParam(e, index)}
+										/>
+									</FormItem>
 									<span
 										style={{
 											marginLeft: 2,
@@ -214,7 +218,7 @@ export default function CustomParams({
 										style={{
 											maxWidth: maxWidth ? 680 : 'unset',
 										}}
-										onChange={(e) => handleCustomParam(e, index, 'value')}
+										onBlur={(e) => handleCustomParam(e, index, 'value')}
 									/>
 								</FormItem>
 							</Col>
@@ -236,3 +240,7 @@ export default function CustomParams({
 		</>
 	);
 }
+
+export default memo(CustomParams, (pre, next) => {
+	return pre.template === next.template;
+});

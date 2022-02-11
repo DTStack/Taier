@@ -7,11 +7,11 @@
 }
 
 .graphInfo {
-	width: 300px;
 	position: absolute;
-	z-index: 901;
 	right: 10px;
 	bottom: 65px;
+	z-index: 901;
+	width: 300px;
 
 	.ant-card-body {
 		p,
@@ -23,7 +23,7 @@
 			span {
 				display: inline-block;
 				width: 80px;
-				color: #666666;
+				color: #666;
 			}
 		}
 	}

@@ -11,7 +11,7 @@ import com.dtstack.taiga.develop.model.system.config.ComponentModel;
 import com.dtstack.taiga.develop.model.system.config.ComponentModelExtraParameters;
 import com.dtstack.taiga.develop.model.system.config.ComponentModelTypeConfig;
 import com.dtstack.taiga.develop.model.system.config.SystemConfigMapperException;
-import com.dtstack.taiga.scheduler.enums.DictType;
+import com.dtstack.taiga.common.enums.DictType;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

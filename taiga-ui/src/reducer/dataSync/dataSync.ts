@@ -184,8 +184,6 @@ export const sourceMap = (state: any = {}, action: any) => {
 				extralConfig,
 				extTable = {},
 			} = action.payload;
-			console.log('action.payload:', action.payload);
-
 			if (!src) return state;
 			const { dataTypeCode: type } = src;
 			const key = action.key;

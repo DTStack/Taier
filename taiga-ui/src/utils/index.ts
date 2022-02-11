@@ -11,6 +11,8 @@ import { Utils } from '@dtinsight/dt-utils';
 import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
+import { openTaskInTab } from '@/extensions/folderTree';
+import { updateDrawer } from '@/components/customDrawer';
 
 export function getCookie(name: string) {
 	const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`));
@@ -513,11 +515,14 @@ export const utf8to16 = (str: string) => {
 
 export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
 	const { id } = record ?? {};
+	// Open task in tab
+	openTaskInTab(id);
+	// Clear history query
 	history.push({
-		query: {
-			taskId: id.toString(),
-		},
+		query: {},
 	});
+	// Close drawer
+	updateDrawer({ id: 'root', visible: false });
 }
 
 /**
@@ -526,6 +531,22 @@ export function goToTaskDev(record: { id: string | number; [key: string]: any })
 export const removeToolTips = () => {
 	const remove = () => {
 		const tips = document.querySelectorAll<HTMLDivElement>('.mxTooltip');
+		if (tips) {
+			tips.forEach((o) => {
+				// eslint-disable-next-line no-param-reassign
+				o.style.visibility = 'hidden';
+			});
+		}
+	};
+	setTimeout(remove, 500);
+};
+
+/**
+ * 从 document.body 隐藏 mxGraph 所产生的 popup
+ */
+export const removePopUpMenu = () => {
+	const remove = () => {
+		const tips = document.querySelectorAll<HTMLDivElement>('.mxPopupMenu');
 		if (tips) {
 			tips.forEach((o) => {
 				// eslint-disable-next-line no-param-reassign

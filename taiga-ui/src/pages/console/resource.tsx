@@ -91,6 +91,8 @@ export default () => {
 
 	const handleValuesChange = (value: Partial<IFormFieldProps>) => {
 		if (value.hasOwnProperty('clusterId')) {
+			// reset engineId when clusterId changed
+			form.resetFields(['engineId']);
 			getEnginesByCluster(value.clusterId!);
 		}
 	};
@@ -100,19 +102,18 @@ export default () => {
 		setTenantInfo(record);
 	};
 
-	const bindTenant = (params: Record<string, any>) => {
-		Api.bindTenant({ ...params }).then((res) => {
-			if (res.code === 1) {
-				setTenantVisible(false);
-				message.success('租户绑定成功');
-				// 刷新租户列表
-				bindTenantRef.current?.getTenant();
-				// 刷新目录树
-				getCatalogueTree();
-				// 刷新资源管理
-				getClusterList();
-			}
-		});
+	const bindTenant = async (params: Record<string, any>) => {
+		const res = await Api.bindTenant({ ...params });
+		if (res.code === 1) {
+			setTenantVisible(false);
+			message.success('租户绑定成功');
+			// 刷新租户列表
+			bindTenantRef.current?.getTenant();
+			// 刷新目录树
+			getCatalogueTree();
+			// 刷新资源管理
+			getClusterList();
+		}
 	};
 
 	const sourceManage = () => {

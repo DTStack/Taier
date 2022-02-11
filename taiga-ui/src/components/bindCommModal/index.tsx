@@ -55,7 +55,7 @@ interface IBindModal {
 		canSubmit: boolean;
 		reqParams: Record<string, any>;
 		hasKubernetes: boolean;
-	}) => void;
+	}) => Promise<void>;
 }
 
 export interface IClusterProps {
@@ -94,6 +94,7 @@ export default ({
 	const [metaComponent, setMetaComponent] = useState<
 		Valueof<typeof COMPONENT_TYPE_VALUE> | undefined
 	>(undefined);
+	const [loading, setLoading] = useState(false);
 	const { env, queueList } = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
 		visible,
@@ -159,14 +160,17 @@ export default ({
 
 			params.bindDBList.push({
 				componentCode: metaComponent,
-				createFlag: !!PROJECT_CREATE_MODEL.NORMAL,
+				createFlag: !values.hadoop.createModel,
 				dbName:
 					values.hadoop.createModel === PROJECT_CREATE_MODEL.NORMAL
 						? undefined
 						: values.hadoop.database,
 			});
 
-			onOk?.(params);
+			setLoading(true);
+			onOk?.(params).finally(() => {
+				setLoading(false);
+			});
 		});
 	};
 
@@ -177,6 +181,7 @@ export default ({
 			title={title}
 			visible={visible}
 			onOk={handleModalOk}
+			confirmLoading={loading}
 			onCancel={onCancel}
 			width="600px"
 			destroyOnClose
@@ -185,7 +190,7 @@ export default ({
 			<>
 				{isBindTenant && (
 					<div className="info-title">
-						<InfoCircleOutlined color="#2491F7" />
+						<InfoCircleOutlined style={{ color: '#2491F7' }} />
 						<span className="info-text">
 							将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。
 						</span>

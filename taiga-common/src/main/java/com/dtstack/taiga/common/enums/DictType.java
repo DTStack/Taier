@@ -1,37 +1,72 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.taiga.common.enums;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2017/7/18
+ * @author yuebai
+ * @date 2021-03-02
+ * 0～4 各个组件对于版本
+ * 5 各个版本组件的额外配置
+ * 6 默认模版id和typename对应关系
  */
 public enum DictType {
+    HADOOP_VERSION(0),
+    FLINK_VERSION(1),
+    SPARK_VERSION(2),
+    SPARK_THRIFT_VERSION(3),
+    HIVE_VERSION(4),
+    COMPONENT_CONFIG(5),
+    TYPENAME_MAPPING(6),
+    COMPONENT_MODEL(12),
+    RESOURCE_MODEL_CONFIG(14),
+    EXTRA_VERSION_TEMPLATE(15),
+    HDFS_TYPE_NAME(16),
 
-    DATA_SOURCE(1),//数据源类型
-    HIVE_COLUMN_TYPE(2),//hive表字段类型
-    SCRIPT_TYPE(3),//脚本类型
-    BATCH_CATALOGUE(4),//离线root目录类型
-    STREAM_CATALOGUE(5),//实时root目录类型
-    BATCH_CATALOGUE_L1(6),//离线一级目录类型
-    STREAM_CATALOGUE_L1(7),//实时一级目录类型
-    AUTH_HIDE(8),//权限树隐藏的权限点
-    MODEL_COLUMN_TYPE(9),//数据模型原子指标和衍生指标的支持的数据类型
+    DATA_DEVELOP_SUPPORT_TASK_TYPE(30),
+    DATA_DEVELOP_CATALOGUE_L1(31),
+    DATA_DEVELOP_CATALOGUE(32),
+    DATA_DEVELOP_FUNCTION(33),
 
-    BATCH_TASK_TYPE_YARN(10),//集群部署时支持的任务类型
-    BATCH_TASK_TYPE_STANDALONE(11),//单机部署支持的任务类型
+    ;
 
-    BATCH_FUNCTION(13),//引擎支持方法列表
+    public Integer type;
 
-    DATASYNC_CATALOGUE(14), //数据集成root目录类型
-    DATASYNC_CATALOGUE_L1(15); //数据集成一级目录类型
-
-    private int type;
-
-    DictType(int type) {
+    DictType(Integer type) {
         this.type = type;
     }
 
-    public int getValue() {
+    public static Integer getByEComponentType(EComponentType type) {
+        switch (type) {
+            case FLINK:
+                return FLINK_VERSION.type;
+            case SPARK:
+                return SPARK_VERSION.type;
+            case HIVE_SERVER:
+                return HIVE_VERSION.type;
+            case SPARK_THRIFT:
+                return SPARK_THRIFT_VERSION.type;
+            default:
+                return null;
+        }
+    }
+
+    public Integer getType() {
         return type;
     }
 }

@@ -8,7 +8,7 @@ import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.util.Strings;
 import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.DictMapper;
-import com.dtstack.taiga.scheduler.enums.DictType;
+import com.dtstack.taiga.common.enums.DictType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
