@@ -2,6 +2,7 @@ package com.dtstack.taiga.develop.service.console;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taiga.common.enums.DownloadType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.ErrorCode;
@@ -10,7 +11,10 @@ import com.dtstack.taiga.common.util.ComponentVersionUtil;
 import com.dtstack.taiga.common.util.MathUtil;
 import com.dtstack.taiga.common.util.Xml2JsonUtil;
 import com.dtstack.taiga.common.util.ZipUtil;
-import com.dtstack.taiga.dao.domain.*;
+import com.dtstack.taiga.dao.domain.Cluster;
+import com.dtstack.taiga.dao.domain.Component;
+import com.dtstack.taiga.dao.domain.ComponentConfig;
+import com.dtstack.taiga.dao.domain.KerberosConfig;
 import com.dtstack.taiga.dao.dto.Resource;
 import com.dtstack.taiga.dao.mapper.ClusterMapper;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
@@ -28,8 +32,6 @@ import com.dtstack.taiga.pluginapi.sftp.SftpFileManage;
 import com.dtstack.taiga.pluginapi.util.MD5Util;
 import com.dtstack.taiga.pluginapi.util.PublicUtil;
 import com.dtstack.taiga.scheduler.WorkerOperator;
-import com.dtstack.taiga.scheduler.enums.DictType;
-import com.dtstack.taiga.common.enums.DownloadType;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.taiga.scheduler.service.ComponentConfigService;
@@ -109,10 +111,6 @@ public class ConsoleComponentService {
     @Autowired
     private ComponentService componentService;
 
-    @Autowired
-    private ConsoleClusterService consoleClusterService;
-
-
     /**
      * 组件配置文件映射
      */
@@ -124,7 +122,7 @@ public class ConsoleComponentService {
 
     static {
         //hdfs core 需要合并
-        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml", "hive-site.xml"));
+        componentTypeConfigMapping.put(EComponentType.HDFS.getTypeCode(), Lists.newArrayList("hdfs-site.xml", "core-site.xml"));
         componentTypeConfigMapping.put(EComponentType.YARN.getTypeCode(), Lists.newArrayList("yarn-site.xml", "core-site.xml"));
     }
 
