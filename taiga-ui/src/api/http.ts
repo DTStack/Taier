@@ -114,7 +114,7 @@ class Http {
 			const data = new FormData();
 			for (const p in params) {
 				if (p) {
-					data.append(p, params[p] || '');
+					data.append(p, params[p] ?? '');
 				}
 			}
 			return data;

@@ -16,64 +16,16 @@
  * limitations under the License.
  */
 
-import React, { useState, useLayoutEffect } from 'react';
-import { Modal, Select, Input, message, Form } from 'antd';
-import { PlusCircleOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { TASK_TYPE_ENUM } from '@/constant';
-import { MEMORY_ITEMS } from '@/constant';
+import React, { useState } from 'react';
+import { Modal, Select, message, Form } from 'antd';
 import Api from '../../api/console';
-import { formItemLayout, specFormItemLayout } from '@/constant';
+import { formItemLayout } from '@/constant';
 import type { IClusterProps } from '../bindCommModal';
 import './index.scss';
 
 const { Option } = Select;
 const FormItem = Form.Item;
 const { confirm } = Modal;
-
-interface IDynamicFormProps {
-	lineList: Record<string, string>;
-	taskTypeName: string;
-	type: number;
-	initialList?: Record<string, string>;
-	deleteItem: (type: number) => void;
-}
-
-const DynamicForm = ({
-	lineList,
-	taskTypeName,
-	deleteItem,
-	type,
-	initialList,
-}: IDynamicFormProps) => {
-	const lineTitle = Object.keys(lineList);
-
-	return (
-		<>
-			<header className="c-header-dynamicform">
-				<span>{`${taskTypeName}任务`}</span>
-				<span style={{ cursor: 'pointer' }} onClick={() => deleteItem(type)}>
-					<DeleteOutlined />
-				</span>
-			</header>
-			<div style={{ paddingBottom: 10 }}>
-				{lineTitle.map((item) => (
-					<FormItem
-						key={item}
-						label={item}
-						{...specFormItemLayout}
-						name={`${type} ${item.replace(/(\.)/g, '-')}`}
-						initialValue={initialList?.[item] || undefined}
-					>
-						<Input
-							placeholder={lineList[item]}
-							addonAfter={MEMORY_ITEMS.includes(item) ? 'm' : ''}
-						/>
-					</FormItem>
-				))}
-			</div>
-		</>
-	);
-};
 
 interface IResourceManageModalProps {
 	title?: React.ReactNode;
@@ -91,19 +43,11 @@ interface IResourceManageModalProps {
 	onOk?: () => void;
 }
 
-/**
- * 任务模版类型
- */
-interface IDataListProps {
-	taskType: TASK_TYPE_ENUM;
-	taskTypeName: string;
-	params: Record<string, string>;
-}
-
 export default ({
 	title,
 	visible,
 	queueId,
+	clusterId,
 	tenantId,
 	isBindTenant = false,
 	queueList = [],
@@ -112,47 +56,20 @@ export default ({
 }: IResourceManageModalProps) => {
 	const [form] = Form.useForm();
 	const [isLoading, setLoading] = useState(false);
-	const [dataList, setDataList] = useState<IDataListProps[]>([]);
-	const [typeList, setTypeList] = useState<number[]>([]);
-	const [initialList, setInitialList] = useState<Record<number, Record<string, string>>>({});
 
 	const getServiceParam = () => {
 		form.validateFields().then((values) => {
-			const taskTypeResourceJson = JSON.stringify(
-				typeList
-					.map((item) => {
-						return dataList.map((task) => {
-							if (item === task.taskType) {
-								const blockList = Object.keys(task.params);
-								const params: Record<string, any> = {
-									taskType: item,
-									resourceParams: {},
-								};
-								blockList.forEach((head) => {
-									params.resourceParams[head] =
-										values?.[`${item} ${head}`.replace(/(\.)/g, '-')];
-								});
-								return params;
-							}
-							return undefined;
-						});
-					})
-					.map((arrayItem) => {
-						return arrayItem.filter((element) => element !== undefined)[0];
-					}),
-			);
 			setLoading(true);
 			Api.switchQueue({
-				queueId: values?.queueId,
+				queueName: values?.queueId,
 				tenantId,
-				taskTypeResourceJson,
+				clusterId
 			})
 				.then((res) => {
 					if (res.code === 1) {
 						message.success('提交成功');
 						onOk?.();
 					}
-					message.error('提交失败');
 				})
 				.finally(() => {
 					setLoading(false);
@@ -175,59 +92,6 @@ export default ({
 		});
 	};
 
-	const addTaskType = () => {
-		const current = form.getFieldValue('reMEMORY_ITEMS');
-		if (typeof current === 'undefined' || Number.isNaN(current)) {
-			message.warning('请先选择任务类型');
-			return;
-		}
-		if (typeList.includes(current)) {
-			message.warning('该任务的资源限制已存在！');
-			return;
-		}
-		const nextTypeList = typeList.concat();
-		nextTypeList.push(current);
-		setTypeList(nextTypeList);
-	};
-
-	const removeType = (type: number) => {
-		if (typeof type !== 'undefined') {
-			const deleteIndex = typeList.indexOf(type);
-			if (deleteIndex !== -1) {
-				setTypeList((tpList) => tpList.filter((numType) => numType !== type));
-			}
-		}
-	};
-
-	// 切换集群
-	useLayoutEffect(() => {
-		if (visible) {
-			Api.queryTaskResourceLimits({ dtUicTenantId: tenantId }).then((res) => {
-				const { code, data } = res;
-				if (code === 1) {
-					const union: number[] = [];
-					const biginitial: Record<number, Record<string, string>> = {};
-					if (Array.isArray(data)) {
-						data.forEach((item) => {
-							union.push(item.taskType);
-							biginitial[item.taskType] = item.resourceLimit;
-						});
-					}
-					setInitialList(biginitial);
-					setTypeList(union);
-				}
-			});
-			Api.getTaskResourceTemplate({}).then((res) => {
-				if (res.code === 1) {
-					setDataList(res.data);
-				}
-			});
-		} else {
-			setTypeList([]);
-			setDataList([]);
-		}
-	}, [visible]);
-
 	return (
 		<Modal
 			title={title}
@@ -248,7 +112,7 @@ export default ({
 					rules={[
 						{
 							required: true,
-							message: '租户不可为空！',
+							message: '资源队列不可为空！',
 						},
 					]}
 					initialValue={queueId || undefined}
@@ -263,44 +127,6 @@ export default ({
 						})}
 					</Select>
 				</FormItem>
-				<FormItem label="资源限制" {...formItemLayout}>
-					<FormItem
-						noStyle
-						tooltip="设置租户下单个离线任务在临时运行和周期运行时能使用的最大资源数，任务的环境参数设置超出此限制将导致任务提交或运行失败。保存变更后立即生效。"
-						name="reMEMORY_ITEMS"
-					>
-						<Select allowClear placeholder="请选择任务类型">
-							{dataList.map((item) => {
-								return (
-									<Option key={item.taskType} value={item.taskType}>
-										{item.taskTypeName}
-									</Option>
-								);
-							})}
-						</Select>
-					</FormItem>
-					<div className="o-div--actionDom" onClick={addTaskType}>
-						<PlusCircleOutlined className="o-icon--actionDom" />
-						添加资源限制
-					</div>
-				</FormItem>
-				{typeList.map((item) => {
-					return dataList.map((type, key) => {
-						return (
-							<div key={key} className="o-block--dynamic">
-								{type.taskType === item ? (
-									<DynamicForm
-										type={item}
-										lineList={type.params}
-										taskTypeName={type.taskTypeName}
-										deleteItem={removeType}
-										initialList={initialList[item]}
-									/>
-								) : null}
-							</div>
-						);
-					});
-				})}
 			</Form>
 		</Modal>
 	);
