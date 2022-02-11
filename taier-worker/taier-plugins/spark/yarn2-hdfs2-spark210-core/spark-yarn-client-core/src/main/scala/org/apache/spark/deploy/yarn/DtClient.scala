@@ -17,7 +17,7 @@
 
 package org.apache.spark.deploy.yarn
 
-import com.dtstack.taiga.sparkyarn.sparkyarn.SparkYarnClient
+import com.dtstack.taier.sparkyarn.sparkyarn.SparkYarnClient
 
 import java.io.{File, FileOutputStream, IOException, OutputStreamWriter}
 import java.net.{InetAddress, URI, UnknownHostException}

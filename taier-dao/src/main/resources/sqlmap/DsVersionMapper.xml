@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.DsVersionMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.DsVersionMapper">
 
     <sql id="select_content_fragment">
         data_type,data_version,sorted,is_deleted
     </sql>
 
 
-    <select id="listDsVersion" resultType="com.dtstack.taiga.dao.domain.DsVersion">
+    <select id="listDsVersion" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
         <include refid="select_content_fragment" />
         from dsc_version
@@ -15,7 +15,7 @@
     </select>
 
 
-    <select id="queryDsVersionByType" resultType="com.dtstack.taiga.dao.domain.DsVersion">
+    <select id="queryDsVersionByType" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
         <include refid="select_content_fragment" />
         from dsc_version

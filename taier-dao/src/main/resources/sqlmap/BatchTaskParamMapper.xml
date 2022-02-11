@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchTaskParamDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchTaskParamDao">
 
     <sql id="select_content_fragment">
       id,task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted
@@ -38,21 +38,21 @@
         WHERE task_id = #{taskId}
     </delete>
 
-    <select id="listByTaskId" resultType="com.dtstack.taiga.dao.domain.BatchTaskParam">
+    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskParam">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_param
         WHERE task_id = #{taskId} AND is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.BatchTaskParam" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskParam" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task_param
           (task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted)
         VALUES
           (#{taskId},#{type},#{paramName},#{paramCommand},now(),now(),0)
     </insert>
 
-    <insert id="batchInsert" parameterType="com.dtstack.taiga.dao.domain.BatchTaskParam" >
+    <insert id="batchInsert" parameterType="com.dtstack.taier.dao.domain.BatchTaskParam" >
         INSERT INTO rdos_batch_task_param
           (task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted)
         VALUES
@@ -61,7 +61,7 @@
         </foreach>
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchTaskParam">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskParam">
         UPDATE
         rdos_batch_task_param
         <include refid="update_fragment"/>

@@ -65,34 +65,34 @@
         </encoder>
     </appender>
 
-    <logger name="com.dtstack.taiga.develop.filter" level="info" additivity="false">
+    <logger name="com.dtstack.taier.develop.filter" level="info" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.taiga" level="info" additivity="false">
+    <logger name="com.dtstack.taier" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.develop" level="info" additivity="false">
+    <logger name="com.dtstack.taier.develop" level="info" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.scheduler.server.listener" level="info" additivity="false">
+    <logger name="com.dtstack.taier.scheduler.server.listener" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.flink" level="info" additivity="false">
+    <logger name="com.dtstack.taier.flink" level="info" additivity="false">
         <appender-ref ref="flinkmonitor" />
     </logger>
 
-    <logger name="com.dtstack.taiga.scheduler.server" level="info" additivity="false">
+    <logger name="com.dtstack.taier.scheduler.server" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 
-    <logger name="com.dtstack.taiga.scheduler.server.scheduler" level="info" additivity="false">
+    <logger name="com.dtstack.taier.scheduler.server.scheduler" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.taiga.scheduler.server.queue.JopPriorityQueue" level="info" additivity="false">
+    <logger name="com.dtstack.taier.scheduler.server.queue.JopPriorityQueue" level="info" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 

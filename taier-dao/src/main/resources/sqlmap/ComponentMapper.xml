@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.ComponentMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.ComponentMapper">
 
     <sql id="select_content_fragment">
         id,cluster_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,version_value,upload_file_name,
@@ -34,7 +34,7 @@
         </set>
     </sql>
 
-    <select id="listByClusterId" resultType="com.dtstack.taiga.dao.domain.Component">
+    <select id="listByClusterId" resultType="com.dtstack.taier.dao.domain.Component">
         select
         <include refid="select_content_fragment"/>
         from console_component
@@ -54,7 +54,7 @@
           and component_type_code = #{type}
     </update>
 
-    <select id="getByClusterIdAndComponentType" resultType="com.dtstack.taiga.dao.domain.Component">
+    <select id="getByClusterIdAndComponentType" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT
         c.id,c.cluster_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
         c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type,c.version_name
@@ -76,7 +76,7 @@
         and c.is_deleted = 0 LIMIT 1
     </select>
 
-    <select id="getByVersionName" resultType="com.dtstack.taiga.dao.domain.Component">
+    <select id="getByVersionName" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT
         c.id,c.cluster_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
         c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type,
@@ -118,7 +118,7 @@
           and cc.is_deleted = 0 LIMIT 1
     </select>
 
-    <select id="getComponentVersionByEngineType" resultType="com.dtstack.taiga.dao.domain.Component">
+    <select id="getComponentVersionByEngineType" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT sd.dict_name as versionName,
                cc.gmt_create,
                cc.is_default
@@ -130,7 +130,7 @@
           AND cc.is_deleted = 0
     </select>
 
-    <select id="getMetadataComponent" resultType="com.dtstack.taiga.dao.domain.Component">
+    <select id="getMetadataComponent" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT c.id,
                c.cluster_id,
                c.component_name,

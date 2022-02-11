@@ -17,8 +17,8 @@
 package org.springframework.web.method.annotation;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taiga.common.util.PublicUtil;
-import com.dtstack.taiga.develop.filter.DtRequestWrapperFilter;
+import com.dtstack.taier.common.util.PublicUtil;
+import com.dtstack.taier.develop.filter.DtRequestWrapperFilter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;

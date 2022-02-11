@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.DictMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.DictMapper">
 
     <sql id="select_content_fragment">
       id,dict_code,dict_name,dict_value,dict_desc,`type`,sort,data_type,depend_name,gmt_create,gmt_modified,is_deleted
     </sql>
 
 
-    <select id="listDictByType" resultType="com.dtstack.taiga.dao.domain.ScheduleDict">
+    <select id="listDictByType" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict
         WHERE `type` = #{type} AND is_deleted = 0 ORDER BY sort
     </select>
 
-    <select id="getTypeDefault" resultType="com.dtstack.taiga.dao.domain.ScheduleDict">
+    <select id="getTypeDefault" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict
         WHERE `type` = #{type} AND is_deleted = 0 AND is_default = 1 LIMIT 1
     </select>
 
-    <select id="getByNameValue" resultType="com.dtstack.taiga.dao.domain.ScheduleDict">
+    <select id="getByNameValue" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict
@@ -35,7 +35,7 @@
         ORDER BY sort LIMIT 1
     </select>
 
-    <select id="getByDependName" resultType="com.dtstack.taiga.dao.domain.ScheduleDict">
+    <select id="getByDependName" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM schedule_dict

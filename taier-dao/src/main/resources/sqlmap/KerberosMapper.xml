@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.KerberosMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.KerberosMapper">
 
     <sql id="select_content_fragment">
       id,cluster_id,open_kerberos,name,remote_path,principal,gmt_create,gmt_modified,is_deleted,component_type,krb_name,principals,merge_krb_content,component_version
@@ -45,7 +45,7 @@
         </set>
     </sql>
 
-    <select id="getByComponentType" resultType="com.dtstack.taiga.dao.domain.KerberosConfig">
+    <select id="getByComponentType" resultType="com.dtstack.taier.dao.domain.KerberosConfig">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_kerberos
@@ -57,7 +57,7 @@
         limit 1
     </select>
 
-    <select id="getByClusters" resultType="com.dtstack.taiga.dao.domain.KerberosConfig">
+    <select id="getByClusters" resultType="com.dtstack.taier.dao.domain.KerberosConfig">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_kerberos
@@ -70,7 +70,7 @@
         WHERE cluster_id = (SELECT cluster_id from console_component WHERE id = #{componentId})
     </update>
 
-    <select id="listAll" resultType="com.dtstack.taiga.dao.domain.KerberosConfig">
+    <select id="listAll" resultType="com.dtstack.taier.dao.domain.KerberosConfig">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_kerberos

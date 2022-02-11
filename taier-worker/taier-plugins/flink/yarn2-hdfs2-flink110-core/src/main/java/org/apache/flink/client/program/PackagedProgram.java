@@ -18,7 +18,7 @@
 
 package org.apache.flink.client.program;
 
-import com.dtstack.taiga.base.enums.ClassLoaderType;
+import com.dtstack.taier.base.enums.ClassLoaderType;
 import org.apache.flink.api.common.ProgramDescription;
 import org.apache.flink.client.ClientUtils;
 import org.apache.flink.configuration.ConfigConstants;

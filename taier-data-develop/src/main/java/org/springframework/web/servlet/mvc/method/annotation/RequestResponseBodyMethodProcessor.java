@@ -16,7 +16,7 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import com.dtstack.taiga.common.constant.Cookies;
+import com.dtstack.taier.common.constant.Cookies;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Conventions;
 import org.springframework.core.MethodParameter;

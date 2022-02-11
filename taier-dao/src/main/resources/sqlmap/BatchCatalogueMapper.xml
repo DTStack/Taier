@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchCatalogueDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchCatalogueDao">
 
     <sql id="select_content_fragment">
       id,tenant_id,node_name,node_pid,order_val,level,gmt_create,gmt_modified,create_user_id,is_deleted,catalogue_type
@@ -30,14 +30,14 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="getByPidAndName" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getByPidAndName" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
@@ -45,21 +45,21 @@
         and node_name = #{name} and is_deleted=0 limit 1
     </select>
 
-    <select id="listByPidAndTenantId" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="listByPidAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE tenant_id = #{tenantId} and node_pid = #{nodePid} and is_deleted = 0 order by gmt_create desc
     </select>
 
-    <select id="listByLevelAndTenantId" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="listByLevelAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE tenant_id = #{tenantId} and level = #{level} and is_deleted = 0 order by order_val asc
     </select>
 
-    <select id="getByLevelAndTenantIdAndName" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getByLevelAndTenantIdAndName" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
@@ -67,28 +67,28 @@
         limit 1
     </select>
 
-    <select id="listByNameFuzzy" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="listByNameFuzzy" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE is_deleted = 0 and tenant_id = #{tenantId} and node_name like CONCAT('%',#{name},'%')
     </select>
 
-    <select id="getSystemFunctionCatalogueOne" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getSystemFunctionCatalogueOne" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE node_pid = #{nodePid} and level = 1 and tenant_id = -1 limit 1
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.BatchCatalogue" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchCatalogue" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_catalogue
           (tenant_id,node_name,node_pid,order_val,level,create_user_id,catalogue_type)
         VALUES
           (#{tenantId},#{nodeName},#{nodePid},#{orderVal},#{level},#{createUserId},#{catalogueType})
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchCatalogue">
         UPDATE
         rdos_batch_catalogue
         <include refid="update_fragment"/>
@@ -115,14 +115,14 @@
          and is_deleted = 0
     </select>
 
-    <select id="getTenantRoot" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getTenantRoot" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         select
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
         WHERE tenant_id = #{tenantId} and catalogue_type = #{catalogueType} and  node_pid = 0  and is_deleted = 0 limit 1
     </select>
 
-    <select id="getBeanByTenantIdAndNameAndParentId" resultType="com.dtstack.taiga.dao.domain.BatchCatalogue">
+    <select id="getBeanByTenantIdAndNameAndParentId" resultType="com.dtstack.taier.dao.domain.BatchCatalogue">
         select
         <include refid="select_content_fragment"/>
         FROM rdos_batch_catalogue
