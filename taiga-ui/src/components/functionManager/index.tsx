@@ -114,7 +114,7 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 				break;
 			}
 			case FUNCTION_REMOVE.id: {
-				const isFolder = treeNode?.isLeaf;
+				const isFolder = !treeNode?.isLeaf;
 				confirm({
 					title: isFolder ? '确认要删除此文件夹吗?' : '确认要删除此函数吗',
 					content: isFolder ? '删除的文件夹无法恢复!' : '删除的函数无法找回！',

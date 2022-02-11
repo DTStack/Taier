@@ -20,6 +20,7 @@ package com.dtstack.taiga.scheduler.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taiga.common.enums.DictType;
 import com.dtstack.taiga.common.enums.EComponentType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
@@ -31,7 +32,6 @@ import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.ClusterMapper;
 import com.dtstack.taiga.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taiga.dao.mapper.ComponentMapper;
-import com.dtstack.taiga.scheduler.enums.DictType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +39,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.dtstack.taiga.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 

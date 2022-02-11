@@ -19,6 +19,7 @@
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import InitializeExtension from './init';
 import CatalogueExtension from './catalogue';
+import PanelExtension from './panel';
 import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
 import { ExtendsSparkSQL } from './languages';
@@ -29,6 +30,7 @@ import { LocaleExtension } from './i18n';
 export const extensions: IExtension[] = [
 	LocaleExtension,
 	new InitializeExtension(),
+	new PanelExtension(),
 	new CatalogueExtension(),
 	new EditorExtension(),
 	new FolderTreeExtension(),
