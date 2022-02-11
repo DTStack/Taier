@@ -40,19 +40,24 @@ interface IEnvParams extends Pick<IEditor, 'current'> {
 export default function EnvParams({ current, onChange }: IEnvParams) {
 	const editorIns = useRef<editor.IStandaloneCodeEditor>();
 
+	const getEditorModel = (c: IEnvParams['current']) => {
+		const model =
+			monacoEditor.getModel(getUniqPath(c?.tab?.data.id)) ||
+			monacoEditor.createModel(
+				c?.tab?.data.taskParams || '',
+				'ini',
+				getUniqPath(c?.tab?.data.id),
+			);
+		return model;
+	};
+
 	useEffect(() => {
 		if (current && typeof current.tab?.id === 'number') {
-			const model =
-				monacoEditor.getModel(getUniqPath(current.tab?.data.path)) ||
-				monacoEditor.createModel(
-					current.tab?.data.taskParams || '',
-					'ini',
-					getUniqPath(current.tab?.data.path),
-				);
+			const model = getEditorModel(current);
 
 			editorIns.current?.setModel(model);
 		}
-	}, [current?.id && current.tab?.id]);
+	}, [current?.id, current?.tab?.id]);
 
 	const INVALID_TASK = [
 		EDIT_TASK_PREFIX,
@@ -92,17 +97,12 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 				editorInstance.onDidChangeModelContent(() => {
 					const currentValue = editorIns.current?.getModel()?.getValue() || '';
 
-					onChange?.(current?.tab!, currentValue);
+					if (current?.tab) {
+						onChange?.(current?.tab, currentValue);
+					}
 				});
 
-				const model =
-					monacoEditor.getModel(getUniqPath(current?.tab?.data.path)) ||
-					monacoEditor.createModel(
-						current?.tab?.data.taskParams || '',
-						'ini',
-						getUniqPath(current?.tab?.data.path),
-					);
-
+				const model = getEditorModel(current);
 				editorInstance.setModel(model);
 			}}
 		/>

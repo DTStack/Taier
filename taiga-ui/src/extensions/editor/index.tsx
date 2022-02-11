@@ -28,7 +28,9 @@ import {
 	TASK_OPS_ID,
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
+	DRAWER_MENU_ENUM,
 } from '@/constant';
+import { history } from 'umi';
 import { debounce } from 'lodash';
 import ReactDOM from 'react-dom';
 import Result from '@/components/task/result';
@@ -41,7 +43,7 @@ import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
-import taskParamsService from '@/services/taskParamsService';
+import taskParamsService, { IParamsProps } from '@/services/taskParamsService';
 
 const { confirm } = Modal;
 
@@ -87,7 +89,6 @@ function initActions() {
 			title: '运维',
 			icon: <LoginOutlined />,
 			place: 'outer',
-			disabled: true,
 		},
 		...builtInEditorInitialActions,
 	]);
@@ -391,6 +392,21 @@ function emitEvent() {
 				}
 				break;
 			}
+
+			case TASK_OPS_ID: {
+				const currentTabData:
+					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
+					| undefined = current.tab?.data;
+				if (currentTabData) {
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.TASK,
+							tname: currentTabData.name,
+						},
+					});
+				}
+				break;
+			}
 			default:
 				break;
 		}
@@ -398,7 +414,18 @@ function emitEvent() {
 }
 
 const updateTaskVariables = debounce((tab) => {
-	const data = taskParamsService.matchTaskParams(tab.data?.value || '');
+	const nextVariables = taskParamsService.matchTaskParams(tab.data?.value || '');
+	const preVariables: Partial<IParamsProps>[] = tab.data.taskVariables || [];
+
+	// Prevent reset the value of the exist params
+	const data = nextVariables.map((i) => {
+		const existedVar = preVariables.find((v) => v.paramName === i.paramName);
+		if (existedVar) {
+			return existedVar;
+		}
+		return i;
+	});
+
 	molecule.editor.updateTab({
 		id: tab.id,
 		data: {
@@ -429,6 +456,7 @@ export default class EditorExtension implements IExtension {
 						{ id: TASK_RUN_ID, disabled: false },
 						{ id: TASK_SAVE_ID, disabled: false },
 						{ id: TASK_SUBMIT_ID, disabled: false },
+						{ id: TASK_OPS_ID, disabled: false },
 					]);
 				} else {
 					resetEditorGroup();
@@ -443,6 +471,7 @@ export default class EditorExtension implements IExtension {
 					{ id: TASK_RUN_ID, disabled: false },
 					{ id: TASK_SAVE_ID, disabled: false },
 					{ id: TASK_SUBMIT_ID, disabled: false },
+					{ id: TASK_OPS_ID, disabled: false },
 				]);
 			} else {
 				resetEditorGroup();
