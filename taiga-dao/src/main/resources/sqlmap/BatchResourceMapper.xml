@@ -32,12 +32,6 @@
             <if test="resourceDesc != null">
                 resource_desc = #{resourceDesc},
             </if>
-            <if test="gmtCreate != null">
-                gmt_create = #{gmtCreate},
-            </if>
-            <if test="gmtModified != null">
-                gmt_modified = #{gmtModified},
-            </if>
             <if test="createUserId != null">
                 create_user_id = #{createUserId},
             </if>
@@ -47,6 +41,7 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
             </if>
+            gmt_modified = now()
         </set>
     </sql>
 
@@ -107,7 +102,7 @@
         INSERT INTO rdos_batch_resource
           (tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted)
         VALUES
-          (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc},#{gmtCreate},#{gmtModified},#{createUserId},#{modifyUserId},#{isDeleted})
+          (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc}, now(), now(),#{createUserId},#{modifyUserId}, 0)
     </insert>
 
     <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchResource">

@@ -25,7 +25,7 @@ import com.dtstack.taiga.dao.domain.ComponentConfig;
 import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taiga.dao.mapper.DictMapper;
-import com.dtstack.taiga.scheduler.enums.DictType;
+import com.dtstack.taiga.common.enums.DictType;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
