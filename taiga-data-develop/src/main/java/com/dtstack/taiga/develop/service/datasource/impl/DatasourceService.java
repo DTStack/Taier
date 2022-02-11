@@ -16,7 +16,6 @@ import com.dtstack.taiga.common.constant.FormNames;
 import com.dtstack.taiga.common.engine.JdbcInfo;
 import com.dtstack.taiga.common.enums.DataSourceTypeEnum;
 import com.dtstack.taiga.common.enums.EComponentType;
-import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.PubSvcDefineException;
@@ -33,12 +32,7 @@ import com.dtstack.taiga.develop.common.template.Setting;
 import com.dtstack.taiga.develop.common.template.Writer;
 import com.dtstack.taiga.develop.dto.devlop.DataSourceVO;
 import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taiga.develop.enums.develop.DataSourceDataBaseType;
-import com.dtstack.taiga.develop.enums.develop.EDataSourcePermission;
-import com.dtstack.taiga.develop.enums.develop.RDBMSSourceType;
-import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
-import com.dtstack.taiga.develop.enums.develop.TableLocationType;
-import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taiga.develop.enums.develop.*;
 import com.dtstack.taiga.develop.service.develop.impl.BatchTaskParamService;
 import com.dtstack.taiga.develop.utils.Asserts;
 import com.dtstack.taiga.develop.utils.develop.common.HadoopConf;
@@ -49,32 +43,7 @@ import com.dtstack.taiga.develop.utils.develop.sync.format.writer.HiveWriterForm
 import com.dtstack.taiga.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taiga.develop.utils.develop.sync.job.JobTemplate;
 import com.dtstack.taiga.develop.utils.develop.sync.job.PluginName;
-import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Reader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.AwsS3Writer;
-import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.CarbonDataWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.DefaultSetting;
-import com.dtstack.taiga.develop.utils.develop.sync.template.EsReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.EsWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.FtpReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.FtpWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HBaseWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HDFSWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HiveReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.HiveWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.InceptorWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.InfluxDBReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.MongoDbWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsBase;
-import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.OdpsWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.RDBBase;
-import com.dtstack.taiga.develop.utils.develop.sync.template.RDBReader;
-import com.dtstack.taiga.develop.utils.develop.sync.template.RDBWriter;
-import com.dtstack.taiga.develop.utils.develop.sync.template.RedisWriter;
+import com.dtstack.taiga.develop.utils.develop.sync.template.*;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -95,21 +64,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,11 +77,6 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 public class DatasourceService {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    @Autowired
-    private EnvironmentContext env;
 
     @Autowired
     private KerberosService kerberosService;
@@ -142,11 +92,6 @@ public class DatasourceService {
 
     @Autowired
     private SyncBuilderFactory syncBuilderFactory;
-
-    @Autowired
-    private DsTypeService dsTypeService;
-
-    public static final String DSC_INFO_CHANGE_CHANNEL = "dscInfoChangeChannel";
 
     @Autowired
     private BatchTaskParamService batchTaskParamService;
@@ -1111,7 +1056,7 @@ public class DatasourceService {
             this.batchTaskParamService.checkParams(this.batchTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
             return sql.toJSONString();
         } catch (final Exception e) {
-            log.error("{}", e);
+            log.error("", e);
             throw new RdosDefineException("解析同步任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION);
         }
     }
@@ -1130,7 +1075,7 @@ public class DatasourceService {
             throw new RdosDefineException("传入信息有误");
         }
 
-        if (map != null && !map.containsKey("sourceId")) {
+        if (!map.containsKey("sourceId")) {
             throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
         }
         Long dataSourceId = MapUtils.getLong(map, "sourceId", 0L);
@@ -1167,9 +1112,7 @@ public class DatasourceService {
                 sourceIds.add(sourceId);
 
                 sourceMap.put("name", batchDataSource.getDataName());
-                if (map.get("source") == null) {
-                    map.put("source", batchDataSource);
-                }
+                map.putIfAbsent("source", batchDataSource);
                 if (map.get("datasourceType") == null) {
                     map.put("dataSourceType", batchDataSource.getType());
                 }
@@ -1287,7 +1230,7 @@ public class DatasourceService {
             map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
             processTable(map);
         } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            map.put("isDefaultSource", source.getIsDefault() == 1 ? true : false);
+            map.put("isDefaultSource",  1 == source.getIsDefault());
             map.put("type", sourceType);
             map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
             map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
