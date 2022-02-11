@@ -90,7 +90,7 @@ interface ISketchProps<T, P> {
 	 */
 	columns?: ColumnsType<T>;
 	/**
-	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` 三个属性以外
+	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` 属性以外
 	 */
 	tableProps?: Omit<Partial<TableProps<T>>, 'columns' | 'dataSource'>;
 	/**

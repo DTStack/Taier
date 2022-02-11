@@ -54,7 +54,7 @@ export default () => {
 							(t) => t.tenantId.toString() === defaultTenant,
 						);
 						if (defaultTenant && isValidTenant) {
-							doTenantChange(Number(doTenantChange), true);
+							doTenantChange(Number(defaultTenant), true);
 						} else {
 							setLogin(true);
 						}

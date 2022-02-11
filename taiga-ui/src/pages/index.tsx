@@ -46,7 +46,7 @@ export default function HomePage() {
 
 	const checkLoginStatus = () => {
 		const usernameInCookie = getCookie('username');
-		// 当 username 存在，仅表示前端确认登陆状态
+		// 当 username 存在，仅表示前端确认登录状态
 		if (usernameInCookie) {
 			setUsername(usernameInCookie);
 		}

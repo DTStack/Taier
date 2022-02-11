@@ -32,6 +32,8 @@ import com.dtstack.taiga.pluginapi.sftp.SftpFileManage;
 import com.dtstack.taiga.pluginapi.util.MD5Util;
 import com.dtstack.taiga.pluginapi.util.PublicUtil;
 import com.dtstack.taiga.scheduler.WorkerOperator;
+import com.dtstack.taiga.common.enums.DictType;
+import com.dtstack.taiga.common.enums.DownloadType;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taiga.scheduler.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.taiga.scheduler.service.ComponentConfigService;

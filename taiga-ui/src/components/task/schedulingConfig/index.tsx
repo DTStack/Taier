@@ -24,7 +24,7 @@ import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import molecule from '@dtinsight/molecule/esm';
 import HelpDoc from '../../../components/helpDoc';
-import API from '@/api/operation';
+import api from '@/api';
 import type { SCHEDULE_STATUS } from '@/constant';
 import { CREATE_DATASOURCE_PREFIX } from '@/constant';
 import {
@@ -172,12 +172,12 @@ export default function SchedulingConfig({
 	// 调度状态 change 处理函数
 	const handleScheduleStatus = (evt: CheckboxChangeEvent) => {
 		const { checked } = evt.target;
-		const status = checked ? 2 : 1;
+		const status = checked ? 2 : 0;
 		const tabData: IOfflineTaskProps = current!.tab!.data;
 		const sucInfo = checked ? '冻结成功' : '解冻成功';
 		const errInfo = checked ? '冻结失败' : '解冻失败';
-		API.forzenTask({
-			taskIdList: [tabData.id],
+		api.forzenTask({
+			taskId: tabData.id,
 			scheduleStatus: status,
 		}).then((res) => {
 			if (res.code === 1) {
@@ -289,6 +289,19 @@ export default function SchedulingConfig({
 			handleScheduleConf();
 		}
 	}, [selfReliance]);
+
+	useEffect(() => {
+		if (!isInValidTab) {
+			const tabData: IOfflineTaskProps = current!.tab!.data;
+			let initConf: Partial<IScheduleConfProps>;
+			try {
+				initConf = JSON.parse(tabData.scheduleConf);
+			} catch (error) {
+				initConf = {};
+			}
+			setSelfReliance(Number(initConf.selfReliance));
+		}
+	}, [current]);
 
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取调度依赖</div>;

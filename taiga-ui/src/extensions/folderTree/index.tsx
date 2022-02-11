@@ -358,6 +358,14 @@ function onRemove() {
 				if (res.code === 1) {
 					message.success('删除成功');
 					molecule.folderTree.remove(id);
+					// Close the opened tab
+					const isOpened = molecule.editor.isOpened(id.toString());
+					if (isOpened) {
+						const groupId = molecule.editor.getGroupIdByTab(id.toString());
+						if (groupId) {
+							molecule.editor.closeTab(id.toString(), groupId);
+						}
+					}
 				}
 				return res;
 			});

@@ -156,8 +156,8 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CREATE_TABLE_ERR(603, "","创建表失败"),
     ALTER_TABLE_ERR(604, "","修改表出错"),
     GET_DIRTY_ERROR(605, "","get dirty data error"),
+    ONLY_EXECUTE_CREATE_TABLE_SQL(606, "","只允许执行 'create table ....' sql 格式"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
-
 
     TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
 

@@ -28,7 +28,7 @@ export default defineConfig({
 		);
 		memo.plugin('monaco-editor').use(MonacoWebpackPlugin, [
 			{
-				languages: ['markdown'],
+				languages: ['markdown', 'json'],
 			},
 		]);
 		return memo;
@@ -43,13 +43,13 @@ export default defineConfig({
 	proxy: {
 		'/node': {
 			target: 'http://172.16.100.225:7001/proxy/121',
-			// target: 'http://192.168.96.94:8090',
+			// target: 'http://192.168.96.73:8090',
 			changeOrigin: true,
 			secure: false,
 		},
 		'/api/rdos': {
 			target: 'http://172.16.100.225:7001/proxy/121',
-			// target: 'http://192.168.96.94:8090',
+			// target: 'http://192.168.96.73:8090',
 			changeOrigin: true,
 			secure: false,
 		},

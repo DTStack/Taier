@@ -133,7 +133,7 @@ export default function FolderModal({
 
 	const isCreate = useMemo(() => {
 		if (!defaultData) return true;
-		return !!defaultData.name;
+		return !defaultData.name;
 	}, [defaultData]);
 
 	const handleSubmit = () => {
