@@ -69,12 +69,6 @@ public class ConsoleClusterService {
         return cluster.getId();
     }
 
-
-    public ClusterVO getClusterByName(String clusterName) {
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
-        return ClusterVO.toVO(cluster);
-    }
-
     public IPage<Cluster> pageQuery(int currentPage, int pageSize) {
         Page<Cluster> page = new Page<>(currentPage, pageSize);
         return clusterMapper.selectPage(page, Wrappers.lambdaQuery(Cluster.class).eq(
