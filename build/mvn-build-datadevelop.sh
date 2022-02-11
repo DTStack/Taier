@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-echo 'Taiga Building...'
+echo 'taier Building...'
 
 mvn clean package -DskipTests  -pl \
-taiga-data-develop \
+taier-data-develop \
 -am
