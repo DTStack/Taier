@@ -2303,7 +2303,7 @@ public class BatchTaskService {
         taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
 
         List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(searchVO.getTaskName(), searchVO.getSelectTenantId(), searchVO.getUserId());
-        List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
+        List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> !excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
         Map<Long, Tenant> tenantMap = tenantService.listAllTenant().stream().collect(Collectors.toMap(Tenant::getId, g -> (g)));
 
         List<BatchAllProductGlobalReturnVO> voList = Lists.newArrayList();
