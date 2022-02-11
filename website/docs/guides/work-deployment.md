@@ -9,13 +9,13 @@ sidebar_label: 建议安装配置
 |4核+|8 GB+|1+|
 
 ## 操作系统
-* CentOS：7.0及以上
+* **CentOS**：`7.0` 及以上
 
 ## 基础软件安装
-* JDK8及以上
-* MySQL：5.7.33及以上
-* Zookeeper：3.5.7及以上
-* Redis：5.0.7及以上
+* **JDK**: `8` 及以上
+* **MySQL**：`5.7.33` 及以上
+* **Zookeeper**：`3.5.7` 及以上
+* **Redis**：`5.0.7` 及以上
 
 ##  Web 浏览器要求
-* 推荐使用 Chrome 
+* 推荐使用 `Chrome`
