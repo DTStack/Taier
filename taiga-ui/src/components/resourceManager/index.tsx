@@ -277,27 +277,27 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 
 	// 新增资源
 	const handleAddResource = (params: any) => {
-		return new Promise<void>((resolve) => {
-			ajax.addOfflineResource(params).then((res) => {
-				if (res.code === 1) {
-					message.success('资源上传成功！');
-					const parentNode = resourceManagerTree.get(params.nodePid)!;
-					updateNodePid(parentNode);
-					resolve();
-				}
-			});
+		return ajax.addOfflineResource(params).then((res) => {
+			if (res.code === 1) {
+				message.success('资源上传成功！');
+				const parentNode = resourceManagerTree.get(params.nodePid)!;
+				updateNodePid(parentNode);
+				return true;
+			}
+
+			return false;
 		});
 	};
 
 	// 替换资源
 	const handleReplaceResource = (params: any) => {
-		return new Promise<void>((resolve) => {
-			ajax.replaceOfflineResource(params).then((res) => {
-				if (res.code === 1) {
-					message.success('资源替换成功！');
-					resolve();
-				}
-			});
+		return ajax.replaceOfflineResource(params).then((res) => {
+			if (res.code === 1) {
+				message.success('资源替换成功！');
+
+				return true;
+			}
+			return false;
 		});
 	};
 
