@@ -22,15 +22,14 @@ import com.dtstack.taiga.common.enums.DataSourceType;
 import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.dao.domain.TenantComponent;
 import com.dtstack.taiga.develop.bo.ExecuteContent;
-import com.dtstack.taiga.develop.enums.develop.SqlTypeEnums;
-import com.dtstack.taiga.develop.service.develop.ISqlExeService;
-import com.dtstack.taiga.develop.sql.ParseResult;
-import com.dtstack.taiga.develop.sql.SqlType;
-import com.dtstack.taiga.develop.utils.develop.sync.job.SourceType;
 import com.dtstack.taiga.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taiga.develop.dto.devlop.ExecuteSqlParseVO;
 import com.dtstack.taiga.develop.dto.devlop.SqlResultVO;
+import com.dtstack.taiga.develop.enums.develop.SqlTypeEnums;
+import com.dtstack.taiga.develop.service.develop.ISqlExeService;
+import com.dtstack.taiga.develop.sql.ParseResult;
+import com.dtstack.taiga.develop.sql.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -125,7 +124,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
         String sqlToEngine = StringUtils.join(sqlList, ";");
         //除简单查询，其他sql发送到engine执行
-        String jobId = batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, executeContent.getTaskType());
+        String jobId = batchHadoopSelectSqlService.sendSqlTask(tenantId, sqlToEngine, buildSqlVO.getTaskParam(), preJobId, taskId, executeContent.getTaskType());
 
         //记录发送到engine的id
         selectSqlService.addSelectSql(jobId, StringUtils.EMPTY, 0, tenantId, sqlToEngine, userId, StringUtils.EMPTY, taskType);

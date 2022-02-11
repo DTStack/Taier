@@ -19,7 +19,11 @@
 package com.dtstack.taiga.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.TypeReference;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
@@ -28,14 +32,46 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taiga.common.constant.PatternConstant;
-import com.dtstack.taiga.common.enums.*;
+import com.dtstack.taiga.common.enums.CatalogueType;
+import com.dtstack.taiga.common.enums.Deleted;
+import com.dtstack.taiga.common.enums.DependencyType;
+import com.dtstack.taiga.common.enums.DictType;
+import com.dtstack.taiga.common.enums.EComponentType;
+import com.dtstack.taiga.common.enums.EDeployType;
+import com.dtstack.taiga.common.enums.EScheduleJobType;
+import com.dtstack.taiga.common.enums.EScheduleStatus;
+import com.dtstack.taiga.common.enums.ESubmitStatus;
+import com.dtstack.taiga.common.enums.FuncType;
+import com.dtstack.taiga.common.enums.PublishTaskStatusEnum;
+import com.dtstack.taiga.common.enums.ReadWriteLockType;
+import com.dtstack.taiga.common.enums.ResourceRefType;
+import com.dtstack.taiga.common.enums.TaskLockStatus;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.common.exception.DtCenterDefException;
 import com.dtstack.taiga.common.exception.ErrorCode;
 import com.dtstack.taiga.common.exception.RdosDefineException;
 import com.dtstack.taiga.common.kerberos.KerberosConfigVerify;
-import com.dtstack.taiga.common.util.*;
-import com.dtstack.taiga.dao.domain.*;
+import com.dtstack.taiga.common.util.Base64Util;
+import com.dtstack.taiga.common.util.DataFilter;
+import com.dtstack.taiga.common.util.JsonUtils;
+import com.dtstack.taiga.common.util.PublicUtil;
+import com.dtstack.taiga.common.util.Strings;
+import com.dtstack.taiga.dao.domain.BatchCatalogue;
+import com.dtstack.taiga.dao.domain.BatchDataSource;
+import com.dtstack.taiga.dao.domain.BatchReadWriteLock;
+import com.dtstack.taiga.dao.domain.BatchResource;
+import com.dtstack.taiga.dao.domain.BatchSysParameter;
+import com.dtstack.taiga.dao.domain.BatchTask;
+import com.dtstack.taiga.dao.domain.BatchTaskParam;
+import com.dtstack.taiga.dao.domain.BatchTaskResource;
+import com.dtstack.taiga.dao.domain.BatchTaskTask;
+import com.dtstack.taiga.dao.domain.BatchTaskVersion;
+import com.dtstack.taiga.dao.domain.Component;
+import com.dtstack.taiga.dao.domain.Dict;
+import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
+import com.dtstack.taiga.dao.domain.TaskParamTemplate;
+import com.dtstack.taiga.dao.domain.Tenant;
+import com.dtstack.taiga.dao.domain.User;
 import com.dtstack.taiga.dao.dto.BatchTaskDTO;
 import com.dtstack.taiga.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taiga.dao.dto.UserDTO;
@@ -43,7 +79,13 @@ import com.dtstack.taiga.dao.mapper.BatchReadWriteLockDao;
 import com.dtstack.taiga.dao.mapper.BatchTaskDao;
 import com.dtstack.taiga.dao.pager.PageQuery;
 import com.dtstack.taiga.dao.pager.Sort;
-import com.dtstack.taiga.develop.dto.devlop.*;
+import com.dtstack.taiga.develop.dto.devlop.BatchTaskBatchVO;
+import com.dtstack.taiga.develop.dto.devlop.CheckSyntaxResult;
+import com.dtstack.taiga.develop.dto.devlop.ReadWriteLockVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskCheckResultVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskGetNotDeleteVO;
+import com.dtstack.taiga.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taiga.develop.enums.develop.SourceDTOType;
 import com.dtstack.taiga.develop.enums.develop.SyncModel;
 import com.dtstack.taiga.develop.enums.develop.TaskCreateModelType;
@@ -53,7 +95,6 @@ import com.dtstack.taiga.develop.parser.ScheduleCron;
 import com.dtstack.taiga.develop.parser.ScheduleFactory;
 import com.dtstack.taiga.develop.service.console.TenantService;
 import com.dtstack.taiga.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taiga.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taiga.develop.service.schedule.TaskService;
 import com.dtstack.taiga.develop.service.task.TaskParamTemplateService;
 import com.dtstack.taiga.develop.service.user.UserService;
@@ -95,7 +136,18 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -161,9 +213,6 @@ public class BatchTaskService {
 
     @Autowired
     private DictService dictService;
-
-    @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
@@ -775,9 +824,9 @@ public class BatchTaskService {
         task.parsePeriodType();
         task = this.updateTask(task, param.getIsEditBaseInfo());
         TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(task, task.getNodePid());
-        if (task.getReadWriteLockVO().getResult() != TaskLockStatus.TO_UPDATE.getVal()) {
-            return taskCatalogueVO;
-        }
+
+        // 强行置为更新
+        taskCatalogueVO.getReadWriteLockVO().setResult(TaskLockStatus.TO_UPDATE.getVal());
 
         //更新 关联资源
         if (param.getResourceIdList() != null) {
@@ -1177,9 +1226,6 @@ public class BatchTaskService {
                     task.getId(),
                     ReadWriteLockType.BATCH_TASK,
                     task.getUserId(),
-                    this.getLockVersion(task),
-                    task.getVersion(),
-                    specialTask.getVersion(),
                     res -> {
                         task.setCreateUser(null);
                         task.setIsDeleted(Deleted.NORMAL.getStatus());
@@ -1192,7 +1238,7 @@ public class BatchTaskService {
                             task.setVersion(task.getVersion() + 1);
                         }
                         return updateResult;
-                    }, true);
+                    });
 
             task.setReadWriteLockVO(readWriteLockVO);
             //如果是工作流任务 更新父节点调度类型时，需要同样更新子节点
@@ -1443,14 +1489,16 @@ public class BatchTaskService {
         }
     }
 
+    /**
+     * 获取任务的默认参数
+     *
+     * @param taskType 任务类型
+     * @return
+     */
     private String getDefaultTaskParam(Integer taskType) {
         TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate("2.1", taskType);
-        if(null == taskParamTemplate){
-            return Strings.EMPTY_STRING;
-        }
-        return taskParamTemplate.getParams();
+        return Objects.isNull(taskParamTemplate) ? Strings.EMPTY_STRING : taskParamTemplate.getParams();
     }
-
 
     /**
      * 数据开发-删除任务
@@ -2272,9 +2320,26 @@ public class BatchTaskService {
 
             voList.add(vo);
         }
-
         return voList;
     }
 
+    /**
+     * 冻结任务
+     *
+     * @param taskId         任务编号
+     * @param scheduleStatus 调度状态
+     * @param userId         用户ID
+     */
+    public void frozenTask(Long taskId, Integer scheduleStatus, Long userId) {
+        BatchTask batchTask = getOneWithError(taskId);
+        EScheduleStatus targetStatus = EScheduleStatus.getStatus(scheduleStatus);
+        if (Objects.isNull(targetStatus)) {
+            throw new RdosDefineException("任务状态参数非法", ErrorCode.INVALID_PARAMETERS);
+        }
+        batchTask.setModifyUserId(userId);
+        batchTask.setScheduleStatus(scheduleStatus);
+        batchTaskDao.update(batchTask);
+        taskService.frozenTask(Lists.newArrayList(taskId), scheduleStatus);
+    }
 
 }
