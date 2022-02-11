@@ -33,14 +33,13 @@ import com.dtstack.taiga.common.util.Strings;
 import com.dtstack.taiga.dao.domain.BatchSelectSql;
 import com.dtstack.taiga.dao.domain.BatchTask;
 import com.dtstack.taiga.dao.domain.TenantComponent;
-import com.dtstack.taiga.develop.utils.develop.common.IDownload;
-import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taiga.develop.dto.devlop.BuildSqlVO;
+import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taiga.develop.service.develop.IBatchSelectSqlService;
 import com.dtstack.taiga.develop.sql.ParseResult;
 import com.dtstack.taiga.develop.sql.SqlType;
-import com.dtstack.taiga.develop.utils.develop.sync.job.SourceType;
-import com.dtstack.taiga.develop.dto.devlop.BuildSqlVO;
-import com.dtstack.taiga.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taiga.develop.utils.develop.common.IDownload;
+import com.dtstack.taiga.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taiga.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taiga.scheduler.service.ScheduleActionService;
 import com.dtstack.taiga.scheduler.vo.action.ActionJobEntityVO;
@@ -56,7 +55,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -133,7 +137,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         try {
             BuildSqlVO buildSqlVO = buildSql(parseResult, tenantId, userId, database, isCreateAs, taskId);
             // 发送sql任务
-            sendSqlTask(tenantId, buildSqlVO.getSql(), SourceType.TEMP_QUERY, buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
+            sendSqlTask(tenantId, buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
 
             // 记录job
             batchSelectSqlService.addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
