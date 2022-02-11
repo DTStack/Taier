@@ -57,7 +57,7 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
                 if (parentScheduleJob == null) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
                         checkRunInfo.setPass(Boolean.FALSE);
-                        checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
+                        checkRunInfo.setStatus(JobCheckStatus.FATHER_NO_CREATED);
                         checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_NO_CREATED.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId(),scheduleJobJob.getParentJobKey()));
                         return checkRunInfo;
                     } else {
