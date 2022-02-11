@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Icon } from '@ant-design/compatible';
 import { message, Modal, Tag } from 'antd';
+import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { resetEditorGroup } from '@/utils/extensions';
@@ -76,7 +76,7 @@ function initActions() {
 		{
 			id: TASK_SUBMIT_ID,
 			name: '提交至调度引擎',
-			icon: <Icon type="upload" />,
+			icon: <UploadOutlined />,
 			place: 'outer',
 			disabled: true,
 			title: '提交至调度引擎',
@@ -85,21 +85,7 @@ function initActions() {
 			id: TASK_OPS_ID,
 			name: '运维',
 			title: '运维',
-			icon: (
-				<span style={{ fontSize: 14, display: 'flex' }}>
-					<svg
-						viewBox="0 0 1024 1024"
-						xmlns="http://www.w3.org/2000/svg"
-						width="1em"
-						height="1em"
-					>
-						<path
-							fill="currentColor"
-							d="M512 0C292.571 0 109.714 138.971 36.571 329.143h80.458c21.942-43.886 51.2-87.772 87.771-124.343C285.257 117.029 394.971 73.143 512 73.143S738.743 117.029 819.2 204.8c80.457 80.457 131.657 190.171 131.657 307.2S906.971 738.743 819.2 819.2C738.743 899.657 629.029 950.857 512 950.857S285.257 906.971 204.8 819.2c-36.571-36.571-65.829-80.457-87.771-124.343H36.57C109.714 885.03 292.571 1024 512 1024c285.257 0 512-226.743 512-512S789.943 0 512 0zM402.286 665.6l51.2 51.2 204.8-204.8-204.8-204.8-51.2 51.2 117.028 117.029H0v73.142h519.314L402.286 665.6z"
-						/>
-					</svg>
-				</span>
-			),
+			icon: <LoginOutlined />,
 			place: 'outer',
 			disabled: true,
 		},

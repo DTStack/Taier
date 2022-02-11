@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { cloneDeep, get } from 'lodash';
-import { Icon } from '@ant-design/compatible';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Modal, message } from 'antd';
 
 import { TaskInfo } from './taskInfo';
@@ -520,7 +520,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 						<span>
 							任务日志
 							<Tooltip placement="right" title="刷新">
-								<Icon
+								<ReloadOutlined
 									style={{
 										cursor: 'pointer',
 										marginLeft: '5px',
@@ -528,7 +528,6 @@ class TaskJobFlowView extends React.Component<any, any> {
 									onClick={() => {
 										this.showJobLog(this.state.taskLogId);
 									}}
-									type="reload"
 								/>
 							</Tooltip>
 						</span>

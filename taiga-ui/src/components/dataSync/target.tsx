@@ -2,18 +2,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Form, Icon } from '@ant-design/compatible';
-import { Input, Select, Button, Radio, message, Spin, AutoComplete } from 'antd';
+import { Input, Select, Button, Radio, message, Spin, AutoComplete, Modal } from 'antd';
 import { isEmpty, debounce, get } from 'lodash';
 import assign from 'object-assign';
 
 import { Utils } from '@dtinsight/dt-utils';
 import singletonNotification from '../notification';
-import ajax from '../../api';
-
 import { API } from '../../api/dataSource';
 
 import HelpDoc from '../../components/helpDoc';
-import { DATA_SOURCE_ENUM, formItemLayout, DATA_SOURCE_TEXT } from '@/constant';
+import { DATA_SOURCE_ENUM, formItemLayout, DATA_SOURCE_TEXT, DDL_IDE_PLACEHOLDER } from '@/constant';
 import {
 	dataSyncAction,
 	settingAction,
@@ -22,6 +20,8 @@ import {
 } from '@/reducer/dataSync/actionType';
 import { getProjectTableTypes } from '@/reducer/dataSync/tableType';
 import { filterValueOption, formJsonValidator } from '@/utils';
+import Editor from '@/components/codeEditor';
+import './target.scss';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -385,7 +385,7 @@ class TargetForm extends React.Component<any, any> {
 		this.setState({
 			modalLoading: true,
 		});
-		ajax.createDdlTable({
+		API.createDdlTable({
 			sql: textSql,
 			sourceId: targetMap.sourceId,
 			tableType,
@@ -395,8 +395,8 @@ class TargetForm extends React.Component<any, any> {
 			});
 			if (res.code === 1) {
 				this.getTableList(targetMap.sourceId);
-				this.changeTable(dataSourceType, res.data.tableName);
-				this.props.form.setFieldsValue({ table: res.data.tableName });
+				this.changeTable(dataSourceType, res.data);
+				this.props.form.setFieldsValue({ table: res.data });
 				this.setState({
 					visible: false,
 				});
@@ -419,7 +419,7 @@ class TargetForm extends React.Component<any, any> {
 			typeof targetMap.type.table === 'string'
 				? targetMap.type.table
 				: targetMap.type.table && targetMap.type.table[0];
-		ajax.getCreateTargetTable({
+		API.getCreateTargetTable({
 			originSourceId: sourceMap.sourceId,
 			tableName,
 			partition: sourceMap.type.partition,
@@ -470,14 +470,48 @@ class TargetForm extends React.Component<any, any> {
 		});
 	};
 
+	handleCancel() {
+		this.setState({
+			textSql: '',
+			visible: false,
+		});
+	}
+
+	ddlChange = (_: any, newVal: string) => {
+		this.setState({
+			textSql: newVal,
+			sync: false,
+		});
+	};
+
 	render() {
 		const { getFieldDecorator } = this.props.form;
 		const { tableListLoading } = this.state;
-		const { targetMap, dataSourceList, navtoStep, isIncrementMode } = this.props;
+		const { targetMap, dataSourceList, navtoStep, isIncrementMode, modalLoading } = this.props;
 		const { getPopupContainer } = this.props;
+		const mode = targetMap.type && targetMap.type.type === DATA_SOURCE_ENUM.IMPALA ? 'sql' : 'dtsql';
+
 		return (
 			<Spin spinning={tableListLoading}>
 				<div className="g-step2">
+					<Modal
+						className="m-codemodal"
+						title={<span>建表语句</span>}
+						confirmLoading={modalLoading}
+						maskClosable={false}
+						style={{ height: 424 }}
+						visible={this.state.visible}
+						onCancel={this.handleCancel.bind(this)}
+						onOk={this.createTable.bind(this)}
+					>
+						<Editor
+							language={mode}
+							value={this.state.textSql}
+							sync={this.state.sync}
+							placeholder={DDL_IDE_PLACEHOLDER}
+							onChange={this.ddlChange}
+						/>
+					</Modal>
 					<Form>
 						<FormItem {...formItemLayout} label="数据同步目标">
 							{getFieldDecorator('sourceId', {
@@ -645,14 +679,15 @@ class TargetForm extends React.Component<any, any> {
 			showCreateTableSource &&
 			(loading ? (
 				<Icon type="loading" />
-			) : // <a
-			// 	style={{ top: '0px', right: '-103px' }}
-			// 	onClick={this.showCreateModal.bind(this)}
-			// 	className="help-doc"
-			// >
-			// 	一键生成目标表
-			// </a>
-			null);
+			) : (
+				<a
+					style={{ top: '0px', right: '-103px' }}
+					onClick={this.showCreateModal.bind(this)}
+					className="help-doc"
+				>
+					一键生成目标表
+				</a>
+			));
 
 		if (isEmpty(targetMap)) return null;
 		switch (targetMap.type.type) {
