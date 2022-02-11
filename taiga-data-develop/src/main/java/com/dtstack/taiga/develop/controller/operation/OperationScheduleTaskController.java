@@ -30,8 +30,8 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/scheduleTaskShade")
-@Api(value = "/node/scheduleTaskShade", tags = {"运维中心---任务相关接口"})
+@RequestMapping("/taier/schedule/scheduleTaskShade")
+@Api(value = "/taier/schedule/scheduleTaskShade", tags = {"运维中心---任务相关接口"})
 public class OperationScheduleTaskController {
 
     @Autowired

@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/scheduleJob")
-@Api(value = "/node/scheduleJob", tags = {"运维中心---周期实例依赖关系相关接口"})
+@RequestMapping("/taier/schedule/scheduleJob")
+@Api(value = "/taier/schedule/scheduleJob", tags = {"运维中心---周期实例依赖关系相关接口"})
 public class OperationScheduleJobJobController {
 
     @Autowired

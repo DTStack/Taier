@@ -32,8 +32,8 @@ import java.util.Objects;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/action")
-@Api(value = "/node/action", tags = {"运维中心---任务动作相关接口"})
+@RequestMapping("/taier/schedule/action")
+@Api(value = "/taier/schedule/action", tags = {"运维中心---任务动作相关接口"})
 public class OperationActionController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationActionController.class);
