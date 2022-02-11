@@ -28,7 +28,7 @@ export default defineConfig({
 		);
 		memo.plugin('monaco-editor').use(MonacoWebpackPlugin, [
 			{
-				languages: ['markdown'],
+				languages: ['markdown', 'json'],
 			},
 		]);
 		return memo;
