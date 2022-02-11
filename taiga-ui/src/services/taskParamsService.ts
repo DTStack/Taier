@@ -2,7 +2,7 @@ import api from '@/api';
 import { PARAMS_ENUM } from '@/constant';
 import { Component } from '@dtinsight/molecule/esm/react';
 
-interface IParamsProps {
+export interface IParamsProps {
 	id?: number;
 	paramCommand: string;
 	paramName: string;

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { Icon } from '@ant-design/compatible';
 import { message, Modal, Tag } from 'antd';
+import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { resetEditorGroup } from '@/utils/extensions';
@@ -28,7 +28,9 @@ import {
 	TASK_OPS_ID,
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
+	DRAWER_MENU_ENUM,
 } from '@/constant';
+import { history } from 'umi';
 import { debounce } from 'lodash';
 import ReactDOM from 'react-dom';
 import Result from '@/components/task/result';
@@ -41,7 +43,7 @@ import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
-import taskParamsService from '@/services/taskParamsService';
+import taskParamsService, { IParamsProps } from '@/services/taskParamsService';
 
 const { confirm } = Modal;
 
@@ -76,7 +78,7 @@ function initActions() {
 		{
 			id: TASK_SUBMIT_ID,
 			name: '提交至调度引擎',
-			icon: <Icon type="upload" />,
+			icon: <UploadOutlined />,
 			place: 'outer',
 			disabled: true,
 			title: '提交至调度引擎',
@@ -85,23 +87,8 @@ function initActions() {
 			id: TASK_OPS_ID,
 			name: '运维',
 			title: '运维',
-			icon: (
-				<span style={{ fontSize: 14, display: 'flex' }}>
-					<svg
-						viewBox="0 0 1024 1024"
-						xmlns="http://www.w3.org/2000/svg"
-						width="1em"
-						height="1em"
-					>
-						<path
-							fill="currentColor"
-							d="M512 0C292.571 0 109.714 138.971 36.571 329.143h80.458c21.942-43.886 51.2-87.772 87.771-124.343C285.257 117.029 394.971 73.143 512 73.143S738.743 117.029 819.2 204.8c80.457 80.457 131.657 190.171 131.657 307.2S906.971 738.743 819.2 819.2C738.743 899.657 629.029 950.857 512 950.857S285.257 906.971 204.8 819.2c-36.571-36.571-65.829-80.457-87.771-124.343H36.57C109.714 885.03 292.571 1024 512 1024c285.257 0 512-226.743 512-512S789.943 0 512 0zM402.286 665.6l51.2 51.2 204.8-204.8-204.8-204.8-51.2 51.2 117.028 117.029H0v73.142h519.314L402.286 665.6z"
-						/>
-					</svg>
-				</span>
-			),
+			icon: <LoginOutlined />,
 			place: 'outer',
-			disabled: true,
 		},
 		...builtInEditorInitialActions,
 	]);
@@ -405,6 +392,21 @@ function emitEvent() {
 				}
 				break;
 			}
+
+			case TASK_OPS_ID: {
+				const currentTabData:
+					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
+					| undefined = current.tab?.data;
+				if (currentTabData) {
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.TASK,
+							tname: currentTabData.name,
+						},
+					});
+				}
+				break;
+			}
 			default:
 				break;
 		}
@@ -412,7 +414,18 @@ function emitEvent() {
 }
 
 const updateTaskVariables = debounce((tab) => {
-	const data = taskParamsService.matchTaskParams(tab.data?.value || '');
+	const nextVariables = taskParamsService.matchTaskParams(tab.data?.value || '');
+	const preVariables: Partial<IParamsProps>[] = tab.data.taskVariables || [];
+
+	// Prevent reset the value of the exist params
+	const data = nextVariables.map((i) => {
+		const existedVar = preVariables.find((v) => v.paramName === i.paramName);
+		if (existedVar) {
+			return existedVar;
+		}
+		return i;
+	});
+
 	molecule.editor.updateTab({
 		id: tab.id,
 		data: {
@@ -443,6 +456,7 @@ export default class EditorExtension implements IExtension {
 						{ id: TASK_RUN_ID, disabled: false },
 						{ id: TASK_SAVE_ID, disabled: false },
 						{ id: TASK_SUBMIT_ID, disabled: false },
+						{ id: TASK_OPS_ID, disabled: false },
 					]);
 				} else {
 					resetEditorGroup();
@@ -457,6 +471,7 @@ export default class EditorExtension implements IExtension {
 					{ id: TASK_RUN_ID, disabled: false },
 					{ id: TASK_SAVE_ID, disabled: false },
 					{ id: TASK_SUBMIT_ID, disabled: false },
+					{ id: TASK_OPS_ID, disabled: false },
 				]);
 			} else {
 				resetEditorGroup();

@@ -28,7 +28,6 @@ import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
 import { useState } from 'react';
 import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
-import { LocalDB } from '@dtinsight/dt-utils/lib';
 
 const mainBenchClassName = prefixClaName('mainBench');
 const workbenchClassName = prefixClaName('workbench');
