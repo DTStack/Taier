@@ -20,7 +20,6 @@ package com.dtstack.taiga.develop.controller.console;
 
 import com.dtstack.taiga.common.lang.web.R;
 import com.dtstack.taiga.develop.service.console.ConsoleComponentService;
-import com.dtstack.taiga.scheduler.service.ComponentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

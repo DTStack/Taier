@@ -18,6 +18,7 @@
 
 package com.dtstack.taiga.scheduler.jobdealer.resource;
 
+import com.dtstack.taiga.common.enums.EScheduleJobType;
 import com.dtstack.taiga.common.enums.EScheduleType;
 import com.dtstack.taiga.common.env.EnvironmentContext;
 import com.dtstack.taiga.dao.domain.Cluster;
@@ -62,10 +63,11 @@ public class JobComputeResourcePlain {
 
         String plainType = environmentContext.getComputeResourcePlain();
         String jobResource = null;
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
-            jobResource = jobClient.getTaskType() + SPLIT + jobClient.getGroupName();
+            jobResource = scheduleJobType.name() + SPLIT + jobClient.getGroupName();
         } else {
-            jobResource = jobClient.getTaskType() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
+            jobResource = scheduleJobType.name() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
 
         String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType()) ? jobClient.getType() + "" : "";
