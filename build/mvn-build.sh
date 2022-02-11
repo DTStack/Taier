@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-echo 'Taiga Building...'
+echo 'taier Building...'
 
 mvn clean package -DskipTests  -pl \
-taiga-data-develop,\
-taiga-worker/taiga-plugins/dummy,\
-taiga-worker/taiga-plugins/flink/common,\
-taiga-worker/taiga-plugins/flink/yarn3-hdfs3-flink110,\
-taiga-worker/taiga-plugins/flink/yarn2-hdfs2-flink110,\
-taiga-worker/taiga-plugins/spark/yarn3-hdfs3-spark210/spark-yarn-client,\
-taiga-worker/taiga-plugins/spark/yarn3-hdfs3-spark210/spark-sql-proxy,\
-taiga-worker/taiga-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\
-taiga-worker/taiga-plugins/spark/yarn2-hdfs2-spark210/spark-sql-proxy,\
-taiga-worker/taiga-plugins/hadoop/yarn3-hdfs3-hadoop3,\
-taiga-worker/taiga-plugins/hadoop/yarn2-hdfs2-hadoop2,\
-taiga-worker/taiga-plugins/stores/hdfs2,\
-taiga-worker/taiga-plugins/stores/hdfs3,\
-taiga-worker/taiga-plugins/schedules/yarn2,\
-taiga-worker/taiga-plugins/schedules/yarn3,\
-taiga-worker/taiga-plugins/rdbs/hive,\
-taiga-worker/taiga-plugins/rdbs/hive2,\
-taiga-worker/taiga-plugins/rdbs/hive3 \
+taier-data-develop,\
+taier-worker/taier-plugins/dummy,\
+taier-worker/taier-plugins/flink/common,\
+taier-worker/taier-plugins/flink/yarn3-hdfs3-flink110,\
+taier-worker/taier-plugins/flink/yarn2-hdfs2-flink110,\
+taier-worker/taier-plugins/spark/yarn3-hdfs3-spark210/spark-yarn-client,\
+taier-worker/taier-plugins/spark/yarn3-hdfs3-spark210/spark-sql-proxy,\
+taier-worker/taier-plugins/spark/yarn2-hdfs2-spark210/spark-yarn-client,\
+taier-worker/taier-plugins/spark/yarn2-hdfs2-spark210/spark-sql-proxy,\
+taier-worker/taier-plugins/hadoop/yarn3-hdfs3-hadoop3,\
+taier-worker/taier-plugins/hadoop/yarn2-hdfs2-hadoop2,\
+taier-worker/taier-plugins/stores/hdfs2,\
+taier-worker/taier-plugins/stores/hdfs3,\
+taier-worker/taier-plugins/schedules/yarn2,\
+taier-worker/taier-plugins/schedules/yarn3,\
+taier-worker/taier-plugins/rdbs/hive,\
+taier-worker/taier-plugins/rdbs/hive2,\
+taier-worker/taier-plugins/rdbs/hive3 \
 -am
