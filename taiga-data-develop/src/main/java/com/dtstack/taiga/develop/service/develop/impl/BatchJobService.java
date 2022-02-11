@@ -242,7 +242,7 @@ public class BatchJobService {
             logsBody.put("jobId", jobId);
             logsBody.put("jobIds", Lists.newArrayList(jobId));
             logsBody.put("computeType", ComputeType.BATCH.getType());
-            ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
+            ActionLogVO actionLogVO = actionService.log(jobId);
             String engineLogStr = actionLogVO.getEngineLog();
             String logInfoStr = actionLogVO.getLogInfo();
             if(StringUtils.isNotBlank(engineLogStr)){

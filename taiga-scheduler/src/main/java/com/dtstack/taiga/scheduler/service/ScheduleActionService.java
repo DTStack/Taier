@@ -32,6 +32,7 @@ import com.dtstack.taiga.common.util.DtJobIdWorker;
 import com.dtstack.taiga.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taiga.dao.domain.EngineJobRetry;
 import com.dtstack.taiga.dao.domain.ScheduleJob;
+import com.dtstack.taiga.dao.domain.ScheduleJobExpand;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taiga.dao.mapper.EngineJobRetryMapper;
@@ -99,6 +100,9 @@ public class ScheduleActionService {
 
     @Autowired
     private ComponentService componentService;
+
+    @Autowired
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
 
@@ -348,18 +352,21 @@ public class ScheduleActionService {
     /**
      * 根据jobid 和 计算类型，查询job的日志
      */
-    public ActionLogVO log(String jobId, Integer computeType) {
+    public ActionLogVO log(String jobId) {
 
         if (StringUtils.isBlank(jobId)){
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         ActionLogVO vo = new ActionLogVO();
-        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
-        if (scheduleJob != null) {
-//            vo.setLogInfo(scheduleJob.getLogInfo());
-            String engineLog = getEngineLog(jobId, scheduleJob);
-            vo.setEngineLog(engineLog);
+        ScheduleJobExpand scheduleJobExpand = scheduleJobExpandService.getByJobId(jobId);
+        if (scheduleJobExpand != null) {
+            vo.setEngineLog(scheduleJobExpand.getEngineLog());
+            vo.setLogInfo(scheduleJobExpand.getLogInfo());
+            if(StringUtils.isBlank(scheduleJobExpand.getEngineLog())){
+                ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
+                vo.setEngineLog(getEngineLog(jobId,scheduleJob));
+            }
         }
         return vo;
     }

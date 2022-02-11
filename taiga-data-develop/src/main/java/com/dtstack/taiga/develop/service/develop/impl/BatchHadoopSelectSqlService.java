@@ -565,7 +565,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         return null;
     }
 
-    public String sendSqlTask(Long tenantId, String sql, SourceType sourceType, String taskParams, String jobId, Long taskId, Integer taskType) {
+    public String sendSqlTask(Long tenantId, String sql, String taskParams, String jobId, Long taskId, Integer taskType) {
         ParamActionExt paramActionExt = new ParamActionExt();
         paramActionExt.setTaskType(taskType);
         paramActionExt.setSqlText(sql);

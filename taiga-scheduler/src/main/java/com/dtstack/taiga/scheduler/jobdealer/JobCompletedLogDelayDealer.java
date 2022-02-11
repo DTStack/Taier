@@ -18,15 +18,13 @@
 
 package com.dtstack.taiga.scheduler.jobdealer;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taiga.common.queue.DelayBlockingQueue;
-import com.dtstack.taiga.dao.domain.ScheduleJobExpand;
 import com.dtstack.taiga.pluginapi.CustomThreadFactory;
 import com.dtstack.taiga.pluginapi.JobIdentifier;
 import com.dtstack.taiga.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taiga.scheduler.WorkerOperator;
 import com.dtstack.taiga.scheduler.jobdealer.bo.JobCompletedInfo;
+import com.dtstack.taiga.scheduler.service.ScheduleJobExpandService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -42,6 +40,7 @@ public class JobCompletedLogDelayDealer implements Runnable {
 
     private ApplicationContext applicationContext;
     private WorkerOperator workerOperator;
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     private DelayBlockingQueue<JobCompletedInfo> delayBlockingQueue = new DelayBlockingQueue<JobCompletedInfo>(1000);
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1, 1, 60L, TimeUnit.SECONDS,
@@ -74,21 +73,22 @@ public class JobCompletedLogDelayDealer implements Runnable {
     }
 
     private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier) {
-        LambdaUpdateWrapper<ScheduleJobExpand> lambdaUpdate = Wrappers.lambdaUpdate();
+
         try {
             String jobLog = workerOperator.getEngineLog(jobIdentifier);
             if (jobLog != null) {
-                lambdaUpdate.eq(ScheduleJobExpand::getJobId, jobId).set(ScheduleJobExpand::getEngineLog, jobLog);
+                scheduleJobExpandService.updateEngineLog(jobId, jobLog);
             }
-
         } catch (Throwable e) {
             String errorLog = ExceptionUtil.getErrorMessage(e);
             LOGGER.error("update JobEngine Log error jobId:{} ,error info {}..", jobId, errorLog);
-            lambdaUpdate.eq(ScheduleJobExpand::getJobId, jobId).set(ScheduleJobExpand::getEngineLog, errorLog);
+            scheduleJobExpandService.updateEngineLog(jobId, errorLog);
         }
     }
 
+
     private void setBean() {
+        scheduleJobExpandService = applicationContext.getBean(ScheduleJobExpandService.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
     }
 }
