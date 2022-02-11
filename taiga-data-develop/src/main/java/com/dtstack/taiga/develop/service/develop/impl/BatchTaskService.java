@@ -67,7 +67,7 @@ import com.dtstack.taiga.dao.domain.BatchTaskResource;
 import com.dtstack.taiga.dao.domain.BatchTaskTask;
 import com.dtstack.taiga.dao.domain.BatchTaskVersion;
 import com.dtstack.taiga.dao.domain.Component;
-import com.dtstack.taiga.dao.domain.Dict;
+import com.dtstack.taiga.dao.domain.ScheduleDict;
 import com.dtstack.taiga.dao.domain.ScheduleTaskShade;
 import com.dtstack.taiga.dao.domain.TaskParamTemplate;
 import com.dtstack.taiga.dao.domain.Tenant;
@@ -109,6 +109,7 @@ import com.dtstack.taiga.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taiga.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taiga.scheduler.service.ClusterService;
 import com.dtstack.taiga.scheduler.service.ComponentService;
+import com.dtstack.taiga.scheduler.service.ScheduleDictService;
 import com.dtstack.taiga.scheduler.vo.ScheduleTaskVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -212,7 +213,7 @@ public class BatchTaskService {
     private BatchFunctionService batchFunctionService;
 
     @Autowired
-    private DictService dictService;
+    private ScheduleDictService dictService;
 
     @Autowired
     private BatchSqlExeService batchSqlExeService;
@@ -253,7 +254,7 @@ public class BatchTaskService {
      */
     private static final String KERBEROS_FILE_TIMESTAMP = "kerberosFileTimestamp";
 
-    private static Map<Integer, List<Pair<Integer, String>>> jobSupportTypeMap = Maps.newHashMap();
+    private static Map<Integer, List<Pair<String, String>>> jobSupportTypeMap = Maps.newHashMap();
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -283,8 +284,8 @@ public class BatchTaskService {
     @PostConstruct
     public void init() {
         //初始化可以支持的任务类型
-        final List<Dict> yarn = this.dictService.getDictByType(DictType.BATCH_TASK_TYPE_YARN.getValue());
-        final List<Pair<Integer, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictNameZH())).collect(Collectors.toList());
+        final List<ScheduleDict> yarn = dictService.listByDictType(DictType.DATA_DEVELOP_SUPPORT_TASK_TYPE);
+        final List<Pair<String, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictDesc())).collect(Collectors.toList());
         jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
     }
 

@@ -30,7 +30,7 @@ import com.dtstack.taiga.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taiga.dao.mapper.ComponentMapper;
 import com.dtstack.taiga.dao.mapper.DictMapper;
 import com.dtstack.taiga.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taiga.scheduler.enums.DictType;
+import com.dtstack.taiga.common.enums.DictType;
 import com.dtstack.taiga.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taiga.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taiga.scheduler.utils.LocalCacheUtil;
