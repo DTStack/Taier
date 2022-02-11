@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.QueueMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.QueueMapper">
 
     <sql id="select_content_fragment">
         id,cluster_id,queue_name,capacity,max_capacity,queue_state,parent_queue_id,queue_path,gmt_create,gmt_modified,is_deleted
@@ -34,14 +34,14 @@
         </set>
     </sql>
 
-    <select id="listByClusterId" resultType="com.dtstack.taiga.dao.domain.Queue">
+    <select id="listByClusterId" resultType="com.dtstack.taier.dao.domain.Queue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_queue
         WHERE cluster_id = #{clusterId} AND is_deleted = 0
     </select>
 
-    <select id="listByClusterWithLeaf" resultType="com.dtstack.taiga.dao.domain.Queue">
+    <select id="listByClusterWithLeaf" resultType="com.dtstack.taier.dao.domain.Queue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM
@@ -71,7 +71,7 @@
         WHERE parent_queue_id = #{parentQueueId} AND is_deleted = 0
     </select>
 
-    <select id="listByIds" resultType="com.dtstack.taiga.dao.domain.Queue">
+    <select id="listByIds" resultType="com.dtstack.taier.dao.domain.Queue">
         SELECT
         <include refid="select_content_fragment"/>
         FROM console_queue

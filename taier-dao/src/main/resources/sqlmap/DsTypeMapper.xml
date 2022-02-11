@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.DsTypeMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.DsTypeMapper">
 
     <sql id="select_content_fragment">
         data_type,data_classify_id,weight,img_url,is_deleted,sorted,invisible
     </sql>
 
 
-    <select id="dsTypeList" resultType="com.dtstack.taiga.dao.domain.DsType">
+    <select id="dsTypeList" resultType="com.dtstack.taier.dao.domain.DsType">
         select
         <include refid="select_content_fragment" />
         from dsc_type
@@ -15,7 +15,7 @@
         order by sorted desc,id asc
     </select>
 
-    <select id="queryDsTypeByClassify" resultType="com.dtstack.taiga.dao.domain.DsType">
+    <select id="queryDsTypeByClassify" resultType="com.dtstack.taier.dao.domain.DsType">
         select
         <include refid="select_content_fragment" />
         from dsc_type

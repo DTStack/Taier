@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.ComponentConfigMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.ComponentConfigMapper">
 
     <sql id="select_content_fragment">
         id,cluster_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
@@ -37,7 +37,7 @@
         </set>
     </sql>
 
-    <select id="listByComponentId" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
+    <select id="listByComponentId" resultType="com.dtstack.taier.dao.domain.ComponentConfig">
         select
         <include refid="select_content_fragment"/>
         from console_component_config
@@ -47,7 +47,7 @@
         </if>
     </select>
 
-    <select id="listByClusterId" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
+    <select id="listByClusterId" resultType="com.dtstack.taier.dao.domain.ComponentConfig">
         select
         <include refid="select_content_fragment"/>
         from console_component_config
@@ -57,7 +57,7 @@
         </if>
     </select>
 
-    <select id="listByKey" resultType="com.dtstack.taiga.dao.domain.ComponentConfig">
+    <select id="listByKey" resultType="com.dtstack.taier.dao.domain.ComponentConfig">
         select
         <include refid="select_content_fragment"/>
         from console_component_config

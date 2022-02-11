@@ -70,32 +70,32 @@
         <appender-ref ref="flinkAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.master.router" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.router" level="error" additivity="false">
         <appender-ref ref="request" />
     </logger>
 
-    <logger name="com.dtstack.taiga" level="error" additivity="false">
+    <logger name="com.dtstack.taier" level="error" additivity="false">
         <appender-ref ref="allAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.master.server.listener" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.server.listener" level="error" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <logger name="com.dtstack.taiga.worker" level="error" additivity="false">
+    <logger name="com.dtstack.taier.worker" level="error" additivity="false">
         <appender-ref ref="worker" />
     </logger>
 
-    <logger name="com.dtstack.taiga.master.server.executor" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.server.executor" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.taiga.master.server.multiengine" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.server.multiengine" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.taiga.master.server.scheduler" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.server.scheduler" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
-    <logger name="com.dtstack.taiga.master.server.queue.JopPriorityQueue" level="error" additivity="false">
+    <logger name="com.dtstack.taier.master.server.queue.JopPriorityQueue" level="error" additivity="false">
         <appender-ref ref="schedule" />
     </logger>
 

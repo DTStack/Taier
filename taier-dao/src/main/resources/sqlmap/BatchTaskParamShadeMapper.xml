@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.BatchTaskParamShadeDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.BatchTaskParamShadeDao">
 
     <sql id="select_content_fragment">
       id,task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted
@@ -35,21 +35,21 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taiga.dao.domain.BatchTaskParamShade">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_param_shade
         WHERE id = #{id} AND is_deleted = 0
     </select>
 
-    <select id="getByTypeAndName" resultType="com.dtstack.taiga.dao.domain.BatchTaskParamShade">
+    <select id="getByTypeAndName" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_param_shade
         WHERE task_id = #{taskId} AND type = #{type} AND param_name = #{paramName} AND is_deleted = 0 limit 1
     </select>
 
-    <select id="listByTaskId" resultType="com.dtstack.taiga.dao.domain.BatchTaskParamShade">
+    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
         SELECT
         <include refid="select_content_fragment"/>
         FROM rdos_batch_task_param_shade
@@ -62,14 +62,14 @@
         WHERE task_id = #{taskId}
     </update>
 
-    <insert id="insert" parameterType="com.dtstack.taiga.dao.domain.BatchTaskParamShade" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskParamShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO rdos_batch_task_param_shade
           (task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted)
         VALUES
           (#{taskId},#{type},#{paramName},#{paramCommand},#{gmtCreate},#{gmtModified},#{isDeleted})
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taiga.dao.domain.BatchTaskParamShade">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
         UPDATE
         rdos_batch_task_param_shade
         <include refid="update_fragment"/>

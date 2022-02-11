@@ -19,10 +19,10 @@
 package org.apache.flink.yarn;
 
 import avro.shaded.com.google.common.collect.Sets;
-import com.dtstack.taiga.base.util.HadoopConfTool;
-import com.dtstack.taiga.pluginapi.enums.EJobType;
-import com.dtstack.taiga.flink.constrant.ConfigConstrant;
-import com.dtstack.taiga.flink.util.FlinkUtil;
+import com.dtstack.taier.base.util.HadoopConfTool;
+import com.dtstack.taier.pluginapi.enums.EJobType;
+import com.dtstack.taier.flink.constrant.ConfigConstrant;
+import com.dtstack.taier.flink.util.FlinkUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.VisibleForTesting;

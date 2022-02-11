@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taiga.dao.mapper.ScheduleTaskShadeMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper">
 
     <sql id="select_content_fragment_with_sql">
         `id`,`tenant_id`,`name`,`task_type`,`compute_type`,`sql_text`,`task_params`,`task_id`,`schedule_conf`,`period_type`,`schedule_status`,`gmt_create`,`gmt_modified`,`modify_user_id`,`create_user_id`,`owner_user_id`,`extra_info`,`version_id`,`is_deleted`,`task_desc`,`exe_args`,`flow_id`,`component_version`
     </sql>
 
-    <select id="listRunnableTask" resultType="com.dtstack.taiga.dao.domain.ScheduleTaskShade">
+    <select id="listRunnableTask" resultType="com.dtstack.taier.dao.domain.ScheduleTaskShade">
         SELECT
         <include refid="select_content_fragment_with_sql"/>
         FROM `schedule_task_shade`

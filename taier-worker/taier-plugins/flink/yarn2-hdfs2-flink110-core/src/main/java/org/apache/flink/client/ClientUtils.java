@@ -18,8 +18,8 @@
 
 package org.apache.flink.client;
 
-import com.dtstack.taiga.pluginapi.exception.PluginDefineException;
-import com.dtstack.taiga.flink.constrant.ConfigConstrant;
+import com.dtstack.taier.pluginapi.exception.PluginDefineException;
+import com.dtstack.taier.flink.constrant.ConfigConstrant;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
