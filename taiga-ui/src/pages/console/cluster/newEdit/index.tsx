@@ -92,7 +92,7 @@ export type IVersionData = Record<
 		required: boolean;
 		type: string | null;
 		value: string;
-		values: string | null;
+		values: any[] | null;
 	}[]
 >;
 
@@ -260,7 +260,10 @@ export default forwardRef((_, ref) => {
 			componentTypeCode: Number(typeCode),
 			versionName: params?.compVersion ?? '',
 		};
-		const versionName = params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? '';
+
+		const fisrtVersionData = versionData?.hadoopVersion?.[0]?.values?.[0]?.key;
+		const versionName =
+			params?.compVersion ?? DEFAULT_COMP_VERSION[typeCode] ?? fisrtVersionData ?? '';
 
 		if (isMultiVersion(typeCode) && !params?.compVersion) return;
 
@@ -461,7 +464,7 @@ export default forwardRef((_, ref) => {
 			const componentIds = getCompsId(currentCompArr, id);
 			let res: any;
 			if (componentIds.length) {
-				res = await Api.deleteComponent({ componentIds });
+				res = await Api.deleteComponent({ componentId: componentIds[0] });
 			}
 
 			if (res?.code === 1 || !componentIds.length) {

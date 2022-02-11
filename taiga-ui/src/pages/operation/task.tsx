@@ -10,7 +10,7 @@ import Sketch from '@/components/sketch';
 import type { ITaskBasicProps, ITaskProps } from '@/interface';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
-import { formatDateTime, getCookie } from '@/utils';
+import { formatDateTime, getCookie, removePopUpMenu } from '@/utils';
 import { TaskTimeType, taskTypeText } from '@/utils/enums';
 import PatchModal from './patch/patchModal';
 import TaskFlowView from './taskFlowView';
@@ -127,6 +127,7 @@ export default () => {
 	const handleCloseSlidePane = () => {
 		setVisible(false);
 		setSelectedTasks(null);
+		removePopUpMenu();
 	};
 
 	const handleTaskFlowPatchClick = ({ taskId, name }: ITaskBasicProps) => {

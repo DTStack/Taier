@@ -47,7 +47,6 @@ class DataSync extends React.Component<any, any> {
 	state: any = {
 		currentStep: 0,
 		loading: false,
-		dataSourceList: [],
 	};
 
 	_datasyncDom: any;
@@ -55,20 +54,9 @@ class DataSync extends React.Component<any, any> {
 		const { currentTabData } = this.props;
 
 		this.getJobData({ taskId: currentTabData?.id });
-		//   this.props.setTabId(currentTabData?.id);
-		// this.props.getDataSource();
-		this.getDataSource();
+		this.props.setTabId(currentTabData?.id);
+		this.props.getDataSource();
 	}
-
-	getDataSource = () => {
-		API.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
-			if (res.code === 1) {
-				this.setState({
-					dataSourceList: res.data || [],
-				});
-			}
-		});
-	};
 
 	//   eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
@@ -286,14 +274,11 @@ class DataSync extends React.Component<any, any> {
 		const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
 		const isIncrementMode = syncModel !== undefined && syncModel === DATA_SYNC_MODE.INCREMENT;
 
-		console.log('isLocked:', isLocked);
-
 		const steps: any = [
 			{
 				title: '数据来源',
 				content: (
 					<DataSyncSource
-						dataSourceList={this.state.dataSourceList}
 						getPopupContainer={this.getPopupContainer}
 						currentStep={currentStep}
 						currentTabData={currentTabData}

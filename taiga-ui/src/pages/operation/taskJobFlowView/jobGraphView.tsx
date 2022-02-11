@@ -727,7 +727,7 @@ class JobGraphView extends React.Component<any, any> {
 					&nbsp;
 					<a
 						onClick={() => {
-							goToTaskDev(data);
+							goToTaskDev({ id: data.taskId });
 						}}
 					>
 						查看代码

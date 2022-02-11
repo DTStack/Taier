@@ -42,7 +42,7 @@ export default {
 	uploadResource(params: { fileName: any; componentType: number }) {
 		return http.postAsFormData(req.UPLOAD_RESOURCE, params);
 	},
-	deleteComponent(params: { componentIds: any[] }) {
+	deleteComponent(params: { componentId: number }) {
 		return http.post(req.DELETE_COMPONENT, params); // 删除组件
 	},
 	deleteCluster(params: { clusterId: number }) {

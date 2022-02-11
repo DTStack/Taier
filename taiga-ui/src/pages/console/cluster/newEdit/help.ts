@@ -253,26 +253,26 @@ export function isSchedulings(initialCompData: any[]): boolean {
  * 返回数据结构[{key: key, value: value, id: id}]
  */
 function handleSingleParam(params: any) {
-	const customParamArr: any[] = [];
+	const tempParamObj: Record<string, { key: string; value: string }> = {};
 	const customParamConfig: any[] = [];
 	if (!params) return {};
 	Object.entries(params).forEach(([keys, values]) => {
 		if (values && _.isString(values) && _.isString(keys)) {
 			const p = keys.split('%')[1].split('-');
-			customParamArr[p[0] as any] = {
-				...customParamArr[p[0] as any],
+			tempParamObj[p[0]] = {
+				...tempParamObj[p[0]],
 				[p[1]]: values,
 			};
 		}
 	});
-	customParamArr.forEach((key) => {
-		const config: any = {};
-		config.key = customParamArr[key].key;
-		config.value = customParamArr[key].value;
-		// config.id = key
-		config.type = CONFIG_ITEM_TYPE.CUSTOM_CONTROL;
-		customParamConfig.push(config);
-	});
+	Object.keys(tempParamObj).forEach(key => {
+		customParamConfig.push({
+			key: tempParamObj[key].key,
+			value: tempParamObj[key].value,
+			id: key,
+			type: CONFIG_ITEM_TYPE.CUSTOM_CONTROL
+		})
+	})
 	return customParamConfig;
 }
 
@@ -409,9 +409,9 @@ export function handleComponentTemplate(comp: any, initialCompData: any): any {
 
 	// 和并自定义参数
 	customParamConfig.forEach((config: any) => {
-		if (!customParamConfig[config]?.type) {
+		if (!config?.type) {
 			isGroup = true;
-			Object.entries(customParamConfig[config]).forEach(([key, value]) => {
+			Object.entries(config).forEach(([key, value]) => {
 				(isDeployMode(newComponentTemplate[0].key)
 					? newComponentTemplate[0].values
 					: newComponentTemplate

@@ -16,18 +16,11 @@
  * limitations under the License.
  */
 
+// eslint-disable-next-line max-classes-per-file
 import * as React from 'react';
 import { Form } from '@ant-design/compatible';
 import { connect } from 'react-redux';
-import {
-	InputNumber,
-	Input,
-	Select,
-	Button,
-	AutoComplete,
-	Checkbox,
-	Spin,
-} from 'antd';
+import { InputNumber, Input, Select, Button, AutoComplete, Checkbox, Spin } from 'antd';
 
 import ajax from '../../api';
 
@@ -94,9 +87,7 @@ class ChannelForm extends React.Component<any, any> {
 		const res = await ajax.getIncrementColumns({
 			sourceId: sourceMap.sourceId,
 			tableName: sourceMap.type.table,
-			schema: sourceMap?.schema
-				? sourceMap?.schema
-				: sourceMap.type.schema,
+			schema: sourceMap?.schema ? sourceMap?.schema : sourceMap.type.schema,
 		});
 
 		if (res.code === 1) {
@@ -114,14 +105,7 @@ class ChannelForm extends React.Component<any, any> {
 
 	renderBreakpointContinualTransfer = () => {
 		const { idFields } = this.state;
-		const {
-			form,
-			setting,
-			isIncrementMode,
-			sourceMap,
-			targetMap,
-			isStandeAlone,
-		} = this.props;
+		const { form, setting, isIncrementMode, sourceMap, targetMap, isStandeAlone } = this.props;
 		const { getFieldDecorator } = form;
 
 		const sourceType = sourceMap?.type?.type;
@@ -140,7 +124,12 @@ class ChannelForm extends React.Component<any, any> {
 				{!isStandeAlone && (
 					<FormItem
 						{...formItemLayout}
-						label="断点续传"
+						label={
+							<span>
+								断点续传
+								<HelpDoc doc="breakpointContinualTransferHelp" />
+							</span>
+						}
 						className="txt-left"
 					>
 						{getFieldDecorator('isRestore', {
@@ -155,15 +144,10 @@ class ChannelForm extends React.Component<any, any> {
 								开启{' '}
 							</Checkbox>,
 						)}
-						<HelpDoc doc="breakpointContinualTransferHelp" />
 					</FormItem>
 				)}
 				{setting.isRestore ? (
-					<FormItem
-						{...formItemLayout}
-						label="标识字段"
-						key="restoreColumnName"
-					>
+					<FormItem {...formItemLayout} label="标识字段" key="restoreColumnName">
 						{getFieldDecorator('restoreColumnName', {
 							rules: [
 								{
@@ -238,7 +222,12 @@ class ChannelForm extends React.Component<any, any> {
 					<Form>
 						<FormItem
 							{...formItemLayout}
-							label="作业速率上限"
+							label={
+								<span>
+									作业速率上限
+									<HelpDoc doc="jobSpeedLimit" />
+								</span>
+							}
 							style={{ height: '32px' }}
 						>
 							{getFieldDecorator('speed', {
@@ -249,19 +238,27 @@ class ChannelForm extends React.Component<any, any> {
 								],
 								initialValue: `${setting.speed}`,
 							})(
-								<AutoComplete
-									dataSource={unLimitedOption.concat(
-										speedOption,
-									)}
-								>
+								<AutoComplete dataSource={unLimitedOption.concat(speedOption)}>
 									<Input suffix="MB/s" />
 								</AutoComplete>,
 							)}
-							<HelpDoc doc="jobSpeedLimit" />
 						</FormItem>
 						<FormItem
 							{...formItemLayout}
-							label="作业并发数"
+							label={
+								<span>
+									作业并发数
+									<HelpDoc
+										doc={
+											targetType === DATA_SOURCE_ENUM.S3
+												? 'S3Concurrence'
+												: isTransTable
+												? 'transTableConcurrence'
+												: 'jobConcurrence'
+										}
+									/>
+								</span>
+							}
 							style={{ height: '32px' }}
 						>
 							{getFieldDecorator('channel', {
@@ -270,9 +267,7 @@ class ChannelForm extends React.Component<any, any> {
 										required: true,
 									},
 								],
-								initialValue: `${
-									!isClickHouse ? setting.channel : 1
-								}`,
+								initialValue: `${!isClickHouse ? setting.channel : 1}`,
 							})(
 								<AutoComplete
 									disabled={isClickHouse}
@@ -280,53 +275,47 @@ class ChannelForm extends React.Component<any, any> {
 									optionFilterProp="value"
 								/>,
 							)}
-							<HelpDoc
-								doc={
-									targetType === DATA_SOURCE_ENUM.S3
-										? 'S3Concurrence'
-										: isTransTable
-										? 'transTableConcurrence'
-										: 'jobConcurrence'
-								}
-							/>
 						</FormItem>
 						{!isStandeAlone && (
 							<>
 								<FormItem
 									{...formItemLayout}
-									label="错误记录管理"
+									label={
+										<span>
+											错误记录管理
+											<HelpDoc doc="recordDirtyData" />
+										</span>
+									}
 									className="txt-left"
 								>
 									{getFieldDecorator('isSaveDirty', {
 										rules: [],
 										initialValue: !!setting.isSaveDirty,
-									})(
-										<Checkbox>
-											记录保存
-										</Checkbox>,
-									)}
-									<HelpDoc doc="recordDirtyData" />
+									})(<Checkbox>记录保存</Checkbox>)}
 								</FormItem>
 								<FormItem
 									{...formItemLayout}
-									label="错误记录数超过"
+									label={
+										<span>
+											错误记录数超过
+											<HelpDoc doc="errorCount" />
+										</span>
+									}
 								>
 									{getFieldDecorator('record', {
 										rules: [],
 										initialValue: setting.record,
-									})(
-										<InputNumber
-											style={{ float: 'left' }}
-										/>,
-									)}
-									<span style={{ float: 'left' }}>
-										条, 任务自动结束
-										<HelpDoc doc="errorCount" />
-									</span>
+									})(<InputNumber style={{ float: 'left' }} />)}
+									<span style={{ float: 'left' }}>条, 任务自动结束</span>
 								</FormItem>
 								<FormItem
 									{...formItemLayout}
-									label="错误记录比例配置"
+									label={
+										<span>
+											错误记录比例配置
+											<HelpDoc doc="errorPercentConfig" />
+										</span>
+									}
 								>
 									<span style={{ float: 'left' }}>
 										任务执行结束后，统计错误记录占比，大于
@@ -334,15 +323,8 @@ class ChannelForm extends React.Component<any, any> {
 									{getFieldDecorator('percentage', {
 										rules: [],
 										initialValue: setting.percentage,
-									})(
-										<InputNumber
-											style={{ float: 'left' }}
-										/>,
-									)}
-									<span style={{ float: 'left' }}>
-										%时，任务置为失败
-									</span>
-									<HelpDoc doc="errorPercentConfig" />
+									})(<InputNumber style={{ float: 'left' }} />)}
+									<span style={{ float: 'left' }}>%时，任务置为失败</span>
 								</FormItem>
 							</>
 						)}
@@ -350,16 +332,10 @@ class ChannelForm extends React.Component<any, any> {
 					</Form>
 					{!this.props.readonly && (
 						<div className="steps-action">
-							<Button
-								style={{ marginRight: 8 }}
-								onClick={() => this.prev(navtoStep)}
-							>
+							<Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>
 								上一步
 							</Button>
-							<Button
-								type="primary"
-								onClick={() => this.next(navtoStep)}
-							>
+							<Button type="primary" onClick={() => this.next(navtoStep)}>
 								下一步
 							</Button>
 						</div>
@@ -375,8 +351,7 @@ class ChannelForm extends React.Component<any, any> {
 	}
 
 	next(cb: any) {
-		const { form, saveDataSyncToTab, dataSync, currentTabData } =
-			this.props;
+		const { form, saveDataSyncToTab, dataSync, currentTabData } = this.props;
 		form.validateFields((err: any, values: any) => {
 			if (!err) {
 				saveDataSyncToTab({
@@ -392,8 +367,7 @@ class ChannelForm extends React.Component<any, any> {
 
 const ChannelFormWrap = Form.create({
 	onValuesChange: function (props: any, values: any) {
-		const { changeChannelSetting, setting, isIncrementMode, sourceMap } =
-			props;
+		const { changeChannelSetting, setting, isIncrementMode, sourceMap } = props;
 		if (setting.isSaveDirty && !setting.lifeDay) {
 			values.lifeDay = 90;
 		}

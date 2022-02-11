@@ -259,8 +259,10 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		const params = { ...rawParams };
 		params.sql = `${sqls[index]}`;
 		params.isEnd = sqls.length === index + 1;
-		// 重置当前任务执行的日志信息
-		taskResultService.clearLogs(currentTabId.toString());
+		if (index === 0) {
+			// 重置当前任务执行的日志信息
+			taskResultService.clearLogs(currentTabId.toString());
+		}
 		taskResultService.appendLogs(
 			currentTabId.toString(),
 			createLog(`第${index + 1}条任务开始执行`, 'info'),
@@ -280,7 +282,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
 							} else {
-								// 继续执行下一条 sql 居于
+								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
 							}
 						}
@@ -301,7 +303,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
 							} else {
-								// 继续执行下一条 sql 居于
+								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
 							}
 						}
@@ -323,7 +325,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
 							} else {
-								// 继续执行下一条 sql 居于
+								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
 							}
 						}
@@ -522,7 +524,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 				this.stopSign.set(currentTabId, false);
 				return false;
 			}
-			const { code, data,retryLog } = res;
+			const { code, data, retryLog } = res;
 			if (code) {
 				this.showMsg(currentTabId, res);
 			}
