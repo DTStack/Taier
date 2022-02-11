@@ -80,9 +80,9 @@ public class TenantController {
     }
 
     @PostMapping(value = "/bindingQueue")
-    public R<Void> bindingQueue(@RequestParam("queueId") Long queueId,
+    public R<Void> bindingQueue(@RequestParam("queueName") String queueName,@RequestParam("clusterId") Long clusterId,
                              @RequestParam("tenantId") Long tenantId) {
-        tenantService.bindingQueue(queueId, tenantId);
+        tenantService.bindingQueue(queueName, clusterId,tenantId);
         return R.empty();
     }
 

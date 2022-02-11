@@ -149,7 +149,7 @@ public class BatchServerLogService {
         final JSONObject logsBody = new JSONObject(2);
         logsBody.put("jobId", jobId);
         logsBody.put("computeType", ComputeType.BATCH.getType());
-        ActionLogVO actionLogVO = actionService.log(jobId, ComputeType.BATCH.getType());
+        ActionLogVO actionLogVO = actionService.log(jobId);
         JSONObject info = new JSONObject();
         if (!Strings.isNullOrEmpty(actionLogVO.getLogInfo())) {
             try {
