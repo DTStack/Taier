@@ -226,6 +226,13 @@ class DataSync extends React.Component<any, any> {
 		if (this.state.loading) {
 			return;
 		}
+		// reset dataSync in redux when closing the tab
+		this.props.initJobData({
+			sourceMap: {},
+			targetMap: {},
+			keymap: {},
+			setting:{}
+		});
 		this.props.saveDataSyncToTab({
 			id: currentTabData?.id,
 			data: dataSync,
