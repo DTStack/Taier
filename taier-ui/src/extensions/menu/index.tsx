@@ -21,6 +21,7 @@ function handleMenuBarEvents() {
 				break;
 			case 'Open': {
 				molecule.extension.executeCommand('quickOpen');
+				break;
 			}
 			case 'About': {
 				window.open('https://github.com/DTStack/Taiga');

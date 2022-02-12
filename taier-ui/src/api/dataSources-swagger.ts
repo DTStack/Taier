@@ -18,7 +18,7 @@
 
 //每个模块定义的相关接口
 // const api = '/api/publicService';
-const api = '/node/datasource';
+const api = '/taier/datasource';
 
 export default {
 	getOfflineTableList: {
