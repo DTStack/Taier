@@ -23,7 +23,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.BatchTask;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
-import com.dtstack.taier.dao.mapper.BatchTaskResourceDao;
+import com.dtstack.taier.dao.mapper.DevelopTaskResourceDao;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class BatchTaskResourceService {
     private static Logger logger = LoggerFactory.getLogger(BatchTaskResourceService.class);
 
     @Autowired
-    private BatchTaskResourceDao batchTaskResourceDao;
+    private DevelopTaskResourceDao developTaskResourceDao;
 
     @Autowired
     private BatchResourceService batchResourceService;
@@ -52,11 +52,11 @@ public class BatchTaskResourceService {
      * 根据资源id，获取可用的 资源-任务 关系记录
      */
     public List<BatchTaskResource> getUseableResources(Long resourceId) {
-        return batchTaskResourceDao.listByResourceId(resourceId);
+        return developTaskResourceDao.listByResourceId(resourceId);
     }
 
     public List<BatchTaskResource> getTaskResources(Long taskId, Integer type) {
-        return batchTaskResourceDao.listByTaskId(taskId, type);
+        return developTaskResourceDao.listByTaskId(taskId, type);
     }
 
     /**
@@ -75,11 +75,11 @@ public class BatchTaskResourceService {
     }
 
     public void deleteByTenantId(Long tenantId) {
-        batchTaskResourceDao.deleteByTenantId(tenantId);
+        developTaskResourceDao.deleteByTenantId(tenantId);
     }
 
     public List<Long> getResourceIdList(long taskId, Integer type) {
-        List<BatchTaskResource> resourceList = batchTaskResourceDao.listByTaskId(taskId, type);
+        List<BatchTaskResource> resourceList = developTaskResourceDao.listByTaskId(taskId, type);
         List<Long> resultIdList = Lists.newArrayList();
         if (resourceList == null) {
             return resultIdList;
@@ -101,7 +101,7 @@ public class BatchTaskResourceService {
     public void deleteTaskResource(Long taskId) {
 
         //删除资源-任务关系
-        batchTaskResourceDao.deleteByTaskId(taskId, null);
+        developTaskResourceDao.deleteByTaskId(taskId, null);
     }
 
     public List<BatchTaskResource> save(BatchTask batchTask, List<Long> resourceIds, Integer refType) {
@@ -117,7 +117,7 @@ public class BatchTaskResourceService {
             }
 
             //存储
-            BatchTaskResource resource = batchTaskResourceDao.getByTaskIdAndResourceId(batchTask.getId(), resourceId, refType);
+            BatchTaskResource resource = developTaskResourceDao.getByTaskIdAndResourceId(batchTask.getId(), resourceId, refType);
 
             if (resource == null) {
                 resource = new BatchTaskResource();
@@ -137,9 +137,9 @@ public class BatchTaskResourceService {
 
     public BatchTaskResource addOrUpdate(BatchTaskResource batchTaskResource) {
         if (batchTaskResource.getId() > 0) {
-            batchTaskResourceDao.update(batchTaskResource);
+            developTaskResourceDao.update(batchTaskResource);
         } else {
-            batchTaskResourceDao.insert(batchTaskResource);
+            developTaskResourceDao.insert(batchTaskResource);
         }
         return batchTaskResource;
     }
@@ -152,7 +152,7 @@ public class BatchTaskResourceService {
      * @return
      */
     public Integer deleteByTaskId(Long taskId, Integer resourceType) {
-        return batchTaskResourceDao.deleteByTaskId(taskId, resourceType);
+        return developTaskResourceDao.deleteByTaskId(taskId, resourceType);
     }
 
 }

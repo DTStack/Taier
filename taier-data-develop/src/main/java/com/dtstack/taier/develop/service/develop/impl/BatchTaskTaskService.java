@@ -19,13 +19,13 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.dao.domain.BatchTask;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.mapper.BatchTaskTaskDao;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.mapper.DevelopTaskTaskDao;
+import com.dtstack.taier.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,7 +48,7 @@ import java.util.List;
 public class BatchTaskTaskService {
 
     @Autowired
-    private BatchTaskTaskDao batchTaskTaskDao;
+    private DevelopTaskTaskDao developTaskTaskDao;
 
     @Autowired
     private TenantService tenantService;
@@ -61,7 +61,7 @@ public class BatchTaskTaskService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateTaskTask(Long taskId, List<BatchTask> dependencyTasks) {
-        List<BatchTaskTask> taskTasks = batchTaskTaskDao.listByTaskId(taskId);
+        List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(taskId);
         List<BatchTaskTask> dependencyTaskTasks = getTaskTasksByTaskIdAndTasks(taskId, dependencyTasks);
         List<BatchTaskTask> existDependencyTasks = Lists.newArrayList();
         for (BatchTaskTask taskTask : taskTasks) {
@@ -70,7 +70,7 @@ public class BatchTaskTaskService {
                 existDependencyTasks.add(existTaskTask);
                 continue;
             }
-            batchTaskTaskDao.delete(taskTask.getId());
+            developTaskTaskDao.delete(taskTask.getId());
         }
 
         dependencyTaskTasks.removeAll(existDependencyTasks);
@@ -114,20 +114,20 @@ public class BatchTaskTaskService {
 
     public BatchTaskTask addOrUpdate(BatchTaskTask batchTaskTask) {
         if (batchTaskTask.getId() > 0) {
-            batchTaskTaskDao.update(batchTaskTask);
+            developTaskTaskDao.update(batchTaskTask);
         } else {
-            batchTaskTaskDao.insert(batchTaskTask);
+            developTaskTaskDao.insert(batchTaskTask);
         }
         return batchTaskTask;
     }
 
 
     public List<BatchTaskTask> getByParentTaskId(long parentId) {
-        return batchTaskTaskDao.listByParentTaskId(parentId);
+        return developTaskTaskDao.listByParentTaskId(parentId);
     }
 
     public List<BatchTaskTask> getAllParentTask(long taskId) {
-        return batchTaskTaskDao.listByTaskId(taskId);
+        return developTaskTaskDao.listByTaskId(taskId);
     }
 
     /**
@@ -136,7 +136,7 @@ public class BatchTaskTaskService {
      * @return
      */
     public List<Long> getAllParentTaskId(Long taskId) {
-        return batchTaskTaskDao.listParentTaskIdByTaskId(taskId);
+        return developTaskTaskDao.listParentTaskIdByTaskId(taskId);
     }
 
 
@@ -155,7 +155,7 @@ public class BatchTaskTaskService {
         vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
 
-        List<BatchTaskTask> taskTasks = batchTaskTaskDao.listByTaskId(task.getId());
+        List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(task.getId());
         if (CollectionUtils.isEmpty(taskTasks)) {
             return vo;
         }
@@ -185,7 +185,7 @@ public class BatchTaskTaskService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTaskTaskByTaskId(Long taskId) {
-        batchTaskTaskDao.deleteByTaskId(taskId);
+        developTaskTaskDao.deleteByTaskId(taskId);
     }
 
     /**
@@ -195,7 +195,7 @@ public class BatchTaskTaskService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTaskTaskByParentId(Long parentId) {
-        batchTaskTaskDao.deleteByParentId(parentId);
+        developTaskTaskDao.deleteByParentId(parentId);
     }
 
 

@@ -60,7 +60,7 @@ public class BatchSqlExeService {
     public static final Logger LOGGER = LoggerFactory.getLogger(BatchSqlExeService.class);
 
     @Autowired
-    private TenantComponentService tenantEngineService;
+    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
@@ -82,7 +82,7 @@ public class BatchSqlExeService {
         if (StringUtils.isNotBlank(executeContent.getDatabase())) {
             return executeContent.getDatabase();
         }
-        TenantComponent tenantEngine = this.tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
         if (Objects.isNull(tenantEngine)) {
             throw new RdosDefineException("引擎不能为空");
         }
@@ -123,7 +123,7 @@ public class BatchSqlExeService {
      */
     public CheckSyntaxResult processSqlText(final Long tenantId, Integer taskType, final String sqlText) {
         CheckSyntaxResult result = new CheckSyntaxResult();
-        TenantComponent tenantEngine = this.tenantEngineService.getByTenantAndEngineType(tenantId, taskType);
+        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
         Preconditions.checkNotNull(tenantEngine, String.format("tenantEngine %d not support task type %d", tenantId, taskType));
 
         ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(taskType);
@@ -349,7 +349,7 @@ public class BatchSqlExeService {
     private ParseResult parseSql(final ExecuteContent executeContent) {
         String dbName = this.getDbName(executeContent);
         executeContent.setDatabase(dbName);
-        TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
         Preconditions.checkNotNull(tenantEngine, String.format("tenantEngine %d not support hadoop engine.", executeContent.getTenantId()));
 
         SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);

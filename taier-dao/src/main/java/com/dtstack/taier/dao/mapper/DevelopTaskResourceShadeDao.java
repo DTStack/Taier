@@ -16,26 +16,42 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop.impl;
+package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.mapper.DevelopTaskTemplateDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.dtstack.taier.dao.domain.BatchTaskResourceShade;
+import org.apache.ibatis.annotations.Param;
 
-@Service
-public class BatchTaskTemplateService {
-
-    @Autowired
-    private DevelopTaskTemplateDao developTaskTemplateDao;
+/**
+ * Created by jiangbo on 2017/5/3 0003.
+ */
+public interface DevelopTaskResourceShadeDao {
 
     /**
-     * 根据条件 获取模版
-     *
-     * @param taskType
-     * @param type
+     * 根据 Id 查询
+     * @param id
      * @return
      */
-    public String getContentByType(Integer taskType, Integer type) {
-        return developTaskTemplateDao.getContentByType(taskType, type);
-    }
+    BatchTaskResourceShade getOne(@Param("id") Long id);
+
+    /**
+     * 根据 任务Id 查询
+     * @param taskId
+     * @return
+     */
+    Integer deleteByTaskId(@Param("taskId") long taskId);
+
+    /**
+     * 插入任务资源
+     * @param batchTaskResourceShade
+     * @return
+     */
+    Integer insert(BatchTaskResourceShade batchTaskResourceShade);
+
+    /**
+     * 更新任务资源
+     * @param batchTaskResourceShade
+     * @return
+     */
+    Integer update(BatchTaskResourceShade batchTaskResourceShade);
+
 }

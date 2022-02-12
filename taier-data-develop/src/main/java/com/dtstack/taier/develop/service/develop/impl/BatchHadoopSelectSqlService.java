@@ -83,7 +83,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private TenantComponentService tenantEngineService;
+    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     private BatchSelectSqlService batchSelectSqlService;
@@ -448,7 +448,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())) {
                 return true;
             }
-            TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, result.getTaskType());
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, result.getTaskType());
             Preconditions.checkNotNull(tenantEngine, String.format("tenant %d not support hadoop engine.", tenantId));
             List<Object> data = hadoopDataDownloadService.queryDataFromTempTable(tenantId, selectSql.getTempTableName(), tenantEngine.getComponentIdentity());
             result.setSqlText(selectSql.getSqlText());
