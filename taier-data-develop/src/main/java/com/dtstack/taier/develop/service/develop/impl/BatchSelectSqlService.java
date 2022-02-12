@@ -23,11 +23,11 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSelectSql;
 import com.dtstack.taier.dao.domain.BatchTask;
-import com.dtstack.taier.dao.mapper.BatchSelectSqlDao;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
+import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlDao;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteSelectSqlData;
+import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
+import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +53,7 @@ public class BatchSelectSqlService {
     private BatchTaskService batchTaskService;
 
     @Autowired
-    private BatchSelectSqlDao batchHiveSelectSqlDao;
+    private DevelopHiveSelectSqlDao developHiveSelectSqlDao;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -141,7 +141,7 @@ public class BatchSelectSqlService {
      * @return
      */
     private ExecuteSelectSqlData beforeGetResult(String jobId, Long taskId, Long tenantId, Integer type, String sqlId){
-        BatchSelectSql batchHiveSelectSql = batchHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
+        BatchSelectSql batchHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
         Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
         if (StringUtils.isNotEmpty(sqlId)){
             batchHiveSelectSql.setFatherJobId(jobId);
@@ -162,7 +162,7 @@ public class BatchSelectSqlService {
 
 
     public BatchSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
-        BatchSelectSql selectSql = batchHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
+        BatchSelectSql selectSql = developHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
         if (selectSql == null){
             throw new RdosDefineException("select job not exists");
         }
@@ -173,7 +173,7 @@ public class BatchSelectSqlService {
         try {
             actionService.stop(Collections.singletonList(jobId), ComputeType.BATCH.getType());
             // 这里用逻辑删除，是为了在调度端删除可能生成的临时表
-            batchHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
+            developHiveSelectSqlDao.deleteByJobId(jobId, tenantId);
         }catch (Exception e){
             LOGGER.error(e.getMessage(), e);
         }
@@ -196,10 +196,10 @@ public class BatchSelectSqlService {
         hiveSelectSql.setParsedColumns(parsedColumns);
         hiveSelectSql.setTaskType(taskType);
 
-        batchHiveSelectSqlDao.insert(hiveSelectSql);
+        developHiveSelectSqlDao.insert(hiveSelectSql);
     }
 
     public int updateGmtModify(String jobId, Long tenantId){
-        return batchHiveSelectSqlDao.updateGmtModify(jobId, tenantId);
+        return developHiveSelectSqlDao.updateGmtModify(jobId, tenantId);
     }
 }

@@ -24,9 +24,9 @@ import com.dtstack.taier.common.enums.TaskLockStatus;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchReadWriteLock;
-import com.dtstack.taier.dao.mapper.BatchReadWriteLockDao;
-import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.dao.mapper.DevelopReadWriteLockDao;
 import com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO;
+import com.dtstack.taier.develop.service.user.UserService;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
 public class ReadWriteLockService {
 
     @Autowired
-    private BatchReadWriteLockDao readWriteLockDao;
+    private DevelopReadWriteLockDao developReadWriteLockDao;
 
     @Autowired
     private UserService userService;
@@ -88,13 +88,13 @@ public class ReadWriteLockService {
     @Transactional(rollbackFor = Exception.class)
     public ReadWriteLockVO addOrUpdateLock(Long tenantId, Long userId, String type, Long fileId) {
         ReadWriteLockVO readWriteLockVO;
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, fileId, type);
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, fileId, type);
         if (readWriteLock == null) {
             readWriteLockVO = this.insert(tenantId, fileId, type, userId);
         } else {
             Integer result = 0;
-            result = readWriteLockDao.updateVersionAndModifyUserId(readWriteLock.getId(), null, userId);
-            readWriteLock = readWriteLockDao.getOne(readWriteLock.getId());
+            result = developReadWriteLockDao.updateVersionAndModifyUserId(readWriteLock.getId(), null, userId);
+            readWriteLock = developReadWriteLockDao.getOne(readWriteLock.getId());
             readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
             String userName = userService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
@@ -134,7 +134,7 @@ public class ReadWriteLockService {
      * @return
      */
     private ReadWriteLockVO checkLock(Long userId, Long tenantId, Long relationId, ReadWriteLockType type, Integer lockVersion, Integer relationLocalVersion, Integer relationVersion) {
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
@@ -171,7 +171,7 @@ public class ReadWriteLockService {
      * @return
      */
     public BatchReadWriteLock getReadWriteLock(Long tenantId, Long relationId, String type) {
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type);
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type);
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }
@@ -204,7 +204,7 @@ public class ReadWriteLockService {
      * @return
      */
     public ReadWriteLockVO getDetail(Long tenantId, Long relationId, ReadWriteLockType type, Long userId, Long modifyUserId, Timestamp gmtModified) {
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
             readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
@@ -229,7 +229,7 @@ public class ReadWriteLockService {
      * @return
      */
     public Map<Long, ReadWriteLockVO> getLocks(Long tenantId, ReadWriteLockType type, List<Long> relationIds, long userId, Map<Long, String> names) {
-        List<BatchReadWriteLock> ls = readWriteLockDao.getLocksByIds(tenantId, type.name(), relationIds);
+        List<BatchReadWriteLock> ls = developReadWriteLockDao.getLocksByIds(tenantId, type.name(), relationIds);
         Map<Long, BatchReadWriteLock> records = ls.stream()
                 .collect(Collectors.toMap(r -> r.getRelationId(), r -> r, (v1, v2) -> v2));
         Map<Long, ReadWriteLockVO> result = Maps.newHashMap();
@@ -278,11 +278,11 @@ public class ReadWriteLockService {
      * @return
      */
     private ReadWriteLockVO forceUpdateLock(Long userId, ReadWriteLockType type, Long relationId, Long tenantId) {
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock != null) {
-            readWriteLockDao.updateVersionAndModifyUserIdDefinitized(readWriteLock.getId(), userId);
+            developReadWriteLockDao.updateVersionAndModifyUserIdDefinitized(readWriteLock.getId(), userId);
 
-            readWriteLock = readWriteLockDao.getOne(readWriteLock.getId());
+            readWriteLock = developReadWriteLockDao.getOne(readWriteLock.getId());
             ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
             String userName = userService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
@@ -310,7 +310,7 @@ public class ReadWriteLockService {
         readWriteLock.setModifyUserId(userId);
         readWriteLock.setRelationId(fileId);
         readWriteLock.setType(type);
-        readWriteLockDao.insert(readWriteLock);
+        developReadWriteLockDao.insert(readWriteLock);
         ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
         readWriteLockVO.setVersion(INIT_VERSION);
         readWriteLockVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
@@ -346,7 +346,7 @@ public class ReadWriteLockService {
     }
 
     private ReadWriteLockVO getLockBasicInfo(Long tenantId, long relationId, ReadWriteLockType type) {
-        BatchReadWriteLock readWriteLock = readWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
+        BatchReadWriteLock readWriteLock = developReadWriteLockDao.getByTenantIdAndRelationIdAndType(tenantId, relationId, type.name());
         if (readWriteLock == null) {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
         }

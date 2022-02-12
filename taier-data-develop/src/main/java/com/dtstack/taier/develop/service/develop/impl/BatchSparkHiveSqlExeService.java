@@ -83,7 +83,7 @@ public class BatchSparkHiveSqlExeService {
     protected BatchHadoopSelectSqlService batchHadoopSelectSqlService;
 
     @Autowired
-    protected TenantComponentService tenantEngineService;
+    protected DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     protected BatchSelectSqlService selectSqlService;
@@ -281,7 +281,7 @@ public class BatchSparkHiveSqlExeService {
             result.setJobId(jobId);
         } else {
             if (!executeContent.isExecuteSqlLater()) {
-                TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
                 Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
                 if (SqlType.CREATE.equals(parseResult.getSqlType())
                         || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {

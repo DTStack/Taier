@@ -77,7 +77,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private ScheduleActionService actionService;
 
     @Autowired
-    private TenantComponentService tenantEngineService;
+    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     private BatchJobService batchJobService;
@@ -135,7 +135,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         List<String> fieldNamesShow = BatchHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
         String db = matcher.group("db");
         if (StringUtils.isEmpty(db)) {
-            TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(tenantId, taskType);
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
             Preconditions.checkNotNull(tenantEngine, String.format("项目:%d 不支持引擎:HADOOP", tenantId));
             db = tenantEngine.getComponentIdentity();
         }

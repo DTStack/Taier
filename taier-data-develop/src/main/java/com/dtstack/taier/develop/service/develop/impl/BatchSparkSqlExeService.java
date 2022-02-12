@@ -104,7 +104,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
             } else {
                 if (!executeContent.isExecuteSqlLater()) {
-                    TenantComponent tenantEngine = tenantEngineService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+                    TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
                     Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
                     SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                     sqlResultVO.setSqlText(parseResult.getStandardSql());
