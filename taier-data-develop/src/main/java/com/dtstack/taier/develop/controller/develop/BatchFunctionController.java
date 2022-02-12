@@ -43,7 +43,7 @@ import java.util.List;
 
 @Api(value = "函数管理", tags = {"函数管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchFunction")
+@RequestMapping(value = "/batchFunction")
 public class BatchFunctionController {
 
     @Autowired

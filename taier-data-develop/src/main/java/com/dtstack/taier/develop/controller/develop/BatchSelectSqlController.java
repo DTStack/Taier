@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "执行选中的sql或者脚本", tags = {"执行选中的sql或者脚本"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchSelectSql")
+@RequestMapping(value = "/batchSelectSql")
 public class BatchSelectSqlController {
 
     @Autowired

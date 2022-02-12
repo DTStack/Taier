@@ -33,7 +33,7 @@ import java.util.List;
 
 @Api(value = "集群组件信息管理", tags = {"集群组件信息管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/component")
+@RequestMapping(value = "/batchComponent")
 public class BatchComponentController {
 
     @Autowired

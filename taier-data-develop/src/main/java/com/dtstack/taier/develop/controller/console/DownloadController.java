@@ -41,8 +41,8 @@ import java.net.URLEncoder;
 
 
 @RestController
-@RequestMapping("/node/download")
-@Api(value = "/node/download", tags = {"下载接口"})
+@RequestMapping("/download")
+@Api(value = "/download", tags = {"下载接口"})
 public class DownloadController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadController.class);
 

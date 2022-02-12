@@ -30,6 +30,9 @@ import java.io.File;
 
 public class ConfigConstant {
 
+    public static final String REQUEST_PREFIX = "/taier";
+
+
     public static final String CONSOLE = "CONSOLE";
     public static String SP = File.separator;
     public static final String SPLIT = "_";

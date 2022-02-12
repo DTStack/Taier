@@ -21,12 +21,15 @@
 package com.dtstack.taier.develop.config;
 
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
@@ -105,5 +108,13 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON);
     }
-}
 
+    @Override
+    protected void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix(ConfigConstant.REQUEST_PREFIX,
+                c -> (c.isAnnotationPresent(RestController.class) ||
+                c.isAnnotationPresent(Controller.class)) && c.getName().contains("com.dtstack.taier")
+        );
+    }
+
+}

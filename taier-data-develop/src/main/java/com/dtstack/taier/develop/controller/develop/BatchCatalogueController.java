@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "目录管理", tags = {"目录管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchCatalogue")
+@RequestMapping(value = "/batchCatalogue")
 public class BatchCatalogueController {
 
     @Autowired

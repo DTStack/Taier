@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "任务依赖管理", tags = {"任务依赖管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchTaskTask")
+@RequestMapping(value = "/batchTaskTask")
 public class BatchTaskTaskController {
 
     @Autowired

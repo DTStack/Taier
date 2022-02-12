@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "日志管理", tags = {"日志管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchServerLog")
+@RequestMapping(value = "/batchServerLog")
 public class BatchServerLogController {
 
     @Autowired
