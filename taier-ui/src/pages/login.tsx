@@ -236,7 +236,7 @@ export default () => {
 	return (
 		<Modal
 			className="dt-login"
-			title={isLogin ? '请选择租户' : '欢迎登录 Taiga'}
+			title={isLogin ? '请选择租户' : '欢迎登录 Taier'}
 			visible={isModalVisible}
 			footer={null}
 			destroyOnClose

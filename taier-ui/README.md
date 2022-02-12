@@ -1,11 +1,11 @@
-# Taiga-ui
+# Taier-ui
 
-The frontEnd projects of Taiga.
+The frontEnd projects of Taier.
 
 
 ## Build
 
-Please go to the Taiga-ui directory:
+Please go to the Taier-ui directory:
 
 ```bash
 yarn build
