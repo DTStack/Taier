@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/node/console")
-@Api(value = "/node/console", tags = {"控制台接口"})
+@RequestMapping("/console")
+@Api(value = "/console", tags = {"控制台接口"})
 public class ConsoleController {
 
     @Autowired

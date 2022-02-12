@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "任务实例管理", tags = {"任务实例管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchJob")
+@RequestMapping(value = "/batchJob")
 public class BatchJobController {
 
     @Autowired

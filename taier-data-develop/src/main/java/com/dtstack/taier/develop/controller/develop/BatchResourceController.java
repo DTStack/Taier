@@ -42,7 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Api(value = "资源管理", tags = {"资源管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchResource")
+@RequestMapping(value = "/batchResource")
 public class BatchResourceController {
 
     @Autowired

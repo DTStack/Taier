@@ -37,8 +37,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/node/cluster")
-@Api(value = "/node/cluster", tags = {"集群接口"})
+@RequestMapping("/cluster")
+@Api(value = "/cluster", tags = {"集群接口"})
 public class ClusterController {
 
     @Autowired

@@ -45,8 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/node/tenant")
-@Api(value = "/node/tenant", tags = {"租户接口"})
+@RequestMapping("/tenant")
+@Api(value = "/tenant", tags = {"租户接口"})
 public class TenantController {
 
     @Autowired

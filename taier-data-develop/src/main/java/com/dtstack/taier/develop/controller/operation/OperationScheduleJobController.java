@@ -21,8 +21,8 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/scheduleJob")
-@Api(value = "/node/scheduleJob", tags = {"运维中心---周期实例相关接口"})
+@RequestMapping("/scheduleJob")
+@Api(value = "/scheduleJob", tags = {"运维中心---周期实例相关接口"})
 public class OperationScheduleJobController {
 
     @Autowired

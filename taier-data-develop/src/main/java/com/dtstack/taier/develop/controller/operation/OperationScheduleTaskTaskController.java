@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/scheduleTaskTaskShade")
-@Api(value = "/node/scheduleTaskTaskShade", tags = {"运维中心---任务依赖相关接口"})
+@RequestMapping("/scheduleTaskTaskShade")
+@Api(value = "/scheduleTaskTaskShade", tags = {"运维中心---任务依赖相关接口"})
 public class OperationScheduleTaskTaskController {
 
     @Autowired

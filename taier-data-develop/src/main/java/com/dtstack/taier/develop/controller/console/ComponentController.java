@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/node/component")
-@Api(value = "/node/component", tags = {"组件接口"})
+@RequestMapping("/component")
+@Api(value = "/component", tags = {"组件接口"})
 public class ComponentController {
 
     @Autowired

@@ -50,8 +50,8 @@ import java.util.List;
  * @date 2021-08-02
  */
 @RestController
-@RequestMapping("/node/user")
-@Api(value = "/node/user", tags = {"用户接口"})
+@RequestMapping("/user")
+@Api(value = "/user", tags = {"用户接口"})
 public class UserController {
 
     @Autowired

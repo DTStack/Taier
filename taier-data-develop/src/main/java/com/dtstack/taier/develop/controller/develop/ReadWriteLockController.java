@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "读写锁", tags = {"读写锁"})
 @RestController
-@RequestMapping(value = "/api/rdos/common/readWriteLock")
+@RequestMapping(value = "/readWriteLock")
 public class ReadWriteLockController {
 
     @Autowired
