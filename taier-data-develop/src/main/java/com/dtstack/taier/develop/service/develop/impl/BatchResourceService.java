@@ -29,7 +29,7 @@ import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
-import com.dtstack.taier.dao.mapper.BatchResourceDao;
+import com.dtstack.taier.dao.mapper.DevelopResourceDao;
 import com.dtstack.taier.develop.dto.devlop.BatchResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
@@ -58,7 +58,7 @@ public class BatchResourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchResourceService.class);
 
     @Autowired
-    private BatchResourceDao batchResourceDao;
+    private DevelopResourceDao developResourceDao;
     
     @Autowired
     private BatchFunctionResourceService batchFunctionResourceService;
@@ -91,7 +91,7 @@ public class BatchResourceService {
         Integer resourceType = null;
         if (batchResourceAddDTO.getId() != null && batchResourceAddDTO.getId() != 0L) {
             resourceId = batchResourceAddDTO.getId();
-            resourceDB = this.batchResourceDao.getOne(resourceId);
+            resourceDB = this.developResourceDao.getOne(resourceId);
             resourceName = resourceDB.getResourceName();
             resourceType = resourceDB.getResourceType();
         } else {
@@ -157,10 +157,10 @@ public class BatchResourceService {
      */
     private void addOrUpdate(BatchResource batchResource) {
         if (batchResource.getId() != null && batchResource.getId() > 0) {
-            batchResourceDao.update(batchResource);
+            developResourceDao.update(batchResource);
             return;
         }
-        batchResourceDao.insert(batchResource);
+        developResourceDao.insert(batchResource);
     }
 
     /**
@@ -184,7 +184,7 @@ public class BatchResourceService {
         }
 
         //删除资源记录
-        batchResourceDao.deleteById(resourceId);
+        developResourceDao.deleteById(resourceId);
         return resourceId;
     }
 
@@ -219,7 +219,7 @@ public class BatchResourceService {
      * @return
      */
     public List<BatchResource> getResourceList(List<Long> resourceIdList) {
-        return batchResourceDao.listByIds(resourceIdList);
+        return developResourceDao.listByIds(resourceIdList);
     }
 
     /**
@@ -228,7 +228,7 @@ public class BatchResourceService {
      * @return
      */
     public BatchResource getResource(long resourceId) {
-        return batchResourceDao.getOne(resourceId);
+        return developResourceDao.getOne(resourceId);
     }
 
     /**
@@ -238,7 +238,7 @@ public class BatchResourceService {
         Long tenantId = batchResourceAddDTO.getTenantId();
         Long resourceId = batchResourceAddDTO.getId();
 
-        BatchResource resourceDb = batchResourceDao.getOne(resourceId);
+        BatchResource resourceDb = developResourceDao.getOne(resourceId);
         if (Objects.isNull(resourceDb)) {
             throw new RdosDefineException("替换字段不存在");
         }
@@ -250,7 +250,7 @@ public class BatchResourceService {
         resourceDb.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
         resourceDb.setResourceDesc(batchResourceAddDTO.getResourceDesc());
         resourceDb.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        batchResourceDao.update(resourceDb);
+        developResourceDao.update(resourceDb);
     }
 
     /**
@@ -288,7 +288,7 @@ public class BatchResourceService {
      * @return
      */
     public String getResourceURLByFunctionId(Long functionId) {
-        return batchResourceDao.getResourceURLByFunctionId(functionId);
+        return developResourceDao.getResourceURLByFunctionId(functionId);
     }
 
     /**
@@ -298,7 +298,7 @@ public class BatchResourceService {
      * @return
      */
     public List<BatchResource> listByPidAndTenantId(Long tenantId, Long nodePid) {
-        return batchResourceDao.listByPidAndTenantId(tenantId, nodePid);
+        return developResourceDao.listByPidAndTenantId(tenantId, nodePid);
     }
 
     /**
@@ -309,7 +309,7 @@ public class BatchResourceService {
      * @return
      */
     public List<BatchResource> listByNameAndTenantId(Long tenantId, String resourceName) {
-        return batchResourceDao.listByNameAndTenantId(tenantId, resourceName);
+        return developResourceDao.listByNameAndTenantId(tenantId, resourceName);
     }
 
 }
