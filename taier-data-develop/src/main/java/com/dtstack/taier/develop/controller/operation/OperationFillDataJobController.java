@@ -25,8 +25,8 @@ import java.util.List;
  * @Description:
  */
 @RestController
-@RequestMapping("/node/fill")
-@Api(value = "/node/fill", tags = {"运维中心---补数据相关接口"})
+@RequestMapping("/fill")
+@Api(value = "/fill", tags = {"运维中心---补数据相关接口"})
 public class OperationFillDataJobController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperationFillDataJobController.class);

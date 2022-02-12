@@ -50,8 +50,8 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Taier 接口文档")
-                .contact(new Contact("Taier", "", "taier@dtstack.com"))
+                .title("taier 接口文档")
+                .contact(new Contact("taier", "", "taier@dtstack.com"))
                 .version("1.0.0")
                 .build();
     }

@@ -36,7 +36,7 @@ import java.util.List;
 
 @Api(value = "资源任务管理", tags = {"资源任务管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchTaskResource")
+@RequestMapping(value = "/batchTaskResource")
 public class BatchTaskResourceController {
 
     @Autowired

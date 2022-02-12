@@ -45,8 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/node/upload")
-@Api(value = "/node/upload", tags = {"上传接口"})
+@RequestMapping("/upload")
+@Api(value = "/upload", tags = {"上传接口"})
 public class UploadController {
     @Autowired
     private ConsoleComponentService consoleComponentService;

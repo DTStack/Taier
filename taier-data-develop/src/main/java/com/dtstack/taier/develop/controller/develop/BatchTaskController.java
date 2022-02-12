@@ -40,7 +40,7 @@ import java.util.List;
 
 @Api(value = "任务管理", tags = {"任务管理"})
 @RestController
-@RequestMapping(value = "/api/rdos/batch/batchTask")
+@RequestMapping(value = "/batchTask")
 public class BatchTaskController {
 
     @Autowired

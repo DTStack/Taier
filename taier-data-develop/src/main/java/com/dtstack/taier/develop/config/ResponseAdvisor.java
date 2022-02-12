@@ -121,7 +121,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         String requestPath = request.getURI().getPath();
-        if (!requestPath.startsWith("/node") && !requestPath.startsWith("/api/rdos")) {
+        if (!requestPath.startsWith("/taier")) {
             return body;
         }
         R<Object> resultBody = new R<>();
