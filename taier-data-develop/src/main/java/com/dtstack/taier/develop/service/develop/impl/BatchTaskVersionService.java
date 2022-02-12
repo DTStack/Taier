@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
-import com.dtstack.taier.dao.mapper.BatchTaskVersionDao;
+import com.dtstack.taier.dao.mapper.DevelopTaskVersionDao;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.List;
 public class BatchTaskVersionService {
 
     @Autowired
-    private BatchTaskVersionDao batchTaskVersionDao;
+    private DevelopTaskVersionDao developTaskVersionDao;
 
     /**
      * 根据taskId 查询记录
@@ -40,7 +40,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public List<BatchTaskVersionDetailDTO> listByTaskId(Long taskId, PageQuery pageQuery) {
-        return batchTaskVersionDao.listByTaskId(taskId, pageQuery);
+        return developTaskVersionDao.listByTaskId(taskId, pageQuery);
     }
 
     /**
@@ -49,7 +49,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public Integer insert(BatchTaskVersion batchTaskVersion) {
-        return batchTaskVersionDao.insert(batchTaskVersion);
+        return developTaskVersionDao.insert(batchTaskVersion);
     }
 
     /**
@@ -58,7 +58,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public BatchTaskVersionDetailDTO getByVersionId(Long versionId){
-        return batchTaskVersionDao.getByVersionId(versionId);
+        return developTaskVersionDao.getByVersionId(versionId);
     }
 
     /**
@@ -67,7 +67,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public List<BatchTaskVersionDetailDTO> getByVersionIds(List<Integer> versionId){
-        return batchTaskVersionDao.getByVersionIds(versionId);
+        return developTaskVersionDao.getByVersionIds(versionId);
     }
 
     /**
@@ -76,7 +76,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public List<BatchTaskVersionDetailDTO> getByTaskIds(List<Long> taskIds){
-        return batchTaskVersionDao.getByTaskIds(taskIds);
+        return developTaskVersionDao.getByTaskIds(taskIds);
     }
 
     /**
@@ -85,7 +85,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public List<BatchTaskVersionDetailDTO> getWithoutSqlByTaskIds(List<Long> taskIds){
-        return batchTaskVersionDao.getWithoutSqlByTaskIds(taskIds);
+        return developTaskVersionDao.getWithoutSqlByTaskIds(taskIds);
     }
 
     /**
@@ -94,7 +94,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public List<BatchTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(List<Long> taskIds){
-        return batchTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
+        return developTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
     }
 
     /**
@@ -103,7 +103,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public Integer getMaxVersionId(Long taskId){
-        return batchTaskVersionDao.getMaxVersionId(taskId);
+        return developTaskVersionDao.getMaxVersionId(taskId);
     }
 
     /**
@@ -113,7 +113,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public BatchTaskVersionDetailDTO getBytaskIdAndVersionId(Long taskId, Long versionId){
-        return batchTaskVersionDao.getBytaskIdAndVersionId(taskId, versionId);
+        return developTaskVersionDao.getBytaskIdAndVersionId(taskId, versionId);
     }
 
     /**
@@ -123,7 +123,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public BatchTaskVersion getByTaskIdAndVersion(Long taskId, Integer version){
-        return batchTaskVersionDao.getByTaskIdAndVersion(taskId, version);
+        return developTaskVersionDao.getByTaskIdAndVersion(taskId, version);
     }
 
 }

@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.annotation.Forbidden;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.mapper.BatchSysParamDao;
+import com.dtstack.taier.dao.mapper.DevelopSysParamDao;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ import java.util.Map;
 public class BatchSysParamService {
 
     @Autowired
-    private BatchSysParamDao batchSysParamDao;
+    private DevelopSysParamDao developSysParamDao;
 
     private Map<String, BatchSysParameter> cache = null;
 
@@ -55,7 +55,7 @@ public class BatchSysParamService {
     @Forbidden
     public void loadSystemParam(){
         cache = Maps.newHashMap();
-        List<BatchSysParameter> sysParamList = batchSysParamDao.listAll();
+        List<BatchSysParameter> sysParamList = developSysParamDao.listAll();
         for(BatchSysParameter tmp : sysParamList){
             cache.put(tmp.getParamName(), tmp);
         }

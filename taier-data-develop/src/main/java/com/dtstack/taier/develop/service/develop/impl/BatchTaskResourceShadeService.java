@@ -19,9 +19,9 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.mapper.BatchTaskResourceShadeDao;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.domain.BatchTaskResourceShade;
+import com.dtstack.taier.dao.mapper.DevelopTaskResourceShadeDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -43,10 +43,10 @@ public class BatchTaskResourceShadeService {
     private static Logger logger = LoggerFactory.getLogger(BatchTaskResourceShadeService.class);
 
     @Autowired
-    private BatchTaskResourceShadeDao batchTaskResourceShadeDao;
+    private DevelopTaskResourceShadeDao developTaskResourceShadeDao;
 
     public void clearDataByTaskId(Long taskId) {
-        batchTaskResourceShadeDao.deleteByTaskId(taskId);
+        developTaskResourceShadeDao.deleteByTaskId(taskId);
         logger.info(String.format("clear taskResource success  taskId = %s",taskId));
     }
 
@@ -63,13 +63,13 @@ public class BatchTaskResourceShadeService {
     public void addOrUpdate(BatchTaskResourceShade batchTaskResourceShade) {
         if (batchTaskResourceShade.getId()!= null && batchTaskResourceShade.getId()>0) {
             //查询是否传入参数有问题
-            BatchTaskResourceShade one = batchTaskResourceShadeDao.getOne(batchTaskResourceShade.getId());
+            BatchTaskResourceShade one = developTaskResourceShadeDao.getOne(batchTaskResourceShade.getId());
             if (one == null){
                 throw new RdosDefineException(String.format("未查询到id = %s对应的记录", batchTaskResourceShade.getId()));
             }
-            batchTaskResourceShadeDao.update(batchTaskResourceShade);
+            developTaskResourceShadeDao.update(batchTaskResourceShade);
         } else {
-            batchTaskResourceShadeDao.insert(batchTaskResourceShade);
+            developTaskResourceShadeDao.insert(batchTaskResourceShade);
         }
     }
 
@@ -80,6 +80,6 @@ public class BatchTaskResourceShadeService {
      * @return
      */
     public Integer deleteByTaskId(Long taskId) {
-        return batchTaskResourceShadeDao.deleteByTaskId(taskId);
+        return developTaskResourceShadeDao.deleteByTaskId(taskId);
     }
 }
