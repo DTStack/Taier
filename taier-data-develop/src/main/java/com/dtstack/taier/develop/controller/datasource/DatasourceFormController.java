@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Api(tags = {"数据源中心-数据源表单模版化"})
 @RestController
-@RequestMapping(value = "/datasource/dsForm")
+@RequestMapping(value = "/taier/datasource/dsForm")
 public class DatasourceFormController {
 
     @Autowired

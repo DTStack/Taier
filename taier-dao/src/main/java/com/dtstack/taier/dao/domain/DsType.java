@@ -9,7 +9,7 @@ import lombok.Data;
  * @Date: 2021/3/10
  */
 @Data
-@TableName("dsc_type")
+@TableName("datasource_type")
 public class DsType extends BaseModel {
 
     /**
