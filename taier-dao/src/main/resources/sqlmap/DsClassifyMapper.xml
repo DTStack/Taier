@@ -10,7 +10,7 @@
     <select id="queryDsClassifyList" resultType="com.dtstack.taier.dao.domain.DsClassify">
         select
         <include refid="select_content_fragment" />
-        from dsc_classify
+        from datasource_classify
         where is_deleted = 0
         order by sorted desc
     </select>
