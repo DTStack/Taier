@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DictMapper;
 import com.dtstack.taier.develop.model.exception.InvalidComponentException;
 import com.dtstack.taier.develop.model.system.config.ComponentModel;
@@ -60,31 +60,31 @@ public class Context {
     }
 
     private Map<EComponentType, Map<String, ComponentModelTypeConfig>> initComponentModelTypeConfig() {
-        List<ScheduleDict> dicts = dictMapper.listDictByType(DictType.RESOURCE_MODEL_CONFIG.type);
+        List<Dict> dicts = dictMapper.listDictByType(DictType.RESOURCE_MODEL_CONFIG.type);
         return parseComponentConfig(dicts, ComponentModelTypeConfig::new);
     }
 
     private Map<EComponentType, Map<String, ComponentModelExtraParameters>> initComponentModelExtraParams() {
-        List<ScheduleDict> dicts = dictMapper.listDictByType(DictType.EXTRA_VERSION_TEMPLATE.type);
+        List<Dict> dicts = dictMapper.listDictByType(DictType.EXTRA_VERSION_TEMPLATE.type);
         return parseComponentConfig(dicts, ComponentModelExtraParameters::new);
     }
 
-    private <T> Map<EComponentType, Map<String, T>> parseComponentConfig(List<ScheduleDict> dicts, BiFunction<String, String, T> function) {
+    private <T> Map<EComponentType, Map<String, T>> parseComponentConfig(List<Dict> dicts, BiFunction<String, String, T> function) {
         return dicts.stream().collect(Collectors.groupingBy(scheduleDict -> Enum.valueOf(EComponentType.class, scheduleDict.getDependName()),
-                Collectors.collectingAndThen(Collectors.toCollection(ArrayList<ScheduleDict>::new),
-                        scheduleDicts -> scheduleDicts.stream().collect(Collectors.toMap(ScheduleDict::getDictName,
+                Collectors.collectingAndThen(Collectors.toCollection(ArrayList<Dict>::new),
+                        scheduleDicts -> scheduleDicts.stream().collect(Collectors.toMap(Dict::getDictName,
                                 d -> function.apply(d.getDictName(), d.getDictValue()))))));
     }
 
     private Map<EComponentType, ComponentModel> initComponentModels() {
-        List<ScheduleDict> dicts = dictMapper.listDictByType(DictType.COMPONENT_MODEL.type);
+        List<Dict> dicts = dictMapper.listDictByType(DictType.COMPONENT_MODEL.type);
         requiredNotEmptyName(dicts, DictType.COMPONENT_MODEL);
-        Map<EComponentType, ScheduleDict> typeMap = parseComponentTypes(dicts, DictType.COMPONENT_MODEL);
+        Map<EComponentType, Dict> typeMap = parseComponentTypes(dicts, DictType.COMPONENT_MODEL);
         return parseComponentModels(typeMap, DictType.COMPONENT_MODEL);
     }
 
-    private Map<EComponentType, ScheduleDict> parseComponentTypes(
-            List<ScheduleDict> dicts, DictType type) {
+    private Map<EComponentType, Dict> parseComponentTypes(
+            List<Dict> dicts, DictType type) {
         try {
             return dicts.stream()
                     .collect(Collectors.toMap(
@@ -105,7 +105,7 @@ public class Context {
     }
 
     private Map<EComponentType, ComponentModel> parseComponentModels(
-            Map<EComponentType, ScheduleDict> dicts, DictType type) {
+            Map<EComponentType, Dict> dicts, DictType type) {
         try {
             return dicts.keySet().stream()
                     .collect(Collectors.toMap(
@@ -122,14 +122,14 @@ public class Context {
 
 
     private Map<String, Long> initBaseTemplates() {
-        List<ScheduleDict> dicts = this.dictMapper.listDictByType(DictType.TYPENAME_MAPPING.type);
+        List<Dict> dicts = this.dictMapper.listDictByType(DictType.TYPENAME_MAPPING.type);
         requiredNotEmptyName(dicts, DictType.TYPENAME_MAPPING);
         Map<String, Long> res = parseTemplates(dicts, DictType.TYPENAME_MAPPING);
         requiredNegativeValue(res, DictType.TYPENAME_MAPPING);
         return res;
     }
 
-    private void requiredNotEmptyName(List<ScheduleDict> dicts, DictType type) {
+    private void requiredNotEmptyName(List<Dict> dicts, DictType type) {
         if (dicts.stream().anyMatch(scheduleDict -> StringUtils.isBlank(scheduleDict.getDictName()))) {
             throw new SystemException(Strings.format(
                     "There are empty name in dictionary of type {}",
@@ -139,10 +139,10 @@ public class Context {
     }
 
 
-    private Map<String, Long> parseTemplates(List<ScheduleDict> dicts, DictType type) {
+    private Map<String, Long> parseTemplates(List<Dict> dicts, DictType type) {
         try {
             return dicts.stream().collect(Collectors.toMap(
-                    ScheduleDict::getDictName,
+                    Dict::getDictName,
                     d -> Long.parseLong(d.getDictValue())
             ));
         } catch (IllegalStateException e) {

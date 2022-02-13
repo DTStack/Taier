@@ -25,7 +25,7 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ComponentConfig;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.DictMapper;
@@ -121,7 +121,7 @@ public class ComponentConfigService {
      * @return
      */
     public List<ComponentConfig> loadDefaultTemplate(String typeName) {
-        ScheduleDict typeNameMapping = dictMapper.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
+        Dict typeNameMapping = dictMapper.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
         if (null == typeNameMapping) {
             throw new RdosDefineException(ErrorCode.NOT_SUPPORT_COMPONENT);
         }
@@ -178,7 +178,7 @@ public class ComponentConfigService {
                 } else if (StringUtils.isNotBlank(component.getVersionValue())) {
                     //兼容老数据
                     String dependName = "hadoop3".equalsIgnoreCase(component.getVersionValue()) || component.getVersionValue().startsWith("3") ? "Hadoop3" : "Hadoop2";
-                    List<ScheduleDict> hadoopVersion = dictMapper.getByDependName(DictType.HADOOP_VERSION.type, dependName);
+                    List<Dict> hadoopVersion = dictMapper.getByDependName(DictType.HADOOP_VERSION.type, dependName);
                     if (!CollectionUtils.isEmpty(hadoopVersion)) {
                         componentVO.setVersionValue(hadoopVersion.get(0).getDictName());
                     }

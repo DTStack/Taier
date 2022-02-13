@@ -28,7 +28,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
@@ -261,8 +261,8 @@ public class ComponentService {
             return "hdfs2";
         }
         String versionName = component.getVersionName();
-        List<ScheduleDict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
-        Optional<ScheduleDict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
+        Optional<Dict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
         if (dbTypeNames.isPresent()) {
             return dbTypeNames.get().getDictValue();
         }

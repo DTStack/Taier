@@ -20,27 +20,27 @@ package com.dtstack.taier.dao.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
 
-public interface EngineJobCacheMapper extends BaseMapper<EngineJobCache> {
+public interface ScheduleEngineJobCacheMapper extends BaseMapper<ScheduleEngineJobCache> {
 
-    EngineJobCache getOne(@Param("jobId")String jobId);
+    ScheduleEngineJobCache getOne(@Param("jobId")String jobId);
 
     List<String> listNames(@Param("jobName") String jobName);
 
     List<String> getJobResources();
 
-    List<EngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
+    List<ScheduleEngineJobCache> listByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress, @Param("start") Integer start, @Param("pageSize") Integer pageSize);
 
     List<Map<String,Object>> groupByJobResourceFilterByCluster(@Param("nodeAddress") String nodeAddress, @Param("clusterName") String clusterName);
 
     Long countByJobResource(@Param("jobResource") String jobResource, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
-    List<EngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource);
+    List<ScheduleEngineJobCache> listByStage(@Param("startId") Long id, @Param("nodeAddress") String nodeAddress, @Param("stage") Integer stage, @Param("jobResource") String jobResource);
 
     Long minPriorityByStage(@Param("jobResource") String jobResource, @Param("stages") List<Integer> stages, @Param("nodeAddress") String nodeAddress);
 

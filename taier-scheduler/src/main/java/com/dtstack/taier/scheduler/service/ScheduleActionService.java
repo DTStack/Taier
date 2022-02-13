@@ -21,6 +21,8 @@ package com.dtstack.taier.scheduler.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
@@ -30,12 +32,12 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.AddressUtil;
 import com.dtstack.taier.common.util.DtJobIdWorker;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
-import com.dtstack.taier.dao.domain.EngineJobRetry;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taier.dao.mapper.EngineJobRetryMapper;
+import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -81,7 +83,7 @@ public class ScheduleActionService {
     private ScheduleJobCacheService scheduleJobCacheService;
 
     @Autowired
-    private EngineJobRetryMapper engineJobRetryMapper;
+    private ScheduleEngineJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private JobDealer jobDealer;
@@ -105,9 +107,6 @@ public class ScheduleActionService {
     private ScheduleJobExpandService scheduleJobExpandService;
 
     private final ObjectMapper objMapper = new ObjectMapper();
-
-    private static final String RUN_JOB_NAME = "runJob";
-    private static final String RUN_DELIMITER = "_";
 
     private static final PropertyFilter propertyFilter = (object, name, value) ->
             !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
@@ -180,7 +179,7 @@ public class ScheduleActionService {
         String scheduleConf = batchTask.getScheduleConf();
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
-        scheduleJob.setJobName(RUN_JOB_NAME+RUN_DELIMITER+batchTask.getName()+RUN_DELIMITER+cycTime);
+        scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER+batchTask.getName()+ CommonConstant.RUN_DELIMITER +cycTime);
         scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(batchTask.getComputeType());
 
@@ -309,7 +308,8 @@ public class ScheduleActionService {
         }
         boolean result = RdosTaskStatus.canStart(scheduleJob.getStatus());
         if (result) {
-            engineJobRetryMapper.removeByJobId(jobId);
+            engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
+                    .eq(ScheduleEngineJobRetry::getJobId,jobId));
             if (!RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
                 scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 scheduleJobService.updateByJobId(scheduleJob);
@@ -385,14 +385,14 @@ public class ScheduleActionService {
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
     public List<ActionRetryLogVO> retryLog(String jobId) {
-
-        if (StringUtils.isBlank(jobId)){
+        if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         List<ActionRetryLogVO> logs = new ArrayList<>(5);
-        List<EngineJobRetry> batchJobRetrys = engineJobRetryMapper.listJobRetryByJobId(jobId);
-        if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
-            batchJobRetrys.forEach(jobRetry->{
+        List<ScheduleEngineJobRetry> jobRetries = engineJobRetryMapper.selectList(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
+                .eq(ScheduleEngineJobRetry::getJobId, jobId).last(" limit 5"));
+        if (CollectionUtils.isNotEmpty(jobRetries)) {
+            jobRetries.forEach(jobRetry -> {
                 ActionRetryLogVO vo = new ActionRetryLogVO();
                 vo.setRetryNum(jobRetry.getRetryNum());
                 vo.setLogInfo(jobRetry.getLogInfo());
@@ -416,7 +416,10 @@ public class ScheduleActionService {
         }
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         //数组库中存储的retryNum为0开始的索引位置
-        EngineJobRetry jobRetry = engineJobRetryMapper.getJobRetryByJobId(jobId, retryNum - 1);
+        ScheduleEngineJobRetry jobRetry = engineJobRetryMapper
+                .selectOne(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
+                .eq(ScheduleEngineJobRetry::getJobId, jobId)
+                        .eq(ScheduleEngineJobRetry::getRetryNum, retryNum - 1));
         ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
             vo.setRetryNum(jobRetry.getRetryNum());
@@ -426,7 +429,8 @@ public class ScheduleActionService {
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getTenantId());
                 if (engineLog != null){
                     LOGGER.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
-                    engineJobRetryMapper.updateEngineLog(jobRetry.getId(), engineLog);
+                    jobRetry.setEngineLog(engineLog);
+                    engineJobRetryMapper.updateById(jobRetry);
                 } else {
                     engineLog = "";
                 }
