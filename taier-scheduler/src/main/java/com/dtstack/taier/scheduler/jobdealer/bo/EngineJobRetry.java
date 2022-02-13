@@ -25,7 +25,7 @@ import com.dtstack.taier.pluginapi.JobClient;
 /**
  * @author toutian
  */
-public class EngineJobRetry extends com.dtstack.taier.dao.domain.EngineJobRetry {
+public class EngineJobRetry extends com.dtstack.taier.dao.domain.ScheduleEngineJobRetry {
 
     public static EngineJobRetry toEntity(ScheduleJob batchJob, JobClient jobClient) {
         EngineJobRetry batchJobRetry = new EngineJobRetry();
@@ -34,8 +34,6 @@ public class EngineJobRetry extends com.dtstack.taier.dao.domain.EngineJobRetry 
         batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
         batchJobRetry.setRetryNum(batchJob.getRetryNum());
         batchJobRetry.setStatus(batchJob.getStatus());
-//        batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
-//        batchJobRetry.setGmtModified(batchJob.getGmtModified());
 
         if (batchJob.getApplicationId() == null) {
             batchJobRetry.setApplicationId(jobClient.getApplicationId());
@@ -47,15 +45,6 @@ public class EngineJobRetry extends com.dtstack.taier.dao.domain.EngineJobRetry 
         } else {
             batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
         }
-//        try {
-//            if (StringUtils.isEmpty(batchJob.getLogInfo()) && jobClient.getJobResult() != null) {
-//                batchJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
-//            } else {
-//                batchJobRetry.setLogInfo(batchJob.getLogInfo());
-//            }
-//        } catch (Throwable e) {
-//            batchJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
-//        }
         return batchJobRetry;
     }
 

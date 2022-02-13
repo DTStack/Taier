@@ -7,24 +7,24 @@
     </sql>
 
 
-    <select id="listDictByType" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
+    <select id="listDictByType" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM schedule_dict
+        FROM dict
         WHERE `type` = #{type} AND is_deleted = 0 ORDER BY sort
     </select>
 
-    <select id="getTypeDefault" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
+    <select id="getTypeDefault" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM schedule_dict
+        FROM dict
         WHERE `type` = #{type} AND is_deleted = 0 AND is_default = 1 LIMIT 1
     </select>
 
-    <select id="getByNameValue" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
+    <select id="getByNameValue" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM schedule_dict
+        FROM dict
         WHERE `type` = #{type} AND is_deleted = 0 AND dict_name = #{dictName}
         <if test="dictValue!=null">
             AND dict_value = #{dictValue}
@@ -35,10 +35,10 @@
         ORDER BY sort LIMIT 1
     </select>
 
-    <select id="getByDependName" resultType="com.dtstack.taier.dao.domain.ScheduleDict">
+    <select id="getByDependName" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM schedule_dict
+        FROM dict
         WHERE `type` = #{type} AND is_deleted = 0 AND depend_name = #{dependName}
         ORDER BY sort
     </select>

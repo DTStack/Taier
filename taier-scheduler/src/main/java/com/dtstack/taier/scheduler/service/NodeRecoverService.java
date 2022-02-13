@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler.service;
 
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
@@ -77,12 +77,12 @@ public class NodeRecoverService {
         try {
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
+                List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
                 List<JobClient> afterJobClients = new ArrayList<>(jobCaches.size());
-                for (EngineJobCache jobCache : jobCaches) {
+                for (ScheduleEngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);

@@ -76,7 +76,7 @@ public class ConsoleService {
     private ScheduleJobMapper scheduleJobMapper;
 
     @Autowired
-    private EngineJobCacheMapper engineJobCacheMapper;
+    private ScheduleEngineJobCacheMapper scheduleEngineJobCacheMapper;
 
     @Autowired
     private ClusterMapper clusterMapper;
@@ -119,7 +119,7 @@ public class ConsoleService {
         if (jobId == null) {
             return null;
         }
-        EngineJobCache engineJobCache = engineJobCacheMapper.getOne(jobId);
+        ScheduleEngineJobCache engineJobCache = scheduleEngineJobCacheMapper.getOne(jobId);
         if (engineJobCache == null) {
             return null;
         }
@@ -140,7 +140,7 @@ public class ConsoleService {
 
     public List<String> listNames( String jobName) {
         try {
-            return engineJobCacheMapper.listNames(jobName);
+            return scheduleEngineJobCacheMapper.listNames(jobName);
         } catch (Exception e) {
             LOGGER.error("", e);
         }
@@ -148,14 +148,14 @@ public class ConsoleService {
     }
 
     public List<String> jobResources() {
-        return engineJobCacheMapper.getJobResources();
+        return scheduleEngineJobCacheMapper.getJobResources();
     }
 
     /**
      * 根据计算引擎类型显示任务
      */
     public Collection<Map<String, Object>> overview(String nodeAddress, String clusterName) {
-        List<Map<String, Object>> groupResult = engineJobCacheMapper.groupByJobResourceFilterByCluster(nodeAddress, clusterName);
+        List<Map<String, Object>> groupResult = scheduleEngineJobCacheMapper.groupByJobResourceFilterByCluster(nodeAddress, clusterName);
         if (CollectionUtils.isEmpty(groupResult)) {
             Map<String, Map<String, Object>> overview = new HashMap<>(16);
             return overview.values();
@@ -222,11 +222,11 @@ public class ConsoleService {
         Long count = 0L;
         int start = (currentPage - 1) * pageSize;
         try {
-            count = engineJobCacheMapper.countByJobResource(jobResource, stage, nodeAddress);
+            count = scheduleEngineJobCacheMapper.countByJobResource(jobResource, stage, nodeAddress);
 
             if (count > 0) {
-                List<EngineJobCache> engineJobCaches = engineJobCacheMapper.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
-                List<String> jobIds = engineJobCaches.stream().map(EngineJobCache::getJobId).collect(Collectors.toList());
+                List<ScheduleEngineJobCache> engineJobCaches = scheduleEngineJobCacheMapper.listByJobResource(jobResource, stage, nodeAddress, start, pageSize);
+                List<String> jobIds = engineJobCaches.stream().map(ScheduleEngineJobCache::getJobId).collect(Collectors.toList());
                 List<ScheduleJob> rdosJobByJobIds = scheduleJobMapper.getRdosJobByJobIds(jobIds);
                 Map<String, ScheduleJob> scheduleJobMap = rdosJobByJobIds.stream().collect(Collectors.toMap(ScheduleJob::getJobId, u -> u));
                 Set<Long> tenantIds = rdosJobByJobIds.stream().map(ScheduleJob::getTenantId).collect(Collectors.toSet());
@@ -234,7 +234,7 @@ public class ConsoleService {
                         .collect(Collectors.toMap(Tenant::getId, t -> t));
 
                 Map<String,String> pluginInfoCache = new HashMap<>();
-                for (EngineJobCache engineJobCache : engineJobCaches) {
+                for (ScheduleEngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
@@ -250,7 +250,7 @@ public class ConsoleService {
         return new PageResult<>(data,count.intValue(),pageQuery);
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant,Map<String,String> pluginInfoCache) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, ScheduleEngineJobCache engineJobCache, Tenant tenant, Map<String,String> pluginInfoCache) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());
@@ -261,7 +261,7 @@ public class ConsoleService {
         theJobMap.put("tenantName", null == tenant ? "" : tenant.getTenantName());
     }
 
-    private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, EngineJobCache engineJobCache, Tenant tenant) {
+    private ConsoleJobInfoVO fillJobInfo(ParamAction paramAction, ScheduleJob scheduleJob, ScheduleEngineJobCache engineJobCache, Tenant tenant) {
         ConsoleJobInfoVO infoVO = new ConsoleJobInfoVO();
         infoVO.setStatus(scheduleJob.getStatus());
         infoVO.setExecStartTime(scheduleJob.getExecStartTime());
@@ -276,7 +276,7 @@ public class ConsoleService {
 
     public Boolean jobStick( String jobId) {
         try {
-            EngineJobCache engineJobCache = engineJobCacheMapper.getOne(jobId);
+            ScheduleEngineJobCache engineJobCache = scheduleEngineJobCacheMapper.getOne(jobId);
             if(null == engineJobCache){
                 return false;
             }
@@ -289,7 +289,7 @@ public class ConsoleService {
                     jobDealer.updateJobStatus(jobClient.getJobId(), jobStatus);
                 });
 
-                Long minPriority = engineJobCacheMapper.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
+                Long minPriority = scheduleEngineJobCacheMapper.minPriorityByStage(engineJobCache.getJobResource(), Lists.newArrayList(EJobCacheStage.PRIORITY.getStage()), engineJobCache.getNodeAddress());
                 minPriority = minPriority == null ? 0 : minPriority;
                 jobClient.setPriority(minPriority - 1);
 
@@ -346,7 +346,7 @@ public class ConsoleService {
         if (CollectionUtils.isNotEmpty(jobIdList)) {
             //杀死指定jobIdList的任务
             if (EJobCacheStage.unSubmitted().contains(stage)) {
-                Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIdList);
+                Integer deleted = scheduleEngineJobCacheMapper.deleteByJobIds(jobIdList);
                 Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
                 LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
@@ -375,7 +375,7 @@ public class ConsoleService {
 
             long startId = 0L;
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource);
+                List<ScheduleEngineJobCache> jobCaches = scheduleEngineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -383,19 +383,19 @@ public class ConsoleService {
                     break;
                 }
                 List<String> jobIds = new ArrayList<>(jobCaches.size());
-                for (EngineJobCache jobCache : jobCaches) {
+                for (ScheduleEngineJobCache jobCache : jobCaches) {
                     startId = jobCache.getId();
                     jobIds.add(jobCache.getJobId());
                 }
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
-                    Integer deleted = engineJobCacheMapper.deleteByJobIds(jobIds);
+                    Integer deleted = scheduleEngineJobCacheMapper.deleteByJobIds(jobIds);
                     Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
                     LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑
                     List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(jobIds);
-                    for (EngineJobCache jobCache : jobCaches) {
+                    for (ScheduleEngineJobCache jobCache : jobCaches) {
                         startId = jobCache.getId();
                         if (alreadyExistJobIds.contains(jobCache.getJobId())) {
                             LOGGER.info("jobId:{} ignore insert stop record, because is already exist in table.", jobCache.getJobId());

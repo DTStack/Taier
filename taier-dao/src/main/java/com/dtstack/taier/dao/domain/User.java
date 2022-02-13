@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 /**
  * @author: toutian
  */
-@TableName("console_user")
+@TableName("user")
 public class User extends BaseEntity {
 
     private String userName;

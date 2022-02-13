@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 
 @TableName("schedule_engine_job_cache")
-public class EngineJobCache {
+public class ScheduleEngineJobCache {
 
     /**
      * 唯一标识
@@ -218,7 +218,7 @@ public class EngineJobCache {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        EngineJobCache that = (EngineJobCache) o;
+        ScheduleEngineJobCache that = (ScheduleEngineJobCache) o;
         return Objects.equals(id, that.id) && Objects.equals(jobId, that.jobId) && Objects.equals(jobName, that.jobName) && Objects.equals(computeType, that.computeType) && Objects.equals(stage, that.stage) && Objects.equals(jobInfo, that.jobInfo) && Objects.equals(nodeAddress, that.nodeAddress) && Objects.equals(jobResource, that.jobResource) && Objects.equals(jobPriority, that.jobPriority) && Objects.equals(isFailover, that.isFailover) && Objects.equals(waitReason, that.waitReason) && Objects.equals(tenantId, that.tenantId) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(isDeleted, that.isDeleted);
     }
 
