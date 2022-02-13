@@ -10,7 +10,7 @@ import lombok.Data;
  * @Date: 2021/3/10
  */
 @Data
-@TableName("dsc_classify")
+@TableName("datasource_classify")
 public class DsClassify extends BaseModel {
 
     /**
