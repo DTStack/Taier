@@ -18,24 +18,35 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.dao.mapper.DevelopTaskTemplateDao;
+import com.dtstack.taier.dao.domain.TenantComponent;
+import com.dtstack.taier.dao.mapper.DevelopTenantComponentDao;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * 项目关联引擎相关
+ * Date: 2019/6/3
+ * Company: www.dtstack.com
+ * @author xuchao
+ */
 
 @Service
-public class BatchTaskTemplateService {
+@Slf4j
+public class DevelopTenantComponentService {
 
     @Autowired
-    private DevelopTaskTemplateDao developTaskTemplateDao;
+    private DevelopTenantComponentDao developTenantComponentDao;
 
-    /**
-     * 根据条件 获取模版
-     *
-     * @param taskType
-     * @param type
-     * @return
-     */
-    public String getContentByType(Integer taskType, Integer type) {
-        return developTaskTemplateDao.getContentByType(taskType, type);
+    public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
+        return developTenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public boolean insert(TenantComponent tenantComponent) {
+        return developTenantComponentDao.insert(tenantComponent);
+    }
+
+
 }

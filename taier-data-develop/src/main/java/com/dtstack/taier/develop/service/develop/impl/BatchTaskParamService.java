@@ -29,7 +29,7 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
-import com.dtstack.taier.dao.mapper.BatchTaskParamDao;
+import com.dtstack.taier.dao.mapper.DevelopTaskParamDao;
 import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
@@ -56,7 +56,7 @@ public class BatchTaskParamService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchTaskParamService.class);
 
     @Autowired
-    private BatchTaskParamDao batchTaskParamDao;
+    private DevelopTaskParamDao developTaskParamDao;
 
     @Autowired
     private BatchSysParamService batchSysParamService;
@@ -231,22 +231,22 @@ public class BatchTaskParamService {
      * @param batchParamDTOS
      */
     public List<BatchTaskParam> saveTaskParams(final Long taskId, final List<BatchParamDTO> batchParamDTOS) {
-        this.batchTaskParamDao.deleteByTaskId(taskId);
+        this.developTaskParamDao.deleteByTaskId(taskId);
         final List<BatchTaskParam> batchTaskParams = this.buildBatchTaskParams(taskId, batchParamDTOS);
         return batchTaskParams;
     }
 
     public BatchTaskParam addOrUpdate(final BatchTaskParam batchTaskParam) {
         if (batchTaskParam.getId() > 0) {
-            this.batchTaskParamDao.update(batchTaskParam);
+            this.developTaskParamDao.update(batchTaskParam);
         } else {
-            this.batchTaskParamDao.insert(batchTaskParam);
+            this.developTaskParamDao.insert(batchTaskParam);
         }
         return batchTaskParam;
     }
 
     public void deleteTaskParam(long taskId) {
-        this.batchTaskParamDao.deleteByTaskId(taskId);
+        this.developTaskParamDao.deleteByTaskId(taskId);
     }
 
     public List<BatchTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
@@ -301,7 +301,7 @@ public class BatchTaskParamService {
     }
 
     public List<BatchTaskParam> getTaskParam(final long taskId) {
-        List<BatchTaskParam> taskParams = batchTaskParamDao.listByTaskId(taskId);
+        List<BatchTaskParam> taskParams = developTaskParamDao.listByTaskId(taskId);
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParam taskParamShade : taskParams) {
             if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {

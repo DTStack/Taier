@@ -30,11 +30,11 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.mapper.BatchFunctionDao;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
-import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.dao.mapper.DevelopFunctionDao;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -66,7 +66,7 @@ public class BatchFunctionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchFunctionService.class);
 
     @Autowired
-    private BatchFunctionDao batchFunctionDao;
+    private DevelopFunctionDao developFunctionDao;
 
     @Autowired
     private BatchFunctionResourceService batchFunctionResourceService;
@@ -101,7 +101,7 @@ public class BatchFunctionService {
     public void init() {
         Map<String, BatchFunction> batchFunctionMap = systemFunctions.getIfPresent(SYSTEM_FUNCTIONS);
         if (batchFunctionMap == null || batchFunctionMap.size() == 0) {
-            List<BatchFunction> listSystemFunction = batchFunctionDao.listSystemFunction(null);
+            List<BatchFunction> listSystemFunction = developFunctionDao.listSystemFunction(null);
             batchFunctionMap = Maps.newConcurrentMap();
             for (BatchFunction systemFunction : listSystemFunction) {
                 batchFunctionMap.put(systemFunction.getName(), systemFunction);
@@ -118,7 +118,7 @@ public class BatchFunctionService {
      * @return
      */
     public BatchFunctionVO getFunction(Long functionId) {
-        BatchFunction batchFunction = batchFunctionDao.getOne(functionId);
+        BatchFunction batchFunction = developFunctionDao.getOne(functionId);
         if (Objects.isNull(batchFunction)) {
             return new BatchFunctionVO();
         }
@@ -231,9 +231,9 @@ public class BatchFunctionService {
      */
     private BatchFunction addOrUpdate(BatchFunction batchFunction) {
         if (batchFunction.getId() > 0) {
-            batchFunctionDao.update(batchFunction);
+            developFunctionDao.update(batchFunction);
         } else {
-            batchFunctionDao.insert(batchFunction);
+            developFunctionDao.insert(batchFunction);
         }
         return batchFunction;
     }
@@ -245,7 +245,7 @@ public class BatchFunctionService {
      * @param nodePid
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
-        BatchFunction bf = batchFunctionDao.getOne(functionId);
+        BatchFunction bf = developFunctionDao.getOne(functionId);
         if (Objects.isNull(bf)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
@@ -266,7 +266,7 @@ public class BatchFunctionService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteFunction(Long userId, Long functionId) {
-        BatchFunction batchFunction = batchFunctionDao.getOne(functionId);
+        BatchFunction batchFunction = developFunctionDao.getOne(functionId);
         if (Objects.isNull(batchFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
@@ -290,8 +290,8 @@ public class BatchFunctionService {
      * @return
      */
     public List<String> getAllFunctionName(Long tenantId, Integer taskType) {
-        List<String> nameList = batchFunctionDao.listNameByTenantId(tenantId, taskType);
-        List<BatchFunction> systemFunction = batchFunctionDao.listSystemFunction(taskType);
+        List<String> nameList = developFunctionDao.listNameByTenantId(tenantId, taskType);
+        List<BatchFunction> systemFunction = developFunctionDao.listSystemFunction(taskType);
         List<String> systemNames = systemFunction.stream().map(BatchFunction::getName).collect(Collectors.toList());
         systemNames.addAll(nameList);
         return systemNames;
@@ -306,7 +306,7 @@ public class BatchFunctionService {
      * @return
      */
     public List<BatchFunction> listTenantFunction(Long tenantId, Integer functionType, Integer taskType) {
-        return batchFunctionDao.listTenantFunction(tenantId, functionType, taskType);
+        return developFunctionDao.listTenantFunction(tenantId, functionType, taskType);
     }
 
 
@@ -351,7 +351,7 @@ public class BatchFunctionService {
         for (String sqlFunctionName : sqlFunctionNames) {
             // 如果sql中的函数存在于此项目下
             if (customFunctionNames.contains(sqlFunctionName)) {
-                BatchFunction byNameAndTenantId = batchFunctionDao.getByNameAndTenantId(tenantId, sqlFunctionName);
+                BatchFunction byNameAndTenantId = developFunctionDao.getByNameAndTenantId(tenantId, sqlFunctionName);
                 sb.append(createTempUDF(byNameAndTenantId));
             }
         }
@@ -384,7 +384,7 @@ public class BatchFunctionService {
      * @return
      */
     public List<BatchFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
-        return batchFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
+        return developFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
     }
 
     /**
@@ -430,7 +430,7 @@ public class BatchFunctionService {
      * @return
      */
     public List<BatchFunction> listByNameAndTenantId(Long tenantId, String name, Integer type){
-        return batchFunctionDao.listByNameAndTenantId(tenantId, name, type);
+        return developFunctionDao.listByNameAndTenantId(tenantId, name, type);
     }
 
 }

@@ -16,26 +16,14 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop.impl;
+package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.mapper.DevelopTaskTemplateDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.dtstack.taier.dao.domain.BatchTaskTemplate;
+import org.apache.ibatis.annotations.Param;
 
-@Service
-public class BatchTaskTemplateService {
+public interface DevelopTaskTemplateDao {
 
-    @Autowired
-    private DevelopTaskTemplateDao developTaskTemplateDao;
+    Integer update(BatchTaskTemplate taskTemplate);
 
-    /**
-     * 根据条件 获取模版
-     *
-     * @param taskType
-     * @param type
-     * @return
-     */
-    public String getContentByType(Integer taskType, Integer type) {
-        return developTaskTemplateDao.getContentByType(taskType, type);
-    }
+    String getContentByType(@Param("taskType") Integer taskType, @Param("type") Integer type);
 }
