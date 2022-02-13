@@ -48,7 +48,7 @@ public class ConsoleClusterService {
     private ComponentMapper componentMapper;
 
     @Autowired
-    private KerberosMapper kerberosMapper;
+    private ConsoleKerberosMapper consoleKerberosMapper;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -57,7 +57,7 @@ public class ConsoleClusterService {
     private ComponentService componentService;
 
     @Autowired
-    private QueueMapper queueMapper;
+    private ConsoleQueueMapper consoleQueueMapper;
 
     public Long addCluster(String clusterName) {
         if (clusterMapper.getByClusterName(clusterName) != null) {
@@ -115,7 +115,7 @@ public class ConsoleClusterService {
         Table<Integer, String, KerberosConfig> kerberosTable = null;
         // kerberos的配置
         kerberosTable = HashBasedTable.create();
-        for (KerberosConfig kerberosConfig : kerberosMapper.getByClusters(clusterId)) {
+        for (KerberosConfig kerberosConfig : consoleKerberosMapper.getByClusters(clusterId)) {
             kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion()) ?
                     StringUtils.EMPTY : kerberosConfig.getComponentVersion(), kerberosConfig);
         }
@@ -192,7 +192,7 @@ public class ConsoleClusterService {
                     Collectors.mapping(c -> EComponentType.getEngineTypeByComponent(EComponentType.getByCode(c.getComponentTypeCode()), c.getDeployType()), Collectors.toSet())));
         }
 
-        List<com.dtstack.taier.dao.domain.Queue> queues = queueMapper.listByClusterWithLeaf(clusterId);
+        List<com.dtstack.taier.dao.domain.Queue> queues = consoleQueueMapper.listByClusterWithLeaf(clusterId);
 
         Map<Long, List<com.dtstack.taier.dao.domain.Queue>> engineQueueMapping = queues
                 .stream()

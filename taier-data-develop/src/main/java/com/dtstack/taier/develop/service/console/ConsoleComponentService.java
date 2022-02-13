@@ -19,7 +19,7 @@ import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
-import com.dtstack.taier.dao.mapper.KerberosMapper;
+import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.develop.model.ClusterFactory;
 import com.dtstack.taier.develop.model.Part;
 import com.dtstack.taier.develop.model.PartCluster;
@@ -91,7 +91,7 @@ public class ConsoleComponentService {
     private EnvironmentContext env;
 
     @Autowired
-    private KerberosMapper kerberosMapper;
+    private ConsoleKerberosMapper consoleKerberosMapper;
 
     @Autowired
     private WorkerOperator workerOperator;
@@ -340,7 +340,7 @@ public class ConsoleComponentService {
     private boolean isOpenKerberos(String kerberosFileName, Component dbComponent) {
         boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
         if (!isOpenKerberos && null != dbComponent) {
-            KerberosConfig componentKerberos = kerberosMapper.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),
+            KerberosConfig componentKerberos = consoleKerberosMapper.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),
                     ComponentVersionUtil.formatMultiVersion(dbComponent.getComponentTypeCode(), dbComponent.getVersionValue()));
             if (componentKerberos != null) {
                 isOpenKerberos = true;
@@ -372,14 +372,14 @@ public class ConsoleComponentService {
             md5Key = uploadResourceToSftp(clusterId, resources, kerberosFileName, sftpConfig, addComponent, dbComponent, principals, principal);
         } else if (CollectionUtils.isEmpty(resources) && StringUtils.isNotBlank(principal)) {
             //直接更新认证信息
-            KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
+            KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
                     ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode()) ?
                             StringUtils.isNotBlank(addComponent.getVersionValue()) ? addComponent.getVersionValue() :
                                     componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentCode) : null);
             if (null != kerberosConfig) {
                 kerberosConfig.setPrincipal(principal);
                 kerberosConfig.setPrincipals(principals);
-                kerberosMapper.updateById(kerberosConfig);
+                consoleKerberosMapper.updateById(kerberosConfig);
             }
         }
         return md5Key;
@@ -592,7 +592,7 @@ public class ConsoleComponentService {
         }
         String componentVersion = addComponent.getVersionValue();
         //更新数据库kerberos信息
-        KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
                 ComponentVersionUtil.formatMultiVersion(addComponent.getComponentTypeCode(), componentVersion));
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
@@ -619,9 +619,9 @@ public class ConsoleComponentService {
         }
 
         if (isFirstOpenKerberos) {
-            kerberosMapper.insert(kerberosConfig);
+            consoleKerberosMapper.insert(kerberosConfig);
         } else {
-            kerberosMapper.updateById(kerberosConfig);
+            consoleKerberosMapper.updateById(kerberosConfig);
         }
         return remoteDirKerberos;
     }
@@ -805,7 +805,7 @@ public class ConsoleComponentService {
         addComponent.setVersionValue(componentVersion);
         updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, null, null);
 
-        List<KerberosConfig> kerberosConfigs = kerberosMapper.listAll();
+        List<KerberosConfig> kerberosConfigs = consoleKerberosMapper.listAll();
         return mergeKrb5(kerberosConfigs);
     }
 
@@ -862,7 +862,7 @@ public class ConsoleComponentService {
             LOGGER.info("mergeKrb5Content is {}", mergeKrb5Content);
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 kerberosConfig.setMergeKrbContent(mergeKrb5Content);
-                kerberosMapper.updateById(kerberosConfig);
+                consoleKerberosMapper.updateById(kerberosConfig);
                 LOGGER.info("Krb5[{}/krb5.conf] merge successed!", kerberosConfig.getRemotePath());
             }
         } catch (Exception e) {
@@ -882,11 +882,11 @@ public class ConsoleComponentService {
     public void updateKrb5Conf(String krb5Content) {
         try {
             Krb5FileUtil.checkKrb5Content(krb5Content);
-            List<KerberosConfig> kerberosConfigs = kerberosMapper.listAll();
+            List<KerberosConfig> kerberosConfigs = consoleKerberosMapper.listAll();
             for (KerberosConfig kerberosConfig : kerberosConfigs) {
                 String remotePath = kerberosConfig.getRemotePath();
                 kerberosConfig.setMergeKrbContent(krb5Content);
-                kerberosMapper.updateById(kerberosConfig);
+                consoleKerberosMapper.updateById(kerberosConfig);
                 LOGGER.info("Update krb5 remotePath {}", remotePath);
             }
         } catch (Exception e) {
@@ -907,7 +907,7 @@ public class ConsoleComponentService {
         if (Objects.isNull(component)) {
             return;
         }
-        kerberosMapper.deleteByComponentId(component.getId());
+        consoleKerberosMapper.deleteByComponentId(component.getId());
         Component updateComponent = new Component();
         updateComponent.setId(componentId);
         updateComponent.setKerberosFileName("");
@@ -1077,7 +1077,7 @@ public class ConsoleComponentService {
     private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap, Component component) {
         ComponentTestResult testResult = new ComponentTestResult();
         try {
-            KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(cluster.getId(), component.getComponentTypeCode(),
+            KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), component.getComponentTypeCode(),
                     ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode()) ?
                             StringUtils.isNotBlank(component.getVersionValue()) ? component.getVersionValue() : componentMapper.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(), component.getComponentTypeCode()) : null);
             String componentConfig = componentService.getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class, null);
@@ -1331,7 +1331,7 @@ public class ConsoleComponentService {
         if (null != files) {
             if (DownloadType.Kerberos.getCode() == downloadType) {
                 Long clusterId = componentMapper.getClusterIdByComponentId(componentId);
-                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.isMultiVersionComponent(componentType) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType) : null);
+                KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.isMultiVersionComponent(componentType) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType) : null);
                 if (null != kerberosConfig) {
                     zipFilename = kerberosConfig.getName() + ZIP_SUFFIX;
                 }
@@ -1359,7 +1359,7 @@ public class ConsoleComponentService {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
         componentMapper.deleteById(componentId);
-        kerberosMapper.deleteByComponentId(component.getId());
+        consoleKerberosMapper.deleteByComponentId(component.getId());
         componentConfigService.deleteComponentConfig(componentId);
         try {
             this.updateCache();
@@ -1377,7 +1377,7 @@ public class ConsoleComponentService {
     }
 
     public KerberosConfig getKerberosConfig(Long clusterId, Integer componentType, String componentVersion) {
-        return kerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.formatMultiVersion(componentType, componentVersion));
+        return consoleKerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.formatMultiVersion(componentType, componentVersion));
     }
 
     /**
