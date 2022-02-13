@@ -24,7 +24,12 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.Cluster;
+import com.dtstack.taier.dao.domain.ClusterTenant;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.Queue;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.QueueMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
@@ -38,7 +43,7 @@ import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IComponentService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.impl.BatchCatalogueService;
-import com.dtstack.taier.develop.service.develop.impl.TenantComponentService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeToEScheduleJobMapping;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
 import com.dtstack.taier.develop.vo.console.ComponentBindDBVO;
@@ -88,7 +93,7 @@ public class TenantService {
     private BatchCatalogueService batchCatalogueService;
 
     @Autowired
-    private TenantComponentService tenantEngineService;
+    private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -289,7 +294,7 @@ public class TenantService {
             tenantEngine.setComponentIdentity(componentIdentity);
             tenantEngine.setCreateUserId(userId);
             tenantEngine.setStatus(0);
-            tenantEngineService.insert(tenantEngine);
+            developTenantComponentService.insert(tenantEngine);
         }
     }
 }

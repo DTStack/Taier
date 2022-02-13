@@ -18,8 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.dao.mapper.BatchFunctionResourceDao;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
+import com.dtstack.taier.dao.mapper.DevelopFunctionResourceDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.util.List;
 public class BatchFunctionResourceService {
 
     @Autowired
-    private BatchFunctionResourceDao batchFunctionResourceDao;
+    private DevelopFunctionResourceDao developFunctionResourceDao;
 
     /**
      * 新增记录
@@ -37,7 +37,7 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void insert(BatchFunctionResource batchFunctionResource) {
-        batchFunctionResourceDao.insert(batchFunctionResource);
+        developFunctionResourceDao.insert(batchFunctionResource);
     }
 
     /**
@@ -46,7 +46,7 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void updateByFunctionId(BatchFunctionResource batchFunctionResource) {
-        batchFunctionResourceDao.update(batchFunctionResource);
+        developFunctionResourceDao.update(batchFunctionResource);
     }
 
     /**
@@ -56,7 +56,7 @@ public class BatchFunctionResourceService {
      * @return
      */
     public BatchFunctionResource getResourceFunctionByFunctionId(Long functionId) {
-        return batchFunctionResourceDao.getResourceFunctionByFunctionId(functionId);
+        return developFunctionResourceDao.getResourceFunctionByFunctionId(functionId);
     }
 
     /**
@@ -65,7 +65,7 @@ public class BatchFunctionResourceService {
      * @param functionId
      */
     public void deleteByFunctionId(Long functionId) {
-        batchFunctionResourceDao.deleteByFunctionId(functionId);
+        developFunctionResourceDao.deleteByFunctionId(functionId);
     }
 
     /**
@@ -74,7 +74,7 @@ public class BatchFunctionResourceService {
      * @return
      */
     public  List<BatchFunctionResource> listByResourceId(Long resourceId) {
-        return batchFunctionResourceDao.listByResourceId(resourceId);
+        return developFunctionResourceDao.listByResourceId(resourceId);
     }
 
     /**
@@ -83,6 +83,6 @@ public class BatchFunctionResourceService {
      * @return
      */
     public List<BatchFunctionResource> listByFunctionResourceId(Long resource_Id) {
-        return batchFunctionResourceDao.listByFunctionResourceId(resource_Id);
+        return developFunctionResourceDao.listByFunctionResourceId(resource_Id);
     }
 }
