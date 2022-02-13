@@ -31,7 +31,7 @@ import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
-import com.dtstack.taier.dao.mapper.QueueMapper;
+import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
@@ -84,7 +84,7 @@ public class TenantService {
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private QueueMapper queueMapper;
+    private ConsoleQueueMapper consoleQueueMapper;
 
     @Autowired
     private ComponentService componentService;
@@ -128,7 +128,7 @@ public class TenantService {
                 .map(ClusterTenant::getQueueId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        Map<Long, Queue> queueMap = queueMapper.listByIds(queueIds)
+        Map<Long, Queue> queueMap = consoleQueueMapper.listByIds(queueIds)
                 .stream()
                 .collect(Collectors.toMap(Queue::getId, q -> q));
 
@@ -210,7 +210,7 @@ public class TenantService {
     }
 
     public void updateTenantQueue(Long tenantId, Long clusterId, Long queueId) {
-        Integer childCount = queueMapper.countByParentQueueId(queueId);
+        Integer childCount = consoleQueueMapper.countByParentQueueId(queueId);
         if (childCount != 0) {
             throw new RdosDefineException("The selected queue has sub-queues, and the correct sub-queues are selected", ErrorCode.DATA_NOT_FIND);
         }
@@ -228,7 +228,7 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void bindingQueue(String queueName,Long clusterId,
                              Long tenantId) {
-        List<Queue> queues = queueMapper.listByClusterId(clusterId);
+        List<Queue> queues = consoleQueueMapper.listByClusterId(clusterId);
         Optional<Queue> queueOptional = queues.stream().filter(queue -> queue.getQueueName().equals(queueName)).findFirst();
         if (!queueOptional.isPresent()) {
             throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);

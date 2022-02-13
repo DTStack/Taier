@@ -59,7 +59,7 @@ public class ClusterService {
     private ClusterMapper clusterMapper;
 
     @Autowired
-    private QueueMapper queueMapper;
+    private ConsoleQueueMapper consoleQueueMapper;
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
@@ -71,7 +71,7 @@ public class ClusterService {
     private ComponentMapper componentMapper;
 
     @Autowired
-    private KerberosMapper kerberosMapper;
+    private ConsoleKerberosMapper consoleKerberosMapper;
 
     /**
      * 内部使用
@@ -112,7 +112,7 @@ public class ClusterService {
         if (null != sftpConfig) {
             pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
         }
-        KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
         if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
@@ -133,11 +133,11 @@ public class ClusterService {
     public Queue getQueue(Long tenantId, Long clusterId) {
         //先获取绑定的
         Long queueId = clusterTenantMapper.getQueueIdByTenantId(tenantId);
-        Queue queue = queueMapper.selectById(queueId);
+        Queue queue = consoleQueueMapper.selectById(queueId);
         if (queue != null) {
             return queue;
         }
-        List<Queue> queues = queueMapper.listByClusterWithLeaf(clusterId);
+        List<Queue> queues = consoleQueueMapper.listByClusterWithLeaf(clusterId);
         if (CollectionUtils.isEmpty(queues)) {
             return null;
         }
@@ -190,7 +190,7 @@ public class ClusterService {
         if (configObj != null) {
             if (StringUtils.isNotBlank(component.getKerberosFileName())) {
                 //开启kerberos的kerberosFileName不为空
-                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
+                KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
                         ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? StringUtils.isNotBlank(componentVersion) ? componentVersion :
                                 componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
                 // 添加组件的kerberos配置信息 应用层使用
