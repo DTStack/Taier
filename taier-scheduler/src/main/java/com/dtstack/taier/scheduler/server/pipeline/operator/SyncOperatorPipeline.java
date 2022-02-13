@@ -20,7 +20,7 @@ package com.dtstack.taier.scheduler.server.pipeline.operator;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taier.common.constant.TaskConstant;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.DataSourceType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleType;
@@ -139,7 +139,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
             taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE);
         }
 
-        job = URLEncoder.encode(job.replace(TaskConstant.JOB_ID, scheduleJob.getJobId()), Charsets.UTF_8.name());
+        job = URLEncoder.encode(job.replace(CommonConstant.JOB_ID, scheduleJob.getJobId()), Charsets.UTF_8.name());
         taskExeArgs = String.format(JOB_ARGS_TEMPLATE, scheduleJob.getJobName(), job);
         if (savepointArgs != null) {
             taskExeArgs += " " + savepointArgs;

@@ -26,7 +26,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.exception.WorkerAccessException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
 import com.dtstack.taier.common.util.SleepUtil;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.EQueueSourceType;
@@ -206,7 +206,7 @@ public class JobSubmitDealer implements Runnable {
     }
 
     private boolean checkIsFinished(JobClient jobClient) {
-        EngineJobCache engineJobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
+        ScheduleEngineJobCache engineJobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
         try {
             if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
                 if (null == engineJobCache) {

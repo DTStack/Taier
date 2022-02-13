@@ -19,7 +19,7 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -28,14 +28,14 @@ import java.util.List;
  * @author yuebai
  * @date 2021-03-02
  */
-public interface DictMapper extends BaseMapper<ScheduleDict> {
+public interface DictMapper extends BaseMapper<Dict> {
 
-    List<ScheduleDict> listDictByType(@Param("type") Integer type);
+    List<Dict> listDictByType(@Param("type") Integer type);
 
-    ScheduleDict getTypeDefault(@Param("type") Integer type);
+    Dict getTypeDefault(@Param("type") Integer type);
 
-    ScheduleDict getByNameValue(@Param("type") Integer type, @Param("dictName") String dictName, @Param("dictValue") String dictValue,@Param("dependName") String dependName);
+    Dict getByNameValue(@Param("type") Integer type, @Param("dictName") String dictName, @Param("dictValue") String dictValue, @Param("dependName") String dependName);
 
-    List<ScheduleDict> getByDependName(@Param("type") Integer type,@Param("dependName") String dependName);
+    List<Dict> getByDependName(@Param("type") Integer type, @Param("dependName") String dependName);
 
 }
