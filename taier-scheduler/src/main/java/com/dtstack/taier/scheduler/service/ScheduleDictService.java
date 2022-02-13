@@ -22,7 +22,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ComponentConfig;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.DictMapper;
 import com.dtstack.taier.common.enums.DictType;
@@ -88,23 +88,23 @@ public class ScheduleDictService {
             return new ArrayList<>(0);
         }
         EComponentType componentType = EComponentType.getByCode(componentCode);
-        ScheduleDict extraConfig = dictMapper.getByNameValue(DictType.COMPONENT_CONFIG.type, version.trim(), null, componentType.name().toUpperCase());
+        Dict extraConfig = dictMapper.getByNameValue(DictType.COMPONENT_CONFIG.type, version.trim(), null, componentType.name().toUpperCase());
         if (null == extraConfig) {
             return new ArrayList<>(0);
         }
         return componentConfigMapper.listByComponentId(Long.parseLong(extraConfig.getDictValue()), false);
     }
 
-    public ScheduleDict getTypeDefaultValue(Integer type) {
+    public Dict getTypeDefaultValue(Integer type) {
         return dictMapper.getTypeDefault(type);
     }
 
-    public ScheduleDict getByNameAndValue(Integer dictType, String dictName, String dictValue, String dependName) {
+    public Dict getByNameAndValue(Integer dictType, String dictName, String dictValue, String dependName) {
         return dictMapper.getByNameValue(dictType, dictName, dictValue, dependName);
     }
 
     private List<ClientTemplate> getNormalVersion(Integer type) {
-        List<ScheduleDict> normalVersionDict = dictMapper.listDictByType(type);
+        List<Dict> normalVersionDict = dictMapper.listDictByType(type);
         if (CollectionUtils.isEmpty(normalVersionDict)) {
             return new ArrayList<>(0);
         }
@@ -124,14 +124,14 @@ public class ScheduleDictService {
     }
 
     private List<ClientTemplate> getHadoopVersion() {
-        List<ScheduleDict> scheduleDicts = dictMapper.listDictByType(DictType.HADOOP_VERSION.type);
-        Map<String, List<ScheduleDict>> versions = scheduleDicts
+        List<Dict> dicts = dictMapper.listDictByType(DictType.HADOOP_VERSION.type);
+        Map<String, List<Dict>> versions = dicts
                 .stream()
-                .collect(Collectors.groupingBy(ScheduleDict::getDependName));
+                .collect(Collectors.groupingBy(Dict::getDependName));
         List<ClientTemplate> clientTemplates = new ArrayList<>(versions.size());
         for (String dependName : versions.keySet()) {
-            List<ScheduleDict> keyDicts = versions.get(dependName);
-            keyDicts = keyDicts.stream().sorted(Comparator.comparing(ScheduleDict::getSort)).collect(Collectors.toList());
+            List<Dict> keyDicts = versions.get(dependName);
+            keyDicts = keyDicts.stream().sorted(Comparator.comparing(Dict::getSort)).collect(Collectors.toList());
             List<ClientTemplate> templates = keyDicts.stream().map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
                     .collect(Collectors.toList());
             ClientTemplate vendorFolder = new ClientTemplate();
@@ -151,7 +151,7 @@ public class ScheduleDictService {
         EComponentType componentType = scheduleJobType.getComponentType();
         Integer dictType = DictType.getByEComponentType(componentType);
         if (null != dictType) {
-            ScheduleDict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
+            Dict versionDict = getByNameAndValue(dictType, componentVersion.trim(), null, null);
             if (null != versionDict) {
                 return versionDict.getDictValue();
             }
@@ -159,7 +159,7 @@ public class ScheduleDictService {
         return "";
     }
 
-    public List<ScheduleDict> listByDictType(DictType dictType) {
+    public List<Dict> listByDictType(DictType dictType) {
         return dictMapper.listDictByType(dictType.type);
     }
 

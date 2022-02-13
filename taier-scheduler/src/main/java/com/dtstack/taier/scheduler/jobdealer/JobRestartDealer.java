@@ -18,9 +18,9 @@
 
 package com.dtstack.taier.scheduler.jobdealer;
 
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.dao.mapper.EngineJobRetryMapper;
+import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
@@ -56,7 +56,7 @@ public class JobRestartDealer {
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private EngineJobRetryMapper engineJobRetryMapper;
+    private ScheduleEngineJobRetryMapper engineJobRetryMapper;
 
     @Autowired
     private ShardCache shardCache;
@@ -113,7 +113,7 @@ public class JobRestartDealer {
      * @param jobCache
      * @return
      */
-    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob,EngineJobCache jobCache){
+    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob, ScheduleEngineJobCache jobCache){
         Pair<Boolean, JobClient> checkResult = checkJobInfo(scheduleJob.getJobId(), jobCache, status);
         if(!checkResult.getKey()){
             return false;
@@ -142,7 +142,7 @@ public class JobRestartDealer {
 
 
 
-    private Pair<Boolean, JobClient> checkJobInfo(String jobId, EngineJobCache jobCache, Integer status) {
+    private Pair<Boolean, JobClient> checkJobInfo(String jobId, ScheduleEngineJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
 
         if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
@@ -168,7 +168,7 @@ public class JobRestartDealer {
     }
 
     private boolean restartJob(JobClient jobClient){
-        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
+        ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
         if (jobCache == null) {
             LOGGER.info("jobId:{} restart but jobCache is null.", jobClient.getJobId());
             return false;

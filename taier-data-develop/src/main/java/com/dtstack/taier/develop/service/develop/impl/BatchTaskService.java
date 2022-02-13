@@ -67,7 +67,7 @@ import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.TaskParamTemplate;
 import com.dtstack.taier.dao.domain.Tenant;
@@ -284,7 +284,7 @@ public class BatchTaskService {
     @PostConstruct
     public void init() {
         //初始化可以支持的任务类型
-        final List<ScheduleDict> yarn = dictService.listByDictType(DictType.DATA_DEVELOP_SUPPORT_TASK_TYPE);
+        final List<Dict> yarn = dictService.listByDictType(DictType.DATA_DEVELOP_SUPPORT_TASK_TYPE);
         final List<Pair<String, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictDesc())).collect(Collectors.toList());
         jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
     }

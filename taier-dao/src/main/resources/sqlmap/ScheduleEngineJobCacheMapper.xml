@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taier.dao.mapper.EngineJobCacheMapper">
+<mapper namespace="com.dtstack.taier.dao.mapper.ScheduleEngineJobCacheMapper">
 
 
     <sql id="engine_simple">
@@ -11,7 +11,7 @@
         `id`,`job_id`,`job_name`,`compute_type`,`stage`,`job_info`,`node_address`,`gmt_create`,`gmt_modified`,`is_deleted`,`job_priority`,`job_resource`,`is_failover`,`wait_reason`
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taier.dao.domain.EngineJobCache">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.ScheduleEngineJobCache">
         select
         <include refid="engine_cache_filed" />
         from schedule_engine_job_cache
@@ -29,7 +29,7 @@
         WHERE is_deleted = 0
     </select>
 
-    <select id="listByJobResource" resultType="com.dtstack.taier.dao.domain.EngineJobCache">
+    <select id="listByJobResource" resultType="com.dtstack.taier.dao.domain.ScheduleEngineJobCache">
         SELECT
         <include refid="engine_cache_filed"/>
         FROM schedule_engine_job_cache
@@ -75,7 +75,7 @@
         </if>
     </select>
 
-    <select id="listByStage" resultType="com.dtstack.taier.dao.domain.EngineJobCache">
+    <select id="listByStage" resultType="com.dtstack.taier.dao.domain.ScheduleEngineJobCache">
         select
         <include refid="engine_simple"/>
         from schedule_engine_job_cache
