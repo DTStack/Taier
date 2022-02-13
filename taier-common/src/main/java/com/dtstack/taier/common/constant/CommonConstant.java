@@ -8,13 +8,16 @@ package com.dtstack.taier.common.constant;
  * @date 2022-01-25 15:06
  */
 public interface CommonConstant {
-    String UNDERLINE = "_";
+
     String DOT = ".";
 
     String XML_SUFFIX = ".xml";
     String ZIP_SUFFIX = ".zip";
     String JSON_SUFFIX = ".json";
 
-    String USER_CONF_PATH = "confPath";
+    String RUN_JOB_NAME = "runJob";
+    String RUN_DELIMITER = "_";
+
+    String JOB_ID = "${jobId}";
 
 }

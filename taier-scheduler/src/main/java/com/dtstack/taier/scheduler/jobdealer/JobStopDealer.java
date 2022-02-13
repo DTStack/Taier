@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.queue.DelayBlockingQueue;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
@@ -258,16 +258,16 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         break;
                     }
                     List<String> jobIds = jobStopRecords.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
-                    List<EngineJobCache> jobCaches = engineJobCacheService.getByJobIds(jobIds);
+                    List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.getByJobIds(jobIds);
 
                     //为了下面兼容异常状态的任务停止
-                    Map<String, EngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
-                    for (EngineJobCache jobCache : jobCaches) {
+                    Map<String, ScheduleEngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
+                    for (ScheduleEngineJobCache jobCache : jobCaches) {
                         jobCacheMap.put(jobCache.getJobId(), jobCache);
                     }
 
                     for (ScheduleJobOperatorRecord jobStopRecord : jobStopRecords) {
-                        EngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getJobId());
+                        ScheduleEngineJobCache jobCache = jobCacheMap.get(jobStopRecord.getJobId());
                         if (jobCache != null) {
                             //停止任务的时效性，发起停止操作要比任务存入jobCache表的时间要迟
                             if (jobCache.getGmtCreate().after(jobStopRecord.getGmtCreate())) {
@@ -362,7 +362,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private StoppedStatus stopJob(JobElement jobElement) throws Exception {
-        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                 .eq(ScheduleJob::getJobId, jobElement.jobId)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -429,7 +429,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     }
 
     private boolean checkExpired(JobElement jobElement) {
-        EngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
+        ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(jobElement.jobId);
         ScheduleJobOperatorRecord scheduleJobOperatorRecord = scheduleJobOperatorRecordService.getById(jobElement.stopJobId);
 
         if (jobCache != null && scheduleJobOperatorRecord != null && scheduleJobOperatorRecord.getGmtCreate() != null) {

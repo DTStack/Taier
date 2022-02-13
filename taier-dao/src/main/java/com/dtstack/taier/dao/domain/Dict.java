@@ -24,8 +24,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
  * @author yuebai
  * @date 2021-03-02
  */
-@TableName("schedule_dict")
-public class ScheduleDict extends BaseEntity {
+@TableName("dict")
+public class Dict extends BaseEntity {
     /**
      * 字典code
      */
