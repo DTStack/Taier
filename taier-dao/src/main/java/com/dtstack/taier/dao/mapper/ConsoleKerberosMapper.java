@@ -16,23 +16,21 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.pluginapi.constrant;
+package com.dtstack.taier.dao.mapper;
 
-/**
- * 组件涉及的字符
- * 统一维护
- * @author xinge
- */
-public class ComponentConstant {
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.dtstack.taier.dao.domain.KerberosConfig;
+import org.apache.ibatis.annotations.Param;
 
-    public static final String ANALYTICDB_FOR_PG_NAME = "adb-postgresql";
-    public static final String ANALYTICDB_FOR_PG_CONFIG_NAME = "AdbPostgresqlConf";
-    /**
-     * 插件名
-     */
-    public static final String ANALYTICDB_FOR_PG_PLUGIN = "adb-postgresql";
-    /**
-     * 引擎名
-     */
-    public static final String ANALYTICDB_FOR_PG_ENGINE = "AnalyticDb PostgreSQL";
+import java.util.List;
+
+public interface ConsoleKerberosMapper extends BaseMapper<KerberosConfig> {
+
+    KerberosConfig getByComponentType(@Param("clusterId") Long clusterId, @Param("componentType") Integer componentType,@Param("componentVersion")String componentVersion);
+
+    List<KerberosConfig> getByClusters(@Param("clusterId") Long clusterId);
+
+    List<KerberosConfig> listAll();
+
+    void deleteByComponentId(@Param("componentId") Long componentId);
 }

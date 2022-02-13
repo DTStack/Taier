@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface QueueMapper extends BaseMapper<Queue> {
+public interface ConsoleQueueMapper extends BaseMapper<Queue> {
 
     List<Queue> listByClusterId(@Param("clusterId") Long clusterId);
 

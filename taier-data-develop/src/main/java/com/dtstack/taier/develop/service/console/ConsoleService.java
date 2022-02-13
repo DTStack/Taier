@@ -100,7 +100,7 @@ public class ConsoleService {
     private WorkerOperator workerOperator;
 
     @Autowired
-    private KerberosMapper kerberosMapper;
+    private ConsoleKerberosMapper consoleKerberosMapper;
 
     @Autowired
     private ConsoleComponentService consoleComponentService;
@@ -444,7 +444,7 @@ public class ConsoleService {
             pluginInfo.put(EComponentType.YARN.getConfName(), componentConfig);
             if (StringUtils.isNotBlank(yarnComponent.getKerberosFileName())) {
                 //开启kerberos 添加信息
-                KerberosConfig kerberosConfig = kerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
+                KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
                 pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName());

@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.service;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BaseEntity;
 import com.dtstack.taier.dao.domain.Queue;
-import com.dtstack.taier.dao.mapper.QueueMapper;
+import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +38,10 @@ public class QueueService {
     private final static long ROOT_QUEUE_ID = -1L;
 
     @Autowired
-    private QueueMapper queueMapper;
+    private ConsoleQueueMapper consoleQueueMapper;
 
     public void updateQueue(Long clusterId, ComponentTestResult.ClusterResourceDescription description){
-        List<Queue> queues = queueMapper.listByClusterId(clusterId);
+        List<Queue> queues = consoleQueueMapper.listByClusterId(clusterId);
         if(CollectionUtils.isEmpty(queues)){
             newAddQueue(clusterId, ROOT_QUEUE_ID, description.getQueueDescriptions());
         } else {
@@ -52,7 +52,7 @@ public class QueueService {
 
             updateAddQueue(existQueueMap, clusterId, ROOT_QUEUE_ID, description.getQueueDescriptions());
             if (!existQueueMap.isEmpty()) {
-                Integer delete = queueMapper.deleteByIds(existQueueMap.values().stream().map(BaseEntity::getId).collect(Collectors.toList()), clusterId);
+                Integer delete = consoleQueueMapper.deleteByIds(existQueueMap.values().stream().map(BaseEntity::getId).collect(Collectors.toList()), clusterId);
                 if (delete != existQueueMap.size()) {
                     throw new RdosDefineException("operation failed");
                 }
@@ -71,7 +71,7 @@ public class QueueService {
                 queue.setQueueState(queueDescription.getQueueState());
                 queue.setParentQueueId(parentQueueId);
                 queue.setQueuePath(queueDescription.getQueuePath());
-                Integer insert = queueMapper.insert(queue);
+                Integer insert = consoleQueueMapper.insert(queue);
                 if (insert != 1) {
                     throw new RdosDefineException("operation failed");
                 }
@@ -100,13 +100,13 @@ public class QueueService {
                         oldQueue.setQueueState(queue.getQueueState());
                         oldQueue.setCapacity(queue.getCapacity());
                         oldQueue.setMaxCapacity(queue.getMaxCapacity());
-                        queueMapper.updateById(oldQueue);
+                        consoleQueueMapper.updateById(oldQueue);
                         existQueueMap.remove(queueDescription.getQueuePath());
                     }
                     queue.setId(oldQueue.getId());
                 } else {
                     queue.setParentQueueId(parentQueueId);
-                    Integer insert = queueMapper.insert(queue);
+                    Integer insert = consoleQueueMapper.insert(queue);
                     if (insert != 1) {
                         throw new RdosDefineException("operation failed");
                     }
