@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.ScheduleDict;
+import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DictMapper;
 import com.dtstack.taier.common.enums.DictType;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +38,10 @@ public class ComponentModel {
     private final String nameTemplate;
     private Map<String, String> versionDictionary;
 
-    public ComponentModel(EComponentType type, ScheduleDict scheduleDict, DictMapper mapper) {
+    public ComponentModel(EComponentType type, Dict dict, DictMapper mapper) {
         this.type = type;
         try {
-            JSONObject valueObj = JSONObject.parseObject(scheduleDict.getDictValue());
+            JSONObject valueObj = JSONObject.parseObject(dict.getDictValue());
             if (valueObj == null) {
                 throw invalidComponentConfig(Strings.format(
                         "Component of type '{}' is not configured.", type));
@@ -51,8 +51,8 @@ public class ComponentModel {
             this.dependsOn = Collections.unmodifiableList(parseDependsOn(valueObj));
             Boolean allowCoexistence = valueObj.getBoolean(ALLOW_COEXISTENCE_KEY);
             this.allowCoexistence = allowCoexistence != null && allowCoexistence;
-            List<ScheduleDict> dicts = loadVersions(valueObj, mapper);
-            versionDictionary = dicts.stream().collect(Collectors.toMap(ScheduleDict::getDictName, ScheduleDict::getDictValue));
+            List<Dict> dicts = loadVersions(valueObj, mapper);
+            versionDictionary = dicts.stream().collect(Collectors.toMap(Dict::getDictName, Dict::getDictValue));
 
             this.nameTemplate = valueObj.getString(NAME_TEMPLATE_KEY);
         } catch (JSONException e) {
@@ -102,7 +102,7 @@ public class ComponentModel {
         }
     }
 
-    private List<ScheduleDict> loadVersions(JSONObject valueObj, DictMapper mapper) {
+    private List<Dict> loadVersions(JSONObject valueObj, DictMapper mapper) {
         String name = valueObj.getString(VERSION_DICTIONARY_KEY);
         if (name == null) {
             return Collections.emptyList();

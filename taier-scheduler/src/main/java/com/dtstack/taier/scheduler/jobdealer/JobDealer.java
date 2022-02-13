@@ -24,7 +24,7 @@ import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.common.util.SystemPropertyUtil;
 import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -258,7 +258,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         }
         String engineLog = null;
         try {
-            EngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
+            ScheduleEngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
             if (null == engineJobCache) {
                 return "";
             }
@@ -297,7 +297,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<EngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null);
+                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null);
                     if (CollectionUtils.isEmpty(jobCaches)) {
                         //两种情况：
                         //1. 可能本身没有jobcaches的数据
@@ -306,7 +306,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                     }
                     List<JobClient> unSubmitClients = new ArrayList<>();
                     List<JobClient> submitClients = new ArrayList<>();
-                    for (EngineJobCache jobCache : jobCaches) {
+                    for (ScheduleEngineJobCache jobCache : jobCaches) {
                         try {
                             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                             JobClient jobClient = new JobClient(paramAction);

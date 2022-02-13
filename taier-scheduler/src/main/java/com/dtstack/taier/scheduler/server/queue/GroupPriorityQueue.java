@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.server.queue;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.queue.comparator.JobClientComparator;
-import com.dtstack.taier.dao.domain.EngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
@@ -149,12 +149,12 @@ public class GroupPriorityQueue {
             long startId = 0L;
             outLoop:
             while (true) {
-                List<EngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
+                List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     empty = true;
                     break;
                 }
-                for (EngineJobCache jobCache : jobCaches) {
+                for (ScheduleEngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
