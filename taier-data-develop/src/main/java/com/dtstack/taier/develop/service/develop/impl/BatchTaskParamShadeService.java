@@ -23,7 +23,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
-import com.dtstack.taier.dao.mapper.BatchTaskParamShadeDao;
+import com.dtstack.taier.dao.mapper.DevelopTaskParamShadeDao;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +45,13 @@ import java.util.Objects;
 public class BatchTaskParamShadeService {
 
     @Autowired
-    private BatchTaskParamShadeDao batchTaskParamShadeDao;
+    private DevelopTaskParamShadeDao developTaskParamShadeDao;
 
     @Autowired
     private BatchSysParamService batchSysParamService;
 
     public void clearDataByTaskId(Long taskId) {
-        batchTaskParamShadeDao.deleteByTaskId(taskId);
+        developTaskParamShadeDao.deleteByTaskId(taskId);
     }
 
     public void saveTaskParam(List<BatchTaskParam> paramList) {
@@ -66,18 +66,18 @@ public class BatchTaskParamShadeService {
         if (StringUtils.isBlank(batchTaskParamShade.getParamCommand())) {
             throw new RdosDefineException("自定义参数赋值不能为空");
         }
-        BatchTaskParamShade dbTaskParam = batchTaskParamShadeDao.getByTypeAndName(batchTaskParamShade.getTaskId(), batchTaskParamShade.getType(), batchTaskParamShade.getParamName());
+        BatchTaskParamShade dbTaskParam = developTaskParamShadeDao.getByTypeAndName(batchTaskParamShade.getTaskId(), batchTaskParamShade.getType(), batchTaskParamShade.getParamName());
         if (Objects.nonNull(dbTaskParam)) {
             dbTaskParam.setParamCommand(batchTaskParamShade.getParamCommand());
             dbTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            batchTaskParamShadeDao.update(dbTaskParam);
+            developTaskParamShadeDao.update(dbTaskParam);
         } else {
-            batchTaskParamShadeDao.insert(batchTaskParamShade);
+            developTaskParamShadeDao.insert(batchTaskParamShade);
         }
     }
 
     public List<BatchTaskParamShade> getTaskParam(long taskId) {
-        List<BatchTaskParamShade> taskParamShades = batchTaskParamShadeDao.listByTaskId(taskId);
+        List<BatchTaskParamShade> taskParamShades = developTaskParamShadeDao.listByTaskId(taskId);
 
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParamShade taskParamShade : taskParamShades) {

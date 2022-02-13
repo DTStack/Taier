@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskResourceShadeDao">
+
+    <sql id="select_content_fragment">
+      id,task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="resourceId != null">
+                resource_id = #{resourceId},
+            </if>
+
+            <if test="resourceType != null">
+                resource_type = #{resourceType},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate},
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = #{gmtModified},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchTaskResourceShade">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM develop_task_resource_shade
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+
+    <delete id="deleteByTaskId">
+        DELETE FROM develop_task_resource_shade
+        WHERE task_id = #{taskId}
+    </delete>
+
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskResourceShade" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO develop_task_resource_shade
+        (task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted)
+        VALUES
+        (#{taskId},#{resourceId}, #{resourceType},#{tenantId},now(),now(),0)
+    </insert>
+
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskResourceShade">
+        UPDATE
+        develop_task_resource_shade
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+</mapper>

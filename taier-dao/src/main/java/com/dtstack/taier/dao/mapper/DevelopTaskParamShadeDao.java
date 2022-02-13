@@ -16,26 +16,32 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop.impl;
+package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.mapper.DevelopTaskTemplateDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import org.apache.ibatis.annotations.Param;
 
-@Service
-public class BatchTaskTemplateService {
+import java.util.List;
 
-    @Autowired
-    private DevelopTaskTemplateDao developTaskTemplateDao;
+/**
+ * Reason:
+ * Date: 2017/6/7
+ * Company: www.dtstack.com
+ *
+ * @ahthor xuchao
+ */
+public interface DevelopTaskParamShadeDao {
 
-    /**
-     * 根据条件 获取模版
-     *
-     * @param taskType
-     * @param type
-     * @return
-     */
-    public String getContentByType(Integer taskType, Integer type) {
-        return developTaskTemplateDao.getContentByType(taskType, type);
-    }
+    BatchTaskParamShade getOne(@Param("id") Long id);
+
+    BatchTaskParamShade getByTypeAndName(@Param("taskId") long taskId, @Param("type") Integer type, @Param("paramName") String paramName);
+
+    List<BatchTaskParamShade> listByTaskId(@Param("taskId") long taskId);
+
+    Integer deleteByTaskId(@Param("taskId") long taskId);
+
+    Integer insert(BatchTaskParamShade batchTaskParamShade);
+
+    Integer update(BatchTaskParamShade batchTaskParamShade);
+
 }
