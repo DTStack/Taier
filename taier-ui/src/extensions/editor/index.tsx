@@ -102,8 +102,7 @@ function emitEvent() {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
-				const value = currentTabData?.value || '';
-				if (currentTabData && value) {
+				if (currentTabData) {
 					// 禁用运行按钮，启用停止按钮
 					molecule.editor.updateActions([
 						{
@@ -161,6 +160,7 @@ function emitEvent() {
 							taskParams: currentTabData.taskParams,
 						};
 
+						const value = currentTabData.value || '';
 						// 需要被执行的 sql 语句
 						const sqls = [];
 						const rawSelections = molecule.editor.editorInstance.getSelections() || [];
@@ -269,7 +269,7 @@ function emitEvent() {
 					...current.tab?.data,
 					sqlText: current.tab?.data.value,
 					// taskVos pass through by dependencyTasks
-					dependencyTasks: current.tab?.data.taskVos,
+					dependencyTasks: current.tab?.data.taskVOS,
 				};
 				const uploadTask = () => {
 					const { id } = params;

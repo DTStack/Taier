@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { Row, Pagination } from 'antd';
+import { Row, Pagination, Col } from 'antd';
 
 import Editor from '@/components/codeEditor';
 import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
@@ -42,9 +42,7 @@ function getLogsInfo(title: any, data: any, type = 'info') {
 	let res = '';
 	if (data && data.length > 0) {
 		for (let i = 0; i < data.length; ++i) {
-			res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${
-				data[i].value
-			}`;
+			res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`;
 		}
 	}
 	return createLogMark(res, type);
@@ -61,14 +59,14 @@ function showTaskInfo(obj: any) {
 function resolveSteps(stepArr: any) {
 	let stepText = '';
 	stepArr.map((item: any) => {
-		stepText += `${formatDateTime(Number(item.info.startTime))} ${
-			item.step_status
-		} ${item.sequence_id} Step Name: ${item.name} Data Size: ${
+		stepText += `${formatDateTime(Number(item.info.startTime))} ${item.step_status} ${
+			item.sequence_id
+		} Step Name: ${item.name} Data Size: ${
 			item.info.hdfs_bytes_written ? item.info.hdfs_bytes_written : 0
 		}
-            Duration: ${
-				(item.info.endTime - item.info.startTime) / 1000 / 60
-			} mins Waiting: ${item.exec_wait_time} seconds\n`;
+            Duration: ${(item.info.endTime - item.info.startTime) / 1000 / 60} mins Waiting: ${
+			item.exec_wait_time
+		} seconds\n`;
 	});
 	return stepText;
 }
@@ -76,9 +74,7 @@ function resolveSteps(stepArr: any) {
 function resoveApplogs(stepArr: any) {
 	let appLogs = '';
 	stepArr.map((item: any) => {
-		appLogs += `${
-			item.info.yarn_application_id ? item.info.yarn_application_id : ''
-		}\n`;
+		appLogs += `${item.info.yarn_application_id ? item.info.yarn_application_id : ''}\n`;
 	});
 	return appLogs;
 }
@@ -129,12 +125,12 @@ export function LogInfo(props: any) {
 			)} ${safeSpace} \n`;
 			if (log.taskInfo && log.taskInfo.taskType === 'Kylin') {
 				if (log['steps']) {
-					logText = `${logText}${wrappTitle(
-						'appLogs',
-					)}\n${resoveApplogs(log['steps'])} ${safeSpace} \n`;
-					logText = `${logText}${wrappTitle(
-						'Kylin日志',
-					)}\n${resolveSteps(log['steps'])} ${safeSpace} \n`;
+					logText = `${logText}${wrappTitle('appLogs')}\n${resoveApplogs(
+						log['steps'],
+					)} ${safeSpace} \n`;
+					logText = `${logText}${wrappTitle('Kylin日志')}\n${resolveSteps(
+						log['steps'],
+					)} ${safeSpace} \n`;
 				}
 				logText = `${logText}${wrappTitle('Kylin日志')}\n${wrappTitle(
 					'任务信息',
@@ -152,24 +148,24 @@ export function LogInfo(props: any) {
 		 * 数据增量同步配置信息
 		 */
 		if (log['increInfo']) {
-			logText = `${logText}\n${wrappTitle(
-				'增量标志信息',
-			)}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`;
+			logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(
+				log['increInfo'],
+				'info',
+			)}${safeSpace} \n`;
 		}
 
 		if (flinkLog || log['root-exception']) {
-			logText = `${logText}\n\n${wrappTitle(
-				'Flink日志',
-			)} \n${createLogMark(flinkLog, 'error')} \n ${
-				createLogMark(log['root-exception'], 'error') || ''
-			}`;
+			logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(
+				flinkLog,
+				'error',
+			)} \n ${createLogMark(log['root-exception'], 'error') || ''}`;
 		}
 
 		if (appLogs || driverLog) {
-			logText = `${logText} \n${createLogMark(
-				appLogs,
+			logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(
+				driverLog,
 				'error',
-			)} \n ${createLogMark(driverLog, 'error')}`;
+			)}`;
 		}
 
 		if (log.msg_info) {
@@ -239,12 +235,14 @@ export function LogInfo(props: any) {
 				</Row>
 			)}
 			<Row style={logStyle}>
-				<Editor
-					style={{ height: '100%' }}
-					sync
-					value={logText}
-					options={editorOptions}
-				/>
+				<Col span={24}>
+					<Editor
+						style={{ height: '100%' }}
+						sync
+						value={logText}
+						options={editorOptions}
+					/>
+				</Col>
 			</Row>
 		</div>
 	);

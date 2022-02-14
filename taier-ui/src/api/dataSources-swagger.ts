@@ -47,7 +47,7 @@ export default {
 	},
 	queryByTenantId: {
 		method: 'get',
-		url: `${api}/queryByTenantId`,
+		url: `${api}/manager/queryByTenantId`,
 	},
 	//数据源列表分页信息
 	dataSourcepage: {
