@@ -1,4 +1,4 @@
-#### Taiga 任务提交快速开始
+#### Taier 任务提交快速开始
 
 本文主要面对DAGScheduleX的使用者，通过一个示例来介绍如何使用DAGScheduleX来实现数据同步任务的提交
 关于数据同步任务FlinkX的详细文档请参考[flinkx](https://github.com/DTStack/flinkx)
