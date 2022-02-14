@@ -20,6 +20,7 @@ package com.dtstack.taier.dao.domain;
 
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -126,6 +127,7 @@ public class ScheduleTaskShade implements Serializable {
     /**
      * 任务运行参数
      */
+    @TableField(exist = false)
     private String extraInfo;
 
     /**
