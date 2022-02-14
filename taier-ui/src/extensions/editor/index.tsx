@@ -45,6 +45,7 @@ import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
+import { generateRqtBody } from '@/components/dataSync';
 
 const { confirm } = Modal;
 
@@ -266,7 +267,7 @@ function emitEvent() {
 			}
 			case TASK_SAVE_ID: {
 				const params = {
-					...current.tab?.data,
+					...generateRqtBody(),
 					sqlText: current.tab?.data.value,
 					// taskVos pass through by dependencyTasks
 					dependencyTasks: current.tab?.data.taskVOS,
