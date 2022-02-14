@@ -10,7 +10,7 @@
     <select id="dsTypeList" resultType="com.dtstack.taier.dao.domain.DsType">
         select
         <include refid="select_content_fragment" />
-        from dsc_type
+        from datasource_type
         where is_deleted = 0 and invisible = 0
         order by sorted desc,id asc
     </select>
@@ -18,7 +18,7 @@
     <select id="queryDsTypeByClassify" resultType="com.dtstack.taier.dao.domain.DsType">
         select
         <include refid="select_content_fragment" />
-        from dsc_type
+        from datasource_type
         where is_deleted = 0   and invisible = 0
         <if test="search !=null and search!=''">
             and data_type like concat('%',#{search},'%')
@@ -40,7 +40,7 @@
     </select>
 
     <update id="plusDataTypeWeight">
-        update dsc_type
+        update datasource_type
         set weight = weight + #{plusWeight}
         where
         data_type = #{dataType}

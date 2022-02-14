@@ -10,7 +10,7 @@
     <select id="listDsVersion" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
         <include refid="select_content_fragment" />
-        from dsc_version
+        from datasource_version
         where is_deleted = 0
     </select>
 
@@ -18,7 +18,7 @@
     <select id="queryDsVersionByType" resultType="com.dtstack.taier.dao.domain.DsVersion">
         select
         <include refid="select_content_fragment" />
-        from dsc_version
+        from datasource_version
         where is_deleted = 0 and data_type = #{dataType}
         order by sorted desc;
     </select>

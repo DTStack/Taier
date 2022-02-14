@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("dsc_version")
+@TableName("datasource_version")
 public class DsVersion extends BaseModel {
 
     /**
