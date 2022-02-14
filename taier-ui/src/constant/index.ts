@@ -34,17 +34,13 @@ export const HDFSCONG = `{
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }`;
 
-
-export const DDL_IDE_PLACEHOLDER =
-`CREATE TABLE employee ( 
+export const DDL_IDE_PLACEHOLDER = `CREATE TABLE employee ( 
     eid int, 
     name String,
     salary String, 
     destination String)
     STORED AS ORC
     lifecycle 10`;
-
-	
 
 // 表单正常布局
 export const formItemLayout = {
@@ -55,6 +51,17 @@ export const formItemLayout = {
 	wrapperCol: {
 		xs: { span: 24 },
 		sm: { span: 16 },
+	},
+};
+
+export const scheduleConfigLayout = {
+	labelCol: {
+		xs: { span: 24 },
+		sm: { span: 6 },
+	},
+	wrapperCol: {
+		xs: { span: 24 },
+		sm: { span: 18 },
 	},
 };
 
