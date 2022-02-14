@@ -30,6 +30,7 @@ import {
 	resetEditorGroup,
 	updateStatusBarLanguage,
 	getCatalogueViaNode,
+	fileIcon,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -47,7 +48,7 @@ import {
 	TASK_SAVE_ID,
 	TASK_SUBMIT_ID,
 } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 
 /**
  * Update task tree node
@@ -271,20 +272,21 @@ export function openTaskInTab(taskId: any, file?: any) {
 		return;
 	}
 
-	const { id: fileId, name: fileName, data: fileData, location, icon } = file;
+	const { id: fileId, location } = file;
 	api.getOfflineTaskByID({ id: fileId }).then((res) => {
-		if (fileData.taskType === TASK_TYPE_ENUM.SQL) {
-			const { success, data } = res;
+		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
+		if (data.taskType === TASK_TYPE_ENUM.SQL) {
 			if (success) {
 				const tabData = {
 					id: fileId.toString(),
-					name: fileName,
+					name: data.name,
 					data: {
 						...data,
+						// set sqlText into value so that molecule-editor could read from this
 						value: data.sqlText,
 						language: 'sql',
 					},
-					icon,
+					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 					breadcrumb:
 						location?.split('/')?.map((item: string) => ({
 							id: item,
@@ -298,19 +300,18 @@ export function openTaskInTab(taskId: any, file?: any) {
 					{ id: TASK_SUBMIT_ID, disabled: false },
 				]);
 			}
-		} else if (fileData.taskType === TASK_TYPE_ENUM.SYNC) {
-			const { success, data } = res;
+		} else if (data.taskType === TASK_TYPE_ENUM.SYNC) {
 			if (success) {
 				// open in molecule
 				const tabData = {
 					id: fileId.toString(),
-					name: fileName,
+					name: data.name,
 					data: {
 						...data,
 						value: data.sqlText,
-						taskDesc: fileData.taskDesc,
+						taskDesc: data.taskDesc,
 					},
-					icon,
+					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 					breadcrumb:
 						location?.split('/')?.map((item: string) => ({
 							id: item,
@@ -330,10 +331,10 @@ export function openTaskInTab(taskId: any, file?: any) {
 		} else {
 			resetEditorGroup();
 		}
+		updateStatusBarLanguage(getStatusBarLanguage(data.taskType)!);
 	});
 
 	molecule.explorer.forceUpdate();
-	updateStatusBarLanguage(getStatusBarLanguage(fileData.taskType)!);
 }
 
 function onSelectFile() {

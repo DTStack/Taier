@@ -144,7 +144,7 @@ export interface IOfflineTaskProps {
 	taskType: TASK_TYPE_ENUM;
 	taskVOS: null | ITaskVOProps[];
 	taskVariables: null | ITaskVariableProps[];
-	tenantId: string;
+	tenantId: string | null;
 	tenantName: string | null;
 	userId: number;
 }
@@ -188,29 +188,8 @@ export interface IScheduleConfProps {
 /**
  * 任务上下游依赖类型
  */
-export interface ITaskVOProps {
-	createUserId: number;
-	dtuicTenantId: number;
-	exeArgs: string;
-	gmtCreate: number;
-	gmtModified: number;
-	id: string | number;
-	name: string;
-	nodePid: number;
-	periodType: TASK_PERIOD_ENUM;
-	resourceId: number;
-	/**
-	 * Stringify 后的 IScheduleConfProps
-	 */
-	scheduleConf: string;
-	scheduleStatus: SCHEDULE_STATUS;
-	sqlText: string;
-	taskDesc: string;
+export interface ITaskVOProps extends IOfflineTaskProps {
 	taskId: number;
-	taskParams: string;
-	taskType: TASK_TYPE_ENUM;
-	tenantId: number;
-	tenantName: string;
 }
 
 export interface ITaskVariableProps {

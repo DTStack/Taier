@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { Modal, Select, Input, Checkbox, Form } from 'antd';
 import api from '@/api/console';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import {
 	formItemLayout,
 	ENGINE_SOURCE_TYPE_ENUM,
 	ENGINE_SOURCE_TYPE,
 	PROJECT_CREATE_MODEL,
 	COMPONENT_CONFIG_NAME,
-	COMPONENT_TYPE_VALUE,
 } from '@/constant';
 import { useEnv } from '../customHooks';
 import HelpDoc from '../helpDoc';
@@ -71,11 +71,17 @@ export interface IClusterProps {
 interface IFormFieldProps {
 	tenantId: number;
 	clusterId: number;
+	queueId: number;
 }
 
 interface ITenantProps {
 	tenantId: number;
 	tenantName: string;
+}
+
+interface IQueueListProps {
+	queueId: number;
+	queueName: string;
 }
 
 export default ({
@@ -91,11 +97,12 @@ export default ({
 }: IBindModal) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [tenantList, setTenantList] = useState<ITenantProps[]>([]);
+	const [queueList, setQueueList] = useState<IQueueListProps[]>([]);
 	const [metaComponent, setMetaComponent] = useState<
 		Valueof<typeof COMPONENT_TYPE_VALUE> | undefined
 	>(undefined);
 	const [loading, setLoading] = useState(false);
-	const { env, queueList } = useEnv({
+	const { env } = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
 		visible,
 		form,
@@ -123,6 +130,19 @@ export default ({
 	const handleClusterChanged = (value: number) => {
 		if (typeof value !== 'undefined') {
 			getMetaComponent(value);
+		}
+
+		getQueueList(value);
+	};
+
+	const getQueueList = async (value: number) => {
+		const res = await api.getEnginesByCluster({ clusterId: value });
+		if (res.code) {
+			const engines = res.data.engines || [];
+			const hadoopEngine = engines.find((e: any) => e.engineName === 'Hadoop');
+			if (hadoopEngine) {
+				setQueueList(hadoopEngine.queues || []);
+			}
 		}
 	};
 
@@ -155,6 +175,7 @@ export default ({
 			const params: any = {
 				tenantId: values.tenantId,
 				clusterId: values.clusterId,
+				queueId: values.queueId,
 				bindDBList: [],
 			};
 
@@ -207,7 +228,7 @@ export default ({
 								message: '租户不可为空！',
 							},
 						]}
-						initialValue={tenantInfo?.tenantName || ''}
+						initialValue={tenantInfo?.tenantName}
 					>
 						<Select
 							allowClear
@@ -242,7 +263,7 @@ export default ({
 								message: '集群不可为空！',
 							},
 						]}
-						initialValue={clusterId || ''}
+						initialValue={clusterId}
 					>
 						<Select
 							allowClear
@@ -270,6 +291,30 @@ export default ({
 							return (
 								(getValue('clusterId') || getValue('clusterId') === 0) && (
 									<>
+										<FormItem
+											label="队列"
+											{...formItemLayout}
+											name="queueId"
+											rules={[
+												{
+													required: true,
+													message: '队列不可为空！',
+												},
+											]}
+										>
+											<Select allowClear placeholder="请选择队列">
+												{queueList.map((item) => {
+													return (
+														<Option
+															key={`${item.queueId}`}
+															value={`${item.queueId}`}
+														>
+															{item.queueName}
+														</Option>
+													);
+												})}
+											</Select>
+										</FormItem>
 										<FormItem {...formItemLayout} label="计算引擎配置">
 											<FormItem
 												noStyle
@@ -317,37 +362,6 @@ export default ({
 							</FormItem>
 						</div>
 					)}
-					{env[ENGINE_SOURCE_TYPE.HADOOP] && !env[ENGINE_SOURCE_TYPE.KUBERNETES] ? (
-						<div className="border-item">
-							<div className="engine-title">Hadoop</div>
-							<FormItem
-								label="资源队列"
-								{...formItemLayout}
-								tooltip="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群"
-								name="queueId"
-								rules={[
-									{
-										required: true,
-										message: '资源队列不可为空！',
-									},
-								]}
-								initialValue={tenantInfo?.tenantName}
-							>
-								<Select allowClear placeholder="请选择资源队列">
-									{queueList.map((item: any) => {
-										return (
-											<Option
-												key={`${item.queueId}`}
-												value={`${item.queueId}`}
-											>
-												{item.queueName}
-											</Option>
-										);
-									})}
-								</Select>
-							</FormItem>
-						</div>
-					) : null}
 					{bindEnginName.length > 0 ? (
 						<div className="border-item">
 							<div className="engine-name">
