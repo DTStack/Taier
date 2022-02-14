@@ -19,6 +19,7 @@
 //每个模块定义的相关接口
 // const api = '/api/publicService';
 const api = '/node/datasource';
+
 export default {
 	getOfflineTableList: {
 		method: 'post',
@@ -132,5 +133,13 @@ export default {
 	uploadCode: {
 		method: 'postForm',
 		url: `${api}/addDs/getPrincipalsWithConf`,
+	},
+	getCreateTargetTable: {
+		method: 'post',
+		url: `${api}/addDs/getCreateTargetTableSql`,
+	},
+	createDdlTable: {
+		method: 'post',
+		url: `${api}/addDs/ddlCreateTable`,
 	},
 };

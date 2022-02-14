@@ -6,7 +6,6 @@ import { getCookie } from '@/utils';
 import api from '@/api/console';
 import API from '@/api';
 import { debounce } from 'lodash';
-import type { ITaskVOProps } from '@/interface';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -17,6 +16,11 @@ interface IUpstreamTaskProps {
 	submitData: (task: ITaskVOProps) => void;
 	onCancel: () => void;
 	visible: boolean;
+}
+
+interface ITaskVOProps {
+	taskId: number;
+	taskName: string;
 }
 
 interface ITenantProps {
@@ -63,7 +67,7 @@ export default function UpstreamDependentTasks({
 
 	const handleSubmit = () => {
 		form.validateFields().then(({ taskId }) => {
-			const task = tasks.find((t) => t.id === taskId);
+			const task = tasks.find((t) => t.taskId === taskId);
 			if (task) {
 				submitData(task);
 			}
@@ -115,8 +119,8 @@ export default function UpstreamDependentTasks({
 							notFoundContent={null}
 						>
 							{tasks.map((task) => (
-								<Option key={task.id} value={task.id}>
-									{task.name}
+								<Option key={task.taskId} value={task.taskId}>
+									{task.taskName}
 								</Option>
 							))}
 						</Select>

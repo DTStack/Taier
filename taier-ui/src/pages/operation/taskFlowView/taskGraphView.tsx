@@ -17,7 +17,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { cloneDeep } from 'lodash';
-import { Icon } from '@ant-design/compatible';
+import { ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Spin } from 'antd';
 import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
@@ -729,7 +729,7 @@ const TaskGraphView = ({
 			)}
 			<div className="graph-toolbar">
 				<Tooltip placement="bottom" title="刷新">
-					<Icon type="reload" onClick={refresh} style={{ color: '#333333' }} />
+					<ReloadOutlined  onClick={refresh} style={{ color: '#333333' }} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="放大">
 					<MyIcon onClick={() => handleLayoutZoom('in')} type="zoom-in" />

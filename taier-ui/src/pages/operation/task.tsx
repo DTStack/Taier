@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Checkbox, Tabs, Divider, Button, message } from 'antd';
+import { history } from 'umi';
 import type { FormInstance } from 'antd';
 import type { ColumnsType } from 'antd/lib/table/interface';
 import moment from 'moment';
@@ -10,7 +11,7 @@ import Sketch from '@/components/sketch';
 import type { ITaskBasicProps, ITaskProps } from '@/interface';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
-import { formatDateTime, getCookie, removePopUpMenu } from '@/utils';
+import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskTimeType, taskTypeText } from '@/utils/enums';
 import PatchModal from './patch/patchModal';
 import TaskFlowView from './taskFlowView';
@@ -285,7 +286,7 @@ export default () => {
 							<Divider type="vertical" />
 							<a
 								onClick={() => {
-									// goToTaskDev(record);
+									goToTaskDev({ id: record.taskId });
 								}}
 							>
 								修改
@@ -302,7 +303,14 @@ export default () => {
 			<Sketch<ITaskProps, IFormFieldProps>
 				actionRef={actionRef}
 				header={[
-					'input',
+					{
+						name: 'input',
+						props: {
+							formItemProps: {
+								initialValue: history.location.query?.tname,
+							},
+						},
+					},
 					'owner',
 					{
 						name: 'checkList',

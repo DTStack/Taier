@@ -8,10 +8,6 @@
 		height: $menuBar-size;
 		color: var(--activityBar-inactiveForeground);
 		background: inherit;
-
-		.mo-menu__item:hover {
-			background-color: $main-color;
-		}
 	}
 }
 

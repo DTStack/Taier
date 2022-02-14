@@ -57,7 +57,7 @@ class SourceForm extends React.Component<any, any> {
 
 	componentDidMount() {
 		this._isMounted = true;
-		const { sourceMap, form } = this.props;
+		const { sourceMap, form, tabId, currentTabData } = this.props;
 		const { sourceList } = sourceMap;
 		const dataSourceType = sourceMap.type && sourceMap.type.type;
 		const schema =
@@ -68,6 +68,7 @@ class SourceForm extends React.Component<any, any> {
 				: sourceMap?.type?.schema) || form.getFieldValue('schema');
 		let tableName = '';
 		let sourceId = '';
+		if (currentTabData && currentTabData.id !== tabId) return;
 		if (sourceList) {
 			for (let i = 0; i < sourceList.length; i++) {
 				const source = sourceList[i];
@@ -608,7 +609,15 @@ class SourceForm extends React.Component<any, any> {
 						</FormItem>
 						{this.renderDynamicForm()}
 						{!isEmpty(sourceMap) ? (
-							<FormItem {...formItemLayout} label={<span>高级配置<HelpDoc doc={'dataSyncExtralConfigHelp'} /></span>}>
+							<FormItem
+								{...formItemLayout}
+								label={
+									<span>
+										高级配置
+										<HelpDoc doc={'dataSyncExtralConfigHelp'} />
+									</span>
+								}
+							>
 								{getFieldDecorator('extralConfig', {
 									rules: [
 										{

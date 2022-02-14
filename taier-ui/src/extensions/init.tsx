@@ -7,6 +7,7 @@ import FunctionManager from '@/components/functionManager';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
+import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
 import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
 import Markdown from '@/components/markdown';
 import http from '@/api/http';
@@ -15,6 +16,21 @@ import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
 import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
+
+function loadStyles(url: string) {
+	const link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.type = 'text/css';
+	link.href = url;
+	link.id = 'antd_dark';
+	const head = document.getElementsByTagName('head')[0];
+	head.appendChild(link);
+}
+
+function removeStyles() {
+	const darkStyle = document.querySelector('#antd_dark');
+	darkStyle?.remove();
+}
 
 export default class InitializeExtension implements IExtension {
 	id: UniqueId = 'initialize';
@@ -43,6 +59,13 @@ export default class InitializeExtension implements IExtension {
 function initializeColorTheme() {
 	// 默认主题为亮色
 	molecule.colorTheme.setTheme('Default Light+');
+	molecule.colorTheme.onChange((_, __, themeMode) => {
+		if (themeMode === ColorThemeMode.dark) {
+			loadStyles('https://unpkg.com/antd@4.18.5/dist/antd.dark.css');
+		} else {
+			removeStyles();
+		}
+	});
 }
 
 /**
@@ -162,9 +185,9 @@ function initializePane() {
  * 初始化 MenuBar
  */
 function initMenuBar() {
+	molecule.layout.setMenuBarMode('horizontal');
 	const state = molecule.menuBar.getState();
 	const nextData = state.data.concat();
-	molecule.layout.setMenuBarMode('horizontal');
 	nextData.splice(1, 0, {
 		id: 'operation',
 		name: '运维中心',
@@ -175,7 +198,7 @@ function initMenuBar() {
 		name: '控制台',
 		data: [...CONSOLE],
 	});
-	const menuRunning = nextData.findIndex(menu => menu.id === 'Run');
+	const menuRunning = nextData.findIndex((menu) => menu.id === 'Run');
 	if (menuRunning > -1) {
 		nextData.splice(menuRunning, 1);
 	}
