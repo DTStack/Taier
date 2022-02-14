@@ -18,11 +18,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { cloneDeep } from 'lodash';
+import { history } from 'umi';
 import Api from '@/api/operation';
 import type { IMxCell, IMxGraph } from './taskGraphView';
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView';
 import MxFactory from '@/components/mxGraph';
-import { SCHEDULE_STATUS } from '@/constant';
+import { DRAWER_MENU_ENUM, SCHEDULE_STATUS } from '@/constant';
 import type { ITaskStreamProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 
@@ -137,13 +138,16 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 					() => onForzenTasks?.(currentNode.taskId, SCHEDULE_STATUS.NORMAL),
 					null,
 					null,
-					currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED,
+					currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED ||
+						currentNode.scheduleStatus === SCHEDULE_STATUS.FORZON,
 				);
 				menu.addItem('查看实例', null, () => {
-					// TODO 跳转实例
-					// history.push(
-					// 	`/operation-ui/offline-operation?job=${currentNode.name}`,
-					// );
+					history.push({
+						query: {
+							drawer: DRAWER_MENU_ENUM.SCHEDULE,
+							tName: currentNode.taskName,
+						},
+					});
 				});
 			}
 		};

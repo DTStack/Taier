@@ -146,7 +146,7 @@ export default {
     BATCH_RESTART_AND_RESUME_JOB: `${CONSOLE_BASE_URL}/action/restartJob`, // 批量重启-x
     GET_FILL_DATA: `${CONSOLE_BASE_URL}/fill/queryFillDataList`, // 获取补数据-x
     GET_FILL_DATA_DETAIL: `${CONSOLE_BASE_URL}/fill/queryFillDataJobList`, // 获取补数据详情-x
-    GET_JOB_CHILDREN: `${CONSOLE_BASE_URL}/scheduleJob/displayOffSpring`, // 获取子job-x
+    GET_JOB_CHILDREN: `${CONSOLE_BASE_URL}/scheduleJobJob/displayOffSpring`, // 获取子job-x
     GET_TASK_PERIODS: `${CONSOLE_BASE_URL}/scheduleJob/queryDisplayPeriods`, // 转到前后周期实例-x
     GET_JOB_PARENT: `${CONSOLE_BASE_URL}/scheduleJobJob/displayForefathers`, // 获取父节点-x
     QUERY_JOB_STATISTICS: `${CONSOLE_BASE_URL}/scheduleJob/queryJobsStatusStatistics`, // 查询Job统计-x
