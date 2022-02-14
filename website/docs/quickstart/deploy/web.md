@@ -1,0 +1,155 @@
+#  前端部署
+
+## 准备前端部署环境
+
+1. 首先，通过命令行安装 `Node.js` 的二进制文件。
+
+```shell
+$ wget https://nodejs.org/dist/v16.14.0/node-v16.14.0-linux-x64.tar.xz
+```
+
+:::tip 其他版本安装
+这里安装的 `Node.js` 的版本为 `v16.14.0`, 如果需要下载不同的版本或其他平台的 Node.js 安装包，可以通过 https://nodejs.org/zh-cn/download/ 查询其他版本。
+
+我们建议 `Node.js` 的版本在 `12.18.0` 及以上。
+:::
+
+1. 下载完成后，解压源码文件
+
+```shell
+$ tar zxvf node-v16.14.0-linux-x64.tar.xz
+```
+
+3. 解压完成后，进入到 node 文件夹中，进行编译安装
+
+```shell
+$ cd node-v16.14.0
+$ ./configure --prefix=/usr/local/node/16.14.0
+$ make
+$ make install
+```
+
+4. 安装完成后，编辑环境变量
+
+```shell
+$ vim /etc/profile
+```
+
+打开 vim 编辑器后，在文件最下面粘贴如下内容:
+
+```shell
+#set for nodejs
+export NODE_HOME=/usr/local/node/16.14.0
+export PATH=$NODE_HOME/bin:$PATH
+```
+
+通过 `:wq` 保存并退出，退出后执行如下命令使之生效:
+
+```shell
+$ source /etc/profile
+```
+
+5. 验证安装
+
+通过执行 `node -v` 是否输出 Node.js 的版本信息判断是否安装成功。
+
+```shell
+$ node -v
+v16.14.0
+```
+
+## 安装项目依赖
+
+安装 `Node.js` 的同时，会安装 `Node.js` 的包管理工具——`npm`。此时，通过命令行可以判断 `npm` 的版本。
+
+```shell
+$ npm -v
+6.14.13
+```
+
+将当前路径切换到 `taier-ui` 文件夹下，然后执行 `npm install` 开始安装项目依赖
+
+```shell
+$ pwd
+~/Your-Project-Path/Taier/taier-ui
+$ npm install
+```
+
+:::tip 切换淘宝源
+国内用户在安装依赖的时候会比较慢，可以在安装之前将 `npm` 的源换成淘宝源.
+
+```shell
+$ npm config set registry https://registry.npm.taobao.org
+```
+
+:::
+
+安装完成后，当前路径下会新增 `node_modules` 文件夹 和 `package-lock.json` 文件，前者是保存当前项目的依赖，后者是记录当前项目的依赖的版本信息。
+
+安装依赖成功后，执行 `npm run build` 对项目进行编译。
+
+```shell
+$ npm run build
+```
+
+项目编译完成后，会将编译后的结果存放在当前目录的 dist 文件夹下，
+
+```shell
+./
+├── README.md
+├── cup.config.js
+├── dist # 编译结果文件
+├── node_modules # 项目依赖
+├── package.json
+├── pom.xml
+├── public
+├── scripts
+├── src
+├── tailwind.config.js
+├── tsconfig.json
+├── typings.d.ts
+└── package-lock.json
+```
+
+然后这里我们借助 `mini-cup` 和 `pm2` 的能力来启动服务器，首先先全局安装 `mini-cup` 和 `pm2`.
+
+```shell
+$ npm install pm2 mini-cup -g
+```
+
+:::info
+[`PM2`](https://www.npmjs.com/package/pm2) is a production process manager for Node.js applications with a built-in load balancer.
+
+[`mini-cup`](https://github.com/wewoor/cup) is a lightweight web server for web applications.
+:::
+
+安装完成，就可以一下命令，启动一个服务器
+
+```shell
+$ pm2 start npm -- cup
+```
+
+该命令会查找当前目录下的 `cup.config.js` 文件，并将该文件作为配置文件启动服务器，该文件内容如下：
+
+```js
+const publicURL = "http://taier.dtstack.cn/"; // 跳转到后端部署的目录
+
+module.exports = {
+  name: "taier",
+  listen: 8080, // 服务启动端口
+  root: "./dist", // 服务启动的根目录
+  proxyTable: {
+    // 服务启动后的请求代理转发
+    "/taier": {
+      target: `${publicURL}:8090`,
+      changeOrigin: true,
+      secure: false,
+    },
+  },
+};
+```
+
+:::caution
+`mini-cup` 服务器仅用作本地快速部署，在实际生产环境中，我们推荐使用 nginx 作为代理服务器。
+:::
+

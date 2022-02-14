@@ -1,16 +1,16 @@
-#### Taiga Quick start of task submission
+#### Taier Quick start of task submission
 
-This article mainly faces the users of Taiga, through an example to introduce how to use Taiga to realize the submission of data synchronization tasks
+This article mainly faces the users of Taier, through an example to introduce how to use Taier to realize the submission of data synchronization tasks
 For detailed documentation on the finkx, please refer to [flinkx](https://github.com/DTStack/flinkx)
 
 * Realize efficient data migration between multiple heterogeneous data sources through flinkx
-* Realize the submission of flinkx tasks through Taiga
+* Realize the submission of flinkx tasks through Taier
 
 #### premise
 
-* Start Taiga and configure the flink component information under  cluster
-* configure flinkx plugins on Taiga
-* configure engine-plugins on Taiga
+* Start Taier and configure the flink component information under  cluster
+* configure flinkx plugins on Taier
+* configure engine-plugins on Taier
 * Cluster component test performance passed correctly
 
 #### build params
@@ -27,11 +27,11 @@ Here takes the task parameters of flinkx data synchronization as an example. The
 
 
 
-Start Taiga, you can refer to the following two ways to implement, submit the flinkx data synchronization task
+Start Taier, you can refer to the following two ways to implement, submit the flinkx data synchronization task
 
 ##### Wizard mode build parameters
 
-The submission can be configured through the wizard mode interface of Taiga, but the input and output data source information corresponding to the data synchronization task needs to be introduced in the data source center in advance
+The submission can be configured through the wizard mode interface of Taier, but the input and output data source information corresponding to the data synchronization task needs to be introduced in the data source center in advance
 
 1. **Configure data read target**
 
@@ -205,7 +205,7 @@ When the constructed task parameters are submitted to the corresponding start me
 
 ##### replace task parameter
 
-Taiga supports system variables and custom variables
+Taier supports system variables and custom variables
 
 If the parameter information submitted by the task contains defined variables, after starting the task, these parameter information will be replaced according to the corresponding format
 
@@ -220,7 +220,7 @@ Take the session mode data synchronization task as an example: before the task i
 
 
 ##### submit task
-After the task meets the submission conditions, the submission logic is executed. The implementation submitted here is implemented by the task submission plugin in Taiga
+After the task meets the submission conditions, the submission logic is executed. The implementation submitted here is implemented by the task submission plugin in Taier
 
 After the task is submitted, it needs to return a unique identifier, such as yarn's applicationId. The status and logs of subsequent tasks depend on this unique identifier.
 
@@ -239,7 +239,7 @@ After the task is executed, part of the log information of the task will be obta
 #### task run
 
 ##### temporary run 
-After the task is configured on the Taiga platform, click Run. After the task is completed, you can see the output log information on the platform for task debugging.
+After the task is configured on the Taier platform, click Run. After the task is completed, you can see the output log information on the platform for task debugging.
 
 ![](./images/submit/temprun.png)
 

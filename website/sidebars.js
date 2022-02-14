@@ -16,11 +16,12 @@ const sidebars = {
     docs: [
         {
             type: 'category',
-            label: '关于 Taiga',
+            label: '关于 Taier',
             collapsed: false,
             items: [
                 'guides/introduction',
                 'guides/work-deployment',
+                'guides/explain',
             ],
         },
         {
@@ -28,8 +29,18 @@ const sidebars = {
             label: '快速开始',
             collapsed: false,
             items: [
-                'quickstart/start',
-                'quickstart/deploy',
+                'quickstart/rely',
+                 {
+                        type: 'category',
+                        collapsed: false,
+                        label: '快速部署',
+                        items: [
+                            'quickstart/deploy/start',
+                            'quickstart/deploy/web',
+                            'quickstart/deploy/hadoop',
+                        ],
+                 },
+                  'quickstart/deploy',
             ],
         },
         {
@@ -37,7 +48,7 @@ const sidebars = {
             label: '功能介绍',
             collapsed: false,
             items: [
-                'functions/multicluster',
+                'functions/multi-cluster',
                 'functions/datasource',
                 'functions/task',
                 'functions/maintenance',
