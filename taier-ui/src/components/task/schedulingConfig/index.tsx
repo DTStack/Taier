@@ -257,7 +257,7 @@ export default function SchedulingConfig({
 		}
 	};
 
-	const handleAddVOS = (record: ITaskVOProps) => {
+	const handleAddVOS = (record: Partial<ITaskVOProps>) => {
 		const taskVOS = (current!.tab?.data.taskVOS || []).concat();
 		taskVOS.push(record);
 		changeScheduleConf?.(current!.tab!, { taskVOS });
@@ -265,7 +265,7 @@ export default function SchedulingConfig({
 
 	const handleDelVOS = (record: ITaskVOProps) => {
 		const taskVOS: ITaskVOProps[] = (current!.tab?.data.taskVOS || []).concat();
-		const index = taskVOS.findIndex((vo) => vo.id === record.id);
+		const index = taskVOS.findIndex((vo) => vo.taskId === record.taskId);
 		if (index === -1) return;
 		taskVOS.splice(index, 1);
 		changeScheduleConf?.(current!.tab!, { taskVOS });
@@ -324,15 +324,17 @@ export default function SchedulingConfig({
 							ref={form}
 						/>
 					</Panel>
-					{!isWorkflowNode && tabData && tabData.taskType !== TASK_TYPE_ENUM.VIRTUAL_NODE && (
-						<Panel key="2" header="任务间依赖">
-							<TaskDependence
-								handleAddVOS={handleAddVOS}
-								handleDelVOS={handleDelVOS}
-								tabData={tabData}
-							/>
-						</Panel>
-					)}
+					{!isWorkflowNode &&
+						tabData &&
+						tabData.taskType !== TASK_TYPE_ENUM.VIRTUAL_NODE && (
+							<Panel key="2" header="任务间依赖">
+								<TaskDependence
+									handleAddVOS={handleAddVOS}
+									handleDelVOS={handleDelVOS}
+									tabData={tabData}
+								/>
+							</Panel>
+						)}
 					{!isWorkflowNode && (
 						<Panel key="3" header="跨周期依赖">
 							<Row style={{ marginBottom: '16px' }}>

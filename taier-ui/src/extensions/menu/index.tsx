@@ -1,8 +1,10 @@
 import molecule from '@dtinsight/molecule';
-import { DRAWER_MENU_ENUM } from '@/constant';
+import { DRAWER_MENU_ENUM, TENANT_MENU } from '@/constant';
 import { history } from 'umi';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
+import ReactDOM from 'react-dom';
+import AddTenantModal from '@/components/addTenantModal';
 
 function handleMenuBarEvents() {
 	molecule.menuBar.onSelect((menuId) => {
@@ -24,7 +26,16 @@ function handleMenuBarEvents() {
 				break;
 			}
 			case 'About': {
-				window.open('https://github.com/DTStack/Taiger');
+				window.open('https://github.com/DTStack/Taier');
+				break;
+			}
+
+			case TENANT_MENU.ADD_TENANT: {
+				const root = document.getElementById('molecule')!;
+				const node = document.createElement('div');
+				node.id = 'add-tenant-modal';
+				root.appendChild(node);
+				ReactDOM.render(<AddTenantModal />, node);
 				break;
 			}
 			default:

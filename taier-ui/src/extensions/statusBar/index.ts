@@ -28,7 +28,7 @@ export const STATUS_BAR_LANGUAGE = {
 	name: 'SparkSQL',
 };
 
-export function getStatusBarLanguage(language: string) {
+export function getStatusBarLanguage(language: string | number) {
 	const languageBar = { ...STATUS_BAR_LANGUAGE };
 	switch (Number(language)) {
 		case TASK_TYPE_ENUM.SQL: {

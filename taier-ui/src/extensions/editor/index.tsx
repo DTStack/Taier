@@ -45,6 +45,7 @@ import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
+import { generateRqtBody } from '@/components/dataSync';
 
 const { confirm } = Modal;
 
@@ -102,8 +103,7 @@ function emitEvent() {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
-				const value = currentTabData?.value || '';
-				if (currentTabData && value) {
+				if (currentTabData) {
 					// 禁用运行按钮，启用停止按钮
 					molecule.editor.updateActions([
 						{
@@ -161,6 +161,7 @@ function emitEvent() {
 							taskParams: currentTabData.taskParams,
 						};
 
+						const value = currentTabData.value || '';
 						// 需要被执行的 sql 语句
 						const sqls = [];
 						const rawSelections = molecule.editor.editorInstance.getSelections() || [];
@@ -266,10 +267,10 @@ function emitEvent() {
 			}
 			case TASK_SAVE_ID: {
 				const params = {
-					...current.tab?.data,
+					...generateRqtBody(),
 					sqlText: current.tab?.data.value,
 					// taskVos pass through by dependencyTasks
-					dependencyTasks: current.tab?.data.taskVos,
+					dependencyTasks: current.tab?.data.taskVOS,
 				};
 				const uploadTask = () => {
 					const { id } = params;
