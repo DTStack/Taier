@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.ClusterMapper">
+
+    <sql id="select_content_fragment">
+      id,cluster_name,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="select_where_fragment">
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="model.id != null and model.id > 0">
+                AND id = #{model.id}
+            </if>
+            <if test="model.clusterName != null">
+                AND cluster_name like '%${model.clusterName}%'
+            </if>
+            <if test="model.isDeleted != null">
+                AND is_deleted = #{model.isDeleted}
+            </if>
+        </trim>
+    </sql>
+
+
+    <select id="getByClusterName" resultType="com.dtstack.taier.dao.domain.Cluster">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        WHERE cluster_name = #{clusterName} AND is_deleted = 0 LIMIT 1
+    </select>
+
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.Cluster">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM console_cluster
+        WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateGmtModified">
+        UPDATE console_cluster
+        set gmt_modified  = CURRENT_TIMESTAMP
+        where id = #{id}
+    </update>
+</mapper>

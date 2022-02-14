@@ -1,2 +1,0 @@
--- inceptor sql任务模板
-INSERT INTO `task_param_template` ( `gmt_create`, `gmt_modified`, `is_deleted`, `compute_type`, `engine_type`, `task_type`, `params`) VALUES ( '2021-06-16 09:58:45', '2021-06-16 09:58:45', 0, 1, 21, 0, '');

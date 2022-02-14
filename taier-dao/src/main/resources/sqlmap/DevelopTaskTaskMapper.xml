@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskTaskDao">
+
+    <sql id="select_content_fragment">
+      id,task_id,parent_task_id,tenant_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <sql id="update_fragment">
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="taskId != null">
+                task_id = #{taskId},
+            </if>
+            <if test="parentTaskId != null">
+                parent_task_id = #{parentTaskId},
+            </if>
+            <if test="tenantId != null">
+                tenant_id = #{tenantId},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = now(),
+            </if>
+            <if test="gmtModified != null">
+                gmt_modified = now(),
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted},
+            </if>
+        </set>
+    </sql>
+
+    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskTask">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM develop_task_task
+        WHERE task_id = #{taskId} and is_deleted = 0 order by gmt_modified
+    </select>
+
+    <select id="listByParentTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskTask">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM develop_task_task
+        WHERE parent_task_id = #{parentTaskId} and is_deleted = 0
+    </select>
+
+    <delete id="deleteByTaskId">
+        DELETE FROM develop_task_task
+        WHERE task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteByParentId">
+        DELETE FROM develop_task_task
+        WHERE parent_task_id = #{parentId}
+    </delete>
+
+    <delete id="delete">
+        DELETE FROM develop_task_task
+        WHERE id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskTask" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO develop_task_task
+          (task_id,parent_task_id,tenant_id,gmt_create,gmt_modified,is_deleted)
+        VALUES
+          (#{taskId},#{parentTaskId},#{tenantId},now(),now(),0)
+    </insert>
+
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskTask">
+        UPDATE
+        develop_task_task
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+
+    <select id="listParentTaskIdByTaskId" resultType="long">
+        SELECT parent_task_id
+        FROM develop_task_task
+        WHERE task_id = #{taskId} and is_deleted = 0 order by gmt_modified
+    </select>
+
+</mapper>
