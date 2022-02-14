@@ -57,7 +57,7 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 	const [rightBarSize, setRightBarSize] = useState('30px');
 
 	const handleClickTab = (key?: string) => {
-		setRightBarSize(key ? '350px' : '30px');
+		setRightBarSize(key ? '400px' : '30px');
 	};
 
 	const getContent = (panelMaximized: boolean, panelHidden: boolean) => {

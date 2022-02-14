@@ -588,8 +588,8 @@ export function getVertxtStyle(type: TASK_STATUS): string {
 /**
  * 是否是 Hadoop 引擎
  */
-export function isSparkEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.HADOOP.toString() === engineType.toString();
+export function isSparkEngine(engineType?: numOrStr) {
+	return ENGINE_SOURCE_TYPE_ENUM.HADOOP.toString() === engineType?.toString();
 }
 
 /**
