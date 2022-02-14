@@ -3,7 +3,7 @@ import type { IPersonLists } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
 import { extensions } from '@/extensions';
-import molecule, { MoleculeProvider } from '@dtinsight/molecule';
+import { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
 import API from '@/api/operation';
 import Task from '@/pages/operation/task';
@@ -23,20 +23,10 @@ import ClusterManage from './console/cluster';
 import EditCluster from './console/cluster/newEdit';
 import { getCookie } from '@/utils';
 import { isViewMode } from './console/cluster/newEdit/help';
-import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
 import 'antd/dist/antd.less';
 import '@dtinsight/molecule/esm/style/mo.css';
 import '@ant-design/compatible/assets/index.css';
 import './index.scss';
-
-function loadStyles(url: string) {
-	const link = document.createElement('link');
-	link.rel = 'stylesheet';
-	link.type = 'text/css';
-	link.href = url;
-	const head = document.getElementsByTagName('head')[0];
-	head.appendChild(link);
-}
 
 export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
@@ -278,12 +268,6 @@ export default function HomePage() {
 	useLayoutEffect(() => {
 		if (history.location.query?.drawer) {
 			openDrawer(history.location.query?.drawer as string);
-		}
-
-		// load dark.css for antd
-		const colorThemeMode = molecule.colorTheme.getColorThemeMode();
-		if (colorThemeMode === ColorThemeMode.dark) {
-			loadStyles('https://unpkg.com/antd@4.18.5/dist/antd.dark.css');
 		}
 
 		const unlisten = history.listen((route) => {

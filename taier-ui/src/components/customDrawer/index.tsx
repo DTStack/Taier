@@ -3,6 +3,7 @@ import { history } from 'umi';
 import type { DrawerProps } from 'antd';
 import { Drawer } from 'antd';
 import React from 'react';
+import { removePopUpMenu } from '@/utils';
 
 interface CustomDrawerProps extends DrawerProps {
 	id: string;
@@ -59,6 +60,7 @@ export default function CustomDrawer({ id, renderContent, ...restProps }: Custom
 			query: {},
 		});
 		drawerListeners[id](() => null, { visible: false });
+		removePopUpMenu();
 	};
 
 	return (

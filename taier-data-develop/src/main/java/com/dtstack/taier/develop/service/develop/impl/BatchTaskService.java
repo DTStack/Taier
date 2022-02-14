@@ -1352,7 +1352,7 @@ public class BatchTaskService {
         // 增加注释
         task.setSqlText(this.createAnnotationText(task));
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        task.setTaskParams(getDefaultTaskParam(task.getTenantId(),task.getTaskType()));
+        task.setTaskParams(getDefaultTaskParam(task.getTenantId(), task.getTaskType()));
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
         String scConf = DEFAULT_SCHEDULE_CONF;

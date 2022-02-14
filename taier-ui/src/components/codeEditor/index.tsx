@@ -127,7 +127,6 @@ class CodeEditor extends React.Component<any, any> {
 						scrollInfo.clientHeight -
 						scrollInfo.height >
 					-10;
-				console.log(isInBottom);
 				if (!value) {
 					this.self.setValue('');
 				} else {
