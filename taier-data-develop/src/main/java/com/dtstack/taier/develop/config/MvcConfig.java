@@ -22,7 +22,6 @@ package com.dtstack.taier.develop.config;
 
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -39,23 +38,6 @@ import java.util.List;
 @Configuration
 public class MvcConfig extends DelegatingWebMvcConfiguration {
 
-    private static final List<String> INTERCEPT_LIST;
-
-    static {
-        INTERCEPT_LIST = Lists.newArrayList(
-                //数据开发
-                "/api/rdos/**",
-                "/**/frozenTask","/**/getFillDataJobInfoPreview","/**/stopFillDataJobs",
-                //队列管理
-                "/node/cluster/getAllCluster","/node/console/nodeAddress","/node/console/overview","/node/console/stopAll",
-                "/node/console/groupDetail",
-                //资源管理
-                "/node/console/clusterResources","/node/tenant/pageQuery","/node/tenant/bindingQueue","/node/account/getTenantUnBandList",
-                //多集群管理
-                "/node/cluster/pageQuery","/node/component/cluster/getCluster","/node/component/getComponentVersion",
-                "/node/component/addOrCheckClusterWithName","/node/component/testConnects","/node/cluster/deleteCluster"
-                );
-    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -89,7 +71,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns(INTERCEPT_LIST);
+        registry.addInterceptor(loginInterceptor()).excludePathPatterns("/user/*");
         super.addInterceptors(registry);
     }
 
