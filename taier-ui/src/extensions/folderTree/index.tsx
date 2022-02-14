@@ -308,6 +308,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					name: data.name,
 					data: {
 						...data,
+						value: data.sqlText,
 						taskDesc: data.taskDesc,
 					},
 					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
