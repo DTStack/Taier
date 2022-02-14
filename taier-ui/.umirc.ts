@@ -2,7 +2,7 @@ import { defineConfig } from 'umi';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
-	title: 'Taiga | DTStack',
+	title: 'Taier | DTStack',
 	targets: {
 		ios: false,
 	},
@@ -41,13 +41,7 @@ export default defineConfig({
 	},
 	tailwindcss: {},
 	proxy: {
-		'/node': {
-			target: 'http://172.16.100.225:7001/proxy/121',
-			// target: 'http://192.168.96.73:8090',
-			changeOrigin: true,
-			secure: false,
-		},
-		'/api/rdos': {
+		'/taier': {
 			target: 'http://172.16.100.225:7001/proxy/121',
 			// target: 'http://192.168.96.73:8090',
 			changeOrigin: true,

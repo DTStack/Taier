@@ -66,11 +66,11 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 					</tr>
 					<tr>
 						<td>资源描述</td>
-						<td>{data.resourceDesc}</td>
+						<td className='break-all'>{data.resourceDesc}</td>
 					</tr>
 					<tr>
 						<td>存储路径</td>
-						<td>
+						<td className='break-all'>
 							{data.url}
 							<CopyToClipboard
 								key="copy"

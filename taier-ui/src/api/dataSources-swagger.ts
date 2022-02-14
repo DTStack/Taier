@@ -18,7 +18,7 @@
 
 //每个模块定义的相关接口
 // const api = '/api/publicService';
-const api = '/node/datasource';
+const api = '/taier/dataSource';
 
 export default {
 	getOfflineTableList: {
@@ -47,37 +47,37 @@ export default {
 	},
 	queryByTenantId: {
 		method: 'get',
-		url: `${api}/dataSource/queryByTenantId`,
+		url: `${api}/queryByTenantId`,
 	},
 	//数据源列表分页信息
 	dataSourcepage: {
 		method: 'post',
-		url: `${api}/dataSource/page`,
+		url: `${api}/manager/page`,
 	},
 	//数据源类型下拉列表
 	typeList: {
 		method: 'post',
-		url: `${api}/dataSource/type/list`,
+		url: `${api}/manager/type/list`,
 	},
 	// 授权产品下拉列表
 	productList: {
 		method: 'post',
-		url: `${api}/dataSource/product/list`,
+		url: `${api}/manager/product/list`,
 	},
 	//删除一条数据源实例
 	dataSourceDelete: {
 		method: 'post',
-		url: `${api}/dataSource/delete`,
+		url: `${api}/manager/delete`,
 	},
 	//产品授权界面
 	authProductList: {
 		method: 'post',
-		url: `${api}/dataSource/auth/product/list`,
+		url: `${api}/manager/auth/product/list`,
 	},
 	// 产品授权
 	dataSoProAuth: {
 		method: 'post',
-		url: `${api}/dataSource/product/auth`,
+		url: `${api}/manager/product/auth`,
 	},
 	//获取数据源分类类目列表
 	queryDsClassifyList: {
@@ -127,7 +127,7 @@ export default {
 	// 获取数据源基本详情
 	detail: {
 		method: 'post',
-		url: `${api}/dataSource/detail`,
+		url: `${api}/manager/detail`,
 	},
 	//解析kerberos文件获取principal列表
 	uploadCode: {

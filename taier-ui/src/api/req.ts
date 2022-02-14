@@ -17,7 +17,7 @@
  */
 
 // 从config文件全局读取
-export const RDOS_BASE_URL = '/api/rdos';
+export const RDOS_BASE_URL = '/taier';
 
 const req = {
 	// ===== 用户模块 ===== //
@@ -94,25 +94,25 @@ const req = {
 	CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
 
 	// ==== 发布包 ===== //
-	PUBLISH_OFFLINE_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/publishPackage`,
-	GET_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/pageQuery`, // 函数分页
-	GET_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batch/batchResource/pageQuery`, // 资源分页
-	GET_OFFLINE_TASKS: `${RDOS_BASE_URL}/batch/batchTaskShade/pageQuery`, // 已提交任务分页查询
-	GET_OFFLINE_LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceInBingProject`, // 获取当前项目关联的项目下的数据源列表
-	GET_OFFLINE_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`, // 获取任务关联的函数资源表
-	GET_TABLES: `${RDOS_BASE_URL}/batch/batchTableInfo/simplePageQuery`, // 获取表
-	GET_OFFLINE_PACKAGE_NAME: `${RDOS_BASE_URL}/batch/batchPackage/getPackageName`, // 获取包名
-	OFFLINE_CREATE_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/createPackage`, // 创建包
-	OFFLINE_DELETE_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/deletePackage`, // 删除包
-	GET_OFFLINE_PACKAGE_LIST: `${RDOS_BASE_URL}/batch/batchPackage/pageQuery`, // 包列表
-	GET_OFFLINE_UPLOADPACKAGE_LIST: `${RDOS_BASE_URL}/upload/batch/batchPackage/uploadPackage`, // 导入发布包
-	GET_PACKAGE_ITEM_LIST: `${RDOS_BASE_URL}/batch/batchPackageItem/getPackageItemList`, // 查看发布包列表
-	GET_PACKAGE_ITEM_STATUS: `${RDOS_BASE_URL}/batch/batchPackageItem/getPackageItemStatus`, // 查看发布包列表
-	INIT_UPLOAD_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/initUploadPackage`, // 跳过检查继续导入
-	GET_PACKAGE_ISHASFTP: `${RDOS_BASE_URL}/batch/batchPackage/isHasFtp`, // 是否开启sftp
-	GET_PROJECTS_BY_APP_TYPE: `${RDOS_BASE_URL}/common/project/getProjectsByAppType`, // 获取模糊查询项目名称
-	GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batch/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
-	ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batch/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
+	PUBLISH_OFFLINE_PACKAGE: `${RDOS_BASE_URL}/batchPackage/publishPackage`,
+	GET_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batchFunction/pageQuery`, // 函数分页
+	GET_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batchResource/pageQuery`, // 资源分页
+	GET_OFFLINE_TASKS: `${RDOS_BASE_URL}/batchTaskShade/pageQuery`, // 已提交任务分页查询
+	GET_OFFLINE_LINK_SOURCE: `${RDOS_BASE_URL}/batchDataSource/getDataSourceInBingProject`, // 获取当前项目关联的项目下的数据源列表
+	GET_OFFLINE_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batchPackage/getRelationByTask`, // 获取任务关联的函数资源表
+	GET_TABLES: `${RDOS_BASE_URL}/batch/simplePageQuery`, // 获取表
+	GET_OFFLINE_PACKAGE_NAME: `${RDOS_BASE_URL}/batchPackage/getPackageName`, // 获取包名
+	OFFLINE_CREATE_PACKAGE: `${RDOS_BASE_URL}/batchPackage/createPackage`, // 创建包
+	OFFLINE_DELETE_PACKAGE: `${RDOS_BASE_URL}/batchPackage/deletePackage`, // 删除包
+	GET_OFFLINE_PACKAGE_LIST: `${RDOS_BASE_URL}/batchPackage/pageQuery`, // 包列表
+	GET_OFFLINE_UPLOADPACKAGE_LIST: `${RDOS_BASE_URL}/batch/batchPackage/uploadPackage`, // 导入发布包
+	GET_PACKAGE_ITEM_LIST: `${RDOS_BASE_URL}/batchPackageItem/getPackageItemList`, // 查看发布包列表
+	GET_PACKAGE_ITEM_STATUS: `${RDOS_BASE_URL}/batchPackageItem/getPackageItemStatus`, // 查看发布包列表
+	INIT_UPLOAD_PACKAGE: `${RDOS_BASE_URL}/batchPackage/initUploadPackage`, // 跳过检查继续导入
+	GET_PACKAGE_ISHASFTP: `${RDOS_BASE_URL}/batchPackage/isHasFtp`, // 是否开启sftp
+	GET_PROJECTS_BY_APP_TYPE: `${RDOS_BASE_URL}/project/getProjectsByAppType`, // 获取模糊查询项目名称
+	GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
+	ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
 };
 
 export default req;
