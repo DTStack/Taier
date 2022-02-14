@@ -1,3 +1,0 @@
-insert into console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`)
-select cluster_id, component_id, component_type_code, type, 0, 'security.kerberos.login.contexts','KafkaClient', null, dependencykey, dependencyValue, `desc`
-from console_component_config where component_type_code = 0 and `key` = 'clusterMode' and `value` = 'session' and type = 'INPUT';
