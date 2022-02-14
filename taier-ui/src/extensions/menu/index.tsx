@@ -26,7 +26,7 @@ function handleMenuBarEvents() {
 				break;
 			}
 			case 'About': {
-				window.open('https://github.com/DTStack/Taiger');
+				window.open('https://github.com/DTStack/Taier');
 				break;
 			}
 
