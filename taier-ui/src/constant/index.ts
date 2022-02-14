@@ -601,6 +601,10 @@ export enum DRAWER_MENU_ENUM {
 	CLUSTER_DETAIL = 'cluster-detail',
 }
 
+export const TENANT_MENU = {
+	ADD_TENANT: 'add-tenant',
+} as const;
+
 export const OPERATIONS = [
 	{
 		id: DRAWER_MENU_ENUM.TASK,
@@ -630,6 +634,13 @@ export const CONSOLE = [
 		name: '多集群管理',
 	},
 ];
+
+export const TENANT = [
+	{
+		id: TENANT_MENU.ADD_TENANT,
+		name: '新增租户',
+	},
+] as const;
 
 /**
  * 控制台队列任务类型

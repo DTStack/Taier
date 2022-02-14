@@ -1,5 +1,5 @@
 import molecule from '@dtinsight/molecule';
-import { CONSOLE, folderMenu, OPERATIONS, OUTPUT_LOG } from '@/constant';
+import { CONSOLE, folderMenu, OPERATIONS, OUTPUT_LOG, TENANT } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
 import classNames from 'classnames';
@@ -197,6 +197,11 @@ function initMenuBar() {
 		id: 'console',
 		name: '控制台',
 		data: [...CONSOLE],
+	});
+	nextData.splice(3, 0, {
+		id: 'tenant',
+		name: '租户',
+		data: [...TENANT],
 	});
 	const menuRunning = nextData.findIndex((menu) => menu.id === 'Run');
 	if (menuRunning > -1) {
