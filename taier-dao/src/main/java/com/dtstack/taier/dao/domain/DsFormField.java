@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("dsc_form_field")
+@TableName("datasource_form_field")
 public class DsFormField extends BaseModel<DsFormField> {
 
     /**
