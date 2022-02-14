@@ -3,20 +3,20 @@ title: 贡献指南
 sidebar_label: 贡献指南
 ---
 
-## 为 Taiga 做贡献
-**Taiga** 使用了 Apache 的多个开源项目如`Flink`、`Spark` 作为计算组件实现数据同步和批处理计算，得益于开源社区才有 **Taiga**。取之社区，
-回馈社区。**Taiga** 迈出 `v1.0.0` 版本的这一步代表着 `袋鼠云技术研发团队` 对开源的决心，未来我们会
-尽快推出 **Taiga** 后续版本，也欢迎对 Taiga 感兴趣的开源伙伴一起参与共建！提出你宝贵的`Issue` 与 `PR`！
+## 为 Taier 做贡献
+**Taier** 使用了 Apache 的多个开源项目如`Flink`、`Spark` 作为计算组件实现数据同步和批处理计算，得益于开源社区才有 **Taier**。取之社区，
+回馈社区。**Taier** 迈出 `v1.0.0` 版本的这一步代表着 `袋鼠云技术研发团队` 对开源的决心，未来我们会
+尽快推出 **Taier** 后续版本，也欢迎对 Taier 感兴趣的开源伙伴一起参与共建！提出你宝贵的`Issue` 与 `PR`！
 
-如果您想为 **Taiga** 做贡献（即便是一些微小的），请不要犹豫，参考下面的指导方针。
+如果您想为 **Taier** 做贡献（即便是一些微小的），请不要犹豫，参考下面的指导方针。
 
 ### 报告问题
-在报告任何关于 **Taiga** 的问题时，请前往[Issues](https://github.com/DTStack/Taiga/issues/new) 。
+在报告任何关于 **Taier** 的问题时，请前往[Issues](https://github.com/DTStack/Taier/issues/new) 。
 
 ### 贡献流程
 这是一个贡献者工作流程的大致说明：
 
-1. 克隆 **Taiga** 项目
+1. 克隆 **Taier** 项目
 2. 从希望贡献的分支上创新新的分支，通常是 `master` 分支。
 3. 提交您的更改。
 4. 确保提交消息的格式正确。
@@ -27,7 +27,7 @@ sidebar_label: 贡献指南
 :::tip 
 具体操作如下：
 
-* git remote add upstream git@github.com:DTStack/Taiga.git
+* git remote add upstream git@github.com:DTStack/Taier.git
 * git fetch upstream
 * git rebase upstream/master
 * git checkout -b your_awesome_patch
@@ -266,10 +266,10 @@ sidebar_label: 贡献指南
 
 ### Commitment 规范
  **Commit Message** 三段式格式要求，模板：`[${jira-issue-id}]``[${affected-component}]` `${jira-issue-title}`
-* 根据`issue-id`，如: **[Taiga-issueId][taiga-common] Translate "common module" page into Chinese**
+* 根据`issue-id`，如: **[Taier-issueId][Taier-common] Translate "common module" page into Chinese**
 
 :::tip 
-无`issue-id`时，可以分支命名，如：**[feat_doc][taiga-common] Translate "common module" page into Chinese**
+无`issue-id`时，可以分支命名，如：**[feat_doc][Taier-common] Translate "common module" page into Chinese**
 :::
 
 

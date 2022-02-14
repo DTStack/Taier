@@ -52,7 +52,7 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             "/upload/component/uploadKerberos","/user/login","/user/logout",
             "/datasource/addDs/getPrincipalsWithConf","/datasource/addDs/addOrUpdateSourceWithKerberos",
     "/datasource/addDs/testConWithKerberos", "/batchResource/addResource",
-    "/batchResource/replaceResource" };
+    "/batchResource/replaceResource", "/developDownload/downloadJobLog"};
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

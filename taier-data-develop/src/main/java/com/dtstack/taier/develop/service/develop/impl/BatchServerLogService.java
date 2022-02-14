@@ -68,6 +68,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -109,8 +110,8 @@ public class BatchServerLogService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
-    private static final String DOWNLOAD_TYPE_LOG = "/api/rdos/download/batch/batchDownload/downloadAppTypeLog?jobId=%s&logType=%s&projectId=%s";
+    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
+    private static final String DOWNLOAD_TYPE_LOG = "/taier/developDownload/downloadAppTypeLog?jobId=%s&logType=%s&projectId=%s";
 
     private static final List<Integer> finish_status = new ArrayList<>();
 
@@ -669,7 +670,7 @@ public class BatchServerLogService {
                 return null;
             }
             EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
-            flinkJsonObject = jsonObject.getJSONObject(EComponentType.FLINK.getTypeCode() + "").getJSONObject(deployModeEnum.name());
+            flinkJsonObject = jsonObject.getJSONObject(deployModeEnum.name().toLowerCase(Locale.ROOT));
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");
         String prometheusPort = flinkJsonObject.getString("prometheusPort");

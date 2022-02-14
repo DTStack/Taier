@@ -25,7 +25,8 @@ package com.dtstack.taier.common.enums;
 public enum DownloadType {
     Kerberos(0),
     Config(1),
-    Template(2);
+    Template(2),
+    DEVELOP_LOG(3);
 
     private int code;
 
