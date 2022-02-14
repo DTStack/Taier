@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopSysParamDao">
+
+    <sql id="select_content_fragment">
+      id,param_name,param_command,is_deleted
+    </sql>
+
+    <select id="listAll" resultType="com.dtstack.taier.dao.domain.BatchSysParameter">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM develop_sys_parameter
+        WHERE is_deleted = 0
+    </select>
+
+</mapper>

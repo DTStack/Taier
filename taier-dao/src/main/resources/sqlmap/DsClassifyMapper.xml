@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.DsClassifyMapper">
+
+    <sql id="select_content_fragment">
+      id,classify_code,sorted,classify_name
+    </sql>
+
+
+    <select id="queryDsClassifyList" resultType="com.dtstack.taier.dao.domain.DsClassify">
+        select
+        <include refid="select_content_fragment" />
+        from datasource_classify
+        where is_deleted = 0
+        order by sorted desc
+    </select>
+</mapper>
