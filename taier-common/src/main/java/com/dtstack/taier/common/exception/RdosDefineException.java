@@ -16,41 +16,41 @@ public class RdosDefineException extends RuntimeException {
     public RdosDefineException() {
     }
 
-    public RdosDefineException(Throwable cause){
+    public RdosDefineException(Throwable cause) {
         super(cause);
     }
 
-    public RdosDefineException(String errorMessage){
+    public RdosDefineException(String errorMessage) {
         super(errorMessage);
         this.errorMessage = errorMessage;
         this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(String errorMessage, Throwable cause){
+    public RdosDefineException(String errorMessage, Throwable cause) {
         super(errorMessage, cause);
         this.errorMessage = errorMessage;
         this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
-    public RdosDefineException(ErrorCode errorCode){
+    public RdosDefineException(ErrorCode errorCode) {
         super(buildErrorInfo(errorCode, errorCode.getDescription()));
         this.errorCode = errorCode;
         setErrorMessage("");
     }
 
-    public RdosDefineException(String message, ErrorCode errorCode){
+    public RdosDefineException(String message, ErrorCode errorCode) {
         super(buildErrorInfo(errorCode, message));
         this.errorCode = errorCode;
         setErrorMessage(message);
     }
 
-    public RdosDefineException(String message, ErrorCode errorCode, String url){
+    public RdosDefineException(String message, ErrorCode errorCode, String url) {
         super(buildErrorInfo(errorCode, message, url));
         this.errorCode = errorCode;
         setErrorMessage(message);
     }
 
-    public RdosDefineException(ErrorCode errorCode, Throwable cause){
+    public RdosDefineException(ErrorCode errorCode, Throwable cause) {
         super(buildErrorInfo(errorCode, errorCode.getDescription()), cause);
         this.errorCode = errorCode;
         this.errorMessage = errorCode.getDescription();
@@ -62,10 +62,10 @@ public class RdosDefineException extends RuntimeException {
         setErrorMessage(message);
     }
 
-    private void setErrorMessage(String extMsg){
-        if(StringUtils.isEmpty(extMsg)){
+    private void setErrorMessage(String extMsg) {
+        if (StringUtils.isEmpty(extMsg)) {
             this.errorMessage = errorCode.getDescription();
-        }else{
+        } else {
             this.errorMessage = errorCode.getDescription() + "-" + extMsg;
         }
     }
@@ -83,13 +83,10 @@ public class RdosDefineException extends RuntimeException {
     }
 
     private static String buildErrorInfo(ErrorCode errorCode, String errorMessage) {
-        return "{errorCode=" + errorCode.getCode() +
-                ", errorMessage=" + errorMessage + "}";
+        return errorMessage;
     }
 
     private static String buildErrorInfo(ErrorCode errorCode, String errorMessage, String url) {
-        return "{errorCode=" + errorCode.getCode() +
-                ", errorMessage=" + errorMessage +
-                ", url=" + url + "}";
+        return errorMessage + url;
     }
 }

@@ -5,6 +5,7 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.ExceptionEnums;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -25,7 +26,7 @@ import javax.validation.ConstraintViolationException;
 import javax.xml.bind.ValidationException;
 import java.util.List;
 
-@ControllerAdvice("com.dtstack.taiger.develop.controller")
+@ControllerAdvice("com.dtstack.taiger.develop.controller.*")
 public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ResponseAdvisor.class);
@@ -121,7 +122,7 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         String requestPath = request.getURI().getPath();
-        if (!requestPath.startsWith("/taier")) {
+        if (!requestPath.startsWith(ConfigConstant.REQUEST_PREFIX)) {
             return body;
         }
         R<Object> resultBody = new R<>();
