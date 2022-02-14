@@ -124,7 +124,7 @@
                cc.is_default
         FROM console_component cc
                  INNER JOIN console_cluster_tenant cct ON cc.cluster_id = cct.cluster_id
-                 INNER JOIN schedule_dict sd ON sd.dict_value = cc.version_value
+                 INNER JOIN dict sd ON sd.dict_value = cc.version_value
         WHERE cc.component_type_code = #{componentTypeCode}
           AND cct.tenant_id = #{tenantId}
           AND cc.is_deleted = 0
