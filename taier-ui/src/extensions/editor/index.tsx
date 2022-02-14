@@ -43,7 +43,8 @@ import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
-import taskParamsService, { IParamsProps } from '@/services/taskParamsService';
+import type { IParamsProps } from '@/services/taskParamsService';
+import taskParamsService from '@/services/taskParamsService';
 
 const { confirm } = Modal;
 
@@ -267,6 +268,8 @@ function emitEvent() {
 				const params = {
 					...current.tab?.data,
 					sqlText: current.tab?.data.value,
+					// taskVos pass through by dependencyTasks
+					dependencyTasks: current.tab?.data.taskVos,
 				};
 				const uploadTask = () => {
 					const { id } = params;

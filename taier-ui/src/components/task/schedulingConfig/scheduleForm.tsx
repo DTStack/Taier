@@ -21,7 +21,7 @@ import get from 'lodash/get';
 import type { SelectProps, CheckboxProps } from 'antd';
 import { Form, Checkbox, DatePicker, Select, Input, Radio } from 'antd';
 import HelpDoc from '../../../components/helpDoc';
-import { formItemLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
+import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
 import type { IScheduleConfProps } from '@/interface';
 import { forwardRef } from 'react';
 import { useImperativeHandle } from 'react';
@@ -56,24 +56,42 @@ interface IFormWrapProps {
 	handleScheduleType: SelectProps<string>['onChange'];
 }
 
+/**
+ * 小时默认下拉选项，0 -> 23
+ */
 const HOURS_OPTIONS = new Array(24)
 	.fill(1)
 	.map((_, i) => ({ label: i < 10 ? `0${i}` : i.toString(), value: i.toString() }));
+/**
+ * 分钟默认下拉选择, 00 -> 59
+ */
 const MINS_OPTIONS = new Array(60)
 	.fill(1)
 	.map((_, i) => ({ label: i < 10 ? `0${i}` : i.toString(), value: i.toString() }));
+/**
+ * 分钟间隔默认下拉。5分钟，10分钟..., 55分钟
+ */
 const GAP_OPTIONS = new Array(11).fill(1).map((_, i) => ({
 	label: `${(i + 1) * 5}分钟`,
 	value: ((i + 1) * 5).toString(),
 }));
+/**
+ * 星期默认下拉选项
+ */
 const WEEKS_OPTIONS = ['一', '二', '三', '四', '五', '六', '天'].map((day, index) => ({
 	label: `星期${day}`,
 	value: (index + 1).toString(),
 }));
+/**
+ * 日默认下拉选项，1 -> 30
+ */
 const DAYS_OPTIONS = new Array(30).fill(1).map((_, i) => ({
 	label: `每月${i + 1}号`,
 	value: (i + 1).toString(),
 }));
+/**
+ * 重试次数下拉选项，1 -> 5
+ */
 const RETRY_OPTIONS = new Array(5).fill(1).map((_, i) => ({
 	label: i + 1,
 	value: (i + 1).toString(),
@@ -152,7 +170,7 @@ export default forwardRef(
 				case TASK_PERIOD_ENUM.MINUTE: {
 					return (
 						<span key={type}>
-							<FormItem {...formItemLayout} label="开始时间" required>
+							<FormItem {...scheduleConfigLayout} label="开始时间" required>
 								<FormItem
 									noStyle
 									name="beginHour"
@@ -195,7 +213,7 @@ export default forwardRef(
 								<span className="ml-5px">分</span>
 							</FormItem>
 							<FormItem
-								{...formItemLayout}
+								{...scheduleConfigLayout}
 								label="间隔时间"
 								name="gapMin"
 								rules={[
@@ -211,7 +229,7 @@ export default forwardRef(
 									options={GAP_OPTIONS}
 								/>
 							</FormItem>
-							<FormItem {...formItemLayout} label="结束时间" required>
+							<FormItem {...scheduleConfigLayout} label="结束时间" required>
 								<FormItem
 									noStyle
 									name="endHour"
@@ -259,7 +277,7 @@ export default forwardRef(
 				case TASK_PERIOD_ENUM.HOUR: {
 					return (
 						<span key={type}>
-							<FormItem {...formItemLayout} label="开始时间" required>
+							<FormItem {...scheduleConfigLayout} label="开始时间" required>
 								<FormItem
 									noStyle
 									name="beginHour"
@@ -302,7 +320,7 @@ export default forwardRef(
 								<span className="ml-5px">分</span>
 							</FormItem>
 							<FormItem
-								{...formItemLayout}
+								{...scheduleConfigLayout}
 								label="间隔时间"
 								name="gapHour"
 								rules={[
@@ -314,7 +332,7 @@ export default forwardRef(
 							>
 								<Select onChange={handleScheduleConf} options={HOURS_OPTIONS} />
 							</FormItem>
-							<FormItem {...formItemLayout} label="结束时间" required>
+							<FormItem {...scheduleConfigLayout} label="结束时间" required>
 								<FormItem
 									noStyle
 									name="endHour"
@@ -363,7 +381,7 @@ export default forwardRef(
 					const prefix = isWorkflowNode ? '起调' : '具体';
 					return (
 						<span key={type}>
-							<FormItem {...formItemLayout} label={`${prefix}时间`} required>
+							<FormItem {...scheduleConfigLayout} label={`${prefix}时间`} required>
 								<FormItem
 									noStyle
 									name="hour"
@@ -406,7 +424,7 @@ export default forwardRef(
 					return (
 						<span key={type}>
 							<FormItem
-								{...formItemLayout}
+								{...scheduleConfigLayout}
 								label="选择时间"
 								name="weekDay"
 								rules={[
@@ -424,7 +442,7 @@ export default forwardRef(
 									options={WEEKS_OPTIONS}
 								/>
 							</FormItem>
-							<FormItem {...formItemLayout} label="具体时间" required>
+							<FormItem {...scheduleConfigLayout} label="具体时间" required>
 								<FormItem
 									noStyle
 									name="hour"
@@ -467,7 +485,7 @@ export default forwardRef(
 					return (
 						<span key={type}>
 							<FormItem
-								{...formItemLayout}
+								{...scheduleConfigLayout}
 								label="选择时间"
 								name="day"
 								rules={[
@@ -485,7 +503,7 @@ export default forwardRef(
 									options={DAYS_OPTIONS}
 								/>
 							</FormItem>
-							<FormItem {...formItemLayout} label="具体时间" required>
+							<FormItem {...scheduleConfigLayout} label="具体时间" required>
 								<FormItem
 									noStyle
 									name="hour"
@@ -541,7 +559,7 @@ export default forwardRef(
 				}}
 			>
 				<FormItem
-					{...formItemLayout}
+					{...scheduleConfigLayout}
 					label="调度状态"
 					name="scheduleStatus"
 					valuePropName="checked"
@@ -553,7 +571,7 @@ export default forwardRef(
 				{!isWorkflowRoot && (
 					<>
 						<FormItem
-							{...formItemLayout}
+							{...scheduleConfigLayout}
 							label="出错重试"
 							name="isFailRetry"
 							initialValue={get(scheduleConf, 'isFailRetry')}
@@ -566,7 +584,7 @@ export default forwardRef(
 						<FormItem noStyle dependencies={['isFailRetry']}>
 							{({ getFieldValue }) =>
 								getFieldValue('isFailRetry') && (
-									<FormItem {...formItemLayout} label="重试次数" required>
+									<FormItem {...scheduleConfigLayout} label="重试次数" required>
 										<FormItem
 											noStyle
 											name="maxRetryNum"
@@ -597,7 +615,7 @@ export default forwardRef(
 				)}
 				{!isWorkflowNode && (
 					<div>
-						<FormItem {...formItemLayout} label="生效日期" required>
+						<FormItem {...scheduleConfigLayout} label="生效日期" required>
 							<FormItem
 								name="beginDate"
 								noStyle
@@ -613,7 +631,7 @@ export default forwardRef(
 									allowClear={false}
 									disabledDate={changeStartDisabledDate}
 									disabled={isScienceTask}
-									style={{ width: 125 }}
+									style={{ width: 115 }}
 									onChange={handleScheduleConf}
 								/>
 							</FormItem>
@@ -633,13 +651,13 @@ export default forwardRef(
 									allowClear={false}
 									disabled={isScienceTask}
 									disabledDate={changeEndDisabledDate}
-									style={{ width: 125 }}
+									style={{ width: 115 }}
 									onChange={handleScheduleConf}
 								/>
 							</FormItem>
 						</FormItem>
 						<FormItem
-							{...formItemLayout}
+							{...scheduleConfigLayout}
 							label="调度周期"
 							name="periodType"
 							initialValue={`${periodType}`}
@@ -682,7 +700,7 @@ export default forwardRef(
 							TASK_PERIOD_ENUM.MINUTE.toString(),
 							TASK_PERIOD_ENUM.HOUR.toString(),
 						].includes(getFieldValue('periodType').toString()) && (
-							<FormItem {...formItemLayout} label="延迟实例">
+							<FormItem {...scheduleConfigLayout} label="延迟实例">
 								<FormItem
 									noStyle
 									name="isExpire"
@@ -699,7 +717,7 @@ export default forwardRef(
 				<FormItem noStyle dependencies={['isExpire']}>
 					{({ getFieldValue }) =>
 						getFieldValue('isExpire') && (
-							<FormItem {...formItemLayout} label="当天最后实例">
+							<FormItem {...scheduleConfigLayout} label="当天最后实例">
 								<FormItem
 									noStyle
 									name="isLastInstance"
