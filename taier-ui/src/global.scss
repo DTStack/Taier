@@ -17,6 +17,10 @@ code {
 	height: 100%;
 }
 
-:root {
+// priority
+:root:root {
 	--list-focusOutline: #3f87ff;
+
+	// reset molecule theme color
+	--menu-selectionBackground: #3f87ff;
 }

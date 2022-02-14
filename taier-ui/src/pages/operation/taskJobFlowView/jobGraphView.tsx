@@ -21,7 +21,7 @@
 import * as React from 'react';
 import { get, cloneDeep } from 'lodash';
 
-import { Icon } from '@ant-design/compatible';
+import { CloseOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Spin, Card } from 'antd';
 
 import MyIcon from '@/components/operationIcon';
@@ -593,7 +593,7 @@ class JobGraphView extends React.Component<any, any> {
 				modalShow && (
 					<Card className="graphInfo">
 						<p style={{ float: 'right' }}>
-							<Icon type="close" onClick={this.closeModal} />
+							<CloseOutlined onClick={this.closeModal} />
 						</p>
 						<h2 style={{ marginTop: 5 }}>{name}</h2>
 						<p>
@@ -689,7 +689,7 @@ class JobGraphView extends React.Component<any, any> {
 				</Spin>
 				<div className="graph-toolbar">
 					<Tooltip placement="bottom" title="刷新">
-						<Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }} />
+						<ReloadOutlined onClick={this.refresh} style={{ color: '#333333' }} />
 					</Tooltip>
 					<Tooltip placement="bottom" title="放大">
 						<MyIcon onClick={this.zoomIn} type="zoom-in" />

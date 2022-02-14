@@ -105,6 +105,7 @@ function openCreateTab(id?: string) {
 		id: tabId,
 		modified: false,
 		name: localize('create task', '新建任务'),
+		icon: 'file-add',
 		data: {
 			// always create task under the root node or create task from context menu
 			nodePid: id || folderTree.data?.[0].id,
