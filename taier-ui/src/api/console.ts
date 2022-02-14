@@ -23,7 +23,7 @@ import http from './http';
 import req from './reqConsole';
 
 export default {
-	addTenant(params: { tenantName: string }) {
+	addTenant(params: any) {
 		return http.post(req.ADD_TENANT, params);
 	},
 	switchTenant(params: { tenantId: number }) {

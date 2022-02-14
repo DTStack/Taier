@@ -13,14 +13,19 @@ const { Option } = Select;
 interface IUpstreamTaskProps {
 	form: FormInstance;
 	taskId: number;
-	submitData: (task: ITaskVOProps) => void;
+	submitData: (task: ITaskSearchResultProps) => void;
 	onCancel: () => void;
 	visible: boolean;
 }
 
-interface ITaskVOProps {
+/**
+ * 任务搜索结果类型
+ */
+export interface ITaskSearchResultProps {
 	taskId: number;
 	taskName: string;
+	tenantId: number;
+	tenantName: string;
 }
 
 interface ITenantProps {
@@ -36,7 +41,7 @@ export default function UpstreamDependentTasks({
 	onCancel,
 }: IUpstreamTaskProps) {
 	const [tenants, setTenants] = useState<ITenantProps[]>([]);
-	const [tasks, setTasks] = useState<ITaskVOProps[]>([]);
+	const [tasks, setTasks] = useState<ITaskSearchResultProps[]>([]);
 
 	const changeTenant = () => {
 		form.setFieldsValue({
