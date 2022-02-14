@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dtstack.taier.dao.mapper.DsInfoMapper">
+
+    <sql id="selectDsField">
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_desc as dataDesc,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.gmt_modified as gmtModified
+    </sql>
+
+
+    <sql id="select_content_fragment">
+        a.id as id,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_name as dataName,
+        a.data_desc as dataDesc,
+        a.link_json as linkJson,
+        a.data_json as dataJson,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.tenant_id as tenantId,
+        a.is_deleted as deleted,
+        a.gmt_modified as gmtModified,
+        a.gmt_create as gmtCreate,
+        a.create_user_id as createUserId,
+        a.modify_user_id as modifyUserId,
+        a.data_type_code as dataTypeCode
+    </sql>
+
+    <sql id="queryImportDsSql">
+        <where>
+            a.is_deleted = 0
+            and b.is_deleted = 0
+            and b.`app_type` = #{listQuery.appType}
+            and a.`tenant_id` = #{listQuery.tenant_id}
+            <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
+                and a.`data_type` in
+                <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
+                    #{dataType}
+                </foreach>
+            </if>
+            <if test="listQuery.dataTypeCodeList != null and listQuery.dataTypeCodeList.size() > 0">
+                and a.data_type_code in
+                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
+                    #{dataTypeCode}
+                </foreach>
+            </if>
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+            and not EXISTS (
+                select data_info_id
+                FROM dsc_import_ref t
+                WHERE a.id = t.data_info_id
+                and t.is_deleted = 0
+                and t.project_id = #{listQuery.projectId}
+                and t.app_type = #{listQuery.appType}
+                and t.tenant_id = #{listQuery.tenantId}
+            )
+        </where>
+    </sql>
+
+    <sql id="queryAppDsSql">
+        <where>
+            a.is_deleted = 0
+            and b.is_deleted = 0
+            and b.`app_type` = #{listQuery.appType}
+            and a.`tenant_id` = #{listQuery.tenantId}
+            <if test="listQuery.projectId !=null">
+                and b.project_id = #{listQuery.projectId}
+            </if>
+            <if test="listQuery.dataName !=null and listQuery.dataName !=''">
+                and a.data_name = #{listQuery.dataName}
+            </if>
+            <if test="listQuery.isMeta !=null ">
+                and a.is_meta = #{listQuery.isMeta}
+            </if>
+            <if test="listQuery.dataTypeCodeList !=null and listQuery.dataTypeCodeList.size()>0">
+                and a.`data_type_code` in
+                <foreach collection="listQuery.dataTypeCodeList" item="dataTypeCode" open="(" separator="," close=")">
+                    #{dataTypeCode}
+                </foreach>
+            </if>
+            <if test="listQuery.schemaNameList !=null and listQuery.schemaNameList.size()>0 ">
+                and a.`schema_name` in
+                <foreach collection="listQuery.schemaNameList" item="schemaName" open="(" separator="," close=")">
+                    #{schemaName}
+                </foreach>
+            </if>
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <sql id="queryDsSql">
+        <where>
+            a.is_deleted = 0
+            and a.tenant_id = #{listQuery.tenantId}
+            <if test="listQuery.search != null and listQuery.search != ''">
+                and (
+                a.data_name like concat('%', #{listQuery.search} ,'%')
+                or a.data_desc like concat('%', #{listQuery.search}, '%')
+                )
+            </if>
+            <if test="listQuery.dataTypeList != null and listQuery.dataTypeList.size() > 0">
+                and a.data_type in
+                <foreach collection="listQuery.dataTypeList" item="dataType" open="(" separator="," close=")">
+                    #{dataType}
+                </foreach>
+            </if>
+            <if test="listQuery.isMeta != null and listQuery.isMeta == 0">
+                and a.is_meta in(0,2)
+            </if>
+            <if test="listQuery.status != null and listQuery.status.size() > 0">
+                and a.status in
+                <foreach collection="listQuery.status" item="statusOne" open="(" separator="," close=")">
+                    #{statusOne}
+                </foreach>
+            </if>
+        </where>
+        group by a.id
+        ORDER BY a.gmt_modified DESC
+    </sql>
+
+
+
+
+    <select id="queryDsByAppTypeAndOldDataInfoId" resultType="com.dtstack.taier.dao.domain.DsInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from datasource_info a
+        inner join dsc_import_ref b on a.id = b.data_info_id
+        where a.is_deleted = 0
+        and   b.app_type = #{appType}
+        and b.old_data_info_id = #{oldDataInfoId}
+    </select>
+
+    <select id="getDsInfoListByIdList" resultType="com.dtstack.taier.dao.domain.DsInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from datasource_info a
+        where id in
+        <foreach collection="dataInfoIdList" item="id" open="(" close=")" separator=",">
+                #{id}
+        </foreach>
+        and is_deleted = 0;
+    </select>
+
+    <update id="updateDsInfoStatus">
+       update datasource_info
+        set `status` =#{status}
+       where
+        id in(
+            <foreach collection="dsInfoList" item="id" separator=",">
+                #{id}
+            </foreach>
+               )
+    </update>
+
+    <select id="queryByIds" resultType="com.dtstack.taier.dao.domain.DsInfo">
+        select
+         *
+        from
+        datasource_info a
+        where
+        id in(
+        <foreach collection="idList" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </select>
+
+
+
+    <select id="queryListByDataTypeAndVersion" resultType="com.dtstack.taier.dao.domain.DsInfo">
+
+        select
+        <include refid="select_content_fragment" />
+        from datasource_info a
+        where data_type = #{dataType}
+        <if test="dataVersion !=null and dataVersion !='' " >
+            and data_version = #{dataVersion}
+        </if>
+        and is_deleted = 0;
+    </select>
+
+
+    <update id="updateDataTypeByDataTypeCode" >
+
+        update
+        datasource_info
+        set data_type = #{dataType},
+        data_version = #{dataVersion}
+        where data_type_code = #{dataTypeCode} and is_deleted = 0
+    </update>
+
+    <select id="countDsPage" resultType="java.lang.Integer">
+        select count(1)
+        from (
+        select count(*)
+        from
+        datasource_info a
+        <include refid="queryDsSql"/>
+        ) b
+    </select>
+
+    <select id="queryDsPage" resultType="com.dtstack.taier.dao.domain.po.DsListBO">
+        select
+        a.id as dataInfoId,
+        a.data_name as dataName,
+        a.data_type as dataType,
+        a.data_version as dataVersion,
+        a.data_desc as dataDesc,
+        a.data_json as dataJson,
+        a.link_json as linkJson,
+        a.status as status,
+        a.is_meta as isMeta,
+        a.gmt_modified as gmtModified,
+        a.schema_name as schemaName
+        from
+        datasource_info a
+        <include refid="queryDsSql" />
+        <if test="listQuery.start != null and listQuery.end != null">
+            limit #{listQuery.start}, #{listQuery.end}
+        </if>
+    </select>
+
+    <select id="queryByTenantId" resultType="com.dtstack.taier.dao.domain.DsInfo">
+        select
+        <include refid="select_content_fragment" />
+        from datasource_info a
+        where a.tenant_id = #{tenantId}
+        and is_deleted = 0
+        and status = 1;
+    </select>
+
+</mapper>

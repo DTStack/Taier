@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.ClusterTenantMapper">
+
+    <sql id="select_content_fragment">
+        id,tenant_id,cluster_id,queue_id,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+
+    <update id="updateQueueId">
+        update console_cluster_tenant
+        set queue_id = #{queueId}
+        where tenant_id = #{tenantId}
+          and cluster_id = #{clusterId}
+          and is_deleted = 0
+    </update>
+
+    <select id="generalCount" resultType="java.lang.Integer">
+        select count(*)
+        from console_cluster_tenant et
+                 left join tenant t
+                           on et.tenant_id = t.id
+        where et.cluster_id = #{clusterId}
+          and t.tenant_name like concat(concat('%', #{tenantName}), '%')
+          and et.is_deleted = 0
+          and t.is_deleted = 0
+    </select>
+
+    <select id="generalQuery" resultType="com.dtstack.taier.dao.domain.ClusterTenant">
+        select
+        t.id as tenant_id,t.tenant_name,et.queue_id,et.cluster_id,et.gmt_modified,et.gmt_create
+        from console_cluster_tenant et left join tenant t
+        on et.tenant_id = t.id
+        where et.cluster_id = #{clusterId} and t.tenant_name like concat(concat('%',#{tenantName}),'%')
+        and et.is_deleted = 0
+        and t.is_deleted = 0
+        <if test="query.orderBy != null and query.sort != null">
+            order by t.${query.orderBy} ${query.sort}
+        </if>
+        <if test="query.orderBy != null and query.sort == null">
+            order by t.${query.orderBy} desc
+        </if>
+        <if test="query.start != null and query.pageSize != null">
+            limit #{query.start} , #{query.pageSize}
+        </if>
+        <if test="query.start == null and query.pageSize != null">
+            limit #{query.pageSize}
+        </if>
+        <if test="query.start == null and query.pageSize == null">
+            limit 1000
+        </if>
+    </select>
+
+    <select id="listTenantIdByQueueIds" resultType="java.lang.Long">
+        select tenant_id from console_cluster_tenant
+        where is_deleted = 0
+        <if test="queueIds !=null">
+            and queue_id in
+            <foreach collection="queueIds" item="queueId" open="(" separator="," close=")">
+                #{queueId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getQueueIdByTenantId" resultType="java.lang.Long">
+        select queue_id
+        from console_cluster_tenant
+        where is_deleted = 0
+          and tenant_id = #{tenantId}
+          and queue_id is not NULL LIMIT 1
+    </select>
+
+
+    <select id="listByClusterId" resultType="com.dtstack.taier.dao.domain.ClusterTenant">
+        select t.id as tenant_id,
+               t.tenant_name,
+               et.queue_id
+        from console_cluster_tenant et
+                 left join tenant t
+                           on et.tenant_id = t.id
+        where et.cluster_id = #{clusterId}
+          and et.is_deleted = 0
+    </select>
+
+    <select id="getClusterIdByTenantId" resultType="java.lang.Long">
+        SELECT cluster_id
+        FROM console_cluster_tenant
+        WHERE tenant_id = #{tenantId} LIMIT 1
+    </select>
+
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper">
+
+    <select id="listOperatorRecord" resultType="com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord">
+        SELECT id,job_id,version,gmt_create,gmt_modified,is_deleted,force_cancel_flag,operator_type,node_address
+        FROM schedule_job_operator_record
+        WHERE
+        <if test="isEq">
+            id >= #{startSort}
+        </if>
+        <if test="!isEq">
+            id > #{startSort}
+        </if>
+        AND node_address = #{nodeAddress}
+        AND operator_type = #{type}
+        AND is_deleted =0
+        order by id asc limit 100;
+    </select>
+
+    <update id="updateOperatorExpiredVersion">
+        update schedule_job_operator_record set operator_expired = #{operatorExpired}, version = version + 1, gmt_modified = now() where id = #{id} and version = #{version}
+    </update>
+
+    <select id="listByJobIds" parameterType="java.util.HashMap" resultType="java.lang.String">
+        select job_id as jobId
+        from schedule_job_operator_record
+        where job_id in
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted =0 and operator_type = 0;
+    </select>
+
+    <update id="updateNodeAddress">
+        UPDATE
+        schedule_job_operator_record
+        set node_address = #{nodeAddress}
+        where job_id IN
+        <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </update>
+</mapper>

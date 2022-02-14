@@ -1,1 +1,0 @@
-delete from rdos_batch_task_resource_shade where task_id not in (select id from  rdos_batch_task where is_deleted = 0 );

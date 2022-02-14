@@ -1,2 +1,0 @@
-com.dtstack.taiga.base.filesystem.factory.SftpFileManageFactory
-com.dtstack.taiga.base.filesystem.factory.HdfsFileManageFactory
