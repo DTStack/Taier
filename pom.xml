@@ -22,9 +22,6 @@
         <commons-lang3.version>3.11</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <httpclient.version>4.5.2</httpclient.version>
-        <dt-insight-lang.version>4.2.1-SNAPSHOT</dt-insight-lang.version>
-        <dt-insight-web-security.version>4.1.0-SNAPSHOT</dt-insight-web-security.version>
-        <dt-insight-sdk-core.version>4.1.2</dt-insight-sdk-core.version>
         <mybatis-plus.version>3.4.0</mybatis-plus.version>
         <hive.version>2.1.0</hive.version>
     </properties>
