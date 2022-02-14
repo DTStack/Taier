@@ -54,7 +54,7 @@ import java.util.Set;
  */
 @Api(tags = {"数据源中心-新增数据源"})
 @RestController
-@RequestMapping(value ="/taier/datasource/addDs")
+@RequestMapping(value ="/dataSource/addDs")
 public class AddDatasourceController {
 
     private final String RESOURCE = "resource";
