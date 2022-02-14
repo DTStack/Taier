@@ -15,7 +15,6 @@ sidebar_label: 建议安装配置
 * **JDK**: `8` 及以上
 * **MySQL**：`5.7.33` 及以上
 * **Zookeeper**：`3.5.7` 及以上
-* **Redis**：`5.0.7` 及以上
 
 ##  Web 浏览器要求
 * 推荐使用 `Chrome`

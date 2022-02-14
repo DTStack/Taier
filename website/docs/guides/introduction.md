@@ -1,21 +1,21 @@
 ---
-title: 关于 Taiga
-sidebar_label: 关于 Taiga
+title: 关于 Taier
+sidebar_label: 关于 Taier
 sidebar_position: 1
 ---
 
 <div align="center">
- <img src="/img/logo.svg" width="20%" height="20%" alt="Taiga Logo" />
- <h1>Taiga</h1>
+ <img src="/img/logo.svg" width="20%" height="20%" alt="Taier Logo" />
+ <h1>Taier</h1>
  <h3>A Distributed dispatching system</h3>
 </div>
 
 
-**Taiga** 名字由来中国古代十大名剑之一 —— **太阿**。
+**Taier** 名字由来中国古代十大名剑之一 —— **太阿**。
 
-**Taiga** 是一个分布式可视化的DAG任务调度系统。旨在降低**ETL开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taiga** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中。
+**Taier** 是一个分布式可视化的DAG任务调度系统。旨在降低**ETL开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taier** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中。
 
-**Taiga** 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎**DAGScheduleX**，**DAGScheduleX**是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行。
+**Taier** 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎**DAGScheduleX**，**DAGScheduleX**是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行。
 
 ## 功能特征
 
@@ -47,7 +47,7 @@ sidebar_position: 1
 * 丰富，支持**3**种时间基准，且可以灵活设置输出格式
 
 #### 扩展性
-* 设计之处就考虑分布式模式，目前支持 整体 **Taiga** 水平扩容 和 拆分`Master`/`Worker` 水平扩容方式；
+* 设计之处就考虑分布式模式，目前支持 整体 **Taier** 水平扩容 和 拆分`Master`/`Worker` 水平扩容方式；
 * 调度能力随集群线性增长；  
 
 ## 用户界面
@@ -67,7 +67,7 @@ Refer to the [CONTRIBUTING](./contributing.md).
 
 ## License
 
-**Taiga** is under the Apache 2.0 license. See
+**Taier** is under the Apache 2.0 license. See
 the [LICENSE](http://www.apache.org/licenses/LICENSE-2.0) file for details.
 
 
