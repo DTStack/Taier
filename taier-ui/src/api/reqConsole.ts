@@ -18,8 +18,8 @@
 
 // 从config文件全局读取
 
-export const CONSOLE_BASE_URL = '/node';
-export const CONSOLE_BASE_UPLOAD_URL = '/node';
+export const CONSOLE_BASE_URL = '/taier';
+export const CONSOLE_BASE_UPLOAD_URL = '/taier';
 export const UIC_BASE_URL = '/uic/api';
 
 export default {

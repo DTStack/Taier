@@ -1267,7 +1267,8 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 				onValuesChange={(_, allValues) => onValuesChange?.(allValues)}
 				className="info-config-form"
 				initialValues={{
-					dataType: record.dataType + version,
+					// some dataSources don't have version
+					dataType: record.dataType + (version || ''),
 				}}
 			>
 				<Form.Item
