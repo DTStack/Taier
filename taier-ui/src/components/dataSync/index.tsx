@@ -45,6 +45,42 @@ const initialState = {
 };
 type Istate = typeof initialState;
 
+/**
+ * 数据同步任务拼接参数
+ */
+export function generateRqtBody() {
+	const currentTabData = molecule.editor.getState().current?.tab?.data;
+	const dataSync = (store.getState() as any).dataSync.dataSync;
+
+	// deepClone避免直接mutate store
+	let reqBody = cloneDeep(currentTabData);
+	// 如果当前任务为数据同步任务
+	if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
+		const isIncrementMode =
+			currentTabData.syncModel !== undefined &&
+			DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
+		reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
+		if (!isIncrementMode) {
+			reqBody.sourceMap.increColumn = undefined; // Delete increColumn
+		}
+	}
+	// 修改task配置时接口要求的标记位
+	reqBody.preSave = true;
+
+	// 接口要求上游任务字段名修改为dependencyTasks
+	if (reqBody.taskVOS) {
+		reqBody.dependencyTasks = reqBody.taskVOS.map((o: any) => o);
+		reqBody.taskVOS = null;
+	}
+
+	// 删除不必要的字段
+	delete reqBody.taskVersions;
+	delete reqBody.dataSyncSaved;
+
+	// 数据拼装结果
+	return reqBody;
+}
+
 @(connect(null, (dispatch: any) => {
 	const taskAc = workbenchActions(dispatch);
 	const editorAc = bindActionCreators(editorActions, dispatch);
@@ -83,36 +119,7 @@ class DataSyncWorkbench extends React.Component<
 	 */
 
 	generateRqtBody() {
-		const currentTabData = this.props.current?.tab?.data;
-		const dataSync = (store.getState() as any).dataSync.dataSync;
-
-		// deepClone避免直接mutate store
-		let reqBody = cloneDeep(currentTabData);
-		// 如果当前任务为数据同步任务
-		if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
-			const isIncrementMode =
-				currentTabData.syncModel !== undefined &&
-				DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
-			reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
-			if (!isIncrementMode) {
-				reqBody.sourceMap.increColumn = undefined; // Delete increColumn
-			}
-		}
-		// 修改task配置时接口要求的标记位
-		reqBody.preSave = true;
-
-		// 接口要求上游任务字段名修改为dependencyTasks
-		if (reqBody.taskVOS) {
-			reqBody.dependencyTasks = reqBody.taskVOS.map((o: any) => o);
-			reqBody.taskVOS = null;
-		}
-
-		// 删除不必要的字段
-		delete reqBody.taskVersions;
-		delete reqBody.dataSyncSaved;
-
-		// 数据拼装结果
-		return reqBody;
+		generateRqtBody();
 	}
 
 	saveTab(isSave: any, saveMode: any) {
