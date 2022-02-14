@@ -185,7 +185,8 @@ class CodeEditor extends React.Component<any, any> {
 		renderClass = className ? `${renderClass} ${className}` : renderClass;
 		let renderStyle: any = {
 			position: 'relative',
-			minHeight: '400px',
+			height: '350px',
+			width: '100%'
 		};
 		renderStyle = style ? Object.assign(renderStyle, style) : renderStyle;
 
