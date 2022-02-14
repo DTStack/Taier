@@ -228,13 +228,10 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             syncDownload.setLogInfo(syncLog.toString());
             return syncDownload;
         }
-
         String applicationId = batchJobService.getEngineJobId(jobId);
-
         if (StringUtils.isBlank(applicationId)) {
             return null;
         }
-
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {

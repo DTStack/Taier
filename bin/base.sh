@@ -3,7 +3,7 @@
 
 ulimit -c unlimited
 
-HO_HEAP_SIZE="${HO_HEAP_SIZE:=512m}"
+HO_HEAP_SIZE="${HO_HEAP_SIZE:=2048m}"
 JAVA_HOME=/opt/dtstack/java
 PATH=$JAVA_HOME/bin:$PATH
 
