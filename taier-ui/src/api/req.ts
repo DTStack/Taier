@@ -62,7 +62,7 @@ const req = {
 	BIND_PRODUCTION_PROJECT: `${RDOS_BASE_URL}/common/project/bindingProject`, // 绑定生产项目
 	GET_COULD_BINDING_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getBindingProjects`, // 获取可以绑定的项目
 	GET_TABLE_LIST_FROM_DATABASE: `${RDOS_BASE_URL}/common/project/getTableList`, // 从目标数据库获取表列表
-	GET_RETAINDB_LIST: `${RDOS_BASE_URL}/batch/component/getAllDatabases`, // 获取可以创建项目的数据库--v3.3.0
+	GET_RETAINDB_LIST: `${RDOS_BASE_URL}/batchComponent/getAllDatabases`, // 获取可以创建项目的数据库--v3.3.0
 	GET_SUPPORT_ENGINE_TYPE: `${RDOS_BASE_URL}/common/project/getSupportEngineType`, // 项目支持的引擎
 	GET_SUPPORT_TABLE_TYPE: `${RDOS_BASE_URL}/batch/project/getProjectSupportTableType`, // 项目支持表类型
 	GET_TENANT_TABLE_TYPE: `${RDOS_BASE_URL}/batch/project/getSupportTableType`, // 租户支持表类型

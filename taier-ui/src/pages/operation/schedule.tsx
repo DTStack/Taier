@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Tooltip, Dropdown, Menu, Modal, message, Button } from 'antd';
 import moment from 'moment';
+import { history } from 'umi';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue } from 'antd/lib/table/interface';
 import { SyncOutlined, DownOutlined } from '@ant-design/icons';
@@ -531,7 +532,14 @@ export default () => {
 			<Sketch<IScheduleTaskProps, IFormFieldProps>
 				actionRef={actionRef}
 				header={[
-					'input',
+					{
+						name: 'input',
+						props: {
+							formItemProps: {
+								initialValue: history.location.query?.tName,
+							},
+						},
+					},
 					'owner',
 					{
 						name: 'rangeDate',

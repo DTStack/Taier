@@ -24,12 +24,13 @@ import { useMemo, useState } from 'react';
 import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { getCookie } from '@/utils';
+import type { ITaskSearchResultProps } from './upstreamDependentTasks';
 import UpstreamDependentTasks from './upstreamDependentTasks';
 
 interface ITaskDependenceProps {
 	tabData: IOfflineTaskProps;
 	handleDelVOS?: (record: ITaskVOProps) => void;
-	handleAddVOS?: (record: ITaskVOProps) => void;
+	handleAddVOS?: (record: Partial<ITaskVOProps>) => void;
 }
 
 export default function TaskDependence({
@@ -42,7 +43,10 @@ export default function TaskDependence({
 	const [currentTenantName] = useState(getCookie('tenant_name'));
 
 	const goEdit = (task: ITaskVOProps) => {
-		openTaskInTab(task.id);
+		openTaskInTab(task.taskId, {
+			id: task.id,
+			location: task.name,
+		});
 	};
 
 	const getSpanBottom = () => {
@@ -56,10 +60,12 @@ export default function TaskDependence({
 		setModalVisible((v) => !v);
 	};
 
-	const submitData = (task: ITaskVOProps) => {
-		const data: ITaskVOProps = {
+	const submitData = (task: ITaskSearchResultProps) => {
+		// 任务搜索结果类型和 taskVOS 的类型不一致，这里做一层转化，添加 id 属性
+		const data: Partial<ITaskVOProps> = {
 			...task,
-			tenantId: Number(getCookie('tenantId')),
+			tenantId: getCookie('tenantId'),
+			name: task.taskName,
 			id: task.taskId,
 		};
 		dependencyModalShow();
@@ -137,9 +143,9 @@ export default function TaskDependence({
 						}}
 						columns={columns}
 						bordered={false}
-						scroll={{ x: 890 }}
+						scroll={{ x: 450 }}
 						dataSource={tabData.taskVOS || []}
-						rowKey="id"
+						rowKey="taskId"
 					/>
 				</Col>
 				<Col span={24}>

@@ -516,7 +516,7 @@ export const utf8to16 = (str: string) => {
 export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
 	const { id } = record ?? {};
 	// Open task in tab
-	openTaskInTab(id);
+	openTaskInTab(id, { id });
 	// Clear history query
 	history.push({
 		query: {},
