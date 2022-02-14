@@ -120,7 +120,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
     private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
 
-    private static final String DOWNLOAD_LOG = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
+    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Override
     public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database, Long taskId, Integer taskType, String preJobId) {

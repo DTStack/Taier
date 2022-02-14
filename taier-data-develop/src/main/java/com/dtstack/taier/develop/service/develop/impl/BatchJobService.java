@@ -79,7 +79,7 @@ public class BatchJobService {
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
-    private static final String DOWNLOAD_URL = "/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
+    private static final String DOWNLOAD_URL = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
     private BatchTaskService batchTaskService;
