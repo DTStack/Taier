@@ -10,7 +10,7 @@ import lombok.Data;
  * @Date: 2021/3/10
  */
 @Data
-@TableName("dsc_info")
+@TableName("datasource_info")
 public class DsInfo extends TenantModel {
 
     /**
