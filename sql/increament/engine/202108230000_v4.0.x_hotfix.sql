@@ -1,1 +1,0 @@
-UPDATE schedule_dict SET `type` = -1 WHERE `dict_code` = 'DAG_JOB_ERROR_FIRST' AND `dict_name` = 'FAILED_OPEN';

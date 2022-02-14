@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Api(tags = {"数据源中心-数据源管理"})
 @RestController
-@RequestMapping(value = "/taier/datasource")
+@RequestMapping(value = "/dataSource/manager")
 public class DataSourceController {
 
     @Autowired

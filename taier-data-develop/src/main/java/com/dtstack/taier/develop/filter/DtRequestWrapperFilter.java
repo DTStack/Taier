@@ -47,12 +47,12 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
-    private static String[] excludeTargets = {"/node/download/component/downloadFile", "/node/upload/component/config", "/node/upload/component/addOrUpdateComponent",
-            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource", "/node/upload/component/parseKerberos",
-            "/node/upload/component/uploadKerberos","/node/user/login","/node/user/logout",
-            "/node/datasource/addDs/getPrincipalsWithConf","/node/datasource/addDs/addOrUpdateSourceWithKerberos",
-    "/node/datasource/addDs/testConWithKerberos", "/api/rdos/batch/batchResource/addResource",
-    "/api/rdos/batch/batchResource/replaceResource" };
+    private static String[] excludeTargets = {"/download/component/downloadFile", "/upload/component/config", "/upload/component/addOrUpdateComponent",
+            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource", "/upload/component/parseKerberos",
+            "/upload/component/uploadKerberos","/user/login","/user/logout",
+            "/datasource/addDs/getPrincipalsWithConf","/datasource/addDs/addOrUpdateSourceWithKerberos",
+    "/datasource/addDs/testConWithKerberos", "/batchResource/addResource",
+    "/batchResource/replaceResource" };
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
