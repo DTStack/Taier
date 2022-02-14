@@ -18,9 +18,12 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.develop.service.develop.IDataDownloadService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.service.schedule.JobExpandService;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +32,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Objects;
+import java.util.UUID;
 
 
 /**
@@ -49,6 +59,9 @@ public class BatchDownloadService {
 
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
+
+    @Autowired
+    private JobExpandService jobExpandService;
 
     /**
      * 按行数获取job的log
@@ -98,6 +111,151 @@ public class BatchDownloadService {
             result.append(row);
         }
         return result.toString();
+    }
+
+    /**
+     * 返回下载jobLog的downloader
+     *
+     * @param jobId
+     * @param taskType      除数据同步、虚节点和工作流都可以导出jobLog
+     * @param dtuicTenantId
+     * @return
+     * @throws Exception
+     */
+    public IDownload downloadJobLog(String jobId, Integer taskType, Long dtuicTenantId) {
+        return buildIDownLoad(jobId, taskType, dtuicTenantId, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 文件下载处理
+     *
+     * @param response
+     * @param iDownload
+     * @param downloadType
+     * @param jobId
+     */
+    public void handleDownload(HttpServletResponse response, IDownload iDownload, DownloadType downloadType, String jobId) {
+        String downFileName = getDownloadFileName(downloadType);
+        try {
+            downFileName = URLEncoder.encode(downFileName, "UTF8");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("解码失败：{}", e);
+        }
+        response.setHeader("content-type", "application/octet-stream;charset=UTF-8");
+        response.setHeader("Content-Disposition", String.format("attachment;filename=%s", downFileName));
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        try {
+            if (iDownload == null) {
+                writeFileWithEngineLog(response, jobId);
+            } else {
+                if (iDownload instanceof SyncDownload) {
+                    writeFileWithSyncLog(response, iDownload);
+                } else {
+                    try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                        while (!iDownload.reachedEnd()) {
+                            Object row = iDownload.readNext();
+                            bos.write(row.toString().getBytes());
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("下载日志异常，{}", e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("",e);
+            if (e instanceof FileNotFoundException) {
+                writeFileWithEngineLog(response, jobId);
+            } else {
+                try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    bos.write(String.format("下载文件异常:", e.getMessage()).getBytes());
+                } catch (Exception e1) {
+                    LOGGER.error("", e1);
+                }
+            }
+        } finally {
+            if (iDownload != null) {
+                try {
+                    iDownload.close();
+                } catch (Exception e) {
+                    LOGGER.error("iDownload:{}", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * 输出engine提供的日志
+     *
+     * @param response
+     * @param jobId
+     */
+    private void writeFileWithEngineLog(HttpServletResponse response, String jobId) {
+        //hdfs没有日志就下载engine里的日志
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            String log = getLog(jobId);
+            if (StringUtils.isNotBlank(log)) {
+                bos.write(log.getBytes());
+            }
+        }catch (Exception e) {
+            LOGGER.error("下载engineLog异常，{}", e);
+        }
+    }
+
+    /**
+     * 获取log
+     *
+     * @param jobId
+     */
+    private String getLog(String jobId){
+        StringBuilder log = new StringBuilder();
+        //hdfs没有日志就下载engine里的日志
+        if (StringUtils.isNotBlank(jobId)) {
+            ScheduleJobExpand scheduleJobExpand = jobExpandService.selectOneByJobId(jobId);
+            if (Objects.nonNull(scheduleJobExpand)) {
+                log.append("=====================提交日志========================\n");
+                if (StringUtils.isNotBlank(scheduleJobExpand.getLogInfo())) {
+                    log.append(scheduleJobExpand.getLogInfo().replace("\\n", "\n").replace("\\t", " "));
+                }
+                log.append("\n\n\n");
+                if (StringUtils.isNotBlank(scheduleJobExpand.getEngineLog())) {
+                    log.append("=====================运行日志========================\n");
+                    log.append(scheduleJobExpand.getEngineLog().replace("\\n", "\n").replace("\\t", " "));
+                    log.append("\n\n\n");
+                }
+            }
+        }
+        return log.toString();
+    }
+
+    /**
+     * 输出数据同步任务日志
+     * @param response
+     * @param downloadInvoke
+     */
+    private void writeFileWithSyncLog(HttpServletResponse response, IDownload downloadInvoke) {
+        try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+            String logInfo = ((SyncDownload) downloadInvoke).getLogInfo()
+                    .replace("\\n\"","\n").replace("\\n\\t","\n");
+            bos.write(logInfo.getBytes());
+        } catch (Exception e) {
+            LOGGER.error("下载数据同步任务运行日志异常，{}", e);
+        }
+    }
+
+    /**
+     * 根据类型生成下载的文件名
+     * @param downloadType 文件下载类型
+     * @return
+     */
+    private String getDownloadFileName(DownloadType downloadType) {
+        String downFileNameSuf;
+        if (downloadType == DownloadType.DEVELOP_LOG) {
+            downFileNameSuf = ".log";
+        } else {
+            throw new RdosDefineException("未知的文件下载类型");
+        }
+        return String.format("dtstack_ide_%s%s", UUID.randomUUID().toString(), downFileNameSuf);
     }
 
 }
