@@ -398,6 +398,7 @@ public class DatasourceService {
         BatchDataSource dataSource = getOne(id);
         DataSourceVO dataSourceVO = new DataSourceVO();
         BeanUtils.copyProperties(dataSource, dataSourceVO);
+        dataSourceVO.setDataJson(JSONObject.parseObject(dataSource.getDataJson()));
         return checkConnectionWithConf(dataSourceVO, null, null);
     }
 

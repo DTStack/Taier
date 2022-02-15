@@ -1,6 +1,5 @@
 package com.dtstack.taier.develop.service.schedule;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
@@ -10,7 +9,6 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskShadeInfo;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.User;
-import com.dtstack.taier.dao.mapper.ScheduleTaskShadeInfoMapper;
 import com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.task.ScheduleTaskMapstructTransfer;
@@ -20,6 +18,7 @@ import com.dtstack.taier.develop.vo.schedule.ReturnTaskSupportTypesVO;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskListDTO;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
+import com.dtstack.taier.scheduler.service.ScheduleTaskShadeInfoService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,7 +50,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
     private TaskTaskService tasktaskService;
 
     @Autowired
-    private ScheduleTaskShadeInfoMapper scheduleTaskShadeInfoMapper;
+    private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
 
     /**
      * 根据任务id获得任务
@@ -145,11 +144,10 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         if (dbTaskShade != null) {
             scheduleTaskShade.setId(dbTaskShade.getId());
             this.updateById(scheduleTaskShade);
-            scheduleTaskShadeInfoMapper.update(scheduleTaskShadeInfo,
-                    Wrappers.lambdaQuery(ScheduleTaskShadeInfo.class).eq(ScheduleTaskShadeInfo::getTaskId,scheduleTaskShade.getTaskId()));
+            scheduleTaskShadeInfoService.update(scheduleTaskShadeInfo,scheduleTaskShade.getTaskId());
         } else {
             this.save(scheduleTaskShade);
-            scheduleTaskShadeInfoMapper.insert(scheduleTaskShadeInfo);
+            scheduleTaskShadeInfoService.insert(scheduleTaskShadeInfo);
         }
 
 

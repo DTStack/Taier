@@ -13,6 +13,7 @@ import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
+import com.dtstack.taier.dao.mapper.ScheduleTaskShadeInfoMapper;
 import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
@@ -64,9 +65,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     @Autowired
     private ScheduleJobExpandService scheduleJobExpandService;
 
-
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
+
+    @Autowired
+    private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
 
     /**
      * 开始运行实例
@@ -78,19 +81,18 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleTaskShade scheduleTaskShade = scheduleJobDetails.getScheduleTaskShade();
 
         // 解析任务运行信息
-        String extraInfo = scheduleTaskShade.getExtraInfo();
-        if (StringUtils.isNotBlank(extraInfo)) {
-            JSONObject extObject = JSONObject.parseObject(extraInfo);
-                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extObject);
-                if (paramActionExt != null) {
-                    updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),scheduleTaskShade.getVersionId());
-                    actionService.start(paramActionExt);
-                }
-        } else {
-            //额外信息为空 标记任务为失败
-            this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "task run extra info is empty");
-            LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+        JSONObject extraInfo = scheduleTaskShadeInfoService.getInfoJSON(scheduleJob.getTaskId());
+        if (null != extraInfo) {
+            ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extraInfo);
+            if (paramActionExt != null) {
+                updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(), scheduleTaskShade.getVersionId());
+                actionService.start(paramActionExt);
+                return;
+            }
         }
+        //额外信息为空 标记任务为失败
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "task run extra info is empty");
+        LOGGER.error(" job  {} run fail with info is null", scheduleJob.getJobId());
     }
 
     /**
