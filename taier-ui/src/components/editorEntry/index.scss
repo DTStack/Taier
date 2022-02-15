@@ -6,11 +6,9 @@
 	width: 100%;
 	text-align: center;
 	background-color: var(--panel-background);
+	pointer-events: none;
 
 	.logo {
-		color: var(--foreground);
-		font-size: 32px;
-		font-family: monospace, sans-serif;
 		opacity: 0.1;
 	}
 }

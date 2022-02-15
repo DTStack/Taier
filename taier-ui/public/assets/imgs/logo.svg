@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500px" height="500px" viewBox="0 0 500 500" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>蓝色底500*500</title>
+    <g id="蓝色底500*500" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-2备份" transform="translate(33.000000, 0.000000)">
+            <polygon id="Fill-1备份-2" fill="#FFFFFF" points="217.5 0 0 124.998383 0 375.001617 217.5 500 435 375.001617 435 124.998383"></polygon>
+            <g id="编组-7" transform="translate(45.472194, 51.731050)">
+                <polygon id="Fill-8备份" fill="#006FFF" points="132.94222 168.635363 9.4461129e-13 168.505712 67.5555857 89.1974855 132.94222 89.1974855"></polygon>
+                <path d="M208.930866,206.924035 L208.927231,309.169413 L132.94222,398.378152 L132.941866,206.924035 L208.930866,206.924035 Z M208.932753,168.506035 L208.931866,168.635035 L165.021637,168.635363 L208.932753,168.506035 Z" id="形状结合" fill="#006FFF"></path>
+                <polygon id="Fill-10备份" fill="#006FFF" points="232.257541 89.1974855 165.021637 168.635363 275.345029 168.635363 343.256174 89.1974855"></polygon>
+                <polygon id="Fill-11备份" fill="#7FB7FF" points="132.94222 89.1312051 132.94222 168.506035 208.932753 78.7698694 208.927231 0"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
