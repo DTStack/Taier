@@ -79,11 +79,11 @@ function initActions() {
 		},
 		{
 			id: TASK_SUBMIT_ID,
-			name: '提交至调度引擎',
+			name: '提交至调度',
 			icon: <UploadOutlined />,
 			place: 'outer',
 			disabled: true,
-			title: '提交至调度引擎',
+			title: '提交至调度',
 		},
 		{
 			id: TASK_OPS_ID,

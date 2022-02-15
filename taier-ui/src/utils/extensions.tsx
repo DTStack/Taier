@@ -17,19 +17,13 @@
  */
 
 import molecule from '@dtinsight/molecule/esm';
-import type { IStatusBarItem } from '@dtinsight/molecule/esm/model';
-import { FileTypes, TreeNodeModel, Float } from '@dtinsight/molecule/esm/model';
-import { EggIcon, JarIcon, OtherIcon, PythonIcon, ZipIcon } from '@/components/icon';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
-import {
-	CATELOGUE_TYPE,
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_TYPE_ENUM,
-	RESOURCE_TYPE,
-} from '@/constant';
+import type { RESOURCE_TYPE } from '@/constant';
+import { CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { getTenantId, getUserId } from '.';
 import { message } from 'antd';
@@ -41,16 +35,6 @@ export function resetEditorGroup() {
 	]);
 }
 
-export function updateStatusBarLanguage(item: IStatusBarItem) {
-	const states = molecule.statusBar.getState();
-	const languageStatus = states.rightItems.find((i) => i.id === 'language');
-	if (languageStatus) {
-		molecule.statusBar.update(item);
-	} else {
-		molecule.statusBar.add(item, Float.right);
-	}
-}
-
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE,
 	source: CATELOGUE_TYPE,
@@ -58,24 +42,17 @@ export function fileIcon(
 	switch (source) {
 		case 'task': {
 			const iconLists: any = {
-				[TASK_TYPE_ENUM.SQL]: 'icon_sparkSQL iconfont',
+				[TASK_TYPE_ENUM.SQL]: <SparkSQLIcon style={{ color: '#519aba' }} />,
 				[TASK_TYPE_ENUM.SYNC]: 'sync',
 			};
 			return iconLists[type as TASK_TYPE_ENUM] || 'file';
 		}
 		case 'resource': {
-			const iconLists: any = {
-				[RESOURCE_TYPE.OTHER]: <OtherIcon />,
-				[RESOURCE_TYPE.JAR]: <JarIcon />,
-				[RESOURCE_TYPE.PY]: <PythonIcon />,
-				[RESOURCE_TYPE.ZIP]: <ZipIcon />,
-				[RESOURCE_TYPE.EGG]: <EggIcon />,
-			};
-			return iconLists[type as RESOURCE_TYPE] || 'file';
+			return 'file';
 		}
 		case 'function':
 		default:
-			return 'file';
+			return 'code';
 	}
 }
 
@@ -126,6 +103,26 @@ export function transformCatalogueToTree(
 				: FileTypes.File;
 
 			const fileType = isRootFolder ? FileTypes.RootFolder : catalogueType;
+
+			// If the node already stored in folderTree, then use it
+			const prevNode = molecule.folderTree.get(catalogue.id);
+			if (prevNode) {
+				return new TreeNodeModel({
+					id: prevNode.id,
+					name: prevNode.name,
+					location: prevNode.location,
+					fileType: prevNode.fileType,
+					icon: prevNode.icon,
+					isLeaf: prevNode.isLeaf,
+					data: catalogue,
+					children: children.map((cNode) => {
+						// change the locations to like 「root/abc」 so that render breadcrumbs correctly
+						// eslint-disable-next-line no-param-reassign
+						cNode.location = `${prevNode.location}/${cNode.location}`;
+						return cNode;
+					}),
+				});
+			}
 
 			return new TreeNodeModel({
 				id: catalogue.id,
@@ -187,9 +184,10 @@ export async function loadTreeNode(
 		return null;
 	}
 	switch (source) {
-		case 'task':
+		case 'task': {
 			molecule.folderTree.update(nextNode);
 			break;
+		}
 		case 'resource':
 			resourceManagerTree.update(nextNode);
 			break;

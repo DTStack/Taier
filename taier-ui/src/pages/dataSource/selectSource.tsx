@@ -27,7 +27,7 @@ import classNames from 'classnames';
 import type { IDataSourceType } from './add';
 import './selectSource.scss';
 
-const IMG_URL = '';
+const IMG_URL = 'images';
 const IMGAE_SIZE = 216;
 
 interface IProps {
@@ -69,7 +69,7 @@ export default function SelectSource({
 					const nextData = (data as IDataSourceType[]).map((ele) => {
 						return {
 							...ele,
-							imgUrl: `${IMG_URL}/assets/imgs/${ele.imgUrl}`,
+							imgUrl: `${IMG_URL}/${ele.imgUrl}`,
 						};
 					});
 

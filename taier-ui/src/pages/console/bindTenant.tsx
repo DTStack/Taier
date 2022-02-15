@@ -59,14 +59,14 @@ export default forwardRef(
 				return [
 					{
 						title: '租户',
-						dataIndex: 'tenantName',
+						dataIndex: 'name',
 					},
 				] as ColumnsType<ITableProps>;
 			}
 			return [
 				{
 					title: '租户',
-					dataIndex: 'tenantName',
+					dataIndex: 'name',
 				},
 				{
 					title: '资源队列',

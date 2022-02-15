@@ -333,7 +333,7 @@ const NodeLabel = (props: IProps) => {
 					</div>
 				) : (
 					<div className="c-nodeLable__modal__empty">
-						<img src="assets/imgs/emptyLogo.svg" />
+						<img src="images/emptyLogo.svg" />
 						<span>无内容，请检查配置！</span>
 					</div>
 				)}
