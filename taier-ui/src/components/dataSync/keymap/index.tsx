@@ -672,7 +672,7 @@ class Keymap extends React.Component<any, any> {
 								{type}
 								{col && col.isPart && (
 									<img
-										src="assets/imgs/primary-key.svg"
+										src="images/primary-key.svg"
 										style={{
 											float: 'right',
 											marginTop: '-26px',
@@ -1015,7 +1015,7 @@ class Keymap extends React.Component<any, any> {
 								{typeText}
 								{col && col.isPart && (
 									<img
-										src="assets/imgs/primary-key.svg"
+										src="images/primary-key.svg"
 										style={{
 											float: 'right',
 											marginTop: '-26px',
@@ -1211,7 +1211,7 @@ class Keymap extends React.Component<any, any> {
 							width: '100%',
 							height: 400,
 						}}
-						src="assets/imgs/keymap_help.jpg"
+						src="images/keymap_help.jpg"
 					/>
 				</div>
 			),

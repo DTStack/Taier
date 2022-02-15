@@ -63,10 +63,6 @@ export function TaskInfo(props: { task: ITaskStreamProps }) {
 						<td>计划时间：</td>
 						<td>{task.cycTime}</td>
 					</tr>
-					<tr>
-						<td>责任人：</td>
-						<td>{task.ownerName}</td>
-					</tr>
 				</tbody>
 			</table>
 		</div>

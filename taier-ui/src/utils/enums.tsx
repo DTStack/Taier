@@ -353,7 +353,7 @@ export function getEngineSourceTypeName(sourceId: ENGINE_SOURCE_TYPE_ENUM) {
 
 export function getResourceName(): Partial<Record<RESOURCE_TYPE, string>> {
 	return {
-		[RESOURCE_TYPE.JAR]: 'jay',
+		[RESOURCE_TYPE.JAR]: 'jar',
 		[RESOURCE_TYPE.PY]: 'py',
 		[RESOURCE_TYPE.EGG]: 'egg',
 		[RESOURCE_TYPE.ZIP]: 'zip',

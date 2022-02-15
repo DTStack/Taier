@@ -395,10 +395,11 @@ export const targetMap = (state: any = {}, action: any) => {
 			// if (havePartition !== undefined) clone.type.havePartition = havePartition;
 
 			const typeValues = cloneDeep(action.payload);
+			
 			// 在赋值给Type前，删除无用的字段
 			delete typeValues.sourceId;
 			delete typeValues.src;
-			clone.type = assign(clone.type, typeValues);
+			clone.type = assign(clone.type || {}, typeValues);
 
 			if (src) {
 				if (src.dataName) clone.name = src.dataName;

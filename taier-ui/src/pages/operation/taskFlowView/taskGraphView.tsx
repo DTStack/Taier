@@ -15,6 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* eslint-disable new-cap */
+/* eslint-disable func-names */
+/* eslint-disable no-param-reassign */
 import { useEffect, useRef } from 'react';
 import { cloneDeep } from 'lodash';
 import { ReloadOutlined } from '@ant-design/icons';
@@ -68,14 +71,14 @@ export const mergeTreeNodes = (treeNodeData: ITaskStreamProps, mergeSource: ITas
 
 		// 处理依赖节点
 		if (parentNodes && parentNodes.length > 0) {
-			for (let i = 0; i < parentNodes.length; i++) {
+			for (let i = 0; i < parentNodes.length; i += 1) {
 				mergeTreeNodes(parentNodes[i], mergeSource);
 			}
 		}
 
 		// 处理被依赖节点
 		if (childNodes && childNodes.length > 0) {
-			for (let i = 0; i < childNodes.length; i++) {
+			for (let i = 0; i < childNodes.length; i += 1) {
 				mergeTreeNodes(childNodes[i], mergeSource);
 			}
 		}
@@ -144,14 +147,14 @@ export interface IMxCell {
 	connectable?: boolean;
 }
 
-type mxPoint = {
+type mxPointProps = {
 	x: number;
 	y: number;
 };
 
 interface IGraphInfoProps {
 	view: {
-		translate: mxPoint;
+		translate: mxPointProps;
 		scale: number;
 	} | null;
 }
@@ -236,31 +239,31 @@ function initContainerScroll(graph: IMxGraph) {
 	 * page count.
 	 */
 	graph.getPageLayout = function () {
-		var size = this.pageVisible ? this.getPageSize() : this.scrollTileSize;
-		var bounds = this.getGraphBounds();
+		const size = this.pageVisible ? this.getPageSize() : this.scrollTileSize;
+		const bounds = this.getGraphBounds();
 
-		if (bounds.width == 0 || bounds.height == 0) {
+		if (bounds.width === 0 || bounds.height === 0) {
 			return new mxRectangle(0, 0, 1, 1);
-		} else {
-			// Computes untransformed graph bounds
-			var x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
-			var y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
-			var w = Math.floor(bounds.width / this.view.scale);
-			var h = Math.floor(bounds.height / this.view.scale);
-
-			var x0 = Math.floor(x / size.width);
-			var y0 = Math.floor(y / size.height);
-			var w0 = Math.ceil((x + w) / size.width) - x0;
-			var h0 = Math.ceil((y + h) / size.height) - y0;
-
-			return new mxRectangle(x0, y0, w0, h0);
 		}
+
+		// Computes untransformed graph bounds
+		const x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
+		const y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
+		const w = Math.floor(bounds.width / this.view.scale);
+		const h = Math.floor(bounds.height / this.view.scale);
+
+		const x0 = Math.floor(x / size.width);
+		const y0 = Math.floor(y / size.height);
+		const w0 = Math.ceil((x + w) / size.width) - x0;
+		const h0 = Math.ceil((y + h) / size.height) - y0;
+
+		return new mxRectangle(x0, y0, w0, h0);
 	};
 
 	// Fits the number of background pages to the graph
 	graph.view.getBackgroundPageBounds = function () {
-		var layout = this.graph.getPageLayout();
-		var page = this.graph.getPageSize();
+		const layout = this.graph.getPageLayout();
+		const page = this.graph.getPageSize();
 
 		return new mxRectangle(
 			this.scale * (this.translate.x + layout.x * page.width),
@@ -271,8 +274,8 @@ function initContainerScroll(graph: IMxGraph) {
 	};
 
 	graph.getPreferredPageSize = function () {
-		var pages = this.getPageLayout();
-		var size = this.getPageSize();
+		const pages = this.getPageLayout();
+		const size = this.getPageSize();
 
 		return new mxRectangle(0, 0, pages.width * size.width, pages.height * size.height);
 	};
@@ -282,11 +285,11 @@ function initContainerScroll(graph: IMxGraph) {
 	 * Works if only the scale of the graph changes or if pages
 	 * are visible and the visible pages do not change.
 	 */
-	var graphViewValidate = graph.view.validate;
+	const graphViewValidate = graph.view.validate;
 	graph.view.validate = function () {
 		if (this.graph.container != null && mxUtils.hasScrollbars(this.graph.container)) {
-			var pad = this.graph.getPagePadding();
-			var size = this.graph.getPageSize();
+			const pad = this.graph.getPagePadding();
+			const size = this.graph.getPageSize();
 
 			// Updating scrollbars here causes flickering in quirks and is not needed
 			// if zoom method is always used to set the current scale on the graph.
@@ -296,35 +299,36 @@ function initContainerScroll(graph: IMxGraph) {
 			this.translate.y = pad.y / this.scale - (this.y0 || 0) * size.height;
 		}
 
+		// eslint-disable-next-line prefer-rest-params
 		graphViewValidate.apply(this, arguments);
 	};
 
-	var graphSizeDidChange = graph.sizeDidChange;
+	const graphSizeDidChange = graph.sizeDidChange;
 	graph.sizeDidChange = function () {
 		if (this.container != null && mxUtils.hasScrollbars(this.container)) {
-			var pages = this.getPageLayout();
-			var pad = this.getPagePadding();
-			var size = this.getPageSize();
+			const pages = this.getPageLayout();
+			const pad = this.getPagePadding();
+			const size = this.getPageSize();
 
 			// Updates the minimum graph size
-			var minw = Math.ceil((2 * pad.x) / this.view.scale + pages.width * size.width);
-			var minh = Math.ceil((2 * pad.y) / this.view.scale + pages.height * size.height);
+			const minw = Math.ceil((2 * pad.x) / this.view.scale + pages.width * size.width);
+			const minh = Math.ceil((2 * pad.y) / this.view.scale + pages.height * size.height);
 
-			var min = graph.minimumGraphSize;
+			const min = graph.minimumGraphSize;
 
 			// LATER: Fix flicker of scrollbar size in IE quirks mode
 			// after delayed call in window.resize event handler
-			if (min == null || min.width != minw || min.height != minh) {
+			if (min === null || min.width !== minw || min.height !== minh) {
 				graph.minimumGraphSize = new mxRectangle(0, 0, minw, minh);
 			}
 
 			// Updates auto-translate to include padding and graph size
-			var dx = pad.x / this.view.scale - pages.x * size.width;
-			var dy = pad.y / this.view.scale - pages.y * size.height;
+			const dx = pad.x / this.view.scale - pages.x * size.width;
+			const dy = pad.y / this.view.scale - pages.y * size.height;
 
 			if (
 				!this.autoTranslate &&
-				(this.view.translate.x != dx || this.view.translate.y != dy)
+				(this.view.translate.x !== dx || this.view.translate.y !== dy)
 			) {
 				this.autoTranslate = true;
 				this.view.x0 = pages.x;
@@ -333,8 +337,8 @@ function initContainerScroll(graph: IMxGraph) {
 				// NOTE: THIS INVOKES THIS METHOD AGAIN. UNFORTUNATELY THERE IS NO WAY AROUND THIS SINCE THE
 				// BOUNDS ARE KNOWN AFTER THE VALIDATION AND SETTING THE TRANSLATE TRIGGERS A REVALIDATION.
 				// SHOULD MOVE TRANSLATE/SCALE TO VIEW.
-				var tx = graph.view.translate.x;
-				var ty = graph.view.translate.y;
+				const tx = graph.view.translate.x;
+				const ty = graph.view.translate.y;
 
 				graph.view.setTranslate(dx, dy);
 				graph.container.scrollLeft += (dx - tx) * graph.view.scale;
@@ -344,6 +348,7 @@ function initContainerScroll(graph: IMxGraph) {
 				return;
 			}
 
+			// eslint-disable-next-line prefer-rest-params
 			graphSizeDidChange.apply(this, arguments);
 		}
 	};
@@ -383,19 +388,21 @@ function preHandGraphTree(data: ITaskStreamProps) {
 
 		// 处理父亲依赖节点
 		if (parentNodes) {
-			for (let i = 0; i < parentNodes.length; i++) {
+			for (let i = 0; i < parentNodes.length; i += 1) {
 				const sourceData = parentNodes[i];
-				if (!sourceData) continue;
-				loop(sourceData, node, parent);
+				if (sourceData) {
+					loop(sourceData, node, parent);
+				}
 			}
 		}
 
 		if (childNodes) {
 			// 处理被依赖节点
-			for (let i = 0; i < childNodes.length; i++) {
+			for (let i = 0; i < childNodes.length; i += 1) {
 				const targetData = childNodes[i];
-				if (!targetData) continue;
-				loop(node, targetData, parent);
+				if (targetData) {
+					loop(node, targetData, parent);
+				}
 			}
 		}
 	};
@@ -428,7 +435,7 @@ const TaskGraphView = ({
 }: IGraphProps) => {
 	const container = useRef<HTMLDivElement>(null);
 	const graphRef = useRef<IMxGraph>();
-	const executeLayoutFn = useRef<Function>(() => {});
+	const executeLayoutFn = useRef<(...args: any[]) => void>(() => {});
 	const graphInfo = useRef<IGraphInfoProps>({
 		view: null,
 	});
@@ -440,10 +447,10 @@ const TaskGraphView = ({
 
 	const saveViewInfo = () => {
 		const view = graphRef.current.getView();
-		const translate: mxPoint = view.getTranslate();
+		const translate: mxPointProps = view.getTranslate();
 		if (translate.x > 0) {
 			graphInfo.current.view = {
-				translate: translate,
+				translate,
 				scale: view.getScale(),
 			};
 		}
@@ -453,17 +460,17 @@ const TaskGraphView = ({
 		graphRef.current[flag === 'in' ? 'zoomIn' : 'zoomOut']();
 	};
 
-	const initGraph = async (graphData: ITaskStreamProps) => {
+	const initGraph = async (initData: ITaskStreamProps) => {
 		if (container.current) {
 			// 清理容器内的Dom元素
 			container.current.innerHTML = '';
 			graphRef.current = '';
 			initialGraph(container.current);
-			initRender(graphData);
+			initRender(initData);
 		}
 	};
 
-	const initRender = (data: ITaskStreamProps) => {
+	const initRender = (renderData: ITaskStreamProps) => {
 		const graph = graphRef.current;
 		graph.getModel().clear();
 		const cells: IMxCell[] = graph.getChildCells(graph.getDefaultParent());
@@ -475,7 +482,7 @@ const TaskGraphView = ({
 		initContextMenu(graph);
 		initGraphEvent(graph);
 
-		renderGraph(data);
+		renderGraph(renderData);
 	};
 
 	const renderGraph = (originData: ITaskStreamProps) => {
@@ -484,13 +491,13 @@ const TaskGraphView = ({
 		const defaultParent: IMxCell = graph.getDefaultParent();
 		const dataArr = preHandGraphTree(originData);
 
-		const getVertex = (parentCell: IMxCell, data: ITaskStreamProps) => {
-			if (!data) return null;
-			let style = getVertxtStyles(data);
+		const getVertex = (parentCell: IMxCell, vertexData: ITaskStreamProps) => {
+			if (!vertexData) return null;
+			const style = getVertxtStyles(vertexData);
 			const cell: IMxCell = graph.insertVertex(
 				parentCell,
-				data.taskId,
-				data,
+				vertexData.taskId,
+				vertexData,
 				0,
 				0,
 				VertexSize.width,
@@ -501,7 +508,7 @@ const TaskGraphView = ({
 		};
 
 		if (dataArr) {
-			for (let i = 0; i < dataArr.length; i++) {
+			for (let i = 0; i < dataArr.length; i += 1) {
 				const { source, target, parent } = dataArr[i];
 
 				let sourceCell = source ? cellCache[source.taskId] : null;
@@ -552,7 +559,7 @@ const TaskGraphView = ({
 		const { view } = graphInfo.current;
 		const graph = graphRef.current;
 		if (view) {
-			const scale = view.scale;
+			const { scale } = view;
 			const dx = view.translate.x;
 			const dy = view.translate.y;
 			graph.view.setScale(scale);
@@ -560,15 +567,27 @@ const TaskGraphView = ({
 		}
 
 		// Sets initial scrollbar positions
-		window.setTimeout(function () {
+		window.setTimeout(() => {
 			const bounds = graph.getGraphBounds();
-			const width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
-			const height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
+			const boundsWidth = Math.max(
+				bounds.width,
+				graph.scrollTileSize.width * graph.view.scale,
+			);
+			const boundsHeight = Math.max(
+				bounds.height,
+				graph.scrollTileSize.height * graph.view.scale,
+			);
 			graph.container.scrollTop = Math.floor(
-				Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 2)),
+				Math.max(
+					0,
+					bounds.y - Math.max(20, (graph.container.clientHeight - boundsHeight) / 2),
+				),
 			);
 			graph.container.scrollLeft = Math.floor(
-				Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)),
+				Math.max(
+					0,
+					bounds.x - Math.max(0, (graph.container.clientWidth - boundsWidth) / 2),
+				),
 			);
 		}, 0);
 	};
@@ -587,13 +606,13 @@ const TaskGraphView = ({
 	/**
 	 * 初始化画布
 	 */
-	const initialGraph = (container: HTMLDivElement) => {
+	const initialGraph = (containerDom: HTMLDivElement) => {
 		mxGraphView.prototype.optimizeVmlReflows = false;
 		// to avoid calling getBBox
 		mxText.prototype.ignoreStringSize = true;
 		// Disable context menu
-		mxEvent.disableContextMenu(container);
-		const graph = new mxGraph(container);
+		mxEvent.disableContextMenu(containerDom);
+		const graph = new mxGraph(containerDom);
 		graphRef.current = graph;
 
 		// 启用绘制
@@ -632,6 +651,7 @@ const TaskGraphView = ({
 		mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
 		mxConstants.STYLE_OVERFLOW = 'hidden';
 
+		// eslint-disable-next-line no-new
 		new mxRubberband(graph);
 
 		executeLayoutFn.current = function (
@@ -651,8 +671,6 @@ const TaskGraphView = ({
 					change();
 				}
 				layout2.execute(parent);
-			} catch (e) {
-				throw e;
 			} finally {
 				graph.getModel().endUpdate();
 				if (post != null) {
@@ -676,7 +694,7 @@ const TaskGraphView = ({
                 </span>
                 ${
 					!isCurrentProjectTask?.(task)
-						? "<img class='vertex-across-logo' src='assets/imgs/across.svg' />"
+						? "<img class='vertex-across-logo' src='images/across.svg' />"
 						: ''
 				}
                 <br>
@@ -707,7 +725,7 @@ const TaskGraphView = ({
 						backgroundColor: '#fff',
 					}}
 					ref={container}
-				></div>
+				/>
 			</Spin>
 			{!hideFooter && data && (
 				<>
@@ -729,7 +747,7 @@ const TaskGraphView = ({
 			)}
 			<div className="graph-toolbar">
 				<Tooltip placement="bottom" title="刷新">
-					<ReloadOutlined  onClick={refresh} style={{ color: '#333333' }} />
+					<ReloadOutlined onClick={refresh} style={{ color: '#333333' }} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="放大">
 					<MyIcon onClick={() => handleLayoutZoom('in')} type="zoom-in" />

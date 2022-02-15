@@ -26,7 +26,7 @@ const Mx = require('mxgraph');
 
 const MxFactory: any = {
 	config: {
-		mxImageBasePath: 'assets/imgs',
+		mxImageBasePath: 'images',
 		mxLanguage: 'none',
 		mxLoadResources: false,
 		mxLoadStylesheets: false,

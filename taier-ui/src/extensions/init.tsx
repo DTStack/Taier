@@ -1,5 +1,12 @@
 import molecule from '@dtinsight/molecule';
-import { CONSOLE, folderMenu, OPERATIONS, OUTPUT_LOG, TENANT } from '@/constant';
+import {
+	CONSOLE,
+	folderMenu,
+	LANGUAGE_STATUS_BAR,
+	OPERATIONS,
+	OUTPUT_LOG,
+	TENANT,
+} from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
 import classNames from 'classnames';
@@ -7,6 +14,7 @@ import FunctionManager from '@/components/functionManager';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
+import { Float } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
 import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
 import Markdown from '@/components/markdown';
@@ -16,6 +24,8 @@ import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
 import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
+import Logo from '@/components/logo';
+import Language from '@/components/language';
 
 function loadStyles(url: string) {
 	const link = document.createElement('link');
@@ -47,6 +57,7 @@ export default class InitializeExtension implements IExtension {
 		initLogin();
 		initExplorer();
 		initDataSource();
+		initLanguage();
 	}
 	dispose(): void {
 		throw new Error('Method not implemented.');
@@ -185,6 +196,9 @@ function initializePane() {
  * 初始化 MenuBar
  */
 function initMenuBar() {
+	molecule.menuBar.setState({
+		logo: <Logo />,
+	});
 	molecule.layout.setMenuBarMode('horizontal');
 	const state = molecule.menuBar.getState();
 	const nextData = state.data.concat();
@@ -234,6 +248,7 @@ function initLogin() {
 					{
 						id: 'username',
 						disabled: !!usename,
+						icon: 'person',
 						name: usename,
 					},
 					{
@@ -242,14 +257,16 @@ function initLogin() {
 					},
 					{
 						id: 'tenant-change',
+						icon: 'feedback',
 						name: tenantName,
 						onClick: () => showLoginModal(),
 					},
 					{
 						id: 'logout',
+						icon: 'log-out',
 						name: '登出',
 						onClick: () => {
-							http.post('/node/user/logout')
+							http.post('/taier/user/logout')
 								.then((res) => {
 									if (!res.data) {
 										return message.error('登出失败');
@@ -271,6 +288,7 @@ function initLogin() {
 					{
 						id: 'login',
 						name: '去登录',
+						icon: 'log-in',
 						onClick: () => showLoginModal(),
 					},
 			  ],
@@ -320,4 +338,17 @@ function initDataSource() {
 		title: dataSource.name,
 		render: () => <DataSource />,
 	});
+}
+
+/**
+ * 初始化状态栏语言
+ */
+function initLanguage() {
+	molecule.statusBar.add(
+		{
+			id: LANGUAGE_STATUS_BAR,
+			render: () => <Language />,
+		},
+		Float.right,
+	);
 }
