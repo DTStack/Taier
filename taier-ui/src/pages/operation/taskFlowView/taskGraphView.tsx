@@ -22,13 +22,11 @@ import { useEffect, useRef } from 'react';
 import { cloneDeep } from 'lodash';
 import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Tooltip, Spin } from 'antd';
-// import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
 import { taskTypeText } from '@/utils/enums';
 import { formatDateTime, goToTaskDev } from '@/utils';
 import { SCHEDULE_STATUS } from '@/constant';
 import type { ITaskStreamProps } from '@/interface';
-// import { ZoomInIcon } from '@/components/icon';
 
 const Mx = MxFactory.create();
 const {
