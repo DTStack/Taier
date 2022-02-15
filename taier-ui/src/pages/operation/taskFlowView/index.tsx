@@ -28,7 +28,7 @@ import type { ITaskStreamProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 
 const Mx = MxFactory.create();
-const { mxEvent, mxCellHighlight, mxPopupMenu } = Mx;
+const { mxEvent, mxCellHighlight: MxCellHightlight, mxPopupMenu } = Mx;
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
@@ -49,7 +49,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 	const [graphData, setGraphData] = useState<ITaskStreamProps | null>(null);
 	const [selectedTask, setSelectedTask] = useState<ITaskStreamProps | null>(null);
 	const [loading, setLoading] = useState(false);
-	const _originData = useRef<ITaskStreamProps | undefined>();
+	const originData = useRef<ITaskStreamProps | undefined>();
 
 	/**
 	 * 获取任务上下游关系
@@ -78,18 +78,18 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 	};
 
 	const renderGraph = (data: ITaskStreamProps) => {
-		if (_originData.current) {
-			mergeTreeNodes(_originData.current, data);
+		if (originData.current) {
+			mergeTreeNodes(originData.current, data);
 		} else {
-			_originData.current = cloneDeep(data);
+			originData.current = cloneDeep(data);
 		}
-		const graphData = cloneDeep(_originData.current);
-		setGraphData(graphData);
+		const nextGraphData = cloneDeep(originData.current);
+		setGraphData(nextGraphData);
 	};
 
 	const refresh = () => {
 		if (tabData) {
-			_originData.current = undefined; // 清空缓存数据
+			originData.current = undefined; // 清空缓存数据
 			setGraphData(null);
 			setSelectedTask(null);
 			loadTaskChidren(tabData.taskId);
@@ -105,10 +105,13 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 		mxPopupMenu.prototype.showMenu = function () {
 			const cells = this.graph.getSelectionCells();
 			if (cells.length > 0 && cells[0].vertex) {
+				// eslint-disable-next-line prefer-rest-params
 				mxPopupMenuShowMenu.apply(this, arguments);
 			} else return false;
 		};
+		// eslint-disable-next-line no-param-reassign
 		graph.popupMenuHandler.autoExpand = true;
+		// eslint-disable-next-line no-param-reassign
 		graph.popupMenuHandler.factoryMethod = function (menu: any, cell: IMxCell) {
 			if (!cell || !cell.vertex) return;
 
@@ -154,7 +157,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 	};
 
 	const initGraphEvent = (graph: IMxGraph) => {
-		const highlightEdges: typeof mxCellHighlight[] = [];
+		const highlightEdges: typeof MxCellHightlight[] = [];
 		let selectedCell: IMxCell | null = null;
 		if (graph) {
 			// cell 点击事件
@@ -168,8 +171,8 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 					const outEdges = graph.getOutgoingEdges(cell);
 					const inEdges = graph.getIncomingEdges(cell);
 					const edges = outEdges.concat(inEdges);
-					for (let i = 0; i < edges.length; i++) {
-						const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+					for (let i = 0; i < edges.length; i += 1) {
+						const highlight = new MxCellHightlight(graph, '#2491F7', 2);
 						const state = graph.view.getState(edges[i]);
 						highlight.highlight(state);
 						highlightEdges.push(highlight);
@@ -181,9 +184,10 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 				}
 			});
 
+			// eslint-disable-next-line no-param-reassign
 			graph.clearSelection = function () {
 				if (selectedCell) {
-					for (let i = 0; i < highlightEdges.length; i++) {
+					for (let i = 0; i < highlightEdges.length; i += 1) {
 						highlightEdges[i].hide();
 					}
 					selectedCell = null;
