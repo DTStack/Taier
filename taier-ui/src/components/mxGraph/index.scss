@@ -2,7 +2,7 @@ div.mxPopupMenu {
 	position: absolute;
 	background: #fff;
 	border: 0;
-	border-radius: 2px;
+	border-radius: 0;
 	box-shadow: 0 0 6px 0 rgb(0 0 0 / 15%);
 }
 
@@ -62,7 +62,7 @@ table.mxPopupMenu tr {
 	list-style: none;
 	background: #fff !important;
 	border: none !important;
-	border-radius: 4px;
+	border-radius: 0;
 	box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.08) !important;
 	cursor: default;
 	font-feature-settings: 'tnum';
@@ -79,7 +79,7 @@ table.mxPopupMenu tr {
 	width: 36px;
 	height: 14px;
 	margin-right: 10px;
-	border-radius: 2px;
+	border-radius: 0;
 }
 
 .mxYellow {
