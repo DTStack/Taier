@@ -285,7 +285,7 @@ export default function HomePage() {
 				username,
 			}}
 		>
-			<MoleculeProvider extensions={extensions} defaultLocale="Taier-zh-CN">
+			<MoleculeProvider extensions={extensions} defaultLocale="zh-CN">
 				<Workbench />
 			</MoleculeProvider>
 			<Login />
