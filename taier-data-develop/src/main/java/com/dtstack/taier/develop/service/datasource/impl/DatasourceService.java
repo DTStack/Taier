@@ -806,7 +806,7 @@ public class DatasourceService {
                 }
                 //非meta数据源从高可用配置中取hadoopConf
                 if (0 == source.getIsDefault()){
-                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS),createModel);
+                    replaceDataSourceInfoByCreateModel(param,"defaultFS",JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS).trim(),createModel);
                     String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
                     if (StringUtils.isNotBlank(hadoopConfig)) {
                         replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
@@ -831,7 +831,7 @@ public class DatasourceService {
                         JSONObject hadoopConfJson = JSONObject.parseObject(consoleHadoopConfig);
                         String defaultFs = JsonUtils.getStrFromJson(hadoopConfJson, "fs.defaultFS");
                         //替换defaultFs
-                        replaceDataSourceInfoByCreateModel(param,"defaultFS",defaultFs,createModel);
+                        replaceDataSourceInfoByCreateModel(param,"defaultFS",defaultFs.trim(),createModel);
                     } else {
                         String hadoopConfig = JsonUtils.getStrFromJson(json, HADOOP_CONFIG);
                         if (StringUtils.isNotBlank(hadoopConfig)) {

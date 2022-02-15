@@ -3,9 +3,9 @@ package com.dtstack.taier.develop.service.schedule;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskShadeInfo;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -187,7 +188,9 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .eq(dto.getOwnerId() != null, ScheduleTaskShade::getOwnerUserId, dto.getOwnerId())
                 .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
                 .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
-                .between((dto.getStartModifiedTime() != null && dto.getEndModifiedTime() != null), ScheduleTaskShade::getGmtModified, dto.getStartModifiedTime(), dto.getEndModifiedTime())
+                .between(dto.getStartModifiedTime() != null && dto.getEndModifiedTime() != null, ScheduleTaskShade::getGmtModified,
+                        null == dto.getStartModifiedTime() ? null : new Timestamp(dto.getStartModifiedTime()),
+                        null == dto.getEndModifiedTime() ? null : new Timestamp(dto.getEndModifiedTime()))
                 .in(CollectionUtils.isNotEmpty(dto.getTaskTypeList()), ScheduleTaskShade::getTaskType, dto.getTaskTypeList())
                 .in(CollectionUtils.isNotEmpty(dto.getPeriodTypeList()), ScheduleTaskShade::getPeriodType, dto.getPeriodTypeList())
                 .page(page);
