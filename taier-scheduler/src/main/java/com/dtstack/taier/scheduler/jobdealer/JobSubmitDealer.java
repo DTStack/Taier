@@ -317,8 +317,8 @@ public class JobSubmitDealer implements Runnable {
                     LOGGER.debug("jobId:{} taskType:{} submit jobResult:{}.", jobClient.getJobId(), jobClient.getTaskType(), jobResult);
                 }
 
-                String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
-                jobClient.setEngineTaskId(jobId);
+                jobClient.setEngineTaskId(jobResult.getData(JobResult.EXT_ID_KEY));
+                jobClient.setApplicationId(jobResult.getData(JobResult.JOB_ID_KEY));
                 addToTaskListener(jobClient, jobResult);
                 LOGGER.info("jobId:{} taskType:{} submit to engine end.", jobClient.getJobId(), jobClient.getTaskType());
             } else if (JudgeResult.JudgeType.LIMIT_ERROR == judgeResult.getResult()) {

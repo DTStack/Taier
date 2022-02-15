@@ -143,7 +143,8 @@ public class JobStatusDealer implements Runnable {
     private void dealJob(String jobId) throws Exception {
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         ScheduleEngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
-        if (scheduleJob == null || engineJobCache == null || StringUtils.isBlank(scheduleJob.getEngineJobId())) {
+        if (scheduleJob == null || engineJobCache == null ||
+                (StringUtils.isBlank(scheduleJob.getApplicationId()) && StringUtils.isBlank(scheduleJob.getEngineJobId()))) {
             shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
 
             Integer status = RdosTaskStatus.CANCELED.getStatus();

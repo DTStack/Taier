@@ -57,7 +57,7 @@ public class TenantController {
 
     @PostMapping(value = "/pageQuery")
     public R<PageResult<List<ClusterTenantVO>>> pageQuery(@RequestParam("clusterId") Long clusterId,
-                                                          @RequestParam("tenantName") String tenantName,
+                                                          @RequestParam("name") String tenantName,
                                                           @RequestParam("pageSize") int pageSize,
                                                           @RequestParam("currentPage") int currentPage) {
         Cluster cluster = clusterService.getCluster(clusterId);
@@ -93,7 +93,7 @@ public class TenantController {
     }
 
     @PostMapping(value = "/addTenant")
-    public R<Void> bindingTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
+    public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
         if(StringUtils.isBlank(tenantName)){
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }

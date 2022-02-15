@@ -73,7 +73,7 @@ public class ClientOperator {
         checkoutOperator(pluginInfo, jobIdentifier);
 
         String jobId = jobIdentifier.getEngineJobId();
-        if (Strings.isNullOrEmpty(jobId)) {
+        if (Strings.isNullOrEmpty(jobId) && Strings.isNullOrEmpty(jobIdentifier.getApplicationId())) {
             throw new RdosDefineException("can't get job of jobId is empty or null!");
         }
 
