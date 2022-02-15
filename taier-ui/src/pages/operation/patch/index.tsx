@@ -193,7 +193,7 @@ export default () => {
 		values: IFormFieldProps,
 		form: FormInstance<IFormFieldProps>,
 	) => {
-		const currentUser = Number(getCookie('dt_user_id'));
+		const currentUser = Number(getCookie('userId'));
 		if (field === 'checkList') {
 			const checkListValue = value as string[];
 			// 勾选「我今天补的」则修改运行日期为今日，操作人为当前用户

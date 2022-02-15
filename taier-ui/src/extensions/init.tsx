@@ -249,7 +249,7 @@ function initLogin() {
 						id: 'logout',
 						name: '登出',
 						onClick: () => {
-							http.post('/node/user/logout')
+							http.post('/taier/user/logout')
 								.then((res) => {
 									if (!res.data) {
 										return message.error('登出失败');
