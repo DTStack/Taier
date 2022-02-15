@@ -19,17 +19,12 @@
 import molecule from '@dtinsight/molecule/esm';
 import type { IStatusBarItem } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel, Float } from '@dtinsight/molecule/esm/model';
-import { EggIcon, JarIcon, OtherIcon, PythonIcon, ZipIcon } from '@/components/icon';
+import { SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
-import {
-	CATELOGUE_TYPE,
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_TYPE_ENUM,
-	RESOURCE_TYPE,
-} from '@/constant';
+import type { RESOURCE_TYPE } from '@/constant';
+import { CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { getTenantId, getUserId } from '.';
 import { message } from 'antd';
@@ -58,24 +53,17 @@ export function fileIcon(
 	switch (source) {
 		case 'task': {
 			const iconLists: any = {
-				[TASK_TYPE_ENUM.SQL]: 'icon_sparkSQL iconfont',
+				[TASK_TYPE_ENUM.SQL]: <SparkSQLIcon style={{ color: '#519aba' }} />,
 				[TASK_TYPE_ENUM.SYNC]: 'sync',
 			};
 			return iconLists[type as TASK_TYPE_ENUM] || 'file';
 		}
 		case 'resource': {
-			const iconLists: any = {
-				[RESOURCE_TYPE.OTHER]: <OtherIcon />,
-				[RESOURCE_TYPE.JAR]: <JarIcon />,
-				[RESOURCE_TYPE.PY]: <PythonIcon />,
-				[RESOURCE_TYPE.ZIP]: <ZipIcon />,
-				[RESOURCE_TYPE.EGG]: <EggIcon />,
-			};
-			return iconLists[type as RESOURCE_TYPE] || 'file';
+			return 'file';
 		}
 		case 'function':
 		default:
-			return 'file';
+			return 'code';
 	}
 }
 

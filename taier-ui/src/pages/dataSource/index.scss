@@ -18,15 +18,21 @@
 			list-style-type: none;
 
 			.datasource-record {
+				display: flex;
+				align-items: center;
 				height: 22px;
-				line-height: 22px;
 				padding: 0 16px;
+				line-height: 22px;
 				outline: 1px solid transparent;
 				outline-offset: -1px;
 				cursor: pointer;
 
 				&:hover {
 					background-color: var(--list-hoverBackground);
+				}
+
+				.datasource-title {
+					margin-left: 5px;
 				}
 			}
 		}
