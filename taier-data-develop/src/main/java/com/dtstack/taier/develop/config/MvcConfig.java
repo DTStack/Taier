@@ -71,7 +71,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).excludePathPatterns("/user/*");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/^((?!login).)*$");
         super.addInterceptors(registry);
     }
 
