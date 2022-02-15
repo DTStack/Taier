@@ -55,22 +55,31 @@ import ToolBar from './components/toolbar';
 import ComponentButton from './components/compsBtn';
 import MetaIcon from './components/metaIcon';
 import './index.scss';
+import {
+	CommonComponentIcon,
+	SchedulingComponentIcon,
+	StoreComponentIcon,
+	ComputeComponentIcon,
+} from '@/components/icon';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
 
 const TABS_TITLE = {
 	[TABS_TITLE_KEY.COMMON]: {
-		iconName: 'icon-gonggongzujian',
+		icon: <CommonComponentIcon style={{ marginRight: 2 }} />,
 		name: '公共组件',
 	},
 	[TABS_TITLE_KEY.SOURCE]: {
-		iconName: 'icon-ziyuantiaodu',
+		icon: <SchedulingComponentIcon style={{ marginRight: 2 }} />,
 		name: '资源调度组件',
 	},
-	[TABS_TITLE_KEY.STORE]: { iconName: 'icon-cunchuzujian', name: '存储组件' },
+	[TABS_TITLE_KEY.STORE]: {
+		icon: <StoreComponentIcon style={{ marginRight: 2 }} />,
+		name: '存储组件',
+	},
 	[TABS_TITLE_KEY.COMPUTE]: {
-		iconName: 'icon-jisuanzujian',
+		icon: <ComputeComponentIcon style={{ marginRight: 2 }} />,
 		name: '计算组件',
 	},
 };
@@ -561,10 +570,7 @@ export default forwardRef((_, ref) => {
 					<TabPane
 						tab={
 							<span className="dt-cluster-component-tab-title">
-								<i
-									className={`iconfont ${TABS_TITLE[key].iconName}`}
-									style={{ marginRight: 2 }}
-								/>
+								{TABS_TITLE[key].icon}
 								{TABS_TITLE[key].name}
 							</span>
 						}
