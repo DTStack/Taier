@@ -17,8 +17,7 @@
  */
 
 import molecule from '@dtinsight/molecule/esm';
-import type { IStatusBarItem } from '@dtinsight/molecule/esm/model';
-import { FileTypes, TreeNodeModel, Float } from '@dtinsight/molecule/esm/model';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
@@ -34,16 +33,6 @@ export function resetEditorGroup() {
 		{ id: TASK_RUN_ID, disabled: true },
 		{ id: TASK_STOP_ID, disabled: true },
 	]);
-}
-
-export function updateStatusBarLanguage(item: IStatusBarItem) {
-	const states = molecule.statusBar.getState();
-	const languageStatus = states.rightItems.find((i) => i.id === 'language');
-	if (languageStatus) {
-		molecule.statusBar.update(item);
-	} else {
-		molecule.statusBar.add(item, Float.right);
-	}
 }
 
 export function fileIcon(
@@ -115,6 +104,26 @@ export function transformCatalogueToTree(
 
 			const fileType = isRootFolder ? FileTypes.RootFolder : catalogueType;
 
+			// If the node already stored in folderTree, then use it
+			const prevNode = molecule.folderTree.get(catalogue.id);
+			if (prevNode) {
+				return new TreeNodeModel({
+					id: prevNode.id,
+					name: prevNode.name,
+					location: prevNode.location,
+					fileType: prevNode.fileType,
+					icon: prevNode.icon,
+					isLeaf: prevNode.isLeaf,
+					data: catalogue,
+					children: children.map((cNode) => {
+						// change the locations to like 「root/abc」 so that render breadcrumbs correctly
+						// eslint-disable-next-line no-param-reassign
+						cNode.location = `${prevNode.location}/${cNode.location}`;
+						return cNode;
+					}),
+				});
+			}
+
 			return new TreeNodeModel({
 				id: catalogue.id,
 				name: catalogue.name,
@@ -175,9 +184,10 @@ export async function loadTreeNode(
 		return null;
 	}
 	switch (source) {
-		case 'task':
+		case 'task': {
 			molecule.folderTree.update(nextNode);
 			break;
+		}
 		case 'resource':
 			resourceManagerTree.update(nextNode);
 			break;
