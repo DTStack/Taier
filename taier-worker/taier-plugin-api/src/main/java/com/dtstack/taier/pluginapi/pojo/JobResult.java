@@ -45,9 +45,9 @@ public class JobResult implements Serializable {
 
     private boolean checkRetry;
 
-    public static final String JOB_ID_KEY = "jobid";
+    public static final String JOB_ID_KEY = "appId";
 
-    public static final String EXT_ID_KEY = "extid";
+    public static final String EXT_ID_KEY = "extId";
 
     public static final String MSG_INFO = "msg_info";
 
@@ -101,19 +101,6 @@ public class JobResult implements Serializable {
         JobResult jobResult = createSuccessResult(taskId);
         if(!Strings.isNullOrEmpty(extId)){
             jobResult.setData(EXT_ID_KEY, extId);
-        }
-
-        return jobResult;
-    }
-
-
-    public static JobResult createSuccessResult(String taskId, String extId, String jobGraph) {
-        JobResult jobResult = createSuccessResult(taskId);
-        if (!Strings.isNullOrEmpty(extId)) {
-            jobResult.setData(EXT_ID_KEY, extId);
-        }
-        if (!StringUtils.isEmpty(jobGraph)) {
-            jobResult.setExtraData(JobResultConstant.JOB_GRAPH, jobGraph);
         }
 
         return jobResult;

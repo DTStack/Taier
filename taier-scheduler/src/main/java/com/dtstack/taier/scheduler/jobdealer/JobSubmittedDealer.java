@@ -82,11 +82,11 @@ public class JobSubmittedDealer implements Runnable {
                 LOGGER.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getJobId(), jobClient.getJobResult());
 
                 //存储执行日志
-                if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
+                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) || StringUtils.isNotBlank(jobClient.getApplicationId())) {
                     JobResult jobResult = jobClient.getJobResult();
-                    String appId = jobResult.getData(JobResult.EXT_ID_KEY);
+                    String appId = jobResult.getData(JobResult.JOB_ID_KEY);
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
-                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
+                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(appId, jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
                     scheduleJobService.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());

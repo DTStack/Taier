@@ -228,7 +228,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             syncDownload.setLogInfo(syncLog.toString());
             return syncDownload;
         }
-        String applicationId = batchJobService.getEngineJobId(jobId);
+        String applicationId = batchJobService.getApplicationId(jobId);
         if (StringUtils.isBlank(applicationId)) {
             return null;
         }
@@ -251,7 +251,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
     @Override
     public IDownload typeLogDownloader(Long tenantId, String jobId, Integer limitNum, String logType) {
-        String applicationId = batchJobService.getEngineJobId(jobId);
+        String applicationId = batchJobService.getApplicationId(jobId);
 
         if (StringUtils.isBlank(applicationId)) {
             throw new RdosDefineException("任务尚未执行完成或提交失败，请稍后再试");

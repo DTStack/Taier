@@ -410,10 +410,10 @@ public class BatchJobService {
         }
     }
 
-    public String getEngineJobId(String jobId) {
+    public String getApplicationId(String jobId) {
         List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId));
         if (CollectionUtils.isNotEmpty(engineEntities)) {
-            return engineEntities.get(0).getEngineJobId();
+            return engineEntities.get(0).getApplicationId();
         }
         return "";
     }
