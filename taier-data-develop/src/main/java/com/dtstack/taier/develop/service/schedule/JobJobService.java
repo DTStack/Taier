@@ -66,7 +66,6 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
 
         // 查询所有实例
         List<ScheduleJob> scheduleJobList = findJobByJobJob(jobJobMaps);
-        scheduleJobList.add(scheduleJob);
         Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.toMap(ScheduleJob::getJobKey, g -> (g)));
 
         // 查询所有任务
