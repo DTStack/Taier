@@ -615,7 +615,7 @@ public class SparkYarnClient extends AbstractClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
             return KerberosUtils.login(sparkYarnConfig, ()->{
-                String jobId = jobIdentifier.getEngineJobId();
+                String jobId = jobIdentifier.getApplicationId();
                 try {
                     ApplicationId appId = ConverterUtils.toApplicationId(jobId);
                     getYarnClient().killApplication(appId);
@@ -635,7 +635,7 @@ public class SparkYarnClient extends AbstractClient {
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
             return KerberosUtils.login(sparkYarnConfig, ()->{
-                String jobId = jobIdentifier.getEngineJobId();
+                String jobId = jobIdentifier.getApplicationId();
 
                 if(StringUtils.isEmpty(jobId)){
                     return null;
@@ -763,7 +763,7 @@ public class SparkYarnClient extends AbstractClient {
         SparkJobLog sparkJobLog = new SparkJobLog();
         try {
             return KerberosUtils.login(sparkYarnConfig, ()-> {
-                String jobId = jobIdentifier.getEngineJobId();
+                String jobId = jobIdentifier.getApplicationId();
                 ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
 
                 try {
@@ -899,17 +899,5 @@ public class SparkYarnClient extends AbstractClient {
         }
     }
 
-    /*
-     * handle add jar statements and comment statements on the same line
-     * " --desc \n\n ADD JAR WITH xxxx"
-     */
-    public static void handleFirstSql(List<String> sqlLists) {
-        String[] sqls = sqlLists.get(0).split("\\n");
-        if (sqls.length == 0) {
-            return;
-        }
-        sqlLists.remove(0);
-        sqlLists.addAll(Arrays.asList(sqls));
-    }
 
 }

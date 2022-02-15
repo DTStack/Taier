@@ -254,7 +254,7 @@ public class FlinkClient extends AbstractClient {
                 runResult = runJobBySession(jobGraph);
             }
 
-            JobResult jobResult = JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            JobResult jobResult = JobResult.createSuccessResult(runResult.getSecond(),runResult.getFirst());
             jobResult.setExtraData(JobResultConstant.JOB_GRAPH, JobGraphBuildUtil.buildLatencyMarker(jobGraph));
             long checkpointInterval = jobGraph.getCheckpointingSettings().getCheckpointCoordinatorConfiguration().getCheckpointInterval();
             if (checkpointInterval >= Long.MAX_VALUE) {
@@ -325,7 +325,7 @@ public class FlinkClient extends AbstractClient {
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
             if(existsJobOnFlink(jobClient.getEngineTaskId())){
-                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
+                return JobResult.createSuccessResult(jobClient.getApplicationId(),jobClient.getEngineTaskId());
             }
         }
 
@@ -422,7 +422,7 @@ public class FlinkClient extends AbstractClient {
                             logger.warn("taskId: {}, job[{}] cancel failed Unexpected deployMode type: {}", jobIdentifier.getJobId(), engineJobId, deployMode);
                         }
                     }
-                    return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
+                    return JobResult.createSuccessResult(jobIdentifier.getApplicationId(),jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
                     if (rdosTaskStatus != null){
                         logger.warn("taskId: {}, cancel job error jobStatus is: {}", jobIdentifier.getJobId(), rdosTaskStatus.name());
