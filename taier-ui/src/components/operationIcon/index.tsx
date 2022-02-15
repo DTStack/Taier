@@ -20,8 +20,8 @@ import React from 'react';
 import './style.scss';
 import './iconfont.css';
 
-const imgBase = '/assets/operation-imgs/icon';
-const imgDarkBase = '/assets/operation-imgs/theme-dark';
+const imgBase = 'images';
+const imgDarkBase = 'images';
 
 export default class Icon extends React.Component<any, any> {
 	render() {
