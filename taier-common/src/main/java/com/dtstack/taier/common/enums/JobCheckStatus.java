@@ -56,7 +56,7 @@ public enum JobCheckStatus {
     }
 
     public int getStatus() {
-        return this.getStatus();
+        return status;
     }
 
     public String getMsg() {
