@@ -28,13 +28,11 @@ import {
 	transformCatalogueToTree,
 	loadTreeNode,
 	resetEditorGroup,
-	updateStatusBarLanguage,
 	getCatalogueViaNode,
 	fileIcon,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { getStatusBarLanguage } from '../statusBar';
 import {
 	CATELOGUE_TYPE,
 	MENU_TYPE_ENUM,
@@ -275,8 +273,8 @@ export function openTaskInTab(taskId: any, file?: any) {
 	const { id: fileId, location } = file;
 	api.getOfflineTaskByID({ id: fileId }).then((res) => {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
-		if (data.taskType === TASK_TYPE_ENUM.SQL) {
-			if (success) {
+		if (success) {
+			if (data.taskType === TASK_TYPE_ENUM.SQL) {
 				const tabData = {
 					id: fileId.toString(),
 					name: data.name,
@@ -299,9 +297,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					{ id: TASK_SAVE_ID, disabled: false },
 					{ id: TASK_SUBMIT_ID, disabled: false },
 				]);
-			}
-		} else if (data.taskType === TASK_TYPE_ENUM.SYNC) {
-			if (success) {
+			} else if (data.taskType === TASK_TYPE_ENUM.SYNC) {
 				// open in molecule
 				const tabData = {
 					id: fileId.toString(),
@@ -331,7 +327,6 @@ export function openTaskInTab(taskId: any, file?: any) {
 		} else {
 			resetEditorGroup();
 		}
-		updateStatusBarLanguage(getStatusBarLanguage(data.taskType)!);
 	});
 
 	molecule.explorer.forceUpdate();
@@ -472,9 +467,8 @@ function contextMenu() {
 					});
 				};
 
-				const tabData = {
+				const tabData: molecule.model.IEditorTab = {
 					id: tabId,
-					modified: false,
 					data: isFile
 						? {
 								name: treeNode?.name,
@@ -487,6 +481,12 @@ function contextMenu() {
 								nodePid: treeNode?.data.parentId,
 								dt_nodeName: treeNode?.name,
 						  },
+					icon: 'edit',
+					breadcrumb:
+						treeNode?.location?.split('/')?.map((item: string) => ({
+							id: item,
+							name: item,
+						})) || [],
 					name: isFile
 						? localize('update task', '编辑任务')
 						: localize('update folder', '编辑文件夹'),

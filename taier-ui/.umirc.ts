@@ -3,6 +3,7 @@ import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 export default defineConfig({
 	title: 'Taier | DTStack',
+	favicon: 'images/favicon.png',
 	targets: {
 		ios: false,
 	},

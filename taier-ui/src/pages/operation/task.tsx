@@ -168,6 +168,12 @@ export default () => {
 		}).then((res) => {
 			if (res.code === 1) {
 				submit();
+
+				// update the job view task
+				if (selectedTask) {
+					const nextSelectedTask = { ...selectedTask, scheduleStatus: mode };
+					setSelectedTasks(nextSelectedTask);
+				}
 			}
 		});
 	};
@@ -186,10 +192,7 @@ export default () => {
 		// 修改责任人需要连带勾选我的任务
 		if (field === 'owner') {
 			const nextCheckList = (values.checkList || []).concat();
-			if (
-				value?.toString() === getCookie('dt_user_id') &&
-				!nextCheckList.includes('person')
-			) {
+			if (value?.toString() === getCookie('useId') && !nextCheckList.includes('person')) {
 				nextCheckList.push('person');
 				form.setFieldsValue({
 					checkList: nextCheckList,
@@ -208,13 +211,13 @@ export default () => {
 		// 勾选我的任务，需要连带修改责任人
 		if (field === 'checkList') {
 			const { owner } = values;
-			if (value.includes('person') && owner?.toString() !== getCookie('dt_user_id')) {
+			if (value.includes('person') && owner?.toString() !== getCookie('userId')) {
 				form.setFieldsValue({
-					owner: Number(getCookie('dt_user_id')),
+					owner: Number(getCookie('userId')),
 				});
 			}
 
-			if (!value.includes('person') && owner?.toString() === getCookie('dt_user_id')) {
+			if (!value.includes('person') && owner?.toString() === getCookie('userId')) {
 				form.setFieldsValue({
 					owner: undefined,
 				});

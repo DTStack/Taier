@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Badge, Button, message, Modal, Tag } from 'antd';
 import moment from 'moment';
 import molecule from '@dtinsight/molecule';
-import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
+import { ActionBar, Icon, Menu, useContextView } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import dataSourceService from '@/services/dataSourceService';
@@ -52,6 +52,7 @@ const { builtInExplorerHeaderToolbar } = molecule.builtin.getModules();
 const HEADER_BAR = builtInExplorerHeaderToolbar;
 HEADER_BAR.contextMenu.push({
 	id: 'add',
+	icon: 'server-process',
 	name: '新增数据源',
 });
 
@@ -241,6 +242,7 @@ const DataSourceView = () => {
 			molecule.editor.open({
 				id: CREATE_DATASOURCE_PREFIX,
 				name: '新增数据源',
+				icon: 'server-process',
 				renderPane: <Add onSubmit={handleSubmitDataSource} />,
 				breadcrumb: [
 					{
@@ -279,14 +281,17 @@ const DataSourceView = () => {
 								onClick={() => handleOpenDetail(item)}
 								onContextMenu={(e) => handleContextmenu(e, item)}
 							>
-								{item.isMeta === 0 ? (
-									<span title={item.dataName}>{item.dataName}</span>
-								) : (
-									<>
+								<Icon type="symbol-field" />
+								<div className="datasource-title">
+									{item.isMeta === 0 ? (
 										<span title={item.dataName}>{item.dataName}</span>
-										<Tag>Meta</Tag>
-									</>
-								)}
+									) : (
+										<>
+											<span title={item.dataName}>{item.dataName}</span>
+											<Tag>Meta</Tag>
+										</>
+									)}
+								</div>
 							</li>
 						))}
 					</ul>

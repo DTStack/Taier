@@ -119,7 +119,7 @@ class DataSyncWorkbench extends React.Component<
 	 */
 
 	generateRqtBody() {
-		generateRqtBody();
+		return generateRqtBody();
 	}
 
 	saveTab(isSave: any, saveMode: any) {

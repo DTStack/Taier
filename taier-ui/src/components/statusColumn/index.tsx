@@ -30,7 +30,7 @@ export default () => {
 				boxShadow: 'none',
 			}}
 		>
-			<Row justify="start">
+			<Row justify="start" wrap={false}>
 				<Col span={4} style={{ minWidth: 200 }}>
 					<div className="mxYellow" />
 					等待提交/提交中/等待运行

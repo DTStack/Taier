@@ -144,7 +144,7 @@ export const OwnerItem = ({
 				{...restSelectProps}
 			>
 				{personList.map((item) => (
-					<Option key={item.dtuicUserId} value={item.dtuicUserId}>
+					<Option key={item.id} value={item.id}>
 						{item.userName}
 					</Option>
 				))}

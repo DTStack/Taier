@@ -23,7 +23,6 @@ import PanelExtension from './panel';
 import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
 import { ExtendsSparkSQL } from './languages';
-import StatusBarExtension from './statusBar';
 import MenuExtension from './menu';
 import { LocaleExtension } from './i18n';
 
@@ -35,6 +34,5 @@ export const extensions: IExtension[] = [
 	new EditorExtension(),
 	new FolderTreeExtension(),
 	new ExtendsSparkSQL(),
-	new StatusBarExtension(),
 	new MenuExtension(),
 ];

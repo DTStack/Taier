@@ -1,9 +1,10 @@
 import { createContext } from 'react';
 
 export interface IPersonLists {
-	dtuicUserId: number;
 	email: string;
-	phoneNumber?: string;
+	id: number;
+	phoneNumber: string;
+	status: number;
 	userName: string;
 }
 
