@@ -16,6 +16,7 @@ import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
 import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
+import Logo from '@/components/logo';
 
 function loadStyles(url: string) {
 	const link = document.createElement('link');
@@ -185,6 +186,9 @@ function initializePane() {
  * 初始化 MenuBar
  */
 function initMenuBar() {
+	molecule.menuBar.setState({
+		logo: <Logo />,
+	});
 	molecule.layout.setMenuBarMode('horizontal');
 	const state = molecule.menuBar.getState();
 	const nextData = state.data.concat();
@@ -234,6 +238,7 @@ function initLogin() {
 					{
 						id: 'username',
 						disabled: !!usename,
+						icon: 'person',
 						name: usename,
 					},
 					{
@@ -242,11 +247,13 @@ function initLogin() {
 					},
 					{
 						id: 'tenant-change',
+						icon: 'feedback',
 						name: tenantName,
 						onClick: () => showLoginModal(),
 					},
 					{
 						id: 'logout',
+						icon: 'log-out',
 						name: '登出',
 						onClick: () => {
 							http.post('/taier/user/logout')
@@ -271,6 +278,7 @@ function initLogin() {
 					{
 						id: 'login',
 						name: '去登录',
+						icon: 'log-in',
 						onClick: () => showLoginModal(),
 					},
 			  ],
