@@ -1,9 +1,9 @@
 package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,7 +67,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
 
         // 查询所有实例
         List<ScheduleJob> scheduleJobList = findJobByJobJob(jobJobMaps);
-        Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.toMap(ScheduleJob::getJobKey, g -> (g)));
+        scheduleJobList.add(scheduleJob);
+        Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.groupingBy(ScheduleJob::getJobKey,
+                Collectors.collectingAndThen(Collectors.toCollection(ArrayList<ScheduleJob>::new), a -> a.get(0))));
 
         // 查询所有任务
         Map<Long, ScheduleTaskShade> taskShadeMap = findTaskJob(scheduleJobList);

@@ -5,10 +5,12 @@ import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.druid.DtDruidRemoveAbandoned;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.JobGraphTriggerService;
+import com.dtstack.taier.scheduler.utils.JobExecuteOrderUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
@@ -65,9 +67,10 @@ public class CycleJobBuilder extends AbstractJobBuilder {
 
             LOGGER.info("{} need build job : {}",triggerTimeStr, totalTask);
             if (totalTask <= 0) {
+                saveJobGraph(triggerDay);
                 return;
             }
-
+            clearInterruptJob(triggerTime);
             // 2. 切割总数 限制 thread 并发
             int totalBatch = totalTask / environmentContext.getJobLimitSize();
             if (totalTask % environmentContext.getJobLimitSize() != 0) {
@@ -132,6 +135,13 @@ public class CycleJobBuilder extends AbstractJobBuilder {
         }
     }
 
+    private void clearInterruptJob(Timestamp triggerDay) {
+        String date = DateUtil.getUnStandardFormattedDate(triggerDay.getTime());
+        Long startExecuteOrder = JobExecuteOrderUtil.buildJobExecuteOrder(date, 0);
+        LOGGER.info("clearInterruptJob start executor order {}", startExecuteOrder);
+        scheduleJobService.clearInterruptJob(startExecuteOrder);
+    }
+
     /**
      * 保存周期实例
      *
@@ -139,7 +149,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
      */
     @Transactional(rollbackFor = Exception.class)
     @DtDruidRemoveAbandoned
-    private void savaJobList(List<ScheduleJobDetails> scheduleJobDetails) {
+    public void savaJobList(List<ScheduleJobDetails> scheduleJobDetails) {
         List<ScheduleJobDetails> savaJobDetails = Lists.newArrayList();
         for (ScheduleJobDetails scheduleJobDetail : scheduleJobDetails) {
             savaJobDetails.add(scheduleJobDetail);
