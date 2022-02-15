@@ -25,7 +25,6 @@ import { getContainer } from '../resourceManager/resModal';
 import { CATELOGUE_TYPE, formItemLayout, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
-import './fnModal.scss';
 
 const { Option } = Select;
 const FormItem = Form.Item;
