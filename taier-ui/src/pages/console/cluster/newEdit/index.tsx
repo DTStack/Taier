@@ -768,7 +768,7 @@ export default forwardRef((_, ref) => {
 								</Tabs>
 								{comps?.length === 0 && (
 									<div key={activeKey} className="empty-logo">
-										<img src="assets/imgs/emptyLogo.svg" />
+										<img src="images/emptyLogo.svg" />
 									</div>
 								)}
 							</div>

@@ -694,7 +694,7 @@ const TaskGraphView = ({
                 </span>
                 ${
 					!isCurrentProjectTask?.(task)
-						? "<img class='vertex-across-logo' src='assets/imgs/across.svg' />"
+						? "<img class='vertex-across-logo' src='images/across.svg' />"
 						: ''
 				}
                 <br>
