@@ -649,7 +649,10 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 							// 正常运行，则再次请求,并记录定时器id
 							return new Promise<boolean>((resolve) => {
 								const timeout = window.setTimeout(() => {
-									this.outputStatus(currentTabId, res.data!.status, '.....');
+									// 运行中的数据同步任务不输出日志
+									if (res.data!.status !== TASK_STATUS.RUNNING) {
+										this.outputStatus(currentTabId, res.data!.status, '.....');
+									}
 									this.doSelect(jobId, currentTabId, task, taskType).then(
 										(success) => {
 											resolve(success);

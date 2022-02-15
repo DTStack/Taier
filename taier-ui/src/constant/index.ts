@@ -24,6 +24,8 @@ export const EDIT_FOLDER_PREFIX = 'editFolder';
 
 export const CREATE_DATASOURCE_PREFIX = 'create-datasource';
 
+export const LANGUAGE_STATUS_BAR = 'language';
+
 /**
  * 高可用配置的 placeholder
  */

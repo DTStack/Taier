@@ -52,6 +52,7 @@ const { builtInExplorerHeaderToolbar } = molecule.builtin.getModules();
 const HEADER_BAR = builtInExplorerHeaderToolbar;
 HEADER_BAR.contextMenu.push({
 	id: 'add',
+	icon: 'server-process',
 	name: '新增数据源',
 });
 
@@ -241,6 +242,7 @@ const DataSourceView = () => {
 			molecule.editor.open({
 				id: CREATE_DATASOURCE_PREFIX,
 				name: '新增数据源',
+				icon: 'server-process',
 				renderPane: <Add onSubmit={handleSubmitDataSource} />,
 				breadcrumb: [
 					{
@@ -280,7 +282,7 @@ const DataSourceView = () => {
 								onContextMenu={(e) => handleContextmenu(e, item)}
 							>
 								<Icon type="symbol-field" />
-								<div className='datasource-title'>
+								<div className="datasource-title">
 									{item.isMeta === 0 ? (
 										<span title={item.dataName}>{item.dataName}</span>
 									) : (
