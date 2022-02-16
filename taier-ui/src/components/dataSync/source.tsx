@@ -584,7 +584,20 @@ class SourceForm extends React.Component<any, any> {
 											const title = `${src.dataName}（${
 												DATA_SOURCE_TEXT[src.dataTypeCode]
 											}）`;
+											// 暂时支持以下类型的数据源
+											const tmpSupportDataSource = [
+												DATA_SOURCE_ENUM.MYSQL,
+												DATA_SOURCE_ENUM.ORACLE,
+												DATA_SOURCE_ENUM.POSTGRESQL,
+												DATA_SOURCE_ENUM.HDFS,
+												DATA_SOURCE_ENUM.HIVE,
+												DATA_SOURCE_ENUM.HIVE1X,
+												DATA_SOURCE_ENUM.HIVE3X,
+												DATA_SOURCE_ENUM.SPARKTHRIFT,
+											];
+
 											const disableSelect =
+												!tmpSupportDataSource.includes(src.dataTypeCode) ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.ES ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.REDIS ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.MONGODB ||
