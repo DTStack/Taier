@@ -27,8 +27,6 @@ public class ReadWriteLockVO extends BatchReadWriteLock {
 
     private Integer result = 0;  //检查结果
 
-    private Boolean isGetLock = false;      //是否持有锁
-
     public static ReadWriteLockVO toVO(BatchReadWriteLock readWriteLock) {
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
         BeanUtils.copyProperties(readWriteLock,readWriteLockVO);
@@ -36,14 +34,6 @@ public class ReadWriteLockVO extends BatchReadWriteLock {
     }
 
     public ReadWriteLockVO() {
-    }
-
-    public boolean isGetLock() {
-        return isGetLock;
-    }
-
-    public void setIsGetLock(boolean getLock) {
-        isGetLock = getLock;
     }
 
     public String getLastKeepLockUserName() {
@@ -60,13 +50,5 @@ public class ReadWriteLockVO extends BatchReadWriteLock {
 
     public void setResult(Integer result) {
         this.result = result;
-    }
-
-    public Boolean getGetLock() {
-        return isGetLock;
-    }
-
-    public void setGetLock(Boolean getLock) {
-        isGetLock = getLock;
     }
 }
