@@ -20,9 +20,8 @@
 /* eslint-disable no-param-reassign */
 import { useEffect, useRef } from 'react';
 import { cloneDeep } from 'lodash';
-import { ReloadOutlined } from '@ant-design/icons';
+import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Tooltip, Spin } from 'antd';
-import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
 import { taskTypeText } from '@/utils/enums';
 import { formatDateTime, goToTaskDev } from '@/utils';
@@ -750,10 +749,10 @@ const TaskGraphView = ({
 					<ReloadOutlined onClick={refresh} style={{ color: '#333333' }} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="放大">
-					<MyIcon onClick={() => handleLayoutZoom('in')} type="zoom-in" />
+					<ZoomInOutlined onClick={() => handleLayoutZoom('in')} style={{ color: '#333333' }} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="缩小">
-					<MyIcon onClick={() => handleLayoutZoom('out')} type="zoom-out" />
+					<ZoomOutOutlined onClick={() => handleLayoutZoom('out')} style={{ color: '#333333' }} />
 				</Tooltip>
 			</div>
 		</div>

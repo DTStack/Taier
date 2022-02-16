@@ -21,10 +21,8 @@
 import * as React from 'react';
 import { get, cloneDeep } from 'lodash';
 
-import { CloseOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CloseOutlined, ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Tooltip, Spin, Card } from 'antd';
-
-import MyIcon from '@/components/operationIcon';
 import MxFactory from '@/components/mxGraph';
 import StatusColumn from '@/components/statusColumn';
 import { taskStatusText, taskTypeText } from '@/utils/enums';
@@ -692,10 +690,10 @@ class JobGraphView extends React.Component<any, any> {
 						<ReloadOutlined onClick={this.refresh} style={{ color: '#333333' }} />
 					</Tooltip>
 					<Tooltip placement="bottom" title="放大">
-						<MyIcon onClick={this.zoomIn} type="zoom-in" />
+						<ZoomInOutlined onClick={this.zoomIn} style={{ color: '#333333' }} />
 					</Tooltip>
 					<Tooltip placement="bottom" title="缩小">
-						<MyIcon onClick={this.zoomOut} type="zoom-out" />
+						<ZoomOutOutlined onClick={this.zoomOut} style={{ color: '#333333' }} />
 					</Tooltip>
 				</div>
 				<StatusColumn />

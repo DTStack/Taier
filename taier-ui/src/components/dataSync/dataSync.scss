@@ -1,32 +1,32 @@
 .m-datasync {
+	height: 100%;
 	padding: 60px;
 	overflow: auto;
-	height: 100%;
 
 	.c-tableCell {
-		resize: none;
 		text-indent: none;
+		resize: none;
 		&::-webkit-scrollbar {
 			display: none;
 		}
 	}
 
 	.steps-content {
-		margin-top: 40px;
-		border: 1px dashed var(--dropdown-border);
-		border-radius: 0px;
-		min-height: 200px;
-		padding: 40px 0;
 		min-width: 770px;
+		min-height: 200px;
+		margin-top: 40px;
+		padding: 40px 0;
+		border: 1px dashed var(--dropdown-border);
+		border-radius: 0;
 	}
 	.steps-mask {
 		position: absolute;
-		bottom: 0px;
-		top: 0px;
-		left: 0px;
-		right: 0px;
-		cursor: not-allowed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
 		z-index: 900;
+		cursor: not-allowed;
 	}
 	.ant-steps-icon {
 		line-height: 23px !important;
@@ -49,9 +49,9 @@
 		}
 
 		.m-col {
-			border-bottom: 1px dotted #ccc;
-			background: var(--badge-background);
 			line-height: 40px;
+			background: var(--badge-background);
+			border-bottom: 1px dotted #ccc;
 			&.title {
 				background: var(--badge-background);
 			}
@@ -62,17 +62,17 @@
 				float: left;
 				box-sizing: border-box;
 				padding: 0 10px;
-				text-align: left;
 				overflow: hidden;
-				text-overflow: ellipsis;
 				font-size: 11px;
+				text-align: left;
+				text-overflow: ellipsis;
 				&:first-child {
 					width: 40%;
 					font-weight: bold;
 				}
 				&:nth-child(2) {
-					white-space: nowrap;
 					width: 40%;
+					white-space: nowrap;
 					text-align: left;
 				}
 				&:nth-child(3) {
@@ -82,13 +82,13 @@
 			}
 			.remove-cell,
 			.edit-cell {
-				line-height: 1;
-				display: inline-block;
 				position: absolute;
 				top: 14px;
-				cursor: pointer;
-				font-weight: normal;
 				z-index: 2;
+				display: inline-block;
+				font-weight: normal;
+				line-height: 1;
+				cursor: pointer;
 			}
 			.four-cells {
 				.cell {
