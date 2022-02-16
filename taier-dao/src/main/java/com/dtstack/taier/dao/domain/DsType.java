@@ -1,14 +1,12 @@
 package com.dtstack.taier.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 
 /**
  * @author 全阅
  * @Description: 数据源类型信息类
  * @Date: 2021/3/10
  */
-@Data
 @TableName("datasource_type")
 public class DsType extends BaseModel {
 
@@ -43,4 +41,51 @@ public class DsType extends BaseModel {
     private Integer invisible;
 
 
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public Long getDataClassifyId() {
+        return dataClassifyId;
+    }
+
+    public void setDataClassifyId(Long dataClassifyId) {
+        this.dataClassifyId = dataClassifyId;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    public Integer getSorted() {
+        return sorted;
+    }
+
+    public void setSorted(Integer sorted) {
+        this.sorted = sorted;
+    }
+
+    public Integer getInvisible() {
+        return invisible;
+    }
+
+    public void setInvisible(Integer invisible) {
+        this.invisible = invisible;
+    }
 }

@@ -18,8 +18,6 @@
 
 package com.dtstack.taier.develop.utils.develop.sync.template;
 
-import lombok.Data;
-
 import java.util.List;
 
 /**
@@ -27,7 +25,6 @@ import java.util.List;
  * @description
  * @date 2021/5/14 11:53 上午
  */
-@Data
 public class AwsS3Base extends BaseSource{
 
     protected String accessKey;
@@ -47,4 +44,76 @@ public class AwsS3Base extends BaseSource{
     protected String fieldDelimiter;
 
     protected Boolean isFirstLineHeader;
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public String getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
+    public List getColumn() {
+        return column;
+    }
+
+    public void setColumn(List column) {
+        this.column = column;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public String getFieldDelimiter() {
+        return fieldDelimiter;
+    }
+
+    public void setFieldDelimiter(String fieldDelimiter) {
+        this.fieldDelimiter = fieldDelimiter;
+    }
+
+    public Boolean getFirstLineHeader() {
+        return isFirstLineHeader;
+    }
+
+    public void setFirstLineHeader(Boolean firstLineHeader) {
+        isFirstLineHeader = firstLineHeader;
+    }
 }

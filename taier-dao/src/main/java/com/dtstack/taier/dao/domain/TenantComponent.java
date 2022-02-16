@@ -18,15 +18,12 @@
 
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
-
 /**
  * 项目引擎类型关联表
  * Date: 2019/6/1
  * Company: www.dtstack.com
  * @author xuchao
  */
-@Data
 public class TenantComponent extends BaseEntity {
 
     /**
@@ -59,4 +56,51 @@ public class TenantComponent extends BaseEntity {
      */
     private Long modifyUserId;
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getComponentIdentity() {
+        return componentIdentity;
+    }
+
+    public void setComponentIdentity(String componentIdentity) {
+        this.componentIdentity = componentIdentity;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Long getModifyUserId() {
+        return modifyUserId;
+    }
+
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
 }

@@ -105,7 +105,7 @@ public class BatchSqlExeService {
 
         final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
         final ExecuteResultVO engineExecuteResult = sqlExeService.executeSql(executeContent);
-        if (!engineExecuteResult.getIsContinue()) {
+        if (!engineExecuteResult.getContinue()) {
             return engineExecuteResult;
         }
         PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);

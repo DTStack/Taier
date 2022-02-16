@@ -22,11 +22,9 @@ package com.dtstack.taier.develop.vo.console;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.util.List;
 
-@Data
 @ApiModel("租户对接集群信息")
 public class ComponentBindTenantVO extends DtInsightAuthParam {
 
@@ -42,4 +40,37 @@ public class ComponentBindTenantVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "计算引擎对接信息")
     private List<ComponentBindDBVO> bindDBList;
 
+    @Override
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    @Override
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(Long clusterId) {
+        this.clusterId = clusterId;
+    }
+
+    public Long getQueueId() {
+        return queueId;
+    }
+
+    public void setQueueId(Long queueId) {
+        this.queueId = queueId;
+    }
+
+    public List<ComponentBindDBVO> getBindDBList() {
+        return bindDBList;
+    }
+
+    public void setBindDBList(List<ComponentBindDBVO> bindDBList) {
+        this.bindDBList = bindDBList;
+    }
 }

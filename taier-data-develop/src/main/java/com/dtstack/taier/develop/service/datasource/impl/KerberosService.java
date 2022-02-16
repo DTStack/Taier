@@ -18,8 +18,9 @@ import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.po.DsInfoBO;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.jcraft.jsch.SftpException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,9 +37,11 @@ import java.util.Optional;
  * @author: liuxx
  * @date: 2021/3/19
  */
-@Slf4j
 @Service
 public class KerberosService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KerberosService.class);
+
 
     private static final String DS_CENTER = "DsCenter";
 
@@ -66,7 +69,7 @@ public class KerberosService {
             KerberosConfigVerify.uploadLockFile(srcDir, dstDirPath, handler);
             handler.uploadDir(dstDir, srcDir);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new RuntimeException(e);
         } finally {
             handler.close();

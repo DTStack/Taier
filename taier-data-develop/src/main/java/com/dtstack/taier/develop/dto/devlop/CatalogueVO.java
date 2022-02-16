@@ -19,14 +19,12 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchCatalogue;
-import lombok.Data;
 
 import java.util.List;
 
 /**
  * Created by Administrator on 2017/4/28 0028.
  */
-@Data
 public class CatalogueVO {
 
     public static CatalogueVO toVO(BatchCatalogue catalogue) {
@@ -95,6 +93,150 @@ public class CatalogueVO {
         this.level = level;
         this.type = type;
         this.tenantId = tenantId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(Integer resourceType) {
+        this.resourceType = resourceType;
+    }
+
+    public String getCatalogueType() {
+        return catalogueType;
+    }
+
+    public void setCatalogueType(String catalogueType) {
+        this.catalogueType = catalogueType;
+    }
+
+    public String getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
+
+    public Integer getOrderVal() {
+        return orderVal;
+    }
+
+    public void setOrderVal(Integer orderVal) {
+        this.orderVal = orderVal;
+    }
+
+    public List<CatalogueVO> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<CatalogueVO> children) {
+        this.children = children;
+    }
+
+    public ReadWriteLockVO getReadWriteLockVO() {
+        return readWriteLockVO;
+    }
+
+    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
+        this.readWriteLockVO = readWriteLockVO;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public Integer getOperateModel() {
+        return operateModel;
+    }
+
+    public void setOperateModel(Integer operateModel) {
+        this.operateModel = operateModel;
+    }
+
+    public Integer getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(Integer pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
+    public Integer getLearningType() {
+        return learningType;
+    }
+
+    public void setLearningType(Integer learningType) {
+        this.learningType = learningType;
+    }
+
+    public Integer getScriptType() {
+        return scriptType;
+    }
+
+    public void setScriptType(Integer scriptType) {
+        this.scriptType = scriptType;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Integer getIsSubTask() {
