@@ -1,6 +1,7 @@
 package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.DependencyType;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.scheduler.enums.RelyRule;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
