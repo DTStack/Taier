@@ -29,7 +29,7 @@ interface IRequestParams {
 	currentPage: number;
 	pageSize: number;
 	name?: string;
-	ownerId?: number;
+	operatorId?: number;
 	startModifiedTime?: number;
 	endModifiedTime?: number;
 	scheduleStatus?: SCHEDULE_STATUS;
@@ -50,7 +50,7 @@ export default () => {
 	const convertToParams = (formField: IFormFieldProps) => {
 		const params: Partial<IRequestParams> = {
 			name: formField.name,
-			ownerId: formField.owner,
+			operatorId: formField.owner,
 		};
 		if (formField.checkList?.length) {
 			formField.checkList.forEach((check) => {
@@ -189,7 +189,7 @@ export default () => {
 		values: IFormFieldProps,
 		form: FormInstance,
 	) => {
-		// 修改责任人需要连带勾选我的任务
+		// 修改操作人需要连带勾选我的任务
 		if (field === 'owner') {
 			const nextCheckList = (values.checkList || []).concat();
 			if (value?.toString() === getCookie('useId') && !nextCheckList.includes('person')) {
@@ -208,7 +208,7 @@ export default () => {
 			}
 		}
 
-		// 勾选我的任务，需要连带修改责任人
+		// 勾选我的任务，需要连带修改操作人
 		if (field === 'checkList') {
 			const { owner } = values;
 			if (value.includes('person') && owner?.toString() !== getCookie('userId')) {
@@ -274,9 +274,9 @@ export default () => {
 				filters: offlineTaskPeriodFilter,
 			},
 			{
-				title: '责任人',
-				dataIndex: 'ownerUserName',
-				key: 'ownerUserName',
+				title: '操作人',
+				dataIndex: 'operatorName',
+				key: 'operatorName',
 			},
 			{
 				title: '操作',

@@ -26,18 +26,12 @@ import molecule from '@dtinsight/molecule/esm';
 import HelpDoc from '../../../components/helpDoc';
 import api from '@/api';
 import type { SCHEDULE_STATUS } from '@/constant';
-import { CREATE_DATASOURCE_PREFIX } from '@/constant';
-import {
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	SCHEDULE_DEPENDENCY,
-	TASK_PERIOD_ENUM,
-} from '@/constant';
+import { SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
 import { TASK_TYPE_ENUM } from '@/constant';
 import classNames from 'classnames';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
+import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -117,16 +111,6 @@ interface ISchedulingConfigProps extends Pick<molecule.model.IEditor, 'current'>
 		}>,
 	) => void;
 }
-
-/**
- * 不存在调度配置的 tab，譬如修改任务 tab 等
- */
-const TAB_WITHOUT_SCHEDULE = [
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	CREATE_DATASOURCE_PREFIX,
-];
 
 export default function SchedulingConfig({
 	current,
@@ -280,7 +264,7 @@ export default function SchedulingConfig({
 		() =>
 			!current ||
 			!current.activeTab ||
-			TAB_WITHOUT_SCHEDULE.some((prefix) => current.activeTab?.toString().includes(prefix)),
+			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
 		[current],
 	);
 

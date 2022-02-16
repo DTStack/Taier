@@ -16,18 +16,13 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { MonacoEditor } from '@dtinsight/molecule/esm/components';
 import { editor as monacoEditor, Uri } from '@dtinsight/molecule/esm/monaco';
 import type { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { editor } from '@dtinsight/molecule/esm/monaco';
-import {
-	CREATE_DATASOURCE_PREFIX,
-	CREATE_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	EDIT_TASK_PREFIX,
-	ENV_PARAMS,
-} from '@/constant';
+import { ENV_PARAMS } from '@/constant';
+import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 
 const getUniqPath = (path: string) => {
 	return Uri.parse(`file://tab/${path}`);
@@ -59,14 +54,7 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 		}
 	}, [current?.id, current?.tab?.id]);
 
-	const INVALID_TASK = [
-		EDIT_TASK_PREFIX,
-		EDIT_FOLDER_PREFIX,
-		CREATE_TASK_PREFIX,
-		CREATE_DATASOURCE_PREFIX,
-	];
-
-	if (!current || !current.activeTab || INVALID_TASK.includes(current.activeTab.toString())) {
+	if (!current || !current.activeTab || TAB_WITHOUT_DATA.includes(current.activeTab.toString())) {
 		return (
 			<div
 				style={{

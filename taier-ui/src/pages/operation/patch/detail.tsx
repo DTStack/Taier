@@ -29,7 +29,7 @@ interface IRequestParams {
 	currentPage: number;
 	pageSize: number;
 	taskName: string;
-	ownerId: number;
+	operatorId: number;
 	cycStartDay: number;
 	cycEndDay: number;
 	jobStatusList: number[];
@@ -64,6 +64,7 @@ export default () => {
 
 	const [selectedTask, setSelectedTask] = useState<ITableDataProps | null>(null);
 	const [visibleSlidePane, setSlideVisible] = useState(false);
+	const [btnStatus, setBtnStatus] = useState([false, false]);
 	const actionRef = useSketchRef();
 
 	const loadJobStatics = (params: any) => {
@@ -260,46 +261,6 @@ export default () => {
 		});
 	};
 
-	const getSelectRowsStatus = () => {
-		let haveFail = false;
-		let haveNotRun = false;
-		let haveSuccess = false;
-		let haveRunning = false;
-		const selectedRows = actionRef.current?.selectedRows || [];
-		for (let i = 0; i < selectedRows.length; i += 1) {
-			const row = selectedRows[i];
-			switch (row.status) {
-				case TASK_STATUS.RUN_FAILED:
-				case TASK_STATUS.PARENT_FAILD:
-				case TASK_STATUS.SUBMIT_FAILED: {
-					haveFail = true;
-					break;
-				}
-				case TASK_STATUS.RUNNING:
-				case TASK_STATUS.SUBMITTING:
-				case TASK_STATUS.WAIT_SUBMIT:
-				case TASK_STATUS.WAIT_RUN: {
-					haveRunning = true;
-					break;
-				}
-				case TASK_STATUS.FINISHED: {
-					haveSuccess = true;
-					break;
-				}
-				default: {
-					haveNotRun = true;
-					break;
-				}
-			}
-		}
-		return {
-			haveFail,
-			haveNotRun,
-			haveSuccess,
-			haveRunning,
-		};
-	};
-
 	const statusList = useMemo(() => {
 		const {
 			ALL,
@@ -450,10 +411,10 @@ export default () => {
 				sorter: true,
 			},
 			{
-				title: '责任人',
-				dataIndex: 'ownerName',
+				title: '操作人',
+				dataIndex: 'operatorName',
+				key: 'operatorName',
 				width: '180px',
-				key: 'ownerName',
 			},
 		];
 	}, [taskTypeFilter]);
@@ -462,7 +423,7 @@ export default () => {
 		return {
 			fillId: fillId || undefined,
 			taskName: values.name,
-			ownerId: values.owner,
+			operatorId: values.owner,
 			cycStartDay: values.rangeDate && values.rangeDate[0].unix(),
 			cycEndDay: values.rangeDate && values.rangeDate[1].unix(),
 		};
@@ -516,6 +477,44 @@ export default () => {
 		});
 	};
 
+	const handleTableSelect = (_: any, rows: ITableDataProps[]) => {
+		let haveFail = false;
+		let haveNotRun = false;
+		let haveSuccess = false;
+		let haveRunning = false;
+		const selectedRows = rows || [];
+		for (let i = 0; i < selectedRows.length; i += 1) {
+			const row = selectedRows[i];
+			switch (row.status) {
+				case TASK_STATUS.RUN_FAILED:
+				case TASK_STATUS.PARENT_FAILD:
+				case TASK_STATUS.SUBMIT_FAILED: {
+					haveFail = true;
+					break;
+				}
+				case TASK_STATUS.RUNNING:
+				case TASK_STATUS.SUBMITTING:
+				case TASK_STATUS.WAIT_SUBMIT:
+				case TASK_STATUS.WAIT_RUN: {
+					haveRunning = true;
+					break;
+				}
+				case TASK_STATUS.FINISHED: {
+					haveSuccess = true;
+					break;
+				}
+				default: {
+					haveNotRun = true;
+					break;
+				}
+			}
+		}
+
+		const couldKill = haveRunning && !haveFail && !haveNotRun && !haveFail;
+		const couldReRun = !haveRunning && (haveSuccess || haveFail || haveNotRun || haveFail);
+		setBtnStatus([couldKill, couldReRun]);
+	};
+
 	const handleRefresh = () => {
 		actionRef.current?.submit();
 	};
@@ -524,16 +523,12 @@ export default () => {
 		getTaskTypesX();
 	}, []);
 
-	const { haveFail, haveNotRun, haveRunning, haveSuccess } = getSelectRowsStatus();
-
-	const couldKill = haveRunning && !haveFail && !haveNotRun && !haveFail;
-	const couldReRun = !haveRunning && (haveSuccess || haveFail || haveNotRun || haveFail);
-
 	return (
 		<div className="dt-patch-data-detail">
 			<Sketch<ITableDataProps, IFormFieldProps>
 				actionRef={actionRef}
 				request={handleSketchRequest}
+				onTableSelect={handleTableSelect}
 				header={[
 					'input',
 					'owner',
@@ -577,7 +572,7 @@ export default () => {
 				}}
 				tableFooter={[
 					<Button
-						disabled={!couldKill}
+						disabled={!btnStatus[0]}
 						key="kill"
 						style={{ marginRight: 12 }}
 						type="primary"
@@ -586,7 +581,7 @@ export default () => {
 						批量杀任务
 					</Button>,
 					<Button
-						disabled={!couldReRun}
+						disabled={!btnStatus[1]}
 						style={{ marginRight: 12 }}
 						key="reload"
 						type="primary"

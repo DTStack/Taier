@@ -132,14 +132,14 @@ export const OwnerItem = ({
 	const { style: selectStyle, ...restSelectProps } = slotProps;
 
 	return (
-		<FormItem<number> label="责任人" name="owner" {...formItemProps}>
+		<FormItem<number> label="操作人" name="owner" {...formItemProps}>
 			<Select
 				allowClear
 				showSearch
 				size="middle"
 				className="dt-form-shadow-bg"
 				style={{ width: 200, ...selectStyle }}
-				placeholder="请选择责任人"
+				placeholder="请选择操作人"
 				optionFilterProp="userName"
 				{...restSelectProps}
 			>
