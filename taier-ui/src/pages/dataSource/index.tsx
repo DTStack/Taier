@@ -49,13 +49,17 @@ export interface IDataSourceProps {
 	type?: DATA_SOURCE_ENUM;
 }
 
-const { builtInExplorerHeaderToolbar } = molecule.builtin.getModules();
-const HEADER_BAR = builtInExplorerHeaderToolbar;
-HEADER_BAR.contextMenu.push({
-	id: 'add',
-	icon: 'server-process',
-	name: '新增数据源',
-});
+function getCustomHeaderBar() {
+
+	const { builtInExplorerHeaderToolbar } = molecule.builtin.getModules();
+	const headerBar = builtInExplorerHeaderToolbar;
+	headerBar.contextMenu.push({
+		id: 'add',
+		icon: 'server-process',
+		name: '新增数据源',
+	});
+	return headerBar;
+}
 
 const DataSourceView = () => {
 	const [dataSources, setDataSources] = useState<IDataSourceProps[]>([]);
@@ -263,12 +267,14 @@ const DataSourceView = () => {
 		requestTableData();
 	}, []);
 
+	const headerBar = getCustomHeaderBar();
+
 	return (
 		<div className="datasource-container">
 			<Header
 				title="数据源中心"
 				toolbar={
-					<ActionBar data={[HEADER_BAR]} onContextMenuClick={handleHeaderBarClick} />
+					<ActionBar data={[headerBar]} onContextMenuClick={handleHeaderBarClick} />
 				}
 			/>
 			<Content>
