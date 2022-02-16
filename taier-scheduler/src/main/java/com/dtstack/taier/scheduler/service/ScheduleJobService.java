@@ -13,7 +13,6 @@ import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
-import com.dtstack.taier.dao.mapper.ScheduleTaskShadeInfoMapper;
 import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;

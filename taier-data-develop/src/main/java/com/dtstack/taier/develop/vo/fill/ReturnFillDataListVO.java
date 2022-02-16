@@ -13,7 +13,7 @@ public class ReturnFillDataListVO {
     /**
      * 补数据标识
      */
-    @ApiModelProperty(value = "补数据标识",example = "1")
+    @ApiModelProperty(value = "补数据标识", example = "1")
     private Long id;
 
     /**
@@ -43,38 +43,38 @@ public class ReturnFillDataListVO {
     /**
      * 补数据开始时间
      */
-    @ApiModelProperty(value = "补数据开始时间",example = "2021-12-23")
+    @ApiModelProperty(value = "补数据开始时间", example = "2021-12-23")
     private String fromDay;
 
     /**
      * 补数据结束时间
      */
-    @ApiModelProperty(value = "补数据结束时间",example = "2021-12-23")
+    @ApiModelProperty(value = "补数据结束时间", example = "2021-12-23")
     private String toDay;
 
     /**
      * 运行日期
      */
-    @ApiModelProperty(value = "运行日期",example = "2021-12-23")
+    @ApiModelProperty(value = "运行日期", example = "2021-12-23")
     private String runDay;
 
     /**
      * 补数据生成时间
      */
-    @ApiModelProperty(value = "补数据生成时间",example = "2021-12-24 16:01:02")
+    @ApiModelProperty(value = "补数据生成时间", example = "2021-12-24 16:01:02")
     private String gmtCreate;
 
     /**
      * 操作人名称
      */
-    @ApiModelProperty(value = "操作人名称",example = "admin@dtstack.com")
-    private String ownerName;
+    @ApiModelProperty(value = "操作人名称", example = "admin@dtstack.com")
+    private String operatorName;
 
     /**
      * 操作人id
      */
-    @ApiModelProperty(value = "操作人id",example = "")
-    private Long ownerId;
+    @ApiModelProperty(value = "操作人id", example = "")
+    private Long operatorId;
 
     public Long getId() {
         return id;
@@ -148,19 +148,11 @@ public class ReturnFillDataListVO {
         this.gmtCreate = gmtCreate;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getOperatorName() {
+        return operatorName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 }

@@ -185,7 +185,10 @@ public class JobStatusDealer implements Runnable {
                 rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
                 Integer status = rdosTaskStatus.getStatus();
                 // 重试状态 先不更新状态
-                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob,engineJobCache);
+                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob, engineJobCache, (job, client) -> ForkJoinPool.commonPool().execute(() -> {
+                    String engineLog = workerOperator.getEngineLog(jobIdentifier);
+                    jobRestartDealer.jobRetryRecord(job, client, engineLog);
+                }));
                 if (isRestart) {
                     LOGGER.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
                     return;

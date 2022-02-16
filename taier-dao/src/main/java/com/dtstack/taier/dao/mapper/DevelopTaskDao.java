@@ -103,13 +103,4 @@ public interface DevelopTaskDao {
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("userId") Long userId);
 
-    /**
-     * 更新此项目下的任务负责人
-     *
-     * @param oldOwnerUserId
-     * @param newOwnerUserId
-     * @param tenantId
-     * @return
-     */
-    Integer updateTaskOwnerUser(@Param("oldOwnerUserId") Long oldOwnerUserId, @Param("newOwnerUserId") Long newOwnerUserId, @Param("tenantId") Long tenantId);
 }
