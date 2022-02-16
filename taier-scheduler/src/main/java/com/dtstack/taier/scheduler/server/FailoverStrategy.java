@@ -35,6 +35,7 @@ import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.builder.CycleJobBuilder;
 import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.NodeRecoverService;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.dtstack.taier.scheduler.zookeeper.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
@@ -60,45 +61,46 @@ public class FailoverStrategy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FailoverStrategy.class);
 
-    private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
-
-    private static final String MASTER_TRIGGER_NODE = "/node/nodeRecover/masterTriggerNode";
-
-    @Autowired
-    private EnvironmentContext environmentContext;
-
     @Autowired
     private ZkService zkService;
-
-    @Autowired
-    private ScheduleJobMapper scheduleJobMapper;
-
-    @Autowired
-    private NodeRecoverService nodeRecoverService;
-
-    @Autowired
-    private CycleJobBuilder cycleJobBuilder;
-
-    @Autowired
-    private JobGraphBuilderTrigger jobGraphBuilderTrigger;
 
     @Autowired
     private JobPartitioner jobPartitioner;
 
     @Autowired
+    private CycleJobBuilder cycleJobBuilder;
+
+    @Autowired
+    private ScheduleJobMapper scheduleJobMapper;
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
+
+    @Autowired
+    private NodeRecoverService nodeRecoverService;
+
+    @Autowired
     private EngineJobCacheService engineJobCacheService;
 
     @Autowired
-    private ScheduleJobMapper rdosEngineBatchJobDao;
+    private JobGraphBuilderTrigger jobGraphBuilderTrigger;
 
     @Autowired
     private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
 
-    private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
+
+    private static final String MASTER_TRIGGER_NODE = "/node/nodeRecover/masterTriggerNode";
+
+    private boolean currIsMaster = false;
 
     private ExecutorService masterNodeDealer;
 
-    private boolean currIsMaster = false;
+    private final BlockingQueue<String> queue = new LinkedBlockingDeque<>();
+
+    private final FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
 
     private FailoverStrategy() {
         masterNodeDealer = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
@@ -125,9 +127,7 @@ public class FailoverStrategy {
             jobGraphBuilderTrigger.dealMaster(false);
             LOGGER.warn("---stop jobMaster change listener------");
 
-            if (faultTolerantDealer != null) {
-                faultTolerantDealer.stop();
-            }
+            faultTolerantDealer.stop();
             masterNodeDealer.shutdownNow();
             LOGGER.warn("---stop master node dealer thread------");
         }
@@ -402,11 +402,11 @@ public class FailoverStrategy {
 
     /**
      * master 节点分发任务失败
-     * @param taskId
+     * @param jobId
      */
     public void dealSubmitFailJob(String jobId, String errorMsg){
         engineJobCacheService.deleteByJobId(jobId);
-        rdosEngineBatchJobDao.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        scheduleJobMapper.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
         LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 }

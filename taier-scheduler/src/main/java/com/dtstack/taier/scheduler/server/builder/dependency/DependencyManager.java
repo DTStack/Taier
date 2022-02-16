@@ -2,10 +2,12 @@ package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.DependencyType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.dtstack.taier.scheduler.service.ScheduleTaskTaskService;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
  */
 @Component
 public class DependencyManager {
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
 
     @Autowired
     private ScheduleTaskShadeService scheduleTaskService;
@@ -66,17 +71,17 @@ public class DependencyManager {
         if (DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
             if (dependencyHandler == null) {
-                dependencyHandler = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade);
+                dependencyHandler = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService);
             } else {
-                dependencyHandler.setNext(new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade));
+                dependencyHandler.setNext(new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService));
             }
         } else if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
             if (CollectionUtils.isNotEmpty(taskShadeList)) {
                 if (dependencyHandler == null) {
-                    dependencyHandler = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+                    dependencyHandler = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService);
                 } else {
-                    dependencyHandler.setNext(new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList));
+                    dependencyHandler.setNext(new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService));
                 }
             }
         }
