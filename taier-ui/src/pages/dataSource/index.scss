@@ -31,6 +31,10 @@
 					background-color: var(--list-hoverBackground);
 				}
 
+				&:focus {
+					background-color: var(--list-hoverBackground);
+				}
+
 				.datasource-title {
 					margin-left: 5px;
 				}

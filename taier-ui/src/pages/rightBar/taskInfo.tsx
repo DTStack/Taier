@@ -16,21 +16,34 @@
  * limitations under the License.
  */
 
+import { useMemo } from 'react';
 import { Col, Row, Collapse } from 'antd';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import { formatDateTime } from '@/utils';
 import { taskTypeText } from '@/utils/enums';
 import classNames from 'classnames';
+import { TAB_WITHOUT_DATA } from '.';
 import './taskInfo.scss';
 
 const { Panel } = Collapse;
 
 export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
+	/**
+	 * 当前的 tab 是否不合法，如不合法则展示 Empty
+	 */
+	const isInValidTab = useMemo(
+		() =>
+			!current ||
+			!current.activeTab ||
+			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
+		[current],
+	);
+
 	const renderTaskInfo = () => {
-		if (!current?.activeTab || current?.activeTab.toString().startsWith('create')) {
+		if (isInValidTab) {
 			return <div className={classNames('text-center', 'mt-10px')}>无法提供活动属性</div>;
 		}
-		const tab = current.tab!;
+		const tab = current!.tab!;
 		const labelPrefix = '任务';
 
 		return (
@@ -68,6 +81,7 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 			</Row>
 		);
 	};
+
 	return (
 		<Collapse
 			defaultActiveKey={['1']}

@@ -74,11 +74,11 @@ export interface ITaskStreamProps {
 	 * 计划时间
 	 */
 	cycTime: string;
-	ownerId: number;
+	operatorId: number;
 	/**
-	 * 责任人名称
+	 * 操作人名称
 	 */
-	ownerName: string;
+	operatorName: string;
 	status: TASK_STATUS;
 	parentNode: ITaskStreamProps[];
 	childNode: ITaskStreamProps[];

@@ -23,6 +23,7 @@ export const EDIT_TASK_PREFIX = 'editTask';
 export const EDIT_FOLDER_PREFIX = 'editFolder';
 
 export const CREATE_DATASOURCE_PREFIX = 'create-datasource';
+export const EDIT_DATASOURCE_PREFIX = 'edit-datasource';
 
 export const LANGUAGE_STATUS_BAR = 'language';
 
@@ -400,16 +401,18 @@ export enum TASK_STATUS {
 	STOPED = 7,
 	RUN_FAILED = 8, // 运行失败
 	SUBMIT_FAILED = 9, // 提交失败
-	PARENT_FAILD = 21, // 上游失败
 	SUBMITTING = 10,
 	RESTARTING = 11,
 	SET_SUCCESS = 12,
 	KILLED = 13,
+	SUBMITTED = 14,
 	TASK_STATUS_NOT_FOUND = 15, // 暂时无法获取任务状态
 	WAIT_RUN = 16,
 	WAIT_COMPUTE = 17,
 	FROZEN = 18,
+	PARENT_FAILD = 21, // 上游失败
 	DO_FAIL = 22,
+	COMPUTING = 23,
 	AUTO_CANCEL = 24, // 自动取消
 }
 
@@ -636,13 +639,6 @@ export const CONSOLE = [
 		name: '多集群管理',
 	},
 ];
-
-export const TENANT = [
-	{
-		id: TENANT_MENU.ADD_TENANT,
-		name: '新增租户',
-	},
-] as const;
 
 /**
  * 控制台队列任务类型

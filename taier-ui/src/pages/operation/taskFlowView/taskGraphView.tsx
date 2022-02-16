@@ -714,7 +714,7 @@ const TaskGraphView = ({
 
 	return (
 		<div className="graph-editor">
-			<Spin tip="Loading..." size="large" spinning={loading} className="graph-loading">
+			<Spin tip="Loading..." size="large" spinning={loading} wrapperClassName="task-graph">
 				<div
 					style={{
 						position: 'relative',
@@ -729,7 +729,7 @@ const TaskGraphView = ({
 				<>
 					<div className="graph-info">
 						<span>{data.taskName}</span>
-						<span style={{ marginLeft: '15px' }}>{data.ownerName || '-'}</span>
+						<span style={{ marginLeft: '15px' }}>{data.operatorName || '-'}</span>
 						&nbsp; 发布于
 						<span>{formatDateTime(data.gmtCreate)}</span>
 						&nbsp;

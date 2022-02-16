@@ -20,8 +20,8 @@ interface ITasksProps {
 	allJobSum: number | null;
 	gmtCreate: string;
 	doneJobSum: number | null;
-	userId: number;
-	userName: string;
+	operatorId: number;
+	operatorName: string;
 	fillDataName: string;
 	finishedJobSum: number | null;
 	fromDay: string;
@@ -32,7 +32,7 @@ interface ITasksProps {
 
 // 筛选表单类型
 interface IFormFieldProps {
-	owner?: number;
+	operatorId?: number;
 	name?: string;
 	runDay?: moment.Moment | null | undefined;
 	checkList?: string[];
@@ -47,7 +47,7 @@ interface IRequestParams {
 	 * YYYY-MM-dd 类型的日期
 	 */
 	runDay: string;
-	ownerId: number;
+	operatorId: number;
 }
 
 export default () => {
@@ -143,8 +143,8 @@ export default () => {
 			{
 				width: 120,
 				title: '操作人',
-				dataIndex: 'userName',
-				key: 'userName',
+				dataIndex: 'operatorName',
+				key: 'operatorName',
 			},
 			{
 				width: 120,
@@ -160,11 +160,11 @@ export default () => {
 	}, []);
 
 	const convertFormFieldToParams = (values: IFormFieldProps): Partial<IRequestParams> => {
-		const { name, owner, runDay } = values;
+		const { name, operatorId, runDay } = values;
 		return {
 			jobName: name,
 			runDay: runDay ? moment(runDay).format('YYYY-MM-DD') : undefined,
-			ownerId: owner,
+			operatorId,
 		};
 	};
 
@@ -199,13 +199,13 @@ export default () => {
 			// 勾选「我今天补的」则修改运行日期为今日，操作人为当前用户
 			if (checkListValue.includes('todayUpdate')) {
 				form.setFieldsValue({
-					owner: currentUser,
+					operatorId: currentUser,
 					runDay: moment(),
 				});
 			} else if (checkListValue.includes('person')) {
 				// 勾选「我的任务」则修改操作人为当前用户
 				form.setFieldsValue({
-					owner: currentUser,
+					operatorId: currentUser,
 				});
 			} else {
 				// 如果都不勾选
@@ -217,15 +217,15 @@ export default () => {
 				}
 
 				// 操作人为当前用户，则修改操作人为空
-				if (values.owner === currentUser) {
+				if (values.operatorId === currentUser) {
 					form.setFieldsValue({
-						owner: undefined,
+						operatorId: undefined,
 					});
 				}
 			}
 		}
 
-		if (field === 'owner') {
+		if (field === 'operatorId') {
 			const ownerValue = value as number | undefined;
 
 			// 如果操作人选择当前用户，则勾选我的任务
@@ -243,7 +243,7 @@ export default () => {
 
 		if (field === 'runDay') {
 			const runDayValue = value as moment.Moment | undefined;
-			if (moment().isSame(runDayValue, 'day') && values.owner === currentUser) {
+			if (moment().isSame(runDayValue, 'day') && values.operatorId === currentUser) {
 				const nextCheckList = values.checkList?.concat() || [];
 				if (!nextCheckList.includes('todayUpdate')) {
 					nextCheckList.push('todayUpdate');
@@ -262,7 +262,7 @@ export default () => {
 				header={[
 					'input',
 					{
-						name: 'owner',
+						name: 'operatorId',
 						props: {
 							formItemProps: { label: '操作人' },
 							slotProps: {

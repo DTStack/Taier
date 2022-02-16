@@ -32,7 +32,7 @@ export default forwardRef(
 			{ current }: { current: number },
 		) => {
 			return Api.searchTenant({
-				tenantName: values.name,
+				name: values.name,
 				currentPage: current,
 				clusterId,
 				engineType,
@@ -59,14 +59,14 @@ export default forwardRef(
 				return [
 					{
 						title: '租户',
-						dataIndex: 'name',
+						dataIndex: 'tenantName',
 					},
 				] as ColumnsType<ITableProps>;
 			}
 			return [
 				{
 					title: '租户',
-					dataIndex: 'name',
+					dataIndex: 'tenantName',
 				},
 				{
 					title: '资源队列',
