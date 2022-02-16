@@ -19,17 +19,13 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 /**
  * @author jiangbo
  * @date 2019/6/14
  */
-@Data
-@NoArgsConstructor
+
 public class ExecuteResultVO<T> {
 
     private String jobId;
@@ -50,8 +46,82 @@ public class ExecuteResultVO<T> {
 
     private Boolean retryLog;
 
+    public ExecuteResultVO() {
+    }
+
     public ExecuteResultVO(String jobId) {
         this.jobId = jobId;
     }
 
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public List<T> getResult() {
+        return result;
+    }
+
+    public void setResult(List<T> result) {
+        this.result = result;
+    }
+
+    public Boolean getContinue() {
+        return isContinue;
+    }
+
+    public void setContinue(Boolean aContinue) {
+        isContinue = aContinue;
+    }
+
+    public String getDownload() {
+        return download;
+    }
+
+    public void setDownload(String download) {
+        this.download = download;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Boolean getRetryLog() {
+        return retryLog;
+    }
+
+    public void setRetryLog(Boolean retryLog) {
+        this.retryLog = retryLog;
+    }
 }

@@ -9,7 +9,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
@@ -181,7 +181,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         scheduleJob.setDependencyType(scheduleConf.getSelfReliance());
         scheduleJob.setFlowJobId(flowJobId);
         scheduleJob.setPeriodType(scheduleConf.getPeriodType());
-        scheduleJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
         scheduleJob.setTaskType(scheduleTaskShade.getTaskType());
         scheduleJob.setFillId(fillId);
         scheduleJob.setMaxRetryNum(scheduleConf.getMaxRetryNum());

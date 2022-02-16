@@ -19,12 +19,10 @@
 package com.dtstack.taier.dao.domain;
 
 
-import lombok.Data;
 
 /**
  * @author sishu.yss
  */
-@Data
 public class BatchTaskResourceShade extends TenantEntity {
 
     private Long taskId;
@@ -33,4 +31,28 @@ public class BatchTaskResourceShade extends TenantEntity {
 
     private int resourceType;
 
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Long getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(Long resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public int getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(int resourceType) {
+        this.resourceType = resourceType;
+    }
 }

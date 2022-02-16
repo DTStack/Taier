@@ -18,12 +18,11 @@
 
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
+
 
 /**
  * @author sishu.yss
  */
-@Data
 public class BatchTaskResource extends TenantEntity {
 
     private Long taskId;
@@ -32,4 +31,27 @@ public class BatchTaskResource extends TenantEntity {
 
     private Integer resourceType;
 
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Long getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(Long resourceId) {
+        this.resourceId = resourceId;
+    }
+
+    public Integer getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(Integer resourceType) {
+        this.resourceType = resourceType;
+    }
 }

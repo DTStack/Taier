@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTenantComponentDao;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 
 @Service
-@Slf4j
 public class DevelopTenantComponentService {
 
     @Autowired
@@ -48,5 +46,11 @@ public class DevelopTenantComponentService {
         return developTenantComponentDao.insert(tenantComponent);
     }
 
+    public DevelopTenantComponentDao getDevelopTenantComponentDao() {
+        return developTenantComponentDao;
+    }
 
+    public void setDevelopTenantComponentDao(DevelopTenantComponentDao developTenantComponentDao) {
+        this.developTenantComponentDao = developTenantComponentDao;
+    }
 }

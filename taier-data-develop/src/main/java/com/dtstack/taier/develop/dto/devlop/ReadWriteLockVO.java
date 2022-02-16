@@ -19,17 +19,13 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchReadWriteLock;
-import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
-@Data
 public class ReadWriteLockVO extends BatchReadWriteLock {
 
     private String lastKeepLockUserName;    //上一个持有锁的用户名
 
     private Integer result = 0;  //检查结果
-
-    private Boolean isGetLock = false;      //是否持有锁
 
     public static ReadWriteLockVO toVO(BatchReadWriteLock readWriteLock) {
         ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
@@ -40,11 +36,19 @@ public class ReadWriteLockVO extends BatchReadWriteLock {
     public ReadWriteLockVO() {
     }
 
-    public boolean isGetLock() {
-        return isGetLock;
+    public String getLastKeepLockUserName() {
+        return lastKeepLockUserName;
     }
 
-    public void setIsGetLock(boolean getLock) {
-        isGetLock = getLock;
+    public void setLastKeepLockUserName(String lastKeepLockUserName) {
+        this.lastKeepLockUserName = lastKeepLockUserName;
+    }
+
+    public Integer getResult() {
+        return result;
+    }
+
+    public void setResult(Integer result) {
+        this.result = result;
     }
 }

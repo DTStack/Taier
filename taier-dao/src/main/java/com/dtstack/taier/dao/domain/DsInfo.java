@@ -2,14 +2,12 @@ package com.dtstack.taier.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
 
 /**
  * @author 全阅
  * @Description: 数据源详细信息
  * @Date: 2021/3/10
  */
-@Data
 @TableName("datasource_info")
 public class DsInfo extends TenantModel {
 
@@ -73,4 +71,83 @@ public class DsInfo extends TenantModel {
     @TableField("schema_name")
     private String schemaName;
 
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
+
+    public void setDataName(String dataName) {
+        this.dataName = dataName;
+    }
+
+    public String getDataDesc() {
+        return dataDesc;
+    }
+
+    public void setDataDesc(String dataDesc) {
+        this.dataDesc = dataDesc;
+    }
+
+    public String getLinkJson() {
+        return linkJson;
+    }
+
+    public void setLinkJson(String linkJson) {
+        this.linkJson = linkJson;
+    }
+
+    public String getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(Integer isMeta) {
+        this.isMeta = isMeta;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
 }

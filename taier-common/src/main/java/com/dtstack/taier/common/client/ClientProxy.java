@@ -26,7 +26,7 @@ import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.callback.CallBack;
 import com.dtstack.taier.pluginapi.callback.ClassLoaderCallBackMethod;
 import com.dtstack.taier.pluginapi.client.IClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.*;
@@ -128,14 +128,14 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<RdosTaskStatus>() {
+                    return ClassLoaderCallBackMethod.callbackAndReset(new CallBack<TaskStatus>() {
 
                         @Override
-                        public RdosTaskStatus execute() throws Exception {
+                        public TaskStatus execute() throws Exception {
                             return targetClient.getJobStatus(jobIdentifier);
                         }
                     }, targetClient.getClass().getClassLoader(), true);

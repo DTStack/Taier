@@ -101,9 +101,9 @@ import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.common.enums.Constant;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
-import com.dtstack.taier.develop.web.develop.query.AllProductGlobalSearchVO;
-import com.dtstack.taier.develop.web.develop.result.BatchAllProductGlobalReturnVO;
-import com.dtstack.taier.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
@@ -515,14 +515,6 @@ public class BatchTaskService {
                 BeanUtils.copyProperties(userMap.getOrDefault(vo.getModifyUserId(),new User()),modifyDto);
                 vo.setModifyUser(modifyDto);
             }
-
-            if (vo.getCreateUserId().equals(vo.getOwnerUserId())) {
-                vo.setOwnerUser(dto);
-            } else {
-                UserDTO ownerDto = new UserDTO();
-                BeanUtils.copyProperties(userMap.getOrDefault(vo.getOwnerUserId(),new User()), ownerDto);
-                vo.setOwnerUser(ownerDto);
-            }
         }
     }
 
@@ -823,7 +815,7 @@ public class BatchTaskService {
         task.setModifyUserId(param.getUserId());
         task.setVersion(Objects.isNull(param.getVersion()) ? 0 : param.getVersion());
         task.parsePeriodType();
-        task = this.updateTask(task, param.getIsEditBaseInfo());
+        task = this.updateTask(task, param.getEditBaseInfo());
         TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(task, task.getNodePid());
 
         // 强行置为更新
@@ -971,7 +963,7 @@ public class BatchTaskService {
         }
         LOGGER.info("addOrUpdateTask with createModel {}", param.getCreateModel());
 
-        if (param.getIsEditBaseInfo()) {
+        if (param.getEditBaseInfo()) {
             // 右键编辑 处理增量标识
             operateIncreCol(param);
         } else {
@@ -1342,9 +1334,6 @@ public class BatchTaskService {
             task.setVersion(0);
         }
 
-        if (task.getOwnerUserId() == null) {
-            task.setOwnerUserId(task.getUserId());
-        }
         if (task.getCreateUserId() == null) {
             task.setCreateUserId(task.getUserId());
         }
@@ -1819,7 +1808,7 @@ public class BatchTaskService {
         for (Component component : components) {
             BatchTaskGetComponentVersionResultVO resultVO = new BatchTaskGetComponentVersionResultVO();
             resultVO.setComponentVersion(component.getVersionValue());
-            resultVO.setIsDefault(component.getIsDefault());
+            resultVO.setDefault(component.getIsDefault());
             componentVersionResultVOS.add(resultVO);
         }
         componentVersionResultVOS.sort(sortComponentVersion());

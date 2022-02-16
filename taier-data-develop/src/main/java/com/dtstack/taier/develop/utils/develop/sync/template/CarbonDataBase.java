@@ -19,13 +19,11 @@
 package com.dtstack.taier.develop.utils.develop.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
-import lombok.Data;
 
 /**
  * @author sanyue
  * @date 2018/11/26
  */
-@Data
 public class CarbonDataBase extends BaseSource{
 
 
@@ -39,4 +37,43 @@ public class CarbonDataBase extends BaseSource{
 
     private String database;
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public JSONObject getHadoopConfig() {
+        return hadoopConfig;
+    }
+
+    public void setHadoopConfig(JSONObject hadoopConfig) {
+        this.hadoopConfig = hadoopConfig;
+    }
+
+    public String getDefaultFS() {
+        return defaultFS;
+    }
+
+    public void setDefaultFS(String defaultFS) {
+        this.defaultFS = defaultFS;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
 }

@@ -4,14 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Map;
 
-@Data
 public class DsInfoBO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DsInfoBO.class);
@@ -100,5 +98,139 @@ public class DsInfoBO {
         return bo;
     }
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
+
+    public void setDataName(String dataName) {
+        this.dataName = dataName;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
+    }
+
+    public JSONObject getData() {
+        return data;
+    }
+
+    public void setData(JSONObject data) {
+        this.data = data;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(Integer isMeta) {
+        this.isMeta = isMeta;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
+
+    public String getDefaultFs() {
+        return defaultFs;
+    }
+
+    public void setDefaultFs(String defaultFs) {
+        this.defaultFs = defaultFs;
+    }
+
+    public Map<String, Object> getHadoopConfig() {
+        return hadoopConfig;
+    }
+
+    public void setHadoopConfig(Map<String, Object> hadoopConfig) {
+        this.hadoopConfig = hadoopConfig;
+    }
+
+    public Map<String, Object> getKerberosConfig() {
+        return kerberosConfig;
+    }
+
+    public void setKerberosConfig(Map<String, Object> kerberosConfig) {
+        this.kerberosConfig = kerberosConfig;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getJdbc() {
+        return jdbc;
+    }
+
+    public void setJdbc(String jdbc) {
+        this.jdbc = jdbc;
+    }
 }

@@ -20,7 +20,7 @@ package com.dtstack.taier.pluginapi.client;
 
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.*;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public interface IClient {
 
     JobResult cancelJob(JobIdentifier jobIdentifier);
 
-    RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
+    TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
 
 	String getJobMaster(JobIdentifier jobIdentifier);
 

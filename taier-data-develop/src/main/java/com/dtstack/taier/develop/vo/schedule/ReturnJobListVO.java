@@ -80,13 +80,13 @@ public class ReturnJobListVO {
      * 责任人id
      */
     @ApiModelProperty(value = "责任人id",example = "1")
-    private Long ownerId;
+    private Long operatorId;
 
     /**
      * 责任人名称
      */
     @ApiModelProperty(value = "责任人名称",example = "1")
-    private String ownerName;
+    private String operatorName;
 
     public String getJobId() {
         return jobId;
@@ -176,19 +176,19 @@ public class ReturnJobListVO {
         this.retryNum = retryNum;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getOperatorName() {
+        return operatorName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 }

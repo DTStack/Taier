@@ -38,7 +38,7 @@ import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
@@ -415,7 +415,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         JSONObject jsonJob = JSONObject.parseObject(jobContent);
         Timestamp time = new Timestamp(dayFormatterAll.parseDateTime(cycTime).toDate().getTime());
         // 查找上一次成功的job
-        ScheduleJob job = scheduleJobMapper.getByTaskIdAndStatusOrderByIdLimit(taskId, RdosTaskStatus.FINISHED.getStatus(), time, EScheduleType.NORMAL_SCHEDULE.getType());
+        ScheduleJob job = scheduleJobMapper.getByTaskIdAndStatusOrderByIdLimit(taskId, TaskStatus.FINISHED.getStatus(), time, EScheduleType.NORMAL_SCHEDULE.getType());
         if (job != null && StringUtils.isNotEmpty(job.getEngineJobId())) {
             try {
                 JSONObject reader = (JSONObject) JSONPath.eval(jsonJob, "$.job.content[0].reader");

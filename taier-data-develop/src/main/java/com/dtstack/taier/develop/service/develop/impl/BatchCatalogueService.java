@@ -42,7 +42,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.enums.develop.TemplateCatalogue;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
 import com.google.common.collect.Lists;

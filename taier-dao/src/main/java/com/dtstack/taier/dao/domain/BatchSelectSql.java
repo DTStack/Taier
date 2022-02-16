@@ -20,12 +20,10 @@ package com.dtstack.taier.dao.domain;
 
 import com.dtstack.taier.common.enums.TempJobType;
 import com.google.common.base.Charsets;
-import lombok.Data;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-@Data
 public class BatchSelectSql extends TenantEntity {
 
     /**
@@ -89,5 +87,61 @@ public class BatchSelectSql extends TenantEntity {
             sql = getSqlText();
         }
         return sql;
+    }
+
+    public String getFatherJobId() {
+        return fatherJobId;
+    }
+
+    public void setFatherJobId(String fatherJobId) {
+        this.fatherJobId = fatherJobId;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getTempTableName() {
+        return tempTableName;
+    }
+
+    public void setTempTableName(String tempTableName) {
+        this.tempTableName = tempTableName;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
+
+    public String getParsedColumns() {
+        return parsedColumns;
+    }
+
+    public void setParsedColumns(String parsedColumns) {
+        this.parsedColumns = parsedColumns;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public int getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(int taskType) {
+        this.taskType = taskType;
     }
 }

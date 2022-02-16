@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.service.develop.impl.BatchComponentService;
-import com.dtstack.taier.develop.web.develop.query.BatchComponentGetDatabasesVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchComponentGetDatabasesVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

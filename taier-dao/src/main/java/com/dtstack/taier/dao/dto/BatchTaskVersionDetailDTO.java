@@ -20,7 +20,6 @@ package com.dtstack.taier.dao.dto;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
-import lombok.Data;
 
 import java.util.List;
 
@@ -28,7 +27,6 @@ import java.util.List;
  * date: 2022/1/24 3:09 下午
  * author: zhaiyue
  */
-@Data
 public class BatchTaskVersionDetailDTO extends BatchTaskVersion {
 
     private String userName;
@@ -37,4 +35,27 @@ public class BatchTaskVersionDetailDTO extends BatchTaskVersion {
 
     private JSONObject dependencyTasks;
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public List<String> getDependencyTaskNames() {
+        return dependencyTaskNames;
+    }
+
+    public void setDependencyTaskNames(List<String> dependencyTaskNames) {
+        this.dependencyTaskNames = dependencyTaskNames;
+    }
+
+    public JSONObject getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(JSONObject dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
+    }
 }

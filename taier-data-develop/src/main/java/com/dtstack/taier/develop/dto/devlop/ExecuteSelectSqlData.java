@@ -19,14 +19,10 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchTask;
 import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.BatchTask;
 import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
-@Data
-@AllArgsConstructor
 public class ExecuteSelectSqlData {
 
     /**
@@ -47,6 +43,44 @@ public class ExecuteSelectSqlData {
     /**
      * sql执行Service
      */
-    private IBatchSelectSqlService iBatchSelectSqlService;
+    private IBatchSelectSqlService IBatchSelectSqlService;
 
+    public ExecuteSelectSqlData(BatchSelectSql batchHiveSelectSql, BatchTask batchTask, Integer taskType, com.dtstack.taier.develop.service.develop.IBatchSelectSqlService IBatchSelectSqlService) {
+        this.batchHiveSelectSql = batchHiveSelectSql;
+        this.batchTask = batchTask;
+        this.taskType = taskType;
+        this.IBatchSelectSqlService = IBatchSelectSqlService;
+    }
+
+    public BatchSelectSql getBatchHiveSelectSql() {
+        return batchHiveSelectSql;
+    }
+
+    public void setBatchHiveSelectSql(BatchSelectSql batchHiveSelectSql) {
+        this.batchHiveSelectSql = batchHiveSelectSql;
+    }
+
+    public BatchTask getBatchTask() {
+        return batchTask;
+    }
+
+    public void setBatchTask(BatchTask batchTask) {
+        this.batchTask = batchTask;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public com.dtstack.taier.develop.service.develop.IBatchSelectSqlService getIBatchSelectSqlService() {
+        return IBatchSelectSqlService;
+    }
+
+    public void setIBatchSelectSqlService(com.dtstack.taier.develop.service.develop.IBatchSelectSqlService IBatchSelectSqlService) {
+        this.IBatchSelectSqlService = IBatchSelectSqlService;
+    }
 }

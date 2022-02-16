@@ -23,6 +23,9 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     }
 
     public Map<Long, User> getUserMap(Collection<Long> userIds) {
+        if(CollectionUtils.isEmpty(userIds)){
+            return new HashMap<>();
+        }
         List<User> users = this.baseMapper.selectBatchIds(userIds);
         if(CollectionUtils.isEmpty(users)){
             return new HashMap<>();

@@ -19,7 +19,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchTask;
-import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,6 @@ import java.util.Map;
  * author: toutian
  * create: 2017/6/5
  */
-@Data
 public class TaskResourceParam extends BatchTask {
 
     private Long userId;
@@ -113,5 +111,195 @@ public class TaskResourceParam extends BatchTask {
 
     private ReadWriteLockVO readWriteLockVO;
 
+    public Long getUserId() {
+        return userId;
+    }
 
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public List<Long> getResourceIdList() {
+        return resourceIdList;
+    }
+
+    public void setResourceIdList(List<Long> resourceIdList) {
+        this.resourceIdList = resourceIdList;
+    }
+
+    public List<Long> getRefResourceIdList() {
+        return refResourceIdList;
+    }
+
+    public void setRefResourceIdList(List<Long> refResourceIdList) {
+        this.refResourceIdList = refResourceIdList;
+    }
+
+    public boolean isPreSave() {
+        return preSave;
+    }
+
+    public void setPreSave(boolean preSave) {
+        this.preSave = preSave;
+    }
+
+    public Map<String, Object> getSourceMap() {
+        return sourceMap;
+    }
+
+    public void setSourceMap(Map<String, Object> sourceMap) {
+        this.sourceMap = sourceMap;
+    }
+
+    public Map<String, Object> getTargetMap() {
+        return targetMap;
+    }
+
+    public void setTargetMap(Map<String, Object> targetMap) {
+        this.targetMap = targetMap;
+    }
+
+    public Map<String, Object> getSettingMap() {
+        return settingMap;
+    }
+
+    public void setSettingMap(Map<String, Object> settingMap) {
+        this.settingMap = settingMap;
+    }
+
+    public List<BatchTask> getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(List<BatchTask> dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
+    }
+
+    public String getPublishDesc() {
+        return publishDesc;
+    }
+
+    public void setPublishDesc(String publishDesc) {
+        this.publishDesc = publishDesc;
+    }
+
+    public int getLockVersion() {
+        return lockVersion;
+    }
+
+    public void setLockVersion(int lockVersion) {
+        this.lockVersion = lockVersion;
+    }
+
+    public List<Map> getTaskVariables() {
+        return taskVariables;
+    }
+
+    public void setTaskVariables(List<Map> taskVariables) {
+        this.taskVariables = taskVariables;
+    }
+
+    public Long getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(Long dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+
+    public int getCreateModel() {
+        return createModel;
+    }
+
+    public void setCreateModel(int createModel) {
+        this.createModel = createModel;
+    }
+
+    public int getOperateModel() {
+        return operateModel;
+    }
+
+    public void setOperateModel(int operateModel) {
+        this.operateModel = operateModel;
+    }
+
+    public int getSyncModel() {
+        return syncModel;
+    }
+
+    public void setSyncModel(int syncModel) {
+        this.syncModel = syncModel;
+    }
+
+    public int getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(int pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
+    public int getLearningType() {
+        return learningType;
+    }
+
+    public void setLearningType(int learningType) {
+        this.learningType = learningType;
+    }
+
+    public String getInput() {
+        return input;
+    }
+
+    public void setInput(String input) {
+        this.input = input;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public String getOptions() {
+        return options;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
+    }
+
+    public List<TaskResourceParam> getToUpdateTasks() {
+        return toUpdateTasks;
+    }
+
+    public void setToUpdateTasks(List<TaskResourceParam> toUpdateTasks) {
+        this.toUpdateTasks = toUpdateTasks;
+    }
+
+    public Boolean getEditBaseInfo() {
+        return isEditBaseInfo;
+    }
+
+    public void setEditBaseInfo(Boolean editBaseInfo) {
+        isEditBaseInfo = editBaseInfo;
+    }
+
+    public Integer getParentReadWriteLockVersion() {
+        return parentReadWriteLockVersion;
+    }
+
+    public void setParentReadWriteLockVersion(Integer parentReadWriteLockVersion) {
+        this.parentReadWriteLockVersion = parentReadWriteLockVersion;
+    }
+
+    public ReadWriteLockVO getReadWriteLockVO() {
+        return readWriteLockVO;
+    }
+
+    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
+        this.readWriteLockVO = readWriteLockVO;
+    }
 }
