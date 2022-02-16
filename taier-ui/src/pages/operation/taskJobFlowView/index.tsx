@@ -532,7 +532,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 							</Tooltip>
 						</span>
 					}
-					wrapClassName="vertical-center-modal m-log-modal"
+					wrapClassName="vertical-center-modal m-log-modal no-padding-modal"
 					visible={this.state.logVisible}
 					onCancel={() => {
 						this.setState({
