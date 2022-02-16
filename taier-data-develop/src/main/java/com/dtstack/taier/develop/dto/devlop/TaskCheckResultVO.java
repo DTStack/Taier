@@ -18,9 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
 
-@Data
 public class TaskCheckResultVO {
 
     /**
@@ -31,4 +29,19 @@ public class TaskCheckResultVO {
 
     private String errorMessage;
 
+    public Integer getErrorSign() {
+        return errorSign;
+    }
+
+    public void setErrorSign(Integer errorSign) {
+        this.errorSign = errorSign;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

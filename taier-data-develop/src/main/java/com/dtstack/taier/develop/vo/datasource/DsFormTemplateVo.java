@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.List;
  * @author: liuxx
  * @date: 2021/3/9
  */
-@Data
 @ApiModel("数据表单模版视图类")
 public class DsFormTemplateVo implements Serializable {
 
@@ -27,4 +25,27 @@ public class DsFormTemplateVo implements Serializable {
     private List<DsFormFieldVo> fromFieldVoList;
 
 
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public List<DsFormFieldVo> getFromFieldVoList() {
+        return fromFieldVoList;
+    }
+
+    public void setFromFieldVoList(List<DsFormFieldVo> fromFieldVoList) {
+        this.fromFieldVoList = fromFieldVoList;
+    }
 }

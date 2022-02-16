@@ -18,8 +18,6 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -28,8 +26,6 @@ import java.util.List;
  * @date 2020-04-27 09:26
  * @description
  */
-@Data
-@Accessors(chain = true)
 public class SqlResultVO<T> {
 
     /**
@@ -47,4 +43,44 @@ public class SqlResultVO<T> {
     private String msg;
 
     private String sqlText;
+
+    public String getSqlId() {
+        return sqlId;
+    }
+
+    public void setSqlId(String sqlId) {
+        this.sqlId = sqlId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public List<T> getResult() {
+        return result;
+    }
+
+    public void setResult(List<T> result) {
+        this.result = result;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
 }

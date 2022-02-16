@@ -42,7 +42,7 @@ import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
-import com.dtstack.taier.develop.web.develop.result.BatchServerLogByAppLogTypeResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchServerLogByAppLogTypeResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.scheduler.service.ClusterService;
@@ -705,7 +705,7 @@ public class BatchServerLogService {
             logInfoVO.setWriteDuration(this.getLongValue(writeDurationMetric.getMetric()));
         }
         if (numErrorMetric != null){
-            logInfoVO.setNErrors(getLongValue(numErrorMetric.getMetric()));
+            logInfoVO.setnErrors(getLongValue(numErrorMetric.getMetric()));
         }
         return logInfoVO;
     }

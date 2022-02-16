@@ -20,12 +20,10 @@ package com.dtstack.taier.dao.dto;
 
 
 import com.dtstack.taier.dao.domain.BatchTask;
-import lombok.Data;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-@Data
 public class BatchTaskDTO extends BatchTask {
     private Timestamp startGmtModified;
     private Timestamp endGmtModified;
@@ -33,4 +31,52 @@ public class BatchTaskDTO extends BatchTask {
     private List<Integer> taskTypeList;
     private List<Integer> periodTypeList;
     private Integer searchType;
+
+    public Timestamp getStartGmtModified() {
+        return startGmtModified;
+    }
+
+    public void setStartGmtModified(Timestamp startGmtModified) {
+        this.startGmtModified = startGmtModified;
+    }
+
+    public Timestamp getEndGmtModified() {
+        return endGmtModified;
+    }
+
+    public void setEndGmtModified(Timestamp endGmtModified) {
+        this.endGmtModified = endGmtModified;
+    }
+
+    public String getFuzzName() {
+        return fuzzName;
+    }
+
+    public void setFuzzName(String fuzzName) {
+        this.fuzzName = fuzzName;
+    }
+
+    public List<Integer> getTaskTypeList() {
+        return taskTypeList;
+    }
+
+    public void setTaskTypeList(List<Integer> taskTypeList) {
+        this.taskTypeList = taskTypeList;
+    }
+
+    public List<Integer> getPeriodTypeList() {
+        return periodTypeList;
+    }
+
+    public void setPeriodTypeList(List<Integer> periodTypeList) {
+        this.periodTypeList = periodTypeList;
+    }
+
+    public Integer getSearchType() {
+        return searchType;
+    }
+
+    public void setSearchType(Integer searchType) {
+        this.searchType = searchType;
+    }
 }

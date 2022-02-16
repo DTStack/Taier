@@ -19,9 +19,9 @@
 package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchExecuteDataResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchExecuteRunLogResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchExecuteStatusResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchExecuteDataResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchExecuteRunLogResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchExecuteStatusResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  *
@@ -11,7 +10,6 @@ import lombok.Data;
  * @Description:
  * @Date: 2021/3/9 11:54
  */
-@Data
 @ApiModel("数据源基本信息")
 public class DsDetailVO {
 
@@ -23,9 +21,6 @@ public class DsDetailVO {
 
     @ApiModelProperty("数据源报表")
     private String dataVersion;
-
-//    @ApiModelProperty("数据源类型")
-//    private String dataTypeName;
 
     @ApiModelProperty("数据源名称")
     private String dataName;
@@ -39,4 +34,59 @@ public class DsDetailVO {
     @ApiModelProperty(value = "0普通，1默认数据源，2从控制台添加的")
     private String isMeta;
 
+    public Long getDataInfoId() {
+        return dataInfoId;
+    }
+
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
+
+    public void setDataName(String dataName) {
+        this.dataName = dataName;
+    }
+
+    public String getDataDesc() {
+        return dataDesc;
+    }
+
+    public void setDataDesc(String dataDesc) {
+        this.dataDesc = dataDesc;
+    }
+
+    public String getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(String dataJson) {
+        this.dataJson = dataJson;
+    }
+
+    public String getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(String isMeta) {
+        this.isMeta = isMeta;
+    }
 }

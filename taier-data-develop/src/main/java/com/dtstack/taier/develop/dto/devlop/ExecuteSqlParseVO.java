@@ -18,8 +18,6 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
-
 import java.util.List;
 
 
@@ -28,7 +26,6 @@ import java.util.List;
  * @date 2020-04-27 09:24
  * @description
  */
-@Data
 public class ExecuteSqlParseVO {
 
 
@@ -51,4 +48,51 @@ public class ExecuteSqlParseVO {
      */
     private List<SqlResultVO> sqlIdList;
 
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public Integer getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(Integer engineType) {
+        this.engineType = engineType;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
+
+    public List<SqlResultVO> getSqlIdList() {
+        return sqlIdList;
+    }
+
+    public void setSqlIdList(List<SqlResultVO> sqlIdList) {
+        this.sqlIdList = sqlIdList;
+    }
 }

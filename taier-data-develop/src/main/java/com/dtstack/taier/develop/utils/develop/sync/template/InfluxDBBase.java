@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.utils.develop.sync.template;
 
-import lombok.Data;
 
 import java.util.List;
 
@@ -27,7 +26,6 @@ import java.util.List;
  * 2021-06-09 11:33
  * 用于 InfluxDB 数据同步
  */
-@Data
 public class InfluxDBBase extends BaseSource{
 
     private String username = "admin";
@@ -42,5 +40,51 @@ public class InfluxDBBase extends BaseSource{
 
     protected List column;
 
+    public String getUsername() {
+        return username;
+    }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public List getColumn() {
+        return column;
+    }
+
+    public void setColumn(List column) {
+        this.column = column;
+    }
 }

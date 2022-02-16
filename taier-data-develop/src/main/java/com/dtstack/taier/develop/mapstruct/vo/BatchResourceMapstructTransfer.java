@@ -21,9 +21,9 @@ package com.dtstack.taier.develop.mapstruct.vo;
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.develop.dto.devlop.BatchResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
-import com.dtstack.taier.develop.web.develop.query.BatchResourceAddVO;
-import com.dtstack.taier.develop.web.develop.result.BatchGetResourceByIdResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchGetResourcesResultVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchResourceAddVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchGetResourcesResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

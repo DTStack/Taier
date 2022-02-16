@@ -24,10 +24,8 @@ import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.util.ColumnUtil;
 import com.google.common.collect.Lists;
-import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 
-@Data
 public class InfluxDBReader extends InfluxDBBase implements Reader {
 
     /**
@@ -86,5 +84,37 @@ public class InfluxDBReader extends InfluxDBBase implements Reader {
         if (data == null){
             throw new RdosDefineException("reader is not null");
         }
+    }
+
+    public String getCustomSql() {
+        return customSql;
+    }
+
+    public void setCustomSql(String customSql) {
+        this.customSql = customSql;
+    }
+
+    public String getWhere() {
+        return where;
+    }
+
+    public void setWhere(String where) {
+        this.where = where;
+    }
+
+    public String getSplitPK() {
+        return splitPK;
+    }
+
+    public void setSplitPK(String splitPK) {
+        this.splitPK = splitPK;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
     }
 }

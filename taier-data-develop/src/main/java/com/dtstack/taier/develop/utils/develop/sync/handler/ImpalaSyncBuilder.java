@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.CustomThreadRunsPolicy;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Writer;
@@ -35,9 +36,10 @@ import com.dtstack.taier.develop.utils.develop.sync.template.KuduWriter;
 import com.dtstack.taier.develop.utils.develop.sync.util.ImpalaUtils;
 import com.dtstack.taier.pluginapi.pojo.Column;
 import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -53,19 +55,20 @@ import java.util.stream.Collectors;
  *
  * @author xiaochen
  */
-@Slf4j
 @Component
 public class ImpalaSyncBuilder implements SyncBuilder {
 
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ImpalaSyncBuilder.class);
+
     @Override
     public void setReaderJson(Map<String, Object> map, Map<String, Object> dataSource,Map<String,Object> kerberos) {
-        if (log.isDebugEnabled()) {
-            log.debug("set read json DataSourceType: Impala \nsourceMap :{} \n datasourceJson :{}", JSON.toJSONString(map), JSON.toJSONString(dataSource));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("set read json DataSourceType: Impala \nsourceMap :{} \n datasourceJson :{}", JSON.toJSONString(map), JSON.toJSONString(dataSource));
         }
         String tableName = (String) map.get("table");
         //优化点 前端可以回传tableLocation数据，减少链接的创建
         JSONObject tableLocation = tableLocation(dataSource, tableName, kerberos);
-        log.info("get read tableLocation :{}", tableLocation.toJSONString());
+        LOGGER.info("get read tableLocation :{}", tableLocation.toJSONString());
         TableLocationType tableLocationType = TableLocationType.getTableLocationType(tableLocation.getString(TableLocationType.key()));
         if (tableLocationType == null) {
             throw new RdosDefineException("不支持的表存储类型");
@@ -95,14 +98,14 @@ public class ImpalaSyncBuilder implements SyncBuilder {
 
     @Override
     public void setWriterJson(Map<String, Object> map, Map<String, Object> dataSource,Map<String,Object> kerberos) {
-        if (log.isDebugEnabled()) {
-            log.debug("setWriterJson DataSourceType: Impala \nsourceMap :{} \n datasourceJson :{}", JSON.toJSONString(map), JSON.toJSONString(dataSource));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("setWriterJson DataSourceType: Impala \nsourceMap :{} \n datasourceJson :{}", JSON.toJSONString(map), JSON.toJSONString(dataSource));
         }
 
         String tableName = (String) map.get("table");
         //优化点 前端可以回传tableLocation数据，减少链接的创建
         JSONObject tableLocation = tableLocation(dataSource, tableName, kerberos);
-        log.info("get read tableLocation :{}", tableLocation.toJSONString());
+        LOGGER.info("get read tableLocation :{}", tableLocation.toJSONString());
         TableLocationType tableLocationType = TableLocationType.getTableLocationType(tableLocation.getString(TableLocationType.key()));
         if (tableLocationType == null) {
             throw new RdosDefineException("不支持的表存储类型");
@@ -141,7 +144,7 @@ public class ImpalaSyncBuilder implements SyncBuilder {
         } else if (tableLocationType == TableLocationType.KUDU) {
             KuduReader kuduReader = objToObject(sourceMap, KuduReader.class);
             String kuduTableName = (String) sourceMap.get("kuduTableName");
-            log.info("syncReaderBuild format impala  kuduTableName :{} ", kuduTableName);
+            LOGGER.info("syncReaderBuild format impala  kuduTableName :{} ", kuduTableName);
             kuduReader.setTable(kuduTableName);
             return kuduReader;
         }
@@ -195,7 +198,7 @@ public class ImpalaSyncBuilder implements SyncBuilder {
         } else if (tableLocationType == TableLocationType.KUDU) {
             KuduWriter kuduWriter = objToObject(targetMap, KuduWriter.class);
             String kuduTableName = (String) targetMap.get("kuduTableName");
-            log.info("syncWriterBuild format impala  kuduTableName :{} ", kuduTableName);
+            LOGGER.info("syncWriterBuild format impala  kuduTableName :{} ", kuduTableName);
             kuduWriter.setTable(kuduTableName);
             return kuduWriter;
         }
@@ -238,7 +241,7 @@ public class ImpalaSyncBuilder implements SyncBuilder {
             result.putAll(map);
             return result;
         } catch (Exception e) {
-            log.error("tableLocation error ", e);
+            LOGGER.error("tableLocation error ", e);
             if (e instanceof RdosDefineException) {
                 throw (RdosDefineException) e;
             }
