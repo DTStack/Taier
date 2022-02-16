@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import classNames from 'classnames';
-import TaskInfo from './taskInfo';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
+import TaskInfo from './taskInfo';
 import SchedulingConfig from '@/components/task/schedulingConfig';
 import EnvParams from '@/components/task/envParams';
 import TaskParams from '@/components/task/taskParams';
 import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
+import {
+	CREATE_DATASOURCE_PREFIX,
+	CREATE_TASK_PREFIX,
+	EDIT_DATASOURCE_PREFIX,
+	EDIT_FOLDER_PREFIX,
+	EDIT_TASK_PREFIX,
+} from '@/constant';
 import './index.scss';
 
 enum RIGHT_BAR_ITEM {
@@ -39,6 +46,17 @@ const RIGHTBAR = [
 interface IProps extends molecule.model.IEditor {
 	onTabClick?: (key: string) => void;
 }
+
+/**
+ * 不存在右边属性配置的 tab，譬如修改任务 tab 等
+ */
+export const TAB_WITHOUT_DATA = [
+	EDIT_TASK_PREFIX,
+	EDIT_FOLDER_PREFIX,
+	CREATE_TASK_PREFIX,
+	CREATE_DATASOURCE_PREFIX,
+	EDIT_DATASOURCE_PREFIX,
+];
 
 export default connect(molecule.editor, ({ current: propsCurrent, onTabClick }: IProps) => {
 	const [current, setCurrent] = useState('');

@@ -14,6 +14,24 @@ import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
 
+/**
+ * 返回今日 [00:00:00, 23:59:69]
+ */
+export function getTodayTime() {
+	return [
+		moment().set({
+			hour: 0,
+			minute: 0,
+			second: 0,
+		}),
+		moment().set({
+			hour: 23,
+			minute: 59,
+			second: 59,
+		}),
+	];
+}
+
 export function getCookie(name: string) {
 	const arr = document.cookie.match(new RegExp(`(^| )${name}=([^;]*)(;|$)`));
 	if (arr != null) {
