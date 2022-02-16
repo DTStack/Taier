@@ -19,11 +19,14 @@
 package com.dtstack.taier.scheduler.server;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper;
@@ -31,10 +34,12 @@ import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
+import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.builder.CycleJobBuilder;
 import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.NodeRecoverService;
+import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.dtstack.taier.scheduler.zookeeper.data.BrokerHeartNode;
@@ -71,9 +76,6 @@ public class FailoverStrategy {
     private CycleJobBuilder cycleJobBuilder;
 
     @Autowired
-    private ScheduleJobMapper scheduleJobMapper;
-
-    @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Autowired
@@ -89,7 +91,7 @@ public class FailoverStrategy {
     private JobGraphBuilderTrigger jobGraphBuilderTrigger;
 
     @Autowired
-    private ScheduleJobOperatorRecordMapper scheduleJobOperatorRecordMapper;
+    private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
 
     private static final String MASTER_TRIGGER_NODE = "/node/nodeRecover/masterTriggerNode";
@@ -210,14 +212,14 @@ public class FailoverStrategy {
             LOGGER.warn("----- nodeAddress:{} BatchJob mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<SimpleScheduleJobPO> jobs = scheduleJobMapper.listSimpleJobByStatusAddress(startId, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
-                if (CollectionUtils.isEmpty(jobs)) {
+                List<SimpleScheduleJobDTO> simpleScheduleJobDTOS = scheduleJobService.listSimpleJobByStatusAddress(startId, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
+                if (CollectionUtils.isEmpty(simpleScheduleJobDTOS)) {
                     break;
                 }
                 Set<String> cronJobIds = new HashSet<>();
                 Set<String> fillJobIds =  new HashSet<>();
                 List<String> phaseStatus = Lists.newArrayList();
-                for (SimpleScheduleJobPO batchJob : jobs) {
+                for (SimpleScheduleJobDTO batchJob : simpleScheduleJobDTOS) {
                     if (EScheduleType.NORMAL_SCHEDULE.getType().equals(batchJob.getType())) {
                         cronJobIds.add(batchJob.getJobId());
                         LOGGER.info("----- nodeAddress:{} distributeBatchJobs {} NORMAL_SCHEDULE -----", nodeAddress, batchJob.getJobId());
@@ -236,7 +238,7 @@ public class FailoverStrategy {
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
-            List<SimpleScheduleJobPO> jobs = scheduleJobMapper.listSimpleJobByStatusAddress(0L, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
+            List<SimpleScheduleJobDTO> jobs = scheduleJobService.listSimpleJobByStatusAddress(0L, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
@@ -248,10 +250,15 @@ public class FailoverStrategy {
     }
 
 
-    private void updatePhaseStatus(List<String> phaseStatus) {
-        if (CollectionUtils.isNotEmpty(phaseStatus)) {
-            LOGGER.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(phaseStatus));
-            scheduleJobMapper.updateListPhaseStatus(phaseStatus, JobPhaseStatus.CREATE.getCode());
+    private void updatePhaseStatus(List<String> jobIds) {
+        if (CollectionUtils.isNotEmpty(jobIds)) {
+            LOGGER.info("----- updatePhaseStatus {} -----", JSONObject.toJSONString(jobIds));
+            ScheduleJob scheduleJob = new ScheduleJob();
+            scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
+            scheduleJobService.lambdaUpdate()
+                    .in(ScheduleJob::getJobId,jobIds)
+                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
+                    .update(scheduleJob);
         }
     }
 
@@ -287,8 +294,21 @@ public class FailoverStrategy {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
-            scheduleJobMapper.updateNodeAddress(nodeEntry.getKey(), nodeEntry.getValue());
-            scheduleJobOperatorRecordMapper.updateNodeAddress(nodeEntry.getKey(),nodeEntry.getValue());
+
+            // 更新实例
+            ScheduleJob scheduleJob = new ScheduleJob();
+            scheduleJob.setNodeAddress(nodeEntry.getKey());
+            scheduleJobService.lambdaUpdate()
+                    .in(ScheduleJob::getJobId,nodeEntry.getValue())
+                    .update(scheduleJob);
+
+            // 更新jobOperatorRecord
+            ScheduleJobOperatorRecord scheduleJobOperatorRecord = new ScheduleJobOperatorRecord();
+            scheduleJobOperatorRecord.setNodeAddress(nodeEntry.getKey());
+            scheduleJobOperatorRecordService.lambdaUpdate()
+                    .in(ScheduleJobOperatorRecord::getJobId,nodeEntry.getValue())
+                    .update(scheduleJobOperatorRecord);
+
             LOGGER.info("jobIds:{} failover to address:{}", nodeEntry.getValue(), nodeEntry.getKey());
         }
     }
@@ -402,11 +422,12 @@ public class FailoverStrategy {
 
     /**
      * master 节点分发任务失败
-     * @param jobId
+     * @param jobId 实例id
+     * @param errorMsg 错误信息，用于更新日志
      */
     public void dealSubmitFailJob(String jobId, String errorMsg){
         engineJobCacheService.deleteByJobId(jobId);
-        scheduleJobMapper.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        scheduleJobService.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
         LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.SUBMITFAILD.getStatus());
     }
 }
