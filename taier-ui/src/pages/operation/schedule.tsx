@@ -618,13 +618,12 @@ export default () => {
 				onClose={handleSlideClose}
 				visible={visibleSlidePane}
 				style={{
+					top: '33px',
 					right: '0px',
+					bottom: '22px',
 					width: '60%',
-					height: '100%',
-					minHeight: '600px',
 					position: 'fixed',
-					paddingTop: '64px',
-					paddingBottom: '22px',
+					paddingBottom: '40px',
 				}}
 			>
 				<TaskJobFlowView

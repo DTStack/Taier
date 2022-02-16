@@ -365,6 +365,7 @@ export default () => {
 				onClose={handleCloseSlidePane}
 				visible={visibleSlidePane}
 				className="dt-slide-pane"
+				style={{ top: '33px' }}
 			>
 				<Tabs
 					className="c-taskMana__slidePane__tabs"
