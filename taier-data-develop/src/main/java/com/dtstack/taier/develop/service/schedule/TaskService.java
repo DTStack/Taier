@@ -183,7 +183,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .eq(ScheduleTaskShade::getFlowId,0L)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
-                .eq(dto.getOwnerId() != null, ScheduleTaskShade::getOwnerUserId, dto.getOwnerId())
+                .eq(dto.getOperatorId() != null, ScheduleTaskShade::getCreateUserId, dto.getOperatorId())
                 .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
                 .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
                 .between(dto.getStartModifiedTime() != null && dto.getEndModifiedTime() != null, ScheduleTaskShade::getGmtModified,
@@ -194,8 +194,9 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .page(page);
 
         List<ReturnScheduleTaskVO> scheduleTaskVOS = ScheduleTaskMapstructTransfer.INSTANCE.beanToTaskVO(resultPage.getRecords());
-        Map<Long, User> userMap = userService.listAll().stream().collect(Collectors.toMap(User::getId, g -> (g)));
-        scheduleTaskVOS.forEach(vo -> vo.setOwnerUserName(userMap.get(vo.getOwnerUserId()) != null ? userMap.get(vo.getOwnerUserId()).getUserName() : ""));
+        List<Long> userIds = resultPage.getRecords().stream().map(ScheduleTaskShade::getCreateUserId).collect(Collectors.toList());
+        Map<Long, User> userMap = userService.getUserMap(userIds);
+        scheduleTaskVOS.forEach(vo -> vo.setOperatorName(userMap.get(vo.getOperatorId()) != null ? userMap.get(vo.getOperatorId()).getUserName() : ""));
         return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), resultPage.getTotal(), (int) resultPage.getPages(), scheduleTaskVOS);
     }
 
@@ -238,7 +239,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
         }
         return this.lambdaQuery()
                 .like(StringUtils.isNotBlank(taskName), ScheduleTaskShade::getName, taskName)
-                .eq(ownerId != null, ScheduleTaskShade::getOwnerUserId, ownerId)
+                .eq(ownerId != null, ScheduleTaskShade::getCreateUserId, ownerId)
                 .eq(tenantId != null, ScheduleTaskShade::getTenantId, tenantId)
                 .list();
     }

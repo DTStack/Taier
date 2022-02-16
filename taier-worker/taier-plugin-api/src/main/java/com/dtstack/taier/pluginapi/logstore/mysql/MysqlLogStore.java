@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.pluginapi.logstore.mysql;
 
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.logstore.AbstractLogStore;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -61,8 +61,8 @@ public class MysqlLogStore extends AbstractLogStore {
 
     //timeOutDeal
     private final static List<Integer> JOB_EXECUTE_STATUS = Lists.newArrayList(
-            RdosTaskStatus.SCHEDULED.getStatus(),
-            RdosTaskStatus.RUNNING.getStatus()
+            TaskStatus.SCHEDULED.getStatus(),
+            TaskStatus.RUNNING.getStatus()
     );
     private static final String SELECT_JOB_EXECUTE_STATUS_TEMPLATE = " select id from schedule_plugin_job_info " +
             " where id > ? and id <= ? and status in (" + StringUtils.join(JOB_EXECUTE_STATUS, ",") + ") and gmt_modified < ? order by id asc limit ?";
@@ -72,9 +72,9 @@ public class MysqlLogStore extends AbstractLogStore {
 
     //clearJob
     private final static List<Integer> JOB_FINISHED_STATUS = Lists.newArrayList(
-            RdosTaskStatus.CANCELED.getStatus(),
-            RdosTaskStatus.FINISHED.getStatus(),
-            RdosTaskStatus.FAILED.getStatus()
+            TaskStatus.CANCELED.getStatus(),
+            TaskStatus.FINISHED.getStatus(),
+            TaskStatus.FAILED.getStatus()
     );
     private static final String SELECT_JOB_FINISHED_STATUS_TEMPLATE = " select id from schedule_plugin_job_info " +
             " where id > ? and id <= ? and status in (" + StringUtils.join(JOB_FINISHED_STATUS, ",") + ") and gmt_modified < ? order by id asc limit ?";
@@ -192,7 +192,7 @@ public class MysqlLogStore extends AbstractLogStore {
             connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_JOB_ERRINFO_SQL);
             pstmt.setString(1, errorLog);
-            pstmt.setInt(2, RdosTaskStatus.FAILED.getStatus());
+            pstmt.setInt(2, TaskStatus.FAILED.getStatus());
             pstmt.setString(3, jobId);
 
             pstmt.executeUpdate();
@@ -228,7 +228,7 @@ public class MysqlLogStore extends AbstractLogStore {
             closeDBResources(resultSet, preparedStatement, null, connection);
         }
         //默认失败
-        return RdosTaskStatus.FAILED.getStatus();
+        return TaskStatus.FAILED.getStatus();
     }
 
     @Override

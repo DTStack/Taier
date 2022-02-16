@@ -31,7 +31,7 @@ import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
 import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
@@ -212,7 +212,7 @@ public class FailoverStrategy {
             LOGGER.warn("----- nodeAddress:{} BatchJob mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<SimpleScheduleJobDTO> simpleScheduleJobDTOS = scheduleJobService.listSimpleJobByStatusAddress(startId, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
+                List<SimpleScheduleJobDTO> simpleScheduleJobDTOS = scheduleJobService.listSimpleJobByStatusAddress(startId, TaskStatus.getUnfinishedStatuses(), nodeAddress);
                 if (CollectionUtils.isEmpty(simpleScheduleJobDTOS)) {
                     break;
                 }
@@ -238,7 +238,7 @@ public class FailoverStrategy {
             }
 
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收需要再次恢复（由HearBeatCheckListener监控）。
-            List<SimpleScheduleJobDTO> jobs = scheduleJobService.listSimpleJobByStatusAddress(0L, RdosTaskStatus.getUnfinishedStatuses(), nodeAddress);
+            List<SimpleScheduleJobDTO> jobs = scheduleJobService.listSimpleJobByStatusAddress(0L, TaskStatus.getUnfinishedStatuses(), nodeAddress);
             if (CollectionUtils.isNotEmpty(jobs)) {
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
@@ -427,8 +427,8 @@ public class FailoverStrategy {
      */
     public void dealSubmitFailJob(String jobId, String errorMsg){
         engineJobCacheService.deleteByJobId(jobId);
-        scheduleJobService.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
-        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.SUBMITFAILD.getStatus());
+        scheduleJobService.jobFail(jobId, TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, TaskStatus.SUBMITFAILD.getStatus());
     }
 }
 

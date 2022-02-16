@@ -3,18 +3,14 @@ package com.dtstack.taier.scheduler.service;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.EScheduleType;
-import com.dtstack.taier.common.enums.ForceCancelFlag;
-import com.dtstack.taier.common.enums.OperatorType;
+import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
-import com.dtstack.taier.dao.mapper.ScheduleTaskShadeInfoMapper;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
@@ -86,13 +82,13 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         if (null != extraInfo) {
             ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extraInfo);
             if (paramActionExt != null) {
-                updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(), scheduleTaskShade.getVersionId());
+                updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), TaskStatus.SUBMITTING.getStatus(), scheduleTaskShade.getVersionId());
                 actionService.start(paramActionExt);
                 return;
             }
         }
         //额外信息为空 标记任务为失败
-        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "task run extra info is empty");
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.FAILED.getStatus(), "task run extra info is empty");
         LOGGER.error(" job  {} run fail with info is null", scheduleJob.getJobId());
     }
 
@@ -130,9 +126,9 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 }
 
                 ScheduleJob scheduleJob = new ScheduleJob();
-                scheduleJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+                scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
                 scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
-                scheduleJob.setIsRestart(JobPhaseStatus.CREATE.getCode());
+                scheduleJob.setIsRestart(Restarted.RESTARTED.getStatus());
                 scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
 
                 // 更新状态

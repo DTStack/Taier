@@ -22,7 +22,7 @@ import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.jobdealer.bo.EngineJobRetry;
@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.function.BiConsumer;
 
 
 /**
@@ -81,7 +82,7 @@ public class JobRestartDealer {
             return false;
         }
 
-        boolean retry = restartJob(jobClient);
+        boolean retry = restartJob(jobClient,null);
         LOGGER.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getJobId(), alreadyRetryNum);
 
         return retry;
@@ -113,7 +114,7 @@ public class JobRestartDealer {
      * @param jobCache
      * @return
      */
-    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob, ScheduleEngineJobCache jobCache){
+    public boolean checkAndRestart(Integer status, ScheduleJob scheduleJob, ScheduleEngineJobCache jobCache, BiConsumer<ScheduleJob,JobClient> saveRetryFunction){
         Pair<Boolean, JobClient> checkResult = checkJobInfo(scheduleJob.getJobId(), jobCache, status);
         if(!checkResult.getKey()){
             return false;
@@ -134,7 +135,7 @@ public class JobRestartDealer {
 
         jobClient.setCallBack((jobStatus)-> updateJobStatus(scheduleJob.getJobId(), jobStatus));
 
-        boolean retry = restartJob(jobClient);
+        boolean retry = restartJob(jobClient,saveRetryFunction);
         LOGGER.info("【retry={}】 jobId:{} alreadyRetryNum:{} will retry and add into queue again.", retry, jobClient.getJobId(), alreadyRetryNum);
 
         return retry;
@@ -145,7 +146,7 @@ public class JobRestartDealer {
     private Pair<Boolean, JobClient> checkJobInfo(String jobId, ScheduleEngineJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
 
-        if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
+        if(!TaskStatus.FAILED.getStatus().equals(status) && !TaskStatus.SUBMITFAILD.getStatus().equals(status)){
             return check;
         }
 
@@ -167,7 +168,7 @@ public class JobRestartDealer {
         }
     }
 
-    private boolean restartJob(JobClient jobClient){
+    private boolean restartJob(JobClient jobClient,BiConsumer<ScheduleJob,JobClient> saveRetryFunction){
         ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
         if (jobCache == null) {
             LOGGER.info("jobId:{} restart but jobCache is null.", jobClient.getJobId());
@@ -187,13 +188,18 @@ public class JobRestartDealer {
         if (isAdd) {
             String jobId = jobClient.getJobId();
             //重试任务更改在zk的状态，统一做状态清理
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
+            shardCache.updateLocalMemTaskStatus(jobId, TaskStatus.RESTARTING.getStatus());
 
             //重试的任务不置为失败，waitengine
-            jobRetryRecord(jobClient);
+            ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobClient.getJobId());
+            if (saveRetryFunction != null) {
+                saveRetryFunction.accept(scheduleJob, jobClient);
+            } else {
+                jobRetryRecord(scheduleJob, jobClient, null);
+            }
 
-            scheduleJobService.updateStatus(jobId,RdosTaskStatus.RESTARTING.getStatus());
-            LOGGER.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
+            scheduleJobService.updateStatus(jobId, TaskStatus.RESTARTING.getStatus());
+            LOGGER.info("jobId:{} update job status:{}.", jobId, TaskStatus.RESTARTING.getStatus());
 
             //update retryNum
             increaseJobRetryNum(jobClient.getJobId());
@@ -201,11 +207,10 @@ public class JobRestartDealer {
         return isAdd;
     }
 
-    private void jobRetryRecord(JobClient jobClient) {
+    public void jobRetryRecord(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
         try {
-            ScheduleJob batchJob = scheduleJobService.getByJobId(jobClient.getJobId());
-            EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(batchJob, jobClient);
-            batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
+            EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(scheduleJob, jobClient,engineLog);
+            batchJobRetry.setStatus(TaskStatus.RESTARTING.getStatus());
             engineJobRetryMapper.insert(batchJobRetry);
         } catch (Throwable e ){
             LOGGER.error("",e);

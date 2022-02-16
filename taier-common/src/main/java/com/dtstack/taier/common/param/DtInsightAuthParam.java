@@ -19,14 +19,12 @@
 package com.dtstack.taier.common.param;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * @Author: 尘二(chener @ dtstack.com)
  * @Date: 2018/12/17 11:36
  * @Description: 带鉴权 token 基类
  */
-@Data
 public class DtInsightAuthParam extends BaseParam {
     /**
      * token 鉴权信息，如果填写会覆盖掉注册的 token 信息
@@ -40,4 +38,27 @@ public class DtInsightAuthParam extends BaseParam {
     @ApiModelProperty(value = "用户id", example = "1")
     private Long userId;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 }

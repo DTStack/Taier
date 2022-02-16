@@ -30,7 +30,7 @@ import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.EQueueSourceType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
@@ -158,7 +158,7 @@ public class JobSubmitDealer implements Runnable {
             delayJobQueue.put(new SimpleJobDelay<>(jobClient, EJobCacheStage.LACKING.getStage(), jobLackingDelay));
             jobClient.lackingCountIncrement();
             engineJobCacheService.updateStage(jobClient.getJobId(), EJobCacheStage.LACKING.getStage(), localAddress, jobClient.getPriority(), judgeResult.getReason());
-            jobClient.doStatusCallBack(RdosTaskStatus.LACKING.getStatus());
+            jobClient.doStatusCallBack(TaskStatus.LACKING.getStatus());
         } catch (InterruptedException e) {
             queue.put(jobClient);
             LOGGER.error("jobId:{} delayJobQueue.put failed.",jobClient.getJobId(), e);
@@ -182,8 +182,8 @@ public class JobSubmitDealer implements Runnable {
                     continue;
                 }
                 if (checkJobSubmitExpired(jobClient)){
-                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), RdosTaskStatus.AUTOCANCELED.getStatus());
-                    jobClient.doStatusCallBack(RdosTaskStatus.AUTOCANCELED.getStatus());
+                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), TaskStatus.AUTOCANCELED.getStatus());
+                    jobClient.doStatusCallBack(TaskStatus.AUTOCANCELED.getStatus());
                     engineJobCacheService.deleteByJobId(jobClient.getJobId());
                     LOGGER.info("jobId:{} checkJobSubmitExpired is true, job ignore to submit.", jobClient.getJobId());
                     continue;
@@ -210,8 +210,8 @@ public class JobSubmitDealer implements Runnable {
         try {
             if (null == jobClient.getQueueSourceType() || EQueueSourceType.NORMAL.getCode() == jobClient.getQueueSourceType()) {
                 if (null == engineJobCache) {
-                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), RdosTaskStatus.CANCELED.getStatus());
-                    jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
+                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), TaskStatus.CANCELED.getStatus());
+                    jobClient.doStatusCallBack(TaskStatus.CANCELED.getStatus());
                     LOGGER.info("jobId:{} checkIsFinished is true, job is Finished.", jobClient.getJobId());
                     return true;
                 }
@@ -231,7 +231,7 @@ public class JobSubmitDealer implements Runnable {
                     }
                     if (checkCanSubmit) {
                         engineJobCacheService.updateStage(jobClient.getJobId(), EJobCacheStage.PRIORITY.getStage(), localAddress, jobClient.getPriority(), null);
-                        jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+                        jobClient.doStatusCallBack(TaskStatus.WAITENGINE.getStatus());
                         return false;
                     } else {
                         //插入cache表的时间 比 jobClient 第一次提交时间晚 认为任务重新提交过 当前延时队列的jobClient 抛弃 不做任何处理
@@ -308,7 +308,7 @@ public class JobSubmitDealer implements Runnable {
             if (JudgeResult.JudgeType.OK == judgeResult.getResult()) {
                 LOGGER.info("jobId:{} taskType:{} submit to engine start.", jobClient.getJobId(), jobClient.getTaskType());
 
-                jobClient.doStatusCallBack(RdosTaskStatus.COMPUTING.getStatus());
+                jobClient.doStatusCallBack(TaskStatus.COMPUTING.getStatus());
 
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);

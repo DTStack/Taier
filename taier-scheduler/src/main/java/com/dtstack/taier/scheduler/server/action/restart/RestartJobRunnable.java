@@ -4,7 +4,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.RestartType;
 import com.dtstack.taier.scheduler.server.action.restart.impl.RestartCurrentAndDownStreamNodeRestartJob;
 import com.dtstack.taier.scheduler.server.action.restart.impl.RestartCurrentNodeRestartJob;
@@ -98,7 +98,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
         for (ScheduleJob job : jobs) {
             Integer jobStatus = job.getStatus();
 
-            if (!RdosTaskStatus.canReset(jobStatus)) {
+            if (!TaskStatus.canReset(jobStatus)) {
                 LOGGER.error("job {} status {}  can not restart ", job.getJobId(), job.getStatus());
                 continue;
             }

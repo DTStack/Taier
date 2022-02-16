@@ -19,9 +19,6 @@
 package com.dtstack.taier.develop.vo.console;
 
 
-import lombok.Data;
-
-@Data
 public class ComponentBindDBVO {
 
     /**
@@ -39,4 +36,27 @@ public class ComponentBindDBVO {
      */
     private String dbName;
 
+    public Integer getComponentCode() {
+        return componentCode;
+    }
+
+    public void setComponentCode(Integer componentCode) {
+        this.componentCode = componentCode;
+    }
+
+    public Boolean getCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(Boolean createFlag) {
+        this.createFlag = createFlag;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
 }

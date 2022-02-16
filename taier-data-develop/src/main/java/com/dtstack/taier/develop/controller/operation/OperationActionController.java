@@ -9,7 +9,7 @@ import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.schedule.ActionJobKillVO;
 import com.dtstack.taier.develop.vo.schedule.QueryJobLogVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.RestartType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Auther: dazhi
@@ -88,10 +87,6 @@ public class OperationActionController {
     @ApiOperation(value = "查看实例日志")
     @PostMapping(value = "/queryJobLog")
     public R<ReturnJobLogVO> queryJobLog(@RequestBody @Valid QueryJobLogVO vo, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
-            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
-        }
         return R.ok(actionService.queryJobLog(vo.getJobId(), vo.getPageInfo()));
     }
 
@@ -102,6 +97,6 @@ public class OperationActionController {
     })
     public R<Integer> status(@RequestParam("jobId") String jobId) throws Exception {
         ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
-        return R.ok(null == scheduleJob ? RdosTaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus());
+        return R.ok(null == scheduleJob ? TaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus());
     }
 }

@@ -289,7 +289,6 @@ create table develop_function_resource
 	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
-	project_id bigint null,
 	tenant_id bigint null,
 	resourceId bigint null,
 	constraint index_rdos_function_resource
@@ -395,7 +394,6 @@ create table develop_task
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	modify_user_id int not null comment '最后修改task的用户',
 	create_user_id int not null comment '新建task的用户',
-	owner_user_id int not null comment '负责人id',
 	version int default 0 not null comment 'task版本',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	task_desc varchar(256) not null,
@@ -450,13 +448,12 @@ create table develop_task_resource
 	task_id int not null comment 'batch 任务id',
 	resource_id int null comment '对应batch资源的id',
 	resource_type int null comment '使用资源的类型 1:主体资源, 2:引用资源',
-	project_id int not null comment '项目id',
 	tenant_id int not null comment '租户id',
 	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	constraint index_project_task_resource_id
-		unique (project_id, task_id, resource_id, resource_type)
+		unique (task_id, resource_id, resource_type)
 )
 comment '任务和资源关联表';
 
@@ -467,13 +464,12 @@ create table develop_task_resource_shade
 	task_id int not null comment 'batch 任务id',
 	resource_id int null comment '对应batch资源的id',
 	resource_type int null comment '使用资源的类型 1:主体资源, 2:引用资源',
-	project_id int not null comment '项目id',
 	tenant_id int not null comment '租户id',
 	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	constraint index_project_task_resource_shade_id
-		unique (project_id, task_id, resource_id, resource_type)
+		unique (task_id, resource_id, resource_type)
 )
 comment '任务资源关联信息- 提交表';
 
@@ -483,14 +479,13 @@ create table develop_task_task
 		primary key,
 	task_id int not null comment 'batch 任务id',
 	parent_task_id int null comment '对应batch任务父节点的id',
-	project_id int not null comment '项目id',
 	tenant_id int not null comment '租户id',
 	parent_apptype int(2) default 1 not null comment '对应任务父节点的产品类型',
 	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	constraint index_batch_task_task
-		unique (project_id, parent_task_id, task_id, parent_apptype)
+		unique (parent_task_id, task_id, parent_apptype)
 )
 comment '任务上下游关联关系表';
 
@@ -822,7 +817,6 @@ create table schedule_task_shade
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	modify_user_id int not null comment '最后修改task的用户',
 	create_user_id int not null comment '新建task的用户',
-	owner_user_id int not null comment '任务负责人id',
 	version_id int default 0 not null comment 'task版本',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	task_desc varchar(256) not null comment '任务描述',

@@ -41,7 +41,7 @@ public class QueryFillDataJobListDTO {
     /**
      * 用户ID 责任人
      */
-    private Long ownerId;
+    private Long operatorId;
 
     /**
      * 任务类型
@@ -129,12 +129,12 @@ public class QueryFillDataJobListDTO {
         this.cycEndDay = cycEndDay;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
     public List<Integer> getTaskTypeList() {

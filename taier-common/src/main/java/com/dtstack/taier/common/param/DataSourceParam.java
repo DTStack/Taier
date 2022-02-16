@@ -1,9 +1,6 @@
 package com.dtstack.taier.common.param;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -13,9 +10,6 @@ import java.io.Serializable;
  * @date 2020/2/20-17:39
  */
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
 public class DataSourceParam implements Serializable {
 
     @ApiModelProperty(hidden = true)
@@ -53,4 +47,92 @@ public class DataSourceParam implements Serializable {
 
     @ApiModelProperty(hidden = true)
     private String productCode;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Boolean getRoot() {
+        return isRoot;
+    }
+
+    public void setRoot(Boolean root) {
+        isRoot = root;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Long getModifyUserId() {
+        return modifyUserId;
+    }
+
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
+
+    public Boolean getOwner() {
+        return isOwner;
+    }
+
+    public void setOwner(Boolean owner) {
+        isOwner = owner;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public String getDtToken() {
+        return dtToken;
+    }
+
+    public void setDtToken(String dtToken) {
+        this.dtToken = dtToken;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
 }

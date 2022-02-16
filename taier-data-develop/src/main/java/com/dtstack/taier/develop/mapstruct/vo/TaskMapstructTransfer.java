@@ -22,16 +22,14 @@ import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
 import com.dtstack.taier.dao.domain.BatchTask;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
-import com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO;
+import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.develop.dto.devlop.*;
-import com.dtstack.taier.develop.web.develop.query.BatchScheduleTaskResultVO;
-import com.dtstack.taier.develop.web.develop.query.BatchScheduleTaskVO;
-import com.dtstack.taier.develop.web.develop.query.BatchTaskResourceParamVO;
-import com.dtstack.taier.develop.web.develop.query.BatchTaskTaskAddOrUpdateDependencyVO;
-import com.dtstack.taier.develop.web.develop.result.*;
+import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskAddOrUpdateDependencyVO;
+import com.dtstack.taier.develop.vo.develop.result.*;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collection;
@@ -58,26 +56,12 @@ public interface TaskMapstructTransfer {
 
 
     /**
-     * List<BatchTask>  ->  List<BatchTaskResultVO>
-     * @param batchTaskList
-     * @return
-     */
-    List<BatchTaskResultVO> BatchTaskListToBatchTaskResultVOList(List<BatchTask> batchTaskList);
-
-
-    /**
      * BatchScheduleTaskVO -> ScheduleTaskVO
      * @param BatchScheduleTaskVO
      * @return
      */
     ScheduleTaskVO BatchScheduleTaskVToScheduleTaskVO(BatchScheduleTaskVO BatchScheduleTaskVO);
 
-    /**
-     * ScheduleTaskVO -> BatchScheduleTaskVO
-     * @param scheduleTaskVO
-     * @return
-     */
-    BatchScheduleTaskVO ScheduleTaskVToBatchScheduleTaskVO(ScheduleTaskVO scheduleTaskVO);
 
     /**
      * TaskCatalogueVO -> TaskCatalogueResultVO
@@ -110,14 +94,6 @@ public interface TaskMapstructTransfer {
      */
     Collection<BatchSysParameterResultVO> BatchSysParameterCollectionToBatchSysParameterResultVOCollection(Collection<BatchSysParameter> batchSysParameterCollection);
 
-
-    /**
-     * ScheduleTaskVO -> BatchScheduleTaskResultVO
-     * @param scheduleTaskVO
-     * @return
-     */
-    BatchScheduleTaskResultVO ScheduleTaskVOToBatchScheduleTaskResultVO(ScheduleTaskVO scheduleTaskVO);
-
     /**
      * List<BatchResource>  -> List<BatchResourceResultVO>
      * @param batchResourceList
@@ -125,14 +101,6 @@ public interface TaskMapstructTransfer {
      */
     List<BatchResourceResultVO> BatchResourceListToBatchResourceResultVOList(List<BatchResource> batchResourceList);
 
-
-    /**
-     * ReadWriteLockVO -> ReadWriteLockResultVO
-     * @param readWriteLockVO
-     * @return
-     */
-    @Mapping(source = "isGetLock", target = "getLock")
-    ReadWriteLockResultVO readWriteLockVOToReadWriteLockResultVO(ReadWriteLockVO readWriteLockVO);
 
     /**
      * BatchTaskBatchVO -> BatchTaskGetTaskByIdResultVO
@@ -147,6 +115,9 @@ public interface TaskMapstructTransfer {
      * @return
      */
     BatchTaskPublishTaskResultVO TaskCheckResultVOToBatchTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
+
+
+    BatchUserResultVO dtpToResultVO(UserDTO value);
 
     /**
      * List<TaskGetNotDeleteVO> -> List<BatchPreDeleteTaskResultVO>

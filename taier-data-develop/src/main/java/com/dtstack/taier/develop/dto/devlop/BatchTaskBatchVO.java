@@ -39,12 +39,10 @@ import java.util.Map;
 public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchTaskBatchVO.class);
-    private static final String EMPYT = "";
 
     public BatchTaskBatchVO(ScheduleTaskVO task) {
         this.setComputeType(task.getComputeType());
         this.setCreateUserId(task.getCreateUserId());
-        this.setOwnerUserId(task.getOwnerUserId());
         this.setModifyUserId(task.getModifyUserId());
         this.setUserId(task.getUserId());
         this.setName(task.getName());

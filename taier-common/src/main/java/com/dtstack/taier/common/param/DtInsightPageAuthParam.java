@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.common.param;
 
-import lombok.Data;
 
 import java.util.Objects;
 
@@ -27,7 +26,6 @@ import java.util.Objects;
  * @Date: 2018/12/21 16:07
  * @Description: 分页鉴权基类
  */
-@Data
 public class DtInsightPageAuthParam extends DtInsightAuthParam {
     public static final int DEFAULT_PAGE_NO = 1;
     public static final int DEFAULT_PAGE_SIZE = 10;
@@ -73,5 +71,53 @@ public class DtInsightPageAuthParam extends DtInsightAuthParam {
         this.setStart(start);
         this.setEnd(this.getPageSize());
         return this;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getEnd() {
+        return end;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    public String getSortColumn() {
+        return sortColumn;
+    }
+
+    public void setSortColumn(String sortColumn) {
+        this.sortColumn = sortColumn;
     }
 }

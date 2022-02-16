@@ -65,16 +65,16 @@ public class FillDataJobVO {
     private Integer retryNum;
 
     /**
-     * 责任人
+     * 操作名称
      */
     @ApiModelProperty(value = "责任人",example = "\tadmin@dtstack.com")
-    private String ownerName;
+    private String operatorName;
 
     /**
-     * 责任人id
+     * 操作人
      */
     @ApiModelProperty(value = "责任人id",example = "1")
-    private Long ownerId;
+    private Long operatorId;
 
     /**
      * 工作流id
@@ -154,20 +154,20 @@ public class FillDataJobVO {
         this.retryNum = retryNum;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getOperatorName() {
+        return operatorName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
     public String getFlowJobId() {
