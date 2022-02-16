@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
@@ -53,7 +53,7 @@ import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
  * @param data the back-end data
  */
 function updateTree(data: Partial<CatalogueDataProps>) {
-	getCatalogueViaNode({
+	return getCatalogueViaNode({
 		id: data.parentId,
 		catalogueType: MENU_TYPE_ENUM.TASK_DEV,
 	}).then((treeData) => {
@@ -84,11 +84,10 @@ function openCreateTab(id?: string) {
 						if (!groupId) return;
 						molecule.editor.closeTab(tabId, groupId);
 						molecule.explorer.forceUpdate();
-						updateTree(data);
-						const { current } = molecule.editor.getState();
-						if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
-							molecule.editor.updateActions([{ id: TASK_RUN_ID, disabled: false }]);
-						}
+						// open this brand-new task
+						updateTree(data).then(() => {
+							openTaskInTab(data.id);
+						});
 					}
 				})
 				.finally(() => {
@@ -341,32 +340,39 @@ function onSelectFile() {
 
 function onRemove() {
 	molecule.folderTree.onRemove((id) => {
-		const treeNode = molecule.folderTree.get(id);
-		if (treeNode?.data?.type === 'folder') {
-			api.delOfflineFolder({ id }).then((res) => {
-				if (res.code === 1) {
-					message.success('删除成功');
-					molecule.folderTree.remove(id);
-				}
-				return res;
-			});
-		} else if (treeNode?.data?.type === 'file') {
-			api.delOfflineTask({ taskId: id }).then((res) => {
-				if (res.code === 1) {
-					message.success('删除成功');
-					molecule.folderTree.remove(id);
-					// Close the opened tab
-					const isOpened = molecule.editor.isOpened(id.toString());
-					if (isOpened) {
-						const groupId = molecule.editor.getGroupIdByTab(id.toString());
-						if (groupId) {
-							molecule.editor.closeTab(id.toString(), groupId);
+		Modal.confirm({
+			title: '确认要删除此任务吗?',
+			content: '删除的任务无法找回！',
+			onOk() {
+				const treeNode = molecule.folderTree.get(id);
+				if (treeNode?.data?.type === 'folder') {
+					api.delOfflineFolder({ id }).then((res) => {
+						if (res.code === 1) {
+							message.success('删除成功');
+							molecule.folderTree.remove(id);
 						}
-					}
+						return res;
+					});
+				} else if (treeNode?.data?.type === 'file') {
+					api.delOfflineTask({ taskId: id }).then((res) => {
+						if (res.code === 1) {
+							message.success('删除成功');
+							molecule.folderTree.remove(id);
+							// Close the opened tab
+							const isOpened = molecule.editor.isOpened(id.toString());
+							if (isOpened) {
+								const groupId = molecule.editor.getGroupIdByTab(id.toString());
+								if (groupId) {
+									molecule.editor.closeTab(id.toString(), groupId);
+								}
+							}
+						}
+						return res;
+					});
 				}
-				return res;
-			});
-		}
+			},
+			onCancel() {},
+		});
 	});
 }
 

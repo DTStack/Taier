@@ -11,7 +11,12 @@ import singletonNotification from '../notification';
 import { API } from '../../api/dataSource';
 
 import HelpDoc from '../../components/helpDoc';
-import { DATA_SOURCE_ENUM, formItemLayout, DATA_SOURCE_TEXT, DDL_IDE_PLACEHOLDER } from '@/constant';
+import {
+	DATA_SOURCE_ENUM,
+	formItemLayout,
+	DATA_SOURCE_TEXT,
+	DDL_IDE_PLACEHOLDER,
+} from '@/constant';
 import {
 	dataSyncAction,
 	settingAction,
@@ -489,7 +494,8 @@ class TargetForm extends React.Component<any, any> {
 		const { tableListLoading } = this.state;
 		const { targetMap, dataSourceList, navtoStep, isIncrementMode, modalLoading } = this.props;
 		const { getPopupContainer } = this.props;
-		const mode = targetMap.type && targetMap.type.type === DATA_SOURCE_ENUM.IMPALA ? 'sql' : 'dtsql';
+		const mode =
+			targetMap.type && targetMap.type.type === DATA_SOURCE_ENUM.IMPALA ? 'sql' : 'dtsql';
 
 		return (
 			<Spin spinning={tableListLoading}>
@@ -548,11 +554,24 @@ class TargetForm extends React.Component<any, any> {
 												DATA_SOURCE_TEXT[src.dataTypeCode]
 											}）`;
 
+											// 暂时支持以下类型的数据源
+											const tmpSupportDataSource = [
+												DATA_SOURCE_ENUM.MYSQL,
+												DATA_SOURCE_ENUM.ORACLE,
+												DATA_SOURCE_ENUM.POSTGRESQL,
+												DATA_SOURCE_ENUM.HDFS,
+												DATA_SOURCE_ENUM.HIVE,
+												DATA_SOURCE_ENUM.HIVE1X,
+												DATA_SOURCE_ENUM.HIVE3X,
+												DATA_SOURCE_ENUM.SPARKTHRIFT,
+											];
+
 											/**
 											 * 禁用ES, REDIS, MONGODB,
 											 * 增量模式禁用非 HIVE, HDFS数据源
 											 */
 											const disableSelect =
+												!tmpSupportDataSource.includes(src.dataTypeCode) ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.ES ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.REDIS ||
 												src.dataTypeCode === DATA_SOURCE_ENUM.MONGODB ||
@@ -910,7 +929,7 @@ class TargetForm extends React.Component<any, any> {
 				break;
 			}
 			case DATA_SOURCE_ENUM.HIVE:
-			case DATA_SOURCE_ENUM.HIVE:
+			case DATA_SOURCE_ENUM.HIVE1X:
 			case DATA_SOURCE_ENUM.HIVE3X:
 			case DATA_SOURCE_ENUM.SPARKTHRIFT: {
 				formItem = [
@@ -1142,6 +1161,116 @@ class TargetForm extends React.Component<any, any> {
 				];
 				break;
 			}
+			case DATA_SOURCE_ENUM.HDFS: {
+                formItem = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="路径"
+                        key="path"
+                    >
+                        {getFieldDecorator('path', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /app/batch"
+                                onChange={
+                                    debounce(this.submitForm, 600, { 'maxWait': 2000 })
+                                } />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件名"
+                        key="fileName"
+                    >
+                        {getFieldDecorator('fileName', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.fileName
+                        })(
+                            <Input onChange={this.submitForm.bind(this)} />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件类型"
+                        key="fileType"
+                    >
+                        {getFieldDecorator('fileType', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc'
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                                <Option value="parquet">parquet</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                // eslint-disable-next-line no-octal-escape
+                                placeholder="例如: 目标为hive则 分隔符为\001"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        className="txt-left"
+                        key="writeMode-hdfs"
+                    >
+                        {getFieldDecorator('writeMode@hdfs', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                                    覆盖（Insert Overwrite）
+                                </Radio>
+                                <Radio value="APPEND" style={{ float: 'left' }}>
+                                    追加（Insert Into）
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
 			default:
 				break;
 		}
