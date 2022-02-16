@@ -135,9 +135,6 @@
             <if test="gmtCreate != null">
                 gmt_create = #{gmtCreate},
             </if>
-            <if test="gmtModified != null">
-                gmt_modified = #{gmtModified},
-            </if>
             <if test="modifyUserId != null">
                 modify_user_id = #{modifyUserId},
             </if>
@@ -159,7 +156,8 @@
             <if test="componentVersion != null">
                 component_version = #{componentVersion},
             </if>
-            version = version+1
+            version = version+1,
+            gmt_modified = now(),
         </set>
     </sql>
 
@@ -314,7 +312,7 @@
         develop_task
         <include refid="update_fragment"/>
         WHERE
-        id = #{id} AND version = #{version} AND is_deleted = 0
+        id = #{id} AND is_deleted = 0
     </update>
     
     <update id="updateSubmitStatus">

@@ -4,6 +4,7 @@ import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.develop.sql.hive.ASTNodeUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.ParseDriver;
@@ -279,4 +280,16 @@ public class SqlFormatUtil {
         }
         return stringBuilder.toString();
     }
+
+    public static List<String> splitSqlWithoutSemi(String sqlText) {
+        if(StringUtils.isEmpty(sqlText)){
+            return ListUtils.EMPTY_LIST;
+        }
+        String sql = sqlText.trim();
+        if(!sql.endsWith(";")){
+            sql = sql + ";";
+        }
+        return splitSqlText(sql);
+    }
+
 }
