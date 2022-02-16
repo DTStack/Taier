@@ -172,11 +172,27 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	};
 
 	const handleRightClick = (treeNode: ITreeNodeItemProps) => {
-		// Only custom function can have contextmenu
+		// 区分是系统函数的文件还是自定义函数的文件
 		if (treeNode.data.type === 'file') {
+			const { parentId } = treeNode.data;
+			const parentNode = functionManagerService.get(`${parentId}-folder`);
+			if (parentNode?.data.catalogueType === MENU_TYPE_ENUM.SYSFUC) {
+				// 系统函数文件没有右键菜单
+				return [];
+			}
+
 			return [FUNCTION_EDIT, FUNCTION_REMOVE];
 		}
-		if (treeNode.data.catalogueType === MENU_TYPE_ENUM.COSTOMFUC) {
+
+		if (treeNode.data.type === 'folder') {
+			// 判断当前文件夹是否属于系统函数或者 SparkSQL 根目录
+			if (
+				treeNode.data.catalogueType === MENU_TYPE_ENUM.SYSFUC ||
+				treeNode.data.catalogueType === MENU_TYPE_ENUM.SPARKFUNC
+			) {
+				return [];
+			}
+
 			const baseContextMenu = [FUNCTION_NEW_FUNCTION, FUNCTION_NEW_FOLDER];
 			// root folder can't edit and remove
 			if (treeNode.data.level === 1) {
