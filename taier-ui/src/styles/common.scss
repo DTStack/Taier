@@ -94,7 +94,13 @@ $footer-height: 35px;
 	height: 100%;
 
 	.ant-spin-nested-loading {
-		height: calc(100% - $footer-height);
+		&.task-graph {
+			height: calc(100% - $footer-height);
+		}
+
+		&.job-graph {
+			height: calc(100% - $footer-height - 40px);
+		}
 	}
 
 	.ant-spin-container {

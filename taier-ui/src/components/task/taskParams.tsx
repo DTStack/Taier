@@ -16,20 +16,14 @@
  * limitations under the License.
  */
 
-import { Collapse, Input, Form } from 'antd';
-import molecule from '@dtinsight/molecule/esm';
-import {
-	formItemLayout,
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	PARAMS_ENUM,
-	CREATE_DATASOURCE_PREFIX,
-} from '@/constant';
-import classNames from 'classnames';
-import HelpDoc from '../../components/helpDoc';
-import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
 import { useMemo } from 'react';
+import classNames from 'classnames';
+import { Collapse, Input, Form } from 'antd';
+import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
+import molecule from '@dtinsight/molecule/esm';
+import { formItemLayout, PARAMS_ENUM } from '@/constant';
+import HelpDoc from '../../components/helpDoc';
+import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import './taskParams.scss';
 
 const FormItem = Form.Item;
@@ -47,16 +41,6 @@ interface ITaskParamsProps {
 		variables: ITaskVariableProps[],
 	) => void;
 }
-
-/**
- * 不存在调度配置的 tab，譬如修改任务 tab 等
- */
-const TAB_WITHOUT_SCHEDULE = [
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	CREATE_DATASOURCE_PREFIX,
-];
 
 export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	const [form] = Form.useForm();
@@ -91,7 +75,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 		() =>
 			!current ||
 			!current.activeTab ||
-			TAB_WITHOUT_SCHEDULE.some((prefix) => current.activeTab?.toString().includes(prefix)),
+			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
 		[current],
 	);
 

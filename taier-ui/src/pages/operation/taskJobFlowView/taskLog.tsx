@@ -17,10 +17,11 @@
  */
 
 import { Row, Pagination, Col } from 'antd';
-
+import type { PaginationProps } from 'antd';
 import Editor from '@/components/codeEditor';
 import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
 import { formatDateTime } from '@/utils';
+import { useMemo } from 'react';
 
 const editorOptions: any = {
 	mode: 'text',
@@ -32,16 +33,16 @@ const editorOptions: any = {
 	smartIndent: true,
 };
 
-const editorStyle: any = { height: '300px' };
+const editorStyle: React.CSSProperties = { height: '300px' };
 
-function wrappTitle(title: any) {
+function wrappTitle(title: string) {
 	return `====================${title}====================`;
 }
 
 function getLogsInfo(title: any, data: any, type = 'info') {
 	let res = '';
 	if (data && data.length > 0) {
-		for (let i = 0; i < data.length; ++i) {
+		for (let i = 0; i < data.length; i += 1) {
 			res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`;
 		}
 	}
@@ -58,7 +59,7 @@ function showTaskInfo(obj: any) {
 
 function resolveSteps(stepArr: any) {
 	let stepText = '';
-	stepArr.map((item: any) => {
+	stepArr.forEach((item: any) => {
 		stepText += `${formatDateTime(Number(item.info.startTime))} ${item.step_status} ${
 			item.sequence_id
 		} Step Name: ${item.name} Data Size: ${
@@ -73,140 +74,154 @@ function resolveSteps(stepArr: any) {
 
 function resoveApplogs(stepArr: any) {
 	let appLogs = '';
-	stepArr.map((item: any) => {
+	stepArr.forEach((item: any) => {
 		appLogs += `${item.info.yarn_application_id ? item.info.yarn_application_id : ''}\n`;
 	});
 	return appLogs;
 }
 
-export function LogInfo(props: any) {
+interface ILogInfoProps {
 	/**
-	 * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
+	 * 支持 `JSON.parse` 的字符串
 	 */
-	const safeSpace = ' ';
-	let logText = '';
-	let syncJobInfo: any;
-	let logStyle: any;
-	const page = props.page || {};
-	try {
-		const log = props.log
-			? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r'))
-			: {};
-		syncJobInfo = props.syncJobInfo;
-		logStyle = Object.assign({}, editorStyle, {
-			height: props.height,
-		});
-		const errors = log['all-exceptions'] || '';
-		const engineLogErr = log['engineLogErr'];
-		let flinkLog = errors;
+	log?: string;
+	/**
+	 * 同步任务的属性
+	 */
+	syncJobInfo?: { execTime: string; readNum: number; writeNum: number; dirtyPercent: number };
+	/**
+	 * 日志下载地址
+	 */
+	downloadLog?: string;
+	subNodeDownloadLog?: string;
+	page?: any;
+	onChangePage?: PaginationProps['onChange'];
+	height?: string;
+}
 
-		const appLogs = engineLogErr
-			? `${wrappTitle('appLogs')}\n${engineLogErr}\n`
-			: getLogsInfo('appLogs', log.appLog);
-		const driverLog = getLogsInfo('driverLog', log.driverLog);
-		if (props.downloadLog) {
-			logText = `完整日志下载地址：${createLinkMark({
-				href: props.downloadLog,
-				download: '',
-			})}\n`;
-		}
-		if (props.subNodeDownloadLog) {
-			Object.entries(props.subNodeDownloadLog).forEach(([key, value]) => {
-				logText = `${logText} ${key}：${createLinkMark({
-					href: value,
+export default function LogInfo(props: ILogInfoProps) {
+	const logText = useMemo(() => {
+		/**
+		 * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
+		 */
+		const safeSpace = ' ';
+		let text = '';
+		try {
+			const log: Record<string, any> = props.log
+				? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r'))
+				: {};
+			const errors = log['all-exceptions'] || '';
+			const { engineLogErr } = log;
+			const flinkLog = errors;
+
+			const appLogs = engineLogErr
+				? `${wrappTitle('appLogs')}\n${engineLogErr}\n`
+				: getLogsInfo('appLogs', log.appLog);
+			const driverLog = getLogsInfo('driverLog', log.driverLog);
+			if (props.downloadLog) {
+				text = `完整日志下载地址：${createLinkMark({
+					href: props.downloadLog,
 					download: '',
 				})}\n`;
-			});
-		}
-		if (log.msg_info) {
-			logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(
-				log.msg_info,
-				'info',
-			)} ${safeSpace} \n`;
-			if (log.taskInfo && log.taskInfo.taskType === 'Kylin') {
-				if (log['steps']) {
-					logText = `${logText}${wrappTitle('appLogs')}\n${resoveApplogs(
-						log['steps'],
-					)} ${safeSpace} \n`;
-					logText = `${logText}${wrappTitle('Kylin日志')}\n${resolveSteps(
-						log['steps'],
-					)} ${safeSpace} \n`;
-				}
-				logText = `${logText}${wrappTitle('Kylin日志')}\n${wrappTitle(
-					'任务信息',
-				)}\n${showTaskInfo(log.taskInfo)} ${safeSpace} \n`;
 			}
-		}
-
-		if (log['perf']) {
-			logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(
-				log['perf'],
-				'warning',
-			)}${safeSpace} \n`;
-		}
-		/**
-		 * 数据增量同步配置信息
-		 */
-		if (log['increInfo']) {
-			logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(
-				log['increInfo'],
-				'info',
-			)}${safeSpace} \n`;
-		}
-
-		if (flinkLog || log['root-exception']) {
-			logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(
-				flinkLog,
-				'error',
-			)} \n ${createLogMark(log['root-exception'], 'error') || ''}`;
-		}
-
-		if (appLogs || driverLog) {
-			logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(
-				driverLog,
-				'error',
-			)}`;
-		}
-
-		if (log.msg_info) {
-			let logSql = log['sql'];
-			if (logSql && typeof logSql == 'object') {
-				logSql = JSON.stringify(logSql, null, 2);
+			if (props.subNodeDownloadLog) {
+				Object.entries(props.subNodeDownloadLog).forEach(([key, value]) => {
+					text = `${text} ${key}：${createLinkMark({
+						href: value,
+						download: '',
+					})}\n`;
+				});
 			}
-			if (logSql) {
-				logText = `${logText}${wrappTitle('任务信息')}\n${createLogMark(
-					logSql,
-					'info',
-				)} \n`;
-			}
-		}
-		if (Array.isArray(log.ruleLogList) && log.ruleLogList.length > 0) {
-			for (let logInfo of log.ruleLogList) {
-				logText = `${logText}\n${wrappTitle('')}\n${createLogMark(
-					logInfo,
+			if (log.msg_info) {
+				text = `${text}${wrappTitle('基本日志')}\n${createLogMark(
+					log.msg_info,
 					'info',
 				)} ${safeSpace} \n`;
+				if (log.taskInfo && log.taskInfo.taskType === 'Kylin') {
+					if (log.steps) {
+						text = `${text}${wrappTitle('appLogs')}\n${resoveApplogs(
+							log.steps,
+						)} ${safeSpace} \n`;
+						text = `${text}${wrappTitle('Kylin日志')}\n${resolveSteps(
+							log.steps,
+						)} ${safeSpace} \n`;
+					}
+					text = `${text}${wrappTitle('Kylin日志')}\n${wrappTitle(
+						'任务信息',
+					)}\n${showTaskInfo(log.taskInfo)} ${safeSpace} \n`;
+				}
 			}
-			logText = `${logText}${wrappTitle('')}\n${safeSpace} \n`;
+
+			if (log.perf) {
+				text = `${text}\n${wrappTitle('性能指标')}\n${createLogMark(
+					log.perf,
+					'warning',
+				)}${safeSpace} \n`;
+			}
+			/**
+			 * 数据增量同步配置信息
+			 */
+			if (log.increInfo) {
+				text = `${text}\n${wrappTitle('增量标志信息')}\n${createLogMark(
+					log.increInfo,
+					'info',
+				)}${safeSpace} \n`;
+			}
+
+			if (flinkLog || log['root-exception']) {
+				text = `${text}\n\n${wrappTitle('Flink日志')} \n${createLogMark(
+					flinkLog,
+					'error',
+				)} \n ${createLogMark(log['root-exception'], 'error') || ''}`;
+			}
+
+			if (appLogs || driverLog) {
+				text = `${text} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(
+					driverLog,
+					'error',
+				)}`;
+			}
+
+			if (log.msg_info) {
+				let logSql = log.sql;
+				if (logSql && typeof logSql === 'object') {
+					logSql = JSON.stringify(logSql, null, 2);
+				}
+				if (logSql) {
+					text = `${text}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`;
+				}
+			}
+			if (Array.isArray(log.ruleLogList) && log.ruleLogList.length > 0) {
+				// eslint-disable-next-line no-restricted-syntax
+				for (const logInfo of log.ruleLogList) {
+					text = `${text}\n${wrappTitle('')}\n${createLogMark(
+						logInfo,
+						'info',
+					)} ${safeSpace} \n`;
+				}
+				text = `${text}${wrappTitle('')}\n${safeSpace} \n`;
+			}
+		} catch (e: any) {
+			text = `${createLogMark('日志解析错误', 'error')}\n${createLogMark(
+				e,
+				'error',
+			)}\n${createLogMark(props.log, 'warning')}`;
 		}
-	} catch (e: any) {
-		logText = `${createLogMark('日志解析错误', 'error')}\n${createLogMark(
-			e,
-			'error',
-		)}\n${createLogMark(props.log, 'warning')}`;
-	}
+
+		return text;
+	}, [props.log]);
 
 	return (
 		<div>
-			{syncJobInfo ? (
+			{props.syncJobInfo ? (
 				<Row style={{ marginBottom: '14px' }}>
-					<p>运行时长：{syncJobInfo.execTime}秒</p>
+					<p>运行时长：{props.syncJobInfo.execTime}秒</p>
 					<p>
-						<span>读取数据：{syncJobInfo.readNum}条</span>
+						<span>读取数据：{props.syncJobInfo.readNum}条</span>
 						&nbsp;&nbsp;
-						<span>写入数据：{syncJobInfo.writeNum}条</span>
+						<span>写入数据：{props.syncJobInfo.writeNum}条</span>
 						&nbsp;&nbsp;
-						<span>脏数据：{syncJobInfo.dirtyPercent}%</span>
+						<span>脏数据：{props.syncJobInfo.dirtyPercent}%</span>
 						&nbsp;&nbsp;
 						{/* <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span> */}
 					</p>
@@ -214,7 +229,7 @@ export function LogInfo(props: any) {
 			) : (
 				''
 			)}
-			{page.total > 0 && (
+			{props.page.total > 0 && (
 				<Row>
 					<div
 						style={{
@@ -226,15 +241,15 @@ export function LogInfo(props: any) {
 						<span>历史运行次数：</span>
 						<Pagination
 							size="small"
-							total={page.total}
-							current={page.current}
+							total={props.page.total}
+							current={props.page.current}
 							pageSize={1}
 							onChange={props.onChangePage}
 						/>
 					</div>
 				</Row>
 			)}
-			<Row style={logStyle}>
+			<Row style={{ ...editorStyle, height: props.height }}>
 				<Col span={24}>
 					<Editor
 						style={{ height: '100%' }}

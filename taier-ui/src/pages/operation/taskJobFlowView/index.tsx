@@ -22,7 +22,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Modal, message } from 'antd';
 
 import { TaskInfo } from './taskInfo';
-import { LogInfo } from './taskLog';
+import LogInfo from './taskLog';
 
 import MxFactory from '@/components/mxGraph';
 import { taskStatusText } from '@/utils/enums';
@@ -31,7 +31,8 @@ import Api from '@/api/operation';
 import JobGraphView, { mergeTreeNodes } from './jobGraphView';
 import { TASK_TYPE_ENUM, TASK_STATUS, RESTART_STATUS_ENUM } from '@/constant';
 import type { IScheduleTaskProps } from '../schedule';
-import { DIRECT_TYPE_ENUM, ITaskStreamProps } from '@/interface';
+import type { ITaskStreamProps } from '@/interface';
+import { DIRECT_TYPE_ENUM } from '@/interface';
 import './index.scss';
 
 const Mx = MxFactory.create();
@@ -269,7 +270,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 					);
 				});
 				menu.addItem('查看任务属性', null, function () {
-					ctx.setState({ visible: true });
+					ctx.setState({ visible: true, selectedJob: currentNode });
 				});
 				const frontPeriods = menu.addItem('转到前一周期实例', null, null);
 				const frontParams: any = {

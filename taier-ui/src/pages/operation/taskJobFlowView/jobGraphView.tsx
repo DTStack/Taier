@@ -30,6 +30,7 @@ import { formatDateTime, goToTaskDev, removeToolTips, getVertxtStyle } from '@/u
 import type { ITaskStreamProps } from '@/interface';
 import type { IScheduleTaskProps } from '../schedule';
 import './jobGraphView.scss';
+import classNames from 'classnames';
 
 const Mx = MxFactory.create();
 const {
@@ -451,29 +452,29 @@ class JobGraphView extends React.Component<any, any> {
 			for (let i = 0; i < dataArr.length; i++) {
 				const { source, target, parent } = dataArr[i];
 
-				let sourceCell = source ? cellCache[source.taskId] : undefined;
-				let targetCell = target ? cellCache[target.taskId] : undefined;
+				let sourceCell = source ? cellCache[source.jobId] : undefined;
+				let targetCell = target ? cellCache[target.jobId] : undefined;
 				let parentCell = defaultParent;
 				const isWorkflowNode = false;
 
 				if (parent) {
-					const existCell = cellCache[parent.taskId];
+					const existCell = cellCache[parent.jobId];
 					if (existCell) {
 						parentCell = existCell;
 					} else {
 						parentCell = getVertex(defaultParent, parent);
-						cellCache[parent.taskId] = parentCell;
+						cellCache[parent.jobId] = parentCell;
 					}
 				}
 
 				if (source && !sourceCell) {
 					sourceCell = getVertex(parentCell, source);
-					cellCache[source.taskId] = sourceCell;
+					cellCache[source.jobId] = sourceCell;
 				}
 
 				if (target && !targetCell) {
 					targetCell = getVertex(parentCell, target);
-					cellCache[target.taskId] = targetCell;
+					cellCache[target.jobId] = targetCell;
 				}
 
 				if (sourceCell && targetCell) {
@@ -670,7 +671,7 @@ class JobGraphView extends React.Component<any, any> {
 					tip="Loading..."
 					size="large"
 					spinning={this.state.loading === 'loading'}
-					wrapperClassName="c-jobGraph__spin-box"
+					wrapperClassName={classNames('job-graph', 'c-jobGraph__spin-box')}
 				>
 					<div
 						className="editor pointer"
@@ -706,9 +707,7 @@ class JobGraphView extends React.Component<any, any> {
 					}}
 				>
 					<span>{this.getNodeDisplayName(data)}</span>
-					<span style={{ marginLeft: '15px' }}>
-						{get(data, 'batchTask.createUser.userName', '-')}
-					</span>
+					<span style={{ marginLeft: '15px' }}>{get(data, 'operatorName', '-')}</span>
 					&nbsp;
 					{isPro ? '发布' : '提交'}于&nbsp;
 					<span>{formatDateTime(data.taskGmtCreate)}</span>
