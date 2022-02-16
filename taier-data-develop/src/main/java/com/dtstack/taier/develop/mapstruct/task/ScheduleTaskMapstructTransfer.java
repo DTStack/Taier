@@ -6,6 +6,7 @@ import com.dtstack.taier.develop.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskListDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -25,6 +26,9 @@ public interface ScheduleTaskMapstructTransfer {
      * vo -> dto
      */
     QueryTaskListDTO queryTasksVoToDto(QueryTaskListVO vo);
+
+    @Mapping(source = "createUserId",target = "operatorId")
+    ReturnScheduleTaskVO beanToTaskVO(ScheduleTaskShade records);
 
     /**
      * bean -> vo

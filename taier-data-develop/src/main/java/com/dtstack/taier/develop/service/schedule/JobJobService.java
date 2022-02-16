@@ -10,6 +10,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.mapper.ScheduleJobJobMapper;
+import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.JobUtils;
 import com.dtstack.taier.develop.vo.schedule.JobNodeVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobDisplayVO;
@@ -19,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
 
     @Autowired
     private EnvironmentContext context;
+
+    @Autowired
+    private UserService userService;
 
     public ReturnJobDisplayVO displayOffSpring(QueryJobDisplayDTO dto) {
         // 设置层级 0<level< max.level
@@ -149,6 +154,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         rootNode.setTaskId(scheduleJob.getTaskId());
         rootNode.setTaskType(scheduleJob.getTaskType());
         rootNode.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
+        String userName = userService.getUserName(scheduleJob.getCreateUserId());
+        rootNode.setOperatorId(scheduleJob.getCreateUserId());
+        rootNode.setOperatorName(userName);
 
         ScheduleTaskShade taskShade = taskShadeMap.get(scheduleJob.getTaskId());
         if (taskShade != null) {

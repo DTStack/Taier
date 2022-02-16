@@ -8,6 +8,7 @@ import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
 import com.dtstack.taier.scheduler.service.ScheduleJobJobService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -121,12 +122,14 @@ public abstract class AbstractRestart {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setStatus(RdosTaskStatus.MANUALSUCCESS.getStatus());
         scheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        scheduleJobService.lambdaUpdate().in(ScheduleJob::getFlowJobId,jobIds)
+        scheduleJobService.lambdaUpdate().in(ScheduleJob::getJobId,jobIds)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
 
-        LOGGER.info("ids  {} manual success", jobIds);
+        LOGGER.info("jobIds {} manual success", jobIds);
         // 置成功并恢复调度,要把当前置成功任务去除掉
-        jobIds.forEach(jobMap::remove);
+        if(MapUtils.isNotEmpty(jobMap)){
+            jobIds.forEach(jobMap::remove);
+        }
     }
 }

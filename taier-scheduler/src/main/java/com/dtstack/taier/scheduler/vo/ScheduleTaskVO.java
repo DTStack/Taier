@@ -36,7 +36,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private UserDTO createUser;
     private UserDTO modifyUser;
-    private UserDTO ownerUser;
     protected Integer taskPeriodId;
     protected String taskPeriodType;
     private String nodePName;
@@ -349,14 +348,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setCreateModel(int createModel) {
         this.createModel = createModel;
-    }
-
-    public UserDTO getOwnerUser() {
-        return ownerUser;
-    }
-
-    public void setOwnerUser(UserDTO ownerUser) {
-        this.ownerUser = ownerUser;
     }
 
     public String getFlowName() {

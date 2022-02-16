@@ -152,7 +152,6 @@ public class BatchTaskTaskService {
         vo.setVersion(task.getVersion());
         vo.setCreateUser(userService.getUserByDTO(task.getCreateUserId()));
         vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
-        vo.setOwnerUser(userService.getUserByDTO(task.getOwnerUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
 
         List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(task.getId());

@@ -515,14 +515,6 @@ public class BatchTaskService {
                 BeanUtils.copyProperties(userMap.getOrDefault(vo.getModifyUserId(),new User()),modifyDto);
                 vo.setModifyUser(modifyDto);
             }
-
-            if (vo.getCreateUserId().equals(vo.getOwnerUserId())) {
-                vo.setOwnerUser(dto);
-            } else {
-                UserDTO ownerDto = new UserDTO();
-                BeanUtils.copyProperties(userMap.getOrDefault(vo.getOwnerUserId(),new User()), ownerDto);
-                vo.setOwnerUser(ownerDto);
-            }
         }
     }
 
@@ -1342,9 +1334,6 @@ public class BatchTaskService {
             task.setVersion(0);
         }
 
-        if (task.getOwnerUserId() == null) {
-            task.setOwnerUserId(task.getUserId());
-        }
         if (task.getCreateUserId() == null) {
             task.setCreateUserId(task.getUserId());
         }

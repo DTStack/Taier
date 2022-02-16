@@ -28,7 +28,7 @@ public class QueryTaskListVO extends PageVO {
      * 所属用户
      */
     @ApiModelProperty(value = "所属用户")
-    private Long ownerId;
+    private Long operatorId;
 
     /**
      * 任务名称
@@ -83,12 +83,12 @@ public class QueryTaskListVO extends PageVO {
         this.name = name;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
     public Long getStartModifiedTime() {
