@@ -4,7 +4,6 @@ package com.dtstack.taier.dao.domain.po;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.taier.common.param.DtInsightPageAuthParam;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.util.Objects;
 
@@ -15,7 +14,6 @@ import java.util.Objects;
  * @author: liuxx
  * @date: 2021/3/26
  */
-@Data
 public class BasePageParam extends DtInsightPageAuthParam {
 
     public static final int DEFAULT_PAGE_NO = 0;
@@ -62,4 +60,33 @@ public class BasePageParam extends DtInsightPageAuthParam {
         return this;
     }
 
+    @Override
+    public Integer getStart() {
+        return start;
+    }
+
+    @Override
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    @Override
+    public Integer getEnd() {
+        return end;
+    }
+
+    @Override
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    @Override
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    @Override
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 }

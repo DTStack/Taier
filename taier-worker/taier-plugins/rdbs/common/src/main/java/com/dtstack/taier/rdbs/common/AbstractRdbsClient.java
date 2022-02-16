@@ -24,7 +24,7 @@ import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
 import com.dtstack.taier.pluginapi.enums.EJobType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
@@ -114,7 +114,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         String jobId = jobIdentifier.getEngineJobId();
         return exeQueue.getJobStatus(jobId);
     }

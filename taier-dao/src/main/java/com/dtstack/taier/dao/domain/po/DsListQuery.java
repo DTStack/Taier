@@ -1,6 +1,5 @@
 package com.dtstack.taier.dao.domain.po;
 
-import lombok.Data;
 
 import java.util.List;
 
@@ -10,7 +9,6 @@ import java.util.List;
  * @author: liuxx
  * @date: 2021/3/26
  */
-@Data
 public class DsListQuery extends DaoPageParam {
     /**
      * 搜索参数
@@ -33,4 +31,43 @@ public class DsListQuery extends DaoPageParam {
      */
     private List<Integer> status;
 
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
+
+    public List<String> getDataTypeList() {
+        return dataTypeList;
+    }
+
+    public void setDataTypeList(List<String> dataTypeList) {
+        this.dataTypeList = dataTypeList;
+    }
+
+    public List<Integer> getAppTypeList() {
+        return appTypeList;
+    }
+
+    public void setAppTypeList(List<Integer> appTypeList) {
+        this.appTypeList = appTypeList;
+    }
+
+    public Integer getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(Integer isMeta) {
+        this.isMeta = isMeta;
+    }
+
+    public List<Integer> getStatus() {
+        return status;
+    }
+
+    public void setStatus(List<Integer> status) {
+        this.status = status;
+    }
 }

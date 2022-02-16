@@ -23,7 +23,7 @@ import com.dtstack.taier.common.client.ClientOperator;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
@@ -97,10 +97,10 @@ public class WorkerOperator {
         return clientOperator.submitJob(jobClient);
     }
 
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-        RdosTaskStatus status = clientOperator.getJobStatus(this.getPluginInfo(jobIdentifier), jobIdentifier);
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+        TaskStatus status = clientOperator.getJobStatus(this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == status) {
-            status = RdosTaskStatus.NOTFOUND;
+            status = TaskStatus.NOTFOUND;
         }
         return status;
     }

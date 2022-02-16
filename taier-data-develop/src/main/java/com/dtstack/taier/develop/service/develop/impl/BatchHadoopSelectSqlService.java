@@ -21,11 +21,9 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.constant.TaskStatusConstant;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.TaskStatus;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Strings;
@@ -39,6 +37,7 @@ import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlType;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
@@ -53,12 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -163,7 +157,8 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         // 记录job
         batchSelectSqlService.addSelectSql(jobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
                 buildSqlVO.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
-        return buildSqlVO.setJobId(jobId);
+        buildSqlVO.setJobId(jobId);
+        return buildSqlVO;
     }
 
     /**
@@ -248,17 +243,16 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
         //设置需要环境参数
         String taskParam = batchTask.getTaskParams();
-
-        return new BuildSqlVO().
-                setSql(sql)
-                .setTaskParam(taskParam)
-                .setIsSelectSql(isSelectSql)
-                .setOriginSql(originSql)
-                .setParsedColumns(parsedColumns)
-                .setTenantId(tenantId)
-                .setTempTable(tempTable)
-                .setTenantId(tenantId)
-                .setUserId(userId);
+        BuildSqlVO buildSqlVO = new BuildSqlVO();
+        buildSqlVO.setSql(sql);
+        buildSqlVO.setTaskParam(taskParam);
+        buildSqlVO.setIsSelectSql(isSelectSql);
+        buildSqlVO.setOriginSql(originSql);
+        buildSqlVO.setParsedColumns(parsedColumns);
+        buildSqlVO.setTenantId(tenantId);
+        buildSqlVO.setTempTable(tempTable);
+        buildSqlVO.setUserId(userId);
+        return buildSqlVO;
     }
 
     private TempJobType getTempJobType(String option) {
@@ -305,7 +299,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             if (engineEntity == null) {
                 return result;
             }
-            Integer status = TaskStatusConstant.getShowStatus(engineEntity.getStatus());
+            Integer status = TaskStatus.getShowStatus(engineEntity.getStatus());
             result.setStatus(status);
 
             if (buildDataWithCheckTaskStatus(selectSql, tenantId, result, status)) {
@@ -346,7 +340,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if (engineEntity == null) {
             return result;
         }
-        Integer status = TaskStatusConstant.getShowStatus(engineEntity.getStatus());
+        Integer status = TaskStatus.getShowStatus(engineEntity.getStatus());
         result.setStatus(status);
         
         if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
@@ -397,7 +391,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         if (Objects.isNull(engineEntity)) {
             return status;
         }
-        return TaskStatusConstant.getShowStatus(engineEntity.getStatus());
+        return TaskStatus.getShowStatus(engineEntity.getStatus());
     }
 
     /**

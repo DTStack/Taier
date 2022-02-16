@@ -59,6 +59,62 @@ public class TaskNodeVO {
      */
     private List<TaskNodeVO> parentNode;
 
+
+    /**
+     * 租户名称
+     */
+    @ApiModelProperty(value = "租户名称")
+    private String tenantName;
+
+    @ApiModelProperty(value = "租户id")
+    private Long tenantId;
+
+    @ApiModelProperty(value = "操作人")
+    private String operatorName;
+
+    @ApiModelProperty(value = "操作id")
+    private Long operatorId;
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
+    }
+
+    public Long getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Boolean getFlowTask() {
+        return isFlowTask;
+    }
+
+    public void setFlowTask(Boolean flowTask) {
+        isFlowTask = flowTask;
+    }
+
     public Long getTaskId() {
         return taskId;
     }

@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.bo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  *
@@ -10,7 +9,6 @@ import lombok.Data;
  * @author: liuxx
  * @date: 2021/3/18
  */
-@Data
 @ApiModel("搜索数据源类型参数")
 public class DsTypeSearchParam extends PubSvcBaseParam {
 
@@ -20,4 +18,19 @@ public class DsTypeSearchParam extends PubSvcBaseParam {
     @ApiModelProperty("数据源类目名称搜索")
     private String search;
 
+    public Long getClassifyId() {
+        return classifyId;
+    }
+
+    public void setClassifyId(Long classifyId) {
+        this.classifyId = classifyId;
+    }
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
 }

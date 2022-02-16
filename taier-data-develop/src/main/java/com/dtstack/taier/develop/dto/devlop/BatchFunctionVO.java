@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.User;
-import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -30,7 +29,6 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2018/1/4
  */
-@Data
 public class BatchFunctionVO extends BatchFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(BatchFunction.class);
@@ -59,5 +57,29 @@ public class BatchFunctionVO extends BatchFunction {
                 ", modifyUser=" + modifyUser.getUserName() +
                 ", time=" + getGmtModified() +
                 '}';
+    }
+
+    public User getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(User createUser) {
+        this.createUser = createUser;
+    }
+
+    public User getModifyUser() {
+        return modifyUser;
+    }
+
+    public void setModifyUser(User modifyUser) {
+        this.modifyUser = modifyUser;
+    }
+
+    public Long getResources() {
+        return resources;
+    }
+
+    public void setResources(Long resources) {
+        this.resources = resources;
     }
 }

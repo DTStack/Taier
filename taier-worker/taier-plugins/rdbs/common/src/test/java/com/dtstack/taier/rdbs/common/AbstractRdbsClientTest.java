@@ -23,7 +23,7 @@ import com.dtstack.taier.base.resource.EngineResourceInfo;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EJobType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.rdbs.common.executor.RdbsExeQueue;
@@ -126,11 +126,11 @@ public class AbstractRdbsClientTest {
     @Test
     public void testGetJobStatus() throws Exception {
         RdbsExeQueue rdbsExeQueue = PowerMockito.mock(RdbsExeQueue.class);
-        when(rdbsExeQueue.getJobStatus(any(String.class))).thenReturn(RdosTaskStatus.RUNNING);
+        when(rdbsExeQueue.getJobStatus(any(String.class))).thenReturn(TaskStatus.RUNNING);
         MemberModifier.field(TestRdbsClient.class, "exeQueue").set(testRdbsClient, rdbsExeQueue);
         JobIdentifier jobIdentifier = JobIdentifier.createInstance("test", "test", "test");
-        RdosTaskStatus status = testRdbsClient.getJobStatus(jobIdentifier);
-        Assert.assertEquals(status, RdosTaskStatus.RUNNING);
+        TaskStatus status = testRdbsClient.getJobStatus(jobIdentifier);
+        Assert.assertEquals(status, TaskStatus.RUNNING);
     }
 
     @Test

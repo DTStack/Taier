@@ -21,12 +21,10 @@ package com.dtstack.taier.develop.mapstruct.vo;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.web.develop.query.BatchCatalogueAddVO;
-import com.dtstack.taier.develop.web.develop.query.BatchCatalogueUpdateVO;
-import com.dtstack.taier.develop.web.develop.result.BatchCatalogueResultVO;
-import com.dtstack.taier.develop.web.develop.result.ReadWriteLockVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueAddVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueUpdateVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchCatalogueResultVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -49,14 +47,6 @@ public interface BatchCatalogueMapstructTransfer {
      */
     BatchCatalogueVO newCatalogueUpdateVoToCatalogueVo(BatchCatalogueUpdateVO vo);
 
-
-    /**
-     * com.dtstack.batch.vo.ReadWriteLockVO -> ReadWriteLockVO
-     * @param readWriteLockVO
-     * @return
-     */
-    @Mapping(source = "isGetLock", target = "getLock")
-    ReadWriteLockVO readWriteLockVOToReadWriteLockVO(com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO readWriteLockVO);
 
     /**
      * CatalogueVO  ->  BatchCatalogueResultVO

@@ -18,12 +18,10 @@
 
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
 
 /**
  * @author sishu.yss
  */
-@Data
 public class BatchResource extends TenantEntity {
 
     /**
@@ -62,4 +60,67 @@ public class BatchResource extends TenantEntity {
 
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Integer getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(Integer resourceType) {
+        this.resourceType = resourceType;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
+
+    public String getOriginFileName() {
+        return originFileName;
+    }
+
+    public void setOriginFileName(String originFileName) {
+        this.originFileName = originFileName;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Long getModifyUserId() {
+        return modifyUserId;
+    }
+
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
+
+    public Long getNodePid() {
+        return nodePid;
+    }
+
+    public void setNodePid(Long nodePid) {
+        this.nodePid = nodePid;
+    }
+
+    public String getResourceDesc() {
+        return resourceDesc;
+    }
+
+    public void setResourceDesc(String resourceDesc) {
+        this.resourceDesc = resourceDesc;
+    }
 }

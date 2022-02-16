@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.utils.develop.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -31,7 +30,6 @@ import java.util.Map;
  * @Author ：Nanqi
  * @Date ：Created in 16:25 2019-08-09
  */
-@Data
 public class KuduBase extends BaseSource {
     private String masterAddresses;
 
@@ -58,5 +56,45 @@ public class KuduBase extends BaseSource {
         if(StringUtils.isEmpty(data.getString("hostPorts"))){
             throw new RdosDefineException("hostPorts 不能为空");
         }
+    }
+
+    public String getMasterAddresses() {
+        return masterAddresses;
+    }
+
+    public void setMasterAddresses(String masterAddresses) {
+        this.masterAddresses = masterAddresses;
+    }
+
+    public String getOtherParams() {
+        return otherParams;
+    }
+
+    public void setOtherParams(String otherParams) {
+        this.otherParams = otherParams;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public List<Map<String, Object>> getColumn() {
+        return column;
+    }
+
+    public void setColumn(List<Map<String, Object>> column) {
+        this.column = column;
+    }
+
+    public String getWriteMode() {
+        return writeMode;
+    }
+
+    public void setWriteMode(String writeMode) {
+        this.writeMode = writeMode;
     }
 }

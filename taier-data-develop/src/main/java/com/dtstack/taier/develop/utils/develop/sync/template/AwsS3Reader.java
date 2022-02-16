@@ -23,10 +23,11 @@ import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.util.ColumnUtil;
 import com.google.common.collect.Lists;
-import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -35,8 +36,9 @@ import java.util.List;
  * @description
  * @date 2021/5/14 11:56 上午
  */
-@Data
 public class AwsS3Reader extends AwsS3Base implements Reader {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AwsS3Reader.class);
 
     private List<String> objects;
 
@@ -55,7 +57,7 @@ public class AwsS3Reader extends AwsS3Base implements Reader {
         parameter.put("column", ColumnUtil.getColumns(getColumn(), PluginName.AWS_S3_R));
         parameter.put("encoding", StringUtils.isNotBlank(this.getEncoding()) ? this.getEncoding() : "");
         parameter.put("fieldDelimiter", StringUtils.isNotBlank(this.getFieldDelimiter()) ? this.getFieldDelimiter() : "");
-        parameter.put("isFirstLineHeader", BooleanUtils.isTrue(this.getIsFirstLineHeader()) ? true : false);
+        parameter.put("isFirstLineHeader", BooleanUtils.isTrue(this.getFirstLineHeader()));
         parameter.put("sourceIds",getSourceIds());
         parameter.putAll(super.getExtralConfigMap());
         result.put("parameter", parameter);
@@ -72,4 +74,11 @@ public class AwsS3Reader extends AwsS3Base implements Reader {
 
     }
 
+    public List<String> getObjects() {
+        return objects;
+    }
+
+    public void setObjects(List<String> objects) {
+        this.objects = objects;
+    }
 }

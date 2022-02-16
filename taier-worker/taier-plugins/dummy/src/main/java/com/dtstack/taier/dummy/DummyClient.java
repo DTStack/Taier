@@ -23,7 +23,7 @@ import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
@@ -74,8 +74,8 @@ public class DummyClient extends AbstractClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        return RdosTaskStatus.FINISHED;
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+        return TaskStatus.FINISHED;
     }
 
     @Override

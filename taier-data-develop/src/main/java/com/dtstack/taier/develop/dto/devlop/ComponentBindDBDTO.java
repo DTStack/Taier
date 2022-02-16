@@ -19,10 +19,31 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 
-import lombok.Data;
 
-@Data
 public class ComponentBindDBDTO {
+    public Integer getComponentCode() {
+        return componentCode;
+    }
+
+    public void setComponentCode(Integer componentCode) {
+        this.componentCode = componentCode;
+    }
+
+    public Boolean getCreateFlag() {
+        return createFlag;
+    }
+
+    public void setCreateFlag(Boolean createFlag) {
+        this.createFlag = createFlag;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
 
     /**
      * 组件类型

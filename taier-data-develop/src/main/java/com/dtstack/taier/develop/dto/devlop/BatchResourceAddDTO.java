@@ -18,12 +18,10 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
 
 /**
  * 资源新增DTO
  */
-@Data
 public class BatchResourceAddDTO {
 
     /**
@@ -80,4 +78,92 @@ public class BatchResourceAddDTO {
      * 新建资源的用户ID
      */
     private Long createUserId;
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getResourceDesc() {
+        return resourceDesc;
+    }
+
+    public void setResourceDesc(String resourceDesc) {
+        this.resourceDesc = resourceDesc;
+    }
+
+    public Long getNodePid() {
+        return nodePid;
+    }
+
+    public void setNodePid(Long nodePid) {
+        this.nodePid = nodePid;
+    }
+
+    public Integer getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(Integer resourceType) {
+        this.resourceType = resourceType;
+    }
+
+    public String getOriginalFilename() {
+        return originalFilename;
+    }
+
+    public void setOriginalFilename(String originalFilename) {
+        this.originalFilename = originalFilename;
+    }
+
+    public String getTmpPath() {
+        return tmpPath;
+    }
+
+    public void setTmpPath(String tmpPath) {
+        this.tmpPath = tmpPath;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
 }

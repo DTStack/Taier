@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.PatternConstant;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.FuncType;
 import com.dtstack.taier.common.enums.FunctionType;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -34,6 +35,8 @@ import com.dtstack.taier.dao.mapper.DevelopFunctionDao;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.sql.SqlParserImpl;
+import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -54,6 +57,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -79,6 +83,8 @@ public class BatchFunctionService {
 
     @Autowired
     private BatchTaskService batchTaskService;
+
+    private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     /**
      * 系统函数缓存
@@ -337,7 +343,8 @@ public class BatchFunctionService {
         StringBuilder sb = new StringBuilder();
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
         // sql中的自定义函数
-        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
+        SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);
+        Set<String> sqlFunctionNames = sqlParser.parseFunction(sql);
         if (CollectionUtils.isEmpty(sqlFunctionNames)) {
             return StringUtils.EMPTY;
         }
@@ -401,7 +408,8 @@ public class BatchFunctionService {
         }
         sql = SqlFormatUtil.formatSql(sql).toLowerCase();
         // sql中的自定义函数
-        List<String> sqlFunctionNames = SqlFormatUtil.splitSqlWithoutSemi(sql);
+        SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);
+        Set<String> sqlFunctionNames = sqlParser.parseFunction(sql);
         if (CollectionUtils.isEmpty(sqlFunctionNames)) {
             return false;
         }
