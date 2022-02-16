@@ -22,7 +22,7 @@ import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.jobdealer.bo.EngineJobRetry;
@@ -146,7 +146,7 @@ public class JobRestartDealer {
     private Pair<Boolean, JobClient> checkJobInfo(String jobId, ScheduleEngineJobCache jobCache, Integer status) {
         Pair<Boolean, JobClient> check = new Pair<>(false, null);
 
-        if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
+        if(!TaskStatus.FAILED.getStatus().equals(status) && !TaskStatus.SUBMITFAILD.getStatus().equals(status)){
             return check;
         }
 
@@ -188,7 +188,7 @@ public class JobRestartDealer {
         if (isAdd) {
             String jobId = jobClient.getJobId();
             //重试任务更改在zk的状态，统一做状态清理
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.RESTARTING.getStatus());
+            shardCache.updateLocalMemTaskStatus(jobId, TaskStatus.RESTARTING.getStatus());
 
             //重试的任务不置为失败，waitengine
             ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobClient.getJobId());
@@ -198,8 +198,8 @@ public class JobRestartDealer {
                 jobRetryRecord(scheduleJob, jobClient, null);
             }
 
-            scheduleJobService.updateStatus(jobId,RdosTaskStatus.RESTARTING.getStatus());
-            LOGGER.info("jobId:{} update job status:{}.", jobId, RdosTaskStatus.RESTARTING.getStatus());
+            scheduleJobService.updateStatus(jobId, TaskStatus.RESTARTING.getStatus());
+            LOGGER.info("jobId:{} update job status:{}.", jobId, TaskStatus.RESTARTING.getStatus());
 
             //update retryNum
             increaseJobRetryNum(jobClient.getJobId());
@@ -210,7 +210,7 @@ public class JobRestartDealer {
     public void jobRetryRecord(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
         try {
             EngineJobRetry batchJobRetry = EngineJobRetry.toEntity(scheduleJob, jobClient,engineLog);
-            batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus());
+            batchJobRetry.setStatus(TaskStatus.RESTARTING.getStatus());
             engineJobRetryMapper.insert(batchJobRetry);
         } catch (Throwable e ){
             LOGGER.error("",e);

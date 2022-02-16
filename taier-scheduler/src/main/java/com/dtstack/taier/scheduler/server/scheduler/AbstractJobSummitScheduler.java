@@ -3,7 +3,7 @@ package com.dtstack.taier.scheduler.server.scheduler;
 import com.dtstack.taier.common.CustomThreadRunsPolicy;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
@@ -85,7 +85,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
                     LOGGER.info("--- jobId:{} scheduleType:{} send to engine.", scheduleJob.getJobId(), getSchedulerName());
                 } catch (Exception e) {
                     LOGGER.info("--- jobId:{} scheduleType:{} send to engine error:", scheduleJob.getJobId(), getSchedulerName(), e);
-                    scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
+                    scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.FAILED.getStatus(), ExceptionUtil.getErrorMessage(e));
                 } finally {
                     scheduleJobService.updatePhaseStatusById(scheduleJob.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.EXECUTE_OVER);
                 }
@@ -135,11 +135,11 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
                 LOGGER.error("happens error:", e);
                 try {
                     if (scheduleJob != null) {
-                        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
+                        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.SUBMITFAILD.getStatus(), e.getMessage());
                         LOGGER.error("jobId:{} scheduleType:{} submit failed.", scheduleJob.getJobId(), getSchedulerName());
                     }
                 } catch (Exception ex) {
-                    LOGGER.error("jobId:{} scheduleType:{} update status happens error:", scheduleJob.getJobId(), getSchedulerName(), ex);
+                    LOGGER.error("scheduleType:{} update status happens error:", getSchedulerName(), ex);
                 }
             }
         }

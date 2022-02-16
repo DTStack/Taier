@@ -37,7 +37,7 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-public enum RdosTaskStatus implements Serializable {
+public enum TaskStatus implements Serializable {
     //
 	UNSUBMIT(0),
     //
@@ -86,7 +86,7 @@ public enum RdosTaskStatus implements Serializable {
     AUTOCANCELED(26),
     ;
 
-    private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskStatus.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -105,7 +105,7 @@ public enum RdosTaskStatus implements Serializable {
             AUTOCANCELED.getStatus()
     );
 
-	RdosTaskStatus(int status){
+	TaskStatus(int status){
 		this.status = status;
 	}
 	
@@ -118,27 +118,27 @@ public enum RdosTaskStatus implements Serializable {
      * @param taskStatus
      * @return
      */
-    public static RdosTaskStatus getTaskStatus(String taskStatus){
+    public static TaskStatus getTaskStatus(String taskStatus){
 
         if(Strings.isNullOrEmpty(taskStatus)){
             return null;
         }else if("error".equalsIgnoreCase(taskStatus)){
-            return RdosTaskStatus.FAILED;
+            return TaskStatus.FAILED;
         } else if ("RESTARTING".equalsIgnoreCase(taskStatus)) {
             //yarn做重试认为运行中
-            return RdosTaskStatus.RUNNING;
+            return TaskStatus.RUNNING;
         }
 
 	    try {
-            return RdosTaskStatus.valueOf(taskStatus);
+            return TaskStatus.valueOf(taskStatus);
         }catch (Exception e){
             logger.info("No enum constant :" + taskStatus);
 	        return null;
         }
     }
 
-    public static RdosTaskStatus getTaskStatus(int status){
-        for(RdosTaskStatus tmp : RdosTaskStatus.values()){
+    public static TaskStatus getTaskStatus(int status){
+        for(TaskStatus tmp : TaskStatus.values()){
             if(tmp.getStatus() == status){
                 return tmp;
             }
@@ -149,14 +149,14 @@ public enum RdosTaskStatus implements Serializable {
     
     public static boolean needClean(Integer status){
 
-        if(STOPPED_STATUS.contains(status) || RdosTaskStatus.RESTARTING.getStatus().equals(status)){
+        if(STOPPED_STATUS.contains(status) || TaskStatus.RESTARTING.getStatus().equals(status)){
             return true;
         }
         return false;
     }
 
     public static boolean canStart(Integer status){
-        if(RdosTaskStatus.SUBMITTING.getStatus().equals(status) || RdosTaskStatus.UNSUBMIT.getStatus().equals(status)){
+        if(TaskStatus.SUBMITTING.getStatus().equals(status) || TaskStatus.UNSUBMIT.getStatus().equals(status)){
     	    return true;
         }
 
@@ -164,7 +164,7 @@ public enum RdosTaskStatus implements Serializable {
     }
 
     public static boolean canReset(Integer currStatus){
-        return STOPPED_STATUS.contains(currStatus) || RdosTaskStatus.UNSUBMIT.getStatus().equals(currStatus);
+        return STOPPED_STATUS.contains(currStatus) || TaskStatus.UNSUBMIT.getStatus().equals(currStatus);
 
     }
 

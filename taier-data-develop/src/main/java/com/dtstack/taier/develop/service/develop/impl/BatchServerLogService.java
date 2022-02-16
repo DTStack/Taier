@@ -22,7 +22,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -36,15 +38,16 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatterUtil;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
-import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
-import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
+import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
+import com.dtstack.taier.develop.service.schedule.TaskService;
+import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatterUtil;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.vo.develop.result.BatchServerLogByAppLogTypeResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -65,13 +68,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BatchServerLogService {
@@ -113,17 +110,12 @@ public class BatchServerLogService {
     private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
     private static final String DOWNLOAD_TYPE_LOG = "/taier/developDownload/downloadAppTypeLog?jobId=%s&logType=%s&projectId=%s";
 
-    private static final List<Integer> finish_status = new ArrayList<>();
 
     private static final int SECOND_LENGTH = 10;
     private static final int MILLIS_LENGTH = 13;
     private static final int MICRO_LENGTH = 16;
     private static final int NANOS_LENGTH = 19;
 
-    static {
-        BatchServerLogService.finish_status.add(TaskStatus.FINISHED.getStatus());
-        BatchServerLogService.finish_status.add(TaskStatus.FAILED.getStatus());
-    }
 
     public BatchServerLogVO getLogsByJobId(String jobId, Integer pageInfo) {
 
@@ -237,7 +229,7 @@ public class BatchServerLogService {
         if (!scheduleTaskShade.getTaskType().equals(EScheduleJobType.SYNC.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.VIRTUAL.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())
-                && finish_status.contains(job.getStatus())) {
+                && TaskStatus.getStoppedStatus().contains(job.getStatus())) {
             batchServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType(),0L));
         }
 

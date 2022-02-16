@@ -32,7 +32,7 @@ import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -347,7 +347,7 @@ public class ConsoleService {
             //杀死指定jobIdList的任务
             if (EJobCacheStage.unSubmitted().contains(stage)) {
                 Integer deleted = scheduleEngineJobCacheMapper.deleteByJobIds(jobIdList);
-                Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, RdosTaskStatus.CANCELED.getStatus());
+                Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIdList, TaskStatus.CANCELED.getStatus());
                 LOGGER.info("delete job size:{}, update job size:{}, deal jobIds:{}", deleted, updated, jobIdList);
             } else {
                 List<String> alreadyExistJobIds = engineJobStopRecordMapper.listByJobIds(jobIdList);
@@ -390,7 +390,7 @@ public class ConsoleService {
 
                 if (EJobCacheStage.unSubmitted().contains(stage)) {
                     Integer deleted = scheduleEngineJobCacheMapper.deleteByJobIds(jobIds);
-                    Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIds, RdosTaskStatus.CANCELED.getStatus());
+                    Integer updated = scheduleJobMapper.updateJobStatusByJobIds(jobIds, TaskStatus.CANCELED.getStatus());
                     LOGGER.info("delete job size:{}, update job size:{}, query job size:{}, jobIds:{}", deleted, updated, jobCaches.size(), jobIds);
                 } else {
                     //已提交的任务需要发送请求杀死，走正常杀任务的逻辑

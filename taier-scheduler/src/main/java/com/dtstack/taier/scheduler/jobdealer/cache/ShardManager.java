@@ -19,7 +19,7 @@
 package com.dtstack.taier.scheduler.jobdealer.cache;
 
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,7 +70,7 @@ public class ShardManager implements Runnable {
 
     @Override
     public void run() {
-        shard.entrySet().removeIf(jobWithStatus -> RdosTaskStatus.needClean(jobWithStatus.getValue()));
+        shard.entrySet().removeIf(jobWithStatus -> TaskStatus.needClean(jobWithStatus.getValue()));
     }
 
 }
