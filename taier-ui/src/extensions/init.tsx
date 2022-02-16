@@ -24,7 +24,7 @@ import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
 import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
-import Logo from '@/components/logo';
+import { Logo } from '@/components/icon';
 import Language from '@/components/language';
 
 function loadStyles(url: string) {

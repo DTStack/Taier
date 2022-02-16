@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { Button, Popconfirm, Checkbox, Radio, Row, Col, message } from 'antd';
 import _ from 'lodash';
-
+import { ComponentConfigIcon } from '@/components/icon';
 import { isSourceTab } from '../../help';
 import { CONFIG_BUTTON_TYPE, COMPONENT_CONFIG_NAME, COMP_ACTION } from '@/constant';
 import './index.scss';
@@ -100,7 +100,11 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 		if (!_.isEqual(initialValues[0], e.target.value)) {
 			if (initialValues[0]) {
 				message.error(
-					`先删除${COMPONENT_CONFIG_NAME[initialValues[0] as keyof typeof COMPONENT_CONFIG_NAME]}，才能切换为${
+					`先删除${
+						COMPONENT_CONFIG_NAME[
+							initialValues[0] as keyof typeof COMPONENT_CONFIG_NAME
+						]
+					}，才能切换为${
 						COMPONENT_CONFIG_NAME[e.target.value as keyof typeof COMPONENT_CONFIG_NAME]
 					}`,
 				);
@@ -214,7 +218,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 						onClick={() => this.props.handlePopVisible()}
 						block
 					>
-						<i className="iconfont icon-zujianpeizhi" style={{ marginRight: 2 }} />
+						<ComponentConfigIcon style={{ marginRight: 2 }} />
 						组件配置
 					</Button>
 				</Popconfirm>
