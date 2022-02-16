@@ -2,6 +2,7 @@ package com.dtstack.taier.develop.sql;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * sql解析器接口
@@ -47,4 +48,13 @@ public interface SqlParserImpl {
      * @param parseResult
      */
     void parseLifecycleAndCatalogue(ParseResult parseResult);
+
+    /**
+     * 解析sql中的自定义函数
+     *
+     * @param sql
+     * @return
+     */
+    Set<String> parseFunction(String sql);
+
 }
