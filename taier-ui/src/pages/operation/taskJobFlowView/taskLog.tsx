@@ -33,7 +33,7 @@ const editorOptions: any = {
 	smartIndent: true,
 };
 
-const editorStyle: React.CSSProperties = { height: '300px' };
+const defaultEditorStyle: React.CSSProperties = { height: '300px' };
 
 function wrappTitle(title: string) {
 	return `====================${title}====================`;
@@ -211,6 +211,8 @@ export default function LogInfo(props: ILogInfoProps) {
 		return text;
 	}, [props.log]);
 
+	const editorStyle = { ...defaultEditorStyle, height: props.height };
+
 	return (
 		<div>
 			{props.syncJobInfo ? (
@@ -249,10 +251,10 @@ export default function LogInfo(props: ILogInfoProps) {
 					</div>
 				</Row>
 			)}
-			<Row style={{ ...editorStyle, height: props.height }}>
+			<Row style={editorStyle}>
 				<Col span={24}>
 					<Editor
-						style={{ height: '100%' }}
+						style={{ height: editorStyle.height }}
 						sync
 						value={logText}
 						options={editorOptions}
