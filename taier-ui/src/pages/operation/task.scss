@@ -16,10 +16,9 @@
 	.dt-slide-pane {
 		position: fixed;
 		right: 0;
+		bottom: 0;
 		width: 60%;
-		height: 100%;
-		min-height: 600px;
-		padding-top: 26px;
+		padding-top: 11px;
 	}
 
 	.c-taskMana__slidePane__tabs {

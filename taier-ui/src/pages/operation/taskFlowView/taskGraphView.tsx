@@ -721,7 +721,6 @@ const TaskGraphView = ({
 						overflow: 'auto',
 						width: '100%',
 						height: editorHeight,
-						backgroundColor: '#fff',
 					}}
 					ref={container}
 				/>
