@@ -23,7 +23,6 @@ import com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO;
 import com.dtstack.taier.develop.vo.develop.result.ReadWriteLockGetLockResultVO;
 import com.dtstack.taier.develop.vo.develop.result.ReadWriteLockResultVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -43,7 +42,6 @@ public interface BatchReadWriteLockMapstructTransfer {
      * @param readWriteLockVO
      * @return
      */
-    @Mapping(source = "getLock", target = "getLock")
     ReadWriteLockGetLockResultVO ReadWriteLockVOToReadWriteLockGetLockResultVO(ReadWriteLockVO readWriteLockVO);
 
 }
