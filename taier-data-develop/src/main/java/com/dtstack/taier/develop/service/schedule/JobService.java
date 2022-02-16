@@ -27,7 +27,7 @@ import com.dtstack.taier.develop.vo.fill.ReturnFillDataListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnDisplayPeriodVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobStatusStatisticsVO;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataJobListDTO;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataListDTO;
@@ -355,7 +355,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 vo.setEndExecTime(DateUtil.getDate(record.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
                 vo.setExecTime(getExecTime(record));
-                vo.setStatus(RdosTaskStatus.getShowStatus(record.getStatus()));
+                vo.setStatus(TaskStatus.getShowStatus(record.getStatus()));
 
                 ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(record.getTaskId());
                 if (scheduleTaskShade != null) {
@@ -396,7 +396,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             return Lists.newArrayList();
         }
         List<Integer> statues = Lists.newArrayList();
-        Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetailAndExpire();
+        Map<Integer, List<Integer>> statusMap = TaskStatus.getStatusFailedDetailAndExpire();
         for (Integer status : originalStatus) {
             List<Integer> statusList = statusMap.get(status);
             if (CollectionUtils.isNotEmpty(statusList)) {
@@ -413,15 +413,15 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * @param statusCount 查询出来的计数
      */
     private void calculateStatusCount(ReturnFillDataListVO fillDataReturnListVO, Map<Integer, IntSummaryStatistics> statusCount) {
-        Long unSubmit = statusCount.get(RdosTaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.UNSUBMIT.getStatus()).getSum();
-        Long running = statusCount.get(RdosTaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.RUNNING.getStatus()).getSum();
-        Long notFound = statusCount.get(RdosTaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.NOTFOUND.getStatus()).getSum();
-        Long finished = statusCount.get(RdosTaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FINISHED.getStatus()).getSum();
-        Long failed = statusCount.get(RdosTaskStatus.FAILED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FAILED.getStatus()).getSum();
-        Long waitEngine = statusCount.get(RdosTaskStatus.WAITENGINE.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.WAITENGINE.getStatus()).getSum();
-        Long submitting = statusCount.get(RdosTaskStatus.SUBMITTING.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.SUBMITTING.getStatus()).getSum();
-        Long canceled = statusCount.get(RdosTaskStatus.CANCELED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.CANCELED.getStatus()).getSum();
-        Long frozen = statusCount.get(RdosTaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FROZEN.getStatus()).getSum();
+        Long unSubmit = statusCount.get(TaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(TaskStatus.UNSUBMIT.getStatus()).getSum();
+        Long running = statusCount.get(TaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.RUNNING.getStatus()).getSum();
+        Long notFound = statusCount.get(TaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(TaskStatus.NOTFOUND.getStatus()).getSum();
+        Long finished = statusCount.get(TaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FINISHED.getStatus()).getSum();
+        Long failed = statusCount.get(TaskStatus.FAILED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FAILED.getStatus()).getSum();
+        Long waitEngine = statusCount.get(TaskStatus.WAITENGINE.getStatus()) == null ? 0L : statusCount.get(TaskStatus.WAITENGINE.getStatus()).getSum();
+        Long submitting = statusCount.get(TaskStatus.SUBMITTING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.SUBMITTING.getStatus()).getSum();
+        Long canceled = statusCount.get(TaskStatus.CANCELED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.CANCELED.getStatus()).getSum();
+        Long frozen = statusCount.get(TaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FROZEN.getStatus()).getSum();
 
         fillDataReturnListVO.setFinishedJobSum(finished);
         fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen);
@@ -556,10 +556,10 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     private List<ReturnJobStatusStatisticsVO> mergeStatusAndShow(List<StatusCountPO> statusCountList) {
         Map<String, ReturnJobStatusStatisticsVO> returnJobStatusStatisticsVOList = Maps.newHashMap();
         long totalNum = 0;
-        Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetail();
+        Map<Integer, List<Integer>> statusMap = TaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
             ReturnJobStatusStatisticsVO vo = new ReturnJobStatusStatisticsVO();
-            String statusName = RdosTaskStatus.getCode(entry.getKey());
+            String statusName = TaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             vo.setStatusKey(statusName);
             long num = 0;

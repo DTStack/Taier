@@ -30,7 +30,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
@@ -142,6 +142,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         List<ScheduleJobOperatorRecord> scheduleJobOperatorRecordList = scheduleJobOperatorRecordService.lambdaQuery()
                 .in(ScheduleJobOperatorRecord::getJobId, scheduleJobList.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()))
                 .eq(ScheduleJobOperatorRecord::getIsDeleted, Deleted.NORMAL.getStatus())
+                .eq(ScheduleJobOperatorRecord::getOperatorType,OperatorType.STOP.getType())
                 .list();
         List<String> alreadyExistJobIds = scheduleJobOperatorRecordList.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
 
@@ -188,7 +189,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      */
     private void cancellingJob(LambdaUpdateChainWrapper<ScheduleJob> scheduleJobService) {
         ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setStatus(RdosTaskStatus.CANCELED.getStatus());
+        scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
         scheduleJobService
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .update(scheduleJob);
@@ -201,7 +202,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      * @return 是否提交yarn
      */
     private boolean isSubmit(ScheduleJob scheduleJob) {
-        return RdosTaskStatus.UNSUBMIT.getStatus().equals(scheduleJob.getStatus()) || SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType());
+        return TaskStatus.UNSUBMIT.getStatus().equals(scheduleJob.getStatus()) || SPECIAL_TASK_TYPES.contains(scheduleJob.getTaskType());
     }
 
 
@@ -281,14 +282,14 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                         } else {
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             ScheduleJob scheduleJob = new ScheduleJob();
-                            scheduleJob.setStatus(RdosTaskStatus.CANCELED.getStatus());
+                            scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
                             scheduleJobService.lambdaUpdate()
                                     .eq(ScheduleJob::getJobId,jobStopRecord.getJobId())
                                     .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
-                                    .in(ScheduleJob::getStatus, RdosTaskStatus.getUnfinishedStatuses())
+                                    .in(ScheduleJob::getStatus, TaskStatus.getUnfinishedStatuses())
                                     .update(scheduleJob);
-                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
-                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), RdosTaskStatus.CANCELED.getStatus());
+                            LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
+                            shardCache.updateLocalMemTaskStatus(jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
                             scheduleJobOperatorRecordService.removeById(jobStopRecord.getId());
                         }
                     }
@@ -368,7 +369,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
         if (jobCache == null) {
-            if (scheduleJob != null && RdosTaskStatus.isStopped(scheduleJob.getStatus())) {
+            if (scheduleJob != null && TaskStatus.isStopped(scheduleJob.getStatus())) {
                 LOGGER.info("jobId:{} stopped success, set job is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
             } else {
@@ -377,7 +378,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 return StoppedStatus.MISSED;
             }
         } else if (null != scheduleJob && EJobCacheStage.unSubmitted().contains(jobCache.getStage())) {
-            if (!RdosTaskStatus.getWaitStatus().contains(scheduleJob.getStatus()) || EJobCacheStage.PRIORITY.getStage() != jobCache.getStage()) {
+            if (!TaskStatus.getWaitStatus().contains(scheduleJob.getStatus()) || EJobCacheStage.PRIORITY.getStage() != jobCache.getStage()) {
                 this.removeMemStatusAndJobCache(jobCache.getJobId());
                 LOGGER.info("jobId:{} is unsubmitted, set job is STOPPED.", jobElement.jobId);
                 return StoppedStatus.STOPPED;
@@ -391,7 +392,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 LOGGER.info("jobId:{} scheduleJob is null, set job is MISSED.", jobElement.jobId);
                 return StoppedStatus.MISSED;
-            } else if (RdosTaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
+            } else if (TaskStatus.getStoppedAndNotFound().contains(scheduleJob.getStatus())) {
                 this.removeMemStatusAndJobCache(jobElement.jobId);
                 LOGGER.info("jobId:{} and status:{} is StoppedAndNotFound, set job is STOPPED.", jobElement.jobId, scheduleJob.getStatus());
                 return StoppedStatus.STOPPED;
@@ -424,8 +425,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         shardCache.removeIfPresent(jobId);
         engineJobCacheService.deleteByJobId(jobId);
         //修改任务状态
-        scheduleJobService.updateStatusAndLogInfoById(jobId, RdosTaskStatus.CANCELED.getStatus(),"");
-        LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, RdosTaskStatus.CANCELED.getStatus());
+        scheduleJobService.updateStatusAndLogInfoById(jobId, TaskStatus.CANCELED.getStatus(),"");
+        LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, TaskStatus.CANCELED.getStatus());
     }
 
     private boolean checkExpired(JobElement jobElement) {

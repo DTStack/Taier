@@ -4,7 +4,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.service.ScheduleJobJobService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.apache.commons.collections.CollectionUtils;
@@ -120,7 +120,7 @@ public abstract class AbstractRestart {
         jobIds.add(job.getJobId());
 
         ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setStatus(RdosTaskStatus.MANUALSUCCESS.getStatus());
+        scheduleJob.setStatus(TaskStatus.MANUALSUCCESS.getStatus());
         scheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
         scheduleJobService.lambdaUpdate().in(ScheduleJob::getJobId,jobIds)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())

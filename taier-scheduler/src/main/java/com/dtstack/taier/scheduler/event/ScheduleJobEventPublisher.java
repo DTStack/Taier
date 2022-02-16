@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.scheduler.event;
 
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -67,7 +67,7 @@ public class ScheduleJobEventPublisher {
         if (CollectionUtils.isEmpty(event.getJobIds()) || null == event.getStatus()) {
             return;
         }
-        if (RdosTaskStatus.getStoppedStatus().contains(event.getStatus())) {
+        if (TaskStatus.getStoppedStatus().contains(event.getStatus())) {
             logger.info("publishBatchEvent {}", event);
         }
         for (ScheduleJobEventLister scheduleJobEventLister : scheduleJobEventMulticaster) {

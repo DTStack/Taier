@@ -2,7 +2,7 @@ package com.dtstack.taier.scheduler.server.scheduler.exec;
 
 import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -33,7 +33,7 @@ public class JobStatusJudgeJobExecOperator implements JudgeJobExecOperator {
         Integer status = scheduleJobService.getJobStatusByJobId(scheduleJob.getJobId());
 
         // 判断实例状态是不是等待提交
-        if (!RdosTaskStatus.UNSUBMIT.getStatus().equals(status)) {
+        if (!TaskStatus.UNSUBMIT.getStatus().equals(status)) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.NOT_UNSUBMIT);
             checkRunInfo.setLogInfo(JobCheckStatus.NOT_UNSUBMIT.getMsg());
