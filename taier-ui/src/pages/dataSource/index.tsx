@@ -15,6 +15,7 @@ import LinkInfoCell from './linkInfoCell';
 import Search from './search';
 import Add from './add';
 import './index.scss';
+import classNames from 'classnames';
 
 const { confirm } = Modal;
 
@@ -314,12 +315,17 @@ const DataSourceView = () => {
 				>
 					{detailView ? (
 						<table
-							className="ant-table ant-table-bordered bd-top bd-left"
-							style={{ width: '100%' }}
+							className={classNames(
+								'ant-table',
+								'border',
+								'border-ddd',
+								'border-solid',
+								'w-full',
+							)}
 						>
 							<tbody className="ant-table-tbody">
 								<tr>
-									<td {...{ width: '20%' }}>数据源名称</td>
+									<td className="w-1/5">名称</td>
 									<td>
 										{detailView.isMeta === 0 ? (
 											<span title={detailView.dataName}>
@@ -369,7 +375,7 @@ const DataSourceView = () => {
 									</td>
 								</tr>
 								<tr>
-									<td>最近修改时间</td>
+									<td>修改时间</td>
 									<td>
 										{moment(detailView.gmtModified).format(
 											'YYYY-MM-DD hh:mm:ss',
