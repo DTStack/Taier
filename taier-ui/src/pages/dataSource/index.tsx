@@ -10,7 +10,7 @@ import { API } from '@/api/dataSource';
 import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Base64 from 'base-64';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
-import { DATA_SOURCE_ENUM, CREATE_DATASOURCE_PREFIX } from '@/constant';
+import { DATA_SOURCE_ENUM, CREATE_DATASOURCE_PREFIX, EDIT_DATASOURCE_PREFIX } from '@/constant';
 import LinkInfoCell from './linkInfoCell';
 import Search from './search';
 import Add from './add';
@@ -164,22 +164,23 @@ const DataSourceView = () => {
 		contextView.hide();
 		switch (menu.id) {
 			case 'edit':
-				if (molecule.editor.isOpened(CREATE_DATASOURCE_PREFIX)) {
-					message.error('请先保存或关闭新增数据源');
-					const groupId = molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX)!;
-					molecule.editor.setActive(groupId, CREATE_DATASOURCE_PREFIX);
+				if (molecule.editor.isOpened(EDIT_DATASOURCE_PREFIX)) {
+					message.warning('请先保存或关闭编辑数据源');
+					const groupId = molecule.editor.getGroupIdByTab(EDIT_DATASOURCE_PREFIX)!;
+					molecule.editor.setActive(groupId, EDIT_DATASOURCE_PREFIX);
 				} else {
 					molecule.editor.open({
-						id: CREATE_DATASOURCE_PREFIX,
+						id: EDIT_DATASOURCE_PREFIX,
 						name: '编辑数据源',
-						renderPane: <Add record={record} />,
+						icon: 'edit',
+						renderPane: <Add key={EDIT_DATASOURCE_PREFIX} record={record} />,
 						breadcrumb: [
 							{
 								id: 'root',
 								name: '数据源中心',
 							},
 							{
-								id: CREATE_DATASOURCE_PREFIX,
+								id: EDIT_DATASOURCE_PREFIX,
 								name: '编辑数据源',
 							},
 						],
@@ -209,6 +210,7 @@ const DataSourceView = () => {
 		record: IDataSourceProps,
 	) => {
 		e.preventDefault();
+		e.currentTarget.focus();
 		contextView.show(getEventPosition(e), () => (
 			<Menu
 				role="menu"
@@ -241,6 +243,7 @@ const DataSourceView = () => {
 
 	const handleHeaderBarClick = () => {
 		if (molecule.editor.isOpened(CREATE_DATASOURCE_PREFIX)) {
+			message.warning('请先保存或关闭新增数据源');
 			const groupId = molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX)!;
 			molecule.editor.setActive(groupId, CREATE_DATASOURCE_PREFIX);
 		} else {
@@ -248,7 +251,7 @@ const DataSourceView = () => {
 				id: CREATE_DATASOURCE_PREFIX,
 				name: '新增数据源',
 				icon: 'server-process',
-				renderPane: <Add onSubmit={handleSubmitDataSource} />,
+				renderPane: <Add key={CREATE_DATASOURCE_PREFIX} onSubmit={handleSubmitDataSource} />,
 				breadcrumb: [
 					{
 						id: 'root',
@@ -284,6 +287,7 @@ const DataSourceView = () => {
 						{dataSources.map((item) => (
 							<li
 								key={item.dataInfoId}
+								tabIndex={-1}
 								className="datasource-record"
 								onClick={() => handleOpenDetail(item)}
 								onContextMenu={(e) => handleContextmenu(e, item)}

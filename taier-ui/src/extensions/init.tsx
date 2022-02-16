@@ -5,7 +5,7 @@ import {
 	LANGUAGE_STATUS_BAR,
 	OPERATIONS,
 	OUTPUT_LOG,
-	TENANT,
+	TENANT_MENU,
 } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
@@ -26,6 +26,8 @@ import { getCookie, deleteCookie } from '@/utils';
 import { message } from 'antd';
 import { Logo } from '@/components/icon';
 import Language from '@/components/language';
+import ReactDOM from 'react-dom';
+import AddTenantModal from '@/components/addTenantModal';
 
 function loadStyles(url: string) {
 	const link = document.createElement('link');
@@ -212,11 +214,6 @@ function initMenuBar() {
 		name: '控制台',
 		data: [...CONSOLE],
 	});
-	nextData.splice(3, 0, {
-		id: 'tenant',
-		name: '租户',
-		data: [...TENANT],
-	});
 	const menuRunning = nextData.findIndex((menu) => menu.id === 'Run');
 	if (menuRunning > -1) {
 		nextData.splice(menuRunning, 1);
@@ -260,6 +257,18 @@ function initLogin() {
 						icon: 'feedback',
 						name: tenantName,
 						onClick: () => showLoginModal(),
+					},
+					{
+						id: TENANT_MENU.ADD_TENANT,
+						name: '新增租户',
+						icon: 'person-add',
+						onClick: () => {
+							const root = document.getElementById('molecule')!;
+							const node = document.createElement('div');
+							node.id = 'add-tenant-modal';
+							root.appendChild(node);
+							ReactDOM.render(<AddTenantModal />, node);
+						},
 					},
 					{
 						id: 'logout',
