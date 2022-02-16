@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Auther: dazhi
@@ -88,10 +87,6 @@ public class OperationActionController {
     @ApiOperation(value = "查看实例日志")
     @PostMapping(value = "/queryJobLog")
     public R<ReturnJobLogVO> queryJobLog(@RequestBody @Valid QueryJobLogVO vo, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            LOGGER.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
-            throw new RdosDefineException(bindingResult.getFieldError().getDefaultMessage());
-        }
         return R.ok(actionService.queryJobLog(vo.getJobId(), vo.getPageInfo()));
     }
 

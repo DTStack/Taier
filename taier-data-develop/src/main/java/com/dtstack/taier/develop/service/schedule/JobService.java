@@ -91,8 +91,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<ReturnJobListVO> returnJobListVOS= Lists.newArrayList();
         // 关联任务
         List<Long> taskIds = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
             } else {
@@ -141,8 +141,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     public List<ReturnJobStatusStatisticsVO> queryJobsStatusStatistics(QueryJobStatusStatisticsDTO dto) {
         // 关联任务
         List<Long> taskIdList = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return Lists.newArrayList();
             } else {
@@ -249,10 +249,10 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 查询补数据列表
         page = fillDataJobService.lambdaQuery()
                 .like(StringUtils.isNotBlank(dto.getJobName()), ScheduleFillDataJob::getJobName, dto.getJobName())
-                .eq(dto.getOwnerId() != null, ScheduleFillDataJob::getCreateUserId, dto.getOwnerId())
+                .eq(dto.getOperatorId() != null, ScheduleFillDataJob::getCreateUserId, dto.getOperatorId())
                 .eq(StringUtils.isNotBlank(dto.getRunDay()), ScheduleFillDataJob::getRunDay, dto.getRunDay())
                 .eq(ScheduleFillDataJob::getTenantId, dto.getTenantId())
-                .orderBy(true,true,ScheduleFillDataJob::getGmtCreate)
+                .orderBy(true,false,ScheduleFillDataJob::getGmtCreate)
                 .page(page);
 
         List<ScheduleFillDataJob> records = page.getRecords();
@@ -261,12 +261,18 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         if (CollectionUtils.isNotEmpty(records)) {
             // 封装结果集
             Map<Long, ScheduleFillDataJob> fillDataJobMap = records.stream().collect(Collectors.toMap(ScheduleFillDataJob::getId, g -> (g)));
+            List<Long> userIds = records.stream().map(ScheduleFillDataJob::getCreateUserId).collect(Collectors.toList());
 
+            Map<Long, User> userMap = userService.getUserMap(userIds);
             List<CountFillDataJobStatusPO> statistics = this.baseMapper.countByFillIdGetAllStatus(fillDataJobMap.keySet());
             Map<Long, List<CountFillDataJobStatusPO>> statisticsGroup = statistics.stream().collect(Collectors.groupingBy(CountFillDataJobStatusPO::getFillId));
 
             for (ScheduleFillDataJob scheduleFillDataJob : records) {
                 ReturnFillDataListVO fillDataReturnListVO = FillDataJobMapstructTransfer.INSTANCE.fillDataListDTOToFillDataReturnListVO(scheduleFillDataJob);
+                User user = userMap.get(scheduleFillDataJob.getCreateUserId());
+                if (user != null) {
+                    fillDataReturnListVO.setOperatorName(user.getUserName());
+                }
                 fillDataReturnListVO.setGmtCreate(DateUtil.getDate(scheduleFillDataJob.getGmtCreate(),DateUtil.STANDARD_DATETIME_FORMAT));
                 // 计算补数据执行进度
                 List<CountFillDataJobStatusPO> countFillDataJobStatusPOS = statisticsGroup.get(fillDataReturnListVO.getId());
@@ -303,8 +309,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
         // 关联任务
         List<Long> taskIds = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
             } else {
@@ -349,12 +355,13 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 vo.setEndExecTime(DateUtil.getDate(record.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
                 vo.setExecTime(getExecTime(record));
+                vo.setStatus(RdosTaskStatus.getShowStatus(record.getStatus()));
 
                 ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(record.getTaskId());
                 if (scheduleTaskShade != null) {
                     vo.setTaskName(scheduleTaskShade.getName());
-                    vo.setOwnerId(scheduleTaskShade.getOwnerUserId());
-                    vo.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+                    vo.setOperatorId(scheduleTaskShade.getCreateUserId());
+                    vo.setOperatorName(userMap.get(scheduleTaskShade.getCreateUserId())!=null?userMap.get(scheduleTaskShade.getCreateUserId()).getUserName():"");
                 }
                 fillDataJobVOS.add(vo);
             });
@@ -602,8 +609,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(returnJobListVO.getTaskId());
             if (scheduleTaskShade != null) {
                 returnJobListVO.setTaskName(scheduleTaskShade.getName());
-                returnJobListVO.setOwnerId(scheduleTaskShade.getOwnerUserId());
-                returnJobListVO.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+                returnJobListVO.setOperatorId(scheduleTaskShade.getCreateUserId());
+                returnJobListVO.setOperatorName(userMap.get(scheduleTaskShade.getCreateUserId())!=null?userMap.get(scheduleTaskShade.getCreateUserId()).getUserName():"");
             }
             returnJobListVOS.add(returnJobListVO);
         }

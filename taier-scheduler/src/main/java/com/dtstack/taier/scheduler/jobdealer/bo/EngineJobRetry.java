@@ -27,25 +27,33 @@ import com.dtstack.taier.pluginapi.JobClient;
  */
 public class EngineJobRetry extends com.dtstack.taier.dao.domain.ScheduleEngineJobRetry {
 
-    public static EngineJobRetry toEntity(ScheduleJob batchJob, JobClient jobClient) {
-        EngineJobRetry batchJobRetry = new EngineJobRetry();
-        batchJobRetry.setJobId(batchJob.getJobId());
-        batchJobRetry.setExecStartTime(batchJob.getExecStartTime());
-        batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
-        batchJobRetry.setRetryNum(batchJob.getRetryNum());
-        batchJobRetry.setStatus(batchJob.getStatus());
+    public static EngineJobRetry toEntity(ScheduleJob scheduleJob, JobClient jobClient,String engineLog) {
+        EngineJobRetry scheduleJobRetry = new EngineJobRetry();
+        scheduleJobRetry.setJobId(scheduleJob.getJobId());
+        scheduleJobRetry.setExecStartTime(scheduleJob.getExecStartTime());
+        scheduleJobRetry.setExecEndTime(scheduleJob.getExecEndTime());
+        scheduleJobRetry.setRetryNum(scheduleJob.getRetryNum() + 1);
+        scheduleJobRetry.setStatus(scheduleJob.getStatus());
+        scheduleJobRetry.setGmtCreate(scheduleJob.getGmtCreate());
+        scheduleJobRetry.setGmtModified(scheduleJob.getGmtModified());
+        scheduleJobRetry.setEngineLog(engineLog);
 
-        if (batchJob.getApplicationId() == null) {
-            batchJobRetry.setApplicationId(jobClient.getApplicationId());
+        if (scheduleJob.getApplicationId() == null) {
+            scheduleJobRetry.setApplicationId(jobClient.getApplicationId());
         } else {
-            batchJobRetry.setApplicationId(batchJob.getApplicationId());
+            scheduleJobRetry.setApplicationId(scheduleJob.getApplicationId());
         }
-        if (batchJob.getEngineJobId() == null) {
-            batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
+        if (scheduleJob.getEngineJobId() == null) {
+            scheduleJobRetry.setEngineJobId(jobClient.getEngineTaskId());
         } else {
-            batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
+            scheduleJobRetry.setEngineJobId(scheduleJob.getEngineJobId());
         }
-        return batchJobRetry;
+        try {
+            scheduleJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
+        } catch (Throwable e) {
+            scheduleJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
+        }
+        return scheduleJobRetry;
     }
 
 }
