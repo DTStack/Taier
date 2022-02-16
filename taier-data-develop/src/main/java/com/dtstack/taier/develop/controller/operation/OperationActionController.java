@@ -9,7 +9,7 @@ import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.schedule.ActionJobKillVO;
 import com.dtstack.taier.develop.vo.schedule.QueryJobLogVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.RestartType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -97,6 +97,6 @@ public class OperationActionController {
     })
     public R<Integer> status(@RequestParam("jobId") String jobId) throws Exception {
         ScheduleJob scheduleJob = jobService.getScheduleJob(jobId);
-        return R.ok(null == scheduleJob ? RdosTaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus());
+        return R.ok(null == scheduleJob ? TaskStatus.NOTFOUND.getStatus() : scheduleJob.getStatus());
     }
 }

@@ -2,7 +2,7 @@ package com.dtstack.taier.scheduler.server.scheduler.handler;
 
 import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class KillJudgeNoPassJobHandler implements JudgeNoPassJobHandler {
     @Override
     public Boolean handlerJob(ScheduleJobDetails scheduleJobDetails, JobCheckStatus status) {
         ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.KILLED.getStatus(), status.getMsg());
+        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.KILLED.getStatus(), status.getMsg());
         return Boolean.FALSE;
     }
 

@@ -34,7 +34,7 @@ import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.EJobType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.HttpClient;
@@ -146,7 +146,7 @@ public class FlinkClient extends AbstractClient {
 
     private FilesystemManager filesystemManager;
 
-    private final static Predicate<RdosTaskStatus> IS_END_STATUS = status -> RdosTaskStatus.getStoppedStatus().contains(status.getStatus()) || RdosTaskStatus.NOTFOUND.equals(status);
+    private final static Predicate<TaskStatus> IS_END_STATUS = status -> TaskStatus.getStoppedStatus().contains(status.getStatus()) || TaskStatus.NOTFOUND.equals(status);
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -395,11 +395,11 @@ public class FlinkClient extends AbstractClient {
             return KerberosUtils.login(flinkConfig, () -> {
                 String engineJobId = jobIdentifier.getEngineJobId();
                 String appId = jobIdentifier.getApplicationId();
-                RdosTaskStatus rdosTaskStatus = null;
+                TaskStatus taskStatus = null;
                 try {
-                    rdosTaskStatus = getJobStatus(jobIdentifier);
+                    taskStatus = getJobStatus(jobIdentifier);
 
-                    if (rdosTaskStatus != null && !RdosTaskStatus.getStoppedStatus().contains(rdosTaskStatus.getStatus())) {
+                    if (taskStatus != null && !TaskStatus.getStoppedStatus().contains(taskStatus.getStatus())) {
                         ClusterClient targetClusterClient = flinkClusterClientManager.getClusterClient(jobIdentifier);
                         JobID jobId = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobIdentifier.getEngineJobId()));
 
@@ -424,8 +424,8 @@ public class FlinkClient extends AbstractClient {
                     }
                     return JobResult.createSuccessResult(jobIdentifier.getApplicationId(),jobIdentifier.getEngineJobId());
                 } catch (Exception e) {
-                    if (rdosTaskStatus != null){
-                        logger.warn("taskId: {}, cancel job error jobStatus is: {}", jobIdentifier.getJobId(), rdosTaskStatus.name());
+                    if (taskStatus != null){
+                        logger.warn("taskId: {}, cancel job error jobStatus is: {}", jobIdentifier.getJobId(), taskStatus.name());
                     }
 
                     logger.error("taskId: {} engineJobId:{} applicationId:{} cancelJob error, try to cancel with yarnClient.", jobIdentifier.getJobId(), engineJobId, appId, e);
@@ -461,14 +461,14 @@ public class FlinkClient extends AbstractClient {
      * @return
      */
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) {
         String jobId = jobIdentifier.getJobId();
         String engineJobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
         if (StringUtils.isEmpty(engineJobId)) {
             logger.warn("{} getJobStatus is NOTFOUND, because engineJobId is empty.", jobId);
-            return RdosTaskStatus.NOTFOUND;
+            return TaskStatus.NOTFOUND;
         }
 
         ClusterClient clusterClient = null;
@@ -504,11 +504,11 @@ public class FlinkClient extends AbstractClient {
 
         if (StringUtils.isEmpty(response)) {
             if (StringUtils.isNotEmpty(applicationId)) {
-                RdosTaskStatus rdosTaskStatus = getPerJobStatus(applicationId);
-                logger.info("taskId: {}, try getPerJobStatus with yarnClient, status: {}", jobId, rdosTaskStatus.name());
-                return rdosTaskStatus;
+                TaskStatus taskStatus = getPerJobStatus(applicationId);
+                logger.info("taskId: {}, try getPerJobStatus with yarnClient, status: {}", jobId, taskStatus.name());
+                return taskStatus;
             }
-            return RdosTaskStatus.NOTFOUND;
+            return TaskStatus.NOTFOUND;
         }
 
         try{
@@ -519,15 +519,15 @@ public class FlinkClient extends AbstractClient {
             Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
             Object stateObj = statusMap.get("state");
             if(stateObj == null){
-                return RdosTaskStatus.NOTFOUND;
+                return TaskStatus.NOTFOUND;
             }
 
             String state = (String) stateObj;
             state = StringUtils.upperCase(state);
-            return RdosTaskStatus.getTaskStatus(state);
+            return TaskStatus.getTaskStatus(state);
         }catch (Exception e){
             logger.error("taskId: {}, getJobStatus error: ", jobId, e);
-            return RdosTaskStatus.NOTFOUND;
+            return TaskStatus.NOTFOUND;
         }
     }
 
@@ -536,7 +536,7 @@ public class FlinkClient extends AbstractClient {
      * @param applicationId
      * @return
      */
-    public RdosTaskStatus getPerJobStatus(String applicationId) {
+    public TaskStatus getPerJobStatus(String applicationId) {
         try {
             return KerberosUtils.login(flinkConfig, () -> {
                 ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
@@ -545,46 +545,46 @@ public class FlinkClient extends AbstractClient {
                     YarnApplicationState applicationState = report.getYarnApplicationState();
                     switch (applicationState) {
                         case KILLED:
-                            return RdosTaskStatus.KILLED;
+                            return TaskStatus.KILLED;
                         case NEW:
                         case NEW_SAVING:
-                            return RdosTaskStatus.CREATED;
+                            return TaskStatus.CREATED;
                         case SUBMITTED:
                             //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                            return RdosTaskStatus.WAITCOMPUTE;
+                            return TaskStatus.WAITCOMPUTE;
                         case ACCEPTED:
-                            return RdosTaskStatus.SCHEDULED;
+                            return TaskStatus.SCHEDULED;
                         case RUNNING:
-                            return RdosTaskStatus.RUNNING;
+                            return TaskStatus.RUNNING;
                         case FINISHED:
                             //state 为finished状态下需要兼顾判断finalStatus.
                             FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
                             if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
-                                return RdosTaskStatus.FAILED;
+                                return TaskStatus.FAILED;
                             } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
-                                return RdosTaskStatus.FINISHED;
+                                return TaskStatus.FINISHED;
                             } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
-                                return RdosTaskStatus.KILLED;
+                                return TaskStatus.KILLED;
                             } else if (finalApplicationStatus == FinalApplicationStatus.UNDEFINED) {
-                                return RdosTaskStatus.FAILED;
+                                return TaskStatus.FAILED;
                             } else {
-                                return RdosTaskStatus.RUNNING;
+                                return TaskStatus.RUNNING;
                             }
 
                         case FAILED:
-                            return RdosTaskStatus.FAILED;
+                            return TaskStatus.FAILED;
                         default:
                             throw new PluginDefineException("Unsupported application state");
                     }
                 } catch (YarnException | IOException e) {
                     logger.error("appId: {}, getPerJobStatus with yarnClient error: ", applicationId, e);
-                    return RdosTaskStatus.NOTFOUND;
+                    return TaskStatus.NOTFOUND;
                 }
             }, hadoopConf.getYarnConfiguration());
         } catch (Exception e) {
             logger.error("appId: {}, getPerJobStatus with yarnClient error: ", applicationId, e);
             //防止因为kerberos 认证不过出现notfound最后变为failed
-            return RdosTaskStatus.RUNNING;
+            return TaskStatus.RUNNING;
         }
     }
 
@@ -665,7 +665,7 @@ public class FlinkClient extends AbstractClient {
                 return handleJobLog("", "Get jogLog error, because engineJobId is null", "Job has not submitted to yarn, Please waiting moment.");
             }
             String exceptionUrlPath = String.format(ConfigConstrant.JOB_EXCEPTIONS_URL_FORMAT, engineJobId);
-            RdosTaskStatus jobStatus = getJobStatus(jobIdentifier);
+            TaskStatus jobStatus = getJobStatus(jobIdentifier);
             Boolean isEndStatus = IS_END_STATUS.test(jobStatus);
             Boolean isPerjob = EDeployMode.PERJOB.getType().equals(jobIdentifier.getDeployMode());
 
@@ -993,7 +993,7 @@ public class FlinkClient extends AbstractClient {
             return checkpointMsg;
         }
 
-        RdosTaskStatus taskStatus = RdosTaskStatus.NOTFOUND;
+        TaskStatus taskStatus = TaskStatus.NOTFOUND;
         try {
             String checkpointUrlPath = String.format(ConfigConstrant.JOB_CHECKPOINTS_URL_FORMAT, engineJobId);
             taskStatus = getJobStatus(jobIdentifier);
@@ -1014,12 +1014,12 @@ public class FlinkClient extends AbstractClient {
     }
 
     private boolean existsJobOnFlink(String engineJobId){
-        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null, null));
+        TaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null, null));
         if(taskStatus == null){
             return false;
         }
 
-        if(taskStatus == RdosTaskStatus.RUNNING){
+        if(taskStatus == TaskStatus.RUNNING){
             return true;
         }
 

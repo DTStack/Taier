@@ -146,6 +146,7 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
         }
         executors.add(fillDataJobScheduler);
         executors.add(cycleJobScheduler);
+        executors.add(restartJobScheduler);
 
         executorService = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("ExecutorDealer"));

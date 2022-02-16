@@ -20,32 +20,24 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.constant.TaskStatusConstant;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.TaskStatus;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.dao.domain.BatchSelectSql;
-import com.dtstack.taier.dao.domain.BatchTask;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
-import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.IBatchJobExeService;
+import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
@@ -232,7 +224,7 @@ public class BatchJobService {
                 return resultVO;
             }
 
-            Integer status = TaskStatusConstant.getShowStatus(job.getStatus());
+            Integer status = TaskStatus.getShowStatus(job.getStatus());
             resultVO.setStatus(status);
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");

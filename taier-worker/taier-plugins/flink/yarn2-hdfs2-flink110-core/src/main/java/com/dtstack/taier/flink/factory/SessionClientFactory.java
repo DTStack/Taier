@@ -34,7 +34,7 @@ import com.dtstack.taier.flink.util.FlinkUtil;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
 import com.google.common.collect.Lists;
@@ -572,21 +572,21 @@ public class SessionClientFactory extends AbstractClientFactory {
                 JobExecutionResult executionResult = submitCheckedJobGraph();
                 if (null != executionResult) {
                     final long startTime = System.currentTimeMillis();
-                    RdosTaskStatus lastAppState = RdosTaskStatus.SUBMITTING;
+                    TaskStatus lastAppState = TaskStatus.SUBMITTING;
                     loop:
                     while (true) {
-                        RdosTaskStatus jobStatus = RdosTaskStatus.SUBMITTING;
+                        TaskStatus jobStatus = TaskStatus.SUBMITTING;
                         try {
                             String reqUrl = sessionClientFactory.clusterClient.getWebInterfaceURL() + "/jobs/" + executionResult.getJobID().toString();
                             String response = PoolHttpClient.get(reqUrl);
                             if (response != null) {
                                 JSONObject statusJson = JSON.parseObject(response);
                                 String status = statusJson.getString("state");
-                                jobStatus = RdosTaskStatus.getTaskStatus(status.toUpperCase());
+                                jobStatus = TaskStatus.getTaskStatus(status.toUpperCase());
                             }
                         } catch (Exception e) {
                             LOG.error("", e);
-                            jobStatus = RdosTaskStatus.FAILED;
+                            jobStatus = TaskStatus.FAILED;
                         }
                         if (null == jobStatus) {
                             checkResult = false;

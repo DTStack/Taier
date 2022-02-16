@@ -32,7 +32,7 @@ import com.dtstack.taier.base.util.Splitter;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EJobType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
@@ -632,7 +632,7 @@ public class SparkYarnClient extends AbstractClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
             return KerberosUtils.login(sparkYarnConfig, ()->{
                 String jobId = jobIdentifier.getApplicationId();
@@ -647,43 +647,43 @@ public class SparkYarnClient extends AbstractClient {
                     YarnApplicationState applicationState = report.getYarnApplicationState();
                     switch(applicationState) {
                         case KILLED:
-                            return RdosTaskStatus.KILLED;
+                            return TaskStatus.KILLED;
                         case NEW:
                         case NEW_SAVING:
-                            return RdosTaskStatus.CREATED;
+                            return TaskStatus.CREATED;
                         case SUBMITTED:
                             //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                            return RdosTaskStatus.WAITCOMPUTE;
+                            return TaskStatus.WAITCOMPUTE;
                         case ACCEPTED:
-                            return RdosTaskStatus.SCHEDULED;
+                            return TaskStatus.SCHEDULED;
                         case RUNNING:
-                            return RdosTaskStatus.RUNNING;
+                            return TaskStatus.RUNNING;
                         case FINISHED:
                             //state 为finished状态下需要兼顾判断finalStatus.
                             FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
                             if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                                return RdosTaskStatus.FAILED;
+                                return TaskStatus.FAILED;
                             }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                                return RdosTaskStatus.FINISHED;
+                                return TaskStatus.FINISHED;
                             }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                                return RdosTaskStatus.KILLED;
+                                return TaskStatus.KILLED;
                             }else{
-                                return RdosTaskStatus.RUNNING;
+                                return TaskStatus.RUNNING;
                             }
 
                         case FAILED:
-                            return RdosTaskStatus.FAILED;
+                            return TaskStatus.FAILED;
                         default:
                             throw new PluginDefineException("Unsupported application state");
                     }
                 } catch (Exception e) {
                     logger.error("", e);
-                    return RdosTaskStatus.NOTFOUND;
+                    return TaskStatus.NOTFOUND;
                 }
             }, yarnConf, false);
         } catch (Exception e) {
             logger.error("", e);
-            return RdosTaskStatus.NOTFOUND;
+            return TaskStatus.NOTFOUND;
         }
     }
 
