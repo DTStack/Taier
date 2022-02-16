@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.utils.develop.sync.template;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import lombok.Data;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
  * @author jiangbo
  * @date 2018/7/3 13:33
  */
-@Data
 public class MongoDbBase extends BaseSource{
 
     private String hostPorts = "localhost:27017";
@@ -72,5 +70,53 @@ public class MongoDbBase extends BaseSource{
         if(column.isEmpty()){
             throw new RdosDefineException("column 不能为空");
         }
+    }
+
+    public String getHostPorts() {
+        return hostPorts;
+    }
+
+    public void setHostPorts(String hostPorts) {
+        this.hostPorts = hostPorts;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public List getColumn() {
+        return column;
+    }
+
+    public void setColumn(List column) {
+        this.column = column;
     }
 }

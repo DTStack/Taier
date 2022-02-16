@@ -163,7 +163,8 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         // 记录job
         batchSelectSqlService.addSelectSql(jobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
                 buildSqlVO.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
-        return buildSqlVO.setJobId(jobId);
+        buildSqlVO.setJobId(jobId);
+        return buildSqlVO;
     }
 
     /**
@@ -248,17 +249,16 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
         //设置需要环境参数
         String taskParam = batchTask.getTaskParams();
-
-        return new BuildSqlVO().
-                setSql(sql)
-                .setTaskParam(taskParam)
-                .setIsSelectSql(isSelectSql)
-                .setOriginSql(originSql)
-                .setParsedColumns(parsedColumns)
-                .setTenantId(tenantId)
-                .setTempTable(tempTable)
-                .setTenantId(tenantId)
-                .setUserId(userId);
+        BuildSqlVO buildSqlVO = new BuildSqlVO();
+        buildSqlVO.setSql(sql);
+        buildSqlVO.setTaskParam(taskParam);
+        buildSqlVO.setIsSelectSql(isSelectSql);
+        buildSqlVO.setOriginSql(originSql);
+        buildSqlVO.setParsedColumns(parsedColumns);
+        buildSqlVO.setTenantId(tenantId);
+        buildSqlVO.setTempTable(tempTable);
+        buildSqlVO.setUserId(userId);
+        return buildSqlVO;
     }
 
     private TempJobType getTempJobType(String option) {

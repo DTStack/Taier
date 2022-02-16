@@ -19,14 +19,12 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchTask;
-import lombok.Data;
 
 import java.util.List;
 
 /**
  * @author toutian
  */
-@Data
 public class TaskCatalogueVO extends CatalogueVO {
 
 
@@ -63,5 +61,53 @@ public class TaskCatalogueVO extends CatalogueVO {
         this.setTaskType(task.getTaskType());
         this.setReadWriteLockVO(task.getReadWriteLockVO());
         this.setVersion(task.getVersion());
+    }
+
+    public Integer getScheduleStatus() {
+        return scheduleStatus;
+    }
+
+    public void setScheduleStatus(Integer scheduleStatus) {
+        this.scheduleStatus = scheduleStatus;
+    }
+
+    public Integer getSubmitStatus() {
+        return submitStatus;
+    }
+
+    public void setSubmitStatus(Integer submitStatus) {
+        this.submitStatus = submitStatus;
+    }
+
+    public List<? extends Catalogue> getCatalogues() {
+        return catalogues;
+    }
+
+    public void setCatalogues(List<? extends Catalogue> catalogues) {
+        this.catalogues = catalogues;
+    }
+
+    public List<BatchTask> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<BatchTask> tasks) {
+        this.tasks = tasks;
+    }
+
+    public List<BatchTask> getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(List<BatchTask> dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
+    }
+
+    public List<List<Object>> getLists() {
+        return lists;
+    }
+
+    public void setLists(List<List<Object>> lists) {
+        this.lists = lists;
     }
 }

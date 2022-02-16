@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.utils.develop.sync.template;
 
 
 import com.alibaba.fastjson.JSONObject;
-import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Map;
 /**
  * @author jingzhen
  */
-@Data
 public abstract class HBaseBase extends BaseSource {
     protected Map<String, Object> hbaseConfig;
     protected List<JSONObject> column;
@@ -37,4 +35,60 @@ public abstract class HBaseBase extends BaseSource {
     protected String table;
     protected String remoteDir;
     protected Map<String, Object> sftpConf;
+
+    public Map<String, Object> getHbaseConfig() {
+        return hbaseConfig;
+    }
+
+    public void setHbaseConfig(Map<String, Object> hbaseConfig) {
+        this.hbaseConfig = hbaseConfig;
+    }
+
+    public List<JSONObject> getColumn() {
+        return column;
+    }
+
+    public void setColumn(List<JSONObject> column) {
+        this.column = column;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public String getRemoteDir() {
+        return remoteDir;
+    }
+
+    public void setRemoteDir(String remoteDir) {
+        this.remoteDir = remoteDir;
+    }
+
+    public Map<String, Object> getSftpConf() {
+        return sftpConf;
+    }
+
+    public void setSftpConf(Map<String, Object> sftpConf) {
+        this.sftpConf = sftpConf;
+    }
 }

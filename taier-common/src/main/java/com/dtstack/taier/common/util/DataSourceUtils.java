@@ -8,7 +8,6 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +19,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Vector;
+import java.util.*;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -35,7 +29,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @author: liuxx
  * @date: 2021/3/24
  */
-@Slf4j
 public class DataSourceUtils {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DataSourceUtils.class);
@@ -92,7 +85,7 @@ public class DataSourceUtils {
                 return JSONObject.parseObject(Base64Util.baseDecode(base64Str));
             }
         } catch (Exception e) {
-            log.error("数据源信息解码异常", e);
+            LOGGER.error("数据源信息解码异常", e);
             throw new RdosDefineException("数据源信息解码异常", e);
         }
     }

@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.develop.dto.devlop.DataSourceVO;
-import com.dtstack.taier.develop.web.develop.result.BatchDataSourceResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchDataSourceResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

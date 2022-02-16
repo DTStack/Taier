@@ -2,16 +2,13 @@ package com.dtstack.taier.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * @author 全阅
  * @Description: 数据源表单属性
  * @Date: 2021/3/10
  */
-@Data
-@Accessors(chain = true)
+
 @TableName("datasource_form_field")
 public class DsFormField extends BaseModel<DsFormField> {
 
@@ -105,5 +102,123 @@ public class DsFormField extends BaseModel<DsFormField> {
     @TableField("options")
     private String options;
 
+    public String getName() {
+        return name;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getWidget() {
+        return widget;
+    }
+
+    public void setWidget(String widget) {
+        this.widget = widget;
+    }
+
+    public Integer getRequired() {
+        return required;
+    }
+
+    public void setRequired(Integer required) {
+        this.required = required;
+    }
+
+    public Integer getInvisible() {
+        return invisible;
+    }
+
+    public void setInvisible(Integer invisible) {
+        this.invisible = invisible;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public String getPlaceHold() {
+        return placeHold;
+    }
+
+    public void setPlaceHold(String placeHold) {
+        this.placeHold = placeHold;
+    }
+
+    public String getRequestApi() {
+        return requestApi;
+    }
+
+    public void setRequestApi(String requestApi) {
+        this.requestApi = requestApi;
+    }
+
+    public Integer getIsLink() {
+        return isLink;
+    }
+
+    public void setIsLink(Integer isLink) {
+        this.isLink = isLink;
+    }
+
+    public String getValidInfo() {
+        return validInfo;
+    }
+
+    public void setValidInfo(String validInfo) {
+        this.validInfo = validInfo;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
+
+    public String getTypeVersion() {
+        return typeVersion;
+    }
+
+    public void setTypeVersion(String typeVersion) {
+        this.typeVersion = typeVersion;
+    }
+
+    public String getOptions() {
+        return options;
+    }
+
+    public void setOptions(String options) {
+        this.options = options;
+    }
 }

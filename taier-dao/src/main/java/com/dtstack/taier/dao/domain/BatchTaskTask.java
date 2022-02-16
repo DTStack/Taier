@@ -18,12 +18,10 @@
 
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
 
 /**
  * @author sishu.yss
  */
-@Data
 public class BatchTaskTask extends BaseEntity {
 
     /**
@@ -41,4 +39,27 @@ public class BatchTaskTask extends BaseEntity {
      */
     private Long tenantId;
 
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Long getParentTaskId() {
+        return parentTaskId;
+    }
+
+    public void setParentTaskId(Long parentTaskId) {
+        this.parentTaskId = parentTaskId;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
 }

@@ -19,7 +19,6 @@ import com.dtstack.taier.develop.mapstruct.datasource.DsListTransfer;
 import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
  * @Date: 2021/3/10
  */
 @Service
-@Slf4j
 public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
 
 
