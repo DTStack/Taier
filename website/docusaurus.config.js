@@ -12,7 +12,7 @@ const config = {
     baseUrl: '/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
-    favicon: 'img/favicon.ico',
+    favicon: 'img/favicon.png',
     organizationName: 'DTStack', // Usually your GitHub org/user name.
     projectName: 'Taiga', // Usually your repo name.
     presets: [
