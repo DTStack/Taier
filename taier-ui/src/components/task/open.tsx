@@ -39,7 +39,7 @@ interface OpenProps extends molecule.model.IEditor {
 const TASK_TYPE_OPTIONS = [
 	{
 		value: TASK_TYPE_ENUM.SQL,
-		text: 'SparkSql',
+		text: 'SparkSQL',
 	},
 	{
 		value: TASK_TYPE_ENUM.SYNC,

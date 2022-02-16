@@ -16,13 +16,13 @@ import {
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
 } from '@/constant';
-import { goToTaskDev, removePopUpMenu } from '@/utils';
+import { getTodayTime, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
 import './schedule.scss';
 
-const { confirm, warning } = Modal;
+const { confirm } = Modal;
 
 // Form 表单类型
 interface IFormFieldProps {
@@ -33,7 +33,7 @@ interface IFormFieldProps {
 
 // 接口请求类型
 interface IRequestParams {
-	ownerId: string;
+	operatorId: string;
 	taskName: string;
 	cycEndDay: number;
 	cycStartDay: number;
@@ -55,8 +55,8 @@ export interface IScheduleTaskProps {
 	cycTime: string;
 	endExecTime: string;
 	execTime: string;
-	ownerId: number;
-	ownerName: string;
+	operatorId: number;
+	operatorName: string;
 	periodType: TASK_PERIOD_ENUM;
 	retryNum: number;
 	startExecTime: string;
@@ -174,10 +174,7 @@ export default () => {
 	const batchReloadJobs = () => {
 		const selected = actionRef.current?.selectedRowKeys || [];
 		if (!selected || selected.length <= 0) {
-			warning({
-				title: '提示',
-				content: '您没有选择任何需要重跑的任务！',
-			});
+			message.warning('您没有选择任何需要重跑的任务！');
 			return;
 		}
 
@@ -199,7 +196,7 @@ export default () => {
 				},
 			});
 		} else {
-			warning({
+			Modal.warning({
 				title: '提示',
 				content: `
                     只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
@@ -213,10 +210,7 @@ export default () => {
 	const batchKillJobs = () => {
 		const selected = actionRef.current?.selectedRowKeys || [];
 		if (!selected || selected.length <= 0) {
-			warning({
-				title: '提示',
-				content: '您没有选择任何需要杀死的任务！',
-			});
+			message.warning('您没有选择任何需要杀死的任务！');
 			return;
 		}
 
@@ -237,11 +231,9 @@ export default () => {
 				},
 			});
 		} else {
-			warning({
+			Modal.warning({
 				title: '提示',
-				content: `
-                   “失败、取消、成功、冻结”状态和“已删除”的任务，不能被杀死！
-                `,
+				content: `“失败、取消、成功、冻结”状态和“已删除”的任务，不能被杀死！`,
 			});
 		}
 	};
@@ -250,10 +242,7 @@ export default () => {
 	const reloadCurrentJob = () => {
 		const selected = actionRef.current?.selectedRowKeys || [];
 		if (!selected || selected.length <= 0) {
-			warning({
-				title: '提示',
-				content: '您没有选择任何需要重跑的任务！',
-			});
+			message.warning('您没有选择任何需要重跑的任务！');
 			return;
 		}
 
@@ -276,7 +265,7 @@ export default () => {
 				},
 			});
 		} else {
-			warning({
+			Modal.warning({
 				title: '提示',
 				content: `
                         只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
@@ -439,9 +428,9 @@ export default () => {
 				sorter: true,
 			},
 			{
-				title: '责任人',
-				dataIndex: 'ownerName',
-				key: 'ownerName',
+				title: '操作人',
+				dataIndex: 'operatorName',
+				key: 'operatorName',
 				width: 200,
 				fixed: 'right',
 			},
@@ -467,7 +456,7 @@ export default () => {
 
 	const convertToParams = (values: Partial<IFormFieldProps>) => {
 		const params: Partial<IRequestParams> = {
-			ownerId: values.owner?.toString(),
+			operatorId: values.owner?.toString(),
 			taskName: values.name,
 		};
 
@@ -547,14 +536,21 @@ export default () => {
 							formItemProps: {
 								name: 'cycDate',
 								label: '计划时间',
+								initialValue: getTodayTime(),
 							},
 							slotProps: {
 								showTime: true,
 								format: 'YYYY/MM/DD HH:mm:ss',
 								ranges: {
-									今天: [moment(), moment()],
-									最近7天: [moment().subtract(7, 'days'), moment()],
-									最近30天: [moment().subtract(30, 'days'), moment()],
+									今天: getTodayTime(),
+									最近7天: [
+										getTodayTime()[0].subtract(7, 'days'),
+										getTodayTime()[1],
+									],
+									最近30天: [
+										getTodayTime()[0].subtract(30, 'days'),
+										getTodayTime()[1],
+									],
 								},
 							},
 						},

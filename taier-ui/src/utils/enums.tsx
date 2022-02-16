@@ -93,11 +93,13 @@ export function taskStatusText(type: TASK_STATUS) {
 		case TASK_STATUS.SUBMITTING:
 			return '提交中';
 		case TASK_STATUS.RESTARTING:
-			return '重启中';
+			return '重试中';
 		case TASK_STATUS.SET_SUCCESS:
 			return '设置成功';
 		case TASK_STATUS.KILLED:
 			return '已停止';
+		case TASK_STATUS.SUBMITTED:
+			return '已提交';
 		case TASK_STATUS.WAIT_RUN:
 			return '等待运行';
 		case TASK_STATUS.WAIT_COMPUTE:
@@ -108,6 +110,8 @@ export function taskStatusText(type: TASK_STATUS) {
 			return '上游失败';
 		case TASK_STATUS.DO_FAIL:
 			return '失败';
+		case TASK_STATUS.COMPUTING:
+			return '计算中';
 		case TASK_STATUS.AUTO_CANCEL:
 			return '自动取消';
 		default:
