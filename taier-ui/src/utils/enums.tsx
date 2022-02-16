@@ -1,6 +1,7 @@
 import Circle from '@/components/circle';
 import {
 	DATA_SOURCE_ENUM,
+	DATA_SOURCE_TEXT,
 	ENGINE_SOURCE_TYPE_ENUM,
 	RESOURCE_TYPE,
 	TASK_PERIOD_ENUM,
@@ -119,110 +120,110 @@ export function taskStatusText(type: TASK_STATUS) {
 	}
 }
 
-export function linkMapping(key?: DATA_SOURCE_ENUM) {
+export function linkMapping(key?: string) {
 	switch (key) {
-		case DATA_SOURCE_ENUM.MYSQL:
-		case DATA_SOURCE_ENUM.CARBONDATA:
-		case DATA_SOURCE_ENUM.CLICKHOUSE:
-		case DATA_SOURCE_ENUM.POLAR_DB_For_MySQL:
-		case DATA_SOURCE_ENUM.ORACLE:
-		case DATA_SOURCE_ENUM.SQLSERVER:
-		case DATA_SOURCE_ENUM.SQLSERVER_2017_LATER:
-		case DATA_SOURCE_ENUM.DB2:
-		case DATA_SOURCE_ENUM.POSTGRESQL:
-		case DATA_SOURCE_ENUM.TIDB:
-		case DATA_SOURCE_ENUM.KINGBASE8:
-		case DATA_SOURCE_ENUM.GBASE_8A:
-		case DATA_SOURCE_ENUM.PRESTO:
-		case DATA_SOURCE_ENUM.VERTICA:
-		case DATA_SOURCE_ENUM.ADB_FOR_PG:
-		case DATA_SOURCE_ENUM.HIVE3_CDP:
-		case DATA_SOURCE_ENUM.DORIS:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.MYSQL]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.CARBONDATA]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.CLICKHOUSE]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.POLAR_DB_For_MySQL]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.ORACLE]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.SQLSERVER]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.SQLSERVER_2017_LATER]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.DB2]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.POSTGRESQL]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.TIDB]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KINGBASE8]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.GBASE_8A]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.PRESTO]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.VERTICA]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.ADB_FOR_PG]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HIVE3_CDP]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.DORIS]:
 			return [
 				['jdbcUrl', 'jdbcUrl'],
 				['username', '用户名'],
 			];
-		case DATA_SOURCE_ENUM.KUDU:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KUDU]:
 			return [['hostPorts', '集群地址']];
-		case DATA_SOURCE_ENUM.IMPALA:
-		case DATA_SOURCE_ENUM.HIVE:
-		case DATA_SOURCE_ENUM.HIVE1X:
-		case DATA_SOURCE_ENUM.HIVE3X:
-		case DATA_SOURCE_ENUM.INCEPTOR:
-		case DATA_SOURCE_ENUM.SPARKTHRIFT:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.IMPALA]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HIVE]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HIVE1X]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HIVE3X]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.INCEPTOR]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.SPARKTHRIFT]:
 			return [
 				['jdbcUrl', 'jdbcUrl'],
 				['defaultFS', 'defaultFS'],
 			];
-		case DATA_SOURCE_ENUM.HBASE:
-		case DATA_SOURCE_ENUM.HBASE2:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HBASE]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HBASE2]:
 			return [['hbase_quorum', 'Zookeeper集群地址']];
-		case DATA_SOURCE_ENUM.HDFS:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.HDFS]:
 			return [['defaultFS', 'defaultFS']];
-		case DATA_SOURCE_ENUM.FTP:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.FTP]:
 			return [
 				['protocol', 'Protocol'],
 				['host', 'Host'],
 				['port', 'Port'],
 				['username', '用户名'],
 			];
-		case DATA_SOURCE_ENUM.MAXCOMPUTE:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.MAXCOMPUTE]:
 			return [
 				['endPoint', 'endPoint'],
 				['project', '项目名称'],
 				['accessId', 'Access Id'],
 			];
-		case DATA_SOURCE_ENUM.ES:
-		case DATA_SOURCE_ENUM.ES6:
-		case DATA_SOURCE_ENUM.ES7:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.ES]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.ES6]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.ES7]:
 			return [['address', '集群地址']];
-		case DATA_SOURCE_ENUM.REDIS:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.REDIS]:
 			return [
 				['hostPort', '地址'],
 				['database', '数据库'],
 			];
-		case DATA_SOURCE_ENUM.MONGODB:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.MONGODB]:
 			return [
 				['hostPorts', '集群地址'],
 				['database', '数据库'],
 			];
-		case DATA_SOURCE_ENUM.KAFKA_11:
-		case DATA_SOURCE_ENUM.KAFKA_09:
-		case DATA_SOURCE_ENUM.KAFKA_10:
-		case DATA_SOURCE_ENUM.KAFKA:
-		case DATA_SOURCE_ENUM.KAFKA_2X:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KAFKA_11]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KAFKA_09]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KAFKA_10]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KAFKA]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.KAFKA_2X]:
 			return [
 				['address', '集群地址'],
 				['brokerList', 'broker地址'],
 			];
-		case DATA_SOURCE_ENUM.EMQ:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.EMQ]:
 			return [['address', 'Broker URL']];
-		case DATA_SOURCE_ENUM.S3:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.S3]:
 			return [['hostname', 'hostname']];
-		case DATA_SOURCE_ENUM.WEBSOCKET:
-		case DATA_SOURCE_ENUM.SOCKET:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.WEBSOCKET]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.SOCKET]:
 			return [['url', 'url']];
-		case DATA_SOURCE_ENUM.GREENPLUM6:
-		case DATA_SOURCE_ENUM.PHOENIX:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.GREENPLUM6]:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.PHOENIX]:
 			return [['jdbcUrl', 'jdbcUrl']];
-		case DATA_SOURCE_ENUM.Kylin:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.Kylin]:
 			return [
 				['authURL', 'authURL'],
 				['username', '用户名'],
 			];
-		case DATA_SOURCE_ENUM.SOLR:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.SOLR]:
 			return [
 				['zkHost', '集群地址'],
 				['chroot', 'chroot路径'],
 			];
-		case DATA_SOURCE_ENUM.INFLUXDB:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.INFLUXDB]:
 			return [
 				['url', 'URL'],
 				['username', '用户名'],
 			];
-		case DATA_SOURCE_ENUM.AWS_S3:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.AWS_S3]:
 			return [['accessKey', 'ACCESS KEY']];
-		case DATA_SOURCE_ENUM.OPENTSDB:
+		case DATA_SOURCE_TEXT[DATA_SOURCE_ENUM.OPENTSDB]:
 			return [['url', 'URL']];
 		default:
 			break;
