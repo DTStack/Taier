@@ -611,7 +611,7 @@ public class BatchServerLogService {
     }
 
 
-    public String formatPerfLogInfo(final String applicationId, final String jobId, final long startTime, final long endTime, final Long tenantId) {
+    public String formatPerfLogInfo(final String engineJobId, final String jobId, final long startTime, final long endTime, final Long tenantId) {
 
         final ScheduleJob job = scheduleJobService.getByJobId(jobId);
         if (Objects.isNull(job)) {
@@ -638,13 +638,13 @@ public class BatchServerLogService {
             gapStartTime = endTime - 60 * 1000 * 60;
         }
 
-        final IMetric numReadMetric = MetricBuilder.buildMetric("numRead", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric byteReadMetric = MetricBuilder.buildMetric("byteRead", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric readDurationMetric = MetricBuilder.buildMetric("readDuration", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric numWriteMetric = MetricBuilder.buildMetric("numWrite", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric byteWriteMetric = MetricBuilder.buildMetric("byteWrite", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric writeDurationMetric = MetricBuilder.buildMetric("writeDuration", applicationId, gapStartTime, endTime, prometheusMetricQuery);
-        final IMetric numErrorMetric = MetricBuilder.buildMetric("nErrors", applicationId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric numReadMetric = MetricBuilder.buildMetric("numRead", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric byteReadMetric = MetricBuilder.buildMetric("byteRead", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric readDurationMetric = MetricBuilder.buildMetric("readDuration", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric numWriteMetric = MetricBuilder.buildMetric("numWrite", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric byteWriteMetric = MetricBuilder.buildMetric("byteWrite", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric writeDurationMetric = MetricBuilder.buildMetric("writeDuration", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
+        final IMetric numErrorMetric = MetricBuilder.buildMetric("nErrors", engineJobId, gapStartTime, endTime, prometheusMetricQuery);
         final SyncStatusLogInfoVO formatPerfLogInfo = this.getFormatPerfLogInfo(numReadMetric, byteReadMetric, readDurationMetric, numWriteMetric, byteWriteMetric, writeDurationMetric, numErrorMetric);
         return formatPerfLogInfo.buildReadableLog();
     }
