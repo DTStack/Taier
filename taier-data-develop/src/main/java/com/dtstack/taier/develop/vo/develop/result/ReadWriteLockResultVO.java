@@ -32,9 +32,6 @@ public class ReadWriteLockResultVO{
     @ApiModelProperty(value = "检查结果")
     private Integer result = 0;
 
-    @ApiModelProperty(value = "是否持有锁", example = "false")
-    private Boolean getLock = false;
-
     @ApiModelProperty(value = "锁名称")
     private String lockName;
 
@@ -76,14 +73,6 @@ public class ReadWriteLockResultVO{
 
     public void setResult(Integer result) {
         this.result = result;
-    }
-
-    public Boolean getGetLock() {
-        return getLock;
-    }
-
-    public void setGetLock(Boolean getLock) {
-        this.getLock = getLock;
     }
 
     public String getLockName() {
