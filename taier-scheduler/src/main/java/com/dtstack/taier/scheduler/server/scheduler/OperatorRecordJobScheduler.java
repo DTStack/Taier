@@ -14,10 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +64,8 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
                     scheduleJobDetailsList.add(scheduleJobDetails);
                 }
                 return scheduleJobDetailsList;
+            } else {
+                removeOperatorRecord(Lists.newArrayList(jobIds));
             }
         }
         return Lists.newArrayList();

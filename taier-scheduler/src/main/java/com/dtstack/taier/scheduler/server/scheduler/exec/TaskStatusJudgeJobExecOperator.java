@@ -40,7 +40,9 @@ public class TaskStatusJudgeJobExecOperator implements JudgeJobExecOperator {
         if (EScheduleStatus.STOP.getVal().equals(scheduleTaskShade.getScheduleStatus())) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.TASK_STATUS_STOP);
-            checkRunInfo.setLogInfo(String.format(JobCheckStatus.TASK_STATUS_STOP.getMsg(),scheduleTaskShade.getName(),scheduleTaskShade.getScheduleStatus()));
+            checkRunInfo.setLogInfo(String.format(
+                    JobCheckStatus.TASK_STATUS_STOP.getMsg(),scheduleTaskShade.getName(),
+                    EScheduleStatus.getStatus(scheduleTaskShade.getScheduleStatus())));
             return checkRunInfo;
         }
 
@@ -49,7 +51,9 @@ public class TaskStatusJudgeJobExecOperator implements JudgeJobExecOperator {
                 && EScheduleType.NORMAL_SCHEDULE.getType().equals(scheduleJob.getType())) {
             checkRunInfo.setPass(Boolean.FALSE);
             checkRunInfo.setStatus(JobCheckStatus.TASK_STATUS_STOP);
-            checkRunInfo.setLogInfo(String.format(JobCheckStatus.TASK_STATUS_STOP.getMsg(),scheduleTaskShade.getName(),scheduleTaskShade.getScheduleStatus()));
+            checkRunInfo.setLogInfo(String.format(
+                    JobCheckStatus.TASK_STATUS_STOP.getMsg(),scheduleTaskShade.getName(),
+                    EScheduleStatus.getStatus(scheduleTaskShade.getScheduleStatus())));
             return checkRunInfo;
         }
 
