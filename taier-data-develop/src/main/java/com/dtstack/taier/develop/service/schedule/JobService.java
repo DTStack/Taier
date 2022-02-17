@@ -414,6 +414,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      */
     private void calculateStatusCount(ReturnFillDataListVO fillDataReturnListVO, Map<Integer, IntSummaryStatistics> statusCount) {
         Long unSubmit = statusCount.get(TaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(TaskStatus.UNSUBMIT.getStatus()).getSum();
+        Long computing = statusCount.get(TaskStatus.COMPUTING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.COMPUTING.getStatus()).getSum();
         Long running = statusCount.get(TaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.RUNNING.getStatus()).getSum();
         Long notFound = statusCount.get(TaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(TaskStatus.NOTFOUND.getStatus()).getSum();
         Long finished = statusCount.get(TaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FINISHED.getStatus()).getSum();
@@ -424,7 +425,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Long frozen = statusCount.get(TaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FROZEN.getStatus()).getSum();
 
         fillDataReturnListVO.setFinishedJobSum(finished);
-        fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen);
+        fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen + computing);
         fillDataReturnListVO.setDoneJobSum(failed + canceled + frozen + finished);
     }
 
