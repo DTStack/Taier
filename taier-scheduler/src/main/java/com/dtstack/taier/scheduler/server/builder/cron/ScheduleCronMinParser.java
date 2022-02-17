@@ -30,7 +30,7 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 
 public class ScheduleCronMinParser implements IScheduleConfParser {
 
-    private static final String cronFormat = "0 0/${gapMin} ${beginHour}-${endHour} * * ?";
+    private static final String cronFormat = "0 ${beginMin}/${gapMin} ${beginHour}-${endHour} * * ?";
 
     @Override
     public String parse(ScheduleConf scheduleConf) {
@@ -42,15 +42,26 @@ public class ScheduleCronMinParser implements IScheduleConfParser {
             throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endHour"));
         }
 
+        if (scheduleConf.getBeginMin() == null) {
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"beginMin"));
+        }
+
+        if (scheduleConf.getEndMin() == null) {
+            throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"endMin"));
+        }
+
         if (scheduleConf.getGapMin() == null) {
             throw new RdosDefineException(String.format(ScheduleConfManager.CustomError.ERROR_INFO,scheduleConf.getPeriodType(),"gapMin"));
         }
 
         int beginHour = scheduleConf.getBeginHour();
         int endHour = scheduleConf.getEndHour();
+        int beginMin = scheduleConf.getBeginMin();
         int gapNum = scheduleConf.getGapMin();
 
         return cronFormat.replace("${gapMin}", gapNum + "")
-                .replace("${beginHour}", beginHour + "").replace("${endHour}", endHour-1 + "");
+                .replace("${beginMin}",beginMin+"")
+                .replace("${beginHour}", beginHour + "")
+                .replace("${endHour}", endHour + "");
     }
 }
