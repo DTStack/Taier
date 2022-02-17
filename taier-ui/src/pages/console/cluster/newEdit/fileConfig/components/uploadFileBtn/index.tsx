@@ -78,6 +78,7 @@ export default function UploadFile({
 				name={formField}
 				initialValue={fileInfo?.value || ''}
 				rules={rules ?? []}
+				hidden
 			>
 				<div />
 			</FormItem>
@@ -98,30 +99,36 @@ export default function UploadFile({
 				)}
 			</FormItem>
 			<FormItem noStyle shouldUpdate={(pre, cur) => pre[formField] !== cur[formField]}>
-				{({ getFieldValue }) =>
-					getFieldValue(formField) &&
-					!notDesc && (
-						<span className="config-file">
-							<PaperClipOutlined />
-							<Tooltip title={fileName} placement="topLeft">
-								{fileName}
-							</Tooltip>
-							{icons ?? icons}
-							{!deleteIcon
-								? !view && (
-										<DeleteOutlined
-											onClick={() => {
-												form.setFieldsValue({
-													[formField]: '',
-												});
-												deleteFile?.();
-											}}
-										/>
-								  )
-								: null}
-						</span>
-					)
-				}
+				{({ getFieldValue }) => {
+					const field = getFieldValue(formField);
+					return (
+						getFieldValue(formField) &&
+						!notDesc && (
+							<span className="config-file">
+								<PaperClipOutlined />
+								<Tooltip
+									title={typeof field === 'string' ? field : field.name}
+									placement="topLeft"
+								>
+									{typeof field === 'string' ? field : field.name}
+								</Tooltip>
+								{icons ?? icons}
+								{!deleteIcon
+									? !view && (
+											<DeleteOutlined
+												onClick={() => {
+													form.setFieldsValue({
+														[formField]: '',
+													});
+													deleteFile?.();
+												}}
+											/>
+									  )
+									: null}
+							</span>
+						)
+					);
+				}}
 			</FormItem>
 		</FormItem>
 	);
