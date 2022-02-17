@@ -271,12 +271,12 @@ public class BatchJobService {
                 }
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
 
-                String applicationId = "";
+                String engineJobId = "";
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
-                    applicationId = engineEntities.get(0).getEngineJobId();
+                    engineJobId = engineEntities.get(0).getEngineJobId();
                 }
                 final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis(): job.getExecStartTime().getTime();
-                final String perf = StringUtils.isBlank(applicationId) ? null : this.batchServerLogService.formatPerfLogInfo(applicationId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
+                final String perf = StringUtils.isBlank(engineJobId) ? null : this.batchServerLogService.formatPerfLogInfo(engineJobId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
                 if (StringUtils.isNotBlank(perf)) {
                     logBuild.append(perf.replace("\n", "  "));
                 }
