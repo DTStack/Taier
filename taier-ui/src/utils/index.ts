@@ -540,7 +540,9 @@ export function goToTaskDev(record: { id: string | number; [key: string]: any })
 		query: {},
 	});
 	// Close drawer
-	updateDrawer({ id: 'root', visible: false });
+	updateDrawer({ id: 'root', visible: false, renderContent: () => null });
+	// clear popupMenu
+	removePopUpMenu();
 }
 
 /**

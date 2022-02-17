@@ -108,7 +108,7 @@ export default function LogInfo(props: ILogInfoProps) {
 		let text = '';
 		try {
 			const log: Record<string, any> = props.log
-				? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r'))
+				? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t'))
 				: {};
 			const errors = log['all-exceptions'] || '';
 			const { engineLogErr } = log;
