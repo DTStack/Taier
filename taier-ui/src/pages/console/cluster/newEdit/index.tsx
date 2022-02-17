@@ -687,6 +687,7 @@ export default forwardRef((_, ref) => {
 																	<Form
 																		preserve={false}
 																		className="dt-cluster-content"
+																		scrollToFirstError
 																		form={form}
 																	>
 																		<FileConfig

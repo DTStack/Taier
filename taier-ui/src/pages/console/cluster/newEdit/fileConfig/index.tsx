@@ -47,6 +47,7 @@ import {
 	COMPONENT_CONFIG_NAME,
 } from '@/constant';
 import { convertToStr } from '@/utils';
+import { cloneDeep } from 'lodash';
 import './index.scss';
 
 interface IProps {
@@ -251,7 +252,7 @@ export default function FileConfig({
 				deployType,
 				clusterId: clusterInfo?.clusterId ?? '',
 				componentCode: typeCode,
-				componentVersion: versionName,
+				versionName,
 			};
 			res = await Api.uploadKerberos(params);
 			getPrincipalsList(file);
@@ -282,13 +283,17 @@ export default function FileConfig({
 				}
 				case FILE_TYPE.PARAMES:
 					setValue();
-					setValue();
 					break;
-				case FILE_TYPE.CONFIGS:
-					form.setFieldsValue({
-						[`${typeCode}.specialConfig`]: res.data[0],
-					});
+				case FILE_TYPE.CONFIGS: {
+					// use setFields instead of setFieldsValue because there is a merge action in setFieldsValue
+					form.setFields([
+						{
+							name: `${typeCode}.specialConfig`,
+							value: cloneDeep(res.data[0]),
+						},
+					]);
 					break;
+				}
 				default:
 					break;
 			}
