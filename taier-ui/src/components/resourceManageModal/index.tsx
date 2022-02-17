@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Select, message, Form } from 'antd';
 import Api from '../../api/console';
 import { formItemLayout } from '@/constant';
 import type { IClusterProps } from '../bindCommModal';
+import api from '@/api/console';
 import './index.scss';
 
 const { Option } = Select;
@@ -38,9 +39,13 @@ interface IResourceManageModalProps {
 	clusterId: number;
 	tenantId?: number;
 	clusterList: IClusterProps[];
-	queueList?: { queueName: string }[];
 	onCancel?: () => void;
 	onOk?: () => void;
+}
+
+interface IQueueListProps {
+	queueId: number;
+	queueName: string;
 }
 
 export default ({
@@ -50,20 +55,21 @@ export default ({
 	clusterId,
 	tenantId,
 	isBindTenant = false,
-	queueList = [],
+	// queueList = [],
 	onCancel,
 	onOk,
 }: IResourceManageModalProps) => {
 	const [form] = Form.useForm();
 	const [isLoading, setLoading] = useState(false);
+	const [queueList, setQueueList] = useState<IQueueListProps[]>([]);
 
 	const getServiceParam = () => {
 		form.validateFields().then((values) => {
 			setLoading(true);
 			Api.switchQueue({
-				queueName: values?.queueId,
+				queueName: queueList.find((q) => q.queueId === values.queueId)!.queueName,
 				tenantId,
-				clusterId
+				clusterId,
 			})
 				.then((res) => {
 					if (res.code === 1) {
@@ -75,6 +81,17 @@ export default ({
 					setLoading(false);
 				});
 		});
+	};
+
+	const getQueueList = async (value: number) => {
+		const res = await api.getEnginesByCluster({ clusterId: value });
+		if (res.code) {
+			const engines = res.data.engines || [];
+			const hadoopEngine = engines.find((e: any) => e.engineName === 'Hadoop');
+			if (hadoopEngine) {
+				setQueueList(hadoopEngine.queues || []);
+			}
+		}
 	};
 
 	const handleCancel = () => {
@@ -91,6 +108,12 @@ export default ({
 			},
 		});
 	};
+
+	useEffect(() => {
+		if (visible) {
+			getQueueList(clusterId);
+		}
+	}, [visible]);
 
 	return (
 		<Modal
@@ -120,7 +143,7 @@ export default ({
 					<Select allowClear placeholder="请选择资源队列">
 						{queueList.map((item) => {
 							return (
-								<Option key={item.queueName} value={item.queueName}>
+								<Option key={item.queueId} value={item.queueId}>
 									{item.queueName}
 								</Option>
 							);

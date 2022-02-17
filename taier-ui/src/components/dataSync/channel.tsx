@@ -283,7 +283,7 @@ class ChannelForm extends React.Component<any, any> {
 						</FormItem>
 						{!isStandeAlone && (
 							<>
-								<FormItem
+								{/* <FormItem
 									{...formItemLayout}
 									label={
 										<span>
@@ -297,7 +297,7 @@ class ChannelForm extends React.Component<any, any> {
 										rules: [],
 										initialValue: !!setting.isSaveDirty,
 									})(<Checkbox>记录保存</Checkbox>)}
-								</FormItem>
+								</FormItem> */}
 								<FormItem
 									{...formItemLayout}
 									label={
