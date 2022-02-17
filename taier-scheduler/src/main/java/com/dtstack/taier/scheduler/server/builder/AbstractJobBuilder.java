@@ -301,13 +301,13 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
             DateTime dateTime = new DateTime(triggerRange.getRight());
 
             if (endMin != null && endMin > 0 && endMin < 60) {
-                dateTime.withMinuteOfHour(endMin);
+                dateTime = dateTime.withMinuteOfHour(endMin);
             }
 
             if (endHour != null && endHour > 0 && endHour <= 31) {
-                dateTime.withDayOfMonth(endHour);
+                dateTime = dateTime.withHourOfDay(endHour);
             }
-            
+
             return dateTime.toDate();
         }
 
