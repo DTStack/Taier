@@ -47,7 +47,9 @@ public class PluginWrapper {
             deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
         }
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
-        return clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue);
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue);
+        pluginInfo.put(DEPLOY_MODEL,deployMode.getType());
+        return pluginInfo;
     }
     public Map<String, Object> wrapperPluginInfo(Integer taskType,String componentVersion, Long tenantId,Integer deployMode) {
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
