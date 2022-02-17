@@ -163,9 +163,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text.vCores}</span>
+									<span style={{ margin: 5 }}>{text?.vCores}</span>
 								</span>
 							);
 						},
@@ -177,9 +177,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text.vCores}</span>
+									<span style={{ margin: 5 }}>{text?.vCores}</span>
 								</span>
 							);
 						},
@@ -191,9 +191,9 @@ export default ({
 							return (
 								<span>
 									memory:
-									<span style={{ margin: 5 }}>{text.memory},&nbsp;</span>
+									<span style={{ margin: 5 }}>{text?.memory},&nbsp;</span>
 									vCores:
-									<span style={{ margin: 5 }}>{text.vCores}</span>
+									<span style={{ margin: 5 }}>{text?.vCores}</span>
 								</span>
 							);
 						},

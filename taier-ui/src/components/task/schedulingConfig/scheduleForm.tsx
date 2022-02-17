@@ -79,13 +79,13 @@ const GAP_OPTIONS = new Array(11).fill(1).map((_, i) => ({
  * 小时间隔默认下拉，1小时，2小时...,23小时
  */
 const GAP_HOUR_OPTIONS = new Array(24).fill(1).map((_, i) => ({
-	label: `${(i + 1)}小时`,
-	value: ((i + 1)).toString(),
+	label: `${i + 1}小时`,
+	value: (i + 1).toString(),
 }));
 /**
  * 星期默认下拉选项
  */
-const WEEKS_OPTIONS = ['一', '二', '三', '四', '五', '六', '天'].map((day, index) => ({
+const WEEKS_OPTIONS = ['天', '一', '二', '三', '四', '五', '六'].map((day, index) => ({
 	label: `星期${day}`,
 	value: (index + 1).toString(),
 }));

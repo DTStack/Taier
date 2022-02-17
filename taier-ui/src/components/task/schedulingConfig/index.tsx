@@ -33,6 +33,7 @@ import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/inte
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import moment from 'moment';
+import { isArray } from 'lodash';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -214,6 +215,14 @@ export default function SchedulingConfig({
 					);
 				}
 			});
+
+			if (formData.weekDay && isArray(formData.weekDay)) {
+				formData.weekDay = formData.weekDay.join(',');
+			}
+			if (formData.day && isArray(formData.day)) {
+				formData.day = formData.day.join(',');
+			}
+
 			const newData = {
 				scheduleConf: JSON.stringify(formData),
 			};
