@@ -78,7 +78,7 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
                             || TaskStatus.PARENTFAILED.getStatus().equals(status)) {
                         checkRunInfo.setPass(Boolean.FALSE);
                         checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_EXCEPTION);
-                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_EXCEPTION.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId()));
+                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_EXCEPTION.getMsg(),parentScheduleJob.getJobName(),parentScheduleJob.getJobId()));
                         return checkRunInfo;
                     }
 
@@ -86,7 +86,7 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
                     if (TaskStatus.FROZEN.getStatus().equals(status) && !RelyType.SELF_RELIANCE.getType().equals(jobKeyType)) {
                         checkRunInfo.setPass(Boolean.FALSE);
                         checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_FROZEN);
-                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_FROZEN.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId()));
+                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_FROZEN.getMsg(),parentScheduleJob.getJobName(),parentScheduleJob.getJobId()));
                         return checkRunInfo;
                     }
 

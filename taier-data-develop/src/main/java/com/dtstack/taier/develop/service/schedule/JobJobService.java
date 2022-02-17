@@ -16,6 +16,7 @@ import com.dtstack.taier.develop.vo.schedule.JobNodeVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobDisplayVO;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.dto.schedule.QueryJobDisplayDTO;
+import com.dtstack.taier.scheduler.enums.RelyType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -284,6 +285,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向下查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getParentJobKey, jobKeys)
+                        .eq(ScheduleJobJob::getJobKeyType, RelyType.UPSTREAM.getType())
                         .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 
@@ -293,6 +295,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向上查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getJobKey, jobKeys)
+                        .eq(ScheduleJobJob::getJobKeyType, RelyType.UPSTREAM.getType())
                         .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 
