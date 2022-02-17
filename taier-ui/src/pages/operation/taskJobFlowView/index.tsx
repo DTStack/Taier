@@ -542,7 +542,9 @@ class TaskJobFlowView extends React.Component<any, any> {
 					maskClosable={true}
 				>
 					<LogInfo
-						log={taskLog.logInfo}
+						log={taskLog.logInfo || taskLog.engineLog}
+						sqlText={taskLog.sqlText}
+						syncLog={taskLog.syncLog}
 						syncJobInfo={taskLog.syncJobInfo}
 						downloadLog={taskLog.downloadLog}
 						subNodeDownloadLog={taskLog.subNodeDownloadLog}
