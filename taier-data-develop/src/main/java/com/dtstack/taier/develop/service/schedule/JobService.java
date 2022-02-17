@@ -210,7 +210,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<ReturnDisplayPeriodVO> vos = new ArrayList<>(scheduleJobList.size());
         scheduleJobList.forEach(nextScheduleJob -> {
             ReturnDisplayPeriodVO vo = new ReturnDisplayPeriodVO();
-            vo.setJobId(nextScheduleJob.getId());
+            vo.setJobId(nextScheduleJob.getJobId());
             vo.setCycTime(DateUtil.addTimeSplit(nextScheduleJob.getCycTime()));
             vo.setStatus(nextScheduleJob.getStatus());
             vos.add(vo);
@@ -606,6 +606,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             returnJobListVO.setStartExecTime(DateUtil.getDate(scheduleJob.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setEndExecTime(DateUtil.getDate(scheduleJob.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setExecTime(getExecTime(scheduleJob));
+            returnJobListVO.setStatus(TaskStatus.getShowStatus(scheduleJob.getStatus()));
             ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(returnJobListVO.getTaskId());
             if (scheduleTaskShade != null) {
                 returnJobListVO.setTaskName(scheduleTaskShade.getName());
