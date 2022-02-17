@@ -610,7 +610,7 @@ public class BatchCatalogueService {
             Map<Long, String> userIdAndNameMap = Maps.newHashMap();
 
             //任务目录
-            if (currentCatalogueVO.getCatalogueType().equals(CatalogueType.TASK_DEVELOP.getType())) {
+            if (CatalogueType.TASK_DEVELOP.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 List<BatchTask> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
                 taskList.sort(Comparator.comparing(BatchTask::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
