@@ -17,14 +17,14 @@ import { updateDrawer } from '@/components/customDrawer';
 /**
  * 返回今日 [00:00:00, 23:59:69]
  */
-export function getTodayTime() {
+export function getTodayTime(date?: moment.Moment) {
 	return [
-		moment().set({
+		moment(date).set({
 			hour: 0,
 			minute: 0,
 			second: 0,
 		}),
-		moment().set({
+		moment(date).set({
 			hour: 23,
 			minute: 59,
 			second: 59,
