@@ -239,14 +239,6 @@ public class ScheduleTaskShadeDTO {
         this.modifyUserId = modifyUserId;
     }
 
-    public Long getOwnerUserId() {
-        return ownerUserId;
-    }
-
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
-    }
-
     public String getExtraInfo() {
         return extraInfo;
     }
