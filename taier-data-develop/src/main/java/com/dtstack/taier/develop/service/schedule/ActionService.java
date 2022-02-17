@@ -8,6 +8,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
+import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
 import com.dtstack.taier.scheduler.dto.schedule.ActionJobKillDTO;
 import com.dtstack.taier.scheduler.enums.RestartType;
@@ -22,7 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -59,6 +63,9 @@ public class ActionService {
 
     @Autowired
     private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
+
+    @Autowired
+    private BatchServerLogService batchServerLogService;
 
     /**
      * 重跑实例
@@ -146,6 +153,8 @@ public class ActionService {
         }
 
         ReturnJobLogVO jobLogVO = new ReturnJobLogVO();
+        jobLogVO.setPageIndex(pageInfo);
+        jobLogVO.setPageSize(scheduleJob.getRetryNum());
         // 如果RetryNum>1 说明实例已经进行了一次重试，所以取查询重试日志
         if (scheduleJob.getRetryNum() > 1) {
             // 查询重试日志
@@ -193,6 +202,21 @@ public class ActionService {
             }
             sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
             jobLogVO.setSqlText(sqlText);
+            Timestamp execStartTime = scheduleJob.getExecStartTime();
+            Timestamp execEndTime = scheduleJob.getExecEndTime();
+            if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
+                String syncLog = null;
+                try {
+                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getApplicationId(), scheduleJob.getJobId(),
+                            Optional.of(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now().minusHours(1L))).getTime(),
+                            Optional.of(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
+                            scheduleJob.getTenantId());
+                } catch (Exception e) {
+                    LOGGER.error("queryJobLog {} sync log error",jobId,e);
+                }
+                jobLogVO.setSyncLog(syncLog);
+            }
+
         }
         return jobLogVO;
     }
