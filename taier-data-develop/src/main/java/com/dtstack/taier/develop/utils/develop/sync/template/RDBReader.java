@@ -137,8 +137,11 @@ public class RDBReader extends RDBBase implements Reader {
         parameter.put("connection", connections);
 
         JSONObject reader = new JSONObject(true);
-        switch (this.getType()) {
-            case MySql:
+        DataSourceType dataSourceType = DataSourceType.getSourceType(getType());
+        switch (dataSourceType) {
+            case MySQL:
+            case MySQL8:
+            case MySQLPXC:
             case TiDB:
                 if(isMultiTable){
                     reader.put("name", PluginName.MySQLD_R);
@@ -159,7 +162,7 @@ public class RDBReader extends RDBBase implements Reader {
                 reader.put("name", PluginName.SQLServer_R);
                 break;
             case HIVE:
-            case HIVE3:
+            case HIVE3X:
             case HIVE1X:
                 reader.put("name", PluginName.Hive_R);
                 break;
@@ -170,19 +173,19 @@ public class RDBReader extends RDBBase implements Reader {
             case DB2:
                 reader.put("name", PluginName.DB2_R);
                 break;
-            case GBase8a:
+            case GBase_8a:
                 reader.put("name", PluginName.GBase_R);
                 break;
             case Phoenix:
                 reader.put("name", PluginName.Phoenix_R);
                 break;
-            case Phoenix5:
+            case PHOENIX5:
                 reader.put("name", PluginName.Phoenix5_R);
                 break;
             case DMDB:
                 reader.put("name", PluginName.DM_R);
                 break;
-            case Greenplum6:
+            case GREENPLUM6:
                 reader.put("name", PluginName.GREENPLUM_R);
                 break;
             case KINGBASE8:
