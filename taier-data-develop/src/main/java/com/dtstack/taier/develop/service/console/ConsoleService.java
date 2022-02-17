@@ -375,7 +375,7 @@ public class ConsoleService {
 
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = scheduleEngineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource);
+                List<ScheduleEngineJobCache> jobCaches = scheduleEngineJobCacheMapper.listByStage(startId, nodeAddress, stage, jobResource,Boolean.FALSE);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
