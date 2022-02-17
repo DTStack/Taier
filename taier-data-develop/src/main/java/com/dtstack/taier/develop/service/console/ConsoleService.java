@@ -30,6 +30,7 @@ import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.mapper.*;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -43,6 +44,7 @@ import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -233,13 +235,12 @@ public class ConsoleService {
                 Map<Long, Tenant> tenantMap = tenantMapper.selectBatchIds(tenantIds).stream()
                         .collect(Collectors.toMap(Tenant::getId, t -> t));
 
-                Map<String,String> pluginInfoCache = new HashMap<>();
                 for (ScheduleEngineJobCache engineJobCache : engineJobCaches) {
                     Map<String, Object> theJobMap = PublicUtil.objectToMap(engineJobCache);
                     ScheduleJob scheduleJob = scheduleJobMap.getOrDefault(engineJobCache.getJobId(), new ScheduleJob());
                     //补充租户信息
                     Tenant tenant = tenantMap.get(scheduleJob.getTenantId());
-                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant,pluginInfoCache);
+                    this.fillJobInfo(theJobMap, scheduleJob, engineJobCache,tenant);
                     data.add(theJobMap);
                 }
             }
@@ -250,7 +251,7 @@ public class ConsoleService {
         return new PageResult<>(data,count.intValue(),pageQuery);
     }
 
-    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, ScheduleEngineJobCache engineJobCache, Tenant tenant, Map<String,String> pluginInfoCache) {
+    private void fillJobInfo(Map<String, Object> theJobMap, ScheduleJob scheduleJob, ScheduleEngineJobCache engineJobCache, Tenant tenant) {
         theJobMap.put("status", scheduleJob.getStatus());
         theJobMap.put("execStartTime", scheduleJob.getExecStartTime());
         theJobMap.put("generateTime", engineJobCache.getGmtCreate());

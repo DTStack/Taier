@@ -20,4 +20,6 @@ public interface CommonConstant {
 
     String JOB_ID = "${jobId}";
 
+    String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
+
 }

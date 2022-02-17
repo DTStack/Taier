@@ -112,7 +112,8 @@ public class ClusterService {
         if (null != sftpConfig) {
             pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
         }
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(), ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
+                ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
         if (null != kerberosConfig) {
             Integer openKerberos = kerberosConfig.getOpenKerberos();
             String remotePath = kerberosConfig.getRemotePath();
