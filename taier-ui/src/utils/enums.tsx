@@ -260,6 +260,7 @@ export function TaskStatus(props: { value: TASK_STATUS }) {
 				</span>
 			);
 		case TASK_STATUS.FINISHED:
+		case TASK_STATUS.SET_SUCCESS:
 			return (
 				<span>
 					<Circle type="finished" />

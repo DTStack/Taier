@@ -76,6 +76,13 @@ const GAP_OPTIONS = new Array(11).fill(1).map((_, i) => ({
 	value: ((i + 1) * 5).toString(),
 }));
 /**
+ * 小时间隔默认下拉，1小时，2小时...,23小时
+ */
+const GAP_HOUR_OPTIONS = new Array(24).fill(1).map((_, i) => ({
+	label: `${(i + 1)}小时`,
+	value: ((i + 1)).toString(),
+}));
+/**
  * 星期默认下拉选项
  */
 const WEEKS_OPTIONS = ['一', '二', '三', '四', '五', '六', '天'].map((day, index) => ({
@@ -330,7 +337,7 @@ export default forwardRef(
 								]}
 								initialValue={`${gapHour}`}
 							>
-								<Select onChange={handleScheduleConf} options={HOURS_OPTIONS} />
+								<Select onChange={handleScheduleConf} options={GAP_HOUR_OPTIONS} />
 							</FormItem>
 							<FormItem {...scheduleConfigLayout} label="结束时间" required>
 								<FormItem
