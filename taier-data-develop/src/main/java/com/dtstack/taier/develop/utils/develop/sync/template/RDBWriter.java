@@ -20,6 +20,7 @@ package com.dtstack.taier.develop.utils.develop.sync.template;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -97,10 +98,12 @@ public class RDBWriter extends RDBBase implements Writer {
         parameter.putAll(super.getExtralConfigMap());
 
         JSONObject writer = new JSONObject(true);
-        switch (this.getType()) {
-            case MySql:
+        DataSourceType dataSourceType = DataSourceType.getSourceType(getType());
+        switch (dataSourceType) {
+            case MySQL:
+            case MySQL8:
+            case MySQLPXC:
             case TiDB:
-            case TDDL:
                 writer.put("name", PluginName.MySQL_W);
                 break;
             case Clickhouse:
@@ -126,7 +129,7 @@ public class RDBWriter extends RDBBase implements Writer {
             case DB2:
                 writer.put("name", PluginName.DB2_W);
                 break;
-            case GBase8a:
+            case GBase_8a:
                 writer.put("name", PluginName.GBase_W);
                 break;
             case Phoenix:
@@ -134,14 +137,14 @@ public class RDBWriter extends RDBBase implements Writer {
                 // 特殊处理写入模式，200302_3.10_beta2 只支持 upsert
                 parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? UPSERT : this.getWriteMode());
                 break;
-            case Phoenix5:
+            case PHOENIX5:
                 writer.put("name", PluginName.Phoenix5_W);
                 parameter.put("writeMode", StringUtils.isBlank(this.getWriteMode()) ? UPSERT : this.getWriteMode());
                 break;
             case DMDB:
                 writer.put("name", PluginName.DM_W);
                 break;
-            case Greenplum6:
+            case GREENPLUM6:
                 writer.put("name", PluginName.GREENPLUM_W);
                 break;
             case KINGBASE8:

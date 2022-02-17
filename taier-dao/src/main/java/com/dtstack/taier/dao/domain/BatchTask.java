@@ -77,11 +77,6 @@ public class BatchTask extends TenantEntity {
     private Long createUserId;
 
     /**
-     * 负责人id
-     */
-    private Long ownerUserId;
-
-    /**
      * 'task版本'
      */
     private Integer version;
@@ -219,14 +214,6 @@ public class BatchTask extends TenantEntity {
 
     public void setCreateUserId(Long createUserId) {
         this.createUserId = createUserId;
-    }
-
-    public Long getOwnerUserId() {
-        return ownerUserId;
-    }
-
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
     }
 
     public Integer getVersion() {

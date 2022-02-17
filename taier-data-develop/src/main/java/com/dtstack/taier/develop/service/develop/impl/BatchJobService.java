@@ -134,12 +134,12 @@ public class BatchJobService {
 
         User user;
         if (Objects.isNull(userId)) {
-            user = userService.getById(batchTask.getOwnerUserId());
+            user = userService.getById(batchTask.getCreateUserId());
         } else {
             user = userService.getById(userId);
         }
         if (Objects.isNull(user)) {
-            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getOwnerUserId() : userId));
+            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getCreateUserId() : userId));
         }
         actionParam.put("userId", user.getId());
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
