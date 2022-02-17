@@ -32,6 +32,7 @@ import classNames from 'classnames';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
+import moment from 'moment';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -203,6 +204,16 @@ export default function SchedulingConfig({
 			}
 			formData = Object.assign(defaultScheduleConf, formData);
 			Reflect.deleteProperty(formData, 'scheduleStatus');
+
+			// the properties about date needed format
+			const dateProperty = ['beginDate', 'endDate'] as const;
+			dateProperty.forEach((dateKey) => {
+				if (moment.isMoment(formData[dateKey])) {
+					formData[dateKey] = (formData[dateKey] as unknown as moment.Moment).format(
+						'YYYY-MM-DD',
+					);
+				}
+			});
 			const newData = {
 				scheduleConf: JSON.stringify(formData),
 			};
