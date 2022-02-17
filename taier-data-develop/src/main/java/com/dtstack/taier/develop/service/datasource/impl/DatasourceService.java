@@ -216,6 +216,10 @@ public class DatasourceService {
 
     private static final TypeFormat TYPE_FORMAT = new HiveWriterFormat();
 
+    public static final String IS_HADOOP_AUTHORIZATION = "hadoop.security.authorization";
+
+    public static final String HADOOP_AUTH_TYPE = "hadoop.security.authentication";
+
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     /**
@@ -968,6 +972,43 @@ public class DatasourceService {
         setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
     }
 
+    public void setDefaultHadoopSftpConfig(JSONObject json, Long tenantId, Map<String, Object> map) {
+        JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
+        String remoteDir = "";
+        Map<String, Object> hdfs = Engine2DTOService.getHdfs(tenantId);
+        if (Objects.nonNull(hdfs.get(KERBEROS_CONFIG))) {
+            kerberosConfig = JSON.parseObject(JSON.toJSONString(hdfs.get(KERBEROS_CONFIG)));
+            remoteDir = kerberosConfig.getString("remotePath");
+        }
+        if (MapUtils.isNotEmpty(kerberosConfig)) {
+            Map<String, String> sftpMap = getSftpMap(tenantId);
+            Map<String, Object> conf = HadoopConf.getConfiguration(tenantId);
+            //flinkx参数
+            conf.putAll(kerberosConfig);
+            conf.put("sftpConf", sftpMap);
+            //替换remotePath 就是ftp上kerberos的相对路径和principalFile
+            if (StringUtils.isEmpty(remoteDir)) {
+                remoteDir = sftpMap.get("path") + File.separator + kerberosConfig.getString("kerberosDir");
+            }
+            String principalFile = conf.getOrDefault("principalFile", "").toString();
+            if (StringUtils.isNotEmpty(principalFile)){
+                conf.put("principalFile", getFileName(principalFile));
+            }
+            conf.put("remoteDir", remoteDir);
+            map.put(HADOOP_CONFIG, conf);
+
+            map.put(KERBEROS_CONFIG, kerberosConfig);
+
+            String krb5Conf = conf.getOrDefault("java.security.krb5.conf", "").toString();
+            if (StringUtils.isNotEmpty(krb5Conf)){
+                conf.put("java.security.krb5.conf", getFileName(krb5Conf));
+            }
+            // 开启kerberos认证需要的参数
+            conf.put(IS_HADOOP_AUTHORIZATION, "true");
+            conf.put(HADOOP_AUTH_TYPE, "kerberos");
+        }
+    }
+
 
     /**
      * 添加ftp地址
@@ -1333,7 +1374,11 @@ public class DatasourceService {
             map.put("partition", map.get(HIVE_PARTITION));
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
+            if (Objects.nonNull(source.getIsDefault()) && 1 == source.getIsDefault()) {
+                setDefaultHadoopSftpConfig(json, tenantId, map);
+            } else {
+                setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
+            }
         } else if (DataSourceType.HDFS.getVal().equals(sourceType)) {
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map,json);
