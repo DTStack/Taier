@@ -297,7 +297,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null);
+                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null,Boolean.TRUE);
                     if (CollectionUtils.isEmpty(jobCaches)) {
                         //两种情况：
                         //1. 可能本身没有jobcaches的数据

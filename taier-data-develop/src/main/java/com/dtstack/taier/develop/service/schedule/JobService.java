@@ -129,7 +129,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             buildReturnJobListVO(returnJobListVOS, records);
         }
 
-        return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
+        return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), page.getTotal(), (int) page.getPages(), returnJobListVOS);
     }
 
     /**
@@ -369,7 +369,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             dataJobDetailVO.setFillDataJobVOLists(fillDataJobVOS);
         }
         dataJobDetailVO.setFillGenerateStatus(FillGeneratStatusEnum.FILL_FINISH.getType());
-        return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),totalCount,dataJobDetailVO);
+        return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),page.getTotal(), (int) page.getPages(),dataJobDetailVO);
     }
 
     /**

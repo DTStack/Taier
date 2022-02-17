@@ -96,7 +96,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
         for (List<Long> taskKey : partition) {
             jobGraphBuildPool.submit(()->{
                 try {
-                    Map<Long, ScheduleJobDetails> saveMap = Maps.newHashMap();
+                    List<ScheduleJobDetails> saveList = Lists.newArrayList();
                     for (Long taskId : taskKey) {
                         try {
                             ScheduleTaskShade scheduleTaskShade = scheduleTaskService
@@ -122,14 +122,14 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
                                 }
 
                                 for (ScheduleJobDetails jobBuilderBean : jobBuilderBeanList) {
-                                    addMap(run, saveMap,taskId, jobBuilderBean);
+                                    addMap(run, saveList,taskId, jobBuilderBean);
                                 }
                             }
                         } catch (Exception e) {
                             LOGGER.error("taskKey : {} error:",taskId,e);
                         }
                     }
-                    savaFillJob(saveMap);
+                    savaFillJob(saveList);
                 } catch (Exception e) {
                     LOGGER.error("fill error:",e);
                 }
@@ -140,11 +140,11 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     /**
      *
      * @param run  run list 可运行节点
-     * @param saveMap 生成实例集合
+     * @param saveList 生成实例集合
      * @param taskId 任务id
      * @param jobBuilderBean 构建出来的实际
      */
-    private void addMap(Set<Long> run, Map<Long, ScheduleJobDetails> saveMap, Long taskId, ScheduleJobDetails jobBuilderBean) {
+    private void addMap(Set<Long> run, List<ScheduleJobDetails> saveList, Long taskId, ScheduleJobDetails jobBuilderBean) {
         ScheduleJob scheduleJob = jobBuilderBean.getScheduleJob();
         if (run.contains(taskId)) {
             scheduleJob.setFillType(FillJobTypeEnum.RUN_JOB.getType());
@@ -152,7 +152,8 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
             scheduleJob.setFillType(FillJobTypeEnum.MIDDLE_JOB.getType());
         }
 
-        saveMap.put(scheduleJob.getTaskId(),jobBuilderBean);
+        saveList.add(jobBuilderBean);
+//        saveMap.put(scheduleJob.getJobId(),jobBuilderBean);
 
         List<ScheduleJobDetails> flowBean = jobBuilderBean.getFlowBean();
         
@@ -160,7 +161,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
             for (ScheduleJobDetails builderBean : flowBean) {
                 ScheduleJob flowScheduleJob = builderBean.getScheduleJob();
                 flowScheduleJob.setFillType(FillJobTypeEnum.RUN_JOB.getType());
-                saveMap.put(flowScheduleJob.getTaskId(),builderBean);
+                saveList.add(jobBuilderBean);
             }
         }
     }
@@ -168,11 +169,11 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     /**
      * 持久化时间
      *
-     * @param allJob 所有集合
+     * @param allJobList 所有集合
      */
-    private void savaFillJob(Map<Long, ScheduleJobDetails> allJob) {
-        scheduleJobService.insertJobList(allJob.values(), EScheduleType.FILL_DATA.getType());
-        List<ScheduleJobOperatorRecord> operatorJobIds = allJob.values()
+    private void savaFillJob(List<ScheduleJobDetails> allJobList) {
+        scheduleJobService.insertJobList(allJobList, EScheduleType.FILL_DATA.getType());
+        List<ScheduleJobOperatorRecord> operatorJobIds = allJobList
                 .stream()
                 .map(jobBuilderBean -> {
                     ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
