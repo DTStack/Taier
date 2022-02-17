@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -295,6 +296,12 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         }
 
         if (endDate.after(triggerRange.getRight())) {
+            Integer endMin = scheduleConf.getEndMin();
+            if (endMin != null && endMin > 0 && endMin < 60) {
+                DateTime dateTime = new DateTime(triggerRange.getRight());
+                dateTime.withMinuteOfHour(endMin);
+                return dateTime.toDate();
+            }
             return triggerRange.getRight();
         }
 
