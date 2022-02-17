@@ -46,6 +46,7 @@ import com.dtstack.taier.develop.utils.Asserts;
 import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
+import com.dtstack.taier.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
@@ -1021,6 +1022,16 @@ public class DatasourceService {
         JSONObject configByKey = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
         try {
             return PublicUtil.objectToObject(configByKey,Map.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new PubSvcDefineException(ErrorCode.SFTP_NOT_FOUND);
+    }
+
+    public Map<String, String> getSftpMapByClusterId(Long clusterId) {
+        JSONObject configByKey = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.SFTP.getConfName(), null);
+        try {
+            return PublicUtil.objectToObject(configByKey, Map.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2045,6 +2056,15 @@ public class DatasourceService {
         }
 
         dataJson.put("hasHdfsConfig", true);
+
+        JSONObject kerberosConfig = jdbcInfo.getKerberosConfig();
+        if (Objects.nonNull(kerberosConfig)) {
+            Map<String, String> sftpMap = getSftpMapByClusterId(clusterId);
+            String remotePath = kerberosConfig.getString("remotePath");
+            kerberosConfig.put("remotePath", remotePath.replaceAll(sftpMap.get("path"), ""));
+            kerberosConfig.put("hive.server2.authentication", "KERBEROS");
+            dataJson.put("kerberosConfig", jdbcInfo.getKerberosConfig());
+        }
         return dataJson;
     }
 
