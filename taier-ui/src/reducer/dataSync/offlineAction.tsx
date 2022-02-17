@@ -52,6 +52,7 @@ import {
 	tableTreeAction,
 	componentTreeAction,
 } from '../catalogue/actionTypes';
+import { UnlimitedSpeed } from '@/components/dataSync/channel';
 
 const confirm = Modal.confirm;
 
@@ -363,9 +364,7 @@ export const workbenchActions = (dispatch?: any) => {
 
 			const db = await idb.open();
 			if (db) {
-				const result: any = await idb.get(
-					`${pid ? pid + '_' : ''}offline_workbench`,
-				);
+				const result: any = await idb.get(`${pid ? pid + '_' : ''}offline_workbench`);
 				if (result) {
 					dispatch({
 						type: workbenchAction.INIT_WORKBENCH,
@@ -461,45 +460,29 @@ export const workbenchActions = (dispatch?: any) => {
 		 * 集中处理Data同步中的变量,例如${system.date}
 		 * @param {Object} dataSync
 		 */
-		updateDataSyncVariables(
-			sourceMap: any,
-			targetMap: any,
-			taskCustomParams: any,
-		) {
+		updateDataSyncVariables(sourceMap: any, targetMap: any, taskCustomParams: any) {
 			let taskVariables: any = [];
 
 			// SourceMapupdateDataSyncVariables
 			if (sourceMap) {
 				if (sourceMap.type && sourceMap.type.where) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						sourceMap.type.where,
-					);
+					const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
 				if (sourceMap.type && sourceMap.type.start) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						sourceMap.type.start,
-					);
+					const vbs = matchTaskParams(taskCustomParams, sourceMap.type.start);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
 				if (sourceMap.type && sourceMap.type.end) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						sourceMap.type.end,
-					);
+					const vbs = matchTaskParams(taskCustomParams, sourceMap.type.end);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
 				// 分区，获取任务自定义参数
 				if (sourceMap.type && sourceMap.type.partition) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						sourceMap.type.partition,
-					);
+					const vbs = matchTaskParams(taskCustomParams, sourceMap.type.partition);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
@@ -507,9 +490,9 @@ export const workbenchActions = (dispatch?: any) => {
 				if (sourceMap.column && sourceMap.column.length > 0) {
 					let str = '';
 					for (let i = 0; i < sourceMap.column.length; i++) {
-						str += `${
-							sourceMap.column[i].key || sourceMap.column[i].index
-						} ${sourceMap.column[i].value || ''}`;
+						str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${
+							sourceMap.column[i].value || ''
+						}`;
 					}
 					const vbs = matchTaskParams(taskCustomParams, str);
 					taskVariables = taskVariables.concat(vbs);
@@ -545,26 +528,17 @@ export const workbenchActions = (dispatch?: any) => {
 				}
 
 				if (targetMap.type.partition) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						targetMap.type.partition,
-					);
+					const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
 				if (targetMap.type.object) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						targetMap.type.object,
-					);
+					const vbs = matchTaskParams(taskCustomParams, targetMap.type.object);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
 				if (targetMap.type.fileName) {
-					const vbs = matchTaskParams(
-						taskCustomParams,
-						targetMap.type.fileName,
-					);
+					const vbs = matchTaskParams(taskCustomParams, targetMap.type.fileName);
 					taskVariables = taskVariables.concat(vbs);
 				}
 
@@ -661,8 +635,7 @@ export const workbenchActions = (dispatch?: any) => {
 								<span>
 									文件正在被{lockInfo.lastKeepLockUserName}
 									编辑中，开始编辑时间为
-									{formatDateTime(lockInfo.gmtModified)}。
-									强制保存可能导致
+									{formatDateTime(lockInfo.gmtModified)}。 强制保存可能导致
 									{lockInfo.lastKeepLockUserName}
 									对文件的修改无法正常保存！
 								</span>
@@ -671,9 +644,7 @@ export const workbenchActions = (dispatch?: any) => {
 							okType: 'danger',
 							cancelText: '取消',
 							onOk() {
-								ajax.forceUpdateOfflineTask(task).then(
-									updateTabData,
-								);
+								ajax.forceUpdateOfflineTask(task).then(updateTabData);
 							},
 						});
 						// 如果同步状态，则提示会覆盖代码，
@@ -686,8 +657,8 @@ export const workbenchActions = (dispatch?: any) => {
 								<span>
 									文件已经被{lockInfo.lastKeepLockUserName}
 									编辑过，编辑时间为
-									{formatDateTime(lockInfo.gmtModified)}。
-									点击确认按钮会<Tag color="orange">覆盖</Tag>
+									{formatDateTime(lockInfo.gmtModified)}。 点击确认按钮会
+									<Tag color="orange">覆盖</Tag>
 									您本地的代码，请您提前做好备份！
 								</span>
 							),
@@ -700,9 +671,7 @@ export const workbenchActions = (dispatch?: any) => {
 									lockVersion: lockInfo.version,
 								};
 								// 更新version, getLock信息
-								ajax.getOfflineTaskDetail(reqParams).then(
-									updateTabData,
-								);
+								ajax.getOfflineTaskDetail(reqParams).then(updateTabData);
 							},
 						});
 					}
@@ -752,15 +721,13 @@ export const workbenchActions = (dispatch?: any) => {
 							okText: '确定',
 							cancelText: '取消',
 							onOk() {
-								ajax.getOfflineTaskByID({ id: params.id }).then(
-									(res: any) => {
-										if (res.code === 1) {
-											const taskInfo = res.data;
-											taskInfo.merged = true;
-											updateTaskInfo(taskInfo);
-										}
-									},
-								);
+								ajax.getOfflineTaskByID({ id: params.id }).then((res: any) => {
+									if (res.code === 1) {
+										const taskInfo = res.data;
+										taskInfo.merged = true;
+										updateTaskInfo(taskInfo);
+									}
+								});
 							},
 						});
 					} else if (lockStatus === 0) {
@@ -774,10 +741,7 @@ export const workbenchActions = (dispatch?: any) => {
 						if (type === 'component') {
 							reloadComponentTab(fileData.id);
 						} else {
-							reloadTaskTab(
-								fileData.id,
-								typeof params.type !== 'undefined',
-							);
+							reloadTaskTab(fileData.id, typeof params.type !== 'undefined');
 						}
 						// 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
 					} else if (lockStatus === 1) {
@@ -788,8 +752,7 @@ export const workbenchActions = (dispatch?: any) => {
 								<span>
 									文件正在被{lockInfo.lastKeepLockUserName}
 									编辑中，开始编辑时间为
-									{formatDateTime(lockInfo.gmtModified)}。
-									强制保存可能导致
+									{formatDateTime(lockInfo.gmtModified)}。 强制保存可能导致
 									{lockInfo.lastKeepLockUserName}
 									对文件的修改无法正常保存！
 								</span>
@@ -803,19 +766,14 @@ export const workbenchActions = (dispatch?: any) => {
 										message.success('保存成功！');
 										updateTaskInfo({
 											version: res.data.version,
-											readWriteLockVO:
-												res.data.readWriteLockVO,
+											readWriteLockVO: res.data.readWriteLockVO,
 										});
 									}
 								};
 								if (type === 'task') {
-									ajax.forceUpdateOfflineTask(params).then(
-										succCall,
-									);
+									ajax.forceUpdateOfflineTask(params).then(succCall);
 								} else if (type === 'script') {
-									ajax.forceUpdateOfflineScript(params).then(
-										succCall,
-									);
+									ajax.forceUpdateOfflineScript(params).then(succCall);
 								} else if (type === 'component') {
 									params.forceUpdate = true;
 									ajax.saveComponent(params).then(succCall);
@@ -832,8 +790,8 @@ export const workbenchActions = (dispatch?: any) => {
 								<span>
 									文件已经被{lockInfo.lastKeepLockUserName}
 									编辑过，编辑时间为
-									{formatDateTime(lockInfo.gmtModified)}。
-									点击确认按钮会<Tag color="orange">覆盖</Tag>
+									{formatDateTime(lockInfo.gmtModified)}。 点击确认按钮会
+									<Tag color="orange">覆盖</Tag>
 									您本地的代码，请您提前做好备份！
 								</span>
 							),
@@ -847,37 +805,31 @@ export const workbenchActions = (dispatch?: any) => {
 								};
 								if (type === 'task') {
 									// 更新version, getLock信息
-									ajax.getOfflineTaskDetail(reqParams).then(
-										(res: any) => {
-											if (res.code === 1) {
-												const taskInfo = res.data;
-												taskInfo.merged = true;
-												updateTaskInfo(taskInfo);
-											}
-										},
-									);
+									ajax.getOfflineTaskDetail(reqParams).then((res: any) => {
+										if (res.code === 1) {
+											const taskInfo = res.data;
+											taskInfo.merged = true;
+											updateTaskInfo(taskInfo);
+										}
+									});
 								} else if (type === 'script') {
-									ajax.getScriptById(reqParams).then(
-										(res: any) => {
-											if (res.code === 1) {
-												const scriptInfo = res.data;
-												scriptInfo.merged = true;
-												updateTaskInfo(scriptInfo);
-											}
-										},
-									);
+									ajax.getScriptById(reqParams).then((res: any) => {
+										if (res.code === 1) {
+											const scriptInfo = res.data;
+											scriptInfo.merged = true;
+											updateTaskInfo(scriptInfo);
+										}
+									});
 								} else if (type === 'component') {
 									reqParams.componentId = reqParams.id;
 									delete reqParams.id;
-									ajax.getComponentById(reqParams).then(
-										(res: any) => {
-											if (res.code === 1) {
-												const componentInfo = res.data;
-												componentInfo.merged = true;
-												updateTaskInfo(componentInfo);
-											}
-										},
-									);
+									ajax.getComponentById(reqParams).then((res: any) => {
+										if (res.code === 1) {
+											const componentInfo = res.data;
+											componentInfo.merged = true;
+											updateTaskInfo(componentInfo);
+										}
+									});
 								}
 							},
 						});
@@ -1049,12 +1001,7 @@ export const workbenchActions = (dispatch?: any) => {
 		 * TODO 代码需重构
 		 * @param isFunc // 函数管理，默认请求第一层数据
 		 */
-		loadTreeNode: async (
-			nodePid?: any,
-			type?: any,
-			option = {},
-			isFunc?: any,
-		) => {
+		loadTreeNode: async (nodePid?: any, type?: any, option = {}, isFunc?: any) => {
 			const res = await ajax.getOfflineCatalogue({
 				isGetFile: false,
 				nodePid,
@@ -1062,16 +1009,11 @@ export const workbenchActions = (dispatch?: any) => {
 				taskType: 1,
 				...option,
 			});
-			const getFuncTree = (
-				data: any,
-				cateType: string,
-				engineType: number,
-			) => {
+			const getFuncTree = (data: any, cateType: string, engineType: number) => {
 				return data.children
 					? data.children.find(
 							(item: any) =>
-								item.catalogueType === cateType &&
-								item.engineType === engineType,
+								item.catalogueType === cateType && item.engineType === engineType,
 					  )
 					: [];
 			};
@@ -1591,6 +1533,11 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
 	clone.targetMap.column = serverTarget;
 	clone.settingMap = clone.setting;
 
+	// 由于 AutoCompelete 组件无法做到 Option 的 value 映射，故在这里做优化
+	if (clone.settingMap.speed === UnlimitedSpeed) {
+		clone.settingMap.speed = -1;
+	}
+
 	// type中的特定配置项也放到sourceMap中
 	const targetTypeObj = targetMap.type;
 	const sourceTypeObj = sourceMap.type;
@@ -1627,10 +1574,7 @@ export const getDataSyncReqParams = (dataSyncStore: any) => {
  *  获取数据同步Tab保存的数据参数
  *  ! 当保存Tab中的数据同步时使用
  */
-export const getDataSyncSaveTabParams = (
-	currentTabData: any,
-	dataSync: any,
-) => {
+export const getDataSyncSaveTabParams = (currentTabData: any, dataSync: any) => {
 	// deepClone避免直接mutate store
 	let reqBody = cloneDeep(currentTabData);
 	// 如果当前任务为数据同步任务
