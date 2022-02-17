@@ -46,7 +46,6 @@ import com.dtstack.taier.develop.utils.Asserts;
 import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
-import com.dtstack.taier.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
@@ -2038,7 +2037,7 @@ public class DatasourceService {
         dataJson.put("password", jdbcInfo.getPassword());
 
         if (!jdbcUrl.contains("%s")) {
-            throw new RdosDefineException("控制台 HiveServer URL 不包含占位符 %s");
+            throw new RdosDefineException("控制台 "+ EComponentType.SPARK_THRIFT.getName() +" URL中 不包含占位符 %s");
         }
         jdbcUrl = String.format(jdbcUrl, dataSourceName);
         dataJson.put("jdbcUrl", jdbcUrl);
