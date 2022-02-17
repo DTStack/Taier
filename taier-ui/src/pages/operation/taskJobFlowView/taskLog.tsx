@@ -94,6 +94,10 @@ interface ILogInfoProps {
 	 */
 	syncLog?: string;
 	/**
+	 * 下载地址
+	 */
+	downLoadUrl?: string;
+	/**
 	 * 同步任务的属性
 	 */
 	syncJobInfo?: { execTime: string; readNum: number; writeNum: number; dirtyPercent: number };
@@ -108,7 +112,7 @@ interface ILogInfoProps {
 }
 
 export default function LogInfo(props: ILogInfoProps) {
-	const { syncLog, sqlText } = props;
+	const { syncLog, sqlText, downLoadUrl } = props;
 	const logText = useMemo(() => {
 		/**
 		 * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
@@ -218,8 +222,11 @@ export default function LogInfo(props: ILogInfoProps) {
 				text = `${text}${wrappTitle('')}\n${safeSpace} \n`;
 			}
 
-			// last to render sqlText
+			if (downLoadUrl) {
+				text = `${text}完整日志下载地址：${createLinkMark({ href: downLoadUrl, download: '' })}\n`;
+			}
 
+			// last to render sqlText
 			if (sqlText) {
 				text = `${text}${wrappTitle('任务信息')}\n${prettierJSONstring(sqlText)}`;
 			}

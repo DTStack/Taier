@@ -15,7 +15,7 @@ import {
 import Sketch, { useSketchRef } from '@/components/sketch';
 import TaskJobFlowView from '../taskJobFlowView';
 import type { IScheduleTaskProps } from '../schedule';
-import { removePopUpMenu } from '@/utils';
+import { getTodayTime, removePopUpMenu } from '@/utils';
 import './detail.scss';
 
 const { confirm, warning } = Modal;
@@ -424,8 +424,8 @@ export default () => {
 			fillId: fillId || undefined,
 			taskName: values.name,
 			operatorId: values.owner,
-			cycStartDay: values.rangeDate && values.rangeDate[0].unix(),
-			cycEndDay: values.rangeDate && values.rangeDate[1].unix(),
+			cycStartDay: values.rangeDate && getTodayTime(values.rangeDate[0])[0].unix(),
+			cycEndDay: values.rangeDate && getTodayTime(values.rangeDate[1])[1].unix(),
 		};
 	};
 

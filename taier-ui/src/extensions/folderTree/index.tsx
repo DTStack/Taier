@@ -241,6 +241,7 @@ function editTreeNodeName() {
 			nodePid: parentId,
 		}).then((res: any) => {
 			if (res.code === 1) {
+				updateTree({ parentId: id });
 				molecule.explorer.forceUpdate();
 			}
 		});
@@ -397,7 +398,7 @@ function contextMenu() {
 				const afterSubmit = (params: any, values: any) => {
 					// 更新旧结点所在的文件夹
 					updateTree({
-						parentId: treeNode!.data.parentId,
+						parentId: treeNode!.data.id,
 					});
 
 					// 如果文件的位置发生了移动，则还需要更新新结点所在的文件夹
