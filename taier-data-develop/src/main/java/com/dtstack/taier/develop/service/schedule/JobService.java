@@ -123,7 +123,6 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
         // 处理查询出来的结果集
         List<ScheduleJob> records = page.getRecords();
-        totalCount = (int)page.getTotal();
         if (CollectionUtils.isNotEmpty(records)) {
             // 查询实例对应的任务
             buildReturnJobListVO(returnJobListVOS, records);
@@ -277,7 +276,12 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 // 计算补数据执行进度
                 List<CountFillDataJobStatusPO> countFillDataJobStatusPOS = statisticsGroup.get(fillDataReturnListVO.getId());
                 if (CollectionUtils.isNotEmpty(countFillDataJobStatusPOS)) {
-                    Map<Integer, IntSummaryStatistics> statusCount = countFillDataJobStatusPOS.stream().collect(Collectors.groupingBy(CountFillDataJobStatusPO::getStatus, Collectors.summarizingInt(CountFillDataJobStatusPO::getCount)));
+                    Map<Integer, IntSummaryStatistics> statusCount = countFillDataJobStatusPOS
+                            .stream()
+                            .collect(Collectors.groupingBy(
+                                countFillDataJobStatusPO->TaskStatus.getShowStatus(countFillDataJobStatusPO.getStatus()),
+                                Collectors.summarizingInt(CountFillDataJobStatusPO::getCount)));
+
                     calculateStatusCount(fillDataReturnListVO, statusCount);
                 }
                 fillDataReturnListVOs.add(fillDataReturnListVO);
@@ -410,11 +414,10 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * 计算补数据执行进度
      *
      * @param fillDataReturnListVO 补数据返回列表vo
-     * @param statusCount 查询出来的计数
+     * @param statusCount          查询出来的计数
      */
     private void calculateStatusCount(ReturnFillDataListVO fillDataReturnListVO, Map<Integer, IntSummaryStatistics> statusCount) {
         Long unSubmit = statusCount.get(TaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(TaskStatus.UNSUBMIT.getStatus()).getSum();
-        Long computing = statusCount.get(TaskStatus.COMPUTING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.COMPUTING.getStatus()).getSum();
         Long running = statusCount.get(TaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.RUNNING.getStatus()).getSum();
         Long notFound = statusCount.get(TaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(TaskStatus.NOTFOUND.getStatus()).getSum();
         Long finished = statusCount.get(TaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FINISHED.getStatus()).getSum();
@@ -425,7 +428,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Long frozen = statusCount.get(TaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FROZEN.getStatus()).getSum();
 
         fillDataReturnListVO.setFinishedJobSum(finished);
-        fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen + computing);
+        fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen);
         fillDataReturnListVO.setDoneJobSum(failed + canceled + frozen + finished);
     }
 
