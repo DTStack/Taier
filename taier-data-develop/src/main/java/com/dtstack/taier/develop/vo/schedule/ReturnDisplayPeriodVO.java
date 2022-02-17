@@ -14,7 +14,7 @@ public class ReturnDisplayPeriodVO {
      * 实例id
      */
     @ApiModelProperty(value = "实例id",example = "123123")
-    private Long jobId;
+    private String jobId;
 
     /**
      * 计划时间
@@ -28,11 +28,11 @@ public class ReturnDisplayPeriodVO {
     @ApiModelProperty(value = "实例状态",example = "5")
     private Integer status;
 
-    public Long getJobId() {
+    public String getJobId() {
         return jobId;
     }
 
-    public void setJobId(Long jobId) {
+    public void setJobId(String jobId) {
         this.jobId = jobId;
     }
 
