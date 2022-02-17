@@ -476,7 +476,8 @@ export default () => {
 	) => {
 		const params = convertToParams(values);
 		const { status = [], periodType = [], taskType = [] } = filters;
-		const { field, order } = sorter || {};
+		const { field = 'cycTime', order } = sorter || {};
+
 		const sortMapping: Record<string, string> = {
 			cycTime: 'cycSort',
 			startExecTime: 'execEndSort',

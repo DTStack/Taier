@@ -22,7 +22,7 @@ import './linkInfoCell.scss';
 
 export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {
 	const { sourceData } = props;
-	const arr = linkMapping(sourceData.type);
+	const arr = linkMapping(`${sourceData.dataType}${sourceData.dataVersion || ''}`);
 
 	let data: Record<string, string> = {};
 	try {
