@@ -19,14 +19,12 @@
 import moment from 'moment';
 import get from 'lodash/get';
 import type { SelectProps, CheckboxProps } from 'antd';
-import { Form, Checkbox, DatePicker, Select, Input, Radio } from 'antd';
-import HelpDoc from '../../../components/helpDoc';
+import { Form, Checkbox, DatePicker, Select, Input } from 'antd';
 import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
 import type { IScheduleConfProps } from '@/interface';
 import { forwardRef } from 'react';
 import { useImperativeHandle } from 'react';
 
-const { Group } = Radio;
 const { Option } = Select;
 const FormItem = Form.Item;
 
@@ -127,7 +125,7 @@ export default forwardRef(
 			endHour,
 			endMin,
 			endDate,
-			isLastInstance,
+			// isLastInstance,
 			gapMin,
 			weekDay,
 			hour,
@@ -700,7 +698,7 @@ export default forwardRef(
 				<FormItem dependencies={['periodType']} noStyle>
 					{({ getFieldValue }) => renderTimeConfig(Number(getFieldValue('periodType')))}
 				</FormItem>
-				<FormItem noStyle dependencies={['periodType']}>
+				{/* <FormItem noStyle dependencies={['periodType']}>
 					{({ getFieldValue }) =>
 						// 调度周期为小时或者分钟
 						[
@@ -720,8 +718,8 @@ export default forwardRef(
 							</FormItem>
 						)
 					}
-				</FormItem>
-				<FormItem noStyle dependencies={['isExpire']}>
+				</FormItem> */}
+				{/* <FormItem noStyle dependencies={['isExpire']}>
 					{({ getFieldValue }) =>
 						getFieldValue('isExpire') && (
 							<FormItem {...scheduleConfigLayout} label="当天最后实例">
@@ -739,7 +737,7 @@ export default forwardRef(
 							</FormItem>
 						)
 					}
-				</FormItem>
+				</FormItem> */}
 			</Form>
 		);
 	},
