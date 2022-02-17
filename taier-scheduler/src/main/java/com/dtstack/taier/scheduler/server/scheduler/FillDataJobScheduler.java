@@ -30,9 +30,6 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(FillDataJobScheduler.class);
 
-    @Autowired
-    private ScheduleJobService scheduleJobService;
-
     @Autowired(required = false)
     private List<JudgeJobExecOperator> judgeJobExecOperators;
 
