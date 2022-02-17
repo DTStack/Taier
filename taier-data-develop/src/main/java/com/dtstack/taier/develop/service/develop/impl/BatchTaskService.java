@@ -258,7 +258,7 @@ public class BatchTaskService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":1, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
+    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer DEFAULT_SCHEDULE_PERIOD = ESchedulePeriodType.DAY.getVal();
 
@@ -382,7 +382,6 @@ public class BatchTaskService {
         setTaskVariables(taskVO, scheduleTaskVO.getId());
         final List<Long> userIds = new ArrayList<>();
         userIds.add(task.getCreateUserId());
-        userIds.add(task.getOwnerUserId());
         final Map<Long, User> userMap = userService.getUserMap(userIds);
         buildUserDTOInfo(userMap,taskVO);
         return taskVO;
@@ -550,7 +549,7 @@ public class BatchTaskService {
      */
     public TaskCheckResultVO publishBatchTaskInfo(BatchTask publishTask, Long tenantId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
         //判断任务责任人是否存在 如果任务责任人不存在或无权限 不允许提交
-        User user = userService.getById(publishTask.getOwnerUserId());
+        User user = userService.getById(publishTask.getCreateUserId());
         if (user == null){
             throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", publishTask.getName()));
         }

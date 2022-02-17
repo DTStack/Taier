@@ -1,6 +1,7 @@
 package com.dtstack.taier.scheduler.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.*;
@@ -492,14 +493,15 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param appId 应用id
      */
     public void updateJobSubmitSuccess(String jobId, String engineJobId, String appId) {
-        ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setJobId(jobId);
-        scheduleJob.setApplicationId(appId);
-        scheduleJob.setEngineJobId(engineJobId);
-        scheduleJob.setExecStartTime(Timestamp.valueOf(LocalDateTime.now()));
-        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        scheduleJob.setExecEndTime(null);
-        updateByJobId(scheduleJob);
+        ScheduleJob scheduleJob = getByJobId(jobId);
+        LambdaUpdateWrapper<ScheduleJob> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(ScheduleJob::getApplicationId, appId);
+        updateWrapper.set(ScheduleJob::getEngineJobId, engineJobId);
+        updateWrapper.set(ScheduleJob::getExecStartTime, Timestamp.valueOf(LocalDateTime.now()));
+        updateWrapper.set(ScheduleJob::getExecEndTime, null);
+        updateWrapper.set(ScheduleJob::getGmtModified, Timestamp.valueOf(LocalDateTime.now()));
+        updateWrapper.eq(ScheduleJob::getJobId, jobId);
+        this.baseMapper.update(scheduleJob, updateWrapper);
     }
 
     /**
