@@ -211,9 +211,9 @@ public class ActionService {
             if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
                 String syncLog = null;
                 try {
-                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getApplicationId(), scheduleJob.getJobId(),
-                            Optional.of(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now().minusHours(1L))).getTime(),
-                            Optional.of(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
+                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
+                            Optional.ofNullable(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
+                            Optional.ofNullable(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             scheduleJob.getTenantId());
                 } catch (Exception e) {
                     LOGGER.error("queryJobLog {} sync log error", jobId, e);
