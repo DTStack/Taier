@@ -126,7 +126,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @param sortWorker 排序器
      */
     public List<ScheduleJobDetails> buildJob(ScheduleTaskShade batchTaskShade, String triggerDay, AtomicJobSortWorker sortWorker) throws Exception {
-        return buildJob(batchTaskShade, getPrefix(),triggerDay,"00:00","23:59",0L,sortWorker);
+        return buildJob(batchTaskShade, "",triggerDay,"00:00","23:59",0L,sortWorker);
     }
 
     /**
