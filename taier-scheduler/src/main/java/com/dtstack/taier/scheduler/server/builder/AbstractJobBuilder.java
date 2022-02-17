@@ -297,12 +297,18 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
 
         if (endDate.after(triggerRange.getRight())) {
             Integer endMin = scheduleConf.getEndMin();
+            Integer endHour = scheduleConf.getEndHour();
+            DateTime dateTime = new DateTime(triggerRange.getRight());
+
             if (endMin != null && endMin > 0 && endMin < 60) {
-                DateTime dateTime = new DateTime(triggerRange.getRight());
                 dateTime.withMinuteOfHour(endMin);
-                return dateTime.toDate();
             }
-            return triggerRange.getRight();
+
+            if (endHour != null && endHour > 0 && endHour <= 31) {
+                dateTime.withDayOfMonth(endHour);
+            }
+            
+            return dateTime.toDate();
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
