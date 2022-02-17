@@ -816,6 +816,7 @@ public class DatasourceService {
                     if (StringUtils.isNotBlank(hadoopConfig)) {
                         replaceDataSourceInfoByCreateModel(param,HADOOP_CONFIG,JSONObject.parse(hadoopConfig),createModel);
                     }
+                    setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
                 }else {
                     //meta数据源从console取配置
                     //拿取最新配置
@@ -843,8 +844,8 @@ public class DatasourceService {
                             replaceDataSourceInfoByCreateModel(param, HADOOP_CONFIG, JSONObject.parse(hadoopConfig), createModel);
                         }
                     }
+                    setDefaultHadoopSftpConfig(json, tenantId, param);
                 }
-                setSftpConfig(source.getId(), json, tenantId, param, HADOOP_CONFIG, false);
             } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
                 String jsonStr = json.getString(HBASE_CONFIG);
                 Map jsonMap = new HashMap();
@@ -1374,7 +1375,7 @@ public class DatasourceService {
             map.put("partition", map.get(HIVE_PARTITION));
             map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
             this.checkLastHadoopConfig(map, json);
-            if (Objects.nonNull(source.getIsDefault()) && 1 == source.getIsDefault()) {
+            if (1 == source.getIsDefault()) {
                 setDefaultHadoopSftpConfig(json, tenantId, map);
             } else {
                 setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
