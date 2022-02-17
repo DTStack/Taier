@@ -1,12 +1,16 @@
 package com.dtstack.taier.develop.service.schedule;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Base64Util;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
+import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobExpand;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
@@ -212,11 +216,14 @@ public class ActionService {
                             Optional.of(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             scheduleJob.getTenantId());
                 } catch (Exception e) {
-                    LOGGER.error("queryJobLog {} sync log error",jobId,e);
+                    LOGGER.error("queryJobLog {} sync log error", jobId, e);
                 }
                 jobLogVO.setSyncLog(syncLog);
             }
 
+            if(EScheduleJobType.SPARK_SQL.getType().equals(scheduleTaskShade.getTaskType())){
+                jobLogVO.setDownLoadUrl(String.format(CommonConstant.DOWNLOAD_LOG,scheduleJob.getJobId(),scheduleJob.getTaskType(),scheduleJob.getTenantId()));
+            }
         }
         return jobLogVO;
     }
