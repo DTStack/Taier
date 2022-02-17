@@ -129,6 +129,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
                 scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
                 scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
+                scheduleJob.setRetryNum(0);
 
                 // 更新状态
                  this.lambdaUpdate()
@@ -138,7 +139,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
                  // 清除日志
                 scheduleJobExpandService.clearData(jobIds);
-                scheduleJobOperatorRecordService.saveBatch(records);
+                scheduleJobOperatorRecordService.insertBatch(records);
                 LOGGER.info("reset job {}", jobIds);
             }
         }
@@ -497,6 +498,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         scheduleJob.setEngineJobId(engineJobId);
         scheduleJob.setExecStartTime(Timestamp.valueOf(LocalDateTime.now()));
         scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        scheduleJob.setExecEndTime(null);
         updateByJobId(scheduleJob);
     }
 
