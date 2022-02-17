@@ -44,7 +44,7 @@
     </select>
 
     <select id="getRdosJobByJobIds" resultType="com.dtstack.taier.dao.domain.ScheduleJob">
-        select id,job_id, engine_job_id,application_id,status,exec_start_time,exec_end_time,exec_time,retry_num,gmt_create,gmt_modified,is_deleted,compute_type,cyc_time
+        select id,job_id, engine_job_id,application_id,status,exec_start_time,exec_end_time,exec_time,retry_num,gmt_create,gmt_modified,is_deleted,compute_type,cyc_time,tenant_id
         from schedule_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
