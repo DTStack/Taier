@@ -57,6 +57,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.dtstack.taier.common.constant.CommonConstant.DOWNLOAD_LOG;
+
 /**
  * 执行选中的sql或者脚本
  *
@@ -113,8 +115,6 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
     public static final String SQL_AS_REDEX = "(?i)[0-9a-z_]+\\s+?as\\s+[0-9a-z_]+";
 
     private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
-
-    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Override
     public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database, Long taskId, Integer taskType, String preJobId) {
