@@ -24,7 +24,6 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.ClusterTenant;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.Queue;
@@ -268,13 +267,11 @@ public class TenantService {
         List<ComponentVO> componentVOS = ComponentVO.toVOS(components);
         batchCatalogueService.initCatalogue(tenantId, userId, componentVOS);
 
-        Cluster cluster = clusterService.getCluster(clusterId);
-
         // 初始化数据源相关的信息
         IComponentService componentService = null;
         for (ComponentBindDBDTO componentBindDBDTO : bindDBDTOList) {
             EComponentType eComponentType = EComponentType.getByCode(componentBindDBDTO.getComponentCode());
-            String componentIdentity = cluster.getClusterName();
+            String componentIdentity = tenantName;
 
             // db相关的操作
             if (BooleanUtils.isTrue(componentBindDBDTO.getCreateFlag())) {
