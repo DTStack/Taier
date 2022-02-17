@@ -26,8 +26,8 @@ public class ScheduleJobCacheService extends ServiceImpl<ScheduleEngineJobCacheM
                 .eq(ScheduleEngineJobCache::getJobId, jobId));
     }
 
-    public List<ScheduleEngineJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource) {
-        return scheduleEngineJobCacheMapper.listByStage(startId, localAddress, stage, jobResource);
+    public List<ScheduleEngineJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource,Boolean selectJobInfo) {
+        return scheduleEngineJobCacheMapper.listByStage(startId, localAddress, stage, jobResource,selectJobInfo);
     }
 
     public int updateStage(String jobId, int stage, String nodeAddress, long priority, String waitReason) {
