@@ -210,12 +210,13 @@ function editTreeNodeName() {
 		if (!name) {
 			return;
 		}
+		const [nodePid] = parentId.split('-');
 		api.addOfflineCatalogue({
 			nodeName: name,
-			nodePid: parentId,
+			nodePid,
 		}).then((res: any) => {
 			if (res.code === 1) {
-				updateTree({ parentId });
+				updateTree({ parentId: nodePid });
 				molecule.explorer.forceUpdate();
 			} else {
 				molecule.folderTree.remove(id);
@@ -240,6 +241,7 @@ function editTreeNodeName() {
 			nodePid: parentId,
 		}).then((res: any) => {
 			if (res.code === 1) {
+				updateTree({ parentId: id });
 				molecule.explorer.forceUpdate();
 			}
 		});
@@ -346,7 +348,7 @@ function onRemove() {
 			onOk() {
 				const treeNode = molecule.folderTree.get(id);
 				if (treeNode?.data?.type === 'folder') {
-					api.delOfflineFolder({ id }).then((res) => {
+					api.delOfflineFolder({ id: treeNode.data.id }).then((res) => {
 						if (res.code === 1) {
 							message.success('删除成功');
 							molecule.folderTree.remove(id);

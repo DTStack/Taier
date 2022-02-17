@@ -91,7 +91,7 @@ export const replaceTreeNodeField = (
  */
 export const mergeTreeNodes = (treeNodeData: ITaskStreamProps, mergeSource: ITaskStreamProps) => {
 	if (treeNodeData) {
-		if (treeNodeData.taskId === mergeSource.taskId) {
+		if (treeNodeData.jobId === mergeSource.jobId) {
 			if (mergeSource.childNode) {
 				treeNodeData.childNode = cloneDeep(mergeSource.childNode);
 			}
@@ -398,7 +398,7 @@ class JobGraphView extends React.Component<any, any> {
 			source: null | ITaskStreamProps;
 			target: null | ITaskStreamProps;
 		}[] = this.preHandGraphTree(originData);
-
+		
 		const getVertex = (parentCell: any, data: ITaskStreamProps) => {
 			if (!data) return null;
 
@@ -413,7 +413,7 @@ class JobGraphView extends React.Component<any, any> {
 			}
 			const cell = graph.insertVertex(
 				isWorkflow ? null : parentCell,
-				data.taskId,
+				data.jobId,
 				data,
 				0,
 				0,

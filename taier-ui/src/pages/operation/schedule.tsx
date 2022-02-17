@@ -620,7 +620,6 @@ export default () => {
 					bottom: '22px',
 					width: '60%',
 					position: 'fixed',
-					paddingBottom: '40px',
 				}}
 			>
 				<TaskJobFlowView

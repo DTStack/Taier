@@ -30,7 +30,9 @@ import { isRDB } from '@/utils';
 import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const { Option } = Select;
+
+export const UnlimitedSpeed = '不限制传输速率';
 
 class ChannelForm extends React.Component<any, any> {
 	state: any = {
@@ -196,23 +198,24 @@ class ChannelForm extends React.Component<any, any> {
 		const speedOption: any = [];
 		const channelOption: any = [];
 		const unLimitedOption: any[] = [
-			<Option value="-1" key={-1}>
-				不限制传输速率
-			</Option>,
+			{
+				value: UnlimitedSpeed,
+			},
 		];
 
 		for (let i = 1; i <= 20; i++) {
 			speedOption.push(
-				<Option value={`${i}`} key={i}>
-					{i}
-				</Option>,
+				{
+					value: i.toString(),
+				},
 			);
 		}
 		for (let i = 1; i <= 5; i++) {
 			channelOption.push(
-				<Option value={`${i}`} key={i}>
-					{i}
-				</Option>,
+				{
+					value: i.toString(),
+					label: i,
+				},
 			);
 		}
 
@@ -236,9 +239,11 @@ class ChannelForm extends React.Component<any, any> {
 										required: true,
 									},
 								],
-								initialValue: `${setting.speed}`,
+								initialValue: `${
+									setting.speed === -1 ? UnlimitedSpeed : setting.speed
+								}`,
 							})(
-								<AutoComplete dataSource={unLimitedOption.concat(speedOption)}>
+								<AutoComplete options={unLimitedOption.concat(speedOption)}>
 									<Input suffix="MB/s" />
 								</AutoComplete>,
 							)}
@@ -271,14 +276,14 @@ class ChannelForm extends React.Component<any, any> {
 							})(
 								<AutoComplete
 									disabled={isClickHouse}
-									dataSource={channelOption}
+									options={channelOption}
 									optionFilterProp="value"
 								/>,
 							)}
 						</FormItem>
 						{!isStandeAlone && (
 							<>
-								<FormItem
+								{/* <FormItem
 									{...formItemLayout}
 									label={
 										<span>
@@ -292,7 +297,7 @@ class ChannelForm extends React.Component<any, any> {
 										rules: [],
 										initialValue: !!setting.isSaveDirty,
 									})(<Checkbox>记录保存</Checkbox>)}
-								</FormItem>
+								</FormItem> */}
 								<FormItem
 									{...formItemLayout}
 									label={

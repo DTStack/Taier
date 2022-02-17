@@ -266,8 +266,8 @@ export default () => {
 			},
 			{
 				title: '调度周期',
-				dataIndex: 'taskPeriodId',
-				key: 'taskPeriodId',
+				dataIndex: 'periodType',
+				key: 'periodType',
 				render: (text) => {
 					return <TaskTimeType value={text} />;
 				},

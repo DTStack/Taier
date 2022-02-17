@@ -19,14 +19,12 @@
 import moment from 'moment';
 import get from 'lodash/get';
 import type { SelectProps, CheckboxProps } from 'antd';
-import { Form, Checkbox, DatePicker, Select, Input, Radio } from 'antd';
-import HelpDoc from '../../../components/helpDoc';
+import { Form, Checkbox, DatePicker, Select, Input } from 'antd';
 import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
 import type { IScheduleConfProps } from '@/interface';
 import { forwardRef } from 'react';
 import { useImperativeHandle } from 'react';
 
-const { Group } = Radio;
 const { Option } = Select;
 const FormItem = Form.Item;
 
@@ -76,9 +74,16 @@ const GAP_OPTIONS = new Array(11).fill(1).map((_, i) => ({
 	value: ((i + 1) * 5).toString(),
 }));
 /**
+ * 小时间隔默认下拉，1小时，2小时...,23小时
+ */
+const GAP_HOUR_OPTIONS = new Array(24).fill(1).map((_, i) => ({
+	label: `${i + 1}小时`,
+	value: (i + 1).toString(),
+}));
+/**
  * 星期默认下拉选项
  */
-const WEEKS_OPTIONS = ['一', '二', '三', '四', '五', '六', '天'].map((day, index) => ({
+const WEEKS_OPTIONS = ['天', '一', '二', '三', '四', '五', '六'].map((day, index) => ({
 	label: `星期${day}`,
 	value: (index + 1).toString(),
 }));
@@ -120,7 +125,7 @@ export default forwardRef(
 			endHour,
 			endMin,
 			endDate,
-			isLastInstance,
+			// isLastInstance,
 			gapMin,
 			weekDay,
 			hour,
@@ -330,7 +335,7 @@ export default forwardRef(
 								]}
 								initialValue={`${gapHour}`}
 							>
-								<Select onChange={handleScheduleConf} options={HOURS_OPTIONS} />
+								<Select onChange={handleScheduleConf} options={GAP_HOUR_OPTIONS} />
 							</FormItem>
 							<FormItem {...scheduleConfigLayout} label="结束时间" required>
 								<FormItem
@@ -693,7 +698,7 @@ export default forwardRef(
 				<FormItem dependencies={['periodType']} noStyle>
 					{({ getFieldValue }) => renderTimeConfig(Number(getFieldValue('periodType')))}
 				</FormItem>
-				<FormItem noStyle dependencies={['periodType']}>
+				{/* <FormItem noStyle dependencies={['periodType']}>
 					{({ getFieldValue }) =>
 						// 调度周期为小时或者分钟
 						[
@@ -713,8 +718,8 @@ export default forwardRef(
 							</FormItem>
 						)
 					}
-				</FormItem>
-				<FormItem noStyle dependencies={['isExpire']}>
+				</FormItem> */}
+				{/* <FormItem noStyle dependencies={['isExpire']}>
 					{({ getFieldValue }) =>
 						getFieldValue('isExpire') && (
 							<FormItem {...scheduleConfigLayout} label="当天最后实例">
@@ -732,7 +737,7 @@ export default forwardRef(
 							</FormItem>
 						)
 					}
-				</FormItem>
+				</FormItem> */}
 			</Form>
 		);
 	},

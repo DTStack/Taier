@@ -82,7 +82,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 			form.setFieldsValue({
 				name: data.name,
 				taskType: data.taskType,
-				nodePid: data.nodePid,
+				nodePid: data.nodePid?.toString().split('-')[0],
 				taskDesc: data.taskDesc,
 			});
 		}
