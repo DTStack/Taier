@@ -23,6 +23,7 @@ import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -47,4 +48,8 @@ public interface ScheduleJobOperatorRecordMapper extends BaseMapper<ScheduleJobO
     List<String> listByJobIds(@Param("jobIds") List<String> jobIds);
 
     void updateNodeAddress(@Param("nodeAddress") String nodeAddress, @Param("jobIds")List<String> value);
+
+    Integer insertIgnoreBatch(@Param("records") Collection<ScheduleJobOperatorRecord> records);
+
+
 }

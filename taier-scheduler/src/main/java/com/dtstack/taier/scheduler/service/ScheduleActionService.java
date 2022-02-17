@@ -128,6 +128,8 @@ public class ScheduleActionService {
                 JobClient jobClient = new JobClient(paramActionExt);
                 jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
+                engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
+                        .eq(ScheduleEngineJobRetry::getJobId, jobClient.getJobId()));
                 return true;
             }
             LOGGER.warn("jobId：" + paramActionExt.getJobId() + " duplicate submissions are not allowed");
