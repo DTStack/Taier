@@ -1,9 +1,8 @@
 package com.dtstack.taier.scheduler.server.scheduler;
 
-import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.OperatorType;
-import com.dtstack.taier.common.enums.Restarted;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
@@ -72,7 +71,6 @@ public class RestartJobScheduler extends OperatorRecordJobScheduler {
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(ScheduleJob::getStatus, TaskStatus.UNSUBMIT.getStatus())
                 .eq(ScheduleJob::getPhaseStatus, JobPhaseStatus.CREATE.getCode())
-                .eq(ScheduleJob::getIsRestart, Restarted.RESTARTED.getStatus())
                 .list();
     }
 
