@@ -12,6 +12,7 @@ import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
+import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.mapstruct.ScheduleJobMapStruct;
@@ -335,7 +336,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     }
 
     /**
-     * 更新实例队列状态
+     * 更新实例队列状态，队列状态字段JobPhaseStatus，用于控制周期实例扫描时实例进队出队
      * @param id 实例id
      * @param original 实例当前队列状态
      * @param update 实例需要变更的队列状态
@@ -479,7 +480,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param phaseStatus 入队状态
      * @return 简单的实例封装
      */
-    public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
+    public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(Long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
         return this.baseMapper.listJobByStatusAddressAndPhaseStatus(jobStartId,unSubmitStatus,localAddress,phaseStatus);
     }
 
@@ -532,5 +533,21 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         this.baseMapper.delete(Wrappers.lambdaQuery(ScheduleJob.class).ge(ScheduleJob::getJobExecuteOrder,startExecuteOrder)
                 .eq(ScheduleJob::getType, EScheduleType.NORMAL_SCHEDULE.getType())
                 .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus()));
+    }
+
+    /**
+     * 扫描实例，用于容灾
+     *
+     * @param startId 开始id
+     * @param unfinishedStatuses 需求查询的状态
+     * @param nodeAddress 地址
+     * @return 包含部分字段的job集合
+     */
+    public List<SimpleScheduleJobDTO> listSimpleJobByStatusAddress(Long startId, List<Integer> unfinishedStatuses, String nodeAddress) {
+        if (startId < 0 || StringUtils.isBlank(nodeAddress)) {
+            return Lists.newArrayList();
+        }
+        List<ScheduleJob> simpleScheduleJobPOS = this.baseMapper.listSimpleJobByStatusAddress(startId, unfinishedStatuses, nodeAddress);
+        return ScheduleJobMapStruct.INSTANCE.scheduleJobTOSimpleScheduleJobDTO(simpleScheduleJobPOS);
     }
 }
