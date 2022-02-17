@@ -51,6 +51,6 @@ public class ScheduleCronMinParser implements IScheduleConfParser {
         int gapNum = scheduleConf.getGapMin();
 
         return cronFormat.replace("${gapMin}", gapNum + "")
-                .replace("${beginHour}", beginHour + "").replace("${endHour}", endHour + "");
+                .replace("${beginHour}", beginHour + "").replace("${endHour}", endHour-1 + "");
     }
 }
