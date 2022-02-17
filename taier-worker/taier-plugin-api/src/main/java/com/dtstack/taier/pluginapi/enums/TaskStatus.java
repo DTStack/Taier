@@ -184,8 +184,7 @@ public enum TaskStatus implements Serializable {
     public final static List<Integer> UNSUBMIT_STATUS = Lists.newArrayList(UNSUBMIT.getStatus());
     public final static List<Integer> RUNNING_STATUS = Lists.newArrayList(RUNNING.getStatus(), NOTFOUND.getStatus());
     public final static List<Integer> FINISH_STATUS = Lists.newArrayList(FINISHED.getStatus(), MANUALSUCCESS.getStatus());
-    public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus(),
-            PARENTFAILED.getStatus());
+    public final static List<Integer> FAILED_STATUS = Lists.newArrayList(FAILED.getStatus(), SUBMITFAILD.getStatus());
     public final static List<Integer> SUBMITFAILD_STATUS = Lists.newArrayList(SUBMITFAILD.getStatus());
     public final static List<Integer> PARENTFAILED_STATUS = Lists.newArrayList(PARENTFAILED.getStatus());
     public final static List<Integer> RUN_FAILED_STATUS = Lists.newArrayList(FAILED.getStatus());
@@ -258,6 +257,7 @@ public enum TaskStatus implements Serializable {
         COLLECTION_STATUS.put(RUNNING.getStatus(), RUNNING_STATUS);
         COLLECTION_STATUS.put(FINISHED.getStatus(), FINISH_STATUS);
         COLLECTION_STATUS.put(FAILED.getStatus(), FAILED_STATUS);
+        COLLECTION_STATUS.put(PARENTFAILED.getStatus(), PARENTFAILED_STATUS);
         COLLECTION_STATUS.put(WAITENGINE.getStatus(), WAIT_STATUS);
         COLLECTION_STATUS.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
         COLLECTION_STATUS.put(CANCELED.getStatus(), STOP_STATUS);
@@ -308,7 +308,9 @@ public enum TaskStatus implements Serializable {
     public static int getShowStatus(Integer status) {
         if (FAILED_STATUS.contains(status)) {
             status = FAILED.getStatus();
-        } else {
+        } else if (PARENTFAILED_STATUS.contains(status)) {
+            status = PARENTFAILED.getStatus();
+        }else {
             status = getShowStatusWithoutStop(status);
         }
         return status;

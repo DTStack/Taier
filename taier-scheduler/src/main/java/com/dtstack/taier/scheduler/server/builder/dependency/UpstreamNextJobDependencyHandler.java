@@ -74,9 +74,11 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
         // 上游任务
         Date upstreamTask = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
+        // 上游任务的上一个周期
+        Date upstreamTaskLastCycle = corn.last(upstreamTask);
 
         // 判断是否上一次执行的时间和当前时间是否是同一天，如果是的话插入，不是的话，去查询一下数据库是否有实例生成。
-        if (!DateUtil.isSameDay(upstreamTask,currentDate)) {
+        if (!DateUtil.isSameDay(upstreamTaskLastCycle,currentDate)) {
             // 不是同一天
             ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
                     .select(ScheduleJob::getJobId)
@@ -87,8 +89,6 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
                 return null;
             }
         }
-        // 上游任务的上一个周期
-        Date upstreamTaskLastCycle = corn.last(upstreamTask);
 
         String lastDate = DateUtil.getDate(upstreamTaskLastCycle, DateUtil.STANDARD_DATETIME_FORMAT);
 
