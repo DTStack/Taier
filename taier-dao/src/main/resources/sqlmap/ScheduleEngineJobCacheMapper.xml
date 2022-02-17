@@ -78,6 +78,9 @@
     <select id="listByStage" resultType="com.dtstack.taier.dao.domain.ScheduleEngineJobCache">
         select
         <include refid="engine_simple"/>
+        <if test="selectJobInfo">
+            ,`job_info`
+        </if>
         from schedule_engine_job_cache
         where id > #{startId}
         <if test="nodeAddress != null">
