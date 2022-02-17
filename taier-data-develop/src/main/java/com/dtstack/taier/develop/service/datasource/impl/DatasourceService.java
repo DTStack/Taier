@@ -1205,10 +1205,9 @@ public class DatasourceService {
             }
 
             Map<String, Object> sourceMap = (Map<String, Object>) sourceList.get(0);
-            DataBaseType dataBaseType = DataSourceDataBaseType.getBaseTypeBySourceType(sourceType);
             map.put("sourceId", sourceMap.get("sourceId"));
             map.put("name", sourceMap.get("name"));
-            map.put("type", dataBaseType);
+            map.put("type", sourceType);
             map.put("connections", connections);
             processTable(map);
         } else {
