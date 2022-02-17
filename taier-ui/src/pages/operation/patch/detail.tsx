@@ -451,7 +451,7 @@ export default () => {
 			ascend: 'asc',
 		};
 
-		const { field, order } = sorter || {};
+		const { field = 'cycTime', order } = sorter || {};
 
 		const sortKey = sortMapping[field as string];
 		const sortValue = orderMapping[order || 'descend'];

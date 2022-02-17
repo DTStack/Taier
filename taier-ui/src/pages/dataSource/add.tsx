@@ -250,7 +250,7 @@ export default function Add({ record, onSubmit }: IAddProps) {
 		const STEPS_CONTENT = [
 			<SelectSource
 				defaultMenu={dataSource.selectedMenu}
-				defaultDataSource={dataSource.currentDataSource?.typeId}
+				defaultDataSource={dataSource.currentDataSource?.dataType}
 				onSelectDataSource={handleSelected}
 			/>,
 			<Version dataSource={dataSource.currentDataSource!} onSelectVersion={handleVersion} />,

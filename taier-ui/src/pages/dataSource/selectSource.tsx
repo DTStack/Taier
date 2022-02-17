@@ -32,7 +32,7 @@ const IMGAE_SIZE = 216;
 
 interface IProps {
 	defaultMenu?: string;
-	defaultDataSource?: number;
+	defaultDataSource?: string;
 	onSelectDataSource?: (dataSource: IDataSourceType, currentMenuId: string) => void;
 }
 
@@ -56,9 +56,9 @@ export default function SelectSource({
 	const [menuList, setMenuList] = useState<IMenuProps[]>([]);
 	const [dataSourceTypeList, setDataSourceList] = useState<IDataSourceType[]>([]);
 	const [ratio, setRatio] = useState(1.0);
-	const [selectedDataSource, setSelected] = useState<number | undefined>(defaultDataSource);
+	const [selectedDataSource, setSelected] = useState<string | undefined>(defaultDataSource);
 
-	const getDataSourceList = (dataSourceId: number | string) => {
+	const getDataSourceList = (dataSourceId: string) => {
 		API.queryDsTypeByClassify({
 			classifyId: Number(dataSourceId),
 			search: searchName,
@@ -89,10 +89,11 @@ export default function SelectSource({
 					// set the default menu after getting the menu list
 					const firstMenu = data[0].classifyId;
 					setMenuList(data || []);
+
 					if (!current.length) {
 						setCurrent([firstMenu.toString()]);
 					}
-					getDataSourceList(firstMenu);
+					getDataSourceList(current[0] || firstMenu);
 				}
 			})
 			.catch(() => {
@@ -118,13 +119,15 @@ export default function SelectSource({
 	// 计算图片缩放倍率
 	const computeScaleRatio = useCallback(
 		debounce(() => {
-			const width = parseFloat(window.getComputedStyle(wrapper.current!).width);
-			const len = Math.floor(width / (IMGAE_SIZE + 16));
-			if (len >= 1) {
-				const nextRatio = (width - 16 * len) / len / IMGAE_SIZE;
-				setRatio(nextRatio);
-			} else {
-				setRatio(width / IMGAE_SIZE);
+			if (wrapper.current) {
+				const width = parseFloat(window.getComputedStyle(wrapper.current).width);
+				const len = Math.floor(width / (IMGAE_SIZE + 16));
+				if (len >= 1) {
+					const nextRatio = (width - 16 * len) / len / IMGAE_SIZE;
+					setRatio(nextRatio);
+				} else {
+					setRatio(width / IMGAE_SIZE);
+				}
 			}
 		}, 500),
 		[],
@@ -132,7 +135,7 @@ export default function SelectSource({
 
 	// 选择对应类型
 	const onSelectType = (item: IDataSourceType) => {
-		setSelected(item.typeId);
+		setSelected(item.dataType);
 		onSelectDataSource?.(item, current[0]);
 	};
 
@@ -180,11 +183,11 @@ export default function SelectSource({
 				<div className="right-menu">
 					<div className="right-menu-main">
 						<div className="right-menu-main-content" ref={wrapper}>
-							{dataSourceTypeList.map((item, index) => {
+							{dataSourceTypeList.map((item) => {
 								const col = (
 									<div
 										className="right-menu-item"
-										key={index}
+										key={item.dataType}
 										style={{
 											width: 'auto',
 											marginBottom: 20,
@@ -195,7 +198,7 @@ export default function SelectSource({
 											src={item.imgUrl}
 											alt="图片显示失败"
 											className={classNames(
-												selectedDataSource === item.typeId && 'selected',
+												selectedDataSource === item.dataType && 'selected',
 											)}
 											style={{
 												width: IMGAE_SIZE * ratio,
