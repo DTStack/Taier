@@ -237,23 +237,6 @@ comment '文件夹、目录表';
 create index index_catologue_name
 	on develop_catalogue (node_pid, node_name);
 
-create table develop_dict
-(
-	id int auto_increment
-		primary key,
-	type int default 0 not null comment '区分字典类型，1：数据源字典 ...',
-	dict_name varchar(256) default '' not null comment '字典名',
-	dict_value int default 0 not null comment '字典值',
-	dict_name_zh varchar(256) default '' not null comment '字典中文名',
-	dict_name_en varchar(256) default '' not null comment '字典英文名',
-	dict_sort int default 0 not null comment '字典顺序',
-	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
-	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
-	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
-	constraint index_type_dict_name
-		unique (type, dict_name)
-)
-comment '字典表';
 
 create table develop_function
 (
@@ -766,19 +749,6 @@ create table schedule_job_operator_record
 		unique (job_id, operator_type, is_deleted)
 );
 
-create table schedule_plugin_info
-(
-	id int auto_increment
-		primary key,
-	plugin_key varchar(255) not null comment '插件配置信息md5值',
-	plugin_info text not null comment '插件信息',
-	type tinyint(2) not null comment '类型 0:默认插件, 1:动态插件(暂时数据库只存动态插件)',
-	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
-	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
-	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
-	constraint index_plugin_id
-		unique (plugin_key)
-);
 
 create table schedule_plugin_job_info
 (
