@@ -222,7 +222,7 @@ public class AstNodeParser extends BaseSqlParser {
                 root = parseDriver.parse(singleSql);
                 backLists.addAll(ASTNodeUtil.getFunctionNames(root));
             } catch (ParseException e) {
-                LOG.error("parseFunction error:{}", e);
+                LOG.warn("parseFunction error:{}", e);
             }
         }
         return backLists.stream().filter(StringUtils::isNoneBlank).collect(Collectors.toSet());
