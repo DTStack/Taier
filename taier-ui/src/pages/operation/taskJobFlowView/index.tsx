@@ -33,6 +33,7 @@ import { TASK_TYPE_ENUM, TASK_STATUS, RESTART_STATUS_ENUM } from '@/constant';
 import type { IScheduleTaskProps } from '../schedule';
 import type { ITaskStreamProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
+import { goToTaskDev } from '@/utils';
 import './index.scss';
 
 const Mx = MxFactory.create();
@@ -287,13 +288,9 @@ class TaskJobFlowView extends React.Component<any, any> {
 				};
 				ctx.loadPeriodsData(menu, nextParams, nextPeriods);
 				// if (isCurrentProjectTask) {
-				// 	menu.addItem(
-				// 		`${isPro ? '查看' : '修改'}任务`,
-				// 		null,
-				// 		function () {
-				// 			goToTaskDev(currentNode.batchTask);
-				// 		},
-				// 	);
+				menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, () => {
+					goToTaskDev({ id: currentNode.taskId });
+				});
 				// }
 				menu.addItem(
 					'终止',

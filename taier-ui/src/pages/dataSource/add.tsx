@@ -4,7 +4,7 @@ import { Steps, Button, Spin, message } from 'antd';
 import Base64 from 'base-64';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
-import { CREATE_DATASOURCE_PREFIX } from '@/constant';
+import { CREATE_DATASOURCE_PREFIX, EDIT_DATASOURCE_PREFIX } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
 import { utf16to8 } from '@/utils';
 import { API } from '@/api/dataSource';
@@ -104,12 +104,17 @@ export default function Add({ record, onSubmit }: IAddProps) {
 						data,
 					} = await API.addOrUpdateSourceWithKerberos(handelParams);
 
+					const edit = infoMsg.startsWith('修改');
 					if (success && data) {
 						message.success(`${infoMsg}`);
 						setTimeout(() => {
-							const groupId =
-								molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX);
-							molecule.editor.closeTab(CREATE_DATASOURCE_PREFIX, groupId!);
+							const groupId = molecule.editor.getGroupIdByTab(
+								edit ? EDIT_DATASOURCE_PREFIX : CREATE_DATASOURCE_PREFIX,
+							);
+							molecule.editor.closeTab(
+								edit ? EDIT_DATASOURCE_PREFIX : CREATE_DATASOURCE_PREFIX,
+								groupId!,
+							);
 							onSubmit?.();
 						}, 500);
 					} else {
@@ -120,10 +125,15 @@ export default function Add({ record, onSubmit }: IAddProps) {
 
 					if (success && data) {
 						message.success(`${infoMsg}`);
+						const edit = infoMsg.startsWith('修改');
 						setTimeout(() => {
-							const groupId =
-								molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX);
-							molecule.editor.closeTab(CREATE_DATASOURCE_PREFIX, groupId!);
+							const groupId = molecule.editor.getGroupIdByTab(
+								edit ? EDIT_DATASOURCE_PREFIX : CREATE_DATASOURCE_PREFIX,
+							);
+							molecule.editor.closeTab(
+								edit ? EDIT_DATASOURCE_PREFIX : CREATE_DATASOURCE_PREFIX,
+								groupId!,
+							);
 							onSubmit?.();
 						}, 500);
 					} else {
