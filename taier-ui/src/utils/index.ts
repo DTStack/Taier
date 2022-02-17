@@ -17,14 +17,14 @@ import { updateDrawer } from '@/components/customDrawer';
 /**
  * 返回今日 [00:00:00, 23:59:69]
  */
-export function getTodayTime() {
+export function getTodayTime(date?: moment.Moment) {
 	return [
-		moment().set({
+		moment(date).set({
 			hour: 0,
 			minute: 0,
 			second: 0,
 		}),
-		moment().set({
+		moment(date).set({
 			hour: 23,
 			minute: 59,
 			second: 59,
@@ -540,7 +540,9 @@ export function goToTaskDev(record: { id: string | number; [key: string]: any })
 		query: {},
 	});
 	// Close drawer
-	updateDrawer({ id: 'root', visible: false });
+	updateDrawer({ id: 'root', visible: false, renderContent: () => null });
+	// clear popupMenu
+	removePopUpMenu();
 }
 
 /**
@@ -589,6 +591,7 @@ export function getVertxtStyle(type: TASK_STATUS): string {
 		case TASK_STATUS.DEPLOYING:
 		case TASK_STATUS.WAIT_SUBMIT:
 		case TASK_STATUS.WAIT_RUN:
+		case TASK_STATUS.SUBMITTED:
 			return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
 		case TASK_STATUS.RUN_FAILED:
 		case TASK_STATUS.PARENT_FAILD:
@@ -682,4 +685,28 @@ export function isHdfsType(type: string) {
 export function isEqualArr(arr1: string[], arr2: string[]): boolean {
 	const toString = JSON.stringify;
 	return toString(arr1.sort()) === toString(arr2.sort());
+}
+
+function formatJSON(str: string) {
+	const standardStr = str.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+	const jsonObj = JSON.parse(standardStr);
+	Object.keys(jsonObj).forEach((key) => {
+		if (typeof jsonObj[key] === 'string') {
+			jsonObj[key] = formatJSON(jsonObj[key]);
+		}
+	});
+
+	return jsonObj;
+}
+
+/**
+ * 格式化 JSON 字符串，用于日志输出
+ */
+export function prettierJSONstring(str: string) {
+	try {
+		const obj = formatJSON(str);
+		return JSON.stringify(obj, null, 2);
+	} catch (error) {
+		return str;
+	}
 }

@@ -231,7 +231,7 @@ class DataSync extends React.Component<any, any> {
 			sourceMap: {},
 			targetMap: {},
 			keymap: {},
-			setting:{}
+			setting: {},
 		});
 		this.props.saveDataSyncToTab({
 			id: currentTabData?.id,
@@ -276,9 +276,9 @@ class DataSync extends React.Component<any, any> {
 			targetMap,
 		} = this.props;
 
-		const { readWriteLockVO, syncModel, notSynced } = currentTabData;
+		const { syncModel, notSynced } = currentTabData;
 
-		const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
+		const isLocked = false;
 		const isIncrementMode = syncModel !== undefined && syncModel === DATA_SYNC_MODE.INCREMENT;
 
 		const steps: any = [

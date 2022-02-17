@@ -105,8 +105,11 @@ export function transformCatalogueToTree(
 			const fileType = isRootFolder ? FileTypes.RootFolder : catalogueType;
 
 			// If the node already stored in folderTree, then use it
-			const prevNode = molecule.folderTree.get(catalogue.id);
-			if (prevNode) {
+			const prevNode = molecule.folderTree.get(
+				fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
+			);
+			// file always generate the new one 
+			if (prevNode && fileType !== FileTypes.File) {
 				return new TreeNodeModel({
 					id: prevNode.id,
 					name: prevNode.name,
@@ -125,7 +128,8 @@ export function transformCatalogueToTree(
 			}
 
 			return new TreeNodeModel({
-				id: catalogue.id,
+				// prevent same id between folder and file
+				id: fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
 				name: catalogue.name,
 				location: catalogue.name,
 				fileType,

@@ -20,7 +20,7 @@ import { Row, Pagination, Col } from 'antd';
 import type { PaginationProps } from 'antd';
 import Editor from '@/components/codeEditor';
 import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
-import { formatDateTime } from '@/utils';
+import { formatDateTime, prettierJSONstring } from '@/utils';
 import { useMemo } from 'react';
 
 const editorOptions: any = {
@@ -86,6 +86,18 @@ interface ILogInfoProps {
 	 */
 	log?: string;
 	/**
+	 * 当前 sql
+	 */
+	sqlText?: string;
+	/**
+	 * 数据同步任务指标字段展示
+	 */
+	syncLog?: string;
+	/**
+	 * 下载地址
+	 */
+	downLoadUrl?: string;
+	/**
 	 * 同步任务的属性
 	 */
 	syncJobInfo?: { execTime: string; readNum: number; writeNum: number; dirtyPercent: number };
@@ -100,6 +112,7 @@ interface ILogInfoProps {
 }
 
 export default function LogInfo(props: ILogInfoProps) {
+	const { syncLog, sqlText, downLoadUrl } = props;
 	const logText = useMemo(() => {
 		/**
 		 * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
@@ -107,8 +120,15 @@ export default function LogInfo(props: ILogInfoProps) {
 		const safeSpace = ' ';
 		let text = '';
 		try {
+			// first to render syncSql
+			if (syncLog) {
+				text = `${text}${wrappTitle('数据同步指标日志')}\n${syncLog}`;
+			}
+			// then to render sqlInfo or engineLog
 			const log: Record<string, any> = props.log
-				? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r'))
+				? JSON.parse(
+						props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t'),
+				  )
 				: {};
 			const errors = log['all-exceptions'] || '';
 			const { engineLogErr } = log;
@@ -200,6 +220,15 @@ export default function LogInfo(props: ILogInfoProps) {
 					)} ${safeSpace} \n`;
 				}
 				text = `${text}${wrappTitle('')}\n${safeSpace} \n`;
+			}
+
+			if (downLoadUrl) {
+				text = `${text}完整日志下载地址：${createLinkMark({ href: downLoadUrl, download: '' })}\n`;
+			}
+
+			// last to render sqlText
+			if (sqlText) {
+				text = `${text}${wrappTitle('任务信息')}\n${prettierJSONstring(sqlText)}`;
 			}
 		} catch (e: any) {
 			text = `${createLogMark('日志解析错误', 'error')}\n${createLogMark(
