@@ -83,7 +83,11 @@ export function isSameVersion(code: number): boolean {
 }
 
 export function isMultiVersion(code: number): boolean {
-	const tmp: number[] = [COMPONENT_TYPE_VALUE.FLINK, COMPONENT_TYPE_VALUE.SPARK];
+	const tmp: number[] = [
+		COMPONENT_TYPE_VALUE.FLINK,
+		COMPONENT_TYPE_VALUE.SPARK,
+		COMPONENT_TYPE_VALUE.SPARK_THRIFT,
+	];
 	return tmp.indexOf(code) > -1;
 }
 
@@ -265,14 +269,14 @@ function handleSingleParam(params: any) {
 			};
 		}
 	});
-	Object.keys(tempParamObj).forEach(key => {
+	Object.keys(tempParamObj).forEach((key) => {
 		customParamConfig.push({
 			key: tempParamObj[key].key,
 			value: tempParamObj[key].value,
 			id: key,
-			type: CONFIG_ITEM_TYPE.CUSTOM_CONTROL
-		})
-	})
+			type: CONFIG_ITEM_TYPE.CUSTOM_CONTROL,
+		});
+	});
 	return customParamConfig;
 }
 

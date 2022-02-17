@@ -9,7 +9,6 @@ import Resource from './resourceView';
 import BindTenant from './bindTenant';
 import type { IClusterProps } from '@/components/bindCommModal';
 import type { ITableProps } from './bindTenant';
-import type { ICapacityProps } from './resourceView/helper';
 import { getCatalogueTree } from '@/extensions/catalogue';
 import './resource.scss';
 
@@ -39,8 +38,6 @@ export default () => {
 	const [tabLoading, setTabLoading] = useState(false);
 	const [activeKey, setActiveKey] = useState('');
 	const [manageModalVisible, setManageModalVisible] = useState(false);
-	// 多个 tab 下用到，父组件存个值
-	const [queueList, setQueueList] = useState<ICapacityProps[]>([]);
 	const [tenantInfo, setTenantInfo] = useState<ITableProps | undefined>(undefined);
 
 	const bindTenantRef = useRef<any>(null);
@@ -194,9 +191,6 @@ export default () => {
 												cluster.id === form.getFieldValue('clusterId'),
 										)?.clusterName
 									}
-									onGetQueueList={(queues) =>
-										setQueueList(queues as ICapacityProps[])
-									}
 								/>
 							</TabPane>
 						) : null}
@@ -224,7 +218,6 @@ export default () => {
 				visible={manageModalVisible}
 				isBindTenant={false}
 				clusterList={clusterList}
-				queueList={queueList}
 				clusterId={form.getFieldValue('clusterId')}
 				tenantId={tenantInfo?.tenantId}
 				queueId={tenantInfo?.queueId}
