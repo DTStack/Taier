@@ -188,7 +188,7 @@ export default function MultiVersionComp({
 											<span>
 												{!isFLink(typeCode) &&
 													`${COMPONENT_CONFIG_NAME[typeCode]} `}
-												{getCompVersion(value)}
+												{value}
 											</span>
 										</span>
 										<CaretRightOutlined />
@@ -231,7 +231,7 @@ export default function MultiVersionComp({
 				}
 			>
 				{comp?.multiVersion.map((vcomp: any) => {
-					const { deployType: type, componentTypeCode, versionName } = vcomp;				
+					const { deployType: type, componentTypeCode, versionName } = vcomp;
 					return (
 						<TabPane
 							tab={
