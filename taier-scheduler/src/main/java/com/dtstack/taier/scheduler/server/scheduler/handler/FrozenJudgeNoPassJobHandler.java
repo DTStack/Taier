@@ -4,6 +4,7 @@ import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
+import com.dtstack.taier.scheduler.server.scheduler.exec.JobCheckRunInfo;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +26,14 @@ public class FrozenJudgeNoPassJobHandler implements JudgeNoPassJobHandler {
     private ScheduleJobService scheduleJobService;
 
     @Override
-    public Boolean handlerJob(ScheduleJobDetails scheduleJobDetails, JobCheckStatus status) {
+    public Boolean handlerJob(ScheduleJobDetails scheduleJobDetails, JobCheckRunInfo jobCheckRunInfo) {
         ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.KILLED.getStatus(), status.getMsg());
+        scheduleJobService.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.FROZEN.getStatus(), jobCheckRunInfo.getLogInfo());
         return Boolean.FALSE;
     }
 
     @Override
     public Boolean isSupportJobCheckStatus(JobCheckStatus status) {
-        return TaskStatus.FROZEN.equals(status);
+        return JobCheckStatus.FATHER_JOB_FROZEN.equals(status) || JobCheckStatus.TASK_STATUS_STOP.equals(status);
     }
 }

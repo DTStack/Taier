@@ -156,7 +156,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
                     for (JudgeNoPassJobHandler judgeNoPassJobHandler : judgeNoPassJobHandlerList) {
                         if (judgeNoPassJobHandler.isSupportJobCheckStatus(exec.getStatus())) {
-                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec.getStatus());
+                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec);
                         }
                     }
 
