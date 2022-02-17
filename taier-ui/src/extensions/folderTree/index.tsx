@@ -398,7 +398,7 @@ function contextMenu() {
 				const afterSubmit = (params: any, values: any) => {
 					// 更新旧结点所在的文件夹
 					updateTree({
-						parentId: treeNode!.data.id,
+						parentId: treeNode!.data.parentId,
 					});
 
 					// 如果文件的位置发生了移动，则还需要更新新结点所在的文件夹
