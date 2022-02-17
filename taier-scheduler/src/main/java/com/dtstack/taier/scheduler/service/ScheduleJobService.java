@@ -128,7 +128,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 ScheduleJob scheduleJob = new ScheduleJob();
                 scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
                 scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
-                scheduleJob.setIsRestart(Restarted.RESTARTED.getStatus());
                 scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
 
                 // 更新状态

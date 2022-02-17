@@ -97,7 +97,7 @@
             AND `create_user_id` = #{statistics.userId}
         </if>
         <if test="statistics.cycStartTime!=null and statistics.cycStartTime!='' and statistics.cycEndTime!='' and statistics.cycEndTime!=null">
-            AND `cyc_time` &gt; #{statistics.cycStartTime} AND `cyc_time` &lt;= #{statistics.cycEndTime}
+            AND `cyc_time` &gt;= #{statistics.cycStartTime} AND `cyc_time` &lt;= #{statistics.cycEndTime}
         </if>
         <if test="statistics.taskIdList!=null and statistics.taskIdList.size!=0">
             AND task_id IN
@@ -112,7 +112,7 @@
             </foreach>
         </if>
         <if test="statistics.jobStatusList!=null and statistics.jobStatusList.size!=0">
-            AND `task_type` IN
+            AND `status` IN
             <foreach collection="statistics.jobStatusList" open="(" close=")" item="status" separator=",">
                 #{status}
             </foreach>
