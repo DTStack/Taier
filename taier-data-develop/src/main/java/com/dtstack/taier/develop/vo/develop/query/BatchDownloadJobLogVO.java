@@ -10,9 +10,6 @@ public class BatchDownloadJobLogVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "job id", example = "79275d9f", required = true)
     private String jobId;
 
-    @ApiModelProperty(value = "dtuic租户id", hidden = true)
-    private Long dtuicTenantId;
-
     @ApiModelProperty(value = "任务类型", example = "1", required = true)
     private Integer taskType;
 
@@ -25,14 +22,6 @@ public class BatchDownloadJobLogVO extends DtInsightAuthParam {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
-    }
-
-    public Long getDtuicTenantId() {
-        return dtuicTenantId;
-    }
-
-    public void setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
     }
 
     public Integer getTaskType() {
