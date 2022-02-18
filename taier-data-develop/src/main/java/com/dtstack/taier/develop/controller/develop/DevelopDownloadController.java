@@ -24,7 +24,7 @@ public class DevelopDownloadController {
     @GetMapping(value = "downloadJobLog")
     @ApiOperation("下载job日志")
     public void downloadJobLog(BatchDownloadJobLogVO vo, HttpServletResponse response) {
-        IDownload iDownload = batchDownloadService.downloadJobLog(vo.getJobId(), vo.getTaskType(), vo.getDtuicTenantId());
+        IDownload iDownload = batchDownloadService.downloadJobLog(vo.getJobId(), vo.getTaskType(), vo.getTenantId());
         batchDownloadService.handleDownload(response, iDownload, DownloadType.DEVELOP_LOG, vo.getJobId());
     }
 
