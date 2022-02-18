@@ -10,6 +10,7 @@ package com.dtstack.taier.common.constant;
 public interface CommonConstant {
 
     String DOT = ".";
+    String SYMBOL_COLON = ":";
 
     String XML_SUFFIX = ".xml";
     String ZIP_SUFFIX = ".zip";
