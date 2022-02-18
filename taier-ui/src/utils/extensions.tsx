@@ -92,8 +92,30 @@ export function transformCatalogueToTree(
 	const folderType = ['folder', 'catalogue'];
 	if (!catalogue) return;
 	switch (source) {
-		case CATELOGUE_TYPE.TASK:
 		case CATELOGUE_TYPE.RESOURCE: {
+			const children = (catalogue.children || [])
+				.map((child) => transformCatalogueToTree(child, source))
+				.filter(Boolean) as TreeNodeModel[];
+
+			const catalogueType = folderType.includes(catalogue.type)
+				? FileTypes.Folder
+				: FileTypes.File;
+
+			const fileType = isRootFolder ? FileTypes.RootFolder : catalogueType;
+
+			return new TreeNodeModel({
+				// prevent same id between folder and file
+				id: catalogue.id,
+				name: catalogue.name,
+				location: catalogue.name,
+				fileType,
+				icon: fileIcon(catalogue.resourceType, source),
+				isLeaf: fileType === FileTypes.File,
+				data: catalogue,
+				children,
+			});
+		}
+		case CATELOGUE_TYPE.TASK: {
 			const children = (catalogue.children || [])
 				.map((child) => transformCatalogueToTree(child, source))
 				.filter(Boolean) as TreeNodeModel[];
@@ -108,7 +130,7 @@ export function transformCatalogueToTree(
 			const prevNode = molecule.folderTree.get(
 				fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
 			);
-			// file always generate the new one 
+			// file always generate the new one
 			if (prevNode && fileType !== FileTypes.File) {
 				return new TreeNodeModel({
 					id: prevNode.id,
@@ -133,10 +155,7 @@ export function transformCatalogueToTree(
 				name: catalogue.name,
 				location: catalogue.name,
 				fileType,
-				icon: fileIcon(
-					source === CATELOGUE_TYPE.TASK ? catalogue.taskType : catalogue.resourceType,
-					source,
-				),
+				icon: fileIcon(catalogue.taskType, source),
 				isLeaf: fileType === FileTypes.File,
 				data: catalogue,
 				children,
