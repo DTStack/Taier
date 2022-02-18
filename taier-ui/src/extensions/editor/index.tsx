@@ -31,7 +31,7 @@ import {
 	DRAWER_MENU_ENUM,
 } from '@/constant';
 import { history } from 'umi';
-import { debounce } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import ReactDOM from 'react-dom';
 import Result from '@/components/task/result';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
@@ -392,7 +392,7 @@ function emitEvent() {
 				node.id = CONTAINER_ID;
 				root.appendChild(node);
 				if (currentTab) {
-					ReactDOM.render(<Publish data={currentTab.data} />, node);
+					ReactDOM.render(<Publish data={cloneDeep(currentTab.data)} />, node);
 				}
 				break;
 			}
