@@ -9,7 +9,7 @@ const config = {
     title: 'Taier',
     tagline: 'A Distributed dispatching system',
     url: 'https://dtstack.github.io',
-    baseUrl: '/taier/',
+    baseUrl: '/Taier/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.png',
@@ -35,7 +35,7 @@ const config = {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
                 gtag: {
-                    trackingID: 'G-YR822Y4D1C',
+                    trackingID: 'G-09MSEFN7VC',
                     anonymizeIP: true,
                 },
             }),
