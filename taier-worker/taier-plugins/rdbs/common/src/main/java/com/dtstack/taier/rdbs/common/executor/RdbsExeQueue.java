@@ -20,7 +20,7 @@ package com.dtstack.taier.rdbs.common.executor;
 
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.logstore.LogStoreFactory;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.google.common.collect.Maps;
@@ -127,7 +127,7 @@ public class RdbsExeQueue {
 
         try {
             if (LogStoreFactory.getLogStore() != null) {
-                LogStoreFactory.getLogStore().insert(jobClient.getJobId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+                LogStoreFactory.getLogStore().insert(jobClient.getJobId(), jobClient.getParamAction().toString(), TaskStatus.SCHEDULED.getStatus());
             }
             jobCache.put(jobClient.getJobId(), jobClient);
             waitQueue.put(jobClient);
@@ -161,11 +161,11 @@ public class RdbsExeQueue {
     }
 
 
-    public RdosTaskStatus getJobStatus(String jobId) {
+    public TaskStatus getJobStatus(String jobId) {
         if (LogStoreFactory.getLogStore() != null) {
             Integer status = LogStoreFactory.getLogStore().getStatusByJobId(jobId);
             if (status != null) {
-                return RdosTaskStatus.getTaskStatus(status);
+                return TaskStatus.getTaskStatus(status);
             }
         }
         return null;
@@ -238,7 +238,7 @@ public class RdbsExeQueue {
 
                 simpleStmt = conn.createStatement();
                 if (LogStoreFactory.getLogStore() != null) {
-                    LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, TaskStatus.RUNNING.getStatus());
                 }
                 int i = 1;
                 for (String sql : sqlList) {
@@ -294,7 +294,7 @@ public class RdbsExeQueue {
                 //修改指定任务的状态--成功或者失败
                 //处理cancel job 情况
                 if (LogStoreFactory.getLogStore() != null) {
-                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? TaskStatus.FINISHED.getStatus() : TaskStatus.FAILED.getStatus());
                 }
                 jobCache.remove(engineJobId);
                 threadCache.remove(engineJobId);
@@ -342,7 +342,7 @@ public class RdbsExeQueue {
                 } finally {
                     //更新任务状态
                     if (LogStoreFactory.getLogStore() != null) {
-                        LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                        LogStoreFactory.getLogStore().updateStatus(engineJobId, TaskStatus.CANCELED.getStatus());
                     }
                     jobCache.remove(engineJobId);
                 }
@@ -365,7 +365,7 @@ public class RdbsExeQueue {
                 procCreateStmt = conn.createStatement();
                 if (LogStoreFactory.getLogStore() != null) {
                     //更新状态为running 防止存储过程执行太长 导致状态一直schedule
-                    LogStoreFactory.getLogStore().updateStatus(engineJobId, RdosTaskStatus.RUNNING.getStatus());
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, TaskStatus.RUNNING.getStatus());
                 }
                 procCreateStmt.execute(jobSqlProc);
 
@@ -403,7 +403,7 @@ public class RdbsExeQueue {
                 LOG.info("job:{} exe {} end...", engineJobId, exeResult);
                 //修改指定任务的状态--成功或者失败
                 if (LogStoreFactory.getLogStore() != null) {
-                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                    LogStoreFactory.getLogStore().updateStatus(engineJobId, exeResult ? TaskStatus.FINISHED.getStatus() : TaskStatus.FAILED.getStatus());
                 }
                 jobCache.remove(engineJobId);
             }

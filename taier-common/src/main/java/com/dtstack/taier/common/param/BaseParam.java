@@ -20,16 +20,12 @@ package com.dtstack.taier.common.param;
 
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.ToString;
 
 /**
  * @Auther: 尘二(chener @ dtstack.com)
  * @Date: 2018/12/17 11:28
  * @Description: SDK 基类
  */
-@Data
-@ToString
 class BaseParam {
     /**
      * 通道 -- 默认是 RDOS_SDK
@@ -54,4 +50,36 @@ class BaseParam {
      */
     @ApiModelProperty(hidden = true)
     private String signType = "DEFAULT";
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public String getSdkVersion() {
+        return sdkVersion;
+    }
+
+    public void setSdkVersion(String sdkVersion) {
+        this.sdkVersion = sdkVersion;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getSignType() {
+        return signType;
+    }
+
+    public void setSignType(String signType) {
+        this.signType = signType;
+    }
 }

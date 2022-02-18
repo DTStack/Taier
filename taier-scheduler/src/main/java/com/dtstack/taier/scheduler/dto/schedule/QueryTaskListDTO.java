@@ -18,7 +18,7 @@ public class QueryTaskListDTO {
     /**
      * 所属用户
      */
-    private Long ownerId;
+    private Long operatorId;
 
     /**
      * 任务名称
@@ -76,12 +76,12 @@ public class QueryTaskListDTO {
         this.name = name;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
     public Integer getScheduleStatus() {

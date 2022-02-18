@@ -21,7 +21,7 @@ package com.dtstack.taier.pluginapi.client;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EJobType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -67,8 +67,8 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        RdosTaskStatus status = RdosTaskStatus.NOTFOUND;
+    public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+        TaskStatus status = TaskStatus.NOTFOUND;
         try {
             status = processJobStatus(jobIdentifier);
         }catch (Exception e) {
@@ -79,11 +79,11 @@ public abstract class AbstractClient implements IClient {
         return status;
     }
 
-    protected RdosTaskStatus processJobStatus(JobIdentifier jobIdentifier) {
-        return RdosTaskStatus.NOTFOUND;
+    protected TaskStatus processJobStatus(JobIdentifier jobIdentifier) {
+        return TaskStatus.NOTFOUND;
     }
 
-    protected void handleJobStatus(JobIdentifier jobIdentifier, RdosTaskStatus status) {
+    protected void handleJobStatus(JobIdentifier jobIdentifier, TaskStatus status) {
     }
 
     @Override

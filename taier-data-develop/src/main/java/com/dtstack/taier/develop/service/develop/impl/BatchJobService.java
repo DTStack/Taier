@@ -20,32 +20,24 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.constant.TaskStatusConstant;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.TaskStatus;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.dao.domain.BatchSelectSql;
-import com.dtstack.taier.dao.domain.BatchTask;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
-import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.IBatchJobExeService;
+import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchGetSyncTaskStatusInnerResultVO;
-import com.dtstack.taier.develop.web.develop.result.BatchStartSyncResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
@@ -142,12 +134,12 @@ public class BatchJobService {
 
         User user;
         if (Objects.isNull(userId)) {
-            user = userService.getById(batchTask.getOwnerUserId());
+            user = userService.getById(batchTask.getCreateUserId());
         } else {
             user = userService.getById(userId);
         }
         if (Objects.isNull(user)) {
-            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getOwnerUserId() : userId));
+            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getCreateUserId() : userId));
         }
         actionParam.put("userId", user.getId());
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
@@ -232,7 +224,7 @@ public class BatchJobService {
                 return resultVO;
             }
 
-            Integer status = TaskStatusConstant.getShowStatus(job.getStatus());
+            Integer status = TaskStatus.getShowStatus(job.getStatus());
             resultVO.setStatus(status);
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");
@@ -279,12 +271,12 @@ public class BatchJobService {
                 }
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
 
-                String applicationId = "";
+                String engineJobId = "";
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
-                    applicationId = engineEntities.get(0).getEngineJobId();
+                    engineJobId = engineEntities.get(0).getEngineJobId();
                 }
                 final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis(): job.getExecStartTime().getTime();
-                final String perf = StringUtils.isBlank(applicationId) ? null : this.batchServerLogService.formatPerfLogInfo(applicationId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
+                final String perf = StringUtils.isBlank(engineJobId) ? null : this.batchServerLogService.formatPerfLogInfo(engineJobId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
                 if (StringUtils.isNotBlank(perf)) {
                     logBuild.append(perf.replace("\n", "  "));
                 }
@@ -410,10 +402,10 @@ public class BatchJobService {
         }
     }
 
-    public String getEngineJobId(String jobId) {
+    public String getApplicationId(String jobId) {
         List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId));
         if (CollectionUtils.isNotEmpty(engineEntities)) {
-            return engineEntities.get(0).getEngineJobId();
+            return engineEntities.get(0).getApplicationId();
         }
         return "";
     }

@@ -2,6 +2,7 @@ package com.dtstack.taier.scheduler.mapstruct;
 
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
+import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -23,4 +24,9 @@ public interface ScheduleJobMapStruct {
      * ScheduleJob -> ScheduleJobExpand
      */
     List<ScheduleJobExpand> scheduleJobTOScheduleJobExpand(List<ScheduleJob> scheduleJobList);
+
+    /**
+     * ScheduleJob -> SimpleScheduleJobDTO
+     */
+    List<SimpleScheduleJobDTO> scheduleJobTOSimpleScheduleJobDTO(List<ScheduleJob> scheduleJobList);
 }

@@ -1,21 +1,21 @@
 package com.dtstack.taier.scheduler.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.ForceCancelFlag;
-import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.OperatorType;
+import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
+import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
-import com.dtstack.taier.scheduler.jobdealer.JobStopDealer;
 import com.dtstack.taier.scheduler.mapstruct.ScheduleJobMapStruct;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
@@ -49,9 +49,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ZkService zkService;
 
     @Autowired
-    private JobStopDealer jobStopDealer;
-
-    @Autowired
     private ScheduleActionService actionService;
 
     @Autowired
@@ -64,22 +61,13 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     private ScheduleJobJobService scheduleJobJobService;
 
     @Autowired
-    private JobGraphTriggerService jobGraphTriggerService;
-
-    @Autowired
     private ScheduleJobExpandService scheduleJobExpandService;
-
-    @Autowired
-    private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
     @Autowired
-    private EngineJobCacheService engineJobCacheService;
-
-//    @Autowired
-//    private ScheduleJobExpandMapper scheduleJobExpandMapper;
+    private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
 
     /**
      * 开始运行实例
@@ -91,19 +79,18 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         ScheduleTaskShade scheduleTaskShade = scheduleJobDetails.getScheduleTaskShade();
 
         // 解析任务运行信息
-        String extraInfo = scheduleTaskShade.getExtraInfo();
-        if (StringUtils.isNotBlank(extraInfo)) {
-            JSONObject extObject = JSONObject.parseObject(extraInfo);
-                ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extObject);
-                if (paramActionExt != null) {
-                    updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), RdosTaskStatus.SUBMITTING.getStatus(),scheduleTaskShade.getVersionId());
-                    actionService.start(paramActionExt);
-                }
-        } else {
-            //额外信息为空 标记任务为失败
-            this.updateStatusAndLogInfoById(scheduleJob.getJobId(), RdosTaskStatus.FAILED.getStatus(), "任务运行信息为空");
-            LOGGER.error(" job  {} run fail with info is null",scheduleJob.getJobId());
+        JSONObject extraInfo = scheduleTaskShadeInfoService.getInfoJSON(scheduleJob.getTaskId());
+        if (null != extraInfo) {
+            ParamActionExt paramActionExt = actionService.paramActionExt(scheduleTaskShade, scheduleJob, extraInfo);
+            if (paramActionExt != null) {
+                updateStatusByJobIdAndVersionId(scheduleJob.getJobId(), TaskStatus.SUBMITTING.getStatus(), scheduleTaskShade.getVersionId());
+                actionService.start(paramActionExt);
+                return;
+            }
         }
+        //额外信息为空 标记任务为失败
+        this.updateStatusAndLogInfoById(scheduleJob.getJobId(), TaskStatus.FAILED.getStatus(), "task run extra info is empty");
+        LOGGER.error(" job  {} run fail with info is null", scheduleJob.getJobId());
     }
 
     /**
@@ -140,10 +127,10 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 }
 
                 ScheduleJob scheduleJob = new ScheduleJob();
-                scheduleJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+                scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
                 scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
-                scheduleJob.setIsRestart(JobPhaseStatus.CREATE.getCode());
                 scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
+                scheduleJob.setRetryNum(0);
 
                 // 更新状态
                  this.lambdaUpdate()
@@ -153,7 +140,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
                  // 清除日志
                 scheduleJobExpandService.clearData(jobIds);
-                scheduleJobOperatorRecordService.saveBatch(records);
+                scheduleJobOperatorRecordService.insertBatch(records);
                 LOGGER.info("reset job {}", jobIds);
             }
         }
@@ -311,7 +298,8 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         }
 
         ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
-        scheduleJobExpand.setLogInfo(logInfo);
+        String errorLog = GenerateErrorMsgUtil.generateErrorMsg(logInfo);
+        scheduleJobExpand.setLogInfo(errorLog);
         scheduleJobExpandService.lambdaUpdate()
                 .eq(ScheduleJobExpand::getJobId, jobId)
                 .eq(ScheduleJobExpand::getIsDeleted, Deleted.NORMAL.getStatus())
@@ -349,7 +337,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     }
 
     /**
-     * 更新实例队列状态
+     * 更新实例队列状态，队列状态字段JobPhaseStatus，用于控制周期实例扫描时实例进队出队
      * @param id 实例id
      * @param original 实例当前队列状态
      * @param update 实例需要变更的队列状态
@@ -493,7 +481,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param phaseStatus 入队状态
      * @return 简单的实例封装
      */
-    public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
+    public List<SimpleScheduleJobPO> listJobByStatusAddressAndPhaseStatus(Long jobStartId, List<Integer> unSubmitStatus, String localAddress, Integer phaseStatus) {
         return this.baseMapper.listJobByStatusAddressAndPhaseStatus(jobStartId,unSubmitStatus,localAddress,phaseStatus);
     }
 
@@ -505,13 +493,15 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param appId 应用id
      */
     public void updateJobSubmitSuccess(String jobId, String engineJobId, String appId) {
-        ScheduleJob scheduleJob = new ScheduleJob();
-        scheduleJob.setJobId(jobId);
-        scheduleJob.setApplicationId(appId);
-        scheduleJob.setEngineJobId(engineJobId);
-        scheduleJob.setExecStartTime(Timestamp.valueOf(LocalDateTime.now()));
-        scheduleJob.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        updateByJobId(scheduleJob);
+        ScheduleJob scheduleJob = getByJobId(jobId);
+        LambdaUpdateWrapper<ScheduleJob> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(ScheduleJob::getApplicationId, appId);
+        updateWrapper.set(ScheduleJob::getEngineJobId, engineJobId);
+        updateWrapper.set(ScheduleJob::getExecStartTime, Timestamp.valueOf(LocalDateTime.now()));
+        updateWrapper.set(ScheduleJob::getExecEndTime, null);
+        updateWrapper.set(ScheduleJob::getGmtModified, Timestamp.valueOf(LocalDateTime.now()));
+        updateWrapper.eq(ScheduleJob::getJobId, jobId);
+        this.baseMapper.update(scheduleJob, updateWrapper);
     }
 
     /**
@@ -542,4 +532,25 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     }
 
 
+    public void clearInterruptJob(Long startExecuteOrder) {
+        this.baseMapper.delete(Wrappers.lambdaQuery(ScheduleJob.class).ge(ScheduleJob::getJobExecuteOrder,startExecuteOrder)
+                .eq(ScheduleJob::getType, EScheduleType.NORMAL_SCHEDULE.getType())
+                .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus()));
+    }
+
+    /**
+     * 扫描实例，用于容灾
+     *
+     * @param startId 开始id
+     * @param unfinishedStatuses 需求查询的状态
+     * @param nodeAddress 地址
+     * @return 包含部分字段的job集合
+     */
+    public List<SimpleScheduleJobDTO> listSimpleJobByStatusAddress(Long startId, List<Integer> unfinishedStatuses, String nodeAddress) {
+        if (startId < 0 || StringUtils.isBlank(nodeAddress)) {
+            return Lists.newArrayList();
+        }
+        List<ScheduleJob> simpleScheduleJobPOS = this.baseMapper.listSimpleJobByStatusAddress(startId, unfinishedStatuses, nodeAddress);
+        return ScheduleJobMapStruct.INSTANCE.scheduleJobTOSimpleScheduleJobDTO(simpleScheduleJobPOS);
+    }
 }

@@ -2,6 +2,7 @@ package com.dtstack.taier.scheduler.server.scheduler.handler;
 
 import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
+import com.dtstack.taier.scheduler.server.scheduler.exec.JobCheckRunInfo;
 
 /**
  * @Auther: dazhi
@@ -15,10 +16,10 @@ public interface JudgeNoPassJobHandler {
      * 处理未通过校验的实例
      *
      * @param scheduleJobDetails 实例
-     * @param status 状态
+     * @param jobCheckRunInfo 处理结果
      * @return 处理完后是否通过
      */
-    Boolean handlerJob(ScheduleJobDetails scheduleJobDetails, JobCheckStatus status);
+    Boolean handlerJob(ScheduleJobDetails scheduleJobDetails, JobCheckRunInfo jobCheckRunInfo);
 
     /**
      * 是否支持处理的状态

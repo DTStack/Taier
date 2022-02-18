@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther: dazhi
@@ -44,5 +45,8 @@ public class ScheduleJobOperatorRecordService extends ServiceImpl<ScheduleJobOpe
         return 0;
     }
 
+    public void insertBatch(Set<ScheduleJobOperatorRecord> scheduleJobOperatorRecords){
+        this.baseMapper.insertIgnoreBatch(scheduleJobOperatorRecords);
+    }
 
 }

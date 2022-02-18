@@ -71,6 +71,26 @@ public class BatchDataSource extends TenantEntity {
      */
     private int isDefault;
 
+    private String dataType;
+
+    private String dataVersion;
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
     public int getIsDefault() {
         return isDefault;
     }

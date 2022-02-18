@@ -1,11 +1,25 @@
 package com.dtstack.taier.develop.sql.hive;
 
-import com.dtstack.taier.develop.sql.*;
+import com.dtstack.taier.develop.sql.AlterResult;
+import com.dtstack.taier.develop.sql.BaseSqlParser;
+import com.dtstack.taier.develop.sql.Column;
+import com.dtstack.taier.develop.sql.ColumnLineage;
+import com.dtstack.taier.develop.sql.Pair;
+import com.dtstack.taier.develop.sql.ParseResult;
+import com.dtstack.taier.develop.sql.SqlType;
+import com.dtstack.taier.develop.sql.Table;
+import com.dtstack.taier.develop.sql.TableLineage;
+import com.dtstack.taier.develop.sql.TableOperateEnum;
 import com.dtstack.taier.develop.sql.calcite.LineageParser;
 import com.dtstack.taier.develop.sql.handler.IUglySqlHandler;
 import com.dtstack.taier.develop.sql.hive.node.NodeParser;
 import com.dtstack.taier.develop.sql.hive.node.OtherNodeParser;
-import com.dtstack.taier.develop.sql.node.*;
+import com.dtstack.taier.develop.sql.node.AlterNode;
+import com.dtstack.taier.develop.sql.node.CreateNode;
+import com.dtstack.taier.develop.sql.node.DropNode;
+import com.dtstack.taier.develop.sql.node.Identifier;
+import com.dtstack.taier.develop.sql.node.InsertNode;
+import com.dtstack.taier.develop.sql.node.SelectNode;
 import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.dtstack.taier.develop.sql.utils.SqlRegexUtil;
 import com.dtstack.taier.develop.sql.utils.SqlTypeRegexUtil;
@@ -21,7 +35,14 @@ import org.apache.hadoop.hive.ql.parse.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * hive sql解析实现类
@@ -189,16 +210,22 @@ public class AstNodeParser extends BaseSqlParser {
         return parseResult;
     }
 
-    public Set<String> parseFunction(String sql) throws Exception {
+    public Set<String> parseFunction(String sql) {
         Set<String> backLists = new HashSet<>();
         String standardSql = SqlFormatUtil.getStandardSql(SqlFormatUtil.formatSql(sql));
-        String[] standardSqls = standardSql.split(";");
-        for (String singleSql : standardSqls) {
-            ASTNode root = parseDriver.parse(singleSql);
-            backLists.addAll(ASTNodeUtil.getFunctionNames(root));
+        String formattedSql = this.uglySqlHandler.parseUglySql(standardSql);
+        List<String> formatSqls = SqlFormatUtil.splitSqlWithoutSemi(formattedSql);
+        for (String singleSql : formatSqls) {
+            ASTNode root = null;
+            try {
+                singleSql = removeEl(singleSql);
+                root = parseDriver.parse(singleSql);
+                backLists.addAll(ASTNodeUtil.getFunctionNames(root));
+            } catch (ParseException e) {
+                LOG.warn("parseFunction error:{}", e);
+            }
         }
-
-        return backLists;
+        return backLists.stream().filter(StringUtils::isNoneBlank).collect(Collectors.toSet());
     }
 
     private void parseTableFromASTNode(ASTNode root, Set<Table> tables, String defaultDb) {
@@ -418,5 +445,20 @@ public class AstNodeParser extends BaseSqlParser {
         return result;
     }
 
+    private String removeEl(String sql){
+        char[] array = sql.toCharArray();
+        StringBuilder sb = new StringBuilder(array.length);
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == '$' && i+1<array.length && array[i+1]=='{'){
+                while (array[i]!='}'){
+                    i++;
+                }
+                sb.append('1');
+                continue;
+            }
+            sb.append(array[i]);
+        }
+        return sb.toString();
+    }
 
 }

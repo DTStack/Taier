@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Map;
  * @date: 2021/3/9
  */
 @ApiModel("数据源表单属性")
-@Data
 public class DsFormFieldVo implements Serializable {
 
     /**
@@ -99,4 +97,115 @@ public class DsFormFieldVo implements Serializable {
     @ApiModelProperty("select组件下拉内容")
     private List<Map> options;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getWidget() {
+        return widget;
+    }
+
+    public void setWidget(String widget) {
+        this.widget = widget;
+    }
+
+    public Integer getRequired() {
+        return required;
+    }
+
+    public void setRequired(Integer required) {
+        this.required = required;
+    }
+
+    public Integer getInvisible() {
+        return invisible;
+    }
+
+    public void setInvisible(Integer invisible) {
+        this.invisible = invisible;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
+    public String getPlaceHold() {
+        return placeHold;
+    }
+
+    public void setPlaceHold(String placeHold) {
+        this.placeHold = placeHold;
+    }
+
+    public String getRequestApi() {
+        return requestApi;
+    }
+
+    public void setRequestApi(String requestApi) {
+        this.requestApi = requestApi;
+    }
+
+    public Integer getIsLink() {
+        return isLink;
+    }
+
+    public void setIsLink(Integer isLink) {
+        this.isLink = isLink;
+    }
+
+    public String getValidInfo() {
+        return validInfo;
+    }
+
+    public void setValidInfo(String validInfo) {
+        this.validInfo = validInfo;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
+    }
+
+    public String getStyle() {
+        return style;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+
+    public String getRegex() {
+        return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
+
+    public List<Map> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<Map> options) {
+        this.options = options;
+    }
 }

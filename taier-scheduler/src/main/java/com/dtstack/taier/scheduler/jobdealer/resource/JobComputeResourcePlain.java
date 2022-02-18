@@ -65,9 +65,9 @@ public class JobComputeResourcePlain {
         String jobResource = null;
         EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
-            jobResource = scheduleJobType.name() + SPLIT + jobClient.getGroupName();
+            jobResource = scheduleJobType.name().toLowerCase() + SPLIT + jobClient.getGroupName();
         } else {
-            jobResource = scheduleJobType.name() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
+            jobResource = scheduleJobType.name().toLowerCase() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         }
 
         String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType()) ? jobClient.getType() + "" : "";

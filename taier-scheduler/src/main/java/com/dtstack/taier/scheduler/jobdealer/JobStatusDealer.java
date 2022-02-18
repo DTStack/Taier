@@ -29,7 +29,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
@@ -110,7 +110,7 @@ public class JobStatusDealer implements Runnable {
                 return;
             }
 
-            jobs = jobs.stream().filter(job -> !RdosTaskStatus.needClean(job.getValue())).collect(Collectors.toList());
+            jobs = jobs.stream().filter(job -> !TaskStatus.needClean(job.getValue())).collect(Collectors.toList());
 
             Semaphore buildSemaphore = new Semaphore(taskStatusDealerPoolSize);
             for (Map.Entry<String, Integer> job : jobs) {
@@ -143,15 +143,16 @@ public class JobStatusDealer implements Runnable {
     private void dealJob(String jobId) throws Exception {
         ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
         ScheduleEngineJobCache engineJobCache = scheduleJobCacheService.getJobCacheByJobId(jobId);
-        if (scheduleJob == null || engineJobCache == null || StringUtils.isBlank(scheduleJob.getEngineJobId())) {
-            shardCache.updateLocalMemTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+        if (scheduleJob == null || engineJobCache == null ||
+                (StringUtils.isBlank(scheduleJob.getApplicationId()) && StringUtils.isBlank(scheduleJob.getEngineJobId()))) {
+            shardCache.updateLocalMemTaskStatus(jobId, TaskStatus.CANCELED.getStatus());
 
-            Integer status = RdosTaskStatus.CANCELED.getStatus();
+            Integer status = TaskStatus.CANCELED.getStatus();
             String engineJobId = null;
             if (scheduleJob != null) {
                 engineJobId = scheduleJob.getEngineJobId();
 
-                if (RdosTaskStatus.getStoppedStatus().contains(scheduleJob.getStatus())) {
+                if (TaskStatus.getStoppedStatus().contains(scheduleJob.getStatus())) {
                     status = scheduleJob.getStatus();
                 } else {
                     scheduleJobService.updateJobStatusAndExecTime(jobId, status);
@@ -173,20 +174,23 @@ public class JobStatusDealer implements Runnable {
                     TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),scheduleJob.getComputeType()).getType(),
                     null,  MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
 
-            RdosTaskStatus rdosTaskStatus = workerOperator.getJobStatus(jobIdentifier);
+            TaskStatus taskStatus = workerOperator.getJobStatus(jobIdentifier);
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("------ jobId:{} dealJob status:{}", jobId, rdosTaskStatus);
+                LOGGER.debug("------ jobId:{} dealJob status:{}", jobId, taskStatus);
             }
 
-            if (rdosTaskStatus != null) {
+            if (taskStatus != null) {
 
-                rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, jobId);
-                Integer status = rdosTaskStatus.getStatus();
+                taskStatus = checkNotFoundStatus(taskStatus, jobId);
+                Integer status = taskStatus.getStatus();
                 // 重试状态 先不更新状态
-                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob,engineJobCache);
+                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob, engineJobCache, (job, client) -> ForkJoinPool.commonPool().execute(() -> {
+                    String engineLog = workerOperator.getEngineLog(jobIdentifier);
+                    jobRestartDealer.jobRetryRecord(job, client, engineLog);
+                }));
                 if (isRestart) {
-                    LOGGER.info("----- jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    LOGGER.info("----- jobId:{} after dealJob status:{}", jobId, taskStatus);
                     return;
                 }
 
@@ -194,7 +198,7 @@ public class JobStatusDealer implements Runnable {
                 updateJobStatusWithPredicate(scheduleJob, jobId, status);
 
                 //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+                if (TaskStatus.getStoppedStatus().contains(status)) {
                     jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     scheduleJobCacheService.deleteByJobId(jobId);
@@ -203,7 +207,7 @@ public class JobStatusDealer implements Runnable {
 
 
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, rdosTaskStatus);
+                    LOGGER.debug("------ jobId:{} after dealJob status:{}", jobId, taskStatus);
                 }
             }
         }
@@ -214,16 +218,16 @@ public class JobStatusDealer implements Runnable {
         Predicate<ScheduleJob> isStreamUpdateConditions = job ->
                 ComputeType.STREAM.getType().equals(job.getComputeType())
                         && !job.getStatus().equals(status)
-                        && !RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus());
+                        && !TaskStatus.CANCELLING.getStatus().equals(job.getStatus());
 
         //流计算 任务被手动停止 进入CANCELLING 除非YARN上状态已结束 才回写, 引擎返回的最终状态需要回写到数据库
         Predicate<ScheduleJob> isStreamCancellingConditions = job ->
                 ComputeType.STREAM.getType().equals(job.getComputeType())
-                        && RdosTaskStatus.CANCELLING.getStatus().equals(job.getStatus())
-                        && RdosTaskStatus.STOPPED_STATUS.contains(status);
+                        && TaskStatus.CANCELLING.getStatus().equals(job.getStatus())
+                        && TaskStatus.STOPPED_STATUS.contains(status);
 
         if (ComputeType.BATCH.getType().equals(scheduleJob.getComputeType()) || isStreamUpdateConditions.test(scheduleJob) || isStreamCancellingConditions.test(scheduleJob)) {
-            if (RdosTaskStatus.getStoppedStatus().contains(status)) {
+            if (TaskStatus.getStoppedStatus().contains(status)) {
                 // 如果是停止状态 更新停止时间
                 scheduleJobService.updateJobStatusAndExecTime(jobId, status);
             } else {
@@ -232,13 +236,13 @@ public class JobStatusDealer implements Runnable {
         }
     }
     
-    private RdosTaskStatus checkNotFoundStatus(RdosTaskStatus taskStatus, String jobId) {
+    private TaskStatus checkNotFoundStatus(TaskStatus taskStatus, String jobId) {
         JobStatusFrequency statusPair = updateJobStatusFrequency(jobId, taskStatus.getStatus());
         //如果状态为NotFound，则对频次进行判断
-        if (statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()) {
+        if (statusPair.getStatus() == TaskStatus.NOTFOUND.getStatus().intValue()) {
             if (statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES || System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL) {
-                LOGGER.info(" job id {}  check not found status had try max , change status to {} ", jobId, RdosTaskStatus.FAILED.getStatus());
-                return RdosTaskStatus.FAILED;
+                LOGGER.info(" job id {}  check not found status had try max , change status to {} ", jobId, TaskStatus.FAILED.getStatus());
+                return TaskStatus.FAILED;
             }
         }
         return taskStatus;

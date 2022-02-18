@@ -20,10 +20,9 @@ package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.dao.domain.BatchReadWriteLock;
 import com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO;
-import com.dtstack.taier.develop.web.develop.result.ReadWriteLockGetLockResultVO;
-import com.dtstack.taier.develop.web.develop.result.ReadWriteLockResultVO;
+import com.dtstack.taier.develop.vo.develop.result.ReadWriteLockGetLockResultVO;
+import com.dtstack.taier.develop.vo.develop.result.ReadWriteLockResultVO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -43,7 +42,6 @@ public interface BatchReadWriteLockMapstructTransfer {
      * @param readWriteLockVO
      * @return
      */
-    @Mapping(source = "isGetLock", target = "getLock")
     ReadWriteLockGetLockResultVO ReadWriteLockVOToReadWriteLockGetLockResultVO(ReadWriteLockVO readWriteLockVO);
 
 }

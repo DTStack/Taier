@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.dao.mapper.IMapper;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -17,7 +16,6 @@ import java.util.function.Function;
  *
  * @author <a href="mailto:linfeng@dtstack.com">林丰</a> 2020/10/22.
  */
-@Slf4j
 public abstract class BaseService<M extends IMapper<T>, T> extends ServiceImpl<M, T> {
 
     /**

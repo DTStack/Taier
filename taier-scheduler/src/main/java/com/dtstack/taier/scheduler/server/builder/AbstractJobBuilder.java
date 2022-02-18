@@ -9,7 +9,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -126,7 +127,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @param sortWorker 排序器
      */
     public List<ScheduleJobDetails> buildJob(ScheduleTaskShade batchTaskShade, String triggerDay, AtomicJobSortWorker sortWorker) throws Exception {
-        return buildJob(batchTaskShade, getPrefix(),triggerDay,"00:00","23:59",0L,sortWorker);
+        return buildJob(batchTaskShade, "",triggerDay,"00:00","23:59",0L,sortWorker);
     }
 
     /**
@@ -181,7 +182,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         scheduleJob.setDependencyType(scheduleConf.getSelfReliance());
         scheduleJob.setFlowJobId(flowJobId);
         scheduleJob.setPeriodType(scheduleConf.getPeriodType());
-        scheduleJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus());
+        scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
         scheduleJob.setTaskType(scheduleTaskShade.getTaskType());
         scheduleJob.setFillId(fillId);
         scheduleJob.setMaxRetryNum(scheduleConf.getMaxRetryNum());
@@ -295,7 +296,19 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         }
 
         if (endDate.after(triggerRange.getRight())) {
-            return triggerRange.getRight();
+            Integer endMin = scheduleConf.getEndMin();
+            Integer endHour = scheduleConf.getEndHour();
+            DateTime dateTime = new DateTime(triggerRange.getRight());
+
+            if (endMin != null && endMin > 0 && endMin < 60) {
+                dateTime = dateTime.withMinuteOfHour(endMin);
+            }
+
+            if (endHour != null && endHour > 0 && endHour <= 31) {
+                dateTime = dateTime.withHourOfDay(endHour);
+            }
+
+            return dateTime.toDate();
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");

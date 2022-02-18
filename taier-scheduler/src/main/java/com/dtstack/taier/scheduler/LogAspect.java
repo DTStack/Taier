@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.PropertyFilter;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.google.common.collect.Lists;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -78,7 +78,7 @@ public class LogAspect {
                 }
             } else {
                 if (skipChangeMethod.contains(methodName)) {
-                    if (ret instanceof RdosTaskStatus && (RdosTaskStatus.RUNNING.equals(ret)|| RdosTaskStatus.SCHEDULED.equals(ret))) {
+                    if (ret instanceof TaskStatus && (TaskStatus.RUNNING.equals(ret)|| TaskStatus.SCHEDULED.equals(ret))) {
                         //状态获取 多以running 为主 过滤频繁打印
                         return;
                     }

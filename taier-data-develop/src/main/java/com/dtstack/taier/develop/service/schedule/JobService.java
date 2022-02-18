@@ -27,7 +27,7 @@ import com.dtstack.taier.develop.vo.fill.ReturnFillDataListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnDisplayPeriodVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobStatusStatisticsVO;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataJobListDTO;
 import com.dtstack.taier.scheduler.dto.fill.QueryFillDataListDTO;
@@ -91,8 +91,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<ReturnJobListVO> returnJobListVOS= Lists.newArrayList();
         // 关联任务
         List<Long> taskIds = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
             } else {
@@ -123,13 +123,12 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
         // 处理查询出来的结果集
         List<ScheduleJob> records = page.getRecords();
-        totalCount = (int)page.getTotal();
         if (CollectionUtils.isNotEmpty(records)) {
             // 查询实例对应的任务
             buildReturnJobListVO(returnJobListVOS, records);
         }
 
-        return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, returnJobListVOS);
+        return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), page.getTotal(), (int) page.getPages(), returnJobListVOS);
     }
 
     /**
@@ -141,8 +140,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     public List<ReturnJobStatusStatisticsVO> queryJobsStatusStatistics(QueryJobStatusStatisticsDTO dto) {
         // 关联任务
         List<Long> taskIdList = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return Lists.newArrayList();
             } else {
@@ -210,7 +209,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         List<ReturnDisplayPeriodVO> vos = new ArrayList<>(scheduleJobList.size());
         scheduleJobList.forEach(nextScheduleJob -> {
             ReturnDisplayPeriodVO vo = new ReturnDisplayPeriodVO();
-            vo.setJobId(nextScheduleJob.getId());
+            vo.setJobId(nextScheduleJob.getJobId());
             vo.setCycTime(DateUtil.addTimeSplit(nextScheduleJob.getCycTime()));
             vo.setStatus(nextScheduleJob.getStatus());
             vos.add(vo);
@@ -249,10 +248,10 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         // 查询补数据列表
         page = fillDataJobService.lambdaQuery()
                 .like(StringUtils.isNotBlank(dto.getJobName()), ScheduleFillDataJob::getJobName, dto.getJobName())
-                .eq(dto.getOwnerId() != null, ScheduleFillDataJob::getCreateUserId, dto.getOwnerId())
+                .eq(dto.getOperatorId() != null, ScheduleFillDataJob::getCreateUserId, dto.getOperatorId())
                 .eq(StringUtils.isNotBlank(dto.getRunDay()), ScheduleFillDataJob::getRunDay, dto.getRunDay())
                 .eq(ScheduleFillDataJob::getTenantId, dto.getTenantId())
-                .orderBy(true,true,ScheduleFillDataJob::getGmtCreate)
+                .orderBy(true,false,ScheduleFillDataJob::getGmtCreate)
                 .page(page);
 
         List<ScheduleFillDataJob> records = page.getRecords();
@@ -261,17 +260,28 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         if (CollectionUtils.isNotEmpty(records)) {
             // 封装结果集
             Map<Long, ScheduleFillDataJob> fillDataJobMap = records.stream().collect(Collectors.toMap(ScheduleFillDataJob::getId, g -> (g)));
+            List<Long> userIds = records.stream().map(ScheduleFillDataJob::getCreateUserId).collect(Collectors.toList());
 
+            Map<Long, User> userMap = userService.getUserMap(userIds);
             List<CountFillDataJobStatusPO> statistics = this.baseMapper.countByFillIdGetAllStatus(fillDataJobMap.keySet());
             Map<Long, List<CountFillDataJobStatusPO>> statisticsGroup = statistics.stream().collect(Collectors.groupingBy(CountFillDataJobStatusPO::getFillId));
 
             for (ScheduleFillDataJob scheduleFillDataJob : records) {
                 ReturnFillDataListVO fillDataReturnListVO = FillDataJobMapstructTransfer.INSTANCE.fillDataListDTOToFillDataReturnListVO(scheduleFillDataJob);
+                User user = userMap.get(scheduleFillDataJob.getCreateUserId());
+                if (user != null) {
+                    fillDataReturnListVO.setOperatorName(user.getUserName());
+                }
                 fillDataReturnListVO.setGmtCreate(DateUtil.getDate(scheduleFillDataJob.getGmtCreate(),DateUtil.STANDARD_DATETIME_FORMAT));
                 // 计算补数据执行进度
                 List<CountFillDataJobStatusPO> countFillDataJobStatusPOS = statisticsGroup.get(fillDataReturnListVO.getId());
                 if (CollectionUtils.isNotEmpty(countFillDataJobStatusPOS)) {
-                    Map<Integer, IntSummaryStatistics> statusCount = countFillDataJobStatusPOS.stream().collect(Collectors.groupingBy(CountFillDataJobStatusPO::getStatus, Collectors.summarizingInt(CountFillDataJobStatusPO::getCount)));
+                    Map<Integer, IntSummaryStatistics> statusCount = countFillDataJobStatusPOS
+                            .stream()
+                            .collect(Collectors.groupingBy(
+                                countFillDataJobStatusPO->TaskStatus.getShowStatus(countFillDataJobStatusPO.getStatus()),
+                                Collectors.summarizingInt(CountFillDataJobStatusPO::getCount)));
+
                     calculateStatusCount(fillDataReturnListVO, statusCount);
                 }
                 fillDataReturnListVOs.add(fillDataReturnListVO);
@@ -303,8 +313,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
         // 关联任务
         List<Long> taskIds = null;
-        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOwnerId() != null) {
-            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOwnerId());
+        if (StringUtils.isNotBlank(dto.getTaskName()) || dto.getOperatorId() != null) {
+            List<ScheduleTaskShade> scheduleTaskShadeList = taskService.findTaskByTaskName(dto.getTaskName(),null, dto.getOperatorId());
             if (CollectionUtils.isEmpty(scheduleTaskShadeList)) {
                 return new PageResult<>(dto.getCurrentPage(), dto.getPageSize(), totalCount, dataJobDetailVO);
             } else {
@@ -349,12 +359,13 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
                 vo.setEndExecTime(DateUtil.getDate(record.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
                 vo.setCycTime(DateUtil.addTimeSplit(record.getCycTime()));
                 vo.setExecTime(getExecTime(record));
+                vo.setStatus(TaskStatus.getShowStatus(record.getStatus()));
 
                 ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(record.getTaskId());
                 if (scheduleTaskShade != null) {
                     vo.setTaskName(scheduleTaskShade.getName());
-                    vo.setOwnerId(scheduleTaskShade.getOwnerUserId());
-                    vo.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+                    vo.setOperatorId(scheduleTaskShade.getCreateUserId());
+                    vo.setOperatorName(userMap.get(scheduleTaskShade.getCreateUserId())!=null?userMap.get(scheduleTaskShade.getCreateUserId()).getUserName():"");
                 }
                 fillDataJobVOS.add(vo);
             });
@@ -362,7 +373,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             dataJobDetailVO.setFillDataJobVOLists(fillDataJobVOS);
         }
         dataJobDetailVO.setFillGenerateStatus(FillGeneratStatusEnum.FILL_FINISH.getType());
-        return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),totalCount,dataJobDetailVO);
+        return new PageResult<>(dto.getCurrentPage(),dto.getPageSize(),page.getTotal(), (int) page.getPages(),dataJobDetailVO);
     }
 
     /**
@@ -389,7 +400,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             return Lists.newArrayList();
         }
         List<Integer> statues = Lists.newArrayList();
-        Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetailAndExpire();
+        Map<Integer, List<Integer>> statusMap = TaskStatus.getStatusFailedDetailAndExpire();
         for (Integer status : originalStatus) {
             List<Integer> statusList = statusMap.get(status);
             if (CollectionUtils.isNotEmpty(statusList)) {
@@ -403,18 +414,18 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
      * 计算补数据执行进度
      *
      * @param fillDataReturnListVO 补数据返回列表vo
-     * @param statusCount 查询出来的计数
+     * @param statusCount          查询出来的计数
      */
     private void calculateStatusCount(ReturnFillDataListVO fillDataReturnListVO, Map<Integer, IntSummaryStatistics> statusCount) {
-        Long unSubmit = statusCount.get(RdosTaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.UNSUBMIT.getStatus()).getSum();
-        Long running = statusCount.get(RdosTaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.RUNNING.getStatus()).getSum();
-        Long notFound = statusCount.get(RdosTaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.NOTFOUND.getStatus()).getSum();
-        Long finished = statusCount.get(RdosTaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FINISHED.getStatus()).getSum();
-        Long failed = statusCount.get(RdosTaskStatus.FAILED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FAILED.getStatus()).getSum();
-        Long waitEngine = statusCount.get(RdosTaskStatus.WAITENGINE.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.WAITENGINE.getStatus()).getSum();
-        Long submitting = statusCount.get(RdosTaskStatus.SUBMITTING.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.SUBMITTING.getStatus()).getSum();
-        Long canceled = statusCount.get(RdosTaskStatus.CANCELED.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.CANCELED.getStatus()).getSum();
-        Long frozen = statusCount.get(RdosTaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(RdosTaskStatus.FROZEN.getStatus()).getSum();
+        Long unSubmit = statusCount.get(TaskStatus.UNSUBMIT.getStatus()) == null ? 0L : statusCount.get(TaskStatus.UNSUBMIT.getStatus()).getSum();
+        Long running = statusCount.get(TaskStatus.RUNNING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.RUNNING.getStatus()).getSum();
+        Long notFound = statusCount.get(TaskStatus.NOTFOUND.getStatus()) == null ? 0L : statusCount.get(TaskStatus.NOTFOUND.getStatus()).getSum();
+        Long finished = statusCount.get(TaskStatus.FINISHED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FINISHED.getStatus()).getSum();
+        Long failed = statusCount.get(TaskStatus.FAILED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FAILED.getStatus()).getSum();
+        Long waitEngine = statusCount.get(TaskStatus.WAITENGINE.getStatus()) == null ? 0L : statusCount.get(TaskStatus.WAITENGINE.getStatus()).getSum();
+        Long submitting = statusCount.get(TaskStatus.SUBMITTING.getStatus()) == null ? 0L : statusCount.get(TaskStatus.SUBMITTING.getStatus()).getSum();
+        Long canceled = statusCount.get(TaskStatus.CANCELED.getStatus()) == null ? 0L : statusCount.get(TaskStatus.CANCELED.getStatus()).getSum();
+        Long frozen = statusCount.get(TaskStatus.FROZEN.getStatus()) == null ? 0L : statusCount.get(TaskStatus.FROZEN.getStatus()).getSum();
 
         fillDataReturnListVO.setFinishedJobSum(finished);
         fillDataReturnListVO.setAllJobSum(unSubmit + running + notFound + finished + failed + waitEngine + submitting + canceled + frozen);
@@ -549,10 +560,10 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
     private List<ReturnJobStatusStatisticsVO> mergeStatusAndShow(List<StatusCountPO> statusCountList) {
         Map<String, ReturnJobStatusStatisticsVO> returnJobStatusStatisticsVOList = Maps.newHashMap();
         long totalNum = 0;
-        Map<Integer, List<Integer>> statusMap = RdosTaskStatus.getStatusFailedDetail();
+        Map<Integer, List<Integer>> statusMap = TaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
             ReturnJobStatusStatisticsVO vo = new ReturnJobStatusStatisticsVO();
-            String statusName = RdosTaskStatus.getCode(entry.getKey());
+            String statusName = TaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             vo.setStatusKey(statusName);
             long num = 0;
@@ -599,11 +610,12 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             returnJobListVO.setStartExecTime(DateUtil.getDate(scheduleJob.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setEndExecTime(DateUtil.getDate(scheduleJob.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
             returnJobListVO.setExecTime(getExecTime(scheduleJob));
+            returnJobListVO.setStatus(TaskStatus.getShowStatus(scheduleJob.getStatus()));
             ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(returnJobListVO.getTaskId());
             if (scheduleTaskShade != null) {
                 returnJobListVO.setTaskName(scheduleTaskShade.getName());
-                returnJobListVO.setOwnerId(scheduleTaskShade.getOwnerUserId());
-                returnJobListVO.setOwnerName(userMap.get(scheduleTaskShade.getOwnerUserId())!=null?userMap.get(scheduleTaskShade.getOwnerUserId()).getUserName():"");
+                returnJobListVO.setOperatorId(scheduleTaskShade.getCreateUserId());
+                returnJobListVO.setOperatorName(userMap.get(scheduleTaskShade.getCreateUserId())!=null?userMap.get(scheduleTaskShade.getCreateUserId()).getUserName():"");
             }
             returnJobListVOS.add(returnJobListVO);
         }
