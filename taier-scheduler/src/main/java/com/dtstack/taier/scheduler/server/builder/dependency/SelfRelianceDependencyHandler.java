@@ -10,6 +10,7 @@ import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.utils.JobKeyUtils;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -23,11 +24,8 @@ import java.util.List;
  */
 public class SelfRelianceDependencyHandler extends AbstractDependencyHandler {
 
-    private final ScheduleJobService scheduleJobService;
-
     public SelfRelianceDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, ScheduleJobService scheduleJobService) {
-        super(keyPreStr, currentTaskShade);
-        this.scheduleJobService = scheduleJobService;
+        super(keyPreStr, currentTaskShade,scheduleJobService);
     }
 
     @Override
@@ -38,16 +36,9 @@ public class SelfRelianceDependencyHandler extends AbstractDependencyHandler {
         String lastJobKey = JobKeyUtils.generateJobKey(keyPreStr,currentTaskShade.getTaskId(), lastDate);
 
         // 判断是否上一次执行的时间和当前时间是否是同一天，如果是的话插入，不是的话，去查询一下数据库是否有实例生成。
-        if (!DateUtil.isSameDay(last,currentDate)) {
-            // 不是同一天
-            ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
-                    .select(ScheduleJob::getJobId)
-                    .eq(ScheduleJob::getJobKey, lastJobKey)
-                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                    .one();
-            if (scheduleJob == null) {
-                return Lists.newArrayList();
-            }
+        lastJobKey = needCreateKey(last,currentDate,lastJobKey);
+        if (StringUtils.isBlank(lastJobKey)) {
+            return Lists.newArrayList();
         }
 
         List<ScheduleJobJob> jobJobList = Lists.newArrayList();

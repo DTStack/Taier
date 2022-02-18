@@ -34,12 +34,9 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
      */
     protected List<ScheduleTaskShade> taskShadeList;
 
-    private final ScheduleJobService scheduleJobService;
-
     public UpstreamNextJobDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList, ScheduleJobService scheduleJobService) {
-        super(keyPreStr, currentTaskShade);
+        super(keyPreStr, currentTaskShade,scheduleJobService);
         this.taskShadeList = taskShadeList;
-        this.scheduleJobService = scheduleJobService;
     }
 
     @Override
@@ -75,27 +72,13 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
         // 上游任务
         Date upstreamTask = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
         // 上游任务的上一个周期
-        Date upstreamTaskLastCycle = corn.last(upstreamTask);
+        Date lastDate = corn.last(upstreamTask);
+        String lastDateStr = DateUtil.getDate(lastDate, DateUtil.STANDARD_DATETIME_FORMAT);
 
-        // 判断是否上一次执行的时间和当前时间是否是同一天，如果是的话插入，不是的话，去查询一下数据库是否有实例生成。
-        if (!DateUtil.isSameDay(upstreamTaskLastCycle,currentDate)) {
-            // 不是同一天
-            ScheduleJob scheduleJob = scheduleJobService.lambdaQuery()
-                    .select(ScheduleJob::getJobId)
-                    .eq(ScheduleJob::getJobKey, upstreamTask)
-                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                    .one();
-            if (scheduleJob == null) {
-                return null;
-            }
-        }
-
-        String lastDate = DateUtil.getDate(upstreamTaskLastCycle, DateUtil.STANDARD_DATETIME_FORMAT);
-
-        if (StringUtils.isBlank(lastDate)) {
+        if (StringUtils.isBlank(lastDateStr)) {
             throw new RdosDefineException("no find upstream task of last cycle");
         }
-
-        return JobKeyUtils.generateJobKey(keyPreStr,scheduleTaskShade.getTaskId(), lastDate);
+        String jobKey = JobKeyUtils.generateJobKey(keyPreStr, scheduleTaskShade.getTaskId(), lastDateStr);
+        return needCreateKey(lastDate,currentDate,jobKey);
     }
 }
