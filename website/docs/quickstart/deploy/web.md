@@ -1,4 +1,4 @@
-#  前端部署
+# 前端部署
 
 ## 准备前端部署环境
 
@@ -17,19 +17,11 @@ $ wget https://nodejs.org/dist/v16.14.0/node-v16.14.0-linux-x64.tar.xz
 1. 下载完成后，解压源码文件
 
 ```shell
-$ tar zxvf node-v16.14.0-linux-x64.tar.xz
+$ xz -d node-v16.14.0-linux-x64.tar.xz
+$ tar xvf node-v16.14.0-linux-x64.tar
 ```
 
-3. 解压完成后，进入到 node 文件夹中，进行编译安装
-
-```shell
-$ cd node-v16.14.0
-$ ./configure --prefix=/usr/local/node/16.14.0
-$ make
-$ make install
-```
-
-4. 安装完成后，编辑环境变量
+2. 安装完成后，编辑环境变量
 
 ```shell
 $ vim /etc/profile
@@ -49,7 +41,7 @@ export PATH=$NODE_HOME/bin:$PATH
 $ source /etc/profile
 ```
 
-5. 验证安装
+3. 验证安装
 
 通过执行 `node -v` 是否输出 Node.js 的版本信息判断是否安装成功。
 
@@ -58,38 +50,51 @@ $ node -v
 v16.14.0
 ```
 
-## 安装项目依赖
+:::note
+**我们推荐使用 `yarn` 来管理前端项目依赖**
+:::
 
-安装 `Node.js` 的同时，会安装 `Node.js` 的包管理工具——`npm`。此时，通过命令行可以判断 `npm` 的版本。
+4. 安装 `yarn`
+
+安装 `Node.js` 的同时，会安装 `npm`，我们通过 `npm` 来安装 `yarn`.
 
 ```shell
 $ npm -v
 6.14.13
+$ npm install -g yarn
 ```
 
-将当前路径切换到 `taier-ui` 文件夹下，然后执行 `npm install` 开始安装项目依赖
+安装完成后，通过以下命令确认是否安装成功
+
+```shell
+$ yarn -v
+1.22.10
+```
+
+## 安装项目依赖
+
+将当前路径切换到 `taier-ui` 文件夹下，然后执行 `yarn` 开始安装项目依赖
 
 ```shell
 $ pwd
 ~/Your-Project-Path/Taier/taier-ui
-$ npm install
+$ yarn
 ```
 
 :::tip 切换淘宝源
-国内用户在安装依赖的时候会比较慢，可以在安装之前将 `npm` 的源换成淘宝源.
+国内用户在安装依赖的时候会比较慢，可以在安装之前将 `yarn` 的源换成淘宝源.
 
 ```shell
-$ npm config set registry https://registry.npm.taobao.org
+$ yarn config set registry https://registry.npm.taobao.org/
 ```
 
-:::
+::::
+安装完成后，当前路径下会新增 `node_modules` 文件夹 和 `yarn.lock` 文件，前者是保存当前项目的依赖，后者是记录当前项目的依赖的版本信息。
 
-安装完成后，当前路径下会新增 `node_modules` 文件夹 和 `package-lock.json` 文件，前者是保存当前项目的依赖，后者是记录当前项目的依赖的版本信息。
-
-安装依赖成功后，执行 `npm run build` 对项目进行编译。
+安装依赖成功后，执行 `yarn build` 对项目进行编译。
 
 ```shell
-$ npm run build
+$ yarn build
 ```
 
 项目编译完成后，会将编译后的结果存放在当前目录的 dist 文件夹下，
@@ -108,13 +113,13 @@ $ npm run build
 ├── tailwind.config.js
 ├── tsconfig.json
 ├── typings.d.ts
-└── package-lock.json
+└── yarn.lock
 ```
 
 然后这里我们借助 `mini-cup` 和 `pm2` 的能力来启动服务器，首先先全局安装 `mini-cup` 和 `pm2`.
 
 ```shell
-$ npm install pm2 mini-cup -g
+$ yarn global add pm2 mini-cup
 ```
 
 :::info
@@ -130,6 +135,12 @@ $ pwd
 /Your-Project-Path/Taier/taier-ui
 $ pm2 start cup
 ```
+
+执行命令后，打开浏览器输入 http://localhost:8080/ 即可看到页面。
+
+:::caution
+建议开发人员通过修改 `hosts` 进行开发
+:::
 
 该命令会查找当前目录下的 `cup.config.js` 文件，并将该文件作为配置文件启动服务器，该文件内容如下：
 
@@ -156,6 +167,7 @@ module.exports = {
 :::
 
 如果您想要使用 `nginx` 作为代理服务，这里提供一份配置文件**仅供参考**。
+
 ```nginx title="taier.conf"
 upstream taier{
   server Your-Server-IP:Your-Server-PORT;
