@@ -3,7 +3,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.develop.service.develop.impl.BatchDownloadService;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import com.dtstack.taier.develop.web.develop.query.BatchDownloadJobLogVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchDownloadJobLogVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

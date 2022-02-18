@@ -76,7 +76,7 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
             // 简单查询
             if (Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
                 result = simpleQuery(tenantId, parseResult, currDb, userId, EScheduleJobType.SPARK_SQL);
-                if (!result.getIsContinue()) {
+                if (!result.getContinue()) {
                     SqlResultVO<List<Object>> sqlResultVO = new SqlResultVO<>();
                     sqlResultVO.setSqlId(result.getJobId());
                     sqlResultVO.setType(SqlTypeEnums.SELECT_DATA.getType());
@@ -99,7 +99,10 @@ public class BatchSparkSqlExeService extends BatchSparkHiveSqlExeService impleme
 
                 buildSqlVO = batchHadoopSelectSqlService.getSqlIdAndSql(tenantId, parseResult, userId, currDb.toLowerCase(), false, taskId, taskType);
                 //insert和insert overwrite都没有返回结果
-                sqlIdList.add(new SqlResultVO().setSqlId(buildSqlVO.getJobId()).setType(SqlTypeEnums.SELECT_DATA.getType()));
+                SqlResultVO sqlResultVO = new SqlResultVO();
+                sqlResultVO.setSqlId(buildSqlVO.getJobId());
+                sqlResultVO.setType(SqlTypeEnums.SELECT_DATA.getType());
+                sqlIdList.add(sqlResultVO);
                 sqlList.add(buildSqlVO.getSql());
 
             } else {

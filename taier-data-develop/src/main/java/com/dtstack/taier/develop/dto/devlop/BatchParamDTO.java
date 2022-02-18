@@ -18,14 +18,11 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
-
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2018/1/2
  */
-@Data
 public class BatchParamDTO {
 
     private Integer type;
@@ -40,5 +37,27 @@ public class BatchParamDTO {
         this.paramCommand = paramCommand;
     }
 
+    public Integer getType() {
+        return type;
+    }
 
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getParamName() {
+        return paramName;
+    }
+
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
+    }
+
+    public String getParamCommand() {
+        return paramCommand;
+    }
+
+    public void setParamCommand(String paramCommand) {
+        this.paramCommand = paramCommand;
+    }
 }

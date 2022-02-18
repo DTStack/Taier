@@ -1,28 +1,32 @@
 package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.mapper.ScheduleJobJobMapper;
+import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.JobUtils;
 import com.dtstack.taier.develop.vo.schedule.JobNodeVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobDisplayVO;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.dto.schedule.QueryJobDisplayDTO;
+import com.dtstack.taier.scheduler.enums.RelyType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +50,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     @Autowired
     private EnvironmentContext context;
 
+    @Autowired
+    private UserService userService;
+
     public ReturnJobDisplayVO displayOffSpring(QueryJobDisplayDTO dto) {
         // 设置层级 0<level< max.level
         dto.setLevel(JobUtils.checkLevel(dto.getLevel(), context.getMaxLevel()));
@@ -67,7 +74,8 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         // 查询所有实例
         List<ScheduleJob> scheduleJobList = findJobByJobJob(jobJobMaps);
         scheduleJobList.add(scheduleJob);
-        Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.toMap(ScheduleJob::getJobKey, g -> (g)));
+        Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.groupingBy(ScheduleJob::getJobKey,
+                Collectors.collectingAndThen(Collectors.toCollection(ArrayList<ScheduleJob>::new), a -> a.get(0))));
 
         // 查询所有任务
         Map<Long, ScheduleTaskShade> taskShadeMap = findTaskJob(scheduleJobList);
@@ -147,6 +155,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         rootNode.setTaskId(scheduleJob.getTaskId());
         rootNode.setTaskType(scheduleJob.getTaskType());
         rootNode.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
+        String userName = userService.getUserName(scheduleJob.getCreateUserId());
+        rootNode.setOperatorId(scheduleJob.getCreateUserId());
+        rootNode.setOperatorName(userName);
 
         ScheduleTaskShade taskShade = taskShadeMap.get(scheduleJob.getTaskId());
         if (taskShade != null) {
@@ -274,6 +285,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向下查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getParentJobKey, jobKeys)
+                        .eq(ScheduleJobJob::getJobKeyType, RelyType.UPSTREAM.getType())
                         .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 
@@ -283,6 +295,7 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 // 向上查询
                 List<ScheduleJobJob> jobJobList = this.lambdaQuery()
                         .in(ScheduleJobJob::getJobKey, jobKeys)
+                        .eq(ScheduleJobJob::getJobKeyType, RelyType.UPSTREAM.getType())
                         .eq(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .list();
 

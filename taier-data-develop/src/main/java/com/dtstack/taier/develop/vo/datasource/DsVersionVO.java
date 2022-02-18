@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,7 +11,6 @@ import java.io.Serializable;
  * @author: liuxx
  * @date: 2021/3/9
  */
-@Data
 @ApiModel("数据源版本视图类")
 public class DsVersionVO implements Serializable {
 
@@ -25,6 +23,27 @@ public class DsVersionVO implements Serializable {
     @ApiModelProperty("排序字段")
     private Integer sorted;
 
+    public String getDataType() {
+        return dataType;
+    }
 
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public Integer getSorted() {
+        return sorted;
+    }
+
+    public void setSorted(Integer sorted) {
+        this.sorted = sorted;
+    }
 }

@@ -18,13 +18,11 @@
 
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
 
 /**
  * date: 2022/1/24 2:29 下午
  * author: zhaiyue
  */
-@Data
 public class BatchFunction extends TenantEntity{
 
     /**
@@ -81,4 +79,99 @@ public class BatchFunction extends TenantEntity{
      */
     private String sqlText;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public String getCommandFormate() {
+        return commandFormate;
+    }
+
+    public void setCommandFormate(String commandFormate) {
+        this.commandFormate = commandFormate;
+    }
+
+    public String getParamDesc() {
+        return paramDesc;
+    }
+
+    public void setParamDesc(String paramDesc) {
+        this.paramDesc = paramDesc;
+    }
+
+    public Long getNodePid() {
+        return nodePid;
+    }
+
+    public void setNodePid(Long nodePid) {
+        this.nodePid = nodePid;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public Long getModifyUserId() {
+        return modifyUserId;
+    }
+
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
+
+    public String getSqlText() {
+        return sqlText;
+    }
+
+    public void setSqlText(String sqlText) {
+        this.sqlText = sqlText;
+    }
 }

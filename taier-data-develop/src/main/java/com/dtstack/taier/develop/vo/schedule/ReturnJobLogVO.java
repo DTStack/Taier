@@ -25,6 +25,28 @@ public class ReturnJobLogVO {
     @ApiModelProperty(value = "当前次数",example = "3")
     private Integer pageIndex;
 
+    @ApiModelProperty(value = "数据同步信息",example = "3")
+    private String syncLog;
+
+    @ApiModelProperty(value = "日志下载链接",example = "3")
+    private String downLoadUrl;
+
+    public String getDownLoadUrl() {
+        return downLoadUrl;
+    }
+
+    public void setDownLoadUrl(String downLoadUrl) {
+        this.downLoadUrl = downLoadUrl;
+    }
+
+    public String getSyncLog() {
+        return syncLog;
+    }
+
+    public void setSyncLog(String syncLog) {
+        this.syncLog = syncLog;
+    }
+
     public String getLogInfo() {
         return logInfo;
     }

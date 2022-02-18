@@ -20,9 +20,7 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
 public class SyncStatusLogInfoVO {
     /**
      * 读取记录数
@@ -114,4 +112,61 @@ public class SyncStatusLogInfoVO {
 
         return Long.valueOf(obj.toString());
     }
+
+    public Long getNumRead() {
+        return numRead;
+    }
+
+    public void setNumRead(Long numRead) {
+        this.numRead = numRead;
+    }
+
+    public Long getByteRead() {
+        return byteRead;
+    }
+
+    public void setByteRead(Long byteRead) {
+        this.byteRead = byteRead;
+    }
+
+    public Long getReadDuration() {
+        return readDuration;
+    }
+
+    public void setReadDuration(Long readDuration) {
+        this.readDuration = readDuration;
+    }
+
+    public Long getNumWrite() {
+        return numWrite;
+    }
+
+    public void setNumWrite(Long numWrite) {
+        this.numWrite = numWrite;
+    }
+
+    public Long getByteWrite() {
+        return byteWrite;
+    }
+
+    public void setByteWrite(Long byteWrite) {
+        this.byteWrite = byteWrite;
+    }
+
+    public Long getWriteDuration() {
+        return writeDuration;
+    }
+
+    public void setWriteDuration(Long writeDuration) {
+        this.writeDuration = writeDuration;
+    }
+
+    public Long getnErrors() {
+        return nErrors;
+    }
+
+    public void setnErrors(Long nErrors) {
+        this.nErrors = nErrors;
+    }
+
 }

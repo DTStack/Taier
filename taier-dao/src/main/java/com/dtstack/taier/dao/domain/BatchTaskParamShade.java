@@ -19,8 +19,6 @@
 package com.dtstack.taier.dao.domain;
 
 
-import lombok.Data;
-
 /**
  * Reason:
  * Date: 2017/6/7
@@ -28,7 +26,6 @@ import lombok.Data;
  *
  * @ahthor xuchao
  */
-@Data
 public class BatchTaskParamShade extends BaseEntity {
 
     private Long taskId;
@@ -39,4 +36,35 @@ public class BatchTaskParamShade extends BaseEntity {
 
     private String paramCommand;
 
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getParamName() {
+        return paramName;
+    }
+
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
+    }
+
+    public String getParamCommand() {
+        return paramCommand;
+    }
+
+    public void setParamCommand(String paramCommand) {
+        this.paramCommand = paramCommand;
+    }
 }

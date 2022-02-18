@@ -20,7 +20,6 @@ package com.dtstack.taier.common.env;
 
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.taier.common.util.AddressUtil;
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import java.io.File;
  */
 @Component("environmentContext")
 @PropertySource(value = "file:${user.dir.conf}/application.properties")
-@Data
 public class EnvironmentContext implements InitializingBean {
 
 
@@ -57,19 +55,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public Integer getCycTimeDayGap() {
         return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
-    }
-
-    public long getJobStatusDealerInterval() {
-        return Integer.parseInt(environment.getProperty("jobStatusDealerInterval", "3000"));
-    }
-
-    public String getAlarmTitle() {
-        String alarmTitle = environment.getProperty("alarmTitle");
-        return StringUtils.isNotBlank(alarmTitle) ? alarmTitle : "袋鼠云数栈";
-    }
-
-    public long getAlarmProcessorInterval() {
-        return Integer.parseInt(environment.getProperty("alarmProcessorInterval", "60000"));
     }
 
     /**
@@ -101,14 +86,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public int getInitialPoolSize() {
         return Integer.parseInt(environment.getProperty("initial.pool.size", "50"));
-    }
-
-    public int getCheckTimeout() {
-        return Integer.parseInt(environment.getProperty("check.timeout", "30000"));
-    }
-
-    public int getMaxWait() {
-        return Integer.parseInt(environment.getProperty("max.wait", "10000"));
     }
 
     /**
@@ -246,10 +223,6 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10"));
     }
 
-    public int getLogTimeout() {
-        return Integer.parseInt(environment.getProperty("logTimeout", "10"));
-    }
-
     public int getTestConnectTimeout() {
         return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
     }
@@ -312,20 +285,6 @@ public class EnvironmentContext implements InitializingBean {
         return Integer.valueOf(environment.getProperty("max.level","20"));
     }
 
-    /**控制工作流节点展开层数**/
-    public Integer getWorkFlowLevel(){
-        return Integer.valueOf(environment.getProperty("max.workFlow.level","20"));
-    }
-
-    public Boolean getUseOptimize(){
-
-        return Boolean.parseBoolean(environment.getProperty("engine.useOptimize","true"));
-    }
-
-    public int getMaxDeepShow() {
-        return Integer.parseInt(environment.getProperty("max.deep.show", "20"));
-    }
-
     /**
      * 是否开启任务调度
      *
@@ -380,19 +339,6 @@ public class EnvironmentContext implements InitializingBean {
      */
     public boolean isCanAddExtraConfig() {
         return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
-    }
-
-
-    public Integer getFuzzyProjectByProjectAliasLimit() {
-        return Integer.parseInt(environment.getProperty("fuzzy.project.alias.limit", "20"));
-    }
-
-    public Long getTaskRuleTimeout() {
-        return Long.parseLong(environment.getProperty("task.rule.timeout", "600000"));
-    }
-
-    public Integer getListChildTaskLimit() {
-        return Integer.parseInt(environment.getProperty("list.child.task.limit", "20"));
     }
 
     public String getPluginPath() {
@@ -532,5 +478,139 @@ public class EnvironmentContext implements InitializingBean {
         ClientCache.setUserDir(getDataSourcePluginPath());
     }
 
+    public Environment getEnvironment() {
+        return environment;
+    }
 
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    public void setHttpAddress(String httpAddress) {
+        this.httpAddress = httpAddress;
+    }
+
+    public void setLocalAddress(String localAddress) {
+        this.localAddress = localAddress;
+    }
+
+    public Boolean getNotifyPhone() {
+        return notifyPhone;
+    }
+
+    public void setNotifyPhone(Boolean notifyPhone) {
+        this.notifyPhone = notifyPhone;
+    }
+
+    public String getCreateTableType() {
+        return createTableType;
+    }
+
+    public void setCreateTableType(String createTableType) {
+        this.createTableType = createTableType;
+    }
+
+    public void setHttpPort(Integer httpPort) {
+        this.httpPort = httpPort;
+    }
+
+    public void setHadoopUserName(String hadoopUserName) {
+        this.hadoopUserName = hadoopUserName;
+    }
+
+    public String getHdfsBatchPath() {
+        return hdfsBatchPath;
+    }
+
+    public void setHdfsBatchPath(String hdfsBatchPath) {
+        this.hdfsBatchPath = hdfsBatchPath;
+    }
+
+    public String getPublicServiceNode() {
+        return publicServiceNode;
+    }
+
+    public void setPublicServiceNode(String publicServiceNode) {
+        this.publicServiceNode = publicServiceNode;
+    }
+
+    public Boolean getSyncLogPromethues() {
+        return syncLogPromethues;
+    }
+
+    public void setSyncLogPromethues(Boolean syncLogPromethues) {
+        this.syncLogPromethues = syncLogPromethues;
+    }
+
+    public void setKerberosLocalPath(String kerberosLocalPath) {
+        this.kerberosLocalPath = kerberosLocalPath;
+    }
+
+    public void setKerberosTemplatePath(String kerberosTemplatePath) {
+        this.kerberosTemplatePath = kerberosTemplatePath;
+    }
+
+    public Integer getTempTableLifecycle() {
+        return tempTableLifecycle;
+    }
+
+    public void setTempTableLifecycle(Integer tempTableLifecycle) {
+        this.tempTableLifecycle = tempTableLifecycle;
+    }
+
+    public Integer getDeleteLifeTime() {
+        return deleteLifeTime;
+    }
+
+    public void setDeleteLifeTime(Integer deleteLifeTime) {
+        this.deleteLifeTime = deleteLifeTime;
+    }
+
+    public Boolean getExplainEnable() {
+        return explainEnable;
+    }
+
+    public void setExplainEnable(Boolean explainEnable) {
+        this.explainEnable = explainEnable;
+    }
+
+    public Integer getTableLimit() {
+        return tableLimit;
+    }
+
+    public void setTableLimit(Integer tableLimit) {
+        this.tableLimit = tableLimit;
+    }
+
+    public Long getDeleteMergeFileTime() {
+        return deleteMergeFileTime;
+    }
+
+    public void setDeleteMergeFileTime(Long deleteMergeFileTime) {
+        this.deleteMergeFileTime = deleteMergeFileTime;
+    }
+
+    public Long getDataKeepDay() {
+        return dataKeepDay;
+    }
+
+    public void setDataKeepDay(Long dataKeepDay) {
+        this.dataKeepDay = dataKeepDay;
+    }
+
+    public String getDataSourcePluginPath() {
+        return dataSourcePluginPath;
+    }
+
+    public void setDataSourcePluginPath(String dataSourcePluginPath) {
+        this.dataSourcePluginPath = dataSourcePluginPath;
+    }
+
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+    public void setUploadPath(String uploadPath) {
+        this.uploadPath = uploadPath;
+    }
 }

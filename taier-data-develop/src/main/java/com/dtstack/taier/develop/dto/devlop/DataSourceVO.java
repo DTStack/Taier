@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.User;
-import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Map;
  * author: toutian
  * create: 2017/5/10
  */
-@Data
 public class DataSourceVO{
 
     /**
@@ -153,4 +151,205 @@ public class DataSourceVO{
 
     /**数据库名称**/
     private String schemaName;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Date getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
+
+    public void setDataName(String dataName) {
+        this.dataName = dataName;
+    }
+
+    public String getDataDesc() {
+        return dataDesc;
+    }
+
+    public void setDataDesc(String dataDesc) {
+        this.dataDesc = dataDesc;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public Integer getActive() {
+        return active;
+    }
+
+    public void setActive(Integer active) {
+        this.active = active;
+    }
+
+    public Integer getLinkState() {
+        return linkState;
+    }
+
+    public void setLinkState(Integer linkState) {
+        this.linkState = linkState;
+    }
+
+    public Long getModifyUserId() {
+        return modifyUserId;
+    }
+
+    public void setModifyUserId(Long modifyUserId) {
+        this.modifyUserId = modifyUserId;
+    }
+
+    public Long getCreateUserId() {
+        return createUserId;
+    }
+
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
+
+    public User getModifyUser() {
+        return modifyUser;
+    }
+
+    public void setModifyUser(User modifyUser) {
+        this.modifyUser = modifyUser;
+    }
+
+    public JSONObject getDataJson() {
+        return dataJson;
+    }
+
+    public void setDataJson(JSONObject dataJson) {
+        this.dataJson = dataJson;
+    }
+
+    public String getDataJsonString() {
+        return dataJsonString;
+    }
+
+    public void setDataJsonString(String dataJsonString) {
+        this.dataJsonString = dataJsonString;
+    }
+
+    public Map<String, Object> getKerberosConfig() {
+        return kerberosConfig;
+    }
+
+    public void setKerberosConfig(Map<String, Object> kerberosConfig) {
+        this.kerberosConfig = kerberosConfig;
+    }
+
+    public String getLocalKerberosConf() {
+        return localKerberosConf;
+    }
+
+    public void setLocalKerberosConf(String localKerberosConf) {
+        this.localKerberosConf = localKerberosConf;
+    }
+
+    public List<Integer> getAppTypeList() {
+        return appTypeList;
+    }
+
+    public void setAppTypeList(List<Integer> appTypeList) {
+        this.appTypeList = appTypeList;
+    }
+
+    public String getAppTypeListString() {
+        return appTypeListString;
+    }
+
+    public void setAppTypeListString(String appTypeListString) {
+        this.appTypeListString = appTypeListString;
+    }
+
+    public Integer getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(Integer isMeta) {
+        this.isMeta = isMeta;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
 }

@@ -29,8 +29,9 @@ import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.utils.develop.service.IJdbcService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -47,9 +48,10 @@ import java.util.Map;
  * @Created chener@dtstack.com
  */
 @Service
-@Slf4j
 public class JdbcServiceImpl implements IJdbcService {
+    protected static final Logger LOGGER = LoggerFactory.getLogger(JdbcServiceImpl.class);
 
+    
     @Override
     public Connection getConnection(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String dbName) {
         return getConnection(tenantId, userId, eScheduleJobType, dbName,null);
@@ -112,7 +114,7 @@ public class JdbcServiceImpl implements IJdbcService {
             list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(jdbcInfo.getMaxRows())
                     .queryTimeout(jdbcInfo.getQueryTimeout()).build());
         }
-        log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+        LOGGER.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         //数据源插件化 查询出值不符合要求  进行转化
         if (CollectionUtils.isNotEmpty(list)) {
             List<Object> column = new ArrayList<>();
@@ -147,7 +149,7 @@ public class JdbcServiceImpl implements IJdbcService {
         ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, eScheduleJobType, schema);
         iSourceDTO.setConnection(connection);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+        LOGGER.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
@@ -158,7 +160,7 @@ public class JdbcServiceImpl implements IJdbcService {
         JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, userId, eScheduleJobType);
         ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, Engine2DTOService.jobTypeTransitionDataSourceType(eScheduleJobType, jdbcInfo.getVersion()).getVal(), schema, jdbcInfo);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+        LOGGER.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         List<Map<String, Object>> list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(jdbcInfo.getMaxRows())
                 .queryTimeout(jdbcInfo.getQueryTimeout()).build());
         return list;
@@ -168,7 +170,7 @@ public class JdbcServiceImpl implements IJdbcService {
     public Boolean executeQueryWithoutResult(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql) {
         ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, userId, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+        LOGGER.info("集群执行SQL，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
         client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sql).build());
         return Boolean.TRUE;
     }
@@ -178,7 +180,7 @@ public class JdbcServiceImpl implements IJdbcService {
         ISourceDTO iSourceDTO = Engine2DTOService.get(tenantId, null, eScheduleJobType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         List<String> tableList = client.getTableList(iSourceDTO, SqlQueryDTO.builder().build());
-        log.info("集群查询底层获取所有表名称，tenantId:{}，jobType:{}，schema:{}", tenantId, eScheduleJobType.getType(), schema);
+        LOGGER.info("集群查询底层获取所有表名称，tenantId:{}，jobType:{}，schema:{}", tenantId, eScheduleJobType.getType(), schema);
         return tableList;
     }
 
@@ -186,7 +188,7 @@ public class JdbcServiceImpl implements IJdbcService {
     public List<String> getAllDataBases(Long clusterId, EComponentType eComponentType, String schema) {
         ISourceDTO iSourceDTO = Engine2DTOService.getByClusterId(clusterId,  eComponentType, schema);
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群查询底层获取所有数据库名称，clusterId:{}，eComponentType:{}，schema:{}", clusterId, eComponentType.getTypeCode(), schema);
+        LOGGER.info("集群查询底层获取所有数据库名称，clusterId:{}，eComponentType:{}，schema:{}", clusterId, eComponentType.getTypeCode(), schema);
         List<String> allDatabases = client.getAllDatabases(iSourceDTO, SqlQueryDTO.builder().build());
         return allDatabases;
     }
@@ -195,7 +197,7 @@ public class JdbcServiceImpl implements IJdbcService {
     public void createDatabase(Long clusterId, EComponentType eComponentType, String schema, String comment) {
         ISourceDTO iSourceDTO = Engine2DTOService.getByClusterId(clusterId,  eComponentType, "");
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        log.info("集群创建数据库操作，clusterId:{}，sourceType:{}，dbName:{}", clusterId, iSourceDTO.getSourceType(), schema);
+        LOGGER.info("集群创建数据库操作，clusterId:{}，sourceType:{}，dbName:{}", clusterId, iSourceDTO.getSourceType(), schema);
         client.createDatabase(iSourceDTO, schema, comment);
     }
 
@@ -226,7 +228,7 @@ public class JdbcServiceImpl implements IJdbcService {
                 list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(maxRows)
                         .queryTimeout(jdbcInfo.getQueryTimeout()).build());
             }
-            log.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
+            LOGGER.info("集群执行SQL查询，tenantId:{}，userId:{}，jobType:{}，schema:{}，sql:{}", tenantId, userId, eScheduleJobType.getType(), schema, sql);
 
             List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(iSourceDTO, SqlQueryDTO.builder().sql(sql).limit(0)
                     .queryTimeout(jdbcInfo.getQueryTimeout()).build());

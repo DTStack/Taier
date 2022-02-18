@@ -20,8 +20,6 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.User;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -29,8 +27,6 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2018/1/4
  */
-@Slf4j
-@Data
 public class BatchResourceVO extends BatchResource {
 
     public static BatchResourceVO toVO(BatchResource origin) {
@@ -38,7 +34,6 @@ public class BatchResourceVO extends BatchResource {
         try {
             BeanUtils.copyProperties(origin, vo);
         } catch (Exception e) {
-            log.error("", e);
         }
         return vo;
     }
@@ -46,4 +41,20 @@ public class BatchResourceVO extends BatchResource {
     private User createUser;
 
     private User modifyUser;
+
+    public User getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(User createUser) {
+        this.createUser = createUser;
+    }
+
+    public User getModifyUser() {
+        return modifyUser;
+    }
+
+    public void setModifyUser(User modifyUser) {
+        this.modifyUser = modifyUser;
+    }
 }

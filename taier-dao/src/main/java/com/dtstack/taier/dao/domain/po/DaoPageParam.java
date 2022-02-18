@@ -1,7 +1,6 @@
 package com.dtstack.taier.dao.domain.po;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import lombok.Data;
 
 import java.util.Objects;
 
@@ -12,7 +11,6 @@ import java.util.Objects;
  * @date 2021/3/17
  * @desc 分页参数基类
  */
-@Data
 public class DaoPageParam {
 
     public static final int DEFAULT_PAGE_NO = 1;
@@ -72,4 +70,59 @@ public class DaoPageParam {
         return this;
     }
 
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getEnd() {
+        return end;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public String getSort() {
+        return sort;
+    }
+
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    public String getSortColumn() {
+        return sortColumn;
+    }
+
+    public void setSortColumn(String sortColumn) {
+        this.sortColumn = sortColumn;
+    }
 }

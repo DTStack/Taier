@@ -26,15 +26,14 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.TenantComponent;
-import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
-import com.dtstack.taier.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
-import com.dtstack.taier.develop.utils.develop.mapping.JobTypeDataSourceTypeMapping;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IDataDownloadService;
+import com.dtstack.taier.develop.utils.develop.common.IDownload;
+import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
+import com.dtstack.taier.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
+import com.dtstack.taier.develop.utils.develop.mapping.JobTypeDataSourceTypeMapping;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
@@ -228,7 +227,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             syncDownload.setLogInfo(syncLog.toString());
             return syncDownload;
         }
-        String applicationId = batchJobService.getEngineJobId(jobId);
+        String applicationId = batchJobService.getApplicationId(jobId);
         if (StringUtils.isBlank(applicationId)) {
             return null;
         }
@@ -251,7 +250,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
     @Override
     public IDownload typeLogDownloader(Long tenantId, String jobId, Integer limitNum, String logType) {
-        String applicationId = batchJobService.getEngineJobId(jobId);
+        String applicationId = batchJobService.getApplicationId(jobId);
 
         if (StringUtils.isBlank(applicationId)) {
             throw new RdosDefineException("任务尚未执行完成或提交失败，请稍后再试");
@@ -280,12 +279,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      * @return userName
      */
     private String getSubmitUserNameByJobId(String jobId) {
-        ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
-        String submitUserName = scheduleJob.getSubmitUserName();
-        if (StringUtils.isEmpty(submitUserName)) {
-            submitUserName = environmentContext.getHadoopUserName();
-        }
-        return submitUserName;
+        return scheduleJobService.getByJobId(jobId).getSubmitUserName();
     }
 
 }

@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -26,7 +25,6 @@ import java.util.Map;
 /**
  * @author jiangbo
  */
-@Data
 public class BatchServerLogVO {
 
     private String name;
@@ -43,7 +41,6 @@ public class BatchServerLogVO {
     //当前页
     private Integer pageIndex;
 
-    @Data
     public static class SyncJobInfo{
 
         private Integer readNum = 0;
@@ -53,6 +50,126 @@ public class BatchServerLogVO {
         private Float dirtyPercent = 0.0F;
 
         private Long execTime = 0L;
+
+        public Integer getReadNum() {
+            return readNum;
+        }
+
+        public void setReadNum(Integer readNum) {
+            this.readNum = readNum;
+        }
+
+        public Integer getWriteNum() {
+            return writeNum;
+        }
+
+        public void setWriteNum(Integer writeNum) {
+            this.writeNum = writeNum;
+        }
+
+        public Float getDirtyPercent() {
+            return dirtyPercent;
+        }
+
+        public void setDirtyPercent(Float dirtyPercent) {
+            this.dirtyPercent = dirtyPercent;
+        }
+
+        public Long getExecTime() {
+            return execTime;
+        }
+
+        public void setExecTime(Long execTime) {
+            this.execTime = execTime;
+        }
     }
 
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLogInfo() {
+        return logInfo;
+    }
+
+    public void setLogInfo(String logInfo) {
+        this.logInfo = logInfo;
+    }
+
+    public Timestamp getExecStartTime() {
+        return execStartTime;
+    }
+
+    public void setExecStartTime(Timestamp execStartTime) {
+        this.execStartTime = execStartTime;
+    }
+
+    public Timestamp getExecEndTime() {
+        return execEndTime;
+    }
+
+    public void setExecEndTime(Timestamp execEndTime) {
+        this.execEndTime = execEndTime;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
+    public SyncJobInfo getSyncJobInfo() {
+        return syncJobInfo;
+    }
+
+    public void setSyncJobInfo(SyncJobInfo syncJobInfo) {
+        this.syncJobInfo = syncJobInfo;
+    }
+
+    public String getDownloadLog() {
+        return downloadLog;
+    }
+
+    public void setDownloadLog(String downloadLog) {
+        this.downloadLog = downloadLog;
+    }
+
+    public Map<String, String> getSubNodeDownloadLog() {
+        return subNodeDownloadLog;
+    }
+
+    public void setSubNodeDownloadLog(Map<String, String> subNodeDownloadLog) {
+        this.subNodeDownloadLog = subNodeDownloadLog;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getPageIndex() {
+        return pageIndex;
+    }
+
+    public void setPageIndex(Integer pageIndex) {
+        this.pageIndex = pageIndex;
+    }
 }

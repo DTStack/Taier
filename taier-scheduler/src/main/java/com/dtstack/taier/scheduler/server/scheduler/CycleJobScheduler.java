@@ -46,7 +46,6 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     @Autowired(required = false)
     private List<JudgeNoPassJobHandler> judgeNoPassJobHandlers;
 
-    private final String CYC_TIME_FORMAT = "yyyyMMddHHmmss";
     private final String DATA_YMD = "yyyyMMdd";
 
 

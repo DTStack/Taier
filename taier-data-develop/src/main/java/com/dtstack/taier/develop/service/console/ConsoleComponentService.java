@@ -2,6 +2,7 @@ package com.dtstack.taier.develop.service.console;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -11,10 +12,7 @@ import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
 import com.dtstack.taier.common.util.ZipUtil;
-import com.dtstack.taier.dao.domain.Cluster;
-import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.ComponentConfig;
-import com.dtstack.taier.dao.domain.KerberosConfig;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
@@ -590,10 +588,26 @@ public class ConsoleComponentService {
                 sftpFileManage.uploadFile(remoteDirKerberos, file.getPath());
             }
         }
-        String componentVersion = addComponent.getVersionValue();
+        String versionName = addComponent.getVersionName();
+        String componentVersion = "";
+        if(StringUtils.isNotBlank(versionName) && ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode())){
+            //
+            DictType dictType = null;
+            if (EComponentType.SPARK.getTypeCode().equals(addComponent.getComponentTypeCode())) {
+                dictType = DictType.SPARK_VERSION;
+            } else if (EComponentType.FLINK.getTypeCode().equals(addComponent.getComponentTypeCode())) {
+                dictType = DictType.FLINK_VERSION;
+            }
+            if (null != dictType) {
+                Dict dict = scheduleDictService.getByNameAndValue(dictType.getType(), versionName, null, null);
+                if (null != dict) {
+                    componentVersion = dict.getDictValue();
+                }
+            }
+        }
+
         //更新数据库kerberos信息
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),
-                ComponentVersionUtil.formatMultiVersion(addComponent.getComponentTypeCode(), componentVersion));
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),componentVersion);
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
@@ -784,7 +798,7 @@ public class ConsoleComponentService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode, String componentVersion) {
+    public String uploadKerberos(List<Resource> resources, Long clusterId, Integer componentCode, String versionName) {
 
         if (CollectionUtils.isEmpty(resources)) {
             throw new RdosDefineException("Please upload a kerberos file!");
@@ -802,7 +816,7 @@ public class ConsoleComponentService {
         String remoteDir = sftpConfig.getPath() + File.separator + this.buildSftpPath(clusterId, componentCode);
         Component addComponent = new Component();
         addComponent.setComponentTypeCode(componentCode);
-        addComponent.setVersionValue(componentVersion);
+        addComponent.setVersionName(versionName);
         updateComponentKerberosFile(clusterId, addComponent, sftpFileManage, remoteDir, resource, null, null);
 
         List<KerberosConfig> kerberosConfigs = consoleKerberosMapper.listAll();

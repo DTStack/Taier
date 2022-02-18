@@ -18,9 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
 
-@Data
 public class CheckSyntaxResult {
 
     private Boolean checkResult;
@@ -28,4 +26,28 @@ public class CheckSyntaxResult {
     private String message;
 
     private String sql;
+
+    public Boolean getCheckResult() {
+        return checkResult;
+    }
+
+    public void setCheckResult(Boolean checkResult) {
+        this.checkResult = checkResult;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
 }

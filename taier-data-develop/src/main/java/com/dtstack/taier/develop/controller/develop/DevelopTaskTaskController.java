@@ -22,7 +22,7 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskTaskService;
-import com.dtstack.taier.develop.web.develop.query.BatchTaskTaskAddOrUpdateVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskAddOrUpdateVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

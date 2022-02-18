@@ -63,10 +63,10 @@ public class MetricBuilder {
                 metric = new SyncJobMetricWithCountMaxSum();
                 break;
             case "endLocation":
-                metric = new SyncJobMetricWithCountMaxSum();
+                metric = new SyncJobMetric();
                 break;
             case "startLocation":
-                metric = new SyncJobMetricWithCountMaxSum();
+                metric = new SyncJobMetric();
                 break;
             default:
                 break;

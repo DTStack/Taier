@@ -46,13 +46,13 @@ public class ReturnScheduleTaskVO {
      * 责任人ID
      */
     @ApiModelProperty(value = "责任人ID", example = "1")
-    private Long ownerUserId;
+    private Long operatorId;
 
     /**
      * 责任人
      */
     @ApiModelProperty(value = "责任人名称", example = "admin@dtstack.com")
-    private String ownerUserName;
+    private String operatorName;
 
     /**
      * 调度状态：0 正常 1冻结 2停止
@@ -100,20 +100,20 @@ public class ReturnScheduleTaskVO {
         this.periodType = periodType;
     }
 
-    public Long getOwnerUserId() {
-        return ownerUserId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
-    public String getOwnerUserName() {
-        return ownerUserName;
+    public String getOperatorName() {
+        return operatorName;
     }
 
-    public void setOwnerUserName(String ownerUserName) {
-        this.ownerUserName = ownerUserName;
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 
     public Integer getScheduleStatus() {

@@ -32,10 +32,10 @@ public class QueryJobListVO extends PageVO {
     private String taskName;
 
     /**
-     * 用户ID 责任人
+     * 操作人
      */
-    @ApiModelProperty(value = "用户ID 责任人")
-    private Long ownerId;
+    @ApiModelProperty(value = "操作人")
+    private Long operatorId;
 
     /**
      * 计划开始时间
@@ -113,12 +113,12 @@ public class QueryJobListVO extends PageVO {
         this.taskName = taskName;
     }
 
-    public Long getOwnerId() {
-        return ownerId;
+    public Long getOperatorId() {
+        return operatorId;
     }
 
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
+    public void setOperatorId(Long operatorId) {
+        this.operatorId = operatorId;
     }
 
     public Long getCycStartDay() {

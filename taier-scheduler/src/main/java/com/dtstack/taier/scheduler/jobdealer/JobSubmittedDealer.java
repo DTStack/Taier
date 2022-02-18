@@ -23,7 +23,7 @@ import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.util.JobGraphUtil;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
@@ -82,18 +82,18 @@ public class JobSubmittedDealer implements Runnable {
                 LOGGER.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getJobId(), jobClient.getJobResult());
 
                 //存储执行日志
-                if (StringUtils.isNotBlank(jobClient.getEngineTaskId())) {
+                if (StringUtils.isNotBlank(jobClient.getEngineTaskId()) || StringUtils.isNotBlank(jobClient.getApplicationId())) {
                     JobResult jobResult = jobClient.getJobResult();
-                    String appId = jobResult.getData(JobResult.EXT_ID_KEY);
+                    String appId = jobResult.getData(JobResult.JOB_ID_KEY);
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
-                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
+                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(appId, jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
                     scheduleJobService.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
-                    jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
+                    jobClient.doStatusCallBack(TaskStatus.SUBMITTED.getStatus());
                     JobClient finalJobClient = jobClient;
-                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), RdosTaskStatus.SUBMITTED.getStatus(), (jobId) -> {
+                    shardCache.updateLocalMemTaskStatus(jobClient.getJobId(), TaskStatus.SUBMITTED.getStatus(), (jobId) -> {
                         LOGGER.warn("success submit job to Engine, jobId:{} jobResult:{} but shareManager is not found ...", jobId, finalJobClient.getJobResult());
-                        finalJobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
+                        finalJobClient.doStatusCallBack(TaskStatus.CANCELED.getStatus());
                     });
                 } else {
                     jobClientFail(jobClient.getJobId(), jobClient.getJobResult().getJsonStr());
@@ -109,8 +109,8 @@ public class JobSubmittedDealer implements Runnable {
 
     private void jobClientFail(String jobId, String info) {
         try {
-            scheduleJobService.jobFail(jobId, RdosTaskStatus.FAILED.getStatus(), info);
-            LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.FAILED.getStatus());
+            scheduleJobService.jobFail(jobId, TaskStatus.FAILED.getStatus(), info);
+            LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, TaskStatus.FAILED.getStatus());
             scheduleJobCacheService.deleteByJobId(jobId);
         } catch (Exception e) {
             LOGGER.error("jobId:{} update job fail {}  error", jobId, info, e);

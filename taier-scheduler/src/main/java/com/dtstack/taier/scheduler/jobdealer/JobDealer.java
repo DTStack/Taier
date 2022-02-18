@@ -29,7 +29,7 @@ import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
@@ -173,7 +173,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
     private void addSubmitJobVast(List<JobClient> jobClients) {
         List<String> jobIds = jobClients.stream().map(JobClient::getJobId).collect(Collectors.toList());
         updateCacheBatch(jobIds, EJobCacheStage.DB.getStage());
-        scheduleJobService.updateJobStatusByJobIds(jobIds, RdosTaskStatus.WAITENGINE.getStatus(),null);
+        scheduleJobService.updateJobStatusByJobIds(jobIds, TaskStatus.WAITENGINE.getStatus(),null);
         LOGGER.info(" addSubmitJobBatch jobId:{} update", JSONObject.toJSONString(jobIds));
         for (JobClient jobClient : jobClients) {
             jobClient.setCallBack((jobStatus) -> {
@@ -192,7 +192,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         updateCacheBatch(jobIds, EJobCacheStage.SUBMITTED.getStage());
         LOGGER.info(" afterSubmitJobBatch jobId:{} update", JSONObject.toJSONString(jobIds));
         for (String taskId : jobIds) {
-            shardCache.updateLocalMemTaskStatus(taskId, RdosTaskStatus.SUBMITTED.getStatus());
+            shardCache.updateLocalMemTaskStatus(taskId, TaskStatus.SUBMITTED.getStatus());
         }
     }
 
@@ -235,7 +235,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
         String nodeAddress = environmentContext.getLocalAddress();
         if (insert) {
             scheduleJobCacheService.insert(jobClient.getJobId(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobResource, jobClient.getTenantId());
-            jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
+            jobClient.doStatusCallBack(TaskStatus.WAITENGINE.getStatus());
         } else {
             scheduleJobCacheService.updateStage(jobClient.getJobId(), stage, nodeAddress, jobClient.getPriority(), null);
         }
@@ -285,8 +285,8 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
      */
     public void dealSubmitFailJob(String jobId, String errorMsg) {
         scheduleJobCacheService.deleteByJobId(jobId);
-        scheduleJobService.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
-        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, RdosTaskStatus.SUBMITFAILD.getStatus());
+        scheduleJobService.jobFail(jobId, TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
+        LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, TaskStatus.SUBMITFAILD.getStatus());
     }
 
     class RecoverDealer implements Runnable {
@@ -297,7 +297,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             try {
                 long startId = 0L;
                 while (true) {
-                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null);
+                    List<ScheduleEngineJobCache> jobCaches = scheduleJobCacheService.listByStage(startId, localAddress, null, null,Boolean.TRUE);
                     if (CollectionUtils.isEmpty(jobCaches)) {
                         //两种情况：
                         //1. 可能本身没有jobcaches的数据
@@ -334,13 +334,13 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
                 // 恢复没有被容灾，但是状态丢失的任务
                 long jobStartId = 0;
                 // 扫描出 status = 0 和 19  phaseStatus = 1 
-                List<SimpleScheduleJobPO> jobs = scheduleJobService.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                List<SimpleScheduleJobPO> jobs = scheduleJobService.listJobByStatusAddressAndPhaseStatus(jobStartId, TaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 while (CollectionUtils.isNotEmpty(jobs)) {
                     List<String> jobIds = jobs.stream().map(SimpleScheduleJobPO::getJobId).collect(Collectors.toList());
                     LOGGER.info("update job ids {}", jobIds);
-                    scheduleJobService.updateJobStatusByJobIds(jobIds, RdosTaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
+                    scheduleJobService.updateJobStatusByJobIds(jobIds, TaskStatus.UNSUBMIT.getStatus(), JobPhaseStatus.CREATE.getCode());
                     jobStartId = jobs.get(jobs.size()-1).getId();
-                    jobs = scheduleJobService.listJobByStatusAddressAndPhaseStatus(jobStartId, RdosTaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
+                    jobs = scheduleJobService.listJobByStatusAddressAndPhaseStatus(jobStartId, TaskStatus.getUnSubmitStatus(), localAddress, JobPhaseStatus.JOIN_THE_TEAM.getCode());
                 }
                 LOGGER.info("job deal end");
             } catch (Exception e) {

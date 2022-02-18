@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,7 +11,6 @@ import java.io.Serializable;
  * @author: liuxx
  * @date: 2021/3/9
  */
-@Data
 @ApiModel("数据源分类类目模型")
 public class DsClassifyVO implements Serializable {
 
@@ -28,5 +26,35 @@ public class DsClassifyVO implements Serializable {
     @ApiModelProperty("类型栏排序字段")
     private Integer sorted;
 
+    public Long getClassifyId() {
+        return classifyId;
+    }
 
+    public void setClassifyId(Long classifyId) {
+        this.classifyId = classifyId;
+    }
+
+    public String getClassifyCode() {
+        return classifyCode;
+    }
+
+    public void setClassifyCode(String classifyCode) {
+        this.classifyCode = classifyCode;
+    }
+
+    public String getClassifyName() {
+        return classifyName;
+    }
+
+    public void setClassifyName(String classifyName) {
+        this.classifyName = classifyName;
+    }
+
+    public Integer getSorted() {
+        return sorted;
+    }
+
+    public void setSorted(Integer sorted) {
+        this.sorted = sorted;
+    }
 }

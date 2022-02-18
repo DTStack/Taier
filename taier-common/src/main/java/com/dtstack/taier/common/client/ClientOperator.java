@@ -25,7 +25,7 @@ import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
@@ -69,11 +69,11 @@ public class ClientOperator {
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String pluginInfo, JobIdentifier jobIdentifier) {
+    public TaskStatus getJobStatus(String pluginInfo, JobIdentifier jobIdentifier) {
         checkoutOperator(pluginInfo, jobIdentifier);
 
         String jobId = jobIdentifier.getEngineJobId();
-        if (Strings.isNullOrEmpty(jobId)) {
+        if (Strings.isNullOrEmpty(jobId) && Strings.isNullOrEmpty(jobIdentifier.getApplicationId())) {
             throw new RdosDefineException("can't get job of jobId is empty or null!");
         }
 
@@ -85,10 +85,10 @@ public class ClientOperator {
                 return null;
             }
 
-            return (RdosTaskStatus) result;
+            return (TaskStatus) result;
         } catch (Exception e) {
             LOGGER.error("getStatus happens error：{}",jobId, e);
-            return RdosTaskStatus.NOTFOUND;
+            return TaskStatus.NOTFOUND;
         }
     }
 

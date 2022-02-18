@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.taier.common.enums.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.TaskStatus;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -34,6 +33,7 @@ import com.dtstack.taier.develop.sql.SqlType;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.mapping.DataSourceTypeJobTypeMapping;
 import com.dtstack.taier.develop.utils.develop.service.IJdbcService;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -262,7 +262,7 @@ public class BatchSparkHiveSqlExeService {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
             result = simpleQuery(tenantId, parseResult, currDb, userId, scheduleJobType);
-            if (!result.getIsContinue()) {
+            if (!result.getContinue()) {
                 return result;
             }
         }
@@ -271,7 +271,7 @@ public class BatchSparkHiveSqlExeService {
         if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
             String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
-            result.setIsContinue(false);
+            result.setContinue(false);
             return result;
         } else if (SqlType.INSERT.equals(parseResult.getSqlType())
                 || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
@@ -291,7 +291,7 @@ public class BatchSparkHiveSqlExeService {
                 }
             }
         }
-        result.setIsContinue(true);
+        result.setContinue(true);
         return result;
     }
 
@@ -318,7 +318,7 @@ public class BatchSparkHiveSqlExeService {
             String parseColumnsString = "{}";
             selectSqlService.addSelectSql(jobId, tableName, TempJobType.SIMPLE_SELECT.getType(), tenantId, parseResult.getStandardSql(), userId, parseColumnsString, scheduleJobType.getType());
             result.setJobId(jobId);
-            result.setIsContinue(false);
+            result.setContinue(false);
         } else {
             try {
                 List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, scheduleJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
@@ -330,7 +330,7 @@ public class BatchSparkHiveSqlExeService {
                 result.setStatus(TaskStatus.FAILED.getStatus());
                 result.setMsg(e.getMessage());
             }
-            result.setIsContinue(false);
+            result.setContinue(false);
         }
         return result;
     }
