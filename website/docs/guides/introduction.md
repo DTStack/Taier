@@ -15,7 +15,9 @@ sidebar_position: 1
 
 **Taier** 是一个分布式可视化的DAG任务调度系统。旨在降低**ETL开发**成本、提高大数据平台稳定性，大数据开发人员可以在 **Taier** 直接进行业务逻辑的开发，而不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中。
 
-**Taier** 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎**DAGScheduleX**，**DAGScheduleX**是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行。
+**Taier** 脱胎于[袋鼠云](https://www.dtstack.com/) - [数栈](https://www.dtstack.com/dtinsight/) （一站式大数据开发平台），技术实现来源于数栈分布式调度引擎**DAGScheduleX**。 
+
+**DAGScheduleX**是[数栈](https://www.dtstack.com/dtinsight/) 产品的重要基础设施之一，负责大数据平台所有任务实例的调度运行。
 
 ## 功能特征
 
@@ -26,8 +28,8 @@ sidebar_position: 1
 * 实战检验：经近百家客户实战检验，部分客户的生产日均调度任务超过`100`万个
 
 #### 易用性
-* 支持大数据作业`Spark`、`Flink`、`Hive`、`MR`的调度，
-* 支持众多的任务类型，目前支持 Spark SQL、Spark MR、PySpark、Flinkx、Flink MR
+* 支持大数据作业`Spark`、`Flink`的调度，
+* 支持众多的任务类型，目前支持 Spark SQL、Flinkx
 :::tip
 后续将开源：Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure
 :::
@@ -38,7 +40,7 @@ sidebar_position: 1
 * 多集群连接：支持一套调度系统连接多套`Hadoop`集群
 
 #### 多版本引擎
-* 支持`Spark` 、`Flink`、`Hive`、`MR`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
+* 支持`Spark` 、`Flink`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
 
 #### Kerberos支持
 * `Flink`、`SparkSQL`、`HiveSQL`
@@ -50,16 +52,15 @@ sidebar_position: 1
 * 设计之处就考虑分布式模式，目前支持 整体 **Taier** 水平扩容 和 拆分`Master`/`Worker` 水平扩容方式；
 * 调度能力随集群线性增长；  
 
-## 用户界面
-![datasource](/img/readme/datasource.png)
-![developsync](/img/readme/developsync.png)
-![developsparksql](/img/readme/developsparksql.png)
-![yunwei](/img/readme/yunwei.png)
-![console](/img/readme/console.png)
-![component](/img/readme/component.png)
+## 主要界面
+![add-source](/img/readme/add-source.png)
+![cluster](/img/readme/cluster.png)
+![web](/img/readme/main.png)
+![sync](/img/readme/sync.png)
+![maintenance](/img/readme/maintenance.png)
 
 ## 快速开始
-请参考官方文档: [快速开始](./quickstart/start.md)
+请参考官方文档: [快速开始](./quickstart/deploy/start.md)
 
 ## Contributing
 
