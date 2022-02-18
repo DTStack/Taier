@@ -6,15 +6,15 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-    title: 'Taiga',
+    title: 'Taier',
     tagline: 'A Distributed dispatching system',
-    url: 'https://taiga.vercel.app/',
-    baseUrl: '/',
+    url: 'https://dtstack.github.io',
+    baseUrl: '/taier/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.png',
     organizationName: 'DTStack', // Usually your GitHub org/user name.
-    projectName: 'Taiga', // Usually your repo name.
+    projectName: 'Taier', // Usually your repo name.
     presets: [
         [
             'classic',
@@ -34,6 +34,10 @@ const config = {
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
+                gtag: {
+                    trackingID: 'G-YR822Y4D1C',
+                    anonymizeIP: true,
+                },
             }),
         ],
     ],
@@ -42,9 +46,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
             navbar: {
-                title: 'Taiga',
+                title: 'Taier',
                 logo: {
-                    alt: 'Taiga Logo',
+                    alt: 'Taier Logo',
                     src: 'img/logo.svg',
                 },
                 items: [
@@ -55,7 +59,7 @@ const config = {
                         label: 'DOCS',
                     },
                     {
-                        href: 'https://github.com/DTStack/Taiga',
+                        href: 'https://github.com/DTStack/Taier',
                         label: 'GITHUB',
                         position: 'left',
                     }
@@ -78,7 +82,7 @@ const config = {
                         items: [
                             {
                                 label: 'GitHub',
-                                href: 'https://github.com/DTStack/Taiga',
+                                href: 'https://github.com/DTStack/Taier',
                             }
                         ],
                     },

@@ -5,7 +5,7 @@ sidebar_position: 1
 ---
 
 <div align="center">
- <img src="/img/logo.svg" width="20%" height="20%" alt="Taier Logo" />
+ <img src="/taier/img/logo.svg" width="20%" height="20%" alt="Taier Logo" />
  <h1>Taier</h1>
  <h3>A Distributed dispatching system</h3>
 </div>
