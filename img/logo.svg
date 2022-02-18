@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500px" height="500px" viewBox="0 0 500 500" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>白色底500*500</title>
+    <g id="白色底500*500" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组备份-4" transform="translate(33.000000, 0.000000)">
+            <polygon id="Fill-1" fill="#0072FB" points="435 374.999192 435 125.000808 217.5 0 0 125.000808 0 374.999192 217.5 500"></polygon>
+            <g id="编组-2" transform="translate(41.648936, 64.220183)">
+                <polygon id="Fill-2" fill="#FFFFFF" points="122.774924 161.399833 0 161.399833 75.6007706 80.8809741 122.774924 80.8809741"></polygon>
+                <polygon id="Fill-3" fill="#FFFFFF" points="277.963727 161.270183 155.253763 161.270183 229.474128 81.4529218 353.106527 80.5670333"></polygon>
+                <polygon id="Fill-4" fill="#7FB7FF" points="122.774924 80.8809741 122.774924 161.270506 199.048033 81.8961894 199.541731 0"></polygon>
+                <polygon id="Fill-5" fill="#7FB7FF" points="278.035172 290.890868 122.774924 290.890868 200.23031 372.515471"></polygon>
+                <polygon id="Fill-6" fill="#FFFFFF" points="122.775249 290.890868 122.775249 182.095999 200.188411 182.095999 200.188411 372.038255"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>
