@@ -62,7 +62,7 @@ public class DependencyManager {
                     .list();
 
             if (CollectionUtils.isNotEmpty(taskShadeList)) {
-                dependencyHandler = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, taskShadeList);
+                dependencyHandler = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService);
             }
         }
 
