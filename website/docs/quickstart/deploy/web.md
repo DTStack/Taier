@@ -123,15 +123,17 @@ $ npm install pm2 mini-cup -g
 [`mini-cup`](https://github.com/wewoor/cup) is a lightweight web server for web applications.
 :::
 
-安装完成，就可以一下命令，启动一个服务器
+安装完成，就可以通过在 `taier-ui`目录下执行以下命令来启动服务:
 
 ```shell
-$ pm2 start npm -- cup
+$ pwd
+/Your-Project-Path/Taier/taier-ui
+$ pm2 start cup
 ```
 
 该命令会查找当前目录下的 `cup.config.js` 文件，并将该文件作为配置文件启动服务器，该文件内容如下：
 
-```js
+```js title="cup.config.js"
 const publicURL = "http://taier.dtstack.cn/"; // 跳转到后端部署的目录
 
 module.exports = {
@@ -150,6 +152,46 @@ module.exports = {
 ```
 
 :::caution
-`mini-cup` 服务器仅用作本地快速部署，在实际生产环境中，我们推荐使用 nginx 作为代理服务器。
+`mini-cup` 服务器仅用作本地快速部署，在实际生产环境中，我们推荐使用 `nginx` 作为代理服务器。
 :::
 
+如果您想要使用 `nginx` 作为代理服务，这里提供一份配置文件**仅供参考**。
+```nginx title="taier.conf"
+upstream taier{
+  server Your-Server-IP:Your-Server-PORT;
+}
+
+
+server {
+  listen *:80;
+  listen [::]:80;
+  # The host name to respond to
+  server_name .taier.dtstack.com .taier.dtstack.cn;
+  client_max_body_size  100m;
+
+  proxy_set_header   cache-control no-cache;
+  proxy_ignore_headers Cache-Control Expires;
+  proxy_set_header   Referer $http_referer;
+  proxy_set_header   Host   $host;
+  proxy_set_header   Cookie $http_cookie;
+  proxy_set_header   X-Real-IP  $remote_addr;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Server $host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+
+  location / {
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_pass http://Your-address-ip:8080;
+  }
+
+  location /taier {
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+    proxy_pass http://taier;
+  }
+}
+```
