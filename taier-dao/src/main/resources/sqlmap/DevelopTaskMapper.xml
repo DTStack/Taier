@@ -4,12 +4,12 @@
 
     <sql id="select_content_fragment">
       id,tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
     <sql id="simple_select_content_fragment">
         id,tenant_id,node_pid,name,task_type,compute_type,period_type,
-      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
     </sql>
 
     <sql id="select_where_fragment">
@@ -61,9 +61,6 @@
             </if>
             <if test="model.createUserId != null">
                 AND create_user_id = #{model.createUserId}
-            </if>
-            <if test="model.ownerUserId != null">
-                AND owner_user_id = #{model.ownerUserId}
             </if>
             <if test="model.version != null">
                 AND version = #{model.version}
@@ -138,17 +135,11 @@
             <if test="gmtCreate != null">
                 gmt_create = #{gmtCreate},
             </if>
-            <if test="gmtModified != null">
-                gmt_modified = #{gmtModified},
-            </if>
             <if test="modifyUserId != null">
                 modify_user_id = #{modifyUserId},
             </if>
             <if test="createUserId != null">
                 create_user_id = #{createUserId},
-            </if>
-            <if test="ownerUserId != null">
-                owner_user_id = #{ownerUserId},
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted},
@@ -165,7 +156,8 @@
             <if test="componentVersion != null">
                 component_version = #{componentVersion},
             </if>
-            version = version+1
+            version = version+1,
+            gmt_modified = now(),
         </set>
     </sql>
 
@@ -208,7 +200,7 @@
     <select id="generalQueryWithoutSql" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         id,tenant_id,node_pid,name,task_type,compute_type,task_params,schedule_conf,period_type,
-        schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id
+        schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id
         FROM develop_task
         <include refid="select_where_fragment"/>
         <if test="orderBy != null and sort != null">
@@ -309,10 +301,10 @@
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTask" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_task
           (tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,owner_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
+          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
         VALUES
           (#{tenantId},#{nodePid},#{name},#{taskType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{ownerUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
+          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTask">
@@ -320,7 +312,7 @@
         develop_task
         <include refid="update_fragment"/>
         WHERE
-        id = #{id} AND version = #{version} AND is_deleted = 0
+        id = #{id} AND is_deleted = 0
     </update>
     
     <update id="updateSubmitStatus">
@@ -372,7 +364,7 @@
     <select id="catalogueListBatchTaskByNodePid" resultType="com.dtstack.taier.dao.domain.BatchTask">
         SELECT
         t.id,t.tenant_id,t.node_pid,t.name,t.task_type,t.compute_type,t.period_type,t.schedule_status,t.submit_status,
-        t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.owner_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
+        t.gmt_create,t.gmt_modified,t.modify_user_id,t.create_user_id,t.version,t.is_deleted,t.task_desc,t.main_class,t.exe_args,t.flow_id,
         if(t.version != ifnull(tv.version,-1),0,1) as status
         FROM develop_task t left join (select task_id,max(version) as version from develop_task_version group by task_id)tv on t.id = tv.task_id
         WHERE t.node_pid = #{nodePid} and t.tenant_id = #{tenantId} and t.is_deleted = 0
@@ -434,12 +426,4 @@
         WHERE tenant_id = #{tenantId} AND is_deleted = 0;
     </update>
 
-    <update id="updateTaskOwnerUser">
-        UPDATE develop_task
-        SET owner_user_id = #{newOwnerUserId},
-            gmt_modified = now()
-        WHERE owner_user_id = #{oldOwnerUserId}
-        AND tenant_id = #{tenantId}
-        AND is_deleted = 0
-    </update>
 </mapper>

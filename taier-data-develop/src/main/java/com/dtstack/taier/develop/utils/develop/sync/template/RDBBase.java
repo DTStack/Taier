@@ -69,13 +69,13 @@ public abstract class RDBBase extends BaseSource{
     /**
      * 数据库类型,mysql 、oracle、 hive
      */
-    private DataBaseType type;
+    private Integer type;
 
-    public DataBaseType getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(DataBaseType type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

@@ -1,10 +1,10 @@
 package com.dtstack.taier.scheduler.server.scheduler;
 
-import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.scheduler.exec.JudgeJobExecOperator;
 import com.dtstack.taier.scheduler.server.scheduler.handler.JudgeNoPassJobHandler;
@@ -29,9 +29,6 @@ import java.util.Set;
 public class RestartJobScheduler extends OperatorRecordJobScheduler {
 
     private final Logger LOGGER = LoggerFactory.getLogger(RestartJobScheduler.class);
-
-    @Autowired
-    private ScheduleJobService scheduleJobService;
 
     @Autowired(required = false)
     private List<JudgeJobExecOperator> judgeJobExecOperators;
@@ -69,9 +66,8 @@ public class RestartJobScheduler extends OperatorRecordJobScheduler {
     protected List<ScheduleJob> getScheduleJob(Set<String> jobIds) {
         return scheduleJobService.lambdaQuery().in(ScheduleJob::getJobId, jobIds)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .eq(ScheduleJob::getStatus, RdosTaskStatus.UNSUBMIT.getStatus())
+                .eq(ScheduleJob::getStatus, TaskStatus.UNSUBMIT.getStatus())
                 .eq(ScheduleJob::getPhaseStatus, JobPhaseStatus.CREATE.getCode())
-                .eq(ScheduleJob::getIsRestart,1)
                 .list();
     }
 

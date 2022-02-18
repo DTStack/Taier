@@ -21,7 +21,7 @@ public class EngineJobCacheService extends ServiceImpl<ScheduleEngineJobCacheMap
     }
 
     public List<ScheduleEngineJobCache> listByStage(Long startId, String nodeAddress, Integer stage, String resource) {
-        return getBaseMapper().listByStage(startId, nodeAddress, stage, resource);
+        return getBaseMapper().listByStage(startId, nodeAddress, stage, resource,Boolean.FALSE);
     }
 
     public int updateNodeAddressFailover(String nodeAddress, List<String> jobIds, Integer stage) {

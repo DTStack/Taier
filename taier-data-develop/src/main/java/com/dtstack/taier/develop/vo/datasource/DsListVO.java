@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.util.Date;
 
@@ -13,7 +12,6 @@ import java.util.Date;
  * @Description:
  * @Date: 2021/3/9 11:19
  */
-@Data
 @ApiModel("数据源列表信息")
 public class DsListVO {
 
@@ -50,4 +48,92 @@ public class DsListVO {
 
     @ApiModelProperty(value = "schema名称，离线创建的meta数据源才有")
     private String schemaName;
+
+    public Long getDataInfoId() {
+        return dataInfoId;
+    }
+
+    public void setDataInfoId(Long dataInfoId) {
+        this.dataInfoId = dataInfoId;
+    }
+
+    public String getDataName() {
+        return dataName;
+    }
+
+    public void setDataName(String dataName) {
+        this.dataName = dataName;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public String getDataVersion() {
+        return dataVersion;
+    }
+
+    public void setDataVersion(String dataVersion) {
+        this.dataVersion = dataVersion;
+    }
+
+    public String getDataDesc() {
+        return dataDesc;
+    }
+
+    public void setDataDesc(String dataDesc) {
+        this.dataDesc = dataDesc;
+    }
+
+    public String getLinkJson() {
+        return linkJson;
+    }
+
+    public void setLinkJson(String linkJson) {
+        this.linkJson = linkJson;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public Integer getIsMeta() {
+        return isMeta;
+    }
+
+    public void setIsMeta(Integer isMeta) {
+        this.isMeta = isMeta;
+    }
+
+    public Date getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
+    }
+
+    public Integer getIsImport() {
+        return isImport;
+    }
+
+    public void setIsImport(Integer isImport) {
+        this.isImport = isImport;
+    }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
 }

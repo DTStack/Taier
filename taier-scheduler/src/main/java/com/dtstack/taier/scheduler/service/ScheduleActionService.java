@@ -41,7 +41,7 @@ import com.dtstack.taier.dao.mapper.ScheduleEngineJobRetryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
@@ -128,6 +128,8 @@ public class ScheduleActionService {
                 JobClient jobClient = new JobClient(paramActionExt);
                 jobClient.setType(getOrDefault(paramActionExt.getType(), EScheduleType.TEMP_JOB.getType()));
                 jobDealer.addSubmitJob(jobClient);
+                engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
+                        .eq(ScheduleEngineJobRetry::getJobId, jobClient.getJobId()));
                 return true;
             }
             LOGGER.warn("jobId：" + paramActionExt.getJobId() + " duplicate submissions are not allowed");
@@ -143,11 +145,11 @@ public class ScheduleActionService {
         if (scheduleJob == null) {
             //新job 任务
             scheduleJob = buildScheduleJob(paramActionExt);
-            scheduleJob.setStatus(RdosTaskStatus.SUBMITFAILD.getStatus());
+            scheduleJob.setStatus(TaskStatus.SUBMITFAILD.getStatus());
             scheduleJobService.insert(scheduleJob);
         } else {
             //直接失败
-            scheduleJobService.jobFail(jobId, RdosTaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
+            scheduleJobService.jobFail(jobId, TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
         }
     }
 
@@ -180,7 +182,7 @@ public class ScheduleActionService {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
         scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER+batchTask.getName()+ CommonConstant.RUN_DELIMITER +cycTime);
-        scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+        scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(batchTask.getComputeType());
 
         scheduleJob.setTenantId(batchTask.getTenantId());
@@ -306,14 +308,14 @@ public class ScheduleActionService {
 
             return true;
         }
-        boolean result = RdosTaskStatus.canStart(scheduleJob.getStatus());
+        boolean result = TaskStatus.canStart(scheduleJob.getStatus());
         if (result) {
             engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
                     .eq(ScheduleEngineJobRetry::getJobId,jobId));
-            if (!RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
-                scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+            if (!TaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
+                scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
                 scheduleJobService.updateByJobId(scheduleJob);
-                LOGGER.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                LOGGER.info("jobId:{} update job status:{}.", scheduleJob.getJobId(), TaskStatus.ENGINEACCEPTED.getStatus());
             }
         }
         return result;
@@ -323,7 +325,7 @@ public class ScheduleActionService {
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(paramActionExt.getJobId());
         scheduleJob.setJobName(getOrDefault(paramActionExt.getName(), ""));
-        scheduleJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus());
+        scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(paramActionExt.getComputeType());
 
         scheduleJob.setTenantId(paramActionExt.getTenantId());

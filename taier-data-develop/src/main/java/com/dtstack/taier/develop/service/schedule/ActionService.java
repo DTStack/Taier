@@ -1,18 +1,25 @@
 package com.dtstack.taier.develop.service.schedule;
 
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
+import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
 import com.dtstack.taier.scheduler.dto.schedule.ActionJobKillDTO;
 import com.dtstack.taier.scheduler.enums.RestartType;
-import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.jobdealer.JobStopDealer;
 import com.dtstack.taier.scheduler.server.action.restart.RestartJobRunnable;
+import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
+import com.dtstack.taier.scheduler.service.ScheduleTaskShadeInfoService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,9 +43,6 @@ import java.util.concurrent.CompletableFuture;
 public class ActionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionService.class);
-
-    @Autowired
-    private JobDealer jobDealer;
 
     @Autowired
     private JobService jobService;
@@ -58,14 +65,21 @@ public class ActionService {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
+
+    @Autowired
+    private BatchServerLogService batchServerLogService;
+
     /**
      * 重跑实例
+     *
      * @param restartType 重跑类型
-     * @param jobIds 勾选的实例id
+     * @param jobIds      勾选的实例id
      * @return 是否开始重跑
      */
     public boolean restartJob(RestartType restartType, List<String> jobIds) {
-        CompletableFuture.runAsync(new RestartJobRunnable(jobIds,restartType, environmentContext,applicationContext));
+        CompletableFuture.runAsync(new RestartJobRunnable(jobIds, restartType, environmentContext, applicationContext));
         return true;
     }
 
@@ -118,7 +132,8 @@ public class ActionService {
 
     /**
      * 查看周期实例日志
-     * @param jobId 实例id
+     *
+     * @param jobId    实例id
      * @param pageInfo 第几次重试日志
      * @return 日志信息
      */
@@ -136,7 +151,14 @@ public class ActionService {
             throw new RdosDefineException("not find job,please contact the administrator");
         }
 
+        //取最新
+        if(0 == pageInfo){
+            pageInfo = scheduleJob.getRetryNum();
+        }
+
         ReturnJobLogVO jobLogVO = new ReturnJobLogVO();
+        jobLogVO.setPageIndex(pageInfo);
+        jobLogVO.setPageSize(scheduleJob.getRetryNum());
         // 如果RetryNum>1 说明实例已经进行了一次重试，所以取查询重试日志
         if (scheduleJob.getRetryNum() > 1) {
             // 查询重试日志
@@ -151,8 +173,8 @@ public class ActionService {
                 jobLogVO.setLogInfo(scheduleEngineJobRetry.getLogInfo());
                 jobLogVO.setEngineLog(scheduleEngineJobRetry.getEngineLog());
             }
-            jobLogVO.setPageIndex(scheduleJob.getMaxRetryNum());
-            jobLogVO.setPageSize(scheduleJob.getRetryNum());
+            jobLogVO.setPageIndex(pageInfo);
+            jobLogVO.setPageSize(scheduleJob.getMaxRetryNum());
 
         } else {
             // 查询当前日志
@@ -173,8 +195,35 @@ public class ActionService {
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one();
 
+
         if (null != scheduleTaskShade) {
-            jobLogVO.setSqlText(scheduleTaskShade.getSqlText());
+            JSONObject shadeInfo = scheduleTaskShadeInfoService.getInfoJSON(scheduleTaskShade.getTaskId());
+            String taskParams = shadeInfo.getString("taskParamsToReplace");
+            List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray(taskParams, ScheduleTaskParamShade.class);
+            String sqlText = scheduleTaskShade.getSqlText();
+            if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
+                sqlText = Base64Util.baseDecode(sqlText);
+            }
+            sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
+            jobLogVO.setSqlText(sqlText);
+            Timestamp execStartTime = scheduleJob.getExecStartTime();
+            Timestamp execEndTime = scheduleJob.getExecEndTime();
+            if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
+                String syncLog = null;
+                try {
+                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
+                            Optional.ofNullable(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
+                            Optional.ofNullable(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
+                            scheduleJob.getTenantId());
+                } catch (Exception e) {
+                    LOGGER.error("queryJobLog {} sync log error", jobId, e);
+                }
+                jobLogVO.setSyncLog(syncLog);
+            }
+
+            if(EScheduleJobType.SPARK_SQL.getType().equals(scheduleTaskShade.getTaskType())){
+                jobLogVO.setDownLoadUrl(String.format(CommonConstant.DOWNLOAD_LOG,scheduleJob.getJobId(),scheduleJob.getTaskType(),scheduleJob.getTenantId()));
+            }
         }
         return jobLogVO;
     }

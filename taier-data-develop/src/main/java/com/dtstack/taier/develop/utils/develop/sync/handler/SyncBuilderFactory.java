@@ -20,8 +20,9 @@ package com.dtstack.taier.develop.utils.develop.sync.handler;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -38,8 +39,10 @@ import java.util.Objects;
  * @since ：Created in 上午10:20 2020/10/22
  */
 @Component
-@Slf4j
 public class SyncBuilderFactory {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(SyncBuilderFactory.class);
+
 
     @Autowired
     private List<SyncBuilder> syncBuilders;
@@ -56,7 +59,7 @@ public class SyncBuilderFactory {
             throw new RdosDefineException("List syncBuilders is empty, No SyncBuilder was found in the spring container");
         }
         syncBuilders.forEach(syncBuilder -> syncBuilderMap.put(syncBuilder.getDataSourceType().getVal(), syncBuilder));
-        log.info("init SyncBuilderFactory is success...");
+        LOGGER.info("init SyncBuilderFactory is success...");
     }
 
     /**

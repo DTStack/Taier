@@ -2,12 +2,14 @@ package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.enums.RelyType;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.utils.JobKeyUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -32,8 +34,8 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
      */
     protected List<ScheduleTaskShade> taskShadeList;
 
-    public UpstreamNextJobDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList) {
-        super(keyPreStr, currentTaskShade);
+    public UpstreamNextJobDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList, ScheduleJobService scheduleJobService) {
+        super(keyPreStr, currentTaskShade,scheduleJobService);
         this.taskShadeList = taskShadeList;
     }
 
@@ -43,10 +45,17 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
 
         for (ScheduleTaskShade taskShade : taskShadeList) {
             try {
+                String jobKey = getJobKey(taskShade, currentDate);
+
+                // 如果获取不到key，说明是第一天生成实例，则不生成这条边
+                if (StringUtils.isBlank(jobKey)) {
+                    continue;
+                }
+
                 ScheduleJobJob scheduleJobJob = new ScheduleJobJob();
                 scheduleJobJob.setTenantId(currentTaskShade.getTenantId());
                 scheduleJobJob.setJobKey(currentJobKey);
-                scheduleJobJob.setParentJobKey(getJobKey(taskShade,currentDate));
+                scheduleJobJob.setParentJobKey(jobKey);
                 scheduleJobJob.setJobKeyType(RelyType.UPSTREAM_NEXT_JOB.getType());
                 scheduleJobJob.setRule(getRule(corn.getScheduleConf()));
                 scheduleJobJob.setIsDeleted(Deleted.NORMAL.getStatus());
@@ -62,16 +71,14 @@ public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler 
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
         // 上游任务
         Date upstreamTask = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
-
         // 上游任务的上一个周期
-        Date upstreamTaskLastCycle = corn.last(upstreamTask);
+        Date lastDate = corn.last(upstreamTask);
+        String lastDateStr = DateUtil.getDate(lastDate, DateUtil.STANDARD_DATETIME_FORMAT);
 
-        String lastDate = DateUtil.getDate(upstreamTaskLastCycle, DateUtil.STANDARD_DATETIME_FORMAT);
-
-        if (StringUtils.isBlank(lastDate)) {
+        if (StringUtils.isBlank(lastDateStr)) {
             throw new RdosDefineException("no find upstream task of last cycle");
         }
-
-        return JobKeyUtils.generateJobKey(keyPreStr,scheduleTaskShade.getTaskId(), lastDate);
+        String jobKey = JobKeyUtils.generateJobKey(keyPreStr, scheduleTaskShade.getTaskId(), lastDateStr);
+        return needCreateKey(lastDate,currentDate,jobKey);
     }
 }

@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper">
 
     <sql id="select_content_fragment_with_sql">
-        `id`,`tenant_id`,`name`,`task_type`,`compute_type`,`sql_text`,`task_params`,`task_id`,`schedule_conf`,`period_type`,`schedule_status`,`gmt_create`,`gmt_modified`,`modify_user_id`,`create_user_id`,`owner_user_id`,`extra_info`,`version_id`,`is_deleted`,`task_desc`,`exe_args`,`flow_id`,`component_version`
+        `id`,`tenant_id`,`name`,`task_type`,`compute_type`,`sql_text`,`task_params`,`task_id`,`schedule_conf`,`period_type`,`schedule_status`,`gmt_create`,`gmt_modified`,`modify_user_id`,`create_user_id`,`version_id`,`is_deleted`,`task_desc`,`exe_args`,`flow_id`,`component_version`
     </sql>
 
     <select id="listRunnableTask" resultType="com.dtstack.taier.dao.domain.ScheduleTaskShade">

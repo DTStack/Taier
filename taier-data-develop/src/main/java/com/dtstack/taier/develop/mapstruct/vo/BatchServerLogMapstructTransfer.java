@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
-import com.dtstack.taier.develop.web.develop.result.BatchServerLogResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchServerLogResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

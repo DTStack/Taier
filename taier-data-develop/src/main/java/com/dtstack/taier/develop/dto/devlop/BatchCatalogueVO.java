@@ -19,9 +19,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchCatalogue;
-import lombok.Data;
 
-@Data
 public class BatchCatalogueVO extends BatchCatalogue {
 
     /**
@@ -29,4 +27,11 @@ public class BatchCatalogueVO extends BatchCatalogue {
      */
     private String type;
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

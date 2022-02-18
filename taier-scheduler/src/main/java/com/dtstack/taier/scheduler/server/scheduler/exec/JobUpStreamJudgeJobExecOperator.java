@@ -5,7 +5,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
-import com.dtstack.taier.pluginapi.enums.RdosTaskStatus;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.enums.RelyRule;
 import com.dtstack.taier.scheduler.enums.RelyType;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
@@ -73,27 +73,27 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
                 if (RelyRule.RUN_SUCCESS.getType().equals(rule)) {
                     Integer jobKeyType = scheduleJobJob.getJobKeyType();
                     // 父任务有运行失败的
-                    if (RdosTaskStatus.FAILED.getStatus().equals(status)
-                            || RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)
-                            || RdosTaskStatus.PARENTFAILED.getStatus().equals(status)) {
+                    if (TaskStatus.FAILED.getStatus().equals(status)
+                            || TaskStatus.SUBMITFAILD.getStatus().equals(status)
+                            || TaskStatus.PARENTFAILED.getStatus().equals(status)) {
                         checkRunInfo.setPass(Boolean.FALSE);
                         checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_EXCEPTION);
-                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_EXCEPTION.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId()));
+                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_EXCEPTION.getMsg(),parentScheduleJob.getJobName(),parentScheduleJob.getJobId()));
                         return checkRunInfo;
                     }
 
                     // 父实例是冻结(但是这些实例不能是自依赖,自依赖实例是用自己任务的状态判断是否冻结)
-                    if (RdosTaskStatus.FROZEN.getStatus().equals(status) && !RelyType.SELF_RELIANCE.getType().equals(jobKeyType)) {
+                    if (TaskStatus.FROZEN.getStatus().equals(status) && !RelyType.SELF_RELIANCE.getType().equals(jobKeyType)) {
                         checkRunInfo.setPass(Boolean.FALSE);
                         checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_FROZEN);
-                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_FROZEN.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId()));
+                        checkRunInfo.setLogInfo(String.format(JobCheckStatus.FATHER_JOB_FROZEN.getMsg(),parentScheduleJob.getJobName(),parentScheduleJob.getJobId()));
                         return checkRunInfo;
                     }
 
                     // 父实例是取消
-                    if (RdosTaskStatus.CANCELED.getStatus().equals(status)
-                            || RdosTaskStatus.KILLED.getStatus().equals(status)
-                            || RdosTaskStatus.AUTOCANCELED.getStatus().equals(status)) {
+                    if (TaskStatus.CANCELED.getStatus().equals(status)
+                            || TaskStatus.KILLED.getStatus().equals(status)
+                            || TaskStatus.AUTOCANCELED.getStatus().equals(status)) {
                         checkRunInfo.setPass(Boolean.FALSE);
                         checkRunInfo.setStatus(JobCheckStatus.DEPENDENCY_JOB_CANCELED);
                         checkRunInfo.setLogInfo(String.format(JobCheckStatus.DEPENDENCY_JOB_CANCELED.getMsg(),scheduleJob.getJobName(),scheduleJob.getJobId(),parentScheduleJob.getJobName(),parentScheduleJob.getJobId()));
@@ -101,8 +101,8 @@ public class JobUpStreamJudgeJobExecOperator implements JudgeJobExecOperator {
                     }
                 }
 
-                if (!RdosTaskStatus.FINISHED.getStatus().equals(status) &&
-                        !RdosTaskStatus.MANUALSUCCESS.getStatus().equals(status)) {
+                if (!TaskStatus.FINISHED.getStatus().equals(status) &&
+                        !TaskStatus.MANUALSUCCESS.getStatus().equals(status)) {
                     checkRunInfo.setPass(Boolean.FALSE);
                     checkRunInfo.setStatus(JobCheckStatus.FATHER_JOB_NOT_FINISHED);
                     checkRunInfo.setLogInfo(JobCheckStatus.FATHER_JOB_NOT_FINISHED.getMsg());

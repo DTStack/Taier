@@ -18,8 +18,6 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 /**
  * @company：dtstack.com
@@ -27,8 +25,6 @@ import lombok.experimental.Accessors;
  * @date 2020-04-28 15:43
  * @description 解析sql返回的参数
  */
-@Data
-@Accessors(chain = true)
 public class BuildSqlVO {
 
     /**
@@ -83,5 +79,91 @@ public class BuildSqlVO {
      */
     private Integer engineType = 0;
 
+    public String getJobId() {
+        return jobId;
+    }
 
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public String getTaskParam() {
+        return taskParam;
+    }
+
+    public void setTaskParam(String taskParam) {
+        this.taskParam = taskParam;
+    }
+
+    public String getTempTable() {
+        return tempTable;
+    }
+
+    public void setTempTable(String tempTable) {
+        this.tempTable = tempTable;
+    }
+
+    public Integer getIsSelectSql() {
+        return isSelectSql;
+    }
+
+    public void setIsSelectSql(Integer isSelectSql) {
+        this.isSelectSql = isSelectSql;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getOriginSql() {
+        return originSql;
+    }
+
+    public void setOriginSql(String originSql) {
+        this.originSql = originSql;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getParsedColumns() {
+        return parsedColumns;
+    }
+
+    public void setParsedColumns(String parsedColumns) {
+        this.parsedColumns = parsedColumns;
+    }
+
+    public Integer getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(Integer engineType) {
+        this.engineType = engineType;
+    }
 }

@@ -101,9 +101,9 @@ import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.common.enums.Constant;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
-import com.dtstack.taier.develop.web.develop.query.AllProductGlobalSearchVO;
-import com.dtstack.taier.develop.web.develop.result.BatchAllProductGlobalReturnVO;
-import com.dtstack.taier.develop.web.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
@@ -258,7 +258,7 @@ public class BatchTaskService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":1, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
+    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer DEFAULT_SCHEDULE_PERIOD = ESchedulePeriodType.DAY.getVal();
 
@@ -382,7 +382,6 @@ public class BatchTaskService {
         setTaskVariables(taskVO, scheduleTaskVO.getId());
         final List<Long> userIds = new ArrayList<>();
         userIds.add(task.getCreateUserId());
-        userIds.add(task.getOwnerUserId());
         final Map<Long, User> userMap = userService.getUserMap(userIds);
         buildUserDTOInfo(userMap,taskVO);
         return taskVO;
@@ -515,14 +514,6 @@ public class BatchTaskService {
                 BeanUtils.copyProperties(userMap.getOrDefault(vo.getModifyUserId(),new User()),modifyDto);
                 vo.setModifyUser(modifyDto);
             }
-
-            if (vo.getCreateUserId().equals(vo.getOwnerUserId())) {
-                vo.setOwnerUser(dto);
-            } else {
-                UserDTO ownerDto = new UserDTO();
-                BeanUtils.copyProperties(userMap.getOrDefault(vo.getOwnerUserId(),new User()), ownerDto);
-                vo.setOwnerUser(ownerDto);
-            }
         }
     }
 
@@ -558,7 +549,7 @@ public class BatchTaskService {
      */
     public TaskCheckResultVO publishBatchTaskInfo(BatchTask publishTask, Long tenantId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
         //判断任务责任人是否存在 如果任务责任人不存在或无权限 不允许提交
-        User user = userService.getById(publishTask.getOwnerUserId());
+        User user = userService.getById(publishTask.getCreateUserId());
         if (user == null){
             throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", publishTask.getName()));
         }
@@ -823,7 +814,7 @@ public class BatchTaskService {
         task.setModifyUserId(param.getUserId());
         task.setVersion(Objects.isNull(param.getVersion()) ? 0 : param.getVersion());
         task.parsePeriodType();
-        task = this.updateTask(task, param.getIsEditBaseInfo());
+        task = this.updateTask(task, param.getEditBaseInfo());
         TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(task, task.getNodePid());
 
         // 强行置为更新
@@ -971,7 +962,7 @@ public class BatchTaskService {
         }
         LOGGER.info("addOrUpdateTask with createModel {}", param.getCreateModel());
 
-        if (param.getIsEditBaseInfo()) {
+        if (param.getEditBaseInfo()) {
             // 右键编辑 处理增量标识
             operateIncreCol(param);
         } else {
@@ -1342,9 +1333,6 @@ public class BatchTaskService {
             task.setVersion(0);
         }
 
-        if (task.getOwnerUserId() == null) {
-            task.setOwnerUserId(task.getUserId());
-        }
         if (task.getCreateUserId() == null) {
             task.setCreateUserId(task.getUserId());
         }
@@ -1819,7 +1807,7 @@ public class BatchTaskService {
         for (Component component : components) {
             BatchTaskGetComponentVersionResultVO resultVO = new BatchTaskGetComponentVersionResultVO();
             resultVO.setComponentVersion(component.getVersionValue());
-            resultVO.setIsDefault(component.getIsDefault());
+            resultVO.setDefault(component.getIsDefault());
             componentVersionResultVOS.add(resultVO);
         }
         componentVersionResultVOS.sort(sortComponentVersion());

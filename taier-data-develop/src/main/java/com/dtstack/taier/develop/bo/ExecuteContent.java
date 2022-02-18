@@ -20,7 +20,6 @@
 package com.dtstack.taier.develop.bo;
 
 import com.dtstack.taier.develop.sql.ParseResult;
-import lombok.Data;
 
 import java.util.List;
 
@@ -28,7 +27,6 @@ import java.util.List;
  * @author jiangbo
  * @date 2019/6/15
  */
-@Data
 public class ExecuteContent {
 
     private Long tenantId;
@@ -181,4 +179,87 @@ public class ExecuteContent {
 		return this;
 	}
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public List<String> getSqlList() {
+        return sqlList;
+    }
+
+    public List<ParseResult> getParseResultList() {
+        return parseResultList;
+    }
+
+    public void setParseResultList(List<ParseResult> parseResultList) {
+        this.parseResultList = parseResultList;
+    }
+
+    public ParseResult getParseResult() {
+        return parseResult;
+    }
+
+    public void setParseResult(ParseResult parseResult) {
+        this.parseResult = parseResult;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public boolean isIsdirtyDataTable() {
+        return isdirtyDataTable;
+    }
+
+    public Boolean getRootUser() {
+        return isRootUser;
+    }
+
+    public boolean isCheckSyntax() {
+        return checkSyntax;
+    }
+
+    public String getPreJobId() {
+        return preJobId;
+    }
+
+    public boolean isExecuteSqlLater() {
+        return isExecuteSqlLater;
+    }
+
+    public String getSessionKey() {
+        return sessionKey;
+    }
+
+    public String getDtToken() {
+        return dtToken;
+    }
+
+    public Boolean getEnd() {
+        return isEnd;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
 }

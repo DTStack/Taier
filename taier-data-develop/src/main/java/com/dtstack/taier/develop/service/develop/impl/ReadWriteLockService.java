@@ -98,29 +98,9 @@ public class ReadWriteLockService {
             readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
             String userName = userService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
-            if (result != 1) {
-                //获取锁失败
-                readWriteLockVO.setIsGetLock(false);
-            } else {
-                readWriteLockVO.setIsGetLock(true);
-            }
         }
         return readWriteLockVO;
     }
-
-    /**
-     * 检查是否拥有该任务的锁
-     */
-    private ReadWriteLockVO isGetLock(ReadWriteLockVO lockVO, Long userId) {
-        Long modifyUserId = lockVO.getModifyUserId();
-        if (modifyUserId.equals(userId)) {
-            lockVO.setIsGetLock(true);
-        } else {
-            lockVO.setIsGetLock(false);
-        }
-        return lockVO;
-    }
-
 
     /**
      * 锁检查，判断是否有其他人也在修改相同的文件
@@ -154,7 +134,6 @@ public class ReadWriteLockService {
         } else if (modifyUserId.equals(userId) && version == lockVersion) {
             readWriteLockVO.setResult(TaskLockStatus.TO_UPDATE.getVal());
             readWriteLockVO.setVersion(lockVersion);
-            readWriteLockVO.setIsGetLock(true);
             return readWriteLockVO;
         } else {//提示其他人也正在编辑，是否取消修改
             readWriteLockVO.setResult(TaskLockStatus.TO_CONFIRM.getVal());
@@ -208,12 +187,10 @@ public class ReadWriteLockService {
         if (readWriteLock == null) {
             ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
             readWriteLockVO.setLastKeepLockUserName(userService.getUserName(modifyUserId));
-            readWriteLockVO.setIsGetLock(false);
             readWriteLockVO.setGmtModified(gmtModified);
             return readWriteLockVO;
         }
         ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
-        readWriteLockVO = this.isGetLock(readWriteLockVO, userId);
         readWriteLockVO.setLastKeepLockUserName(userService.getUserName(readWriteLockVO.getModifyUserId()));
         return readWriteLockVO;
     }
@@ -237,13 +214,11 @@ public class ReadWriteLockService {
             if (records.containsKey(id)) {
                 BatchReadWriteLock readWriteLock = records.get(id);
                 ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
-                readWriteLockVO = this.isGetLock(readWriteLockVO, userId);
                 readWriteLockVO.setLastKeepLockUserName(getUserNameInMemory(names, readWriteLockVO.getModifyUserId()));
                 result.put(id, readWriteLockVO);
             } else {
                 ReadWriteLockVO readWriteLockVO = new ReadWriteLockVO();
                 readWriteLockVO.setLastKeepLockUserName(null);
-                readWriteLockVO.setIsGetLock(false);
                 readWriteLockVO.setGmtModified(null);
                 result.put(id, readWriteLockVO);
             }
@@ -286,7 +261,6 @@ public class ReadWriteLockService {
             ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
             String userName = userService.getUserName(readWriteLock.getModifyUserId());
             readWriteLockVO.setLastKeepLockUserName(userName);
-            readWriteLockVO.setIsGetLock(true);
             return readWriteLockVO;
         } else {
             throw new RdosDefineException(ErrorCode.LOCK_IS_NOT_EXISTS);
@@ -314,7 +288,6 @@ public class ReadWriteLockService {
         ReadWriteLockVO readWriteLockVO = ReadWriteLockVO.toVO(readWriteLock);
         readWriteLockVO.setVersion(INIT_VERSION);
         readWriteLockVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        readWriteLockVO.setIsGetLock(true);
         readWriteLockVO.setLastKeepLockUserName(userService.getUserName(userId));
         return readWriteLockVO;
     }

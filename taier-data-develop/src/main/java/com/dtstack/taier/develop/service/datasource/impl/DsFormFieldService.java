@@ -9,7 +9,6 @@ import com.dtstack.taier.dao.mapper.DsFormFieldMapper;
 import com.dtstack.taier.develop.bo.datasource.DsTypeVersionParam;
 import com.dtstack.taier.develop.vo.datasource.DsFormFieldVo;
 import com.dtstack.taier.develop.vo.datasource.DsFormTemplateVo;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,6 @@ import java.util.Map;
  * @author: liuxx
  * @date: 2021/3/12
  */
-@Slf4j
 @Service
 public class DsFormFieldService extends BaseService<DsFormFieldMapper, DsFormField> {
 

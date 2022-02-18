@@ -19,11 +19,9 @@
 package com.dtstack.taier.develop.utils.develop.sync.template;
 
 
-import lombok.Data;
 
 import java.util.List;
 
-@Data
 public class FtpBase extends BaseSource{
 
     protected String protocol;
@@ -43,5 +41,100 @@ public class FtpBase extends BaseSource{
      */
     private String ftpFileName;
 
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getFieldDelimiter() {
+        return fieldDelimiter;
+    }
+
+    public void setFieldDelimiter(String fieldDelimiter) {
+        this.fieldDelimiter = fieldDelimiter;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public List getColumn() {
+        return column;
+    }
+
+    public void setColumn(List column) {
+        this.column = column;
+    }
+
+    public String getConnectPattern() {
+        return connectPattern;
+    }
+
+    public void setConnectPattern(String connectPattern) {
+        this.connectPattern = connectPattern;
+    }
+
+    public String getRsaPath() {
+        return rsaPath;
+    }
+
+    public void setRsaPath(String rsaPath) {
+        this.rsaPath = rsaPath;
+    }
+
+    public String getAuth() {
+        return auth;
+    }
+
+    public void setAuth(String auth) {
+        this.auth = auth;
+    }
+
+    public String getFtpFileName() {
+        return ftpFileName;
+    }
+
+    public void setFtpFileName(String ftpFileName) {
+        this.ftpFileName = ftpFileName;
+    }
 }
 

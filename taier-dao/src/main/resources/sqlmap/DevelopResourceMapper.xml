@@ -54,7 +54,7 @@
 
     <select id="getResourceURLByFunctionId" resultType="java.lang.String">
         SELECT br.url
-        FROM rdos_batch_function_resource bfr
+        FROM develop_function_resource bfr
         INNER JOIN develop_resource br ON bfr.resource_id = br.id
         WHERE bfr.function_id = #{functionId} AND br.is_deleted = 0
         limit 1

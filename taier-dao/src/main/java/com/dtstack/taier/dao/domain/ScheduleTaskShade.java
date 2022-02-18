@@ -119,10 +119,6 @@ public class ScheduleTaskShade implements Serializable {
      */
     private Long modifyUserId;
 
-    /**
-     * 任务负责人id
-     */
-    private Long ownerUserId;
 
     /**
      * 任务运行参数
@@ -267,13 +263,6 @@ public class ScheduleTaskShade implements Serializable {
         this.modifyUserId = modifyUserId;
     }
 
-    public Long getOwnerUserId() {
-        return ownerUserId;
-    }
-
-    public void setOwnerUserId(Long ownerUserId) {
-        this.ownerUserId = ownerUserId;
-    }
 
     public String getExtraInfo() {
         return extraInfo;
@@ -336,12 +325,12 @@ public class ScheduleTaskShade implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ScheduleTaskShade that = (ScheduleTaskShade) o;
-        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(name, that.name) && Objects.equals(taskType, that.taskType) && Objects.equals(computeType, that.computeType) && Objects.equals(sqlText, that.sqlText) && Objects.equals(taskParams, that.taskParams) && Objects.equals(taskId, that.taskId) && Objects.equals(scheduleConf, that.scheduleConf) && Objects.equals(periodType, that.periodType) && Objects.equals(scheduleStatus, that.scheduleStatus) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(modifyUserId, that.modifyUserId) && Objects.equals(ownerUserId, that.ownerUserId) && Objects.equals(extraInfo, that.extraInfo) && Objects.equals(versionId, that.versionId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(taskDesc, that.taskDesc) && Objects.equals(flowId, that.flowId) && Objects.equals(componentVersion, that.componentVersion);
+        return Objects.equals(id, that.id) && Objects.equals(tenantId, that.tenantId) && Objects.equals(name, that.name) && Objects.equals(taskType, that.taskType) && Objects.equals(computeType, that.computeType) && Objects.equals(sqlText, that.sqlText) && Objects.equals(taskParams, that.taskParams) && Objects.equals(taskId, that.taskId) && Objects.equals(scheduleConf, that.scheduleConf) && Objects.equals(periodType, that.periodType) && Objects.equals(scheduleStatus, that.scheduleStatus) && Objects.equals(gmtCreate, that.gmtCreate) && Objects.equals(gmtModified, that.gmtModified) && Objects.equals(createUserId, that.createUserId) && Objects.equals(modifyUserId, that.modifyUserId) && Objects.equals(extraInfo, that.extraInfo) && Objects.equals(versionId, that.versionId) && Objects.equals(isDeleted, that.isDeleted) && Objects.equals(taskDesc, that.taskDesc) && Objects.equals(flowId, that.flowId) && Objects.equals(componentVersion, that.componentVersion);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tenantId, name, taskType, computeType, sqlText, taskParams, taskId, scheduleConf, periodType, scheduleStatus, gmtCreate, gmtModified, createUserId, modifyUserId, ownerUserId, extraInfo, versionId, isDeleted, taskDesc, flowId, componentVersion);
+        return Objects.hash(id, tenantId, name, taskType, computeType, sqlText, taskParams, taskId, scheduleConf, periodType, scheduleStatus, gmtCreate, gmtModified, createUserId, modifyUserId, extraInfo, versionId, isDeleted, taskDesc, flowId, componentVersion);
     }
 
     @Override
@@ -362,8 +351,6 @@ public class ScheduleTaskShade implements Serializable {
                 ", gmtModified=" + gmtModified +
                 ", createUserId=" + createUserId +
                 ", modifyUserId=" + modifyUserId +
-                ", ownerUserId=" + ownerUserId +
-                ", extraInfo='" + extraInfo + '\'' +
                 ", versionId=" + versionId +
                 ", isDeleted=" + isDeleted +
                 ", taskDesc='" + taskDesc + '\'' +

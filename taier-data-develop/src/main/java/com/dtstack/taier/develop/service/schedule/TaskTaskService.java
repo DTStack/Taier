@@ -7,7 +7,10 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
+import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.mapper.ScheduleTaskTaskShadeMapper;
+import com.dtstack.taier.develop.service.console.TenantService;
+import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.JobUtils;
 import com.dtstack.taier.develop.vo.schedule.ReturnTaskDisplayVO;
 import com.dtstack.taier.develop.vo.schedule.TaskNodeVO;
@@ -38,6 +41,13 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     @Autowired
     private EnvironmentContext context;
 
+    @Autowired
+    private TenantService tenantService;
+
+    @Autowired
+    private UserService userService;
+
+
     /**
      * 展开任务上下游
      * @return 上下游规则
@@ -58,6 +68,15 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         // 创建节点
         TaskNodeVO rootNode = new TaskNodeVO();
         setNode(taskShade, rootNode);
+        Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
+        if(null != tenant){
+            rootNode.setTenantName(tenant.getTenantName());
+            rootNode.setTenantId(tenant.getId());
+        }
+        String userName = userService.getUserName(taskShade.getCreateUserId());
+        rootNode.setOperatorId(taskShade.getCreateUserId());
+        rootNode.setOperatorName(userName);
+
 
         if (DisplayDirect.CHILD.getType().equals(dto.getDirectType())) {
             rootNode.setChildNode(displayLevelNode(taskShade, dto.getLevel(), dto.getDirectType()));

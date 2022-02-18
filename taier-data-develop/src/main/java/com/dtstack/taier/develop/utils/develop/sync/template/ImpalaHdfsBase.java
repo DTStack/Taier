@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.utils.develop.sync.template;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.pluginapi.pojo.Column;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.List;
  *
  * @author xiaochen
  */
-@Data
 public class ImpalaHdfsBase extends HDFSBase {
     /**
      * remoteDir
@@ -56,4 +54,99 @@ public class ImpalaHdfsBase extends HDFSBase {
 
     protected String fileName = "";
 
+    public String getPartition() {
+        return partition;
+    }
+
+    public void setPartition(String partition) {
+        this.partition = partition;
+    }
+
+    public String getWriteMode() {
+        return writeMode;
+    }
+
+    public void setWriteMode(String writeMode) {
+        this.writeMode = writeMode;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getJdbcUrl() {
+        return jdbcUrl;
+    }
+
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public JSONObject getKerberosConfig() {
+        return kerberosConfig;
+    }
+
+    public void setKerberosConfig(JSONObject kerberosConfig) {
+        this.kerberosConfig = kerberosConfig;
+    }
+
+    public List<Column> getAllColumns() {
+        return allColumns;
+    }
+
+    public void setAllColumns(List<Column> allColumns) {
+        this.allColumns = allColumns;
+    }
+
+    public List<Column> getPartitionColumns() {
+        return partitionColumns;
+    }
+
+    public void setPartitionColumns(List<Column> partitionColumns) {
+        this.partitionColumns = partitionColumns;
+    }
+
+    public List<String> getFullColumnNames() {
+        return fullColumnNames;
+    }
+
+    public void setFullColumnNames(List<String> fullColumnNames) {
+        this.fullColumnNames = fullColumnNames;
+    }
+
+    public List<String> getFullColumnTypes() {
+        return fullColumnTypes;
+    }
+
+    public void setFullColumnTypes(List<String> fullColumnTypes) {
+        this.fullColumnTypes = fullColumnTypes;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 }
