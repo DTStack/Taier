@@ -1,0 +1,24 @@
+{
+    "name": "taier-theme",
+    "displayName": "%displayName%",
+    "description": "%description%",
+    "categories": [
+        "Themes"
+    ],
+    "version": "1.0.0",
+    "publisher": "dtstack",
+    "license": "MIT",
+    "engines": {
+        "vscode": "*"
+    },
+    "contributes": {
+        "themes": [
+            {
+                "id": "TaierLight",
+                "label": "Taier Light",
+                "uiTheme": "vs",
+                "path": "./themes/light_plus.json"
+            }
+        ]
+    }
+}
