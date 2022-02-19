@@ -25,13 +25,15 @@ sidebar_position: 1
 * 单点故障：去中心化的分布式模式
 * 高可用方式：`Zookeeper`
 * 过载处理：`分布式节点` + `两级存储策略` + `队列机制`。每个节点都可以处理任务调度与提交；任务多时会优先缓存在内存队列，超出可配置的队列最大数量值后会全部落数据库；任务处理以队列方式消费，队列异步从数据库获取可执行实例
-* 实战检验：经近百家客户实战检验，部分客户的生产日均调度任务超过`100`万个
+* 实战检验：得到数百家企业客户生产环境实战检验
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`的调度，
 * 支持众多的任务类型，目前支持 Spark SQL、Flinkx
 :::tip
-后续将开源：Python、Shell、Jupyter、Tersorflow、Pytorch、Hadoop MR、Kylin、Odps、SQL(MySQL、PostgreSQL、Hive、SparkSQL、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)、Procedure
+后续将开源：  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
+  HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
+  greenplum、inceptor、kingbase、presto)
 :::
 
 * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
@@ -43,13 +45,13 @@ sidebar_position: 1
 * 支持`Spark` 、`Flink`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
 
 #### Kerberos支持
-* `Flink`、`SparkSQL`、`HiveSQL`
+* `SparkSQL`、`Flinkx`
 
 #### 系统参数
 * 丰富，支持**3**种时间基准，且可以灵活设置输出格式
 
 #### 扩展性
-* 设计之处就考虑分布式模式，目前支持 整体 **Taier** 水平扩容 和 拆分`Master`/`Worker` 水平扩容方式；
+* 设计之处就考虑分布式模式，目前支持整体Taier水平扩容方式；
 * 调度能力随集群线性增长；  
 
 ## 主要界面
