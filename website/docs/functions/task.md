@@ -14,7 +14,7 @@ sidebar_label: 任务开发
 ### 编辑任务代码
 任务创建好后，可以在代码编辑器中编写SQL语句（SparkSQL语法与Hive SQL基本相同，与传统关系型数据库的SQL语法有所不同，详细的SQL编辑说明请 Hive SQL的编码说明）
 编写的SQL语句示例如下：
-```
+```sql
 select * from table_test;
 ```
 :::tip

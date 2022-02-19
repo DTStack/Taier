@@ -68,6 +68,9 @@ public class ComponentConfigService {
     @Autowired
     private DictMapper dictMapper;
 
+    @Autowired
+    private LocalCacheUtil localCacheUtil;
+
     private static final String componentCacheGroup = "component";
 
     /**
@@ -199,7 +202,7 @@ public class ComponentConfigService {
 
     public Map<String, Object> getCacheComponentConfigMap(Long clusterId, Integer componentType, boolean isFilter, String componentVersion, Long componentId) {
         String cacheKey = LocalCacheUtil.generateKey(clusterId, componentType, isFilter, componentVersion, componentId);
-        Map<String, Object> result = (Map<String, Object>)LocalCacheUtil.get(componentCacheGroup, cacheKey);
+        Map<String, Object> result = (Map<String, Object>)localCacheUtil.get(componentCacheGroup, cacheKey);
         // 如果缓存中存在，直接返回
         if (MapUtils.isNotEmpty(result)) {
             return result;
@@ -210,7 +213,7 @@ public class ComponentConfigService {
             result = Collections.emptyMap();
         }
         // 塞入缓存
-        LocalCacheUtil.put(componentCacheGroup, cacheKey, result, LocalCacheUtil.ONE_WEEK_IN_MS);
+        localCacheUtil.put(componentCacheGroup, cacheKey, result, LocalCacheUtil.ONE_WEEK_IN_MS);
         return result;
     }
 
@@ -226,7 +229,7 @@ public class ComponentConfigService {
     }
 
     public void clearComponentCache() {
-        LocalCacheUtil.removeGroup(componentCacheGroup);
+        localCacheUtil.removeGroup(componentCacheGroup);
         LOGGER.info(" clear all component cache ");
     }
 
