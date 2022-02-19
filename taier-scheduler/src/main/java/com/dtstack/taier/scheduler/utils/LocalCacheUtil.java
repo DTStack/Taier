@@ -1,5 +1,6 @@
 package com.dtstack.taier.scheduler.utils;
 
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.dtstack.taier.scheduler.zookeeper.watcher.LocalCacheWatcher;
 import com.google.common.cache.Cache;
@@ -34,9 +35,8 @@ public class LocalCacheUtil {
      */
     private static Map<String, Cache> cacheMap = new ConcurrentHashMap<>();
 
-    private static ZkService zkService;
-
-    private static String SYMBOL_COLON = ":";
+    @Autowired
+    private ZkService zkService;
 
     private static final String NULL_STRING = "null";
 
@@ -50,11 +50,6 @@ public class LocalCacheUtil {
      */
     public static long ONE_WEEK_IN_MS = 7 * ONE_DAY_IN_MS;
 
-    @Autowired
-    private void setZkService(ZkService zkService) {
-        LocalCacheUtil.zkService = zkService;
-    }
-
     /**
      * 用 ":" 拼接参数
      * @param params
@@ -64,7 +59,7 @@ public class LocalCacheUtil {
         if (ObjectUtils.isEmpty(params)) {
             return NULL_STRING;
         }
-        return StringUtils.arrayToDelimitedString(params, SYMBOL_COLON);
+        return StringUtils.arrayToDelimitedString(params, CommonConstant.SYMBOL_COLON);
     }
 
     /**
@@ -74,7 +69,7 @@ public class LocalCacheUtil {
      * @param key   key
      * @return 缓存对象
      */
-    public static Object get(String group, String key) {
+    public Object get(String group, String key) {
         PathUtil.check(group, "group");
         PathUtil.check(key, "key");
         Cache cache = cacheMap.get(group);
@@ -92,11 +87,12 @@ public class LocalCacheUtil {
      * @param val    值
      * @param expireInMillisecond 过期时间
      */
-    public static void put(String group, String key, Object val, Long expireInMillisecond) {
+    public void put(String group, String key, Object val, Long expireInMillisecond) {
         PathUtil.check(group, "group");
         PathUtil.check(key, "key");
         Cache cache = getCache(group, expireInMillisecond);
         cache.put(key, val);
+        LOGGER.info("zkService:{}, key:{}", zkService, group, key);
         zkService.setWatcher(group, key, LocalCacheWatcher.getInstance());
     }
 
@@ -106,7 +102,7 @@ public class LocalCacheUtil {
      * @param group 分组
      * @param key   key
      */
-    public static void remove(String group, String key) {
+    public void remove(String group, String key) {
         PathUtil.check(group, "group");
         PathUtil.check(key, "key");
         Cache cache = cacheMap.get(group);
@@ -121,7 +117,7 @@ public class LocalCacheUtil {
      *
      * @param group 分组
      */
-    public static void removeGroup(String group) {
+    public void removeGroup(String group) {
         PathUtil.check(group, "group");
         Cache cache = cacheMap.get(group);
         if (cache != null) {
@@ -136,7 +132,7 @@ public class LocalCacheUtil {
      * @param group
      * @param key
      */
-    public static void removeLocal(String group, String key) {
+    public void removeLocal(String group, String key) {
         PathUtil.check(group, "group");
         PathUtil.check(key, "key");
         Cache cache = cacheMap.get(group);
@@ -148,7 +144,7 @@ public class LocalCacheUtil {
     /**
      * 仅删除本地全部缓存
      */
-    public static void removeLocalAll() {
+    public void removeLocalAll() {
         for (String group : cacheMap.keySet()) {
             Cache cache = cacheMap.get(group);
             if (cache != null) {
@@ -164,7 +160,7 @@ public class LocalCacheUtil {
      * @param expireInMillisecond 超时时间
      * @return cache
      */
-    private static Cache getCache(String group, Long expireInMillisecond) {
+    private Cache getCache(String group, Long expireInMillisecond) {
         return cacheMap.computeIfAbsent(group, k -> CacheBuilder.newBuilder()
                 .maximumSize(2000)
                 .expireAfterWrite(expireInMillisecond, TimeUnit.MILLISECONDS)
