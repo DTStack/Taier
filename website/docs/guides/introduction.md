@@ -45,13 +45,13 @@ sidebar_position: 1
 * 支持`Spark` 、`Flink`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
 
 #### Kerberos支持
-* `SparkSQL`、`Flinkx`
+* `Spark`、`Flink`
 
 #### 系统参数
 * 丰富，支持**3**种时间基准，且可以灵活设置输出格式
 
 #### 扩展性
-* 设计之处就考虑分布式模式，目前支持整体Taier水平扩容方式；
+* 设计之处就考虑分布式模式，目前支持整体 `Taier` 水平扩容方式；
 * 调度能力随集群线性增长；  
 
 ## 主要界面
@@ -63,6 +63,16 @@ sidebar_position: 1
 
 ## 快速开始
 请参考官方文档: [快速开始](./quickstart/deploy/start.md)
+
+## 未来规划
+* 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
+HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)
+* 调度方式：同时支持Yarn/K8s
+* 计算引擎：同时支持Spark-2.1.x/2.4.x、Flink-1.10/1.12（与Flink后续版本）
+* 部署方式：同时支持Scheduler/Worker整合与分离部署
+* 功能支持：支持交易日历、事件驱动
+* 外部系统对接：支持Taier系统对接外部调度系统（AZKBAN、Control-M、DS调度）
+
 
 ## Contributing
 
