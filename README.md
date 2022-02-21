@@ -58,7 +58,7 @@ greenplum、inceptor、kingbase、presto)
 ![maintenance](/website/static/img/readme/maintenance.png)
 
 ## 快速开始
-请参考官方文档: [快速上手](/website/docs/quickstart/start.md)
+请参考官方文档: [快速上手](https://dtstack.github.io/Taier/docs/quickstart/start)
 
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
@@ -72,7 +72,7 @@ greenplum、inceptor、kingbase、presto)
 
 ## Contributing
 
-Refer to the [CONTRIBUTING](/website/docs/contributing.md).
+Refer to the [CONTRIBUTING](https://dtstack.github.io/Taier/docs/contributing).
 
 ## License
 
