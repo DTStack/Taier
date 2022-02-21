@@ -72,8 +72,16 @@ const config = {
                         title: 'Docs',
                         items: [
                             {
+                                label: 'Introduction',
+                                to: '/docs/guides/introduction',
+                            },
+                            {
                                 label: 'Quick Start',
                                 to: '/docs/quickstart/start',
+                            },
+                            {
+                                label: 'Contributing',
+                                to: '/docs/contributing',
                             },
                         ],
                     },
