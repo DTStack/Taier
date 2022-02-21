@@ -4,32 +4,30 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: '高稳定性',
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        去中心化的分布式模式、水平扩容,数百家企业客户生产环境实战检验
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: '易用性',
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        可视化任务开发配置、界面直接运行，
+        调度属性、上下游依赖直接添加
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: '多集群',
     Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        多租户多集群隔离，能快速适配不同类型集群
       </>
     ),
   },
