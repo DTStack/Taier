@@ -9,7 +9,7 @@ const config = {
     title: 'Taier',
     tagline: 'A Distributed dispatching system',
     url: 'https://dtstack.github.io',
-    baseUrl: '/taier/',
+    baseUrl: '/Taier/',
     onBrokenLinks: 'error',
     onBrokenMarkdownLinks: 'error',
     favicon: 'img/favicon.png',
