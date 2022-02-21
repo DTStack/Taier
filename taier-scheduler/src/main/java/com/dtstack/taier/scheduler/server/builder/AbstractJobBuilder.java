@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +135,6 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @param name 名称前缀
      * @return 名称
      */
-    @NotNull
     private String getName(ScheduleTaskShade scheduleTaskShade, String name,String cycTime ) {
         return getPrefix() + "_" + name + "_" + scheduleTaskShade.getName() + "_" + cycTime;
     }
@@ -153,7 +151,6 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @param currentData 当前时间
      * @return
      */
-    @NotNull
     private ScheduleJobDetails buildJobBuilderBean(ScheduleTaskShade scheduleTaskShade,
                                                    String name,
                                                    Long fillId,
@@ -206,7 +203,6 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         return jobBuilderBean;
     }
 
-    @NotNull
     private String getKeyPreStr(String name) {
         return getPrefix() + "_" + name;
     }
