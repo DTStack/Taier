@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'Taier',
-    tagline: 'A Distributed dispatching system',
+    tagline: '分布式可视化的DAG任务调度系统',
     url: 'https://dtstack.github.io',
     baseUrl: '/Taier/',
     onBrokenLinks: 'error',
