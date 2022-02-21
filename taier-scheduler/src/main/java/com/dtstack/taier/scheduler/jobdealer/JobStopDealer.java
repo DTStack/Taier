@@ -43,7 +43,6 @@ import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -172,7 +171,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      * @param scheduleJob 周期实例
      * @return ScheduleJobOperatorRecord
      */
-    @NotNull
     private ScheduleJobOperatorRecord buildScheduleJobOperatorRecord(Integer finalIsForce, ScheduleJob scheduleJob) {
         ScheduleJobOperatorRecord jobStopRecord = new ScheduleJobOperatorRecord();
         jobStopRecord.setJobId(scheduleJob.getJobId());
