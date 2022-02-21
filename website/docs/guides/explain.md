@@ -22,7 +22,7 @@ DAG： 全称Directed Acyclic Graph，简称DAG。如果一个有向图从任意
 
 **任务**
 
-指用户在taier中开发的具体任务， 如spark sql 或数据同步任务
+指用户在Taier中开发的具体任务， 如Spark SQL 或数据同步任务
 
 **实例**
 
@@ -46,13 +46,13 @@ A任务成功的执行完成后，B、C任务才可以执行，这种行为称�
 
 **业务日期**
 
-可理解为业务发生的日期，在taier中，业务日期=任务的定时执行时间-1天
+可理解为业务发生的日期，在Taier中，业务日期=任务的定时执行时间-1天
 
 ## 模块介绍
 
-- taiga-common: 公共类模块
-- taiga-dao: 数据库相关操作模块
-- taiga-data-develop: 任务开发，运维中心，控制台等逻辑处理等功能模块
-- taiga-scheduler: 处理任务实例生成，实例调度，dag图的维护模块
-- taiga-worker: 任务提交模块
-- taige-ui: 前端模块
+- taier-common: 公共类模块
+- taier-dao: 数据库相关操作模块
+- taier-data-develop: 任务开发，运维中心，控制台等逻辑处理等功能模块
+- taier-scheduler: 处理任务实例生成，实例调度，dag图的维护模块
+- taier-worker: 任务提交模块
+- taier-ui: 前端模块

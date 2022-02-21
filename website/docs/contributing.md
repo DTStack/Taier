@@ -240,28 +240,31 @@ sidebar_label: 贡献指南
 1. `dao`统一后缀为`mapper` 统一放入`engine-dao` 模块
 2. `datadevelop`中 按照功能划分包为`console`、`datasource`、`develop`、`schedule`
 3. `controller`对应的接口需要补充`swagger`，统一返回值为 `R<Boolean>`
-    * 如果`controller`未使用参数校验，禁止使用
-    ```Java
-       //        return new APITemplate<Boolean>() {
-       //            @Override
-       //            protected Boolean process() {
-       //                return batchDataSourceService.canSetIncreConf(vo.getId());
-       //            }
-       //        }.execute();
-    ```
+如果`controller`未使用参数校验，禁止使用
+```java
+return new APITemplate<Boolean>() {
+    @Override
+    protected Boolean process() {
+        return batchDataSourceService.canSetIncreConf(vo.getId());
+    }
+}.execute();
+```
 
-    * 直接使用 `R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));`
+直接使用 
+```java
+R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));
+```
    
 4. `id`、`tenantId`、`userId`等常见`id` 使用`long`类型
 5. 组件枚举统一使用`EComponentType`
 6. 任务枚举统一使用`EScheduleJobType`
 7. 数据源枚举统一使用`DataSourceType`
 8. 日志打印规范 统一使用`LOGGER`大写、`debug`日志需要判断是否开启了`debug`
-   ```Java
-       if (LOG.isDebugEnabled()) {
-           LOG.debug("using local user:"+user);
-       }
-   ```
+```java
+ if (LOG.isDebugEnabled()) {
+     LOG.debug("using local user:"+user);
+ }
+```
 9. 异常错误 统一使用`errorCode`
 
 ### Commitment 规范

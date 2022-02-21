@@ -92,7 +92,7 @@ const config = {
             prism: {
                 theme: lightCodeTheme,
                 darkTheme: darkCodeTheme,
-                additionalLanguages: ['nginx']
+                additionalLanguages: ['nginx','java']
             },
         }),
 };

@@ -7,6 +7,8 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * zk 回调事件：清理本地缓存
@@ -15,8 +17,12 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  * @date 2022-01-18 20:27
  */
+@Component
 public class LocalCacheWatcher implements CuratorWatcher {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalCacheWatcher.class);
+
+    @Autowired
+    private LocalCacheUtil localCacheUtil;
 
     public static LocalCacheWatcher getInstance() {
         return LocalCacheWatcherInstance.LOCAL_CACHE_WATCHER;
@@ -34,14 +40,14 @@ public class LocalCacheWatcher implements CuratorWatcher {
         if (Watcher.Event.EventType.None.equals(watchedEvent.getType())) {
             if (Watcher.Event.KeeperState.Expired.equals(watchedEvent.getState())) {
                 LOGGER.info("clear all local cache...");
-                LocalCacheUtil.removeLocalAll();
+                localCacheUtil.removeLocalAll();
             }
             return;
         }
         String path = watchedEvent.getPath();
         String[] pathSplit = PathUtil.splitPath(path);
         LOGGER.info("GROUP={},KEY={},EVENT={}", pathSplit[1], pathSplit[2], watchedEvent);
-        LocalCacheUtil.removeLocal(pathSplit[1], pathSplit[2]);
+        localCacheUtil.removeLocal(pathSplit[1], pathSplit[2]);
     }
 
     private static class LocalCacheWatcherInstance {
