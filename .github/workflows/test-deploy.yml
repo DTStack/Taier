@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 14.x
           cache: yarn
+          cache-dependency-path: website/yarn.lock
       - name: Test build
         working-directory: website
         run: |
