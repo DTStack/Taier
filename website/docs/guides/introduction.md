@@ -62,7 +62,7 @@ sidebar_position: 1
 ![maintenance](/img/readme/maintenance.png)
 
 ## 快速开始
-请参考官方文档: [快速开始](./quickstart/deploy/start.md)
+请参考官方文档: [快速上手](./quickstart/start.md)
 
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、

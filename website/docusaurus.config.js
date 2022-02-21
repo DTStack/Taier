@@ -35,7 +35,7 @@ const config = {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
                 gtag: {
-                    trackingID: 'G-YR822Y4D1C',
+                    trackingID: 'G-09MSEFN7VC',
                     anonymizeIP: true,
                 },
             }),
@@ -72,8 +72,16 @@ const config = {
                         title: 'Docs',
                         items: [
                             {
+                                label: 'Introduction',
+                                to: '/docs/guides/introduction',
+                            },
+                            {
                                 label: 'Quick Start',
                                 to: '/docs/quickstart/start',
+                            },
+                            {
+                                label: 'Contributing',
+                                to: '/docs/contributing',
                             },
                         ],
                     },

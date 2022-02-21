@@ -36,11 +36,11 @@ const sidebars = {
                         label: '快速部署',
                         items: [
                             'quickstart/deploy/pre-operation',
-                            'quickstart/deploy/start',
+                            'quickstart/deploy/backend',
                             'quickstart/deploy/web',
                         ],
                  },
-                  'quickstart/deploy',
+                  'quickstart/start',
             ],
         },
         {
