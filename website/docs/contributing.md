@@ -279,5 +279,5 @@ R.ok(batchDataSourceService.canSetIncreConf(vo.getId()));
 ### 联系我们
 我们使用[钉钉](https://www.dingtalk.com/) 沟通交流，可以搜索群号[**30537511**]或者扫描下面的二维码进入钉钉群
 <div align="center"> 
- <img src="/img/readme/ding.jpeg" width="300" />
+ <img src="/Taier/img/readme/ding.jpeg" width="300" />
 </div>
