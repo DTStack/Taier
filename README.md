@@ -58,7 +58,7 @@ greenplum、inceptor、kingbase、presto)
 ![maintenance](/website/static/img/readme/maintenance.png)
 
 ## 快速开始
-请参考官方文档: [快速开始](/website/docs/quickstart/deploy/start.md)
+请参考官方文档: [快速上手](/website/docs/quickstart/start.md)
 
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
