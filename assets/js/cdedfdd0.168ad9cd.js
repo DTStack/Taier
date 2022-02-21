@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunktaier_website=self.webpackChunktaier_website||[]).push([[268],{9100:function(e){e.exports=JSON.parse('{"allTagsPath":"/taier/blog/tags","slug":"/taier/blog/tags/hello","name":"hello","count":2,"permalink":"/taier/blog/tags/hello"}')}}]);
