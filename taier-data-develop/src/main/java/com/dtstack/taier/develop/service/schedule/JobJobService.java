@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.checkerframework.checker.units.qual.A;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -248,7 +247,6 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
      * @param allJobJob 实例的关系列表
      * @return 周期实例
      */
-    @NotNull
     private List<ScheduleJob> findJobByJobJob(Map<String, List<String>> allJobJob) {
         Set<String> jobKeySet = Sets.newHashSet(allJobJob.keySet());
         for (List<String> jobKeyList : allJobJob.values()) {
