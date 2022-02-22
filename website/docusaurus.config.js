@@ -95,7 +95,7 @@ const config = {
                         ],
                     },
                 ],
-                copyright: `Copyright © ${new Date().getFullYear()} DTStack, Inc. 平台开发团队.`,
+                copyright: `Copyright © ${new Date().getFullYear()} DTStack, Inc. 袋鼠云技术团队.`,
             },
             prism: {
                 theme: lightCodeTheme,
