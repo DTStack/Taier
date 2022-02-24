@@ -198,7 +198,10 @@ public class JdbcServiceImpl implements IJdbcService {
         ISourceDTO iSourceDTO = Engine2DTOService.getByClusterId(clusterId,  eComponentType, "");
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         LOGGER.info("集群创建数据库操作，clusterId:{}，sourceType:{}，dbName:{}", clusterId, iSourceDTO.getSourceType(), schema);
-        client.createDatabase(iSourceDTO, schema, comment);
+        Database database = client.getDatabase(iSourceDTO, schema);
+        if (null != database) {
+            client.createDatabase(iSourceDTO, schema, comment);
+        }
     }
 
     public List<List<Object>> executeQueryWithVariables(Long tenantId, Long userId, EScheduleJobType eScheduleJobType, String schema, String sql, List<String> variables, Integer limit, String taskParam) {
