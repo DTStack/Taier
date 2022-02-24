@@ -94,7 +94,7 @@
         </dependency>
 
         <dependency>
-            <groupId>dt.insight.plat</groupId>
+            <groupId>com.dtstack</groupId>
             <artifactId>dt-insight-hive-shade</artifactId>
             <version>4.1.2-RELEASE</version>
         </dependency>
