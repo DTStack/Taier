@@ -199,7 +199,7 @@ public class JdbcServiceImpl implements IJdbcService {
         IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
         LOGGER.info("集群创建数据库操作，clusterId:{}，sourceType:{}，dbName:{}", clusterId, iSourceDTO.getSourceType(), schema);
         Database database = client.getDatabase(iSourceDTO, schema);
-        if (null != database) {
+        if (null == database) {
             client.createDatabase(iSourceDTO, schema, comment);
         }
     }
