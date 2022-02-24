@@ -217,7 +217,7 @@ sidebar_label: 贡献指南
 
         <!-- try-catch 嵌套语句个数 最多2层 -->
         <module name="NestedTryDepth">
-            <property name="max" value=""/>
+            <property name="max" value="2"/>
         </module>
 
         <!-- 返回个数 -->
