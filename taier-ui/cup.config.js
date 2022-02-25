@@ -6,7 +6,7 @@
  * > cup config // 按配置文件运行
  */
 
-const publicURL = 'http://schedule.dtstack.cn/';
+const publicURL = 'http://schedule.dtstack.cn';
 
 module.exports = {
 	name: 'taier',
