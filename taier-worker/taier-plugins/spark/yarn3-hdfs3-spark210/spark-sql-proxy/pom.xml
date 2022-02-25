@@ -61,12 +61,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.carbondata</groupId>
-            <artifactId>carbondata-spark2</artifactId>
-            <version>${carbondata.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>

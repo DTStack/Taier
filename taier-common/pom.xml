@@ -40,6 +40,7 @@
                     <artifactId>commons-lang3</artifactId>
                 </exclusion>
             </exclusions>
+            <version>1.7.1-RELEASE</version>
         </dependency>
 
         <dependency>
