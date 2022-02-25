@@ -94,7 +94,9 @@ datasource.plugin.path=/opt/dtstack/DTCommon/InsightPlugin/dataSourcePlugin
 ```
 
 :::info
-DatasourceX的依赖版本为v4.3.0 [DatasourceX](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0)
+DatasourceX的依赖版本为v4.3.0  DatasourceX  
+https://github.com/DTStack/DatasourceX/releases/download/v4.3.0/datasourceX.zip  
+可以直接下载链接中datasourceX.zip 解压之后配置即可
 :::
 
 完整的application.properties应该如下

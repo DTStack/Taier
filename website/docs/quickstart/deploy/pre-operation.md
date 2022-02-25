@@ -20,19 +20,8 @@ $   cd ${SPARK_HOME}/sbin && sh start-thriftserver.sh
 
 ## maven依赖
 ### 构建依赖
-Taier源码编译启动中依赖DatasourceX的core包以及自定义hive的jar包,需要提前install到mvn仓库
-```shell
-mvn install:install-file -Dfile=datasourcex-core.jar -DgroupId=com.dtstack.dtcenter -DartifactId=common.loader.core -Dversion=1.7.0-SNAPSHOT -Dpackaging=jar
-```
-
-```shell
-mvn install:install-file -Dfile=dt-insight-hive-shade-4.1.2-RELEASE.jar -DgroupId=dt.insight.plat -DartifactId=dt-insight-hive-shade -Dversion=4.1.2-RELEASE -Dpackaging=jar
-```
-
-```shell
-mvn install:install-file -Dfile=carbondata-spark2-1.5.0.jar -DgroupId=org.apache.carbondata -DartifactId=carbondata-spark2 -Dversion=1.5.0-SNAPSHOT -Dpackaging=jar
-```
-
+Taier源码编译启动中依赖DatasourceX的core包以及自定义hive的jar包，maven仓库地址[地址](https://repo1.maven.org/maven2/com/dtstack/)  
+如果构建拉去不到 请手动编译
 ## 编辑器依赖
 源码中包含部分scala的代码，通过idea启动需要添加scala的sdk 
 ```editorconfig
