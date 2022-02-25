@@ -254,8 +254,8 @@ public class DatasourceService {
 
     // 支持一键建表的数据源类型
     private static final Set<DataSourceType> SUPPORT_CREATE_TABLE_DATASOURCES = Sets.newHashSet(DataSourceType.HIVE, DataSourceType.SparkThrift2_1,
-            DataSourceType.LIBRA, DataSourceType.PostgreSQL, DataSourceType.HIVE1X, DataSourceType.HIVE3X, DataSourceType.HIVE3_CDP, DataSourceType.IMPALA,
-            DataSourceType.TiDB, DataSourceType.Oracle, DataSourceType.GREENPLUM6, DataSourceType.MySQL, DataSourceType.ADB_FOR_PG, DataSourceType.DorisRestful, DataSourceType.SAP_HANA1, DataSourceType.SAP_HANA2);
+            DataSourceType.LIBRA, DataSourceType.PostgreSQL, DataSourceType.HIVE1X, DataSourceType.HIVE3X, DataSourceType.IMPALA,
+            DataSourceType.TiDB, DataSourceType.Oracle, DataSourceType.GREENPLUM6, DataSourceType.MySQL, DataSourceType.ADB_FOR_PG);
 
     // 支持一键建表的数据源类型名称
     private static final String SUPPORT_CREATE_TABLE_DATASOURCES_NAMES = SUPPORT_CREATE_TABLE_DATASOURCES.stream().map(DataSourceType::getName).collect(Collectors.joining("、"));
@@ -2735,10 +2735,6 @@ public class DatasourceService {
             Map<String, Object> expandConfigPrepare = expandConfigPrepare(sourceId);
             ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig, expandConfigPrepare);
             IClient iClient = ClientCache.getClient(dataSourceType.getVal());
-            if (DataSourceType.DorisRestful.getVal().equals(source.getType())||DataSourceType.SAP_HANA2.getVal().equals(source.getType())||DataSourceType.SAP_HANA1.getVal().equals(source.getType())){
-                iClient.executeSqlWithoutResultSet(sourceDTO,SqlQueryDTO.builder().schema(targetSchema).sql(sql).build());
-                return;
-            }
             Connection con = iClient.getCon(sourceDTO);
             DBUtil.executeSqlWithoutResultSet(con, sql,false);
         } catch (Exception e) {
