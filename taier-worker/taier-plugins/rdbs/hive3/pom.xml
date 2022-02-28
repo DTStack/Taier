@@ -106,15 +106,15 @@
                             <tasks>
                                 <!--suppress UnresolvedMavenProperty -->
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar" />
+                                      tofile="${basedir}/target/${jar.name}.jar" />
                                 <!--suppress UnresolvedMavenProperty -->
                                 <copy todir="${basedir}/target/../../../../../pluginLibs/hive3/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      file="${basedir}/target/${jar.name}.jar"/>
                                 <delete>
                                     <!--suppress UnresolvedMavenProperty -->
                                     <fileset dir="${basedir}/target/../../../../../pluginLibs/hive3/"
                                              includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                             excludes="${jar.name}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>
