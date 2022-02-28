@@ -8,14 +8,6 @@ export PATH
 CMD_PATH=`dirname $0`
 CMD_HOME=`cd "$CMD_PATH"/../; pwd`
 
-checkuser() {
-  if [ "`whoami`" != "admin" ]; then
-   echo "You need admin to run this script"
-   exit 1
-  fi
-}
-
-checkuser
 
 LS_HOME=$CMD_HOME
 LS_LOG_DIR=$CMD_HOME/logs
@@ -27,31 +19,25 @@ LS_OPTS=""
 REMOTE_PORT="9996"
 name=rdos
 LS_HEAP_SIZE="128m"
-ls_conf=${LS_CONF_DIR}/node.yml
+#ls_conf=${LS_CONF_DIR}/node.yml
 ls_log="${LS_LOG_DIR}/$name.log"
 pidfile="${CMD_HOME}/run/$name.pid"
 gc_log=${CMD_HOME}/logs/rdos.gc
 heapdump=${CMD_HOME}/rdos.hprof
 
-program=${LS_HOME}/bin/base.sh
-args="agent -f ${ls_conf} -l ${ls_log} ${LS_OPTS}"
-#args="agent -f ${ls_conf} ${LS_OPTS}"
+touch $gc_log
 
-. /etc/init.d/functions
+program=${LS_HOME}/bin/base.sh
+#args="agent -f ${ls_conf} -l ${ls_log} ${LS_OPTS}"
+#args="agent -f ${ls_conf} ${LS_OPTS}"
 
 quiet() {
   "$@" > /dev/null 2>&1
   return $?
 }
 
-
 start() {
-  COMPONENT=$1
-  if [ -z $COMPONENT ] ; then
-    COMPONENT="entrance"
-  fi
-
-  echo -n "Starting $name component is $COMPONENT, "
+  echo -n "Starting $name "
 
   JAVA_OPTS="${JAVA_OPTS} -Djava.io.tmpdir=${LS_HOME} -Xloggc:${gc_log} -XX:HeapDumpPath=${heapdump}"
   HOME=${LS_HOME}
@@ -60,7 +46,7 @@ start() {
 
   nice -n ${LS_NICE} sh -c "
     cd $LS_HOME
-    exec \"$program\" $COMPONENT $args
+    exec \"$program\" $args
    " 1> "${LS_LOG_DIR}/$name.stdout" 2> "${LS_LOG_DIR}/$name.err" &
 
   echo $! > $pidfile
@@ -163,7 +149,7 @@ case "$1" in
     if [ $code -eq 0 ]; then
       echo "$name is already running "
     else
-      start $2
+      start
       code=$?
     fi
     exit $code

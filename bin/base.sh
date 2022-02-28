@@ -12,9 +12,6 @@ CMD_HOME=`cd "$CMD_PATH"/../; pwd`
 LS_CONF_DIR=$CMD_HOME/conf
 LS_LIB_DIR=$CMD_HOME/lib
 
-COMPONENT=$1
-echo 'start component is' $COMPONENT
-
 ENTRY_POINT_CLASS='com.dtstack.taier.develop.TaierApplication'
 
 unset CDPATH
