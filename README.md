@@ -27,8 +27,8 @@
 
 ```
   后续将开源：:
-  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
-HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
+  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、HadoopMR、Kylin、Odps、
+  SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、
 greenplum、inceptor、kingbase、presto)
 ```
 
