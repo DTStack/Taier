@@ -37,7 +37,7 @@ public class SparkYarnConfig extends BaseConfig {
 
     private static final String DEFAULT_SPARK_PYTHON_EXTLIBPATH = "%s/pythons/pyspark.zip,/pythons/py4j-0.10.4-src.zip";
 
-    private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
+    private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.taier.sql.main.SqlProxy";
 
     public static final String DEFAULT_CARBON_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.CarbondataSqlProxy";
 
