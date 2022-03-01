@@ -88,16 +88,16 @@ export default function MultiVersionComp({
 
 		return (
 			<Menu onClick={handleMenuClick}>
-				{displayVersion?.map(({ value }) => {
+				{displayVersion?.map(({ key, value }) => {
 					const disabled = comp?.multiVersion?.findIndex(
-						(vcomp: any) => vcomp.versionValue === value,
+						(vcomp: any) => vcomp.versionName === key,
 					);
 					return (
 						<MenuItem disabled={disabled > -1} key={value}>
 							{isFLink(typeCode)
 								? FLINK_DEPLOY_NAME[deployType]
 								: COMPONENT_CONFIG_NAME[typeCode]}{' '}
-							{getCompVersion(value)}
+							{key}
 						</MenuItem>
 					);
 				})}
@@ -188,7 +188,7 @@ export default function MultiVersionComp({
 											<span>
 												{!isFLink(typeCode) &&
 													`${COMPONENT_CONFIG_NAME[typeCode]} `}
-												{value}
+												{key}
 											</span>
 										</span>
 										<CaretRightOutlined />
