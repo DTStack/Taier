@@ -23,12 +23,8 @@ import com.dtstack.taier.base.filesystem.FilesystemManager;
 import com.dtstack.taier.base.monitor.AcceptedApplicationMonitor;
 import com.dtstack.taier.base.util.HadoopConfTool;
 import com.dtstack.taier.base.util.KerberosUtils;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
-import com.dtstack.taier.pluginapi.JarFileInfo;
-import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.JobIdentifier;
-import com.dtstack.taier.pluginapi.JobParam;
 import com.dtstack.taier.base.util.Splitter;
+import com.dtstack.taier.pluginapi.*;
 import com.dtstack.taier.pluginapi.client.AbstractClient;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EJobType;
@@ -65,20 +61,13 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Decoder;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.PrivilegedExceptionAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -89,8 +78,6 @@ import java.util.concurrent.TimeUnit;
 public class SparkYarnClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
-
-    private static final BASE64Decoder DECODER = new BASE64Decoder();
 
     private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
 
@@ -227,9 +214,6 @@ public class SparkYarnClient extends AbstractClient {
             appArgs = exeArgsStr.split("\\s+");
         }
 
-        Properties confProp = jobClient.getConfProperties();
-        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
-
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
         argList.add(jarPath);
@@ -254,7 +238,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
@@ -419,8 +403,6 @@ public class SparkYarnClient extends AbstractClient {
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
 
         Properties confProp = jobClient.getConfProperties();
-        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
-
         setHadoopUserName(sparkYarnConfig);
         Map<String, Object> paramsMap = new HashMap<>();
 
@@ -434,9 +416,6 @@ public class SparkYarnClient extends AbstractClient {
             paramsMap.put("logLevel", logLevel);
         }
 
-        if(isCarbonSpark){
-            paramsMap.put("storePath", sparkYarnConfig.getCarbonStorePath());
-        }
 
         String sqlExeJson = null;
         try{
@@ -448,9 +427,6 @@ public class SparkYarnClient extends AbstractClient {
         }
 
         String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
-        if(isCarbonSpark){
-            sqlProxyClass = SparkYarnConfig.DEFAULT_CARBON_SQL_PROXY_MAINCLASS;
-        }
 
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
@@ -470,7 +446,7 @@ public class SparkYarnClient extends AbstractClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf, isCarbonSpark);
+            ClientExt clientExt = ClientExtFactory.getClientExt(filesystemManager, clientArguments, yarnConf, sparkConf);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             String proxyUserName = sparkYarnConfig.getDtProxyUserName();
             if (StringUtils.isNotBlank(proxyUserName)) {
