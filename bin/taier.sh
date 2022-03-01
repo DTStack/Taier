@@ -50,8 +50,6 @@ start() {
    " 1> "${LS_LOG_DIR}/$name.stdout" 2> "${LS_LOG_DIR}/$name.err" &
 
   echo $! > $pidfile
-  ret=$?
-  [ $ret -eq 0 ] && success || failure; echo
   return 0
 }
 
@@ -81,8 +79,6 @@ stop() {
       echo -n "$name stopped "
     fi
   fi
-  ret=$?
-  [ $ret -eq 0 ] && success || failure; echo
 }
 
 status() {
@@ -103,23 +99,12 @@ status() {
   fi
 }
 
-reload() {
-  echo -n "Reload $name "
-  if status ; then
-    kill -HUP `cat "$pidfile"`
-  fi
-  ret=$?
-  [ $ret -eq 0 ] && success || failure; echo
-}
-
 force_stop() {
   echo -n "Force stop $name "
   if status ; then
     stop
     status && kill -KILL `cat "$pidfile"`
   fi
-  ret=$?
-  [ $ret -eq 0 ] && success || failure; echo
 }
 
 configtest() {
@@ -138,8 +123,6 @@ configtest() {
   [ $? -eq 0 ] && return 0
   # Program not configured
   return 6
-  ret=$?
-  [ $ret -eq 0 ] && success || failure; echo
 }
 
 case "$1" in
@@ -166,7 +149,6 @@ case "$1" in
     fi
     exit $code
     ;;
-  reload) reload ;;
   restart)
 
     quiet configtest
@@ -182,7 +164,7 @@ case "$1" in
     exit $?
     ;;
   *)
-    echo "Usage: $SCRIPTNAME {start|stop|force-stop|status|reload|restart|configtest}" >&2
+    echo "Usage: $SCRIPTNAME {start|stop|force-stop|status|restart|configtest}" >&2
     exit 3
   ;;
 esac
