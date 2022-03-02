@@ -14,14 +14,14 @@ sidebar_label: 部署依赖
 $   cd ${SPARK_HOME}/sbin && sh start-thriftserver.sh
 ```
 
-### flinkx
-依赖`flinkx` [1.10](https://github.com/DTStack/flinkx/releases/tag/1.10.5) 版本
-[flink源码编译](https://github.com/DTStack/flinkx/blob/master/docs/quickstart.md)
+### chunjun
+依赖`chunjun` [1.10](https://github.com/DTStack/chunjun/releases/tag/1.10.5) 版本
+[flink源码编译](https://github.com/DTStack/chunjun/blob/master/docs/quickstart.md)
 
 ## maven依赖
 ### 构建依赖
 Taier源码编译启动中依赖DatasourceX的core包以及自定义hive的jar包，maven仓库地址[地址](https://repo1.maven.org/maven2/com/dtstack/)  
-如果构建拉去不到 请手动编译
+如果构建拉取不到，请手动编译
 ## 编辑器依赖
 源码中包含部分scala的代码，通过idea启动需要添加scala的sdk 
 ```editorconfig
