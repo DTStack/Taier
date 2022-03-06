@@ -124,6 +124,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.dtstack.taier.develop.utils.develop.common.HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF;
+
 /**
  * 有关数据源中心
  * @description:
@@ -1643,10 +1645,52 @@ public class DatasourceService {
         throw new RdosDefineException("暂不支持" + DataSourceType.getSourceType(targetType).name() +"作为数据同步的目标");
     }
 
-    private void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey) {
+    public void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey) {
         setSftpConfig(sourceId, json, tenantId, map, confKey, true);
     }
 
+    /**
+     * 添加ftp地址
+     *
+     * @param json
+     * @param dtuicTenantId
+     * @param map
+     * @param confKey
+     */
+    public void setSftpConfig(JSONObject json, Long dtuicTenantId, Map<String, Object> map, String confKey) {
+        JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
+        if (MapUtils.isNotEmpty(kerberosConfig)) {
+            Map<String, String> sftpMap = kerberosService.getSftpMap(dtuicTenantId);
+            Map<String, Object> conf = null;
+            Object confObj = map.get(confKey);
+            if (confObj instanceof String) {
+                conf = JSON.parseObject(confObj.toString());
+            } else if (confObj instanceof Map) {
+                conf = (Map<String, Object>) confObj;
+            }
+            conf = Optional.ofNullable(conf).orElse(new HashMap<>());
+            //flinkx参数
+            conf.putAll(kerberosConfig);
+            conf.put("sftpConf", sftpMap);
+            //替换remotePath 就是ftp上kerberos的相对路径和principalFile
+            String remoteDir = sftpMap.get("path") + File.separator + kerberosConfig.getString("kerberosDir");
+            String principalFile = conf.getOrDefault("principalFile", "").toString();
+            ;
+            if (StringUtils.isNotEmpty(principalFile)) {
+                conf.put("principalFile", getFileName(principalFile));
+            }
+            conf.put("remoteDir", remoteDir);
+            map.put(confKey, conf);
+
+            String krb5Conf = conf.getOrDefault(KEY_JAVA_SECURITY_KRB5_CONF, "").toString();
+            if (StringUtils.isNotEmpty(krb5Conf)) {
+                conf.put(KEY_JAVA_SECURITY_KRB5_CONF, getFileName(krb5Conf));
+            }
+            // 开启kerberos认证需要的参数
+            conf.put(IS_HADOOP_AUTHORIZATION, "true");
+            conf.put(HADOOP_AUTH_TYPE, "kerberos");
+        }
+    }
     /**
      * @author toutian
      */

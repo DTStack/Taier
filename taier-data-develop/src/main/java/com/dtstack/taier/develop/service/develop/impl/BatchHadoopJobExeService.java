@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Base64Util;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.develop.bo.ExecuteContent;
@@ -79,16 +79,16 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     private static final String JOB_ARGS_TEMPLATE = "-jobid %s -job %s";
 
     @Override
-    public Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot) {
-        if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
+    public Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot) {
+        if (!task.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
         Map<String, Object> actionParam = Maps.newHashMap();
         try {
-            String taskParams = batchTask.getTaskParams();
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(batchTask.getId());
+            String taskParams = task.getTaskParams();
+            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
 
-            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));
+            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 
             String job = syncJob.getString("job");
@@ -98,12 +98,12 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
 
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
 
-            String name = "run_sync_task_" + batchTask.getName() + "_" + System.currentTimeMillis();
+            String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
             String taskExeArgs = String.format(JOB_ARGS_TEMPLATE, name, job);
-            actionParam.put("taskSourceId",batchTask.getId());
+            actionParam.put("taskSourceId",task.getId());
             actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
             actionParam.put("name", name);
-            actionParam.put("computeType", batchTask.getComputeType());
+            actionParam.put("computeType", task.getComputeType());
             actionParam.put("sqlText", "");
             actionParam.put("taskParams", taskParams);
             actionParam.put("tenantId", tenantId);
@@ -165,7 +165,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
      */
     @Override
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
-                                               Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception {
+                                               Boolean isRoot, Task task, String dtToken, Boolean isEnd, String jobId) throws Exception {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
             content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
@@ -179,24 +179,24 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
      * 构建 exeArgs、sqlText、taskParams
      * @param actionParam
      * @param tenantId
-     * @param batchTask
+     * @param task
      * @param taskParamsToReplace
      * @throws Exception
      */
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
-        String sql = batchTask.getSqlText() == null ? "" : batchTask.getSqlText();
-        String taskParams = batchTask.getTaskParams();
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(batchTask.getTaskType())) {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+        String sql = task.getSqlText() == null ? "" : task.getSqlText();
+        String taskParams = task.getTaskParams();
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
             //Spark SQL任务默认在前面加上建表的类型
             sql = String.format("set hive.default.fileformat=%s;\n ", environmentContext.getCreateTableType()) + sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
 
             // 构建运行的SQL
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, batchTask.getTaskType(), sql);
+            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
             sql = result.getSql();
-        } else if (EScheduleJobType.SYNC.getVal().equals(batchTask.getTaskType())) {
-            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(batchTask.getSqlText()));
+        } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
+            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 
             String job = syncJob.getString("job");

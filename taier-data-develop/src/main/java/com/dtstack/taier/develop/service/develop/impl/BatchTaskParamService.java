@@ -73,15 +73,11 @@ public class BatchTaskParamService {
      */
     private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
 
-    public void addOrUpdateTaskParam(final ScheduleTaskVO batchTask) {
-        if (batchTask == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-
-        final List<BatchParamDTO> parameterSet = this.paramResolver(batchTask.getTaskVariables());
+    public void addOrUpdateTaskParam(final List<Map> taskVariables ,Long id) {
+        final List<BatchParamDTO> parameterSet = this.paramResolver(taskVariables);
 
         //存储
-        this.saveTaskParams(batchTask.getId(), parameterSet);
+        this.saveTaskParams(id, parameterSet);
     }
 
     /**

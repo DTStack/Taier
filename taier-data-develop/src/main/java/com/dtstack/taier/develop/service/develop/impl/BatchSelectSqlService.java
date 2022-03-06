@@ -22,7 +22,7 @@ import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSelectSql;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlDao;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteSelectSqlData;
@@ -149,15 +149,15 @@ public class BatchSelectSqlService {
         }
         IBatchSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getTaskType());
         Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", batchHiveSelectSql.getTaskType()));
-        BatchTask batchTask = batchTaskService.getOneWithError(taskId);;
+        Task task = batchTaskService.getOneWithError(taskId);;
         Integer taskType = null;
-        if (Objects.nonNull(batchTask)) {
-            taskType = batchTask.getTaskType();
+        if (Objects.nonNull(task)) {
+            taskType = task.getTaskType();
         }
         if (Objects.isNull(taskType)) {
             throw new DtCenterDefException("任务类型为空");
         }
-        return new ExecuteSelectSqlData(batchHiveSelectSql, batchTask, taskType, selectSqlService);
+        return new ExecuteSelectSqlData(batchHiveSelectSql, task, taskType, selectSqlService);
     }
 
 
