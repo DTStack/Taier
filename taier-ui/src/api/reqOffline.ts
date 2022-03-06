@@ -25,27 +25,27 @@ const offlineReq = {
     SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchTableInfo/sqlFormat`, // SQL格式化服务
 
     // ===== task模块 ===== //
-    SAVE_TASK: `${RDOS_BASE_URL}/batchTask/addOrUpdateTask`, // 添加或者更新任务
-    RENAME_TASK: `${RDOS_BASE_URL}/batchTask/renameTask`, // 任务重命名
-    FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/batchTask/forceUpdate`, // 强制更新
-    GET_TASK: `${RDOS_BASE_URL}/batchTask/getTaskById`, // 获取任务通过任务ID
-    CLONE_TASK: `${RDOS_BASE_URL}/batchTask/cloneTask`, // 克隆任务
-    QUERY_CATA_TASK: `${RDOS_BASE_URL}/batchTask/getLogsByTaskId`, // 任务,目录关键字搜索
-    GET_TASKS_BY_PROJECT_ID: `${RDOS_BASE_URL}/batchTask/getTasksByProjectId`, // 根据项目id获取任务列表
-    GET_TASKS_BY_NAME: `${RDOS_BASE_URL}/batchTask/getTasksByName`, // 根据项目id，任务名 获取任务列表
-    QUERY_TASKS: `${RDOS_BASE_URL}/batchTask/queryTasks`, // 任务管理 - 搜索
+    SAVE_TASK: `${RDOS_BASE_URL}/task/addOrUpdateTask`, // 添加或者更新任务
+    RENAME_TASK: `${RDOS_BASE_URL}/task/renameTask`, // 任务重命名
+    FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/task/forceUpdate`, // 强制更新
+    GET_TASK: `${RDOS_BASE_URL}/task/getTaskById`, // 获取任务通过任务ID
+    CLONE_TASK: `${RDOS_BASE_URL}/task/cloneTask`, // 克隆任务
+    QUERY_CATA_TASK: `${RDOS_BASE_URL}/task/getLogsByTaskId`, // 任务,目录关键字搜索
+    GET_TASKS_BY_PROJECT_ID: `${RDOS_BASE_URL}/task/getTasksByProjectId`, // 根据项目id获取任务列表
+    GET_TASKS_BY_NAME: `${RDOS_BASE_URL}/task/getTasksByName`, // 根据项目id，任务名 获取任务列表
+    QUERY_TASKS: `${RDOS_BASE_URL}/task/queryTasks`, // 任务管理 - 搜索
     GET_TASK_CHILDREN: `${RDOS_BASE_URL}/batchTaskTask/displayOffSpring`, // 获取任务自己节点
     GET_TASK_PARENTS: `${RDOS_BASE_URL}/batchTaskTask/displayForefathers`, // 获取任务父节点
     GET_TASK_LOG: `${RDOS_BASE_URL}/batchServerLog/getLogsByJobId`, // 获取任务告警日志
-    GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/batchTask/globalSearch`, // 全局搜索任务
-    GET_TASK_TYPES: `${RDOS_BASE_URL}/batchTask/getSupportJobTypes`, // 获取任务类型
+    GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/task/globalSearch`, // 全局搜索任务
+    GET_TASK_TYPES: `${RDOS_BASE_URL}/task/getSupportJobTypes`, // 获取任务类型
     GET_ANALY_DTATSOURCE_LISTS: `${RDOS_BASE_URL}/batchDataSource/getAnalysisSource`, // 获取DTinsightAnalytics数据源下数据
-    PUBLISH_TASK: `${RDOS_BASE_URL}/batchTask/publishTask`, // 发布任务
-    GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/batchTask/getSysParams`, // 获取任务自定义参数
-    FROZEN_TASK: `${RDOS_BASE_URL}/batchTask/frozenTask`, // 冻结/解冻任务
-    TASK_VERSION_SCHEDULE_CONF: `${RDOS_BASE_URL}/batchTask/taskVersionScheduleConf `,
-    UPDATE_TASK_OWNER: `${RDOS_BASE_URL}/batchTask/setOwnerUser `,
-    CONVERT_SYNC_T0_SCRIPT_MODE: `${RDOS_BASE_URL}/batchTask/guideToTemplate `, // 转换数据同步从向导到脚本模式
+    PUBLISH_TASK: `${RDOS_BASE_URL}/task/publishTask`, // 发布任务
+    GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/task/getSysParams`, // 获取任务自定义参数
+    FROZEN_TASK: `${RDOS_BASE_URL}/task/frozenTask`, // 冻结/解冻任务
+    TASK_VERSION_SCHEDULE_CONF: `${RDOS_BASE_URL}/task/taskVersionScheduleConf `,
+    UPDATE_TASK_OWNER: `${RDOS_BASE_URL}/task/setOwnerUser `,
+    CONVERT_SYNC_T0_SCRIPT_MODE: `${RDOS_BASE_URL}/task/guideToTemplate `, // 转换数据同步从向导到脚本模式
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本
     FORCE_UPDATE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/forceUpdate`, // 强制更新
@@ -79,13 +79,13 @@ const offlineReq = {
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batchJobJob/displayForefathers`, // 获取父节点
     GET_TASK_WORKFLOW_NODES: `${RDOS_BASE_URL}/batchTaskTaskShade/getAllFlowSubTasks`, // 获取工作流节点
     GET_TASK_JOB_WORKFLOW_NODES: `${RDOS_BASE_URL}/batchJobJob/displayOffSpringWorkFlow`, // 获取工作流节点
-    CHECK_IS_LOOP: `${RDOS_BASE_URL}/batchTask/checkIsLoop`,
+    CHECK_IS_LOOP: `${RDOS_BASE_URL}/task/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batchJob/queryJobsStatusStatistics`, // 查询Job统计
     QUERY_JOB_SUB_NODES: `${RDOS_BASE_URL}/batchJob/getAllChildJobWithSameDay`, // 查询子job子节点
     STATISTICS_TASK_RUNTIME: `${RDOS_BASE_URL}/batchJob/statisticsTaskRecentInfo`, // 统计任务运行信息
     STOP_FILL_DATA_JOBS: `${RDOS_BASE_URL}/batchJob/stopFillDataJobs`, // 停止补数据任务
-    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batchTask/getJsonTemplate`, // 获取数据同步脚本模式的模版
+    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/task/getJsonTemplate`, // 获取数据同步脚本模式的模版
     GET_RESTART_JOBS: `${RDOS_BASE_URL}/batchJob/getRestartChildJob`, // 获取restart job列表
     DOWNLOAD_SQL_RESULT: `${RDOS_BASE_URL}/batch/batchDownload/downloadSqlExeResult`, // 下载运行结果
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batchJob/startSqlImmediately`, // 立即执行SQL
@@ -111,9 +111,9 @@ const offlineReq = {
 
     ADD_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batchResource/addResource`,
     REPLACE_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batchResource/replaceResource`,
-    ADD_OFFLINE_TASK: `${RDOS_BASE_URL}/batchTask/addOrUpdateTask`,
-    GET_OFFLINE_TASK: `${RDOS_BASE_URL}/batchTask/getTaskById`,
-    GET_OFFLINE_TASK_BY_NAME: `${RDOS_BASE_URL}/batchTask/getDependencyTask`,
+    ADD_OFFLINE_TASK: `${RDOS_BASE_URL}/task/addOrUpdateTask`,
+    GET_OFFLINE_TASK: `${RDOS_BASE_URL}/task/getTaskById`,
+    GET_OFFLINE_TASK_BY_NAME: `${RDOS_BASE_URL}/task/getDependencyTask`,
     GET_OFFLINE_DATASOURCE: `${RDOS_BASE_URL}/batchDataSource/list`,
     GET_OFFLINE_TABLELIST: `${RDOS_BASE_URL}/batchDataSource/tablelist`,
     GET_OFFLINE_TABLELISTPAGE: `${RDOS_BASE_URL}/batchDataSourceMigration/tableList`,
@@ -123,20 +123,20 @@ const offlineReq = {
     GET_DATA_SOURCE_VERSION: `${RDOS_BASE_URL}/batchDataSource/getDataSourceVersion`,
     GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batchDataSource/tablecolumn`,
     GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batchDataSource/columnForSyncopate`,
-    GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batchTask/trace`,
-    SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batchTask/addOrUpdateTask`,
+    GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/task/trace`,
+    SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/task/addOrUpdateTask`,
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batchFunction/addOrUpdateFunction`,
     ADD_OFFLINE_PROCEDURE: `${RDOS_BASE_URL}/batchFunction/addGpProcedureOrFunction`, // 临时
     GET_SCHEMA_NAME: `${RDOS_BASE_URL}/batchFunction/getEngineIdentity`,
     LINK_SOURCE: `${RDOS_BASE_URL}/batchDataSource/linkDataSource`, // 关联映射数据源
-    GET_WORKFLOW_RELATED_TASKS: `${RDOS_BASE_URL}/batchTask/dealFlowWorkTask`, // 获取工作流的子任务
+    GET_WORKFLOW_RELATED_TASKS: `${RDOS_BASE_URL}/task/dealFlowWorkTask`, // 获取工作流的子任务
     GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batchJob/getRelatedJobs`, // 获取工作流实例的子任务
     GET_WORKFLOW_FILLDATA_RELATED_JOBS: `${RDOS_BASE_URL}/batchJob/getRelatedJobsForFillData`, // 补数据工作流子节点
     GET_TABLE_INFO_BY_DATASOURCE: `${RDOS_BASE_URL}/batchDataSource/getTableInfoByDataSource`, // 从目标表位置获取表格信息
     IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batchDataSource/isNativeHive`, // 校验是不是标准分区
 
     // 离线文件操作
-    DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/batchTask/deleteTask`,
+    DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/task/deleteTask`,
     DEL_OFFLINE_RES: `${RDOS_BASE_URL}/batchResource/deleteResource`,
     DEL_OFFLINE_FN: `${RDOS_BASE_URL}/batchFunction/deleteFunction`,
     DEL_OFFLINE_PROD: `${RDOS_BASE_URL}/batchFunction/deleteProcedure`,
@@ -202,6 +202,6 @@ const offlineReq = {
     GET_SUPPORT_COMPONENT_TYPE: `${RDOS_BASE_URL}/batch/batchComponent/getSupportComponentType`, // 获取组件类型
     PAGE_QUERY_BY_PROJECT: `${RDOS_BASE_URL}/batch/batchTableInfo/pageQueryByProjectId`, // 获取表
     CHANGE_COMPONENT_OWNER_USER: `${RDOS_BASE_URL}/batch/batchComponent/changeComponentOwnerUser`, // 修改任务组件责任人
-    GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/batchTask/getChildTasks`,
+    GET_CHILD_TASKS: `${RDOS_BASE_URL}/batch/task/getChildTasks`,
 };
 export default offlineReq;

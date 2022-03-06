@@ -82,15 +82,15 @@ const req = {
 	GET_ROLE_INFO: `${RDOS_BASE_URL}/common/permission/getPermissionIdsByRoleId`, // 获取角色信息
 
 	// ===== task模块 ===== //
-	CLONE_TASK: `${RDOS_BASE_URL}/batch/batchTask/cloneTask`, // 克隆任务
-	CLONE_TASK_TO_WORKFLOW: `${RDOS_BASE_URL}/batch/batchTask/cloneTaskToFlow`, // 克隆任务至工作流
-	GET_WORKFLOW_LISTS: `${RDOS_BASE_URL}/batch/batchTask/queryTaskByType`, // 获取工作流任务列表
+	CLONE_TASK: `${RDOS_BASE_URL}/batch/task/cloneTask`, // 克隆任务
+	CLONE_TASK_TO_WORKFLOW: `${RDOS_BASE_URL}/batch/task/cloneTaskToFlow`, // 克隆任务至工作流
+	GET_WORKFLOW_LISTS: `${RDOS_BASE_URL}/batch/task/queryTaskByType`, // 获取工作流任务列表
 	GET_CREATE_TARGET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getCreateTargetTableSql`, // 获取目标表创建sql
 	GET_COLUMNS_OF_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/simpleTableColumns`, // 获取表的列名
 	GET_ALL_FUNCTION_NAME: `${RDOS_BASE_URL}/batch/batchFunction/getAllFunctionName`, // 获取系统函数
 
 	GET_TABLE_LIST_BY_NAME: `${RDOS_BASE_URL}/batch/batchCatalogue/getTableList`, // 根据表名的表查询
-	GET_RECOMMEND_TASK: `${RDOS_BASE_URL}/batch/batchTask/recommendDependencyTask`, // 获取推荐的依赖任务
+	GET_RECOMMEND_TASK: `${RDOS_BASE_URL}/batch/task/recommendDependencyTask`, // 获取推荐的依赖任务
 	CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
 
 	// ==== 发布包 ===== //
@@ -111,8 +111,8 @@ const req = {
 	INIT_UPLOAD_PACKAGE: `${RDOS_BASE_URL}/batchPackage/initUploadPackage`, // 跳过检查继续导入
 	GET_PACKAGE_ISHASFTP: `${RDOS_BASE_URL}/batchPackage/isHasFtp`, // 是否开启sftp
 	GET_PROJECTS_BY_APP_TYPE: `${RDOS_BASE_URL}/project/getProjectsByAppType`, // 获取模糊查询项目名称
-	GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/batchTask/getTasksByAppType`, // 根据任务名称查询任务信息
-	ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/batchTask/allProductGlobalSearch`, // 所有产品的已提交任务查询
+	GET_TASKS_BY_APP_TYPE: `${RDOS_BASE_URL}/task/getTasksByAppType`, // 根据任务名称查询任务信息
+	ALL_PRODUCT_GLOBAL_SEARCH: `${RDOS_BASE_URL}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
 };
 
 export default req;

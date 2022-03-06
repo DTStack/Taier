@@ -151,7 +151,7 @@ export const replaceTreeNode = (treeNodeData: any, target: any) => {
 };
 
 export const getLevelKey = function (node: any) {
-	return `${node.batchTask.flowId || ''}-${node._geometry.level}`;
+	return `${node.task.flowId || ''}-${node._geometry.level}`;
 };
 
 class JobGraphView extends React.Component<any, any> {
@@ -316,7 +316,7 @@ class JobGraphView extends React.Component<any, any> {
 	 * 而非HTML渲染，可以提高绘制效率
 	 */
 	getShowStr = (data: any) => {
-		const task = data.batchTask;
+		const task = data.task;
 		if (!task) return '';
 		const taskType = taskTypeText(task.taskType);
 		const taskStatus = taskStatusText(data.status);
@@ -398,7 +398,7 @@ class JobGraphView extends React.Component<any, any> {
 			source: null | ITaskStreamProps;
 			target: null | ITaskStreamProps;
 		}[] = this.preHandGraphTree(originData);
-		
+
 		const getVertex = (parentCell: any, data: ITaskStreamProps) => {
 			if (!data) return null;
 
