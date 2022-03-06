@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 
-public class TaskCheckResultVO {
+public class TaskCheckResultVO<T> {
 
     /**
      * 从boolean转为integer 用于后期排查错误
@@ -28,6 +28,16 @@ public class TaskCheckResultVO {
     private Integer errorSign;
 
     private String errorMessage;
+
+    private T data;
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
 
     public Integer getErrorSign() {
         return errorSign;

@@ -18,7 +18,8 @@
 
 package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
@@ -34,41 +35,47 @@ import java.util.List;
  */
 public interface DevelopTaskDao {
 
-    BatchTask getOne(@Param("id") Long id);
+    Task getOne(@Param("id") Long id);
 
-    BatchTask getOneWithDeleted(@Param("id") Long id);
+    Task getOneWithDeleted(@Param("id") Long id);
 
-    List<BatchTask> generalQuery(PageQuery<BatchTaskDTO> pageQuery);
+    List<Task> generalQuery(PageQuery<BatchTaskDTO> pageQuery);
 
-    List<BatchTask> generalQueryWithoutSql(PageQuery<BatchTaskDTO> pageQuery);
+    List<Task> generalQueryWithoutSql(PageQuery<BatchTaskDTO> pageQuery);
 
     Integer generalCount(@Param("model") Object model);
 
-    List<BatchTask> listBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
+    List<Task> listBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
-    List<BatchTask> listByNameFuzzy(@Param("tenantId") Long tenantId, @Param("name") String name);
+    List<Task> listByNameFuzzy(@Param("tenantId") Long tenantId, @Param("name") String name);
 
     Integer deleteById(@Param("id") Long id, @Param("gmtModified") Timestamp timestamp, @Param("tenantId") Long tenantId, @Param("modifyUserId") Long userId);
 
-    List<BatchTask> listByTenantId(@Param("tenantId") Long tenantId);
+    List<Task> listByTenantId(@Param("tenantId") Long tenantId);
 
-    List<BatchTask> listByIds(@Param("ids") Collection<Long> taskIds);
+    List<Task> listByIds(@Param("ids") Collection<Long> taskIds);
 
-    List<BatchTask> listByFlowId(@Param("flowId") Long flowId);
+    List<Task> listByFlowId(@Param("flowId") Long flowId);
 
-    List<BatchTask> listAll();
+    List<Task> listAll();
 
-    BatchTask getByName(@Param("name") String name, @Param("tenantId") Long tenantId);
+    Task getByName(@Param("name") String name, @Param("tenantId") Long tenantId);
 
-    List<BatchTask> getByNameList(@Param("nameList") List<String> nameList, @Param("tenantId") Long tenantId);
+    List<Task> getByNameList(@Param("nameList") List<String> nameList, @Param("tenantId") Long tenantId);
 
-    Integer insert(BatchTask batchTask);
+    Integer insert(Task task);
 
-    Integer update(BatchTask batchTask);
+    Integer update(Task Task);
 
     Integer updateSubmitStatus(@Param("tenantId") Long tenantId, @Param("id") Long id, @Param("submitStatus") Integer submitStatus, @Param("time") Timestamp time);
+    /**
+     * 更新提交状态
+     * @param id
+     * @param submitStatus
+     */
+    void updateSubmitStatus(@Param("id")Long id,@Param("submitStatus") Integer submitStatus,@Param("errMsg") String errMsg);
 
-    List<BatchTask> listTaskByType(@Param("tenantId") Long tenantId, @Param("type") Integer type, @Param("taskName") String taskName);
+    List<Task> listTaskByType(@Param("tenantId") Long tenantId, @Param("type") Integer type, @Param("taskName") String taskName);
 
     Integer batchUpdateTaskScheduleStatus(@Param("taskIds") List<Long> taskIds, @Param("scheduleStatus") Integer scheduleStatus);
 
@@ -76,9 +83,9 @@ public interface DevelopTaskDao {
    
     Integer countAll();
 
-    List<BatchTask> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
+    List<Task> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
-    Integer updateSqlText(BatchTask batchTask);
+    Integer updateSqlText(Task task);
 
     Integer updateScheduleConf(@Param("flowId") Long flowId, @Param("periodType") Integer periodType, @Param("scheduleConf")String scheduleConf);
 
@@ -91,7 +98,7 @@ public interface DevelopTaskDao {
      * @param taskTypes
      * @return
      */
-    List<BatchTask> listAllSubmitTask(@Param("submitStatus") Integer submitStatus, @Param("taskTypes") List<Integer> taskTypes);
+    List<Task> listAllSubmitTask(@Param("submitStatus") Integer submitStatus, @Param("taskTypes") List<Integer> taskTypes);
 
     /**
      * 根据任务id列表查询已经提交的任务列表
@@ -99,7 +106,7 @@ public interface DevelopTaskDao {
      * @param taskIds
      * @return
      */
-    List<BatchTask> listSubmitTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("tenantId") Long tenantId);
+    List<Task> listSubmitTaskByIds(@Param("taskIds") List<Long> taskIds, @Param("tenantId") Long tenantId);
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("userId") Long userId);
 
