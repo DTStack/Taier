@@ -153,42 +153,42 @@ public class ScheduleActionService {
         }
     }
 
-    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws Exception {
+    public ParamActionExt paramActionExt(ScheduleTaskShade task, String jobId, String flowJobId) throws Exception {
         if (StringUtils.isBlank(jobId)) {
             jobId = this.generateUniqueSign();
         }
-        LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(batchTask), jobId, flowJobId);
-        ScheduleJob scheduleJob = buildScheduleJob(batchTask, jobId, flowJobId);
-        ParamActionExt paramActionExt = paramActionExt(batchTask, scheduleJob, JSONObject.parseObject(batchTask.getExtraInfo()));
+        LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(task), jobId, flowJobId);
+        ScheduleJob scheduleJob = buildScheduleJob(task, jobId, flowJobId);
+        ParamActionExt paramActionExt = paramActionExt(task, scheduleJob, JSONObject.parseObject(task.getExtraInfo()));
         if (paramActionExt == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
 
         paramActionExt.setCycTime(scheduleJob.getCycTime());
-        paramActionExt.setTaskId(batchTask.getTaskId());
-        paramActionExt.setComponentVersion(batchTask.getComponentVersion());
+        paramActionExt.setTaskId(task.getTaskId());
+        paramActionExt.setComponentVersion(task.getComponentVersion());
         paramActionExt.setFlowJobId(flowJobId);
         return paramActionExt;
     }
 
 
-    public ParamActionExt paramActionExt(ScheduleTaskShade batchTask, ScheduleJob scheduleJob, JSONObject extraInfo) throws Exception {
-        return this.parseParamActionExt(scheduleJob, batchTask, extraInfo);
+    public ParamActionExt paramActionExt(ScheduleTaskShade task, ScheduleJob scheduleJob, JSONObject extraInfo) throws Exception {
+        return this.parseParamActionExt(scheduleJob, task, extraInfo);
     }
 
-    private ScheduleJob buildScheduleJob(ScheduleTaskShade batchTask, String jobId, String flowJobId) throws IOException, ParseException {
+    private ScheduleJob buildScheduleJob(ScheduleTaskShade task, String jobId, String flowJobId) throws IOException, ParseException {
         String cycTime = getCycTime(0);
-        String scheduleConf = batchTask.getScheduleConf();
+        String scheduleConf = task.getScheduleConf();
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
-        scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER+batchTask.getName()+ CommonConstant.RUN_DELIMITER +cycTime);
+        scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER+task.getName()+ CommonConstant.RUN_DELIMITER +cycTime);
         scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
-        scheduleJob.setComputeType(batchTask.getComputeType());
+        scheduleJob.setComputeType(task.getComputeType());
 
-        scheduleJob.setTenantId(batchTask.getTenantId());
-        scheduleJob.setJobKey(String.format("%s%s%s", "tempJob", batchTask.getTaskId(), new DateTime().toString("yyyyMMdd")));
-        scheduleJob.setTaskId(batchTask.getTaskId());
-        scheduleJob.setCreateUserId(getOrDefault(batchTask.getCreateUserId(), -1L));
+        scheduleJob.setTenantId(task.getTenantId());
+        scheduleJob.setJobKey(String.format("%s%s%s", "tempJob", task.getTaskId(), new DateTime().toString("yyyyMMdd")));
+        scheduleJob.setTaskId(task.getTaskId());
+        scheduleJob.setCreateUserId(getOrDefault(task.getCreateUserId(), -1L));
 
         scheduleJob.setType(EScheduleType.TEMP_JOB.getType());
         scheduleJob.setCycTime(getOrDefault(cycTime, DateTime.now().toString("yyyyMMddHHmmss")));
@@ -197,7 +197,7 @@ public class ScheduleActionService {
             Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
             jsonMap.put("isFailRetry",false);
             scheduleConf = JSON.toJSONString(jsonMap);
-            batchTask.setScheduleConf(scheduleConf);
+            task.setScheduleConf(scheduleConf);
             ScheduleCorn scheduleCron = ScheduleConfManager.parseFromJson(scheduleConf);
             ScheduleConf scheduleConfBean = scheduleCron.getScheduleConf();
             scheduleJob.setDependencyType(getOrDefault(scheduleConfBean.getSelfReliance(), 0));
@@ -206,33 +206,33 @@ public class ScheduleActionService {
         }
 
         scheduleJob.setFlowJobId(getOrDefault(flowJobId, "0"));
-        scheduleJob.setTaskType(getOrDefault(batchTask.getTaskType(), -2));
+        scheduleJob.setTaskType(getOrDefault(task.getTaskType(), -2));
         scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
-        scheduleJob.setVersionId(getOrDefault(batchTask.getVersionId(), 0));
-        scheduleJob.setComputeType(getOrDefault(batchTask.getComputeType(), ComputeType.BATCH.getType()));
+        scheduleJob.setVersionId(getOrDefault(task.getVersionId(), 0));
+        scheduleJob.setComputeType(getOrDefault(task.getComputeType(), ComputeType.BATCH.getType()));
 
         return scheduleJob;
     }
 
-    public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade batchTask, JSONObject info) throws Exception {
+    public ParamActionExt parseParamActionExt(ScheduleJob scheduleJob, ScheduleTaskShade task, JSONObject info) throws Exception {
         if (info == null) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-        dealActionParam(actionParam,batchTask,scheduleJob);
+        dealActionParam(actionParam,task,scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("jobId", scheduleJob.getJobId());
-        actionParam.put("taskType", batchTask.getTaskType());
-        actionParam.put("componentVersion",batchTask.getComponentVersion());
+        actionParam.put("taskType", task.getTaskType());
+        actionParam.put("componentVersion",task.getComponentVersion());
         actionParam.put("type",scheduleJob.getType());
-        actionParam.put("tenantId", batchTask.getTenantId());
-        actionParam.putAll(parseRetryParam(batchTask));
+        actionParam.put("tenantId", task.getTenantId());
+        actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
 
-    private Map<String,Object> parseRetryParam(ScheduleTaskShade batchTask) {
+    private Map<String,Object> parseRetryParam(ScheduleTaskShade task) {
         Map<String, Object> retryParam = new HashMap<>();
-        JSONObject scheduleConf = JSONObject.parseObject(batchTask.getScheduleConf());
+        JSONObject scheduleConf = JSONObject.parseObject(task.getScheduleConf());
         if (scheduleConf != null && scheduleConf.containsKey("isFailRetry")) {
             retryParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
             if (scheduleConf.getBooleanValue("isFailRetry")) {
@@ -250,25 +250,25 @@ public class ScheduleActionService {
         return retryParam;
     }
 
-    private void dealActionParam(Map<String, Object> actionParam,ScheduleTaskShade batchTask, ScheduleJob scheduleJob) throws Exception {
+    private void dealActionParam(Map<String, Object> actionParam,ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
         IPipeline pipeline = null;
         String pipelineConfig = null;
         if (actionParam.containsKey(PipelineBuilder.pipelineKey)) {
             pipelineConfig = (String) actionParam.get(PipelineBuilder.pipelineKey);
             pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
-        } else if (EScheduleJobType.SPARK_SQL.getType().equals(batchTask.getTaskType())) {
+        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())) {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
-        } else if (EScheduleJobType.SYNC.getType().equals(batchTask.getTaskType())) {
+        } else if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             pipeline = syncOperatorPipeline;
         }
         if (pipeline == null) {
             throw new RdosDefineException(ErrorCode.CONFIG_ERROR);
         }
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
-        Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, batchTask, taskParamsToReplace, (uploadPipelineMap) -> {
+        Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, task, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
-            JSONObject pluginInfo = clusterService.pluginInfoJSON(batchTask.getTenantId(), batchTask.getTaskType(), null, null);
-            String hdfsTypeName = componentService.buildHdfsTypeName(batchTask.getTenantId(),null);
+            JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
+            String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(),null);
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,hdfsTypeName);
             uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
             uploadPipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());

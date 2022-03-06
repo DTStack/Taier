@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 
 import java.util.List;
 
@@ -31,9 +31,9 @@ public class TaskCatalogueVO extends CatalogueVO {
     private Integer scheduleStatus;
     private Integer submitStatus;
     private List<? extends Catalogue> catalogues;
-    private List<BatchTask> tasks;
+    private List<Task> tasks;
     private Integer taskType;
-    private List<BatchTask> dependencyTasks;
+    private List<Task> dependencyTasks;
     private List<List<Object>>  lists;
 
 
@@ -50,7 +50,7 @@ public class TaskCatalogueVO extends CatalogueVO {
     public TaskCatalogueVO() {
     }
 
-    public TaskCatalogueVO(BatchTaskBatchVO task, Long parentId) {
+    public TaskCatalogueVO(TaskResourceParam task, Long parentId) {
         this.setId(task.getId());
         this.setName(task.getName());
         this.setType("file");
@@ -87,19 +87,19 @@ public class TaskCatalogueVO extends CatalogueVO {
         this.catalogues = catalogues;
     }
 
-    public List<BatchTask> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<BatchTask> tasks) {
+    public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
 
-    public List<BatchTask> getDependencyTasks() {
+    public List<Task> getDependencyTasks() {
         return dependencyTasks;
     }
 
-    public void setDependencyTasks(List<BatchTask> dependencyTasks) {
+    public void setDependencyTasks(List<Task> dependencyTasks) {
         this.dependencyTasks = dependencyTasks;
     }
 

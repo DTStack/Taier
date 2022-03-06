@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceDao;
 import com.google.common.collect.Lists;
@@ -104,7 +104,7 @@ public class BatchTaskResourceService {
         developTaskResourceDao.deleteByTaskId(taskId, null);
     }
 
-    public List<BatchTaskResource> save(BatchTask batchTask, List<Long> resourceIds, Integer refType) {
+    public List<BatchTaskResource> save(Task task, List<Long> resourceIds, Integer refType) {
 
         List<BatchTaskResource> taskResources = new ArrayList<>(resourceIds.size());
 
@@ -117,14 +117,14 @@ public class BatchTaskResourceService {
             }
 
             //存储
-            BatchTaskResource resource = developTaskResourceDao.getByTaskIdAndResourceId(batchTask.getId(), resourceId, refType);
+            BatchTaskResource resource = developTaskResourceDao.getByTaskIdAndResourceId(task.getId(), resourceId, refType);
 
             if (resource == null) {
                 resource = new BatchTaskResource();
             }
 
-            resource.setTaskId(batchTask.getId());
-            resource.setTenantId(batchTask.getTenantId());
+            resource.setTaskId(task.getId());
+            resource.setTenantId(task.getTenantId());
             resource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
             resource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             resource.setResourceId(resourceId);

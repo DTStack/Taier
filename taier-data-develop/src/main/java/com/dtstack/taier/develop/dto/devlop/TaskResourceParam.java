@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ import java.util.Map;
  * author: toutian
  * create: 2017/6/5
  */
-public class TaskResourceParam extends BatchTask {
+public class TaskResourceParam extends Task {
 
     private Long userId;
 
@@ -36,7 +36,7 @@ public class TaskResourceParam extends BatchTask {
 
     private List<Long> refResourceIdList;
 
-    private boolean preSave;
+    private boolean preSave= false;
 
     private Map<String, Object> sourceMap;
 
@@ -44,7 +44,7 @@ public class TaskResourceParam extends BatchTask {
 
     private Map<String, Object> settingMap;
 
-    private List<BatchTask> dependencyTasks;
+    private List<Task> dependencyTasks;
 
     private String publishDesc;
 
@@ -111,6 +111,20 @@ public class TaskResourceParam extends BatchTask {
 
     private ReadWriteLockVO readWriteLockVO;
 
+    /**
+     * 是否更新数据源
+     */
+    private Boolean updateSource = true;
+
+
+    public Boolean getUpdateSource() {
+        return updateSource;
+    }
+
+    public void setUpdateSource(Boolean updateSource) {
+        this.updateSource = updateSource;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -167,11 +181,11 @@ public class TaskResourceParam extends BatchTask {
         this.settingMap = settingMap;
     }
 
-    public List<BatchTask> getDependencyTasks() {
+    public List<Task> getDependencyTasks() {
         return dependencyTasks;
     }
 
-    public void setDependencyTasks(List<BatchTask> dependencyTasks) {
+    public void setDependencyTasks(List<Task> dependencyTasks) {
         this.dependencyTasks = dependencyTasks;
     }
 

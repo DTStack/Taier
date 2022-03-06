@@ -19,6 +19,7 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
+import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
@@ -33,7 +34,7 @@ public interface DevelopTaskVersionDao {
 
     List<BatchTaskVersionDetailDTO> listByTaskId(@Param("taskId") Long taskId, @Param("pageQuery") PageQuery pageQuery);
 
-    Integer insert(BatchTaskVersion batchTaskVersion);
+    Integer insert(TaskVersion taskVersion);
 
     BatchTaskVersionDetailDTO getByVersionId(@Param("versionId") Long versionId);
 

@@ -20,7 +20,8 @@ package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.develop.dto.devlop.*;
@@ -30,6 +31,7 @@ import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskAddOrUpdateDepend
 import com.dtstack.taier.develop.vo.develop.result.*;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Collection;
@@ -46,13 +48,14 @@ public interface TaskMapstructTransfer {
      * @return
      */
     TaskResourceParam TaskResourceParamVOToTaskResourceParam(BatchTaskResourceParamVO batchTaskResourceParamVO);
+    Task taskVOTOTask(TaskVO taskVO, @MappingTarget Task task);
 
     /**
-     * BatchTask -> BatchTaskResultVO
-     * @param batchTask
+     * Task -> BatchTaskResultVO
+     * @param task
      * @return
      */
-    BatchTaskResultVO BatchTaskToResultVO(BatchTask batchTask);
+    BatchTaskResultVO BatchTaskToResultVO(Task task);
 
 
     /**
@@ -127,10 +130,12 @@ public interface TaskMapstructTransfer {
     List<BatchGetChildTasksResultVO> notDeleteTaskVOsToBatchGetChildTasksResultVOs(List<TaskGetNotDeleteVO> notDeleteTaskVOS);
 
     /**
-     * List<BatchTaskTaskAddOrUpdateDependencyVO> -> List<BatchTask>
+     * List<BatchTaskTaskAddOrUpdateDependencyVO> -> List<Task>
      * @param dependencyVOS
      * @return
      */
-    List<BatchTask> batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(List<BatchTaskTaskAddOrUpdateDependencyVO> dependencyVOS);
+    List<Task> batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(List<BatchTaskTaskAddOrUpdateDependencyVO> dependencyVOS);
+    void taskToTaskVO(Task task, @MappingTarget TaskVO taskVO);
 
+    TaskVO TaskResourceParamToTaskVO(TaskResourceParam taskResourceParam);
 }
