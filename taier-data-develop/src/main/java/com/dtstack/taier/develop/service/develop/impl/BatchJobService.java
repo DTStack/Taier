@@ -105,45 +105,45 @@ public class BatchJobService {
 
     /**
      * 构建运行任务的完整命令(包含真正执行的SQL内容)
-     * @param batchTask
+     * @param task
      * @param userId
      * @param taskParamsToReplace SQL中需要匹配和替换的 系统参数与自定义参数
      * @return info信息
      * @throws Exception
      */
-    public String getExtraInfo(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public String getExtraInfo(Task task, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         //任务参数若为null，则表示是提交任务，否则就是临时运行任务
         if(taskParamsToReplace == null){
-            taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(batchTask.getId());
+            taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(task.getId());
         }
-        IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(batchTask.getTaskType());
+        IBatchJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
 
         //构建任务运行完整信息
         Map<String, Object> actionParam = Maps.newHashMap();
         //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
-        jobExecuteService.readyForTaskStartTrigger(actionParam, batchTask.getTenantId(), batchTask, taskParamsToReplace);
+        jobExecuteService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task, taskParamsToReplace);
 
-        actionParam.put("taskId", batchTask.getId());
-        actionParam.put("taskType", EScheduleJobType.getByTaskType(batchTask.getTaskType()).getEngineJobType());
-        actionParam.put("name", batchTask.getName());
-        actionParam.put("computeType", batchTask.getComputeType());
-        actionParam.put("tenantId", batchTask.getTenantId());
+        actionParam.put("taskId", task.getId());
+        actionParam.put("taskType", EScheduleJobType.getByTaskType(task.getTaskType()).getEngineJobType());
+        actionParam.put("name", task.getName());
+        actionParam.put("computeType", task.getComputeType());
+        actionParam.put("tenantId", task.getTenantId());
         actionParam.put("isFailRetry", false);
         actionParam.put("maxRetryNum", 0);
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
 
         User user;
         if (Objects.isNull(userId)) {
-            user = userService.getById(batchTask.getCreateUserId());
+            user = userService.getById(task.getCreateUserId());
         } else {
             user = userService.getById(userId);
         }
         if (Objects.isNull(user)) {
-            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? batchTask.getCreateUserId() : userId));
+            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? task.getCreateUserId() : userId));
         }
         actionParam.put("userId", user.getId());
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
-        JSONObject scheduleConf = JSON.parseObject(batchTask.getScheduleConf());
+        JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
         if (scheduleConf.containsKey("isFailRetry")) {
             actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
             if (scheduleConf.getBooleanValue("isFailRetry")) {
@@ -169,29 +169,29 @@ public class BatchJobService {
         batchStartSyncResultVO.setJobId(null);
         batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
 
-        BatchTask batchTask = batchTaskService.getOneWithError(taskId);
+        Task task = batchTaskService.getOneWithError(taskId);
 
-        if (!batchTask.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
+        if (!task.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
 
         try {
             IBatchJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
-            Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(batchTask, tenantId, isRoot);
+            Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(task, tenantId, isRoot);
             String extraInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
             scheduleTaskShade.setExtraInfo(extraInfo);
-            scheduleTaskShade.setTaskId(batchTask.getId());
-            scheduleTaskShade.setScheduleConf(batchTask.getScheduleConf());
-            scheduleTaskShade.setComponentVersion(batchTask.getComponentVersion());
+            scheduleTaskShade.setTaskId(task.getId());
+            scheduleTaskShade.setScheduleConf(task.getScheduleConf());
+            scheduleTaskShade.setComponentVersion(task.getComponentVersion());
             paramTaskAction.setBatchTask(scheduleTaskShade);
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
             String jobId = paramActionExt.getJobId();
             actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
-            batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), batchTask.getTenantId(),
+            batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), task.getTenantId(),
                     job, userId, EScheduleJobType.SPARK_SQL.getType());
 
             batchStartSyncResultVO.setMsg(String.format("任务提交成功,名称为: %s", name));
@@ -363,7 +363,7 @@ public class BatchJobService {
         dtToken = String.format("%s;dt_user_id=%s;dt_username=%s;", dtToken, user.getId(), user.getUserName());
         ExecuteResultVO result = new ExecuteResultVO();
         try {
-            final BatchTask task = batchTaskService.getOneWithError(taskId);
+            final Task task = batchTaskService.getOneWithError(taskId);
 
             result.setTaskType(task.getTaskType());
             //真正运行的SQL是页面传入的SQL
@@ -411,27 +411,27 @@ public class BatchJobService {
     }
     /**
      * 初始化engine paramActionExt 入参
-     * @param batchTask
+     * @param task
      * @param userId
      * @param taskParamsToReplace  需要替换的 系统参数和自定义参数
      * @return
      * @throws Exception
      */
-    private ParamTaskAction getParamTaskAction(BatchTask batchTask, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    private ParamTaskAction getParamTaskAction(Task task, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
         ParamTaskAction paramTaskAction = new ParamTaskAction();
 
-        //将 BatchTask 对象转换为调度的 ScheduleTaskShade 对象
+        //将 Task 对象转换为调度的 ScheduleTaskShade 对象
         ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        BeanUtils.copyProperties(batchTask, scheduleTaskShade);
-        scheduleTaskShade.setTaskId(batchTask.getId());
-        scheduleTaskShade.setTaskType(batchTask.getTaskType());
+        BeanUtils.copyProperties(task, scheduleTaskShade);
+        scheduleTaskShade.setTaskId(task.getId());
+        scheduleTaskShade.setTaskType(task.getTaskType());
 
         //构建运行任务的完整命令(包含真正执行的SQL内容)
-        String extraInfo = getExtraInfo(batchTask, userId, taskParamsToReplace);
+        String extraInfo = getExtraInfo(task, userId, taskParamsToReplace);
 
         JSONObject jsonObject = JSON.parseObject(extraInfo);
         if (jsonObject.containsKey("sqlText")) {
-            jsonObject.put("sqlText", batchTask.getSqlText());
+            jsonObject.put("sqlText", task.getSqlText());
         }
         extraInfo = jsonObject.toJSONString();
         scheduleTaskShade.setExtraInfo(extraInfo);

@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 
@@ -48,7 +48,7 @@ public interface IBatchJobExeService {
      * @throws Exception
      */
     ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
-                                        Boolean isRoot, BatchTask task, String dtToken, Boolean isEnd, String jobId) throws Exception;
+                                        Boolean isRoot, Task task, String dtToken, Boolean isEnd, String jobId) throws Exception;
 
 
     /**
@@ -60,18 +60,18 @@ public interface IBatchJobExeService {
      * @param tenantId
      * @throws Exception
      */
-    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, BatchTask batchTask, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
+    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
 
     /**
      * 执行数据前的准备工作
      * eg:
      * 创建分区
      * 拼接engine执行的参数
-     * @param batchTask
+     * @param task
      * @param tenantId
      * @param isRoot
      * @return
      */
-    Map<String, Object> readyForSyncImmediatelyJob(BatchTask batchTask, Long tenantId, Boolean isRoot);
+    Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot);
 
 }

@@ -240,7 +240,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 
 				const currentNode: IScheduleTaskProps = cell.data;
 				// const isCurrentProjectTask = ctx.isCurrentProjectTask(
-				// 	currentNode.batchTask,
+				// 	currentNode.task,
 				// );
 				const isWorkflowNode = false;
 
@@ -368,7 +368,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 				const cells = evt.getProperty('cells');
 				const cell = cells && cells[0];
 				const collapse = evt.getProperty('collapse');
-				const isWorkflow = get(cell, 'data.batchTask.taskType') === TASK_TYPE_ENUM.WORKFLOW;
+				const isWorkflow = get(cell, 'data.task.taskType') === TASK_TYPE_ENUM.WORKFLOW;
 
 				if (cell && isWorkflow && !collapse) {
 					ctx.loadWorkflowNodes(cell.data);
@@ -481,7 +481,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 					footer={null}
 					maskClosable={true}
 					visible={this.state.visibleWorkflow}
-					title={`工作流-${get(workflowData, 'batchTask.name', '')}`}
+					title={`工作流-${get(workflowData, 'task.name', '')}`}
 					wrapClassName="vertical-center-modal modal-body-nopadding c-jobflow__modal"
 					onCancel={this.onCloseWorkflow}
 				>

@@ -1,0 +1,166 @@
+package com.dtstack.taier.develop.service.template.hive;
+
+import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.develop.service.template.PluginName;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @company: www.dtstack.com
+ * @Author ：Nanqi
+ * @Date ：Created in 11:18 2019-07-04
+ */
+public class Hive2XWriter extends HiveBase {
+
+    private String msg = "";
+    protected List connection;
+    private List<String> fullColumnName = new ArrayList<>();
+    private List<String> fullColumnType = new ArrayList<>();
+    protected String remoteDir;
+    protected Map<String, Object> sftpConf;
+    protected String encoding = "utf-8";
+//    public JSONObject toWriterJson() {
+//        try {
+//            inferHdfsParams();
+//            HdfsWriter hdfsWriter = new HdfsWriter();
+//
+//            if (writeMode != null && writeMode.trim().length() != 0) {
+////                writeMode = SyncWriteMode.tranferHiveMode(writeMode);
+//            } else {
+////                writeMode = SyncWriteMode.HIVE_OVERWRITE.getMode();
+//            }
+//
+//            // todo
+////            hdfsWriter.setWriteMode(writeMode);
+////            hdfsWriter.setColumn(column);
+////            hdfsWriter.setFileName(fileName);
+////            hdfsWriter.setDefaultFS(defaultFS);
+////            hdfsWriter.setEncoding(encoding);
+////            hdfsWriter.setFieldDelimiter(fieldDelimiter);
+////            hdfsWriter.setFileType(fileType);
+////            hdfsWriter.setHadoopConfig(hadoopConfig);
+////            hdfsWriter.setInterval(this.interval);
+////            hdfsWriter.setPath(path.trim());
+//
+//            if (StringUtils.isNotEmpty(partition)) {
+//                hdfsWriter.setFileName(partition);
+//                hdfsWriter.setPartition(partition);
+//            } else {
+//                hdfsWriter.setFileName("");
+//            }
+//            if (StringUtils.isNotEmpty(table)) {
+//                hdfsWriter.setTable(table);
+//            }
+//
+//            JSONObject hdfsJsonObject = hdfsWriter.toWriterJson().getJSONObject("parameter");
+//            hdfsJsonObject.remove("column");
+//
+//            // 补充Hive 数据同步特有字段;
+//            hdfsJsonObject.put("username", getUsername());
+//            hdfsJsonObject.put("schema", getSchema());
+//            hdfsJsonObject.put("password", getPassword());
+//            hdfsJsonObject.put("jdbcUrl", getJdbcUrl());
+//            hdfsJsonObject.put("tablesColumn", tablesColumn);
+//            hdfsJsonObject.put("analyticalRules", StringUtils.isEmpty(analyticalRules) ? null : AppType.STREAM.name().toLowerCase() + "_" + analyticalRules);
+//            hdfsJsonObject.put("maxFileSize", maxFileSize);
+//            hdfsJsonObject.put("distributeTable", distributeTable == null ? null : distributeTable.toJSONString());
+////            hdfsJsonObject.put("partitionType", PartitionType.fromTypeValue(partitionType).getName());
+//
+//            JSONObject write = new JSONObject(true);
+//            write.put("parameter", hdfsJsonObject);
+//            write.put("type", DataSourceType.HIVE.getVal());
+//            write.put("name", PluginName.HIVE_W);
+//            return write;
+//        } catch (Throwable ex) {
+//            throw new RdosDefineException(ex.getCause().getMessage(), ex);
+//        }
+//    }
+//
+////    @Override
+//    public String toWriterJsonString() {
+//        return toWriterJson().toJSONString();
+//    }
+
+//    public String getErrMsg() {
+//        return msg;
+//    }
+//
+//    @Override
+    public void checkFormat(JSONObject data) {
+        data = data.getJSONObject("parameter");
+        if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
+            throw new RdosDefineException("jdbcUrl 不能为空");
+        }
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public List getConnection() {
+        return connection;
+    }
+
+    public void setConnection(List connection) {
+        this.connection = connection;
+    }
+
+    public List<String> getFullColumnName() {
+        return fullColumnName;
+    }
+
+    public void setFullColumnName(List<String> fullColumnName) {
+        this.fullColumnName = fullColumnName;
+    }
+
+    public List<String> getFullColumnType() {
+        return fullColumnType;
+    }
+
+    public void setFullColumnType(List<String> fullColumnType) {
+        this.fullColumnType = fullColumnType;
+    }
+
+    public String getRemoteDir() {
+        return remoteDir;
+    }
+
+    public void setRemoteDir(String remoteDir) {
+        this.remoteDir = remoteDir;
+    }
+
+    public Map<String, Object> getSftpConf() {
+        return sftpConf;
+    }
+
+    public void setSftpConf(Map<String, Object> sftpConf) {
+        this.sftpConf = sftpConf;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    @Override
+    public String pluginName() {
+        if (CollectionUtils.isNotEmpty(connection)) {
+            return PluginName.HDFS_W;
+        }else {
+            return PluginName.HIVE_W;
+        }
+    }
+
+}
