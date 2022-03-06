@@ -6,9 +6,11 @@ import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
+import com.google.common.collect.Maps;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.dtstack.taier.common.constant.FormNames.SASL_KERBEROS_SERVICE_NAME;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
@@ -45,6 +48,9 @@ public class DataSourceUtils {
     public static final String PASSWORD = "password";
     public static final String JDBC = "jdbcUrl";
     public static final String DEFAULT_FS = "defaultFS";
+    public static final String ADDRESS = "address";
+    public static final String SASL_KERBEROS_SERVICE_NAME = "sasl.kerberos.service.name";
+
     /**
      * Kerberos 文件上传的时间戳
      */
@@ -64,6 +70,56 @@ public class DataSourceUtils {
     protected static String localSslDir = String.format("%s/sslConf", System.getProperty("user.dir"));
 
     private static final String LOCK_SUFFIX = ".lock";
+    public static final String BROKER_LIST = "brokerList";
+    public static final String BOOT_STRAP_SERVERS = "bootstrapServers";
+
+    /**
+     * kafka SASL/PLAIN 认证
+     */
+    public static final String KAFKA_SASL_PLAIN_CONTENT = "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";";
+
+    /**
+     * 当 username 和 password 都不为空的时候初始化 kafka SASL_PLAINTEXT(PLAIN) 认证
+     *
+     * @param username 用户名
+     * @param password 密码
+     * @param prefix   参数前缀
+     * @return kafka SASL_PLAINTEXT(PLAIN) 认证参数
+     */
+    public static Map<String, String> initKafkaPlainIfOpen(String username, String password, String prefix) {
+        String pre = StringUtils.isBlank(prefix) ? "" : prefix;
+        Map<String, String> kafkaPlainMap = Maps.newHashMap();
+        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+            kafkaPlainMap.put(pre + "security.protocol", "SASL_PLAINTEXT");
+            kafkaPlainMap.put(pre + "sasl.mechanism", "PLAIN");
+            kafkaPlainMap.put(pre + "sasl.jaas.config", String.format(KAFKA_SASL_PLAIN_CONTENT, username, password));
+        }
+        return kafkaPlainMap;
+    }
+    /**
+     * 初始化 Kafka Kerberos 服务信息
+     *
+     * @param serviceName
+     * @return
+     */
+    public static Map<String, String> initKafkaKerberos(String serviceName) {
+        Map<String, String> kafkaSettings = new HashMap<>();
+        kafkaSettings.put("security.protocol", "SASL_PLAINTEXT");
+        kafkaSettings.put("sasl.mechansim", "GSSAPI");
+        kafkaSettings.put(SASL_KERBEROS_SERVICE_NAME, serviceName);
+        return kafkaSettings;
+    }
+    public static String getJdbcUrl(JSONObject dataJson) {
+        return dataJson.getString(JDBC);
+    }
+
+    public static String getJdbcUsername(JSONObject dataJson) {
+        return dataJson.getString(USERNAME);
+    }
+
+    public static String getJdbcPassword(JSONObject dataJson) {
+        return dataJson.getString(PASSWORD);
+    }
 
     /**
      * 解析 dataJson 参数
@@ -89,6 +145,9 @@ public class DataSourceUtils {
             throw new RdosDefineException("数据源信息解码异常", e);
         }
     }
+    public static String getAddress(JSONObject dataJson) {
+        return dataJson.getString(ADDRESS);
+    }
 
     /**
      * Base64加密dataJson，可选是否加密
@@ -105,7 +164,9 @@ public class DataSourceUtils {
         }
         return dataJson.toJSONString();
     }
-
+    public static String getBootStrapServers(JSONObject dataJson) {
+        return StringUtils.isNotBlank(dataJson.getString(BROKER_LIST)) ? dataJson.getString(BROKER_LIST) : dataJson.getString(BOOT_STRAP_SERVERS);
+    }
     /**
      * Base64加密dataJson字符串, 可选是否加密
      * @param dataJson
