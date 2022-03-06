@@ -50,7 +50,7 @@ class RestartModal extends React.Component<any, any> {
 				},
 				() => {
 					this.loadTaskTree({
-						taskId: node.task.id,
+						taskId: node.batchTask.id,
 						jobKey: node.jobKey,
 						isOnlyNextChild: false,
 					});
@@ -145,7 +145,7 @@ class RestartModal extends React.Component<any, any> {
 		return new Promise<void>((resolve: any) => {
 			if (!node.childs || node.childs.length === 0) {
 				ctx.loadTaskTree({
-					taskId: node.task.id,
+					taskId: node.batchTask.id,
 					jobKey: node.jobKey,
 					isOnlyNextChild: true,
 				});
@@ -162,7 +162,7 @@ class RestartModal extends React.Component<any, any> {
 			if (!data) return;
 			if (data.length > 0) {
 				data.map((item: any) => {
-					const id = `${item.task ? item.id : item.jobId}`;
+					const id = `${item.batchTask ? item.id : item.jobId}`;
 					const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
 					// 禁止重跑并恢复调度
 					if (item.childs) {
@@ -226,11 +226,11 @@ class RestartModal extends React.Component<any, any> {
 	getTreeNodes = (data: any[], currentNode: any) => {
 		if (data && data.length > 0) {
 			const nodes = data.map((item: any) => {
-				const id = `${item.task ? item.id : item.jobId}`;
+				const id = `${item.batchTask ? item.id : item.jobId}`;
 
-				const name = item.taskName || (item.task && item.task.name);
+				const name = item.taskName || (item.batchTask && item.batchTask.name);
 				const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
-				const taskType = item.taskType || (item.task && item.task.taskType);
+				const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
 				const titleFix = { title: name };
 				// 禁止重跑并恢复调度
 				const canRestart = this.canRestartFunc(status);
