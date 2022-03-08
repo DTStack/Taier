@@ -18,7 +18,6 @@
 
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
@@ -144,27 +143,19 @@ class DataSyncWorkbench extends React.Component<
 			<Scrollable>
 				<div className="ide-editor">
 					<div style={{ zIndex: 901 }} className="ide-content">
-						<SplitPane
-							split="horizontal"
-							minSize={100}
-							maxSize={-77}
-							primary="first"
-							key={`ide-split-pane`}
+						<div
+							style={{
+								width: '100%',
+								height: '100%',
+								minHeight: '400px',
+								position: 'relative',
+							}}
 						>
-							<div
-								style={{
-									width: '100%',
-									height: '100%',
-									minHeight: '400px',
-									position: 'relative',
-								}}
-							>
-								<DataSync
-									saveTab={this.saveTab.bind(this, true)}
-									currentTabData={currentTabData}
-								/>
-							</div>
-						</SplitPane>
+							<DataSync
+								saveTab={this.saveTab.bind(this, true)}
+								currentTabData={currentTabData}
+							/>
+						</div>
 					</div>
 				</div>
 			</Scrollable>
