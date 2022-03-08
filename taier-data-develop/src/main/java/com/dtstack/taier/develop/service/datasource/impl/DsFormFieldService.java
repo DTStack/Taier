@@ -7,8 +7,8 @@ import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.DsFormField;
 import com.dtstack.taier.dao.mapper.DsFormFieldMapper;
 import com.dtstack.taier.develop.bo.datasource.DsTypeVersionParam;
-import com.dtstack.taier.develop.vo.datasource.DsFormFieldVo;
-import com.dtstack.taier.develop.vo.datasource.DsFormTemplateVo;
+import com.dtstack.taier.develop.vo.datasource.DsFormFieldVO;
+import com.dtstack.taier.develop.vo.datasource.DsFormTemplateVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -33,17 +33,17 @@ public class DsFormFieldService extends BaseService<DsFormFieldMapper, DsFormFie
      * @param param
      * @return
      */
-    public DsFormTemplateVo findTemplateByTypeVersion(DsTypeVersionParam param) {
-        DsFormTemplateVo returnVo = new DsFormTemplateVo();
+    public DsFormTemplateVO findTemplateByTypeVersion(DsTypeVersionParam param) {
+        DsFormTemplateVO returnVo = new DsFormTemplateVO();
         String typeVersion = param.getDataType();
         if (Strings.isNotBlank(param.getDataVersion())) {
             typeVersion = param.getDataType() + "-" + param.getDataVersion();
         }
         List<DsFormField> formFieldList = this.list(Wrappers.<DsFormField>query().eq("type_version", typeVersion).
                 or().eq("type_version", COMMON));
-        List<DsFormFieldVo> formFieldVos = new ArrayList<>();
+        List<DsFormFieldVO> formFieldVos = new ArrayList<>();
         for (DsFormField dsFormField : formFieldList) {
-            DsFormFieldVo dsFormFieldVo = new DsFormFieldVo();
+            DsFormFieldVO dsFormFieldVo = new DsFormFieldVO();
             BeanUtils.copyProperties(dsFormField,dsFormFieldVo);
             if(StringUtils.isNotBlank(dsFormField.getOptions())){
                 List<Map> optionList = JSON.parseArray(dsFormField.getOptions(), Map.class);

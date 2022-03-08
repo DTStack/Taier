@@ -13,7 +13,7 @@ import java.util.List;
  * @date: 2021/3/9
  */
 @ApiModel("数据表单模版视图类")
-public class DsFormTemplateVo implements Serializable {
+public class DsFormTemplateVO implements Serializable {
 
     @ApiModelProperty(value = "数据源类型", notes = "具体查看com.dtstack.pubsvc.common.enums.datasource.DsType枚举类")
     private String dataType;
@@ -22,7 +22,7 @@ public class DsFormTemplateVo implements Serializable {
     private String dataVersion;
 
     @ApiModelProperty("模版表单属性详情列表")
-    private List<DsFormFieldVo> fromFieldVoList;
+    private List<DsFormFieldVO> fromFieldVoList;
 
 
     public String getDataType() {
@@ -41,11 +41,11 @@ public class DsFormTemplateVo implements Serializable {
         this.dataVersion = dataVersion;
     }
 
-    public List<DsFormFieldVo> getFromFieldVoList() {
+    public List<DsFormFieldVO> getFromFieldVoList() {
         return fromFieldVoList;
     }
 
-    public void setFromFieldVoList(List<DsFormFieldVo> fromFieldVoList) {
+    public void setFromFieldVoList(List<DsFormFieldVO> fromFieldVoList) {
         this.fromFieldVoList = fromFieldVoList;
     }
 }

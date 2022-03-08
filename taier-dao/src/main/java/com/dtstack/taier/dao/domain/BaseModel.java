@@ -46,6 +46,7 @@ public class BaseModel <T extends Model<?>> extends Model<T> implements ID<Long>
     @TableField(value = MP.COLUMN_UPDATE_AT, fill = FieldFill.UPDATE)
     private Date gmtModified;
 
+    @Override
     public Long getId() {
         return id;
     }

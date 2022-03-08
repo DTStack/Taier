@@ -45,6 +45,7 @@ public class TaierApplication {
     private static Logger LOGGER = LoggerFactory.getLogger(TaierApplication.class);
 
     public static void main(String[] args) {
+        System.setProperty("user.dir", "D://Apache-DTStack-Taier//Taier/");
         try {
             SystemPropertyUtil.setSystemUserDir();
             JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();

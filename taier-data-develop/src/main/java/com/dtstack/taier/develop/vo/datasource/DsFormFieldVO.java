@@ -14,7 +14,7 @@ import java.util.Map;
  * @date: 2021/3/9
  */
 @ApiModel("数据源表单属性")
-public class DsFormFieldVo implements Serializable {
+public class DsFormFieldVO implements Serializable {
 
     /**
      * 表单属性名称
