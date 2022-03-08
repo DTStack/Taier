@@ -114,7 +114,7 @@ public enum TaskStatus implements Serializable {
 	}
 
     /**
-     * 需要捕获无法转换异常
+     * Exception cannot be caught. Conversion is required
      * @param taskStatus
      * @return
      */
@@ -125,7 +125,7 @@ public enum TaskStatus implements Serializable {
         }else if("error".equalsIgnoreCase(taskStatus)){
             return TaskStatus.FAILED;
         } else if ("RESTARTING".equalsIgnoreCase(taskStatus)) {
-            //yarn做重试认为运行中
+            //yarn   tried again and thought it was running
             return TaskStatus.RUNNING;
         }
 
