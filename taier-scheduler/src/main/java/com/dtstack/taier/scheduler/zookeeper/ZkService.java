@@ -233,7 +233,7 @@ public class ZkService implements InitializingBean, DisposableBean {
     private void checkDistributedConfig() throws Exception {
         if (StringUtils.isBlank(this.zkConfig.getNodeZkAddress())
                 || this.zkConfig.getNodeZkAddress().split("/").length < 2) {
-            throw new RdosDefineException("zkAddress is error");
+            throw new RdosDefineException("zkAddress is error, Please enter: for example, localhost:2181/taier");
         }
         String[] zks = this.zkConfig.getNodeZkAddress().split("/");
         this.zkAddress = zks[0].trim();
