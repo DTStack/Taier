@@ -23,6 +23,7 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
 import com.dtstack.taier.develop.vo.develop.query.*;
@@ -52,8 +53,8 @@ public class DevelopTaskController {
         return new APITemplate<BatchTaskGetTaskByIdResultVO>() {
             @Override
             protected BatchTaskGetTaskByIdResultVO process() {
-                BatchTaskBatchVO batchTaskBatchVO =  batchTaskService.getTaskById(TaskMapstructTransfer.INSTANCE.BatchScheduleTaskVToScheduleTaskVO(batchScheduleTaskVO));
-                return TaskMapstructTransfer.INSTANCE.BatchTaskBatchVOToBatchTaskGetTaskByIdResultVO(batchTaskBatchVO);
+                TaskVO taskById = batchTaskService.getTaskById(TaskMapstructTransfer.INSTANCE.BatchScheduleTaskVToTaskVO(batchScheduleTaskVO));
+                return TaskMapstructTransfer.INSTANCE.TaskVOToBatchTaskGetTaskByIdResultVO(taskById);
             }
         }.execute();
     }
@@ -113,7 +114,7 @@ public class DevelopTaskController {
             @Override
             protected TaskCatalogueResultVO process() {
                 TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-                return TaskMapstructTransfer.INSTANCE.TaskCatalogueVOToResultVO(batchTaskService.addOrUpdateTask(taskResourceParam));
+                return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(batchTaskService.addOrUpdateTask(taskResourceParam));
             }
         }.execute();
     }
