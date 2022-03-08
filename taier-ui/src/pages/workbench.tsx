@@ -17,9 +17,6 @@
  */
 
 import 'reflect-metadata';
-import SplitPane from 'react-split-pane';
-// @ts-ignore
-import Pane from 'react-split-pane/lib/Pane';
 import { container } from 'tsyringe';
 import {
 	classNames,
@@ -41,7 +38,7 @@ import type { ILayoutController } from '@dtinsight/molecule/esm/controller/layou
 import { LayoutController } from '@dtinsight/molecule/esm/controller/layout';
 import type { ILayout } from '@dtinsight/molecule/esm/model/workbench/layout';
 import type { IWorkbench } from '@dtinsight/molecule/esm/model';
-import { Display } from '@dtinsight/molecule/esm/components';
+import { Display, Pane, SplitPane } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
 import { useState } from 'react';
@@ -78,40 +75,51 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		setRightBarSize(key ? '400px' : '30px');
 	};
 
-	const getContent = (panelMaximized: boolean, panelHidden: boolean) => {
-		const editor = (
-			<Pane
-				key="editorView"
-				initialSize={panelHidden ? '100%' : horizontalSplitPanePos[0]}
-				maxSize="100%"
-				minSize="10%"
-			>
-				<SplitPane allowResize={false}>
-					<Pane>
-						<EditorView />
-					</Pane>
-					<Pane minSize={rightBarSize} initialSize={rightBarSize} maxSize={rightBarSize}>
-						<RightBar onTabClick={handleClickTab} />
-					</Pane>
-				</SplitPane>
-			</Pane>
-		);
-
-		const Panel = (
-			<Pane key="panelView">
-				<PanelView />
-			</Pane>
-		);
-
-		if (panelHidden) {
-			return editor;
+	const handleSideBarChanged = (sizes: number[]) => {
+		if (sidebar.hidden) {
+			const clientSize = sizes[1];
+			const sidebarSize = splitPanePos[0];
+			if (typeof sidebarSize === 'string') {
+				// the sideBar size is still a default value
+				const numbSize = parseInt(sidebarSize, 10);
+				onPaneSizeChange?.([numbSize, clientSize - numbSize]);
+			} else {
+				onPaneSizeChange?.([sidebarSize, clientSize - sidebarSize]);
+			}
+		} else {
+			onPaneSizeChange?.(sizes);
 		}
-		if (panelMaximized) {
-			return Panel;
-		}
-		return [editor, Panel];
 	};
 
+	const handleEditorChanged = (sizes: number[]) => {
+		if (panel.hidden) {
+			// get the non-zero size means current client size
+			const clientSize = sizes.find((s) => s)!;
+			const panelSize = horizontalSplitPanePos[1];
+			if (typeof panelSize === 'string') {
+				// the editor size is still a default value
+				const editorPercent = parseInt(horizontalSplitPanePos[0] as string, 10) / 100;
+				const numbericSize = clientSize * editorPercent;
+				onHorizontalPaneSizeChange?.([numbericSize, clientSize - numbericSize]);
+			} else {
+				onHorizontalPaneSizeChange?.([clientSize - panelSize, panelSize]);
+			}
+		} else {
+			onHorizontalPaneSizeChange?.(sizes);
+		}
+	};
+
+	const getSizes = () => {
+		if (panel.hidden) {
+			return ['100%', 0];
+		}
+		if (panel.panelMaximized) {
+			return [0, '100%'];
+		}
+		return horizontalSplitPanePos.concat();
+	};
+
+	const isMenuBarVertical = !menuBar.hidden && menuBar.mode === MenuBarMode.vertical;
 	const isMenuBarHorizontal = !menuBar.hidden && menuBar.mode === MenuBarMode.horizontal;
 	const horizontalMenuBar = isMenuBarHorizontal ? workbenchWithHorizontalMenuBarClassName : null;
 	const hideStatusBar = statusBar.hidden ? withHiddenStatusBar : null;
@@ -129,6 +137,9 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 				</Display>
 				<div className={mainBenchClassName}>
 					<div className={compositeBarClassName}>
+						<Display visible={isMenuBarVertical}>
+							<MenuBarView mode={MenuBarMode.vertical} />
+						</Display>
 						<Display
 							visible={!activityBar.hidden}
 							className={displayActivityBarClassName}
@@ -137,28 +148,30 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 						</Display>
 					</div>
 					<SplitPane
+						sizes={sidebar.hidden ? [0, 'auto', rightBarSize] : splitPanePos.concat(rightBarSize)}
 						split="vertical"
-						primary="first"
-						allowResize={true}
-						onChange={onPaneSizeChange as any}
+						allowResize={[false, true, false]}
+						onChange={handleSideBarChanged}
+						onResizeStrategy={() => ['keep', 'pave', 'keep']}
 					>
-						<Pane
-							minSize="170px"
-							initialSize={splitPanePos[0]}
-							maxSize="80%"
-							className={sidebar.hidden ? 'hidden' : ''}
-						>
+						<Pane minSize={170} maxSize="80%">
 							<SidebarView />
 						</Pane>
 						<SplitPane
-							primary="first"
+							sizes={getSizes()}
+							allowResize={[false, true, false]}
 							split="horizontal"
-							allowResize={true}
-							// react-split-pane onChange: (newSizes: [size, ratio]) => void；
-							onChange={onHorizontalPaneSizeChange as any}
+							onChange={handleEditorChanged}
+							onResizeStrategy={() => ['pave', 'keep', 'keep']}
 						>
-							{getContent(!!panel.panelMaximized, !!panel.hidden)}
+							<Pane minSize="10%" maxSize="80%">
+								<EditorView />
+							</Pane>
+							<PanelView />
 						</SplitPane>
+						<Pane>
+						    <RightBar onTabClick={handleClickTab} />
+						</Pane>
 					</SplitPane>
 				</div>
 			</div>
