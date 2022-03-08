@@ -138,4 +138,10 @@ public interface TaskMapstructTransfer {
     void taskToTaskVO(Task task, @MappingTarget TaskVO taskVO);
 
     TaskVO TaskResourceParamToTaskVO(TaskResourceParam taskResourceParam);
+
+    TaskCatalogueResultVO TaskVOToResultVO(TaskVO addOrUpdateTask);
+
+    TaskVO BatchScheduleTaskVToTaskVO(BatchScheduleTaskVO batchScheduleTaskVO);
+
+    BatchTaskGetTaskByIdResultVO TaskVOToBatchTaskGetTaskByIdResultVO(TaskVO taskById);
 }
