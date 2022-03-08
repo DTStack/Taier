@@ -55,11 +55,6 @@ public class TaskResourceParam extends Task {
     private Long dataSourceId;
 
     /**
-     * 0-向导模式,1-脚本模式
-     */
-    private int createModel;
-
-    /**
      * 操作模式 0-资源模式，1-编辑模式
      */
     private int operateModel = 1;
@@ -219,14 +214,6 @@ public class TaskResourceParam extends Task {
 
     public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
-    }
-
-    public int getCreateModel() {
-        return createModel;
-    }
-
-    public void setCreateModel(int createModel) {
-        this.createModel = createModel;
     }
 
     public int getOperateModel() {

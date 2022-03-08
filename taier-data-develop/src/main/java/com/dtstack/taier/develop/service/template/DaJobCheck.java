@@ -5,8 +5,27 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.common.template.CheckFormat;
-import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
+import com.dtstack.taier.develop.service.template.es.Es7Reader;
+import com.dtstack.taier.develop.service.template.es.Es7Writer;
+import com.dtstack.taier.develop.service.template.hdfs.HdfsWriter;
+import com.dtstack.taier.develop.service.template.hive.Hive2XWriter;
+import com.dtstack.taier.develop.service.template.kafka.Kafka09Reader;
+import com.dtstack.taier.develop.service.template.kafka.KafkaReader;
+import com.dtstack.taier.develop.service.template.kafka.KafkaWriter;
+import com.dtstack.taier.develop.service.template.mysql.MySQLWriter;
+import com.dtstack.taier.develop.service.template.mysql.MysqlBinLogReader;
+import com.dtstack.taier.develop.service.template.mysql.MysqlPollReader;
+import com.dtstack.taier.develop.service.template.oracle.OracleBinLogReader;
+import com.dtstack.taier.develop.service.template.oracle.OraclePollReader;
+import com.dtstack.taier.develop.service.template.oracle.OracleWriter;
+import com.dtstack.taier.develop.service.template.postgresql.PostGreSqlCdcReader;
+import com.dtstack.taier.develop.service.template.postgresql.PostGreSqlPollReader;
+import com.dtstack.taier.develop.service.template.postgresql.PostgreSQLWriter;
+import com.dtstack.taier.develop.service.template.sqlserver.SqlServerCdcReader;
+import com.dtstack.taier.develop.service.template.sqlserver.SqlServerPollReader;
+import com.dtstack.taier.develop.service.template.sqlserver.SqlServerWriter;
 import com.dtstack.taier.develop.utils.develop.sync.template.MongoDbReader;
+import com.dtstack.taier.develop.utils.develop.sync.template.MongoDbWriter;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedHashMap;
@@ -103,14 +122,8 @@ public class DaJobCheck {
             case PluginName.SQLSERVER_POLL_R:
                 checkFormat = new SqlServerPollReader();
                 break;
-            case PluginName.FTP_R:
-                checkFormat = new FTPReader();
-                break;
             case PluginName.ES7_R:
                 checkFormat = new Es7Reader();
-                break;
-            case PluginName.SOLR_R:
-                checkFormat = new SolrReader();
                 break;
             case PluginName.MySQLD_R:
                 checkFormat = new MysqlPollReader();
@@ -146,14 +159,8 @@ public class DaJobCheck {
             case PluginName.HIVE_W:
                 checkFormat = new Hive2XWriter();
                 break;
-            case PluginName.FTP_W:
-                checkFormat = new FTPWriter();
-                break;
             case PluginName.ES7_W:
                 checkFormat = new Es7Writer();
-                break;
-            case PluginName.SOLR_W:
-                checkFormat = new SolrWriter();
                 break;
             case PluginName.MySQL_W:
                 checkFormat = new MySQLWriter();
@@ -167,8 +174,6 @@ public class DaJobCheck {
             case PluginName.POSTGRESQL_W:
                 checkFormat = new PostgreSQLWriter();
                 break;
-            case PluginName.DORIS_RESTFUL_W:
-                checkFormat = new DorisRestfulWriter();
             case PluginName.MONGODB_W:
                 checkFormat = new MongoDbWriter();
                 break;
