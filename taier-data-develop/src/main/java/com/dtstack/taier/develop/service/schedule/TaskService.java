@@ -129,8 +129,8 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      * @return 是否提交成功
      */
     public Boolean saveTask(SavaTaskDTO savaTaskDTO) {
-        ScheduleTaskShadeDTO scheduleTaskShadeDTO = savaTaskDTO.getScheduleTaskShadeDTO();
-        ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
+        ScheduleTaskShade scheduleTaskShade = savaTaskDTO.getScheduleTaskShade();
+//        ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
 
         ScheduleTaskShade dbTaskShade = this.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
