@@ -25,7 +25,7 @@ import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
@@ -284,7 +284,7 @@ public class BatchSqlExeService {
      * @param executeContent
      */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
-        BatchTask one = batchTaskService.getOneWithError(executeContent.getTaskId());
+        Task one = batchTaskService.getOneWithError(executeContent.getTaskId());
         String taskParam = one.getTaskParams();
 
         ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());

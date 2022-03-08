@@ -398,7 +398,7 @@ class JobGraphView extends React.Component<any, any> {
 			source: null | ITaskStreamProps;
 			target: null | ITaskStreamProps;
 		}[] = this.preHandGraphTree(originData);
-		
+
 		const getVertex = (parentCell: any, data: ITaskStreamProps) => {
 			if (!data) return null;
 

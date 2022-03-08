@@ -145,41 +145,41 @@ class TaskJobFlowView extends React.Component<any, any> {
 			if (res.code === 1) {
 				!isNext
 					? ctx.setState(
-							{
-								frontPeriodsList: res.data || [],
-							},
-							() => {
-								ctx.state.frontPeriodsList.map((item: any) => {
-									const statusText = taskStatusText(item.status);
-									return menu.addItem(
-										`${item.cycTime} (${statusText})`,
-										null,
-										function () {
-											ctx.loadByJobId(item.jobId);
-										},
-										periodsType,
-									);
-								});
-							},
-					  )
+					{
+						frontPeriodsList: res.data || [],
+					},
+					() => {
+						ctx.state.frontPeriodsList.map((item: any) => {
+							const statusText = taskStatusText(item.status);
+							return menu.addItem(
+								`${item.cycTime} (${statusText})`,
+								null,
+								function () {
+									ctx.loadByJobId(item.jobId);
+								},
+								periodsType,
+							);
+						});
+					},
+					)
 					: ctx.setState(
-							{
-								nextPeriodsList: res.data || [],
-							},
-							() => {
-								ctx.state.nextPeriodsList.map((item: any) => {
-									const statusText = taskStatusText(item.status);
-									return menu.addItem(
-										`${item.cycTime} (${statusText})`,
-										null,
-										function () {
-											ctx.loadByJobId(item.jobId);
-										},
-										periodsType,
-									);
-								});
-							},
-					  );
+					{
+						nextPeriodsList: res.data || [],
+					},
+					() => {
+						ctx.state.nextPeriodsList.map((item: any) => {
+							const statusText = taskStatusText(item.status);
+							return menu.addItem(
+								`${item.cycTime} (${statusText})`,
+								null,
+								function () {
+									ctx.loadByJobId(item.jobId);
+								},
+								periodsType,
+							);
+						});
+					},
+					);
 			}
 		});
 	};
@@ -304,9 +304,9 @@ class TaskJobFlowView extends React.Component<any, any> {
 					null,
 					// 显示终止操作
 					currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
-						currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
-						currentNode.status === TASK_STATUS.WAIT_RUN || // 等待运行
-						currentNode.status === TASK_STATUS.RUNNING, // 运行中
+					currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
+					currentNode.status === TASK_STATUS.WAIT_RUN || // 等待运行
+					currentNode.status === TASK_STATUS.RUNNING, // 运行中
 				);
 
 				menu.addItem('刷新任务实例', null, function () {
@@ -333,8 +333,8 @@ class TaskJobFlowView extends React.Component<any, any> {
 					null,
 					// （运行失败、提交失败）重跑并恢复调度
 					currentNode.status === TASK_STATUS.RUN_FAILED ||
-						currentNode.status === TASK_STATUS.STOPED ||
-						currentNode.status === TASK_STATUS.SUBMIT_FAILED,
+					currentNode.status === TASK_STATUS.STOPED ||
+					currentNode.status === TASK_STATUS.SUBMIT_FAILED,
 				);
 			};
 		}

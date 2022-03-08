@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
+import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskVersionDao;
 import com.dtstack.taier.dao.pager.PageQuery;
@@ -45,11 +46,11 @@ public class BatchTaskVersionService {
 
     /**
      * 单条记录插入
-     * @param batchTaskVersion
+     * @param taskVersion
      * @return
      */
-    public Integer insert(BatchTaskVersion batchTaskVersion) {
-        return developTaskVersionDao.insert(batchTaskVersion);
+    public Integer insert(TaskVersion taskVersion) {
+        return developTaskVersionDao.insert(taskVersion);
     }
 
     /**

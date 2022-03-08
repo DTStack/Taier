@@ -19,6 +19,7 @@
 package com.dtstack.taier.scheduler.impl.pojo;
 
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -29,7 +30,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class ParamTaskAction {
 
-    private ScheduleTaskShade batchTask;
+    private ScheduleTaskShadeDTO task;
 
     @ApiModelProperty(notes = "任务id")
     private String jobId;
@@ -40,12 +41,12 @@ public class ParamTaskAction {
     @ApiModelProperty(notes = "工作流Id")
     private String flowJobId;
 
-    public ScheduleTaskShade getBatchTask() {
-        return batchTask;
+    public ScheduleTaskShadeDTO getBatchTask() {
+        return task;
     }
 
-    public void setBatchTask(ScheduleTaskShade batchTask) {
-        this.batchTask = batchTask;
+    public void setBatchTask(ScheduleTaskShadeDTO task) {
+        this.task = task;
     }
 
     public String getJobId() {

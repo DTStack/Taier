@@ -32,7 +32,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueDao;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
@@ -336,22 +336,22 @@ public class BatchCatalogueService {
             try {
                 String content = batchTaskTemplateService.getContentByType(EScheduleJobType.SPARK_SQL.getVal(), templateCatalogue.getType());
                 //初始化任务
-                TaskResourceParam batchTask = new TaskResourceParam();
-                batchTask.setName(templateCatalogue.getFileName());
-                batchTask.setTaskType(EScheduleJobType.SPARK_SQL.getVal());
-                batchTask.setNodePid(idsMap.get(templateCatalogue.getValue()));
-                batchTask.setComputeType(ComputeType.BATCH.getType());
-                batchTask.setLockVersion(0);
-                batchTask.setVersion(0);
-                batchTask.setTenantId(tenantId);
-                batchTask.setUserId(userId);
-                batchTask.setCreateUserId(userId);
-                batchTask.setModifyUserId(userId);
+                TaskResourceParam task = new TaskResourceParam();
+                task.setName(templateCatalogue.getFileName());
+                task.setTaskType(EScheduleJobType.SPARK_SQL.getVal());
+                task.setNodePid(idsMap.get(templateCatalogue.getValue()));
+                task.setComputeType(ComputeType.BATCH.getType());
+                task.setLockVersion(0);
+                task.setVersion(0);
+                task.setTenantId(tenantId);
+                task.setUserId(userId);
+                task.setCreateUserId(userId);
+                task.setModifyUserId(userId);
 
                 if (StringUtils.isEmpty(content)) {
                     throw new RdosDefineException(ErrorCode.TEMPLATE_TASK_CONTENT_NOT_NULL);
                 }
-                batchTask.setSqlText(content);
+                task.setSqlText(content);
 
                 //添加init脚本中带有的任务参数
                 List<Map> taskVariables = new ArrayList<>();
@@ -360,14 +360,14 @@ public class BatchCatalogueService {
                 variable.put("paramName", PARAM_NAME);
                 variable.put("type", TYPE4SYSTEM);
                 taskVariables.add(variable);
-                batchTask.setTaskVariables(taskVariables);
+                task.setTaskVariables(taskVariables);
 
                 //SparkSQL任务支持多版本运行，添加默认的组件版本
                 List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantId, EScheduleJobType.SPARK_SQL.getVal());
                 if (CollectionUtils.isNotEmpty(hadoopVersions)) {
-                    batchTask.setComponentVersion(hadoopVersions.get(0).getComponentVersion());
+                    task.setComponentVersion(hadoopVersions.get(0).getComponentVersion());
                 }
-                batchTaskService.addOrUpdateTask(batchTask);
+                batchTaskService.addOrUpdateTask(task);
             } catch (Exception e) {
                 LOGGER.error(ErrorCode.CATALOGUE_INIT_FAILED.getDescription(), e);
                 throw new RdosDefineException(ErrorCode.CATALOGUE_INIT_FAILED);
@@ -480,7 +480,7 @@ public class BatchCatalogueService {
         }
 
         //判断文件夹下任务
-        List<BatchTask> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
+        List<Task> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
         List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
@@ -611,14 +611,14 @@ public class BatchCatalogueService {
 
             //任务目录
             if (CatalogueType.TASK_DEVELOP.getType().equals(currentCatalogueVO.getCatalogueType())) {
-                List<BatchTask> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
-                taskList.sort(Comparator.comparing(BatchTask::getName));
+                List<Task> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
+                taskList.sort(Comparator.comparing(Task::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
-                    List<Long> taskIds = taskList.stream().map(BatchTask::getId).collect(Collectors.toList());
+                    List<Long> taskIds = taskList.stream().map(Task::getId).collect(Collectors.toList());
                     Map<Long, ReadWriteLockVO> readWriteLockIdAndVOMap = getReadWriteLockVOMap(tenantId, taskIds, userId, userIdAndNameMap);
 
                     //遍历目录下的所有任务
-                    for (BatchTask task : taskList) {
+                    for (Task task : taskList) {
                         CatalogueVO childCatalogueTask = new CatalogueVO();
                         BeanUtils.copyProperties(task, childCatalogueTask);
                         childCatalogueTask.setType("file");
