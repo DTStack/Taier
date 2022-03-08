@@ -138,67 +138,67 @@ public class TaskUtils {
         }
         return sqlText;
     }
-
-    /**
-     * 处理flinkSql脚本模式中的密码
-     * @param sqlText 处理的脚本信息
-     * @param passMap 储存密码的map集合，key为连接信息去除数据库名的url，value是密码
-     * @param build 构建密码map为true、还原脚本密码为false
-     * @return 处理后的脚本
-     */
-    public static String dealSqlTemplatePwd(String sqlText, HashMap<String, String> passMap, boolean build) {
-        for (String table : sqlText.split(TABLE_SPLIT_REGEX)) {
-            String tableFormatted = SqlFormatUtil.init(table).removeComment().getSql();
-            Matcher matcher = CREATE_TABLE_PATTERN.matcher(tableFormatted);
-            if (matcher.find()) {
-                String url = null;
-                String username = null;
-                String password = null;
-                String pwdLine = null;
-                PasswordParamEnum paramEnum = null;
-                Matcher userLine = TABLE_USERNAME.matcher(tableFormatted);
-                Matcher urlLine = TABLE_URL.matcher(tableFormatted);
-                if (userLine.find()) {
-                    username = userLine.group("key");
-                }
-                if (urlLine.find()) {
-                    url = urlLine.group("key");
-                }
-                for (int i = 0; i < PasswordParamEnum.values().length; i++) {
-                    PasswordParamEnum value = PasswordParamEnum.values()[i];
-                    Matcher passLine = value.getPattern().matcher(tableFormatted);
-                    if (passLine.find()) {
-                        pwdLine = passLine.group();
-                        password = passLine.group("key");
-                        paramEnum = value;
-                        break;
-                    }
-                }
-                if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(url) && !Objects.isNull(paramEnum)) {
-                    String pwdKey = String.format("url=%s&username=%s", url, username);
-                    if (build) {
-                        passMap.put(pwdKey, password);
-                    } else {
-                        if ("******".equals(password)) {
-                            String pwd = passMap.get(pwdKey);
-                            if (StringUtils.isBlank(pwd)) {
-                                String tableName = "";
-                                matcher = MATCH_CREATE_TABLE_PATTERN.matcher(table.split("\\(")[0]);
-                                if (matcher.find()) {
-                                    tableName = matcher.group(2);
-                                }
-                                throw new RdosDefineException(String.format("表%s连接信息改变，请重新输入连接密码", tableName));
-                            }
-                            String pLine = String.format(paramEnum.getConfigStr(), pwd);
-                            String tableReplace = table.replace(pwdLine, pLine);
-                            sqlText = sqlText.replace(table, tableReplace);
-                        }
-                    }
-                }
-            }
-        }
-        return sqlText;
-    }
+//
+//    /**
+//     * 处理flinkSql脚本模式中的密码
+//     * @param sqlText 处理的脚本信息
+//     * @param passMap 储存密码的map集合，key为连接信息去除数据库名的url，value是密码
+//     * @param build 构建密码map为true、还原脚本密码为false
+//     * @return 处理后的脚本
+//     */
+//    public static String dealSqlTemplatePwd(String sqlText, HashMap<String, String> passMap, boolean build) {
+//        for (String table : sqlText.split(TABLE_SPLIT_REGEX)) {
+//            String tableFormatted = SqlFormatUtil.init(table).removeComment().getSql();
+//            Matcher matcher = CREATE_TABLE_PATTERN.matcher(tableFormatted);
+//            if (matcher.find()) {
+//                String url = null;
+//                String username = null;
+//                String password = null;
+//                String pwdLine = null;
+//                PasswordParamEnum paramEnum = null;
+//                Matcher userLine = TABLE_USERNAME.matcher(tableFormatted);
+//                Matcher urlLine = TABLE_URL.matcher(tableFormatted);
+//                if (userLine.find()) {
+//                    username = userLine.group("key");
+//                }
+//                if (urlLine.find()) {
+//                    url = urlLine.group("key");
+//                }
+//                for (int i = 0; i < PasswordParamEnum.values().length; i++) {
+//                    PasswordParamEnum value = PasswordParamEnum.values()[i];
+//                    Matcher passLine = value.getPattern().matcher(tableFormatted);
+//                    if (passLine.find()) {
+//                        pwdLine = passLine.group();
+//                        password = passLine.group("key");
+//                        paramEnum = value;
+//                        break;
+//                    }
+//                }
+//                if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(url) && !Objects.isNull(paramEnum)) {
+//                    String pwdKey = String.format("url=%s&username=%s", url, username);
+//                    if (build) {
+//                        passMap.put(pwdKey, password);
+//                    } else {
+//                        if ("******".equals(password)) {
+//                            String pwd = passMap.get(pwdKey);
+//                            if (StringUtils.isBlank(pwd)) {
+//                                String tableName = "";
+//                                matcher = MATCH_CREATE_TABLE_PATTERN.matcher(table.split("\\(")[0]);
+//                                if (matcher.find()) {
+//                                    tableName = matcher.group(2);
+//                                }
+//                                throw new RdosDefineException(String.format("表%s连接信息改变，请重新输入连接密码", tableName));
+//                            }
+//                            String pLine = String.format(paramEnum.getConfigStr(), pwd);
+//                            String tableReplace = table.replace(pwdLine, pLine);
+//                            sqlText = sqlText.replace(table, tableReplace);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return sqlText;
+//    }
 
     /**
      * 处理数据库连接的url，去除数据库信息
