@@ -69,10 +69,10 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		splitPanePos,
 		horizontalSplitPanePos,
 	} = props;
-	const [rightBarSize, setRightBarSize] = useState('30px');
+	const [rightBarSize, setRightBarSize] = useState(30);
 
 	const handleClickTab = (key?: string) => {
-		setRightBarSize(key ? '400px' : '30px');
+		setRightBarSize(key ? 400 : 30);
 	};
 
 	const handleSideBarChanged = (sizes: number[]) => {
@@ -148,31 +148,29 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 						</Display>
 					</div>
 					<SplitPane
-						sizes={sidebar.hidden ? [0, 'auto', rightBarSize] : splitPanePos.concat(rightBarSize)}
+						sizes={sidebar.hidden ? [0, '100%'] : splitPanePos}
 						split="vertical"
-						allowResize={[false, true, false]}
+						allowResize={[false, true]}
 						onChange={handleSideBarChanged}
-						onResizeStrategy={() => ['keep', 'pave', 'keep']}
+						onResizeStrategy={() => ['keep', 'pave']}
 					>
 						<Pane minSize={170} maxSize="80%">
 							<SidebarView />
 						</Pane>
 						<SplitPane
 							sizes={getSizes()}
-							allowResize={[false, true, false]}
+							allowResize={[false, true]}
 							split="horizontal"
 							onChange={handleEditorChanged}
-							onResizeStrategy={() => ['pave', 'keep', 'keep']}
+							onResizeStrategy={() => ['pave', 'keep']}
 						>
 							<Pane minSize="10%" maxSize="80%">
 								<EditorView />
 							</Pane>
 							<PanelView />
 						</SplitPane>
-						<Pane>
-						    <RightBar onTabClick={handleClickTab} />
-						</Pane>
 					</SplitPane>
+					<RightBar width={rightBarSize} onTabClick={handleClickTab} />
 				</div>
 			</div>
 			<Display visible={!statusBar.hidden}>
