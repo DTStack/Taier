@@ -771,7 +771,7 @@ public class BatchTaskService {
 //                }
 //            }
             // 构建要发布的任务列表
-            ScheduleTaskShadeDTO scheduleTasks = buildScheduleTaskShadeDTO(task,resultVO.getData());
+            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task,resultVO.getData());
 //            taskDirtyDataManageShadeService.syncDirtyDataManage(task.getDtuicTenantId(),task.getId(),task.getProjectId(),task.getTaskType());
 
             // 提交任务参数信息并保存任务记录和更新任务状态
@@ -780,7 +780,7 @@ public class BatchTaskService {
                 developTaskDao.updateSubmitStatus(task.getId(), TaskSubmitStatusEnum.SUBMITTED.getStatus(), null);
             }
             SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
-            savaTaskDTO.setScheduleTaskShadeDTO(scheduleTasks);
+            savaTaskDTO.setScheduleTaskShade(scheduleTasks);
             //todo 依赖关系没处理
 //            savaTaskDTO.setParentTaskIdList(parentTaskIds);
             this.taskService.saveTask(savaTaskDTO);
@@ -795,7 +795,7 @@ public class BatchTaskService {
     /**
      * 发送task 执行任务全部信息
      */
-    public void sendTaskStartTrigger(Long taskId, Long userId,ScheduleTaskShadeDTO scheduleTasks) throws Exception {
+    public void sendTaskStartTrigger(Long taskId, Long userId,ScheduleTaskShade scheduleTasks) throws Exception {
         Task task = developTaskDao.getOne(taskId);
         if (task == null) {
             throw new RdosDefineException("can not find task by id:" + taskId);
@@ -882,13 +882,13 @@ public class BatchTaskService {
      * @param task 要发布的任务集合
      * @return 调度任务DTO
      */
-    private ScheduleTaskShadeDTO buildScheduleTaskShadeDTO(final Task task,TaskVersion taskVersion) {
+    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task,TaskVersion taskVersion) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
         }
         //保存batch_task_shade
-        final ScheduleTaskShadeDTO scheduleTaskShadeDTO = new ScheduleTaskShadeDTO();
+        final ScheduleTaskShade scheduleTaskShadeDTO = new ScheduleTaskShade();
         BeanUtils.copyProperties(task, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(task.getId());
 //        scheduleTaskShadeDTO.setAppType(AppType.DATASYNC.getType());
@@ -962,7 +962,7 @@ public class BatchTaskService {
 
         // 发布任务中所有的依赖关系
         List<Long> parentTaskIds = Lists.newArrayList();
-        ScheduleTaskShadeDTO scheduleTaskShadeDTO = buildScheduleTaskShadeDTO(publishTask, parentTaskIds);
+        ScheduleTaskShade scheduleTaskShadeDTO = buildScheduleTaskShadeDTO(publishTask, parentTaskIds);
 
         // 提交任务参数信息并保存任务记录和更新任务状态
         try {
@@ -977,7 +977,7 @@ public class BatchTaskService {
         }
 
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
-        savaTaskDTO.setScheduleTaskShadeDTO(scheduleTaskShadeDTO);
+        savaTaskDTO.setScheduleTaskShade(scheduleTaskShadeDTO);
         savaTaskDTO.setParentTaskIdList(parentTaskIds);
         // 批量发布任务
         this.taskService.saveTask(savaTaskDTO);
@@ -1150,7 +1150,7 @@ public class BatchTaskService {
      * @param parentTaskIds 父任务的id
      * @return 调度任务DTO
      */
-    private ScheduleTaskShadeDTO buildScheduleTaskShadeDTO(final Task task, List<Long> parentTaskIds) {
+    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, List<Long> parentTaskIds) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
@@ -1171,7 +1171,7 @@ public class BatchTaskService {
             this.batchTaskResourceShadeService.saveTaskResource(batchTaskResourceList);
         }
         //保存batch_task_shade
-        final ScheduleTaskShadeDTO scheduleTaskShadeDTO = new ScheduleTaskShadeDTO();
+        final ScheduleTaskShade scheduleTaskShadeDTO = new ScheduleTaskShade();
         BeanUtils.copyProperties(task, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(task.getId());
         scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
