@@ -240,7 +240,7 @@ public enum TaskStatus implements Serializable {
     }
 
     /**
-     * 未完成的job
+     * Incomplete job
      */
     public static List<Integer> getUnfinishedStatuses() {
         return UNFINISHED_STATUSES;
@@ -317,9 +317,9 @@ public enum TaskStatus implements Serializable {
     }
 
     /**
-     * 将过程细化的status归并为 已完成、正在运行、等待提交、等待运行、提交中、取消、冻结
-     * 不需要对stop状态做归并处理（stop状态用户需要直接查看）
-     *
+     * Merge the status of process refinement into
+     * completed, running, waiting for submission, waiting for operation, submitting, canceling and freezing
+     * There is no need to merge the stop status (users need to view the stop status directly)
      * @param status
      * @return
      */
