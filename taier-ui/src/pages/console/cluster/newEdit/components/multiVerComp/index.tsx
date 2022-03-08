@@ -85,15 +85,14 @@ export default function MultiVersionComp({
 
 	const getMeunItem = (displayVersion: IVersionData[string]) => {
 		const typeCode: keyof typeof COMPONENT_CONFIG_NAME = comp?.componentTypeCode ?? '';
-
 		return (
 			<Menu onClick={handleMenuClick}>
-				{displayVersion?.map(({ key, value }) => {
+				{displayVersion?.map(({ key }) => {
 					const disabled = comp?.multiVersion?.findIndex(
 						(vcomp: any) => vcomp.versionName === key,
 					);
 					return (
-						<MenuItem disabled={disabled > -1} key={value}>
+						<MenuItem disabled={disabled > -1} key={key}>
 							{isFLink(typeCode)
 								? FLINK_DEPLOY_NAME[deployType]
 								: COMPONENT_CONFIG_NAME[typeCode]}{' '}
@@ -118,11 +117,6 @@ export default function MultiVersionComp({
 			COMP_ACTION.ADD,
 		);
 		getLoadTemplate(typeCode, { compVersion: key, deployType });
-	};
-
-	const getCompVersion = (value: string) => {
-		const keep2Decimal = ['110', '112'];
-		return (Number(value) / 100).toFixed(keep2Decimal.includes(value) ? 2 : 1);
 	};
 
 	const getComponentName = (
@@ -174,7 +168,7 @@ export default function MultiVersionComp({
 					<Row className={`${className}__intail__row`}>
 						<Col span={10}>选择版本：</Col>
 						<Col style={{ display: 'flex' }}>
-							{displayVersion?.map(({ key, value }) => {
+							{displayVersion?.map(({ key }) => {
 								return (
 									<div
 										key={key}
