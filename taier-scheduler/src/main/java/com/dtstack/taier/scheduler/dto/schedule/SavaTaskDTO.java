@@ -1,5 +1,7 @@
 package com.dtstack.taier.scheduler.dto.schedule;
 
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+
 import java.util.List;
 
 /**
@@ -13,20 +15,19 @@ public class SavaTaskDTO {
     /**
      * 任务
      */
-    private ScheduleTaskShadeDTO scheduleTaskShadeDTO;
+    private ScheduleTaskShade scheduleTaskShade;
 
     /**
      * 父节点taskId
      */
     private List<Long>  parentTaskIdList;
 
-
-    public ScheduleTaskShadeDTO getScheduleTaskShadeDTO() {
-        return scheduleTaskShadeDTO;
+    public ScheduleTaskShade getScheduleTaskShade() {
+        return scheduleTaskShade;
     }
 
-    public void setScheduleTaskShadeDTO(ScheduleTaskShadeDTO scheduleTaskShadeDTO) {
-        this.scheduleTaskShadeDTO = scheduleTaskShadeDTO;
+    public void setScheduleTaskShade(ScheduleTaskShade scheduleTaskShade) {
+        this.scheduleTaskShade = scheduleTaskShade;
     }
 
     public List<Long> getParentTaskIdList() {
