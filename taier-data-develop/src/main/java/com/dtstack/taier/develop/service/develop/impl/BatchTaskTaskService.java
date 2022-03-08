@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskTaskDao;
@@ -60,7 +60,7 @@ public class BatchTaskTaskService {
     private TaskService taskService;
 
     @Transactional(rollbackFor = Exception.class)
-    public void addOrUpdateTaskTask(Long taskId, List<BatchTask> dependencyTasks) {
+    public void addOrUpdateTaskTask(Long taskId, List<Task> dependencyTasks) {
         List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(taskId);
         List<BatchTaskTask> dependencyTaskTasks = getTaskTasksByTaskIdAndTasks(taskId, dependencyTasks);
         List<BatchTaskTask> existDependencyTasks = Lists.newArrayList();
@@ -95,14 +95,14 @@ public class BatchTaskTaskService {
     }
 
     /**
-     * 根据taskId和List<BatchTask>生成List<BatchTaskTask>
+     * 根据taskId和List<Task>生成List<BatchTaskTask>
      * @param taskId
      * @param tasks
      * @return
      */
-    private List<BatchTaskTask> getTaskTasksByTaskIdAndTasks(Long taskId, List<BatchTask> tasks) {
+    private List<BatchTaskTask> getTaskTasksByTaskIdAndTasks(Long taskId, List<Task> tasks) {
         List<BatchTaskTask> taskTasks = Lists.newArrayList();
-        for (BatchTask task : tasks) {
+        for (Task task : tasks) {
             BatchTaskTask taskTask = new BatchTaskTask();
             taskTask.setParentTaskId(task.getId());
             taskTask.setTenantId(task.getTenantId());
@@ -145,7 +145,7 @@ public class BatchTaskTaskService {
      *
      * @author toutian
      */
-    public ScheduleTaskVO getForefathers(BatchTask task) {
+    public ScheduleTaskVO getForefathers(Task task) {
 
         BatchTaskBatchVO vo = new BatchTaskBatchVO();
         BeanUtils.copyProperties(task, vo);

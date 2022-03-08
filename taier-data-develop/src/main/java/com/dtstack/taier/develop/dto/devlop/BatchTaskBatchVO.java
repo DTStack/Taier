@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.parser.ScheduleCron;
@@ -107,19 +107,19 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         }
     }
 
-    public ScheduleTaskVO toVO(BatchTask batchTask) {
+    public ScheduleTaskVO toVO(Task task) {
         ScheduleTaskVO ScheduleTaskVO = new ScheduleTaskVO();
         try {
-            BeanUtils.copyProperties(batchTask, ScheduleTaskVO);
+            BeanUtils.copyProperties(task, ScheduleTaskVO);
         } catch (Exception e) {
             LOG.error("", e);
         }
         return ScheduleTaskVO;
     }
 
-    public ScheduleTaskVO toVO(BatchTask batchTask, ScheduleTaskVO ScheduleTaskVO) {
+    public ScheduleTaskVO toVO(Task task, ScheduleTaskVO ScheduleTaskVO) {
         try {
-            BeanUtils.copyProperties(batchTask, ScheduleTaskVO);
+            BeanUtils.copyProperties(task, ScheduleTaskVO);
         } catch (Exception e) {
             LOG.error("", e);
         }

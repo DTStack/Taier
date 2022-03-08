@@ -32,7 +32,7 @@ import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
 import com.dtstack.taier.common.util.*;
-import com.dtstack.taier.dao.domain.BatchTask;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -621,7 +621,7 @@ public class BatchServerLogService {
         if (job.getTaskId() == null || job.getTaskId() == -1){
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        BatchTask batchTaskById = batchTaskService.getBatchTaskById(job.getTaskId());
+        Task batchTaskById = batchTaskService.getBatchTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
         final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,batchTaskById.getTaskParams());
         if (prometheusHostAndPort == null){
