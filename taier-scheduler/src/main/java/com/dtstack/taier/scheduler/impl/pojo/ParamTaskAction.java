@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 public class ParamTaskAction {
 
-    private ScheduleTaskShadeDTO task;
+    private ScheduleTaskShade task;
 
     @ApiModelProperty(notes = "任务id")
     private String jobId;
@@ -41,11 +41,11 @@ public class ParamTaskAction {
     @ApiModelProperty(notes = "工作流Id")
     private String flowJobId;
 
-    public ScheduleTaskShadeDTO getBatchTask() {
+    public ScheduleTaskShade getBatchTask() {
         return task;
     }
 
-    public void setBatchTask(ScheduleTaskShadeDTO task) {
+    public void setBatchTask(ScheduleTaskShade task) {
         this.task = task;
     }
 

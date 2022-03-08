@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
+import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +43,7 @@ public class HadoopJobExeService {
     private BatchTaskParamService batchTaskParamService;
 
     @Autowired
-    private BatchTaskService taskService;
+    private DsInfoService dsInfoService;
 
     @Autowired
     private DatasourceService datasourceService;
@@ -59,13 +61,6 @@ public class HadoopJobExeService {
     private static final String FILES_ARG = "--files";
 
     private static final String CMD_OPT = "--cmd-opts";
-
-
-    /**
-     * todo 需更新
-     */
-    private static final List<Integer> ADD_JAR_JOB_TYPE = Arrays.asList(EJobType.SPARK.getVal(), EJobType.SPARK_PYTHON.getVal(), EJobType.HADOOP_MR.getVal());
-
     private static final Map<Integer, String> PY_VERSION_MAP = new HashMap<>(2);
 
     static {
@@ -88,7 +83,7 @@ public class HadoopJobExeService {
         job = datasourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
 
         //todo checkSyncJobParams为什么要异常hadoopConfig
-        if(Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+        if (Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
             List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParam);
         }
@@ -134,16 +129,17 @@ public class HadoopJobExeService {
     /**
      * todo 是否可删除
      * 设置写数据源的数据源类型
+     *
      * @param actionParam
      * @param job
      */
-    private void setWriterDataSourceType(Map<String, Object> actionParam, String job){
+    private void setWriterDataSourceType(Map<String, Object> actionParam, String job) {
         try {
             Object sourceIdObject = JSONPath.eval(JSON.parseObject(job), "$.job.content[0].writer.parameter.sourceIds[0]");
             if (sourceIdObject != null && StringUtils.isNotBlank(sourceIdObject.toString())) {
-                DsServiceInfoDTO data = dataSourceAPIClient.getDsInfoById(Long.valueOf(sourceIdObject.toString())).getData();
+                DsInfo data = dsInfoService.getOneById(Long.valueOf(sourceIdObject.toString()));
                 if (Objects.nonNull(data)) {
-                    actionParam.put("dataSourceType", data.getType());
+                    actionParam.put("dataSourceType", Integer.valueOf(data.getDataType()));
                 }
             }
         } catch (Exception e) {

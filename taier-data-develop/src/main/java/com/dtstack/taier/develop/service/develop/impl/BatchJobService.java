@@ -38,6 +38,7 @@ import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerRe
 import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
+import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
