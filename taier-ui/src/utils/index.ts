@@ -109,12 +109,12 @@ export function formatDateTime(timestap: string | number | Date) {
 	return moment(timestap).format('YYYY-MM-DD HH:mm:ss');
 }
 
-export function checkExist(prop: TASK_TYPE_ENUM | string) {
+export function checkExist(prop: any) {
 	return prop !== undefined && prop !== null && prop !== '';
 }
 
-export function formJsonValidator(rule: any, value: any, callback: any) {
-	let msg: any;
+export function formJsonValidator(_: any, value: string) {
+	let msg = '';
 	try {
 		if (value) {
 			const t = JSON.parse(value);
@@ -124,9 +124,12 @@ export function formJsonValidator(rule: any, value: any, callback: any) {
 		}
 	} catch (e) {
 		msg = '请检查JSON格式，确认无中英文符号混用！';
-	} finally {
-		callback(msg);
 	}
+
+	if (msg) {
+		return Promise.reject(new Error(msg));
+	}
+	return Promise.resolve();
 }
 
 declare let window: any;
@@ -690,8 +693,8 @@ export function isRDB(type: any) {
  * 是否为HDFS类型
  * @param {*} type
  */
-export function isHdfsType(type: string) {
-	return DATA_SOURCE_ENUM.HDFS === parseInt(type, 10);
+export function isHdfsType(type: DATA_SOURCE_ENUM | undefined) {
+	return DATA_SOURCE_ENUM.HDFS === type;
 }
 
 /**
