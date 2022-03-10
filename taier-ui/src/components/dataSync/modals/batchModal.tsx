@@ -16,70 +16,76 @@
  * limitations under the License.
  */
 
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+import type { ModalProps } from 'antd';
 import { Modal, Input } from 'antd';
-import {
-	DATA_SOURCE_ENUM,
-	HDFS_FIELD_TYPES,
-	HBASE_FIELD_TYPES,
-} from '@/constant';
+import { DATA_SOURCE_ENUM, HDFS_FIELD_TYPES, HBASE_FIELD_TYPES } from '@/constant';
+import type { TextAreaProps } from 'antd/lib/input';
 
-const renderTypes = (sourceType: number) => {
-	const types =
-		sourceType === DATA_SOURCE_ENUM.HBASE
-			? HBASE_FIELD_TYPES
-			: HDFS_FIELD_TYPES;
+const renderTypes = (sourceType?: DATA_SOURCE_ENUM) => {
+	const types = sourceType === DATA_SOURCE_ENUM.HBASE ? HBASE_FIELD_TYPES : HDFS_FIELD_TYPES;
 	const typeItems = types?.map((type: any) => <b key={type}>{type}, </b>);
 	return <span style={{ wordBreak: 'break-all' }}>{typeItems}</span>;
 };
 
-export default function BatchModal(props: any) {
-	const {
-		title,
-		desc,
-		visible,
-		onOk,
-		placeholder,
-		value,
-		sourceType,
-		onCancel,
-		onChange,
-		columnFamily,
-	} = props;
-	const rowsFix = { rows: 6 };
+interface IBatchModalProps
+	extends Pick<ModalProps, 'title' | 'visible' | 'onCancel'>,
+		Pick<TextAreaProps, 'placeholder'> {
+	desc?: string;
+	defaultValue?: string;
+	sourceType?: DATA_SOURCE_ENUM;
+	columnFamily?: string[];
+	onOk?: (value: string) => void;
+}
+
+export default function BatchModal({
+	title,
+	desc,
+	visible,
+	placeholder,
+	sourceType,
+	columnFamily,
+	defaultValue,
+	onCancel,
+	onOk,
+}: IBatchModalProps) {
+	const [value, setValue] = useState('');
 	const isNotHBase = sourceType !== DATA_SOURCE_ENUM.HBASE;
+
+	const handleSubmit = () => {
+		onOk?.(value);
+	};
+
+	useEffect(() => {
+		if (visible && defaultValue !== undefined) {
+			setValue(defaultValue);
+		}
+	}, [visible]);
+
 	return (
 		<Modal
 			title={title}
-			onOk={onOk}
+			onOk={handleSubmit}
 			onCancel={onCancel}
 			maskClosable={false}
 			visible={visible}
 		>
 			<div>
-				{isNotHBase
-					? '批量导入的语法格式（index 从 0 开始）：'
-					: '批量添加的语法格式:'}
+				{isNotHBase ? '批量导入的语法格式（index 从 0 开始）：' : '批量添加的语法格式:'}
 				<b style={{ color: 'rgb(255, 102, 0)' }}>
-					{desc &&
-					Object.prototype.toString.call(desc)?.slice(8, -1) ===
-						'String'
-						? desc
-								.split(',')
-								.map((item: any) => <p key={item}>{item}</p>)
+					{desc && Object.prototype.toString.call(desc)?.slice(8, -1) === 'String'
+						? desc.split(',').map((item: any) => <p key={item}>{item}</p>)
 						: { desc }}
 				</b>
 				<p>
 					常用数据类型（type)：
-					<span style={{ color: 'rgb(255, 102, 0)' }}>
-						{renderTypes(sourceType)}
-					</span>
+					<span style={{ color: 'rgb(255, 102, 0)' }}>{renderTypes(sourceType)}</span>
 				</p>
 				{columnFamily ? (
 					<p>
 						已有列族：
 						<span style={{ color: 'rgb(255, 102, 0)' }}>
-							{columnFamily?.map((col: any) => `${col},`)}
+							{columnFamily?.map((col) => `${col},`)}
 						</span>
 					</p>
 				) : (
@@ -88,9 +94,9 @@ export default function BatchModal(props: any) {
 			</div>
 			<br />
 			<Input.TextArea
-				{...rowsFix}
+				rows={6}
 				value={value}
-				onChange={onChange}
+				onChange={(e) => setValue(e.target.value)}
 				placeholder={placeholder}
 			/>
 		</Modal>
