@@ -1,0 +1,30 @@
+@import '@/styles/variables.scss';
+
+.dt-preview {
+	width: 100%;
+
+	.ant-card {
+		margin: 0 20px;
+
+		.ant-card-head {
+			padding: 0 20px;
+			font-size: 14px;
+			border-bottom: none;
+		}
+
+		.ant-card-body {
+			padding: 0;
+		}
+	}
+}
+
+.mask-lock-layer {
+	position: absolute;
+	top: 48px;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 3;
+	background: rgba(255, 255, 255, 0.4);
+	cursor: not-allowed;
+}

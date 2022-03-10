@@ -1,166 +1,435 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
-import DataSync from './dataSync';
-import { cloneDeep, assign } from 'lodash';
-import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
+import { useEffect, useState } from 'react';
 import molecule from '@dtinsight/molecule';
-import type { IEditor } from '@dtinsight/molecule/esm/model';
-import store from '../../store';
-import { workbenchActions, getDataSyncReqParams } from '@/reducer/dataSync/offlineAction';
-import * as editorActions from '@/reducer/editor/editorAction';
-import { TASK_TYPE_ENUM, DATA_SYNC_MODE } from '@/constant';
+import { Scrollable } from '@dtinsight/molecule/esm/components';
+import { connect } from '@dtinsight/molecule/esm/react';
+import ajax from '@/api';
+import { API } from '@/api/dataSource';
+import { message, Spin, Steps } from 'antd';
+import Source from './source';
+import { checkExist, getTenantId } from '@/utils';
+import type { IDataSourceUsedInSyncProps } from '@/interface';
+import type {
+	IChannelFormProps,
+	IDataColumnsProps,
+	IKeyMapProps,
+	ISourceFormField,
+	ISourceMapProps,
+	ITargetFormField,
+	ITargetMapProps,
+} from './interface';
+import { SUPPROT_SUB_LIBRARY_DB_ARRAY } from '@/constant';
+import Target from './target';
+import { Utils } from '@dtinsight/dt-utils/lib';
+import Keymap, { OPERATOR_TYPE } from './keymap';
+import { cloneDeep } from 'lodash';
+import Channel, { UnlimitedSpeed } from './channel';
+import Preview from './preview';
+import { saveTask } from './help';
 import './index.scss';
 
-const propType: any = {
-	editor: PropTypes.object,
-	toolbar: PropTypes.object,
-	console: PropTypes.object,
-};
-const initialState = {
-	changeTab: true,
-	size: undefined,
-	runTitle: 'Command/Ctrl + R',
-};
-type Istate = typeof initialState;
+const { Step } = Steps;
 
-/**
- * 数据同步任务拼接参数
- */
-export function generateRqtBody() {
-	const currentTabData = molecule.editor.getState().current?.tab?.data;
-	const dataSync = (store.getState() as any).dataSync.dataSync;
-
-	// deepClone避免直接mutate store
-	let reqBody = cloneDeep(currentTabData);
-	// 如果当前任务为数据同步任务
-	if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
-		const isIncrementMode =
-			currentTabData.syncModel !== undefined &&
-			DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
-		reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
-		if (!isIncrementMode) {
-			reqBody.sourceMap.increColumn = undefined; // Delete increColumn
-		}
-	}
-	// 修改task配置时接口要求的标记位
-	reqBody.preSave = true;
-
-	// 接口要求上游任务字段名修改为dependencyTasks
-	if (reqBody.taskVOS) {
-		reqBody.dependencyTasks = reqBody.taskVOS.map((o: any) => o);
-		reqBody.taskVOS = null;
-	}
-
-	// 删除不必要的字段
-	delete reqBody.taskVersions;
-	delete reqBody.dataSyncSaved;
-
-	// 数据拼装结果
-	return reqBody;
+export interface ISyncDataProps {
+	keymap?: IKeyMapProps;
+	setting?: IChannelFormProps;
+	sourceMap?: ISourceMapProps;
+	sqlText?: string;
+	targetMap?: ITargetMapProps;
+	taskId: number;
 }
 
-@(connect(null, (dispatch: any) => {
-	const taskAc = workbenchActions(dispatch);
-	const editorAc = bindActionCreators(editorActions, dispatch);
-	const actions = Object.assign(editorAc, taskAc);
-	return actions;
-}) as any)
-class DataSyncWorkbench extends React.Component<
-	IEditor & ReturnType<typeof workbenchActions>,
-	Istate
-> {
-	state = {
-		changeTab: true,
-		size: undefined,
-		runTitle: 'Command/Ctrl + R',
+function DataSync({ current }: molecule.model.IEditor) {
+	const [currentStep, setCurrentStep] = useState(0);
+	const [currentData, setCurrentData] = useState<ISyncDataProps | null>(null);
+	const [loading, setLoading] = useState(false);
+	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
+
+	const handleSourceChanged = (
+		values: Partial<ISourceFormField> & { column?: IDataColumnsProps[] },
+	) => {
+		setCurrentData((d) => {
+			const target = dataSourceList.find((l) => l.dataInfoId === values.sourceId);
+
+			const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(target?.dataTypeCode || -1);
+			// Only the dataSource which has sub library like mySQL need this
+			const sourceList = isSupportSub
+				? [
+						{
+							key: 'main',
+							tables: values.table || d?.sourceMap?.type?.table,
+							type: target!.dataTypeCode,
+							name: target!.dataName,
+							sourceId: values.sourceId || d?.sourceMap?.sourceId,
+						},
+				  ]
+				: [];
+
+			if (!d) {
+				if (!target) return null;
+				return {
+					taskId: current!.tab!.data!.id,
+					sourceMap: {
+						name: target.dataName,
+						sourceId: values.sourceId!,
+						column: values.column,
+						extralConfig: values.extralConfig,
+						sourceList,
+						type: {
+							type: target.dataTypeCode,
+							splitPK: values.splitPK,
+							where: values.where,
+							fieldDelimiter: values.fieldDelimiter,
+							fileType: values.fileType,
+							partition: values.partition,
+							path: values.path,
+							table: values.table,
+							encoding: values.encoding,
+						},
+					},
+				};
+			}
+
+			// increment updates
+			const nextData = d;
+			const { sourceId, column, extralConfig, ...restValues } = values;
+			nextData.sourceMap = {
+				sourceId: sourceId || nextData.sourceMap?.sourceId,
+				name: target?.dataName || nextData.sourceMap?.name,
+				extralConfig: extralConfig || nextData.sourceMap?.extralConfig,
+				column: column || nextData.sourceMap?.column,
+				sourceList,
+				type: {
+					...(nextData.sourceMap?.type || {}),
+					type: target?.dataTypeCode || nextData.sourceMap?.type?.type,
+					...restValues,
+				},
+			};
+
+			return nextData;
+		});
 	};
 
-	static propTypes = propType;
+	const handleTargetChanged = (
+		values: Partial<ITargetFormField> & { column?: IDataColumnsProps[] },
+	) => {
+		const nextValue = values;
+		const SHOULD_TRIM_FIELD: (keyof ITargetFormField)[] = [
+			'partition',
+			'path',
+			'fileName',
+			'fileName',
+		];
+		SHOULD_TRIM_FIELD.forEach((field) => {
+			if (nextValue.hasOwnProperty(field)) {
+				nextValue[field] = Utils.trimAll(nextValue[field] as string) as any;
+			}
+		});
 
-	changeTab = (state: any) => {
-		let changeTab = false;
-		if (state) {
-			changeTab = true;
-		} else {
-			changeTab = false;
+		const target = dataSourceList.find((l) => l.dataInfoId === values.sourceId);
+
+		const { sourceId, column, extralConfig, ...restValues } = values;
+		// increment updates
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			nextData.targetMap = {
+				sourceId: sourceId || nextData.targetMap?.sourceId,
+				name: target?.dataName || nextData.targetMap?.name,
+				extralConfig: extralConfig || nextData.targetMap?.extralConfig,
+				column: column || nextData.targetMap?.column,
+				type: {
+					...(nextData.targetMap?.type || {}),
+					type: target?.dataTypeCode || nextData.targetMap?.type?.type,
+					...restValues,
+				},
+			};
+			return nextData;
+		});
+	};
+
+	const handleLinesChange = (lines: IKeyMapProps) => {
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			nextData.keymap = lines;
+			return nextData;
+		});
+	};
+
+	const handleColChanged = (
+		col: IDataColumnsProps | IDataColumnsProps[],
+		operation: Valueof<typeof OPERATOR_TYPE>,
+		flag: 'source' | 'target',
+	) => {
+		const cols = Array.isArray(col) ? col : [col];
+		switch (operation) {
+			case OPERATOR_TYPE.ADD: {
+				cols.forEach((c) => {
+					handleAddCol(c, flag);
+				});
+				break;
+			}
+			case OPERATOR_TYPE.REMOVE: {
+				cols.forEach((c) => {
+					handleRemoveCol(c, flag);
+				});
+				break;
+			}
+			case OPERATOR_TYPE.EDIT: {
+				cols.forEach((c) => {
+					handleEditCol(c, flag);
+				});
+				break;
+			}
+			case OPERATOR_TYPE.REPLACE: {
+				const field = flag === 'source' ? 'sourceMap' : 'targetMap';
+				// replace mode is to replace the whole column field
+				setCurrentData((d) => {
+					const nextData = { ...d! };
+					if (nextData[field]) {
+						nextData[field]!.column = cols;
+					}
+					return nextData;
+				});
+				break;
+			}
+			default:
+				break;
 		}
+	};
 
-		this.setState({
-			changeTab,
+	// 编辑列
+	const handleEditCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
+		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			const column = nextData[field]?.column || [];
+			if (column.includes(col)) {
+				const idx = column.indexOf(col);
+				// 这里只做赋值，不做深拷贝
+				// 因为字段映射的数组里的值和 column 字段的值是同一个引用，直接改这个值就可以做到都改了。如果做深拷贝则需要改两次值
+				Object.assign(column[idx], col);
+				return nextData;
+			}
+			return d;
 		});
 	};
-	/**
-	 * @description 拼装接口所需数据格式
-	 * @param {any} data 数据同步job配置对象
-	 * @returns {any} result 接口所需数据结构
-	 * @memberof DataSync
-	 */
 
-	generateRqtBody() {
-		return generateRqtBody();
-	}
+	// 添加列
+	const handleAddCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
+		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			if (nextData[field]?.column) {
+				const { column = [] } = nextData[field]!;
+				if (checkExist(col.index) && column.some((o) => o.index === col.index)) {
+					message.error(`添加失败：索引值不能重复`);
+					return d;
+				}
+				if (checkExist(col.key) && column.some((o) => o.key === col.key)) {
+					message.error(`添加失败：字段名不能重复`);
+					return d;
+				}
+				column.push(col);
+			} else {
+				nextData[field]!.column = [col];
+			}
 
-	saveTab(isSave: any, saveMode: any) {
-		// 每次保存都意味着当前tab不是第一次打开，重置当前标示
-		this.setState({
-			changeTab: false,
+			return cloneDeep(nextData);
 		});
-		const isButtonSubmit = saveMode === 'popOut';
-		this.props.isSaveFInish(false);
-		const { saveTab } = this.props;
+	};
 
-		const saveData = this.generateRqtBody();
-		const type = 'task';
+	// 移除列
+	const handleRemoveCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
+		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			const columns = nextData[field]?.column;
+			if (!columns || !columns.includes(col)) {
+				return d;
+			}
+			const idx = columns.indexOf(col);
+			columns.splice(idx, 1);
+			return nextData;
+		});
+	};
 
-		saveTab(saveData, isSave, type, isButtonSubmit);
-	}
+	const handleSettingChanged = (values: IChannelFormProps) => {
+		const nextSettings = { ...values };
+		const isUnlimited = nextSettings.speed === UnlimitedSpeed;
+		if (isUnlimited) {
+			nextSettings.speed = '-1';
+		}
+		if (nextSettings.isRestore === false) {
+			nextSettings.restoreColumnName = undefined;
+		}
+		setCurrentData((d) => {
+			const nextData = { ...d! };
+			nextData.setting = nextSettings;
+			return nextData;
+		});
+	};
 
-	render() {
-		const currentTabData = this.props.current?.tab?.data;
+	const handleChannelSubmit = (next: boolean, values?: IChannelFormProps) => {
+		if (!next) {
+			setCurrentStep((s) => s - 1);
+			return;
+		}
+		if (values) {
+			// 存在值的话，则保存当前值
+			handleSettingChanged(values);
+		}
+		setCurrentStep((s) => s + 1);
+	};
 
-		return (
-			<Scrollable>
-				<div className="ide-editor">
-					<div style={{ zIndex: 901 }} className="ide-content">
-						<div
-							style={{
-								width: '100%',
-								height: '100%',
-								minHeight: '400px',
-								position: 'relative',
-							}}
-						>
-							<DataSync
-								saveTab={this.saveTab.bind(this, true)}
-								currentTabData={currentTabData}
-							/>
-						</div>
+	const handleSaveTab = () => {
+		saveTask();
+	};
+
+	const steps = [
+		{
+			key: 'source',
+			title: '数据来源',
+			content: (
+				<Source
+					sourceMap={currentData?.sourceMap}
+					dataSourceList={dataSourceList}
+					onFormValuesChanged={handleSourceChanged}
+					onGetTableCols={(cols) => handleSourceChanged({ column: cols })}
+					onNext={() => setCurrentStep((s) => s + 1)}
+				/>
+			),
+		},
+		{
+			key: 'target',
+			title: '选择目标',
+			content: (
+				<Target
+					sourceMap={currentData?.sourceMap}
+					targetMap={currentData?.targetMap}
+					dataSourceList={dataSourceList}
+					onFormValuesChanged={handleTargetChanged}
+					onGetTableCols={(cols) => handleTargetChanged({ column: cols })}
+					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
+				/>
+			),
+		},
+		{
+			key: 'keymap',
+			title: '字段映射',
+			content: currentData?.sourceMap && currentData.targetMap && (
+				<Keymap
+					sourceMap={currentData.sourceMap}
+					targetMap={currentData.targetMap}
+					lines={currentData.keymap}
+					onColsChanged={handleColChanged}
+					onLinesChanged={handleLinesChange}
+					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
+				/>
+			),
+		},
+		{
+			key: 'setting',
+			title: '通道控制',
+			content: currentData?.sourceMap && currentData.targetMap && (
+				<Channel
+					sourceMap={currentData.sourceMap}
+					targetMap={currentData.targetMap}
+					setting={currentData.setting}
+					onNext={handleChannelSubmit}
+					onFormValuesChanged={handleSettingChanged}
+				/>
+			),
+		},
+		{
+			key: 'preview',
+			title: '预览保存',
+			content: currentData && (
+				<Preview
+					data={currentData}
+					dataSourceList={dataSourceList}
+					onStepTo={(step) =>
+						setCurrentStep((s) => (typeof step === 'number' ? step : s - 1))
+					}
+					onSave={handleSaveTab}
+				/>
+			),
+		},
+	];
+
+	// 获取当前任务的数据
+	const getJobData = () => {
+		const taskId = current?.tab?.data.id;
+		if (typeof taskId === 'undefined') return;
+		setLoading(true);
+		ajax.getOfflineJobData({ taskId })
+			.then((res) => {
+				if (res.code === 1) {
+					if (res.data) {
+						// already saved task
+						const { taskId: nextTaskId } = res.data;
+						if (nextTaskId !== taskId) return;
+						const { sourceMap } = res.data;
+						if (sourceMap.sourceList) {
+							const loop = (source: any, index: any) => {
+								return {
+									...source,
+									// eslint-disable-next-line no-bitwise
+									key: index === 0 ? 'main' : `key${~~Math.random() * 10000000}`,
+								};
+							};
+							sourceMap.sourceList = sourceMap.sourceList.map(loop);
+						}
+						setCurrentData(res.data);
+						setCurrentStep(4);
+					} else {
+						// the task opened first time or never saved before
+						setCurrentData({ taskId });
+					}
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	};
+
+	const getDataSourceList = () => {
+		API.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
+			if (res.code === 1) {
+				setDataSourceList(res.data || []);
+			}
+		});
+	};
+
+	useEffect(() => {
+		getJobData();
+		getDataSourceList();
+	}, [current]);
+
+	useEffect(() => {
+		if (currentData && current?.tab) {
+			const { sourceMap, targetMap, setting, keymap } = currentData;
+			molecule.editor.updateTab({
+				...current.tab,
+				data: { ...current.tab.data, sourceMap, targetMap, setting, keymap },
+			});
+		}
+	}, [currentData]);
+
+	return (
+		<Scrollable isShowShadow>
+			<div className="dt-datasync">
+				<Spin spinning={loading}>
+					<Steps size="small" current={currentStep}>
+						{steps.map((item) => (
+							<Step key={item.title} title={item.title} />
+						))}
+					</Steps>
+					<div className="dt-datasync-content">
+						{currentData && steps[currentStep].content}
 					</div>
-				</div>
-			</Scrollable>
-		);
-	}
+				</Spin>
+			</div>
+		</Scrollable>
+	);
 }
 
-export default moleculeConnect(molecule.editor, DataSyncWorkbench);
+export default connect(molecule.editor, DataSync);
