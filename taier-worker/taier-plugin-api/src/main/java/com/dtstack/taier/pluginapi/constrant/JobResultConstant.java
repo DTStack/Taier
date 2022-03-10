@@ -33,4 +33,6 @@ public class JobResultConstant {
      */
     public static final String FLINK_CHECKPOINT = "checkpoint_interval";
 
+    public static final String ARCHIVE = "archiveFsDir";
+
 }
