@@ -62,20 +62,11 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "租户名称", example = "dev租户")
     private String tenantName;
 
-    @ApiModelProperty(value = "项目名称", example = "dev开发")
-    private String projectName;
-
     @ApiModelProperty(value = "创建模式 0-向导模式，1-脚本模式", example = "0")
     private Integer createModel = 0;
 
     @ApiModelProperty(value = "操作模式 0-资源模式，1-编辑模式", example = "1")
     private Integer operateModel = 0;
-
-    @ApiModelProperty(value = "python版本 2-python2.x,3-python3.x式", example = "2")
-    private Integer pythonVersion = 0;
-
-    @ApiModelProperty(value = "0-TensorFlow,1-MXNet", example = "1")
-    private Integer learningType = 0;
 
     @ApiModelProperty(value = "输入数据文件的路径", example = "/usr/opt/a")
     private String input;
@@ -182,9 +173,6 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "租户 ID", example = "3")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目 ID", example = "5")
-    private Long projectId;
-
     @ApiModelProperty(value = "主键 ID", example = "1")
     private Long id = 0L;
 
@@ -211,12 +199,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     @ApiModelProperty(value = "任务版本信息")
     private List<BatchTaskVersionDetailResultVO> taskVersions;
-
-    @ApiModelProperty(value = "工作流父任务版本号 ")
-    private Integer parentReadWriteLockVersion ;
-
-    @ApiModelProperty(value = "读写锁信息")
-    private ReadWriteLockResultVO readWriteLockVO;
 
     @ApiModelProperty(value = "task 版本")
     private Integer version;
@@ -318,14 +300,6 @@ public class BatchTaskGetTaskByIdResultVO {
         this.tenantName = tenantName;
     }
 
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public Integer getCreateModel() {
         return createModel;
     }
@@ -340,22 +314,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     public void setOperateModel(Integer operateModel) {
         this.operateModel = operateModel;
-    }
-
-    public Integer getPythonVersion() {
-        return pythonVersion;
-    }
-
-    public void setPythonVersion(Integer pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    public Integer getLearningType() {
-        return learningType;
-    }
-
-    public void setLearningType(Integer learningType) {
-        this.learningType = learningType;
     }
 
     public String getInput() {
@@ -638,14 +596,6 @@ public class BatchTaskGetTaskByIdResultVO {
         this.tenantId = tenantId;
     }
 
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
     public Long getId() {
         return id;
     }
@@ -716,22 +666,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     public void setTaskVersions(List<BatchTaskVersionDetailResultVO> taskVersions) {
         this.taskVersions = taskVersions;
-    }
-
-    public Integer getParentReadWriteLockVersion() {
-        return parentReadWriteLockVersion;
-    }
-
-    public void setParentReadWriteLockVersion(Integer parentReadWriteLockVersion) {
-        this.parentReadWriteLockVersion = parentReadWriteLockVersion;
-    }
-
-    public ReadWriteLockResultVO getReadWriteLockVO() {
-        return readWriteLockVO;
-    }
-
-    public void setReadWriteLockVO(ReadWriteLockResultVO readWriteLockVO) {
-        this.readWriteLockVO = readWriteLockVO;
     }
 
     public Integer getVersion() {

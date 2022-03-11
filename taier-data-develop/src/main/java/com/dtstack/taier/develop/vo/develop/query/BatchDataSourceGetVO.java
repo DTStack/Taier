@@ -27,9 +27,6 @@ public class BatchDataSourceGetVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "数据源id", example = "1", required = true)
     private Long sourceId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "用户id", hidden = true)
     private Long userId;
 
@@ -45,14 +42,6 @@ public class BatchDataSourceGetVO extends DtInsightAuthParam {
 
     public void setSourceId(Long sourceId) {
         this.sourceId = sourceId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     @Override

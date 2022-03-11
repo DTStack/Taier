@@ -53,9 +53,6 @@ public class CatalogueResultVO {
     @ApiModelProperty(value = "租户 ID", example = "")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目 ID", example = "")
-    private Long projectId;
-
     @ApiModelProperty(value = "平台类别", example = "1")
     private Integer appType;
 
@@ -138,14 +135,6 @@ public class CatalogueResultVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public Integer getAppType() {
