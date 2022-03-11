@@ -63,6 +63,7 @@ const RIGHTBAR = [
 
 interface IProps extends molecule.model.IEditor {
 	onTabClick?: (key: string) => void;
+	width: number;
 }
 
 /**
@@ -76,7 +77,7 @@ export const TAB_WITHOUT_DATA = [
 	EDIT_DATASOURCE_PREFIX,
 ];
 
-export default connect(molecule.editor, ({ current: propsCurrent, onTabClick }: IProps) => {
+export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, width }: IProps) => {
 	const [current, setCurrent] = useState('');
 
 	const handleClickTab = (key: string) => {
@@ -142,7 +143,7 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick }: 
 	};
 
 	return (
-		<div className="dt-right-bar">
+		<div className="dt-right-bar" style={{ width }}>
 			<div className="dt-right-bar-content" key={propsCurrent?.activeTab}>
 				{renderContent()}
 			</div>
