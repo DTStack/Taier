@@ -318,6 +318,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 			case COMPONENT_TYPE_VALUE.SFTP:
 			case COMPONENT_TYPE_VALUE.FLINK:
 			case COMPONENT_TYPE_VALUE.SPARK:
+			case COMPONENT_TYPE_VALUE.HIVE_SERVER:
 			case COMPONENT_TYPE_VALUE.SPARK_THRIFT: {
 				return rendeConfigForm();
 			}
