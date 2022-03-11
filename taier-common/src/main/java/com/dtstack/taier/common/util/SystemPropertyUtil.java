@@ -31,11 +31,11 @@ public class SystemPropertyUtil {
 
     public static void setSystemUserDir() {
         String dir = System.getProperty("user.dir");
-        String conf = String.format("%s/%s", new Object[]{dir, "conf"});
+        String conf = String.format("%s%s%s", dir, File.separator, "conf");
         File file = new File(conf);
         if(!file.exists()) {
-            dir = dir.substring(0, dir.lastIndexOf("/"));
-            conf = String.format("%s/%s", new Object[]{dir, "conf"});
+            dir = dir.substring(0, dir.lastIndexOf(File.separator));
+            conf = String.format("%s%s%s", dir, File.separator, "conf");
             file = new File(conf);
             if(file.exists()) {
                 System.setProperty("user.dir", dir);

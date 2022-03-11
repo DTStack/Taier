@@ -653,6 +653,13 @@ export default forwardRef((_, ref) => {
 																preserve={false}
 																className="dt-cluster-content"
 																form={form}
+																scrollToFirstError
+																labelCol={{
+																	span: 24,
+																}}
+																wrapperCol={{
+																	span: 24
+																}}
 															>
 																<MultiVersionComp
 																	comp={comp}
@@ -689,6 +696,12 @@ export default forwardRef((_, ref) => {
 																		className="dt-cluster-content"
 																		scrollToFirstError
 																		form={form}
+																		labelCol={{
+																			span: 24,
+																		}}
+																		wrapperCol={{
+																			span: 24
+																		}}
 																	>
 																		<FileConfig
 																			comp={vcomp}
