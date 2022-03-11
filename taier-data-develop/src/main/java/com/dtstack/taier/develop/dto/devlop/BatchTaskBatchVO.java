@@ -132,7 +132,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     private Integer taskPeriodId;
     private String taskPeriodType;
     private String nodePName;
-    private ReadWriteLockVO readWriteLockVO;
     private Long userId;
     private Integer lockVersion;
     private List<Map> taskVariables;
@@ -154,16 +153,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
      * 操作模式 0-资源模式，1-编辑模式
      */
     private Integer operateModel = 0;
-
-    /**
-     * 2-python2.x,3-python3.x
-     */
-    private Integer pythonVersion = 0;
-
-    /**
-     * 0-TensorFlow,1-MXNet
-     */
-    private Integer learningType = 0;
 
     /**
      * 输入数据文件的路径
@@ -222,19 +211,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     private List<BatchTaskVersionDetailDTO> taskVersions;
 
-    /**
-     * 工作流父任务版本号  用于子任务获取父任务锁
-     */
-    private Integer parentReadWriteLockVersion ;
-
-
-    public Integer getParentReadWriteLockVersion() {
-        return parentReadWriteLockVersion;
-    }
-
-    public void setParentReadWriteLockVersion(Integer parentReadWriteLockVersion) {
-        this.parentReadWriteLockVersion = parentReadWriteLockVersion;
-    }
 
     public void setVersion(Integer version) {
         this.version = version;
@@ -284,26 +260,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
     @Override
     public void setOperateModel(int operateModel) {
         this.operateModel = operateModel;
-    }
-
-    @Override
-    public int getPythonVersion() {
-        return pythonVersion;
-    }
-
-    @Override
-    public void setPythonVersion(int pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    @Override
-    public int getLearningType() {
-        return learningType;
-    }
-
-    @Override
-    public void setLearningType(int learningType) {
-        this.learningType = learningType;
     }
 
     @Override
@@ -403,15 +359,6 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     public void setTaskVersions(List<BatchTaskVersionDetailDTO> taskVersions) {
         this.taskVersions = taskVersions;
-    }
-
-
-    public ReadWriteLockVO getReadWriteLockVO() {
-        return readWriteLockVO;
-    }
-
-    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
-        this.readWriteLockVO = readWriteLockVO;
     }
 
     @Override
