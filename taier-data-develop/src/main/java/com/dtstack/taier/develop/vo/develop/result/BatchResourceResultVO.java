@@ -54,9 +54,6 @@ public class BatchResourceResultVO  {
     @ApiModelProperty(value = "数栈租户ID")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目ID")
-    private Long projectId;
-
     @ApiModelProperty(value = "平台类型", example = "1")
     private Integer appType;
 
@@ -142,14 +139,6 @@ public class BatchResourceResultVO  {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public Integer getAppType() {

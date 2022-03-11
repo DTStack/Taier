@@ -30,8 +30,7 @@ import java.util.List;
 public class ExecuteContent {
 
     private Long tenantId;
-    private Long projectId;
-    private String projectName;
+
     private Long userId;
 
     private String sql;
@@ -113,11 +112,6 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setProjectName(String projectName) {
-        this.projectName = projectName;
-        return this;
-    }
-
 
     public ExecuteContent setSql(String sql) {
         this.sql = sql;
@@ -131,11 +125,6 @@ public class ExecuteContent {
 
     public ExecuteContent setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-        return this;
-    }
-
-    public ExecuteContent setProjectId(Long projectId) {
-        this.projectId = projectId;
         return this;
     }
 
@@ -181,14 +170,6 @@ public class ExecuteContent {
 
     public Long getTenantId() {
         return tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public String getProjectName() {
-        return projectName;
     }
 
     public Long getUserId() {

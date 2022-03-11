@@ -53,8 +53,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     private String tenantName;
 
-    private String projectAlias;
-
     /**
      * 0-向导模式，1-脚本模式
      */
@@ -66,18 +64,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
      */
     @ApiModelProperty(notes = "操作模式 0-资源模式，1-编辑模式")
     private int operateModel;
-
-    /**
-     * 2-python2.x,3-python3.x
-     */
-    @ApiModelProperty(notes = "2-python2.x,3-python3.x")
-    private int pythonVersion;
-
-    /**
-     * 0-TensorFlow,1-MXNet
-     */
-    @ApiModelProperty(notes = "0-TensorFlow,1-MXNet")
-    private int learningType;
 
     /**
      * 输入数据文件的路径
@@ -203,22 +189,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setOperateModel(int operateModel) {
         this.operateModel = operateModel;
-    }
-
-    public int getPythonVersion() {
-        return pythonVersion;
-    }
-
-    public void setPythonVersion(int pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    public int getLearningType() {
-        return learningType;
-    }
-
-    public void setLearningType(int learningType) {
-        this.learningType = learningType;
     }
 
     public String getInput() {
@@ -396,14 +366,6 @@ public class ScheduleTaskVO extends ScheduleTaskShade {
 
     public void setExistsOnRule(Boolean existsOnRule) {
         this.existsOnRule = existsOnRule;
-    }
-
-    public String getProjectAlias() {
-        return projectAlias;
-    }
-
-    public void setProjectAlias(String projectAlias) {
-        this.projectAlias = projectAlias;
     }
 
     public String getMainClass() {
