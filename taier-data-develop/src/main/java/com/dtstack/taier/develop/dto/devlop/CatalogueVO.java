@@ -49,30 +49,12 @@ public class CatalogueVO {
     private String createUser;
     private Integer orderVal;
     private List<CatalogueVO> children;
-    private ReadWriteLockVO readWriteLockVO;
     private Integer version;
 
     /**
      * 操作模式 0-资源模式，1-编辑模式
      */
     private Integer operateModel;
-
-    /**
-     * 2-python2.x,3-python3.x
-     */
-    private Integer pythonVersion;
-
-    /**
-     * 0-TensorFlow,1-MXNet
-     */
-    private Integer learningType;
-
-    private Integer scriptType;
-
-    /**
-     * 0-普通任务，1-工作流中的子任务
-     */
-    private Integer isSubTask = 0;
 
     /**
      * 租户Id
@@ -85,15 +67,6 @@ public class CatalogueVO {
     private Integer status;
 
     public CatalogueVO(){}
-
-    public CatalogueVO(long id, long parentId, String name, Integer level, String type, Long tenantId) {
-        this.id = id;
-        this.parentId = parentId;
-        this.name = name;
-        this.level = level;
-        this.type = type;
-        this.tenantId = tenantId;
-    }
 
     public Long getId() {
         return id;
@@ -183,14 +156,6 @@ public class CatalogueVO {
         this.children = children;
     }
 
-    public ReadWriteLockVO getReadWriteLockVO() {
-        return readWriteLockVO;
-    }
-
-    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
-        this.readWriteLockVO = readWriteLockVO;
-    }
-
     public Integer getVersion() {
         return version;
     }
@@ -207,44 +172,12 @@ public class CatalogueVO {
         this.operateModel = operateModel;
     }
 
-    public Integer getPythonVersion() {
-        return pythonVersion;
-    }
-
-    public void setPythonVersion(Integer pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    public Integer getLearningType() {
-        return learningType;
-    }
-
-    public void setLearningType(Integer learningType) {
-        this.learningType = learningType;
-    }
-
-    public Integer getScriptType() {
-        return scriptType;
-    }
-
-    public void setScriptType(Integer scriptType) {
-        this.scriptType = scriptType;
-    }
-
     public Integer getStatus() {
         return status;
     }
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public Integer getIsSubTask() {
-        return isSubTask;
-    }
-
-    public void setIsSubTask(Integer isSubTask) {
-        this.isSubTask = isSubTask;
     }
 
     public Long getTenantId() {

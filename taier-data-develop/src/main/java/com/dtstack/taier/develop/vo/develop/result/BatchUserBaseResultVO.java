@@ -38,9 +38,6 @@ public class BatchUserBaseResultVO {
     @ApiModelProperty(value = "状态", example = "0")
     private Integer status;
 
-    @ApiModelProperty(value = "默认项目ID", example = "3")
-    private Long defaultProjectId;
-
     @ApiModelProperty(value = "是否删除", example = "0")
     private Integer isDeleted = 0;
 
@@ -83,14 +80,6 @@ public class BatchUserBaseResultVO {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public Long getDefaultProjectId() {
-        return defaultProjectId;
-    }
-
-    public void setDefaultProjectId(Long defaultProjectId) {
-        this.defaultProjectId = defaultProjectId;
     }
 
     public Integer getIsDeleted() {

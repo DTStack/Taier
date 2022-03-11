@@ -58,11 +58,6 @@ public class BuildSqlVO {
     private Long tenantId;
 
     /**
-     * 项目id
-     */
-    private Long projectId;
-
-    /**
      * 原本的sql
      */
     private String originSql;
@@ -125,14 +120,6 @@ public class BuildSqlVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public String getOriginSql() {
