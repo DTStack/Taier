@@ -10,8 +10,6 @@ public class UserDTO  {
 
     private Integer status;
 
-    private Long defaultProjectId;
-
     private Integer rootUser;
 
     private Long tenantId;
@@ -64,11 +62,4 @@ public class UserDTO  {
         this.status = status;
     }
 
-    public Long getDefaultProjectId() {
-        return defaultProjectId;
-    }
-
-    public void setDefaultProjectId(Long defaultProjectId) {
-        this.defaultProjectId = defaultProjectId;
-    }
 }

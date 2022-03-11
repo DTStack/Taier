@@ -37,9 +37,6 @@ public class BatchDataSourceUserVO {
     @ApiModelProperty(value = "状态", example = "1")
     private Integer status;
 
-    @ApiModelProperty(value = "默认项目id")
-    private Long defaultProjectId;
-
     @ApiModelProperty(value = "整库同步id", example = "1")
     private Long id = 0L;
 
@@ -82,14 +79,6 @@ public class BatchDataSourceUserVO {
 
     public void setStatus(Integer status) {
         this.status = status;
-    }
-
-    public Long getDefaultProjectId() {
-        return defaultProjectId;
-    }
-
-    public void setDefaultProjectId(Long defaultProjectId) {
-        this.defaultProjectId = defaultProjectId;
     }
 
     public Long getId() {

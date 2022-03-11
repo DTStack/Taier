@@ -25,8 +25,6 @@ public class BatchResourceDTO {
 
     private Long tenantId;
 
-    private Long projectId;
-
     private Long resourceModifyUserId;
 
     private Timestamp startTime;
@@ -48,14 +46,6 @@ public class BatchResourceDTO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public Long getResourceModifyUserId() {

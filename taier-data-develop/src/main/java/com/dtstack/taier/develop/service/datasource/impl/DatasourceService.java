@@ -412,11 +412,10 @@ public class DatasourceService {
      * 检测kerberos认证的数据源连通性
      * @param source
      * @param resource
-     * @param projectId
      * @param userId
      * @return
      */
-    public Boolean checkConnectionWithKerberos(DataSourceVO source, Pair<String, String> resource, Long projectId, Long userId) {
+    public Boolean checkConnectionWithKerberos(DataSourceVO source, Pair<String, String> resource, Long userId) {
         Map<String, Object> kerberosConfig;
         String localKerberosPath;
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(source.getDataType(), source.getDataVersion());
@@ -2248,7 +2247,7 @@ public class DatasourceService {
      * @param tableName 表名
      * @return
      */
-    public List<JSONObject> tablecolumn(Long projectId, Long userId, Long sourceId, String tableName, Boolean isIncludePart, String schema) {
+    public List<JSONObject> tablecolumn(Long userId, Long sourceId, String tableName, Boolean isIncludePart, String schema) {
 
         final BatchDataSource source = this.getOne(sourceId);
         final StringBuffer newTableName = new StringBuffer();

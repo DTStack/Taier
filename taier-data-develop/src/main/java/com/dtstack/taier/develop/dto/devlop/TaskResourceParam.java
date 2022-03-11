@@ -65,16 +65,6 @@ public class TaskResourceParam extends Task {
     private int syncModel;
 
     /**
-     * 2-python2.x,3-python3.x
-     */
-    private int pythonVersion;
-
-    /**
-     * 0-TensorFlow,1-MXNet
-     */
-    private int learningType;
-
-    /**
      * 输入数据文件的路径
      */
     private String input;
@@ -98,13 +88,6 @@ public class TaskResourceParam extends Task {
      * 是否是右键编辑任务
      */
     private Boolean isEditBaseInfo = false;
-
-    /**
-     * 工作流父任务版本号  用于子任务获取父任务锁
-     */
-    private Integer parentReadWriteLockVersion ;
-
-    private ReadWriteLockVO readWriteLockVO;
 
     /**
      * 是否更新数据源
@@ -232,22 +215,6 @@ public class TaskResourceParam extends Task {
         this.syncModel = syncModel;
     }
 
-    public int getPythonVersion() {
-        return pythonVersion;
-    }
-
-    public void setPythonVersion(int pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    public int getLearningType() {
-        return learningType;
-    }
-
-    public void setLearningType(int learningType) {
-        this.learningType = learningType;
-    }
-
     public String getInput() {
         return input;
     }
@@ -288,19 +255,4 @@ public class TaskResourceParam extends Task {
         isEditBaseInfo = editBaseInfo;
     }
 
-    public Integer getParentReadWriteLockVersion() {
-        return parentReadWriteLockVersion;
-    }
-
-    public void setParentReadWriteLockVersion(Integer parentReadWriteLockVersion) {
-        this.parentReadWriteLockVersion = parentReadWriteLockVersion;
-    }
-
-    public ReadWriteLockVO getReadWriteLockVO() {
-        return readWriteLockVO;
-    }
-
-    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
-        this.readWriteLockVO = readWriteLockVO;
-    }
 }
