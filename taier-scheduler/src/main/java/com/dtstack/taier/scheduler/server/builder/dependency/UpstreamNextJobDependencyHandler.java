@@ -2,7 +2,6 @@ package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -22,26 +21,24 @@ import java.util.List;
 /**
  * @Auther: dazhi
  * @Date: 2022/1/4 5:14 PM
- * @Email:dazhi@dtstack.com
+ * @Email: dazhi@dtstack.com
  * @Description:
  */
-public class UpstreamNextJobDependencyHandler extends AbstractDependencyHandler {
+public class UpstreamNextJobDependencyHandler extends DecoratorJobDependency {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpstreamDependencyHandler.class);
 
-    /**
-     * 上游任务
-     */
-    protected List<ScheduleTaskShade> taskShadeList;
-
-    public UpstreamNextJobDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, List<ScheduleTaskShade> taskShadeList, ScheduleJobService scheduleJobService) {
-        super(keyPreStr, currentTaskShade,scheduleJobService);
-        this.taskShadeList = taskShadeList;
+    public UpstreamNextJobDependencyHandler(String keyPreStr,
+                                         ScheduleTaskShade currentTaskShade,
+                                         ScheduleJobService scheduleJobService,
+                                         List<ScheduleTaskShade> taskShadeList,
+                                         JobDependency jobDependency) {
+        super(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList,jobDependency);
     }
 
     @Override
     public List<ScheduleJobJob> generationJobJobForTask(ScheduleCorn corn, Date currentDate, String currentJobKey) {
-        List<ScheduleJobJob> jobJobList = Lists.newArrayList();
+        List<ScheduleJobJob> jobJobList = super.generationJobJobForTask(corn, currentDate, currentJobKey);
 
         for (ScheduleTaskShade taskShade : taskShadeList) {
             try {

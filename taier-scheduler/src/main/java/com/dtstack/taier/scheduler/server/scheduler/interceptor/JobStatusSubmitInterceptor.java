@@ -1,6 +1,5 @@
-package com.dtstack.taier.scheduler.server.scheduler.exec;
+package com.dtstack.taier.scheduler.server.scheduler.interceptor;
 
-import com.dtstack.taier.common.enums.JobCheckStatus;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -14,30 +13,31 @@ import org.springframework.stereotype.Component;
 
 /**
  * @Auther: dazhi
- * @Date: 2022/1/12 7:15 PM
- * @Email: dazhi@dtstack.com
+ * @Date: 2022/3/13 12:36 AM
+ * @Email:dazhi@dtstack.com
  * @Description:
  */
 @Component
-public class JobStatusJudgeJobExecOperator implements JudgeJobExecOperator {
+public class JobStatusSubmitInterceptor extends SubmitInterceptorAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobStatusJudgeJobExecOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobStatusSubmitInterceptor.class);
 
     @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Override
-    public JobCheckRunInfo isExec(ScheduleJobDetails scheduleJobDetails) {
+    public Integer getSort() {
+        return 0;
+    }
+
+    @Override
+    public Boolean beforeSubmit(ScheduleJobDetails scheduleJobDetails) {
         ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-        JobCheckRunInfo checkRunInfo = new JobCheckRunInfo();
         Integer status = scheduleJobService.getJobStatusByJobId(scheduleJob.getJobId());
 
         // 判断实例状态是不是等待提交
         if (!TaskStatus.UNSUBMIT.getStatus().equals(status)) {
-            checkRunInfo.setPass(Boolean.FALSE);
-            checkRunInfo.setStatus(JobCheckStatus.NOT_UNSUBMIT);
-            checkRunInfo.setLogInfo(JobCheckStatus.NOT_UNSUBMIT.getMsg());
-            return checkRunInfo;
+            return Boolean.FALSE;
         }
 
         // 判断实例是否到达运行时间
@@ -45,13 +45,9 @@ public class JobStatusJudgeJobExecOperator implements JudgeJobExecOperator {
         long currTime = Long.parseLong(new DateTime().toString(DateUtil.UN_STANDARD_DATETIME_FORMAT));
 
         if (currTime < cycTime) {
-            checkRunInfo.setPass(Boolean.FALSE);
-            checkRunInfo.setStatus(JobCheckStatus.TIME_NOT_REACH);
-            checkRunInfo.setLogInfo(JobCheckStatus.TIME_NOT_REACH.getMsg());
-            return checkRunInfo;
+            return Boolean.FALSE;
         }
 
-        checkRunInfo.setPass(Boolean.TRUE);
-        return checkRunInfo;
+        return super.beforeSubmit(scheduleJobDetails);
     }
 }
