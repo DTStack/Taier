@@ -8,9 +8,8 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
-import com.dtstack.taier.scheduler.server.scheduler.exec.JobCheckRunInfo;
-import com.dtstack.taier.scheduler.server.scheduler.exec.JudgeJobExecOperator;
-import com.dtstack.taier.scheduler.server.scheduler.handler.JudgeNoPassJobHandler;
+import com.dtstack.taier.scheduler.server.scheduler.interceptor.InterceptorInvocation;
+import com.dtstack.taier.scheduler.server.scheduler.interceptor.SubmitInterceptor;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
@@ -66,18 +65,12 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
     protected abstract Long getMinSort();
 
     /**
-     * 获得实例可执行条件，只有通过了条件判断才能会提交任务
+     * 获得拦截器列表
      *
-     * @return JudgeJob列表
+     * @return 拦截器列表
      */
-    protected abstract List<JudgeJobExecOperator> getJudgeJobExecOperator();
+    protected abstract List<SubmitInterceptor> getInterceptor();
 
-    /**
-     * 获得实例条件处理集合
-     *
-     * @return JobHandler列表
-     */
-    protected abstract List<JudgeNoPassJobHandler> getJudgeNoPassJobHandler();
 
     /**
      * 扫描实例
@@ -120,9 +113,9 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
                     }
                     scheduleJobDetail.setScheduleTaskShade(scheduleTaskShade);
 
-                    if (isSubmitJob(scheduleJobDetail)) {
-                        submitJob(scheduleJobDetail);
-                    }
+                    // 提交任务
+                    InterceptorInvocation interceptorInvocation = new InterceptorInvocation(this, getInterceptor());
+                    interceptorInvocation.invoke(scheduleJobDetail);
 
                     if (minSort < scheduleJob.getJobExecuteOrder()) {
                         minSort = scheduleJob.getJobExecuteOrder();
@@ -135,37 +128,37 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
         }
     }
 
-    /**
-     *  判断是否通过提交校验
-     * @param scheduleJobDetails 实例
-     * @return 校验解雇
-     */
-    private Boolean isSubmitJob(ScheduleJobDetails scheduleJobDetails) {
-        List<JudgeJobExecOperator> judgeJobExecOperator = getJudgeJobExecOperator();
-
-        if (CollectionUtils.isNotEmpty(judgeJobExecOperator)) {
-            for (JudgeJobExecOperator jobExecOperator : judgeJobExecOperator) {
-                JobCheckRunInfo exec = jobExecOperator.isExec(scheduleJobDetails);
-
-
-                if (!exec.getPass() && exec.getStatus() != null) {
-                    ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-                    LOGGER.info("jobId:{} no arrive exec run . exec : {}",scheduleJob.getJobId(),exec.getLogInfo());
-                    // 没有通过校验 处理
-                    List<JudgeNoPassJobHandler> judgeNoPassJobHandlerList = getJudgeNoPassJobHandler();
-
-                    for (JudgeNoPassJobHandler judgeNoPassJobHandler : judgeNoPassJobHandlerList) {
-                        if (judgeNoPassJobHandler.isSupportJobCheckStatus(exec.getStatus())) {
-                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec);
-                        }
-                    }
-
-                    return Boolean.FALSE;
-                }
-            }
-        }
-        return Boolean.TRUE;
-    }
+//    /**
+//     *  判断是否通过提交校验
+//     * @param scheduleJobDetails 实例
+//     * @return 校验解雇
+//     */
+//    private Boolean isSubmitJob(ScheduleJobDetails scheduleJobDetails) {
+//        List<JudgeJobExecOperator> judgeJobExecOperator = getJudgeJobExecOperator();
+//
+//        if (CollectionUtils.isNotEmpty(judgeJobExecOperator)) {
+//            for (JudgeJobExecOperator jobExecOperator : judgeJobExecOperator) {
+//                JobCheckRunInfo exec = jobExecOperator.isExec(scheduleJobDetails);
+//
+//
+//                if (!exec.getPass() && exec.getStatus() != null) {
+//                    ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
+//                    LOGGER.info("jobId:{} no arrive exec run . exec : {}",scheduleJob.getJobId(),exec.getLogInfo());
+//                    // 没有通过校验 处理
+//                    List<JudgeNoPassJobHandler> judgeNoPassJobHandlerList = getJudgeNoPassJobHandler();
+//
+//                    for (JudgeNoPassJobHandler judgeNoPassJobHandler : judgeNoPassJobHandlerList) {
+//                        if (judgeNoPassJobHandler.isSupportJobCheckStatus(exec.getStatus())) {
+//                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec);
+//                        }
+//                    }
+//
+//                    return Boolean.FALSE;
+//                }
+//            }
+//        }
+//        return Boolean.TRUE;
+//    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
