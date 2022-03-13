@@ -8,9 +8,9 @@ import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.enums.RelyRule;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
-import com.google.common.collect.Lists;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -18,29 +18,34 @@ import java.util.Date;
  * @Email: dazhi@dtstack.com
  * @Description:
  */
-public abstract class AbstractDependencyHandler implements DependencyHandler {
+public abstract class AbstractJobDependency implements JobDependency {
 
     /**
      * 前缀
      */
     protected String keyPreStr;
 
+
+
     /**
      * 当前任务
      */
     protected ScheduleTaskShade currentTaskShade;
 
+    /**
+     * 上游任务
+     */
+    protected List<ScheduleTaskShade> taskShadeList;
+
+
     protected ScheduleJobService scheduleJobService;
 
-    /**
-     * 下一个依赖处理器
-     */
-    private DependencyHandler nextDependencyHandler;
-
-    public AbstractDependencyHandler(String keyPreStr,
-                                     ScheduleTaskShade currentTaskShade,
-                                     ScheduleJobService scheduleJobService) {
+    public AbstractJobDependency(String keyPreStr,
+                                 ScheduleTaskShade currentTaskShade,
+                                 ScheduleJobService scheduleJobService,
+                                 List<ScheduleTaskShade> taskShadeList) {
         this.keyPreStr = keyPreStr;
+        this.taskShadeList = taskShadeList;
         this.currentTaskShade = currentTaskShade;
         this.scheduleJobService = scheduleJobService;
     }
@@ -85,15 +90,5 @@ public abstract class AbstractDependencyHandler implements DependencyHandler {
             }
         }
         return lastJobKey;
-    }
-
-    @Override
-    public DependencyHandler next() {
-        return nextDependencyHandler;
-    }
-
-    @Override
-    public void setNext(DependencyHandler dependencyHandler) {
-        this.nextDependencyHandler = dependencyHandler;
     }
 }

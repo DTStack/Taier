@@ -12,7 +12,7 @@ import java.util.List;
  * @Email: dazhi@dtstack.com
  * @Description: 依赖处理器
  */
-public interface DependencyHandler extends Chain<DependencyHandler> {
+public interface JobDependency {
 
     /**
      * 生成jobJob
