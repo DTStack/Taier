@@ -62,7 +62,9 @@ export default function DataCheckbox({ comp, form, view, isCheckBoxs, disabledMe
 				title: `确认将元数据获取方式由${source}切换为${target}？`,
 				onOk: () => {
 					form.setFieldsValue({
-						[`${MAPPING_DATA_CHECK[typeCode as keyof typeof MAPPING_DATA_CHECK]}.isMetadata`]: !e.target.checked,
+						[`${
+							MAPPING_DATA_CHECK[typeCode as keyof typeof MAPPING_DATA_CHECK]
+						}.isMetadata`]: !e.target.checked,
 						[`${typeCode}.isMetadata`]: e.target.checked,
 					});
 				},
@@ -73,13 +75,11 @@ export default function DataCheckbox({ comp, form, view, isCheckBoxs, disabledMe
 		}
 	};
 
-	const validMetadata = (rule: any, value: any, callback: any) => {
-		let error = null;
+	const validMetadata = (_: any, value: any) => {
 		if (!isCheckBoxs && !value) {
-			error = '请设置元数据获取方式';
-			callback(error);
+			return Promise.reject(new Error('请设置元数据获取方式'));
 		}
-		callback();
+		return Promise.resolve();
 	};
 
 	const typeCode = comp?.componentTypeCode ?? '';
