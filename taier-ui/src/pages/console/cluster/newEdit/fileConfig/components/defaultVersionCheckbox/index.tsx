@@ -50,8 +50,8 @@ export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: 
 	const validDefaultdata = (_: any, value: any) => {
 		const error = new Error('请设置默认版本');
 		// 只有一个版本时
-		if (isDefault && !value) {
-			return Promise.reject(error);
+		if (isDefault) {
+			return value ? Promise.resolve() : Promise.reject(error);
 		}
 		// 有多个版本时，都没选得提示
 		let hasTrue = false;
