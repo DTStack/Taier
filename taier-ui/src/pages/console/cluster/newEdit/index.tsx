@@ -295,8 +295,8 @@ export default forwardRef((_, ref) => {
 	};
 
 	const saveComp = (params: any, type?: string) => {
-		const newCompData = cloneDeep(schedulingComponent);
-		newCompData[activeKey] = schedulingComponent[activeKey].map((comp) => {
+		const newCompData = schedulingComponent;
+		schedulingComponent[activeKey] = schedulingComponent[activeKey].map((comp) => {
 			if (comp.componentTypeCode !== params.componentTypeCode) return comp;
 			if (type === COMP_ACTION.ADD) comp.multiVersion.push(undefined);
 			// eslint-disable-next-line no-param-reassign
@@ -309,7 +309,7 @@ export default forwardRef((_, ref) => {
 			});
 			return comp;
 		});
-		setScheduling(newCompData);
+		setScheduling(cloneDeep(newCompData));
 	};
 
 	const testConnects = (params?: any, callBack?: (bool: boolean) => void) => {
