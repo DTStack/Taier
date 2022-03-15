@@ -4,12 +4,14 @@
 
     <sql id="select_content_fragment">
       id,tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,
+      source_str,target_str,setting_str,create_model,component_version
     </sql>
 
     <sql id="simple_select_content_fragment">
         id,tenant_id,node_pid,name,task_type,compute_type,period_type,
-      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version
+      schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,
+      source_str,target_str,setting_str,create_model,component_version
     </sql>
 
     <sql id="select_where_fragment">
@@ -137,6 +139,18 @@
             </if>
             <if test="modifyUserId != null">
                 modify_user_id = #{modifyUserId},
+            </if>
+            <if test="sourceStr != null">
+                source_str = #{sourceStr},
+            </if>
+            <if test="targetStr != null">
+                target_str = #{targetStr},
+            </if>
+            <if test="settingStr != null">
+                setting_str = #{settingStr},
+            </if>
+            <if test="createModel != null">
+                create_model = #{createModel},
             </if>
             <if test="createUserId != null">
                 create_user_id = #{createUserId},
@@ -301,10 +315,10 @@
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.Task" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_task
           (tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version)
+          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version,source_str,target_str,setting_str,create_model)
         VALUES
           (#{tenantId},#{nodePid},#{name},#{taskType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion})
+          #{scheduleStatus},#{submitStatus},#{gmtCreate},#{gmtModified},#{modifyUserId},#{createUserId},#{version},#{isDeleted},#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion},#{sourceStr},#{targetStr},#{settingStr},#{createModel})
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.Task">
