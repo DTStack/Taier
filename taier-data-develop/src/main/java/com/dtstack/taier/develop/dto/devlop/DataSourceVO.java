@@ -57,11 +57,6 @@ public class DataSourceVO{
     private Date gmtModified;
 
     /**
-     * 项目 ID
-     */
-    private Long projectId;
-
-    /**
      * 数据源名称
      */
     private String dataName;
@@ -191,14 +186,6 @@ public class DataSourceVO{
 
     public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public String getDataName() {

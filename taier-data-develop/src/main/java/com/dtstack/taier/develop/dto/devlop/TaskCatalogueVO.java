@@ -59,7 +59,6 @@ public class TaskCatalogueVO extends CatalogueVO {
         this.setScheduleStatus(task.getScheduleStatus());
         this.setParentId(parentId);
         this.setTaskType(task.getTaskType());
-        this.setReadWriteLockVO(task.getReadWriteLockVO());
         this.setVersion(task.getVersion());
     }
 

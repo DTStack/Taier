@@ -38,9 +38,6 @@ public class BatchUserResultVO {
     @ApiModelProperty(value = "状态", example = "0")
     private Integer status;
 
-    @ApiModelProperty(value = "默认项目ID", example = "3")
-    private Long defaultProjectId;
-
     @ApiModelProperty(value = "rootUser", example = "1")
     private Integer rootUser;
 
@@ -49,9 +46,6 @@ public class BatchUserResultVO {
 
     @ApiModelProperty(value = "租户ID", example = "3")
     private Long tenantId;
-
-    @ApiModelProperty(value = "项目ID", example = "1")
-    private Long projectId;
 
     @ApiModelProperty(value = "是否删除", example = "dtstack")
     private Integer isDeleted = 0;

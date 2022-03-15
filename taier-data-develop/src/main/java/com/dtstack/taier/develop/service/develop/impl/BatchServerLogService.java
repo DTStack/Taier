@@ -107,8 +107,8 @@ public class BatchServerLogService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&projectId=%s";
-    private static final String DOWNLOAD_TYPE_LOG = "/taier/developDownload/downloadAppTypeLog?jobId=%s&logType=%s&projectId=%s";
+    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s";
+    private static final String DOWNLOAD_TYPE_LOG = "/taier/developDownload/downloadAppTypeLog?jobId=%s&logType=%s";
 
 
     private static final int SECOND_LENGTH = 10;
@@ -230,7 +230,7 @@ public class BatchServerLogService {
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.VIRTUAL.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())
                 && TaskStatus.getStoppedStatus().contains(job.getStatus())) {
-            batchServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType(),0L));
+            batchServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType()));
         }
 
         batchServerLogVO.setName(scheduleTaskShade.getName());
@@ -712,7 +712,7 @@ public class BatchServerLogService {
     }
 
 
-    public JSONObject getLogsByAppId(Long tenantId, Integer taskType, String jobId, Long projectId) {
+    public JSONObject getLogsByAppId(Long tenantId, Integer taskType, String jobId) {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
@@ -724,14 +724,14 @@ public class BatchServerLogService {
                     type.name().toUpperCase(), taskType);
             final JSONObject typeLog = new JSONObject(2);
             typeLog.put("msg", msg);
-            typeLog.put("download", String.format(BatchServerLogService.DOWNLOAD_TYPE_LOG, jobId, type.name().toUpperCase(),projectId));
+            typeLog.put("download", String.format(BatchServerLogService.DOWNLOAD_TYPE_LOG, jobId, type.name().toUpperCase()));
             result.put(type.name(), typeLog);
         }
 
         return result;
     }
 
-    public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long tenantId, Integer taskType, String jobId, String logType, Long projectId) {
+    public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long tenantId, Integer taskType, String jobId, String logType) {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
@@ -746,7 +746,7 @@ public class BatchServerLogService {
                 logType.toUpperCase(), taskType);
         BatchServerLogByAppLogTypeResultVO resultVO = new BatchServerLogByAppLogTypeResultVO();
         resultVO.setMsg(msg);
-        resultVO.setDownload(String.format(BatchServerLogService.DOWNLOAD_TYPE_LOG, jobId, logType,projectId));
+        resultVO.setDownload(String.format(BatchServerLogService.DOWNLOAD_TYPE_LOG, jobId, logType));
 
         return resultVO;
     }

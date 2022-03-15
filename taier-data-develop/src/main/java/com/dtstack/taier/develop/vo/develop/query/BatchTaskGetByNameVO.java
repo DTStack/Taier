@@ -28,9 +28,6 @@ public class BatchTaskGetByNameVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "任务名称", example = "dev", required = true)
     private String name;
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     public String getName() {
         return name;
     }
@@ -39,11 +36,4 @@ public class BatchTaskGetByNameVO extends DtInsightAuthParam {
         this.name = name;
     }
 
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
 }
