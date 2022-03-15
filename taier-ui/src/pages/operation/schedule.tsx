@@ -587,7 +587,7 @@ export default () => {
 				request={handleGetTableData}
 				columns={columns}
 				tableProps={{
-					scroll: { x: 1709.6 },
+					scroll: { x: 1709.6, y: 'calc(100vh - 400px)' },
 					rowKey: 'jobId',
 					rowClassName: (record) => {
 						if (selectedTask && selectedTask.jobId === record.jobId) {
