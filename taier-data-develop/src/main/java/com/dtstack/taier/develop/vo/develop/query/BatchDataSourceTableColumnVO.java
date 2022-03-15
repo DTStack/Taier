@@ -30,9 +30,6 @@ public class BatchDataSourceTableColumnVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "租户id", hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "数据源id", example = "1", required = true)
     private Long sourceId;
 
@@ -63,14 +60,6 @@ public class BatchDataSourceTableColumnVO extends DtInsightAuthParam {
     @Override
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public Long getSourceId() {

@@ -21,13 +21,33 @@ package com.dtstack.taier.develop.controller.develop;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.dto.devlop.BatchTaskBatchVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
-import com.dtstack.taier.develop.vo.develop.query.*;
-import com.dtstack.taier.develop.vo.develop.result.*;
+import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTraceVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchFrozenTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskCheckIsLoopVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskCheckNameVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskDeleteTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetByNameVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetChildTasksVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetComponentVersionVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetTaskVersionRecordVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskPublishTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskVersionScheduleConfVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchGetChildTasksResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchSysParameterResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetTaskByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskPublishTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskVersionDetailResultVO;
+import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +202,7 @@ public class DevelopTaskController {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                batchTaskService.checkName(detailVO.getName(), detailVO.getType(), detailVO.getPid(), detailVO.getIsFile(),  detailVO.getProjectId());
+                batchTaskService.checkName(detailVO.getName(), detailVO.getType(), detailVO.getPid(), detailVO.getIsFile(), detailVO.getTenantId());
                 return null;
             }
         }.execute();
@@ -194,7 +214,7 @@ public class DevelopTaskController {
         return new APITemplate<BatchTaskResultVO>() {
             @Override
             protected BatchTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(batchTaskService.getByName(detailVO.getName(), detailVO.getProjectId()));
+                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(batchTaskService.getByName(detailVO.getName(), detailVO.getTenantId()));
             }
         }.execute();
     }
