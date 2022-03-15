@@ -39,9 +39,6 @@ public class BatchDataSourceResultVO {
     @ApiModelProperty(value = "租户id")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目id")
-    private Long projectId;
-
     @ApiModelProperty(value = "数据源名称", example = "link_name")
     private String dataName;
 
@@ -117,14 +114,6 @@ public class BatchDataSourceResultVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public String getDataName() {

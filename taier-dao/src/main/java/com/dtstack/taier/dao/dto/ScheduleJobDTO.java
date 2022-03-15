@@ -70,8 +70,6 @@ public class ScheduleJobDTO {
 
     private Date execEndDay;
 
-    private List<Long> projectIds;
-
     private List<Integer> types;
     public List<Integer> getTypes() {
         return types;
@@ -79,14 +77,6 @@ public class ScheduleJobDTO {
 
     public void setTypes(List<Integer> types) {
         this.types = types;
-    }
-
-    public List<Long> getProjectIds() {
-        return projectIds;
-    }
-
-    public void setProjectIds(List<Long> projectIds) {
-        this.projectIds = projectIds;
     }
 
     public Integer getCurrentPage() {
