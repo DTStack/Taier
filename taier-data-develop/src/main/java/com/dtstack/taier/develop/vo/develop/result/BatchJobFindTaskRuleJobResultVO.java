@@ -38,14 +38,8 @@ public class BatchJobFindTaskRuleJobResultVO {
     @ApiModelProperty(value = "产品类型", example = "1")
     private Integer appType;
 
-    @ApiModelProperty(value = "项目名称", example = "dev")
-    private String projectName;
-
     @ApiModelProperty(value = "规则类型", example = "0：无规则 1：弱规则 2：强规则")
     private Integer taskRule;
-
-    @ApiModelProperty(value = "项目别名", example = "dev")
-    private String projectAlias;
 
     @ApiModelProperty(value = "绑定的规则任务")
     private List<BatchJobFindTaskRuleJobResultVO> scheduleDetailsVOList;
@@ -82,28 +76,12 @@ public class BatchJobFindTaskRuleJobResultVO {
         this.appType = appType;
     }
 
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public Integer getTaskRule() {
         return taskRule;
     }
 
     public void setTaskRule(Integer taskRule) {
         this.taskRule = taskRule;
-    }
-
-    public String getProjectAlias() {
-        return projectAlias;
-    }
-
-    public void setProjectAlias(String projectAlias) {
-        this.projectAlias = projectAlias;
     }
 
     public List<BatchJobFindTaskRuleJobResultVO> getScheduleDetailsVOList() {

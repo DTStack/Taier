@@ -62,7 +62,6 @@
                 FROM dsc_import_ref t
                 WHERE a.id = t.data_info_id
                 and t.is_deleted = 0
-                and t.project_id = #{listQuery.projectId}
                 and t.app_type = #{listQuery.appType}
                 and t.tenant_id = #{listQuery.tenantId}
             )
@@ -75,9 +74,6 @@
             and b.is_deleted = 0
             and b.`app_type` = #{listQuery.appType}
             and a.`tenant_id` = #{listQuery.tenantId}
-            <if test="listQuery.projectId !=null">
-                and b.project_id = #{listQuery.projectId}
-            </if>
             <if test="listQuery.dataName !=null and listQuery.dataName !=''">
                 and a.data_name = #{listQuery.dataName}
             </if>

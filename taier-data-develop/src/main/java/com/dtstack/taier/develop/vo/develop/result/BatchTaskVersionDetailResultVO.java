@@ -70,9 +70,6 @@ public class BatchTaskVersionDetailResultVO {
     @ApiModelProperty(value = "数栈租户 ID", example = "3")
     private Long tenantId;
 
-    @ApiModelProperty(value = "项目 ID", example = "3")
-    private Long projectId;
-
     @ApiModelProperty(value = "平台类型", example = "1")
     private Integer appType;
 
@@ -198,14 +195,6 @@ public class BatchTaskVersionDetailResultVO {
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     public Integer getAppType() {

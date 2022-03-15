@@ -28,9 +28,6 @@ public class BatchTaskDeleteTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "任务 ID", example = "1", required = true)
     private Long taskId;
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "用户 ID", hidden = true)
     private Long userId;
 
@@ -46,14 +43,6 @@ public class BatchTaskDeleteTaskVO extends DtInsightAuthParam {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
     }
 
     @Override

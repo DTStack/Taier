@@ -36,15 +36,11 @@ public class ScheduleDetailsVO {
 
     private Integer appType;
 
-    private String projectName;
-
     private Integer taskRule;
 
     private Integer scheduleStatus;
 
     private Integer projectScheduleStatus;
-
-    private String projectAlias;
 
     private List<ScheduleDetailsVO> scheduleDetailsVOList;
 
@@ -80,14 +76,6 @@ public class ScheduleDetailsVO {
         this.appType = appType;
     }
 
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public Integer getTaskRule() {
         return taskRule;
     }
@@ -120,11 +108,4 @@ public class ScheduleDetailsVO {
         this.projectScheduleStatus = projectScheduleStatus;
     }
 
-    public String getProjectAlias() {
-        return projectAlias;
-    }
-
-    public void setProjectAlias(String projectAlias) {
-        this.projectAlias = projectAlias;
-    }
 }
