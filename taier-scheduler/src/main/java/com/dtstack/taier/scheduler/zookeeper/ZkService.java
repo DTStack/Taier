@@ -18,11 +18,12 @@
 
 package com.dtstack.taier.scheduler.zookeeper;
 
-import com.dtstack.taier.common.LockService;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.LockServiceException;
 import com.dtstack.taier.common.exception.LockTimeoutException;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.pluginapi.leader.LeaderNode;
+import com.dtstack.taier.pluginapi.leader.LockService;
 import com.dtstack.taier.scheduler.server.FailoverStrategy;
 import com.dtstack.taier.scheduler.server.listener.HeartBeatCheckListener;
 import com.dtstack.taier.scheduler.server.listener.HeartBeatListener;
@@ -32,7 +33,6 @@ import com.dtstack.taier.scheduler.utils.PathUtil;
 import com.dtstack.taier.scheduler.zookeeper.data.BrokerHeartNode;
 import com.dtstack.taier.scheduler.zookeeper.data.BrokersNode;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -92,9 +92,10 @@ public class ZkService implements InitializingBean, DisposableBean {
     private FailoverStrategy failoverStrategy;
 
     private static class LockServiceImpl implements LockService {
+
         private final CuratorFramework zkClient;
         private final String lockNode;
-        private final Map<String, InterProcessMutex> mutexes = Maps.newConcurrentMap();
+        private final Map<String, InterProcessMutex> mutexes = new HashMap<>();
 
         private LockServiceImpl(CuratorFramework zkClient, String lockNode) {
             this.zkClient = zkClient;
@@ -103,15 +104,15 @@ public class ZkService implements InitializingBean, DisposableBean {
 
         @Override
         public void execWithLock(String lockName, Runnable runnable) {
-            boolean locked = tryLock(lockName, LOCK_WAIT_SECONDS, TimeUnit.SECONDS);
-            if (locked) {
-                try {
+            try {
+                boolean locked = tryLock(lockName, LOCK_WAIT_SECONDS, TimeUnit.SECONDS);
+                if (locked) {
                     runnable.run();
-                } finally {
-                    release(lockName);
+                } else {
+                    throw new LockTimeoutException("Lock " + lockName + " timeout.");
                 }
-            } else {
-                throw new LockTimeoutException("Lock " + lockName + " timeout.");
+            } finally {
+                release(lockName);
             }
         }
 
@@ -122,18 +123,7 @@ public class ZkService implements InitializingBean, DisposableBean {
             try {
                 return mutex.acquire(time, timeUnit);
             } catch (Exception e) {
-                throw new LockServiceException("ZK errors, connection interruptions", e);
-            }
-        }
-
-        @Override
-        public void lock(String lockName) {
-            InterProcessMutex mutex = this.mutexes.computeIfAbsent(lockName,
-                    ln -> new InterProcessMutex(zkClient, String.format("%s/%s", this.lockNode, ln)));
-            try {
-                mutex.acquire();
-            } catch (Exception e) {
-                throw new LockServiceException("ZK errors, connection interruptions", e);
+                throw new LockServiceException("ZK errors, connection interruptions");
             }
         }
 
@@ -145,10 +135,11 @@ public class ZkService implements InitializingBean, DisposableBean {
                     mutex.release();
                 }
             } catch (Exception e) {
-                LOGGER.warn("Couldn't release lock " + lockName, e);
+                LOGGER.warn("Couldn't release lock " + lockName);
             }
         }
     }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -158,6 +149,9 @@ public class ZkService implements InitializingBean, DisposableBean {
         checkDistributedConfig();
         initClient();
         zkRegistration();
+
+        LeaderNode.getInstance().setLockService(new LockServiceImpl(zkClient, lockNode));
+        LeaderNode.getInstance().finishInit();
     }
 
     private void initConfig() {
