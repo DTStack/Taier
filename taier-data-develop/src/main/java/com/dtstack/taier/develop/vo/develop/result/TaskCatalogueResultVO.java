@@ -56,9 +56,6 @@ public class TaskCatalogueResultVO{
     @ApiModelProperty(value = "目录名称", example = "name")
     private String name;
 
-    @ApiModelProperty(value = "项目别名", example = "project_alia")
-    private String projectAlias;
-
     @ApiModelProperty(value = "目录层级", example = "1")
     private Integer level;
 
@@ -80,26 +77,11 @@ public class TaskCatalogueResultVO{
     @ApiModelProperty(value = "子目录列表")
     private List<BatchCatalogueResultVO> children;
 
-    @ApiModelProperty(value = "读写锁")
-    private ReadWriteLockVO readWriteLockVO;
-
     @ApiModelProperty(value = "版本", example = "1")
     private Integer version;
 
     @ApiModelProperty(value = "操作模式", example = "1")
     private Integer operateModel = 1;
-
-    @ApiModelProperty(value = "python版本", example = "2")
-    private Integer pythonVersion;
-
-    @ApiModelProperty(value = "learning类型", example = "1")
-    private Integer learningType;
-
-    @ApiModelProperty(value = "脚本类型", example = "1")
-    private Integer scriptType;
-
-    @ApiModelProperty(value = "是否为子任务", example = "0")
-    private Integer isSubTask = 0;
 
     @ApiModelProperty(value = "engine类型", example = "1")
     private Integer engineType;
@@ -187,14 +169,6 @@ public class TaskCatalogueResultVO{
         this.name = name;
     }
 
-    public String getProjectAlias() {
-        return projectAlias;
-    }
-
-    public void setProjectAlias(String projectAlias) {
-        this.projectAlias = projectAlias;
-    }
-
     public Integer getLevel() {
         return level;
     }
@@ -251,14 +225,6 @@ public class TaskCatalogueResultVO{
         this.children = children;
     }
 
-    public ReadWriteLockVO getReadWriteLockVO() {
-        return readWriteLockVO;
-    }
-
-    public void setReadWriteLockVO(ReadWriteLockVO readWriteLockVO) {
-        this.readWriteLockVO = readWriteLockVO;
-    }
-
     public Integer getVersion() {
         return version;
     }
@@ -273,38 +239,6 @@ public class TaskCatalogueResultVO{
 
     public void setOperateModel(Integer operateModel) {
         this.operateModel = operateModel;
-    }
-
-    public Integer getPythonVersion() {
-        return pythonVersion;
-    }
-
-    public void setPythonVersion(Integer pythonVersion) {
-        this.pythonVersion = pythonVersion;
-    }
-
-    public Integer getLearningType() {
-        return learningType;
-    }
-
-    public void setLearningType(Integer learningType) {
-        this.learningType = learningType;
-    }
-
-    public Integer getScriptType() {
-        return scriptType;
-    }
-
-    public void setScriptType(Integer scriptType) {
-        this.scriptType = scriptType;
-    }
-
-    public Integer getIsSubTask() {
-        return isSubTask;
-    }
-
-    public void setIsSubTask(Integer isSubTask) {
-        this.isSubTask = isSubTask;
     }
 
     public Integer getEngineType() {

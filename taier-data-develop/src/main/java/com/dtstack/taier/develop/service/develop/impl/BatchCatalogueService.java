@@ -26,7 +26,6 @@ import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
-import com.dtstack.taier.common.enums.ReadWriteLockType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
@@ -37,7 +36,6 @@ import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueDao;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.dto.devlop.ReadWriteLockVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.enums.develop.TemplateCatalogue;
@@ -98,10 +96,6 @@ public class BatchCatalogueService {
 
     @Autowired
     public BatchTaskTemplateService batchTaskTemplateService;
-
-    @Autowired
-    private ReadWriteLockService readWriteLockService;
-
 
     private static final String FUNCTION_MANAGER_NAME = "函数管理";
 
@@ -615,8 +609,6 @@ public class BatchCatalogueService {
                 taskList.sort(Comparator.comparing(Task::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
                     List<Long> taskIds = taskList.stream().map(Task::getId).collect(Collectors.toList());
-                    Map<Long, ReadWriteLockVO> readWriteLockIdAndVOMap = getReadWriteLockVOMap(tenantId, taskIds, userId, userIdAndNameMap);
-
                     //遍历目录下的所有任务
                     for (Task task : taskList) {
                         CatalogueVO childCatalogueTask = new CatalogueVO();
@@ -625,14 +617,6 @@ public class BatchCatalogueService {
                         childCatalogueTask.setLevel(currentCatalogueVO.getLevel() + 1);
                         childCatalogueTask.setParentId(currentCatalogueVO.getId());
                         childCatalogueTask.setCreateUser(getUserNameInMemory(userIdAndNameMap, task.getCreateUserId()));
-
-                        //设置任务的读写锁信息
-                        ReadWriteLockVO readWriteLockVO = readWriteLockIdAndVOMap.get(task.getId());
-                        if (readWriteLockVO.getLastKeepLockUserName() == null) {
-                            readWriteLockVO.setLastKeepLockUserName(getUserNameInMemory(userIdAndNameMap, task.getModifyUserId()));
-                            readWriteLockVO.setGmtModified(task.getGmtModified());
-                        }
-                        childCatalogueTask.setReadWriteLockVO(readWriteLockVO);
 
                         catalogueChildFileList.add(childCatalogueTask);
                     }
@@ -720,31 +704,6 @@ public class BatchCatalogueService {
         }
 
     }
-
-
-    /**
-     * 获取目录下任务的锁信息
-     * @param tenantId
-     * @param taskIds
-     * @param userId
-     * @param names
-     * @return
-     */
-    private Map<Long, ReadWriteLockVO> getReadWriteLockVOMap(Long tenantId, List<Long> taskIds, Long userId, Map<Long, String> names) {
-        Map<Long, ReadWriteLockVO> vos = Maps.newHashMap();
-        //一次查询800条
-        int num = taskIds.size() % 800 == 0 ? taskIds.size() / 800 : taskIds.size() / 800 + 1;
-        for (int i = 0; i < num; i++) {
-            int begin = i * 800;
-            int end = (i + 1) * 800;
-            if (i == num - 1) {
-                end = taskIds.size();
-            }
-            vos.putAll(readWriteLockService.getLocks(tenantId, ReadWriteLockType.BATCH_TASK, taskIds.subList(begin, end), userId, names));
-        }
-        return vos;
-    }
-
 
     /**
      * 设置用户名称

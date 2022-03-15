@@ -55,6 +55,8 @@ public class JobIdentifier implements Serializable {
 
     private String componentVersion;
 
+    private String archiveFsDir;
+
 
     private JobIdentifier() {
     }
@@ -146,6 +148,14 @@ public class JobIdentifier implements Serializable {
 
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
+    }
+
+    public String getArchiveFsDir() {
+        return archiveFsDir;
+    }
+
+    public void setArchiveFsDir(String archiveFsDir) {
+        this.archiveFsDir = archiveFsDir;
     }
 
     @Override

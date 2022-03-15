@@ -20,6 +20,9 @@
         <module>yarn2-hdfs2-flink110-core</module>
         <module>yarn2-hdfs2-flink110</module>
         <module>yarn3-hdfs3-flink110</module>
+        <module>yarn-hdfs-flink112-core</module>
+        <module>yarn3-hdfs3-flink112</module>
+        <module>yarn2-hdfs2-flink112</module>
         <module>flink-base</module>
     </modules>
 
