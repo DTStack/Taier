@@ -345,6 +345,10 @@ function initExplorer() {
 			data: explorerData,
 		});
 	}
+
+	molecule.explorer.onCollapseAllFolders(() => {
+		molecule.folderTree.setExpandKeys([]);
+	});
 }
 
 /**

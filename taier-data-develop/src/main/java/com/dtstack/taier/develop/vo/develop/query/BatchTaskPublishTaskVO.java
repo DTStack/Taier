@@ -25,9 +25,6 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel("任务信息")
 public class BatchTaskPublishTaskVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "项目 ID", hidden = true)
-    private Long projectId;
-
     @ApiModelProperty(value = "任务 ID", example = "1", required = true)
     private Long id;
 
@@ -42,14 +39,6 @@ public class BatchTaskPublishTaskVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "忽略检查", example = "true", required = true)
     private Boolean ignoreCheck;
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
 
     public Long getId() {
         return id;

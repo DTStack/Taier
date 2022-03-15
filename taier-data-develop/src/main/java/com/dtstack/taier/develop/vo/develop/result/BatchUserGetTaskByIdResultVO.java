@@ -39,10 +39,6 @@ public class BatchUserGetTaskByIdResultVO {
     @ApiModelProperty(value = "用户状态", example = "1")
     private Integer status;
 
-    @ApiModelProperty(value = "默认项目 ID", example = "1L")
-    private Long defaultProjectId;
-
-
     public Long getId() {
         return id;
     }
@@ -83,11 +79,4 @@ public class BatchUserGetTaskByIdResultVO {
         this.status = status;
     }
 
-    public Long getDefaultProjectId() {
-        return defaultProjectId;
-    }
-
-    public void setDefaultProjectId(Long defaultProjectId) {
-        this.defaultProjectId = defaultProjectId;
-    }
 }
