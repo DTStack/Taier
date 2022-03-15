@@ -658,9 +658,6 @@ public class BatchTaskService {
 
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId,scheduleTasks);
-            if (!Objects.equals(TaskSubmitStatusEnum.SUBMITTED, task.getSubmitStatus())) {
-                developTaskDao.updateSubmitStatus(task.getId(), TaskSubmitStatusEnum.SUBMITTED.getStatus(), null);
-            }
             SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
             savaTaskDTO.setScheduleTaskShade(scheduleTasks);
             //todo 依赖关系没处理
@@ -685,7 +682,7 @@ public class BatchTaskService {
         String extroInfo = getExtraInfo(task, userId);
         if(Objects.equals(task.getTaskType(),EDataSyncJobType.DATA_ACQUISITION.getVal())){
             ParamTaskAction paramTaskAction = new ParamTaskAction();
-            paramTaskAction.setJobId(task.getJobId());
+//            paramTaskAction.setJobId(task.getJobId());
             paramTaskAction.setIsRestart(0);
             scheduleTasks.setExtraInfo(extroInfo);
             if (!scheduleTasks.getScheduleConf().contains("periodType")) {

@@ -24,16 +24,6 @@ public class Task extends TenantEntity {
      */
     private Long flowId = 0L;
     /**
-     * 任务id
-     */
-    private String jobId;
-
-    /**
-     * 引擎类型
-     * @see EngineType
-     */
-    private Integer engineType;
-    /**
      * '任务名称'
      */
     private String name;
@@ -123,32 +113,12 @@ public class Task extends TenantEntity {
      */
     private Integer submitStatus ;
 
-    /**
-     * 任务状态
-     */
-    private Integer status;
     public Long getFlowId() {
         return flowId;
     }
 
     public void setFlowId(Long flowId) {
         this.flowId = flowId;
-    }
-
-    public String getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
-    }
-
-    public Integer getEngineType() {
-        return engineType;
-    }
-
-    public void setEngineType(Integer engineType) {
-        this.engineType = engineType;
     }
 
     public String getName() {

@@ -381,6 +381,10 @@ create table develop_task
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	task_desc varchar(256) not null,
 	main_class varchar(256) not null,
+    source_str longtext COMMENT '输入源',
+    target_str longtext COMMENT '输出源',
+    setting_str longtext COMMENT '输出源',
+    create_model tinyint(1) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
 	exe_args text null,
 	flow_id int default 0 not null comment '工作流id',
 	component_version varchar(25) null comment '组件版本'
