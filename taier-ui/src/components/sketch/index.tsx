@@ -373,6 +373,7 @@ export default function Sketch<
 					onChange: handleSelectedRowChanged,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
+				scroll={{ y: 'calc(100vh - 300px)' }}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}
