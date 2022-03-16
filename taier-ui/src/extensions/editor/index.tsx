@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import { message, Modal, Tag } from 'antd';
 import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
@@ -36,7 +35,7 @@ import ReactDOM from 'react-dom';
 import Result from '@/components/task/result';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { filterSql, formatDateTime } from '@/utils';
+import { filterSql } from '@/utils';
 import api from '@/api';
 import { searchById } from '@dtinsight/molecule/esm/common/utils';
 import { TASK_TYPE_ENUM } from '@/constant';
@@ -45,9 +44,7 @@ import taskResultService from '@/services/taskResultService';
 import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
-import { generateRqtBody } from '@/components/dataSync';
-
-const { confirm } = Modal;
+import { saveTask } from '@/components/dataSync/help';
 
 function initActions() {
 	const { builtInEditorInitialActions } = molecule.builtin.getModules();
@@ -266,118 +263,38 @@ function emitEvent() {
 				break;
 			}
 			case TASK_SAVE_ID: {
-				const params = {
-					...generateRqtBody(),
-					sqlText: current.tab?.data.value,
-					// taskVos pass through by dependencyTasks
-					dependencyTasks: current.tab?.data.taskVOS,
-				};
-				const uploadTask = () => {
-					const { id } = params;
-					api.getOfflineTaskByID({ id }).then((res) => {
-						const { success, data } = res;
-						if (success) {
-							molecule.folderTree.update({
-								id,
-								data,
-							});
-							molecule.editor.updateActions([
-								{
-									id: TASK_SAVE_ID,
-									disabled: false,
-								},
-								{
-									id: TASK_RUN_ID,
-									icon: 'play',
-									disabled: false,
-								},
-								{
-									id: TASK_STOP_ID,
-									disabled: true,
-								},
-								{
-									id: TASK_SUBMIT_ID,
-									disabled: false,
-								},
-							]);
-						}
+				saveTask()
+					?.then(({ data }) => data.id)
+					.then((id) => {
+						api.getOfflineTaskByID({ id }).then((res) => {
+							const { success, data } = res;
+							if (success) {
+								molecule.folderTree.update({
+									id,
+									data,
+								});
+								molecule.editor.updateActions([
+									{
+										id: TASK_SAVE_ID,
+										disabled: false,
+									},
+									{
+										id: TASK_RUN_ID,
+										icon: 'play',
+										disabled: false,
+									},
+									{
+										id: TASK_STOP_ID,
+										disabled: true,
+									},
+									{
+										id: TASK_SUBMIT_ID,
+										disabled: false,
+									},
+								]);
+							}
+						});
 					});
-				};
-				const succCallback = (res: any) => {
-					if (res.code === 1) {
-						const fileData = res.data;
-						const lockInfo = fileData.readWriteLockVO;
-						const lockStatus = lockInfo?.result; // 1-正常，2-被锁定，3-需同步
-						if (lockStatus === 0) {
-							message.success('保存成功！');
-							uploadTask();
-							// 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-						} else if (lockStatus === 1) {
-							// 2-被锁定
-							confirm({
-								title: '锁定提醒', // 锁定提示
-								content: (
-									<span>
-										文件正在被
-										{lockInfo.lastKeepLockUserName}
-										编辑中，开始编辑时间为
-										{formatDateTime(lockInfo.gmtModified)}。 强制保存可能导致
-										{lockInfo.lastKeepLockUserName}
-										对文件的修改无法正常保存！
-									</span>
-								),
-								okText: '确定保存',
-								okType: 'danger',
-								cancelText: '取消',
-								onOk() {
-									const succCall = (successRes: any) => {
-										if (successRes.code === 1) {
-											message.success('保存成功！');
-											uploadTask();
-										}
-									};
-									api.forceUpdateOfflineTask(params).then(succCall);
-								},
-							});
-							// 如果同步状态，则提示会覆盖代码，
-							// 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-						} else if (lockStatus === 2) {
-							// 2-需同步
-							confirm({
-								title: '保存警告',
-								content: (
-									<span>
-										文件已经被
-										{lockInfo.lastKeepLockUserName}
-										编辑过，编辑时间为
-										{formatDateTime(lockInfo.gmtModified)}。 点击确认按钮会
-										<Tag color="orange">覆盖</Tag>
-										您本地的代码，请您提前做好备份！
-									</span>
-								),
-								okText: '确定覆盖',
-								okType: 'danger',
-								cancelText: '取消',
-								onOk() {
-									const reqParams: any = {
-										id: params.id,
-										lockVersion: lockInfo.version,
-									};
-									// 更新version, getLock信息
-									api.getOfflineTaskDetail(reqParams).then((detailRes) => {
-										if (detailRes.code === 1) {
-											const taskInfo = detailRes.data;
-											taskInfo.merged = true;
-											uploadTask();
-										}
-									});
-								},
-							});
-						}
-						return res;
-					}
-				};
-				api.saveOfflineJobData(params).then(succCallback);
 				break;
 			}
 			case TASK_SUBMIT_ID: {

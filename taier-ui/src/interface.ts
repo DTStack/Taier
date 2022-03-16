@@ -142,12 +142,6 @@ export interface IOfflineTaskProps {
 	nodePName: string;
 	nodePid: number;
 	ownerUserId: number;
-	readWriteLockVO: {
-		getLock: boolean;
-		gmtCreate: number;
-		gmtModified: number;
-		id: number;
-	};
 	scheduleConf: string;
 	scheduleStatus: SCHEDULE_STATUS;
 	/**
@@ -260,4 +254,10 @@ export interface IDataSourceProps {
 	status: number;
 	linkJson: string | null;
 	type?: DATA_SOURCE_ENUM;
+}
+
+export interface IDataSourceUsedInSyncProps {
+	dataInfoId: number;
+	dataName: string;
+	dataTypeCode: DATA_SOURCE_ENUM;
 }
