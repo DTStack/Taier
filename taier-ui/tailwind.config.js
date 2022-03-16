@@ -4,12 +4,12 @@ module.exports = {
 	purge: ['./src/**/*.html', './src/**/*.tsx', './src/**/*.ts'],
 	darkMode: false, // or 'media' or 'class'
 	theme: {
-		spacing: {
-			'5px': '5px',
-			'10px': '10px',
-			'20px': '20px',
-		},
 		extend: {
+			spacing: {
+				'5px': '5px',
+				'10px': '10px',
+				'20px': '20px',
+			},
 			colors: {
 				ccc: '#ccc',
 				ddd: '#ddd',

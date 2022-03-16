@@ -19,6 +19,19 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
+export const transTableConcurrence = (
+    <div>
+        Inceptor事务表不支持多并发写数据
+    </div>
+)
+
+export const S3Concurrence = ( // s3 作业并发数
+    <div>
+        AWS S3仅支持单通道的数据写入
+    </div>
+)
+
+
 export const extraHive = (hadoopName: string) => (
 	<div>
 		<p>

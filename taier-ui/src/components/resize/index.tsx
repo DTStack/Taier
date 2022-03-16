@@ -23,7 +23,7 @@ export interface IResizeProps {
 	children?: React.ReactNode;
 }
 
-export default class Resize extends React.Component<IResizeProps, void> {
+export default class Resize extends React.Component<IResizeProps> {
 	componentDidMount() {
 		window.addEventListener('resize', this.resize, false);
 	}

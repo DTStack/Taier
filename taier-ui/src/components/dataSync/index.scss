@@ -1,11 +1,18 @@
-.ide-editor .ide-toolbar {
-	height: 36px;
-}
+.dt-datasync {
+	min-width: 770px;
+	min-height: 200px;
+	padding: 50px;
 
-.ide-editor
-	.ide-console
-	> .ant-tabs
-	> .ant-tabs-content
-	> .ant-tabs-tabpane-inactive {
-	height: 0;
+	&-content {
+		margin-top: 20px;
+		padding: 40px 0;
+		background: var(--workbenchBackground);
+		border: 1px dashed var(--widget-shadow);
+		border-radius: 0;
+	}
+
+	.steps-action {
+		margin-top: 24px;
+		text-align: center;
+	}
 }
