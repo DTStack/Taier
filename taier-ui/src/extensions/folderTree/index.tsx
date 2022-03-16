@@ -73,7 +73,6 @@ function openCreateTab(id?: string) {
 			const params = {
 				...values,
 				computeType: 1,
-				lockVersion: 0,
 				version: 0,
 			};
 			api.addOfflineTask(params)
@@ -440,7 +439,6 @@ function contextMenu() {
 							id: treeNode!.data.id,
 							isUseComponent: 0,
 							computeType: 1,
-							lockVersion: 0,
 							version: 0,
 							...values,
 						};
