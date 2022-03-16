@@ -31,7 +31,7 @@ import {
 import { usePagination } from '@/hooks';
 import type { ColumnsType, TablePaginationConfig, TableProps } from 'antd/lib/table';
 import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
-import useCalcTableScroll from '@/components/calcTableScroll'
+import { useCalcTableScroll } from '@/components/customHooks/index'
 import classnames from 'classnames';
 import './index.scss';
 
