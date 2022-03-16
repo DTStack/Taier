@@ -31,6 +31,7 @@ import {
 import { usePagination } from '@/hooks';
 import type { ColumnsType, TablePaginationConfig, TableProps } from 'antd/lib/table';
 import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
+import useCalcTableScroll from '@/components/calcTableScroll'
 import classnames from 'classnames';
 import './index.scss';
 
@@ -175,6 +176,7 @@ export default function Sketch<
 	const [selectedRowKeys, setSelectedKeys] = useState<React.Key[]>([]);
 	const [selectedRows, setSelectedRows] = useState<T[]>([]);
 	const timeout = useRef<number | undefined>(undefined);
+	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' })
 
 	useImperativeHandle(actionRef, () => ({
 		selectedRowKeys,
@@ -278,7 +280,7 @@ export default function Sketch<
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, ...restTableProps } = tableProps;
+	const { className: tableClassName, scroll: tableScroll,...restTableProps } = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
@@ -373,7 +375,7 @@ export default function Sketch<
 					onChange: handleSelectedRowChanged,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
-				scroll={{ y: 'calc(100vh - 300px)' }}
+				scroll={{...calcTableScroll, ...tableScroll}}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}
