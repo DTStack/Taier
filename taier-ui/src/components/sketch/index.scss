@@ -21,6 +21,7 @@
 
 	&-table {
 		flex: 1;
+		overflow: hidden;
 
 		.ant-spin-container,
 		.ant-spin-nested-loading,
