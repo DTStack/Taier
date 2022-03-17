@@ -21,7 +21,6 @@
 		]
 	},
 	"dependencies": {
-		"@ant-design/compatible": "^1.1.0",
 		"@dtinsight/dt-utils": "^1.0.9",
 		"@dtinsight/molecule": "^0.9.0-beta.1",
 		"@handsontable/react": "^2.1.0",
