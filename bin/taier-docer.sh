@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# 获得根目录
+SH_FILE_PATH=$(cd `dirname $0`; pwd)
+TAIER_PATH=$(cd $SH_FILE_PATH; cd ../;pwd)
+BUILD_TARER_SH="mvn-build.sh"
+
+echo "当前文件路径:$SH_FILE_PATH"
+echo "taier路径:$TAIER_PATH"
+
+# 打包
+echo "开始taier打包"
+#.$TAIER_PATH/build/$BUILD_TARER_SH
+echo "完成taier打包"
+
+# 打包工作完成后 开始build docker镜像
+echo "开始构建docker镜像"
+echo `$(cd $TAIER_PATH; docker build -t taige:1.0 .)`
+
