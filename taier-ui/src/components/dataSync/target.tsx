@@ -53,7 +53,6 @@ interface ITargetProps {
 	 */
 	dataSourceList: IDataSourceUsedInSyncProps[];
 	/**
-	 * @deprecated
 	 * 是否增量模式
 	 */
 	isIncrementMode?: boolean;
@@ -88,7 +87,7 @@ export default function Target({
 	targetMap,
 	sourceMap,
 	dataSourceList,
-	isIncrementMode,
+	isIncrementMode = false,
 	readonly,
 	onNext,
 	onGetTableCols,
