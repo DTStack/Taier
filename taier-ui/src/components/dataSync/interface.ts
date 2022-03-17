@@ -13,6 +13,7 @@ export interface ISourceFormField {
 	where?: string;
 	splitPK?: string;
 	extralConfig?: string;
+	increColumn?: string | number;
 	/**
 	 * Only used in HDFS
 	 */
@@ -58,6 +59,7 @@ export interface ISourceMapProps {
 	name?: string;
 	sourceId?: number;
 	column?: IDataColumnsProps[];
+	increColumn?: string | number;
 	sourceList?: {
 		key: string;
 		tables?: string[] | string;
@@ -105,5 +107,5 @@ export interface IChannelFormProps {
 	record?: number;
 	percentage?: number;
 	isRestore?: boolean;
-	restoreColumnName?: string;
+	restoreColumnName?: string | number;
 }

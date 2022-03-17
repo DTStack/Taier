@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import molecule from '@dtinsight/molecule';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
@@ -17,7 +17,7 @@ import type {
 	ITargetFormField,
 	ITargetMapProps,
 } from './interface';
-import { SUPPROT_SUB_LIBRARY_DB_ARRAY } from '@/constant';
+import { DATA_SYNC_MODE, SUPPROT_SUB_LIBRARY_DB_ARRAY } from '@/constant';
 import Target from './target';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import Keymap, { OPERATOR_TYPE } from './keymap';
@@ -73,6 +73,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 						sourceId: values.sourceId!,
 						column: values.column,
 						extralConfig: values.extralConfig,
+						increColumn: values.increColumn,
 						sourceList,
 						type: {
 							type: target.dataTypeCode,
@@ -91,13 +92,14 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 			// increment updates
 			const nextData = d;
-			const { sourceId, column, extralConfig, ...restValues } = values;
+			const { sourceId, column, extralConfig, increColumn, ...restValues } = values;
 			nextData.sourceMap = {
 				sourceId: sourceId || nextData.sourceMap?.sourceId,
 				name: target?.dataName || nextData.sourceMap?.name,
 				extralConfig: extralConfig || nextData.sourceMap?.extralConfig,
 				column: column || nextData.sourceMap?.column,
 				sourceList,
+				increColumn: increColumn || nextData.sourceMap?.increColumn,
 				type: {
 					...(nextData.sourceMap?.type || {}),
 					type: target?.dataTypeCode || nextData.sourceMap?.type?.type,
@@ -261,6 +263,10 @@ function DataSync({ current }: molecule.model.IEditor) {
 		if (nextSettings.isRestore === false) {
 			nextSettings.restoreColumnName = undefined;
 		}
+		// 增量模式下，开启断点续传字段默认与增量字段保存一致
+		if (isIncrementMode && nextSettings.isRestore === true) {
+			nextSettings.restoreColumnName = currentData!.sourceMap!.increColumn;
+		}
 		setCurrentData((d) => {
 			const nextData = { ...d! };
 			nextData.setting = nextSettings;
@@ -283,77 +289,6 @@ function DataSync({ current }: molecule.model.IEditor) {
 	const handleSaveTab = () => {
 		saveTask();
 	};
-
-	const steps = [
-		{
-			key: 'source',
-			title: '数据来源',
-			content: (
-				<Source
-					sourceMap={currentData?.sourceMap}
-					dataSourceList={dataSourceList}
-					onFormValuesChanged={handleSourceChanged}
-					onGetTableCols={(cols) => handleSourceChanged({ column: cols })}
-					onNext={() => setCurrentStep((s) => s + 1)}
-				/>
-			),
-		},
-		{
-			key: 'target',
-			title: '选择目标',
-			content: (
-				<Target
-					sourceMap={currentData?.sourceMap}
-					targetMap={currentData?.targetMap}
-					dataSourceList={dataSourceList}
-					onFormValuesChanged={handleTargetChanged}
-					onGetTableCols={(cols) => handleTargetChanged({ column: cols })}
-					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
-				/>
-			),
-		},
-		{
-			key: 'keymap',
-			title: '字段映射',
-			content: currentData?.sourceMap && currentData.targetMap && (
-				<Keymap
-					sourceMap={currentData.sourceMap}
-					targetMap={currentData.targetMap}
-					lines={currentData.keymap}
-					onColsChanged={handleColChanged}
-					onLinesChanged={handleLinesChange}
-					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
-				/>
-			),
-		},
-		{
-			key: 'setting',
-			title: '通道控制',
-			content: currentData?.sourceMap && currentData.targetMap && (
-				<Channel
-					sourceMap={currentData.sourceMap}
-					targetMap={currentData.targetMap}
-					setting={currentData.setting}
-					onNext={handleChannelSubmit}
-					onFormValuesChanged={handleSettingChanged}
-				/>
-			),
-		},
-		{
-			key: 'preview',
-			title: '预览保存',
-			content: currentData && (
-				<Preview
-					data={currentData}
-					dataSourceList={dataSourceList}
-					onStepTo={(step) =>
-						setCurrentStep((s) => (typeof step === 'number' ? step : s - 1))
-					}
-					onSave={handleSaveTab}
-				/>
-			),
-		},
-	];
 
 	// 获取当前任务的数据
 	const getJobData = () => {
@@ -413,6 +348,88 @@ function DataSync({ current }: molecule.model.IEditor) {
 			});
 		}
 	}, [currentData]);
+
+	// 是否是增量模式
+	const isIncrementMode = useMemo(() => {
+		if (current?.tab?.data.syncModel !== undefined) {
+			return current?.tab?.data.syncModel === DATA_SYNC_MODE.INCREMENT;
+		}
+		return false;
+	}, [current]);
+
+	const steps = [
+		{
+			key: 'source',
+			title: '数据来源',
+			content: (
+				<Source
+					isIncrementMode={isIncrementMode}
+					sourceMap={currentData?.sourceMap}
+					dataSourceList={dataSourceList}
+					onFormValuesChanged={handleSourceChanged}
+					onGetTableCols={(cols) => handleSourceChanged({ column: cols })}
+					onNext={() => setCurrentStep((s) => s + 1)}
+				/>
+			),
+		},
+		{
+			key: 'target',
+			title: '选择目标',
+			content: (
+				<Target
+					isIncrementMode={isIncrementMode}
+					sourceMap={currentData?.sourceMap}
+					targetMap={currentData?.targetMap}
+					dataSourceList={dataSourceList}
+					onFormValuesChanged={handleTargetChanged}
+					onGetTableCols={(cols) => handleTargetChanged({ column: cols })}
+					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
+				/>
+			),
+		},
+		{
+			key: 'keymap',
+			title: '字段映射',
+			content: currentData?.sourceMap && currentData.targetMap && (
+				<Keymap
+					sourceMap={currentData.sourceMap}
+					targetMap={currentData.targetMap}
+					lines={currentData.keymap}
+					onColsChanged={handleColChanged}
+					onLinesChanged={handleLinesChange}
+					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
+				/>
+			),
+		},
+		{
+			key: 'setting',
+			title: '通道控制',
+			content: currentData?.sourceMap && currentData.targetMap && (
+				<Channel
+					isIncrementMode={isIncrementMode}
+					sourceMap={currentData.sourceMap}
+					targetMap={currentData.targetMap}
+					setting={currentData.setting}
+					onNext={handleChannelSubmit}
+					onFormValuesChanged={handleSettingChanged}
+				/>
+			),
+		},
+		{
+			key: 'preview',
+			title: '预览保存',
+			content: currentData && (
+				<Preview
+					data={currentData}
+					dataSourceList={dataSourceList}
+					onStepTo={(step) =>
+						setCurrentStep((s) => (typeof step === 'number' ? step : s - 1))
+					}
+					onSave={handleSaveTab}
+				/>
+			),
+		},
+	];
 
 	return (
 		<Scrollable isShowShadow>
