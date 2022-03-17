@@ -17,39 +17,44 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { TableProps } from 'antd';
+import type { TableProps } from 'antd';
 
 interface IProps {
-    className: string
+	className: string;
 }
 
-type IScroll<T> = Pick<Partial<TableProps<T>>,'scroll'>['scroll']
+type IScroll<T> = Pick<Partial<TableProps<T>>, 'scroll'>['scroll'];
 
 function useCalcTableScroll<T>(props: IProps) {
-    const { className } = props
-    const [scroll, setScroll] = useState<IScroll<T>>({})
+	const { className } = props;
+	const [scroll, setScroll] = useState<IScroll<T>>({});
 
-    const calcTableScroll = useCallback((targetTableEle: HTMLElement) => {
-        return () => {
-            const tableContentHeight = targetTableEle.offsetHeight
-            const tableHeader = targetTableEle.querySelector('.ant-table-thead') as HTMLElement
-            const tableFooter = targetTableEle.querySelector('.ant-table-footer') as HTMLElement
-            setScroll({ y: tableContentHeight - tableHeader.offsetHeight - tableFooter.offsetHeight})
-        }
-    },[])
+	const calcTableScroll = useCallback((targetTableEle: HTMLElement) => {
+		return () => {
+			const tableContentHeight = targetTableEle.offsetHeight;
+			const tableHeader = targetTableEle.querySelector<HTMLElement>('.ant-table-thead');
+			const tableFooter = targetTableEle.querySelector<HTMLElement>('.ant-table-footer');
+			setScroll({
+				y:
+					tableContentHeight -
+					(tableHeader?.offsetHeight || 0) -
+					(tableFooter?.offsetHeight || 0),
+			});
+		};
+	}, []);
 
-    useEffect(() => {
-        const targetTableEle = document.querySelector(`.${className}`) as HTMLElement | null
-        if(!targetTableEle) return
-        const resizeObserver = new ResizeObserver(calcTableScroll(targetTableEle))
-        resizeObserver.observe(targetTableEle)
+	useEffect(() => {
+		const targetTableEle = document.querySelector<HTMLElement>(`.${className}`);
+		if (!targetTableEle) return;
+		const resizeObserver = new ResizeObserver(calcTableScroll(targetTableEle));
+		resizeObserver.observe(targetTableEle);
 
-        return () => {
-            resizeObserver.unobserve(targetTableEle)
-        }
-    }, [])
+		return () => {
+			resizeObserver.unobserve(targetTableEle);
+		};
+	}, []);
 
-    return { scroll }
+	return { scroll };
 }
 
-export default useCalcTableScroll
+export default useCalcTableScroll;
