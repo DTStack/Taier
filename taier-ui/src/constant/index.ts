@@ -28,6 +28,8 @@ export const TASK_OPS_ID = 'task_ops';
 export const TASK_ATTRIBUTONS = 'task.attributions';
 export const TASK_PARAMS_ID = 'task.params';
 export const TASK_SCHEDULE_CONFIG = 'task.schedule.config';
+export const TASK_SWAP = 'task.swap';
+export const TASK_IMPORT_TEMPALTE = 'task.import.tempalte';
 
 export const ENV_PARAMS = 'env.params';
 
@@ -230,6 +232,82 @@ export enum DATA_SOURCE_ENUM {
 	CSP_S3 = 75,
 }
 
+export const DATA_SOURCE_ENUM_OBJ = {
+	MYSQL: 1,
+	MySQL8: 1001,
+	MySQLPXC: 98,
+	POLAR_DB_For_MySQL: 28,
+	ORACLE: 2,
+	SQLSERVER: 3,
+	SQLSERVER_2017_LATER: 32,
+	POSTGRESQL: 4,
+	DB2: 19,
+	DMDB: 35,
+	RDBMS: 5,
+	KINGBASE8: 40,
+	DMDB_For_Oracle: 67,
+	HIVE: 7,
+	HIVE1X: 27,
+	HIVE3X: 50,
+	MAXCOMPUTE: 10,
+	GREENPLUM6: 36,
+	LIBRA: 21,
+	GBASE_8A: 22,
+	DORIS: 57,
+	HDFS: 6,
+	FTP: 9,
+	S3: 41,
+	AWS_S3: 51,
+	SPARKTHRIFT: 45,
+	IMPALA: 29,
+	CLICKHOUSE: 25,
+	TIDB: 31,
+	CARBONDATA: 20,
+	KUDU: 24,
+	ADS: 15,
+	ADB_FOR_PG: 54,
+	Kylin: 23,
+	PRESTO: 48,
+	OCEANBASE: 49,
+	INCEPTOR: 52,
+	TRINO: 59,
+	HBASE: 8,
+	HBASE2: 39,
+	PHOENIX: 30,
+	PHOENIX5: 38,
+	ES: 11,
+	ES6: 33,
+	ES7: 46,
+	MONGODB: 13,
+	REDIS: 12,
+	SOLR: 53,
+	HBASE_GATEWAY: 99,
+	KAFKA_2X: 37,
+	KAFKA: 26,
+	KAFKA_11: 14,
+	KAFKA_10: 17,
+	KAFKA_09: 18,
+	EMQ: 34,
+	WEBSOCKET: 42,
+	SOCKET: 44,
+	RESTFUL: 47,
+	VERTICA: 43,
+	INFLUXDB: 55,
+	OPENTSDB: 56,
+	BEATS: 16,
+	Spark: 1002,
+	KylinRestful: 58,
+	TBDS_HDFS: 60,
+	TBDS_HBASE: 61,
+	TBDS_KAFKA: 62,
+	DorisRestful: 64,
+	HIVE3_CDP: 65,
+	DRDS: 72,
+	UPDRDB: 73,
+	UPRedis: 74,
+	CSP_S3: 75,
+} as const;
+
 /**
  * 目录结构类型
  */
@@ -276,6 +354,20 @@ export enum DATA_SYNC_MODE {
 	 */
 	INCREMENT = 1,
 }
+
+/**
+ * 数据同步配置模式
+ */
+export const DATA_SYNC_TYPE = {
+	/**
+	 * 向导模式
+	 */
+	GUIDE: 0,
+	/**
+	 * 脚本模式
+	 */
+	SCRIPT: 1,
+} as const;
 
 /**
  * 数据源对应名称
@@ -882,7 +974,7 @@ export const CONFIG_BUTTON_TYPE = {
 		{
 			code: COMPONENT_TYPE_VALUE.HIVE_SERVER,
 			componentName: COMPONENT_CONFIG_NAME[COMPONENT_TYPE_VALUE.HIVE_SERVER],
-		}
+		},
 	],
 };
 
@@ -934,3 +1026,23 @@ export const FLINK_DEPLOY_NAME = {
 	[FLINK_DEPLOY_TYPE.STANDALONE]: 'Flink on Standalone',
 	[FLINK_DEPLOY_TYPE.YARN]: 'Flink on YARN',
 } as const;
+
+/**
+ * @description 脚本模式下 选择源时 不支持选择的数据源类型
+ */
+export const notSupportSourceTypesInScript = [
+	DATA_SOURCE_ENUM.Kylin,
+	DATA_SOURCE_ENUM.IMPALA,
+	DATA_SOURCE_ENUM.DORIS,
+];
+
+
+/**
+ * @description 脚本模式下 选择目标时 不支持选择的数据源类型
+ */
+export const notSupportTargetTypesInScript = [
+    DATA_SOURCE_ENUM.Kylin,
+    DATA_SOURCE_ENUM.INFLUXDB,
+    DATA_SOURCE_ENUM.IMPALA,
+    DATA_SOURCE_ENUM.INFLUXDB,
+]

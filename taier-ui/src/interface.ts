@@ -18,6 +18,7 @@
 
 import type {
 	DATA_SOURCE_ENUM,
+	DATA_SYNC_TYPE,
 	MENU_TYPE_ENUM,
 	PARAMS_ENUM,
 	RESOURCE_TYPE,
@@ -144,6 +145,10 @@ export interface IOfflineTaskProps {
 	ownerUserId: number;
 	scheduleConf: string;
 	scheduleStatus: SCHEDULE_STATUS;
+	/**
+	 * 数据同步任务配置模式
+	 */
+	createModel: Valueof<typeof DATA_SYNC_TYPE>;
 	/**
 	 * 是否是增量同步模式
 	 */

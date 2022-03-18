@@ -78,6 +78,8 @@ function convertMsgToProblemItem(
 
 function analyseProblems(tab: IEditorTab) {
 	if (tab.data && tab.data.language) {
+		const NOT_ANAYLSE_LANGUAGE = ['json'];
+		if (NOT_ANAYLSE_LANGUAGE.includes(tab.data.language)) return;
 		const sql = tab.data.value || '';
 
 		languageService.valid(tab.data.language || 'sql', sql).then((res: ValidMessage[]) => {
