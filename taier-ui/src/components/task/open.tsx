@@ -24,13 +24,14 @@ import FolderPicker from '../../components/folderPicker';
 import {
 	CATELOGUE_TYPE,
 	DATA_SYNC_MODE,
+	DATA_SYNC_TYPE,
 	formItemLayout,
 	tailFormItemLayout,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { syncModeHelp } from '../helpDoc/docs';
+import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
 
 const { Option } = Select;
@@ -165,26 +166,46 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				<FormItem noStyle dependencies={['taskType']}>
 					{({ getFieldValue }) =>
 						getFieldValue('taskType') === TASK_TYPE_ENUM.SYNC && (
-							<FormItem
-								label="同步模式"
-								name="syncModel"
-								tooltip={syncModeHelp}
-								rules={[
-									{
-										required: true,
-										message: '请选择配置模式',
-									},
-									{
-										validator: checkSyncMode,
-									},
-								]}
-								initialValue={DATA_SYNC_MODE.NORMAL}
-							>
-								<RadioGroup>
-									<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
-									<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
-								</RadioGroup>
-							</FormItem>
+							<>
+								<FormItem
+									label="同步模式"
+									name="syncModel"
+									tooltip={syncModeHelp}
+									rules={[
+										{
+											required: true,
+											message: '请选择配置模式',
+										},
+										{
+											validator: checkSyncMode,
+										},
+									]}
+									initialValue={DATA_SYNC_MODE.NORMAL}
+								>
+									<RadioGroup>
+										<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
+										<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
+									</RadioGroup>
+								</FormItem>
+								<FormItem
+									{...formItemLayout}
+									label="配置模式"
+									name="createModel"
+									tooltip={syncTaskHelp}
+									rules={[
+										{
+											required: true,
+											message: '请选择配置模式',
+										},
+									]}
+									initialValue={DATA_SYNC_TYPE.GUIDE}
+								>
+									<RadioGroup>
+										<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+										<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+									</RadioGroup>
+								</FormItem>
+							</>
 						)
 					}
 				</FormItem>

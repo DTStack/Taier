@@ -20,39 +20,37 @@ import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
 export const incrementColumnHelp = (
-    <div>
-        每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
-        <br />
-        支持将数值类型、Timestamp类型作为增量标识字段
-    </div>
-)
+	<div>
+		每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
+		<br />
+		支持将数值类型、Timestamp类型作为增量标识字段
+	</div>
+);
 
 export const syncModeHelp = (
-    <div>
-        无增量标识：可通过简单的过滤语句实现增量同步；
-        <br />
-        有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
-    </div>
-)
+	<div>
+		无增量标识：可通过简单的过滤语句实现增量同步；
+		<br />
+		有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
+	</div>
+);
 
-export const transTableConcurrence = (
-    <div>
-        Inceptor事务表不支持多并发写数据
-    </div>
-)
+export const syncTaskHelp = (
+	<div>
+		向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
+		<br />
+		脚本模式：全能 高效，可深度调优，支持全部数据源
+		<br />
+	</div>
+);
 
-export const S3Concurrence = ( // s3 作业并发数
-    <div>
-        AWS S3仅支持单通道的数据写入
-    </div>
-)
+export const transTableConcurrence = <div>Inceptor事务表不支持多并发写数据</div>;
 
+export const S3Concurrence = <div>AWS S3仅支持单通道的数据写入</div>; // s3 作业并发数
 
 export const extraHive = (hadoopName: string) => (
 	<div>
-		<p>
-			系统需要对接到 {hadoopName} 上，并使用 Hive Metastore 存储元数据。
-		</p>
+		<p>系统需要对接到 {hadoopName} 上，并使用 Hive Metastore 存储元数据。</p>
 		<p>创建：建立一个新的 Database / Schema </p>
 		<p>
 			对接已有 Database /
@@ -63,15 +61,12 @@ export const extraHive = (hadoopName: string) => (
 
 export const dataFilterDoc = (
 	<div>
-		where 条件即针对源头数据筛选条件，根据指定的 column、table、where
-		条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where
+		where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL
+		进行数据抽取，暂时不支持limit关键字过滤。利用 where
 		条件可进行全量同步和增量同步，具体说明如下：
 		<br />
 		<ul>
-			<li>
-				1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where
-				条件。
-			</li>
+			<li>1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。</li>
 			<li>
 				2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写
 				where
@@ -82,9 +77,7 @@ export const dataFilterDoc = (
 	</div>
 );
 
-export const selectKey = (
-	<div>MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键</div>
-);
+export const selectKey = <div>MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键</div>;
 
 export const hdfsPath = (
 	<div>
@@ -92,14 +85,11 @@ export const hdfsPath = (
 		<br />
 		tableName 是RD-OS默认的HDFS文件组织方式，projectName为项目名，
 		其中每个tableName是HDFS内的一个目录，储存着一张表的数据。
-		如果此表的数据存储在当前项目空间内，只需修改tableName即可，
-		否则需要根据HDFS的存储位置填写。
+		如果此表的数据存储在当前项目空间内，只需修改tableName即可， 否则需要根据HDFS的存储位置填写。
 	</div>
 );
 
-export const splitCharacter = (
-	<div>配置不可见字符，可通过“\”作为转义字符，例如\001</div>
-);
+export const splitCharacter = <div>配置不可见字符，可通过“\”作为转义字符，例如\001</div>;
 
 export const jobSpeedLimit = ( // 作业上限速度
 	<div>
@@ -114,8 +104,7 @@ export const jobConcurrence = ( // 作业并发数
 
 export const errorCount = ( // 作业并发数
 	<div>
-		表示脏数据的最大容忍条数，如果您配置0，
-		则表示严格不允许脏数据存在；如果不填则代表容忍脏数据
+		表示脏数据的最大容忍条数，如果您配置0， 则表示严格不允许脏数据存在；如果不填则代表容忍脏数据
 	</div>
 );
 
@@ -129,9 +118,7 @@ export const recordDirtyData = (
 
 export const errorPercentConfig = (
 	<div>
-		<p>
-			任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败
-		</p>
+		<p>任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败</p>
 	</div>
 );
 
@@ -143,19 +130,12 @@ const baseSystemParams = (
 		<br />
 		<span>${`{bdp.system.cyctime}`} --计划时间，格式：yyyyMMddHHmmss</span>
 		<br />
-		<span>
-			${`{bdp.system.premonth}`}{' '}
-			--上个月（以计划时间为基准），格式：yyyyMM
-		</span>
+		<span>${`{bdp.system.premonth}`} --上个月（以计划时间为基准），格式：yyyyMM</span>
+		<br />
+		<span>${`{bdp.system.currmonth}`} --当前月（以计划时间为基准），格式：yyyyMM</span>
 		<br />
 		<span>
-			${`{bdp.system.currmonth}`}{' '}
-			--当前月（以计划时间为基准），格式：yyyyMM
-		</span>
-		<br />
-		<span>
-			${`{bdp.system.runtime}`}{' '}
-			--当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss
+			${`{bdp.system.runtime}`} --当前时间，即任务实际运行的时间，格式：yyyyMMddHHmmss
 		</span>
 	</p>
 );
@@ -176,16 +156,12 @@ export const partitionDesc = (
 // 自定义参数配置
 export const customParams = (
 	<div>
-		<p>
-			在代码中输入的格式为：${`{key1}`}，key1 为变量名，在当前面板中为
-			key1 赋值
-		</p>
+		<p>在代码中输入的格式为：${`{key1}`}，key1 为变量名，在当前面板中为 key1 赋值</p>
 		<p>支持常量或变量赋值，常量直接输入字符串或数字</p>
 		<p>变量有 $[yyyyMMdd] 和${`{yyyyMMdd}`}格式，二者时间基点不同</p>
 		<p>
-			$[]格式：变量基于 bdp.system.cyctime
-			取值，格式为：key1=$[yyyy]，其中的 yyyy 是取 bdp.system.cyctime
-			的年的部分
+			$[]格式：变量基于 bdp.system.cyctime 取值，格式为：key1=$[yyyy]，其中的 yyyy 是取
+			bdp.system.cyctime 的年的部分
 		</p>
 		<p>
 			${`{}`}格式：变量基于 bdp.system.bizdate 取值，格式为：key1=$
@@ -210,9 +186,7 @@ export const incrementModeScheduleTypeHelp = (
 );
 
 export const stringColumnFormat = (
-	<span>
-		如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则
-	</span>
+	<span>如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则</span>
 );
 
 export const dataSyncExtralConfigHelp = (
