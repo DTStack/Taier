@@ -51,6 +51,9 @@ public class MultiEngineServiceFactory {
     @Resource(name = "componentSparkThriftService")
     private IComponentService componentSparkThriftService;
 
+    @Resource(name = "componentHiveServerService")
+    private IComponentService componentHiveServerService;
+
     public ISqlExeService getSqlExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
             return batchSparkSqlExeService;
@@ -98,6 +101,8 @@ public class MultiEngineServiceFactory {
     public IComponentService getComponentService(Integer typeCode){
         if (EComponentType.SPARK_THRIFT.getTypeCode().equals(typeCode)) {
             return componentSparkThriftService;
+        }else if (EComponentType.HIVE_SERVER.getTypeCode().equals(typeCode)){
+            return componentHiveServerService;
         }
         throw new RdosDefineException(String.format("not support component type %d now", typeCode));
     }
