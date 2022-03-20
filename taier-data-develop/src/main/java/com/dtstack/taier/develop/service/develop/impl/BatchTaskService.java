@@ -327,12 +327,12 @@ public class BatchTaskService {
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
 
         // sqlText 解密处理
-        String sqlText = Base64Util.baseDecode(taskVO.getSqlText());
+        //String sqlText = Base64Util.baseDecode(taskVO.getSqlText());
         //如果sqlText不为空进行解析
-        if (StringUtils.isNotBlank(sqlText)) {
-            JSONObject jsonObject = JSONObject.parseObject(sqlText);
-            taskVO.setSqlText(formatSqlText(taskVO.getCreateModel(), jsonObject));
-        }
+        // if (StringUtils.isNotBlank(sqlText)) {
+//            JSONObject jsonObject = JSONObject.parseObject(taskVO.getSqlText());
+//            taskVO.setSqlText(formatSqlText(taskVO.getCreateModel(), jsonObject));
+//       // }
       /*  Set<Long> userIds = new HashSet<>();
         userIds.add(task.getCreateUserId());
         userIds.add(task.getModifyUserId());
@@ -1188,10 +1188,13 @@ public class BatchTaskService {
         taskVO.setTenantId(taskVO.getTenantId());
 //        taskVO.setOwnerUserId(taskVO.getUserId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        if (Objects.equals(taskVO.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
-            taskVO.setScheduleConf(String.format(DEFAULT_STREAM_SCHEDULE_CONF, TimeUtil.getDate(new Date(),0),TimeUtil.getDate(new Date(),100) ));
-        } else if (Objects.equals(taskVO.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
-            taskVO.setScheduleConf(String.format(DEFAULT_BATCH_SCHEDULE_CONF, TimeUtil.getDate(new Date(), 0), TimeUtil.getDate(new Date(), 100)));
+
+        if (StringUtils.isBlank(taskVO.getScheduleConf())) {
+            taskVO.setScheduleConf(BatchTaskService.DEFAULT_SCHEDULE_CONF);
+        }
+
+        if (taskVO.getVersion() == null) {
+            taskVO.setVersion(0);
         }
 
         if (StringUtils.isBlank(taskVO.getSqlText())) {
