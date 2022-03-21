@@ -113,6 +113,16 @@ public class Task extends TenantEntity {
      */
     private Integer submitStatus ;
 
+    private String mainClass;
+
+    public String getMainClass() {
+        return mainClass;
+    }
+
+    public void setMainClass(String mainClass) {
+        this.mainClass = mainClass;
+    }
+
     public Long getFlowId() {
         return flowId;
     }

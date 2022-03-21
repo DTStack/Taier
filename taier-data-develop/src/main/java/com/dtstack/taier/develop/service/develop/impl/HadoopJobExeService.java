@@ -139,7 +139,7 @@ public class HadoopJobExeService {
             if (sourceIdObject != null && StringUtils.isNotBlank(sourceIdObject.toString())) {
                 DsInfo data = dsInfoService.getOneById(Long.valueOf(sourceIdObject.toString()));
                 if (Objects.nonNull(data)) {
-                    actionParam.put("dataSourceType", Integer.valueOf(data.getDataType()));
+                    actionParam.put("dataSourceType", data.getDataTypeCode());
                 }
             }
         } catch (Exception e) {
