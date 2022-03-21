@@ -316,12 +316,12 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             if(map.get("schema")!=null){
                 connectionDTO.setSchema(map.get("schema").toString());
             }
-            connectionDTO.setType(Integer.valueOf(dsServiceInfoDTO.getDataType()));
+            connectionDTO.setType(dsServiceInfoDTO.getDataTypeCode());
             connectionDTO.setSourceId(sourceId);
             connections.add(connectionDTO);
             sourceIds.add(sourceId);
             map.putIfAbsent("source", dsServiceInfoDTO);
-            map.putIfAbsent("dataSourceType", Integer.valueOf(dsServiceInfoDTO.getDataType()));
+            map.putIfAbsent("dataSourceType", dsServiceInfoDTO.getDataTypeCode());
         }
 
 
