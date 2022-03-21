@@ -1015,7 +1015,7 @@ public class BatchTaskService {
             dependencyTaskIds = JSON.toJSONString(parentTasks);
         }
 //todo
-//        version.setDependencyTaskIds(dependencyTaskIds);
+        version.setDependencyTaskIds(dependencyTaskIds);
         version.setPublishDesc(null == publishDesc ? "" : publishDesc);
         // 插入一条记录信息
         taskVersionService.insert(version);
