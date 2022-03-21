@@ -36,7 +36,7 @@ public abstract class AbsRDBWriterBuilder implements DaWriterBuilder{
         DsInfo data = this.getDataSourceAPIClient().getOneById(sourceId);
         param.getTargetMap().put("source", data);
         //获取到当前任务 目标源的 数据源类型
-        param.getTargetMap().put("dataSourceType", Integer.valueOf(data.getDataType()));
+        param.getTargetMap().put("dataSourceType", data.getDataTypeCode());
         param.getTargetMap().putAll(JSON.parseObject(data.getDataJson()));
         List<Long> sourceIds = new ArrayList<>();
         sourceIds.add(sourceId);
