@@ -212,6 +212,39 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "任务责任人信息")
     private BatchUserGetTaskByIdResultVO ownerUser;
 
+    @ApiModelProperty(value = "前端输入源信息")
+    private Map<String, Object> sourceMap;
+
+    @ApiModelProperty(value = "前端输出源信息")
+    private Map<String, Object> targetMap;
+
+    @ApiModelProperty(value = "前端设置信息")
+    private Map<String, Object> settingMap;
+
+    public Map<String, Object> getSourceMap() {
+        return sourceMap;
+    }
+
+    public void setSourceMap(Map<String, Object> sourceMap) {
+        this.sourceMap = sourceMap;
+    }
+
+    public Map<String, Object> getTargetMap() {
+        return targetMap;
+    }
+
+    public void setTargetMap(Map<String, Object> targetMap) {
+        this.targetMap = targetMap;
+    }
+
+    public Map<String, Object> getSettingMap() {
+        return settingMap;
+    }
+
+    public void setSettingMap(Map<String, Object> settingMap) {
+        this.settingMap = settingMap;
+    }
+
     public Integer getTaskPeriodId() {
         return taskPeriodId;
     }

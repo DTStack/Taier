@@ -82,6 +82,18 @@ public class TaskVersion extends TenantEntity {
      * 0未开始,1正常调度,2暂停
      */
     private Integer scheduleStatus;
+    /**
+     * 依赖的任务id
+     */
+    private String dependencyTaskIds;
+
+    public String getDependencyTaskIds() {
+        return dependencyTaskIds;
+    }
+
+    public void setDependencyTaskIds(String dependencyTaskIds) {
+        this.dependencyTaskIds = dependencyTaskIds;
+    }
 
     public Long getTaskId() {
         return taskId;
