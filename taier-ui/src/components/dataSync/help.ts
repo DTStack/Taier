@@ -90,3 +90,27 @@ export function saveTask() {
 		});
 	}
 }
+
+/**
+ * 根据 data 来判断是否获取过数据，已经当前的步骤
+ */
+export function getStepStatus(data?: IOfflineTaskProps & ISyncDataProps): [boolean, number] {
+	const step = 0;
+	const isLoaded = false;
+	if (!data) return [isLoaded, step];
+	// 第一步的 sourceId 存在但第二步的 sourceId 不存在则表示当前停留在第一步
+	if (data.sourceMap?.sourceId && data.targetMap?.sourceId === undefined) {
+		return [true, 0];
+	}
+	// 第二步的 sourceId 存在但第三步的连线不存在则表示停留在第二步
+	if (data.targetMap?.sourceId && data.keymap?.source.length === 0) {
+		return [true, 1];
+	}
+	if (data.keymap?.source.length && !data.setting) {
+		return [true, 2];
+	}
+	if (data.setting) {
+		return [true, 4];
+	}
+	return [false, 0];
+}
