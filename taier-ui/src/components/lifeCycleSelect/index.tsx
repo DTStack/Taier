@@ -17,22 +17,22 @@
  */
 
 import { Input, Select } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './index.scss';
 
 interface ILifeCycleSelectProps {
 	width: number | string;
-	inputWidth: number | string;
+	inputWidth?: number | string;
 	value?: number;
 	onChange?: (value: number) => void;
 }
 
-const OPTIONS = [3, 7, 30, 90, 365]
-	.map((day) => ({
-		label: `${day}天`,
-		value: day,
-	}))
-	.concat({ label: '自定义', value: -1 });
+const DEFAULT_DAYS = [3, 7, 30, 90, 365];
+
+const OPTIONS = DEFAULT_DAYS.map((day) => ({
+	label: `${day}天`,
+	value: day,
+})).concat({ label: '自定义', value: -1 });
 
 export default function LifeCycleSelect({
 	width,
@@ -53,6 +53,12 @@ export default function LifeCycleSelect({
 		const { value: eventValue } = e.target;
 		onChange?.(Number(eventValue));
 	};
+
+	useEffect(() => {
+		if (value !== undefined && DEFAULT_DAYS.includes(value)) {
+			setSelectValue(value);
+		}
+	}, []);
 
 	return (
 		<>
