@@ -19,6 +19,22 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
+export const incrementColumnHelp = (
+    <div>
+        每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
+        <br />
+        支持将数值类型、Timestamp类型作为增量标识字段
+    </div>
+)
+
+export const syncModeHelp = (
+    <div>
+        无增量标识：可通过简单的过滤语句实现增量同步；
+        <br />
+        有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
+    </div>
+)
+
 export const transTableConcurrence = (
     <div>
         Inceptor事务表不支持多并发写数据
