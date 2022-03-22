@@ -411,7 +411,6 @@ export default function Target({
 						<FormItem
 							label="主键冲突"
 							key="writeMode-mysql"
-							className="txt-left"
 							name="writeMode"
 							rules={[
 								{
@@ -495,7 +494,6 @@ export default function Target({
 						<FormItem
 							label="主键冲突"
 							key="writeMode-mysql"
-							className="txt-left"
 							name="writeMode"
 							rules={[
 								{
@@ -587,7 +585,6 @@ export default function Target({
 						<FormItem
 							label="写入模式"
 							key="writeMode-hive"
-							className="txt-left"
 							name="writeMode"
 							rules={[
 								{
@@ -657,7 +654,6 @@ export default function Target({
 						<FormItem
 							label={'主键冲突'}
 							key="writeMode-mysql"
-							className="txt-left"
 							name="writeMode"
 							rules={[
 								{
@@ -754,7 +750,6 @@ export default function Target({
 						</FormItem>
 						<FormItem
 							label="写入模式"
-							className="txt-left"
 							key="writeMode-hdfs"
 							name="writeMode"
 							rules={[

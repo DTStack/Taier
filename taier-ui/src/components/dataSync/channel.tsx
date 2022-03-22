@@ -17,6 +17,7 @@ import {
 	errorPercentConfig,
 	jobConcurrence,
 	jobSpeedLimit,
+	recordDirtyData,
 	S3Concurrence,
 	transTableConcurrence,
 } from '../helpDoc/docs';
@@ -24,6 +25,7 @@ import ajax from '../../api';
 import type { IChannelFormProps, ISourceMapProps, ITargetMapProps } from './interface';
 import { isRDB } from '@/utils';
 import classNames from 'classnames';
+import LifeCycleSelect from '../lifeCycleSelect';
 
 const FormItem = Form.Item;
 
@@ -88,7 +90,7 @@ export default function Channel({
 	sourceMap,
 	setting,
 	readonly,
-	isStandeAlone,
+	isStandeAlone = false,
 	isIncrementMode,
 	onNext,
 	onFormValuesChanged,
@@ -170,7 +172,6 @@ export default function Channel({
 					<FormItem
 						tooltip={breakpointContinualTransferHelp}
 						label="断点续传"
-						className="txt-left"
 						name="isRestore"
 						valuePropName="checked"
 					>
@@ -229,13 +230,17 @@ export default function Channel({
 				record: setting.record,
 				percentage: setting.percentage,
 				isRestore: setting.isRestore,
+				isSaveDirty: !!setting.isSaveDirty,
+				tableName: setting.tableName,
+				lifeDay: setting.lifeDay,
 			};
 		}
 		return {
 			speed: UnlimitedSpeed,
 			channel: '1',
 			record: 100,
-			isSaveDirty: 0,
+			isSaveDirty: false,
+			lifeDay: 90,
 		};
 	}, []);
 
@@ -268,21 +273,42 @@ export default function Channel({
 				</FormItem>
 				{!isStandeAlone && (
 					<>
-						{/* <FormItem
-									{...formItemLayout}
-									label={
-										<span>
-											错误记录管理
-											<HelpDoc doc="recordDirtyData" />
-										</span>
-									}
-									className="txt-left"
-								>
-									{getFieldDecorator('isSaveDirty', {
-										rules: [],
-										initialValue: !!setting.isSaveDirty,
-									})(<Checkbox>记录保存</Checkbox>)}
-								</FormItem> */}
+						<FormItem
+							name="isSaveDirty"
+							tooltip={recordDirtyData}
+							label="错误记录管理"
+							valuePropName="checked"
+						>
+							<Checkbox>记录保存</Checkbox>
+						</FormItem>
+						<FormItem noStyle dependencies={['isSaveDirty']}>
+							{({ getFieldValue }) =>
+								getFieldValue('isSaveDirty') && (
+									<>
+										<FormItem
+											name="tableName"
+											label="脏数据写入hive表"
+											tooltip={recordDirtyData}
+										>
+											<Input placeholder="默认系统分配" />
+										</FormItem>
+										<FormItem
+											tooltip={recordDirtyData}
+											label="脏数据存储生命周期"
+											name="lifeDay"
+											rules={[
+												{
+													required: true,
+													message: '生命周期不可为空！',
+												},
+											]}
+										>
+											<LifeCycleSelect width={120} />
+										</FormItem>
+									</>
+								)
+							}
+						</FormItem>
 						<FormItem tooltip={errorCount} label="错误记录数超过">
 							<FormItem name="record" noStyle>
 								<InputNumber />
