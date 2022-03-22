@@ -17,9 +17,10 @@
  */
 
 import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
+import { Modal, message } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { resetEditorGroup } from '@/utils/extensions';
+import { performSyncTaskActions, resetEditorGroup } from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
 	TASK_STOP_ID,
@@ -28,6 +29,8 @@ import {
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
 	DRAWER_MENU_ENUM,
+	TASK_SWAP,
+	TASK_IMPORT_TEMPALTE,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -45,6 +48,7 @@ import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import { saveTask } from '@/components/dataSync/help';
+import ImportTemplate from '@/components/task/importTemplate';
 
 function initActions() {
 	const { builtInEditorInitialActions } = molecule.builtin.getModules();
@@ -328,6 +332,68 @@ function emitEvent() {
 				}
 				break;
 			}
+			case TASK_SWAP: {
+				const currentTabData:
+					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
+					| undefined = current.tab?.data;
+				if (currentTabData) {
+					Modal.confirm({
+						title: '转换为脚本',
+						content: (
+							<div>
+								<p style={{ color: '#f04134' }}>此操作不可逆，是否继续？</p>
+								<p>
+									当前为向导模式，配置简单快捷，脚本模式可灵活配置更多参数，定制化程度高
+								</p>
+							</div>
+						),
+						okText: '确认',
+						cancelText: '取消',
+						onOk() {
+							const reqParams = {
+								id: currentTabData.id,
+								syncModel: currentTabData.syncModel,
+								// preSave: currentTabData.preSave,
+							};
+							api.convertDataSyncToScriptMode(reqParams).then((res) => {
+								if (res.code === 1) {
+									message.success('转换成功！');
+									const nextTabData = current.tab!;
+									nextTabData.data.language = 'json';
+									Reflect.deleteProperty(nextTabData, 'renderPane');
+									molecule.editor.updateTab(nextTabData);
+								}
+							});
+						},
+					});
+				}
+				break;
+			}
+			case TASK_IMPORT_TEMPALTE: {
+				const currentTab = current.tab;
+				const root = document.getElementById('molecule')!;
+
+				const target = document.getElementById(CONTAINER_ID);
+				if (target) {
+					target.parentElement?.removeChild(target);
+				}
+				const node = document.createElement('div');
+				node.id = CONTAINER_ID;
+				root.appendChild(node);
+				if (currentTab) {
+					const handleSuccess = (data: string) => {
+						// update the editor's content
+						const prettierJSON = JSON.stringify(JSON.parse(data), null, 4);
+						molecule.editor.editorInstance.getModel()?.setValue(prettierJSON);
+					};
+
+					ReactDOM.render(
+						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess} />,
+						node,
+					);
+				}
+				break;
+			}
 			default:
 				break;
 		}
@@ -383,6 +449,7 @@ export default class EditorExtension implements IExtension {
 					resetEditorGroup();
 				}
 			}
+			performSyncTaskActions();
 		});
 
 		molecule.editor.onCloseTab(() => {
@@ -397,6 +464,8 @@ export default class EditorExtension implements IExtension {
 			} else {
 				resetEditorGroup();
 			}
+
+			performSyncTaskActions();
 		});
 
 		molecule.editor.onUpdateTab((tab) => {

@@ -23,6 +23,7 @@ import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
+import { DATA_SYNC_TYPE, TASK_IMPORT_TEMPALTE, TASK_SWAP } from '@/constant';
 import { CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { getTenantId, getUserId } from '.';
@@ -33,6 +34,50 @@ export function resetEditorGroup() {
 		{ id: TASK_RUN_ID, disabled: true },
 		{ id: TASK_STOP_ID, disabled: true },
 	]);
+}
+
+/**
+ * 针对不同模式的数据同步任务，更新 actions
+ */
+export function performSyncTaskActions() {
+	const { current } = molecule.editor.getState();
+	if (current?.tab?.data) {
+		const { data } = current.tab;
+		if (data.taskType === TASK_TYPE_ENUM.SYNC) {
+			// 向导模式需要转换为脚本的按钮
+			if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+				molecule.editor.updateGroup(current.id, {
+					actions: [
+						{
+							id: TASK_SWAP,
+							icon: 'arrow-swap',
+							place: 'outer',
+							title: '转换为脚本模式',
+						},
+						...molecule.editor.getDefaultActions(),
+					],
+				});
+			} else {
+				// 脚本模式需要导入模板的按钮
+				molecule.editor.updateGroup(current.id, {
+					actions: [
+						{
+							id: TASK_IMPORT_TEMPALTE,
+							icon: 'references',
+							place: 'outer',
+							title: '导入模板',
+						},
+						...molecule.editor.getDefaultActions(),
+					],
+				});
+			}
+		} else {
+			// reset actions
+			molecule.editor.updateGroup(current.id, {
+				actions: molecule.editor.getDefaultActions(),
+			});
+		}
+	}
 }
 
 export function fileIcon(

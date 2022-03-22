@@ -30,6 +30,7 @@ import {
 	resetEditorGroup,
 	getCatalogueViaNode,
 	fileIcon,
+	performSyncTaskActions,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -45,6 +46,7 @@ import {
 	TASK_RUN_ID,
 	TASK_SAVE_ID,
 	TASK_SUBMIT_ID,
+	DATA_SYNC_TYPE,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 
@@ -299,12 +301,13 @@ export function openTaskInTab(taskId: any, file?: any) {
 				]);
 			} else if (data.taskType === TASK_TYPE_ENUM.SYNC) {
 				// open in molecule
-				const tabData = {
+				const tabData: molecule.model.IEditorTab = {
 					id: fileId.toString(),
 					name: data.name,
 					data: {
 						...data,
 						value: data.sqlText,
+						language: 'json',
 						taskDesc: data.taskDesc,
 					},
 					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
@@ -313,11 +316,19 @@ export function openTaskInTab(taskId: any, file?: any) {
 							id: item,
 							name: item,
 						})) || [],
-					renderPane: () => {
-						return <DataSync key={fileId} />;
-					},
 				};
+
+				// 向导模式渲染数据同步任务，脚本模式渲染编辑器
+				if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+					tabData.renderPane = () => {
+						return <DataSync key={fileId} />;
+					};
+					// 向导模式不需要设置编辑器语言
+					Reflect.deleteProperty(tabData.data!, 'language');
+				}
+
 				molecule.editor.open(tabData);
+				performSyncTaskActions();
 				molecule.editor.updateActions([
 					{ id: TASK_RUN_ID, disabled: false },
 					{ id: TASK_SAVE_ID, disabled: false },
