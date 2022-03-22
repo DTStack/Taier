@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { useLayoutEffect, useState } from 'react';
-import { Button, Input, Select, Form, Radio } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Input, Select, Form, Radio, Spin } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
@@ -63,11 +63,35 @@ interface IFormFieldProps {
 	nodePid: number;
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
+	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
+	const [pageLoading, setPageLoading] = useState(false);
+
+	const getCurrentTaskInfo = () => {
+		if (current?.tab) {
+			const { data } = current.tab;
+			// 只有数据同步任务才有额外的配置需要请求
+			if (data.taskType === TASK_TYPE_ENUM.SYNC) {
+				setPageLoading(true);
+				api.getOfflineTaskByID({ id: data.id })
+					.then((res) => {
+						if (res.code === 1) {
+							form.setFieldsValue({
+								createModel: res.data.createModel,
+								syncModel: res.data.syncModel,
+							});
+						}
+					})
+					.finally(() => {
+						setPageLoading(false);
+					});
+			}
+		}
+	};
 
 	const handleSubmit = (values: IFormFieldProps) => {
 		setLoading(true);
@@ -100,149 +124,157 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		return Promise.resolve();
 	};
 
-	useLayoutEffect(() => {
+	useEffect(() => {
+		getCurrentTaskInfo();
+	}, []);
+
+	const initialValues = useMemo(() => {
 		if (current?.tab) {
 			const { data } = current.tab;
-			form.setFieldsValue({
+			return {
 				name: data.name,
 				taskType: data.taskType,
 				nodePid: data.nodePid?.toString().split('-')[0],
 				taskDesc: data.taskDesc,
-				syncModel: data.syncModel,
-			});
+			};
 		}
+		return undefined;
 	}, []);
 
 	return (
 		<Scrollable>
-			<Form<IFormFieldProps>
-				form={form}
-				onFinish={handleSubmit}
-				onValuesChange={handleValuesChanged}
-				className="mo-open-task"
-				autoComplete="off"
-				{...formItemLayout}
-			>
-				<FormItem
+			<Spin spinning={pageLoading}>
+				<Form<IFormFieldProps>
+					form={form}
+					onFinish={handleSubmit}
+					onValuesChange={handleValuesChanged}
+					className="mo-open-task"
+					initialValues={initialValues}
+					autoComplete="off"
 					{...formItemLayout}
-					label="任务名称"
-					name="name"
-					rules={[
-						{
-							required: true,
-							message: `任务名称不可为空！`,
-						},
-						{
-							max: 128,
-							message: `任务名称不得超过128个字符！`,
-						},
-						{
-							pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
-							message: `任务名称只能由字母、数字、中文、下划线组成!`,
-						},
-					]}
 				>
-					<Input />
-				</FormItem>
-				<FormItem
-					{...formItemLayout}
-					label="任务类型"
-					name="taskType"
-					rules={[
-						{
-							required: true,
-							message: `请选择任务类型`,
-						},
-					]}
-				>
-					<Select disabled={!!record}>
-						{TASK_TYPE_OPTIONS.map((type) => (
-							<Option key={type.value} value={type.value}>
-								{type.text}
-							</Option>
-						))}
-					</Select>
-				</FormItem>
-				<FormItem noStyle dependencies={['taskType']}>
-					{({ getFieldValue }) =>
-						getFieldValue('taskType') === TASK_TYPE_ENUM.SYNC && (
-							<>
-								<FormItem
-									label="同步模式"
-									name="syncModel"
-									tooltip={syncModeHelp}
-									rules={[
-										{
-											required: true,
-											message: '请选择配置模式',
-										},
-										{
-											validator: checkSyncMode,
-										},
-									]}
-									initialValue={DATA_SYNC_MODE.NORMAL}
-								>
-									<RadioGroup>
-										<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
-										<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
-									</RadioGroup>
-								</FormItem>
-								<FormItem
-									{...formItemLayout}
-									label="配置模式"
-									name="createModel"
-									tooltip={syncTaskHelp}
-									rules={[
-										{
-											required: true,
-											message: '请选择配置模式',
-										},
-									]}
-									initialValue={DATA_SYNC_TYPE.GUIDE}
-								>
-									<RadioGroup>
-										<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-										<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
-									</RadioGroup>
-								</FormItem>
-							</>
-						)
-					}
-				</FormItem>
-				<FormItem
-					{...formItemLayout}
-					label="存储位置"
-					name="nodePid"
-					rules={[
-						{
-							required: true,
-							message: '存储位置必选！',
-						},
-					]}
-					initialValue={molecule.folderTree.getState().folderTree?.data?.[0].id}
-				>
-					<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
-				</FormItem>
-				<FormItem
-					{...formItemLayout}
-					label="描述"
-					hasFeedback
-					name="taskDesc"
-					rules={[
-						{
-							max: 200,
-							message: '描述请控制在200个字符以内！',
-						},
-					]}
-				>
-					<Input.TextArea disabled={false} rows={4} />
-				</FormItem>
-				<FormItem {...tailFormItemLayout}>
-					<Button type="primary" htmlType="submit" loading={loading}>
-						确认
-					</Button>
-				</FormItem>
-			</Form>
+					<FormItem
+						{...formItemLayout}
+						label="任务名称"
+						name="name"
+						rules={[
+							{
+								required: true,
+								message: `任务名称不可为空！`,
+							},
+							{
+								max: 128,
+								message: `任务名称不得超过128个字符！`,
+							},
+							{
+								pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+								message: `任务名称只能由字母、数字、中文、下划线组成!`,
+							},
+						]}
+					>
+						<Input />
+					</FormItem>
+					<FormItem
+						{...formItemLayout}
+						label="任务类型"
+						name="taskType"
+						rules={[
+							{
+								required: true,
+								message: `请选择任务类型`,
+							},
+						]}
+					>
+						<Select disabled={!!record}>
+							{TASK_TYPE_OPTIONS.map((type) => (
+								<Option key={type.value} value={type.value}>
+									{type.text}
+								</Option>
+							))}
+						</Select>
+					</FormItem>
+					<FormItem noStyle dependencies={['taskType']}>
+						{({ getFieldValue }) =>
+							getFieldValue('taskType') === TASK_TYPE_ENUM.SYNC && (
+								<>
+									<FormItem
+										label="配置模式"
+										name="createModel"
+										tooltip={syncTaskHelp}
+										rules={[
+											{
+												required: true,
+												message: '请选择配置模式',
+											},
+										]}
+										initialValue={DATA_SYNC_TYPE.GUIDE}
+									>
+										<RadioGroup disabled={!!record}>
+											<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+											<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+										</RadioGroup>
+									</FormItem>
+									<FormItem
+										label="同步模式"
+										name="syncModel"
+										tooltip={syncModeHelp}
+										rules={[
+											{
+												required: true,
+												message: '请选择配置模式',
+											},
+											{
+												validator: checkSyncMode,
+											},
+										]}
+										initialValue={DATA_SYNC_MODE.NORMAL}
+									>
+										<RadioGroup>
+											<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
+											<Radio value={DATA_SYNC_MODE.INCREMENT}>
+												有增量标识
+											</Radio>
+										</RadioGroup>
+									</FormItem>
+								</>
+							)
+						}
+					</FormItem>
+					<FormItem
+						{...formItemLayout}
+						label="存储位置"
+						name="nodePid"
+						rules={[
+							{
+								required: true,
+								message: '存储位置必选！',
+							},
+						]}
+						initialValue={molecule.folderTree.getState().folderTree?.data?.[0].id}
+					>
+						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
+					</FormItem>
+					<FormItem
+						{...formItemLayout}
+						label="描述"
+						hasFeedback
+						name="taskDesc"
+						rules={[
+							{
+								max: 200,
+								message: '描述请控制在200个字符以内！',
+							},
+						]}
+					>
+						<Input.TextArea disabled={false} rows={4} />
+					</FormItem>
+					<FormItem {...tailFormItemLayout}>
+						<Button type="primary" htmlType="submit" loading={loading}>
+							确认
+						</Button>
+					</FormItem>
+				</Form>
+			</Spin>
 		</Scrollable>
 	);
 });
