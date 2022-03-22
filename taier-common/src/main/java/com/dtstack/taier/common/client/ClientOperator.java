@@ -27,10 +27,7 @@ import com.dtstack.taier.pluginapi.client.IClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
-import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.taier.pluginapi.pojo.JobResult;
-import com.dtstack.taier.pluginapi.pojo.JudgeResult;
+import com.dtstack.taier.pluginapi.pojo.*;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,5 +179,10 @@ public class ClientOperator {
     public ClusterResource getClusterResource(String pluginInfo) throws ClientAccessException{
         IClient client = clientCache.getClient(pluginInfo);
         return client.getClusterResource();
+    }
+
+    public List<FileResult> listFile(String path, String pluginInfo) throws Exception {
+        IClient client = clientCache.getClient(pluginInfo);
+        return client.listFile(path);
     }
 }

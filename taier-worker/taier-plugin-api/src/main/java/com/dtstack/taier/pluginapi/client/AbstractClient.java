@@ -152,4 +152,8 @@ public abstract class AbstractClient implements IClient {
         return null;
     }
 
+    @Override
+    public List<FileResult> listFile(String path) {
+        return null;
+    }
 }

@@ -421,7 +421,7 @@ public class ConsoleService {
         stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
-    public ClusterResource clusterResources( String clusterName) {
+    public ClusterResource clusterResources(String clusterName) {
         if (StringUtils.isEmpty(clusterName)) {
             return new ClusterResource();
         }
@@ -448,12 +448,12 @@ public class ConsoleService {
                 KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), yarnComponent.getComponentTypeCode(), ComponentVersionUtil.formatMultiVersion(yarnComponent.getComponentTypeCode(),yarnComponent.getVersionValue()));
                 Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class,null);
                 pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
-                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getClusterName());
+                pluginInfo = componentService.wrapperConfig(yarnComponent.getComponentTypeCode(),componentConfig.toJSONString(),sftpMap,kerberosConfig,cluster.getId());
             }
             String typeName = componentConfig.getString(ConfigConstant.TYPE_NAME_KEY);
             if (StringUtils.isBlank(typeName)) {
                 //获取对应的插件名称
-                typeName = consoleComponentService.convertComponentTypeToClient(cluster.getClusterName(),
+                typeName = consoleComponentService.convertComponentTypeToClient(cluster.getId(),
                         EComponentType.YARN.getTypeCode(),yarnComponent.getVersionName(),null,null);
             }
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,typeName);

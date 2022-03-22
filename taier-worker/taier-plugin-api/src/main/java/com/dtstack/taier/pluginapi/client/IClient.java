@@ -64,5 +64,5 @@ public interface IClient {
 
 	CheckResult grammarCheck(JobClient jobClient);
 
-
+	List<FileResult> listFile(String path);
 }
