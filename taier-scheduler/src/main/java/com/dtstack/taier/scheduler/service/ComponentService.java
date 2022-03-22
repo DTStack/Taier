@@ -25,6 +25,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
@@ -32,6 +33,8 @@ import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
+import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,6 +74,44 @@ public class ComponentService {
     @Autowired
     private ScheduleDictService scheduleDictService;
 
+    @Autowired
+    private ConsoleKerberosMapper consoleKerberosMapper;
+
+
+    public JSONObject wrapperConfig(Long clusterId, Integer componentCode, String componentVersion, Integer deployType) {
+        Component component = componentMapper.getByClusterIdAndComponentType(clusterId, componentCode, componentVersion, deployType);
+        JSONObject componentConfig = getComponentByClusterId(clusterId, componentCode, false, JSONObject.class, componentVersion);
+        JSONObject pluginInfo = new JSONObject();
+        KerberosConfig kerberosConfig = null;
+        if (null != component && StringUtils.isNotBlank(component.getKerberosFileName())) {
+            //开启kerberos 添加信息
+            kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentCode,
+                    ComponentVersionUtil.formatMultiVersion(componentCode, componentVersion));
+        }
+        Map sftpMap = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
+        pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
+        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig, clusterId);
+        return pluginInfo;
+    }
+
+    public String buildUploadTypeName(Long clusterId) {
+        Component component = getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
+        if (null == component || StringUtils.isBlank(component.getVersionName())) {
+            return "hdfs2";
+        }
+        String versionName = component.getVersionName();
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
+        Optional<Dict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
+        if (dbTypeNames.isPresent()) {
+            return dbTypeNames.get().getDictValue();
+        }
+        String hadoopVersion = component.getVersionValue();
+        if(StringUtils.isBlank(hadoopVersion)){
+            return "hdfs2";
+        }
+        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
+    }
+
 
     /**
      * 将页面配置参数转换为插件需要的参数
@@ -79,7 +120,7 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig, String clusterName) {
+    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig, Long clusterId) {
         JSONObject dataInfo = new JSONObject();
         dataInfo.put("componentName", EComponentType.getByCode(componentType).getName().toLowerCase());
         if (null != kerberosConfig) {
@@ -97,7 +138,7 @@ public class ComponentService {
             dataInfo = JSONObject.parseObject(componentConfig);
             dataInfo.put("componentType", EComponentType.SFTP.getName());
         } else if (EComponentType.sqlComponent.contains(EComponentType.getByCode(componentType))) {
-            dataInfo = buildSQLComponentConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName);
+            dataInfo = buildSQLComponentConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
         } else if (EComponentType.YARN.getTypeCode() == componentType) {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put(EComponentType.YARN.getConfName(), map);
@@ -105,12 +146,12 @@ public class ComponentService {
             Map map = JSONObject.parseObject(componentConfig, Map.class);
             dataInfo.put(EComponentType.HDFS.getConfName(), map);
             //补充yarn参数
-            putYarnConfig(clusterName, dataInfo);
+            putYarnConfig(clusterId, dataInfo);
         }
         return dataInfo;
     }
 
-    private JSONObject buildSQLComponentConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig, String clusterName) {
+    private JSONObject buildSQLComponentConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig, Long clusterId) {
         JSONObject dataInfo;
         dataInfo = JSONObject.parseObject(componentConfig);
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
@@ -142,26 +183,15 @@ public class ComponentService {
             dataInfo.put("kerberosFileTimestamp", kerberosConfig.getGmtModified());
             dataInfo.put(MERGE_KRB5_CONTENT_KEY, kerberosConfig.getMergeKrbContent());
             //补充yarn参数
-            putYarnConfig(clusterName, dataInfo);
+            putYarnConfig(clusterId, dataInfo);
         }
         return dataInfo;
     }
 
-    /**
-     * @author newman
-     * @Description 设置yarn配置
-     * @Date 2020-12-22 11:40
-     * @param clusterName:
-     * @param dataInfo:
-     * @return: void
-     **/
-    private void putYarnConfig(String clusterName, JSONObject dataInfo) {
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
-        if (null != cluster) {
-            Map yarnMap = getComponentByClusterId(cluster.getId(), EComponentType.YARN.getTypeCode(), false, Map.class, null);
-            if (null != yarnMap) {
-                dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
-            }
+    private void putYarnConfig(Long clusterId, JSONObject dataInfo) {
+        Map yarnMap = getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode(), false, Map.class, null);
+        if (null != yarnMap) {
+            dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
         }
     }
 

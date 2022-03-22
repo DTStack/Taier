@@ -84,7 +84,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
 
     private static final String JOB_SAVEPOINT_ARGS_TEMPLATE = "-confProp %s";
 
-    private static final String JOB_ARGS_TEMPLATE = "-jobid %s -job %s";
+    private static final String JOB_ARGS_TEMPLATE = "-job %s";
 
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
 

@@ -1095,7 +1095,7 @@ public class ConsoleComponentService {
                     ComponentVersionUtil.isMultiVersionComponent(component.getComponentTypeCode()) ?
                             StringUtils.isNotBlank(component.getVersionValue()) ? component.getVersionValue() : componentMapper.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(), component.getComponentTypeCode()) : null);
             String componentConfig = componentService.getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class, null);
-            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, clusterName, component.getVersionName(), component.getClusterId(), kerberosConfig, sftpMap, component.getStoreType(), component.getDeployType());
+            testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, component.getVersionName(), component.getClusterId(), kerberosConfig, sftpMap, component.getStoreType(), component.getDeployType());
             //测试联通性
             if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode()) && testResult.getResult()) {
                 if (null != testResult.getClusterResourceDescription()) {
@@ -1201,7 +1201,7 @@ public class ConsoleComponentService {
     /**
      * 测试单个组件联通性
      */
-    public ComponentTestResult testConnect(Integer componentType, String componentConfig, String clusterName,
+    public ComponentTestResult testConnect(Integer componentType, String componentConfig,
                                            String versionName, Long clusterId, KerberosConfig kerberosConfig,
                                            Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
@@ -1215,9 +1215,9 @@ public class ConsoleComponentService {
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = componentService.buildHdfsTypeName(null,clusterId);
             } else {
-                typeName = convertComponentTypeToClient(clusterName, componentType, versionName, storeType, deployType);
+                typeName = convertComponentTypeToClient(clusterId, componentType, versionName, storeType, deployType);
             }
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterName);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
             pluginInfo.put(TYPE_NAME_KEY, typeName);
             componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
             if (null == componentTestResult) {
@@ -1398,16 +1398,15 @@ public class ConsoleComponentService {
      * 根据组件类型转换对应的插件名称
      * 如果只配yarn 需要调用插件时候 hdfs给默认值
      *
-     * @param clusterName
+     * @param clusterId
      * @param componentType
      * @param versionName
      * @return
      */
-    public String convertComponentTypeToClient(String clusterName, Integer componentType, String versionName, Integer storeType,Integer deployType) {
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
+    public String convertComponentTypeToClient(Long clusterId, Integer componentType, String versionName, Integer storeType,Integer deployType) {
         EComponentType type = EComponentType.getByCode(componentType);
         EComponentType storeComponent = null == storeType ? null : EComponentType.getByCode(storeType);
-        PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(cluster.getId());
+        PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = partCluster.create(type, versionName, storeComponent,deployType);
         return part.getPluginName();
     }
