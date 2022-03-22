@@ -107,5 +107,8 @@ export interface IChannelFormProps {
 	record?: number;
 	percentage?: number;
 	isRestore?: boolean;
+	isSaveDirty?: boolean;
+	tableName?: string;
+	lifeDay?: string | number;
 	restoreColumnName?: string | number;
 }
