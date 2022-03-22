@@ -50,7 +50,6 @@ interface IChannelProps {
 	 */
 	isStandeAlone?: boolean;
 	/**
-	 * @deprecated
 	 * 是否是增量模式
 	 */
 	isIncrementMode?: boolean;
@@ -158,8 +157,7 @@ export default function Channel({
 		const targetType = targetMap?.type?.type;
 
 		const idFieldInitialValue = isIncrementMode
-			? // @ts-ignore
-			  sourceMap.increColumn
+			? sourceMap.increColumn
 			: setting?.restoreColumnName;
 
 		return isRDB(sourceType) &&

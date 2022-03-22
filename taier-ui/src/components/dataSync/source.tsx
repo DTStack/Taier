@@ -1,4 +1,5 @@
 import { API } from '@/api/dataSource';
+import api from '@/api';
 import {
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
@@ -27,6 +28,7 @@ import {
 	dataFilterDoc,
 	dataSyncExtralConfigHelp,
 	hdfsPath,
+	incrementColumnHelp,
 	partitionDesc,
 	selectKey,
 	splitCharacter,
@@ -51,8 +53,7 @@ interface ISourceProps {
 	 */
 	dataSourceList: IDataSourceUsedInSyncProps[];
 	/**
-	 * @deprecated
-	 * 是否增量，目前不支持增量模式
+	 * 是否增量
 	 */
 	isIncrementMode?: boolean;
 	/**
@@ -97,6 +98,7 @@ export default function Source({
 	const [tableList, setTableList] = useState<Record<number, string[]>>({});
 	const [copateList, setCopateList] = useState<IDataColumnsProps[]>([]);
 	const [schemaList, setSchemaList] = useState<string[]>([]);
+	const [incrementColumns, setIncrementCols] = useState<IDataColumnsProps[]>([]);
 	const [tablePartitionList, setTablePartitionList] = useState<string[]>([]);
 	const [showPreview, setShowPreview] = useState(false);
 	const [previewTable, setPreviewTable] = useState<IPreviewTableProps>({
@@ -213,6 +215,21 @@ export default function Source({
 		}
 	};
 
+	const loadIncrementColumn = async () => {
+		const { sourceId, schema, table } = form.getFieldsValue();
+		if (!table) return;
+		const params = {
+			sourceId,
+			tableName: table,
+			schema,
+		};
+		const res = await api.getIncrementColumns(params);
+
+		if (res.code === 1) {
+			setIncrementCols(res.data || []);
+		}
+	};
+
 	// 获取 schema
 	const getSchemaList = (schema?: string) => {
 		const { sourceId } = form.getFieldsValue();
@@ -239,7 +256,7 @@ export default function Source({
 			getHivePartions();
 			// 加载增量模式字段
 			if (isIncrementMode) {
-				// this.loadIncrementColumn(value, schema);
+				loadIncrementColumn();
 			}
 		}
 
@@ -247,7 +264,7 @@ export default function Source({
 			getTableList(values.sourceId, changeValues.schema);
 			form.setFieldsValue({
 				table: undefined,
-				// syncModel: '',
+				increColumn: undefined,
 			});
 		}
 
@@ -399,6 +416,31 @@ export default function Source({
 		return Promise.resolve();
 	};
 
+	const renderIncrementColumns = () => {
+		const columnsOpts = incrementColumns.map((o) => (
+			<Option key={o.key}>
+				{o.key}（{o.type}）
+			</Option>
+		));
+		return isIncrementMode ? (
+			<FormItem
+				label="增量标识字段"
+				name="increColumn"
+				rules={[
+					{
+						required: true,
+						message: '必须选择增量标识字段！',
+					},
+				]}
+				tooltip={incrementColumnHelp}
+			>
+				<Select placeholder="请选择增量标识字段">{columnsOpts}</Select>
+			</FormItem>
+		) : (
+			''
+		);
+	};
+
 	const renderDynamicForm = (f: FormInstance) => {
 		const sourceId = f.getFieldValue('sourceId');
 		const targetSource = dataSourceList.find((l) => l.dataInfoId === sourceId);
@@ -435,6 +477,7 @@ export default function Source({
 								})}
 							</Select>
 						</FormItem>
+						{renderIncrementColumns()}
 						<FormItem
 							tooltip={dataFilterDoc}
 							label="数据过滤"
@@ -520,6 +563,7 @@ export default function Source({
 								})}
 							</Select>
 						</FormItem>
+						{renderIncrementColumns()}
 						<FormItem
 							tooltip={dataFilterDoc}
 							label="数据过滤"
@@ -608,6 +652,7 @@ export default function Source({
 								})}
 							</Select>
 						</FormItem>
+						{renderIncrementColumns()}
 						<FormItem
 							tooltip={dataFilterDoc}
 							label="数据过滤"
