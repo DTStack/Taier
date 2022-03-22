@@ -351,6 +351,30 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.failure-rate-intervalattempts', '5 min', null, 'deploymode$perjob', null, null, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', null, 'deploymode$perjob', null, null, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
 
+
+-- auto-generated definition
+create table schedule_job_history
+(
+    id              int auto_increment
+        primary key,
+    job_id          varchar(32)                          not null comment '工作任务id',
+    exec_start_time datetime                             null comment '执行开始时间',
+    exec_end_time   datetime                             null comment '执行结束时间',
+    engine_job_id   varchar(256)                         null comment '额外id',
+    application_id  varchar(256)                         null comment 'applicationId',
+    gmt_create      datetime   default CURRENT_TIMESTAMP not null comment '新增时间',
+    gmt_modified    datetime   default CURRENT_TIMESTAMP not null comment '修改时间',
+    is_deleted      tinyint(1) default 0                 not null comment '0正常 1逻辑删除'
+)
+    charset = utf8;
+
+create index index_engine_job_id
+    on schedule_job_history (engine_job_id(128));
+
+create index index_job_id
+    on schedule_job_history (job_id, is_deleted);
+
+
 ALTER TABLE `develop_task` ADD COLUMN `source_str` longtext COMMENT '输入源' AFTER `component_version`,
 ADD COLUMN `target_str` longtext COMMENT '输出源' AFTER `source_str`,
 ADD COLUMN `setting_str` longtext COMMENT '设置' AFTER `target_str`,

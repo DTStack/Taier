@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.mapstruct.job;
 
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.domain.po.JobsStatusStatisticsPO;
 import com.dtstack.taier.develop.vo.schedule.*;
 import com.dtstack.taier.scheduler.dto.schedule.QueryJobDisplayDTO;
@@ -9,6 +10,8 @@ import com.dtstack.taier.scheduler.dto.schedule.QueryJobStatusStatisticsDTO;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskDisplayDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -50,4 +53,7 @@ public interface JobMapstructTransfer {
      * 实例依赖关系 vo -> dto
      */
     QueryJobDisplayDTO queryJobDisplayVOToReturnJobDisplayVO(QueryJobDisplayVO vo);
+
+
+    List<JobHistoryVO> toHistoryVOS(List<ScheduleJobHistory> scheduleJobHistoryList);
 }

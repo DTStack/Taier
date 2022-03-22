@@ -288,9 +288,13 @@ public class ClusterService {
         return false;
     }
 
+
     public Integer getMetaComponent(Long tenantId) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentService.getMetaComponentByClusterId(clusterId);
+    }
+    public Long getClusterIdByTenantId(Long tenantId){
+       return clusterTenantMapper.getClusterIdByTenantId(tenantId);
     }
 
 }

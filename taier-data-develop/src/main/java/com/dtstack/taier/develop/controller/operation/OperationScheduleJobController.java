@@ -1,8 +1,10 @@
 package com.dtstack.taier.develop.controller.operation;
 
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.job.JobMapstructTransfer;
+import com.dtstack.taier.develop.service.schedule.JobHistoryService;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.schedule.*;
 import io.swagger.annotations.Api;
@@ -27,6 +29,9 @@ public class OperationScheduleJobController {
 
     @Autowired
     private JobService jobService;
+
+    @Autowired
+    private JobHistoryService jobHistoryService;
 
     @RequestMapping(value = "/queryJobs", method = {RequestMethod.POST})
     @ApiOperation(value = "任务运维 - 搜索")
@@ -55,5 +60,14 @@ public class OperationScheduleJobController {
                                                               @RequestParam("limit") Integer limit) {
         return R.ok(jobService.displayPeriods(isAfter, jobId, limit));
     }
+
+    @PostMapping(value = "/listHistory")
+    public R<List<JobHistoryVO>> listHistory(@RequestParam("jobId") String jobId,
+                                             @RequestParam("limit") Integer limit) {
+        List<ScheduleJobHistory> scheduleJobHistories = jobHistoryService.listHistory(jobId, limit);
+        List<JobHistoryVO> jobHistoryVOS = JobMapstructTransfer.INSTANCE.toHistoryVOS(scheduleJobHistories);
+        return R.ok(jobHistoryVOS);
+    }
+
 
 }
