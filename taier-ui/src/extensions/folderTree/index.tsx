@@ -488,6 +488,7 @@ function contextMenu() {
 					id: tabId,
 					data: isFile
 						? {
+								id: treeNode?.data.id,
 								name: treeNode?.name,
 								taskType: treeNode?.data.taskType,
 								nodePid: treeNode?.data.parentId,
