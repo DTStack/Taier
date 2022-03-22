@@ -20,20 +20,19 @@ import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormInstance, RadioChangeEvent } from 'antd';
 import { Row, Col, Collapse, Radio, message } from 'antd';
-import FormWrap from './scheduleForm';
-import TaskDependence from './taskDependence';
-import molecule from '@dtinsight/molecule/esm';
-import HelpDoc from '../../../components/helpDoc';
-import api from '@/api';
-import type { SCHEDULE_STATUS } from '@/constant';
-import { SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
-import { TASK_TYPE_ENUM } from '@/constant';
-import classNames from 'classnames';
-import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
+import classNames from 'classnames';
 import moment from 'moment';
 import { isArray } from 'lodash';
+import api from '@/api';
+import type { SCHEDULE_STATUS } from '@/constant';
+import { DATA_SYNC_MODE, TASK_TYPE_ENUM, SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
+import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
+import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
+import molecule from '@dtinsight/molecule/esm';
+import FormWrap from './scheduleForm';
+import TaskDependence from './taskDependence';
+import HelpDoc from '../../../components/helpDoc';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -90,14 +89,12 @@ const getDefaultScheduleConf = (value: TASK_PERIOD_ENUM) => {
 
 interface ISchedulingConfigProps extends Pick<molecule.model.IEditor, 'current'> {
 	/**
+	 * @deprecated
 	 * 是否是 workflow 任务, 目前暂不支持
 	 */
 	isWorkflowNode?: boolean;
 	/**
-	 * 是否有增量任务, 目前暂不支持
-	 */
-	isIncrementMode?: boolean;
-	/**
+	 * @deprecated
 	 * 是否是数据科学任务, 目前暂不支持
 	 */
 	isScienceTask?: boolean;
@@ -117,11 +114,10 @@ interface ISchedulingConfigProps extends Pick<molecule.model.IEditor, 'current'>
 export default function SchedulingConfig({
 	current,
 	isWorkflowNode = false,
-	isIncrementMode = false,
 	isScienceTask = false,
 	changeScheduleConf,
 }: ISchedulingConfigProps) {
-	const [selfReliance, setSelfReliance] = useState<number>(0);
+	const [selfReliance, setSelfReliance] = useState<SCHEDULE_DEPENDENCY>(SCHEDULE_DEPENDENCY.NULL);
 	const form = useRef<FormInstance<IScheduleConfProps & { scheduleStatus: boolean }>>(null);
 
 	const getInitScheduleConf = () => {
@@ -306,6 +302,11 @@ export default function SchedulingConfig({
 			setSelfReliance(Number(initConf.selfReliance));
 		}
 	}, [current]);
+
+	const isIncrementMode = useMemo(
+		() => current?.tab?.data.syncModel === DATA_SYNC_MODE.INCREMENT,
+		[],
+	);
 
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取调度依赖</div>;
