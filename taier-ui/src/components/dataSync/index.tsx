@@ -24,7 +24,7 @@ import Keymap, { OPERATOR_TYPE } from './keymap';
 import { cloneDeep } from 'lodash';
 import Channel, { UnlimitedSpeed } from './channel';
 import Preview from './preview';
-import { saveTask } from './help';
+import { getStepStatus, saveTask } from './help';
 import './index.scss';
 
 const { Step } = Steps;
@@ -294,36 +294,53 @@ function DataSync({ current }: molecule.model.IEditor) {
 	const getJobData = () => {
 		const taskId = current?.tab?.data.id;
 		if (typeof taskId === 'undefined') return;
-		setLoading(true);
-		ajax.getOfflineJobData({ taskId })
-			.then((res) => {
-				if (res.code === 1) {
-					if (res.data) {
-						// already saved task
-						const { taskId: nextTaskId } = res.data;
-						if (nextTaskId !== taskId) return;
-						const { sourceMap } = res.data;
-						if (sourceMap.sourceList) {
-							const loop = (source: any, index: any) => {
-								return {
-									...source,
-									// eslint-disable-next-line no-bitwise
-									key: index === 0 ? 'main' : `key${~~Math.random() * 10000000}`,
+		const [isLoaded, step] = getStepStatus(current?.tab?.data);
+		// 未加载过则加载数据
+		if (!isLoaded) {
+			setLoading(true);
+			ajax.getOfflineJobData({ taskId })
+				.then((res) => {
+					if (res.code === 1) {
+						if (res.data) {
+							// already saved task
+							const { taskId: nextTaskId } = res.data;
+							if (nextTaskId !== taskId) return;
+							const { sourceMap } = res.data;
+							if (sourceMap.sourceList) {
+								const loop = (source: any, index: any) => {
+									return {
+										...source,
+										key:
+											index === 0
+												? 'main'
+												: // eslint-disable-next-line no-bitwise
+												  `key${~~Math.random() * 10000000}`,
+									};
 								};
-							};
-							sourceMap.sourceList = sourceMap.sourceList.map(loop);
+								sourceMap.sourceList = sourceMap.sourceList.map(loop);
+							}
+							setCurrentData(res.data);
+							setCurrentStep(4);
+						} else {
+							// the task opened first time or never saved before
+							setCurrentData({ taskId });
 						}
-						setCurrentData(res.data);
-						setCurrentStep(4);
-					} else {
-						// the task opened first time or never saved before
-						setCurrentData({ taskId });
 					}
-				}
-			})
-			.finally(() => {
-				setLoading(false);
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+		} else {
+			const { id, sourceMap, targetMap, setting, keymap } = current?.tab?.data || {};
+			setCurrentStep(step);
+			setCurrentData({
+				sourceMap,
+				targetMap,
+				keymap,
+				setting,
+				taskId: id,
 			});
+		}
 	};
 
 	const getDataSourceList = () => {
