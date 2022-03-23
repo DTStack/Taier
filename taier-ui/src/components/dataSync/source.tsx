@@ -1,6 +1,7 @@
 import { API } from '@/api/dataSource';
 import api from '@/api';
 import {
+	BINARY_ROW_KEY_FLAG,
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
 	formItemLayout,
@@ -20,6 +21,7 @@ import {
 	message,
 	Table,
 	Tooltip,
+	Radio,
 } from 'antd';
 import type { FormInstance } from 'rc-field-form';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
@@ -27,8 +29,11 @@ import { useMemo, useState } from 'react';
 import {
 	dataFilterDoc,
 	dataSyncExtralConfigHelp,
+	es7Index,
+	es7Query,
 	hdfsPath,
 	incrementColumnHelp,
+	indexTypeDoc,
 	partitionDesc,
 	selectKey,
 	splitCharacter,
@@ -40,6 +45,7 @@ import type { ISourceFormField, IDataColumnsProps, ISourceMapProps } from './int
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
+const RadioGroup = Radio.Group;
 
 type IFormFieldProps = ISourceFormField;
 interface ISourceProps {
@@ -109,7 +115,7 @@ export default function Source({
 	/**
 	 * 获取表名
 	 */
-	const getTableList = (sourceId?: number, schema?: any, str?: any) => {
+	const getTableList = (sourceId?: number, schema?: string, str?: string) => {
 		setTableListLoading(true);
 		setFetching(true);
 		if (!sourceId) return;
@@ -146,19 +152,41 @@ export default function Source({
 		});
 	};
 
-	// 获取表字段
 	const getTableColumn = () => {
-		const { sourceId, table, schema } = form.getFieldsValue();
-		const tableName = Array.isArray(table) ? table[0] : table;
-		if (!tableName) {
+		const { sourceId, table, indexType, index, schema } = form.getFieldsValue();
+		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
+		if (!target) return;
+		let tableName: string | undefined = '';
+		let querySchema: string | undefined = '';
+		// ES 数据源：
+		// - tableName 字段取自 indexType,
+		// - schema 字段取自 index
+		const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
+		if (ES_DATASOURCE.includes(target.dataTypeCode)) {
+			tableName = indexType;
+			querySchema = index;
+		} else {
+			tableName = Array.isArray(table) ? table[0] : table;
+			querySchema = schema;
+		}
+
+		let canRequest = false;
+		const HIGHER_ES_VERSION = [DATA_SOURCE_ENUM.ES7];
+		// 高版本的 ES 数据源如 ES7 不存在 indexType 字段，则 tableName 字段必为空
+		// 所以数据源类型为 ES7 的时候是否可以请求通过判断 schema 是否存在
+		if (HIGHER_ES_VERSION.includes(target.dataTypeCode)) {
+			canRequest = !!querySchema;
+		} else {
+			canRequest = !!tableName;
+		}
+
+		if (!canRequest) {
 			// 重置切分键
 			form.setFieldsValue({
 				splitPK: '',
 			});
 			setLoading(false);
 		} else {
-			const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
-			if (!target) return;
 			const sourceType = target.dataTypeCode;
 			// 获取切分键
 			if (isRDB(sourceType) || sourceType === DATA_SOURCE_ENUM.POSTGRESQL) {
@@ -175,7 +203,7 @@ export default function Source({
 			// 获取表字段为第三步做准备
 			API.getOfflineTableColumn({
 				sourceId,
-				schema,
+				schema: querySchema,
 				tableName,
 				isIncludePart: includePart,
 			})
@@ -268,6 +296,29 @@ export default function Source({
 			});
 		}
 
+		if (changeValues.hasOwnProperty('index')) {
+			const targetSource = dataSourceList.find((d) => d.dataInfoId === values.sourceId);
+			if (targetSource && changeValues.index) {
+				const LOWER_ES_VERSION = [DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES];
+				const isES5orES6 = LOWER_ES_VERSION.includes(targetSource?.dataTypeCode);
+				// 低版本的 es 还需要获取 indexType 才可以获取 columns
+				if (isES5orES6) {
+					getTableList(values.sourceId, changeValues.index);
+				} else {
+					// 高版本直接获取 columns
+					getTableColumn();
+				}
+			}
+
+			form.setFieldsValue({
+				indexType: undefined,
+			});
+		}
+
+		if (changeValues.hasOwnProperty('indexType') && changeValues.indexType) {
+			getTableColumn();
+		}
+
 		// It's better to use form.getFieldsValue rather than the values params is for
 		// there are some set methods before this function which will lead to an out of date values
 		onFormValuesChanged?.(form.getFieldsValue());
@@ -275,8 +326,16 @@ export default function Source({
 
 	const handleSourceChanged = (value: number) => {
 		const targetDataSource = dataSourceList.find((d) => d.dataInfoId === value)!;
-		// KINGBASE/ORACLE需要加schema字段
-		const ALLOW_REQUEST_SCHEMA = [DATA_SOURCE_ENUM.ORACLE, DATA_SOURCE_ENUM.POSTGRESQL];
+		const ALLOW_REQUEST_SCHEMA = [
+			DATA_SOURCE_ENUM.KINGBASE8,
+			DATA_SOURCE_ENUM.ORACLE,
+			DATA_SOURCE_ENUM.POSTGRESQL,
+			DATA_SOURCE_ENUM.INFLUXDB,
+			DATA_SOURCE_ENUM.ADB_FOR_PG,
+			DATA_SOURCE_ENUM.ES6,
+			DATA_SOURCE_ENUM.ES,
+			DATA_SOURCE_ENUM.ES7,
+		];
 		if (ALLOW_REQUEST_SCHEMA.includes(targetDataSource.dataTypeCode)) {
 			getSchemaList();
 		}
@@ -285,7 +344,12 @@ export default function Source({
 			DATA_SOURCE_ENUM.KINGBASE8,
 			DATA_SOURCE_ENUM.S3,
 			DATA_SOURCE_ENUM.ADB_FOR_PG,
+			DATA_SOURCE_ENUM.OPENTSDB,
+			DATA_SOURCE_ENUM.ES7,
+			DATA_SOURCE_ENUM.ES,
+			DATA_SOURCE_ENUM.ES6,
 			DATA_SOURCE_ENUM.HDFS,
+			DATA_SOURCE_ENUM.FTP,
 		];
 
 		if (!NOT_REQUEST_TABLE_SOURCE.includes(targetDataSource.dataTypeCode)) {
@@ -303,6 +367,8 @@ export default function Source({
 			schema: undefined,
 			partition: undefined,
 			where: undefined,
+			index: undefined,
+			indexType: undefined,
 		};
 		form.setFieldsValue(resetField);
 		// the series of set methods are async function, so we can get the values after changed
@@ -446,7 +512,8 @@ export default function Source({
 		const targetSource = dataSourceList.find((l) => l.dataInfoId === sourceId);
 
 		switch (targetSource?.dataTypeCode) {
-			case DATA_SOURCE_ENUM.MYSQL: {
+			case DATA_SOURCE_ENUM.MYSQL:
+			case DATA_SOURCE_ENUM.SQLSERVER: {
 				return (
 					<>
 						<FormItem
@@ -607,6 +674,95 @@ export default function Source({
 									);
 								})}
 							</Select>
+						</FormItem>
+					</>
+				);
+			}
+			case DATA_SOURCE_ENUM.HBASE: {
+				return (
+					<>
+						<FormItem
+							name="table"
+							label="表名"
+							rules={[
+								{
+									required: true,
+									message: '数据源表为必选项！',
+								},
+							]}
+						>
+							<Select
+								getPopupContainer={(container) => container.parentNode}
+								showSearch
+								showArrow
+								notFoundContent={fetching ? <Spin size="small" /> : null}
+								filterOption={false}
+							>
+								{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
+									return (
+										<Option key={`rdb-${table}`} value={table}>
+											{table}
+										</Option>
+									);
+								})}
+							</Select>
+						</FormItem>
+						<FormItem
+							name="encoding"
+							label="编码"
+							key="encoding"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+							initialValue="utf-8"
+						>
+							<Select getPopupContainer={(container) => container.parentNode}>
+								<Option value="utf-8">utf-8</Option>
+								<Option value="gbk">gbk</Option>
+							</Select>
+						</FormItem>
+						<FormItem name="startRowkey" label="开始行健" key="startRowkey">
+							<Input placeholder="startRowkey" />
+						</FormItem>
+						<FormItem name="endRowkey" label="结束行健" key="endRowkey">
+							<Input placeholder="endRowkey" />
+						</FormItem>
+						<FormItem
+							name="isBinaryRowkey"
+							label="行健二进制转换"
+							key="isBinaryRowkey"
+							initialValue={BINARY_ROW_KEY_FLAG.FALSE}
+						>
+							<RadioGroup>
+								<Radio value={BINARY_ROW_KEY_FLAG.FALSE}>FALSE</Radio>
+								<Radio value={BINARY_ROW_KEY_FLAG.TRUE}>TRUE</Radio>
+							</RadioGroup>
+						</FormItem>
+						<FormItem
+							name="scanCacheSize"
+							label="每次RPC请求获取行数"
+							key="scanCacheSize"
+						>
+							<Input
+								placeholder="请输入大小, 默认为256"
+								type="number"
+								min={0}
+								suffix="行"
+							/>
+						</FormItem>
+						<FormItem
+							name="scanBatchSize"
+							label="每次RPC请求获取列数"
+							key="scanBatchSize"
+						>
+							<Input
+								placeholder="请输入大小, 默认为100"
+								type="number"
+								min={0}
+								suffix="列"
+							/>
 						</FormItem>
 					</>
 				);
@@ -844,6 +1000,84 @@ export default function Source({
 					</>
 				);
 			}
+			case DATA_SOURCE_ENUM.ES:
+			case DATA_SOURCE_ENUM.ES6:
+			case DATA_SOURCE_ENUM.ES7: {
+				const LOWER_ES_VERSION = [DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES];
+				const isES5orES6 = LOWER_ES_VERSION.includes(targetSource?.dataTypeCode);
+				return (
+					<>
+						<FormItem
+							name="index"
+							label="index"
+							key="index"
+							rules={[
+								{
+									required: true,
+									message: '请选择index！',
+								},
+							]}
+							tooltip={es7Index}
+						>
+							<Select
+								style={{ width: '100%' }}
+								placeholder="请选择index"
+								showSearch
+								allowClear
+							>
+								{schemaList?.map((item) => (
+									<Option key={item} value={item}>
+										{item}
+									</Option>
+								))}
+							</Select>
+						</FormItem>
+						{isES5orES6 && (
+							<FormItem
+								name="indexType"
+								label="type"
+								key="indexType"
+								rules={[
+									{
+										required: true,
+										message: '请选择indexType！',
+									},
+								]}
+								tooltip={indexTypeDoc}
+							>
+								<Select
+									style={{ width: '100%' }}
+									placeholder="请选择indexType！"
+									showSearch
+									allowClear
+								>
+									{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
+										return (
+											<Option key={table} value={table}>
+												{table}
+											</Option>
+										);
+									})}
+								</Select>
+							</FormItem>
+						)}
+						<FormItem
+							name="query"
+							label="query"
+							key="query"
+							rules={[
+								{
+									max: 1024,
+									message: '仅支持1-1024个任意字符',
+								},
+							]}
+							tooltip={es7Query}
+						>
+							<Input.TextArea placeholder='"match_all":{}' />
+						</FormItem>
+					</>
+				);
+			}
 			default:
 				return null;
 		}
@@ -867,6 +1101,13 @@ export default function Source({
 				fieldDelimiter: sourceMap.type?.fieldDelimiter,
 				encoding: sourceMap.type?.encoding,
 				extralConfig: sourceMap.extralConfig,
+				startRowkey: sourceMap.type?.startRowkey,
+				endRowkey: sourceMap.type?.endRowkey,
+				isBinaryRowkey: sourceMap.type?.isBinaryRowkey,
+				scanCacheSize: sourceMap.type?.scanCacheSize,
+				index: sourceMap.type?.index,
+				indexType: sourceMap.type?.indexType,
+				query: sourceMap.type?.query,
 			};
 		}
 
@@ -905,19 +1146,21 @@ export default function Source({
 							const tmpSupportDataSource = [
 								DATA_SOURCE_ENUM.MYSQL,
 								DATA_SOURCE_ENUM.ORACLE,
+								DATA_SOURCE_ENUM.SQLSERVER,
 								DATA_SOURCE_ENUM.POSTGRESQL,
 								DATA_SOURCE_ENUM.HDFS,
 								DATA_SOURCE_ENUM.HIVE,
 								DATA_SOURCE_ENUM.HIVE1X,
 								DATA_SOURCE_ENUM.HIVE3X,
+								DATA_SOURCE_ENUM.HBASE,
 								DATA_SOURCE_ENUM.SPARKTHRIFT,
+								DATA_SOURCE_ENUM.ES,
+								DATA_SOURCE_ENUM.ES6,
+								DATA_SOURCE_ENUM.ES7,
 							];
 
 							const disableSelect =
 								!tmpSupportDataSource.includes(src.dataTypeCode) ||
-								src.dataTypeCode === DATA_SOURCE_ENUM.ES ||
-								src.dataTypeCode === DATA_SOURCE_ENUM.REDIS ||
-								src.dataTypeCode === DATA_SOURCE_ENUM.MONGODB ||
 								// 增量模式需要禁用非关系型数据库
 								(isIncrementMode && !isRDB(src.dataTypeCode));
 
