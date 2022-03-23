@@ -1038,13 +1038,20 @@ export const notSupportSourceTypesInScript = [
 	DATA_SOURCE_ENUM.DORIS,
 ];
 
-
 /**
  * @description 脚本模式下 选择目标时 不支持选择的数据源类型
  */
 export const notSupportTargetTypesInScript = [
-    DATA_SOURCE_ENUM.Kylin,
-    DATA_SOURCE_ENUM.INFLUXDB,
-    DATA_SOURCE_ENUM.IMPALA,
-    DATA_SOURCE_ENUM.INFLUXDB,
-]
+	DATA_SOURCE_ENUM.Kylin,
+	DATA_SOURCE_ENUM.INFLUXDB,
+	DATA_SOURCE_ENUM.IMPALA,
+	DATA_SOURCE_ENUM.INFLUXDB,
+];
+
+/**
+ * 数据同步任务 HBASE 是否行健二进制转换
+ */
+export const BINARY_ROW_KEY_FLAG = {
+	FALSE: '0',
+	TRUE: '1',
+} as const;
