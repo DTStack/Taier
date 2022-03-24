@@ -33,6 +33,8 @@ import CustomParams from './components/customParams';
 import NodeLabel from './components/nodeLabel';
 import { formItemLayout, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '@/constant';
 import './index.scss';
+import { useContextForm } from '../context';
+import type { IClusterInfo, IComponentProps, ICompTemplate } from '../interface';
 
 const HOVER_TEXT: Record<number, string> = {
 	// [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
@@ -42,12 +44,22 @@ const HOVER_TEXT: Record<number, string> = {
 	// 	'示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev',
 };
 
+interface IColProps {
+	xs?: { span: number };
+	sm?: { span: number };
+}
+
+interface IItemLayout {
+	labelCol: IColProps;
+	wrapperCol: IColProps;
+}
+
 interface IProps {
-	comp: any;
-	form: FormInstance;
+	comp: IComponentProps;
+	form?: FormInstance;
 	view: boolean;
-	clusterInfo?: any;
-	itemLayout?: any;
+	clusterInfo?: IClusterInfo;
+	itemLayout?: IItemLayout;
 }
 
 const FormItem = Form.Item;
@@ -55,14 +67,16 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const CheckboxGroup = Checkbox.Group;
 
-export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }: IProps) {
-	const renderOptoinsType = (temp: any) => {
+export default function FormConfig({ comp, view, clusterInfo, itemLayout }: IProps) {
+	const form = useContextForm();
+
+	const renderOptoinsType = (temp: ICompTemplate) => {
 		switch (temp.type) {
 			case CONFIG_ITEM_TYPE.RADIO:
 			case CONFIG_ITEM_TYPE.RADIO_LINKAGE:
 				return (
 					<RadioGroup disabled={view}>
-						{temp.values.map((c: any) => {
+						{temp.values?.map((c) => {
 							return (
 								<Radio key={c.key} value={c.value}>
 									{c.key}
@@ -74,7 +88,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 			case CONFIG_ITEM_TYPE.SELECT:
 				return (
 					<Select disabled={view} style={{ width: 200 }}>
-						{temp.values.map((c: any) => {
+						{temp.values?.map((c) => {
 							return (
 								<Option key={c.key} value={c.value}>
 									{c.key}
@@ -86,7 +100,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 			case CONFIG_ITEM_TYPE.CHECKBOX:
 				return (
 					<CheckboxGroup disabled={view} className="c-componentConfig__checkboxGroup">
-						{temp.values.map((c: any) => {
+						{temp.values?.map((c) => {
 							return (
 								<Checkbox key={c.key} value={`${c.value}`}>
 									{c.key}
@@ -109,12 +123,12 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 	};
 
 	// 渲染单个配置项
-	const renderConfigItem = (temp: any, groupKey?: string) => {
-		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
+	const renderConfigItem = (temp: ICompTemplate, groupKey?: string) => {
+		const typeCode: COMPONENT_TYPE_VALUE = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 		const layout = itemLayout ?? formItemLayout;
 		const initialValue =
-			temp.key === 'deploymode' && !isArray(temp.value) ? temp.value.split() : temp.value;
+			temp.key === 'deploymode' && !isArray(temp.value) ? [temp.value] : temp.value;
 
 		let formField: number | string = typeCode;
 		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
@@ -148,10 +162,8 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 					>
 						{renderOptoinsType(temp)}
 					</FormItem>
-					{isDtscriptAgent(typeCode) && (
-						<NodeLabel form={form} view={view} clusterInfo={clusterInfo} />
-					)}
-					{showHover(typeCode, temp.key) && (
+					{isDtscriptAgent() && <NodeLabel view={view} clusterInfo={clusterInfo!} />}
+					{showHover() && (
 						<Tooltip title={HOVER_TEXT[typeCode]}>
 							<QuestionCircleOutlined
 								style={{
@@ -169,10 +181,10 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 	};
 
 	// 渲染group级别配置项
-	const renderGroupConfigItem = (temps: any, notParams?: boolean) => {
+	const renderGroupConfigItem = (temps: ICompTemplate, notParams?: boolean) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
-		let formField = typeCode;
+		let formField: number | string = typeCode;
 		if (isMultiVersion(typeCode)) {
 			formField = `${formField}.${versionName}`;
 		}
@@ -183,7 +195,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 
 		if ((dependencyValue || []).includes(temps?.dependencyValue) || !temps?.dependencyValue) {
 			if (notParams) {
-				return temps.values.map((temp: any) => {
+				return temps.values?.map((temp) => {
 					return renderConfigItem(temp);
 				});
 			}
@@ -191,13 +203,12 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 				<div className="c-formConfig__group" key={temps.key}>
 					<div className="group__title">{temps.key}</div>
 					<div className="group__content">
-						{temps.values.map((temp: any) => {
+						{temps.values?.map((temp) => {
 							return renderConfigItem(temp, temps.key);
 						})}
 						<CustomParams
 							typeCode={typeCode}
 							hadoopVersion={versionName}
-							form={form}
 							view={view}
 							template={temps}
 							maxWidth={680}
@@ -211,20 +222,29 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 	const rendeConfigForm = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
-		const template = getValueByJson(comp?.componentTemplate) ?? [];
+		const template: ICompTemplate[] = getValueByJson(comp?.componentTemplate) ?? [];
 
-		return template.map((temps: any, index: number) => {
+		return template.map((temps, index) => {
 			/**
 			 * 根据根结点deploymode判断是否需要读取二级数据
 			 * Radio联动类型数据不添加自定义参数
 			 */
 			if (isDeployMode(temps.key) || isRadioLinkage(temps.type)) {
+				const formField = isMultiVersion(typeCode)
+					? `${typeCode}.${versionName}`
+					: `${typeCode}`;
+				// 对应renderConfigItem方法中的FormItem的name
+				const fieldName = `${formField}.componentConfig.${temps.key.split('.').join('%')}`;
+
 				return (
 					<React.Fragment key={temps.key}>
 						{renderConfigItem(temps)}
-						<FormItem shouldUpdate noStyle>
+						<FormItem
+							noStyle
+							shouldUpdate={(prev, curr) => prev[fieldName] !== curr[fieldName]}
+						>
 							{() =>
-								temps.values.map((temp: any) =>
+								temps.values?.map((temp) =>
 									renderGroupConfigItem(temp, isRadioLinkage(temps.type)),
 								)
 							}
@@ -244,7 +264,6 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 						<CustomParams
 							typeCode={typeCode}
 							hadoopVersion={versionName}
-							form={form}
 							view={view}
 							template={template}
 							maxWidth={680}
@@ -259,14 +278,14 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 
 	const renderYarnOrHdfsConfig = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
-		const template = getValueByJson(comp?.componentTemplate) ?? [];
+		const template: ICompTemplate[] = getValueByJson(comp?.componentTemplate) ?? [];
 		const compConfig = getValueByJson(comp?.componentConfig) ?? {};
 		const config = form.getFieldValue(`${typeCode}.specialConfig`) ?? compConfig;
-		const keyAndValue = Object.entries(config);
+		const keyAndValue: [string, string][] = Object.entries(config);
 
 		return (
 			<>
-				{keyAndValue.map(([key, value]: any[]) => {
+				{keyAndValue.map(([key, value]) => {
 					return (
 						<Row key={key} className="zipConfig-item">
 							<Col
@@ -293,7 +312,6 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 				<CustomParams
 					key={String(template.length)}
 					typeCode={typeCode}
-					form={form}
 					comp={comp}
 					view={view}
 					template={template}
@@ -329,7 +347,7 @@ export default function FormConfig({ comp, form, view, clusterInfo, itemLayout }
 
 	const typeCode = comp?.componentTypeCode ?? '';
 	const className = useMemo(
-		() => `c-formConfig__container ${isDtscriptAgent(typeCode) ? 'c-formConfig__full' : ''}`,
+		() => `c-formConfig__container ${isDtscriptAgent() ? 'c-formConfig__full' : ''}`,
 		[typeCode],
 	);
 

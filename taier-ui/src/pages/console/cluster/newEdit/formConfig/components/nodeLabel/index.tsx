@@ -22,6 +22,8 @@ import { Modal, Alert, Col, Row, Table, Input, message, Select } from 'antd';
 import Api from '@/api/console';
 import { COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
+import { useContextForm } from '../../../context';
+import type { IClusterInfo } from '../../../interface';
 
 interface TableData {
 	userName: string;
@@ -29,8 +31,8 @@ interface TableData {
 }
 
 interface IProps {
-	form: FormInstance;
-	clusterInfo: any;
+	form?: FormInstance;
+	clusterInfo: IClusterInfo;
 	view: boolean;
 }
 
@@ -39,10 +41,11 @@ const NodeLabel = (props: IProps) => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [nodes, setNodes] = useState<any[]>([]);
 	const [defaultLabel, setDefaultLabel] = useState<string | null>(null);
+	const form = useContextForm();
 
 	const getNodes = async () => {
 		const { clusterId } = props.clusterInfo;
-		const { getFieldValue } = props.form;
+		const { getFieldValue } = form;
 		const field = `${COMPONENT_TYPE_VALUE.DTSCRIPT_AGENT}.componentConfig.agentAddress`;
 		const params = {
 			clusterId,

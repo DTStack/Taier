@@ -116,9 +116,7 @@ export default ({
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [tenantList, setTenantList] = useState<ITenantProps[]>([]);
 	const [queueList, setQueueList] = useState<IQueueListProps[]>([]);
-	const [metaComponent, setMetaComponent] = useState<
-		Valueof<typeof COMPONENT_TYPE_VALUE> | undefined
-	>(undefined);
+	const [metaComponent, setMetaComponent] = useState<COMPONENT_TYPE_VALUE | undefined>(undefined);
 	const [loading, setLoading] = useState(false);
 	const { env } = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
