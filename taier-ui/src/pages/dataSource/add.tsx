@@ -222,8 +222,6 @@ export default function Add({ record, onSubmit }: IAddProps) {
 						.then((res: any) => {
 							if (res.success && res.data) {
 								message.success('连接成功');
-							} else {
-								message.error(res.message || '连接失败');
 							}
 						})
 						.catch(() => {
