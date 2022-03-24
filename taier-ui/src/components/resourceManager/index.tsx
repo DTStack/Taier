@@ -63,6 +63,7 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 	const [isCoverUpload, setCoverUpload] = useState(false);
 	const [rightClickData, setData] = useState<any>(undefined);
 	const [folderVisible, setFolderVisible] = useState(false);
+	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 	const [folderData, setFolderData] = useState<
 		Partial<Pick<CatalogueDataProps, 'id' | 'parentId' | 'name'>> | undefined
 	>(undefined);
@@ -129,6 +130,10 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 			default:
 				break;
 		}
+	};
+
+	const handleExpandKeys = (keys: string[]) => {
+		setExpandKeys(keys);
 	};
 
 	const handleDelete = (treeNode: ITreeNodeItemProps, source: keyof typeof DELETE_SOURCE) => {
@@ -316,6 +321,8 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 			<Content>
 				<div tabIndex={0} className="resourceManager-content">
 					<FolderTreeView
+						onExpandKeys={handleExpandKeys}
+						expandKeys={expandKeys}
 						onRightClick={handleRightClick}
 						draggable={false}
 						onSelectFile={handleSelect}

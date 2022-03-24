@@ -57,6 +57,7 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	const [currentMenuData, setMenuData] = useState<any>(undefined);
 	const [editData, setEditData] = useState<any>(undefined);
 	const [resId, setResId] = React.useState<number | null>(null);
+	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
 		loadTreeNode(node.data, CATELOGUE_TYPE.FUNCTION);
@@ -169,6 +170,10 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	const handleCloseFolderModal = () => {
 		setFolderVisible(false);
 		setEditData(false);
+	};
+
+	const handleExpandKeys = (keys: string[]) => {
+		setExpandKeys(keys);
 	};
 
 	const handleRightClick = (treeNode: ITreeNodeItemProps) => {
@@ -301,6 +306,8 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 			<Content>
 				<div tabIndex={0} className="functionManager-content">
 					<FolderTreeView
+						expandKeys={expandKeys}
+						onExpandKeys={handleExpandKeys}
 						onRightClick={handleRightClick}
 						draggable={false}
 						onSelectFile={handleSelect}
