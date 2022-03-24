@@ -21,7 +21,7 @@ import type { IPersonLists } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
 import { extensions } from '@/extensions';
-import { MoleculeProvider } from '@dtinsight/molecule';
+import molecule, { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
 import API from '@/api/operation';
 import Task from '@/pages/operation/task';
@@ -292,6 +292,23 @@ export default function HomePage() {
 			}
 		});
 		return unlisten;
+	}, []);
+
+	useEffect(() => {
+		function handleBeforeLeave(e: BeforeUnloadEvent) {
+			const { groups } = molecule.editor.getState();
+			if (groups?.length) {
+				// refer to: https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent
+				// prettier-ignore
+				// eslint-disable-next-line no-useless-escape
+				const confirmationMessage = '\o/';
+				(e || window.event).returnValue = confirmationMessage; // Gecko + IE
+				return confirmationMessage; // Webkit, Safari, Chrome
+			}
+		}
+		window.addEventListener('beforeunload', handleBeforeLeave);
+
+		return () => window.removeEventListener('beforeunload', handleBeforeLeave);
 	}, []);
 
 	return (
