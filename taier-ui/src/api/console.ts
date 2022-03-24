@@ -75,10 +75,10 @@ export default {
 		return http.get(req.GET_COMPONENT_VERSION, params);
 	},
 
-	getResourceList: function (params: any) {
+	getResourceList(params: any) {
 		return http.post(req.GET_RESOURCE_LIST, params);
 	},
-	getClusterList: function (params: any) {
+	getClusterList(params: { currentPage: number, pageSize: number, }) {
 		return http.post(req.GET_CLUSTER_LIST, params);
 	},
 	uploadClusterResource(params: any) {
@@ -115,7 +115,7 @@ export default {
 	},
 
 	// 上传kerberos文件
-	uploadKerberos(params: { kerberosFile: any; clusterId: number; componentCode: number }) {
+	uploadKerberos(params: { kerberosFile: any; clusterId: string; componentCode: number }) {
 		return http.postAsFormData(req.UPLOAD_KERBEROS, params);
 	},
 
@@ -128,7 +128,7 @@ export default {
 		return http.post(req.GET_DTSCRIPT_AGENT_LABEL, params);
 	},
 	getClusterComponentUser(params: {
-		clusterId: number;
+		clusterId: string;
 		needRefresh: boolean;
 		componentTypeCode: number;
 		agentAddress: string;

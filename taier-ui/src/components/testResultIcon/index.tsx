@@ -16,11 +16,13 @@
  * limitations under the License.
  */
 
+import { useState } from 'react';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Tooltip, Modal } from 'antd';
 import { isArray } from 'lodash';
 import classNames from 'classnames';
 import './index.scss';
+import type { ITestStatusProps } from '@/pages/console/cluster/newEdit/interface';
 
 const TEST_STATUS = {
 	SUCCESS: true,
@@ -28,52 +30,55 @@ const TEST_STATUS = {
 };
 
 interface ITestRestIconProps {
-	testStatus: {
-		componentVersion: null | string;
-		errorMsg: null | string;
-		result: null | boolean;
-	};
+	testStatus: ITestStatusProps;
 }
 
 export default function TestRestIcon({ testStatus }: ITestRestIconProps) {
-	const showDetailErrMessage = (engine: ITestRestIconProps['testStatus']) => {
+	const [showMsg, setShowMsg] = useState(false);
+
+	const showDetailErrMessage = (msgContent: JSX.Element | JSX.Element[]) => {
+		setShowMsg(false);
 		Modal.error({
 			title: `错误信息`,
-			content: `${engine.errorMsg}`,
+			content: (
+				<div style={{ maxHeight: 'calc(100vh - 300px)', overflow: 'auto' }}>
+					{msgContent}
+				</div>
+			),
 			zIndex: 1061,
 		});
 	};
 
-	const matchCompTest = (testResult: ITestRestIconProps['testStatus']) => {
+	const matchCompTest = (testResult: ITestStatusProps) => {
 		switch (testResult?.result) {
 			case TEST_STATUS.SUCCESS: {
 				return <CheckCircleFilled className="success-icon" />;
 			}
 			case TEST_STATUS.FAIL: {
+				const msgContent = isArray(testResult?.errorMsg) ? (
+					testResult?.errorMsg?.map((msg) => (
+						<p key={msg.componentVersion}>
+							{msg.componentVersion ? `${msg.componentVersion} : ` : ''}
+							{msg.errorMsg}
+						</p>
+					))
+				) : (
+					<span>{testResult?.errorMsg}</span>
+				);
 				return (
 					<Tooltip
+						visible={showMsg}
 						title={
 							<a
 								className={classNames('text-white', 'overflow-scroll')}
-								onClick={() => showDetailErrMessage(testResult)}
+								onClick={() => showDetailErrMessage(msgContent)}
 							>
-								{!isArray(testResult?.errorMsg) ? (
-									<span>{testResult?.errorMsg}</span>
-								) : (
-									testResult?.errorMsg?.map((msg) => {
-										return (
-											<p key={msg.componentVersion}>
-												{msg.componentVersion
-													? `${msg.componentVersion} : `
-													: ''}
-												{msg.errorMsg}
-											</p>
-										);
-									})
-								)}
+								{msgContent}
 							</a>
 						}
 						placement="right"
+						onVisibleChange={(v) => setShowMsg(v)}
+						overlayInnerStyle={{ maxHeight: 300, overflow: 'auto' }}
 					>
 						<CloseCircleFilled className="err-icon" />
 					</Tooltip>

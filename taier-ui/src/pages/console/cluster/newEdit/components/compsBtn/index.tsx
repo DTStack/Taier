@@ -18,27 +18,36 @@
 
 import * as React from 'react';
 import { Button, Popconfirm, Checkbox, Radio, Row, Col, message } from 'antd';
+import type { RadioChangeEvent } from 'antd';
+import type { CheckboxValueType } from 'antd/lib/checkbox/Group';
 import _ from 'lodash';
 import { ComponentConfigIcon } from '@/components/icon';
 import { isSourceTab } from '../../help';
 import { CONFIG_BUTTON_TYPE, COMPONENT_CONFIG_NAME, COMP_ACTION } from '@/constant';
+import type { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
+import type { IScheduleComponentComp, IHandleConfirm } from '../../interface';
 
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;
 
 interface IProps {
-	activeKey: number;
-	comps: any[];
+	activeKey: TABS_TITLE_KEY;
+	comps: IScheduleComponentComp[];
 	popVisible: boolean;
-	handleConfirm: Function;
-	handlePopVisible: Function;
+	handleConfirm: IHandleConfirm;
+	handlePopVisible: (visible?: boolean) => void;
 }
 
 interface IState {
 	visible: boolean;
-	addComps: any[];
-	initialValues: any[];
+	addComps: COMPONENT_TYPE_VALUE[];
+	initialValues: COMPONENT_TYPE_VALUE[];
+}
+
+interface IComponentType {
+	code: COMPONENT_TYPE_VALUE;
+	componentName: string;
 }
 
 export default class ComponentButton extends React.Component<IProps, IState> {
@@ -54,7 +63,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 		});
 	}
 
-	componentDidUpdate(preProps: any) {
+	componentDidUpdate(preProps: IProps) {
 		const { comps, popVisible } = this.props;
 		if (preProps.comps !== comps || (preProps.popVisible !== popVisible && popVisible)) {
 			this.setState({
@@ -65,7 +74,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 
 	getInitialValues = () => {
 		const { comps = [] } = this.props;
-		return comps.map((comp: any) => comp?.componentTypeCode);
+		return comps.map((comp: IScheduleComponentComp) => comp?.componentTypeCode);
 	};
 
 	handleSelectValue = () => {
@@ -74,7 +83,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 		return selectValues;
 	};
 
-	handleCheckValues = (value: any[]) => {
+	handleCheckValues = (value: CheckboxValueType[]) => {
 		const { activeKey } = this.props;
 		const initialValues = this.getInitialValues();
 
@@ -82,16 +91,17 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 			return;
 		}
 
+		const typeValue = value as COMPONENT_TYPE_VALUE[];
 		// 和初始值取一次合集，一次交集可得增加的组件
-		const unionArr = _.union(value, initialValues);
+		const unionArr = _.union(typeValue, initialValues);
 		const addComps = _.xor(unionArr, initialValues);
 		this.setState({
 			addComps,
-			initialValues: value,
+			initialValues: typeValue,
 		});
 	};
 
-	handleRadioValues = (e: any) => {
+	handleRadioValues = (e: RadioChangeEvent) => {
 		const initialValues = this.getInitialValues();
 
 		/**
@@ -100,11 +110,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 		if (!_.isEqual(initialValues[0], e.target.value)) {
 			if (initialValues[0]) {
 				message.error(
-					`先删除${
-						COMPONENT_CONFIG_NAME[
-							initialValues[0] as keyof typeof COMPONENT_CONFIG_NAME
-						]
-					}，才能切换为${
+					`先删除${COMPONENT_CONFIG_NAME[initialValues[0]]}，才能切换为${
 						COMPONENT_CONFIG_NAME[e.target.value as keyof typeof COMPONENT_CONFIG_NAME]
 					}`,
 				);
@@ -142,7 +148,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 						onChange={this.handleRadioValues}
 					>
 						<Row>
-							{CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
+							{CONFIG_BUTTON_TYPE[activeKey].map((item: IComponentType) => {
 								return (
 									<Col key={`${item.code}`} span={24}>
 										<Radio
@@ -171,7 +177,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 					onChange={this.handleCheckValues}
 				>
 					<Row>
-						{CONFIG_BUTTON_TYPE[activeKey].map((item: any) => {
+						{CONFIG_BUTTON_TYPE[activeKey].map((item: IComponentType) => {
 							return (
 								<Col key={`${item.code}`} span={24}>
 									<Checkbox

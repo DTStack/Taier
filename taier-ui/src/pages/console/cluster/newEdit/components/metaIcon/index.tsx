@@ -18,10 +18,11 @@
 
 import React from 'react';
 import './index.scss';
+import type { IScheduleComponentComp } from '../../interface';
 
 interface IProps {
-	comp: any;
-	isMetadata: undefined | boolean;
+	comp: IScheduleComponentComp;
+	isMetadata?: boolean;
 }
 
 export default class MetaIcon extends React.PureComponent<IProps, any> {

@@ -19,42 +19,51 @@
 import { useMemo, useState } from 'react';
 import type { FormInstance } from 'antd';
 import { Tabs, Menu, Dropdown, Button, Radio, Row, Col } from 'antd';
+import type { MenuInfo } from 'rc-menu/lib/interface';
 import { DownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import TestRestIcon from '@/components/testResultIcon';
 import { isFLink } from '../../help';
-import FileConfig from '../../fileConfig';
-import FormConfig from '../../formConfig';
 import ToolBar from '../toolbar';
+import SingleVerComp from '../singleVerComp';
 import {
 	COMPONENT_CONFIG_NAME,
 	COMP_ACTION,
 	FLINK_DEPLOY_TYPE,
 	FLINK_DEPLOY_NAME,
 } from '@/constant';
-import type { IVersionData } from '../..';
+import type {
+	IClusterInfo,
+	IScheduleComponentComp,
+	ISaveCompsData,
+	ITestStatusProps,
+	IGetLoadTemplateParams,
+	IVersionData,
+	ISaveComp,
+	IHandleConfirm,
+	ITestConnects,
+} from '../../interface';
 import './index.scss';
 
 const { TabPane } = Tabs;
 const MenuItem = Menu.Item;
 interface IProps {
-	comp: any;
-	form: FormInstance;
+	comp: IScheduleComponentComp;
+	form?: FormInstance;
 	view: boolean;
-	saveCompsData: any[];
+	saveCompsData: ISaveCompsData[];
 	versionData: IVersionData;
-	clusterInfo: any;
-	testStatus: any;
-	saveComp: (params: any, type?: string) => void;
-	getLoadTemplate: (key?: string, params?: any) => void;
-	handleConfirm: (action: string, comps: any | any[], mulitple?: boolean) => void;
-	testConnects: Function;
+	clusterInfo: IClusterInfo;
+	testStatus: ITestStatusProps[];
+	saveComp: ISaveComp;
+	handleConfirm: IHandleConfirm;
+	testConnects: ITestConnects;
+	getLoadTemplate: (key?: string | number, params?: IGetLoadTemplateParams) => void;
 }
 
 const className = 'c-multiVersionComp';
 
 export default function MultiVersionComp({
 	comp,
-	form,
 	view,
 	saveCompsData,
 	versionData,
@@ -69,7 +78,7 @@ export default function MultiVersionComp({
 		comp?.multiVersion[0]?.deployType ?? FLINK_DEPLOY_TYPE.YARN,
 	);
 
-	const handleMenuClick = (e: any) => {
+	const handleMenuClick = (e: MenuInfo) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		saveComp(
 			{
@@ -89,7 +98,7 @@ export default function MultiVersionComp({
 			<Menu onClick={handleMenuClick}>
 				{displayVersion?.map(({ key }) => {
 					const disabled = comp?.multiVersion?.findIndex(
-						(vcomp: any) => vcomp.versionName === key,
+						(vcomp) => vcomp?.versionName === key,
 					);
 					return (
 						<MenuItem disabled={disabled > -1} key={key}>
@@ -127,7 +136,7 @@ export default function MultiVersionComp({
 		return COMPONENT_CONFIG_NAME[typeCode];
 	};
 
-	const getDefaultVerionCompStatus = (component: any) => {
+	const getDefaultVerionCompStatus = (component: IScheduleComponentComp) => {
 		/** 当flink组件只有一个组件版本时勾选为默认版本 */
 		const typeCode = component?.componentTypeCode ?? '';
 		if (isFLink(typeCode) && component.multiVersion.length === 1) return true;
@@ -195,9 +204,8 @@ export default function MultiVersionComp({
 				{!view && (
 					<ToolBar
 						mulitple={false}
-						comp={comp}
+						comp={comp as any}
 						clusterInfo={clusterInfo}
-						form={form}
 						saveComp={saveComp}
 						handleConfirm={handleConfirm}
 					/>
@@ -215,7 +223,7 @@ export default function MultiVersionComp({
 					<Dropdown
 						disabled={view}
 						overlay={() => getMeunItem(displayVersion)}
-						placement="bottomCenter"
+						placement="bottom"
 					>
 						<Button type="primary" size="small" style={{ marginRight: 20 }}>
 							添加版本
@@ -224,48 +232,36 @@ export default function MultiVersionComp({
 					</Dropdown>
 				}
 			>
-				{comp?.multiVersion.map((vcomp: any) => {
-					const { deployType: type, componentTypeCode, versionName } = vcomp;
+				{comp?.multiVersion.map((vcomp) => {
+					const { deployType: type, componentTypeCode, versionName } = vcomp!;
+					const currStatus = testStatus.find(
+						(status) => status?.componentVersion === versionName,
+					);
 					return (
 						<TabPane
 							tab={
 								<span>
-									{getComponentName(componentTypeCode, type)}
-									{versionName}
-									<TestRestIcon
-										testStatus={testStatus.find(
-											(status: any) =>
-												status?.componentVersion === versionName,
-										)}
-									/>
+									<span style={{ marginRight: 6 }}>
+										{getComponentName(componentTypeCode, type)}
+										{versionName}
+									</span>
+									<TestRestIcon testStatus={currStatus!} />
 								</span>
 							}
 							key={String(versionName)}
 						>
-							<>
-								<FileConfig
-									comp={vcomp}
-									form={form}
-									view={view}
-									isDefault={isDefault}
-									saveCompsData={saveCompsData}
-									versionData={versionData}
-									clusterInfo={clusterInfo}
-									saveComp={saveComp}
-								/>
-								<FormConfig comp={vcomp} view={view} form={form} />
-								{!view && (
-									<ToolBar
-										mulitple={true}
-										comp={vcomp}
-										clusterInfo={clusterInfo}
-										form={form}
-										saveComp={saveComp}
-										testConnects={testConnects}
-										handleConfirm={handleConfirm}
-									/>
-								)}
-							</>
+							<SingleVerComp
+								comp={vcomp!}
+								view={view}
+								isDefault={isDefault}
+								isMulitple={true}
+								saveCompsData={saveCompsData}
+								versionData={versionData}
+								clusterInfo={clusterInfo}
+								saveComp={saveComp}
+								testConnects={testConnects}
+								handleConfirm={handleConfirm}
+							/>
 						</TabPane>
 					);
 				})}
