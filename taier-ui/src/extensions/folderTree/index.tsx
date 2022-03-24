@@ -134,6 +134,10 @@ function init() {
 
 // 初始化右键菜单
 function initContextMenu() {
+	// remove folderTree default contextMenu
+	molecule.folderTree.setState({
+		folderTree: { ...molecule.folderTree.getState().folderTree, folderPanelContextMenu: [] },
+	});
 	molecule.folderTree.onRightClick((treeNode, menu) => {
 		if (!treeNode.isLeaf) {
 			// insert these menus into folder context
@@ -352,11 +356,14 @@ function onSelectFile() {
 
 function onRemove() {
 	molecule.folderTree.onRemove((id) => {
+		const treeNode = molecule.folderTree.get(id);
+		const type = treeNode?.data?.type;
 		Modal.confirm({
-			title: '确认要删除此任务吗?',
-			content: '删除的任务无法找回！',
+			title: `确认要删除此${type === 'file' ? '任务' : '文件夹'}吗?`,
+			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${
+				type === 'file' ? '找回' : '恢复'
+			}！`,
 			onOk() {
-				const treeNode = molecule.folderTree.get(id);
 				if (treeNode?.data?.type === 'folder') {
 					api.delOfflineFolder({ id: treeNode.data.id }).then((res) => {
 						if (res.code === 1) {
