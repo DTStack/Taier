@@ -19,12 +19,10 @@
 import { FolderTreeService } from '@dtinsight/molecule/esm/services';
 
 let functionManagerService;
-class FunctionManagerService extends FolderTreeService {
-    constructor() {
-        super();
-    }
-}
+class FunctionManagerService extends FolderTreeService {}
 
-functionManagerService = functionManagerService || new FunctionManagerService();
+if (!functionManagerService) {
+	functionManagerService = new FunctionManagerService();
+}
 
 export default functionManagerService as FunctionManagerService;
