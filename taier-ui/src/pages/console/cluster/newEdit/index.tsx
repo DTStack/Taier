@@ -16,22 +16,22 @@
  * limitations under the License.
  */
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Form, Tabs, message, Modal, Carousel, Spin } from 'antd';
+/* eslint-disable react/no-array-index-key */
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { Form, Tabs, message, Modal, Spin } from 'antd';
 import { history } from 'umi';
 import { cloneDeep } from 'lodash';
 import TestRestIcon from '@/components/testResultIcon';
 import MultiVersionComp from './components/multiVerComp';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import type { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
-import { DRAWER_MENU_ENUM } from '@/constant';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import {
 	TABS_TITLE_KEY,
 	COMPONENT_CONFIG_NAME,
 	DEFAULT_COMP_VERSION,
 	COMP_ACTION,
+	DRAWER_MENU_ENUM,
 } from '@/constant';
-import type { CarouselRef } from 'antd/lib/carousel';
 import { convertToObj } from '@/utils';
 import Api from '@/api/console';
 import {
@@ -49,9 +49,6 @@ import {
 	getCompsName,
 	isSchedulings,
 } from './help';
-import FileConfig from './fileConfig';
-import FormConfig from './formConfig';
-import ToolBar from './components/toolbar';
 import ComponentButton from './components/compsBtn';
 import MetaIcon from './components/metaIcon';
 import './index.scss';
@@ -61,6 +58,22 @@ import {
 	StoreComponentIcon,
 	ComputeComponentIcon,
 } from '@/components/icon';
+import SingleVerComp from './components/singleVerComp';
+import { FormContext } from './context';
+import type {
+	ISaveCompsData,
+	IModifyComp,
+	IEditClusterRefProps,
+	IScheduleComponent,
+	IComponentProps,
+	IScheduleComponentComp,
+	IConfirmComps,
+	IGetLoadTemplateParams,
+	ITestConnectsParams,
+	ITestErrorMsg,
+	ITestStatusProps,
+	IVersionData,
+} from './interface';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -90,114 +103,64 @@ const TABS_POP_VISIBLE = {
 	[TABS_TITLE_KEY.COMPUTE]: false,
 };
 
-export type IVersionData = Record<
-	string,
-	{
-		dependencyKey: string | null;
-		dependencyValue: string | null;
-		deployTypes: number[] | null;
-		id: number;
-		key: string;
-		required: boolean;
-		type: string | null;
-		value: string;
-		values: any[] | null;
-	}[]
->;
-
-interface IComponentProps {
-	componentConfig: string;
-	componentName: string;
-	componentTemplate: string;
-	componentTypeCode: number;
-	deployType: number;
-	engineId: ENGINE_SOURCE_TYPE_ENUM;
-	gmtCreate: number;
-	gmtModified: number;
-	versionName: string;
-	id: number;
-	isDefault: boolean;
-	storeType: number;
-}
-
 /**
  * 测试连通性返回结果类型
  */
-type ITestStatus = Record<
-	number,
-	{
-		clusterResourceDescription: null | string;
-		componentTypeCode: keyof typeof COMPONENT_CONFIG_NAME;
-		componentVersion: string | null;
-		multiVersion?: any;
-		errorMsg: string | null;
-		result: null | boolean;
-	}
->;
-
-interface IScheduleComponent {
-	components: {
-		componentTypeCode: keyof typeof COMPONENT_CONFIG_NAME;
-		multiVersion: (IComponentProps | undefined)[];
-	}[];
-	schedulingCode: number;
-	schedulingName: string;
-}
+type ITestStatus = Record<number, ITestStatusProps>;
 
 export default forwardRef((_, ref) => {
 	const [form] = Form.useForm();
-	const tabsRef = useRef<CarouselRef>(null);
-	const [activeKey, setActiveKey] = useState(0);
-	const [schedulingComponent, setScheduling] = useState<IScheduleComponent['components'][]>(() =>
+	const [activeKey, setActiveKey] = useState<TABS_TITLE_KEY>(TABS_TITLE_KEY.COMMON);
+	const [schedulingComponent, setScheduling] = useState<IScheduleComponentComp[][]>(() =>
 		initialScheduling(),
 	);
 	const [versionData, setVersion] = useState<IVersionData>({});
-	const [saveCompsData, setSaveCompsData] = useState<
-		{
-			key: number;
-			value: string;
-		}[]
-	>([]);
+	const [saveCompsData, setSaveCompsData] = useState<ISaveCompsData[]>([]);
 	const [testStatus, setStatus] = useState<ITestStatus>({});
 	const [disabledMeta, setDisabledMeta] = useState(false);
 	const [popVisible, setPopVisible] = useState(TABS_POP_VISIBLE);
 	const [loading, setLoading] = useState(false);
 	const mode = (history.location.query?.mode as string) || 'view';
 
-	useImperativeHandle(ref, () => ({
-		testConnects,
-		handleComplete: () => {
-			const showConfirm = (arr: any[]) => {
-				confirm({
-					title: `${getCompsName(arr).join('、')}尚未保存，是否需要保存？`,
-					content: null,
-					icon: <ExclamationCircleFilled color="#FAAD14" />,
-					okText: '保存',
-					cancelText: '取消',
-					onOk: () => {},
-					onCancel: () => {
+	useImperativeHandle(
+		ref,
+		(): IEditClusterRefProps => ({
+			testConnects,
+			handleComplete: () => {
+				const showConfirm = (comps: Set<IModifyComp>) => {
+					confirm({
+						title: `${getCompsName(comps).join('、')}尚未保存，是否退出编辑？`,
+						content: null,
+						icon: <ExclamationCircleFilled color="#FAAD14" />,
+						okText: '确定',
+						cancelText: '取消',
+						onOk: () => {
+							history.push({
+								query: {
+									drawer: DRAWER_MENU_ENUM.CLUSTER,
+								},
+							});
+						},
+						onCancel: () => {},
+					});
+				};
+				form.validateFields().then((values) => {
+					const valuesObj = convertToObj(values);
+					const modifyComps = getModifyComp(valuesObj, schedulingComponent);
+
+					if (modifyComps.size) {
+						showConfirm(modifyComps);
+					} else {
 						history.push({
 							query: {
 								drawer: DRAWER_MENU_ENUM.CLUSTER,
 							},
 						});
-					},
+					}
 				});
-			};
-			form.validateFields().then((values) => {
-				const modifyCompsArr = getModifyComp(values, schedulingComponent);
-				if (!modifyCompsArr.size) {
-					history.push({
-						query: {
-							drawer: DRAWER_MENU_ENUM.CLUSTER,
-						},
-					});
-					return;
-				}
-				showConfirm(modifyCompsArr);
-			});
-		},
-	}));
+			},
+		}),
+	);
 
 	const getDataList = () => {
 		const clusterId = history.location.query?.clusterId;
@@ -209,11 +172,9 @@ export default forwardRef((_, ref) => {
 				if (res.code === 1) {
 					const initData = initialScheduling();
 					const { scheduling } = res.data;
-					if (scheduling) {
-						scheduling.forEach((comps: IScheduleComponent) => {
-							initData[comps.schedulingCode] = comps.components;
-						});
-					}
+					scheduling?.forEach((comps: IScheduleComponent) => {
+						initData[comps.schedulingCode] = comps.components;
+					});
 					setScheduling(initData);
 					setDisabledMeta(!res.data.canModifyMetadata);
 					return getSaveComponentList(res.data.clusterName);
@@ -227,11 +188,11 @@ export default forwardRef((_, ref) => {
 	const getSaveComponentList = async (clusterName: string): Promise<number[]> => {
 		const res = await Api.getComponentStore({ clusterName });
 		if (res.code === 1 && res.data) {
-			const nextSaveCompsData: any[] = [];
-			res.data.forEach((item: number) => {
+			const nextSaveCompsData: ISaveCompsData[] = [];
+			res.data.forEach((item: COMPONENT_TYPE_VALUE) => {
 				nextSaveCompsData.push({
 					key: item,
-					value: (COMPONENT_CONFIG_NAME as any)[item],
+					value: COMPONENT_CONFIG_NAME[item],
 				});
 			});
 			setSaveCompsData(nextSaveCompsData);
@@ -252,9 +213,9 @@ export default forwardRef((_, ref) => {
 
 	// 获取组件模板
 	const getLoadTemplate = async (
-		key?: string,
-		params?: any,
-		nextScheduling?: IScheduleComponent['components'][],
+		key?: string | number,
+		params?: IGetLoadTemplateParams,
+		nextScheduling?: IScheduleComponentComp[][],
 	) => {
 		const components = nextScheduling || schedulingComponent;
 		const clusterName = history.location.query?.clusterName;
@@ -265,7 +226,7 @@ export default forwardRef((_, ref) => {
 		const comp = getCurrentComp(components[activeKey], {
 			typeCode,
 		});
-		const saveParams: any = {
+		const saveParams: Partial<IComponentProps> = {
 			componentTypeCode: Number(typeCode),
 			versionName: params?.compVersion ?? '',
 		};
@@ -289,30 +250,41 @@ export default forwardRef((_, ref) => {
 				storeType: params?.storeType ?? resLists[0] ?? '',
 				deployType: params?.deployType ?? '',
 			});
-			if (res.code === 1) saveParams.componentTemplate = JSON.stringify(res.data);
+			if (res.code === 1) {
+				saveParams.componentTemplate = JSON.stringify(res.data);
+			}
 			saveComp(saveParams);
 		}
 	};
 
-	const saveComp = (params: any, type?: string) => {
+	const saveComp = (params: Partial<IComponentProps>, type?: string) => {
 		const newCompData = schedulingComponent;
 		schedulingComponent[activeKey] = schedulingComponent[activeKey].map((comp) => {
-			if (comp.componentTypeCode !== params.componentTypeCode) return comp;
-			if (type === COMP_ACTION.ADD) comp.multiVersion.push(undefined);
-			// eslint-disable-next-line no-param-reassign
-			comp.multiVersion = comp.multiVersion.map((vcomp: any) => {
-				if (!vcomp) return { ...params };
-				if (!isMultiVersion(params.componentTypeCode)) return { ...vcomp, ...params };
-				if (!vcomp?.versionName || vcomp?.versionName === params.versionName)
+			const newComp = { ...comp };
+			if (newComp.componentTypeCode !== params.componentTypeCode) {
+				return newComp;
+			}
+			if (type === COMP_ACTION.ADD) {
+				newComp.multiVersion.push(undefined);
+			}
+			newComp.multiVersion = newComp.multiVersion.map((vcomp) => {
+				if (!vcomp) {
+					return { ...params };
+				}
+				if (!isMultiVersion(params.componentTypeCode!)) {
 					return { ...vcomp, ...params };
+				}
+				if (!vcomp?.versionName || vcomp?.versionName === params.versionName) {
+					return { ...vcomp, ...params };
+				}
 				return vcomp;
-			});
-			return comp;
+			}) as IComponentProps[];
+			return newComp;
 		});
 		setScheduling(cloneDeep(newCompData));
 	};
 
-	const testConnects = (params?: any, callBack?: (bool: boolean) => void) => {
+	const testConnects = (params?: ITestConnectsParams, callBack?: (bool: boolean) => void) => {
 		const typeCode = params?.typeCode ?? '';
 		const versionName = params?.versionName ?? '';
 		const deployType = params?.deployType ?? '';
@@ -321,19 +293,19 @@ export default forwardRef((_, ref) => {
 				const values = convertToObj(rawValues);
 				const modifyComps = getModifyComp(values, schedulingComponent);
 				if (typeCode || typeCode === 0) {
-					if (
-						modifyComps.size > 0 &&
-						includesCurrentComp(Array.from(modifyComps), {
-							typeCode,
-							versionName,
-						})
-					) {
-						let desc = (COMPONENT_CONFIG_NAME as any)[typeCode];
-						if (isMultiVersion(typeCode))
+					const includesCurrent = includesCurrentComp(Array.from(modifyComps), {
+						typeCode,
+						versionName,
+					});
+					if (modifyComps.size > 0 && includesCurrent) {
+						let desc = COMPONENT_CONFIG_NAME[typeCode] as string;
+						if (isMultiVersion(typeCode)) {
 							desc = `${desc} ${(Number(versionName) / 100).toFixed(2)}`;
+						}
 						message.error(`组件 ${desc} 参数变更未保存，请先保存再测试组件连通性`);
 						return;
 					}
+
 					callBack?.(true);
 					Api.testConnect({
 						clusterName: history.location.query?.clusterName as string,
@@ -351,13 +323,11 @@ export default forwardRef((_, ref) => {
 						});
 				} else {
 					if (modifyComps.size > 0) {
-						message.error(
-							`组件 ${getCompsName(modifyComps).join(
-								'、',
-							)} 参数变更未保存，请先保存再测试组件连通性`,
-						);
+						const compsName = getCompsName(modifyComps).join('、');
+						message.error(`组件 ${compsName} 参数变更未保存，请先保存再测试组件连通性`);
 						return;
 					}
+
 					callBack?.(true);
 					Api.testConnects({
 						clusterName: history.location.query?.clusterName as string,
@@ -375,23 +345,28 @@ export default forwardRef((_, ref) => {
 			.catch((err) => {
 				// 当前组件错误校验
 				const currentCompErr = err ? err[String(typeCode)] || {} : {};
-				if (isMultiVersion(typeCode) && Object.keys(currentCompErr).includes(versionName)) {
+				const isMultiVers = isMultiVersion(typeCode as number);
+				const inculdesVersErr = Object.keys(currentCompErr).includes(versionName);
+				if (isMultiVers && inculdesVersErr) {
 					message.error('请检查配置');
 					return;
 				}
-				if (
-					(err && !typeCode) ||
-					(err &&
-						!isMultiVersion(typeCode) &&
-						Object.keys(err).includes(String(typeCode)))
-				) {
+
+				const includesTypeErr = Object.keys(err).includes(String(typeCode));
+				if ((err && !typeCode) || (err && !isMultiVers && includesTypeErr)) {
 					message.error('请检查配置');
 				}
 			});
 	};
 
-	const setTestStatus = (status: any, isSingle?: boolean) => {
-		if (isSingle) {
+	const setTestStatus = (status: ITestStatusProps | ITestStatusProps[], isSingle?: boolean) => {
+		if (Array.isArray(status)) {
+			const nextTestStatus: ITestStatus = {};
+			status.forEach((temp) => {
+				nextTestStatus[temp.componentTypeCode] = { ...temp };
+			});
+			setStatus(nextTestStatus);
+		} else if (isSingle) {
 			const currentComp = schedulingComponent[activeKey].find(
 				(comp) => comp.componentTypeCode === status.componentTypeCode,
 			);
@@ -406,8 +381,8 @@ export default forwardRef((_, ref) => {
 			}
 			let multiVersion = getSingleTestStatus(
 				{
-					typeCode: status.componentTypeCode,
-					versionName: status?.componentVersion,
+					typeCode: status.componentTypeCode as number,
+					versionName: status?.componentVersion as string,
 				},
 				status,
 				testStatus,
@@ -415,7 +390,7 @@ export default forwardRef((_, ref) => {
 			multiVersion = multiVersion.filter((ver) => ver);
 
 			let sign = false; // 标记是否有测试连通性失败的多版本组件
-			const errorMsg: any[] = [];
+			const errorMsg: ITestErrorMsg[] = [];
 
 			multiVersion.forEach((mv) => {
 				if (mv && !mv.result) {
@@ -427,10 +402,11 @@ export default forwardRef((_, ref) => {
 				}
 			});
 
-			const msg: any = {
+			const msg: ITestStatusProps = {
 				result: null,
 				errorMsg: [],
 				multiVersion,
+				componentTypeCode: status.componentTypeCode,
 			};
 			if (!sign && currentComp?.multiVersion?.length === multiVersion.length) {
 				msg.result = true;
@@ -444,20 +420,14 @@ export default forwardRef((_, ref) => {
 				...s,
 				[status.componentTypeCode]: msg,
 			}));
-			return;
 		}
-		const nextTestStatus: any = {};
-		status.forEach((temp: any) => {
-			nextTestStatus[temp.componentTypeCode] = { ...temp };
-		});
-		setStatus(nextTestStatus);
 	};
 
-	const handleConfirm = async (action: string, comps: any | any[], mulitple?: boolean) => {
+	const handleConfirm = async (action: string, comps: IConfirmComps, mulitple?: boolean) => {
 		const newCompData = schedulingComponent;
 		let currentCompArr = newCompData[activeKey];
-		if (comps.length && action !== COMP_ACTION.DELETE) {
-			const initialComp = comps.map((code: any) => {
+		if (Array.isArray(comps) && comps.length && action !== COMP_ACTION.DELETE) {
+			const initialComp = comps.map((code) => {
 				if (!isMultiVersion(code))
 					return {
 						componentTypeCode: code,
@@ -469,15 +439,15 @@ export default forwardRef((_, ref) => {
 		}
 
 		if (action === COMP_ACTION.DELETE) {
-			const { componentTypeCode, versionName, id = '' } = comps;
+			const { componentTypeCode, versionName, id = '' } = comps as IComponentProps;
 			const componentIds = getCompsId(currentCompArr, id);
-			let res: any;
+			let res: { code?: number } = {};
 			if (componentIds.length) {
 				res = await Api.deleteComponent({ componentId: componentIds[0] });
 			}
 
 			if (res?.code === 1 || !componentIds.length) {
-				const wrapper = new Set<IScheduleComponent['components'][number]>();
+				const wrapper = new Set<IScheduleComponentComp>();
 				currentCompArr.forEach((comp) => {
 					if (isMultiVersion(comp.componentTypeCode) && mulitple) {
 						// eslint-disable-next-line no-param-reassign
@@ -495,7 +465,7 @@ export default forwardRef((_, ref) => {
 					null,
 					testStatus,
 				);
-				let fieldValue: any = {};
+				let fieldValue: Record<string, unknown> = {};
 				if (isMultiVersion(componentTypeCode)) {
 					fieldValue = { [versionName]: {} };
 				}
@@ -526,7 +496,7 @@ export default forwardRef((_, ref) => {
 		}));
 	};
 
-	const handleCompVersion = (typeCode: string, version: string) => {
+	const handleCompVersion = (typeCode: number, version: string) => {
 		if (!isSameVersion(Number(typeCode))) {
 			form.setFieldsValue({ [`${typeCode}.versionName`]: version });
 			getLoadTemplate(typeCode, { compVersion: version });
@@ -545,7 +515,6 @@ export default forwardRef((_, ref) => {
 
 	const onTabChange = (key: string) => {
 		setActiveKey(Number(key));
-		tabsRef.current?.goTo(Number(key));
 	};
 
 	useEffect(() => {
@@ -555,236 +524,125 @@ export default forwardRef((_, ref) => {
 
 	const isScheduling = isSchedulings(schedulingComponent);
 
-	return (
-		<div className="dt-cluster">
-			<Tabs
-				tabPosition="top"
-				onChange={onTabChange}
-				activeKey={activeKey.toString()}
-				className="dt-cluster-component"
-				tabBarExtraContent={{
-					left: <div className="dt-cluster-title">集群配置</div>,
-				}}
+	const tabPanelTab = (key: TABS_TITLE_KEY) => {
+		return (
+			<span className="dt-cluster-component-tab-title">
+				{TABS_TITLE[key].icon}
+				{TABS_TITLE[key].name}
+			</span>
+		);
+	};
+
+	const tabBarExtraContent = (comps: IScheduleComponentComp[]) => {
+		return !isViewMode(mode) ? (
+			<ComponentButton
+				comps={comps}
+				popVisible={popVisible[activeKey]}
+				activeKey={activeKey}
+				handleConfirm={handleConfirm}
+				handlePopVisible={handlePopVisible}
+			/>
+		) : null;
+	};
+
+	const handleTabChange = (tabActiveKey: string) => {
+		if (!isMultiVersion(Number(tabActiveKey))) {
+			getLoadTemplate(tabActiveKey);
+		}
+	};
+
+	const renderContent = (comp: IScheduleComponentComp, isCheckBoxs: boolean) => {
+		const clusterInfo = {
+			clusterName: history.location.query?.clusterName as string,
+			clusterId: history.location.query?.clusterId as string,
+		};
+		return (
+			<TabPane
+				tab={
+					<div className="flex items-center">
+						{COMPONENT_CONFIG_NAME[comp.componentTypeCode]}
+						{showDataCheckBox(comp.componentTypeCode) && (
+							<MetaIcon
+								comp={comp}
+								isMetadata={form.getFieldValue(
+									`${comp.componentTypeCode}.isMetadata`,
+								)}
+							/>
+						)}
+						<TestRestIcon testStatus={testStatus[comp.componentTypeCode] ?? {}} />
+					</div>
+				}
+				key={comp.componentTypeCode.toString()}
 			>
-				{schedulingComponent.map((__, key) => (
-					<TabPane
-						tab={
-							<span className="dt-cluster-component-tab-title">
-								{TABS_TITLE[key].icon}
-								{TABS_TITLE[key].name}
-							</span>
-						}
-						key={String(key)}
+				{isMultiVersion(comp.componentTypeCode) ? (
+					<MultiVersionComp
+						comp={comp}
+						view={isViewMode(mode)}
+						saveCompsData={saveCompsData}
+						versionData={versionData}
+						testStatus={testStatus[comp.componentTypeCode]?.multiVersion ?? []}
+						clusterInfo={clusterInfo}
+						saveComp={saveComp}
+						getLoadTemplate={getLoadTemplate}
+						testConnects={testConnects}
+						handleConfirm={handleConfirm}
 					/>
-				))}
-			</Tabs>
-			<Spin spinning={loading}>
-				<Carousel
-					ref={tabsRef}
-					className="dt-cluster-component-tab-content"
-					dots={false}
-					draggable={false}
-					infinite={false}
+				) : (
+					comp?.multiVersion?.map((vcomp) => (
+						<SingleVerComp
+							comp={vcomp!}
+							key={`${vcomp?.versionName || vcomp?.componentTypeCode}`}
+							view={isViewMode(mode)}
+							disabledMeta={disabledMeta}
+							isCheckBoxs={isCheckBoxs}
+							isSchedulings={isScheduling}
+							versionData={versionData}
+							saveCompsData={saveCompsData}
+							clusterInfo={clusterInfo}
+							saveComp={saveComp}
+							handleCompVersion={handleCompVersion}
+							testConnects={testConnects}
+							handleConfirm={handleConfirm}
+						/>
+					))
+				)}
+			</TabPane>
+		);
+	};
+
+	return (
+		<FormContext.Provider value={form}>
+			<div className="dt-cluster">
+				<Tabs
+					tabPosition="top"
+					onChange={onTabChange}
+					activeKey={activeKey.toString()}
+					className="dt-cluster-component"
+					tabBarExtraContent={{
+						left: <div className="dt-cluster-title">集群配置</div>,
+					}}
 				>
+					{schedulingComponent.map((__, key: TABS_TITLE_KEY) => (
+						<TabPane tab={tabPanelTab(key)} key={String(key)} />
+					))}
+				</Tabs>
+				<Spin spinning={loading}>
 					{schedulingComponent.map((comps, key) => {
 						if (key !== activeKey) {
-							return <div />;
+							return <div key={key} />;
 						}
 						// 存在HiveServer、SparkThrift两个组件
 						const isCheckBoxs = isDataCheckBoxs(comps);
 
 						return (
-							<div className="relative">
+							<div className="relative" key={String(key)}>
 								<Tabs
 									tabPosition="left"
-									tabBarExtraContent={
-										!isViewMode(mode) && (
-											<ComponentButton
-												comps={comps}
-												popVisible={popVisible[activeKey]}
-												activeKey={activeKey}
-												handleConfirm={handleConfirm}
-												handlePopVisible={handlePopVisible}
-											/>
-										)
-									}
+									tabBarExtraContent={tabBarExtraContent(comps)}
 									className="c-editCluster__container__componentTabs"
-									onChange={(tabActiveKey) => {
-										if (!isMultiVersion(Number(tabActiveKey))) {
-											getLoadTemplate(tabActiveKey);
-										}
-									}}
+									onChange={handleTabChange}
 								>
-									{comps?.length > 0 &&
-										comps.map((comp) => {
-											return (
-												<TabPane
-													tab={
-														<div className="flex items-center">
-															{
-																COMPONENT_CONFIG_NAME[
-																	comp.componentTypeCode
-																]
-															}
-															{showDataCheckBox(
-																comp.componentTypeCode,
-															) && (
-																<MetaIcon
-																	comp={comp}
-																	isMetadata={form.getFieldValue(
-																		`${comp.componentTypeCode}.isMetadata`,
-																	)}
-																/>
-															)}
-															<TestRestIcon
-																testStatus={
-																	testStatus[
-																		comp.componentTypeCode
-																	] ?? {}
-																}
-															/>
-														</div>
-													}
-													key={comp.componentTypeCode.toString()}
-												>
-													<>
-														{isMultiVersion(comp.componentTypeCode) ? (
-															<Form
-																preserve={false}
-																className="dt-cluster-content"
-																form={form}
-																scrollToFirstError
-																labelCol={{
-																	span: 24,
-																}}
-																wrapperCol={{
-																	span: 24
-																}}
-															>
-																<MultiVersionComp
-																	comp={comp}
-																	form={form}
-																	view={isViewMode(mode)}
-																	saveCompsData={saveCompsData}
-																	versionData={versionData}
-																	testStatus={
-																		testStatus[
-																			comp.componentTypeCode
-																		]?.multiVersion ?? []
-																	}
-																	clusterInfo={{
-																		clusterName:
-																			history.location.query
-																				?.clusterName,
-																		clusterId:
-																			history.location.query
-																				?.clusterId,
-																	}}
-																	saveComp={saveComp}
-																	getLoadTemplate={
-																		getLoadTemplate
-																	}
-																	testConnects={testConnects}
-																	handleConfirm={handleConfirm}
-																/>
-															</Form>
-														) : (
-															comp?.multiVersion?.map((vcomp) => {
-																return (
-																	<Form
-																		preserve={false}
-																		className="dt-cluster-content"
-																		scrollToFirstError
-																		form={form}
-																		labelCol={{
-																			span: 24,
-																		}}
-																		wrapperCol={{
-																			span: 24
-																		}}
-																	>
-																		<FileConfig
-																			comp={vcomp}
-																			view={isViewMode(mode)}
-																			disabledMeta={
-																				disabledMeta
-																			}
-																			isCheckBoxs={
-																				isCheckBoxs
-																			}
-																			isSchedulings={
-																				isScheduling
-																			}
-																			form={form}
-																			versionData={
-																				versionData
-																			}
-																			saveCompsData={
-																				saveCompsData
-																			}
-																			clusterInfo={{
-																				clusterName:
-																					history.location
-																						.query
-																						?.clusterName,
-																				clusterId:
-																					history.location
-																						.query
-																						?.clusterId,
-																			}}
-																			saveComp={saveComp}
-																			handleCompVersion={
-																				handleCompVersion
-																			}
-																		/>
-																		<FormConfig
-																			comp={vcomp}
-																			view={isViewMode(mode)}
-																			form={form}
-																			clusterInfo={{
-																				clusterName:
-																					history.location
-																						.query
-																						?.clusterName,
-																				clusterId:
-																					history.location
-																						.query
-																						?.clusterId,
-																			}}
-																		/>
-																		{!isViewMode(mode) && (
-																			<ToolBar
-																				comp={vcomp}
-																				clusterInfo={{
-																					clusterName:
-																						history
-																							.location
-																							.query
-																							?.clusterName,
-																					clusterId:
-																						history
-																							.location
-																							.query
-																							?.clusterId,
-																				}}
-																				form={form}
-																				saveComp={saveComp}
-																				testConnects={
-																					testConnects
-																				}
-																				handleConfirm={
-																					handleConfirm
-																				}
-																			/>
-																		)}
-																	</Form>
-																);
-															})
-														)}
-													</>
-												</TabPane>
-											);
-										})}
+									{comps?.map((comp) => renderContent(comp, isCheckBoxs))}
 								</Tabs>
 								{comps?.length === 0 && (
 									<div key={activeKey} className="empty-logo">
@@ -794,8 +652,8 @@ export default forwardRef((_, ref) => {
 							</div>
 						);
 					})}
-				</Carousel>
-			</Spin>
-		</div>
+				</Spin>
+			</div>
+		</FormContext.Provider>
 	);
 });

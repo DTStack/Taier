@@ -29,15 +29,18 @@ import {
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import { formItemLayout } from '@/constant';
 import { memo, useEffect, useState } from 'react';
+import type { FocusEvent } from 'react';
 import './index.scss';
+import { useContextForm } from '../../../context';
+import type { ICompTemplate, IComponentProps } from '../../../interface';
 
 interface IProp {
-	typeCode: Valueof<typeof COMPONENT_TYPE_VALUE>;
-	form: FormInstance;
+	typeCode: COMPONENT_TYPE_VALUE;
+	form?: FormInstance;
 	view: boolean;
-	template: any;
+	template: ICompTemplate | ICompTemplate[];
 	hadoopVersion?: string | number;
-	comp?: any;
+	comp?: IComponentProps;
 	maxWidth?: number;
 	labelCol?: number;
 	wrapperCol?: number;
@@ -47,7 +50,6 @@ const FormItem = Form.Item;
 
 function CustomParams({
 	typeCode,
-	form,
 	view,
 	template,
 	hadoopVersion,
@@ -56,34 +58,36 @@ function CustomParams({
 	labelCol,
 	wrapperCol,
 }: IProp) {
-	const [customParams, setCustomParams] = useState<any[]>([]);
+	const form = useContextForm();
+	const [customParams, setCustomParams] = useState<ICompTemplate[]>([]);
 
 	// 新增自定义参数
 	const addCustomerParams = () => {
-		setCustomParams((p) => [...p, {}]);
+		setCustomParams((p) => [...p, {} as ICompTemplate]);
 	};
 
 	// 新增自定义参数
 	const deleteCustomerParams = (id: number) => {
-		const newCustomParam = customParams.filter((param: any, index: number) => index !== id);
+		const newCustomParam = customParams.filter((param, index) => index !== id);
 		setCustomParams(newCustomParam);
 	};
 
-	const handleCustomParam = (e: any, id: number, type?: string) => {
+	const handleCustomParam = (e: FocusEvent<HTMLInputElement, Element>, id: number, type?: string) => {
 		const { value } = e.target;
 		let formField = `${typeCode}`;
 		if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
 
-		const feildName = isGroupType(template.type)
-			? `${formField}.customParam.${template.key}`
-			: `${formField}.customParam`;
+		let fieldName = `${formField}.customParam`;
+		if (!Array.isArray(template) && isGroupType(template.type)) {
+			fieldName = `${formField}.customParam.${template.key}`;
+		}
 
 		const compConfig = getValueByJson(comp?.componentConfig) ?? {};
 		const config = form.getFieldValue(`${formField}.specialConfig`) ?? compConfig;
 		const keyAndValue = Object.entries(config);
 
 		if (type) {
-			const newCustomParam = customParams.map((param: any, index: number) => {
+			const newCustomParam = customParams.map((param, index) => {
 				if (index === id) {
 					return { ...param, value };
 				}
@@ -101,14 +105,16 @@ function CustomParams({
 		let sameAtParams = false;
 
 		if (!isNeedTemp(typeCode)) {
-			sameAtTemp = (isGroupType(template.type) ? template.values : template)?.findIndex(
-				(param: any) => param.key === value,
-			);
+			if (Array.isArray(template)) {
+				sameAtTemp = template.findIndex((param) => param.key === value);
+			} else if (isGroupType(template.type) && template.values) {
+				sameAtTemp = template.values.findIndex((param) => param.key === value);
+			}
 		} else {
 			sameAtTemp = keyAndValue.findIndex(([key]: any[]) => key === value);
 		}
 
-		const customParamsValues = form.getFieldValue(feildName) || {};
+		const customParamsValues = form.getFieldValue(fieldName) || {};
 		// eslint-disable-next-line no-restricted-syntax
 		for (const [key, name] of Object.entries(customParamsValues)) {
 			if (key.startsWith('%') && key.endsWith('-key') && value === name) {
@@ -117,7 +123,7 @@ function CustomParams({
 			}
 		}
 
-		const newCustomParam = customParams.map((param: any, index: number) => {
+		const newCustomParam = customParams.map((param, index) => {
 			if (index === id) {
 				return {
 					...param,
@@ -146,10 +152,16 @@ function CustomParams({
 	};
 
 	useEffect(() => {
-		setCustomParams(getCustomerParams(isGroupType(template.type) ? template.values : template));
+		let tempArray: ICompTemplate[] = [];
+		if (Array.isArray(template)) {
+			tempArray = template;
+		} else if (isGroupType(template.type) && template.values) {
+			tempArray = template.values;
+		}
+		setCustomParams(getCustomerParams(tempArray));
 	}, []);
 
-	const groupKey = template.key;
+	const groupKey = Array.isArray(template) ? '' : template.key;
 
 	if (customParams.length === 0) {
 		return !view ? renderAddCustomParam() : null;
@@ -158,7 +170,7 @@ function CustomParams({
 	return (
 		<>
 			{customParams &&
-				customParams.map((param: any, index: number) => {
+				customParams.map((param, index) => {
 					let formField = `${typeCode}`;
 					if (isMultiVersion(typeCode)) formField = `${formField}.${hadoopVersion}`;
 					const fieldName = groupKey

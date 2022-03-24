@@ -19,18 +19,20 @@
 import type { FormInstance } from 'antd';
 import { Checkbox, Modal, Form } from 'antd';
 import { COMPONENT_CONFIG_NAME, MAPPING_DATA_CHECK } from '@/constant';
+import { useContextForm } from '../../../context';
 
 const { confirm } = Modal;
 
 interface IProps {
 	comp: any;
-	form: FormInstance;
+	form?: FormInstance;
 	view: boolean;
 	isCheckBoxs: boolean | undefined;
 	disabledMeta: boolean | undefined;
 }
 
-export default function DataCheckbox({ comp, form, view, isCheckBoxs, disabledMeta }: IProps) {
+export default function DataCheckbox({ comp, view, isCheckBoxs, disabledMeta }: IProps) {
+	const form = useContextForm();
 	const getCheckValue = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		if (!isCheckBoxs) return true;

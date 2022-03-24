@@ -39,19 +39,26 @@ import {
 	isFLink,
 	handleComponentTemplate,
 } from '../../help';
+import type {
+	IComponentProps,
+	IClusterInfo,
+	ISaveComp,
+	ITestConnects,
+	IHandleConfirm,
+} from '../../interface';
+import { useContextForm } from '../../context';
 
 interface IProps {
-	form: FormInstance;
-	comp: any;
-	clusterInfo: any;
+	form?: FormInstance;
+	comp: IComponentProps;
+	clusterInfo: IClusterInfo;
 	mulitple?: boolean;
-	saveComp: (params: any, type?: string) => void;
-	handleConfirm?: (action: string, comps: any | any[], mulitple?: boolean) => void;
-	testConnects?: Function;
+	saveComp: ISaveComp;
+	handleConfirm?: IHandleConfirm;
+	testConnects?: ITestConnects;
 }
 
 export default function ToolBar({
-	form,
 	comp,
 	clusterInfo,
 	mulitple,
@@ -59,10 +66,11 @@ export default function ToolBar({
 	testConnects: onTestConnects,
 	handleConfirm,
 }: IProps) {
+	const form = useContextForm();
 	const [loading, setLoading] = useState(false);
 
 	const onOk = () => {
-		const typeCode: Valueof<typeof COMPONENT_TYPE_VALUE> = comp?.componentTypeCode ?? '';
+		const typeCode: COMPONENT_TYPE_VALUE = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 		const deployType = comp?.deployType ?? '';
 
@@ -83,20 +91,20 @@ export default function ToolBar({
 					}, values[typeCode]);
 				}
 
-				let componentConfig: any;
-				if (!isNeedTemp(typeCode)) {
-					componentConfig = JSON.stringify(
-						handleComponentConfigAndCustom(currentComp, typeCode),
-					);
-				}
+				let componentConfig: string | undefined;
 				if (isNeedTemp(typeCode)) {
 					componentConfig = JSON.stringify({
 						...currentComp?.specialConfig,
 						...handleCustomParam(currentComp.customParam, true),
 					});
+				} else {
+					componentConfig = JSON.stringify(
+						handleComponentConfigAndCustom(currentComp, typeCode),
+					);
 				}
-				if (isKubernetes(typeCode))
+				if (isKubernetes()) {
 					componentConfig = JSON.stringify(currentComp?.specialConfig);
+				}
 
 				const params = {
 					isDefault: currentComp?.isDefault ?? '',
@@ -132,7 +140,7 @@ export default function ToolBar({
 					resources1: currentComp?.uploadFileName ?? '',
 					resources2: '',
 					kerberosFileName: currentComp?.kerberosFileName?.name ?? '',
-				}).then((res: any) => {
+				}).then((res: { code: number; data: IComponentProps }) => {
 					if (res.code === 1) {
 						saveComp({
 							...params,
