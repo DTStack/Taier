@@ -4,12 +4,12 @@
 	padding-bottom: 40px;
 	overflow-y: scroll;
 	font-size: 12px;
-	background-color: #fafafa;
-	border-right: 1px solid #e8e8e8;
+	// background-color: ;
+	border-right: 1px solid var(--panel-border);
 
 	.ant-form-item {
 		padding: 20px;
-		border-bottom: 1px solid #e8e8e8;
+		border-bottom: 1px solid var(--panel-border);
 	}
 
 	.ant-form-item-label > label {
