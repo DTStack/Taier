@@ -24,6 +24,7 @@ import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
 import { ExtendsSparkSQL } from './languages';
 import MenuExtension from './menu';
+import DTStackTheme from './dtstackTheme';
 import { LocaleExtension } from './i18n';
 
 export const extensions: IExtension[] = [
@@ -35,4 +36,5 @@ export const extensions: IExtension[] = [
 	new FolderTreeExtension(),
 	new ExtendsSparkSQL(),
 	new MenuExtension(),
+	DTStackTheme,
 ];

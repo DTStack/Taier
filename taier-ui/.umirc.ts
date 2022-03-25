@@ -42,6 +42,7 @@ export default defineConfig({
 		'primary-color': '#3f87ff',
 		// 'link-color': 'var(--textLink-foreground)',
 		'border-radius-base': '0px',
+		"font-size-base": '12px'
 	},
 	tailwindcss: {},
 	proxy: {

@@ -4,13 +4,13 @@
 	.dt-input-borderless {
 		height: 40px;
 		padding: 0 16px;
-		background: #f8f8f8;
+		background: var(--editor-background);
 		border: none;
 		border-radius: 0;
 
 		&:focus,
 		&:hover {
-			background: #f8f8f8;
+			background: var(--editor-background);
 		}
 	}
 
