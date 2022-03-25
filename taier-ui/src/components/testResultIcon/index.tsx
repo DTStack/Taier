@@ -21,8 +21,8 @@ import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Tooltip, Modal } from 'antd';
 import { isArray } from 'lodash';
 import classNames from 'classnames';
-import './index.scss';
 import type { ITestStatusProps } from '@/pages/console/cluster/newEdit/interface';
+import './index.scss';
 
 const TEST_STATUS = {
 	SUCCESS: true,
