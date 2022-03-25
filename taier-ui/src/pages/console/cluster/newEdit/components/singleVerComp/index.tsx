@@ -75,7 +75,7 @@ export default function SingleVerComp({
 				saveComp={saveComp}
 				handleCompVersion={handleCompVersion}
 			/>
-			<FormConfig comp={comp} view={view} clusterInfo={clusterInfo} />
+			<FormConfig comp={comp} view={view} />
 			{!view && (
 				<ToolBar
 					comp={comp}

@@ -42,20 +42,12 @@ export function isNeedTemp(typeCode: number): boolean {
 	return temp.indexOf(typeCode) > -1;
 }
 
-export function isKubernetes(): boolean {
-	return false;
-}
-
 export function isYarn(typeCode: number): boolean {
 	return COMPONENT_TYPE_VALUE.YARN === typeCode;
 }
 
 export function isFLink(typeCode: number): boolean {
 	return COMPONENT_TYPE_VALUE.FLINK === typeCode;
-}
-
-export function isDtscriptAgent(): boolean {
-	return false;
 }
 
 export function isHaveGroup(typeCode: number): boolean {
@@ -100,10 +92,6 @@ export function needZipFile(type: number): boolean {
 export function showDataCheckBox(code: number): boolean {
 	const tmp: number[] = [COMPONENT_TYPE_VALUE.HIVE_SERVER, COMPONENT_TYPE_VALUE.SPARK_THRIFT];
 	return tmp.indexOf(code) > -1;
-}
-
-export function notFileConfig(): boolean {
-	return false;
 }
 
 export function getActionType(mode: string): string {
@@ -678,7 +666,3 @@ export function getModifyComp(comps: any, initialCompData: any[]) {
 	return modifyComps;
 }
 
-/** 指定引擎的 jdbcUrl 项展示 hover 提示 */
-export function showHover() {
-	return false;
-}

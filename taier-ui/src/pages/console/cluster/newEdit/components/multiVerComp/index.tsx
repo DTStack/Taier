@@ -17,7 +17,6 @@
  */
 
 import { useMemo, useState } from 'react';
-import type { FormInstance } from 'antd';
 import { Tabs, Menu, Dropdown, Button, Radio, Row, Col } from 'antd';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import { DownOutlined, CaretRightOutlined } from '@ant-design/icons';
@@ -48,7 +47,6 @@ const { TabPane } = Tabs;
 const MenuItem = Menu.Item;
 interface IProps {
 	comp: IScheduleComponentComp;
-	form?: FormInstance;
 	view: boolean;
 	saveCompsData: ISaveCompsData[];
 	versionData: IVersionData;
@@ -204,7 +202,7 @@ export default function MultiVersionComp({
 				{!view && (
 					<ToolBar
 						mulitple={false}
-						comp={comp as any}
+						comp={comp}
 						clusterInfo={clusterInfo}
 						saveComp={saveComp}
 						handleConfirm={handleConfirm}

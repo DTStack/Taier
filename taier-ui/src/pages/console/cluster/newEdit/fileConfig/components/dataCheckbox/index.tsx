@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import type { FormInstance } from 'antd';
 import { Checkbox, Modal, Form } from 'antd';
 import { COMPONENT_CONFIG_NAME, MAPPING_DATA_CHECK } from '@/constant';
 import { useContextForm } from '../../../context';
@@ -25,7 +24,6 @@ const { confirm } = Modal;
 
 interface IProps {
 	comp: any;
-	form?: FormInstance;
 	view: boolean;
 	isCheckBoxs: boolean | undefined;
 	disabledMeta: boolean | undefined;

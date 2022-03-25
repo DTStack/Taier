@@ -17,7 +17,6 @@
  */
 
 import { useState } from 'react';
-import type { FormInstance } from 'antd';
 import type { RcFile } from 'antd/lib/upload';
 import { Select, message, Cascader, notification, Tooltip, Form } from 'antd';
 import { DownloadOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
@@ -48,7 +47,6 @@ import {
 } from '@/constant';
 import { convertToStr } from '@/utils';
 import { cloneDeep } from 'lodash';
-import './index.scss';
 import type {
 	IComponentProps,
 	IClusterInfo,
@@ -58,10 +56,10 @@ import type {
 	IHandleCompVersion,
 } from '../interface';
 import { useContextForm } from '../context';
+import './index.scss';
 
 interface IProps {
 	comp: IComponentProps;
-	form?: FormInstance;
 	view: boolean;
 	saveCompsData: ISaveCompsData[];
 	versionData: IVersionData;
