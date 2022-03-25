@@ -21,7 +21,7 @@ import { Badge, Button, message, Modal, Tag } from 'antd';
 import moment from 'moment';
 import Base64 from 'base-64';
 import molecule from '@dtinsight/molecule';
-import { ActionBar, Icon, Menu, useContextView } from '@dtinsight/molecule/esm/components';
+import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import dataSourceService from '@/services/dataSourceService';
@@ -33,6 +33,7 @@ import LinkInfoCell from './linkInfoCell';
 import Search from './search';
 import Add from './add';
 import classNames from 'classnames';
+import { DataSourceLinkFailed, DataSourceLinkSuccess } from '@/components/icon';
 import './index.scss';
 
 const { confirm } = Modal;
@@ -305,13 +306,32 @@ const DataSourceView = () => {
 								onClick={() => handleOpenDetail(item)}
 								onContextMenu={(e) => handleContextmenu(e, item)}
 							>
-								<Icon type="database" />
+								{item.status === 0 ? (
+									<DataSourceLinkFailed
+										style={{ color: '#ed5b56', fontSize: 0 }}
+									/>
+								) : (
+									<DataSourceLinkSuccess
+										style={{ color: '#72c140', fontSize: 0 }}
+									/>
+								)}
 								<div className="datasource-title">
 									{item.isMeta === 0 ? (
-										<span title={item.dataName}>{item.dataName}</span>
+										<>
+											<span className="title" title={item.dataName}>
+												{item.dataName}({item.dataType}
+												{item.dataVersion || ''})
+											</span>
+											<span className={classNames('desc')}>
+												{item.dataDesc || '--'}
+											</span>
+										</>
 									) : (
 										<>
-											<span title={item.dataName}>{item.dataName}</span>
+											<span className="title" title={item.dataName}>
+												{item.dataName}({item.dataType}
+												{item.dataVersion || ''})
+											</span>
 											<Tag>Meta</Tag>
 										</>
 									)}
