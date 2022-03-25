@@ -17,7 +17,6 @@
  */
 
 import type { ReactElement } from 'react';
-import type { FormInstance } from 'antd';
 import { Form, Upload, Button, Tooltip } from 'antd';
 import type { RcFile } from 'antd/lib/upload';
 import type { Rule } from 'rc-field-form/lib/interface';
@@ -42,7 +41,6 @@ interface IFileInfo {
 
 interface IProp {
 	label: string | ReactElement;
-	form?: FormInstance;
 	icons?: ReactElement;
 	fileInfo: IFileInfo;
 	deleteIcon?: boolean;
@@ -75,7 +73,6 @@ export default function UploadFile({
 	}
 	formField = `${formField}.${name}`;
 
-	// const fileName = form.getFieldValue(formField)?.name ?? fileInfo?.value;
 	const uploadFileProps = {
 		name: fileInfo.uploadProps.name,
 		accept: fileInfo.uploadProps.accept,

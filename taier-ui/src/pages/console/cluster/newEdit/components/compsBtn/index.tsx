@@ -25,8 +25,8 @@ import { ComponentConfigIcon } from '@/components/icon';
 import { isSourceTab } from '../../help';
 import { CONFIG_BUTTON_TYPE, COMPONENT_CONFIG_NAME, COMP_ACTION } from '@/constant';
 import type { TABS_TITLE_KEY, COMPONENT_TYPE_VALUE } from '@/constant';
-import './index.scss';
 import type { IScheduleComponentComp, IHandleConfirm } from '../../interface';
+import './index.scss';
 
 const CheckboxGroup = Checkbox.Group;
 const RadioGroup = Radio.Group;

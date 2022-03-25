@@ -15,34 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useMemo } from 'react';
+import React from 'react';
 import { isArray } from 'lodash';
-import type { FormInstance } from 'antd';
 import { Input, Radio, Select, Checkbox, Tooltip, Row, Col, Form } from 'antd';
-import { QuestionCircleOutlined } from '@ant-design/icons';
 import {
 	getValueByJson,
 	isDeployMode,
 	isRadioLinkage,
 	isCustomType,
 	isMultiVersion,
-	isDtscriptAgent,
-	showHover,
 } from '../help';
 import CustomParams from './components/customParams';
-import NodeLabel from './components/nodeLabel';
 import { formItemLayout, COMPONENT_TYPE_VALUE, CONFIG_ITEM_TYPE } from '@/constant';
-import './index.scss';
 import { useContextForm } from '../context';
-import type { IClusterInfo, IComponentProps, ICompTemplate } from '../interface';
-
-const HOVER_TEXT: Record<number, string> = {
-	// [COMPONENT_TYPE_VALUE.MYSQL]: '示例：jdbc:mysql://localhost:3306/def',
-	// [COMPONENT_TYPE_VALUE.DB2]: '示例：jdbc:db2://localhost:60000/def',
-	// [COMPONENT_TYPE_VALUE.OCEANBASE]: '示例：jdbc:mysql://localhost:2881',
-	// [COMPONENT_TYPE_VALUE.SQLSERVER]:
-	// 	'示例：jdbc:jtds:sqlserver://172.16.101.246:1433;databaseName=db_dev',
-};
+import type { IComponentProps, ICompTemplate } from '../interface';
+import './index.scss';
 
 interface IColProps {
 	xs?: { span: number };
@@ -56,9 +43,7 @@ interface IItemLayout {
 
 interface IProps {
 	comp: IComponentProps;
-	form?: FormInstance;
 	view: boolean;
-	clusterInfo?: IClusterInfo;
 	itemLayout?: IItemLayout;
 }
 
@@ -67,7 +52,7 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const CheckboxGroup = Checkbox.Group;
 
-export default function FormConfig({ comp, view, clusterInfo, itemLayout }: IProps) {
+export default function FormConfig({ comp, view, itemLayout }: IProps) {
 	const form = useContextForm();
 
 	const renderOptoinsType = (temp: ICompTemplate) => {
@@ -162,19 +147,6 @@ export default function FormConfig({ comp, view, clusterInfo, itemLayout }: IPro
 					>
 						{renderOptoinsType(temp)}
 					</FormItem>
-					{isDtscriptAgent() && <NodeLabel view={view} clusterInfo={clusterInfo!} />}
-					{showHover() && (
-						<Tooltip title={HOVER_TEXT[typeCode]}>
-							<QuestionCircleOutlined
-								style={{
-									fontSize: '16px',
-									position: 'absolute',
-									top: 0,
-									right: '-24px',
-								}}
-							/>
-						</Tooltip>
-					)}
 				</FormItem>
 			)
 		);
@@ -345,11 +317,5 @@ export default function FormConfig({ comp, view, clusterInfo, itemLayout }: IPro
 		}
 	};
 
-	const typeCode = comp?.componentTypeCode ?? '';
-	const className = useMemo(
-		() => `c-formConfig__container ${isDtscriptAgent() ? 'c-formConfig__full' : ''}`,
-		[typeCode],
-	);
-
-	return <div className={className}>{renderComponentsConfig()}</div>;
+	return <div className="c-formConfig__container">{renderComponentsConfig()}</div>;
 }
