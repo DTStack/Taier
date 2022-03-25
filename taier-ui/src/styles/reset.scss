@@ -29,3 +29,9 @@ button.ant-btn,
 .ant-tooltip-inner {
 	max-width: 300px;
 }
+
+// reset the transition property for antd components in force
+// for ant compoents should hidden immediately when visibility changed
+*[class^='ant-'] {
+	transition: none !important;
+}
