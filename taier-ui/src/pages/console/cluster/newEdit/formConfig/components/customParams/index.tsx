@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-import type { FormInstance } from 'antd';
 import { Row, Col, Input, Form } from 'antd';
 import {
 	getCustomerParams,
@@ -30,13 +29,12 @@ import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import { formItemLayout } from '@/constant';
 import { memo, useEffect, useState } from 'react';
 import type { FocusEvent } from 'react';
-import './index.scss';
 import { useContextForm } from '../../../context';
 import type { ICompTemplate, IComponentProps } from '../../../interface';
+import './index.scss';
 
 interface IProp {
 	typeCode: COMPONENT_TYPE_VALUE;
-	form?: FormInstance;
 	view: boolean;
 	template: ICompTemplate | ICompTemplate[];
 	hadoopVersion?: string | number;

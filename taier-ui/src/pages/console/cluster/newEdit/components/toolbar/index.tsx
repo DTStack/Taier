@@ -17,7 +17,6 @@
  */
 
 import { useMemo, useState } from 'react';
-import type { FormInstance } from 'antd';
 import { Popconfirm, Button, message, Modal } from 'antd';
 import Api from '@/api/console';
 import { convertToObj } from '@/utils';
@@ -34,7 +33,6 @@ import {
 	handleComponentConfig,
 	isNeedTemp,
 	handleCustomParam,
-	isKubernetes,
 	isMultiVersion,
 	isFLink,
 	handleComponentTemplate,
@@ -45,12 +43,12 @@ import type {
 	ISaveComp,
 	ITestConnects,
 	IHandleConfirm,
+	IScheduleComponentComp,
 } from '../../interface';
 import { useContextForm } from '../../context';
 
 interface IProps {
-	form?: FormInstance;
-	comp: IComponentProps;
+	comp: IComponentProps | IScheduleComponentComp;
 	clusterInfo: IClusterInfo;
 	mulitple?: boolean;
 	saveComp: ISaveComp;
@@ -59,13 +57,14 @@ interface IProps {
 }
 
 export default function ToolBar({
-	comp,
+	comp: newComp,
 	clusterInfo,
 	mulitple,
 	saveComp,
 	testConnects: onTestConnects,
 	handleConfirm,
 }: IProps) {
+	const comp = newComp as IComponentProps;
 	const form = useContextForm();
 	const [loading, setLoading] = useState(false);
 
@@ -101,9 +100,6 @@ export default function ToolBar({
 					componentConfig = JSON.stringify(
 						handleComponentConfigAndCustom(currentComp, typeCode),
 					);
-				}
-				if (isKubernetes()) {
-					componentConfig = JSON.stringify(currentComp?.specialConfig);
 				}
 
 				const params = {

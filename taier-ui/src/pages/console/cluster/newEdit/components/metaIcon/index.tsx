@@ -17,8 +17,8 @@
  */
 
 import React from 'react';
-import './index.scss';
 import type { IScheduleComponentComp } from '../../interface';
+import './index.scss';
 
 interface IProps {
 	comp: IScheduleComponentComp;

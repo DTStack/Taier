@@ -17,7 +17,6 @@
  */
 
 import { useLayoutEffect } from 'react';
-import type { FormInstance } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Checkbox, Tooltip, Form } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
@@ -29,7 +28,6 @@ const MAPPING_DEFAULT_VERSION = ['1.10'];
 
 interface IProps {
 	comp: IComponentProps;
-	form?: FormInstance;
 	view: boolean;
 	isDefault: boolean | undefined;
 }

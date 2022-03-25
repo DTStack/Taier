@@ -51,7 +51,6 @@ import {
 } from './help';
 import ComponentButton from './components/compsBtn';
 import MetaIcon from './components/metaIcon';
-import './index.scss';
 import {
 	CommonComponentIcon,
 	SchedulingComponentIcon,
@@ -74,6 +73,7 @@ import type {
 	ITestStatusProps,
 	IVersionData,
 } from './interface';
+import './index.scss';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
