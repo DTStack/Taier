@@ -357,15 +357,7 @@ const DataSourceView = () => {
 					]}
 				>
 					{detailView ? (
-						<table
-							className={classNames(
-								'ant-table',
-								'border',
-								'border-ddd',
-								'border-solid',
-								'w-full',
-							)}
-						>
+						<table className={classNames('ant-table', 'datasource-detail')}>
 							<tbody className="ant-table-tbody">
 								<tr>
 									<td className="w-1/5">名称</td>
