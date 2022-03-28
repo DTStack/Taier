@@ -23,6 +23,7 @@ import ajax from '../../api';
 import type { IFunctionProps } from '@/interface';
 import classNames from 'classnames';
 import { getContainer } from '../resourceManager/resModal';
+import './fnViewModal.scss';
 
 interface IFnViewModalProps {
 	visible: boolean;
@@ -54,43 +55,43 @@ export default function FnViewModal({ visible, fnId, closeModal }: IFnViewModalP
 		if (!data) return '系统异常';
 
 		return (
-			<table
-				className={classNames(
-					'ant-table',
-					'border',
-					'border-ddd',
-					'border-solid',
-					'w-full',
-				)}
-			>
+			<table className={classNames('ant-table', 'function-detail')}>
 				<tbody className="ant-table-tbody">
 					<tr>
 						<td className="w-1/5">函数名称</td>
-						<td className='break-all' title={data.name}>{data.name}</td>
+						<td className="break-all" title={data.name}>
+							{data.name}
+						</td>
 					</tr>
 					{data.className && (
 						<tr>
 							<td>类名</td>
-							<td className='break-all' title={data.className}>{data.className}</td>
+							<td className="break-all" title={data.className}>
+								{data.className}
+							</td>
 						</tr>
 					)}
 					{data.sqlText && (
 						<tr>
 							<td>SQL</td>
-							<td className='break-all' title={data.sqlText || '/'}>{data.sqlText || '/'}</td>
+							<td className="break-all" title={data.sqlText || '/'}>
+								{data.sqlText || '/'}
+							</td>
 						</tr>
 					)}
 					<tr>
 						<td>用途</td>
-						<td className='break-all' title={data.purpose}>{data.purpose || '/'}</td>
+						<td className="break-all" title={data.purpose}>
+							{data.purpose || '/'}
+						</td>
 					</tr>
 					<tr>
 						<td>命令格式</td>
-						<td className='break-all'>{data.commandFormate || '/'}</td>
+						<td className="break-all">{data.commandFormate || '/'}</td>
 					</tr>
 					<tr>
 						<td>参数说明</td>
-						<td className='break-all'>{data.paramDesc || '/'}</td>
+						<td className="break-all">{data.paramDesc || '/'}</td>
 					</tr>
 					<tr>
 						<td>创建</td>
