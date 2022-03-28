@@ -335,8 +335,7 @@ function emitEvent() {
 						onOk() {
 							const reqParams = {
 								id: currentTabData.id,
-								syncModel: currentTabData.syncModel,
-								// preSave: currentTabData.preSave,
+								createModel: currentTabData.createModel,
 							};
 							api.convertDataSyncToScriptMode(reqParams).then((res) => {
 								if (res.code === 1) {
