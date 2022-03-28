@@ -78,7 +78,7 @@ $sideMenuSize: 200px;
 			height: 40px;
 			line-height: 40px;
 			text-align: center;
-			background: #fff;
+			background: var(--editorGroupHeader-tabsBackground);
 			border-top: 1px solid var(--panel-border);
 
 			button {
