@@ -268,36 +268,19 @@ function emitEvent() {
 			}
 			case TASK_SAVE_ID: {
 				saveTask()
-					?.then(({ data }) => data.id)
+					?.then((res) => res?.data?.id)
 					.then((id) => {
-						api.getOfflineTaskByID({ id }).then((res) => {
-							const { success, data } = res;
-							if (success) {
-								molecule.folderTree.update({
-									id,
-									data,
-								});
-								molecule.editor.updateActions([
-									{
-										id: TASK_SAVE_ID,
-										disabled: false,
-									},
-									{
-										id: TASK_RUN_ID,
-										icon: 'play',
-										disabled: false,
-									},
-									{
-										id: TASK_STOP_ID,
-										disabled: true,
-									},
-									{
-										id: TASK_SUBMIT_ID,
-										disabled: false,
-									},
-								]);
-							}
-						});
+						if (id !== undefined) {
+							api.getOfflineTaskByID({ id }).then((res) => {
+								const { success, data } = res;
+								if (success) {
+									molecule.folderTree.update({
+										id,
+										data,
+									});
+								}
+							});
+						}
 					});
 				break;
 			}
