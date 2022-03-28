@@ -16,6 +16,7 @@
 	.ant-btn,
 	.ant-picker-input > input,
 	.ant-table,
+	.ant-checkbox-wrapper,
 	.ant-tooltip {
 		font-size: $font-size;
 	}
@@ -41,7 +42,10 @@
 	.ant-drawer .ant-table,
 	.ant-modal .ant-table,
 	.ant-card,
-	.ant-table-filter-trigger:hover {
+	.ant-table-filter-trigger:hover,
+	.ant-popover-inner,
+	.ant-popover-arrow-content::before,
+	.ant-message-notice-content {
 		background: var(--editorGroupHeader-tabsBackground);
 	}
 
@@ -61,6 +65,8 @@
 	background: transparent;
 }
 
-* {
-	transition: none;
+// reset the transition property for antd components in force
+// for ant compoents should hidden immediately when visibility changed
+.mo-sidebar__pane *[class^='ant-'] {
+	transition: none !important;
 }
