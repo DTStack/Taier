@@ -68,8 +68,10 @@
 }
 
 .c-multiVersionComp {
+	position: relative;
 	flex: 1;
 	height: 100%;
+	overflow: hidden;
 
 	&__tabs {
 		height: 100%;
