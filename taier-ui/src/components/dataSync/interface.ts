@@ -1,4 +1,4 @@
-import type { DATA_SOURCE_ENUM } from '@/constant';
+import type { BINARY_ROW_KEY_FLAG, DATA_SOURCE_ENUM } from '@/constant';
 
 /**
  * 前端表单保存的值
@@ -26,14 +26,40 @@ export interface ISourceFormField {
 	 * Only used in HDFS
 	 */
 	fieldDelimiter?: string;
-	/**
-	 * Only used in HDFS
-	 */
 	encoding?: 'utf-8' | 'gbk';
 	/**
 	 * Only used in Hive and SparkShrift
 	 */
 	partition?: string;
+	/**
+	 * 开始行健
+	 */
+	startRowkey?: string;
+	/**
+	 * 结束行健
+	 */
+	endRowkey?: string;
+	/**
+	 * 行健二进制转换
+	 */
+	isBinaryRowkey?: Valueof<typeof BINARY_ROW_KEY_FLAG>;
+	/**
+	 * 每次 RPC 请求获取行数
+	 */
+	scanCacheSize?: number;
+	/**
+	 * 每次 RPC 请求获取列数
+	 */
+	scanBatchSize?: number;
+	/**
+	 * 索引
+	 */
+	index?: string;
+	/**
+	 * 索引类型
+	 */
+	indexType?: string;
+	query?: string;
 }
 
 export interface ITargetFormField {
@@ -50,6 +76,11 @@ export interface ITargetFormField {
 	fieldDelimiter?: string;
 	encoding?: 'utf-8' | 'gbk';
 	writeMode?: 'NONCONFLICT' | 'APPEND' | 'insert' | 'replace' | 'update';
+	nullMode?: 'skip' | 'empty';
+	writeBufferSize?: number;
+	index?: string;
+	indexType?: string;
+	bulkAction?: number;
 }
 
 /**
