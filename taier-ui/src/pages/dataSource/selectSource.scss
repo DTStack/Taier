@@ -5,7 +5,7 @@
 		display: flex;
 		height: calc(100% - 32px);
 		margin-top: 12px;
-		border: 1px solid #ddd;
+		border: 1px solid var(--panel-border);
 
 		.left-menu {
 			width: 134px;
@@ -25,7 +25,7 @@
 
 					&-selected {
 						color: #3f87ff;
-						background-color: #ebebeb;
+						background-color: var(--list-focusBackground);
 
 						&::after {
 							content: initial;
@@ -39,8 +39,7 @@
 			flex: 1;
 			padding: 27px 40px;
 			overflow-y: auto;
-			background-color: #fff;
-			border-left: 1px solid #ddd;
+			border-left: 1px solid var(--panel-border);
 
 			&-main {
 				width: 100%;
