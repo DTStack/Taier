@@ -9,6 +9,8 @@ import {
 	Radio,
 	message,
 	Space,
+	Tooltip,
+	InputNumber,
 } from 'antd';
 import {
 	DDL_IDE_PLACEHOLDER,
@@ -22,14 +24,22 @@ import { useMemo, useState } from 'react';
 import type { FormInstance } from 'rc-field-form';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
 import { API } from '../../api/dataSource';
-import { dataSyncExtralConfigHelp, partitionDesc, splitCharacter } from '../helpDoc/docs';
-import { debounce } from 'lodash';
+import {
+	dataSyncExtralConfigHelp,
+	es7BulkAction,
+	es7Index,
+	indexTypeDoc,
+	partitionDesc,
+	splitCharacter,
+} from '../helpDoc/docs';
+import { throttle } from 'lodash';
 import type {
 	IDataColumnsProps,
 	ISourceMapProps,
 	ITargetFormField,
 	ITargetMapProps,
 } from './interface';
+import { ALLOW_CREATE_TABLE_IN_SOURCE, ALLOW_CREATE_TABLE_IN_TARGET, noWhiteSpace } from './help';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -103,31 +113,34 @@ export default function Target({
 	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
 	const [tablePartitionList, setPartitionList] = useState<string[]>([]);
 
-	const getTableList = debounce(
-		(sourceId: number, name?: string) => {
-			setFetching(true);
-			setTableListLoading(true);
-			setTableList([]);
-			API.getOfflineTableList({
-				sourceId,
-				isSys: false,
-				schema: form.getFieldValue('schema'),
-				name,
-				isRead: false,
+	const getTableList = throttle((sourceId: number, name?: string) => {
+		const target = dataSourceList.find((d) => d.dataInfoId === sourceId);
+		if (!target) return;
+		const { schema, index } = form.getFieldsValue();
+		const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
+		// es 数据源的 schema 取自字段 index
+		const querySchema = ES_DATASOURCE.includes(target.dataTypeCode) ? index : schema;
+		if (!querySchema) return;
+		setFetching(true);
+		setTableListLoading(true);
+		setTableList([]);
+		API.getOfflineTableList({
+			sourceId,
+			isSys: false,
+			schema: querySchema,
+			name,
+			isRead: false,
+		})
+			.then((res) => {
+				if (res.code === 1) {
+					setTableList(res.data || []);
+				}
 			})
-				.then((res) => {
-					if (res.code === 1) {
-						setTableList(res.data || []);
-					}
-				})
-				.finally(() => {
-					setTableListLoading(false);
-					setFetching(false);
-				});
-		},
-		500,
-		{ maxWait: 2000 },
-	);
+			.finally(() => {
+				setTableListLoading(false);
+				setFetching(false);
+			});
+	}, 500);
 
 	const getSchemaList = (sourceId: number) => {
 		API.getAllSchemas({
@@ -156,11 +169,19 @@ export default function Target({
 	const getTableColumn = () => {
 		setModalInfo((info) => ({ ...info, loading: true }));
 
-		const { sourceId, table, schema } = form.getFieldsValue();
+		const { sourceId, table, index, indexType, schema } = form.getFieldsValue();
 		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
 		if (!target) return;
 
+		const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
 		const targetType = target.dataTypeCode;
+
+		// es 数据源：
+		// - tableName 取自字段 indexType
+		// - schema 取自字段 index
+		const querySchema = ES_DATASOURCE.includes(targetType) ? index : schema;
+		const queryTableName = ES_DATASOURCE.includes(targetType) ? indexType : table;
+
 		// Hive 作为结果表时，需要获取分区字段
 		const includePart =
 			+targetType === DATA_SOURCE_ENUM.HIVE1X ||
@@ -172,8 +193,8 @@ export default function Target({
 		// get table columns for third steps
 		API.getOfflineTableColumn({
 			sourceId,
-			schema,
-			tableName: table,
+			schema: querySchema,
+			tableName: queryTableName,
 			isIncludePart: includePart,
 		})
 			.then((res) => {
@@ -215,6 +236,25 @@ export default function Target({
 			form.setFieldsValue({ table: undefined });
 		}
 
+		if (changedValue.hasOwnProperty('index')) {
+			const target = dataSourceList.find((d) => d.dataInfoId === values.sourceId);
+			if (!target) return;
+			const LOWER_ES_VERSION = [DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES];
+			const isES5orES6 = LOWER_ES_VERSION.includes(target.dataTypeCode);
+
+			if (isES5orES6) {
+				// 低版本的 es 需要先拿 indexType 才可以获取 columns
+				getTableList(values.sourceId!);
+			} else {
+				// 高版本的 es 没有 indexType 字段，直接获取 columns
+				getTableColumn();
+			}
+		}
+
+		if (changedValue.hasOwnProperty('indexType')) {
+			getTableColumn();
+		}
+
 		// It's better to use form.getFieldsValue rather than the values params is for
 		// there are some set methods before this function which will lead to an out of date values
 		onFormValuesChanged?.(form.getFieldsValue());
@@ -228,18 +268,31 @@ export default function Target({
 			DATA_SOURCE_ENUM.S3,
 			DATA_SOURCE_ENUM.ADB_FOR_PG,
 			DATA_SOURCE_ENUM.HDFS,
+			DATA_SOURCE_ENUM.DORIS,
+			DATA_SOURCE_ENUM.ES7,
+			DATA_SOURCE_ENUM.ES6,
+			DATA_SOURCE_ENUM.ES,
 		];
 		if (!NOT_REQUEST_TABLELIST.includes(target.dataTypeCode)) {
 			getTableList(sourceId);
 		}
 
-		const ALLOW_REQUEST_SCHEMA = [DATA_SOURCE_ENUM.POSTGRESQL, DATA_SOURCE_ENUM.ORACLE];
+		const ALLOW_REQUEST_SCHEMA = [
+			DATA_SOURCE_ENUM.KINGBASE8,
+			DATA_SOURCE_ENUM.POSTGRESQL,
+			DATA_SOURCE_ENUM.ADB_FOR_PG,
+			DATA_SOURCE_ENUM.ORACLE,
+			DATA_SOURCE_ENUM.DORIS,
+			DATA_SOURCE_ENUM.ES,
+			DATA_SOURCE_ENUM.ES6,
+			DATA_SOURCE_ENUM.ES7,
+		];
 		// 有schema才需要获取schemalist
 		if (ALLOW_REQUEST_SCHEMA.includes(target.dataTypeCode)) {
 			getSchemaList(sourceId);
 		}
 		// reset table value
-		form.setFieldsValue({ table: undefined });
+		form.setFieldsValue({ table: undefined, index: undefined, indexType: undefined });
 	};
 
 	const handleShowCreateModal = () => {
@@ -338,26 +391,7 @@ export default function Target({
 		const target = dataSourceList.find((l) => l.dataInfoId === f.getFieldValue('sourceId'));
 		if (!target) return;
 
-		// 目标表为以下数据源的时候，支持生成目标表
-		const ALLOW_CREATE_TABLE_IN_TARGET = [
-			DATA_SOURCE_ENUM.HIVE,
-			DATA_SOURCE_ENUM.HIVE3X,
-			DATA_SOURCE_ENUM.SPARKTHRIFT,
-			DATA_SOURCE_ENUM.HIVE,
-			DATA_SOURCE_ENUM.POSTGRESQL,
-			DATA_SOURCE_ENUM.MYSQL,
-		];
-		// 源表为以下数据源的时候，支持生成目标表
-		const ALLOW_CREATE_TABLE_IN_SOURCE = [
-			DATA_SOURCE_ENUM.MYSQL,
-			DATA_SOURCE_ENUM.ORACLE,
-			DATA_SOURCE_ENUM.SQLSERVER,
-			DATA_SOURCE_ENUM.POSTGRESQL,
-			DATA_SOURCE_ENUM.HIVE,
-			DATA_SOURCE_ENUM.HIVE3X,
-			DATA_SOURCE_ENUM.SPARKTHRIFT,
-			DATA_SOURCE_ENUM.HIVE,
-		];
+		// 只有「源表」以及「目标表」都满足情况的条件下才支持生成目标表
 		const oneKeyCreateTable = ALLOW_CREATE_TABLE_IN_TARGET.includes(target.dataTypeCode) &&
 			ALLOW_CREATE_TABLE_IN_SOURCE.includes(sourceMap!.type!.type!) && (
 				<Button type="link" loading={loading} onClick={handleShowCreateModal}>
@@ -366,7 +400,8 @@ export default function Target({
 			);
 
 		switch (target.dataTypeCode) {
-			case DATA_SOURCE_ENUM.MYSQL: {
+			case DATA_SOURCE_ENUM.MYSQL:
+			case DATA_SOURCE_ENUM.SQLSERVER: {
 				return (
 					<>
 						<FormItem label="表名" key="table">
@@ -388,7 +423,6 @@ export default function Target({
 									onSearch={(str) =>
 										getTableList(f.getFieldValue('sourceId'), str)
 									}
-									// onSelect={this.debounceTableSearch.bind(this, null)}
 									notFoundContent={fetching ? <Spin size="small" /> : null}
 								>
 									{tableList.map((table) => {
@@ -771,6 +805,181 @@ export default function Target({
 					</>
 				);
 			}
+			case DATA_SOURCE_ENUM.HBASE: {
+				return (
+					<>
+						<FormItem
+							label="表名"
+							key="table"
+							name="table"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<Select
+								getPopupContainer={(container) => container.parentNode}
+								showSearch
+								filterOption={false}
+								onSearch={(str) => getTableList(f.getFieldValue('sourceId'), str)}
+							>
+								{tableList.map((table) => {
+									return (
+										<Option key={`hbase-target-${table}`} value={table}>
+											{table}
+										</Option>
+									);
+								})}
+							</Select>
+						</FormItem>
+						<FormItem
+							name="encoding"
+							label="编码"
+							key="encoding"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+							initialValue="utf-8"
+						>
+							<Select getPopupContainer={(container) => container.parentNode}>
+								<Option value="utf-8">utf-8</Option>
+								<Option value="gbk">gbk</Option>
+							</Select>
+						</FormItem>
+						<FormItem
+							label="读取为空时的处理方式"
+							key="nullMode"
+							name="nullMode"
+							rules={[
+								{
+									required: true,
+									message: '请选择为空时的处理方式!',
+								},
+							]}
+							initialValue="skip"
+						>
+							<RadioGroup>
+								<Radio value="skip">SKIP</Radio>
+								<Radio value="empty">EMPTY</Radio>
+							</RadioGroup>
+						</FormItem>
+						<FormItem name="writeBufferSize" label="写入缓存大小" key="writeBufferSize">
+							<Input placeholder="请输入缓存大小" type="number" min={0} suffix="KB" />
+						</FormItem>
+					</>
+				);
+			}
+
+			case DATA_SOURCE_ENUM.ES:
+			case DATA_SOURCE_ENUM.ES6:
+			case DATA_SOURCE_ENUM.ES7: {
+				const LOWER_ES_VERSION = [DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES];
+				const isES5orES6 = LOWER_ES_VERSION.includes(target.dataTypeCode);
+
+				return (
+					<>
+						<FormItem
+							name="index"
+							label="index"
+							key="index"
+							rules={[
+								{
+									required: true,
+									message: '请输入index',
+								},
+								{
+									max: 128,
+									message: '仅支持1-128个任意字符',
+								},
+								{
+									validator: noWhiteSpace,
+								},
+							]}
+							tooltip={es7Index}
+							trigger="onBlur"
+							validateTrigger="onBlur"
+						>
+							<AutoComplete<string, { label: string; value: string }>
+								getPopupContainer={(container) => container.parentNode}
+								placeholder="请输入index"
+								style={{ width: '100%' }}
+								options={schemaList.map((schema) => ({
+									label: schema,
+									value: schema,
+								}))}
+								filterOption={(inputValue, option) =>
+									!!option?.value
+										?.toUpperCase()
+										.includes(inputValue.toUpperCase())
+								}
+							/>
+						</FormItem>
+						{isES5orES6 && (
+							<FormItem
+								name="indexType"
+								label="type"
+								key="indexType"
+								rules={[
+									{
+										required: true,
+										message: '请输入indexType',
+									},
+									{
+										max: 128,
+										message: '仅支持1-128个任意字符',
+									},
+									{
+										validator: noWhiteSpace,
+									},
+								]}
+								tooltip={indexTypeDoc}
+								trigger="onBlur"
+								validateTrigger="onBlur"
+							>
+								<AutoComplete<string, { label: string; value: string }>
+									getPopupContainer={(container) => container.parentNode}
+									style={{ width: '100%' }}
+									options={tableList.map((table) => ({
+										label: table,
+										value: table,
+									}))}
+									placeholder="请输入indexType"
+									filterOption={(inputValue, option) =>
+										!!option?.value
+											?.toUpperCase()
+											.includes(inputValue.toUpperCase())
+									}
+								/>
+							</FormItem>
+						)}
+						<FormItem
+							name="bulkAction"
+							label="bulkAction"
+							key="bulkAction"
+							rules={[
+								{
+									required: true,
+									message: '请输入bulkAction',
+								},
+							]}
+							initialValue={100}
+							tooltip={es7BulkAction}
+						>
+							<InputNumber
+								min={1}
+								max={200000}
+								precision={0}
+								placeholder="请输入bulkAction"
+								style={{ width: '100%' }}
+							/>
+						</FormItem>
+					</>
+				);
+			}
+
 			default:
 				return null;
 		}
@@ -791,6 +1000,11 @@ export default function Target({
 			fileType: targetMap?.type?.fileType,
 			fieldDelimiter: targetMap?.type?.fieldDelimiter,
 			encoding: targetMap?.type?.encoding,
+			nullMode: targetMap?.type?.nullMode,
+			writeBufferSize: targetMap?.type?.writeBufferSize,
+			index: targetMap?.type?.index,
+			indexType: targetMap?.type?.indexType,
+			bulkAction: targetMap?.type?.bulkAction,
 		};
 	}, []);
 
@@ -867,6 +1081,7 @@ export default function Target({
 								// 暂时支持以下类型的数据源
 								const tmpSupportDataSource = [
 									DATA_SOURCE_ENUM.MYSQL,
+									DATA_SOURCE_ENUM.SQLSERVER,
 									DATA_SOURCE_ENUM.ORACLE,
 									DATA_SOURCE_ENUM.POSTGRESQL,
 									DATA_SOURCE_ENUM.HDFS,
@@ -874,17 +1089,17 @@ export default function Target({
 									DATA_SOURCE_ENUM.HIVE1X,
 									DATA_SOURCE_ENUM.HIVE3X,
 									DATA_SOURCE_ENUM.SPARKTHRIFT,
+									DATA_SOURCE_ENUM.HBASE,
+									DATA_SOURCE_ENUM.ES,
+									DATA_SOURCE_ENUM.ES6,
+									DATA_SOURCE_ENUM.ES7,
 								];
 
 								/**
-								 * 禁用ES, REDIS, MONGODB,
 								 * 增量模式禁用非 HIVE, HDFS数据源
 								 */
 								const disableSelect =
 									!tmpSupportDataSource.includes(src.dataTypeCode) ||
-									src.dataTypeCode === DATA_SOURCE_ENUM.ES ||
-									src.dataTypeCode === DATA_SOURCE_ENUM.REDIS ||
-									src.dataTypeCode === DATA_SOURCE_ENUM.MONGODB ||
 									(isIncrementMode &&
 										src.dataTypeCode !== DATA_SOURCE_ENUM.HIVE1X &&
 										src.dataTypeCode !== DATA_SOURCE_ENUM.HIVE &&
@@ -898,7 +1113,13 @@ export default function Target({
 										disabled={disableSelect}
 										value={src.dataInfoId}
 									>
-										{title}
+										{disableSelect ? (
+											<Tooltip title="目前暂时不支持该数据源类型">
+												{title}
+											</Tooltip>
+										) : (
+											title
+										)}
 									</Option>
 								);
 							})}

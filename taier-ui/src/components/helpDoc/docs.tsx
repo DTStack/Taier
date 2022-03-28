@@ -19,6 +19,23 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
+
+export const es7BulkAction = (
+    <p>bulkAction：批量写入记录数</p>
+)
+
+export const es7Query = (
+    <p>query：查询表达式</p>
+)
+
+export const indexTypeDoc = (
+    <p>type: 索引类型</p>
+)
+
+export const es7Index = (
+    <p>index: 索引</p>
+)
+
 export const incrementColumnHelp = (
 	<div>
 		每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
