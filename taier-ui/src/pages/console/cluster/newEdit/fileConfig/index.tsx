@@ -17,7 +17,7 @@
  */
 
 import { useState } from 'react';
-import type { FormInstance } from 'antd';
+import type { RcFile } from 'antd/lib/upload';
 import { Select, message, Cascader, notification, Tooltip, Form } from 'antd';
 import { DownloadOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import req from '@/api/reqConsole';
@@ -36,7 +36,6 @@ import {
 	isMultiVersion,
 	isYarn,
 	showDataCheckBox,
-	notFileConfig,
 	isFLink,
 } from '../help';
 import {
@@ -48,21 +47,36 @@ import {
 } from '@/constant';
 import { convertToStr } from '@/utils';
 import { cloneDeep } from 'lodash';
+import type {
+	IComponentProps,
+	IClusterInfo,
+	IVersionData,
+	ISaveCompsData,
+	ISaveComp,
+	IHandleCompVersion,
+} from '../interface';
+import { useContextForm } from '../context';
 import './index.scss';
 
 interface IProps {
-	comp: any;
-	form: FormInstance;
+	comp: IComponentProps;
 	view: boolean;
-	saveCompsData: any[];
-	versionData: any;
-	clusterInfo: any;
+	saveCompsData: ISaveCompsData[];
+	versionData: IVersionData;
+	clusterInfo: IClusterInfo;
 	isCheckBoxs?: boolean;
 	isSchedulings?: boolean;
 	disabledMeta?: boolean;
 	isDefault?: boolean;
-	handleCompVersion?: Function;
-	saveComp: Function;
+	handleCompVersion?: IHandleCompVersion;
+	saveComp: ISaveComp;
+}
+
+interface IRefreshQueueData {
+	componentTypeCode: COMPONENT_TYPE_VALUE;
+	componentVersion: string;
+	errorMsg: string | null;
+	result: boolean;
 }
 
 const FormItem = Form.Item;
@@ -70,7 +84,6 @@ const { Option } = Select;
 
 export default function FileConfig({
 	comp,
-	form,
 	view,
 	saveCompsData,
 	versionData,
@@ -82,13 +95,14 @@ export default function FileConfig({
 	handleCompVersion,
 	saveComp,
 }: IProps) {
+	const form = useContextForm();
 	const [loading, setLoading] = useState({
 		[FILE_TYPE.KERNEROS]: false,
 		[FILE_TYPE.PARAMES]: false,
 		[FILE_TYPE.CONFIGS]: false,
 	});
 	const [visible, setVisible] = useState(false);
-	const [principals, setPrincipals] = useState([]);
+	const [principals, setPrincipals] = useState<string[]>([]);
 
 	/** hdfs 和 yarn 组件版本一致，version提取至上层 */
 	const handleVersion = (version: any) => {
@@ -101,13 +115,13 @@ export default function FileConfig({
 		const version = isOtherVersion(typeCode)
 			? versionData[COMPONENT_CONFIG_NAME[typeCode]]
 			: versionData.hadoopVersion;
-		let initialValue = isOtherVersion(typeCode)
+		let initialValue: string | (string | undefined)[] = isOtherVersion(typeCode)
 			? DEFAULT_COMP_VERSION[typeCode]
-			: [version[0]?.key, version[0]?.values[0]?.key];
+			: [version[0]?.key, version[0]?.values?.[0]?.key];
 		initialValue = comp?.versionName || initialValue;
 		let versionValue = initialValue;
 		if (isSameVersion(typeCode)) {
-			versionValue = comp?.versionName || version[0]?.values[0]?.key || '';
+			versionValue = comp?.versionName || version[0]?.values?.[0]?.key || '';
 			initialValue = comp?.versionName
 				? getInitialValue(version, comp?.versionName)
 				: initialValue;
@@ -135,7 +149,7 @@ export default function FileConfig({
 				>
 					{isOtherVersion(typeCode) ? (
 						<Select style={{ width: 172 }} disabled={view} onChange={handleVersion}>
-							{version.map((ver: any) => {
+							{version.map((ver) => {
 								return (
 									<Option value={ver.value} key={ver.key}>
 										{ver.key}
@@ -170,7 +184,7 @@ export default function FileConfig({
 		return renderCompsVersion();
 	};
 
-	const getPrincipalsList = async (file: any) => {
+	const getPrincipalsList = async (file: RcFile) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 		const res = await Api.parseKerberos({ fileName: file });
@@ -189,22 +203,24 @@ export default function FileConfig({
 
 	const refreshYarnQueue = () => {
 		const { clusterName } = clusterInfo;
-		Api.refreshQueue({ clusterName }).then((res: any) => {
-			if (res.code === 1) {
-				const target = res.data.find(
-					(v: any) => v.componentTypeCode === COMPONENT_TYPE_VALUE.YARN,
-				);
-				if (target?.result || res.data.length === 0) {
-					message.success('刷新成功');
-				} else {
-					notification.error({
-						message: '刷新失败',
-						description: `${target.errorMsg}`,
-						style: { wordBreak: 'break-word' },
-					});
+		Api.refreshQueue({ clusterName }).then(
+			(res: { code: number; data: IRefreshQueueData[] }) => {
+				if (res.code === 1) {
+					const target = res.data.find(
+						(v) => v.componentTypeCode === COMPONENT_TYPE_VALUE.YARN,
+					);
+					if (target?.result || res.data.length === 0) {
+						message.success('刷新成功');
+					} else {
+						notification.error({
+							message: '刷新失败',
+							description: `${target?.errorMsg}`,
+							style: { wordBreak: 'break-word' },
+						});
+					}
 				}
-			}
-		});
+			},
+		);
 	};
 
 	// 下载配置文件
@@ -230,7 +246,7 @@ export default function FileConfig({
 		return result;
 	};
 
-	const uploadFile = async (file: any, loadingType: number, callBack: () => void) => {
+	const uploadFile = async (file: RcFile, loadingType: number, callBack: () => void) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = isMultiVersion(typeCode) ? comp?.versionName : '';
 		const deployType = comp?.deployType ?? '';
@@ -333,7 +349,6 @@ export default function FileConfig({
 					},
 				}}
 				view={view}
-				form={form}
 				uploadFile={uploadFile}
 				icons={
 					<>
@@ -375,7 +390,6 @@ export default function FileConfig({
 					},
 				}}
 				view={view}
-				form={form}
 				uploadFile={uploadFile}
 				notDesc={true}
 				label={
@@ -423,16 +437,15 @@ export default function FileConfig({
 					},
 				}}
 				view={view}
-				form={form}
 				uploadFile={uploadFile}
 				rules={[{ required: true, message: `配置文件为空` }]}
 				icons={
-					comp?.id && (
+					comp?.id ? (
 						<DownloadOutlined
 							style={{ right: 0 }}
 							onClick={() => downloadFile(FILE_TYPE.CONFIGS)}
 						/>
-					)
+					) : undefined
 				}
 			/>
 		);
@@ -441,7 +454,7 @@ export default function FileConfig({
 	const renderStorageComponents = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
-		let formField = typeCode;
+		let formField: number | string = typeCode;
 		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
 		formField = `${formField}.storeType`;
 
@@ -486,7 +499,7 @@ export default function FileConfig({
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 
-		let formField = typeCode;
+		let formField: number | string = typeCode;
 		if (isMultiVersion(typeCode)) formField = `${formField}.${versionName}`;
 
 		const kerberosFile =
@@ -508,7 +521,7 @@ export default function FileConfig({
 					initialValue={comp?.principal ?? principals[0] ?? ''}
 				>
 					<Select style={{ width: 172 }} disabled={view}>
-						{principalsList.map((ver: any, key) => {
+						{principalsList.map((ver, key) => {
 							return (
 								<Option value={ver} key={key}>
 									{ver}
@@ -534,7 +547,6 @@ export default function FileConfig({
 		return (
 			<DataCheckbox
 				comp={comp}
-				form={form}
 				view={view}
 				disabledMeta={disabledMeta}
 				isCheckBoxs={isCheckBoxs}
@@ -545,10 +557,10 @@ export default function FileConfig({
 	const renderDefaultVersion = () => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		if (!isFLink(typeCode)) return null;
-		return <DefaultVersionCheckbox comp={comp} form={form} view={view} isDefault={isDefault} />;
+		return <DefaultVersionCheckbox comp={comp} view={view} isDefault={isDefault} />;
 	};
 
-	const setKrbConfig = (krbconfig: any) => {
+	const setKrbConfig = (krbconfig: string) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 		saveComp({
@@ -558,7 +570,7 @@ export default function FileConfig({
 		});
 	};
 
-	const hanleVisible = (krbconfig: any) => {
+	const hanleVisible = (krbconfig: string) => {
 		setVisible(false);
 		setKrbConfig(krbconfig);
 	};
@@ -610,10 +622,6 @@ export default function FileConfig({
 			}
 		}
 	};
-
-	const typeCode = comp?.componentTypeCode ?? '';
-
-	if (notFileConfig(typeCode)) return null;
 
 	return (
 		<div className="c-fileConfig__container">

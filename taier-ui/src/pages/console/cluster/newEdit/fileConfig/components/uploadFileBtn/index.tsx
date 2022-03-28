@@ -16,29 +16,45 @@
  * limitations under the License.
  */
 
-import type { FormInstance } from 'antd';
+import type { ReactElement } from 'react';
 import { Form, Upload, Button, Tooltip } from 'antd';
+import type { RcFile } from 'antd/lib/upload';
+import type { Rule } from 'rc-field-form/lib/interface';
 import { PaperClipOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { isMultiVersion } from '../../../help';
+import { useContextForm } from '../../../context';
+
+interface IFileInfo {
+	typeCode: number;
+	name: string;
+	value?: string;
+	desc: string;
+	loading: boolean;
+	versionName: string;
+	hadoopVersion?: string;
+	uploadProps: {
+		name: string;
+		accept: string;
+		type: number;
+	};
+}
 
 interface IProp {
-	label: any;
-	form: FormInstance;
-	icons?: any;
-	fileInfo: any;
+	label: string | ReactElement;
+	icons?: ReactElement;
+	fileInfo: IFileInfo;
 	deleteIcon?: boolean;
 	view?: boolean;
-	rules?: any;
+	rules?: Rule[];
 	notDesc?: boolean;
-	deleteFile?: Function;
-	uploadFile: Function;
+	deleteFile?: () => void;
+	uploadFile: (file: RcFile, loadingType: number, callBack: () => void) => void;
 }
 
 const FormItem = Form.Item;
 
 export default function UploadFile({
 	label,
-	form,
 	icons,
 	fileInfo,
 	deleteIcon,
@@ -48,19 +64,19 @@ export default function UploadFile({
 	deleteFile,
 	uploadFile,
 }: IProp) {
+	const form = useContextForm();
 	const { typeCode, hadoopVersion, name } = fileInfo;
 
-	let formField = typeCode;
+	let formField: number | string = typeCode;
 	if (isMultiVersion(typeCode) && hadoopVersion) {
 		formField = `${formField}.${hadoopVersion}`;
 	}
 	formField = `${formField}.${name}`;
 
-	const fileName = form.getFieldValue(formField)?.name ?? fileInfo?.value;
 	const uploadFileProps = {
 		name: fileInfo.uploadProps.name,
 		accept: fileInfo.uploadProps.accept,
-		beforeUpload: (file: any) => {
+		beforeUpload: (file: RcFile) => {
 			uploadFile(file, fileInfo.uploadProps.type, () => {
 				form.setFieldsValue({
 					[formField]: file,

@@ -24,6 +24,7 @@ import {
 	FILE_TYPE,
 	CONFIG_ITEM_TYPE,
 } from '@/constant';
+import type { IModifyComp, IScheduleComponentComp } from './interface';
 
 const DEFAULT_PARAMS = [
 	'storeType',
@@ -41,20 +42,12 @@ export function isNeedTemp(typeCode: number): boolean {
 	return temp.indexOf(typeCode) > -1;
 }
 
-export function isKubernetes(typeCode: number): boolean {
-	return false;
-}
-
 export function isYarn(typeCode: number): boolean {
 	return COMPONENT_TYPE_VALUE.YARN === typeCode;
 }
 
 export function isFLink(typeCode: number): boolean {
 	return COMPONENT_TYPE_VALUE.FLINK === typeCode;
-}
-
-export function isDtscriptAgent(typeCode: number): boolean {
-	return false;
 }
 
 export function isHaveGroup(typeCode: number): boolean {
@@ -101,10 +94,6 @@ export function showDataCheckBox(code: number): boolean {
 	return tmp.indexOf(code) > -1;
 }
 
-export function notFileConfig(code: number): boolean {
-	return false;
-}
-
 export function getActionType(mode: string): string {
 	switch (mode) {
 		case 'view':
@@ -126,12 +115,14 @@ export function isSourceTab(activeKey: number): boolean {
 	return activeKey === TABS_TITLE_KEY.SOURCE;
 }
 
-export function initialScheduling(): any[] {
-	const arr = [];
-	return Object.values(TABS_TITLE_KEY).map((tabKey: number) => {
-		// eslint-disable-next-line no-return-assign
-		return (arr[tabKey] = []);
+export function initialScheduling(): IScheduleComponentComp[][] {
+	const arr: IScheduleComponentComp[][] = [];
+	Object.values(TABS_TITLE_KEY).forEach((tabKey: string | number) => {
+		if (typeof tabKey === 'number') {
+			arr[tabKey] = [];
+		}
 	});
+	return arr;
 }
 
 export function giveMeAKey(): string {
@@ -176,10 +167,10 @@ export function getCustomerParams(temps: any[]): any[] {
 	return temps.filter((temp) => isCustomType(temp.type));
 }
 
-export function getCompsId(currentComps: any[], id: number): any[] {
-	const ids: any[] = [];
+export function getCompsId(currentComps: IScheduleComponentComp[], id: number | string): number[] {
+	const ids: number[] = [];
 	currentComps.forEach((comp) => {
-		(comp?.multiVersion ?? []).forEach((vcomp: any) => {
+		(comp?.multiVersion ?? []).forEach((vcomp) => {
 			if (vcomp?.id === id) ids.push(vcomp.id);
 		});
 	});
@@ -204,14 +195,14 @@ export function getOptions(version: any[]): any[] {
 	return opt;
 }
 
-export function getCompsName(comps: any[]): any[] {
-	return Array.from(comps).map((comp: any) => {
+export function getCompsName(comps: Set<IModifyComp>): string[] {
+	return Array.from(comps).map((comp: IModifyComp) => {
 		if (isMultiVersion(comp.typeCode)) {
-			return `${(COMPONENT_CONFIG_NAME as any)[comp.typeCode]} ${(
+			return `${COMPONENT_CONFIG_NAME[comp.typeCode]} ${(
 				Number(comp.versionName) / 100
 			).toFixed(2)}`;
 		}
-		return (COMPONENT_CONFIG_NAME as any)[comp.typeCode];
+		return COMPONENT_CONFIG_NAME[comp.typeCode];
 	});
 }
 
@@ -530,10 +521,11 @@ export function includesCurrentComp(
 	params: { typeCode: number; versionName?: string },
 ): boolean {
 	const { typeCode, versionName } = params;
-	modifyComps.forEach((comp) => {
+	for (let i = 0; i < modifyComps.length; i += 1) {
+		const comp = modifyComps[i] || {};
 		if (comp.typeCode === typeCode && !comp.versionName) return true;
 		if (comp.typeCode === typeCode && comp.versionName === versionName) return true;
-	});
+	}
 	return false;
 }
 
@@ -643,8 +635,8 @@ function handleCurrentComp(comp: any, initialComp: any, typeCode: number): boole
  * 返回含有组件code数组
  *
  */
-export function getModifyComp(comps: any, initialCompData: any[]): any {
-	const modifyComps = new Set();
+export function getModifyComp(comps: any, initialCompData: any[]) {
+	const modifyComps = new Set<IModifyComp>();
 	Object.entries(comps).forEach(([typeCode, comp]) => {
 		if (isMultiVersion(Number(typeCode))) {
 			Object.entries(comp as any).forEach(([versionName, vcomp]) => {
@@ -674,7 +666,3 @@ export function getModifyComp(comps: any, initialCompData: any[]): any {
 	return modifyComps;
 }
 
-/** 指定引擎的 jdbcUrl 项展示 hover 提示 */
-export function showHover(componentTypeValue: number, label: string) {
-	return false;
-}

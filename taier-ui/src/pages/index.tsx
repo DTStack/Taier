@@ -39,6 +39,7 @@ import TaskDetail from './console/taskDetail';
 import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
 import EditCluster from './console/cluster/newEdit';
+import type { IEditClusterRefProps } from './console/cluster/newEdit/interface';
 import { getCookie } from '@/utils';
 import { isViewMode } from './console/cluster/newEdit/help';
 import '@dtinsight/molecule/esm/style/mo.css';
@@ -48,7 +49,7 @@ export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
 	const loading = useRef(false);
-	const refs = useRef<any>(null);
+	const refs = useRef<IEditClusterRefProps>(null);
 
 	const checkLoginStatus = () => {
 		const usernameInCookie = getCookie('username');
@@ -59,7 +60,7 @@ export default function HomePage() {
 	};
 
 	const handleTestConnects = async () => {
-		refs.current.testConnects(undefined, (bool: boolean) => {
+		refs.current?.testConnects(undefined, (bool: boolean) => {
 			loading.current = bool;
 			updateDrawer({
 				id: 'root',
@@ -94,7 +95,7 @@ export default function HomePage() {
 				>
 					测试所有组件连通性
 				</Button>
-				<Button type="primary" onClick={() => refs.current.handleComplete()}>
+				<Button type="primary" onClick={() => refs.current?.handleComplete()}>
 					完成
 				</Button>
 			</>
