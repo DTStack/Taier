@@ -17,21 +17,23 @@
  */
 
 import { useLayoutEffect } from 'react';
-import type { FormInstance } from 'antd';
+import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { Checkbox, Tooltip, Form } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { useContextForm } from '../../../context';
+import type { IComponentProps } from '../../../interface';
 
 /** 用于设置了默认版本，取消勾选其他默认版本 */
 const MAPPING_DEFAULT_VERSION = ['1.10'];
 
 interface IProps {
-	comp: any;
-	form: FormInstance;
+	comp: IComponentProps;
 	view: boolean;
 	isDefault: boolean | undefined;
 }
 
-export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: IProps) {
+export default function DefaultVersionCheckbox({ comp, view, isDefault }: IProps) {
+	const form = useContextForm();
 	const getCheckValue = () => {
 		if (isDefault) return true;
 		return comp?.isDefault ?? false;
@@ -67,7 +69,7 @@ export default function DefaultVersionCheckbox({ comp, form, view, isDefault }: 
 		return Promise.reject(error);
 	};
 
-	const handleChange = (e: any) => {
+	const handleChange = (e: CheckboxChangeEvent) => {
 		const typeCode = comp?.componentTypeCode ?? '';
 		const versionName = comp?.versionName ?? '';
 

@@ -28,7 +28,7 @@ const editorStyle: any = { height: '100%' };
 interface IProps {
 	visible: boolean;
 	krbconfig: string;
-	onCancel: Function;
+	onCancel: (krb5Content: string) => void;
 }
 
 interface IState {
@@ -56,7 +56,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
 		});
 	}
 
-	_editor: any;
+	public editor: Editor | null = null;
 
 	editorParamsChange = (preValue: string, nextValue: string) => {
 		this.setState({
@@ -93,7 +93,9 @@ export default class KerberosModal extends React.Component<IProps, IState> {
 						sync
 						value={krbconfig || ''}
 						className="c-kerberosModal__edior"
-						ref={(e: any) => (this._editor = e)}
+						ref={(e) => {
+							this.editor = e;
+						}}
 						style={{ height: '100%' }}
 						options={editorOptions}
 						onChange={this.debounceEditorChange.bind(this)}

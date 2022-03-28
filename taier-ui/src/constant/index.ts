@@ -892,37 +892,37 @@ export enum PARAMS_ENUM {
 /**
  * 多集群组件标题
  */
-export const TABS_TITLE_KEY = {
+ export enum TABS_TITLE_KEY {
 	/**
 	 * 公共组件
 	 */
-	COMMON: 0,
+	COMMON = 0,
 	/**
 	 * 资源调度组件
 	 */
-	SOURCE: 1,
+	SOURCE = 1,
 	/**
 	 * 存储组件
 	 */
-	STORE: 2,
+	STORE = 2,
 	/**
 	 * 计算组件
 	 */
-	COMPUTE: 3,
+	COMPUTE = 3,
 };
 
 /**
  * 组件枚举
  */
-export const COMPONENT_TYPE_VALUE = {
-	FLINK: 0,
-	SPARK: 1,
-	HDFS: 2,
-	YARN: 3,
-	SPARK_THRIFT: 4,
-	HIVE_SERVER: 5,
-	SFTP: 6,
-} as const;
+export enum COMPONENT_TYPE_VALUE {
+	FLINK = 0,
+	SPARK = 1,
+	HDFS = 2,
+	YARN = 3,
+	SPARK_THRIFT = 4,
+	HIVE_SERVER = 5,
+	SFTP = 6,
+};
 
 export const COMPONENT_CONFIG_NAME = {
 	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
