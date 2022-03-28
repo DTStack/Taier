@@ -12,6 +12,10 @@ type IDataSyncParamProps = IOfflineTaskProps &
 		preSave: true;
 		dependencyTasks: IOfflineTaskProps['taskVOS'];
 		settingMap: ISyncDataProps['setting'];
+		/**
+		 * the monaco editor content
+		 */
+		value: string;
 	};
 
 /**
@@ -72,6 +76,7 @@ export function generateRqtBody() {
 		reqBody.taskVOS = null;
 	}
 
+	reqBody.sqlText = reqBody.value;
 	// 数据拼装结果
 	return reqBody;
 }
