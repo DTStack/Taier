@@ -39,7 +39,7 @@ public class InterceptorInvocation {
 
     }
 
-    public Boolean invoke(ScheduleJobDetails scheduleJobDetails) {
+    public Boolean submit(ScheduleJobDetails scheduleJobDetails) {
         if (iterator == null || !iterator.hasNext()) {
             scheduler.submitJob(scheduleJobDetails);
             return Boolean.TRUE;
@@ -55,7 +55,7 @@ public class InterceptorInvocation {
             return Boolean.FALSE;
         }
 
-        if (!invoke(scheduleJobDetailss)) {
+        if (!submit(scheduleJobDetailss)) {
             return Boolean.FALSE;
         }
 

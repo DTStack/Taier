@@ -115,7 +115,7 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
                     // 提交任务
                     InterceptorInvocation interceptorInvocation = new InterceptorInvocation(this, getInterceptor());
-                    interceptorInvocation.invoke(scheduleJobDetail);
+                    interceptorInvocation.submit(scheduleJobDetail);
 
                     if (minSort < scheduleJob.getJobExecuteOrder()) {
                         minSort = scheduleJob.getJobExecuteOrder();
@@ -127,38 +127,6 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
             LOGGER.error("scheduleType:{} emitJob2Queue error:", getSchedulerName(), e);
         }
     }
-
-//    /**
-//     *  判断是否通过提交校验
-//     * @param scheduleJobDetails 实例
-//     * @return 校验解雇
-//     */
-//    private Boolean isSubmitJob(ScheduleJobDetails scheduleJobDetails) {
-//        List<JudgeJobExecOperator> judgeJobExecOperator = getJudgeJobExecOperator();
-//
-//        if (CollectionUtils.isNotEmpty(judgeJobExecOperator)) {
-//            for (JudgeJobExecOperator jobExecOperator : judgeJobExecOperator) {
-//                JobCheckRunInfo exec = jobExecOperator.isExec(scheduleJobDetails);
-//
-//
-//                if (!exec.getPass() && exec.getStatus() != null) {
-//                    ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-//                    LOGGER.info("jobId:{} no arrive exec run . exec : {}",scheduleJob.getJobId(),exec.getLogInfo());
-//                    // 没有通过校验 处理
-//                    List<JudgeNoPassJobHandler> judgeNoPassJobHandlerList = getJudgeNoPassJobHandler();
-//
-//                    for (JudgeNoPassJobHandler judgeNoPassJobHandler : judgeNoPassJobHandlerList) {
-//                        if (judgeNoPassJobHandler.isSupportJobCheckStatus(exec.getStatus())) {
-//                            return judgeNoPassJobHandler.handlerJob(scheduleJobDetails, exec);
-//                        }
-//                    }
-//
-//                    return Boolean.FALSE;
-//                }
-//            }
-//        }
-//        return Boolean.TRUE;
-//    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
