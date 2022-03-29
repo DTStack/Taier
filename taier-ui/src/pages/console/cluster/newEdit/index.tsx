@@ -120,6 +120,10 @@ export default forwardRef((_, ref) => {
 	const [disabledMeta, setDisabledMeta] = useState(false);
 	const [popVisible, setPopVisible] = useState(TABS_POP_VISIBLE);
 	const [loading, setLoading] = useState(false);
+
+	// 多版本组件的componentTypeCode与对应的versionName数组映射
+	const [versionMap, setVersionMap] = useState<Record<number, string[]>>({});
+
 	const mode = (history.location.query?.mode as string) || 'view';
 
 	useImperativeHandle(
@@ -129,7 +133,7 @@ export default forwardRef((_, ref) => {
 			handleComplete: () => {
 				const showConfirm = (comps: Set<IModifyComp>) => {
 					confirm({
-						title: `${getCompsName(comps).join('、')}尚未保存，是否退出编辑？`,
+						title: `${getCompsName(comps).join('、')} 尚未保存，是否退出编辑？`,
 						content: null,
 						icon: <ExclamationCircleFilled color="#FAAD14" />,
 						okText: '确定',
@@ -146,7 +150,7 @@ export default forwardRef((_, ref) => {
 				};
 				form.validateFields().then((values) => {
 					const valuesObj = convertToObj(values);
-					const modifyComps = getModifyComp(valuesObj, schedulingComponent);
+					const modifyComps = getModifyComp(valuesObj, schedulingComponent, versionMap);
 
 					if (modifyComps.size) {
 						showConfirm(modifyComps);
@@ -291,8 +295,11 @@ export default forwardRef((_, ref) => {
 		form.validateFields()
 			.then((rawValues) => {
 				const values = convertToObj(rawValues);
-				const modifyComps = getModifyComp(values, schedulingComponent);
 				if (typeCode || typeCode === 0) {
+					// 只对比当前组件的当前版本
+					const modifyComps = getModifyComp(values, schedulingComponent, {
+						[typeCode]: [versionName],
+					});
 					const includesCurrent = includesCurrentComp(Array.from(modifyComps), {
 						typeCode,
 						versionName,
@@ -300,7 +307,7 @@ export default forwardRef((_, ref) => {
 					if (modifyComps.size > 0 && includesCurrent) {
 						let desc = COMPONENT_CONFIG_NAME[typeCode] as string;
 						if (isMultiVersion(typeCode)) {
-							desc = `${desc} ${(Number(versionName) / 100).toFixed(2)}`;
+							desc = `${desc} ${versionName}`;
 						}
 						message.error(`组件 ${desc} 参数变更未保存，请先保存再测试组件连通性`);
 						return;
@@ -322,6 +329,7 @@ export default forwardRef((_, ref) => {
 							callBack?.(false);
 						});
 				} else {
+					const modifyComps = getModifyComp(values, schedulingComponent, versionMap);
 					if (modifyComps.size > 0) {
 						const compsName = getCompsName(modifyComps).join('、');
 						message.error(`组件 ${compsName} 参数变更未保存，请先保存再测试组件连通性`);
@@ -515,6 +523,7 @@ export default forwardRef((_, ref) => {
 
 	const onTabChange = (key: string) => {
 		setActiveKey(Number(key));
+		setVersionMap({});
 	};
 
 	useEffect(() => {
@@ -548,6 +557,16 @@ export default forwardRef((_, ref) => {
 	const handleTabChange = (tabActiveKey: string) => {
 		if (!isMultiVersion(Number(tabActiveKey))) {
 			getLoadTemplate(tabActiveKey);
+		}
+	};
+
+	const onVersionChange = (versionName: string, typeCode: COMPONENT_TYPE_VALUE) => {
+		if (typeCode || typeCode === 0) {
+			const versions = versionMap[typeCode] || [];
+			if (versionName && !versions.includes(versionName)) {
+				versions.push(versionName);
+			}
+			setVersionMap({ ...versionMap, [typeCode]: versions });
 		}
 	};
 
@@ -586,6 +605,7 @@ export default forwardRef((_, ref) => {
 						getLoadTemplate={getLoadTemplate}
 						testConnects={testConnects}
 						handleConfirm={handleConfirm}
+						onVersionChange={onVersionChange}
 					/>
 				) : (
 					comp?.multiVersion?.map((vcomp) => (
