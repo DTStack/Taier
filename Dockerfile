@@ -3,6 +3,11 @@ FROM centos
 # 作者
 MAINTAINER dazhi <dazhi@dtstack.com>
 
+# 定义工作目录
+ENV WORK_PATH /usr/taier
+
+WORKDIR $WORK_PATH
+
 # 创建目录
 RUN mkdir /usr/local/java
 RUN mkdir /usr/local/java/jre
@@ -12,12 +17,6 @@ ADD docker/jre-8u202-linux-x64.tar.gz /usr/local/java/jre
 RUN ls /usr/local/java/jre
 ENV JAVA_HOME /usr/local/java/jre/jre1.8.0_202
 ENV PATH $JAVA_HOME/bin:$PATH
-
-# 定义工作目录
-ENV WORK_PATH /usr/taier
-
-WORKDIR $WORK_PATH
-# 第二步 上传taier 相关jar
 
 # 创建对应的文件夹
 ENV TAIER_LIB $WORK_PATH/lib
@@ -31,7 +30,7 @@ ENV MYSQL_ROOT root
 ENV MYSQL_ROOT_PASSWORD 123456
 ENV MYSQL_IP 127.0.0.1
 ENV MYSQL_PORT 3306
-ENV NODE_ZKADDRESS 127.0.0.1:2181/taier
+ENV NODE_ZKADDRESS 127.0.0.1:2181
 
 RUN mkdir $TAIER_LIB && \
 mkdir $TAIER_PLUGINLIBS   && \
@@ -48,23 +47,9 @@ COPY bin/* $TAIER_BIN/
 COPY conf/* $TAIER_CONF/
 
 # 修改配置文件
-CMD sed -i "s/jdbc.username=/jdbc.username=$MYSQL_ROOT/g" $WORK_PATH/conf/application.properties && \
-sed -i "s/jdbc.password=/jdbc.password=$MYSQL_ROOT_PASSWORD/g" $WORK_PATH/conf/application.properties && \
-sed -i "s/mysql:\/\/127.0.0.1:3306/mysql:\/\/$MYSQL_IP:$MYSQL_PORT/g" $WORK_PATH/conf/application.properties && \
-sed -i "s/nodeZkAddress=/nodeZkAddress=$NODE_ZKADDRESS/g" $WORK_PATH/conf/application.properties && \
-sed -i "s/server.port =/server.port =$PORT/g" $WORK_PATH/conf/application.properties && \
-./bin/taier.sh start
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CMD sed -i "s!jdbc.username=!jdbc.username=$MYSQL_ROOT!g" $WORK_PATH/conf/application.properties && \
+sed -i "s!jdbc.password=!jdbc.password=$MYSQL_ROOT_PASSWORD!g" $WORK_PATH/conf/application.properties && \
+sed -i "s!jdbc:mysql:\/\/127.0.0.1:3306!jdbc:mysql:\/\/$MYSQL_IP:$MYSQL_PORT!g" $WORK_PATH/conf/application.properties && \
+sed -i "s!nodeZkAddress=127.0.0.1:2181/taier!nodeZkAddress=$NODE_ZKADDRESS/taier!g" $WORK_PATH/conf/application.properties && \
+sed -i "s!server.port =!server.port =$PORT!g" $WORK_PATH/conf/application.properties && \
+./bin/base.sh start
