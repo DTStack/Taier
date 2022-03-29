@@ -10,11 +10,10 @@ services:
   taier:
     image: taier:1.10
     ports:
-      - 8090:8090
+      - 80:80
     environment:
       NODE_ZKADDRESS: taier_zk
       MYSQL_IP: taier_db
-
 
 
 
