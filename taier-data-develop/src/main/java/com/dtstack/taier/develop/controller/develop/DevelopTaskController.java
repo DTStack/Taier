@@ -96,8 +96,8 @@ public class DevelopTaskController {
         return new APITemplate<BatchTaskPublishTaskResultVO>() {
             @Override
             protected BatchTaskPublishTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToBatchTaskPublishTaskResultVO(batchTaskService.publishTask(detailVO.getTenantId(),
-                        detailVO.getId(), detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getIsRoot(), detailVO.getIgnoreCheck()));
+                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToBatchTaskPublishTaskResultVO(batchTaskService.publishTask(detailVO.getId(),
+                        detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getComponentVersion()));
             }
         }.execute();
     }

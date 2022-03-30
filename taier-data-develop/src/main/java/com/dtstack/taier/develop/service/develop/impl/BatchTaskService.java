@@ -24,7 +24,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.client.IKerberos;
@@ -526,25 +525,6 @@ public class BatchTaskService {
     }
 
     /**
-     * 任务发布
-     * @param tenantId
-     * @param id
-     * @param userId
-     * @param publishDesc
-     * @param isRoot
-     * @param ignoreCheck 是否忽略语法校验
-     * @return
-     * @throws Exception
-     */
-    @Transactional
-    public TaskCheckResultVO publishTask(Long tenantId, Long id, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
-        Task task = developTaskDao.getOne(id);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-        return publishBatchTaskInfo(task, tenantId, userId, publishDesc, isRoot, ignoreCheck);
-    }
-    /**
      * 根据任务状态
      * 判断当前任务是否可以启动
      *
@@ -587,28 +567,6 @@ public class BatchTaskService {
         return checkResultVO;
     }
 
-//
-//    /**
-//     * 自定义调度周期，判断是否合法，并且调度间隔不能小于5分钟
-//     *
-//     * @param scheduleConf
-//     */
-//    private void checkCronValid(JSONObject scheduleConf) {
-//        Integer periodType = scheduleConf.getInteger("periodType");
-//        if (periodType == ESchedulePeriodType.CRON.getVal()) {
-//            String cron = scheduleConf.getString("cron");
-//            CronExceptionVO cronExceptionVO = scheduleTaskShadeService.checkCronExpression(cron, MIN_PERIOD);
-//            if (cronExceptionVO != null && StringUtils.isNotEmpty(cronExceptionVO.getErrMessage())) {
-//                if (cronExceptionVO.getErrCode() == 1) {
-//                    throw new RdosDefineException("请填写合法的Cron表达式！");
-//                } else if (cronExceptionVO.getErrCode() == 2) {
-//                    throw new RdosDefineException("调度周期间隔不可小于5分钟！");
-//                } else {
-//                    throw new RdosDefineException(cronExceptionVO.getErrMessage());
-//                }
-//            }
-//        }
-//    }
 
     /**
      * 批量发布任务至engine
@@ -618,18 +576,6 @@ public class BatchTaskService {
      * @return 发布结果
      */
     public TaskCheckResultVO publishTaskInfo(Task task, Long userId, String publishDesc) {
-//        User user = userService.getUser(task.getOwnerUserId());
-//        if (user == null) {
-//            throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", task.getName()));
-//        }
-
-//        List<Integer> roleList = roleUserService.listRoleValueByUserIdAndProjectId(task.getOwnerUserId(), task.getProjectId(), task.getDtuicTenantId());
-//        if (CollectionUtils.isEmpty(roleList)) {
-//            Boolean isRootByDtUserId = DtUicUserConnect.getIsRootByDtUserId(environmentContext.getSdkToken(), environmentContext.getDtUicUrl(), user.getDtuicUserId());
-//            if (isRootByDtUserId == null || !isRootByDtUserId) {
-//                throw new RdosDefineException("任务责任人在项目中不存在");
-//            }
-//        }
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
         // 检查任务是否可以发布并记录版本信息
@@ -638,29 +584,13 @@ public class BatchTaskService {
             return resultVO;
         }
         try {
-//            //检查并创建脏数据表
-//            if (!Objects.equals(task.getTaskType(), EDataSyncJobType.BATCH_SYNC.getVal())) {
-//                DataSyncTaskDirtyDataManage byTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId(), MetaObjectHolder.projectId());
-//                if (byTaskId != null&& Objects.equals(byTaskId.getOutputType(), TaskDirtyOutPutTypeEnum.JDBC.getValue())) {
-//                    String table = byTaskId.getTableName();
-//                    if (StringUtils.isNotBlank(table) && !Objects.equals(table, taskDirtyDataManageService.getDefaultDirtyDataTableName(task.getName()))) {
-//                        taskDirtyDataManageShadeService.createTable(byTaskId.getSourceId(), table);
-//                    } else {
-//                        String tableName = taskDirtyDataManageService.getDefaultDirtyDataTableName(task.getName());
-//                        taskDirtyDataManageShadeService.createTable(byTaskId.getSourceId(), tableName);
-//                    }
-//                }
-//            }
             // 构建要发布的任务列表
             ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task,resultVO.getData());
-//            taskDirtyDataManageShadeService.syncDirtyDataManage(task.getDtuicTenantId(),task.getId(),task.getProjectId(),task.getTaskType());
 
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId,scheduleTasks);
             SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
             savaTaskDTO.setScheduleTaskShade(scheduleTasks);
-            //todo 依赖关系没处理
-//            savaTaskDTO.setParentTaskIdList(parentTaskIds);
             this.taskService.saveTask(savaTaskDTO);
         } catch (Exception e) {
             LOGGER.error("send task error {} ", task.getId(), e);
@@ -681,7 +611,6 @@ public class BatchTaskService {
         String extroInfo = getExtraInfo(task, userId);
         if(Objects.equals(task.getTaskType(),EDataSyncJobType.DATA_ACQUISITION.getVal())){
             ParamTaskAction paramTaskAction = new ParamTaskAction();
-//            paramTaskAction.setJobId(task.getJobId());
             paramTaskAction.setIsRestart(0);
             scheduleTasks.setExtraInfo(extroInfo);
             if (!scheduleTasks.getScheduleConf().contains("periodType")) {
@@ -718,7 +647,6 @@ public class BatchTaskService {
 //        taskParam.forEach(paramShade -> paramShade.setType(EParamType.getEngineTypeByType(paramShade.getType())));
         hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
         JSONObject confProp = new JSONObject();
-//        buildTaskDirtyDataManageArgs(task.getId(), task.getProjectId(), confProp, task.getName());
         actionParam.put("confProp", JSON.toJSONString(confProp));
 
         actionParam.put("taskId", taskId);
@@ -765,104 +693,22 @@ public class BatchTaskService {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
         }
-        //保存batch_task_shade
         final ScheduleTaskShade scheduleTaskShadeDTO = new ScheduleTaskShade();
         BeanUtils.copyProperties(task, scheduleTaskShadeDTO);
         scheduleTaskShadeDTO.setTaskId(task.getId());
-//        scheduleTaskShadeDTO.setAppType(AppType.DATASYNC.getType());
-//        scheduleTaskShadeDTO.setEngineType(EngineType.Flink.getVal());
         scheduleTaskShadeDTO.setTenantId(scheduleTaskShadeDTO.getTenantId());
-//        scheduleTaskShadeDTO.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
         scheduleTaskShadeDTO.setVersionId(Math.toIntExact(taskVersion.getId()));
-//        scheduleTaskShadeDTO.setVersion(Math.toIntExact(taskVersion.getId()));
         if(Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal()) && StringUtils.isNotEmpty(task.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(task.getScheduleConf());
             if (scheduleConfig != null) {
-//                scheduleTaskShadeDTO.setIsExpire(scheduleConfig.getBooleanValue("isExpire") ? 1 : 0);
                 scheduleTaskShadeDTO.setPeriodType(scheduleConfig.getInteger("periodType"));
             } else {
-//                scheduleTaskShadeDTO.setIsExpire(0);
                 scheduleTaskShadeDTO.setPeriodType(2);
             }
-//            scheduleTaskShadeDTO.setProjectScheduleStatus(projectService.getProjectByProjectId(task.getProjectId()).getScheduleStatus());
-//            if (Objects.equals(EDataSyncJobType.BATCH_SYNC.getVal(),task.getTaskType())) {
-                //批量同步任务外层壳不开启调度
-//                scheduleTaskShadeDTO.setProjectScheduleStatus(EProjectScheduleStatus.PAUSE.getStatus());
-//            }else {
-//                scheduleTaskShadeDTO.setProjectScheduleStatus(projectService.getProjectByProjectId(task.getProjectId()).getScheduleStatus());
-//            }
-//            if (task.getGroupId() != null && task.getGroupId() > 0) {
-//                // 认为是批量同步任务
-//                scheduleTaskShadeDTO.setFlowId(task.getGroupId());
-//            }
         }
-//        else if(Objects.equals(task.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())){
-//            JSONObject sourceJson = JSONObject.parseObject(task.getSourceStr());
-//            if (sourceJson == null) { //脚本模式没有这个字段 默认传数据同步
-//                scheduleTaskShadeDTO.setBusinessType(SyncContentEnum.DATA_SYNC.getType().toString());
-//            } else {
-//                Integer syncContent = sourceJson.getInteger("syncContent");
-//                scheduleTaskShadeDTO.setBusinessType(syncContent.toString());
-//            }
-//        }
         return scheduleTaskShadeDTO;
     }
 
-    /**
-     * 批量发布任务至engine
-     * @param publishTask 要发布的task集合
-     * @param tenantId 项目id
-     * @param userId 用户id
-     * @param publishDesc 发布描述
-     * @param isRoot 是否是管理员
-     * @param ignoreCheck 忽略检查
-     * @return 发布结果
-     */
-    public TaskCheckResultVO publishBatchTaskInfo(Task publishTask, Long tenantId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
-        //判断任务责任人是否存在 如果任务责任人不存在或无权限 不允许提交
-        User user = userService.getById(publishTask.getCreateUserId());
-        if (user == null){
-            throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", publishTask.getName()));
-        }
-
-        TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
-        checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-
-        // 检查任务是否可以发布并记录版本信息
-        TaskCheckResultVO resultVO = checkTaskAndSaveVersion(publishTask, tenantId, userId, publishDesc, isRoot, ignoreCheck);
-        if (!PublishTaskStatusEnum.NOMAL.getType().equals(resultVO.getErrorSign())){
-            //做一下优化 如果是工作流任务的话 把任务名称打印出来
-            if (publishTask.getFlowId()>0){
-                resultVO.setErrorMessage(String.format("任务:%s提交失败，原因是:%s", publishTask.getName(), resultVO.getErrorMessage()));
-            }
-            return resultVO;
-        }
-
-        // 发布任务中所有的依赖关系
-        List<Long> parentTaskIds = Lists.newArrayList();
-        ScheduleTaskShade scheduleTaskShadeDTO = buildScheduleTaskShadeDTO(publishTask, parentTaskIds);
-
-        // 提交任务参数信息并保存任务记录和更新任务状态
-        try {
-            Task task = getOneWithError(scheduleTaskShadeDTO.getTaskId());
-            String extraInfo = this.batchJobService.getExtraInfo(task, userId, null);
-            scheduleTaskShadeDTO.setExtraInfo(extraInfo);
-            // 无异常保存一条任务记录并更新任务状态
-            saveRecordAndUpdateSubmitStatus(task, tenantId, userId, TaskOperateType.COMMIT.getType(), ESubmitStatus.SUBMIT.getStatus());
-        } catch (Exception e) {
-            LOGGER.error("send task error {} ", scheduleTaskShadeDTO.getTaskId(), e);
-            throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
-        }
-
-        SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
-        savaTaskDTO.setScheduleTaskShade(scheduleTaskShadeDTO);
-        savaTaskDTO.setParentTaskIdList(parentTaskIds);
-        // 批量发布任务
-        this.taskService.saveTask(savaTaskDTO);
-
-        LOGGER.info("待发布任务参数提交完毕");
-        return checkResultVO;
-    }
 
     /**
      * 保存一条任务记录并更新任务状态
@@ -1013,7 +859,6 @@ public class BatchTaskService {
             }).collect(Collectors.toList());
             dependencyTaskIds = JSON.toJSONString(parentTasks);
         }
-//todo
         version.setDependencyTaskIds(dependencyTaskIds);
         version.setPublishDesc(null == publishDesc ? "" : publishDesc);
         // 插入一条记录信息
@@ -1111,7 +956,6 @@ public class BatchTaskService {
 
     public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
-//        checkTaskParam(taskResourceParam);
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (taskResourceParam.getUpdateSource()) {
             taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
@@ -1127,9 +971,6 @@ public class BatchTaskService {
         this.checkFillPassword(taskResourceParam);
         setSqlTextByCreateModel(taskResourceParam, taskVO);
         taskVO.setModifyUserId(taskResourceParam.getUserId());
-//        taskVO.setEngineType(EngineType.Flink.getVal());
-        //任务中引用的数据源id，不从指定 offset 重跑保存的时候 sourceId 从任务中解析，从 offset 重跑沿用之前任务关联的 sourceId
-//        List<Long> dataSourceIds = getDataSourceIds(taskResourceParam);
         taskVO = (TaskVO) updateTask(taskVO, true);
         return taskVO;
     }
@@ -1171,8 +1012,6 @@ public class BatchTaskService {
         if (!taskVO.getUpdateSource()) {
             return taskVO;
         }
-//        updateTaskRefRelation(taskVO, dataSourceIds);
-
         return taskVO;
     }
     /**
@@ -1182,10 +1021,8 @@ public class BatchTaskService {
      */
     private void addTask(TaskVO taskVO) {
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-//        taskVO.setJobId(SdkMessageCheckUtil.checkGenerateUniqueSign(actionServiceClient.generateUniqueSign()));
         taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
-//        taskVO.setOwnerUserId(taskVO.getUserId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
 
         if (StringUtils.isBlank(taskVO.getScheduleConf())) {
@@ -1255,11 +1092,7 @@ public class BatchTaskService {
         Task specialTask1 = new Task();
 
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
-        Integer update = developTaskDao.update(specialTask1);
-        //todo 待定要不要
-//        if (update == 1) {
-//            taskVO.setVersion(taskVO.getVersion() + 1);
-//        }
+        developTaskDao.update(specialTask1);
     }
     /**
      * 实时采集任务根据操作模式生成sqlText
@@ -1284,8 +1117,6 @@ public class BatchTaskService {
         } else if (CREATE_MODEL_GUIDE==createModel) {
             String daSqlText;
             if (taskResourceParam.isPreSave()) {
-                //发布过之后，校验 输入输出数据源是否改变
-//                checkVersion(streamTask, taskResourceParam);
                 // todo 要优化写法
                 TaskUtils.dealWithTaskParam(taskResourceParam);
                 daSqlText = getDASqlText(taskResourceParam);
@@ -1383,18 +1214,10 @@ public class BatchTaskService {
         return defaultSetting;
     }
     private Reader putDefaultEmptyValueForReader(Integer sourceType, Reader reader) {
-       /* if (SupportDataSourcesService.REALTIME_SCRIPT_MODE_SOURCE_TYPES.contains(sourceType)) {
-            return reader;
-        }*/
-//        throw new DataSyncAppDefineException("输入源类型暂不支持");
         return reader;
     }
 
     private Writer putDefaultEmptyValueForWriter(int sourceType, Writer writer) {
-       /* if (SupportDataSourcesService.REALTIME_SCRIPT_MODE_TARGET_TYPES.contains(sourceType)) {
-            return writer;
-        }*/
-//        throw new DataSyncAppDefineException("输出源类型暂不支持");
         return writer;
     }
 
@@ -1760,190 +1583,6 @@ public class BatchTaskService {
     }
 
     /**
-     *初始化 task的一些基本属性
-     *
-     * @param task
-     * @return
-     */
-    private boolean initTaskInfo(TaskVO task) {
-        if (StringUtils.isBlank(task.getTaskDesc())) {
-            task.setTaskDesc("");
-        }
-        if (StringUtils.isBlank(task.getTaskParams())) {
-            task.setTaskParams("");
-        }
-//
-//        if (StringUtils.isBlank(task.getMainClass())) {
-//            task.setMainClass("");
-//        }
-
-        if (StringUtils.isBlank(task.getScheduleConf())) {
-            task.setScheduleConf(DEFAULT_SCHEDULE_CONF);
-        } else {
-            final JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
-            final String beginDate = scheduleConf.getString("beginDate");
-            if (StringUtils.isBlank(beginDate) || "null".equalsIgnoreCase(beginDate)) {
-                throw new RdosDefineException("生效日期起至时间不能为空");
-            }
-            final String endDate = scheduleConf.getString("endDate");
-            if (StringUtils.isBlank(endDate) || "null".equalsIgnoreCase(endDate)) {
-                throw new RdosDefineException("生效日期结束时间不能为空");
-            }
-        }
-
-        if (task.getVersion() == null) {
-            task.setVersion(0);
-        }
-
-        if (task.getCreateUserId() == null) {
-            task.setCreateUserId(task.getCreateUserId());
-        }
-        task.setGmtCreate(task.getGmtModified());
-        // 增加注释
-        task.setSqlText(this.createAnnotationText(task));
-        task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        task.setTaskParams(getDefaultTaskParam(task.getTenantId(), task.getTaskType()));
-        task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
-        String scConf = DEFAULT_SCHEDULE_CONF;
-        int period = DEFAULT_SCHEDULE_PERIOD;
-        if (task.getFlowId() != null && task.getFlowId() > 0) {
-            final Task flow = this.developTaskDao.getOne(task.getFlowId());
-            if (flow != null) {
-                scConf = flow.getScheduleConf();
-                final ScheduleCron scheduleCron;
-                try {
-                    scheduleCron = ScheduleFactory.parseFromJson(scConf);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
-                }
-                period = scheduleCron.getPeriodType();
-            }
-            task.setScheduleConf(scConf);
-        }
-        task.setPeriodType(period);
-        if(Objects.isNull(task.getFlowId())){
-            task.setFlowId(0L);
-        }
-        return true;
-    }
-
-    /**
-     * 向导模式下的需要json格式化
-     *
-     * @param createModel
-     * @param obj
-     */
-    private String formatSqlText(Integer createModel, JSONObject obj) {
-        if (obj == null) {
-            return "";
-        }
-        if (obj.get("job") != null && CREATE_MODEL_GUIDE ==createModel) {
-            return JSON.toJSONString(JSONObject.parseObject(DataFilter.passwordFilter(obj.get("job").toString())), SerializerFeature.PrettyFormat);
-        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE ==createModel) {
-            return String.valueOf(obj.get("job"));
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * 向导模式下的数据同步需要json格式化
-     *
-     * @param taskVO
-     * @param obj
-     */
-    private void formatSqlText(final ScheduleTaskVO taskVO, final JSONObject obj) {
-        taskVO.setCreateModel(obj.get("createModel") == null ? CREATE_MODEL_GUIDE : Integer.parseInt(String.valueOf(obj.get("createModel"))));
-        if (obj.get("job") != null && CREATE_MODEL_GUIDE == taskVO.getCreateModel()) {
-            final Map<String, String> map;
-            final String sqlText;
-            try {
-                map = (Map<String, String>) objectMapper.readValue(String.valueOf(obj.get("job")), Object.class);
-                sqlText = JsonUtils.formatJSON(map);
-            } catch (final IOException e) {
-                throw new RdosDefineException("sqlText的json格式化失败", e);
-            }
-            taskVO.setSqlText(sqlText);
-        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE == taskVO.getCreateModel()) {
-            taskVO.setSqlText(String.valueOf(obj.get("job")));
-        } else {
-            taskVO.setSqlText("");
-        }
-
-        if (obj.get("syncModel") != null) {
-            taskVO.setSyncModel(obj.getInteger("syncModel"));
-            if (taskVO.getSyncModel() == SyncModel.HAS_INCRE_COL.getModel()) {
-                final Object increCol = JSONPath.eval(obj.getJSONObject("parser"), "$.sourceMap.increColumn");
-                if (increCol != null) {
-                    taskVO.setIncreColumn(increCol.toString());
-                }
-            }
-        }
-    }
-
-    /**
-     * 更新任务主资源
-     *
-     * @param taskResourceMap
-     * @return
-     */
-    @Transactional
-    public void updateTaskResource(final Map<String, Object> taskResourceMap) {
-
-        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
-        Preconditions.checkState(taskResourceMap.containsKey("resources"), "need param of resources");
-        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
-        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
-
-        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
-        final List<Object> oriResourceList = (List<Object>) taskResourceMap.get("resources");
-
-        final Task task = this.developTaskDao.getOne(id);
-        Preconditions.checkNotNull(task, "can not find task by id " + id);
-
-        //删除旧的资源
-        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
-
-        //添加新的资源
-        if (CollectionUtils.isNotEmpty(oriResourceList)) {
-            List<Long> resourceIdList = Lists.newArrayList();
-            oriResourceList.forEach(tmpId -> resourceIdList.add(MathUtil.getLongVal(tmpId)));
-            batchTaskResourceService.save(task, resourceIdList, ResourceRefType.MAIN_RES.getType());
-        }
-
-    }
-
-    /**
-     * 更新任务引用资源
-     *
-     * @param taskResourceMap
-     * @return
-     */
-    @Transactional
-    public void updateTaskRefResource(final Map<String, Object> taskResourceMap) {
-
-        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
-        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
-        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
-
-        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
-        final List<Object> refResourceList = (List<Object>) taskResourceMap.get("refResource");
-
-        final Task task = getOneWithError(id);
-
-        //删除旧的资源
-        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
-
-        //添加新的关联资源
-        if (CollectionUtils.isNotEmpty(refResourceList)) {
-            final List<Long> refResourceIdList = Lists.newArrayList();
-            refResourceList.forEach(tmpId -> refResourceIdList.add(MathUtil.getLongVal(tmpId)));
-            this.batchTaskResourceService.save(task, refResourceIdList, ResourceRefType.DEPENDENCY_RES.getType());
-        }
-    }
-
-    /**
      * 获取任务的默认参数
      *
      * @param tenantId 租户ID
@@ -2084,9 +1723,6 @@ public class BatchTaskService {
     }
 
 
-//    public TaskCatalogueVO forceUpdate(final TaskResourceParam param) {
-//        return addOrUpdateTask(param);
-//    }
 
     /**
      * 数据开发-获取所有系统参数
@@ -2180,15 +1816,6 @@ public class BatchTaskService {
         return one;
     }
 
-//    /**
-//     * 根据ID查询信息
-//     *
-//     * @param taskId 任务ID
-//     * @return
-//     */
-//    public Task getOne(Long taskId) {
-//        return this.developTaskDao.getOne(taskId);
-//    }
 
     /**
      * 根据ID查询信息
@@ -2200,17 +1827,6 @@ public class BatchTaskService {
         return developTaskDao.getOne(taskId);
     }
 
-    /**
-     *根据父任务Id  更新调度类型  调度配置
-     */
-    private void updateSonTaskPeriodType(Long flowId,Integer periodType,String scheduleConf){
-        JSONObject scheduleJson = JSON.parseObject(scheduleConf);
-        scheduleJson.put("selfReliance", 0);
-        //工作流配置的自动取消不同步子任务
-        scheduleJson.remove("isExpire");
-        //为什么不toJsonString 是为了兼容历史数据
-        developTaskDao.updateScheduleConf(flowId,periodType,scheduleJson.toString());
-    }
 
     /**
      * 操作增量标示  根据选择 删除或新增
