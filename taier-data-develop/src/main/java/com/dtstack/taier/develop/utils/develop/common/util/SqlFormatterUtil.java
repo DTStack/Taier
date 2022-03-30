@@ -57,7 +57,7 @@ public class SqlFormatterUtil {
             }
             String s = group;
             try {
-                s = Base64Util.baseDecode(group);
+                s = group;
             } catch (IllegalArgumentException var5) {
                 logger.warn("baseEncode failed, sql={}, e={}", sql, var5);
             }

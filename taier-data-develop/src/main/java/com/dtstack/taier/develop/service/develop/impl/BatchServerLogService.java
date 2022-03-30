@@ -180,7 +180,7 @@ public class BatchServerLogService {
             //taskShade 需要解码
             JSONObject sqlJson = null;
             try {
-                sqlJson = JSON.parseObject(Base64Util.baseDecode(scheduleTaskShade.getSqlText()));
+                sqlJson = JSON.parseObject(scheduleTaskShade.getSqlText());
             } catch (final Exception e) {
                 sqlJson = JSON.parseObject(scheduleTaskShade.getSqlText());
             }

@@ -142,6 +142,9 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "节点 ID", example = "7")
     private Long nodePid;
+
+    @ApiModelProperty(value = "父节点 ID", example = "7")
+    private Long parentId;
     
     @ApiModelProperty(value = "任务描述", example = "tes")
     private String taskDesc;
@@ -185,6 +188,14 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
 
     public void setDtToken(String dtToken) {
         this.dtToken = dtToken;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 
     @Override
