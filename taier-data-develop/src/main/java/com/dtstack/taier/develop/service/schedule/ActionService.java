@@ -6,7 +6,6 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
@@ -202,7 +201,7 @@ public class ActionService {
             List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray(taskParams, ScheduleTaskParamShade.class);
             String sqlText = scheduleTaskShade.getSqlText();
             if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
-                sqlText = Base64Util.baseDecode(sqlText);
+                sqlText = sqlText;
             }
             sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
             jobLogVO.setSqlText(sqlText);

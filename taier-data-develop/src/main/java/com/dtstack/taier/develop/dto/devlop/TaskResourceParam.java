@@ -32,6 +32,8 @@ public class TaskResourceParam extends Task {
 
     private Long userId;
 
+    private Long parentId;
+
     private List<Long> resourceIdList;
 
     private List<Long> refResourceIdList;
@@ -94,6 +96,13 @@ public class TaskResourceParam extends Task {
      */
     private Boolean updateSource = true;
 
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
 
     public Boolean getUpdateSource() {
         return updateSource;

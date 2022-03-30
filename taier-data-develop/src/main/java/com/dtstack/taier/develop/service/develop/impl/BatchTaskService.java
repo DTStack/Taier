@@ -51,7 +51,6 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
-import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
@@ -907,7 +906,7 @@ public class BatchTaskService {
         TaskVersion taskVersion = new TaskVersion();
         taskVersion.setCreateUserId(userId);
         if (StringUtils.isNotBlank(task.getSqlText())) {
-            final JSONObject jsonTask = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+            final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
             Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
             JSONObject job = jsonTask.getJSONObject("job");
             if (Objects.isNull(job)) {
@@ -980,7 +979,7 @@ public class BatchTaskService {
 
         } else if (EScheduleJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
-                final JSONObject jsonTask = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+                final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
 
                 Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
                 JSONObject job = jsonTask.getJSONObject("job");
@@ -1115,9 +1114,9 @@ public class BatchTaskService {
 //        checkTaskParam(taskResourceParam);
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (taskResourceParam.getUpdateSource()) {
-            taskVO.setSourceStr(JSON.toJSONString(taskResourceParam.getSourceMap()));
-            taskVO.setTargetStr(JSON.toJSONString(taskResourceParam.getTargetMap()));
-            taskVO.setSettingStr(JSON.toJSONString(taskResourceParam.getSettingMap()));
+            taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
+            taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
+            taskVO.setSettingStr(taskResourceParam.getSettingMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSettingMap()));
         } else {
             Task task = getOne(taskVO.getId());
             taskVO.setSourceStr(task.getSourceStr());
@@ -1201,6 +1200,13 @@ public class BatchTaskService {
             taskVO.setSqlText("");
         }
         try {
+            if (taskVO.getMainClass() == null) {
+                taskVO.setMainClass("");
+            }
+            if (taskVO.getTaskDesc() == null) {
+                taskVO.setTaskDesc("");
+            }
+            taskVO.setSubmitStatus(0);
             developTaskDao.insert(taskVO);
         } catch (Exception e) {
             if (StringUtils.isNotBlank(e.getMessage()) && e.getMessage().contains("Duplicate entry")) {
@@ -1250,9 +1256,10 @@ public class BatchTaskService {
 
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
         Integer update = developTaskDao.update(specialTask1);
-        if (update == 1) {
-            taskVO.setVersion(taskVO.getVersion() + 1);
-        }
+        //todo 待定要不要
+//        if (update == 1) {
+//            taskVO.setVersion(taskVO.getVersion() + 1);
+//        }
     }
     /**
      * 实时采集任务根据操作模式生成sqlText
@@ -1273,7 +1280,7 @@ public class BatchTaskService {
             if (Objects.equals(taskResourceParam.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
                 batchTaskParamService.checkParams(sql.toJSONString(), taskResourceParam.getTaskVariables());
             }
-            task.setSqlText(Base64Util.baseEncode(sql.toJSONString()));
+            task.setSqlText(sql.toJSONString());
         } else if (CREATE_MODEL_GUIDE==createModel) {
             String daSqlText;
             if (taskResourceParam.isPreSave()) {
@@ -1346,7 +1353,7 @@ public class BatchTaskService {
             sql.put("job", jobXml);
             sql.put("parser", parserXml);
             sql.put("createModel", CREATE_MODEL_GUIDE);
-            return Base64Util.baseEncode(sql.toJSONString());
+            return sql.toJSONString();
         } catch (Exception e) {
             throw new RdosDefineException("解析实时采集任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
         }
@@ -1445,7 +1452,7 @@ public class BatchTaskService {
                 if (Objects.nonNull(task)) {
                     final String sqlText = task.getSqlText();
                     if (StringUtils.isNotEmpty(sqlText)) {
-                        final JSONObject oldData = JSON.parseObject(Base64Util.baseDecode(sqlText));
+                        final JSONObject oldData = JSON.parseObject(sqlText);
                         //3、处理新上送的数据，替换未变更的密码信息
                         final JSONObject newData = JSON.parseObject(context);
                         //值并行处理 -- 固定接口直接写死job的值处理密码问题
@@ -1553,7 +1560,6 @@ public class BatchTaskService {
         }
         if (param.getSqlText() != null) {
             this.checkIncreSyncTask(param);
-            param.setSqlText(Base64Util.baseEncode(param.getSqlText()));
         }
     }
 
@@ -1565,7 +1571,7 @@ public class BatchTaskService {
     private void operateIncreCol(TaskResourceParam param) {
         final Task task = this.developTaskDao.getOne(param.getId());
         if (StringUtils.isNotEmpty(task.getSqlText())) {
-            final JSONObject json = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+            final JSONObject json = JSON.parseObject(task.getSqlText());
             json.put("syncModel", param.getSyncModel());
             //处理增量标示
             operateIncreamColumn(json,param.getSyncModel());
@@ -1598,10 +1604,15 @@ public class BatchTaskService {
         taskVO.setCreateUserId(param.getUserId());
         taskVO.setNodePid(task.getNodePid());
         taskVO.setTenantId(param.getTenantId());
-        final JSONObject sqlJson = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+        taskVO.setCreateModel(TaskCreateModelType.TEMPLATE.getType());
+        JSONObject sqlJson = null;
+        if (StringUtils.isBlank(task.getSqlText())) {
+            sqlJson = new JSONObject();
+        }else {
+            sqlJson =  JSON.parseObject(task.getSqlText());
+        }
         sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
-
-        taskVO.setSqlText(Base64Util.baseEncode(sqlJson.toJSONString()));
+        taskVO.setSqlText(sqlJson.toJSONString());
         this.updateTask(taskVO, true);
         final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
         return taskCatalogueVO;
@@ -1630,7 +1641,7 @@ public class BatchTaskService {
         }
 
         try {
-            final JSONObject json = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+            final JSONObject json = JSON.parseObject(task.getSqlText());
             this.checkSyncJobContent(json.getJSONObject("job"), false);
         } catch (final RdosDefineException e) {
             return false;
@@ -2048,7 +2059,7 @@ public class BatchTaskService {
             if (StringUtils.isBlank(task.getSqlText())) {
                 throw new RdosDefineException(task.getName() + "任务配置信息为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
             }
-            final String sqlText = Base64Util.baseDecode(task.getSqlText());
+            final String sqlText = task.getSqlText();
             final JSONObject jsonObject = JSON.parseObject(sqlText);
             if (jsonObject.containsKey("parser")) {
                 final JSONObject parser = jsonObject.getJSONObject("parser");
@@ -2336,7 +2347,7 @@ public class BatchTaskService {
             sqlText = task.getSqlText();
         }
 
-        final String sql = Base64Util.baseDecode(sqlText);
+        final String sql = sqlText;
         if (StringUtils.isBlank(sql)) {
             return null;
         }

@@ -23,7 +23,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.Base64Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -57,7 +56,6 @@ public class SyncJob {
         if (jobText.startsWith("{") || jobText.startsWith("\"{")) {
             jobJson = JSONObject.parseObject(jobText);
         } else {
-            jobText = Base64Util.baseDecode(jobText);
             jobJson = JSONObject.parseObject(jobText);
         }
 

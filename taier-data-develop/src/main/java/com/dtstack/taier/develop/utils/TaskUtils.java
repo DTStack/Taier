@@ -5,11 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
-import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,8 +108,8 @@ public class TaskUtils {
             return sqlText;
         }
         //实时采集任务 - 实时采集带有createModel，job是String，且为base64加密，需要处理
-        JSONObject sqlTextJsonObject = JSONObject.parseObject(Base64Util.baseDecode(sqlText));
-        JSONObject sqlTextBeforeJsonObject = JSONObject.parseObject(Base64Util.baseDecode(sqlTextBefore));
+        JSONObject sqlTextJsonObject = JSONObject.parseObject(sqlText);
+        JSONObject sqlTextBeforeJsonObject = JSONObject.parseObject(sqlTextBefore);
         if (sqlTextJsonObject.get("job") == null || sqlTextBeforeJsonObject.get("job") == null) {
             return sqlText;
         }
@@ -128,7 +126,7 @@ public class TaskUtils {
             JSONObject sql = new JSONObject(2);
             sql.put("job", jsonData.toString());
             sql.put("createModel", CREATE_MODEL_TEMPLATE);
-            sqlText = Base64Util.baseEncode(sql.toJSONString());
+            sqlText = sql.toJSONString();
         } catch (RdosDefineException e) {
             logger.error("连接密码未变更,{}", e.getMessage(), e);
             throw e;

@@ -91,7 +91,7 @@ public class SqlFormatter {
         sql = sql + "\n";
         Matcher matcher = note_pattern.matcher(sql);
         while (matcher.find()) {
-            sql = matcher.replaceFirst("##" + Base64Util.baseEncode(matcher.group()) + "\n");
+            sql = matcher.replaceFirst("##" + matcher.group() + "\n");
             matcher = note_pattern.matcher(sql);
         }
         return sql;
@@ -112,7 +112,7 @@ public class SqlFormatter {
             }
             String s = group;
             try {
-                s = Base64Util.baseDecode(group);
+                s = group;
             } catch (IllegalArgumentException e) {
                 logger.warn("baseEncode failed, sql={}, e={}", sql, e);
             }

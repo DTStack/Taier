@@ -44,6 +44,15 @@ public class TaskVO extends Task {
      */
     private List<Map> taskVariables;
 
+    private Long parentId;
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
     public Map<String, Object> getSourceMap() {
         return sourceMap;
     }
