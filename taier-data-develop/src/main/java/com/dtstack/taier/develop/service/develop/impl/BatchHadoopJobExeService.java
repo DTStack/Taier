@@ -24,7 +24,6 @@ import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
@@ -88,7 +87,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             String taskParams = task.getTaskParams();
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
 
-            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+            JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 
             String job = syncJob.getString("job");
@@ -196,7 +195,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
             sql = result.getSql();
         } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
-            JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+            JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
 
             String job = syncJob.getString("job");

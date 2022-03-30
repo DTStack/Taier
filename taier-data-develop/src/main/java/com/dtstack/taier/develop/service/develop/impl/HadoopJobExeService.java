@@ -74,7 +74,7 @@ public class HadoopJobExeService {
         sql = sql == null ? "" : sql;
         String taskParams = task.getTaskParams();
         String taskExeArgs = null;
-        JSONObject syncJob = JSON.parseObject(Base64Util.baseDecode(task.getSqlText()));
+        JSONObject syncJob = JSON.parseObject(task.getSqlText());
         taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
         String job = syncJob.getString("job");
 
