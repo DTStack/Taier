@@ -71,6 +71,7 @@ interface ISourceProps {
 	 */
 	onNext?: () => void;
 	/**
+	 * @deprecated
 	 * 成功获取源表的表字段时的回调函数
 	 */
 	onGetTableCols?: (cols: IDataColumnsProps[]) => void;

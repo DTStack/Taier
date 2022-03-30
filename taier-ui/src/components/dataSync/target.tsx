@@ -76,6 +76,7 @@ interface ITargetProps {
 	 */
 	onNext?: (next: boolean) => void;
 	/**
+	 * @deprecated
 	 * 成功获取目标表的表字段时的回调函数
 	 */
 	onGetTableCols?: (cols: IDataColumnsProps[]) => void;
@@ -182,6 +183,12 @@ export default function Target({
 			+targetType === DATA_SOURCE_ENUM.HIVE3X ||
 			+targetType === DATA_SOURCE_ENUM.SPARKTHRIFT;
 
+		/**
+		 * @deprecated remove in next version
+		 * The table columns request not longer made there, it should make where it need to be made
+		 * Remove it before ensuring there will be no affected to dataSync task
+		 */
+		return;
 		setLoading(true);
 		// get table columns for third steps
 		API.getOfflineTableColumn({
