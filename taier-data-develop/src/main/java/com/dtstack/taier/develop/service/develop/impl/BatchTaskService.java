@@ -89,11 +89,8 @@ import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncModel;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.TaskOperateType;
-import com.dtstack.taier.develop.enums.develop.TaskSubmitStatusEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
-import com.dtstack.taier.develop.parser.ScheduleCron;
-import com.dtstack.taier.develop.parser.ScheduleFactory;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.schedule.TaskService;
@@ -111,7 +108,6 @@ import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
-import com.dtstack.taier.develop.utils.TimeUtil;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -954,7 +950,22 @@ public class BatchTaskService {
         return this.getTaskById(task);
     }
 
+    /**
+     * 保存或者修改任务
+     *
+     * @param taskResourceParam
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
+        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())){
+            return (TaskVO) updateTask(taskVO, true);
+        }
+        return addOrUpdateSyncTask(taskResourceParam);
+    }
+
+    public TaskVO addOrUpdateSyncTask(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (taskResourceParam.getUpdateSource()) {
@@ -983,15 +994,11 @@ public class BatchTaskService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Task updateTask(TaskVO taskVO,Boolean taskParam) {
-
-        if (taskVO.getName() == null) {
+    public Task updateTask(TaskVO taskVO, Boolean taskParam) {
+        if (StringUtils.isBlank(taskVO.getName())) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
-
-        taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         Task task = developTaskDao.getByName(taskVO.getName(), taskVO.getTenantId());
-
         if (taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
@@ -1004,8 +1011,8 @@ public class BatchTaskService {
             }
             addTask(taskVO);
         }
-        if(BooleanUtils.isTrue(taskParam)){
-            batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(),taskVO.getId());
+        if (BooleanUtils.isTrue(taskParam)) {
+            batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
         }
 
 
@@ -1017,38 +1024,22 @@ public class BatchTaskService {
     /**
      * 新增任务
      *
-     * @param taskVO
+     * @param taskVO 任务信息
      */
     private void addTask(TaskVO taskVO) {
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-
-        if (StringUtils.isBlank(taskVO.getScheduleConf())) {
-            taskVO.setScheduleConf(BatchTaskService.DEFAULT_SCHEDULE_CONF);
-        }
-
-        if (taskVO.getVersion() == null) {
-            taskVO.setVersion(0);
-        }
-
-        if (StringUtils.isBlank(taskVO.getSqlText())) {
-            taskVO.setSqlText("");
-        }
+        taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
+        taskVO.setVersion(Objects.isNull(taskVO.getVersion()) ? 0 : taskVO.getVersion());
+        taskVO.setSqlText(createAnnotationText(taskVO));
+        taskVO.setMainClass(Objects.isNull(taskVO.getMainClass()) ? "" : taskVO.getMainClass());
+        taskVO.setTaskDesc(Objects.isNull(taskVO.getTaskDesc()) ? "" : taskVO.getTaskDesc());
+        taskVO.setSubmitStatus(0);
         try {
-            if (taskVO.getMainClass() == null) {
-                taskVO.setMainClass("");
-            }
-            if (taskVO.getTaskDesc() == null) {
-                taskVO.setTaskDesc("");
-            }
-            taskVO.setSubmitStatus(0);
             developTaskDao.insert(taskVO);
         } catch (Exception e) {
-            if (StringUtils.isNotBlank(e.getMessage()) && e.getMessage().contains("Duplicate entry")) {
-                throw new RdosDefineException("(新建任务失败，该项目下任务名称已经存在)", ErrorCode.NAME_ALREADY_EXIST);
-            }
             throw new RdosDefineException("新建任务失败", e);
         }
     }
@@ -1071,7 +1062,7 @@ public class BatchTaskService {
     /**
      * 修改任务
      *
-     * @param taskVO
+     * @param taskVO 任务信息
      */
     private void updateTask(TaskVO taskVO) {
         Task specialTask = developTaskDao.getOne(taskVO.getId());
@@ -1094,6 +1085,7 @@ public class BatchTaskService {
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
         developTaskDao.update(specialTask1);
     }
+
     /**
      * 实时采集任务根据操作模式生成sqlText
      *
@@ -1186,7 +1178,7 @@ public class BatchTaskService {
             sql.put("createModel", CREATE_MODEL_GUIDE);
             return sql.toJSONString();
         } catch (Exception e) {
-            throw new RdosDefineException("解析实时采集任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
+            throw new RdosDefineException(String.format("解析任务失败: %s", e.getMessage()), e);
         }
     }
 
@@ -1517,33 +1509,37 @@ public class BatchTaskService {
         }
     }
 
-    private String createAnnotationText(final TaskVO task) {
+    /**
+     * 创建任务
+     *
+     * @param task
+     * @return
+     */
+    private String createAnnotationText(TaskVO task) {
         if (StringUtils.isNotBlank(task.getSqlText())) {
             return task.getSqlText();
         }
-        final String ENTER = "\n";
-        final String NOTE_SIGN;
-        String type = EScheduleJobType.getByTaskType(task.getTaskType()).getName();
-        final StringBuilder sb = new StringBuilder();
-
+        String ENTER = "\n";
+        String NOTE_SIGN;
         // 需要代码注释模版的任务类型
         Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EScheduleJobType.SPARK_SQL.getVal());
 
+        StringBuilder sb = new StringBuilder();
         if (shouldNoteSqlTypes.contains(task.getTaskType())) {
             NOTE_SIGN = "-- ";
         } else {
             sb.append(StringUtils.isBlank(task.getSqlText()) ? "" : task.getSqlText());
             return sb.toString();
         }
+        String type = EScheduleJobType.getByTaskType(task.getTaskType()).getName();
         //包括任务名称、任务类型、作者、创建时间、描述；
         sb.append(NOTE_SIGN).append("name ").append(task.getName()).append(ENTER);
         sb.append(NOTE_SIGN).append("type ").append(type).append(ENTER);
         sb.append(NOTE_SIGN).append("author ").append(userService.getUserName(task.getCreateUserId())).append(ENTER);
-        final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sb.append(NOTE_SIGN).append("create time ").append(sdf.format(task.getGmtCreate())).append(ENTER);
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sb.append(NOTE_SIGN).append("create time ").append(sdf.format(System.currentTimeMillis())).append(ENTER);
         sb.append(NOTE_SIGN).append("desc ").append(StringUtils.isBlank(task.getTaskDesc()) ? "" : task.getTaskDesc().replace(ENTER, " ")).append(ENTER);
         sb.append(StringUtils.isBlank(task.getSqlText()) ? "" : task.getSqlText());
-
         return sb.toString();
     }
 
@@ -1579,6 +1575,121 @@ public class BatchTaskService {
             return relations;
         } else {
             throw new RdosDefineException("该工作流不存在子任务");
+        }
+    }
+
+    /**
+     * 向导模式下的需要json格式化
+     *
+     * @param createModel
+     * @param obj
+     */
+    private String formatSqlText(Integer createModel, JSONObject obj) {
+        if (obj == null) {
+            return "";
+        }
+        if (obj.get("job") != null && CREATE_MODEL_GUIDE ==createModel) {
+            return JSON.toJSONString(JSONObject.parseObject(DataFilter.passwordFilter(obj.get("job").toString())), SerializerFeature.PrettyFormat);
+        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE ==createModel) {
+            return String.valueOf(obj.get("job"));
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * 向导模式下的数据同步需要json格式化
+     *
+     * @param taskVO
+     * @param obj
+     */
+    private void formatSqlText(final ScheduleTaskVO taskVO, final JSONObject obj) {
+        taskVO.setCreateModel(obj.get("createModel") == null ? CREATE_MODEL_GUIDE : Integer.parseInt(String.valueOf(obj.get("createModel"))));
+        if (obj.get("job") != null && CREATE_MODEL_GUIDE == taskVO.getCreateModel()) {
+            final Map<String, String> map;
+            final String sqlText;
+            try {
+                map = (Map<String, String>) objectMapper.readValue(String.valueOf(obj.get("job")), Object.class);
+                sqlText = JsonUtils.formatJSON(map);
+            } catch (final IOException e) {
+                throw new RdosDefineException("sqlText的json格式化失败", e);
+            }
+            taskVO.setSqlText(sqlText);
+        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE == taskVO.getCreateModel()) {
+            taskVO.setSqlText(String.valueOf(obj.get("job")));
+        } else {
+            taskVO.setSqlText("");
+        }
+
+        if (obj.get("syncModel") != null) {
+            taskVO.setSyncModel(obj.getInteger("syncModel"));
+            if (taskVO.getSyncModel() == SyncModel.HAS_INCRE_COL.getModel()) {
+                final Object increCol = JSONPath.eval(obj.getJSONObject("parser"), "$.sourceMap.increColumn");
+                if (increCol != null) {
+                    taskVO.setIncreColumn(increCol.toString());
+                }
+            }
+        }
+    }
+
+    /**
+     * 更新任务主资源
+     *
+     * @param taskResourceMap
+     * @return
+     */
+    @Transactional
+    public void updateTaskResource(final Map<String, Object> taskResourceMap) {
+
+        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
+        Preconditions.checkState(taskResourceMap.containsKey("resources"), "need param of resources");
+        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
+        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
+
+        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
+        final List<Object> oriResourceList = (List<Object>) taskResourceMap.get("resources");
+
+        final Task task = this.developTaskDao.getOne(id);
+        Preconditions.checkNotNull(task, "can not find task by id " + id);
+
+        //删除旧的资源
+        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
+
+        //添加新的资源
+        if (CollectionUtils.isNotEmpty(oriResourceList)) {
+            List<Long> resourceIdList = Lists.newArrayList();
+            oriResourceList.forEach(tmpId -> resourceIdList.add(MathUtil.getLongVal(tmpId)));
+            batchTaskResourceService.save(task, resourceIdList, ResourceRefType.MAIN_RES.getType());
+        }
+
+    }
+
+    /**
+     * 更新任务引用资源
+     *
+     * @param taskResourceMap
+     * @return
+     */
+    @Transactional
+    public void updateTaskRefResource(final Map<String, Object> taskResourceMap) {
+
+        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
+        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
+        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
+
+        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
+        final List<Object> refResourceList = (List<Object>) taskResourceMap.get("refResource");
+
+        final Task task = getOneWithError(id);
+
+        //删除旧的资源
+        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
+
+        //添加新的关联资源
+        if (CollectionUtils.isNotEmpty(refResourceList)) {
+            final List<Long> refResourceIdList = Lists.newArrayList();
+            refResourceList.forEach(tmpId -> refResourceIdList.add(MathUtil.getLongVal(tmpId)));
+            this.batchTaskResourceService.save(task, refResourceIdList, ResourceRefType.DEPENDENCY_RES.getType());
         }
     }
 
