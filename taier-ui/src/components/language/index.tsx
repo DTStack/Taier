@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { TASK_TYPE_ENUM } from '@/constant';
+import { taskTypeText } from '@/utils/enums';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
 
@@ -25,17 +25,7 @@ const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) 
 
 	const renderLanguage = () => {
 		const dataType = current.tab?.data?.taskType;
-		switch (dataType) {
-			case TASK_TYPE_ENUM.SQL: {
-				return 'SparkSQL';
-			}
-			case TASK_TYPE_ENUM.SYNC: {
-				return 'DataSync';
-			}
-			default: {
-				return null;
-			}
-		}
+		return taskTypeText(dataType);
 	};
 
 	return <span>{renderLanguage()}</span>;
