@@ -26,13 +26,16 @@ import {
 	DATA_SYNC_MODE,
 	DATA_SYNC_TYPE,
 	formItemLayout,
+	IS_USE_COMPONENT,
 	tailFormItemLayout,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
+import { componentTips, syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
+import { taskTypeText } from '@/utils/enums';
+import { debounce } from 'lodash';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -46,16 +49,12 @@ interface OpenProps extends molecule.model.IEditor {
 	record?: CatalogueDataProps;
 }
 
-const TASK_TYPE_OPTIONS = [
-	{
-		value: TASK_TYPE_ENUM.SQL,
-		text: 'SparkSQL',
-	},
-	{
-		value: TASK_TYPE_ENUM.SYNC,
-		text: '数据同步',
-	},
-];
+const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.SYNC, TASK_TYPE_ENUM.HIVESQL].map(
+	(t) => ({
+		label: taskTypeText(t),
+		value: t,
+	}),
+);
 
 interface IFormFieldProps {
 	name: string;
@@ -64,17 +63,35 @@ interface IFormFieldProps {
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
+	isUseComponent?: IS_USE_COMPONENT;
+	componentId?: number;
+}
+
+interface IComponentProps {
+	componentDesc: string;
+	componentId: number;
+	name: string;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [pageLoading, setPageLoading] = useState(false);
+	const [componentList, setComponentList] = useState<IComponentProps[]>([]);
+
+	const getComponentList = async (taskType: TASK_TYPE_ENUM, componentName?: string) => {
+		const res = await api.submittedComponentQuery({ componentName, taskType });
+
+		if (res.code == 1 && res.data) {
+			const { data } = res;
+			setComponentList(Array.isArray(data) ? data : []);
+		}
+	};
 
 	const getCurrentTaskInfo = () => {
 		if (current?.tab) {
 			const { data } = current.tab;
-			// 只有数据同步任务才有额外的配置需要请求
+			// 数据同步任务才有额外的配置需要请求
 			if (data.taskType === TASK_TYPE_ENUM.SYNC) {
 				setPageLoading(true);
 				api.getOfflineTaskByID({ id: data.id })
@@ -83,6 +100,25 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							form.setFieldsValue({
 								createModel: res.data.createModel,
 								syncModel: res.data.syncModel,
+							});
+						}
+					})
+					.finally(() => {
+						setPageLoading(false);
+					});
+			}
+
+			// hiveSQL 需要请求额外的配置
+			if (data.taskType === TASK_TYPE_ENUM.HIVESQL) {
+				setPageLoading(true);
+				api.getOfflineTaskByID({ id: data.id })
+					.then((res) => {
+						if (res.code === 1) {
+							form.setFieldsValue({
+								isUseComponent: !res.data.componentId
+									? IS_USE_COMPONENT.FALSE
+									: IS_USE_COMPONENT.TRUE,
+								componentId: res.data.componentId,
 							});
 						}
 					})
@@ -100,7 +136,10 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		});
 	};
 
-	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
+	const handleValuesChanged = (
+		changedValues: Partial<IFormFieldProps>,
+		values: IFormFieldProps,
+	) => {
 		if (current?.tab) {
 			const { id } = current.tab;
 			// Insert form values into tab for preventing losting the values when switch tabs
@@ -108,6 +147,12 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				id,
 				data: values,
 			});
+		}
+
+		if ('isUseComponent' in changedValues) {
+			if (changedValues.isUseComponent === IS_USE_COMPONENT.TRUE) {
+				getComponentList(values.taskType);
+			}
 		}
 	};
 
@@ -122,6 +167,122 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 			return Promise.reject(new Error('当前同步任务不支持增量模式！'));
 		}
 		return Promise.resolve();
+	};
+
+	const renderConfig = (taskType: TASK_TYPE_ENUM) => {
+		switch (taskType) {
+			case TASK_TYPE_ENUM.SYNC: {
+				return (
+					<>
+						<FormItem
+							label="配置模式"
+							name="createModel"
+							tooltip={syncTaskHelp}
+							rules={[
+								{
+									required: true,
+									message: '请选择配置模式',
+								},
+							]}
+							initialValue={DATA_SYNC_TYPE.GUIDE}
+						>
+							<RadioGroup disabled={!!record}>
+								<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+								<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+							</RadioGroup>
+						</FormItem>
+						<FormItem
+							label="同步模式"
+							name="syncModel"
+							tooltip={syncModeHelp}
+							rules={[
+								{
+									required: true,
+									message: '请选择配置模式',
+								},
+								{
+									validator: checkSyncMode,
+								},
+							]}
+							initialValue={DATA_SYNC_MODE.NORMAL}
+						>
+							<RadioGroup>
+								<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
+								<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
+							</RadioGroup>
+						</FormItem>
+					</>
+				);
+			}
+			case TASK_TYPE_ENUM.HIVESQL: {
+				return (
+					<>
+						<FormItem
+							label="是否使用组件"
+							name="isUseComponent"
+							tooltip={componentTips}
+							rules={[
+								{
+									required: true,
+									message: '请选择是否使用组件',
+								},
+							]}
+							initialValue={DATA_SYNC_MODE.NORMAL}
+						>
+							<Radio.Group>
+								<Radio value={IS_USE_COMPONENT.TRUE}>是</Radio>
+								<Radio value={IS_USE_COMPONENT.FALSE}>否</Radio>
+							</Radio.Group>
+						</FormItem>
+						<FormItem noStyle dependencies={['isUseComponent']}>
+							{({ getFieldValue }) =>
+								getFieldValue('isUseComponent') === IS_USE_COMPONENT.TRUE && (
+									<FormItem
+										name="componentId"
+										label="选择组件"
+										rules={[
+											{
+												required: true,
+												message: '请选择组件',
+											},
+										]}
+									>
+										<Select
+											showSearch
+											filterOption={false}
+											onSearch={(str) =>
+												debounce(
+													() => getComponentList(taskType, str),
+													200,
+													{
+														maxWait: 2000,
+													},
+												)
+											}
+										>
+											{componentList.map((item) => (
+												<Option
+													value={item.componentId}
+													title={item.name}
+													key={item.componentId}
+												>
+													<p>{item.name}</p>
+													<p style={{ color: '#7a7979' }}>
+														{item.componentDesc}
+													</p>
+												</Option>
+											))}
+										</Select>
+									</FormItem>
+								)
+							}
+						</FormItem>
+					</>
+				);
+			}
+			default:
+				break;
+		}
 	};
 
 	useEffect(() => {
@@ -185,60 +346,10 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							},
 						]}
 					>
-						<Select disabled={!!record}>
-							{TASK_TYPE_OPTIONS.map((type) => (
-								<Option key={type.value} value={type.value}>
-									{type.text}
-								</Option>
-							))}
-						</Select>
+						<Select disabled={!!record} options={TASK_TYPE_OPTIONS} />
 					</FormItem>
 					<FormItem noStyle dependencies={['taskType']}>
-						{({ getFieldValue }) =>
-							getFieldValue('taskType') === TASK_TYPE_ENUM.SYNC && (
-								<>
-									<FormItem
-										label="配置模式"
-										name="createModel"
-										tooltip={syncTaskHelp}
-										rules={[
-											{
-												required: true,
-												message: '请选择配置模式',
-											},
-										]}
-										initialValue={DATA_SYNC_TYPE.GUIDE}
-									>
-										<RadioGroup disabled={!!record}>
-											<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-											<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
-										</RadioGroup>
-									</FormItem>
-									<FormItem
-										label="同步模式"
-										name="syncModel"
-										tooltip={syncModeHelp}
-										rules={[
-											{
-												required: true,
-												message: '请选择配置模式',
-											},
-											{
-												validator: checkSyncMode,
-											},
-										]}
-										initialValue={DATA_SYNC_MODE.NORMAL}
-									>
-										<RadioGroup>
-											<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
-											<Radio value={DATA_SYNC_MODE.INCREMENT}>
-												有增量标识
-											</Radio>
-										</RadioGroup>
-									</FormItem>
-								</>
-							)
-						}
+						{({ getFieldValue }) => renderConfig(getFieldValue('taskType'))}
 					</FormItem>
 					<FormItem
 						{...formItemLayout}
