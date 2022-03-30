@@ -18,7 +18,7 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { SparkSQLIcon } from '@/components/icon';
+import { HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
@@ -86,11 +86,12 @@ export function fileIcon(
 ): string | JSX.Element {
 	switch (source) {
 		case 'task': {
-			const iconLists: any = {
-				[TASK_TYPE_ENUM.SQL]: <SparkSQLIcon style={{ color: '#519aba' }} />,
-				[TASK_TYPE_ENUM.SYNC]: 'sync',
-			};
-			return iconLists[type as TASK_TYPE_ENUM] || 'file';
+			switch (type) {
+				case TASK_TYPE_ENUM.SQL: return <SparkSQLIcon style={{ color: '#519aba' }} />;
+				case TASK_TYPE_ENUM.SYNC: return 'sync';
+				case TASK_TYPE_ENUM.HIVESQL: return  <HiveSQLIcon style={{ color: '#4291f0' }} />;
+				default: return 'file';
+			}
 		}
 		case 'resource': {
 			return 'file';
