@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.vo.develop.query;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -49,6 +50,15 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "")
     private Map<String, Object> targetMap;
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> source;
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> sink;
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> side;
 
     @ApiModelProperty(value = "设置")
     private Map<String, Object> settingMap;
@@ -592,5 +602,28 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
 
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
+    }
+    public void setSource(List<JSONObject> source) {
+        this.source  = source;
+    }
+
+    public List<JSONObject> getSource() {
+        return source;
+    }
+
+    public void setSink(List<JSONObject> sink) {
+        this.sink  = sink;
+    }
+
+    public List<JSONObject> getSink() {
+        return sink;
+    }
+
+    public void setSide(List<JSONObject> side) {
+        this.side  = side;
+    }
+
+    public List<JSONObject> getSide() {
+        return side;
     }
 }

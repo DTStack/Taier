@@ -260,6 +260,9 @@ public class BatchTaskService {
     @Autowired
     private ComponentService componentService;
 
+    @Autowired
+    private FlinkSqlTaskService flinkSqlTaskService;
+
     private static final String KEY = "key";
 
     private static final String TYPE = "type";
@@ -1113,6 +1116,9 @@ public class BatchTaskService {
         // 校验任务信息,主资源不能为空
 //        checkTaskParam(taskResourceParam);
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
+        if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
+            flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
+        }
         if (taskResourceParam.getUpdateSource()) {
             taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
             taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
@@ -1198,6 +1204,9 @@ public class BatchTaskService {
 
         if (StringUtils.isBlank(taskVO.getSqlText())) {
             taskVO.setSqlText("");
+        }
+        if (taskVO.getSubmitStatus() == null) {
+            taskVO.setSubmitStatus(TaskSubmitStatusEnum.UNSUBMITTED.getStatus());
         }
         try {
             if (taskVO.getMainClass() == null) {
@@ -1612,7 +1621,10 @@ public class BatchTaskService {
             sqlJson =  JSON.parseObject(task.getSqlText());
         }
         sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
-        taskVO.setSqlText(sqlJson.toJSONString());
+
+        taskVO.setSqlText(sqlJson.toJSONString());        if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
+            taskVO.setSqlText(flinkSqlTaskService.generateCreateFlinkSql(task));
+        }
         this.updateTask(taskVO, true);
         final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
         return taskCatalogueVO;

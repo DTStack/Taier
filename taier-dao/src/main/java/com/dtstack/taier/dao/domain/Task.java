@@ -85,6 +85,8 @@ public class Task extends TenantEntity {
 
     private String targetStr;
 
+    private String sideStr;
+
     private String settingStr;
 
     /**
@@ -249,6 +251,14 @@ public class Task extends TenantEntity {
 
     public void setSettingStr(String settingStr) {
         this.settingStr = settingStr;
+    }
+
+    public String getSideStr() {
+        return sideStr;
+    }
+
+    public void setSideStr(String sideStr) {
+        this.sideStr = sideStr;
     }
 
     public String getScheduleConf() {

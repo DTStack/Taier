@@ -383,6 +383,7 @@ create table develop_task
 	main_class varchar(256) not null,
     source_str longtext COMMENT '输入源',
     target_str longtext COMMENT '输出源',
+    side_str longtext COMMENT '输出源',
     setting_str longtext COMMENT '输出源',
     create_model tinyint(1) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
 	exe_args text null,

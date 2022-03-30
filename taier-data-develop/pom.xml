@@ -98,6 +98,10 @@
             <artifactId>dt-insight-hive-shade</artifactId>
             <version>4.1.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
