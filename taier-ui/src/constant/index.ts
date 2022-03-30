@@ -892,7 +892,7 @@ export enum PARAMS_ENUM {
 /**
  * 多集群组件标题
  */
- export enum TABS_TITLE_KEY {
+export enum TABS_TITLE_KEY {
 	/**
 	 * 公共组件
 	 */
@@ -909,7 +909,7 @@ export enum PARAMS_ENUM {
 	 * 计算组件
 	 */
 	COMPUTE = 3,
-};
+}
 
 /**
  * 组件枚举
@@ -922,7 +922,7 @@ export enum COMPONENT_TYPE_VALUE {
 	SPARK_THRIFT = 4,
 	HIVE_SERVER = 5,
 	SFTP = 6,
-};
+}
 
 export const COMPONENT_CONFIG_NAME = {
 	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
@@ -1055,3 +1055,13 @@ export const BINARY_ROW_KEY_FLAG = {
 	FALSE: '0',
 	TRUE: '1',
 } as const;
+
+/**
+ * 关系型数据库类型
+ */
+export const rdbmsDaType = {
+	Binlog: 1,
+	Poll: 2,
+	CDC: 3,
+	LOGMINER: 4,
+};
