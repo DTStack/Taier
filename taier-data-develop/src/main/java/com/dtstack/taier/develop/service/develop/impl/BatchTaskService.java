@@ -90,11 +90,8 @@ import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncModel;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.TaskOperateType;
-import com.dtstack.taier.develop.enums.develop.TaskSubmitStatusEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
-import com.dtstack.taier.develop.parser.ScheduleCron;
-import com.dtstack.taier.develop.parser.ScheduleFactory;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.schedule.TaskService;
@@ -112,7 +109,6 @@ import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
-import com.dtstack.taier.develop.utils.TimeUtil;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -821,7 +817,7 @@ public class BatchTaskService {
     public TaskCheckResultVO publishBatchTaskInfo(Task publishTask, Long tenantId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
         //判断任务责任人是否存在 如果任务责任人不存在或无权限 不允许提交
         User user = userService.getById(publishTask.getCreateUserId());
-        if (user == null){
+        if (Objects.isNull(user)){
             throw new RdosDefineException(String.format("%s任务责任人在数栈中不存在", publishTask.getName()));
         }
 
@@ -1109,7 +1105,22 @@ public class BatchTaskService {
         return this.getTaskById(task);
     }
 
+    /**
+     * 保存或者修改任务
+     *
+     * @param taskResourceParam
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
+        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())){
+            return (TaskVO) updateTask(taskVO, true);
+        }
+        return addOrUpdateSyncTask(taskResourceParam);
+    }
+
+    public TaskVO addOrUpdateSyncTask(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
 //        checkTaskParam(taskResourceParam);
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
@@ -1142,15 +1153,11 @@ public class BatchTaskService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Task updateTask(TaskVO taskVO,Boolean taskParam) {
-
-        if (taskVO.getName() == null) {
+    public Task updateTask(TaskVO taskVO, Boolean taskParam) {
+        if (StringUtils.isBlank(taskVO.getName())) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
-
-        taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         Task task = developTaskDao.getByName(taskVO.getName(), taskVO.getTenantId());
-
         if (taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
@@ -1163,55 +1170,29 @@ public class BatchTaskService {
             }
             addTask(taskVO);
         }
-        if(BooleanUtils.isTrue(taskParam)){
-            batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(),taskVO.getId());
+        if (BooleanUtils.isTrue(taskParam)) {
+            batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
         }
-
-
-        if (!taskVO.getUpdateSource()) {
-            return taskVO;
-        }
-//        updateTaskRefRelation(taskVO, dataSourceIds);
-
         return taskVO;
     }
     /**
      * 新增任务
      *
-     * @param taskVO
+     * @param taskVO 任务信息
      */
     private void addTask(TaskVO taskVO) {
-        taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-//        taskVO.setJobId(SdkMessageCheckUtil.checkGenerateUniqueSign(actionServiceClient.generateUniqueSign()));
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
+        taskVO.setTaskParams(StringUtils.isBlank(taskVO.getTaskParams()) ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
-//        taskVO.setOwnerUserId(taskVO.getUserId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-
-        if (StringUtils.isBlank(taskVO.getScheduleConf())) {
-            taskVO.setScheduleConf(BatchTaskService.DEFAULT_SCHEDULE_CONF);
-        }
-
-        if (taskVO.getVersion() == null) {
-            taskVO.setVersion(0);
-        }
-
-        if (StringUtils.isBlank(taskVO.getSqlText())) {
-            taskVO.setSqlText("");
-        }
+        taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
+        taskVO.setVersion(Objects.isNull(taskVO.getVersion()) ? 0 : taskVO.getVersion());
+        taskVO.setSqlText(createAnnotationText(taskVO));
+        taskVO.setMainClass(Objects.isNull(taskVO.getMainClass()) ? "" : taskVO.getMainClass());
+        taskVO.setTaskDesc(Objects.isNull(taskVO.getTaskDesc()) ? "" : taskVO.getTaskDesc());
+        taskVO.setSubmitStatus(0);
         try {
-            if (taskVO.getMainClass() == null) {
-                taskVO.setMainClass("");
-            }
-            if (taskVO.getTaskDesc() == null) {
-                taskVO.setTaskDesc("");
-            }
-            taskVO.setSubmitStatus(0);
             developTaskDao.insert(taskVO);
         } catch (Exception e) {
-            if (StringUtils.isNotBlank(e.getMessage()) && e.getMessage().contains("Duplicate entry")) {
-                throw new RdosDefineException("(新建任务失败，该项目下任务名称已经存在)", ErrorCode.NAME_ALREADY_EXIST);
-            }
             throw new RdosDefineException("新建任务失败", e);
         }
     }
@@ -1234,7 +1215,7 @@ public class BatchTaskService {
     /**
      * 修改任务
      *
-     * @param taskVO
+     * @param taskVO 任务信息
      */
     private void updateTask(TaskVO taskVO) {
         Task specialTask = developTaskDao.getOne(taskVO.getId());
@@ -1255,12 +1236,9 @@ public class BatchTaskService {
         Task specialTask1 = new Task();
 
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
-        Integer update = developTaskDao.update(specialTask1);
-        //todo 待定要不要
-//        if (update == 1) {
-//            taskVO.setVersion(taskVO.getVersion() + 1);
-//        }
+        developTaskDao.update(specialTask1);
     }
+
     /**
      * 实时采集任务根据操作模式生成sqlText
      *
@@ -1355,7 +1333,7 @@ public class BatchTaskService {
             sql.put("createModel", CREATE_MODEL_GUIDE);
             return sql.toJSONString();
         } catch (Exception e) {
-            throw new RdosDefineException("解析实时采集任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
+            throw new RdosDefineException(String.format("解析任务失败: %s", e.getMessage()), e);
         }
     }
 
@@ -1694,138 +1672,38 @@ public class BatchTaskService {
         }
     }
 
-    private String createAnnotationText(final TaskVO task) {
+    /**
+     * 创建任务
+     *
+     * @param task
+     * @return
+     */
+    private String createAnnotationText(TaskVO task) {
         if (StringUtils.isNotBlank(task.getSqlText())) {
             return task.getSqlText();
         }
-        final String ENTER = "\n";
-        final String NOTE_SIGN;
-        String type = EScheduleJobType.getByTaskType(task.getTaskType()).getName();
-        final StringBuilder sb = new StringBuilder();
-
+        String ENTER = "\n";
+        String NOTE_SIGN;
         // 需要代码注释模版的任务类型
         Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EScheduleJobType.SPARK_SQL.getVal());
 
+        StringBuilder sb = new StringBuilder();
         if (shouldNoteSqlTypes.contains(task.getTaskType())) {
             NOTE_SIGN = "-- ";
         } else {
             sb.append(StringUtils.isBlank(task.getSqlText()) ? "" : task.getSqlText());
             return sb.toString();
         }
+        String type = EScheduleJobType.getByTaskType(task.getTaskType()).getName();
         //包括任务名称、任务类型、作者、创建时间、描述；
         sb.append(NOTE_SIGN).append("name ").append(task.getName()).append(ENTER);
         sb.append(NOTE_SIGN).append("type ").append(type).append(ENTER);
         sb.append(NOTE_SIGN).append("author ").append(userService.getUserName(task.getCreateUserId())).append(ENTER);
-        final DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sb.append(NOTE_SIGN).append("create time ").append(sdf.format(task.getGmtCreate())).append(ENTER);
+        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sb.append(NOTE_SIGN).append("create time ").append(sdf.format(System.currentTimeMillis())).append(ENTER);
         sb.append(NOTE_SIGN).append("desc ").append(StringUtils.isBlank(task.getTaskDesc()) ? "" : task.getTaskDesc().replace(ENTER, " ")).append(ENTER);
         sb.append(StringUtils.isBlank(task.getSqlText()) ? "" : task.getSqlText());
-
         return sb.toString();
-    }
-
-
-    /**
-     * 解析子任务依赖关系
-     *
-     * @param sqlText
-     * @return key-taskId, value-parentIdList
-     */
-    public Map<Long, List<Long>> parseTaskRelationsFromSqlText(final String sqlText) {
-        if (StringUtils.isNotBlank(sqlText)) {
-            final JSONArray array = JSON.parseArray(sqlText);
-            final Map<Long, List<Long>> relations = Maps.newHashMap();
-            for (int i = 0; i < array.size(); i++) {
-                final JSONObject object = array.getJSONObject(i);
-                final JSONObject source = object.getJSONObject("source");
-                final JSONObject target = object.getJSONObject("target");
-                if (source != null && target != null) {
-                    final long parentId = source.getJSONObject("data").getLong("id");
-                    final long targetId = target.getJSONObject("data").getLong("id");
-                    if (relations.containsKey(targetId)) {
-                        relations.get(targetId).add(parentId);
-                    } else {
-                        relations.put(targetId, Lists.newArrayList(parentId));
-                    }
-                } else if(object.getJSONObject("data") != null) {
-                    if (!relations.containsKey(object.getJSONObject("data").getLong("id"))) {
-                        relations.put(object.getJSONObject("data").getLong("id"), Lists.newArrayList());
-                    }
-                }
-            }
-            return relations;
-        } else {
-            throw new RdosDefineException("该工作流不存在子任务");
-        }
-    }
-
-    /**
-     *初始化 task的一些基本属性
-     *
-     * @param task
-     * @return
-     */
-    private boolean initTaskInfo(TaskVO task) {
-        if (StringUtils.isBlank(task.getTaskDesc())) {
-            task.setTaskDesc("");
-        }
-        if (StringUtils.isBlank(task.getTaskParams())) {
-            task.setTaskParams("");
-        }
-//
-//        if (StringUtils.isBlank(task.getMainClass())) {
-//            task.setMainClass("");
-//        }
-
-        if (StringUtils.isBlank(task.getScheduleConf())) {
-            task.setScheduleConf(DEFAULT_SCHEDULE_CONF);
-        } else {
-            final JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
-            final String beginDate = scheduleConf.getString("beginDate");
-            if (StringUtils.isBlank(beginDate) || "null".equalsIgnoreCase(beginDate)) {
-                throw new RdosDefineException("生效日期起至时间不能为空");
-            }
-            final String endDate = scheduleConf.getString("endDate");
-            if (StringUtils.isBlank(endDate) || "null".equalsIgnoreCase(endDate)) {
-                throw new RdosDefineException("生效日期结束时间不能为空");
-            }
-        }
-
-        if (task.getVersion() == null) {
-            task.setVersion(0);
-        }
-
-        if (task.getCreateUserId() == null) {
-            task.setCreateUserId(task.getCreateUserId());
-        }
-        task.setGmtCreate(task.getGmtModified());
-        // 增加注释
-        task.setSqlText(this.createAnnotationText(task));
-        task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        task.setTaskParams(getDefaultTaskParam(task.getTenantId(), task.getTaskType()));
-        task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        task.setPeriodType(DEFAULT_SCHEDULE_PERIOD);
-        String scConf = DEFAULT_SCHEDULE_CONF;
-        int period = DEFAULT_SCHEDULE_PERIOD;
-        if (task.getFlowId() != null && task.getFlowId() > 0) {
-            final Task flow = this.developTaskDao.getOne(task.getFlowId());
-            if (flow != null) {
-                scConf = flow.getScheduleConf();
-                final ScheduleCron scheduleCron;
-                try {
-                    scheduleCron = ScheduleFactory.parseFromJson(scConf);
-                } catch (Exception e) {
-                    throw new RdosDefineException(e.getMessage(), e);
-                }
-                period = scheduleCron.getPeriodType();
-            }
-            task.setScheduleConf(scConf);
-        }
-        task.setPeriodType(period);
-        if(Objects.isNull(task.getFlowId())){
-            task.setFlowId(0L);
-        }
-        return true;
     }
 
     /**
