@@ -29,7 +29,7 @@ sidebar_position: 1
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`的调度，
-* 支持众多的任务类型，目前支持 Spark SQL、Flinkx
+* 支持众多的任务类型，目前支持 Spark SQL、Chunjun
 :::tip
 后续将开源：  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
   HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
