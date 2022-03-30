@@ -338,6 +338,67 @@ public enum SourceDTOType {
     },
 
     /**
+     * kafka 0.10
+     */
+    KAFKA_10(DataSourceType.KAFKA_10.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            return buildKafkaSourceDTO(dataJson, confMap);
+        }
+    },
+
+    /**
+     * kafka 0.11
+     */
+    KAFKA_11(DataSourceType.KAFKA_11.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            return buildKafkaSourceDTO(dataJson, confMap);
+        }
+    },
+
+    /**
+     * kafka 1.x
+     */
+    KAFKA(DataSourceType.KAFKA.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            return buildKafkaSourceDTO(dataJson, confMap);
+        }
+    },
+
+
+    /**
+     * kafka 2.x
+     */
+    KAFKA_2X(DataSourceType.KAFKA_2X.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            return buildKafkaSourceDTO(dataJson, confMap);
+        }
+    },
+
+    /**
      * SparkThrift2_1
      */
     SparkThrift2_1(DataSourceType.SparkThrift2_1.getVal()) {
@@ -1137,6 +1198,9 @@ public enum SourceDTOType {
     // ssl 认证文件路径
     public static final String SSL_LOCAL_DIR = "sslLocalDir";
     public static final String URL = "url";
+    public static final String BROKER_LIST = "brokerList";
+    public static final String ADDRESS = "address";
+
     /**
      * 数据源类型的值
      */
@@ -1193,5 +1257,14 @@ public enum SourceDTOType {
     public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
         SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
         return sourceDTOType.getSourceDTO(dataJson, confMap, schema,expandConfig);
+    }
+
+    protected KafkaSourceDTO buildKafkaSourceDTO(JSONObject dataJson, Map<String, Object> kerberosConfig) {
+        return KafkaSourceDTO.builder()
+                .brokerUrls(dataJson.getString(BROKER_LIST))
+                .url(dataJson.getString(ADDRESS))
+                .username(dataJson.getString(JDBC_USERNAME))
+                .password(dataJson.getString(JDBC_PASSWORD))
+                .kerberosConfig(kerberosConfig).build();
     }
 }
