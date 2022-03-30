@@ -75,6 +75,7 @@ function openCreateTab(id?: string) {
 			const params = {
 				...values,
 				computeType: 1,
+				parentId: values.nodePid,
 				version: 0,
 			};
 			api.addOfflineTask(params)

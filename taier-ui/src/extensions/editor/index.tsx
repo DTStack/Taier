@@ -333,19 +333,17 @@ function emitEvent() {
 						okText: '确认',
 						cancelText: '取消',
 						onOk() {
-							const reqParams = {
-								id: currentTabData.id,
-								createModel: currentTabData.createModel,
-							};
-							api.convertDataSyncToScriptMode(reqParams).then((res) => {
-								if (res.code === 1) {
-									message.success('转换成功！');
-									const nextTabData = current.tab!;
-									nextTabData.data.language = 'json';
-									Reflect.deleteProperty(nextTabData, 'renderPane');
-									molecule.editor.updateTab(nextTabData);
-								}
-							});
+							api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
+								(res) => {
+									if (res.code === 1) {
+										message.success('转换成功！');
+										const nextTabData = current.tab!;
+										nextTabData.data.language = 'json';
+										Reflect.deleteProperty(nextTabData, 'renderPane');
+										molecule.editor.updateTab(nextTabData);
+									}
+								},
+							);
 						},
 					});
 				}
