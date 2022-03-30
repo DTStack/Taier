@@ -20,9 +20,8 @@ import {
 } from '@/constant';
 import { filterValueOption, formJsonValidator } from '@/utils';
 import Editor from '@/components/codeEditor';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'rc-field-form';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
 import { API } from '../../api/dataSource';
 import {
 	dataSyncExtralConfigHelp,
@@ -38,7 +37,8 @@ import type {
 	ISourceMapProps,
 	ITargetFormField,
 	ITargetMapProps,
-} from './interface';
+	IDataSourceUsedInSyncProps,
+} from '@/interface';
 import { ALLOW_CREATE_TABLE_IN_SOURCE, ALLOW_CREATE_TABLE_IN_TARGET, noWhiteSpace } from './help';
 
 const FormItem = Form.Item;
@@ -113,21 +113,14 @@ export default function Target({
 	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
 	const [tablePartitionList, setPartitionList] = useState<string[]>([]);
 
-	const getTableList = throttle((sourceId: number, name?: string) => {
-		const target = dataSourceList.find((d) => d.dataInfoId === sourceId);
-		if (!target) return;
-		const { schema, index } = form.getFieldsValue();
-		const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
-		// es 数据源的 schema 取自字段 index
-		const querySchema = ES_DATASOURCE.includes(target.dataTypeCode) ? index : schema;
-		if (!querySchema) return;
+	const getTableList = throttle((sourceId: number, schema?: string, name?: string) => {
 		setFetching(true);
 		setTableListLoading(true);
 		setTableList([]);
 		API.getOfflineTableList({
 			sourceId,
 			isSys: false,
-			schema: querySchema,
+			schema,
 			name,
 			isRead: false,
 		})
@@ -232,7 +225,7 @@ export default function Target({
 		}
 
 		if (changedValue.hasOwnProperty('schema')) {
-			getTableList(values.sourceId!);
+			getTableList(values.sourceId!, changedValue.schema);
 			form.setFieldsValue({ table: undefined });
 		}
 
@@ -244,7 +237,7 @@ export default function Target({
 
 			if (isES5orES6) {
 				// 低版本的 es 需要先拿 indexType 才可以获取 columns
-				getTableList(values.sourceId!);
+				getTableList(values.sourceId!, changedValue.index);
 			} else {
 				// 高版本的 es 没有 indexType 字段，直接获取 columns
 				getTableColumn();
@@ -298,17 +291,17 @@ export default function Target({
 	const handleShowCreateModal = () => {
 		const { schema, table, sourceId } = form.getFieldsValue();
 		const tableName =
-			typeof sourceMap?.type?.table === 'string'
-				? sourceMap?.type?.table
-				: sourceMap?.type?.table && sourceMap?.type?.table[0];
+			typeof sourceMap?.table === 'string'
+				? sourceMap?.table
+				: sourceMap?.table && sourceMap?.table[0];
 		const targetTableName = Array.isArray(table) ? table[0] : table;
 		setLoading(true);
 		API.getCreateTargetTable({
 			originSourceId: sourceMap?.sourceId,
 			tableName,
-			partition: sourceMap?.type?.partition,
+			partition: sourceMap?.partition,
 			targetSourceId: sourceId,
-			originSchema: sourceMap?.type?.schema || null,
+			originSchema: sourceMap?.schema || null,
 			targetSchema: schema || null,
 		})
 			.then((res) => {
@@ -393,7 +386,7 @@ export default function Target({
 
 		// 只有「源表」以及「目标表」都满足情况的条件下才支持生成目标表
 		const oneKeyCreateTable = ALLOW_CREATE_TABLE_IN_TARGET.includes(target.dataTypeCode) &&
-			ALLOW_CREATE_TABLE_IN_SOURCE.includes(sourceMap!.type!.type!) && (
+			ALLOW_CREATE_TABLE_IN_SOURCE.includes(sourceMap!.type!) && (
 				<Button type="link" loading={loading} onClick={handleShowCreateModal}>
 					一键生成目标表
 				</Button>
@@ -421,7 +414,7 @@ export default function Target({
 									optionFilterProp="value"
 									filterOption={false}
 									onSearch={(str) =>
-										getTableList(f.getFieldValue('sourceId'), str)
+										getTableList(f.getFieldValue('sourceId'), undefined, str)
 									}
 									notFoundContent={fetching ? <Spin size="small" /> : null}
 								>
@@ -504,7 +497,7 @@ export default function Target({
 									optionFilterProp="value"
 									filterOption={false}
 									onSearch={(val) =>
-										getTableList(f.getFieldValue('sourceId'), val)
+										getTableList(f.getFieldValue('sourceId'), undefined, val)
 									}
 									notFoundContent={fetching ? <Spin size="small" /> : null}
 								>
@@ -664,7 +657,7 @@ export default function Target({
 									getPopupContainer={(container) => container.parentNode}
 									showSearch
 									onSearch={(val) =>
-										getTableList(f.getFieldValue('sourceid'), val)
+										getTableList(f.getFieldValue('sourceid'), undefined, val)
 									}
 									notFoundContent={fetching ? <Spin size="small" /> : null}
 								>
@@ -822,7 +815,9 @@ export default function Target({
 								getPopupContainer={(container) => container.parentNode}
 								showSearch
 								filterOption={false}
-								onSearch={(str) => getTableList(f.getFieldValue('sourceId'), str)}
+								onSearch={(str) =>
+									getTableList(f.getFieldValue('sourceId'), undefined, str)
+								}
 							>
 								{tableList.map((table) => {
 									return (
@@ -985,26 +980,37 @@ export default function Target({
 		}
 	};
 
+	useEffect(() => {
+		if (targetMap?.sourceId) {
+			// es 数据源的 schema 取自字段 index
+			const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
+			getTableList(
+				targetMap.sourceId,
+				ES_DATASOURCE.includes(targetMap.type!) ? targetMap.index : targetMap.schema,
+			);
+		}
+	}, []);
+
 	const initialValue = useMemo<IFormFieldProps>(() => {
 		return {
 			sourceId: targetMap?.sourceId,
 			extralConfig: targetMap?.extralConfig,
-			table: targetMap?.type?.table,
-			preSql: targetMap?.type?.preSql,
-			postSql: targetMap?.type?.postSql,
-			writeMode: targetMap?.type?.writeMode,
-			schema: targetMap?.type?.schema,
-			partition: targetMap?.type?.partition,
-			path: targetMap?.type?.path,
-			fileName: targetMap?.type?.fileName,
-			fileType: targetMap?.type?.fileType,
-			fieldDelimiter: targetMap?.type?.fieldDelimiter,
-			encoding: targetMap?.type?.encoding,
-			nullMode: targetMap?.type?.nullMode,
-			writeBufferSize: targetMap?.type?.writeBufferSize,
-			index: targetMap?.type?.index,
-			indexType: targetMap?.type?.indexType,
-			bulkAction: targetMap?.type?.bulkAction,
+			table: targetMap?.table,
+			preSql: targetMap?.preSql,
+			postSql: targetMap?.postSql,
+			writeMode: targetMap?.writeMode,
+			schema: targetMap?.schema,
+			partition: targetMap?.partition,
+			path: targetMap?.path,
+			fileName: targetMap?.fileName,
+			fileType: targetMap?.fileType,
+			fieldDelimiter: targetMap?.fieldDelimiter,
+			encoding: targetMap?.encoding,
+			nullMode: targetMap?.nullMode,
+			writeBufferSize: targetMap?.writeBufferSize,
+			index: targetMap?.index,
+			indexType: targetMap?.indexType,
+			bulkAction: targetMap?.bulkAction,
 		};
 	}, []);
 

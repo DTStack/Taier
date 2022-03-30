@@ -1,25 +1,21 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Col, message, Modal, Row, Space, Tooltip } from 'antd';
+import { Button, Col, message, Modal, Row, Space, Spin, Tooltip } from 'antd';
 import { select, selectAll, mouse } from 'd3-selection';
 import { DATA_SOURCE_ENUM, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
 import Resize from '../resize';
 import { MinusOutlined, EditOutlined } from '@ant-design/icons';
-import type {
-	IDataColumnsProps,
-	IKeyMapProps,
-	ISourceMapProps,
-	ITargetMapProps,
-} from './interface';
+import type { IDataColumnsProps, ISourceMapProps, ITargetMapProps } from '@/interface';
 import { isNumber, isObject, isUndefined } from 'lodash';
 import Api from '@/api';
 import ScrollText from '../scrollText';
 import { isHdfsType } from '@/utils';
 import ConstModal from './modals/constModal';
-import './keymap.scss';
 import KeyModal from './modals/keyModal';
 import BatchModal from './modals/batchModal';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import { API } from '@/api/dataSource';
+import './keymap.scss';
 
 export const OPERATOR_TYPE = {
 	ADD: 'add',
@@ -29,6 +25,10 @@ export const OPERATOR_TYPE = {
 	REPLACE: 'replace',
 } as const;
 
+export interface IKeyMapProps {
+	source: IDataColumnsProps[];
+	target: IDataColumnsProps[];
+}
 interface IKeyMapComponentProps {
 	/**
 	 * 第一步所填写的信息
@@ -38,10 +38,6 @@ interface IKeyMapComponentProps {
 	 * 第二步所填写的信息
 	 */
 	targetMap: ITargetMapProps;
-	/**
-	 * 用于编辑状态的回填，当前已连接的字段
-	 */
-	lines?: IKeyMapProps;
 	/**
 	 * 是否只读，用于预览数据
 	 */
@@ -129,11 +125,19 @@ export default function KeyMap({
 	targetMap,
 	isNativeHive = false,
 	readonly,
-	lines: propLines,
 	onColsChanged,
 	onNext,
 	onLinesChanged,
 }: IKeyMapComponentProps) {
+	const [loading, setLoading] = useState(false);
+	// 前两步选择的表获取字段
+	const [tableColumns, setTableCols] = useState<{
+		source: IDataColumnsProps[];
+		target: IDataColumnsProps[];
+	}>({
+		source: [],
+		target: [],
+	});
 	const [canvasInfo, setCanvasInfo] = useState({
 		h: 40, // 字段一行高度
 		w: 230, // 字段的宽度
@@ -141,7 +145,10 @@ export default function KeyMap({
 		padding: 10, // 绘制拖拽点左右边距
 	});
 	// 连线数据
-	const [lines, setLines] = useState<IKeyMapProps>(propLines || { source: [], target: [] });
+	const [lines, setLines] = useState<IKeyMapProps>({
+		source: sourceMap.column || [],
+		target: targetMap.column || [],
+	});
 	const [btnTypes, setBtnTypes] = useState({ rowMap: false, nameMap: false });
 	const [visibleConst, setConstVisible] = useState(false);
 	const [keyModal, setKeyModal] = useState<{
@@ -183,7 +190,7 @@ export default function KeyMap({
 		if (sourceSrcType === DATA_SOURCE_ENUM.HBASE) {
 			Api.getHBaseColumnFamily({
 				sourceId: sourceMap.sourceId,
-				tableName: sourceMap.type?.table,
+				tableName: sourceMap.table,
 			}).then((res) => {
 				if (res.code === 1) {
 					setFamilies((f) => ({ ...f, source: res.data || [] }));
@@ -194,7 +201,7 @@ export default function KeyMap({
 		if (targetSrcType === DATA_SOURCE_ENUM.HBASE) {
 			Api.getHBaseColumnFamily({
 				sourceId: targetMap.sourceId,
-				tableName: targetMap.type?.table,
+				tableName: targetMap?.table,
 			}).then((res) => {
 				if (res.code === 1) {
 					setFamilies((f) => ({ ...f, target: res.data || [] }));
@@ -572,14 +579,14 @@ export default function KeyMap({
 	};
 
 	const checkHBaseRowKey = () => {
-		const { type } = targetMap;
+		const { rowkey } = targetMap;
 		const { source } = lines;
 
-		if (type && type.rowkey) {
+		if (rowkey) {
 			const arr: any = [];
 			if (sourceSrcType === DATA_SOURCE_ENUM.HBASE) {
 				const regx = /([\w]+:[\w]+)/g;
-				const matchRes = type.rowkey.match(regx) || '';
+				const matchRes = rowkey.match(regx) || '';
 				for (let i = 0; i < matchRes.length; i += 1) {
 					const val = matchRes[i].split(':');
 					if (val && val.length === 2) {
@@ -597,7 +604,7 @@ export default function KeyMap({
 				const regx = /\$\(([\w]+)\)/g;
 				let temp: any;
 				// eslint-disable-next-line no-cond-assign
-				while ((temp = regx.exec(type.rowkey)) !== null) {
+				while ((temp = regx.exec(rowkey)) !== null) {
 					arr.push(temp[1]);
 				}
 				// 验证字段
@@ -644,7 +651,12 @@ export default function KeyMap({
 	};
 
 	const dragSvg = () => {
-		renderDags($canvas.current, sourceMap.column || [], targetMap.column || [], canvasInfo);
+		renderDags(
+			$canvas.current,
+			tableColumns?.source || [],
+			tableColumns?.target || [],
+			canvasInfo,
+		);
 		renderLines($canvas.current, lines, canvasInfo);
 		bindEvents(
 			$canvas.current,
@@ -723,7 +735,7 @@ export default function KeyMap({
 							<div className="cell" title={typeValue}>
 								{type}
 							</div>
-							{sourceMap.type?.fileType !== 'orc' ? (
+							{sourceMap.fileType !== 'orc' ? (
 								<div className="cell">
 									{col ? cellOperation(removeOption, editOption) : '操作'}
 								</div>
@@ -892,7 +904,7 @@ export default function KeyMap({
 				case DATA_SOURCE_ENUM.HDFS:
 				case DATA_SOURCE_ENUM.S3: {
 					footerContent =
-						sourceMap.type?.fileType !== 'orc' ? (
+						sourceMap.fileType !== 'orc' ? (
 							<span>
 								<span className="col-plugin" onClick={() => initAddKeyRow(true)}>
 									+添加字段
@@ -1324,6 +1336,66 @@ export default function KeyMap({
 		);
 	};
 
+	const getTableCols = () => {
+		// ES 数据源：
+		// - tableName 字段取自 indexType,
+		// - schema 字段取自 index
+		const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
+		const sourceSchema = ES_DATASOURCE.includes(sourceMap.type!)
+			? sourceMap.index
+			: sourceMap.schema;
+		const sourceTable = ES_DATASOURCE.includes(sourceMap.type!)
+			? sourceMap.indexType
+			: sourceMap.table;
+		// Hive，Impala 作为结果表时，需要获取分区字段
+		const sourcePart =
+			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
+			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE ||
+			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
+			+sourceMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+
+		const targetSchema = ES_DATASOURCE.includes(targetMap.type!)
+			? targetMap.index
+			: targetMap.schema;
+		const targetTable = ES_DATASOURCE.includes(targetMap.type!)
+			? targetMap.indexType
+			: targetMap.table;
+
+		// Hive 作为结果表时，需要获取分区字段
+		const targetPart =
+			+targetMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
+			+targetMap.type! === DATA_SOURCE_ENUM.HIVE ||
+			+targetMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
+			+targetMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+		setLoading(true);
+		Promise.all([
+			API.getOfflineTableColumn({
+				sourceId: sourceMap.sourceId,
+				schema: sourceSchema,
+				tableName: Array.isArray(sourceTable) ? sourceTable[0] : sourceTable,
+				isIncludePart: sourcePart,
+			}),
+			API.getOfflineTableColumn({
+				sourceId: targetMap.sourceId,
+				schema: targetSchema,
+				tableName: targetTable,
+				isIncludePart: targetPart,
+			}),
+		])
+			.then((results) => {
+				if (results.every((res) => res.code === 1)) {
+					setTableCols({ source: results[0].data, target: results[1].data });
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	};
+
+	useEffect(() => {
+		getTableCols();
+	}, []);
+
 	useEffect(() => {
 		// 设置step容器大小
 		setCanvasInfo((f) => ({ ...f, W: getCanvasW() }));
@@ -1333,17 +1405,17 @@ export default function KeyMap({
 	useEffect(() => {
 		select($canvas.current).selectAll('.dl, .dr, .lines').remove();
 		dragSvg();
-	}, [lines, canvasInfo, sourceMap, targetMap]);
+	}, [lines, canvasInfo, tableColumns]);
 
 	useEffect(() => {
 		onLinesChanged?.(lines);
 	}, [lines]);
 
-	const sourceCol = useMemo(() => sourceMap.column || [], [sourceMap]);
-	const targetCol = useMemo(() => targetMap.column || [], [targetMap]);
+	const sourceCol = useMemo(() => tableColumns?.source || [], [tableColumns]);
+	const targetCol = useMemo(() => tableColumns?.target || [], [tableColumns]);
 
-	const sourceSrcType = useMemo(() => sourceMap.type?.type, [sourceMap]);
-	const targetSrcType = useMemo(() => targetMap.type?.type, [targetMap]);
+	const sourceSrcType = useMemo(() => sourceMap?.type, [sourceMap]);
+	const targetSrcType = useMemo(() => targetMap?.type, [targetMap]);
 
 	const H = useMemo(
 		() => h * (Math.max(targetCol.length, sourceCol.length) + 1),
@@ -1425,92 +1497,96 @@ export default function KeyMap({
 						</Col>
 					</Row>
 				) : null} */}
-				<Row>
-					<Col span={readonly ? 24 : 21} style={{ textAlign: 'center' }}>
-						<div
-							className="m-keymapbox"
-							style={{
-								width: W,
-								minHeight: H + 20,
-								display: 'inline-block',
-							}}
-						>
-							{renderSource()}
-							{renderTarget()}
-							<svg
-								ref={$canvas}
-								width={W - 30 > w * 2 ? W - w * 2 + 30 : 0}
-								height={H}
-								className="pa m-keymapcanvas"
-								style={{ left: w, top: padding }}
+				<Spin spinning={loading}>
+					<Row>
+						<Col span={readonly ? 24 : 21} style={{ textAlign: 'center' }}>
+							<div
+								className="m-keymapbox"
+								style={{
+									width: W,
+									minHeight: H + 20,
+									display: 'inline-block',
+								}}
 							>
-								<defs>
-									<marker
-										id="arrow"
-										markerUnits="strokeWidth"
-										markerWidth="12"
-										markerHeight="12"
-										viewBox="0 0 12 12"
-										refX="6"
-										refY="6"
-										orient="auto"
-									>
-										<path
-											d="M2,3 L9,6 L2,9 L2,6 L2,3"
-											style={{ fill: '#2491F7' }}
+								{renderSource()}
+								{renderTarget()}
+								<svg
+									ref={$canvas}
+									width={W - 30 > w * 2 ? W - w * 2 + 30 : 0}
+									height={H}
+									className="pa m-keymapcanvas"
+									style={{ left: w, top: padding }}
+								>
+									<defs>
+										<marker
+											id="arrow"
+											markerUnits="strokeWidth"
+											markerWidth="12"
+											markerHeight="12"
+											viewBox="0 0 12 12"
+											refX="6"
+											refY="6"
+											orient="auto"
+										>
+											<path
+												d="M2,3 L9,6 L2,9 L2,6 L2,3"
+												style={{ fill: '#2491F7' }}
+											/>
+										</marker>
+									</defs>
+									<g>
+										<line
+											ref={$activeLine}
+											x1="-10"
+											y1="-10"
+											x2="-10"
+											y2="-10"
+											stroke="#2491F7"
+											strokeWidth="2"
+											markerEnd="url(#arrow)"
 										/>
-									</marker>
-								</defs>
-								<g>
-									<line
-										ref={$activeLine}
-										x1="-10"
-										y1="-10"
-										x2="-10"
-										y2="-10"
-										stroke="#2491F7"
-										strokeWidth="2"
-										markerEnd="url(#arrow)"
-									/>
-								</g>
-							</svg>
-						</div>
-					</Col>
-					<Col span={3}>
-						{!readonly ? (
-							<div className="m-buttons">
-								<Button
-									type={btnTypes.rowMap ? 'primary' : 'default'}
-									onClick={handleRowMapClick}
-								>
-									{btnTypes.rowMap ? '取消同行映射' : '同行映射'}
-								</Button>
-								<br />
-								<Button
-									disabled={isHdfsType(sourceSrcType)}
-									type={btnTypes.nameMap ? 'primary' : 'default'}
-									onClick={handleNameMapClick}
-								>
-									{btnTypes.nameMap ? '取消同名映射' : '同名映射'}
-								</Button>
-								<br />
-								{isHdfsType(targetSrcType) ? (
-									<>
-										<Button onClick={handleCopySourceCols}>拷贝源字段</Button>
-										<br />
-									</>
-								) : (
-									''
-								)}
-								{isHdfsType(sourceSrcType) ? (
-									<Button onClick={handleCopyTargetCols}>拷贝目标字段</Button>
-								) : (
-									''
-								)}
+									</g>
+								</svg>
 							</div>
-						) : null}
-					</Col>
-				</Row>
+						</Col>
+						<Col span={3}>
+							{!readonly ? (
+								<div className="m-buttons">
+									<Button
+										type={btnTypes.rowMap ? 'primary' : 'default'}
+										onClick={handleRowMapClick}
+									>
+										{btnTypes.rowMap ? '取消同行映射' : '同行映射'}
+									</Button>
+									<br />
+									<Button
+										disabled={isHdfsType(sourceSrcType)}
+										type={btnTypes.nameMap ? 'primary' : 'default'}
+										onClick={handleNameMapClick}
+									>
+										{btnTypes.nameMap ? '取消同名映射' : '同名映射'}
+									</Button>
+									<br />
+									{isHdfsType(targetSrcType) ? (
+										<>
+											<Button onClick={handleCopySourceCols}>
+												拷贝源字段
+											</Button>
+											<br />
+										</>
+									) : (
+										''
+									)}
+									{isHdfsType(sourceSrcType) ? (
+										<Button onClick={handleCopyTargetCols}>拷贝目标字段</Button>
+									) : (
+										''
+									)}
+								</div>
+							) : null}
+						</Col>
+					</Row>
+				</Spin>
 				{renderKeyModal()}
 				{renderBatchModal()}
 				<ConstModal

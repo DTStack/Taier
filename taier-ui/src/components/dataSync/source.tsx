@@ -25,7 +25,7 @@ import {
 } from 'antd';
 import type { FormInstance } from 'rc-field-form';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	dataFilterDoc,
 	dataSyncExtralConfigHelp,
@@ -40,7 +40,7 @@ import {
 } from '../helpDoc/docs';
 import TableCell from '../tableCell';
 import type { ColumnsType } from 'antd/lib/table';
-import type { ISourceFormField, IDataColumnsProps, ISourceMapProps } from './interface';
+import type { ISourceFormField, IDataColumnsProps, ISourceMapProps } from '@/interface';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -137,9 +137,12 @@ export default function Source({
 			});
 	};
 
-	// 获取切分键
-	const getCopate = () => {
-		const { table, sourceId, schema } = form.getFieldsValue();
+	/**
+	 * 获取切分键
+	 * @param specificParams 初始化阶段，form 表单未赋值导致无法通过 form 表单复制，则通过该值获取参数
+	 */
+	const getCopate = (specificParams?: ISourceFormField) => {
+		const { table, sourceId, schema } = specificParams || form.getFieldsValue();
 		const tableName = Array.isArray(table) ? table[0] : table;
 		API.getOfflineColumnForSyncopate({
 			sourceId,
@@ -200,7 +203,13 @@ export default function Source({
 				+sourceType === DATA_SOURCE_ENUM.HIVE3X ||
 				+sourceType === DATA_SOURCE_ENUM.SPARKTHRIFT;
 
-			// 获取表字段为第三步做准备
+			/**
+			 * @deprecated remove in next version
+			 * The table columns request not longer made there, it should make where it need to be made
+			 * Remove it before ensuring there will be no affected to dataSync task
+			 */
+			setLoading(false);
+			return;
 			API.getOfflineTableColumn({
 				sourceId,
 				schema: querySchema,
@@ -1083,6 +1092,18 @@ export default function Source({
 		}
 	};
 
+	useEffect(() => {
+		if (sourceMap?.sourceId) {
+			getTableList(sourceMap.sourceId, sourceMap.schema);
+
+			const sourceType = sourceMap.type;
+			// 获取切分键
+			if (isRDB(sourceType) || sourceType === DATA_SOURCE_ENUM.POSTGRESQL) {
+				getCopate(sourceMap);
+			}
+		}
+	}, []);
+
 	const initialValues = useMemo<IFormFieldProps | undefined>(() => {
 		if (sourceMap) {
 			// 非增量模式
@@ -1091,23 +1112,23 @@ export default function Source({
 				!isIncrementMode;
 			return {
 				sourceId: sourceMap.sourceId,
-				table: supportSubLibrary ? sourceMap.sourceList?.[0].tables : sourceMap.type?.table,
-				where: sourceMap.type?.where,
-				splitPK: sourceMap.type?.splitPK,
-				schema: sourceMap.schema || sourceMap.type?.schema,
-				partition: sourceMap.type?.partition,
-				path: sourceMap.type?.path,
-				fileType: sourceMap.type?.fileType,
-				fieldDelimiter: sourceMap.type?.fieldDelimiter,
-				encoding: sourceMap.type?.encoding,
+				table: supportSubLibrary ? sourceMap.sourceList?.[0].tables : sourceMap.table,
+				where: sourceMap.where,
+				splitPK: sourceMap.splitPK,
+				schema: sourceMap.schema,
+				partition: sourceMap.partition,
+				path: sourceMap.path,
+				fileType: sourceMap.fileType,
+				fieldDelimiter: sourceMap.fieldDelimiter,
+				encoding: sourceMap.encoding,
 				extralConfig: sourceMap.extralConfig,
-				startRowkey: sourceMap.type?.startRowkey,
-				endRowkey: sourceMap.type?.endRowkey,
-				isBinaryRowkey: sourceMap.type?.isBinaryRowkey,
-				scanCacheSize: sourceMap.type?.scanCacheSize,
-				index: sourceMap.type?.index,
-				indexType: sourceMap.type?.indexType,
-				query: sourceMap.type?.query,
+				startRowkey: sourceMap.startRowkey,
+				endRowkey: sourceMap.endRowkey,
+				isBinaryRowkey: sourceMap.isBinaryRowkey,
+				scanCacheSize: sourceMap.scanCacheSize,
+				index: sourceMap.index,
+				indexType: sourceMap.indexType,
+				query: sourceMap.query,
 			};
 		}
 
