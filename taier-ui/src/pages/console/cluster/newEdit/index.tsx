@@ -598,6 +598,7 @@ export default forwardRef((_, ref) => {
 						comp={comp}
 						view={isViewMode(mode)}
 						saveCompsData={saveCompsData}
+						isCheckBoxs={isCheckBoxs}
 						versionData={versionData}
 						testStatus={testStatus[comp.componentTypeCode]?.multiVersion ?? []}
 						clusterInfo={clusterInfo}
