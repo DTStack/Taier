@@ -1073,3 +1073,13 @@ export const rdbmsDaType = {
 	CDC: 3,
 	LOGMINER: 4,
 };
+
+export enum TASK_LANGUAGE {
+	SPARKSQL = 'sparksql',
+	HIVESQL = 'hivesql',
+	FLINKSQL = 'flinksql',
+	MYSQL = 'mysql',
+	PLSQL = 'plsql',
+	SQL = 'sql',
+	JSON = 'json',
+}

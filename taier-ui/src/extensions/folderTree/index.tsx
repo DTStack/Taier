@@ -49,6 +49,7 @@ import {
 	DATA_SYNC_TYPE,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
 
 /**
  * Update task tree node
@@ -291,7 +292,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 							...data,
 							// set sqlText into value so that molecule-editor could read from this
 							value: data.sqlText,
-							language: 'sql',
+							language: mappingTaskTypeToLanguage(data.taskType)
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
