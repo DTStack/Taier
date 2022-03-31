@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskMapper">
 
     <sql id="select_content_fragment">
       id,tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
@@ -257,7 +257,7 @@
 
     <delete id="deleteById">
         UPDATE develop_task SET is_deleted = 1, gmt_modified = now(), modify_user_id = #{modifyUserId}
-        WHERE id = #{id} AND is_deleted = 0 AND tenant_id = #{tenantId}
+        WHERE id = #{id} AND is_deleted = 0
     </delete>
 
     <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.Task">
@@ -311,23 +311,6 @@
          and tenant_id = #{tenantId}
         and is_deleted=0
     </select>
-
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.Task" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO develop_task
-          (tenant_id,node_pid,name,task_type,compute_type,sql_text,task_params,schedule_conf,period_type,
-          schedule_status,submit_status,gmt_create,gmt_modified,modify_user_id,create_user_id,version,is_deleted,task_desc,main_class,exe_args,flow_id,component_version,source_str,target_str,setting_str,create_model)
-        VALUES
-          (#{tenantId},#{nodePid},#{name},#{taskType},#{computeType},#{sqlText},#{taskParams},#{scheduleConf},#{periodType},
-          #{scheduleStatus},#{submitStatus}, now(), now(),#{createUserId},#{createUserId},#{version}, 0,#{taskDesc},#{mainClass},#{exeArgs},#{flowId},#{componentVersion},#{sourceStr},#{targetStr},#{settingStr},#{createModel})
-    </insert>
-
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.Task">
-        UPDATE
-        develop_task
-        <include refid="update_fragment"/>
-        WHERE
-        id = #{id} AND is_deleted = 0
-    </update>
     
     <update id="updateSubmitStatus">
         UPDATE develop_task set submit_status=#{submitStatus},gmt_modified=#{time} where id=#{id} and tenant_id=#{tenantId}

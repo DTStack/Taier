@@ -24,6 +24,15 @@ public class JdbcInfo {
     private Integer checkTimeout;
     private JSONObject kerberosConfig;
     private String version;
+    private String versionName;
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setVersionName(String versionName) {
+        this.versionName = versionName;
+    }
 
     public String getVersion() {
         return version;
