@@ -19,7 +19,11 @@
 package com.dtstack.taier.dao.domain;
 
 
-public class BatchCatalogue extends TenantEntity {
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+@TableName("develop_catalogue")
+public class BatchCatalogue  extends TenantEntity{
 
     /**
      * 文件夹名
@@ -45,8 +49,8 @@ public class BatchCatalogue extends TenantEntity {
 
     private Integer catalogueType;
 
+    @TableField(exist=false)
     BatchCatalogue parentCatalogue;
-
 
     public String getNodeName() {
         return nodeName;
@@ -103,4 +107,5 @@ public class BatchCatalogue extends TenantEntity {
     public void setParentCatalogue(BatchCatalogue parentCatalogue) {
         this.parentCatalogue = parentCatalogue;
     }
+
 }

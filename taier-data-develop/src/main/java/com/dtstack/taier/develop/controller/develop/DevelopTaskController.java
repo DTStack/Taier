@@ -35,6 +35,7 @@ import com.dtstack.taier.develop.vo.develop.query.BatchTaskDeleteTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetByNameVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetChildTasksVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetComponentVersionVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetSupportJobTypesVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetTaskVersionRecordVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskPublishTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
@@ -43,6 +44,7 @@ import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO
 import com.dtstack.taier.develop.vo.develop.result.BatchGetChildTasksResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchSysParameterResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetTaskByIdResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskPublishTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskResultVO;
@@ -260,6 +262,18 @@ public class DevelopTaskController {
             protected Void process() {
                 batchTaskService.frozenTask(vo.getTaskId(), vo.getScheduleStatus(), vo.getUserId());
                 return null;
+            }
+        }.execute();
+    }
+
+
+    @PostMapping(value = "getSupportJobTypes")
+    @ApiOperation("根据支持的引擎类型返回")
+    public R<List<BatchTaskGetSupportJobTypesResultVO>> getSupportJobTypes(@RequestBody(required = false) BatchTaskGetSupportJobTypesVO detailVO) {
+        return new APITemplate<List<BatchTaskGetSupportJobTypesResultVO>>() {
+            @Override
+            protected List<BatchTaskGetSupportJobTypesResultVO>  process() {
+                return batchTaskService.getSupportJobTypes(detailVO.getTenantId());
             }
         }.execute();
     }
