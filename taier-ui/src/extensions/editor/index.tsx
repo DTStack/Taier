@@ -31,6 +31,7 @@ import {
 	DRAWER_MENU_ENUM,
 	TASK_SWAP,
 	TASK_IMPORT_TEMPALTE,
+	TASK_LANGUAGE,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -38,7 +39,7 @@ import ReactDOM from 'react-dom';
 import Result from '@/components/task/result';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { filterSql } from '@/utils';
+import { createSQLProposals, filterSql } from '@/utils';
 import api from '@/api';
 import { searchById } from '@dtinsight/molecule/esm/common/utils';
 import { TASK_TYPE_ENUM } from '@/constant';
@@ -49,6 +50,7 @@ import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import { saveTask } from '@/components/dataSync/help';
 import ImportTemplate from '@/components/task/importTemplate';
+import { languages } from '@dtinsight/molecule/esm/monaco';
 
 function initActions() {
 	const { builtInEditorInitialActions } = molecule.builtin.getModules();
@@ -402,6 +404,26 @@ const updateTaskVariables = debounce((tab) => {
 	});
 }, 300);
 
+// 注册自动补全
+function registerCompletion() {
+	const sqlProvider: languages.CompletionItemProvider = {
+		provideCompletionItems: function (model, position) {
+			const word = model.getWordUntilPosition(position);
+			const range = {
+				startLineNumber: position.lineNumber,
+				endLineNumber: position.lineNumber,
+				startColumn: word.startColumn,
+				endColumn: word.endColumn,
+			};
+			return {
+				suggestions: createSQLProposals(range),
+			};
+		},
+	};
+	languages.registerCompletionItemProvider(TASK_LANGUAGE.SPARKSQL, sqlProvider);
+	languages.registerCompletionItemProvider(TASK_LANGUAGE.HIVESQL, sqlProvider);
+}
+
 export default class EditorExtension implements IExtension {
 	id: UniqueId = 'editor';
 	name: string = 'editor';
@@ -411,6 +433,7 @@ export default class EditorExtension implements IExtension {
 	activate() {
 		initActions();
 		emitEvent();
+		registerCompletion();
 
 		molecule.editor.onSelectTab((tabId, groupId) => {
 			const { current } = molecule.editor.getState();
