@@ -47,5 +47,7 @@ public interface ComponentMapper extends BaseMapper<Component> {
     Component getMetadataComponent(@Param("clusterId") Long clusterId);
 
     int updateDefault(@Param("clusterId")Long clusterId, @Param("componentType")Integer componentType, @Param("isDefault") boolean isDefault);
+
+    List<Component> listByTenantId(@Param("tenantId") Long tenantId);
 }
 
