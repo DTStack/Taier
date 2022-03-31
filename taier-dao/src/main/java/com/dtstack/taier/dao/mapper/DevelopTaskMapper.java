@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskDTO;
@@ -33,9 +34,7 @@ import java.util.List;
  * author: toutian
  * create: 2017/5/4
  */
-public interface DevelopTaskDao {
-
-    Task getOne(@Param("id") Long id);
+public interface DevelopTaskMapper extends BaseMapper<Task> {
 
     Task getOneWithDeleted(@Param("id") Long id);
 
@@ -49,7 +48,7 @@ public interface DevelopTaskDao {
 
     List<Task> listByNameFuzzy(@Param("tenantId") Long tenantId, @Param("name") String name);
 
-    Integer deleteById(@Param("id") Long id, @Param("gmtModified") Timestamp timestamp, @Param("tenantId") Long tenantId, @Param("modifyUserId") Long userId);
+    Integer deleteById(@Param("id") Long id, @Param("modifyUserId") Long userId);
 
     List<Task> listByTenantId(@Param("tenantId") Long tenantId);
 
@@ -63,9 +62,7 @@ public interface DevelopTaskDao {
 
     List<Task> getByNameList(@Param("nameList") List<String> nameList, @Param("tenantId") Long tenantId);
 
-    Integer insert(Task task);
-
-    Integer update(Task Task);
+    //Integer update(Task Task);
 
     Integer updateSubmitStatus(@Param("tenantId") Long tenantId, @Param("id") Long id, @Param("submitStatus") Integer submitStatus, @Param("time") Timestamp time);
     /**

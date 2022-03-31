@@ -31,6 +31,7 @@ public class ComponentTypeToEScheduleJobMapping {
 
     static {
         MAPPING_MAP.put(EComponentType.SPARK_THRIFT, EScheduleJobType.SPARK_SQL);
+        MAPPING_MAP.put(EComponentType.HIVE_SERVER, EScheduleJobType.HIVE_SQL);
     }
 
     /**
