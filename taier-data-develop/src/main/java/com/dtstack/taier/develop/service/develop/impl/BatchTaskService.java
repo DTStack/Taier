@@ -543,9 +543,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
     @Transactional
     public TaskCheckResultVO publishTask(Long id, Long userId, String publishDesc, String componentVersion) {
-        if (StringUtils.isBlank(publishDesc)) {
-            throw new RdosDefineException("(提交描述不能为空)", ErrorCode.INVALID_PARAMETERS);
-        }
         Task task = getOne(id);
         if (StringUtils.isNotBlank(componentVersion) && !StringUtils.equals(componentVersion, task.getComponentVersion())) {
             throw new RdosDefineException("flink版本更新，请重新确认并保存后再提交");
@@ -588,11 +585,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId,scheduleTasks);
-            SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
-            savaTaskDTO.setScheduleTaskShade(scheduleTasks);
-            this.taskService.saveTask(savaTaskDTO);
+
         } catch (Exception e) {
-            LOGGER.error("send task error {} ", task.getId(), e);
+            LOGGER.error("send task error {} ", task.getId(), e.getMessage());
             throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
         }
         LOGGER.info("待发布任务参数提交完毕");
@@ -621,8 +616,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             //todo
 //            actionServiceClient.addOrUpdateJob(paramTaskAction);
         }
-        //todo
-//        this.scheduleTaskShadeService.info(taskId, AppType.DATASYNC.getType(), extroInfo);
+        SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
+        scheduleTasks.setExtraInfo(extroInfo);
+        savaTaskDTO.setScheduleTaskShade(scheduleTasks);
+        //todo 暂不处理依赖
+        savaTaskDTO.setParentTaskIdList(new ArrayList<>());
+        this.taskService.saveTask(savaTaskDTO);
     }
 
 
@@ -782,6 +781,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVersion.setScheduleConf(task.getScheduleConf());
         taskVersion.setPeriodType(task.getPeriodType());
         taskVersion.setScheduleStatus(task.getScheduleStatus());
+        taskVersion.setTenantId(task.getTenantId());
+        // todo 添加依赖
+        taskVersion.setDependencyTaskIds(StringUtils.EMPTY);
         taskVersionService.insert(taskVersion);
         return taskVersion;
     }
