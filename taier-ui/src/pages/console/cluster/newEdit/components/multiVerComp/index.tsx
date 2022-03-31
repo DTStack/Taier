@@ -54,6 +54,7 @@ interface IProps {
 	clusterInfo: IClusterInfo;
 	testStatus: ITestStatusProps[];
 	saveComp: ISaveComp;
+	isCheckBoxs: boolean;
 	handleConfirm: IHandleConfirm;
 	testConnects: ITestConnects;
 	getLoadTemplate: (key?: string | number, params?: IGetLoadTemplateParams) => void;
@@ -68,6 +69,7 @@ export default function MultiVersionComp({
 	saveCompsData,
 	versionData,
 	clusterInfo,
+	isCheckBoxs,
 	testStatus,
 	saveComp,
 	getLoadTemplate,
@@ -265,6 +267,7 @@ export default function MultiVersionComp({
 								comp={vcomp!}
 								view={view}
 								isDefault={isDefault}
+								isCheckBoxs={isCheckBoxs}
 								isMulitple={true}
 								saveCompsData={saveCompsData}
 								versionData={versionData}
