@@ -961,8 +961,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
+        taskResourceParam.setModifyUserId(taskResourceParam.getUserId());
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())){
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())
+                || EScheduleJobType.HIVE_SQL.getVal().equals(taskVO.getTaskType())) {
             return (TaskVO) updateTask(taskVO, true);
         }
         return addOrUpdateSyncTask(taskResourceParam);
@@ -988,7 +990,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         // 判断断点续传
         addParam(taskResourceParam);
-        taskVO.setModifyUserId(taskResourceParam.getUserId());
         taskVO = (TaskVO) updateTask(taskVO, true);
         return taskVO;
     }
@@ -1009,7 +1010,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         Task task = developTaskMapper.getByName(taskVO.getName(), taskVO.getTenantId());
 
-        if (taskVO.getId() > 0) {//update
+        if (taskVO.getId() != null && taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
@@ -1263,7 +1264,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      **/
     private void checkFillPassword(final TaskResourceParam param) {
         // 单独对同步任务中密码进行补全处理 将未变更的 ****** 填充为原密码信息 --2019/10/25 茂茂--
-        if (param.getId() > 0 && EScheduleJobType.SYNC.getVal().equals(param.getTaskType())) {
+        if (param.getId() != null && param.getId() > 0 && EScheduleJobType.SYNC.getVal().equals(param.getTaskType())) {
             final String context = param.getSqlText();
             if (null == context) {
                 return;
