@@ -51,6 +51,7 @@ public class ConfigConstant {
 
 
     public static final String VERSION = "version";
+    public static final String VERSION_NAME = "versionName";
     public static final String IS_METADATA = "metadata";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 

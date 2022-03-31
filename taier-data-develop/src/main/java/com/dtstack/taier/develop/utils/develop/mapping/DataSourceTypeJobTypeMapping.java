@@ -37,6 +37,9 @@ public class DataSourceTypeJobTypeMapping {
 
     static {
         mappingMap.put(DataSourceType.SparkThrift2_1.getVal(), EScheduleJobType.SPARK_SQL);
+        mappingMap.put(DataSourceType.HIVE.getVal(), EScheduleJobType.HIVE_SQL);
+        mappingMap.put(DataSourceType.HIVE1X.getVal(), EScheduleJobType.HIVE_SQL);
+        mappingMap.put(DataSourceType.HIVE3X.getVal(), EScheduleJobType.HIVE_SQL);
     }
 
     /**
