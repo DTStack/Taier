@@ -168,7 +168,7 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
     private Integer appType;
 
     @ApiModelProperty(value = "ID", hidden = true)
-    private Long id = 0L;
+    private Long id;
     
     @ApiModelProperty(value = "创建时间", hidden = true)
     private Timestamp gmtCreate;
