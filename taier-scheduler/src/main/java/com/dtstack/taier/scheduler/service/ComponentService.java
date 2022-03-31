@@ -35,6 +35,7 @@ import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -301,5 +302,9 @@ public class ComponentService {
             return "hdfs2";
         }
         return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
+    }
+
+    public List<Component> listComponents(Long tenantId) {
+        return componentMapper.listByTenantId(tenantId);
     }
 }

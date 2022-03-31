@@ -372,6 +372,8 @@ public enum Engine2DTOService {
         JdbcInfo jdbcInfo = null;
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
             jdbcInfo = getSparkThriftByClusterId(clusterId);
+        }else if ((EComponentType.HIVE_SERVER.equals(eComponentType))){
+            jdbcInfo = getHiveServerByClusterId(clusterId);
         }
         if (jdbcInfo == null) {
             throw new DtCenterDefException("can't get jdbc conf from console");
@@ -494,7 +496,9 @@ public enum Engine2DTOService {
     public static DataSourceType componentTypeToDataSourceType(EComponentType eComponentType, String version) {
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
             return DataSourceType.SparkThrift2_1;
-        } else {
+        } else if(EComponentType.HIVE_SERVER.equals(eComponentType)){
+            return DataSourceType.HIVE;
+        }else {
             throw new RdosDefineException("eComponentType not transition dataSourceType");
         }
     }
@@ -594,6 +598,17 @@ public enum Engine2DTOService {
      */
     public static JdbcInfo getSparkThriftByClusterId(Long clusterId) {
         JdbcInfo data = getPluginInfoByClusterId(clusterId, EComponentType.SPARK_THRIFT);
+        return checkKerberosWithPeriodByClusterId(clusterId, data);
+    }
+
+    /**
+     * 获取 hiveServer 信息，并填充 Kerberos 文件之类的操作
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    public static JdbcInfo getHiveServerByClusterId(Long clusterId) {
+        JdbcInfo data = getPluginInfoByClusterId(clusterId, EComponentType.HIVE_SERVER);
         return checkKerberosWithPeriodByClusterId(clusterId, data);
     }
 
