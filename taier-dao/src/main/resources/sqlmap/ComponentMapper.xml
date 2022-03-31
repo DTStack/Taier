@@ -160,4 +160,14 @@
         </if>
     </update>
 
+    <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.Component">
+        select
+        cc.id,cc.component_name,cc.component_type_code
+        from console_component cc
+        INNER JOIN console_cluster_tenant cct
+        on cc.cluster_id = cct.cluster_id
+        and cct.tenant_id =  #{tenantId}
+        where cc.is_deleted = 0
+    </select>
+
 </mapper>
