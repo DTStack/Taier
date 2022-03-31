@@ -31,6 +31,7 @@ import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
+import { languages } from '@dtinsight/molecule/esm/monaco';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -730,4 +731,87 @@ export function prettierJSONstring(str: string) {
 	} catch (error) {
 		return str;
 	}
+}
+
+/**
+ * 生成 SQL 关键字
+ */
+export function createSQLProposals(range: any) {
+	return [
+		{
+			label: 'SELECT',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation: 'The SELECT statement is used to select data from a database.',
+			insertText: 'SELECT',
+			range: range,
+		},
+		{
+			label: 'WHERE',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation: 'The WHERE clause is used to filter records.',
+			insertText: 'WHERE',
+			range: range,
+		},
+		{
+			label: 'AND',
+			kind: languages.CompletionItemKind.Operator,
+			documentation:
+				'The AND operator is used to filter records based on more than one condition, which displays a record if all the conditions separated by AND are TRUE.',
+			insertText: 'AND',
+			range: range,
+		},
+		{
+			label: 'OR',
+			kind: languages.CompletionItemKind.Operator,
+			documentation:
+				'The OR operator is used to filter records based on more than one condition, which displays a record if any of the conditions separated by OR is TRUE.',
+			insertText: 'OR',
+			range: range,
+		},
+		{
+			label: 'NOT',
+			kind: languages.CompletionItemKind.Operator,
+			documentation: 'The NOT operator displays a record if the condition(s) is NOT TRUE.',
+			insertText: 'NOT',
+			range: range,
+		},
+		{
+			label: 'ORDER BY',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation:
+				'The ORDER BY keyword is used to sort the result-set in ascending or descending order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC keyword.',
+			insertText: 'ORDER BY',
+			range: range,
+		},
+		{
+			label: 'INSERT INTO',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation: 'The INSERT INTO statement is used to insert new records in a table.',
+			insertText: 'INSERT INTO',
+			range: range,
+		},
+		{
+			label: 'NULL',
+			kind: languages.CompletionItemKind.Value,
+			documentation: 'A field with a NULL value is a field with no value.',
+			insertText: 'NULL',
+			range: range,
+		},
+		{
+			label: 'UPDATE',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation:
+				'The UPDATE statement is used to modify the existing records in a table.',
+			insertText: 'UPDATE',
+			range: range,
+		},
+		{
+			label: 'DELETE',
+			kind: languages.CompletionItemKind.Keyword,
+			documentation:
+				'The DELETE statement is used to modify the existing records in a table.',
+			insertText: 'DELETE',
+			range: range,
+		},
+	];
 }
