@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Select, Form, Radio, Spin } from 'antd';
+import { Button, Input, Select, Form, Radio, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
@@ -34,8 +34,8 @@ import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { componentTips, syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
-import { taskTypeText } from '@/utils/enums';
 import { debounce } from 'lodash';
+import { DefaultOptionType } from 'antd/lib/select';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -48,13 +48,6 @@ interface OpenProps extends molecule.model.IEditor {
 	 */
 	record?: CatalogueDataProps;
 }
-
-const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.SYNC, TASK_TYPE_ENUM.HIVESQL].map(
-	(t) => ({
-		label: taskTypeText(t),
-		value: t,
-	}),
-);
 
 interface IFormFieldProps {
 	name: string;
@@ -77,6 +70,8 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [pageLoading, setPageLoading] = useState(false);
+	const [typeLoading, setTypesLoading] = useState(false);
+	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
 	const [componentList, setComponentList] = useState<IComponentProps[]>([]);
 
 	const getComponentList = async (taskType: TASK_TYPE_ENUM, componentName?: string) => {
@@ -86,6 +81,20 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 			const { data } = res;
 			setComponentList(Array.isArray(data) ? data : []);
 		}
+	};
+
+	const getSupportTypes = () => {
+		setTypesLoading(true);
+		api.getTaskTypes()
+			.then((res) => {
+				if (res.code === 1) {
+					const data: { key: TASK_TYPE_ENUM; value: string }[] = res.data || [];
+					setSupportTypes(data.map((d) => ({ label: d.value, value: d.key })));
+				}
+			})
+			.finally(() => {
+				setTypesLoading(false);
+			});
 	};
 
 	const getCurrentTaskInfo = () => {
@@ -287,6 +296,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 
 	useEffect(() => {
 		getCurrentTaskInfo();
+		getSupportTypes();
 	}, []);
 
 	const initialValues = useMemo(() => {
@@ -346,7 +356,17 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							},
 						]}
 					>
-						<Select disabled={!!record} options={TASK_TYPE_OPTIONS} />
+						<Select<string>
+							disabled={!!record}
+							notFoundContent={
+								typeLoading ? (
+									<Spin size="small" />
+								) : (
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+								)
+							}
+							options={supportTypes}
+						/>
 					</FormItem>
 					<FormItem noStyle dependencies={['taskType']}>
 						{({ getFieldValue }) => renderConfig(getFieldValue('taskType'))}
