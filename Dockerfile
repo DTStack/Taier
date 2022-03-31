@@ -11,6 +11,7 @@ WORKDIR $WORK_PATH
 # 创建目录
 RUN mkdir /usr/local/java
 RUN mkdir /usr/local/java/jre
+RUN mkdir /data
 # 添加jre
 ADD docker/jre-8u202-linux-x64.tar.gz /usr/local/java/jre
 
@@ -26,7 +27,6 @@ ENV TAIER_LOGS $WORK_PATH/logs
 ENV TAIER_BIN $WORK_PATH/bin
 ENV TAIER_CONF $WORK_PATH/conf
 ENV TAIER_RUN $WORK_PATH/run
-
 ENV MYSQL_ROOT root
 ENV MYSQL_ROOT_PASSWORD 123456
 ENV MYSQL_IP 127.0.0.1
@@ -45,9 +45,10 @@ touch $TAIER_LOGS/rdos.stdout
 COPY lib $TAIER_LIB/
 COPY bin $TAIER_BIN/
 COPY conf $TAIER_CONF/
-COPY pluginLibs  $TAIER_PLUGINLIBS/
+COPY pluginLibs $TAIER_PLUGINLIBS/
 
 ADD datasourceX.tar.gz $TAIER_DATASOURCEX/
+ADD chunjun.tar.gz /data/
 
 # 修改配置文件
 CMD sed -i "s!jdbc.username=!jdbc.username=$MYSQL_ROOT!g" $WORK_PATH/conf/application.properties && \
