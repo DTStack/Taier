@@ -2098,15 +2098,18 @@ public class DatasourceService {
         dataSourceVO.setActive(1);
         dataSourceVO.setDataName(String.format("%s_%s", dataSourceName, eComponentType.getName().toUpperCase(Locale.ROOT)));
         dataSourceVO.setTenantId(tenantId);
-        dataSourceVO.setDataType(getDatasourceTypeByComponent(eComponentType, jdbcInfo).getDataType());
+        DataSourceTypeEnum datasourceTypeEnum = getDatasourceTypeByComponent(eComponentType, jdbcInfo);
+        dataSourceVO.setDataType(datasourceTypeEnum.getDataType());
         dataSourceVO.setIsMeta(1);
-
+        dataSourceVO.setDataVersion(jdbcInfo.getVersionName());
         addOrUpdate(dataSourceVO, userId);
     }
 
     public DataSourceTypeEnum getDatasourceTypeByComponent(EComponentType eComponentType, JdbcInfo jdbcInfo){
         if (EComponentType.SPARK_THRIFT == eComponentType){
             return DataSourceTypeEnum.SparkThrift2_1;
+        }else if (EComponentType.HIVE_SERVER == eComponentType && StringUtils.isNotEmpty(jdbcInfo.getVersionName())){
+           return DataSourceTypeEnum.typeVersionOf(DataSourceTypeEnum.HIVE1X.getDataType(),jdbcInfo.getVersionName());
         }
         throw new RdosDefineException("not get datasourceType by componentType");
     }
@@ -2115,6 +2118,8 @@ public class DatasourceService {
         // @TODO 目前先只写SparkThrift类型，后期可扩展
         if (EComponentType.SPARK_THRIFT == eComponentType) {
             return buildSparkThriftDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
+        }else if (EComponentType.HIVE_SERVER == eComponentType){
+            return buildHiveServerDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
         }
         return null;
     }
@@ -2159,6 +2164,43 @@ public class DatasourceService {
     private JSONObject createHadoopConfigObject(Long clusterId) {
         Map<String, Object> config = HadoopConf.getConfigurationByClusterId(clusterId);
         return new JSONObject(config);
+    }
+
+    public JSONObject buildHiveServerDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
+        String jdbcUrl = jdbcInfo.getJdbcUrl();
+        JSONObject dataJson = new JSONObject();
+        dataJson.put("username", jdbcInfo.getUsername());
+        dataJson.put("password", jdbcInfo.getPassword());
+
+        if (!jdbcUrl.contains("%s")) {
+            throw new RdosDefineException("控制台 "+ EComponentType.HIVE_SERVER.getName() +" URL中 不包含占位符 %s");
+        }
+        jdbcUrl = String.format(jdbcUrl, dataSourceName);
+        dataJson.put("jdbcUrl", jdbcUrl);
+        String defaultFs = HadoopConf.getDefaultFsByClusterId(clusterId);
+
+        if (StringUtils.isNotBlank(defaultFs)) {
+            dataJson.put("defaultFS", defaultFs);
+        } else {
+            throw new RdosDefineException("默认数据源的defaultFs未找到");
+        }
+
+        JSONObject hdpConfig = createHadoopConfigObject(clusterId);
+        if (!hdpConfig.isEmpty()) {
+            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
+        }
+
+        dataJson.put("hasHdfsConfig", true);
+
+        JSONObject kerberosConfig = jdbcInfo.getKerberosConfig();
+        if (Objects.nonNull(kerberosConfig)) {
+            Map<String, String> sftpMap = getSftpMapByClusterId(clusterId);
+            String remotePath = kerberosConfig.getString("remotePath");
+            kerberosConfig.put("remotePath", remotePath.replaceAll(sftpMap.get("path"), ""));
+            kerberosConfig.put("hive.server2.authentication", "KERBEROS");
+            dataJson.put("kerberosConfig", jdbcInfo.getKerberosConfig());
+        }
+        return dataJson;
     }
 
     public BatchDataSource getOne(Long id) {
