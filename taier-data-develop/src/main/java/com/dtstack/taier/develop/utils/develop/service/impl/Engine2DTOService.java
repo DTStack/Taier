@@ -602,7 +602,7 @@ public enum Engine2DTOService {
     }
 
     /**
-     * 获取 SparkThrift 信息，并填充 Kerberos 文件之类的操作
+     * 获取 HiveServer 信息，并填充 Kerberos 文件之类的操作
      *
      * @param tenantId
      * @return
