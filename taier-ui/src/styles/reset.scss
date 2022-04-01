@@ -1,37 +1,72 @@
 /* Reset some ant design styles */
 @import './variables.scss';
 
-table,
-input.ant-input,
-textarea.ant-input,
-span.form-label,
-input.ant-select-selection-search-input,
-div.ant-select,
-label.select-task,
-li.ant-dropdown-menu-item,
-div.ant-picker-input > input,
-ul.ant-pagination,
-.ant-form label,
-.ant-legacy-form-item,
-.ant-legacy-form label,
-.ant-form-item-label > label,
-.ant-tooltip,
-.ant-empty,
-.ant-checkbox-wrapper,
-.ant-radio-wrapper,
-.ant-select-item,
-.ant-input-number-input,
-button.ant-btn,
-.ant-form-item-explain-error {
-	font-size: $font-size;
+[data-prefers-color='dark'] {
+	.ant-form-item-label > label,
+	.ant-form label,
+	.ant-select,
+	.ant-input,
+	.ant-input-affix-wrapper,
+	.ant-input-group-addon,
+	.ant-input-number,
+	.ant-select-item,
+	.ant-empty,
+	.ant-form-item,
+	.ant-picker-dropdown,
+	.ant-btn,
+	.ant-picker-input > input,
+	.ant-table,
+	.ant-checkbox-wrapper,
+	.ant-tooltip {
+		font-size: $font-size;
+	}
+
+	.ant-tooltip-inner,
+	.ant-dropdown-menu,
+	.ant-table-filter-dropdown-btns,
+	.ant-select-dropdown {
+		color: var(--menu-foreground);
+		background: var(--menu-background);
+	}
+
+	.ant-drawer-header,
+	.ant-drawer-body,
+	.ant-modal-header,
+	.ant-modal-body,
+	.ant-modal-footer,
+	.ant-modal-content,
+	.ant-table-footer,
+	.ant-table-container,
+	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-left,
+	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-right,
+	.ant-drawer .ant-table,
+	.ant-modal .ant-table,
+	.ant-card,
+	.ant-table-filter-trigger:hover,
+	.ant-popover-inner,
+	.ant-popover-arrow-content::before,
+	.ant-message-notice-content {
+		background: var(--editorGroupHeader-tabsBackground);
+	}
+
+	.ant-drawer .ant-table thead > tr > th,
+	.ant-table-thead > tr > th,
+	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
+	.ant-table-tbody > tr.ant-table-placeholder:hover > td {
+		background: var(--editor-background);
+	}
 }
 
 .ant-tooltip-inner {
 	max-width: 300px;
 }
 
+.ant-collapse.ant-collapse-borderless {
+	background: transparent;
+}
+
 // reset the transition property for antd components in force
 // for ant compoents should hidden immediately when visibility changed
-*[class^='ant-'] {
+.mo-sidebar__pane *[class^='ant-'] {
 	transition: none !important;
 }
