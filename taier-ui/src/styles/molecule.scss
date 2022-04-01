@@ -10,3 +10,7 @@
 		background: inherit;
 	}
 }
+
+.mo-tab__item:hover {
+	background-color: var(--tab-hoverBackground);
+}
