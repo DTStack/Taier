@@ -350,13 +350,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
-                                <copy todir="${basedir}/target/../../../pluginLibs/${pluginDir.name}/"
-                                      file="${basedir}/target/${pluginDir.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${pluginDir.name}.jar"/>
+                                <copy todir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
+                                      file="${basedir}/target/${pluginDir.name}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/target/../../../pluginLibs/${pluginDir.name}/"
+                                    <fileset dir="${basedir}/target/../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${pluginDir.name}-*.jar"
-                                             excludes="${pluginDir.name}-${git.branch}.jar"/>
+                                             excludes="${pluginDir.name}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>
