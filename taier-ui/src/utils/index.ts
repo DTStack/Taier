@@ -22,8 +22,18 @@ import moment from 'moment';
 import { createLogger } from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
-import type { TASK_TYPE_ENUM } from '@/constant';
-import { TASK_STATUS } from '@/constant';
+import {
+	FAILED_STATUS,
+	FINISH_STATUS,
+	FROZEN_STATUS,
+	PARENTFAILED_STATUS,
+	RUNNING_STATUS,
+	RUN_FAILED_STATUS,
+	STOP_STATUS,
+	SUBMITTING_STATUS,
+	TASK_STATUS,
+	WAIT_STATUS,
+} from '@/constant';
 import { CATELOGUE_TYPE, ENGINE_SOURCE_TYPE_ENUM, MENU_TYPE_ENUM } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
 import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY } from '@/constant';
@@ -31,7 +41,8 @@ import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
-import { languages } from '@dtinsight/molecule/esm/monaco';
+import type { languages } from '@dtinsight/molecule/esm/monaco';
+import { Keywords, Snippets } from './competion';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -600,32 +611,41 @@ export const removePopUpMenu = () => {
 };
 
 export function getVertxtStyle(type: TASK_STATUS): string {
-	switch (type) {
-		case TASK_STATUS.FINISHED: // 完成
-		case TASK_STATUS.SET_SUCCESS:
-			return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
-		case TASK_STATUS.SUBMITTING:
-		case TASK_STATUS.TASK_STATUS_NOT_FOUND:
-		case TASK_STATUS.RUNNING:
-			return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
-		case TASK_STATUS.RESTARTING:
-		case TASK_STATUS.STOPING:
-		case TASK_STATUS.DEPLOYING:
-		case TASK_STATUS.WAIT_SUBMIT:
-		case TASK_STATUS.WAIT_RUN:
-		case TASK_STATUS.SUBMITTED:
-			return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
-		case TASK_STATUS.RUN_FAILED:
-		case TASK_STATUS.PARENT_FAILD:
-		case TASK_STATUS.SUBMIT_FAILED:
-			return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
-		case TASK_STATUS.FROZEN:
-			return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
-		case TASK_STATUS.STOPED: // 已停止
-		default:
-			// 默认
-			return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+	// 成功
+	if (FINISH_STATUS.includes(type)) {
+		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
 	}
+
+	// 运行中
+	if (RUNNING_STATUS.includes(type)) {
+		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
+	}
+
+	// 等待提交/提交中/等待运行
+	if (
+		[[TASK_STATUS.WAIT_SUBMIT], SUBMITTING_STATUS, WAIT_STATUS].some((collection) =>
+			collection.includes(type),
+		)
+	) {
+		return 'whiteSpace=wrap;fillColor=#fffbe6;strokeColor=#fdb313;';
+	}
+
+	// 失败
+	if (
+		[FAILED_STATUS, PARENTFAILED_STATUS, RUN_FAILED_STATUS].some((collection) =>
+			collection.includes(type),
+		)
+	) {
+		return 'whiteSpace=wrap;fillColor=#fff1f0;strokeColor=#fe615c;';
+	}
+
+	// 冻结/取消
+	if ([STOP_STATUS, FROZEN_STATUS].some((collection) => collection.includes(type))) {
+		return 'whiteSpace=wrap;fillColor=#e6e9f2;strokeColor=#5b6da6;';
+	}
+
+	// 默认
+	return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
 }
 
 /**
@@ -736,82 +756,8 @@ export function prettierJSONstring(str: string) {
 /**
  * 生成 SQL 关键字
  */
-export function createSQLProposals(range: any) {
-	return [
-		{
-			label: 'SELECT',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation: 'The SELECT statement is used to select data from a database.',
-			insertText: 'SELECT',
-			range: range,
-		},
-		{
-			label: 'WHERE',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation: 'The WHERE clause is used to filter records.',
-			insertText: 'WHERE',
-			range: range,
-		},
-		{
-			label: 'AND',
-			kind: languages.CompletionItemKind.Operator,
-			documentation:
-				'The AND operator is used to filter records based on more than one condition, which displays a record if all the conditions separated by AND are TRUE.',
-			insertText: 'AND',
-			range: range,
-		},
-		{
-			label: 'OR',
-			kind: languages.CompletionItemKind.Operator,
-			documentation:
-				'The OR operator is used to filter records based on more than one condition, which displays a record if any of the conditions separated by OR is TRUE.',
-			insertText: 'OR',
-			range: range,
-		},
-		{
-			label: 'NOT',
-			kind: languages.CompletionItemKind.Operator,
-			documentation: 'The NOT operator displays a record if the condition(s) is NOT TRUE.',
-			insertText: 'NOT',
-			range: range,
-		},
-		{
-			label: 'ORDER BY',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation:
-				'The ORDER BY keyword is used to sort the result-set in ascending or descending order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in descending order, use the DESC keyword.',
-			insertText: 'ORDER BY',
-			range: range,
-		},
-		{
-			label: 'INSERT INTO',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation: 'The INSERT INTO statement is used to insert new records in a table.',
-			insertText: 'INSERT INTO',
-			range: range,
-		},
-		{
-			label: 'NULL',
-			kind: languages.CompletionItemKind.Value,
-			documentation: 'A field with a NULL value is a field with no value.',
-			insertText: 'NULL',
-			range: range,
-		},
-		{
-			label: 'UPDATE',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation:
-				'The UPDATE statement is used to modify the existing records in a table.',
-			insertText: 'UPDATE',
-			range: range,
-		},
-		{
-			label: 'DELETE',
-			kind: languages.CompletionItemKind.Keyword,
-			documentation:
-				'The DELETE statement is used to modify the existing records in a table.',
-			insertText: 'DELETE',
-			range: range,
-		},
-	];
+export function createSQLProposals(
+	range: languages.CompletionItem['range'],
+): languages.CompletionItem[] {
+	return Keywords(range).concat(Snippets(range));
 }
