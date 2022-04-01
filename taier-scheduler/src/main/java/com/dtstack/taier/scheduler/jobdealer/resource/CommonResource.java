@@ -50,6 +50,7 @@ public class CommonResource {
                     break;
                 case SPARK_SQL:
                 case SPARK:
+                case HIVE_SQL:
                     commonResource = this;
                     break;
                 default:
@@ -66,6 +67,7 @@ public class CommonResource {
         switch (taskType) {
             case SPARK_SQL:
             case SPARK:
+            case HIVE_SQL:
                 return ComputeResourceType.Yarn;
             case SYNC:
                 return ComputeResourceType.FlinkYarnSession;
