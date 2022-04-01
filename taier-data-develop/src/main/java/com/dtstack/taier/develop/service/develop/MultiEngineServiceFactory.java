@@ -21,6 +21,8 @@ package com.dtstack.taier.develop.service.develop;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
+
+import com.dtstack.taier.develop.service.develop.impl.BatchHiveSqlExeService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -42,6 +44,9 @@ public class MultiEngineServiceFactory {
     @Resource(name = "batchHadoopJobExeService")
     private IBatchJobExeService batchHadoopJobExeService;
 
+    @Resource(name = "batchHiveSqlExeService")
+    private BatchHiveSqlExeService batchHiveSqlExeService;
+
     @Resource(name = "batchHadoopSelectSqlService")
     private IBatchSelectSqlService batchHadoopSelectSqlService;
 
@@ -57,12 +62,14 @@ public class MultiEngineServiceFactory {
     public ISqlExeService getSqlExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
             return batchSparkSqlExeService;
+        }else if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+            return batchHiveSqlExeService;
         }
         throw new RdosDefineException(String.format("not support task type %d now", taskType));
     }
 
     public IBatchJobExeService getBatchJobExeService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             return batchHadoopJobExeService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
@@ -74,7 +81,7 @@ public class MultiEngineServiceFactory {
      * @return
      */
     public IBatchSelectSqlService getBatchSelectSqlService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             return batchHadoopSelectSqlService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));

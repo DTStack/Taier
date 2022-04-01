@@ -28,7 +28,7 @@ public enum EScheduleJobType {
     SYNC(2, "数据同步", 2, 3, EComponentType.FLINK),
     SHELL(3, "Shell", 2, 3, null),
     WORK_FLOW(10, "工作流", -1, 9, null),
-    HIVE_SQL(17, "Hive SQL", 0, 4,EComponentType.HIVE_SERVER)
+    HIVE_SQL(17, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER)
     ;
 
 
