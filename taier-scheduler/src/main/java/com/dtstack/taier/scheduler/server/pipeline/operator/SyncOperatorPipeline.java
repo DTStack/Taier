@@ -50,6 +50,7 @@ import com.dtstack.taier.scheduler.service.ComponentService;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.format.DateTimeFormat;
@@ -90,6 +91,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
 
     private static final String ADD_PART_TEMP = "alter table %s add partition(task_name='%s',time='%s')";
 
+    private static final String CONF_PROPERTIES = "confProp";
+
     @Autowired
     private WorkerOperator workerOperator;
 
@@ -129,20 +132,31 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         EDeployMode deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams, taskShade.getComputeType());
         job = this.replaceSyncJobString(actionParam, taskShade, scheduleJob, taskParamShades, job, deployMode);
 
+        JSONObject confProp = new JSONObject();
         // 构造savepoint参数
-        String savepointArgs = null;
+        JSONObject savepointArgs = null;
         String taskExeArgs = null;
         if (isRestore(job)) {
-            String savepointPath = this.getSavepointPath(taskShade.getTenantId(), deployMode,taskShade.getComponentVersion());
-            savepointArgs = buildSyncTaskExecArgs(savepointPath, taskParams);
+            String savepointPath = this.getSavepointPath(taskShade.getTenantId(),deployMode,taskShade.getComponentVersion());
+            savepointArgs = this.buildSyncTaskExecArgs(savepointPath, taskParams);
+            confProp.putAll(savepointArgs);
 
             taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE);
         }
 
+        String confPath = (String) actionParam.getOrDefault(CONF_PROPERTIES, "");
+        if (StringUtils.isNotBlank(confPath)) {
+            confProp.putAll(JSONObject.parseObject(confPath));
+        }
+
         job = URLEncoder.encode(job.replace(CommonConstant.JOB_ID, scheduleJob.getJobId()), Charsets.UTF_8.name());
-        taskExeArgs = String.format(JOB_ARGS_TEMPLATE, scheduleJob.getJobName(), job);
+        taskExeArgs = String.format(JOB_ARGS_TEMPLATE, job);
         if (savepointArgs != null) {
             taskExeArgs += " " + savepointArgs;
+        }
+        if (MapUtils.isNotEmpty(confProp)) {
+            String confPropStr = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, URLEncoder.encode(confProp.toJSONString(), Charsets.UTF_8.name()));
+            taskExeArgs += " " + confPropStr;
         }
         actionParam.put("exeArgs", taskExeArgs);
         actionParam.put("taskParams", taskParams);
@@ -513,7 +527,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
     }
 
 
-    private String buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
+
+    private JSONObject buildSyncTaskExecArgs(String savepointPath, String taskParams) throws Exception {
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(taskParams.getBytes(Charsets.UTF_8.name())));
         String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
@@ -521,7 +536,7 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         JSONObject confProp = new JSONObject();
         confProp.put(KEY_CHECKPOINT_STATE_BACKEND, savepointPath);
         confProp.put(KEY_CHECKPOINT_INTERVAL, interval);
-        return String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, URLEncoder.encode(confProp.toJSONString(), Charsets.UTF_8.name()));
+        return confProp;
     }
 
 
