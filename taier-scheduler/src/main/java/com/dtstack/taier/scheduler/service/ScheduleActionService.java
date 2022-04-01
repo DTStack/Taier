@@ -260,6 +260,8 @@ public class ScheduleActionService {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         } else if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             pipeline = syncOperatorPipeline;
+        } else if (EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+            pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
         if (pipeline == null) {
             throw new RdosDefineException(ErrorCode.CONFIG_ERROR);
