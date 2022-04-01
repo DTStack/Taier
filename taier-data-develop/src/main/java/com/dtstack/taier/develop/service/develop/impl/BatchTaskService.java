@@ -1041,7 +1041,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     private void addTask(TaskVO taskVO) {
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
+        taskVO.setTaskParams(taskVO.getTaskParams() == null ?"":taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
