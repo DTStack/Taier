@@ -29,7 +29,14 @@ import { taskStatusText } from '@/utils/enums';
 
 import Api from '@/api/operation';
 import JobGraphView, { mergeTreeNodes } from './jobGraphView';
-import { TASK_TYPE_ENUM, TASK_STATUS, RESTART_STATUS_ENUM } from '@/constant';
+import {
+	TASK_TYPE_ENUM,
+	TASK_STATUS,
+	RESTART_STATUS_ENUM,
+	FAILED_STATUS,
+	PARENTFAILED_STATUS,
+	RUN_FAILED_STATUS,
+} from '@/constant';
 import type { IScheduleTaskProps } from '../schedule';
 import type { ITaskStreamProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
@@ -331,10 +338,10 @@ class TaskJobFlowView extends React.Component<any, any> {
 					},
 					null,
 					null,
-					// （运行失败、提交失败）重跑并恢复调度
-					currentNode.status === TASK_STATUS.RUN_FAILED ||
-					currentNode.status === TASK_STATUS.STOPED ||
-					currentNode.status === TASK_STATUS.SUBMIT_FAILED,
+					// 所有「失败」任务重跑并恢复调度
+					[FAILED_STATUS, PARENTFAILED_STATUS, RUN_FAILED_STATUS].some((collection) =>
+						collection.includes(currentNode.status),
+					),
 				);
 			};
 		}

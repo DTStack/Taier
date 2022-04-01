@@ -451,7 +451,9 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		res: IResponseProps<ITaskExecResultProps>,
 		jobId?: string,
 	) => {
-		taskResultService.appendLogs(currentTabId.toString(), createLog('执行完成!', 'info'));
+		if (res.data) {
+			this.outputStatus(currentTabId, res.data.status);
+		}
 
 		if (res.data?.result) {
 			taskResultService.setResult(jobId || currentTabId.toString(), res.data.result);
@@ -472,7 +474,10 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			if (OFFLINE_TASK_STATUS_FILTERS[i].value === status) {
 				taskResultService.appendLogs(
 					currentTabId.toString(),
-					createLog(`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`, 'info'),
+					createLog(
+						`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`,
+						this.typeCreate(status),
+					),
 				);
 			}
 		}
