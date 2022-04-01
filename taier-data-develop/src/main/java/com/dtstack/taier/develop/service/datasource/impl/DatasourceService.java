@@ -94,6 +94,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -618,6 +619,7 @@ public class DatasourceService {
             if (dsInfoService.checkDataNameDup(dsInfo)) {
                 throw new PubSvcDefineException(ErrorCode.DATASOURCE_DUP_NAME);
             }
+            dsInfo.setGmtCreate(DateTime.now().toDate());
             dsInfoService.updateById(dsInfo);
         } else {
             // add 存在授权产品操作

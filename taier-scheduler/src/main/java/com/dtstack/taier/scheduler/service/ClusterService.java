@@ -222,7 +222,14 @@ public class ClusterService {
         //flink spark 需要区分任务类型
         if (EComponentType.FLINK.equals(componentType) || EComponentType.SPARK.equals(componentType)) {
             computePluginInfo = buildDeployMode(clusterConfigJson, componentType, clusterId, deployMode);
+        } else {
+            computePluginInfo = clusterConfigJson.getJSONObject(componentType.getConfName());
+            String jdbcUrl = computePluginInfo.getString(ConfigConstant.JDBCURL);
+            //%s替换成默认的 供插件使用
+            jdbcUrl = jdbcUrl.replace("/%s", "/default");
+            computePluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
         }
+
         clusterConfigJson.remove(componentType.getConfName());
         clusterConfigJson.putAll(computePluginInfo);
         computePluginInfo.put(ConfigConstant.MD5_SUM_KEY, getZipFileMD5(clusterConfigJson));
