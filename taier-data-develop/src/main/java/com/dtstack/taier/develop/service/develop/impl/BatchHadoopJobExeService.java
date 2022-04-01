@@ -165,7 +165,7 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
     @Override
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
                                                Boolean isRoot, Task task, String dtToken, Boolean isEnd, String jobId) throws Exception {
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())) {
+        if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())||EScheduleJobType.HIVE_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
             content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
                     .setRootUser(isRoot).setCheckSyntax(environmentContext.getExplainEnable()).setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd);
