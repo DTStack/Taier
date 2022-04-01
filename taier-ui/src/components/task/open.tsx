@@ -26,18 +26,15 @@ import {
 	DATA_SYNC_MODE,
 	DATA_SYNC_TYPE,
 	formItemLayout,
-	IS_USE_COMPONENT,
 	tailFormItemLayout,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { componentTips, syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
+import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
-import { debounce } from 'lodash';
-import { DefaultOptionType } from 'antd/lib/select';
+import type { DefaultOptionType } from 'antd/lib/select';
 
-const { Option } = Select;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
@@ -56,14 +53,6 @@ interface IFormFieldProps {
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
-	isUseComponent?: IS_USE_COMPONENT;
-	componentId?: number;
-}
-
-interface IComponentProps {
-	componentDesc: string;
-	componentId: number;
-	name: string;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
@@ -72,20 +61,10 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [pageLoading, setPageLoading] = useState(false);
 	const [typeLoading, setTypesLoading] = useState(false);
 	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
-	const [componentList, setComponentList] = useState<IComponentProps[]>([]);
-
-	const getComponentList = async (taskType: TASK_TYPE_ENUM, componentName?: string) => {
-		const res = await api.submittedComponentQuery({ componentName, taskType });
-
-		if (res.code == 1 && res.data) {
-			const { data } = res;
-			setComponentList(Array.isArray(data) ? data : []);
-		}
-	};
 
 	const getSupportTypes = () => {
 		setTypesLoading(true);
-		api.getTaskTypes()
+		api.getTaskTypes({})
 			.then((res) => {
 				if (res.code === 1) {
 					const data: { key: TASK_TYPE_ENUM; value: string }[] = res.data || [];
@@ -116,25 +95,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 						setPageLoading(false);
 					});
 			}
-
-			// hiveSQL 需要请求额外的配置
-			if (data.taskType === TASK_TYPE_ENUM.HIVESQL) {
-				setPageLoading(true);
-				api.getOfflineTaskByID({ id: data.id })
-					.then((res) => {
-						if (res.code === 1) {
-							form.setFieldsValue({
-								isUseComponent: !res.data.componentId
-									? IS_USE_COMPONENT.FALSE
-									: IS_USE_COMPONENT.TRUE,
-								componentId: res.data.componentId,
-							});
-						}
-					})
-					.finally(() => {
-						setPageLoading(false);
-					});
-			}
 		}
 	};
 
@@ -146,7 +106,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	};
 
 	const handleValuesChanged = (
-		changedValues: Partial<IFormFieldProps>,
+		_: Partial<IFormFieldProps>,
 		values: IFormFieldProps,
 	) => {
 		if (current?.tab) {
@@ -156,12 +116,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				id,
 				data: values,
 			});
-		}
-
-		if ('isUseComponent' in changedValues) {
-			if (changedValues.isUseComponent === IS_USE_COMPONENT.TRUE) {
-				getComponentList(values.taskType);
-			}
 		}
 	};
 
@@ -219,72 +173,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 								<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
 								<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
 							</RadioGroup>
-						</FormItem>
-					</>
-				);
-			}
-			case TASK_TYPE_ENUM.HIVESQL: {
-				return (
-					<>
-						<FormItem
-							label="是否使用组件"
-							name="isUseComponent"
-							tooltip={componentTips}
-							rules={[
-								{
-									required: true,
-									message: '请选择是否使用组件',
-								},
-							]}
-							initialValue={DATA_SYNC_MODE.NORMAL}
-						>
-							<Radio.Group>
-								<Radio value={IS_USE_COMPONENT.TRUE}>是</Radio>
-								<Radio value={IS_USE_COMPONENT.FALSE}>否</Radio>
-							</Radio.Group>
-						</FormItem>
-						<FormItem noStyle dependencies={['isUseComponent']}>
-							{({ getFieldValue }) =>
-								getFieldValue('isUseComponent') === IS_USE_COMPONENT.TRUE && (
-									<FormItem
-										name="componentId"
-										label="选择组件"
-										rules={[
-											{
-												required: true,
-												message: '请选择组件',
-											},
-										]}
-									>
-										<Select
-											showSearch
-											filterOption={false}
-											onSearch={(str) =>
-												debounce(
-													() => getComponentList(taskType, str),
-													200,
-													{
-														maxWait: 2000,
-													},
-												)
-											}
-										>
-											{componentList.map((item) => (
-												<Option
-													value={item.componentId}
-													title={item.name}
-													key={item.componentId}
-												>
-													<p>{item.name}</p>
-													<p style={{ color: '#7a7979' }}>
-														{item.componentDesc}
-													</p>
-												</Option>
-											))}
-										</Select>
-									</FormItem>
-								)
-							}
 						</FormItem>
 					</>
 				);
