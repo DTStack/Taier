@@ -29,6 +29,7 @@ import { LocaleExtension } from './i18n';
 
 export const extensions: IExtension[] = [
 	LocaleExtension,
+	DTStackTheme,
 	new InitializeExtension(),
 	new PanelExtension(),
 	new CatalogueExtension(),
@@ -36,5 +37,4 @@ export const extensions: IExtension[] = [
 	new FolderTreeExtension(),
 	new ExtendsSparkSQL(),
 	new MenuExtension(),
-	DTStackTheme,
 ];
