@@ -1,0 +1,11 @@
+{
+	"contributes": {
+		"themes": [
+			{
+				"label": "DTStack Theme",
+				"uiTheme": "vs-dark",
+				"path": "./themes/dtstackTheme.json"
+			}
+		]
+	}
+}

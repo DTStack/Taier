@@ -356,14 +356,6 @@ export enum DATA_SYNC_MODE {
 }
 
 /**
- * 是否使用组件
- */
-export enum IS_USE_COMPONENT {
-	FALSE = 0,
-	TRUE = 1,
-}
-
-/**
  * 数据同步配置模式
  */
 export const DATA_SYNC_TYPE = {

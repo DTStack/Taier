@@ -1,13 +1,12 @@
-
 .mo-editor .mo-editor__group-breadcrumb {
 	padding-left: 12px;
-    font-size: 12px;
+	font-size: 12px;
 }
 
 .source {
 	height: 100%;
 	padding: 20px;
-    padding-top: 15px;
+	padding-top: 15px;
 	background: var(--editor-background);
 
 	.content {
@@ -16,12 +15,11 @@
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
-		background-color: #fff;
-		border: 1px solid rgba(6, 14, 26, 0.08);
+		border: 1px solid var(--panel-border);
 
 		.top-steps {
 			padding: 12px 20%;
-			border-bottom: 1px solid rgba(6, 14, 26, 0.08);
+			border-bottom: 1px solid var(--panel-border);
 		}
 
 		//step content
@@ -30,7 +28,6 @@
 			height: 100%;
 			padding: 20px;
 			overflow: scroll;
-			background-color: #fafafa;
 		}
 
 		//footer
@@ -41,7 +38,7 @@
 			width: 100%;
 			margin: 0 auto;
 			line-height: 55px;
-			border-top: 1px solid rgba(6, 14, 26, 0.08);
+			border-top: 1px solid var(--panel-border);
 		}
 	}
 
