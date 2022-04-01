@@ -53,8 +53,10 @@ function loadStyles(url: string) {
 	link.type = 'text/css';
 	link.href = url;
 	link.id = 'antd_dark';
-	const head = document.getElementsByTagName('head')[0];
-	head.appendChild(link);
+	if (!document.getElementById('antd_dark')) {
+		const head = document.getElementsByTagName('head')[0];
+		head.appendChild(link);
+	}
 }
 
 function removeStyles() {
@@ -93,8 +95,10 @@ function initializeColorTheme() {
 	molecule.colorTheme.onChange((_, __, themeMode) => {
 		if (themeMode === ColorThemeMode.dark) {
 			loadStyles('https://unpkg.com/antd@4.18.5/dist/antd.dark.css');
+			document.documentElement.setAttribute('data-prefers-color', 'dark');
 		} else {
 			removeStyles();
+			document.documentElement.setAttribute('data-prefers-color', 'light');
 		}
 	});
 }

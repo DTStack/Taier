@@ -218,6 +218,7 @@ export default class ComponentButton extends React.Component<IProps, IState> {
 					title={this.renderContent()}
 					onConfirm={this.handleConfirm}
 					onCancel={this.handleCancel}
+					overlayClassName="dt-cluster-config"
 				>
 					<Button
 						className="c-editCluster__componentButton"

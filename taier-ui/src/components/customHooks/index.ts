@@ -17,4 +17,5 @@
  */
 
 export { default as useEnv } from './useEnv';
-export { default as useCalcTableScroll } from './useCalcTableScroll'
+export { default as useCalcTableScroll } from './useCalcTableScroll';
+export { default as useCurrentTheme } from './useCurrentTheme';
