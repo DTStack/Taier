@@ -23,11 +23,23 @@ import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
-import { DATA_SYNC_TYPE, TASK_IMPORT_TEMPALTE, TASK_SWAP } from '@/constant';
-import { CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
-import { getTenantId, getUserId } from '.';
+import {
+	OUTPUT_LOG,
+	TASK_SAVE_ID,
+	DATA_SYNC_TYPE,
+	TASK_IMPORT_TEMPALTE,
+	TASK_SWAP,
+	CATELOGUE_TYPE,
+	TASK_RUN_ID,
+	TASK_STOP_ID,
+	TASK_TYPE_ENUM,
+} from '@/constant';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { filterSql, getTenantId, getUserId } from '.';
 import { message } from 'antd';
+import executeService from '@/services/executeService';
+import taskResultService from '@/services/taskResultService';
+import Result from '@/components/task/result';
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
@@ -87,10 +99,14 @@ export function fileIcon(
 	switch (source) {
 		case 'task': {
 			switch (type) {
-				case TASK_TYPE_ENUM.SQL: return <SparkSQLIcon style={{ color: '#519aba' }} />;
-				case TASK_TYPE_ENUM.SYNC: return 'sync';
-				case TASK_TYPE_ENUM.HIVESQL: return  <HiveSQLIcon style={{ color: '#4291f0' }} />;
-				default: return 'file';
+				case TASK_TYPE_ENUM.SQL:
+					return <SparkSQLIcon style={{ color: '#519aba' }} />;
+				case TASK_TYPE_ENUM.SYNC:
+					return 'sync';
+				case TASK_TYPE_ENUM.HIVESQL:
+					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
+				default:
+					return 'file';
 			}
 		}
 		case 'resource': {
@@ -267,4 +283,142 @@ export async function loadTreeNode(
 			break;
 	}
 	return nextNode;
+}
+
+/**
+ * 运行任务
+ */
+export function runTask(current: molecule.model.IEditorGroup) {
+	const currentTabData:
+		| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
+		| undefined = current.tab?.data;
+	if (currentTabData) {
+		// 禁用运行按钮，启用停止按钮
+		molecule.editor.updateActions([
+			{
+				id: TASK_RUN_ID,
+				icon: 'loading~spin',
+				disabled: true,
+			},
+			{
+				id: TASK_STOP_ID,
+				disabled: false,
+			},
+		]);
+
+		// active 日志 窗口
+		const { data } = molecule.panel.getState();
+		const {
+			panel: { hidden },
+		} = molecule.layout.getState();
+		if (hidden) {
+			molecule.layout.togglePanelVisibility();
+		}
+		molecule.panel.setState({
+			current: data?.find((item) => item.id === OUTPUT_LOG),
+		});
+
+		if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
+			const params: any = {
+				taskId: currentTabData.id,
+				name: currentTabData.name,
+				taskParams: currentTabData.taskParams,
+			};
+			executeService.execDataSync(currentTabData.id, params).finally(() => {
+				// update the status of buttons
+				molecule.editor.updateActions([
+					{
+						id: TASK_SAVE_ID,
+						disabled: false,
+					},
+					{
+						id: TASK_RUN_ID,
+						icon: 'play',
+						disabled: false,
+					},
+					{
+						id: TASK_STOP_ID,
+						disabled: true,
+					},
+				]);
+			});
+		} else {
+			const params = {
+				taskVariables: currentTabData.taskVariables || [],
+				// 是否为单 session 模式, 为 true 时，支持batchSession 时，则支持批量SQL，false 则相反
+				singleSession: false,
+				taskParams: currentTabData.taskParams,
+			};
+
+			const value = currentTabData.value || '';
+			// 需要被执行的 sql 语句
+			const sqls = [];
+			const rawSelections = molecule.editor.editorInstance.getSelections() || [];
+			// 排除鼠标 focus 在 editor 中的情况
+			const selections = rawSelections.filter(
+				(s) => s.startLineNumber !== s.endLineNumber || s.startColumn !== s.endColumn,
+			);
+			// 如果存在选中行，则执行选中行
+			if (selections?.length) {
+				selections?.forEach((s) => {
+					const text = molecule.editor.editorInstance.getModel()?.getValueInRange(s);
+					if (text) {
+						sqls.push(...filterSql(text));
+					}
+				});
+			} else {
+				sqls.push(...filterSql(value));
+			}
+			executeService
+				.execSql(currentTabData.id, currentTabData, params, sqls)
+				.then(() => {
+					const allResult = taskResultService.getState().results;
+					Object.keys(allResult).forEach((key) => {
+						const results = allResult[key];
+						const panel = molecule.panel.getPanel(key);
+
+						if (!panel) {
+							const panels = molecule.panel.getState().data || [];
+							const resultPanles = panels.filter((p) => p.name?.includes('结果'));
+							const lastIndexOf = Number(
+								resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
+							);
+
+							molecule.panel.open({
+								id: key,
+								name: `结果 ${lastIndexOf + 1}`,
+								closable: true,
+								renderPane: () => (
+									<Result
+										data={results}
+										tab={{
+											tableType: 0,
+										}}
+										extraView={null}
+									/>
+								),
+							});
+						}
+					});
+				})
+				.finally(() => {
+					// update the status of buttons
+					molecule.editor.updateActions([
+						{
+							id: TASK_SAVE_ID,
+							disabled: false,
+						},
+						{
+							id: TASK_RUN_ID,
+							icon: 'play',
+							disabled: false,
+						},
+						{
+							id: TASK_STOP_ID,
+							disabled: true,
+						},
+					]);
+				});
+		}
+	}
 }
