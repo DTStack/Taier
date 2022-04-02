@@ -407,7 +407,7 @@ const updateTaskVariables = debounce((tab) => {
 // 注册自动补全
 function registerCompletion() {
 	const sqlProvider: languages.CompletionItemProvider = {
-		provideCompletionItems: function (model, position) {
+		provideCompletionItems(model, position) {
 			const word = model.getWordUntilPosition(position);
 			const range = {
 				startLineNumber: position.lineNumber,
@@ -473,6 +473,8 @@ export default class EditorExtension implements IExtension {
 
 		molecule.editor.onUpdateTab((tab) => {
 			updateTaskVariables(tab);
+			// update edited status
+			molecule.editor.updateTab({ id: tab.id, status: 'edited' });
 		});
 	}
 }
