@@ -67,16 +67,6 @@ export interface IDataSourceProps {
 	linkJson: string | null;
 }
 
-function getCustomHeaderBar() {
-	const { builtInExplorerHeaderToolbar } = molecule.builtin.getModules();
-	const headerBar = builtInExplorerHeaderToolbar;
-	headerBar.contextMenu.push({
-		id: 'add',
-		icon: 'server-process',
-		name: '新增数据源',
-	});
-	return headerBar;
-}
 
 const DataSourceView = () => {
 	const [dataSources, setDataSources] = useState<IDataSourceProps[]>([]);
@@ -187,7 +177,13 @@ const DataSourceView = () => {
 						id: EDIT_DATASOURCE_PREFIX,
 						name: '编辑数据源',
 						icon: 'edit',
-						renderPane: <Add key={EDIT_DATASOURCE_PREFIX} record={record} />,
+						renderPane: (
+							<Add
+								key={EDIT_DATASOURCE_PREFIX}
+								record={record}
+								onSubmit={handleSubmitDataSource}
+							/>
+						),
 						breadcrumb: [
 							{
 								id: 'root',
@@ -286,13 +282,23 @@ const DataSourceView = () => {
 		requestTableData();
 	}, []);
 
-	const headerBar = getCustomHeaderBar();
-
 	return (
 		<div className="datasource-container">
 			<Header
 				title="数据源中心"
-				toolbar={<ActionBar data={[headerBar]} onContextMenuClick={handleHeaderBarClick} />}
+				toolbar={
+					<ActionBar
+						data={[
+							{
+								id: 'add',
+								title: '新增数据源',
+								icon: 'server-process',
+								contextMenu: [],
+								onClick: handleHeaderBarClick,
+							},
+						]}
+					/>
+				}
 			/>
 			<Content>
 				<Search onSearch={handleSearch} />
