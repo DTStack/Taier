@@ -157,9 +157,15 @@ public class HadoopDataDownloadService implements IDataDownloadService {
                                          List<String> fieldNamesShow, boolean permissionStyle,
                                          String db, String tableName, String partition, Integer taskType) {
         Map<String, Object> hadoop = Engine2DTOService.getHdfs(tenantId);
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
-            // sparkSql查询，获取sparkThrift jdbc配置
-            JdbcInfo jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
+        JdbcInfo jdbcInfo = null;
+        if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType) || EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
+            if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+                // hiveSql查询，获取hiveServer jdbc配置
+                 jdbcInfo = Engine2DTOService.getHiveServer(tenantId);
+            }else{
+                // sparkSql查询，获取sparkThrift jdbc配置
+                 jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
+            }
             try {
                 return new HiveSelectDownload(hadoop, jdbcInfo, queryFieldNames, fieldNamesShow, permissionStyle, tenantId,
                         db, tableName, partition, JobTypeDataSourceTypeMapping.getDataSourceTypeByJobType(taskType, jdbcInfo.getVersion()));
@@ -280,6 +286,41 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      */
     private String getSubmitUserNameByJobId(String jobId) {
         return scheduleJobService.getByJobId(jobId).getSubmitUserName();
+    }
+
+
+    /**
+     * 通过HiveServer获取临时表数据
+     *
+     * @param tenantId
+     * @param tableName
+     * @param db
+     * @return
+     * @throws Exception
+     */
+    public List<Object> queryDataFromHiveServerTempTable(Long tenantId, String tableName, String db) throws Exception {
+        List<Object> result = new ArrayList<>();
+        IDownload downloader = getHiveServerDownloader(tenantId, tableName, db);
+        List<String> alias = downloader.getMetaInfo();
+        result.add(alias);
+
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId,null, EScheduleJobType.HIVE_SQL);
+        int readCounter = 0;
+        while (!downloader.reachedEnd() && readCounter < jdbcInfo.getMaxRows()) {
+            List<String> row = (List<String>) downloader.readNext();
+            result.add(row);
+            readCounter++;
+        }
+        return result;
+    }
+
+    public IDownload getHiveServerDownloader(Long tenantId, String tableName, String db){
+        try {
+            return getSelectDownLoader(tenantId, null, null, true,
+                    db, tableName, null, EScheduleJobType.HIVE_SQL.getType());
+        } catch (final Exception e) {
+            throw new RdosDefineException(String.format("下载失败，原因是：%s", e.getMessage()), e);
+        }
     }
 
 }
