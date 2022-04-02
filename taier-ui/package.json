@@ -23,7 +23,7 @@
 	"dependencies": {
 		"@dtinsight/dt-utils": "^1.0.9",
 		"@dtinsight/molecule": "^0.9.0-beta.1",
-		"@handsontable/react": "^2.1.0",
+		"@handsontable/react": "^11.1.0",
 		"antd": "^4.17.2",
 		"base-64": "^1.0.0",
 		"classnames": "^2.3.1",
@@ -32,7 +32,7 @@
 		"dt-react-codemirror-editor": "^0.9.5",
 		"echarts": "3.8.5",
 		"global": "^4.4.0",
-		"handsontable": "^6.2.2",
+		"handsontable": "^11.1.0",
 		"lodash": "^4.17.21",
 		"mini-cup": "^1.1.3",
 		"mirror-creator": "^1.1.0",
