@@ -1,5 +1,7 @@
+$file-size: 216px;
+
 .c-fileConfig__container {
-	width: 216px;
+	width: $file-size;
 	height: 100%;
 	padding-bottom: 40px;
 	overflow-y: scroll;

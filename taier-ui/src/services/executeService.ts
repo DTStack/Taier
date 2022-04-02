@@ -605,13 +605,25 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 						this.stopSign.set(currentTabId, false);
 						return false;
 					}
-					if (res && res.code !== 1) {
-						taskResultService.appendLogs(
-							currentTabId.toString(),
-							createLog(`请求异常！`, 'error'),
-						);
-					} else if (res && res.data?.result) {
-						taskResultService.setResult(jobId.toString(), res.data.result);
+
+					if (res) {
+						if (res.code !== 1) {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog(`请求异常！`, 'error'),
+							);
+						} else if (res.data?.result) {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog('获取结果成功', 'info'),
+							);
+							taskResultService.setResult(jobId.toString(), res.data.result);
+						} else {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog(`获取结果失败: ${res.data?.msg}`, 'error'),
+							);
+						}
 					}
 				})
 				.finally(() => {
