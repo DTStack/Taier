@@ -13,7 +13,7 @@ import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
 
 export default class QuickRunSQLAction extends Action2 {
 	static readonly ID = 'RunSQL';
-	static readonly LABEL = 'Excute SQL';
+	static readonly LABEL = 'Execute SQL';
 	static readonly DESC = 'Run SQL';
 
 	constructor() {
