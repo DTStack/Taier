@@ -45,7 +45,7 @@ public class JobTypeDataSourceTypeMapping {
      */
     public static Integer getDataSourceTypeByJobType(Integer jobType, String version) {
         Integer dataSourceType = mappingMap.get(jobType);
-        if (DataSourceType.HIVE.getVal().equals(dataSourceType)) {
+        if (EScheduleJobType.HIVE_SQL.getVal().equals(jobType)) {
             if (HiveVersion.HIVE_1x.getVersion().equals(version)) {
                 return DataSourceType.HIVE1X.getVal();
             } else if (HiveVersion.HIVE_3x.getVersion().equals(version)) {
