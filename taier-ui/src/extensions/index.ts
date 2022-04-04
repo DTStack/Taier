@@ -24,10 +24,14 @@ import EditorExtension from './editor';
 import FolderTreeExtension from './folderTree';
 import { ExtendsSparkSQL } from './languages';
 import MenuExtension from './menu';
+import DTStackTheme from './dtstackTheme';
 import { LocaleExtension } from './i18n';
+import ActionExtension from './action';
 
 export const extensions: IExtension[] = [
 	LocaleExtension,
+	DTStackTheme,
+	new ActionExtension(),
 	new InitializeExtension(),
 	new PanelExtension(),
 	new CatalogueExtension(),

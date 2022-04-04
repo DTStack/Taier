@@ -80,6 +80,29 @@ export const SparkSQLIcon = ({ style }: IConProps) => {
 	);
 };
 
+export const HiveSQLIcon = ({ style }: IConProps) => {
+	return (
+		<span title="SparkSQL" style={{ fontSize: 0, ...style }}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="1em"
+				height="1em"
+				className="icon"
+				viewBox="0 0 1024 1024"
+			>
+				<path
+					fill="currentColor"
+					d="M700.239 742.312h-61.098V530.606H400.95v213.13h-61.098v-473.95h61.098V475.46h238.441V269.787h60.847z"
+				></path>
+				<path
+					fill="currentColor"
+					d="M815.311 1024H208.69A209.527 209.527 0 010 815.311V208.69A209.527 209.527 0 01208.689 0H815.31A209.527 209.527 0 011024 208.689V815.31A209.527 209.527 0 01815.311 1024zM208.69 59.59a149.518 149.518 0 00-149.1 149.099V815.31a149.518 149.518 0 00149.1 149.016H815.31A149.518 149.518 0 00964.327 815.31V208.69a149.518 149.518 0 00-149.016-149.1z"
+				></path>
+			</svg>
+		</span>
+	);
+};
+
 export const ComponentConfigIcon = ({ style }: IConProps) => {
 	return (
 		<span title="组件配置" style={style}>

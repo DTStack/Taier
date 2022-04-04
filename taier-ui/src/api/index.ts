@@ -963,5 +963,9 @@ const api = {
 	getChildTasks(params: any) {
 		return http.post(offlineReq.GET_CHILD_TASKS, params);
 	},
+
+	submittedComponentQuery(params: any) {
+		return http.post(offlineReq.SUBMITTED_COMPONENT_QUERY, params);
+	},
 };
 export default api;

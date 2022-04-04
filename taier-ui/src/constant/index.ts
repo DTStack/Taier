@@ -528,6 +528,36 @@ export enum TASK_STATUS {
 	AUTO_CANCEL = 24, // 自动取消
 }
 
+/**
+ * 任务状态集合，运行中
+ */
+export const RUNNING_STATUS = [TASK_STATUS.RUNNING, TASK_STATUS.TASK_STATUS_NOT_FOUND];
+export const FINISH_STATUS = [TASK_STATUS.FINISHED, TASK_STATUS.SET_SUCCESS];
+export const FAILED_STATUS = [TASK_STATUS.DO_FAIL, TASK_STATUS.SUBMIT_FAILED];
+export const SUBMITFAILD_STATUS = [TASK_STATUS.SUBMIT_FAILED];
+export const PARENTFAILED_STATUS = [TASK_STATUS.PARENT_FAILD];
+/**
+ * 运行失败集合
+ */
+export const RUN_FAILED_STATUS = [TASK_STATUS.RUN_FAILED];
+/**
+ * 等待运行集合
+ */
+export const WAIT_STATUS = [
+	TASK_STATUS.WAIT_RUN,
+	TASK_STATUS.WAIT_COMPUTE,
+	TASK_STATUS.RESTARTING,
+	TASK_STATUS.SUBMITTED,
+	TASK_STATUS.CREATED,
+	TASK_STATUS.COMPUTING,
+];
+export const SUBMITTING_STATUS = [TASK_STATUS.SUBMITTING];
+/**
+ * 停止集合
+ */
+export const STOP_STATUS = [TASK_STATUS.KILLED, TASK_STATUS.AUTO_CANCEL];
+export const FROZEN_STATUS = [TASK_STATUS.FROZEN];
+
 // 离线任务状态
 export const OFFLINE_TASK_STATUS_FILTERS = [
 	{
@@ -892,7 +922,7 @@ export enum PARAMS_ENUM {
 /**
  * 多集群组件标题
  */
- export enum TABS_TITLE_KEY {
+export enum TABS_TITLE_KEY {
 	/**
 	 * 公共组件
 	 */
@@ -909,7 +939,7 @@ export enum PARAMS_ENUM {
 	 * 计算组件
 	 */
 	COMPUTE = 3,
-};
+}
 
 /**
  * 组件枚举
@@ -922,7 +952,7 @@ export enum COMPONENT_TYPE_VALUE {
 	SPARK_THRIFT = 4,
 	HIVE_SERVER = 5,
 	SFTP = 6,
-};
+}
 
 export const COMPONENT_CONFIG_NAME = {
 	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
@@ -1055,3 +1085,23 @@ export const BINARY_ROW_KEY_FLAG = {
 	FALSE: '0',
 	TRUE: '1',
 } as const;
+
+/**
+ * 关系型数据库类型
+ */
+export const rdbmsDaType = {
+	Binlog: 1,
+	Poll: 2,
+	CDC: 3,
+	LOGMINER: 4,
+};
+
+export enum TASK_LANGUAGE {
+	SPARKSQL = 'sparksql',
+	HIVESQL = 'hivesql',
+	FLINKSQL = 'flinksql',
+	MYSQL = 'mysql',
+	PLSQL = 'plsql',
+	SQL = 'sql',
+	JSON = 'json',
+}

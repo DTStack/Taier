@@ -28,6 +28,7 @@ import com.dtstack.taier.common.engine.KerberosConfig;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
+import com.dtstack.taier.common.enums.HiveVersion;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -353,6 +354,8 @@ public enum Engine2DTOService {
         JdbcInfo jdbcInfo = null;
         if (EScheduleJobType.SPARK_SQL.equals(eScheduleJobType)) {
             jdbcInfo = getSparkThrift(tenantId);
+        } else if(EScheduleJobType.HIVE_SQL.equals(eScheduleJobType)){
+            jdbcInfo = getHiveServer(tenantId);
         }
         if (jdbcInfo == null) {
             throw new DtCenterDefException("can't get jdbc conf from console");
@@ -372,6 +375,8 @@ public enum Engine2DTOService {
         JdbcInfo jdbcInfo = null;
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
             jdbcInfo = getSparkThriftByClusterId(clusterId);
+        }else if ((EComponentType.HIVE_SERVER.equals(eComponentType))){
+            jdbcInfo = getHiveServerByClusterId(clusterId);
         }
         if (jdbcInfo == null) {
             throw new DtCenterDefException("can't get jdbc conf from console");
@@ -480,7 +485,15 @@ public enum Engine2DTOService {
     public static DataSourceType jobTypeTransitionDataSourceType(EScheduleJobType eScheduleJobType, String version) {
         if (EScheduleJobType.SPARK_SQL.equals(eScheduleJobType)) {
             return DataSourceType.SparkThrift2_1;
-        } else {
+        } else if(EScheduleJobType.HIVE_SQL.equals(eScheduleJobType)){
+                if (HiveVersion.HIVE_1x.getVersion().equals(version)) {
+                    return DataSourceType.HIVE1X;
+                } else if (HiveVersion.HIVE_3x.getVersion().equals(version)) {
+                    return DataSourceType.HIVE3X;
+                } else {
+                    return DataSourceType.HIVE;
+                }
+        }else {
             throw new RdosDefineException("jobType not transition dataSourceType");
         }
     }
@@ -494,7 +507,9 @@ public enum Engine2DTOService {
     public static DataSourceType componentTypeToDataSourceType(EComponentType eComponentType, String version) {
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
             return DataSourceType.SparkThrift2_1;
-        } else {
+        } else if(EComponentType.HIVE_SERVER.equals(eComponentType)){
+            return DataSourceType.HIVE;
+        }else {
             throw new RdosDefineException("eComponentType not transition dataSourceType");
         }
     }
@@ -587,6 +602,17 @@ public enum Engine2DTOService {
     }
 
     /**
+     * 获取 HiveServer 信息，并填充 Kerberos 文件之类的操作
+     *
+     * @param tenantId
+     * @return
+     */
+    public static JdbcInfo getHiveServer(Long tenantId) {
+        JdbcInfo data = getPluginInfo(tenantId, EComponentType.HIVE_SERVER);
+        return checkKerberosWithPeriod(tenantId, data);
+    }
+
+    /**
      * 获取 SparkThrift 信息，并填充 Kerberos 文件之类的操作
      *
      * @param clusterId 集群ID
@@ -594,6 +620,17 @@ public enum Engine2DTOService {
      */
     public static JdbcInfo getSparkThriftByClusterId(Long clusterId) {
         JdbcInfo data = getPluginInfoByClusterId(clusterId, EComponentType.SPARK_THRIFT);
+        return checkKerberosWithPeriodByClusterId(clusterId, data);
+    }
+
+    /**
+     * 获取 hiveServer 信息，并填充 Kerberos 文件之类的操作
+     *
+     * @param clusterId 集群ID
+     * @return
+     */
+    public static JdbcInfo getHiveServerByClusterId(Long clusterId) {
+        JdbcInfo data = getPluginInfoByClusterId(clusterId, EComponentType.HIVE_SERVER);
         return checkKerberosWithPeriodByClusterId(clusterId, data);
     }
 

@@ -166,7 +166,7 @@ export default function SchedulingConfig({
 				changeScheduleConf?.(current!.tab!, {
 					scheduleStatus: status,
 				});
-				message.info(sucInfo);
+				message.success(sucInfo);
 			} else {
 				message.error(errInfo);
 			}

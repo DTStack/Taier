@@ -32,7 +32,7 @@ $sideMenuSize: 200px;
 		> .ant-tabs-nav {
 			width: $sideMenuSize;
 			padding: 20px 0 0;
-			border-right: 1px solid #e8e8e8;
+			border-right: 1px solid var(--panel-border);
 			box-shadow: 4px 0 6px 0 rgb(0 0 0 / 6%);
 
 			.ant-tabs-tab {
@@ -78,8 +78,8 @@ $sideMenuSize: 200px;
 			height: 40px;
 			line-height: 40px;
 			text-align: center;
-			background: #fff;
-			border-top: 1px solid #e8e8e8;
+			background: var(--editorGroupHeader-tabsBackground);
+			border-top: 1px solid var(--panel-border);
 
 			button {
 				height: 28px;

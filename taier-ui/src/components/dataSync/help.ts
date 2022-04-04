@@ -1,17 +1,15 @@
 import { message } from 'antd';
 import { cloneDeep } from 'lodash';
-import { DATA_SOURCE_ENUM, DATA_SYNC_MODE, TASK_TYPE_ENUM } from '@/constant';
-import type { IOfflineTaskProps } from '@/interface';
+import { DATA_SOURCE_ENUM, DATA_SYNC_MODE, rdbmsDaType, TASK_TYPE_ENUM } from '@/constant';
+import type { IOfflineTaskProps, ISyncDataProps } from '@/interface';
 import molecule from '@dtinsight/molecule';
 import api from '@/api';
-import type { ISyncDataProps } from '.';
 
 type IDataSyncParamProps = IOfflineTaskProps &
 	ISyncDataProps & {
 		// 接口要求的标记位
 		preSave: true;
 		dependencyTasks: IOfflineTaskProps['taskVOS'];
-		settingMap: ISyncDataProps['setting'];
 		/**
 		 * the monaco editor content
 		 */
@@ -26,7 +24,7 @@ export function generateRqtBody() {
 	const reqBody: IDataSyncParamProps = cloneDeep(currentTabData);
 
 	if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
-		const DATASYNC_FIELDS = ['keymap', 'setting', 'sourceMap', 'targetMap'];
+		const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'];
 		if (DATASYNC_FIELDS.every((f) => currentTabData.hasOwnProperty(f) && currentTabData[f])) {
 			const isIncrementMode =
 				currentTabData.syncModel !== undefined &&
@@ -35,32 +33,8 @@ export function generateRqtBody() {
 				reqBody.sourceMap!.increColumn = undefined; // Delete increColumn
 			}
 
-			const { sourceMap, targetMap, keymap, setting } = reqBody;
-			// 接口要求keymap中的连线映射数组放到sourceMap中
-			sourceMap!.column = keymap!.source;
-			targetMap!.column = keymap!.target;
-			// 把 type 类型下的所有真值放到 sourceMap 下，type 只存放原 sourceMap.type.type 的值
-			// put it into a tmp obj prevent lost
-			let tmpObj = sourceMap!.type!;
-			Object.keys(tmpObj).forEach((key) => {
-				if ((tmpObj as any)[key] !== undefined) {
-					sourceMap![key] = (tmpObj as any)[key];
-				}
-			});
-
-			tmpObj = targetMap!.type!;
-			// targetMap should keep consistent with sourceMap
-			Object.keys(tmpObj).forEach((key) => {
-				if ((tmpObj as any)![key] !== undefined) {
-					targetMap![key] = (tmpObj as any)![key];
-				}
-			});
-
-			// put setting into settingMap field and delete setting field
-			reqBody.settingMap = setting;
-
-			Reflect.deleteProperty(reqBody, 'keymap');
-			Reflect.deleteProperty(reqBody, 'setting');
+			// 服务端需要的参数
+			reqBody.sourceMap!.rdbmsDaType = rdbmsDaType.Poll;
 		} else {
 			message.error('请检查数据同步任务是否填写正确');
 			return null;
@@ -99,7 +73,7 @@ export function saveTask() {
 /**
  * 根据 data 来判断是否获取过数据，已经当前的步骤
  */
-export function getStepStatus(data?: IOfflineTaskProps & ISyncDataProps): [boolean, number] {
+export function getStepStatus(data?: IOfflineTaskProps): [boolean, number] {
 	const step = 0;
 	const isLoaded = false;
 	if (!data) return [isLoaded, step];
@@ -108,13 +82,13 @@ export function getStepStatus(data?: IOfflineTaskProps & ISyncDataProps): [boole
 		return [true, 0];
 	}
 	// 第二步的 sourceId 存在但第三步的连线不存在则表示停留在第二步
-	if (data.targetMap?.sourceId && data.keymap?.source.length === 0) {
+	if (data.targetMap?.sourceId && data.sourceMap?.column?.length === 0) {
 		return [true, 1];
 	}
-	if (data.keymap?.source.length && !data.setting) {
+	if (data.sourceMap?.column?.length && !data.settingMap) {
 		return [true, 2];
 	}
-	if (data.setting) {
+	if (data.settingMap) {
 		return [true, 4];
 	}
 	return [false, 0];

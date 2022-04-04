@@ -22,7 +22,11 @@ import {
 	transTableConcurrence,
 } from '../helpDoc/docs';
 import ajax from '../../api';
-import type { IChannelFormProps, ISourceMapProps, ITargetMapProps } from './interface';
+import type {
+	IChannelFormProps,
+	ISourceMapProps,
+	ITargetMapProps,
+} from '@/interface';
 import { isRDB } from '@/utils';
 import classNames from 'classnames';
 import LifeCycleSelect from '../lifeCycleSelect';
@@ -103,8 +107,8 @@ export default function Channel({
 	const loadIdFields = async () => {
 		const res = await ajax.getIncrementColumns({
 			sourceId: sourceMap.sourceId,
-			tableName: sourceMap.type?.table,
-			schema: sourceMap?.schema || sourceMap.type?.schema,
+			tableName: sourceMap?.table,
+			schema: sourceMap?.schema,
 		});
 
 		if (res.code === 1) {
@@ -120,19 +124,19 @@ export default function Channel({
 
 	useEffect(() => {
 		// 开启断点续传功能，需要加载标识字段
-		const { type, sourceId } = targetMap;
+		const { type, sourceId, table, schema } = targetMap;
 		if (setting?.isRestore) {
 			loadIdFields();
 		}
-		if (type?.type !== DATA_SOURCE_ENUM.INCEPTOR) {
+		if (type !== DATA_SOURCE_ENUM.INCEPTOR) {
 			setTransTable(false);
 			return;
 		}
 		setLoading(true);
 		ajax.getTableInfoByDataSource({
 			dataSourceId: sourceId,
-			tableName: type.table,
-			schema: type.schema,
+			tableName: table,
+			schema,
 		}).then((res) => {
 			if (res) {
 				if (res.data.isTransTable) {
@@ -155,8 +159,8 @@ export default function Channel({
 	};
 
 	const renderBreakpointContinualTransfer = () => {
-		const sourceType = sourceMap?.type?.type;
-		const targetType = targetMap?.type?.type;
+		const sourceType = sourceMap?.type;
+		const targetType = targetMap?.type;
 
 		const idFieldInitialValue = isIncrementMode
 			? sourceMap.increColumn
@@ -210,8 +214,8 @@ export default function Channel({
 		) : null;
 	};
 
-	const targetType = useMemo(() => targetMap.type?.type, [targetMap]);
-	const sourceType = useMemo(() => sourceMap.type?.type, [sourceMap]);
+	const targetType = useMemo(() => targetMap?.type, [targetMap]);
+	const sourceType = useMemo(() => sourceMap?.type, [sourceMap]);
 	const concurrenceTooltip = useMemo(
 		() => (isTransTable ? transTableConcurrence : jobConcurrence),
 		[isTransTable],

@@ -2,41 +2,30 @@ import { useEffect, useMemo, useState } from 'react';
 import molecule from '@dtinsight/molecule';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
-import ajax from '@/api';
 import { API } from '@/api/dataSource';
 import { message, Spin, Steps } from 'antd';
-import Source from './source';
+import { cloneDeep } from 'lodash';
 import { checkExist, getTenantId } from '@/utils';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
 import type {
+	IDataSourceUsedInSyncProps,
+	ISyncDataProps,
 	IChannelFormProps,
 	IDataColumnsProps,
-	IKeyMapProps,
 	ISourceFormField,
-	ISourceMapProps,
 	ITargetFormField,
-	ITargetMapProps,
-} from './interface';
+} from '@/interface';
 import { DATA_SYNC_MODE, SUPPROT_SUB_LIBRARY_DB_ARRAY } from '@/constant';
-import Target from './target';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import type { IKeyMapProps } from './keymap';
 import Keymap, { OPERATOR_TYPE } from './keymap';
-import { cloneDeep } from 'lodash';
+import Target from './target';
 import Channel, { UnlimitedSpeed } from './channel';
+import Source from './source';
 import Preview from './preview';
 import { getStepStatus, saveTask } from './help';
 import './index.scss';
 
 const { Step } = Steps;
-
-export interface ISyncDataProps {
-	keymap?: IKeyMapProps;
-	setting?: IChannelFormProps;
-	sourceMap?: ISourceMapProps;
-	sqlText?: string;
-	targetMap?: ITargetMapProps;
-	taskId: number;
-}
 
 function DataSync({ current }: molecule.model.IEditor) {
 	const [currentStep, setCurrentStep] = useState(0);
@@ -44,11 +33,10 @@ function DataSync({ current }: molecule.model.IEditor) {
 	const [loading, setLoading] = useState(false);
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
 
-	const handleSourceChanged = (
-		values: Partial<ISourceFormField> & { column?: IDataColumnsProps[] },
-	) => {
+	const handleSourceChanged = (values: Partial<ISourceFormField>) => {
 		setCurrentData((d) => {
-			const target = dataSourceList.find((l) => l.dataInfoId === values.sourceId);
+			const currentDataSourceId = d?.sourceMap?.sourceId || values.sourceId;
+			const target = dataSourceList.find((l) => l.dataInfoId === currentDataSourceId);
 
 			const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(target?.dataTypeCode || -1);
 			// Only the dataSource which has sub library like mySQL need this
@@ -56,7 +44,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 				? [
 						{
 							key: 'main',
-							tables: values.table || d?.sourceMap?.type?.table,
+							tables: values.table || d?.sourceMap?.table,
 							type: target!.dataTypeCode,
 							name: target!.dataName,
 							sourceId: values.sourceId || d?.sourceMap?.sourceId,
@@ -70,50 +58,28 @@ function DataSync({ current }: molecule.model.IEditor) {
 					taskId: current!.tab!.data!.id,
 					sourceMap: {
 						name: target.dataName,
-						sourceId: values.sourceId!,
-						column: values.column,
-						extralConfig: values.extralConfig,
-						increColumn: values.increColumn,
 						sourceList,
-						type: {
-							type: target.dataTypeCode,
-							splitPK: values.splitPK,
-							where: values.where,
-							fieldDelimiter: values.fieldDelimiter,
-							fileType: values.fileType,
-							partition: values.partition,
-							path: values.path,
-							table: values.table,
-							encoding: values.encoding,
-						},
+						type: target.dataTypeCode,
+						...values,
 					},
 				};
 			}
 
 			// increment updates
 			const nextData = d;
-			const { sourceId, column, extralConfig, increColumn, ...restValues } = values;
+
 			nextData.sourceMap = {
-				sourceId: sourceId || nextData.sourceMap?.sourceId,
-				name: target?.dataName || nextData.sourceMap?.name,
-				extralConfig: extralConfig || nextData.sourceMap?.extralConfig,
-				column: column || nextData.sourceMap?.column,
+				...nextData.sourceMap,
+				...values,
 				sourceList,
-				increColumn: increColumn || nextData.sourceMap?.increColumn,
-				type: {
-					...(nextData.sourceMap?.type || {}),
-					type: target?.dataTypeCode || nextData.sourceMap?.type?.type,
-					...restValues,
-				},
+				type: target?.dataTypeCode || nextData.sourceMap?.type,
 			};
 
 			return nextData;
 		});
 	};
 
-	const handleTargetChanged = (
-		values: Partial<ITargetFormField> & { column?: IDataColumnsProps[] },
-	) => {
+	const handleTargetChanged = (values: Partial<ITargetFormField>) => {
 		const nextValue = values;
 		const SHOULD_TRIM_FIELD: (keyof ITargetFormField)[] = [
 			'partition',
@@ -129,20 +95,14 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 		const target = dataSourceList.find((l) => l.dataInfoId === values.sourceId);
 
-		const { sourceId, column, extralConfig, ...restValues } = values;
 		// increment updates
 		setCurrentData((d) => {
 			const nextData = { ...d! };
 			nextData.targetMap = {
-				sourceId: sourceId || nextData.targetMap?.sourceId,
 				name: target?.dataName || nextData.targetMap?.name,
-				extralConfig: extralConfig || nextData.targetMap?.extralConfig,
-				column: column || nextData.targetMap?.column,
-				type: {
-					...(nextData.targetMap?.type || {}),
-					type: target?.dataTypeCode || nextData.targetMap?.type?.type,
-					...restValues,
-				},
+				type: target?.dataTypeCode || nextData.targetMap?.type,
+				...nextData.targetMap,
+				...values,
 			};
 			return nextData;
 		});
@@ -151,7 +111,8 @@ function DataSync({ current }: molecule.model.IEditor) {
 	const handleLinesChange = (lines: IKeyMapProps) => {
 		setCurrentData((d) => {
 			const nextData = { ...d! };
-			nextData.keymap = lines;
+			nextData.sourceMap!.column = lines.source;
+			nextData.targetMap!.column = lines.target;
 			return nextData;
 		});
 	};
@@ -269,7 +230,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 		}
 		setCurrentData((d) => {
 			const nextData = { ...d! };
-			nextData.setting = nextSettings;
+			nextData.settingMap = nextSettings;
 			return nextData;
 		});
 	};
@@ -295,60 +256,35 @@ function DataSync({ current }: molecule.model.IEditor) {
 		const taskId = current?.tab?.data.id;
 		if (typeof taskId === 'undefined') return;
 		const [isLoaded, step] = getStepStatus(current?.tab?.data);
+		setCurrentStep(step);
 		// 未加载过则加载数据
 		if (!isLoaded) {
-			setLoading(true);
-			ajax.getOfflineJobData({ taskId })
-				.then((res) => {
-					if (res.code === 1) {
-						if (res.data) {
-							// already saved task
-							const { taskId: nextTaskId } = res.data;
-							if (nextTaskId !== taskId) return;
-							const { sourceMap } = res.data;
-							if (sourceMap.sourceList) {
-								const loop = (source: any, index: any) => {
-									return {
-										...source,
-										key:
-											index === 0
-												? 'main'
-												: // eslint-disable-next-line no-bitwise
-												  `key${~~Math.random() * 10000000}`,
-									};
-								};
-								sourceMap.sourceList = sourceMap.sourceList.map(loop);
-							}
-							setCurrentData(res.data);
-							setCurrentStep(4);
-						} else {
-							// the task opened first time or never saved before
-							setCurrentData({ taskId });
-						}
-					}
-				})
-				.finally(() => {
-					setLoading(false);
-				});
+			if (step === 0) {
+				// the task opened first time or never saved before
+				setCurrentData({ taskId });
+			}
 		} else {
-			const { id, sourceMap, targetMap, setting, keymap } = current?.tab?.data || {};
-			setCurrentStep(step);
+			const { id, sourceMap, targetMap, settingMap } = current?.tab?.data || {};
 			setCurrentData({
 				sourceMap,
 				targetMap,
-				keymap,
-				setting,
+				settingMap,
 				taskId: id,
 			});
 		}
 	};
 
 	const getDataSourceList = () => {
-		API.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
-			if (res.code === 1) {
-				setDataSourceList(res.data || []);
-			}
-		});
+		setLoading(true);
+		API.queryByTenantId({ tenantId: getTenantId() })
+			.then((res) => {
+				if (res.code === 1) {
+					setDataSourceList(res.data || []);
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	useEffect(() => {
@@ -358,10 +294,10 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 	useEffect(() => {
 		if (currentData && current?.tab) {
-			const { sourceMap, targetMap, setting, keymap } = currentData;
+			const { sourceMap, targetMap, settingMap } = currentData;
 			molecule.editor.updateTab({
 				...current.tab,
-				data: { ...current.tab.data, sourceMap, targetMap, setting, keymap },
+				data: { ...current.tab.data, sourceMap, targetMap, settingMap },
 			});
 		}
 	}, [currentData]);
@@ -384,7 +320,6 @@ function DataSync({ current }: molecule.model.IEditor) {
 					sourceMap={currentData?.sourceMap}
 					dataSourceList={dataSourceList}
 					onFormValuesChanged={handleSourceChanged}
-					onGetTableCols={(cols) => handleSourceChanged({ column: cols })}
 					onNext={() => setCurrentStep((s) => s + 1)}
 				/>
 			),
@@ -399,7 +334,6 @@ function DataSync({ current }: molecule.model.IEditor) {
 					targetMap={currentData?.targetMap}
 					dataSourceList={dataSourceList}
 					onFormValuesChanged={handleTargetChanged}
-					onGetTableCols={(cols) => handleTargetChanged({ column: cols })}
 					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
 				/>
 			),
@@ -411,7 +345,6 @@ function DataSync({ current }: molecule.model.IEditor) {
 				<Keymap
 					sourceMap={currentData.sourceMap}
 					targetMap={currentData.targetMap}
-					lines={currentData.keymap}
 					onColsChanged={handleColChanged}
 					onLinesChanged={handleLinesChange}
 					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
@@ -426,7 +359,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 					isIncrementMode={isIncrementMode}
 					sourceMap={currentData.sourceMap}
 					targetMap={currentData.targetMap}
-					setting={currentData.setting}
+					setting={currentData.settingMap}
 					onNext={handleChannelSubmit}
 					onFormValuesChanged={handleSettingChanged}
 				/>

@@ -27,6 +27,9 @@ export default defineConfig({
 		memo.entry('sparksql.worker').add(
 			'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
 		);
+		memo.entry('hivesql.worker').add(
+			'monaco-sql-languages/out/esm/hivesql/hivesql.worker.js',
+		);
 		memo.plugin('monaco-editor').use(MonacoWebpackPlugin, [
 			{
 				languages: ['markdown', 'json'],
@@ -39,6 +42,7 @@ export default defineConfig({
 		'primary-color': '#3f87ff',
 		// 'link-color': 'var(--textLink-foreground)',
 		'border-radius-base': '0px',
+		"font-size-base": '12px'
 	},
 	tailwindcss: {},
 	proxy: {

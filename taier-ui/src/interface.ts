@@ -17,6 +17,7 @@
  */
 
 import type {
+	BINARY_ROW_KEY_FLAG,
 	DATA_SOURCE_ENUM,
 	DATA_SYNC_TYPE,
 	MENU_TYPE_ENUM,
@@ -128,7 +129,7 @@ export interface IResourceProps {
 /**
  * 离线任务类型
  */
-export interface IOfflineTaskProps {
+export interface IOfflineTaskProps extends ISyncDataProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -164,6 +165,164 @@ export interface IOfflineTaskProps {
 	tenantId: string | null;
 	tenantName: string | null;
 	userId: number;
+}
+
+/**
+ * 数据同步任务类型
+ */
+export interface ISyncDataProps {
+	settingMap?: IChannelFormProps;
+	sourceMap?: ISourceMapProps;
+	targetMap?: ITargetMapProps;
+	taskId: number;
+}
+
+/**
+ * 数据同步任务前端表单域类型
+ */
+export interface ITargetFormField {
+	sourceId?: number;
+	table?: string;
+	preSql?: string;
+	postSql?: string;
+	schema?: string;
+	extralConfig?: string;
+	partition?: string;
+	path?: string;
+	fileName?: string;
+	fileType?: 'orc' | 'text' | 'parquet';
+	fieldDelimiter?: string;
+	encoding?: 'utf-8' | 'gbk';
+	writeMode?: 'NONCONFLICT' | 'APPEND' | 'insert' | 'replace' | 'update';
+	nullMode?: 'skip' | 'empty';
+	writeBufferSize?: number;
+	index?: string;
+	indexType?: string;
+	bulkAction?: number;
+}
+
+/**
+ * 数据同步任务 TargetMap
+ */
+export interface ITargetMapProps extends ITargetFormField {
+	name?: string;
+	column?: IDataColumnsProps[];
+	rowkey?: string;
+	type?: DATA_SOURCE_ENUM;
+}
+
+/**
+ * 数据同步任务通道传输类型
+ */
+export interface IChannelFormProps {
+	speed: string;
+	channel: string;
+	record?: number;
+	percentage?: number;
+	isRestore?: boolean;
+	isSaveDirty?: boolean;
+	tableName?: string;
+	lifeDay?: string | number;
+	restoreColumnName?: string | number;
+}
+
+/**
+ * 数据同步任务 SourceMap 类型
+ */
+export interface ISourceMapProps extends ISourceFormField {
+	name?: string;
+	sourceId?: number;
+	/**
+	 * 数据同步任务「字段映射」
+	 */
+	column?: IDataColumnsProps[];
+	sourceList?: {
+		key: string;
+		tables?: string[] | string;
+		type: DATA_SOURCE_ENUM;
+		name: string;
+		sourceId?: number;
+	}[];
+	type?: DATA_SOURCE_ENUM;
+
+	[key: string]: any;
+}
+
+/**
+ * 数据库表字段信息
+ */
+export interface IDataColumnsProps {
+	comment?: string;
+	isPart?: boolean;
+	key: string | number;
+	part?: boolean;
+	type: string;
+	value?: string;
+	index?: string;
+	cf?: string;
+	format?: string;
+}
+
+/**
+ * 前端表单保存的值
+ */
+export interface ISourceFormField {
+	sourceId?: number;
+	table?: string | string[];
+	/**
+	 * Only used in Oracle and PostgreSQL
+	 */
+	schema?: string;
+	where?: string;
+	splitPK?: string;
+	extralConfig?: string;
+	increColumn?: string | number;
+	/**
+	 * Only used in HDFS
+	 */
+	path?: string;
+	/**
+	 * Only used in HDFS
+	 */
+	fileType?: 'orc' | 'text' | 'parquet';
+	/**
+	 * Only used in HDFS
+	 */
+	fieldDelimiter?: string;
+	encoding?: 'utf-8' | 'gbk';
+	/**
+	 * Only used in Hive and SparkShrift
+	 */
+	partition?: string;
+	/**
+	 * 开始行健
+	 */
+	startRowkey?: string;
+	/**
+	 * 结束行健
+	 */
+	endRowkey?: string;
+	/**
+	 * 行健二进制转换
+	 */
+	isBinaryRowkey?: Valueof<typeof BINARY_ROW_KEY_FLAG>;
+	/**
+	 * 每次 RPC 请求获取行数
+	 */
+	scanCacheSize?: number;
+	/**
+	 * 每次 RPC 请求获取列数
+	 */
+	scanBatchSize?: number;
+	/**
+	 * 索引
+	 */
+	index?: string;
+	/**
+	 * 索引类型
+	 */
+	indexType?: string;
+	query?: string;
 }
 
 /**

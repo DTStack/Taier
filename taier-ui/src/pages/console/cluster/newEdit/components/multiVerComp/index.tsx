@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Tabs, Menu, Dropdown, Button, Radio, Row, Col } from 'antd';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import { DownOutlined, CaretRightOutlined } from '@ant-design/icons';
@@ -30,6 +30,7 @@ import {
 	FLINK_DEPLOY_TYPE,
 	FLINK_DEPLOY_NAME,
 } from '@/constant';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import type {
 	IClusterInfo,
 	IScheduleComponentComp,
@@ -53,9 +54,11 @@ interface IProps {
 	clusterInfo: IClusterInfo;
 	testStatus: ITestStatusProps[];
 	saveComp: ISaveComp;
+	isCheckBoxs: boolean;
 	handleConfirm: IHandleConfirm;
 	testConnects: ITestConnects;
 	getLoadTemplate: (key?: string | number, params?: IGetLoadTemplateParams) => void;
+	onVersionChange?: (versionName: string, typeCode: COMPONENT_TYPE_VALUE) => void;
 }
 
 const className = 'c-multiVersionComp';
@@ -66,15 +69,22 @@ export default function MultiVersionComp({
 	saveCompsData,
 	versionData,
 	clusterInfo,
+	isCheckBoxs,
 	testStatus,
 	saveComp,
 	getLoadTemplate,
 	handleConfirm,
 	testConnects,
+	onVersionChange,
 }: IProps) {
 	const [deployType, setDeployType] = useState<keyof typeof FLINK_DEPLOY_NAME>(
 		comp?.multiVersion[0]?.deployType ?? FLINK_DEPLOY_TYPE.YARN,
 	);
+	const [currVersion, setCurrVersion] = useState(comp?.multiVersion?.[0]?.versionName);
+
+	useEffect(() => {
+		onVersionChange?.(currVersion!, comp?.componentTypeCode);
+	}, [currVersion, comp?.componentTypeCode]);
 
 	const handleMenuClick = (e: MenuInfo) => {
 		const typeCode = comp?.componentTypeCode ?? '';
@@ -113,7 +123,6 @@ export default function MultiVersionComp({
 
 	const addMultiVersionComp = (key: string) => {
 		const typeCode = comp?.componentTypeCode ?? '';
-
 		saveComp(
 			{
 				deployType,
@@ -124,6 +133,10 @@ export default function MultiVersionComp({
 			COMP_ACTION.ADD,
 		);
 		getLoadTemplate(typeCode, { compVersion: key, deployType });
+
+		if (!currVersion) {
+			setCurrVersion(key);
+		}
 	};
 
 	const getComponentName = (
@@ -216,7 +229,9 @@ export default function MultiVersionComp({
 		<div className={className}>
 			<Tabs
 				tabPosition="top"
+				activeKey={currVersion}
 				className={`${className}__tabs`}
+				onChange={(activeKey) => setCurrVersion(activeKey)}
 				tabBarExtraContent={
 					<Dropdown
 						disabled={view}
@@ -252,6 +267,7 @@ export default function MultiVersionComp({
 								comp={vcomp!}
 								view={view}
 								isDefault={isDefault}
+								isCheckBoxs={isCheckBoxs}
 								isMulitple={true}
 								saveCompsData={saveCompsData}
 								versionData={versionData}

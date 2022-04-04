@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Select, Form, Radio, Spin } from 'antd';
+import { Button, Input, Select, Form, Radio, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
@@ -33,8 +33,8 @@ import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
+import type { DefaultOptionType } from 'antd/lib/select';
 
-const { Option } = Select;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
@@ -45,17 +45,6 @@ interface OpenProps extends molecule.model.IEditor {
 	 */
 	record?: CatalogueDataProps;
 }
-
-const TASK_TYPE_OPTIONS = [
-	{
-		value: TASK_TYPE_ENUM.SQL,
-		text: 'SparkSQL',
-	},
-	{
-		value: TASK_TYPE_ENUM.SYNC,
-		text: '数据同步',
-	},
-];
 
 interface IFormFieldProps {
 	name: string;
@@ -70,11 +59,27 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [pageLoading, setPageLoading] = useState(false);
+	const [typeLoading, setTypesLoading] = useState(false);
+	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
+
+	const getSupportTypes = () => {
+		setTypesLoading(true);
+		api.getTaskTypes({})
+			.then((res) => {
+				if (res.code === 1) {
+					const data: { key: TASK_TYPE_ENUM; value: string }[] = res.data || [];
+					setSupportTypes(data.map((d) => ({ label: d.value, value: d.key })));
+				}
+			})
+			.finally(() => {
+				setTypesLoading(false);
+			});
+	};
 
 	const getCurrentTaskInfo = () => {
 		if (current?.tab) {
 			const { data } = current.tab;
-			// 只有数据同步任务才有额外的配置需要请求
+			// 数据同步任务才有额外的配置需要请求
 			if (data.taskType === TASK_TYPE_ENUM.SYNC) {
 				setPageLoading(true);
 				api.getOfflineTaskByID({ id: data.id })
@@ -100,7 +105,10 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		});
 	};
 
-	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
+	const handleValuesChanged = (
+		_: Partial<IFormFieldProps>,
+		values: IFormFieldProps,
+	) => {
 		if (current?.tab) {
 			const { id } = current.tab;
 			// Insert form values into tab for preventing losting the values when switch tabs
@@ -124,8 +132,59 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		return Promise.resolve();
 	};
 
+	const renderConfig = (taskType: TASK_TYPE_ENUM) => {
+		switch (taskType) {
+			case TASK_TYPE_ENUM.SYNC: {
+				return (
+					<>
+						<FormItem
+							label="配置模式"
+							name="createModel"
+							tooltip={syncTaskHelp}
+							rules={[
+								{
+									required: true,
+									message: '请选择配置模式',
+								},
+							]}
+							initialValue={DATA_SYNC_TYPE.GUIDE}
+						>
+							<RadioGroup disabled={!!record}>
+								<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+								<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+							</RadioGroup>
+						</FormItem>
+						<FormItem
+							label="同步模式"
+							name="syncModel"
+							tooltip={syncModeHelp}
+							rules={[
+								{
+									required: true,
+									message: '请选择配置模式',
+								},
+								{
+									validator: checkSyncMode,
+								},
+							]}
+							initialValue={DATA_SYNC_MODE.NORMAL}
+						>
+							<RadioGroup>
+								<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
+								<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
+							</RadioGroup>
+						</FormItem>
+					</>
+				);
+			}
+			default:
+				break;
+		}
+	};
+
 	useEffect(() => {
 		getCurrentTaskInfo();
+		getSupportTypes();
 	}, []);
 
 	const initialValues = useMemo(() => {
@@ -185,60 +244,20 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							},
 						]}
 					>
-						<Select disabled={!!record}>
-							{TASK_TYPE_OPTIONS.map((type) => (
-								<Option key={type.value} value={type.value}>
-									{type.text}
-								</Option>
-							))}
-						</Select>
+						<Select<string>
+							disabled={!!record}
+							notFoundContent={
+								typeLoading ? (
+									<Spin size="small" />
+								) : (
+									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+								)
+							}
+							options={supportTypes}
+						/>
 					</FormItem>
 					<FormItem noStyle dependencies={['taskType']}>
-						{({ getFieldValue }) =>
-							getFieldValue('taskType') === TASK_TYPE_ENUM.SYNC && (
-								<>
-									<FormItem
-										label="配置模式"
-										name="createModel"
-										tooltip={syncTaskHelp}
-										rules={[
-											{
-												required: true,
-												message: '请选择配置模式',
-											},
-										]}
-										initialValue={DATA_SYNC_TYPE.GUIDE}
-									>
-										<RadioGroup disabled={!!record}>
-											<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-											<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
-										</RadioGroup>
-									</FormItem>
-									<FormItem
-										label="同步模式"
-										name="syncModel"
-										tooltip={syncModeHelp}
-										rules={[
-											{
-												required: true,
-												message: '请选择配置模式',
-											},
-											{
-												validator: checkSyncMode,
-											},
-										]}
-										initialValue={DATA_SYNC_MODE.NORMAL}
-									>
-										<RadioGroup>
-											<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
-											<Radio value={DATA_SYNC_MODE.INCREMENT}>
-												有增量标识
-											</Radio>
-										</RadioGroup>
-									</FormItem>
-								</>
-							)
-						}
+						{({ getFieldValue }) => renderConfig(getFieldValue('taskType'))}
 					</FormItem>
 					<FormItem
 						{...formItemLayout}

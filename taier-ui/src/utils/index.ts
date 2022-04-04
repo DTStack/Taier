@@ -22,8 +22,18 @@ import moment from 'moment';
 import { createLogger } from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 import { createStore, applyMiddleware, compose } from 'redux';
-import type { TASK_TYPE_ENUM } from '@/constant';
-import { TASK_STATUS } from '@/constant';
+import {
+	FAILED_STATUS,
+	FINISH_STATUS,
+	FROZEN_STATUS,
+	PARENTFAILED_STATUS,
+	RUNNING_STATUS,
+	RUN_FAILED_STATUS,
+	STOP_STATUS,
+	SUBMITTING_STATUS,
+	TASK_STATUS,
+	WAIT_STATUS,
+} from '@/constant';
 import { CATELOGUE_TYPE, ENGINE_SOURCE_TYPE_ENUM, MENU_TYPE_ENUM } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
 import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY } from '@/constant';
@@ -31,6 +41,8 @@ import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
+import type { languages } from '@dtinsight/molecule/esm/monaco';
+import { Keywords, Snippets } from './competion';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -599,32 +611,41 @@ export const removePopUpMenu = () => {
 };
 
 export function getVertxtStyle(type: TASK_STATUS): string {
-	switch (type) {
-		case TASK_STATUS.FINISHED: // 完成
-		case TASK_STATUS.SET_SUCCESS:
-			return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
-		case TASK_STATUS.SUBMITTING:
-		case TASK_STATUS.TASK_STATUS_NOT_FOUND:
-		case TASK_STATUS.RUNNING:
-			return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
-		case TASK_STATUS.RESTARTING:
-		case TASK_STATUS.STOPING:
-		case TASK_STATUS.DEPLOYING:
-		case TASK_STATUS.WAIT_SUBMIT:
-		case TASK_STATUS.WAIT_RUN:
-		case TASK_STATUS.SUBMITTED:
-			return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
-		case TASK_STATUS.RUN_FAILED:
-		case TASK_STATUS.PARENT_FAILD:
-		case TASK_STATUS.SUBMIT_FAILED:
-			return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
-		case TASK_STATUS.FROZEN:
-			return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
-		case TASK_STATUS.STOPED: // 已停止
-		default:
-			// 默认
-			return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+	// 成功
+	if (FINISH_STATUS.includes(type)) {
+		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
 	}
+
+	// 运行中
+	if (RUNNING_STATUS.includes(type)) {
+		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
+	}
+
+	// 等待提交/提交中/等待运行
+	if (
+		[[TASK_STATUS.WAIT_SUBMIT], SUBMITTING_STATUS, WAIT_STATUS].some((collection) =>
+			collection.includes(type),
+		)
+	) {
+		return 'whiteSpace=wrap;fillColor=#fffbe6;strokeColor=#fdb313;';
+	}
+
+	// 失败
+	if (
+		[FAILED_STATUS, PARENTFAILED_STATUS, RUN_FAILED_STATUS].some((collection) =>
+			collection.includes(type),
+		)
+	) {
+		return 'whiteSpace=wrap;fillColor=#fff1f0;strokeColor=#fe615c;';
+	}
+
+	// 冻结/取消
+	if ([STOP_STATUS, FROZEN_STATUS].some((collection) => collection.includes(type))) {
+		return 'whiteSpace=wrap;fillColor=#e6e9f2;strokeColor=#5b6da6;';
+	}
+
+	// 默认
+	return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
 }
 
 /**
@@ -729,5 +750,36 @@ export function prettierJSONstring(str: string) {
 		return JSON.stringify(obj, null, 2);
 	} catch (error) {
 		return str;
+	}
+}
+
+/**
+ * 生成 SQL 关键字
+ */
+export function createSQLProposals(
+	range: languages.CompletionItem['range'],
+): languages.CompletionItem[] {
+	return Keywords(range).concat(Snippets(range));
+}
+
+export function copyText(text: string) {
+	if (navigator.clipboard) {
+		// clipboard api 复制
+		navigator.clipboard.writeText(text);
+	} else {
+		const textarea = document.createElement('textarea');
+		document.body.appendChild(textarea);
+		// 隐藏此输入框
+		textarea.style.position = 'fixed';
+		textarea.style.clip = 'rect(0 0 0 0)';
+		textarea.style.top = '10px';
+		// 赋值
+		textarea.value = text;
+		// 选中
+		textarea.select();
+		// 复制
+		document.execCommand('copy', true);
+		// 移除输入框
+		document.body.removeChild(textarea);
 	}
 }

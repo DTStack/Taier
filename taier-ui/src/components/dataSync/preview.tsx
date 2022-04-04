@@ -1,6 +1,6 @@
-import type { IDataSourceUsedInSyncProps } from '@/interface';
+import type { IDataColumnsProps, IDataSourceUsedInSyncProps } from '@/interface';
 import { Card, Button, Space } from 'antd';
-import type { ISyncDataProps } from '.';
+import type { ISyncDataProps } from '@/interface';
 import Channel from './channel';
 import Keymap from './keymap';
 import Source from './source';
@@ -19,7 +19,12 @@ function Mask() {
 	return <div className="mask-lock-layer" />;
 }
 
-export default function Preview({ data, dataSourceList, onStepTo, onSave }: IPreviewProps) {
+export default function Preview({
+	data,
+	dataSourceList,
+	onStepTo,
+	onSave,
+}: IPreviewProps) {
 	return (
 		<>
 			<Space direction="vertical" size={10} className="dt-preview">
@@ -65,7 +70,6 @@ export default function Preview({ data, dataSourceList, onStepTo, onSave }: IPre
 						readonly
 						sourceMap={data.sourceMap!}
 						targetMap={data.targetMap!}
-						lines={data.keymap}
 					/>
 					<Mask />
 				</Card>
@@ -82,7 +86,7 @@ export default function Preview({ data, dataSourceList, onStepTo, onSave }: IPre
 						readonly
 						sourceMap={data.sourceMap!}
 						targetMap={data.targetMap!}
-						setting={data.setting}
+						setting={data.settingMap}
 					/>
 					<Mask />
 				</Card>

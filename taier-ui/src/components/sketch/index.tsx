@@ -31,7 +31,7 @@ import {
 import { usePagination } from '@/hooks';
 import type { ColumnsType, TablePaginationConfig, TableProps } from 'antd/lib/table';
 import type { FilterValue, SorterResult } from 'antd/lib/table/interface';
-import { useCalcTableScroll } from '@/components/customHooks/index'
+import { useCalcTableScroll } from '@/components/customHooks/index';
 import classnames from 'classnames';
 import './index.scss';
 
@@ -176,7 +176,13 @@ export default function Sketch<
 	const [selectedRowKeys, setSelectedKeys] = useState<React.Key[]>([]);
 	const [selectedRows, setSelectedRows] = useState<T[]>([]);
 	const timeout = useRef<number | undefined>(undefined);
-	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' })
+	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' });
+
+	// we should save the filter and sorter from table
+	const tableInfo = useRef<{
+		filters?: Record<string, FilterValue | null>;
+		sorter?: SorterResult<any> | SorterResult<any>[];
+	}>({});
 
 	useImperativeHandle(actionRef, () => ({
 		selectedRowKeys,
@@ -202,8 +208,8 @@ export default function Sketch<
 		request(
 			form.getFieldsValue(),
 			{ current: nextCurrent, pageSize: nextPageSize },
-			filters || {},
-			sorter,
+			filters || tableInfo.current.filters || {},
+			sorter || (tableInfo.current.sorter as SorterResult<any>),
 		)
 			.then((res) => {
 				if (res) {
@@ -244,10 +250,12 @@ export default function Sketch<
 
 	const handleTableChange = (
 		pagination: TablePaginationConfig,
-		filters: Record<string, FilterValue | null>,
+		filters?: Record<string, FilterValue | null>,
 		sorter?: SorterResult<any> | SorterResult<any>[],
 	) => {
 		setSelectedKeys([]);
+		// save it into ref
+		tableInfo.current = { filters, sorter };
 		getDataSource(pagination, filters, sorter as SorterResult<any>);
 	};
 
@@ -276,11 +284,15 @@ export default function Sketch<
 		current,
 		pageSize,
 		onChange: (page, nextPageSize) =>
-			handleTableChange({ current: page, pageSize: nextPageSize }, {}),
+			handleTableChange(
+				{ current: page, pageSize: nextPageSize },
+				tableInfo.current.filters,
+				tableInfo.current.sorter,
+			),
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, scroll: tableScroll,...restTableProps } = tableProps;
+	const { className: tableClassName, scroll: tableScroll, ...restTableProps } = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
@@ -375,7 +387,7 @@ export default function Sketch<
 					onChange: handleSelectedRowChanged,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
-				scroll={{...calcTableScroll, ...tableScroll}}
+				scroll={{ ...calcTableScroll, ...tableScroll }}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}

@@ -15,7 +15,7 @@
 			margin-top: 12px;
 			margin-bottom: 12px;
 			padding: 12px 20px;
-			background: #fafafa;
+			background: transparent;
 			border-radius: 0;
 		}
 	}
@@ -29,8 +29,6 @@
 	}
 
 	.formitem-textname {
-		color: rgba(1, 1, 1, 0.54);
-		font-weight: bold;
 		text-align: right;
 
 		.form-text-name {
@@ -44,7 +42,6 @@
 	}
 
 	.formitem-textvalue {
-		color: rgba(1, 1, 1, 0.84);
 		word-break: break-all;
 	}
 

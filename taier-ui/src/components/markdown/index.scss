@@ -5,8 +5,18 @@
 	.CodeMirror {
 		background: none;
 
-		.cm-s-default .cm-bracket {
-			color: var(--input-foreground);
+		&.cm-s-default {
+			.cm-tag {
+				color: var(--terminal-ansiGreen, #170);
+			}
+
+			.cm-bracket {
+				color: var(--terminal-foreground, #977);
+			}
+
+			.cm-error {
+				color: var(--terminal-ansiRed, #f00);
+			}
 		}
 	}
 }
