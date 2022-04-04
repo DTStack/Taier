@@ -24,7 +24,7 @@ import {
 	FILE_TYPE,
 	CONFIG_ITEM_TYPE,
 } from '@/constant';
-import type { IModifyComp, IScheduleComponentComp } from './interface';
+import type { IModifyComp, IScheduleComponentComp, IComponentProps } from './interface';
 
 const DEFAULT_PARAMS = [
 	'storeType',
@@ -198,9 +198,7 @@ export function getOptions(version: any[]): any[] {
 export function getCompsName(comps: Set<IModifyComp>): string[] {
 	return Array.from(comps).map((comp: IModifyComp) => {
 		if (isMultiVersion(comp.typeCode)) {
-			return `${COMPONENT_CONFIG_NAME[comp.typeCode]} ${(
-				Number(comp.versionName) / 100
-			).toFixed(2)}`;
+			return `${COMPONENT_CONFIG_NAME[comp.typeCode]} ${comp.versionName}`;
 		}
 		return COMPONENT_CONFIG_NAME[comp.typeCode];
 	});
@@ -549,11 +547,11 @@ export function getCurrentComp(
 }
 
 export function getCurrent1Comp(
-	initialCompDataArr: any[],
+	initialCompDataArr: IScheduleComponentComp[][],
 	params: { typeCode: number; versionName?: string },
-): any {
+): IComponentProps | Record<string, unknown> {
 	const { typeCode, versionName } = params;
-	let currentComp = {};
+	let currentComp: IComponentProps | Record<string, unknown> = {};
 	// eslint-disable-next-line no-restricted-syntax
 	for (const compArr of initialCompDataArr) {
 		// eslint-disable-next-line no-restricted-syntax
@@ -630,39 +628,48 @@ function handleCurrentComp(comp: any, initialComp: any, typeCode: number): boole
 /**
  * @param comps 已渲染各组件表单值
  * @param initialCompData 各组件初始值
+ * @param versionMap 组件的typeCode与对应的versionName数组映射
  *
  * 通过比对表单值和初始值对比是否变更
  * 返回含有组件code数组
  *
  */
-export function getModifyComp(comps: any, initialCompData: any[]) {
+export function getModifyComp(
+	comps: Record<string, any>,
+	initialCompData: IScheduleComponentComp[][],
+	versionMap?: Record<number, string[]>,
+) {
 	const modifyComps = new Set<IModifyComp>();
 	Object.entries(comps).forEach(([typeCode, comp]) => {
-		if (isMultiVersion(Number(typeCode))) {
-			Object.entries(comp as any).forEach(([versionName, vcomp]) => {
-				if (!DEFAULT_PARAMS.includes(versionName)) {
-					const initialComp = getCurrent1Comp(initialCompData, {
-						typeCode: Number(typeCode),
+		const typeCodeNum = Number(typeCode);
+		if (isMultiVersion(typeCodeNum)) {
+			const versionNames = versionMap?.[typeCodeNum];
+			if (!versionNames) return;
+
+			versionNames.forEach((versionName) => {
+				if (!versionName) return;
+				const versionArr: string[] = versionName.split('.');
+				const currentComp = versionArr.reduce((pre, cur) => pre?.[cur], comp) || {};
+				const initialComp = getCurrent1Comp(initialCompData, {
+					typeCode: typeCodeNum,
+					versionName,
+				});
+				if (handleCurrentComp(currentComp, initialComp, typeCodeNum)) {
+					modifyComps.add({
+						typeCode: typeCodeNum,
 						versionName,
 					});
-					if (handleCurrentComp(vcomp, initialComp, Number(typeCode))) {
-						modifyComps.add({
-							typeCode: Number(typeCode),
-							versionName,
-						});
-					}
 				}
 			});
 		} else {
 			const initialComp = getCurrent1Comp(initialCompData, {
-				typeCode: Number(typeCode),
+				typeCode: typeCodeNum,
 			});
-			if (handleCurrentComp(comp, initialComp, Number(typeCode))) {
-				modifyComps.add({ typeCode: Number(typeCode) });
+			if (handleCurrentComp(comp, initialComp, typeCodeNum)) {
+				modifyComps.add({ typeCode: typeCodeNum });
 			}
 		}
 	});
 
 	return modifyComps;
 }
-

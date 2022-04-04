@@ -22,6 +22,7 @@ import {
 	DATA_SOURCE_TEXT,
 	ENGINE_SOURCE_TYPE_ENUM,
 	RESOURCE_TYPE,
+	TASK_LANGUAGE,
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
@@ -384,4 +385,18 @@ export function getResourceName(): Partial<Record<RESOURCE_TYPE, string>> {
 		[RESOURCE_TYPE.ZIP]: 'zip',
 		[RESOURCE_TYPE.OTHER]: '其它',
 	};
+}
+
+/**
+ * 把 taskType 映射到 taskLanguage
+ */
+export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
+	switch (taskType) {
+		case TASK_TYPE_ENUM.SQL:
+			return TASK_LANGUAGE.SPARKSQL;
+		case TASK_TYPE_ENUM.HIVESQL:
+			return TASK_LANGUAGE.HIVESQL;
+		default:
+			return TASK_LANGUAGE.JSON;
+	}
 }

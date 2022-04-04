@@ -368,7 +368,7 @@ public class FlinkClient extends AbstractClient {
                 runResult = runJobBySession(jobGraph);
             }
 
-            JobResult jobResult = JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
+            JobResult jobResult = JobResult.createSuccessResult(runResult.getSecond(),runResult.getFirst());
             // set jobgraph
             jobResult.setExtraData(JobResultConstant.JOB_GRAPH, JobGraphBuildUtil.buildLatencyMarker(jobGraph));
             // set checkpointInterval
@@ -510,7 +510,7 @@ public class FlinkClient extends AbstractClient {
         }
 
         FlinkSessionResourceInfo yarnSessionResourceInfo = new FlinkSessionResourceInfo(standalone);
-        Integer sessionSlotsLimit = standalone == true ? 0 :
+        Integer sessionSlotsLimit = standalone ? 0 :
                 Integer.parseInt(flinkExtProp.getProperty(ResourceManagerOptions.MAX_SLOT_NUM.key()));
         yarnSessionResourceInfo.getFlinkSessionSlots(slotInfo, sessionSlotsLimit);
         return yarnSessionResourceInfo.judgeSlots(jobClient);
@@ -580,9 +580,6 @@ public class FlinkClient extends AbstractClient {
         }
 
         try{
-            if (response == null) {
-                throw new PluginDefineException("Get status response is null");
-            }
 
             Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
             Object stateObj = statusMap.get("state");

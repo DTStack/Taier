@@ -451,7 +451,9 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		res: IResponseProps<ITaskExecResultProps>,
 		jobId?: string,
 	) => {
-		taskResultService.appendLogs(currentTabId.toString(), createLog('执行完成!', 'info'));
+		if (res.data) {
+			this.outputStatus(currentTabId, res.data.status);
+		}
 
 		if (res.data?.result) {
 			taskResultService.setResult(jobId || currentTabId.toString(), res.data.result);
@@ -472,7 +474,10 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			if (OFFLINE_TASK_STATUS_FILTERS[i].value === status) {
 				taskResultService.appendLogs(
 					currentTabId.toString(),
-					createLog(`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`, 'info'),
+					createLog(
+						`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`,
+						this.typeCreate(status),
+					),
 				);
 			}
 		}
@@ -600,13 +605,25 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 						this.stopSign.set(currentTabId, false);
 						return false;
 					}
-					if (res && res.code !== 1) {
-						taskResultService.appendLogs(
-							currentTabId.toString(),
-							createLog(`请求异常！`, 'error'),
-						);
-					} else if (res && res.data?.result) {
-						taskResultService.setResult(jobId.toString(), res.data.result);
+
+					if (res) {
+						if (res.code !== 1) {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog(`请求异常！`, 'error'),
+							);
+						} else if (res.data?.result) {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog('获取结果成功', 'info'),
+							);
+							taskResultService.setResult(jobId.toString(), res.data.result);
+						} else {
+							taskResultService.appendLogs(
+								currentTabId.toString(),
+								createLog(`获取结果失败: ${res.data?.msg}`, 'error'),
+							);
+						}
 					}
 				})
 				.finally(() => {

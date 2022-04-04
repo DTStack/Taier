@@ -1,15 +1,17 @@
+$file-size: 216px;
+
 .c-fileConfig__container {
-	width: 216px;
+	width: $file-size;
 	height: 100%;
 	padding-bottom: 40px;
 	overflow-y: scroll;
 	font-size: 12px;
-	background-color: #fafafa;
-	border-right: 1px solid #e8e8e8;
+	background: var(--editor-background);
+	border-right: 1px solid var(--panel-border);
 
 	.ant-form-item {
 		padding: 20px;
-		border-bottom: 1px solid #e8e8e8;
+		border-bottom: 1px solid var(--panel-border);
 	}
 
 	.ant-form-item-label > label {
@@ -41,11 +43,15 @@
 		height: 20px;
 		padding: 0 52px 0 16px;
 		overflow: hidden;
-		color: rgb(51, 51, 51);
+		color: var(--editor-selectionBackground);
 		font-size: 12px;
 		line-height: 20px;
 		white-space: nowrap;
 		text-overflow: ellipsis;
+
+		&:hover {
+			color: #999;
+		}
 
 		.anticon-delete,
 		.anticon-paper-clip,
@@ -71,10 +77,6 @@
 
 		.anticon-edit {
 			right: 40px;
-		}
-
-		&:hover {
-			background-color: #f2f9ff;
 		}
 	}
 }

@@ -20,9 +20,11 @@ import { debounce } from 'lodash';
 import molecule from '@dtinsight/molecule';
 import type { IEditorTab, IExtension, IProblemsItem } from '@dtinsight/molecule/esm/model';
 import { MarkerSeverity } from '@dtinsight/molecule/esm/model';
-import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import { LanguageService } from 'monaco-sql-languages/out/esm/languageService';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import { TASK_LANGUAGE } from '@/constant';
+import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
+import 'monaco-sql-languages/out/esm/hivesql/hivesql.contribution';
 
 interface ValidMessage {
 	endCol: number;
@@ -34,16 +36,13 @@ interface ValidMessage {
 
 const languageService = new LanguageService();
 
-function convertMsgToProblemItem(
-	tab: IEditorTab,
-	code: string,
-	msgs: ValidMessage[] = [],
-): IProblemsItem {
+function convertMsgToProblemItem(tab: IEditorTab, msgs: ValidMessage[] = []): IProblemsItem {
 	const rootId = Number(tab.id);
 	const rootName = `任务: ${tab.name || ''}`;
 	const languageProblems: IProblemsItem = {
 		id: rootId,
 		name: rootName,
+		isLeaf: false,
 		value: {
 			code: rootName,
 			message: '',
@@ -58,8 +57,9 @@ function convertMsgToProblemItem(
 
 	languageProblems.children = msgs.map((msg, index: number) => {
 		return {
-			id: rootId + index,
-			name: code || '',
+			id: `${rootId}-${index}`,
+			name: '',
+			isLeaf: true,
 			value: {
 				code: '',
 				message: msg.message,
@@ -78,50 +78,51 @@ function convertMsgToProblemItem(
 
 function analyseProblems(tab: IEditorTab) {
 	if (tab.data && tab.data.language) {
-		const NOT_ANAYLSE_LANGUAGE = ['json'];
+		const NOT_ANAYLSE_LANGUAGE: string[] = [TASK_LANGUAGE.JSON];
 		if (NOT_ANAYLSE_LANGUAGE.includes(tab.data.language)) return;
 		const sql = tab.data.value || '';
 
-		languageService.valid(tab.data.language || 'sql', sql).then((res: ValidMessage[]) => {
-			if (res.length) {
-				const problems = convertMsgToProblemItem(tab, sql, res);
-				molecule.problems.add(problems);
-			} else {
-				const rootId = Number(tab.id);
-				const problems = molecule.problems.getState().data;
-				const isExisted = problems.find((pro) => pro.id === rootId);
-				if (isExisted) {
-					molecule.problems.remove(rootId);
+		languageService
+			.valid(tab.data.language || TASK_LANGUAGE.SQL, sql)
+			.then((res: ValidMessage[]) => {
+				if (res.length) {
+					const problems = convertMsgToProblemItem(tab, res);
+					molecule.problems.add(problems);
+				} else {
+					const rootId = Number(tab.id);
+					const problems = molecule.problems.getState().data;
+					const isExisted = problems.find((pro) => pro.id === rootId);
+					if (isExisted) {
+						molecule.problems.remove(rootId);
+					}
 				}
-			}
-		});
+			});
 	}
 }
 
 function registerWorkers() {
 	(window as any).MonacoEnvironment = {
-		getWorkerUrl(moduleId: string, label: string) {
+		getWorkerUrl(moduleId: string, label: TASK_LANGUAGE) {
 			switch (label) {
-				case 'sql':
-				case 'sparksql': {
+				case TASK_LANGUAGE.SPARKSQL: {
 					return './sparksql.worker.js';
 				}
-				case 'flinksql': {
+				case TASK_LANGUAGE.FLINKSQL: {
 					return './flinksql.worker.js';
 				}
-				case 'hivesql': {
+				case TASK_LANGUAGE.HIVESQL: {
 					return './hivesql.worker.js';
 				}
-				case 'mysql': {
+				case TASK_LANGUAGE.MYSQL: {
 					return './mysql.worker.js';
 				}
-				case 'plsql': {
+				case TASK_LANGUAGE.PLSQL: {
 					return './plsql.worker.js';
 				}
-				// case 'sql': {
-				//   return './sql.worker.js';
-				// }
-				case 'json': {
+				case TASK_LANGUAGE.SQL: {
+					return './sql.worker.js';
+				}
+				case TASK_LANGUAGE.JSON: {
 					return './json.worker.js';
 				}
 				default: {

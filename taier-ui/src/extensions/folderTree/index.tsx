@@ -49,6 +49,7 @@ import {
 	DATA_SYNC_TYPE,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
 
 /**
  * Update task tree node
@@ -75,6 +76,7 @@ function openCreateTab(id?: string) {
 			const params = {
 				...values,
 				computeType: 1,
+				parentId: values.nodePid,
 				version: 0,
 			};
 			api.addOfflineTask(params)
@@ -280,64 +282,74 @@ export function openTaskInTab(taskId: any, file?: any) {
 	api.getOfflineTaskByID({ id: fileId }).then((res) => {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
 		if (success) {
-			if (data.taskType === TASK_TYPE_ENUM.SQL) {
-				const tabData = {
-					id: fileId.toString(),
-					name: data.name,
-					data: {
-						...data,
-						// set sqlText into value so that molecule-editor could read from this
-						value: data.sqlText,
-						language: 'sql',
-					},
-					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-					breadcrumb:
-						location?.split('/')?.map((item: string) => ({
-							id: item,
-							name: item,
-						})) || [],
-				};
-				molecule.editor.open(tabData);
-				molecule.editor.updateActions([
-					{ id: TASK_RUN_ID, disabled: false },
-					{ id: TASK_SAVE_ID, disabled: false },
-					{ id: TASK_SUBMIT_ID, disabled: false },
-				]);
-			} else if (data.taskType === TASK_TYPE_ENUM.SYNC) {
-				// open in molecule
-				const tabData: molecule.model.IEditorTab = {
-					id: fileId.toString(),
-					name: data.name,
-					data: {
-						...data,
-						value: data.sqlText,
-						language: 'json',
-						taskDesc: data.taskDesc,
-					},
-					icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-					breadcrumb:
-						location?.split('/')?.map((item: string) => ({
-							id: item,
-							name: item,
-						})) || [],
-				};
-
-				// 向导模式渲染数据同步任务，脚本模式渲染编辑器
-				if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
-					tabData.renderPane = () => {
-						return <DataSync key={fileId} />;
+			switch (data.taskType) {
+				case TASK_TYPE_ENUM.SQL:
+				case TASK_TYPE_ENUM.HIVESQL: {
+					const tabData = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							// set sqlText into value so that molecule-editor could read from this
+							value: data.sqlText,
+							language: mappingTaskTypeToLanguage(data.taskType)
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
 					};
-					// 向导模式不需要设置编辑器语言
-					Reflect.deleteProperty(tabData.data!, 'language');
+					molecule.editor.open(tabData);
+					molecule.editor.updateActions([
+						{ id: TASK_RUN_ID, disabled: false },
+						{ id: TASK_SAVE_ID, disabled: false },
+						{ id: TASK_SUBMIT_ID, disabled: false },
+					]);
+					break;
 				}
 
-				molecule.editor.open(tabData);
-				performSyncTaskActions();
-				molecule.editor.updateActions([
-					{ id: TASK_RUN_ID, disabled: false },
-					{ id: TASK_SAVE_ID, disabled: false },
-					{ id: TASK_SUBMIT_ID, disabled: false },
-				]);
+				case TASK_TYPE_ENUM.SYNC: {
+					// open in molecule
+					const tabData: molecule.model.IEditorTab = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							value: data.sqlText,
+							language: 'json',
+							taskDesc: data.taskDesc,
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
+					};
+
+					// 向导模式渲染数据同步任务，脚本模式渲染编辑器
+					if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+						tabData.renderPane = () => {
+							return <DataSync key={fileId} />;
+						};
+						// 向导模式不需要设置编辑器语言
+						Reflect.deleteProperty(tabData.data!, 'language');
+					}
+
+					molecule.editor.open(tabData);
+					performSyncTaskActions();
+					molecule.editor.updateActions([
+						{ id: TASK_RUN_ID, disabled: false },
+						{ id: TASK_SAVE_ID, disabled: false },
+						{ id: TASK_SUBMIT_ID, disabled: false },
+					]);
+					break;
+				}
+
+				default:
+					break;
 			}
 		} else {
 			resetEditorGroup();

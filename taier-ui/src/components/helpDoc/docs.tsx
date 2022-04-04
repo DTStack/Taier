@@ -19,22 +19,17 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
+export const componentTips = (
+	<div>选择组件后只可配置任务的输入参数与输出参数，SQL代码无法编辑。</div>
+);
 
-export const es7BulkAction = (
-    <p>bulkAction：批量写入记录数</p>
-)
+export const es7BulkAction = <p>bulkAction：批量写入记录数</p>;
 
-export const es7Query = (
-    <p>query：查询表达式</p>
-)
+export const es7Query = <p>query：查询表达式</p>;
 
-export const indexTypeDoc = (
-    <p>type: 索引类型</p>
-)
+export const indexTypeDoc = <p>type: 索引类型</p>;
 
-export const es7Index = (
-    <p>index: 索引</p>
-)
+export const es7Index = <p>index: 索引</p>;
 
 export const incrementColumnHelp = (
 	<div>
