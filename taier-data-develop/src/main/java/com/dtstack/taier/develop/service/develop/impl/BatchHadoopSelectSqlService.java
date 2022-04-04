@@ -28,11 +28,13 @@ import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
+import com.dtstack.taier.develop.service.schedule.JobExpandService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlType;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
@@ -40,6 +42,7 @@ import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
@@ -52,7 +55,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -89,6 +97,12 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
 
     @Autowired
     private ScheduleActionService actionService;
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private JobExpandService jobExpandService;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -301,7 +315,9 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             }
             Integer status = TaskStatus.getShowStatus(engineEntity.getStatus());
             result.setStatus(status);
-
+            if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+                buildHiveSqlData(result, status, jobId, taskType, engineEntity, selectSql, tenantId);
+            } else
             if (buildDataWithCheckTaskStatus(selectSql, tenantId, result, status)) {
                 return result;
             }
@@ -342,12 +358,14 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         }
         Integer status = TaskStatus.getShowStatus(engineEntity.getStatus());
         result.setStatus(status);
-        
-        if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
-                StringUtils.isNotEmpty(selectSql.getFatherJobId()) ? selectSql.getFatherJobId() : jobId, engineEntity, status)) {
-            return result;
+        if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+            buildHiveSqlRunLog(result, status, jobId, taskType, engineEntity, tenantId);
+        } else {
+            if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
+                    StringUtils.isNotEmpty(selectSql.getFatherJobId()) ? selectSql.getFatherJobId() : jobId, engineEntity, status)) {
+                return result;
+            }
         }
-        
         // update time
         batchSelectSqlService.updateGmtModify(jobId, tenantId);
         return result;
@@ -627,5 +645,55 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
             }
         }
         return logBuild.toString();
+    }
+
+
+    /**
+     * 组装HiveSql 执行结果
+     *
+     * @param result
+     * @param status
+     * @param taskType
+     * @param selectSql
+     * @param tenantId
+     * @throws Exception
+     */
+    private void buildHiveSqlData(ExecuteResultVO result, Integer status, String jobId, Integer taskType, ActionJobEntityVO engineEntity,
+                                  BatchSelectSql selectSql, Long tenantId) throws Exception {
+        // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
+        if ((TaskStatus.FINISHED.getStatus().equals(status)
+                || TaskStatus.FAILED.getStatus().equals(status))
+                && EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+            if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()
+                    || selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
+                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, result.getTaskType());
+                List<Object> data = hadoopDataDownloadService.queryDataFromHiveServerTempTable(tenantId, selectSql.getTempTableName(),tenantEngine.getComponentIdentity());
+                result.setResult(data);
+            }
+        }
+    }
+
+
+
+    /**
+     * 组装HiveSql 运行日志
+     *
+     * @param result
+     * @param status
+     * @param jobId
+     * @param taskType
+     * @param engineEntity
+     * @param dtuicTenantId
+     * @throws Exception
+     */
+    private void buildHiveSqlRunLog(ExecuteResultVO result, Integer status, String jobId, Integer taskType, ActionJobEntityVO engineEntity, Long dtuicTenantId) {
+        // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
+        if ((TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.FAILED.getStatus().equals(status))
+                && EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
+            ScheduleJobExpand scheduleJobExpand = jobExpandService.selectOneByJobId(jobId);
+            buildLog(engineEntity.getLogInfo(), scheduleJobExpand != null && StringUtils.isNotBlank(scheduleJobExpand.getEngineLog()) ?
+                    scheduleJobExpand.getEngineLog() : null, dtuicTenantId, jobId, false, result);
+            result.setDownload(null);
+        }
     }
 }

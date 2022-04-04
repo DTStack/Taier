@@ -23,6 +23,7 @@ import ajax from '../../api';
 import { getContainer } from './resModal';
 import { formatDateTime } from '@/utils';
 import classNames from 'classnames';
+import './resViewModal.scss';
 
 interface IResViewModalProps {
 	visible: boolean;
@@ -50,15 +51,7 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 		if (!data) return '系统异常';
 
 		return (
-			<table
-				className={classNames(
-					'ant-table',
-					'border',
-					'border-ddd',
-					'border-solid',
-					'w-full',
-				)}
-			>
+			<table className={classNames('ant-table', 'resouce-detail')}>
 				<tbody className="ant-table-tbody">
 					<tr>
 						<td className="w-1/5">资源名称</td>
@@ -66,11 +59,11 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 					</tr>
 					<tr>
 						<td>资源描述</td>
-						<td className='break-all'>{data.resourceDesc}</td>
+						<td className="break-all">{data.resourceDesc}</td>
 					</tr>
 					<tr>
 						<td>存储路径</td>
-						<td className='break-all'>
+						<td className="break-all">
 							{data.url}
 							<CopyToClipboard
 								key="copy"

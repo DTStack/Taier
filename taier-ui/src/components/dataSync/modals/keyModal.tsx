@@ -3,7 +3,7 @@ import type { ModalProps } from 'antd';
 import { stringColumnFormat } from '@/components/helpDoc/docs';
 import { DATA_SOURCE_ENUM, formItemLayout, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
 import { isValidFormatType } from '../keymap';
-import type { IDataColumnsProps } from '../interface';
+import type { IDataColumnsProps } from '@/interface';
 
 const FormItem = Form.Item;
 const { Option } = Select;

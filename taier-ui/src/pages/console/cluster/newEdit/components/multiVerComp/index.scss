@@ -1,3 +1,5 @@
+@import '../../fileConfig/index.scss';
+
 .c-multiVersionComp__intail {
 	margin-top: 20px;
 
@@ -35,7 +37,7 @@
 			height: 48px;
 			margin-right: 20px;
 			padding: 10px 22px 10px 16px;
-			border: 1px solid #ddd;
+			border: 1px solid var(--panel-border);
 			border-radius: 0;
 			cursor: pointer;
 
@@ -89,24 +91,28 @@
 				height: 44px;
 
 				.ant-tabs-tab-btn {
-					width: 210px;
+					width: $file-size;
 					height: 44px;
 					margin: 0;
 					padding: 0;
 					font-size: 14px;
 					line-height: 44px;
 					text-align: center;
-					background: #fafafa;
+					background: var(--tab-inactiveBackground);
 				}
 
 				.ant-tabs-tab-active {
 					.ant-tabs-tab-btn {
-						background: #fff;
+						background: var(--tab-activeBackground);
 					}
 				}
 
 				.ant-tabs-ink-bar {
 					display: none;
+				}
+
+				.ant-tabs-tab + .ant-tabs-tab {
+					margin: 0;
 				}
 			}
 		}

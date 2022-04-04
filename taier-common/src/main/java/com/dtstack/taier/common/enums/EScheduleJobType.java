@@ -54,6 +54,7 @@ public enum EScheduleJobType {
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null),
+    HIVE_SQL(17, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER)
     ;
 
 

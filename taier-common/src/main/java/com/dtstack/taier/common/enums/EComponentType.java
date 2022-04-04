@@ -149,7 +149,7 @@ public enum EComponentType {
     // 需要添加TypeName的组件
     public static List<EComponentType> typeComponentVersion = Lists.newArrayList(
             EComponentType.FLINK, EComponentType.SPARK,
-            EComponentType.HDFS
+            EComponentType.HDFS,EComponentType.HIVE_SERVER
     );
 
     /**

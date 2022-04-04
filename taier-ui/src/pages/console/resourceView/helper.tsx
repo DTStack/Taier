@@ -22,6 +22,7 @@ import Chart from '@/components/chart';
 import Table from 'antd/lib/table';
 import type { SCHEDULE_TYPE } from '@/constant';
 import type { ColumnsType, TableProps } from 'antd/lib/table';
+import { useCurrentTheme } from '@/components/customHooks';
 
 export interface ResouceProps {
 	type: string;
@@ -327,6 +328,8 @@ export const RenderTable = ({
  * The Resource Card
  */
 export const ResourceCard = ({ title, useNum, total, value = 0 }: ResouceProps) => {
+	const [currentTheme] = useCurrentTheme();
+
 	const getColor = (rawValue: number) => {
 		if (rawValue >= ALARM_DEFAULT) {
 			return rawValue >= ALARM_HIGHT ? '#FF5F5C' : '#FFB310';
@@ -351,8 +354,14 @@ export const ResourceCard = ({ title, useNum, total, value = 0 }: ResouceProps) 
 				value: 150 - value,
 			},
 		];
+
+		const fontCSSColor = window
+			.getComputedStyle(document.documentElement)
+			.getPropertyValue('--descriptionForeground');
+		(rawOption.series[1].data[0] as any).label.normal.textStyle.color = fontCSSColor;
+
 		return rawOption;
-	}, [value]);
+	}, [value, currentTheme]);
 
 	return (
 		<div className="c-resourceCard__container">

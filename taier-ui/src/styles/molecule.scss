@@ -11,7 +11,27 @@
 	}
 }
 
-.mo-statusBar {
-	background: $main-color;
-	color: #ffffff;
+// only the tabs in editor should have hover styles
+.mo-editor__group {
+	.mo-tab__item:hover {
+		background-color: var(--tab-hoverBackground);
+	}
+}
+
+.mo-tab__item__status,
+.mo-tab__item__op {
+	color: inherit;
+
+	&:hover {
+		color: inherit;
+	}
+}
+
+.mo-editor__group-breadcrumb {
+	color: var(--breadcrumb-foreground);
+
+	.mo-breadcrumb__item:hover {
+		color: var(--breadcrumb-focusForeground);
+		opacity: 1;
+	}
 }

@@ -95,7 +95,7 @@ public abstract class AbstractRdbsClient extends AbstractClient {
 
     private JobResult submitSqlJob(JobClient jobClient) {
         String submitId = exeQueue.submit(jobClient);
-        return JobResult.createSuccessResult(submitId);
+        return JobResult.createSuccessResult(jobClient.getJobId(),submitId);
     }
 
     private JobResult submitJobWithJar(JobClient jobClient) {

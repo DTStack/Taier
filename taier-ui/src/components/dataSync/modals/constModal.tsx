@@ -3,7 +3,7 @@ import { useState } from 'react';
 import HelpDoc, { relativeStyle } from '@/components/helpDoc';
 import { Modal, Input, Select, message } from 'antd';
 import { Utils } from '@dtinsight/dt-utils/lib';
-import type { IDataColumnsProps } from '../interface';
+import type { IDataColumnsProps } from '@/interface';
 import './constModal.scss';
 
 const { Option } = Select;

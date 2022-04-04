@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,14 +27,14 @@ import java.util.List;
 /**
  * @author toutian
  */
-public interface DevelopCatalogueDao {
+public interface DevelopCatalogueMapper extends BaseMapper<BatchCatalogue> {
 
     /**
      * 根据id查询目录
      * @param id
      * @return
      */
-    BatchCatalogue getOne(@Param("id") Long id);
+    //BatchCatalogue getOne(@Param("id") Long id);
 
     /**
      * 根据名称和父目录Id查询
@@ -85,25 +86,18 @@ public interface DevelopCatalogueDao {
     BatchCatalogue getSystemFunctionCatalogueOne(@Param("nodePid") int nodePid);
 
     /**
-     * 插入数据
-     * @param batchCatalogue
-     * @return
-     */
-    Integer insert(BatchCatalogue batchCatalogue);
-
-    /**
      * 更新数据
      * @param batchCatalogue
      * @return
      */
-    Integer update(BatchCatalogue batchCatalogue);
+    //Integer update(BatchCatalogue batchCatalogue);
 
     /**
      * 根据id删除
      * @param id
      * @return
      */
-    Integer deleteById(@Param("id") Long id);
+    //Integer deleteById(@Param("id") Long id);
 
     /**
      * 校验目录下的 直接子目录 + 直接子文件 不超过2000条
