@@ -86,6 +86,30 @@ interface IPreviewTableProps {
 	dataSource: Record<string, string | number | null>[];
 }
 
+// 不允许请求 tableList 的数据源
+const NOT_REQUEST_TABLE_SOURCE = [
+	DATA_SOURCE_ENUM.KINGBASE8,
+	DATA_SOURCE_ENUM.S3,
+	DATA_SOURCE_ENUM.ADB_FOR_PG,
+	DATA_SOURCE_ENUM.OPENTSDB,
+	DATA_SOURCE_ENUM.ES7,
+	DATA_SOURCE_ENUM.ES,
+	DATA_SOURCE_ENUM.ES6,
+	DATA_SOURCE_ENUM.HDFS,
+	DATA_SOURCE_ENUM.FTP,
+];
+
+// 不支持数据预览的数据源
+const NOT_PREVIEW_SOURCE = [
+	DATA_SOURCE_ENUM.HDFS,
+	DATA_SOURCE_ENUM.HBASE,
+	DATA_SOURCE_ENUM.FTP,
+	DATA_SOURCE_ENUM.OPENTSDB,
+	DATA_SOURCE_ENUM.ES7,
+	DATA_SOURCE_ENUM.ES,
+	DATA_SOURCE_ENUM.ES6,
+];
+
 export default function Source({
 	sourceMap,
 	readonly,
@@ -349,18 +373,6 @@ export default function Source({
 		if (ALLOW_REQUEST_SCHEMA.includes(targetDataSource.dataTypeCode)) {
 			getSchemaList();
 		}
-
-		const NOT_REQUEST_TABLE_SOURCE = [
-			DATA_SOURCE_ENUM.KINGBASE8,
-			DATA_SOURCE_ENUM.S3,
-			DATA_SOURCE_ENUM.ADB_FOR_PG,
-			DATA_SOURCE_ENUM.OPENTSDB,
-			DATA_SOURCE_ENUM.ES7,
-			DATA_SOURCE_ENUM.ES,
-			DATA_SOURCE_ENUM.ES6,
-			DATA_SOURCE_ENUM.HDFS,
-			DATA_SOURCE_ENUM.FTP,
-		];
 
 		if (!NOT_REQUEST_TABLE_SOURCE.includes(targetDataSource.dataTypeCode)) {
 			getTableList(value);
@@ -1034,6 +1046,12 @@ export default function Source({
 								placeholder="请选择index"
 								showSearch
 								allowClear
+								filterOption={(input, option) =>
+									!!option?.value
+										?.toString()
+										.toLowerCase()
+										.includes(input.toLowerCase())
+								}
 							>
 								{schemaList?.map((item) => (
 									<Option key={item} value={item}>
@@ -1095,7 +1113,9 @@ export default function Source({
 
 	useEffect(() => {
 		if (sourceMap?.sourceId) {
-			getTableList(sourceMap.sourceId, sourceMap.schema);
+			if (!NOT_REQUEST_TABLE_SOURCE.includes(sourceMap.type!)) {
+				getTableList(sourceMap.sourceId, sourceMap.schema);
+			}
 
 			const sourceType = sourceMap.type;
 			// 获取切分键
@@ -1243,7 +1263,8 @@ export default function Source({
 										type="link"
 										disabled={
 											!getFieldValue('sourceId') ||
-											target?.dataTypeCode === DATA_SOURCE_ENUM.HDFS
+											!target ||
+											NOT_PREVIEW_SOURCE.includes(target.dataTypeCode)
 										}
 										onClick={handleLoadPreview}
 										loading={previewLoading}
