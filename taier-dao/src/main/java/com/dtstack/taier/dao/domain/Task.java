@@ -83,6 +83,8 @@ public class Task  {
 
     private String targetStr;
 
+    private String sideStr;
+
     private String settingStr;
 
     /**
@@ -165,6 +167,8 @@ public class Task  {
         this.isDeleted = isDeleted;
     }
 
+
+    private String jobId;
 
     public String getMainClass() {
         return mainClass;
@@ -302,6 +306,14 @@ public class Task  {
         this.settingStr = settingStr;
     }
 
+    public String getSideStr() {
+        return sideStr;
+    }
+
+    public void setSideStr(String sideStr) {
+        this.sideStr = sideStr;
+    }
+
     public String getScheduleConf() {
         return scheduleConf;
     }
@@ -340,5 +352,13 @@ public class Task  {
 
     public void setSubmitStatus(Integer submitStatus) {
         this.submitStatus = submitStatus;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
     }
 }
