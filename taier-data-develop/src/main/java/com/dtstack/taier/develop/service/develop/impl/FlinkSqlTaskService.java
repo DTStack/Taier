@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -33,7 +35,6 @@ import java.util.Objects;
 
 
 @Service
-
 public class FlinkSqlTaskService {
 
     private static final String TIME_CHARACTERISTIC = "time.characteristic=EventTime";
@@ -223,8 +224,7 @@ public class FlinkSqlTaskService {
         //生成最终拼接的sql
         String sql = generateSqlToScheduler(task).toString();
         task.setSqlText(sql);
-        // 统一处理engineJobType
-        //  task.setTaskType(EStreamJobType.getEngineJobType(streamTask.getTaskType()));
+        task.setTaskType(EScheduleJobType.SQL.getType());
         return generateParamActionExt(task, externalPath, taskParams);
     }
 
@@ -235,7 +235,7 @@ public class FlinkSqlTaskService {
         actionParam.remove("mainClass");
         actionParam.remove("class");
         // 补充其他的字段
-        // actionParam.put("engineType", EngineType.getEngineName(task.getEngineType()));
+        actionParam.put("type", EScheduleType.NORMAL_SCHEDULE.getType());
         actionParam.put("tenantId", task.getTenantId());
         actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion()));
         actionParam.put("name", task.getName());

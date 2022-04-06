@@ -56,6 +56,7 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
+import com.dtstack.taier.dao.domain.BaseEntity;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchDataSource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
@@ -108,6 +109,7 @@ import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
@@ -307,6 +309,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public static final String HADOOP_CONFIG = "hadoopConfig";
 
     private static final String TASK_PATTERN = "[\\u4e00-\\u9fa5_a-z0-9A-Z-]+";
+
+    private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*([0-9a-zA-Z-_]+)\\s*\\(");
 
     @PostConstruct
     public void init() {
@@ -2622,6 +2626,28 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
         return supportType;
+    }
+    /**
+     * 获取sql中包含的方法名称
+     *
+     * @param sql
+     * @return
+     */
+    public Set<String> getFuncName(String sql) {
+
+        if (com.google.common.base.Strings.isNullOrEmpty(sql)) {
+            return Sets.newHashSet();
+        }
+        sql = SqlFormatUtil.formatSql(sql);
+
+        Set<String> funcSet = Sets.newHashSet();
+        Matcher matcher = FUNCTION_PATTERN.matcher(sql);
+        while (matcher.find()) {
+            String funcName = matcher.group(1);
+            funcSet.add(funcName.toUpperCase());
+        }
+
+        return funcSet;
     }
 
 }
