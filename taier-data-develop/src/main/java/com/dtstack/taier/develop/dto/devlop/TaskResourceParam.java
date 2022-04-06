@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.Task;
 
 import java.util.List;
@@ -39,6 +40,21 @@ public class TaskResourceParam extends Task {
     private List<Long> refResourceIdList;
 
     private boolean preSave= false;
+
+    /**
+     * flinksql 源表
+     */
+    private List<JSONObject> source;
+
+    /**
+     * flinksql 结果表
+     */
+    private List<JSONObject> sink;
+
+    /**
+     * 维表
+     */
+    private List<JSONObject> side;
 
     private Map<String, Object> sourceMap;
 
@@ -262,6 +278,31 @@ public class TaskResourceParam extends Task {
 
     public void setEditBaseInfo(Boolean editBaseInfo) {
         isEditBaseInfo = editBaseInfo;
+    }
+
+
+    public void setSource(List<JSONObject> source) {
+        this.source  = source;
+    }
+
+    public List<JSONObject> getSource() {
+        return source;
+    }
+
+    public void setSink(List<JSONObject> sink) {
+        this.sink  = sink;
+    }
+
+    public List<JSONObject> getSink() {
+        return sink;
+    }
+
+    public void setSide(List<JSONObject> side) {
+        this.side  = side;
+    }
+
+    public List<JSONObject> getSide() {
+        return side;
     }
 
 }

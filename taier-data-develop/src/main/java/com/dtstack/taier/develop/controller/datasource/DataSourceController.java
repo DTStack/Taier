@@ -3,9 +3,11 @@ package com.dtstack.taier.develop.controller.datasource;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.bo.datasource.DsInfoIdParam;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.datasource.impl.DsTypeService;
@@ -55,7 +57,8 @@ public class DataSourceController {
             @Override
             protected DsDetailVO process() throws RdosDefineException {
                 Asserts.notNull(dsInfoIdParam.getDataInfoId(), "数据源Id不能为空");
-                return dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
+                DsInfo dsInfo = dsInfoService.dsInfoDetail(dsInfoIdParam.getDataInfoId());
+                return DsDetailTransfer.INSTANCE.toInfoVO(dsInfo);
             }
         }.execute();
     }

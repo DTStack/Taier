@@ -22,11 +22,37 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 
 public enum EScheduleJobType {
 
+    /**
+     * 虚节点
+     */
     VIRTUAL(-1, "虚节点", -1, 0, null),
+
+    /**
+     * SparkSQL
+     */
     SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK),
+
+    /**
+     * Spark
+     */
     SPARK(1, "Spark", 1, 2, EComponentType.SPARK),
+
+    /**
+     * 数据同步
+     */
     SYNC(2, "数据同步", 2, 3, EComponentType.FLINK),
+    /**
+     * Shell
+     */
     SHELL(3, "Shell", 2, 3, null),
+
+    /**
+     * FlinkSQL
+     */
+    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK),
+    /**
+     * 工作流
+     */
     WORK_FLOW(10, "工作流", -1, 9, null),
     HIVE_SQL(17, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER)
     ;

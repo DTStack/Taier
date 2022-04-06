@@ -118,9 +118,8 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
      * @param dataInfoId
      * @return
      */
-    public DsDetailVO dsInfoDetail(Long dataInfoId) {
+    public DsInfo dsInfoDetail(Long dataInfoId) {
         DsInfo dsInfo = lambdaQuery().eq(DsInfo::getId, dataInfoId).one();
-        DsDetailVO dsDetailVO = DsDetailTransfer.INSTANCE.toInfoVO(dsInfo);
         String dataJson = dsInfo.getDataJson();
         JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
         if(DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)){
@@ -131,7 +130,7 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
             //kafka开启了kerberos认证
             dataSourceJson.put(FormNames.AUTHENTICATION,FormNames.KERBROS);
         }
-        return dsDetailVO;
+        return dsInfo;
     }
 
     /**
