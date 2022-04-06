@@ -114,7 +114,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             Long sourceId = Long.parseLong(map.get("sourceId").toString());
             DsInfo source = dsInfoService.getOneById(sourceId);
             map.put("source", source);
-            map.put("type", source.getDataType());
+            map.put("type", source.getDataTypeCode());
             map.put("dataName", source.getDataName());
             Boolean allTable = MapUtils.getBoolean(map, "allTable");
             //hive自动建表，当选择全部表时，需要传全部表名
@@ -288,7 +288,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 Long sourceId = Long.parseLong(map.get("sourceId").toString());
                 DsInfo source = dataSourceCenterService.getOneById(sourceId);
                 map.put("source", source);
-                map.put("type", Integer.valueOf(source.getDataType()));
+                map.put("type", Integer.valueOf(source.getDataTypeCode()));
                 map.put("dataName", source.getDataName());
 
                 //for hive writer

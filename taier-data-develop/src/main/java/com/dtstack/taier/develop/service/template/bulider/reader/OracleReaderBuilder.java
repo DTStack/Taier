@@ -116,7 +116,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
             DsInfo source = dataSourceCenterService.getOneById(sourceId);
             map.put("source", source);
             map.put("sourceIds", Arrays.asList(sourceId));
-            map.put("type", Integer.valueOf(source.getDataType()));
+            map.put("type", source.getDataTypeCode());
             map.put("dataName", source.getDataName());
 
             //for hive writer

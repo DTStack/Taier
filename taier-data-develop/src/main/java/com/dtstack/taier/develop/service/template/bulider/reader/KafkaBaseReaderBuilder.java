@@ -38,7 +38,7 @@ public abstract class KafkaBaseReaderBuilder implements DaReaderBuilder {
         Long sourceId = Long.parseLong(map.get("sourceId").toString());
         DsInfo source = dsInfoService.getOneById(sourceId);
         map.put("source", source);
-        map.put("type", source.getDataType());
+        map.put("type", source.getDataTypeCode());
         map.put("dataName", source.getDataName());
     }
 

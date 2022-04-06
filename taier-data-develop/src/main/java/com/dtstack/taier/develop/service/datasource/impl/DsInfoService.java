@@ -339,10 +339,10 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
                     if (null == tables || tables.size() < 1) {
                         continue;
                     }
-                    String tName = dealSpecialTableName(tables.get(0).toString().trim(), Integer.valueOf(source.getDataType()), schema);
+                    String tName = dealSpecialTableName(tables.get(0).toString().trim(), source.getDataTypeCode(), schema);
                     SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tName).build();
                     sqlQueryDTO.setFilterPartitionColumns(true);
-                    List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(Integer.valueOf(source.getDataType())).getColumnMetaData(sourceDTO, sqlQueryDTO);
+                    List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(source.getDataTypeCode()).getColumnMetaData(sourceDTO, sqlQueryDTO);
                     List<JSONObject> list = new ArrayList<>();
                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(columnMetaDTOList)) {
                         for (ColumnMetaDTO columnMetaDTO : columnMetaDTOList) {
@@ -362,10 +362,10 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
             }
             String[] tablesName = tableNameStr.split(",");
             for (String singleTablesName : tablesName) {
-                String tName = dealSpecialTableName(singleTablesName.trim(),  Integer.valueOf(source.getDataType()), schema);
+                String tName = dealSpecialTableName(singleTablesName.trim(),  source.getDataTypeCode(), schema);
                 SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tName).build();
                 sqlQueryDTO.setFilterPartitionColumns(true);
-                List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(Integer.valueOf(source.getDataType())).getColumnMetaData(sourceDTO, sqlQueryDTO);
+                List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(source.getDataTypeCode()).getColumnMetaData(sourceDTO, sqlQueryDTO);
                 List<JSONObject> list = new ArrayList<>();
                 if (org.apache.commons.collections.CollectionUtils.isNotEmpty(columnMetaDTOList)) {
                     for (ColumnMetaDTO columnMetaDTO : columnMetaDTOList) {

@@ -66,7 +66,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
         Long sourceId = Long.parseLong(map.get("sourceId").toString());
         DsInfo source = dataSourceAPIClient.getOneById(sourceId);
         map.put("source", source);
-        map.put("type", Integer.valueOf(source.getDataType()));
+        map.put("type", source.getDataTypeCode());
         map.put("dataName", source.getDataName());
 
         JSONObject json = JSONObject.parseObject(source.getDataJson());
