@@ -1,5 +1,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.Task;
 
 import java.sql.Timestamp;
@@ -17,6 +18,22 @@ public class TaskVO extends Task {
     private Map<String, Object> targetMap;
 
     private Map<String, Object> settingMap;
+
+
+    /**
+     * flinksql 源表
+     */
+    private List<JSONObject> source;
+
+    /**
+     * flinksql 结果表
+     */
+    private List<JSONObject> sink;
+
+    /**
+     * 维表
+     */
+    private List<JSONObject> side;
 
     /**
      * 用户 ID
@@ -123,5 +140,29 @@ public class TaskVO extends Task {
 
     public void setTaskVariables(List<Map> taskVariables) {
         this.taskVariables = taskVariables;
+    }
+
+    public void setSource(List<JSONObject> source) {
+        this.source  = source;
+    }
+
+    public List<JSONObject> getSource() {
+        return source;
+    }
+
+    public void setSink(List<JSONObject> sink) {
+        this.sink  = sink;
+    }
+
+    public List<JSONObject> getSink() {
+        return sink;
+    }
+
+    public void setSide(List<JSONObject> side) {
+        this.side  = side;
+    }
+
+    public List<JSONObject> getSide() {
+        return side;
     }
 }
