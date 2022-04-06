@@ -8,6 +8,7 @@ import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.PostgresqlSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -17,7 +18,6 @@ import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.CollectType;
 import com.dtstack.taier.develop.enums.develop.DAoperators;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.RdbmsDaType;
 import com.dtstack.taier.develop.enums.develop.SlotConfigEnum;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
@@ -148,7 +148,7 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
             connectionDTO.setTable((Lists.newArrayList(schemaTableName)));
             connectionDTOList.add(connectionDTO);
 
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 Map<String, Object> settingMap = param.getSettingMap();
                 //下面代码 是为了 拿到断点续传在字段列表的第几位
                 if (sourceMap != null && settingMap != null) {

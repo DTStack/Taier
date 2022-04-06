@@ -7,17 +7,15 @@ import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.Table;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.PartitionType;
 import com.dtstack.taier.develop.enums.develop.RdbmsDaType;
-import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncCreateTableMode;
 import com.dtstack.taier.develop.enums.develop.SyncWriteMode;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -104,7 +102,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
         setWriterJson(param);
         Map<String, Object> targetMap = param.getTargetMap();
         DsInfo targetSource = (DsInfo) targetMap.get("source");
-        if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+        if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             HdfsWriter hdfsWriter = new HdfsWriter();
             Map<String, Object> sourceMap = param.getSourceMap();
             int sourceType = Integer.parseInt(String.valueOf(sourceMap.get("type")));
@@ -203,7 +201,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             hdfsWriter.setPartitionType(PartitionType.fromTypeValue(writerParam.getPartitionType()).getName());
             hdfsWriter.setSourceIds(writerParam.getSourceIds());
             return hdfsWriter;
-        } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+        } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
             Hive2XWriter hdfsWriter = new Hive2XWriter();
             datasourceService.setSftpConfig(JSONObject.parseObject(targetSource.getDataJson()),param.getTenantId() ,targetMap,  HADOOP_CONFIG);
             Hive2XWriterParam writerParam = JSON.parseObject(JSON.toJSONString(targetMap), Hive2XWriterParam.class);
