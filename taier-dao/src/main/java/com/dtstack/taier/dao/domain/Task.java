@@ -103,7 +103,7 @@ public class Task  {
     private Integer scheduleStatus;
 
     /**
-     * 任务类型 @see EDataSyncJobType
+     * 任务类型 @see EScheduleJobType
      */
     private Integer taskType ;
 

@@ -86,7 +86,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncModel;
@@ -372,7 +371,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (StringUtils.isNotEmpty(streamTaskVO.getSqlText())) {
             streamTaskVO.setSqlText(JsonUtils.formatJSON(DataFilter.passwordFilter(streamTaskVO.getSqlText())));
         }
-        if (!Objects.equals(EDataSyncJobType.BATCH_SYNC.getVal(), taskVO.getTaskType())) {
+        if (!Objects.equals(EScheduleJobType.BATCH_SYNC.getVal(), taskVO.getTaskType())) {
             for (DataSyncTaskVersionVO taskVersion : taskVO.getTaskVersions()) {
                 if (taskVersion.getSqlText() != null) {
                     taskVersion.setSqlText(JsonUtils.formatJSON(DataFilter.passwordFilter(Base64Util.baseDecode(taskVersion.getSqlText()))));
@@ -554,12 +553,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (StringUtils.isNotBlank(componentVersion) && !StringUtils.equals(componentVersion, task.getComponentVersion())) {
             throw new RdosDefineException("flink版本更新，请重新确认并保存后再提交");
         }
-        if (Objects.equals(task.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             if (!checkTaskCanRunByStatus(task)) {
                 throw new RdosDefineException("任务状态未提交发布");
             }
             return publishTaskInfo(task, userId, publishDesc);
-        } else if (Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+        } else if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
             JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
             //判断自定义调度是否合法
 //            checkCronValid(scheduleConf);
@@ -610,7 +609,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
         String extroInfo = getExtraInfo(task, userId);
-        if(Objects.equals(task.getTaskType(),EDataSyncJobType.DATA_ACQUISITION.getVal())){
+        if(Objects.equals(task.getTaskType(),EScheduleJobType.DATA_ACQUISITION.getVal())){
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             paramTaskAction.setIsRestart(0);
             scheduleTasks.setExtraInfo(extroInfo);
@@ -655,8 +654,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         actionParam.put("confProp", JSON.toJSONString(confProp));
 
         actionParam.put("taskId", taskId);
-//        actionParam.put("engineType", EngineType.Flink.getEngineName());
-        actionParam.put("taskType", EDataSyncJobType.getEngineJobType(task.getTaskType()));
+        actionParam.put("taskType", task.getTaskType());
         actionParam.put("name", task.getName());
         actionParam.put("computeType", task.getComputeType());
         actionParam.put("tenantId", task.getTenantId());
@@ -703,7 +701,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         scheduleTaskShadeDTO.setTaskId(task.getId());
         scheduleTaskShadeDTO.setTenantId(scheduleTaskShadeDTO.getTenantId());
         scheduleTaskShadeDTO.setVersionId(Math.toIntExact(taskVersion.getId()));
-        if(Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal()) && StringUtils.isNotEmpty(task.getScheduleConf())) {
+        if(Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal()) && StringUtils.isNotEmpty(task.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(task.getScheduleConf());
             if (scheduleConfig != null) {
                 scheduleTaskShadeDTO.setPeriodType(scheduleConfig.getInteger("periodType"));
@@ -1100,7 +1098,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setTaskParams(convertParams);
 
         //由于密码脱敏，脚本模式保存时密码变成"******"，进行按照原储存信息进行还原，依据是url+username
-        if (CREATE_MODEL_TEMPLATE == specialTask.getCreateModel() && Objects.equals(specialTask.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+        if (CREATE_MODEL_TEMPLATE == specialTask.getCreateModel() && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             String sqlText = TaskUtils.resumeTemplatePwd(taskVO.getSqlText(), specialTask);
             taskVO.setSqlText(sqlText);
         }
@@ -1126,7 +1124,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             JSONObject sql = new JSONObject(2);
             sql.put("job", sqlText);
             sql.put("createModel", CREATE_MODEL_TEMPLATE);
-            if (Objects.equals(taskResourceParam.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 batchTaskParamService.checkParams(sql.toJSONString(), taskResourceParam.getTaskVariables());
             }
             task.setSqlText(sql.toJSONString());
