@@ -1,19 +1,9 @@
 package com.dtstack.taier.develop.service.template.bulider.nameMapping;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 
 /**
@@ -27,7 +17,7 @@ public class MysqlNameMappingBuilder implements NameMappingBuilder {
 
     @Override
     public JSONObject daReaderBuild(TaskResourceParam param) throws Exception {
-//        if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())
+//        if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())
 //                && Objects.equals(SyncContentEnum.DATA_STRUCTURE_SYNC.getType(), param.getSourceMap().get("syncContent"))) {
 //            JSONObject nameMappingJson = new JSONObject();
 //            Map<String, Object> sourceMap = param.getSourceMap();
