@@ -236,7 +236,7 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
 
 //                map.put("type", dsServiceInfoDTO.getType());
                 JSONObject json = JSON.parseObject(source.getDataJson());
-                map.put("type", Integer.valueOf(source.getDataType()));
+                map.put("type", source.getDataTypeCode());
                 map.put("password", JsonUtils.getStringDefaultEmpty(json, PASSWORD));
                 map.put("username", JsonUtils.getStringDefaultEmpty(json, USERNAME));
                 map.put("jdbcUrl", JsonUtils.getStringDefaultEmpty(json, JDBC_URL));

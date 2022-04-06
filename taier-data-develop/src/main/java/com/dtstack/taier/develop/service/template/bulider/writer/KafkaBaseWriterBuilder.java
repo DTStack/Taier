@@ -46,7 +46,7 @@ public abstract class KafkaBaseWriterBuilder implements DaWriterBuilder {
         Long sourceId = Long.parseLong(map.get("sourceId").toString());
         DsInfo source = dataSourceAPIClient.getOneById(sourceId);
         map.put("source", source);
-        Integer sourceType = Integer.valueOf(source.getDataType());
+        Integer sourceType = source.getDataTypeCode();
         map.put("type", sourceType);
         map.put("dataName", source.getDataName());
 

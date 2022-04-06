@@ -1450,7 +1450,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
 
-        taskVO.setSqlText(sqlJson.toJSONString());        if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
+        taskVO.setSqlText(sqlJson.toJSONString());
+        if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
             taskVO.setSqlText(flinkSqlTaskService.generateCreateFlinkSql(task));
         }
         this.updateTask(taskVO, true);
