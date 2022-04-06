@@ -3,11 +3,10 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.dtstack.taier.common.util.Base64Util;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +81,7 @@ public class HadoopJobExeService {
         job = datasourceService.setJobDataSourceInfo(job, dtuicTenantId, syncJob.getIntValue("createModel"));
 
         //todo checkSyncJobParams为什么要异常hadoopConfig
-        if (Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
             List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParam);
         }
