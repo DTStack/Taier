@@ -49,7 +49,7 @@ public enum EScheduleJobType {
     /**
      * FlinkSQL
      */
-    SQL(5, "FlinkSQL", 5, 5, EComponentType.FLINK),
+    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK),
     /**
      * 工作流
      */

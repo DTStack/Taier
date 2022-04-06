@@ -168,6 +168,8 @@ public class Task  {
     }
 
 
+    private String jobId;
+
     public String getMainClass() {
         return mainClass;
     }
@@ -350,5 +352,13 @@ public class Task  {
 
     public void setSubmitStatus(Integer submitStatus) {
         this.submitStatus = submitStatus;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
     }
 }
