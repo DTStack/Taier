@@ -1347,12 +1347,14 @@ export default function KeyMap({
 		const sourceTable = ES_DATASOURCE.includes(sourceMap.type!)
 			? sourceMap.indexType
 			: sourceMap.table;
+
 		// Hive，Impala 作为结果表时，需要获取分区字段
+		const sourceType = sourceMap.type!;
 		const sourcePart =
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+			+sourceType === DATA_SOURCE_ENUM.HIVE1X ||
+			+sourceType === DATA_SOURCE_ENUM.HIVE ||
+			+sourceType === DATA_SOURCE_ENUM.HIVE3X ||
+			+sourceType === DATA_SOURCE_ENUM.SPARKTHRIFT;
 
 		const targetSchema = ES_DATASOURCE.includes(targetMap.type!)
 			? targetMap.index
@@ -1362,11 +1364,17 @@ export default function KeyMap({
 			: targetMap.table;
 
 		// Hive 作为结果表时，需要获取分区字段
+		const targetType = targetMap.type!;
 		const targetPart =
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE ||
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
-			+targetMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+			+targetType === DATA_SOURCE_ENUM.HIVE1X ||
+			+targetType === DATA_SOURCE_ENUM.HIVE ||
+			+targetType === DATA_SOURCE_ENUM.HIVE3X ||
+			+targetType === DATA_SOURCE_ENUM.SPARKTHRIFT;
+
+		// table 和 schema 至少有一者必存在
+		if (!sourceTable && !sourceSchema) return;
+		if (!targetTable && !targetSchema) return;
+
 		setLoading(true);
 		Promise.all([
 			API.getOfflineTableColumn({
