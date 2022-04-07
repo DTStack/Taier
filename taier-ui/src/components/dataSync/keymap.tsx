@@ -39,6 +39,10 @@ interface IKeyMapComponentProps {
 	 */
 	targetMap: ITargetMapProps;
 	/**
+	 * 用户自定义添加的列
+	 */
+	userColumns?: IKeyMapProps;
+	/**
 	 * 是否只读，用于预览数据
 	 */
 	readonly?: boolean;
@@ -123,6 +127,7 @@ function getBatIntVal(
 export default function KeyMap({
 	sourceMap,
 	targetMap,
+	userColumns,
 	isNativeHive = false,
 	readonly,
 	onColsChanged,
@@ -131,10 +136,7 @@ export default function KeyMap({
 }: IKeyMapComponentProps) {
 	const [loading, setLoading] = useState(false);
 	// 前两步选择的表获取字段
-	const [tableColumns, setTableCols] = useState<{
-		source: IDataColumnsProps[];
-		target: IDataColumnsProps[];
-	}>({
+	const [tableColumns, setTableCols] = useState<IKeyMapProps>({
 		source: [],
 		target: [],
 	});
@@ -653,8 +655,8 @@ export default function KeyMap({
 	const dragSvg = () => {
 		renderDags(
 			$canvas.current,
-			tableColumns?.source || [],
-			tableColumns?.target || [],
+			(tableColumns?.source || []).concat(userColumns?.source || []),
+			(tableColumns?.target || []).concat(userColumns?.target || []),
 			canvasInfo,
 		);
 		renderLines($canvas.current, lines, canvasInfo);
@@ -1413,14 +1415,20 @@ export default function KeyMap({
 	useEffect(() => {
 		select($canvas.current).selectAll('.dl, .dr, .lines').remove();
 		dragSvg();
-	}, [lines, canvasInfo, tableColumns]);
+	}, [lines, canvasInfo, tableColumns, userColumns]);
 
 	useEffect(() => {
 		onLinesChanged?.(lines);
 	}, [lines]);
 
-	const sourceCol = useMemo(() => tableColumns?.source || [], [tableColumns]);
-	const targetCol = useMemo(() => tableColumns?.target || [], [tableColumns]);
+	const sourceCol = useMemo(
+		() => (tableColumns?.source || []).concat(userColumns?.source || []),
+		[tableColumns, userColumns],
+	);
+	const targetCol = useMemo(
+		() => (tableColumns?.target || []).concat(userColumns?.target || []),
+		[tableColumns, userColumns],
+	);
 
 	const sourceSrcType = useMemo(() => sourceMap?.type, [sourceMap]);
 	const targetSrcType = useMemo(() => targetMap?.type, [targetMap]);
@@ -1433,7 +1441,7 @@ export default function KeyMap({
 	return (
 		<Resize onResize={handleResize}>
 			<div className="mx-20px">
-				<p className="text-xs">
+				<p className="text-xs text-center">
 					您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 					&nbsp;
 					{!lines.source.length && (
