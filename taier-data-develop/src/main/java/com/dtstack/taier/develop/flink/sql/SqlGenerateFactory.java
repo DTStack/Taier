@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.flink.sql.core.TableFactory;
@@ -26,7 +27,7 @@ public class SqlGenerateFactory {
         if (Objects.isNull(tableType)) {
             throw new DtCenterDefException("表类型不能为空");
         }
-        JSONObject dataJson = JSON.parseObject(dataSource.getDataJson());
+        JSONObject dataJson = JSON.parseObject(Base64Util.baseDecode(dataSource.getDataJson()));
         switch (tableType) {
             case SIDE:
                 if (StringUtils.isNotBlank(componentVersion) && StringUtils.equalsIgnoreCase(componentVersion, FlinkVersion.FLINK_112.getType())) {

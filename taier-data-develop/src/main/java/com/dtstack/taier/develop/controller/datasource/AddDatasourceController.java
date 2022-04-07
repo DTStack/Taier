@@ -29,6 +29,7 @@ import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTableListVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTableLocationVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDatasourceTableCreateSQLVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDatasourceTableCreateVO;
+import com.dtstack.taier.develop.vo.develop.query.KafkaTopicGetVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -205,6 +206,17 @@ public class AddDatasourceController {
             @Override
             protected List<String> process() {
                 return datasourceService.tablelist(sourceVO.getSourceId(), sourceVO.getSchema(), sourceVO.getName());
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "getKafkaTopics")
+    @ApiOperation(value = "获取表列表")
+    public R<List<String>> getKafkaTopics(@RequestBody(required = false) KafkaTopicGetVO sourceVO) {
+        return new APITemplate<List<String>>() {
+            @Override
+            protected List<String> process() {
+                return datasourceService.getKafkaTopics(sourceVO.getSourceId());
             }
         }.execute();
     }
