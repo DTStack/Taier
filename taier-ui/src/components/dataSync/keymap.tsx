@@ -938,7 +938,7 @@ export default function KeyMap({
 			}
 			return (
 				<div
-					className="m-col pa"
+					className="m-col absolute"
 					style={{
 						left: padding,
 						top: padding + h * (sourceCol.length + 1),
@@ -955,7 +955,7 @@ export default function KeyMap({
 
 		return (
 			<div className="sourceLeft">
-				<div className="m-col title pa" style={colStyle}>
+				<div className="m-col title absolute" style={colStyle}>
 					{renderTableRow(sourceSrcType)}
 				</div>
 				{sourceCol.map((col, i) => (
@@ -966,7 +966,7 @@ export default function KeyMap({
 							left: padding,
 							top: padding + h * (i + 1),
 						}}
-						className="m-col pa"
+						className="m-col absolute"
 						key={`sourceLeft-${i}`}
 					>
 						{renderTableRow(sourceSrcType, col)}
@@ -1185,7 +1185,7 @@ export default function KeyMap({
 			}
 			return footerContent ? (
 				<div
-					className="m-col footer pa"
+					className="m-col footer absolute"
 					style={{
 						top: padding + h * (targetCol.length + 1),
 						left: W - (padding + w),
@@ -1203,14 +1203,14 @@ export default function KeyMap({
 
 		return (
 			<div className="targetRight">
-				<div className="m-col title  pa" style={colStyle}>
+				<div className="m-col title  absolute" style={colStyle}>
 					{renderTableRow(targetSrcType)}
 				</div>
 				{targetCol.map((col, i) => {
 					return (
 						<div
 							key={`targetRight-${i}`}
-							className="m-col pa"
+							className="m-col absolute"
 							style={{
 								width: w,
 								height: h,
@@ -1432,15 +1432,8 @@ export default function KeyMap({
 
 	return (
 		<Resize onResize={handleResize}>
-			<div style={{ margin: '0 20px' }}>
-				<p
-					style={{
-						fontSize: 12,
-						color: '#ccc',
-						marginTop: '-20px',
-						textAlign: 'center',
-					}}
-				>
+			<div className="mx-20px">
+				<p className="text-xs">
 					您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 					&nbsp;
 					{!lines.source.length && (
@@ -1506,14 +1499,13 @@ export default function KeyMap({
 					</Row>
 				) : null} */}
 				<Spin spinning={loading}>
-					<Row>
-						<Col span={readonly ? 24 : 21} style={{ textAlign: 'center' }}>
+					<Row gutter={12}>
+						<Col span={readonly ? 24 : 21} className="text-center">
 							<div
 								className="m-keymapbox"
 								style={{
 									width: W,
 									minHeight: H + 20,
-									display: 'inline-block',
 								}}
 							>
 								{renderSource()}
@@ -1522,7 +1514,7 @@ export default function KeyMap({
 									ref={$canvas}
 									width={W - 30 > w * 2 ? W - w * 2 + 30 : 0}
 									height={H}
-									className="pa m-keymapcanvas"
+									className="m-keymapcanvas"
 									style={{ left: w, top: padding }}
 								>
 									<defs>
@@ -1538,7 +1530,7 @@ export default function KeyMap({
 										>
 											<path
 												d="M2,3 L9,6 L2,9 L2,6 L2,3"
-												style={{ fill: '#2491F7' }}
+												fill="currentColor"
 											/>
 										</marker>
 									</defs>
@@ -1549,7 +1541,7 @@ export default function KeyMap({
 											y1="-10"
 											x2="-10"
 											y2="-10"
-											stroke="#2491F7"
+											stroke="currentColor"
 											strokeWidth="2"
 											markerEnd="url(#arrow)"
 										/>
@@ -1599,7 +1591,10 @@ export default function KeyMap({
 				{renderBatchModal()}
 				<ConstModal
 					visible={visibleConst}
-					onOk={(col) => onColsChanged?.(col, OPERATOR_TYPE.ADD, 'source')}
+					onOk={(col) => {
+						onColsChanged?.(col, OPERATOR_TYPE.ADD, 'source');
+						setConstVisible(false);
+					}}
 					onCancel={() => setConstVisible(false)}
 				/>
 				{!readonly && (
@@ -1624,7 +1619,7 @@ function getCanvasW() {
 	let w = 450;
 	const canvas = document.querySelector('.dt-datasync-content');
 	if (canvas) {
-		const newW = (canvas.getBoundingClientRect().width / 6) * 4;
+		const newW = (canvas.getBoundingClientRect().width / 6) * 5;
 		if (newW > w) w = newW;
 	}
 	return w;
@@ -1656,7 +1651,7 @@ const renderDags = (
 		.attr('r', 5)
 		.attr('stroke-width', 2)
 		.attr('stroke', '#fff')
-		.attr('fill', '#2491F7');
+		.attr('fill', 'currentColor');
 
 	select(container)
 		.append('g')
@@ -1676,7 +1671,7 @@ const renderDags = (
 		.attr('r', 5)
 		.attr('stroke-width', 2)
 		.attr('stroke', '#fff')
-		.attr('fill', '#2491F7');
+		.attr('fill', 'currentColor');
 };
 
 function renderLines(
@@ -1748,7 +1743,7 @@ function renderLines(
 		.attr('y1', (d) => d.s.y)
 		.attr('x2', (d) => d.e.x)
 		.attr('y2', (d) => d.e.y)
-		.attr('stroke', '#2491F7')
+		.attr('stroke', 'currentColor')
 		.attr('stroke-width', 2)
 		.attr('marker-end', 'url(#arrow)');
 }
