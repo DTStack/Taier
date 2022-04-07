@@ -4,7 +4,6 @@ import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { API } from '@/api/dataSource';
 import { message, Spin, Steps } from 'antd';
-import { cloneDeep } from 'lodash';
 import { checkExist, getTenantId } from '@/utils';
 import type {
 	IDataSourceUsedInSyncProps,
@@ -30,6 +29,10 @@ const { Step } = Steps;
 function DataSync({ current }: molecule.model.IEditor) {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [currentData, setCurrentData] = useState<ISyncDataProps | null>(null);
+	/**
+	 * keymap 中用户自定义的字段
+	 */
+	const [userColumns, setUserColumns] = useState<IKeyMapProps>({ source: [], target: [] });
 	const [loading, setLoading] = useState(false);
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
 
@@ -143,14 +146,11 @@ function DataSync({ current }: molecule.model.IEditor) {
 				break;
 			}
 			case OPERATOR_TYPE.REPLACE: {
-				const field = flag === 'source' ? 'sourceMap' : 'targetMap';
 				// replace mode is to replace the whole column field
-				setCurrentData((d) => {
-					const nextData = { ...d! };
-					if (nextData[field]) {
-						nextData[field]!.column = cols;
-					}
-					return nextData;
+				setUserColumns((uCols) => {
+					const nextCols = { ...uCols };
+					nextCols[flag] = cols;
+					return nextCols;
 				});
 				break;
 			}
@@ -161,57 +161,46 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 	// 编辑列
 	const handleEditCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-			const column = nextData[field]?.column || [];
-			if (column.includes(col)) {
-				const idx = column.indexOf(col);
-				// 这里只做赋值，不做深拷贝
-				// 因为字段映射的数组里的值和 column 字段的值是同一个引用，直接改这个值就可以做到都改了。如果做深拷贝则需要改两次值
-				Object.assign(column[idx], col);
-				return nextData;
-			}
-			return d;
+		// const field = flag === 'source' ? 'sourceMap' : 'targetMap';
+		setUserColumns((cols) => {
+			const nextCols = { ...cols };
+			const column = nextCols[flag];
+			if (!column.includes(col)) return cols;
+			const idx = column.indexOf(col);
+			// 这里只做赋值，不做深拷贝
+			// 因为字段映射的数组里的值和 column 字段的值是同一个引用，直接改这个值就可以做到都改了。如果做深拷贝则需要改两次值
+			Object.assign(column[idx], col);
+			return nextCols;
 		});
 	};
 
 	// 添加列
 	const handleAddCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-			if (nextData[field]?.column) {
-				const { column = [] } = nextData[field]!;
-				if (checkExist(col.index) && column.some((o) => o.index === col.index)) {
-					message.error(`添加失败：索引值不能重复`);
-					return d;
-				}
-				if (checkExist(col.key) && column.some((o) => o.key === col.key)) {
-					message.error(`添加失败：字段名不能重复`);
-					return d;
-				}
-				column.push(col);
-			} else {
-				nextData[field]!.column = [col];
+		setUserColumns((cols) => {
+			const nextCols = { ...cols };
+			const columns = nextCols[flag];
+			if (checkExist(col.index) && columns.some((o) => o.index === col.index)) {
+				message.error(`添加失败：索引值不能重复`);
+				return cols;
 			}
-
-			return cloneDeep(nextData);
+			if (checkExist(col.key) && columns.some((o) => o.key === col.key)) {
+				message.error(`添加失败：字段名不能重复`);
+				return cols;
+			}
+			columns.push(col);
+			return nextCols;
 		});
 	};
 
 	// 移除列
 	const handleRemoveCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		const field = flag === 'source' ? 'sourceMap' : 'targetMap';
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-			const columns = nextData[field]?.column;
-			if (!columns || !columns.includes(col)) {
-				return d;
-			}
+		setUserColumns((cols) => {
+			const nextCols = { ...cols };
+			const columns = nextCols[flag];
+			if (!columns || !columns.includes(col)) return cols;
 			const idx = columns.indexOf(col);
 			columns.splice(idx, 1);
-			return nextData;
+			return nextCols;
 		});
 	};
 
@@ -345,6 +334,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 				<Keymap
 					sourceMap={currentData.sourceMap}
 					targetMap={currentData.targetMap}
+					userColumns={userColumns}
 					onColsChanged={handleColChanged}
 					onLinesChanged={handleLinesChange}
 					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
@@ -372,6 +362,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 				<Preview
 					data={currentData}
 					dataSourceList={dataSourceList}
+					userColumns={userColumns}
 					onStepTo={(step) =>
 						setCurrentStep((s) => (typeof step === 'number' ? step : s - 1))
 					}
