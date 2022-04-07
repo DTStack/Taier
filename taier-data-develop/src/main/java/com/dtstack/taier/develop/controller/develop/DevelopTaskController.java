@@ -174,18 +174,6 @@ public class DevelopTaskController {
             }
         }.execute();
     }
-//
-//    @PostMapping(value = "forceUpdate")
-//    @ApiOperation("覆盖更新")
-//    public R<TaskCatalogueResultVO> forceUpdate(@RequestBody BatchTaskResourceParamVO paramVO) {
-//        return new APITemplate<TaskCatalogueResultVO>() {
-//            @Override
-//            protected TaskCatalogueResultVO process() {
-//                TaskResourceParam taskResource = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-//                return TaskMapstructTransfer.INSTANCE.TaskCatalogueVOToResultVO(batchTaskService.forceUpdate(taskResource));
-//            }
-//        }.execute();
-//    }
 
     @PostMapping(value = "getSysParams")
     @ApiOperation("获取所有系统参数")

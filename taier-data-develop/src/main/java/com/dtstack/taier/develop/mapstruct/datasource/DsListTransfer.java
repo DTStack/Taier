@@ -23,6 +23,8 @@ public interface DsListTransfer {
 
     DsListVO toInfoVO(DsListBO dsListBO);
 
+    DsInfoVO toDsInfoVO(DsListBO dsListBO);
+
 
     DsListVO dsInfoToDsListVO(DsInfo dsInfo);
 
