@@ -120,6 +120,9 @@
             <if test="listQuery.isMeta != null and listQuery.isMeta == 0">
                 and a.is_meta in(0,2)
             </if>
+            <if test="listQuery.dataTypeCode != null and listQuery.dataTypeCode > 0">
+                and a.data_type_code = #{dataTypeCode}
+            </if>
             <if test="listQuery.status != null and listQuery.status.size() > 0">
                 and a.status in
                 <foreach collection="listQuery.status" item="statusOne" open="(" separator="," close=")">
@@ -227,6 +230,7 @@
         a.status as status,
         a.is_meta as isMeta,
         a.gmt_modified as gmtModified,
+        a.data_type_code as dataTypeCode,
         a.schema_name as schemaName
         from
         datasource_info a

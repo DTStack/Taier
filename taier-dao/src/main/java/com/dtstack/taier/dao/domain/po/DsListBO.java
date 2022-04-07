@@ -35,6 +35,18 @@ public class DsListBO {
 
     private String schemaName;
 
+    private Integer dataTypeCode;
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
+    }
+
+
+
 
     public Long getDataInfoId() {
         return dataInfoId;
