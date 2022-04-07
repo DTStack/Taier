@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
+import com.dtstack.dtcenter.loader.client.IKafka;
 import com.dtstack.dtcenter.loader.client.IKerberos;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
@@ -2281,6 +2282,16 @@ public class DatasourceService {
         //如果是hive类型的数据源  过滤脏数据表 和 临时表
         tables = client.getTableList(sourceDTO, sqlQueryDTO);
         return tables;
+    }
+
+
+    public List<String> getKafkaTopics(Long sourceId) {
+        DsInfo dsInfo = dsInfoService.getOneById(sourceId);
+        String dataJson = dsInfo.getDataJson();
+        JSONObject json = JSON.parseObject(dataJson);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, dsInfo.getDataTypeCode(), null, null, null);
+        IKafka kafka = ClientCache.getKafka(sourceDTO.getSourceType());
+        return kafka.getTopicList(sourceDTO);
     }
 
 
