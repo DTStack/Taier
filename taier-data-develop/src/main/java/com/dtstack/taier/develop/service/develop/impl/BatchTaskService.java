@@ -87,7 +87,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncModel;
@@ -125,6 +124,7 @@ import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
+import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -262,6 +262,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private ComponentService componentService;
 
     @Autowired
+    private ScheduleActionService actionService;
+
+    @Autowired
     private FlinkSqlTaskService flinkSqlTaskService;
 
     private static final String KEY = "key";
@@ -330,60 +333,16 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskVO getTaskById(TaskVO taskVO) {
         Task task = getOne(taskVO.getId());
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
-
-        // sqlText 解密处理
-        //String sqlText = Base64Util.baseDecode(taskVO.getSqlText());
-        //如果sqlText不为空进行解析
-        // if (StringUtils.isNotBlank(sqlText)) {
-//            JSONObject jsonObject = JSONObject.parseObject(taskVO.getSqlText());
-//            taskVO.setSqlText(formatSqlText(taskVO.getCreateModel(), jsonObject));
-//       // }
-      /*  Set<Long> userIds = new HashSet<>();
-        userIds.add(task.getCreateUserId());
-        userIds.add(task.getModifyUserId());
-        userIds.add(task.getOwnerUserId());
-        Map<Long, User> userMap = userService.getUserMap(userIds);
-        User createUser = userMap.get(task.getCreateUserId());
-        if (createUser != null) {
-            taskVO.setCreateUser(createUser);
-            taskVO.setCreateUserName(createUser.getUserName());
+        if(EScheduleJobType.SQL.getType().equals(task.getTaskType())) {
+            taskVO.setSource(flinkSqlTaskService.dealWithSourceName(task.getSourceStr()));
+            taskVO.setSink(flinkSqlTaskService.dealWithSourceName(task.getTargetStr()));
+            taskVO.setSide(flinkSqlTaskService.dealWithSourceName(task.getSideStr()));
+        } else {
+            taskVO.setSourceMap(JSON.parseObject(taskVO.getSourceStr(), Map.class));
+            taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
+            taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
+            setTaskVariables(taskVO, taskVO.getId());
         }
-        User modifyUser = userMap.get(task.getModifyUserId());
-        if (modifyUser != null) {
-            taskVO.setModifyUserName(modifyUser.getUserName());
-        }
-
-        User ownerUser = userMap.get(task.getOwnerUserId());
-        if (ownerUser != null) {
-            taskVO.setOwnerUser(ownerUser);
-        }
-        PageQuery query = new PageQuery(1, 5, "rb.gmt_create", Sort.DESC.name());
-        List<DataSyncTaskVersionVO> dataSyncTaskVersions = dataSyncTaskVersionService.listByTaskId(taskVO.getId(), query);
-        Set<Long> createUserIds = dataSyncTaskVersions.stream().map(DataSyncTaskVersionVO::getCreateUserId).collect(Collectors.toSet());
-        Map<Long, User> createUserMap = userService.getUserMap(createUserIds);
-        dataSyncTaskVersions.stream()
-                .map(ver -> {
-                    if (StringUtils.isNotBlank(ver.getOriginSql())) {
-                        ver.setSqlText(ver.getOriginSql());
-                    }
-                    ver.setUserName(createUserMap.get(ver.getCreateUserId()).getUserName());
-                    return ver;
-                }).collect(Collectors.toList());
-        streamTaskVO.setTaskVersions(dataSyncTaskVersions);
-        if (StringUtils.isNotEmpty(streamTaskVO.getSqlText())) {
-            streamTaskVO.setSqlText(JsonUtils.formatJSON(DataFilter.passwordFilter(streamTaskVO.getSqlText())));
-        }
-        if (!Objects.equals(EDataSyncJobType.BATCH_SYNC.getVal(), taskVO.getTaskType())) {
-            for (DataSyncTaskVersionVO taskVersion : taskVO.getTaskVersions()) {
-                if (taskVersion.getSqlText() != null) {
-                    taskVersion.setSqlText(JsonUtils.formatJSON(DataFilter.passwordFilter(Base64Util.baseDecode(taskVersion.getSqlText()))));
-                }
-            }
-        }*/
-        taskVO.setSourceMap(JSON.parseObject(taskVO.getSourceStr(), Map.class));
-        taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
-        taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
-        setTaskVariables(taskVO, taskVO.getId());
         return taskVO;
     }
 
@@ -555,12 +514,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (StringUtils.isNotBlank(componentVersion) && !StringUtils.equals(componentVersion, task.getComponentVersion())) {
             throw new RdosDefineException("flink版本更新，请重新确认并保存后再提交");
         }
-        if (Objects.equals(task.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             if (!checkTaskCanRunByStatus(task)) {
                 throw new RdosDefineException("任务状态未提交发布");
             }
             return publishTaskInfo(task, userId, publishDesc);
-        } else if (Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+        } else if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
             JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
             //判断自定义调度是否合法
 //            checkCronValid(scheduleConf);
@@ -611,7 +570,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
         String extroInfo = getExtraInfo(task, userId);
-        if(Objects.equals(task.getTaskType(),EDataSyncJobType.DATA_ACQUISITION.getVal())){
+        if(Objects.equals(task.getTaskType(),EScheduleJobType.DATA_ACQUISITION.getVal())){
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             paramTaskAction.setIsRestart(0);
             scheduleTasks.setExtraInfo(extroInfo);
@@ -656,8 +615,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         actionParam.put("confProp", JSON.toJSONString(confProp));
 
         actionParam.put("taskId", taskId);
-//        actionParam.put("engineType", EngineType.Flink.getEngineName());
-        actionParam.put("taskType", EDataSyncJobType.getEngineJobType(task.getTaskType()));
+        actionParam.put("taskType", task.getTaskType());
         actionParam.put("name", task.getName());
         actionParam.put("computeType", task.getComputeType());
         actionParam.put("tenantId", task.getTenantId());
@@ -704,7 +662,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         scheduleTaskShadeDTO.setTaskId(task.getId());
         scheduleTaskShadeDTO.setTenantId(scheduleTaskShadeDTO.getTenantId());
         scheduleTaskShadeDTO.setVersionId(Math.toIntExact(taskVersion.getId()));
-        if(Objects.equals(task.getTaskType(), EDataSyncJobType.SYNC.getVal()) && StringUtils.isNotEmpty(task.getScheduleConf())) {
+        if(Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal()) && StringUtils.isNotEmpty(task.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(task.getScheduleConf());
             if (scheduleConfig != null) {
                 scheduleTaskShadeDTO.setPeriodType(scheduleConfig.getInteger("periodType"));
@@ -976,6 +934,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getVal().equals(taskVO.getTaskType())) {
             return (TaskVO) updateTask(taskVO, true);
+        } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
+            flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
+            taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(), taskVO.getTaskType()).getParams() : taskVO.getTaskParams());
+            return (TaskVO) updateTask(taskVO, false);
         }
         return addOrUpdateSyncTask(taskResourceParam);
     }
@@ -983,9 +945,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskVO addOrUpdateSyncTask(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
-            flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
-        }
         if (taskResourceParam.getUpdateSource()) {
             taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
             taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
@@ -1054,6 +1013,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param taskVO 任务信息
      */
     private void addTask(TaskVO taskVO) {
+        taskVO.setJobId(actionService.generateUniqueSign());
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         taskVO.setTaskParams(taskVO.getTaskParams() == null ?"":taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
@@ -1104,7 +1064,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setTaskParams(convertParams);
 
         //由于密码脱敏，脚本模式保存时密码变成"******"，进行按照原储存信息进行还原，依据是url+username
-        if (CREATE_MODEL_TEMPLATE == specialTask.getCreateModel() && Objects.equals(specialTask.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+        if (CREATE_MODEL_TEMPLATE == specialTask.getCreateModel() && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             String sqlText = TaskUtils.resumeTemplatePwd(taskVO.getSqlText(), specialTask);
             taskVO.setSqlText(sqlText);
         }
@@ -1130,7 +1090,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             JSONObject sql = new JSONObject(2);
             sql.put("job", sqlText);
             sql.put("createModel", CREATE_MODEL_TEMPLATE);
-            if (Objects.equals(taskResourceParam.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 batchTaskParamService.checkParams(sql.toJSONString(), taskResourceParam.getTaskVariables());
             }
             task.setSqlText(sql.toJSONString());
@@ -1441,12 +1401,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskCatalogueVO guideToTemplate(final TaskResourceParam param) {
         final Task task = this.developTaskMapper.selectById(param.getId());
         TaskVO taskVO = new TaskVO();
-        taskVO.setId(param.getId());
-        taskVO.setName(task.getName());
-        taskVO.setVersion(param.getVersion());
-        taskVO.setCreateUserId(param.getUserId());
-        taskVO.setNodePid(task.getNodePid());
-        taskVO.setTenantId(param.getTenantId());
+        TaskMapstructTransfer.INSTANCE.taskToTaskVO(task,taskVO);
         taskVO.setCreateModel(TaskCreateModelType.TEMPLATE.getType());
         JSONObject sqlJson = null;
         if (StringUtils.isBlank(task.getSqlText())) {
@@ -2638,6 +2593,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if(!CollectionUtils.isEmpty(component)){
             if(component.contains(EComponentType.FLINK.getTypeCode())){
                 supportType.add(EScheduleJobType.SYNC);
+                supportType.add(EScheduleJobType.SQL);
             }
 
             if(component.contains(EComponentType.SPARK.getTypeCode())){

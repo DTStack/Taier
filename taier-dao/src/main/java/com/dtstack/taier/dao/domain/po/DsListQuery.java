@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * 数据源列表参数类
+ *
  * @description:
  * @author: liuxx
  * @date: 2021/3/26
@@ -18,6 +19,12 @@ public class DsListQuery extends DaoPageParam {
      * 数据源类型
      */
     private List<String> dataTypeList;
+
+    /**
+     * 数据源类型code 码
+     */
+    private Integer dataTypeCode;
+
     /**
      * 产品类型
      */
@@ -69,5 +76,13 @@ public class DsListQuery extends DaoPageParam {
 
     public void setStatus(List<Integer> status) {
         this.status = status;
+    }
+
+    public Integer getDataTypeCode() {
+        return dataTypeCode;
+    }
+
+    public void setDataTypeCode(Integer dataTypeCode) {
+        this.dataTypeCode = dataTypeCode;
     }
 }

@@ -34,6 +34,7 @@ import com.dtstack.taier.develop.vo.datasource.BinLogFileVO;
 import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -339,10 +341,10 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
                     if (null == tables || tables.size() < 1) {
                         continue;
                     }
-                    String tName = dealSpecialTableName(tables.get(0).toString().trim(), Integer.valueOf(source.getDataType()), schema);
+                    String tName = dealSpecialTableName(tables.get(0).toString().trim(), source.getDataTypeCode(), schema);
                     SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tName).build();
                     sqlQueryDTO.setFilterPartitionColumns(true);
-                    List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(Integer.valueOf(source.getDataType())).getColumnMetaData(sourceDTO, sqlQueryDTO);
+                    List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(source.getDataTypeCode()).getColumnMetaData(sourceDTO, sqlQueryDTO);
                     List<JSONObject> list = new ArrayList<>();
                     if (org.apache.commons.collections.CollectionUtils.isNotEmpty(columnMetaDTOList)) {
                         for (ColumnMetaDTO columnMetaDTO : columnMetaDTOList) {
@@ -362,10 +364,10 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
             }
             String[] tablesName = tableNameStr.split(",");
             for (String singleTablesName : tablesName) {
-                String tName = dealSpecialTableName(singleTablesName.trim(),  Integer.valueOf(source.getDataType()), schema);
+                String tName = dealSpecialTableName(singleTablesName.trim(),  source.getDataTypeCode(), schema);
                 SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tName).build();
                 sqlQueryDTO.setFilterPartitionColumns(true);
-                List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(Integer.valueOf(source.getDataType())).getColumnMetaData(sourceDTO, sqlQueryDTO);
+                List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(source.getDataTypeCode()).getColumnMetaData(sourceDTO, sqlQueryDTO);
                 List<JSONObject> list = new ArrayList<>();
                 if (org.apache.commons.collections.CollectionUtils.isNotEmpty(columnMetaDTOList)) {
                     for (ColumnMetaDTO columnMetaDTO : columnMetaDTOList) {
@@ -562,6 +564,26 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
     public List<DsInfoVO> queryByTenantId(Long tenantId) {
         List<DsInfo> dsInfos = dsInfoMapper.queryByTenantId(tenantId);
         return DsListTransfer.INSTANCE.toDsInfoVOS(dsInfos);
+    }
+
+    /**
+     * 查询数据源基本信息
+     *
+     * @param type
+     * @param tenantId
+     * @return
+     */
+    public List<DsInfoVO> listDataSourceBaseInfo(Integer type, Long tenantId) {
+        DsListQuery query = new DsListQuery();
+        query.setTenantId(tenantId);
+        query.setDataTypeCode(type);
+        List<DsListBO> dataSourceList = dsInfoMapper.queryDsPage(query);
+        List<DsInfoVO> resultList = Lists.newArrayList();
+        for (DsListBO dsListBO : dataSourceList) {
+            DsInfoVO dsListVO = DsListTransfer.INSTANCE.toDsInfoVO(dsListBO);
+            resultList.add(dsListVO);
+        }
+        return resultList;
     }
 
 

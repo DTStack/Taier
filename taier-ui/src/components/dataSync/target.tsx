@@ -94,6 +94,30 @@ const ALLOW_REQUEST_HIVE = [
 	DATA_SOURCE_ENUM.SPARKTHRIFT,
 ];
 
+// 不允许请求 tableList 的数据源
+const NOT_REQUEST_TABLELIST = [
+	DATA_SOURCE_ENUM.KINGBASE8,
+	DATA_SOURCE_ENUM.S3,
+	DATA_SOURCE_ENUM.ADB_FOR_PG,
+	DATA_SOURCE_ENUM.HDFS,
+	DATA_SOURCE_ENUM.DORIS,
+	DATA_SOURCE_ENUM.ES7,
+	DATA_SOURCE_ENUM.ES6,
+	DATA_SOURCE_ENUM.ES,
+];
+
+// 允许请求 schema 的数据源
+const ALLOW_REQUEST_SCHEMA = [
+	DATA_SOURCE_ENUM.KINGBASE8,
+	DATA_SOURCE_ENUM.POSTGRESQL,
+	DATA_SOURCE_ENUM.ADB_FOR_PG,
+	DATA_SOURCE_ENUM.ORACLE,
+	DATA_SOURCE_ENUM.DORIS,
+	DATA_SOURCE_ENUM.ES,
+	DATA_SOURCE_ENUM.ES6,
+	DATA_SOURCE_ENUM.ES7,
+];
+
 export default function Target({
 	targetMap,
 	sourceMap,
@@ -263,36 +287,19 @@ export default function Target({
 	const handleSourceChanged = (sourceId: number) => {
 		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
 		if (!target) return;
-		const NOT_REQUEST_TABLELIST = [
-			DATA_SOURCE_ENUM.KINGBASE8,
-			DATA_SOURCE_ENUM.S3,
-			DATA_SOURCE_ENUM.ADB_FOR_PG,
-			DATA_SOURCE_ENUM.HDFS,
-			DATA_SOURCE_ENUM.DORIS,
-			DATA_SOURCE_ENUM.ES7,
-			DATA_SOURCE_ENUM.ES6,
-			DATA_SOURCE_ENUM.ES,
-		];
 		if (!NOT_REQUEST_TABLELIST.includes(target.dataTypeCode)) {
 			getTableList(sourceId);
 		}
 
-		const ALLOW_REQUEST_SCHEMA = [
-			DATA_SOURCE_ENUM.KINGBASE8,
-			DATA_SOURCE_ENUM.POSTGRESQL,
-			DATA_SOURCE_ENUM.ADB_FOR_PG,
-			DATA_SOURCE_ENUM.ORACLE,
-			DATA_SOURCE_ENUM.DORIS,
-			DATA_SOURCE_ENUM.ES,
-			DATA_SOURCE_ENUM.ES6,
-			DATA_SOURCE_ENUM.ES7,
-		];
 		// 有schema才需要获取schemalist
 		if (ALLOW_REQUEST_SCHEMA.includes(target.dataTypeCode)) {
 			getSchemaList(sourceId);
 		}
+
 		// reset table value
-		form.setFieldsValue({ table: undefined, index: undefined, indexType: undefined });
+		const resetField = { table: undefined, index: undefined, indexType: undefined };
+		form.setFieldsValue(resetField);
+		handleFormFieldsChanged(resetField, form.getFieldsValue());
 	};
 
 	const handleShowCreateModal = () => {
@@ -991,10 +998,16 @@ export default function Target({
 		if (targetMap?.sourceId) {
 			// es 数据源的 schema 取自字段 index
 			const ES_DATASOURCE = [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7];
-			getTableList(
-				targetMap.sourceId,
-				ES_DATASOURCE.includes(targetMap.type!) ? targetMap.index : targetMap.schema,
-			);
+			if (!NOT_REQUEST_TABLELIST.includes(targetMap.type!)) {
+				getTableList(
+					targetMap.sourceId,
+					ES_DATASOURCE.includes(targetMap.type!) ? targetMap.index : targetMap.schema,
+				);
+			}
+
+			if (ALLOW_REQUEST_SCHEMA.includes(targetMap.type!)) {
+				getSchemaList(targetMap.sourceId);
+			}
 		}
 	}, []);
 
@@ -1124,6 +1137,7 @@ export default function Target({
 									<Option
 										key={src.dataInfoId}
 										disabled={disableSelect}
+										name={src.dataName}
 										value={src.dataInfoId}
 									>
 										{disableSelect ? (
