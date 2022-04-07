@@ -44,6 +44,8 @@ export const EDIT_DATASOURCE_PREFIX = 'edit-datasource';
 
 export const LANGUAGE_STATUS_BAR = 'language';
 
+export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
 /**
  * 高可用配置的 placeholder
  */
@@ -630,6 +632,54 @@ export const OFFLINE_TASK_STATUS_FILTERS = [
 	},
 ];
 
+// 实时任务状态
+export const taskStatusFilter: any = [
+	{
+		text: '等待提交',
+		value: TASK_STATUS.WAIT_SUBMIT,
+	},
+	{
+		text: '提交中',
+		value: TASK_STATUS.SUBMITTING,
+	},
+	{
+		text: '提交失败',
+		value: TASK_STATUS.SUBMIT_FAILED,
+	},
+	{
+		text: '等待运行',
+		value: TASK_STATUS.WAIT_RUN,
+	},
+	{
+		text: '运行中',
+		value: TASK_STATUS.RUNNING,
+	},
+	{
+		text: '取消',
+		value: TASK_STATUS.STOPED,
+	},
+	{
+		text: '超时取消',
+		value: TASK_STATUS.AUTO_CANCEL,
+	},
+	{
+		text: '运行失败',
+		value: TASK_STATUS.RUN_FAILED,
+	},
+	{
+		text: '失败中',
+		value: TASK_STATUS.DO_FAIL,
+	},
+	{
+		text: '停止中',
+		value: TASK_STATUS.STOPING,
+	},
+	{
+		text: '已完成',
+		value: TASK_STATUS.FINISHED,
+	},
+];
+
 /**
  * 脚本类型
  */
@@ -728,6 +778,10 @@ export enum DRAWER_MENU_ENUM {
 	 */
 	TASK = 'task',
 	/**
+	 * 实时任务管理
+	 */
+	STREAM_TASK = 'stream-task',
+	/**
 	 * 周期实例
 	 */
 	SCHEDULE = 'schedule',
@@ -768,7 +822,11 @@ export const TENANT_MENU = {
 export const OPERATIONS = [
 	{
 		id: DRAWER_MENU_ENUM.TASK,
-		name: '任务管理',
+		name: '离线任务管理',
+	},
+	{
+		id: DRAWER_MENU_ENUM.STREAM_TASK,
+		name: '实时任务管理',
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,
@@ -1338,3 +1396,59 @@ export const UDF_TYPE_NAMES = {
 	[UDF_TYPE_VALUES.UDTF]: 'UDTF',
 	[UDF_TYPE_VALUES.UDAF]: 'UDAF',
 } as const;
+
+export const FLINK_VERSION_TYPE_FILTER = [
+	{
+		value: FLINK_VERSIONS.FLINK_1_12,
+		label: 'flink1.12',
+		text: '1.12',
+	},
+	{
+		value: FLINK_VERSIONS.FLINK_1_10,
+		label: 'flink1.10',
+		text: '1.10',
+	},
+	{
+		value: FLINK_VERSIONS.FLINK_1_8,
+		label: 'flink1.8',
+		text: '1.8',
+	},
+];
+
+export enum FLINK_SQL_TYPE {
+	GUIDE = 0,
+	SCRIPT = 1,
+	GRAPH = 2,
+}
+
+// 强制停止类型
+export enum IForceType {
+	NOTFORCE = 0,
+	ISFORCE = 1,
+}
+
+export enum CHECK_TYPE_VALUE {
+	CHECK_POINT = 0,
+	SAVE_POINT = 1,
+	CHECK_POINT_FILE = 2,
+}
+
+/** 手动绑定弹框状态 */
+export enum HAND_BUTTON_STATUS {
+	READY_TIED = 0,
+	TIED_SUCCESS = 1,
+	TIED_MIDDLE = -1,
+}
+
+/** 绑定状态 */
+export enum HAND_TIED_STATUS {
+	TIED_WAIT = 0,
+	TIED_SUCCESS = 1,
+	TIED_FAIED = 2,
+}
+
+/** 绑定类型 */
+export enum BIND_TYPE {
+	AUTO = 1, // 强制绑定
+	MANUAL = 0, // 手动绑定
+}
