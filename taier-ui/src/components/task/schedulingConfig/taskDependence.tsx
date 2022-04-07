@@ -19,7 +19,6 @@
 import { Row, Col, Table, Form } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { openTaskInTab } from '@/extensions/folderTree';
-import { TASK_TYPE_ENUM } from '@/constant';
 import { useMemo, useState } from 'react';
 import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
@@ -73,7 +72,6 @@ export default function TaskDependence({
 		handleAddVOS?.(data);
 	};
 
-	const isSql = tabData.taskType === TASK_TYPE_ENUM.SQL;
 	const columns: ColumnsType<ITaskVOProps> = useMemo(
 		() => [
 			{
@@ -120,11 +118,6 @@ export default function TaskDependence({
 
 	return (
 		<>
-			<Row justify={isSql ? 'space-around' : 'start'} style={{ height: 38 }}>
-				<Col span={12} style={{ fontSize: 12, lineHeight: '31px', fontWeight: 600 }}>
-					上游依赖任务列表
-				</Col>
-			</Row>
 			<Row>
 				<Col span={24}>
 					<Table
@@ -133,7 +126,6 @@ export default function TaskDependence({
 								? { pageSize: 5, total: tabData.taskVOS.length }
 								: false
 						}
-						className="dt-ant-table dt-ant-table--border"
 						style={{
 							marginBottom:
 								Array.isArray(tabData.taskVOS) && tabData.taskVOS.length > 5
