@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Form, Modal, Select } from 'antd';
+import { Empty, Form, Modal, Select, Spin } from 'antd';
 import type { FormInstance } from 'antd/lib/form/Form';
 import { formItemLayout } from '@/constant';
 import { getCookie } from '@/utils';
@@ -60,6 +60,7 @@ export default function UpstreamDependentTasks({
 }: IUpstreamTaskProps) {
 	const [tenants, setTenants] = useState<ITenantProps[]>([]);
 	const [tasks, setTasks] = useState<ITaskSearchResultProps[]>([]);
+	const [fetching, setFetching] = useState(false);
 
 	const changeTenant = () => {
 		form.setFieldsValue({
@@ -72,20 +73,25 @@ export default function UpstreamDependentTasks({
 			setTasks([]);
 			return;
 		}
+		setFetching(true);
 		API.allProductGlobalSearch({
 			taskName: value,
 			selectTenantId: form.getFieldValue('tenantId'),
 			taskId: currentTaskId,
-		}).then((res) => {
-			if (res.code === 1) {
-				if (!res.data?.length) {
-					form.setFieldsValue({
-						taskId: { errors: [new Error('没有符合条件的任务')] },
-					});
+		})
+			.then((res) => {
+				if (res.code === 1) {
+					if (!res.data?.length) {
+						form.setFieldsValue({
+							taskId: { errors: [new Error('没有符合条件的任务')] },
+						});
+					}
+					setTasks(res.data || []);
 				}
-				setTasks(res.data || []);
-			}
-		});
+			})
+			.finally(() => {
+				setFetching(false);
+			});
 	};
 
 	const handleSubmit = () => {
@@ -139,7 +145,7 @@ export default function UpstreamDependentTasks({
 							showArrow={false}
 							filterOption={false}
 							onSearch={debounce(handleSearch, 500, { maxWait: 2000 })}
-							notFoundContent={null}
+							notFoundContent={fetching ? <Spin spinning /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 						>
 							{tasks.map((task) => (
 								<Option key={task.taskId} value={task.taskId}>

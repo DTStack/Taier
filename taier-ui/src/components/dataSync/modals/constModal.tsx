@@ -1,17 +1,25 @@
 /* eslint-disable no-template-curly-in-string */
-import { useState } from 'react';
 import HelpDoc, { relativeStyle } from '@/components/helpDoc';
-import { Modal, Input, Select, message } from 'antd';
+import { Modal, Input, Select, Form } from 'antd';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import type { IDataColumnsProps } from '@/interface';
 import './constModal.scss';
+import { formItemLayout } from '@/constant';
 
 const { Option } = Select;
+const FormItem = Form.Item;
 
 interface IConstModalProps {
 	visible?: boolean;
 	onOk?: (values: IDataColumnsProps) => void;
 	onCancel?: () => void;
+}
+
+interface IFormFieldProps {
+	constName: string;
+	constValue: string;
+	type: string;
+	constFormat?: string;
 }
 
 const systemVariable = [
@@ -24,96 +32,101 @@ const systemVariable = [
 ];
 
 export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps) {
-	const [constName, setConstName] = useState('');
-	const [constValue, setConstValue] = useState('');
-	const [type, setType] = useState('STRING');
-	const [constFormat, setFormat] = useState('');
+	const [form] = Form.useForm<IFormFieldProps>();
 
-	const submit = () => {
-		const value = Utils.trim(constValue);
-		const name = Utils.trim(constName);
-		const format = Utils.trim(constFormat);
-
-		if (name === '') {
-			message.error('常量名称不可为空！');
-			return;
-		}
-
-		if (systemVariable.includes(value) && type === 'TIMESTAMP') {
-			message.error('常量的值中存在参数时类型不可选timestamp！');
-			return;
-		}
-
-		if (value === '') {
-			message.error('常量值不可为空！');
-			return;
-		}
-		if (onOk) {
-			onOk({
-				type,
-				key: name,
-				value,
-				format,
-			});
-			close();
-		}
-	};
-
-	const close = () => {
-		setConstValue('');
-		setConstName('');
-		setFormat('');
-		onCancel?.();
+	const handleSubmit = () => {
+		form.validateFields().then((values) => {
+			if (onOk) {
+				onOk({
+					type: values.type,
+					key: values.constName,
+					value: values.constValue,
+					format: values.constFormat,
+				});
+			}
+		});
 	};
 
 	return (
-		<Modal title="添加常量" onOk={submit} onCancel={close} visible={visible}>
-			<div className="flex batch-dataSync_form">
-				<span>名称 :</span>
-				<Input
-					value={constName}
-					onChange={(e) => setConstName(e.target.value)}
-					placeholder="请输入常量名称"
-				/>
-			</div>
-			<div className="flex batch-dataSync_form">
-				<span>值 : </span>
-				<Input
-					style={{ width: '440px', marginLeft: 11 }}
-					value={constValue}
-					onChange={(e) => setConstValue(e.target.value)}
-					placeholder="请输入常量值"
-				/>
-			</div>
-			<div className="flex batch-dataSync_form">
-				<span>类型 :</span>
-				<Select
-					style={{ width: '440px' }}
-					placeholder="请选择类型"
-					value={type}
-					onChange={(t) => setType(t)}
+		<Modal
+			title="添加常量"
+			onOk={handleSubmit}
+			onCancel={onCancel}
+			visible={visible}
+			destroyOnClose
+		>
+			<Form
+				{...formItemLayout}
+				autoComplete="off"
+				form={form}
+				initialValues={{ type: 'STRING' }}
+				preserve={false}
+			>
+				<FormItem
+					name="constName"
+					label="名称"
+					rules={[
+						{
+							required: true,
+							message: '常量名称不可为空！',
+						},
+					]}
 				>
-					<Option value="STRING">STRING</Option>
-					<Option value="DATE">DATE</Option>
-					<Option value="TIMESTAMP">TIMESTAMP</Option>
-				</Select>
-			</div>
-			<div className="flex batch-dataSync_form">
-				<span>格式 :</span>
-				<Input
-					value={constFormat}
-					onChange={(e) => setFormat(e.target.value)}
-					placeholder="格式化, 例如：yyyy-MM-dd"
-				/>
-			</div>
-			<p style={{ marginTop: '10px' }}>
-				1.输入的常量值将会被英文单引号包括，如'abc'、'123'等
-			</p>
-			<p>
-				2.可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等{' '}
-				<HelpDoc style={relativeStyle} doc="customSystemParams" />
-			</p>
-			<p>3.如果您输入的值无法解析，则类型显示为'未识别'</p>
+					<Input placeholder="请输入常量名称" />
+				</FormItem>
+				<FormItem
+					name="constValue"
+					label="值"
+					rules={[
+						{
+							required: true,
+							message: '常量值不可为空！',
+						},
+						({ getFieldValue }) => ({
+							validator(_, value) {
+								const valueWithoutBlank = Utils.trim(value);
+								if (
+									systemVariable.includes(valueWithoutBlank) &&
+									getFieldValue('type') === 'TIMESTAMP'
+								) {
+									return Promise.reject(
+										new Error('常量的值中存在参数时类型不可选timestamp！'),
+									);
+								}
+
+								return Promise.resolve();
+							},
+						}),
+					]}
+				>
+					<Input placeholder="请输入常量值" />
+				</FormItem>
+				<FormItem name="type" label="类型">
+					<Select placeholder="请选择类型">
+						<Option value="STRING">STRING</Option>
+						<Option value="DATE">DATE</Option>
+						<Option value="TIMESTAMP">TIMESTAMP</Option>
+					</Select>
+				</FormItem>
+				<FormItem name="constFormat" label="格式">
+					<Input placeholder="格式化, 例如：yyyy-MM-dd" />
+				</FormItem>
+				<FormItem
+					wrapperCol={{
+						span: formItemLayout.wrapperCol.sm.span,
+						offset: formItemLayout.labelCol.sm.span,
+					}}
+				>
+					<ol className='ant-form-text p-0'>
+						<li>输入的常量值将会被英文单引号包括，如'abc'、'123'等</li>
+						<li>
+							可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等{' '}
+							<HelpDoc style={relativeStyle} doc="customSystemParams" />
+						</li>
+						<li>如果您输入的值无法解析，则类型显示为'未识别'</li>
+					</ol>
+				</FormItem>
+			</Form>
 		</Modal>
 	);
 }
