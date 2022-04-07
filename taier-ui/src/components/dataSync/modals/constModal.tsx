@@ -120,7 +120,7 @@ export default function ConstModal({ visible, onOk, onCancel }: IConstModalProps
 					<ol className='ant-form-text p-0'>
 						<li>输入的常量值将会被英文单引号包括，如'abc'、'123'等</li>
 						<li>
-							可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等{' '}
+							可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}等
 							<HelpDoc style={relativeStyle} doc="customSystemParams" />
 						</li>
 						<li>如果您输入的值无法解析，则类型显示为'未识别'</li>
