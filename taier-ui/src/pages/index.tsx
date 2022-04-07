@@ -303,6 +303,7 @@ export default function HomePage() {
 				// prettier-ignore
 				// eslint-disable-next-line no-useless-escape
 				const confirmationMessage = '\o/';
+				e.preventDefault();
 				(e || window.event).returnValue = confirmationMessage; // Gecko + IE
 				return confirmationMessage; // Webkit, Safari, Chrome
 			}

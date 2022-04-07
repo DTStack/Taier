@@ -1,8 +1,12 @@
+@import '../../styles/variables.scss';
+
 .m-keymapbox {
 	position: relative;
+	display: inline-block;
 
-	.pa {
+	.m-keymapcanvas {
 		position: absolute;
+		color: $main-color;
 	}
 
 	.col-plugin {
@@ -13,14 +17,9 @@
 
 	.m-col {
 		line-height: 40px;
-		background: var(--badge-background);
-		border-bottom: 1px dotted #ccc;
-		&.title {
-			background: var(--badge-background);
-		}
-		&.footer {
-			background: var(--badge-background);
-		}
+		background: var(--textBlockQuote-background);
+		border-bottom: 1px dotted var(--textBlockQuote-border);
+
 		.cell {
 			float: left;
 			box-sizing: border-box;
@@ -29,20 +28,24 @@
 			font-size: 11px;
 			text-align: left;
 			text-overflow: ellipsis;
+
 			&:first-child {
 				width: 40%;
 				font-weight: bold;
 			}
+
 			&:nth-child(2) {
 				width: 40%;
 				white-space: nowrap;
 				text-align: left;
 			}
+
 			&:nth-child(3) {
 				width: 20%;
 				text-align: right;
 			}
 		}
+
 		.remove-cell,
 		.edit-cell {
 			position: absolute;
@@ -53,6 +56,7 @@
 			line-height: 1;
 			cursor: pointer;
 		}
+
 		.four-cells {
 			.cell {
 				&:first-child {
@@ -73,13 +77,16 @@
 				}
 			}
 		}
+
 		.remove-cell {
 			right: 23px;
 		}
+
 		.edit-cell {
 			right: 10px;
 		}
 	}
+
 	.dl {
 		.dag-circle {
 			cursor: crosshair;

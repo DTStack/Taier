@@ -10,6 +10,7 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.OracleSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -18,7 +19,6 @@ import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.DAoperators;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.RdbmsDaType;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.PluginName;
@@ -50,7 +50,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import static com.dtstack.taier.common.util.DataSourceUtils.JDBC_USERNAME;
 import static com.dtstack.taier.common.util.DataSourceUtils.PASSWORD;
 import static com.dtstack.taier.common.util.DataSourceUtils.USERNAME;
 
@@ -117,7 +116,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
             DsInfo source = dataSourceCenterService.getOneById(sourceId);
             map.put("source", source);
             map.put("sourceIds", Arrays.asList(sourceId));
-            map.put("type", Integer.valueOf(source.getDataType()));
+            map.put("type", source.getDataTypeCode());
             map.put("dataName", source.getDataName());
 
             //for hive writer
@@ -144,7 +143,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
             connectionDTO.setTable((Lists.newArrayList(schemaTableName)));
             connectionDTOList.add(connectionDTO);
 
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 clone.put("connection", connectionDTOList);
                 String username = json.getString(USERNAME);
                 String password = json.getString(PASSWORD);
@@ -201,7 +200,7 @@ public class OracleReaderBuilder implements DaReaderBuilder {
                 clone.put("column", columns);
                 OraclePollReader reader = JsonUtils.objectToObject(clone, OraclePollReader.class);
                 return reader;
-            } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 Map<String, Object> settingMap = param.getSettingMap();
                 //下面代码 是为了 拿到断点续传在字段列表的第几位
                 if (sourceMap != null && settingMap != null) {

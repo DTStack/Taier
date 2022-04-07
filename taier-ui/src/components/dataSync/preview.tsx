@@ -1,7 +1,8 @@
-import type { IDataColumnsProps, IDataSourceUsedInSyncProps } from '@/interface';
+import type { IDataSourceUsedInSyncProps } from '@/interface';
 import { Card, Button, Space } from 'antd';
 import type { ISyncDataProps } from '@/interface';
 import Channel from './channel';
+import type { IKeyMapProps } from './keymap';
 import Keymap from './keymap';
 import Source from './source';
 import Target from './target';
@@ -11,6 +12,10 @@ import './preview.scss';
 interface IPreviewProps {
 	data: ISyncDataProps;
 	dataSourceList: IDataSourceUsedInSyncProps[];
+	/**
+	 * For keymap
+	 */
+	userColumns: IKeyMapProps;
 	onStepTo?: (step?: number) => void;
 	onSave?: () => void;
 }
@@ -22,6 +27,7 @@ function Mask() {
 export default function Preview({
 	data,
 	dataSourceList,
+	userColumns,
 	onStepTo,
 	onSave,
 }: IPreviewProps) {
@@ -70,6 +76,7 @@ export default function Preview({
 						readonly
 						sourceMap={data.sourceMap!}
 						targetMap={data.targetMap!}
+						userColumns={userColumns}
 					/>
 					<Mask />
 				</Card>

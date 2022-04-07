@@ -10,6 +10,7 @@ import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
@@ -19,12 +20,16 @@ import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.JsonUtils;
+import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +41,8 @@ import java.util.Objects;
 
 @Service
 public class FlinkSqlTaskService {
+    public static Logger LOGGER = LoggerFactory.getLogger(FlinkSqlTaskService.class);
+
 
     private static final String TIME_CHARACTERISTIC = "time.characteristic=EventTime";
 
@@ -48,6 +55,9 @@ public class FlinkSqlTaskService {
 
     @Autowired
     private ScheduleActionService actionService;
+
+    @Autowired
+    private DevelopTaskMapper developTaskMapper;
 
 
     /**
@@ -279,5 +289,53 @@ public class FlinkSqlTaskService {
 
         return StringUtils.join(params, "\n");
     }
+
+
+    public List<JSONObject> dealWithSourceName(String jsonParams) {
+        List<JSONObject> list = Lists.newArrayList();
+        if (StringUtils.isNotBlank(jsonParams)) {
+            JSONArray array = JSON.parseArray(jsonParams);
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                //设置名称
+                setSourceName(obj);
+                list.add(obj);
+            }
+        }
+        return list;
+    }
+
+    private void setSourceName(JSONObject param) {
+        if (param.containsKey("sourceId")) {
+            Long srcId = Long.parseLong(param.getString("sourceId"));
+            DsInfo dsInfo = dsInfoService.dsInfoDetail(srcId);
+            if (dsInfo != null) {
+                param.put("sourceName", dsInfo.getDataName());
+            }
+        }
+    }
+
+
+    /**
+     * 运行FlinkSql 任务
+     *
+     * @return
+     */
+    public StartFlinkSqlResultVO startFlinkSql(Long taskId, String externalPath) {
+        StartFlinkSqlResultVO startFlinkSqlResultVO = new StartFlinkSqlResultVO();
+        Task task = developTaskMapper.selectById(taskId);
+        try {
+            startFlinkSqlTask(task, externalPath);
+            startFlinkSqlResultVO.setMsg(String.format("任务提交成功,名称为: %s", task.getName()));
+            startFlinkSqlResultVO.setJobId(task.getJobId());
+            startFlinkSqlResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
+        } catch (Exception e) {
+            LOGGER.warn("startFlinkSQL-->", e);
+            startFlinkSqlResultVO.setMsg(e.getMessage());
+            startFlinkSqlResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
+        }
+        return startFlinkSqlResultVO;
+    }
+
 
 }
