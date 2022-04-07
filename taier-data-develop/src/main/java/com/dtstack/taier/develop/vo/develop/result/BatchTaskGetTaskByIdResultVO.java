@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.vo.develop.result;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskResultVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -220,6 +221,41 @@ public class BatchTaskGetTaskByIdResultVO {
 
     @ApiModelProperty(value = "前端设置信息")
     private Map<String, Object> settingMap;
+
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> source;
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> sink;
+
+    @ApiModelProperty(value = "")
+    private List<JSONObject> side;
+
+
+    public List<JSONObject> getSource() {
+        return source;
+    }
+
+    public void setSource(List<JSONObject> source) {
+        this.source = source;
+    }
+
+    public List<JSONObject> getSink() {
+        return sink;
+    }
+
+    public void setSink(List<JSONObject> sink) {
+        this.sink = sink;
+    }
+
+    public List<JSONObject> getSide() {
+        return side;
+    }
+
+    public void setSide(List<JSONObject> side) {
+        this.side = side;
+    }
 
     public Map<String, Object> getSourceMap() {
         return sourceMap;

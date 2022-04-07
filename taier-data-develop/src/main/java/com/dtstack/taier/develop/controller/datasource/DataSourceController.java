@@ -7,6 +7,7 @@ import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.bo.datasource.DsInfoIdParam;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.bo.datasource.DsTypeListParam;
 import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
@@ -88,5 +89,10 @@ public class DataSourceController {
         return R.ok(dsInfoService.queryByTenantId(tenantId));
     }
 
+    @ApiOperation("根据租户id查询数据源列表")
+    @PostMapping("listDataSourceBaseInfo")
+    public R<List<DsInfoVO>> listDataSourceBaseInfo(@RequestBody DsTypeListParam dsTypeListParam) {
+        return R.ok(dsInfoService.listDataSourceBaseInfo(dsTypeListParam.getType(), dsTypeListParam.getTenantId()));
+    }
 
 }

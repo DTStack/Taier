@@ -10,6 +10,7 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.Mysql5SourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
@@ -20,7 +21,6 @@ import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.DAoperators;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.PatternType;
 import com.dtstack.taier.develop.enums.develop.RdbmsDaType;
 import com.dtstack.taier.develop.enums.develop.SyncContentEnum;
@@ -114,7 +114,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             Long sourceId = Long.parseLong(map.get("sourceId").toString());
             DsInfo source = dsInfoService.getOneById(sourceId);
             map.put("source", source);
-            map.put("type", source.getDataType());
+            map.put("type", source.getDataTypeCode());
             map.put("dataName", source.getDataName());
             Boolean allTable = MapUtils.getBoolean(map, "allTable");
             //hive自动建表，当选择全部表时，需要传全部表名
@@ -246,7 +246,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
         public void setReaderJson(TaskResourceParam param) {
 
             Map<String, Object> map = param.getSourceMap();
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) { // 分库分表
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) { // 分库分表
                 List<Long> sourceIds = new ArrayList<>();
                 List<Object> sourceList = (List<Object>) map.get("sourceList");
                 JSONArray connections = new JSONArray();
@@ -284,11 +284,11 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 map.put("type", map.get("type"));
                 map.put("connection", connections);
                 map.put("sourceIds", sourceIds);
-            } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+            } else if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 Long sourceId = Long.parseLong(map.get("sourceId").toString());
                 DsInfo source = dataSourceCenterService.getOneById(sourceId);
                 map.put("source", source);
-                map.put("type", Integer.valueOf(source.getDataType()));
+                map.put("type", Integer.valueOf(source.getDataTypeCode()));
                 map.put("dataName", source.getDataName());
 
                 //for hive writer
@@ -332,7 +332,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
             MysqlPollReaderParam readerParam = PublicUtil.objectToObject(sourceMap, MysqlPollReaderParam.class);
             MysqlPollReader mysqlPollReader = new MysqlPollReader();
 
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {//实时任务
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {//实时任务
                 DsInfo dataSource = (DsInfo) sourceMap.get("source");
                 JSONObject json = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());
                 mysqlPollReader.setPollingInterval(readerParam.getPollingInterval());
@@ -406,7 +406,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 param.getSettingMap().put("restoreColumnIndex", String.valueOf(index));
                 param.getSettingMap().put("restoreColumnName", increColumn);
                 mysqlPollReader.setColumn(columns);
-            } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {//离线任务
+            } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {//离线任务
                 Map<String, Object> settingMap = param.getSettingMap();
                 //下面代码 是为了 拿到断点续传在字段列表的第几位
                 if (sourceMap != null && settingMap != null) {

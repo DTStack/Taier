@@ -8,6 +8,7 @@ import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.RdbmsSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
@@ -16,7 +17,6 @@ import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.DAoperators;
-import com.dtstack.taier.develop.enums.develop.EDataSyncJobType;
 import com.dtstack.taier.develop.enums.develop.RdbmsDaType;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.PluginName;
@@ -230,13 +230,13 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
             Long sourceId = Long.parseLong(map.get("sourceId").toString());
             DsInfo source = dataSourceCenterService.getOneById(sourceId);
             map.put("source", source);
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 sourceIds.add(sourceId);
 //                List<ConnectionDTO> connections = new ArrayList<>();
 
 //                map.put("type", dsServiceInfoDTO.getType());
                 JSONObject json = JSON.parseObject(source.getDataJson());
-                map.put("type", Integer.valueOf(source.getDataType()));
+                map.put("type", source.getDataTypeCode());
                 map.put("password", JsonUtils.getStringDefaultEmpty(json, PASSWORD));
                 map.put("username", JsonUtils.getStringDefaultEmpty(json, USERNAME));
                 map.put("jdbcUrl", JsonUtils.getStringDefaultEmpty(json, JDBC_URL));
@@ -255,7 +255,7 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
                 map.put("sourceIds", sourceIds);
 //                map.put("connections", connections);
 
-            } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+            } else if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 //for hive writer
                 String tableName = MapUtils.getString(map, "tableName");
                 List<String> table = Lists.newArrayList(tableName);
@@ -268,12 +268,12 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
             setReaderJson(param);
             Map<String, Object> sourceMap = param.getSourceMap();
             SqlServerPollReader sqlServerPollReader = new SqlServerPollReader();
-            if (Objects.equals(param.getTaskType(), EDataSyncJobType.DATA_ACQUISITION.getVal())) {
+            if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 IClient client = ClientCache.getClient(DataSourceType.SQLServer.getVal());
                 DsInfo dataSource = (DsInfo) sourceMap.get("source");
                 RdbmsSourceDTO sourceDTO = (RdbmsSourceDTO) dataSourceCenterService.getSourceDTO(dataSource.getId());
                 return daReaderBuild(param,sqlServerPollReader , client, sourceDTO);
-            } else if (Objects.equals(param.getTaskType(), EDataSyncJobType.SYNC.getVal())) {
+            } else if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
 
                 DsInfo dataSource = (DsInfo) sourceMap.get("source");
                 JSONObject json = DataSourceUtils.getDataSourceJson(dataSource.getDataJson());

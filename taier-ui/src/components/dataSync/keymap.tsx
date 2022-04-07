@@ -39,6 +39,10 @@ interface IKeyMapComponentProps {
 	 */
 	targetMap: ITargetMapProps;
 	/**
+	 * 用户自定义添加的列
+	 */
+	userColumns?: IKeyMapProps;
+	/**
 	 * 是否只读，用于预览数据
 	 */
 	readonly?: boolean;
@@ -123,6 +127,7 @@ function getBatIntVal(
 export default function KeyMap({
 	sourceMap,
 	targetMap,
+	userColumns,
 	isNativeHive = false,
 	readonly,
 	onColsChanged,
@@ -131,10 +136,7 @@ export default function KeyMap({
 }: IKeyMapComponentProps) {
 	const [loading, setLoading] = useState(false);
 	// 前两步选择的表获取字段
-	const [tableColumns, setTableCols] = useState<{
-		source: IDataColumnsProps[];
-		target: IDataColumnsProps[];
-	}>({
+	const [tableColumns, setTableCols] = useState<IKeyMapProps>({
 		source: [],
 		target: [],
 	});
@@ -653,8 +655,8 @@ export default function KeyMap({
 	const dragSvg = () => {
 		renderDags(
 			$canvas.current,
-			tableColumns?.source || [],
-			tableColumns?.target || [],
+			(tableColumns?.source || []).concat(userColumns?.source || []),
+			(tableColumns?.target || []).concat(userColumns?.target || []),
 			canvasInfo,
 		);
 		renderLines($canvas.current, lines, canvasInfo);
@@ -938,7 +940,7 @@ export default function KeyMap({
 			}
 			return (
 				<div
-					className="m-col pa"
+					className="m-col absolute"
 					style={{
 						left: padding,
 						top: padding + h * (sourceCol.length + 1),
@@ -955,7 +957,7 @@ export default function KeyMap({
 
 		return (
 			<div className="sourceLeft">
-				<div className="m-col title pa" style={colStyle}>
+				<div className="m-col title absolute" style={colStyle}>
 					{renderTableRow(sourceSrcType)}
 				</div>
 				{sourceCol.map((col, i) => (
@@ -966,7 +968,7 @@ export default function KeyMap({
 							left: padding,
 							top: padding + h * (i + 1),
 						}}
-						className="m-col pa"
+						className="m-col absolute"
 						key={`sourceLeft-${i}`}
 					>
 						{renderTableRow(sourceSrcType, col)}
@@ -1185,7 +1187,7 @@ export default function KeyMap({
 			}
 			return footerContent ? (
 				<div
-					className="m-col footer pa"
+					className="m-col footer absolute"
 					style={{
 						top: padding + h * (targetCol.length + 1),
 						left: W - (padding + w),
@@ -1203,14 +1205,14 @@ export default function KeyMap({
 
 		return (
 			<div className="targetRight">
-				<div className="m-col title  pa" style={colStyle}>
+				<div className="m-col title  absolute" style={colStyle}>
 					{renderTableRow(targetSrcType)}
 				</div>
 				{targetCol.map((col, i) => {
 					return (
 						<div
 							key={`targetRight-${i}`}
-							className="m-col pa"
+							className="m-col absolute"
 							style={{
 								width: w,
 								height: h,
@@ -1347,12 +1349,14 @@ export default function KeyMap({
 		const sourceTable = ES_DATASOURCE.includes(sourceMap.type!)
 			? sourceMap.indexType
 			: sourceMap.table;
+
 		// Hive，Impala 作为结果表时，需要获取分区字段
+		const sourceType = sourceMap.type!;
 		const sourcePart =
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
-			+sourceMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+			+sourceType === DATA_SOURCE_ENUM.HIVE1X ||
+			+sourceType === DATA_SOURCE_ENUM.HIVE ||
+			+sourceType === DATA_SOURCE_ENUM.HIVE3X ||
+			+sourceType === DATA_SOURCE_ENUM.SPARKTHRIFT;
 
 		const targetSchema = ES_DATASOURCE.includes(targetMap.type!)
 			? targetMap.index
@@ -1362,11 +1366,17 @@ export default function KeyMap({
 			: targetMap.table;
 
 		// Hive 作为结果表时，需要获取分区字段
+		const targetType = targetMap.type!;
 		const targetPart =
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE1X ||
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE ||
-			+targetMap.type! === DATA_SOURCE_ENUM.HIVE3X ||
-			+targetMap.type! === DATA_SOURCE_ENUM.SPARKTHRIFT;
+			+targetType === DATA_SOURCE_ENUM.HIVE1X ||
+			+targetType === DATA_SOURCE_ENUM.HIVE ||
+			+targetType === DATA_SOURCE_ENUM.HIVE3X ||
+			+targetType === DATA_SOURCE_ENUM.SPARKTHRIFT;
+
+		// table 和 schema 至少有一者必存在
+		if (!sourceTable && !sourceSchema) return;
+		if (!targetTable && !targetSchema) return;
+
 		setLoading(true);
 		Promise.all([
 			API.getOfflineTableColumn({
@@ -1405,14 +1415,20 @@ export default function KeyMap({
 	useEffect(() => {
 		select($canvas.current).selectAll('.dl, .dr, .lines').remove();
 		dragSvg();
-	}, [lines, canvasInfo, tableColumns]);
+	}, [lines, canvasInfo, tableColumns, userColumns]);
 
 	useEffect(() => {
 		onLinesChanged?.(lines);
 	}, [lines]);
 
-	const sourceCol = useMemo(() => tableColumns?.source || [], [tableColumns]);
-	const targetCol = useMemo(() => tableColumns?.target || [], [tableColumns]);
+	const sourceCol = useMemo(
+		() => (tableColumns?.source || []).concat(userColumns?.source || []),
+		[tableColumns, userColumns],
+	);
+	const targetCol = useMemo(
+		() => (tableColumns?.target || []).concat(userColumns?.target || []),
+		[tableColumns, userColumns],
+	);
 
 	const sourceSrcType = useMemo(() => sourceMap?.type, [sourceMap]);
 	const targetSrcType = useMemo(() => targetMap?.type, [targetMap]);
@@ -1424,15 +1440,8 @@ export default function KeyMap({
 
 	return (
 		<Resize onResize={handleResize}>
-			<div style={{ margin: '0 20px' }}>
-				<p
-					style={{
-						fontSize: 12,
-						color: '#ccc',
-						marginTop: '-20px',
-						textAlign: 'center',
-					}}
-				>
+			<div className="mx-20px">
+				<p className="text-xs text-center">
 					您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 					&nbsp;
 					{!lines.source.length && (
@@ -1498,14 +1507,13 @@ export default function KeyMap({
 					</Row>
 				) : null} */}
 				<Spin spinning={loading}>
-					<Row>
-						<Col span={readonly ? 24 : 21} style={{ textAlign: 'center' }}>
+					<Row gutter={12}>
+						<Col span={readonly ? 24 : 21} className="text-center">
 							<div
 								className="m-keymapbox"
 								style={{
 									width: W,
 									minHeight: H + 20,
-									display: 'inline-block',
 								}}
 							>
 								{renderSource()}
@@ -1514,7 +1522,7 @@ export default function KeyMap({
 									ref={$canvas}
 									width={W - 30 > w * 2 ? W - w * 2 + 30 : 0}
 									height={H}
-									className="pa m-keymapcanvas"
+									className="m-keymapcanvas"
 									style={{ left: w, top: padding }}
 								>
 									<defs>
@@ -1530,7 +1538,7 @@ export default function KeyMap({
 										>
 											<path
 												d="M2,3 L9,6 L2,9 L2,6 L2,3"
-												style={{ fill: '#2491F7' }}
+												fill="currentColor"
 											/>
 										</marker>
 									</defs>
@@ -1541,7 +1549,7 @@ export default function KeyMap({
 											y1="-10"
 											x2="-10"
 											y2="-10"
-											stroke="#2491F7"
+											stroke="currentColor"
 											strokeWidth="2"
 											markerEnd="url(#arrow)"
 										/>
@@ -1591,7 +1599,10 @@ export default function KeyMap({
 				{renderBatchModal()}
 				<ConstModal
 					visible={visibleConst}
-					onOk={(col) => onColsChanged?.(col, OPERATOR_TYPE.ADD, 'source')}
+					onOk={(col) => {
+						onColsChanged?.(col, OPERATOR_TYPE.ADD, 'source');
+						setConstVisible(false);
+					}}
 					onCancel={() => setConstVisible(false)}
 				/>
 				{!readonly && (
@@ -1616,7 +1627,7 @@ function getCanvasW() {
 	let w = 450;
 	const canvas = document.querySelector('.dt-datasync-content');
 	if (canvas) {
-		const newW = (canvas.getBoundingClientRect().width / 6) * 4;
+		const newW = (canvas.getBoundingClientRect().width / 6) * 5;
 		if (newW > w) w = newW;
 	}
 	return w;
@@ -1648,7 +1659,7 @@ const renderDags = (
 		.attr('r', 5)
 		.attr('stroke-width', 2)
 		.attr('stroke', '#fff')
-		.attr('fill', '#2491F7');
+		.attr('fill', 'currentColor');
 
 	select(container)
 		.append('g')
@@ -1668,7 +1679,7 @@ const renderDags = (
 		.attr('r', 5)
 		.attr('stroke-width', 2)
 		.attr('stroke', '#fff')
-		.attr('fill', '#2491F7');
+		.attr('fill', 'currentColor');
 };
 
 function renderLines(
@@ -1740,7 +1751,7 @@ function renderLines(
 		.attr('y1', (d) => d.s.y)
 		.attr('x2', (d) => d.e.x)
 		.attr('y2', (d) => d.e.y)
-		.attr('stroke', '#2491F7')
+		.attr('stroke', 'currentColor')
 		.attr('stroke-width', 2)
 		.attr('marker-end', 'url(#arrow)');
 }
