@@ -39,6 +39,8 @@
 	.ant-table-container,
 	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-left,
 	.ant-drawer .ant-table tbody > tr > td.ant-table-cell-fix-right,
+	.ant-table-cell-fix-right,
+	.ant-table-cell-fix-left,
 	.ant-drawer .ant-table,
 	.ant-modal .ant-table,
 	.ant-card,
@@ -52,8 +54,24 @@
 	.ant-drawer .ant-table thead > tr > th,
 	.ant-table-thead > tr > th,
 	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
-	.ant-table-tbody > tr.ant-table-placeholder:hover > td {
+	.ant-table-tbody > tr.ant-table-placeholder:hover > td,
+	.ant-table-tbody > tr.ant-table-row:hover > td,
+	.ant-table-tbody > tr > td.ant-table-cell-row-hover {
 		background: var(--editor-background);
+	}
+
+	* {
+		&::-webkit-scrollbar {
+			background-color: var(--scrollbarSlider-background);
+		}
+
+		&::-webkit-scrollbar-track {
+			background-color: var(--scrollbar-shadow);
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background-color: var(--scrollbarSlider-activeBackground);
+		}
 	}
 }
 
