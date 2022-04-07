@@ -16,10 +16,17 @@
  * limitations under the License.
  */
 
-import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
-import { Modal, message } from 'antd';
+import { message, Modal } from 'antd';
+import {
+	UploadOutlined,
+	LoginOutlined,
+	SwapOutlined,
+	ImportOutlined,
+	BugOutlined,
+	FontColorsOutlined,
+} from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
-import type { IExtension } from '@dtinsight/molecule/esm/model';
+import type { IEditorActionsProps, IExtension } from '@dtinsight/molecule/esm/model';
 import { performSyncTaskActions, resetEditorGroup, runTask } from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
@@ -31,6 +38,12 @@ import {
 	TASK_SWAP,
 	TASK_IMPORT_TEMPALTE,
 	TASK_LANGUAGE,
+	TASK_CONVERT_SCRIPT,
+	DATA_SYNC_TYPE,
+	TASK_DEBUG_ID,
+	TASK_IMPORT_ID,
+	TASK_CHECK_ID,
+	TASK_INTRODUCE_ID,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -48,52 +61,114 @@ import taskParamsService from '@/services/taskParamsService';
 import { saveTask } from '@/components/dataSync/help';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
+import { saveTask as streamSaveTask } from '@/components/streamCollection/streamAction';
 
 function initActions() {
 	const { builtInEditorInitialActions } = molecule.builtin.getModules();
 
-	molecule.editor.setDefaultActions([
-		{
-			id: TASK_SAVE_ID,
-			name: 'Save Task',
-			icon: 'save',
-			place: 'outer',
-			disabled: true,
-			title: '保存',
-		},
-		{
-			id: TASK_RUN_ID,
-			name: 'Run Task',
-			icon: 'play',
-			place: 'outer',
-			disabled: true,
-			title: '运行',
-		},
-		{
-			id: TASK_STOP_ID,
-			name: 'Stop Task',
-			icon: 'debug-pause',
-			place: 'outer',
-			disabled: true,
-			title: '停止运行',
-		},
-		{
-			id: TASK_SUBMIT_ID,
-			name: '提交至调度',
-			icon: <UploadOutlined />,
-			place: 'outer',
-			disabled: true,
-			title: '提交至调度',
-		},
-		{
-			id: TASK_OPS_ID,
-			name: '运维',
-			title: '运维',
-			icon: <LoginOutlined />,
-			place: 'outer',
-		},
-		...builtInEditorInitialActions,
-	]);
+	const { current } = molecule.editor.getState();
+	const currentTabData:
+		| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
+		| undefined = current?.tab?.data;
+
+	const save: IEditorActionsProps = {
+		id: TASK_SAVE_ID,
+		name: 'Save Task',
+		icon: 'save',
+		place: 'outer',
+		disabled: true,
+		title: '保存',
+	};
+	const run: IEditorActionsProps = {
+		id: TASK_RUN_ID,
+		name: 'Run Task',
+		icon: 'play',
+		place: 'outer',
+		disabled: true,
+		title: '运行',
+	};
+	const stop: IEditorActionsProps = {
+		id: TASK_STOP_ID,
+		name: 'Stop Task',
+		icon: 'debug-pause',
+		place: 'outer',
+		disabled: true,
+		title: '停止运行',
+	};
+	const submit: IEditorActionsProps = {
+		id: TASK_SUBMIT_ID,
+		name: '提交至调度',
+		icon: <UploadOutlined />,
+		place: 'outer',
+		disabled: true,
+		title: '提交至调度',
+	};
+	const ops: IEditorActionsProps = {
+		id: TASK_OPS_ID,
+		name: '运维',
+		title: '运维',
+		icon: <LoginOutlined />,
+		place: 'outer',
+	};
+	const convertScript: IEditorActionsProps = {
+		id: TASK_CONVERT_SCRIPT,
+		name: '转换为脚本',
+		icon: <SwapOutlined />,
+		place: 'outer',
+		title: '转换为脚本',
+	};
+	const taskImport: IEditorActionsProps = {
+		id: TASK_IMPORT_ID,
+		name: '导入',
+		icon: <ImportOutlined />,
+		place: 'outer',
+		title: '倒入',
+	};
+	const debug: IEditorActionsProps = {
+		id: TASK_DEBUG_ID,
+		name: '调试',
+		icon: <BugOutlined />,
+		place: 'outer',
+		title: '调试',
+	};
+	const check: IEditorActionsProps = {
+		id: TASK_CHECK_ID,
+		name: '语法检查',
+		icon: <FontColorsOutlined />,
+		place: 'outer',
+		title: '语法检查',
+	};
+	const introduce: IEditorActionsProps = {
+		id: TASK_INTRODUCE_ID,
+		name: '引入数据源',
+		icon: <ImportOutlined />,
+		place: 'outer',
+		title: '引入数据源',
+	};
+	let actions: IEditorActionsProps[] = [];
+
+	switch (currentTabData?.taskType) {
+		case TASK_TYPE_ENUM.DATA_COLLECTION:
+			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+				actions = [save, convertScript, submit, ops];
+			} else {
+				actions = [save, taskImport, submit, ops];
+			}
+			break;
+		case TASK_TYPE_ENUM.FLINKSQL:
+			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+				actions = [save, debug, convertScript, check, introduce, submit, ops];
+			} else {
+				actions = [save, check, submit, ops];
+			}
+			break;
+		case TASK_TYPE_ENUM.SYNC:
+		default:
+			actions = [save, run, stop, submit, ops];
+			break;
+	}
+
+	molecule.editor.setDefaultActions([...actions, ...builtInEditorInitialActions]);
 }
 
 function emitEvent() {
@@ -128,25 +203,32 @@ function emitEvent() {
 				break;
 			}
 			case TASK_SAVE_ID: {
-				saveTask()
-					?.then((res) => res?.data?.id)
-					.then((id) => {
-						if (id !== undefined) {
-							api.getOfflineTaskByID({ id }).then((res) => {
-								const { success, data } = res;
-								if (success) {
-									molecule.folderTree.update({
-										id,
-										data,
-									});
-									molecule.editor.updateTab({
-										id: current.tab!.id,
-										status: undefined,
-									});
-								}
-							});
-						}
-					});
+				if (
+					current.tab?.data.taskType === TASK_TYPE_ENUM.DATA_COLLECTION ||
+					current.tab?.data.taskType === TASK_TYPE_ENUM.FLINKSQL
+				) {
+					streamSaveTask();
+				} else {
+					saveTask()
+						?.then((res) => res?.data?.id)
+						.then((id) => {
+							if (id !== undefined) {
+								api.getOfflineTaskByID({ id }).then((res) => {
+									const { success, data } = res;
+									if (success) {
+										molecule.folderTree.update({
+											id,
+											data,
+										});
+										molecule.editor.updateTab({
+											id: current.tab!.id,
+											status: undefined,
+										});
+									}
+								});
+							}
+						});
+				}
 				break;
 			}
 			case TASK_SUBMIT_ID: {

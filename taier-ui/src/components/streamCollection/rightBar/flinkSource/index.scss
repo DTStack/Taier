@@ -1,0 +1,188 @@
+.panel-content {
+    padding: 20px 16px;
+    .input-panel {
+        background: var(--activityBar-foreground);
+        border: 1px solid var(--settings-textInputBorder);
+        margin-bottom: 20px;
+        overflow: hidden;
+        &:last-child {
+            border: 1px solid var(--settings-textInputBorder) !important;
+        }
+    }
+    .ant-collapse-borderless > .ant-collapse-item > .ant-collapse-content {
+        background-color: var(--editorSuggestWidget-background);
+        border-top: 0;
+        & > .ant-collapse-content-box {
+            padding-top: 16px;
+        }
+    }
+
+    .title-icon {
+        float: right;
+        margin-top: 2px;
+        margin-right: 0;
+        font-size: 16px;
+        color: var(--panelTitle-inactiveForeground);
+        &:hover {
+            color: var(--tab-activeForeground);
+        }
+        &.lock-panel-icon {
+            cursor: not-allowed;
+            &:hover {
+                color: var(--panelTitle-inactiveForeground);
+            }
+        }
+    }
+    .column-container {
+        border: 1px solid #dddddd;
+        border-radius: 2px;
+        .ant-table {
+            border: 0;
+            .ant-table-tbody > tr > td {
+                padding: 6px 5px;
+            }
+            .ant-table-thead > tr > th {
+                padding: 10px 5px;
+            }
+            .ant-table-thead > tr > th:first-child,
+            .ant-table-tbody > tr > td:first-child {
+                padding-left: 12px;
+            }
+            .ant-table-tbody > tr > td:last-child {
+                padding-right: 12px;
+            }
+        }
+        .ant-table-small > .ant-table-content > .ant-table-body {
+            margin: 0;
+        }
+        .column-table__select,
+        .column-table__input,
+        .column-table__select .ant-select-selection--single {
+            height: 28px;
+            line-height: 28px;
+        }
+        .column-table__select .ant-select-selection__rendered {
+            line-height: 26px;
+        }
+    }
+    .stream-btn {
+        width: 100%;
+        height: 40px;
+        border-radius: 2px;
+    }
+    .column-btn {
+        border: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 12px;
+        color: var(--list-focusOutline);
+        font-size: 12px;
+        background: var(--activityBar-foreground);
+    }
+    .delete-action {
+        color: var(--panelTitle-inactiveForeground);
+        font-size: 16px;
+        margin-left: 8px;
+    }
+    .title-content {
+        .ant-form-item {
+            font-size: 12px;
+            margin-bottom: 12px;
+            color: rgba(0, 0, 0, 0.65);
+            vertical-align: top;
+        }
+        .left-type {
+            float: right;
+            line-height: 28px;
+        }
+        .right-select {
+            width: 100%;
+            .ant-select-selection {
+                outline: none;
+                user-select: none;
+                box-sizing: border-box;
+                display: block;
+                border-radius: 2px;
+                transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            }
+            .ant-radio-wrapper {
+                margin-right: 20px;
+                margin-top: 10px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+
+                > span.ant-radio + * {
+                    padding-left: 4px;
+                    padding-right: 0px;
+                }
+            }
+            .ant-radio-button-wrapper:first-child {
+                border-radius: 5px 0 0 5px;
+            }
+            .ant-radio-button-wrapper:last-child {
+                border-radius: 0 5px 5px 0;
+            }
+        }
+        .row-content {
+            height: 32px;
+            line-height: 32px;
+            margin-bottom: 20px;
+            > :first-child {
+                padding-right: 8px;
+                color: #333;
+                text-align: right;
+                & :first-child {
+                    margin-left: 2px;
+                }
+            }
+        }
+        .right-input {
+            height: 30px;
+            border-radius: 5px;
+        }
+        .number-input {
+            height: 30px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .ant-input-number-lg input {
+            height: 25px;
+        }
+        .sub-right-select {
+            max-width: 152px;
+            width: 100%;
+        }
+        .title-column {
+            padding-left: 20px;
+        }
+        .table-small {
+            .ant-table-small {
+                border: 0;
+            }
+            .ant-table-thead > tr > th {
+                background: #f7f7f7;
+                font-weight: 500;
+                transition: background 0.3s ease;
+                text-align: left;
+                color: rgba(0, 0, 0, 0.85);
+            }
+            .ant-table-small .ant-table-header > table,
+            .ant-table-small .ant-table-body > table {
+                border: 0;
+                padding: 0;
+            }
+        }
+        .c-sidePanel__customParams {
+            height: 35px;
+            text-align: right;
+            padding-right: 8px;
+            line-height: 35px;
+        }
+        .c-inputPanel__icon {
+            color: var(--panelTitle-inactiveForeground);
+        }
+    }
+}

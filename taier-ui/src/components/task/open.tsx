@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Select, Form, Radio, Spin, Empty } from 'antd';
+import { Button, Input, Select, Form, Radio, Spin, Empty, Modal } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
@@ -25,6 +25,8 @@ import {
 	CATELOGUE_TYPE,
 	DATA_SYNC_MODE,
 	DATA_SYNC_TYPE,
+	FLINK_VERSIONS,
+	FLINK_VERSION_TYPE,
 	formItemLayout,
 	tailFormItemLayout,
 	TASK_TYPE_ENUM,
@@ -34,9 +36,11 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
 import type { DefaultOptionType } from 'antd/lib/select';
+import { getFlinkVersion } from '../streamCollection/rightBar/panelData';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const { Option } = Select;
 
 interface OpenProps extends molecule.model.IEditor {
 	onSubmit?: (values: IFormFieldProps) => Promise<boolean>;
@@ -53,6 +57,7 @@ interface IFormFieldProps {
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
+	componentVersion: string;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
@@ -61,6 +66,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [pageLoading, setPageLoading] = useState(false);
 	const [typeLoading, setTypesLoading] = useState(false);
 	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
+	const [flinkVersions, setFlinkVersions] = useState<string[]>([]);
 
 	const getSupportTypes = () => {
 		setTypesLoading(true);
@@ -105,10 +111,12 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		});
 	};
 
-	const handleValuesChanged = (
-		_: Partial<IFormFieldProps>,
-		values: IFormFieldProps,
-	) => {
+	const getFlinkVersions = async () => {
+		const list: string[] = await getFlinkVersion();
+		setFlinkVersions(list);
+	};
+
+	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
 		if (current?.tab) {
 			const { id } = current.tab;
 			// Insert form values into tab for preventing losting the values when switch tabs
@@ -117,6 +125,20 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				data: values,
 			});
 		}
+	};
+	const confirmFlink = () => {
+		Modal.confirm({
+			title: '正在切换引擎版本',
+			content: (
+				<>
+					<span style={{ color: 'red' }}>切换引擎版本后将重置环境参数</span>
+					，请确认是否继续？
+				</>
+			),
+			onCancel: () => {
+				form.resetFields(['componentVersion']);
+			},
+		});
 	};
 
 	const checkSyncMode = async (_: any, value: DATA_SYNC_MODE) => {
@@ -177,6 +199,24 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					</>
 				);
 			}
+			case TASK_TYPE_ENUM.FLINKSQL:
+			case TASK_TYPE_ENUM.DATA_COLLECTION: {
+				return (
+					<FormItem {...formItemLayout} label="引擎版本" name="componentVersion">
+						<Select onChange={confirmFlink}>
+							{FLINK_VERSION_TYPE.map(({ value, label }) => (
+								<Option
+									key={value}
+									value={value}
+									disabled={!flinkVersions.includes(value)}
+								>
+									{label}
+								</Option>
+							))}
+						</Select>
+					</FormItem>
+				);
+			}
 			default:
 				break;
 		}
@@ -185,6 +225,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	useEffect(() => {
 		getCurrentTaskInfo();
 		getSupportTypes();
+		getFlinkVersions();
 	}, []);
 
 	const initialValues = useMemo(() => {
@@ -195,6 +236,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				taskType: data.taskType,
 				nodePid: data.nodePid?.toString().split('-')[0],
 				taskDesc: data.taskDesc,
+				componentVersion: data.componentVersion || FLINK_VERSIONS.FLINK_1_12,
 			};
 		}
 		return undefined;

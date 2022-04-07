@@ -50,6 +50,7 @@ import {
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import StreamCollection from '@/components/streamCollection';
 
 /**
  * Update task tree node
@@ -292,7 +293,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 							...data,
 							// set sqlText into value so that molecule-editor could read from this
 							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType)
+							language: mappingTaskTypeToLanguage(data.taskType),
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
@@ -348,6 +349,59 @@ export function openTaskInTab(taskId: any, file?: any) {
 					break;
 				}
 
+				case TASK_TYPE_ENUM.DATA_COLLECTION: {
+					const tabData: molecule.model.IEditorTab = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							value: data.sqlText,
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
+					};
+					if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+						tabData.renderPane = () => <StreamCollection key={fileId} />;
+					} else {
+						tabData.data = { ...tabData.data, language: 'sql' };
+					}
+					molecule.editor.open(tabData);
+					performSyncTaskActions();
+					molecule.editor.updateActions([
+						{ id: TASK_SAVE_ID, disabled: false },
+						{ id: TASK_SUBMIT_ID, disabled: false },
+					]);
+					break;
+				}
+
+				case TASK_TYPE_ENUM.FLINKSQL: {
+					const tabData = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							// set sqlText into value so that molecule-editor could read from this
+							value: data.sqlText,
+							language: 'flinksql',
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
+					};
+					molecule.editor.open(tabData);
+					molecule.editor.updateActions([
+						{ id: TASK_SAVE_ID, disabled: false },
+						{ id: TASK_SUBMIT_ID, disabled: false },
+					]);
+					break;
+				}
 				default:
 					break;
 			}

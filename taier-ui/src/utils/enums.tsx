@@ -21,6 +21,8 @@ import {
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
 	ENGINE_SOURCE_TYPE_ENUM,
+	FLINK_VERSIONS,
+	KAFKA_DATA_TYPE,
 	RESOURCE_TYPE,
 	TASK_LANGUAGE,
 	TASK_PERIOD_ENUM,
@@ -399,4 +401,336 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 		default:
 			return TASK_LANGUAGE.JSON;
 	}
+}
+
+/**
+ * 是不是kafka
+ */
+export function isKafka (type: number) {
+    return [
+        DATA_SOURCE_ENUM.KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_2X,
+        DATA_SOURCE_ENUM.KAFKA_11,
+        DATA_SOURCE_ENUM.KAFKA_09,
+        DATA_SOURCE_ENUM.KAFKA_10,
+        DATA_SOURCE_ENUM.TBDS_KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+        DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+    ].includes(type);
+}
+
+/**
+ * kafak和confluent的输入输出类型avro和avro-confluent
+ * @param type kafka数据类型
+ * @returns boolean
+ */
+export function isAvro (type: string) {
+    return [
+        KAFKA_DATA_TYPE.TYPE_AVRO,
+        KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT
+    ].includes(type)
+}
+/**
+ * 是否拥有字段列的权限
+ * @param type 数据源类型
+ * @returns boolean
+ */
+export function haveTableColumn (type: number) {
+    const list = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.CLICKHOUSE,
+        DATA_SOURCE_ENUM.KUDU,
+        DATA_SOURCE_ENUM.IMPALA,
+        DATA_SOURCE_ENUM.TIDB,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+        DATA_SOURCE_ENUM.HIVE,
+        DATA_SOURCE_ENUM.INCEPTOR
+    ]
+    return list.includes(type)
+}
+
+/**
+ * 是否拥有Topic
+ * @param type 数据源类型
+ * @returns boolean
+ */
+export function haveTopic (type: any) {
+    const list: any = [
+        DATA_SOURCE_ENUM.KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_11,
+        DATA_SOURCE_ENUM.KAFKA_09,
+        DATA_SOURCE_ENUM.KAFKA_10,
+        DATA_SOURCE_ENUM.KAFKA_2X,
+        DATA_SOURCE_ENUM.TBDS_KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+        DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+    ]
+    return list.indexOf(type) > -1;
+}
+
+/**
+ * 是否拥有分区
+ * @param type 数据源类型
+ * @returns boolean
+ */
+export function havePartition (type: number) {
+    const list = [DATA_SOURCE_ENUM.IMPALA, DATA_SOURCE_ENUM.HIVE, DATA_SOURCE_ENUM.INCEPTOR]
+    return list.includes(type)
+}
+
+/**
+ * 是否拥有Schema
+ * @param type 数据源类型
+ * @returns boolean
+ */
+export function haveSchema (type: number) {
+    const list: any = [
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER
+    ]
+    return list.indexOf(type) > -1;
+}
+/**
+ * 是否拥有表字段
+ * S3 数据源的 Bucket 下拉框用的也是 TableList 的接口，表单字段也不是 table 是 bucket 。。
+ * @param type 数据源类型
+ * @returns boolean
+ */
+ export function haveTableList (type: number) {
+    const list = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.HBASE,
+        DATA_SOURCE_ENUM.TBDS_HBASE,
+        DATA_SOURCE_ENUM.HBASE_HUAWEI,
+        DATA_SOURCE_ENUM.MONGODB,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.KUDU,
+        DATA_SOURCE_ENUM.IMPALA,
+        DATA_SOURCE_ENUM.TIDB,
+        DATA_SOURCE_ENUM.CLICKHOUSE,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.S3,
+        DATA_SOURCE_ENUM.CSP_S3,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+        DATA_SOURCE_ENUM.HIVE,
+        DATA_SOURCE_ENUM.INCEPTOR
+    ]
+    return list.includes(type)
+}
+
+/**
+ * 是否拥有主键列的权限
+ * @param type 数据源类型
+ * @param version flink版本
+ * @returns boolean
+ */
+export function havePrimaryKey (type: any, version?: string) {
+    const list: any = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.CLICKHOUSE,
+        DATA_SOURCE_ENUM.DB2,
+        DATA_SOURCE_ENUM.TIDB,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER
+    ]
+    return list.includes(type) || (version === FLINK_VERSIONS.FLINK_1_12 && isKafka(type));
+}
+
+export function isMysqlTypeSource (type: number) {
+    return [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+        DATA_SOURCE_ENUM.POSTGRESQL
+    ].includes(type);
+}
+export function isHive (type: any) {
+    return type === DATA_SOURCE_ENUM.HIVE;
+}
+
+/**
+ * @param {Object} 参数
+ * @param {string} param.version 版本
+ * @param {number} param.value 数据源类型
+ * @param {number[]} param.disabled112List 除 flink1.12 都支持
+ * @param {number[]} param.allow110List 仅支持 flink1.10
+ * @param {number[]} param.allow112List 仅支持 flink1.12
+ * @returns diabled
+ */
+ export function getFlinkDisabledSource ({
+    version,
+    value,
+    disabled112List,
+    allow110List,
+    allow112List
+}: {
+    version: string;
+    value: number;
+    disabled112List?: number[];
+    allow110List?: number[];
+    allow112List?: number[];
+}) {
+    const ONLY_FLINK_1_12_DISABLED = disabled112List ? (version === '1.12' && disabled112List.includes(value)) : false;
+    const ONLY_ALLOW_FLINK_1_10_DISABLED = allow110List ? ((version === '1.12' || version === '1.8') && allow110List.includes(value)) : false;
+    const ONLY_ALLOW_FLINK_1_12_DISABLED = allow112List ? ((version === '1.10' || version === '1.8') && allow112List.includes(value)) : false;
+    return {
+        ONLY_FLINK_1_12_DISABLED,
+        ONLY_ALLOW_FLINK_1_10_DISABLED,
+        ONLY_ALLOW_FLINK_1_12_DISABLED
+    }
+}
+export function isSqlServer (type: any) {
+    return [DATA_SOURCE_ENUM.SQLSERVER, DATA_SOURCE_ENUM.SQLSERVER_2017_LATER].includes(type);
+}
+/** 是否拥有数据预览 */
+export function haveDataPreview (type: number) {
+    const list: any = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.REDIS,
+        DATA_SOURCE_ENUM.UPRedis,
+        DATA_SOURCE_ENUM.ES,
+        DATA_SOURCE_ENUM.ES6,
+        DATA_SOURCE_ENUM.ES7,
+        DATA_SOURCE_ENUM.HBASE,
+        DATA_SOURCE_ENUM.HBASE_HUAWEI,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+        DATA_SOURCE_ENUM.HIVE,
+        DATA_SOURCE_ENUM.INCEPTOR
+    ];
+    return list.indexOf(type) > -1;
+}
+
+export function showTimeForOffsetReset (type: number) {
+    return [
+        DATA_SOURCE_ENUM.KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_2X,
+        DATA_SOURCE_ENUM.KAFKA_10,
+        DATA_SOURCE_ENUM.KAFKA_11,
+        DATA_SOURCE_ENUM.TBDS_KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+        DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+    ].includes(type);
+}
+
+/**
+ * 是否拥有collection
+ */
+ export function haveCollection (type: any) {
+    return [DATA_SOURCE_ENUM.SOLR].includes(type);
+}
+export function isES (type: number): boolean {
+    return [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7].includes(type);
+}
+export function isHbase (type: any) {
+    return [DATA_SOURCE_ENUM.HBASE, DATA_SOURCE_ENUM.TBDS_HBASE, DATA_SOURCE_ENUM.HBASE_HUAWEI].includes(type)
+}
+/**
+ * 是否有更新模式
+ */
+ export function haveUpdateMode (type: number) {
+    return ![DATA_SOURCE_ENUM.S3, DATA_SOURCE_ENUM.CSP_S3, DATA_SOURCE_ENUM.SOLR, DATA_SOURCE_ENUM.HIVE, DATA_SOURCE_ENUM.INCEPTOR].includes(type);
+}
+/**
+ * 是否允许更新模式切换
+ */
+ export function haveUpsert (type: any, version?: string) {
+    const list: any = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.CLICKHOUSE,
+        DATA_SOURCE_ENUM.KUDU,
+        DATA_SOURCE_ENUM.DB2,
+        DATA_SOURCE_ENUM.TIDB,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER
+    ]
+    return list.includes(type) || (version === FLINK_VERSIONS.FLINK_1_12 && isKafka(type));
+}
+/**
+ * 更新模式为更新时，是否可以选择更新策略
+ */
+ export function haveUpdateStrategy (type: number) {
+    const list: any = [DATA_SOURCE_ENUM.MYSQL, DATA_SOURCE_ENUM.UPDRDB, DATA_SOURCE_ENUM.ORACLE, DATA_SOURCE_ENUM.TIDB];
+    return list.indexOf(type) > -1;
+}
+// 是否展示并行度
+export function haveParallelism (type: number) {
+    return ![DATA_SOURCE_ENUM.HIVE, DATA_SOURCE_ENUM.INCEPTOR].includes(type);
+}
+/** 合并不同版本的 kafka 数据源 */
+export const mergeSourceType = (type: number) => {
+    if ([
+        DATA_SOURCE_ENUM.KAFKA_2X,
+        DATA_SOURCE_ENUM.KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_11,
+        DATA_SOURCE_ENUM.KAFKA_09,
+        DATA_SOURCE_ENUM.KAFKA_10
+    ].includes(type)) {
+        return DATA_SOURCE_ENUM.KAFKA_2X
+    }
+    return type
+}
+// 缓存策略是否只允许 ALL
+export function isCacheOnlyAll (type: number) {
+    return [DATA_SOURCE_ENUM.INCEPTOR].includes(type);
+}
+
+// 不支持 LRU 的情况（包含支持 None 的情况）
+export function isCacheExceptLRU (type: number) {
+    return [DATA_SOURCE_ENUM.HBASE_HUAWEI].includes(type) || isCacheOnlyAll(type)
+}
+export function haveAsyncPoolSize (type: any) {
+    const list: any = [
+        DATA_SOURCE_ENUM.MYSQL,
+        DATA_SOURCE_ENUM.UPDRDB,
+        DATA_SOURCE_ENUM.TIDB,
+        DATA_SOURCE_ENUM.POLAR_DB_For_MySQL,
+        DATA_SOURCE_ENUM.ORACLE,
+        DATA_SOURCE_ENUM.POSTGRESQL,
+        DATA_SOURCE_ENUM.CLICKHOUSE,
+        DATA_SOURCE_ENUM.KINGBASE8,
+        DATA_SOURCE_ENUM.IMPALA,
+        DATA_SOURCE_ENUM.INCEPTOR,
+        DATA_SOURCE_ENUM.SQLSERVER,
+        DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+        DATA_SOURCE_ENUM.SOLR
+    ]
+    return list.indexOf(type) > -1;
+}
+/**
+ * 是否可以添加自定义参数
+ * @param type 
+ * @returns 
+ */
+export function haveCustomParams (type: any) {
+   const list: any = [DATA_SOURCE_ENUM.REDIS, DATA_SOURCE_ENUM.UPRedis, DATA_SOURCE_ENUM.MONGODB, DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.HBASE, DATA_SOURCE_ENUM.HBASE_HUAWEI, DATA_SOURCE_ENUM.KUDU]
+   return list.indexOf(type) > -1;
 }

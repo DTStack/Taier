@@ -1,0 +1,49 @@
+.task-info,
+.strategy-info {
+    .ant-descriptions-row > .ant-descriptions-item-label,
+    .ant-descriptions-row > .ant-descriptions-item-content {
+        padding: 0;
+        padding-left: 13px;
+        height: 40px;
+    }
+    .ant-row {
+        margin-bottom: 20px;
+        line-height: 32px;
+    }
+    .strategy-select {
+        width: 100%;
+        > .ant-select-selection--single {
+            height: 32px;
+            > .ant-select-selection__rendered {
+                line-height: 30px;
+            }
+        }
+    }
+    .strategy-rangePicker {
+        width: 100%;
+        margin-bottom: 5px;
+        > .ant-input {
+            height: 32px;
+        }
+    }
+    .strategy-rangePicker:last-child {
+        margin-bottom: 0;
+    }
+    .strategy-timePicker {
+        width: 145px;
+        > .ant-time-picker-input {
+            height: 32px;
+        }
+    }
+}
+.strategy-info {
+    .txt-right {
+        color: #333;
+    }
+    .c-strategyPanel__time {
+        width: 100%;
+        padding: 12px;
+        border-radius: 4px;
+        border: 1px solid var(--sideBarSectionHeader-border);
+    }
+}

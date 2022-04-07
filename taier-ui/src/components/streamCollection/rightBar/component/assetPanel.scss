@@ -1,0 +1,28 @@
+.asset-panel-table {
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-thead > tr > th:first-child,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th:first-child,
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-tbody > tr > td:first-child,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td:first-child {
+        padding-left: 12px;
+    }
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-thead > tr > th:last-child,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th:last-child,
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-tbody > tr > td:last-child,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td:last-child {
+        padding-right: 12px;
+    }
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-thead > tr > th,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th,
+    .ant-table-middle > .ant-table-content > .ant-table-header > table > .ant-table-tbody > tr > td,
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td {
+        padding: 0 4px;
+        line-height: 44px;
+    }
+    .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th {
+        line-height: 39px;
+    }
+    .ant-input {
+        height: 28px;
+        border-radius: 2px;
+    }
+}

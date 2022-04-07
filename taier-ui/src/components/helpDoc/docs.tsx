@@ -127,6 +127,11 @@ export const recordDirtyData = (
 		</p>
 	</div>
 );
+export const recordDirtyStream = (
+    <div>
+        <p>开启后，系统将进行脏数据管理，您可以在“任务运维-任务详情-脏数据”中查看。</p>
+    </div>
+)
 
 export const errorPercentConfig = (
 	<div>
@@ -228,4 +233,179 @@ export const autoSkipJobHelp = (
 		仅适用于周期为小时和分钟的调度任务，假设某任务的调度周期为10分钟，1:00的实例到1:53才运行完成，勾选此项后将直接运行2:00的实例，1:10
 		- 1:50的实例会被置为“自动取消”状态。
 	</div>
+);
+export const writerChannel = (
+    <div>
+        <p>作业写入并发数支持用户根据业务需求和集群资源手动设定。</p>
+    </div>
+)
+export const dirtySource = (
+    <div>
+        脏数据表会写入选择的hive库中，表名默认系统分配"dirty_任务名称"（存储时间默认为90天）同时，支持写入自定义表，用户自定义表名，数据写入时进行新建。
+    </div>
+)
+export const hiveWithAllTable = (
+    <div>
+        <p>Hive仅支持当前已有数据表自动建表，后续新增表将无法自动生成</p>
+    </div>
+)
+// 选择目标 - 数据有序
+export const writeDataSequence = (
+    <div>
+        <p>
+            <span>开启后实时采集将在写入时保证数据的有序性，此时作业读取、写入并发度仅能为1，更多参考&nbsp;</span>
+            <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.FORCE_ORDER}>帮助文档</a>
+        </p>
+    </div>
+)
+// 选择目标 - Partition Key
+export const writePartitionKey = (
+    <div>
+        <p>
+            <span>默认根据表名自动分区，用户可指定表字段作为分区主键，更多请参考&nbsp;</span>
+            <a rel="noopener noreferrer" target="_blank" href={HELP_DOC_URL.FORCE_ORDER}>帮助文档</a>
+        </p>
+    </div>
+)
+export const writeTableType = (
+    <div>
+        <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接，若数据源选择了分表模式，则每个表分组会自动创建一张Hive表</p>
+    </div>
+)
+export const analyticalRules = (
+    <div>
+        <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接</p>
+        <p>若配置了分表模式，则{'{table}'}将被替换为每个分组名称</p>
+    </div>
+)
+export const partitionType = (
+    <div>
+        <p>按照天或小时粒度，自动创建分区（字段名pt），并按照数据写入时间，自动写入不同分区</p>
+    </div>
+)
+export const isCleanSession = (
+    <div>
+        <p>是:MQTT服务器不保存于客户端会话的的主题与确认位置</p>
+        <p>否:MQTT服务器保存于客户端会话的的主题与确认位置</p>
+    </div>
+)
+export const writeDocForADB = (
+    <div>选择更新模式时，引擎将自动获取对应源表的唯一索引；若索引不存在，则仍使用追加模式写入数据</div>
+)
+export const kafkaTip = (
+    <div>
+        <p>从Kafka1.0开始，高版本可以兼容低版本的Kafka。</p>
+    </div>
+)
+export const sqlserverTip = (
+    <div>
+        <p>当前支持SQL Server 2014、2016、<br />2017、2019版本</p>
+    </div>
+)
+export const syncSourceType = (
+    <div>
+        <p>间隔轮询：当源库未开启实时备份机制时（MySQL_Binlog、Oracle_LogMiner等），可通过JDBC轮询获取数据，源表需包含稳定的自增标识</p>
+    </div>
+)
+export const intervalColumn = (
+    <div>
+        <p>每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步</p>
+        <p>目前支持将VARCHAR（纯数字）INT、LONG、TIMESATAMP、DATE类型作为增量标识字段</p>
+    </div>
+)
+export const startLocation = (
+    <div>
+        <p>若不填则默认从头开始拉取数据，输入格式请在“数据预览”中参考所选增量标示字段内容。采集时不包含采集起点，例如采集起点为40 则采集开始时不会包含id=40这一条数据。</p>
+    </div>
+)
+export const extralConfig = (
+    <div>
+        <p>以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考<a target="blank" href={HELP_DOC_URL.JOB_CONFIG}>《帮助文档》</a></p>
+    </div>
+)
+export const multipleTableTip = (
+    <div>
+        <p>分表模式下，可选择多个表分组，按照不同分组的表，写入同一Hive下的不同表，实现多对多写入</p>
+    </div>
+)
+export const temporary = (
+    <div>
+        <p>当任务停止时，临时Slot删除，用户无法再进行续跑操作</p>
+    </div>
+)
+export const transferTypeFormat = (
+    <div>
+        <p>表结构解析：将采集到的日志信息按照表结构解析</p>
+        <p>{`嵌套JSON平铺：将多层嵌套格式的JSON分解为单层结构，例如：{"a": 1, "b": {"c":3}}将会被分解为：{“a”:1,”b_c”:3}；`}</p>
+        <p>当目标数据源为Hive时，必须勾选Json平铺</p>
+    </div>
+)
+export const sourceFormat = (
+    <div>
+        <p>将多层嵌套格式的JSON分解为单层结构</p>
+        <p>例如：</p>
+        <p>{'{"a":1,  "b": {"c":3}}'}</p>
+        <p>将会被分解为：</p>
+        <p>{'{"a":1,"b_c":3}'}</p>
+        <p>当目标数据源为Hive时，必须勾选Json平铺</p>
+    </div>
+)
+export const binlogPortHelp = (
+    <div>
+        端口号可手动指定，若不指定，任务运行时会自动分配
+    </div>
+)
+export const parseRules = (
+    <div>
+        <p>text：不对Socket数据进行处理，直接写入相应目标源</p>
+    </div>
+)
+export const restfulParam = (
+    <div style={{ wordBreak: 'break-all' }}>
+        <p>Key：支持用户手动输入Body中的参数名；</p>
+        <p>Value：Body参数请求的具体参数值；</p>
+        <p>NextValue：可通过${`{}`}填写body和response动态参数，例如${`{body.a}`}+1；时间类型的参数变化量单位为ms；</p>
+        <p>Format：参数值格式化，例如yyyy-MM-dd hh:mm:ss</p>
+        <p>更多参数配置，请参考 <a target="blank" href='/public/helpSite/stream/v4.0/StreamSync/RestfulAPI.html'>帮助手册</a></p>
+    </div>
+)
+export const fieldDelimiter = (
+    <div>
+        <p>嵌套切分键对所有勾选嵌套的Key、Value、NextValue生效；</p>
+        <p>使用切分键可指向动态参数中的嵌套字段，例如{'${body.a / b}'}</p>
+        <p>更多可参考 <a target="blank" href='/public/helpSite/stream/v4.0/StreamSync/RestfulAPI.html'>帮助手册</a></p>
+    </div>
+)
+export const strategy = (
+    <div>
+        <p>Key：可通过${`{}`}指向body和response的参数，若为嵌套格式，字段名称由JSON的各层级Key以“.”隔开组合而成，例如：a.b；</p>
+        <p>Value：Key参数对应的具体参数值，支持通过${`{}`}指向body和response的参数；</p>
+        <p>更多配置，请参考 <a target="blank" href='/public/helpSite/stream/v4.0/StreamSync/RestfulAPI.html'>帮助手册</a></p>
+    </div>
+)
+export const restfulDecode = (
+    <div>
+        <p>返回类型为text时，平台对采集到的信息不做任何处理</p>
+        <p>更多详细配置，请参考<a target="blank" href='/public/helpSite/stream/v4.0/StreamSync/RestfulAPI.html'>帮助手册</a></p>
+    </div>
+)
+export const restfulFields = (
+    <div>
+        <p>若为嵌套格式，字段名称由JSON的各层级Key以“.”隔开组合而成，例如：a.b</p>
+    </div>
+)
+export const intervalTime = (
+    <div>
+        <p>第一次请求返回与第二次请求发送的间隔时间</p>
+    </div>
+)
+export const asyncTimeoutNumDoc = (
+    <span>
+        错误数据达到指定数据量时，实时任务失败
+    </span>
+)
+export const queryFault = (
+    <span>
+        维表查询失败是否扫描第二个副本，默认false
+    </span>
 );
