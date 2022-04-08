@@ -25,6 +25,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
@@ -56,7 +59,6 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.BaseEntity;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchDataSource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
@@ -71,7 +73,6 @@ import com.dtstack.taier.dao.domain.TaskParamTemplate;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
-import com.dtstack.taier.dao.dto.BatchTaskDTO;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -979,7 +980,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        Task task = developTaskMapper.getByName(taskVO.getName(), taskVO.getTenantId());
+        Task task = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                .eq(Task::getName, taskVO.getName())
+                .eq(Task::getTenantId, taskVO.getTenantId())
+                .last("limit 1"));
 
         if (taskVO.getId() != null && taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
@@ -1736,10 +1740,14 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         if (StringUtils.isNotBlank(sqlText)) {
-            final Task batchTaskBean=new Task();
+            final Task batchTaskBean = new Task();
             batchTaskBean.setId(task.getFlowId());
             batchTaskBean.setSqlText(sqlText);
-            this.developTaskMapper.updateSqlText(batchTaskBean);
+            developTaskMapper.update(null,
+                    Wrappers.lambdaUpdate(Task.class)
+                            .set(Task::getSqlText, sqlText)
+                            .set(Task::getId, task.getFlowId())
+                            .eq(Task::getId, task.getFlowId()));
             LOGGER.info("sqlText 修改成功");
         } else {
             LOGGER.error("deleteTask sqlText is null");
@@ -1752,11 +1760,11 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     public void deleteTaskInfos(Long taskId, Long userId) {
         //软删除任务记录
-        Task task = new Task();
-        task.setIsDeleted(Deleted.DELETED.getStatus());
-        task.setModifyUserId(userId);
-        task.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        this.lambdaUpdate().eq(Task::getId,taskId).update(task);
+        this.lambdaUpdate()
+                .eq(Task::getId, taskId).set(Task::getIsDeleted, Deleted.DELETED.getStatus())
+                .set(Task::getModifyUserId, userId)
+                .set(Task::getGmtModified, Timestamp.valueOf(LocalDateTime.now()))
+                .update();
         //删除任务的依赖关系
         this.batchTaskTaskService.deleteTaskTaskByTaskId(taskId);
         //删除关联的函数资源
@@ -1778,7 +1786,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (CollectionUtils.isEmpty(taskIdArray)) {
             return ListUtils.EMPTY_LIST;
         }
-        return this.developTaskMapper.listByIds(taskIdArray);
+        return this.developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
     }
 
 
@@ -1850,7 +1858,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } else {
             final Object obj;
             if (type.equals(CatalogueType.TASK_DEVELOP.name())) {
-                obj = this.developTaskMapper.getByName(name, tenantId);
+                obj = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                        .eq(Task::getName, name)
+                        .eq(Task::getTenantId, tenantId)
+                        .last("limit 1"));
             } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
                 obj = batchResourceService.listByNameAndTenantId(tenantId, name);
             } else if (type.equals(CatalogueType.CUSTOM_FUNCTION.name())) {
@@ -1882,20 +1893,27 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     public List<Task> getFlowWorkSubTasks(final Long taskId) {
-        BatchTaskDTO batchTaskDTO = new BatchTaskDTO();
-        batchTaskDTO.setIsDeleted(Deleted.NORMAL.getStatus());
-        batchTaskDTO.setFlowId(taskId);
-        PageQuery<BatchTaskDTO> pageQuery = new PageQuery<>(batchTaskDTO);
-        List<Task> batchTasks = this.developTaskMapper.generalQuery(pageQuery);
+        Task task = new Task();
+        task.setIsDeleted(Deleted.NORMAL.getStatus());
+        task.setFlowId(taskId);
+        ;
+        LambdaQueryWrapper<Task> taskLambdaQueryWrapper = Wrappers.lambdaQuery();
+        taskLambdaQueryWrapper.eq(Task::getIsDeleted, Deleted.NORMAL.getStatus());
+        taskLambdaQueryWrapper.eq(Task::getFlowId, taskId);
+        taskLambdaQueryWrapper.last("limit 1000");
+        List<Task> batchTasks = this.developTaskMapper.selectList(taskLambdaQueryWrapper);
         return batchTasks;
     }
 
     public Task getByName(String name, Long tenantId) {
-        return this.developTaskMapper.getByName(name, tenantId);
+        return this.developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                .eq(Task::getName, name)
+                .eq(Task::getTenantId, tenantId));
     }
 
     private Integer updateSubmitStatus(final Long tenantId, final Long taskId, final Integer submitStatus) {
-        return this.developTaskMapper.updateSubmitStatus(tenantId, taskId, submitStatus, Timestamp.valueOf(LocalDateTime.now()));
+        LambdaUpdateWrapper<Task> lambdaUpdateWrapper = Wrappers.lambdaUpdate(Task.class).eq(Task::getId, taskId).eq(Task::getTenantId, tenantId).set(Task::getSubmitStatus, submitStatus);
+        return this.developTaskMapper.update(null, lambdaUpdateWrapper);
     }
 
     /**
@@ -2031,12 +2049,16 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     /**
      * 根据 租户、目录id 查询任务列表
+     *
      * @param tenantId
      * @param nodePid
      * @return
      */
     public List<Task> listBatchTaskByNodePid(Long tenantId, Long nodePid) {
-        return developTaskMapper.listBatchTaskByNodePid(tenantId, nodePid);
+        return developTaskMapper.selectList(
+                Wrappers.lambdaQuery(Task.class)
+                        .eq(Task::getNodePid, nodePid)
+                        .eq(Task::getTenantId, tenantId));
     }
 
     /**

@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.CatalogueLevel;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.ComputeType;
@@ -33,8 +33,8 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
@@ -142,13 +142,20 @@ public class BatchCatalogueService {
         if (catalogue.getNodeName().contains(" ")) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NAME_CANNOT_CONTAIN_SPACES);
         }
-        BatchCatalogue dbCatalogue = developCatalogueMapper.getByPidAndName(catalogue.getTenantId(), catalogue.getNodePid(), catalogue.getNodeName());
+        BatchCatalogue dbCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, catalogue.getTenantId())
+                .eq(BatchCatalogue::getNodePid, catalogue.getNodePid())
+                .eq(BatchCatalogue::getNodeName, catalogue.getNodeName())
+                .last("limit 1"));
         if (dbCatalogue != null) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_EXISTS);
         }
 
         // 校验当前父级直接一层的子目录或者任务的个数总数不可超过SUB_AMOUNTS_LIMIT(2000)
-        Integer subAmountsByNodePid = developCatalogueMapper.getSubAmountsByNodePid(catalogue.getNodePid(), catalogue.getTenantId());
+        Integer subAmountsByNodePid = developCatalogueMapper.selectCount(
+                Wrappers.lambdaQuery(BatchCatalogue.class)
+                        .eq(BatchCatalogue::getNodePid, catalogue.getNodePid())
+                        .eq(BatchCatalogue::getTenantId, catalogue.getTenantId()));
         if (subAmountsByNodePid >= SUB_AMOUNTS_LIMIT) {
             throw new RdosDefineException(ErrorCode.SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS);
         }
@@ -454,8 +461,12 @@ public class BatchCatalogueService {
             updateCatalogue.setNodePid(catalogue.getNodePid());
         }
         //判断移动的目录下 有没有相同名称的文件夹
-        BatchCatalogue byLevelAndPIdAndTenantIdAndName = developCatalogueMapper.getBeanByTenantIdAndNameAndParentId(catalogue.getTenantId(),updateCatalogue.getNodeName(), updateCatalogue.getNodePid());
-        if (byLevelAndPIdAndTenantIdAndName != null && (!byLevelAndPIdAndTenantIdAndName.getId().equals(catalogue.getId()))){
+        BatchCatalogue byLevelAndPIdAndTenantIdAndName = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, catalogue.getTenantId())
+                .eq(BatchCatalogue::getNodeName, updateCatalogue.getNodeName())
+                .eq(BatchCatalogue::getNodePid, updateCatalogue.getNodePid())
+                .last("limit 1"));
+        if (byLevelAndPIdAndTenantIdAndName != null && (!byLevelAndPIdAndTenantIdAndName.getId().equals(catalogue.getId()))) {
             throw new RdosDefineException(ErrorCode.FILE_NAME_REPETITION);
         }
         updateCatalogue.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
@@ -486,7 +497,11 @@ public class BatchCatalogueService {
         }
 
         //判断文件夹下子目录
-        if (CollectionUtils.isNotEmpty(developCatalogueMapper.listByPidAndTenantId(catalogue.getId(), catalogueInput.getTenantId()))) {
+        List<BatchCatalogue> batchCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, catalogueInput.getTenantId())
+                .eq(BatchCatalogue::getNodePid, catalogue.getId())
+                .orderByDesc(BatchCatalogue::getGmtCreate));
+        if (CollectionUtils.isNotEmpty(batchCatalogues)) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
@@ -529,12 +544,16 @@ public class BatchCatalogueService {
 
     /**
      * 获取 租户 下的 0 级目录极其子目录
+     *
      * @param tenantId
      * @return
      */
     public List<CatalogueVO> getCatalogueOne(Long tenantId) {
         //查询 0 级目录
-        List<BatchCatalogue> zeroCatalogues = developCatalogueMapper.listByLevelAndTenantId(0, tenantId);
+        List<BatchCatalogue> zeroCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, tenantId)
+                .eq(BatchCatalogue::getLevel, 0)
+                .orderByAsc(BatchCatalogue::getOrderVal));
         //从字典表中查询出初始化的 0 级目录
         List<Dict> zeroCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
         //从字典表中查询出初始化的 1 级目录
@@ -553,11 +572,18 @@ public class BatchCatalogueService {
             zeroCatalogueVOList.add(zeroCatalogueVO);
 
             //查询一级目录下的子目录
-            List<BatchCatalogue> oneChildCatalogues = developCatalogueMapper.listByPidAndTenantId(zeroCatalogue.getId(), tenantId);
+            List<BatchCatalogue> oneChildCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
+                    .eq(BatchCatalogue::getTenantId, tenantId)
+                    .eq(BatchCatalogue::getNodePid, zeroCatalogue.getId())
+                    .orderByDesc(BatchCatalogue::getGmtCreate));
             if (FUNCTION_MANAGER_NAME.equals(zeroCatalogue.getNodeName())) {
                 //如果是函数目录，默认添加上系统函数目录
-                BatchCatalogue systemFuncCatalogue = developCatalogueMapper.getSystemFunctionCatalogueOne(EngineCatalogueType.SPARK.getType());
-                if (systemFuncCatalogue != null ) {
+                BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                        .eq(BatchCatalogue::getNodePid, EngineCatalogueType.SPARK.getType())
+                        .eq(BatchCatalogue::getLevel, 1)
+                        .eq(BatchCatalogue::getTenantId, -1)
+                        .last("limit 1"));
+                if (systemFuncCatalogue != null) {
                     oneChildCatalogues.add(systemFuncCatalogue);
                 }
             }
@@ -770,7 +796,10 @@ public class BatchCatalogueService {
      * @return
      */
     private List<BatchCatalogue> getChildCataloguesByType(Long catalogueId, String catalogueType, Long tenantId) {
-        List<BatchCatalogue> childCatalogues = developCatalogueMapper.listByPidAndTenantId(catalogueId, tenantId);
+        List<BatchCatalogue> childCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, tenantId)
+                .eq(BatchCatalogue::getNodePid, catalogueId)
+                .orderByDesc(BatchCatalogue::getGmtCreate));
         this.replaceSystemFunction(catalogueId, catalogueType, childCatalogues);
         return childCatalogues;
     }
@@ -787,7 +816,11 @@ public class BatchCatalogueService {
             BatchCatalogue one = developCatalogueMapper.selectById(catalogueId);
             EngineCatalogueType systemEngineType = EngineCatalogueType.getByeName(one == null ? null : one.getNodeName());
             //需要将系统函数替换对应 引擎的函数模板
-            BatchCatalogue systemFuncCatalogue = developCatalogueMapper.getSystemFunctionCatalogueOne(systemEngineType.getType());
+            BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                    .eq(BatchCatalogue::getNodePid, systemEngineType.getType())
+                    .eq(BatchCatalogue::getLevel, 1)
+                    .eq(BatchCatalogue::getTenantId, -1)
+                    .last("limit 1"));
             if (systemFuncCatalogue == null) {
                 return;
             }
@@ -832,7 +865,11 @@ public class BatchCatalogueService {
      * @return
      */
     public BatchCatalogue getByPidAndName(Long tenantId, Long nodePid, String name) {
-        return developCatalogueMapper.getByPidAndName(tenantId, nodePid, name);
+        return developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getTenantId, tenantId)
+                .eq(BatchCatalogue::getNodePid, nodePid)
+                .eq(BatchCatalogue::getNodeName, name)
+                .last("limit 1"));
     }
 
 }
