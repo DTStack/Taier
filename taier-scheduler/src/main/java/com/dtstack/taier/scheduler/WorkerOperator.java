@@ -26,6 +26,7 @@ import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.*;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +111,14 @@ public class WorkerOperator {
         return engineLog;
     }
 
+    public List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier) {
+        List<String> rollingLogBaseInfo = clientOperator.getRollingLogBaseInfo(this.getPluginInfo(jobIdentifier), jobIdentifier);
+        if (null == rollingLogBaseInfo || rollingLogBaseInfo.size() == 0) {
+            rollingLogBaseInfo = Lists.newArrayList();
+        }
+        return rollingLogBaseInfo;
+    }
+
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         String checkPoints = clientOperator.getCheckpoints(this.getPluginInfo(jobIdentifier), jobIdentifier);
         if (null == checkPoints) {
@@ -146,5 +155,10 @@ public class WorkerOperator {
 
     public List<FileResult> listFile(String path, String pluginInfo) throws Exception{
         return clientOperator.listFile(path,pluginInfo);
+    }
+
+    public CheckResult grammarCheck(JobClient jobClient) throws Exception {
+        this.buildPluginInfo(jobClient);
+        return clientOperator.grammarCheck(jobClient);
     }
 }

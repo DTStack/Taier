@@ -12,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -100,6 +101,12 @@ public class PublicUtil {
 		} catch (IOException e) {
 			throw new PubSvcDefineException(String.format("对象转换异常:%s", e.getMessage()), e);
 		}
+	}
+
+	public static Properties stringToProperties(String str) throws IOException{
+		Properties properties = new Properties();
+		properties.load(new ByteArrayInputStream(str.getBytes("UTF-8")));
+		return properties;
 	}
 
 

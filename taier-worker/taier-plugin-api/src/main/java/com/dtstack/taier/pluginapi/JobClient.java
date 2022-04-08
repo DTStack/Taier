@@ -49,12 +49,12 @@ public class JobClient implements Serializable {
     /**
      * 默认的优先级，值越小，优先级越高
      */
-    private static final int DEFAULT_PRIORITY_LEVEL_VALUE = 10;
+    public static final int DEFAULT_PRIORITY_LEVEL_VALUE = 10;
 
     /**
      * 用户填写的优先级占的比重
      */
-    private static final int PRIORITY_LEVEL_WEIGHT = 100000;
+    public static final int PRIORITY_LEVEL_WEIGHT = 100000;
 
     private JobClientCallBack jobClientCallBack;
 
@@ -135,6 +135,22 @@ public class JobClient implements Serializable {
     private Long userId;
 
     private Integer taskType;
+
+    private int priorityLevel = 0;
+
+
+    public void setConfProperties(Properties confProperties) {
+        this.confProperties = confProperties;
+    }
+
+    public int getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(int priorityLevel) {
+        this.priorityLevel = priorityLevel;
+    }
+
 
 
     public String getPluginInfo() {
