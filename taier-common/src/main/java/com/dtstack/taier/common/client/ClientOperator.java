@@ -185,4 +185,20 @@ public class ClientOperator {
         IClient client = clientCache.getClient(pluginInfo);
         return client.listFile(path);
     }
+
+
+    public List<String> getRollingLogBaseInfo(String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(pluginInfo, jobIdentifier);
+        try {
+            IClient client = clientCache.getClient(pluginInfo);
+            return client.getRollingLogBaseInfo(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
+    }
 }
