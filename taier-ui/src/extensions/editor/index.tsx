@@ -139,6 +139,10 @@ function emitEvent() {
 										id,
 										data,
 									});
+									molecule.editor.updateTab({
+										id: current.tab!.id,
+										status: undefined,
+									});
 								}
 							});
 						}
