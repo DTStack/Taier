@@ -441,3 +441,20 @@ log.level=INFO
 
 ## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。
 # pipeline.operator-chaining=true', '2022-04-06 18:37:24', '2022-04-06 18:37:24', 0);
+
+
+INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt_create, gmt_modified, is_deleted) VALUES (17, 'HIVE_SQL', '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
+#hiveconf:mapreduce.job.name=
+
+## 指定mapreduce运行的队列，默认走控制台配置的queue
+# hiveconf:mapreduce.job.queuename=default_queue_name
+
+## hivevar配置,用户自定义变量
+#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
+#hiveconf:mapreduce.job.name=
+
+## 指定mapreduce运行的队列，默认走控制台配置的queue
+# hiveconf:mapreduce.job.queuename=default_queue_name
+
+## hivevar配置,用户自定义变量
+#hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
