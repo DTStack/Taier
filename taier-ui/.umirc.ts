@@ -40,15 +40,12 @@ export default defineConfig({
 	esbuild: {},
 	theme: {
 		'primary-color': '#3f87ff',
-		// 'link-color': 'var(--textLink-foreground)',
 		'border-radius-base': '0px',
-		"font-size-base": '12px'
 	},
 	tailwindcss: {},
 	proxy: {
 		'/taier': {
-			target: 'http://172.16.100.225:7001/proxy/121',
-			// target: 'http://192.168.96.73:8090',
+			target: 'http://172.16.100.225:7001/proxy/156',
 			changeOrigin: true,
 			secure: false,
 		},
