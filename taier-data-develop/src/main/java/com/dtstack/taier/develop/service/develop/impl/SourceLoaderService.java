@@ -82,7 +82,7 @@ public class SourceLoaderService {
         DsInfo sourceInfoDTO = getServiceInfoByDtCenterId(datasourceId);
         Map<String, Object> kerberosConfig = kerberosPrepare(sourceInfoDTO);
         Map<String, Object> expandConfig = expandConfigPrepare(sourceInfoDTO);
-        return SourceDTOType.getSourceDTO(JSONObject.parseObject(sourceInfoDTO.getDataJson()), Integer.valueOf(sourceInfoDTO.getDataType()), kerberosConfig, schema, expandConfig);
+        return SourceDTOType.getSourceDTO(JSONObject.parseObject(sourceInfoDTO.getDataJson()), sourceInfoDTO.getDataTypeCode(), kerberosConfig, schema, expandConfig);
     }
 
     /**
@@ -107,7 +107,7 @@ public class SourceLoaderService {
             return Collections.emptyMap();
         }
         Map<String, Object> kerberosConfigClone = new HashMap<>(kerberosConfig);
-        IKerberos kerberos = ClientCache.getKerberos(Integer.valueOf(sourceInfo.getDataType()));
+        IKerberos kerberos = ClientCache.getKerberos(sourceInfo.getDataTypeCode());
         // 替换相对路径为绝对路径
         kerberos.prepareKerberosForConnect(kerberosConfigClone, KerberosConfigUtil.getLocalKerberosPath(sourceInfo.getId()));
         return kerberosConfigClone;

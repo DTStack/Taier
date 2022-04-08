@@ -426,7 +426,7 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
         String userName = DataSourceUtils.getJdbcUsername(dataJson);
         String password = DataSourceUtils.getJdbcPassword(dataJson);
         List<BinLogFileVO> binLogFileVOS = new ArrayList<>();
-        Integer type = Integer.valueOf(dsServiceInfoDTO.getDataType());
+        Integer type = dsServiceInfoDTO.getDataTypeCode();
         if (DataSourceType.Oracle.getVal().equals(type)) {
             //暂时只支持oracle
             List<Map<String, Object>> mapList = null;
