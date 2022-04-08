@@ -26,6 +26,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceIncreColumnVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTraceVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchFrozenTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
@@ -265,5 +266,18 @@ public class DevelopTaskController {
             }
         }.execute();
     }
+
+    @PostMapping(value = "getIncreColumn")
+    @ApiOperation(value = "获取可以作为增量标识的字段")
+    public R<List<JSONObject>> getIncreColumn(@RequestBody(required = false) BatchDataSourceIncreColumnVO vo) {
+        return new APITemplate<List<JSONObject>>() {
+            @Override
+            protected List<JSONObject> process() {
+                return batchTaskService.getIncreColumn(vo.getSourceId(), vo.getTableName(), vo.getSchema());
+            }
+        }.execute();
+    }
+
+
 
 }

@@ -112,6 +112,7 @@ import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
+import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -315,6 +316,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private static final String TASK_PATTERN = "[\\u4e00-\\u9fa5_a-z0-9A-Z-]+";
 
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*([0-9a-zA-Z-_]+)\\s*\\(");
+
+    /**
+     * 需要展示分区字段的数据源类型
+     */
+    private static final List<Integer> NEED_PARTITION_DATASOURCES = Lists.newArrayList(DataSourceType.HIVE1X.getVal(), DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(), DataSourceType.SparkThrift2_1.getVal());
+
 
     @PostConstruct
     public void init() {
@@ -2627,5 +2634,39 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         return funcSet;
     }
+
+
+    /**
+     * 获取可以作为增量标识的字段
+     */
+    public List<JSONObject> getIncreColumn(Long sourceId, Object table, String schema) {
+        List<JSONObject> increColumn = new ArrayList<>();
+
+        String tableName;
+        if (table instanceof String) {
+            tableName = String.valueOf(table);
+        } else if (table instanceof List) {
+            List tableList = (List) table;
+            if (CollectionUtils.isEmpty(tableList)) {
+                return new ArrayList<>();
+            }
+            tableName = String.valueOf(tableList.get(0));
+        } else {
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+        }
+        BatchDataSource batchDataSource = dataSourceService.getOne(sourceId);
+        List<JSONObject> allColumn = getTableColumnIncludePart(batchDataSource, tableName, false, schema);
+        for (JSONObject col : allColumn) {
+            if (ColumnType.isIncreType(col.getString("type")) || DataSourceType.Oracle.getVal().equals(batchDataSource.getType())) {
+                increColumn.add(col);
+            } else if (DataSourceType.SQLServer.getVal().equals(batchDataSource.getType())
+                    && ColumnType.NVARCHAR.equals(ColumnType.fromString(col.getString("key")))) {
+                increColumn.add(col);
+            }
+        }
+
+        return increColumn;
+    }
+
 
 }
