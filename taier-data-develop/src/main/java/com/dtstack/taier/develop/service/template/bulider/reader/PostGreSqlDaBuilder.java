@@ -138,14 +138,15 @@ public class PostGreSqlDaBuilder implements DaReaderBuilder {
                 tableName = MapUtils.getString(sourceMap, "table");
             }
             String schema = MapUtils.getString(sourceMap, "schema");
-            String schemaTableName = schema + "." + tableName;
+//            String schemaTableName = schema + "." + tableName;
 
             //设置链接信息
             DsInfo dataSource = (DsInfo) clone.get("source");
             JSONObject json = JSONObject.parseObject(dataSource.getDataJson());
             ConnectionDTO connectionDTO = new ConnectionDTO();
             connectionDTO.setJdbcUrl(Lists.newArrayList(json.getString(JDBC_URL)));
-            connectionDTO.setTable((Lists.newArrayList(schemaTableName)));
+            connectionDTO.setSchema(schema);
+            connectionDTO.setTable(JSON.parseArray(tableName,String.class));
             connectionDTOList.add(connectionDTO);
 
             if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
