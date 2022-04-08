@@ -1,12 +1,16 @@
 package com.dtstack.taier.develop.controller.datasource;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.bo.datasource.DsInfoIdParam;
+import com.dtstack.taier.develop.bo.datasource.DsKafkaDataParam;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.bo.datasource.DsPollPreviewParam;
+import com.dtstack.taier.develop.bo.datasource.DsTableListBySchemaParam;
 import com.dtstack.taier.develop.bo.datasource.DsTypeListParam;
 import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -17,10 +21,17 @@ import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
 import com.dtstack.taier.develop.vo.datasource.DsTypeListVO;
+import com.dtstack.taier.develop.vo.develop.query.KafkaTopicGetVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -93,6 +104,51 @@ public class DataSourceController {
     @PostMapping("listDataSourceBaseInfo")
     public R<List<DsInfoVO>> listDataSourceBaseInfo(@RequestBody DsTypeListParam dsTypeListParam) {
         return R.ok(dsInfoService.listDataSourceBaseInfo(dsTypeListParam.getType(), dsTypeListParam.getTenantId()));
+    }
+
+    @PostMapping("listTablesBySchema")
+    @ApiOperation(value = "获取指定Schema下的表")
+    public R<List<String>> listTablesBySchema(@Validated @RequestBody DsTableListBySchemaParam dsTableListBySchemaParam) {
+        return new APITemplate<List<String>>() {
+            @Override
+            protected List<String> process() {
+                return dsInfoService.listTablesBySchema(dsTableListBySchemaParam.getSourceId(), dsTableListBySchemaParam.getSchema(), dsTableListBySchemaParam.getSearchKey());
+            }
+        }.execute();
+    }
+
+    @PostMapping("pollPreview")
+    @ApiOperation(value = "数据预览")
+    public R<JSONObject> pollPreview(@Validated @RequestBody DsPollPreviewParam pollPreviewParam) {
+        return new APITemplate<JSONObject>() {
+            @Override
+            protected JSONObject process() {
+               return dsInfoService.pollPreview(pollPreviewParam.getSourceId(), pollPreviewParam.getTableName(), pollPreviewParam.getSchema());
+            }
+        }.execute();
+    }
+
+    @PostMapping("getTopicData")
+    @ApiOperation(value = "查询Topic数据")
+    public R<List<String>> getTopicData(@Validated @RequestBody DsKafkaDataParam kafkaDataParam) {
+        return new APITemplate<List<String>>() {
+            @Override
+            protected List<String> process() {
+                return dsInfoService.getTopicData(kafkaDataParam.getSourceId(), kafkaDataParam.getTopic(), kafkaDataParam.getPreviewModel());
+            }
+        }.execute();
+    }
+
+
+    @PostMapping(value = "getKafkaTopics")
+    @ApiOperation(value = "获取表列表")
+    public R<List<String>> getKafkaTopics(@RequestBody(required = false) KafkaTopicGetVO sourceVO) {
+        return new APITemplate<List<String>>() {
+            @Override
+            protected List<String> process() {
+                return datasourceService.getKafkaTopics(sourceVO.getSourceId());
+            }
+        }.execute();
     }
 
 }
