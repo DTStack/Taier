@@ -210,17 +210,6 @@ public class AddDatasourceController {
         }.execute();
     }
 
-    @PostMapping(value = "getKafkaTopics")
-    @ApiOperation(value = "获取表列表")
-    public R<List<String>> getKafkaTopics(@RequestBody(required = false) KafkaTopicGetVO sourceVO) {
-        return new APITemplate<List<String>>() {
-            @Override
-            protected List<String> process() {
-                return datasourceService.getKafkaTopics(sourceVO.getSourceId());
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "tablecolumn")
     @ApiOperation(value = "获取表字段信息")
     public R<List<JSONObject>> tablecolumn(@RequestBody BatchDataSourceTableColumnVO vo) {

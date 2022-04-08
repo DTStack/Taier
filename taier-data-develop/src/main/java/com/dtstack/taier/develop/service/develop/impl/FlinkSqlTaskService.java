@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 
 
 @Service
@@ -336,6 +337,16 @@ public class FlinkSqlTaskService {
         }
         return startFlinkSqlResultVO;
     }
+
+    /**
+     * 返回所有时区
+     *
+     * @return
+     */
+    public List<String> getAllTimeZone() {
+        return Lists.newArrayList(TimeZone.getAvailableIDs());
+    }
+
 
 
 }
