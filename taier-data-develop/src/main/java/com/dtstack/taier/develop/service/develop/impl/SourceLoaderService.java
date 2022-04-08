@@ -82,7 +82,7 @@ public class SourceLoaderService {
         DsInfo sourceInfoDTO = getServiceInfoByDtCenterId(datasourceId);
         Map<String, Object> kerberosConfig = kerberosPrepare(sourceInfoDTO);
         Map<String, Object> expandConfig = expandConfigPrepare(sourceInfoDTO);
-        return SourceDTOType.getSourceDTO(JSONObject.parseObject(sourceInfoDTO.getDataJson()), Integer.valueOf(sourceInfoDTO.getDataType()), kerberosConfig, schema, expandConfig);
+        return SourceDTOType.getSourceDTO(JSONObject.parseObject(sourceInfoDTO.getDataJson()), sourceInfoDTO.getDataTypeCode(), kerberosConfig, schema, expandConfig);
     }
 
     /**
