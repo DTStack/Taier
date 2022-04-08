@@ -232,29 +232,12 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
             map.put("source", source);
             if (Objects.equals(param.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 sourceIds.add(sourceId);
-//                List<ConnectionDTO> connections = new ArrayList<>();
-
-//                map.put("type", dsServiceInfoDTO.getType());
                 JSONObject json = JSON.parseObject(source.getDataJson());
                 map.put("type", source.getDataTypeCode());
                 map.put("password", JsonUtils.getStringDefaultEmpty(json, PASSWORD));
                 map.put("username", JsonUtils.getStringDefaultEmpty(json, USERNAME));
                 map.put("jdbcUrl", JsonUtils.getStringDefaultEmpty(json, JDBC_URL));
-//                Object table = map.get("table");
-//                List<String> tables = new ArrayList<>();
-//                if (table instanceof String) {
-//                    tables.add(table.toString());
-//                } else {
-//                    tables.addAll((List<String>) table);
-//                }
-//                map.put("table", tables);
-//                ConnectionDTO connectionDTO = new ConnectionDTO();
-//                connectionDTO.setJdbcUrl(Collections.singletonList(JsonUtil.getStringDefaultEmpty(json, JDBC_URL)));
-//                connectionDTO.setTable(tables);
-//                connections.add(connectionDTO);
                 map.put("sourceIds", sourceIds);
-//                map.put("connections", connections);
-
             } else if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 //for hive writer
                 String tableName = MapUtils.getString(map, "tableName");
@@ -281,15 +264,22 @@ public class SqlServerReaderBuilder implements DaReaderBuilder {
                 RdbmsPollReaderParam readerParam = JsonUtils.objectToObject(sourceMap, RdbmsPollReaderParam.class);
 
                 sqlServerPollReader.setPollingInterval(readerParam.getPollingInterval());
-                String schema = MapUtils.getString(param.getSourceMap(), "schema");
                 List<ConnectionDTO> connectionDTOList = new ArrayList<>();
-                // 有 schema 信息拼接 schema
-                String tableName = StringUtils.isNotBlank(schema) ? schema + "." + readerParam.getTableName() : readerParam.getTableName();
+                List<String> tables = JSON.parseArray(JSON.toJSONString(readerParam.getTable()), String.class);
+                List<String> newTables = new ArrayList<>();
+
+                tables.forEach(table->{
+                    String[] split = table.split("\\.");
+                    newTables.add(split[1].replace("[","").replace("]",""));
+                });
+                String[] first = tables.get(0).split("\\.");
+                String schema =first[0].replace("[","").replace("]","");
 
                 //设置链接信息
                 ConnectionDTO connectionDTO = new ConnectionDTO();
                 connectionDTO.setJdbcUrl(Lists.newArrayList(DataSourceUtils.getJdbcUrl(json)));
-                connectionDTO.setTable((Lists.newArrayList(tableName)));
+                connectionDTO.setTable(newTables);
+                connectionDTO.setSchema(schema);
                 connectionDTOList.add(connectionDTO);
 
                 sqlServerPollReader.setConnection(connectionDTOList);
