@@ -1015,7 +1015,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private void addTask(TaskVO taskVO) {
         taskVO.setJobId(actionService.generateUniqueSign());
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ?"":taskVO.getTaskParams());
+        taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
@@ -1508,7 +1508,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         String ENTER = "\n";
         String NOTE_SIGN;
         // 需要代码注释模版的任务类型
-        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EScheduleJobType.SPARK_SQL.getVal());
+        Set<Integer> shouldNoteSqlTypes = Sets.newHashSet(EScheduleJobType.SPARK_SQL.getVal(),EScheduleJobType.HIVE_SQL.getVal());
 
         StringBuilder sb = new StringBuilder();
         if (shouldNoteSqlTypes.contains(task.getTaskType())) {
