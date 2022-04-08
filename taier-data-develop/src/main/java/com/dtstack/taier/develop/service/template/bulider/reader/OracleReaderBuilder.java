@@ -119,10 +119,10 @@ public class OracleReaderBuilder implements DaReaderBuilder {
             map.put("type", source.getDataTypeCode());
             map.put("dataName", source.getDataName());
 
-            //for hive writer
-            String tableName = MapUtils.getString(map, "tableName");
-            List<String> table = Lists.newArrayList(tableName);
-            map.put("table", table);
+//            //for hive writer
+//            String tableName = MapUtils.getString(map, "table");
+//            List<String> table = Lists.newArrayList(tableName);
+//            map.put("table", table);
         }
 
         @Override
@@ -131,16 +131,16 @@ public class OracleReaderBuilder implements DaReaderBuilder {
             Map<String, Object> sourceMap = param.getSourceMap();
             Map<String, Object> clone = new HashMap<>(sourceMap);
             List<ConnectionDTO> connectionDTOList = new ArrayList<>();
-            String tableName = MapUtils.getString(sourceMap, "tableName");
+            String tableName = MapUtils.getString(sourceMap, "table");
             String schema = MapUtils.getString(sourceMap, "schema");
-            String schemaTableName = schema + "." + tableName;
-
+//            String schemaTableName = schema + "." + tableName;
             //设置链接信息
             DsInfo dataSource = (DsInfo) clone.get("source");
             JSONObject json = JSONObject.parseObject(dataSource.getDataJson());
             ConnectionDTO connectionDTO = new ConnectionDTO();
             connectionDTO.setJdbcUrl(Lists.newArrayList(json.getString(JDBC_URL)));
-            connectionDTO.setTable((Lists.newArrayList(schemaTableName)));
+            connectionDTO.setTable((Lists.newArrayList(tableName)));
+            connectionDTO.setSchema(schema);
             connectionDTOList.add(connectionDTO);
 
             if (Objects.equals(param.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
