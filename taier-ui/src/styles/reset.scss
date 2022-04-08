@@ -2,25 +2,6 @@
 @import './variables.scss';
 
 [data-prefers-color='dark'] {
-	.ant-form-item-label > label,
-	.ant-form label,
-	.ant-select,
-	.ant-input,
-	.ant-input-affix-wrapper,
-	.ant-input-group-addon,
-	.ant-input-number,
-	.ant-select-item,
-	.ant-empty,
-	.ant-form-item,
-	.ant-picker-dropdown,
-	.ant-btn,
-	.ant-picker-input > input,
-	.ant-table,
-	.ant-checkbox-wrapper,
-	.ant-tooltip {
-		font-size: $font-size;
-	}
-
 	.ant-tooltip-inner,
 	.ant-dropdown-menu,
 	.ant-table-filter-dropdown-btns,
@@ -72,6 +53,27 @@
 		&::-webkit-scrollbar-thumb {
 			background-color: var(--scrollbarSlider-activeBackground);
 		}
+	}
+}
+
+[data-prefers-color] {
+	.ant-form-item-label > label,
+	.ant-form label,
+	.ant-select,
+	.ant-input,
+	.ant-input-affix-wrapper,
+	.ant-input-group-addon,
+	.ant-input-number,
+	.ant-select-item,
+	.ant-empty,
+	.ant-form-item,
+	.ant-picker-dropdown,
+	.ant-btn,
+	.ant-picker-input > input,
+	.ant-table,
+	.ant-checkbox-wrapper,
+	.ant-tooltip {
+		font-size: $font-size;
 	}
 }
 

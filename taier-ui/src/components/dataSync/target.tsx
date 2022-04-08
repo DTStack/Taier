@@ -245,12 +245,14 @@ export default function Target({
 	) => {
 		if (changedValue.hasOwnProperty('table')) {
 			const { table } = changedValue;
-			// 获取表列字段
-			getTableColumn();
-			// 检测是否有 native hive
-			checkIsNativeHive(table as string);
-			// 获取 Hive 分区字段
-			getHivePartitions();
+			if (table) {
+				// 获取表列字段
+				getTableColumn();
+				// 检测是否有 native hive
+				checkIsNativeHive(table as string);
+				// 获取 Hive 分区字段
+				getHivePartitions();
+			}
 
 			form.setFieldsValue({ partition: undefined });
 		}
@@ -1110,14 +1112,8 @@ export default function Target({
 									DATA_SOURCE_ENUM.SQLSERVER,
 									DATA_SOURCE_ENUM.ORACLE,
 									DATA_SOURCE_ENUM.POSTGRESQL,
-									DATA_SOURCE_ENUM.HDFS,
 									DATA_SOURCE_ENUM.HIVE,
 									DATA_SOURCE_ENUM.HIVE1X,
-									DATA_SOURCE_ENUM.HIVE3X,
-									DATA_SOURCE_ENUM.SPARKTHRIFT,
-									DATA_SOURCE_ENUM.HBASE,
-									DATA_SOURCE_ENUM.ES,
-									DATA_SOURCE_ENUM.ES6,
 									DATA_SOURCE_ENUM.ES7,
 								];
 
