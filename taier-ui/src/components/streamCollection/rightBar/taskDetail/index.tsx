@@ -36,7 +36,7 @@ const Option = Select.Option;
 export default function StreamTaskDetail({ current }: Pick<IEditor, 'current'>) {
     const currentPage = current?.tab?.data || {};
     const { taskType, resourceList, readWriteLockVO } = currentPage;
-    const showResource = taskType != TASK_TYPE_ENUM.DATA_COLLECTION;
+    const showResource = taskType != TASK_TYPE_ENUM.DATA_ACQUISITION;
     const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
 
     const [showVersionEditBtn, setShowVersionEditBtn] = useState(false);
@@ -51,10 +51,7 @@ export default function StreamTaskDetail({ current }: Pick<IEditor, 'current'>) 
             case TASK_TYPE_ENUM.SQL: {
                 return 'FlinkSQL'
             }
-            case TASK_TYPE_ENUM.MR: {
-                return 'FlinkMR'
-            }
-            case TASK_TYPE_ENUM.DATA_COLLECTION: {
+            case TASK_TYPE_ENUM.DATA_ACQUISITION: {
                 return '实时采集'
             }
         }

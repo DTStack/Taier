@@ -26,7 +26,7 @@ import moment from 'moment';
 import { isArray } from 'lodash';
 import api from '@/api';
 import type { SCHEDULE_STATUS } from '@/constant';
-import { DATA_SYNC_MODE, TASK_TYPE_ENUM, SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
+import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import molecule from '@dtinsight/molecule/esm';
@@ -329,17 +329,15 @@ export default function SchedulingConfig({
 							ref={form}
 						/>
 					</Panel>
-					{!isWorkflowNode &&
-						tabData &&
-						tabData.taskType !== TASK_TYPE_ENUM.VIRTUAL_NODE && (
-							<Panel key="2" header="任务间依赖">
-								<TaskDependence
-									handleAddVOS={handleAddVOS}
-									handleDelVOS={handleDelVOS}
-									tabData={tabData}
-								/>
-							</Panel>
-						)}
+					{!isWorkflowNode && tabData && (
+						<Panel key="2" header="任务间依赖">
+							<TaskDependence
+								handleAddVOS={handleAddVOS}
+								handleDelVOS={handleDelVOS}
+								tabData={tabData}
+							/>
+						</Panel>
+					)}
 					{!isWorkflowNode && (
 						<Panel key="3" header="跨周期依赖">
 							<Row style={{ marginBottom: '16px' }}>

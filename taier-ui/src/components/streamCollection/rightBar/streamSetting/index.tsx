@@ -49,7 +49,7 @@ const formItemLayout: any = { // 表单正常布局
 export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
     const currentPage = current?.tab?.data || {};
     const { streamTaskRetry, streamTaskDirtyDataManageVO, isDirtyDataManage, taskType, componentVersion, strategyId } = currentPage;
-    const showDirtyManage = taskType !== TASK_TYPE_ENUM.MR && taskType !== TASK_TYPE_ENUM.DATA_COLLECTION && componentVersion === FLINK_VERSIONS.FLINK_1_12;
+    const showDirtyManage =  taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && componentVersion === FLINK_VERSIONS.FLINK_1_12;
 
     const [strategyList, useStrategyList] = useState([{ id: 0, name: '无' }]);
     const [target, setTarget] = useState<any>()

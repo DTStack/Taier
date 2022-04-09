@@ -58,10 +58,6 @@ export default function DiffParams({ currentData, versionData }: IProps) {
                 language = 'json';
                 break;
             }
-            case TASK_TYPE_ENUM.PYTHON_23: {
-                language = 'python';
-                break;
-            }
             case TASK_TYPE_ENUM.SQL: {
                 language = 'dtsql';
                 break;

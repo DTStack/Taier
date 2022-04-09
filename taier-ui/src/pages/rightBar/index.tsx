@@ -33,14 +33,13 @@ import {
 	EDIT_FOLDER_PREFIX,
 	EDIT_TASK_PREFIX,
 	TASK_TYPE_ENUM,
-	DATA_SYNC_TYPE
+	DATA_SYNC_TYPE,
 } from '@/constant';
-import './index.scss';
-import StreamTaskDetail from '@/components/streamCollection/rightBar/taskDetail';
 import StreamSetting from '@/components/streamCollection/rightBar/streamSetting';
 import FlinkSourcePanel from '@/components/streamCollection/rightBar/flinkSource';
 import FlinkResultPanel from '@/components/streamCollection/rightBar/flinkResult';
 import FlinkDimensionPanel from '@/components/streamCollection/rightBar/flinkDimension';
+import './index.scss';
 
 enum RIGHT_BAR_ITEM {
 	TASK = 'task',
@@ -74,7 +73,7 @@ const RIGHTBAR = [
 ];
 const STREAM_RIGHTBAR = [
 	{
-		key: RIGHT_BAR_ITEM.STREAM_INFO,
+		key: RIGHT_BAR_ITEM.TASK,
 		value: '任务详情',
 	},
 	{
@@ -88,7 +87,7 @@ const STREAM_RIGHTBAR = [
 ];
 const FLINKSQL_RIGHTBAR = [
 	{
-		key: RIGHT_BAR_ITEM.STREAM_INFO,
+		key: RIGHT_BAR_ITEM.TASK,
 		value: '任务详情',
 	},
 	{
@@ -175,21 +174,21 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 	};
 
 	const renderTabs = () => {
-		switch (propsCurrent?.tab?.data?.taskType) {
+		const currentData = propsCurrent?.tab?.data;
+		switch (currentData?.taskType) {
 			case TASK_TYPE_ENUM.SYNC:
 				return RIGHTBAR;
-			case TASK_TYPE_ENUM.DATA_COLLECTION:
+			case TASK_TYPE_ENUM.DATA_ACQUISITION:
 				return STREAM_RIGHTBAR;
-			case TASK_TYPE_ENUM.FLINKSQL:
-				if (propsCurrent?.tab?.data?.createModel === DATA_SYNC_TYPE.GUIDE) {
+			case TASK_TYPE_ENUM.SQL:
+				if (currentData?.createModel === DATA_SYNC_TYPE.GUIDE) {
 					return FLINKSQL_RIGHTBAR;
-				} else {
-					return STREAM_RIGHTBAR
 				}
+				return STREAM_RIGHTBAR;
 			default:
-				return FLINKSQL_RIGHTBAR
+				return RIGHTBAR;
 		}
-	}
+	};
 
 	const renderContent = () => {
 		switch (current) {
@@ -206,12 +205,10 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 				return <TaskParams current={propsCurrent} onChange={handleChangeVariables} />;
 			case RIGHT_BAR_ITEM.ENV_PARAMS:
 				return <EnvParams current={propsCurrent} onChange={handleValueChanged} />;
-			case RIGHT_BAR_ITEM.STREAM_INFO:
-				return <StreamTaskDetail current={propsCurrent} />
 			case RIGHT_BAR_ITEM.STREAM_SETTING:
-				return <StreamSetting current={propsCurrent} />
+				return <StreamSetting current={propsCurrent} />;
 			case RIGHT_BAR_ITEM.FLINKSQL_SOURCE:
-				return <FlinkSourcePanel current={propsCurrent}/>;
+				return <FlinkSourcePanel current={propsCurrent} />;
 			case RIGHT_BAR_ITEM.FLINKSQL_RESULT:
 				return <FlinkResultPanel current={propsCurrent} />;
 			case RIGHT_BAR_ITEM.FLINKSQL_DIMENSION:

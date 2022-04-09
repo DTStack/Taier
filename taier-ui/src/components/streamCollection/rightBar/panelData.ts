@@ -74,7 +74,7 @@ export const getDataBaseList = async (createTypes: any[]) => {
     const currentPage = streamTaskActions.getCurrentPage();
     const { taskType, createModel }: any = currentPage || {};
     const isGuideMode = createModel === FLINK_SQL_TYPE.GUIDE || !createModel;
-    if (taskType === TASK_TYPE_ENUM.SQL && isGuideMode && createTypes?.length) {
+    if (taskType === TASK_TYPE_ENUM.SPARK_SQL && isGuideMode && createTypes?.length) {
         const res = await stream.getDBList();
         if (res.code === 1) {
             return res.data || [];

@@ -198,6 +198,8 @@ function editTreeNodeName() {
 		api.saveOfflineJobData({
 			...data,
 			name,
+			// 标识位，false 表示只修改了当前任务文件属性，不涉及任务内容属性
+			preSave: false,
 		}).then((res: any) => {
 			if (res.code === 1) {
 				updateTree({
@@ -284,8 +286,8 @@ export function openTaskInTab(taskId: any, file?: any) {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
 		if (success) {
 			switch (data.taskType) {
-				case TASK_TYPE_ENUM.SQL:
-				case TASK_TYPE_ENUM.HIVESQL: {
+				case TASK_TYPE_ENUM.HIVE_SQL:
+				case TASK_TYPE_ENUM.SPARK_SQL: {
 					const tabData = {
 						id: fileId.toString(),
 						name: data.name,
@@ -319,7 +321,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 						data: {
 							...data,
 							value: data.sqlText,
-							language: 'json',
+							language: mappingTaskTypeToLanguage(data.taskType),
 							taskDesc: data.taskDesc,
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
@@ -349,7 +351,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					break;
 				}
 
-				case TASK_TYPE_ENUM.DATA_COLLECTION: {
+				case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 					const tabData: molecule.model.IEditorTab = {
 						id: fileId.toString(),
 						name: data.name,
@@ -378,7 +380,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					break;
 				}
 
-				case TASK_TYPE_ENUM.FLINKSQL: {
+				case TASK_TYPE_ENUM.SQL: {
 					const tabData = {
 						id: fileId.toString(),
 						name: data.name,
@@ -386,7 +388,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 							...data,
 							// set sqlText into value so that molecule-editor could read from this
 							value: data.sqlText,
-							language: 'flinksql',
+							language: mappingTaskTypeToLanguage(data.taskType),
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
@@ -507,7 +509,7 @@ function contextMenu() {
 
 					// 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
 					const { current } = molecule.editor.getState();
-					if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+					if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
 						molecule.editor.updateActions([
 							{
 								id: TASK_RUN_ID,

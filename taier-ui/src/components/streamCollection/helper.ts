@@ -21,7 +21,7 @@ import { TASK_TYPE_ENUM, DATA_SOURCE_ENUM } from '@/constant'
 
 export function cleanCollectionParams (data: any) {
     let newData = cloneDeep(data);
-    if (newData.taskType != TASK_TYPE_ENUM.DATA_COLLECTION) {
+    if (newData.taskType != TASK_TYPE_ENUM.DATA_ACQUISITION) {
         return data;
     }
     const { sourceMap = {}, targetMap = {} } = newData;

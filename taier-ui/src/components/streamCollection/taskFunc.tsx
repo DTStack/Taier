@@ -119,9 +119,6 @@ export const generateValidDesOutPut = function (data: any, componentVersion?: st
         ]
     }
     return Object.assign({}, isCreateByStream ? createByStreamRules : assetValidRules, {
-        createType: [
-            { required: true, message: '请选择表来源' }
-        ],
         collection: [
             { required: data?.type === DATA_SOURCE_ENUM.SOLR, message: '请选择Collection' }
         ],
@@ -201,8 +198,7 @@ export const generateValidDesSide = function (data: any, componentVersion?: stri
             { required: !haveTableColumn(data?.type), message: '字段信息不能为空' }
         ]
     }
-    return Object.assign({}, isCreateByStream ? createByStreamRules : assetValidRules, {
-        schema: [
+    return { ...(isCreateByStream ? createByStreamRules : assetValidRules), schema: [
             { required: schemaRequired, message: '请选择Schema' }
         ],
         'table-input': [
@@ -234,8 +230,7 @@ export const generateValidDesSide = function (data: any, componentVersion?: stri
         ],
         cacheTTLMs: [
             { required: isCacheTLLMSReqiured, message: '请输入缓存超时时间' }
-        ]
-    })
+        ]}
 }
 
 
@@ -307,33 +302,34 @@ export const dataValidator = async (currentPage: any, data: any[], validator: (a
 
 export const validTableData = async (currentPage: any, data: any) => {
     let error
-    for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
-            const tableData = data[key];
-            switch (key) {
-                case 'source':
-                    error = await dataValidator(currentPage, tableData, validDataSource, '源表')
-                    if (error) return error
-                    break;
-                case 'sink':
-                    error = await dataValidator(currentPage, tableData, validDataOutput, '结果表')
-                    if (error) return error
-                    break;
-                case 'side':
-                    error = await dataValidator(currentPage, tableData, validDataSide, '维表')
-                    if (error) return error
-                    break;
-                default:
-                    return error
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                const tableData = data[key];
+                switch (key) {
+                    case 'source':
+                        error = await dataValidator(currentPage, tableData, validDataSource, '源表')
+                        if (error) return error
+                        break;
+                    case 'sink':
+                        error = await dataValidator(currentPage, tableData, validDataOutput, '结果表')
+                        if (error) return error
+                        break;
+                    case 'side':
+                        error = await dataValidator(currentPage, tableData, validDataSide, '维表')
+                        if (error) return error
+                        break;
+                    default:
+                        return error
+                }
             }
-        }
-    }
+        }   
 }
 
 export const preparePage = (page: any) => {
     page = { ...page };
     const { taskType, createModel, sink = [] } = page;
-    if (taskType == TASK_TYPE_ENUM.DATA_COLLECTION && createModel == DATA_SYNC_TYPE.GUIDE) {
+    if (taskType == TASK_TYPE_ENUM.DATA_ACQUISITION && createModel == DATA_SYNC_TYPE.GUIDE) {
         const { sourceMap = {} } = page;
         const { distributeTable } = sourceMap;
         /**
@@ -362,7 +358,7 @@ export const preparePage = (page: any) => {
 
 export function cleanCollectionParams(data: any) {
     let newData = cloneDeep(data);
-    if (newData.taskType != TASK_TYPE_ENUM.DATA_COLLECTION) {
+    if (newData.taskType != TASK_TYPE_ENUM.DATA_ACQUISITION) {
         return data;
     }
     const { sourceMap = {}, targetMap = {} } = newData;

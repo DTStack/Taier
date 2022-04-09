@@ -36,7 +36,6 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
 import type { DefaultOptionType } from 'antd/lib/select';
-import { getFlinkVersion } from '../streamCollection/rightBar/panelData';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -66,7 +65,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [pageLoading, setPageLoading] = useState(false);
 	const [typeLoading, setTypesLoading] = useState(false);
 	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
-	const [flinkVersions, setFlinkVersions] = useState<string[]>([]);
 
 	const getSupportTypes = () => {
 		setTypesLoading(true);
@@ -109,11 +107,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		onSubmit?.({ ...values }).then((success) => {
 			setLoading(success);
 		});
-	};
-
-	const getFlinkVersions = async () => {
-		const list: string[] = await getFlinkVersion();
-		setFlinkVersions(list);
 	};
 
 	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
@@ -199,17 +192,13 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					</>
 				);
 			}
-			case TASK_TYPE_ENUM.FLINKSQL:
-			case TASK_TYPE_ENUM.DATA_COLLECTION: {
+			case TASK_TYPE_ENUM.SQL:
+			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				return (
-					<FormItem {...formItemLayout} label="引擎版本" name="componentVersion">
+					<FormItem label="引擎版本" name="componentVersion">
 						<Select onChange={confirmFlink}>
 							{FLINK_VERSION_TYPE.map(({ value, label }) => (
-								<Option
-									key={value}
-									value={value}
-									disabled={!flinkVersions.includes(value)}
-								>
+								<Option key={value} value={value}>
 									{label}
 								</Option>
 							))}
@@ -225,7 +214,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	useEffect(() => {
 		getCurrentTaskInfo();
 		getSupportTypes();
-		getFlinkVersions();
 	}, []);
 
 	const initialValues = useMemo(() => {

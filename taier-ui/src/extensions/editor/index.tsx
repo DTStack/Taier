@@ -148,14 +148,14 @@ function initActions() {
 	let actions: IEditorActionsProps[] = [];
 
 	switch (currentTabData?.taskType) {
-		case TASK_TYPE_ENUM.DATA_COLLECTION:
+		case TASK_TYPE_ENUM.DATA_ACQUISITION:
 			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
 				actions = [save, convertScript, submit, ops];
 			} else {
 				actions = [save, taskImport, submit, ops];
 			}
 			break;
-		case TASK_TYPE_ENUM.FLINKSQL:
+		case TASK_TYPE_ENUM.SQL:
 			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
 				actions = [save, debug, convertScript, check, introduce, submit, ops];
 			} else {
@@ -204,8 +204,8 @@ function emitEvent() {
 			}
 			case TASK_SAVE_ID: {
 				if (
-					current.tab?.data.taskType === TASK_TYPE_ENUM.DATA_COLLECTION ||
-					current.tab?.data.taskType === TASK_TYPE_ENUM.FLINKSQL
+					current.tab?.data.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION ||
+					current.tab?.data.taskType === TASK_TYPE_ENUM.SQL
 				) {
 					streamSaveTask();
 				} else {
@@ -386,7 +386,7 @@ export default class EditorExtension implements IExtension {
 			const group = molecule.editor.getGroupById(groupId || current.id!);
 			if (group) {
 				const targetTab = group.data?.find(searchById(tabId));
-				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SQL) {
+				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
 					molecule.editor.updateActions([
 						{ id: TASK_RUN_ID, disabled: false },
 						{ id: TASK_SAVE_ID, disabled: false },
@@ -402,7 +402,7 @@ export default class EditorExtension implements IExtension {
 
 		molecule.editor.onCloseTab(() => {
 			const { current } = molecule.editor.getState();
-			if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+			if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
 				molecule.editor.updateActions([
 					{ id: TASK_RUN_ID, disabled: false },
 					{ id: TASK_SAVE_ID, disabled: false },

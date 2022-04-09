@@ -83,7 +83,7 @@ export default function TaskVersion(props: IProps) {
         ];
     }
     const isRenderOperate = () => {
-        if ([TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.DATA_COLLECTION].includes(taskInfo.taskType)) {
+        if ([TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.DATA_ACQUISITION].includes(taskInfo.taskType)) {
             return true
         } else {
             return false
