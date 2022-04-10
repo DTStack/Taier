@@ -370,17 +370,20 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 /**
  * 是不是kafka
  */
-export function isKafka(type: number) {
-	return [
-		DATA_SOURCE_ENUM.KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_2X,
-		DATA_SOURCE_ENUM.KAFKA_11,
-		DATA_SOURCE_ENUM.KAFKA_09,
-		DATA_SOURCE_ENUM.KAFKA_10,
-		DATA_SOURCE_ENUM.TBDS_KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_HUAWEI,
-		DATA_SOURCE_ENUM.KAFKA_CONFLUENT,
-	].includes(type);
+export function isKafka(type?: DATA_SOURCE_ENUM) {
+	return (
+		type !== undefined &&
+		[
+			DATA_SOURCE_ENUM.KAFKA,
+			DATA_SOURCE_ENUM.KAFKA_2X,
+			DATA_SOURCE_ENUM.KAFKA_11,
+			DATA_SOURCE_ENUM.KAFKA_09,
+			DATA_SOURCE_ENUM.KAFKA_10,
+			DATA_SOURCE_ENUM.TBDS_KAFKA,
+			DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+			DATA_SOURCE_ENUM.KAFKA_CONFLUENT,
+		].includes(type)
+	);
 }
 
 /**
@@ -388,8 +391,8 @@ export function isKafka(type: number) {
  * @param type kafka数据类型
  * @returns boolean
  */
-export function isAvro(type: string) {
-	return [KAFKA_DATA_TYPE.TYPE_AVRO, KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT].includes(type);
+export function isAvro(type?: string) {
+	return type && [KAFKA_DATA_TYPE.TYPE_AVRO, KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT].includes(type);
 }
 /**
  * 是否拥有字段列的权限
@@ -591,16 +594,19 @@ export function haveDataPreview(type: number) {
 	return list.indexOf(type) > -1;
 }
 
-export function showTimeForOffsetReset(type: number) {
-	return [
-		DATA_SOURCE_ENUM.KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_2X,
-		DATA_SOURCE_ENUM.KAFKA_10,
-		DATA_SOURCE_ENUM.KAFKA_11,
-		DATA_SOURCE_ENUM.TBDS_KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_HUAWEI,
-		DATA_SOURCE_ENUM.KAFKA_CONFLUENT,
-	].includes(type);
+export function showTimeForOffsetReset(type?: DATA_SOURCE_ENUM) {
+	return (
+		type !== undefined &&
+		[
+			DATA_SOURCE_ENUM.KAFKA,
+			DATA_SOURCE_ENUM.KAFKA_2X,
+			DATA_SOURCE_ENUM.KAFKA_10,
+			DATA_SOURCE_ENUM.KAFKA_11,
+			DATA_SOURCE_ENUM.TBDS_KAFKA,
+			DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+			DATA_SOURCE_ENUM.KAFKA_CONFLUENT,
+		].includes(type)
+	);
 }
 
 /**

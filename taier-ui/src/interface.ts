@@ -18,6 +18,7 @@
 
 import type {
 	BINARY_ROW_KEY_FLAG,
+	CODE_TYPE,
 	DATA_SOURCE_ENUM,
 	DATA_SYNC_TYPE,
 	MENU_TYPE_ENUM,
@@ -25,6 +26,7 @@ import type {
 	RESOURCE_TYPE,
 	SCHEDULE_DEPENDENCY,
 	SCHEDULE_STATUS,
+	SOURCE_TIME_TYPE,
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
@@ -127,9 +129,9 @@ export interface IResourceProps {
 }
 
 /**
- * 离线任务类型
+ * 所有任务类型
  */
-export interface IOfflineTaskProps extends ISyncDataProps {
+export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -424,4 +426,37 @@ export interface IDataSourceUsedInSyncProps {
 	dataInfoId: number;
 	dataName: string;
 	dataTypeCode: DATA_SOURCE_ENUM;
+}
+
+/**
+ * flinkSQL 任务的属性
+ */
+export interface IFlinkDataProps {
+	source: IFlinkSourceProps;
+}
+
+export interface IFlinkSourceProps {
+	charset: CODE_TYPE;
+	columns: [{ column: 'id'; type: 'int' }];
+	columnsText: string;
+	offset: number;
+	offsetReset: string;
+	offsetUnit: string;
+	offsetValue: string;
+	parallelism: number;
+	procTime: string;
+	sourceDataType: string;
+	sourceId: number;
+	sourceName: string;
+	table: string;
+	timeType: SOURCE_TIME_TYPE;
+	timeTypeArr: SOURCE_TIME_TYPE[];
+	timeZone: string;
+	topic: string;
+	type: DATA_SOURCE_ENUM;
+	// 自定义参数
+	customParams: any;
+
+	// the unique key for front-end panel
+	panelKey: string;
 }

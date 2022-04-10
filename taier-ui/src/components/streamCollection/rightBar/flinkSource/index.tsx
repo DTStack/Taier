@@ -15,17 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IEditor } from '@dtinsight/molecule/esm/model';
+import type { IEditor } from '@dtinsight/molecule/esm/model';
 import { Button, Collapse, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import LockPanel from '../lockPanel';
 import { useEffect, useMemo, useState } from 'react';
-import { getCreateTypes, getDataBaseList, getTimeZoneList } from '../panelData';
-import { CODE_TYPE, DATA_SOURCE_ENUM, KAFKA_DATA_TYPE, TABLE_SOURCE, TABLE_TYPE } from '@/constant';
+import { getTimeZoneList } from '../panelData';
+import { CODE_TYPE, DATA_SOURCE_ENUM, KAFKA_DATA_TYPE } from '@/constant';
 import classNames from 'classnames';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import stream from '@/api/stream';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { streamTaskActions } from '../../taskFunc';
 import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import { isAvro, isKafka } from '@/utils/enums';
@@ -33,50 +32,54 @@ import { changeCustomParams } from '../customParamsUtil';
 import { parseColumnText } from '../flinkHelper';
 import SourceForm from './form';
 import molecule from '@dtinsight/molecule';
-import type { IDataSourceUsedInSyncProps } from '@/interface';
+import type { IDataSourceUsedInSyncProps, IFlinkSourceProps } from '@/interface';
+import type { DefaultOptionType } from 'antd/lib/cascader';
 import './index.scss';
 
 const { Panel } = Collapse;
-const DEFAULT_TABLE_SOURCE = TABLE_SOURCE.DATA_CREATE;
 const DEFAULT_TYPE = DATA_SOURCE_ENUM.KAFKA_2X;
 
 /**
  * 创建源表的默认输入内容
  */
-const DEFAULT_INPUT_VALUE = {
-	createType: DEFAULT_TABLE_SOURCE,
+const DEFAULT_INPUT_VALUE: Partial<IFlinkSourceProps> = {
 	type: DEFAULT_TYPE,
 	sourceId: undefined,
-	topic: [],
-	dbId: undefined,
-	tableId: undefined,
+	topic: undefined,
 	charset: CODE_TYPE.UTF_8,
 	table: undefined,
 	timeType: 1,
 	timeTypeArr: [1],
 	timeZone: 'Asia/Shanghai', // 默认时区值
-	timeColumn: undefined,
 	offset: 0,
 	offsetUnit: 'SECOND',
 	columnsText: undefined,
 	parallelism: 1,
 	offsetReset: 'latest',
-	timestampOffset: null,
 	sourceDataType: 'dt_nest',
+};
+
+/**
+ * 等待输入的源表数据，只有 panelkey 是必存在的，其余属性都是待输入
+ */
+export type PendingInputColumnType = Partial<Omit<IFlinkSourceProps, 'panelKey'>> & {
+	panelKey: IFlinkSourceProps['panelKey'];
 };
 
 export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) {
 	const currentPage = current?.tab?.data || {};
 	const [panelActiveKey, setPanelActiveKey] = useState<string[]>([]);
-	const [panelColumn, setPanelColumn] = useState(currentPage?.source || []);
+	// 当前源表全部数据
+	const [panelColumn, setPanelColumn] = useState<PendingInputColumnType[]>(
+		currentPage?.source || [],
+	);
 	const [originOptionType, setOriginOptionType] = useState<
 		Record<number, IDataSourceUsedInSyncProps[]>
 	>({});
-	const [assetTableOptionType, setAssetTableOptionType] = useState<any>({});
 	const [topicOptionType, setTopicOptionType] = useState<Record<number, string[]>>({});
 	const [sync, setSync] = useState(false);
-	const [timeZoneData, setTimeZoneData] = useState<string[]>([]);
-	const [dataBaseOptionType, setDataBaseOptionType] = useState<any>([]);
+	// 时区数据
+	const [timeZoneData, setTimeZoneData] = useState<DefaultOptionType[]>([]);
 
 	const initTimeZoneList = async () => {
 		const list = await getTimeZoneList();
@@ -84,7 +87,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	};
 
 	// 获取数据源
-	const getTypeOriginData = async (type: DATA_SOURCE_ENUM) => {
+	const getTypeOriginData = async (type?: DATA_SOURCE_ENUM) => {
 		if (type !== undefined) {
 			const existData = originOptionType[type];
 			if (existData) {
@@ -101,44 +104,9 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 		}
 	};
 
-	// 获取元数据下对应表
-	const getAssetTableList = async (dbId: any) => {
-		// if (dbId) {
-		// 	const existData = assetTableOptionType[dbId];
-		// 	if (existData) {
-		// 		return;
-		// 	}
-		// 	let v = await stream.getAssetTableList({
-		// 		dbId: dbId,
-		// 		tableType: TABLE_TYPE.SOURCE_TABLE,
-		// 	});
-		// 	if (v.code == 1) {
-		// 		setAssetTableOptionType({
-		// 			...assetTableOptionType,
-		// 			[dbId]: v.data,
-		// 		});
-		// 	}
-		// }
-	};
-
-	// 获取元数据下所有信息
-	const getAssetData = async (tableId: any) => {
-		// let params = {};
-		// const res = await stream.getAssetTableDetail({
-		// 	tableId,
-		// });
-		// if (res.code === 1 && !isEmpty(res.data)) {
-		// 	const { sourceTableParam, columns, charset } = res.data;
-		// 	params = Object.assign(sourceTableParam, {
-		// 		columns: columns,
-		// 		charset,
-		// 	});
-		// }
-		// return params;
-	};
-
 	const getTopicType = async (sourceId?: number) => {
 		if (sourceId) {
+			// improve the performance
 			const existTopic = topicOptionType[sourceId];
 			if (existTopic) {
 				return;
@@ -157,21 +125,21 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	 * 添加或删除源表
 	 * @param panelKey 删除的时候需要带上 panelKey
 	 */
-	const changeInputTabs = (type: 'add' | 'delete', panelKey?: string) => {
+	const handlePanelChanged = (type: 'add' | 'delete', panelKey?: string) => {
 		let nextPanelActiveKey = panelActiveKey;
 		let nextPanelColumn = panelColumn;
 		if (type === 'add') {
 			const key = Utils.generateAKey();
 			nextPanelColumn.push({
 				...DEFAULT_INPUT_VALUE,
-				_panelKey: key,
+				panelKey: key,
 			});
 			getTypeOriginData(DEFAULT_INPUT_VALUE.type);
 			getTopicType(DEFAULT_INPUT_VALUE.sourceId);
 			nextPanelActiveKey.push(key);
 		} else {
-			nextPanelColumn = nextPanelColumn.filter((panel: any) => {
-				return panelKey !== panel._panelKey;
+			nextPanelColumn = nextPanelColumn.filter((panel) => {
+				return panelKey !== panel.panelKey;
 			});
 			nextPanelActiveKey = nextPanelActiveKey.filter((key) => {
 				return panelKey !== key;
@@ -185,82 +153,15 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	// 时区不做处理
 	const handleInputChange = async (index: any, type: any, value: any, subValue: any) => {
 		// 监听数据改变
-		let panelColumnSocp = cloneDeep(panelColumn);
+		const panelColumnSocp = cloneDeep(panelColumn);
 		let panel = panelColumnSocp[index];
 		let shouldUpdateEditor = false;
 		switch (type) {
-			case 'createType': {
-				panel = panelColumnSocp[index] = {
-					...DEFAULT_INPUT_VALUE,
-					_panelKey: panel._panelKey,
-					sourceDataType: panel.sourceDataType,
-				};
-				panel[type] = value;
-				if (value === TABLE_SOURCE.DATA_CREATE) {
-					panelColumnSocp['type'] = DEFAULT_TYPE;
-					getTypeOriginData(DEFAULT_TYPE);
-				}
-				shouldUpdateEditor = true;
-				break;
-			}
-			case 'dbId': {
-				const db = dataBaseOptionType.find((item: any) => item.dbId === value);
-				panel = panelColumnSocp[index] = {
-					...DEFAULT_INPUT_VALUE,
-					createType: panel.createType,
-					[type]: value,
-					assetsDbName: db?.dbName,
-					_panelKey: panel._panelKey,
-					sourceDataType: panel.sourceDataType,
-				};
-				getAssetTableList(value);
-				shouldUpdateEditor = true;
-				break;
-			}
-			case 'tableId': {
-				// 获取当前元数据的类型，并设置
-				const tableList = assetTableOptionType[panel.dbId] || [];
-				const tableData = tableList.find((item: any) => item.tableId === value);
-				const params = await getAssetData(value);
-				panel = panelColumnSocp[index] = {
-					...DEFAULT_INPUT_VALUE,
-					...params,
-					createType: panel.createType,
-					dbId: panel.dbId,
-					assetsDbName: panel.assetsDbName,
-					[type]: value,
-					assetsTableName: tableData?.tableName,
-					_panelKey: panel._panelKey,
-					sourceDataType: panel.sourceDataType,
-				};
-				shouldUpdateEditor = true;
-				break;
-			}
-			case 'targetCol': {
-				// 去除空格汉字
-				const reg = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
-				let val = subValue;
-				if (subValue) {
-					val = Utils.trimAll(subValue);
-					if (reg.test(val)) {
-						val = subValue.replace(reg, '');
-					}
-				} else {
-					val = undefined;
-				}
-				panel['columns'][value].targetCol = val;
-
-				let columns = panel.columns.map(({ column, targetCol }: any) => ({
-					column: targetCol || column,
-				}));
-				panel.timeColumn = timeColumnCheck(columns);
-				break;
-			}
 			case 'type': {
 				panel = panelColumnSocp[index] = {
 					...DEFAULT_INPUT_VALUE,
 					createType: panel.createType,
-					_panelKey: panel._panelKey,
+					panelKey: panel.panelKey,
 				};
 				panel[type] = value;
 				getTypeOriginData(value);
@@ -280,7 +181,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 					...DEFAULT_INPUT_VALUE,
 					createType: panel.createType,
 					type: panel.type,
-					_panelKey: panel._panelKey,
+					panelKey: panel.panelKey,
 					sourceDataType: panel.sourceDataType,
 				};
 				panel[type] = value;
@@ -342,11 +243,11 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 		}
 	};
 
-	useEffect(() => {
-		initTimeZoneList();
-	}, []);
-
-	const panelHeader = (index: number, panelKey: string, panelData: any) => {
+	const renderPanelHeader = (
+		index: number,
+		panelKey: string,
+		panelData: PendingInputColumnType,
+	) => {
 		const tableName = panelData.table;
 		return (
 			<div className="input-panel-title">
@@ -354,7 +255,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 				<Popconfirm
 					placement="topLeft"
 					title="你确定要删除此源表吗？"
-					onConfirm={() => changeInputTabs('delete', panelKey)}
+					onConfirm={() => handlePanelChanged('delete', panelKey)}
 					{...{
 						onClick: (e: any) => {
 							e.stopPropagation();
@@ -368,8 +269,12 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	};
 
 	useEffect(() => {
+		initTimeZoneList();
+	}, []);
+
+	useEffect(() => {
 		if (!isInValidTab) {
-			currentPage?.source.forEach((s) => {
+			currentPage?.source.forEach((s: IFlinkSourceProps) => {
 				getTypeOriginData(s.type);
 			});
 		}
@@ -398,11 +303,11 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 					bordered={false}
 					onChange={(key) => setPanelActiveKey(key as string[])}
 				>
-					{panelColumn.map((panelColumnData: any, index: any) => {
-						const key = panelColumnData._panelKey;
+					{panelColumn.map((panelColumnData, index) => {
+						const key = panelColumnData.panelKey;
 						return (
 							<Panel
-								header={panelHeader(index, key, panelColumnData)}
+								header={renderPanelHeader(index, key, panelColumnData)}
 								key={key}
 								style={{ position: 'relative' }}
 								className="input-panel"
@@ -413,23 +318,24 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 									handleInputChange={handleInputChange.bind(undefined, index)}
 									panelColumn={panelColumnData}
 									topicOptionType={
-										topicOptionType[panelColumnData.sourceId] || []
+										topicOptionType[panelColumnData.sourceId || -1] || []
 									}
-									originOptionType={originOptionType[panelColumnData.type] || []}
+									originOptionType={
+										originOptionType[panelColumnData.type || -1] || []
+									}
 									timeZoneData={timeZoneData}
 									currentPage={currentPage}
 									textChange={() => {
 										setSync(false);
 									}}
 								/>
-								<LockPanel lockTarget={currentPage} />
 							</Panel>
 						);
 					})}
 				</Collapse>
 				<Button
 					className="stream-btn"
-					onClick={() => changeInputTabs('add')}
+					onClick={() => handlePanelChanged('add')}
 					icon={<PlusOutlined />}
 				>
 					<span>添加源表</span>

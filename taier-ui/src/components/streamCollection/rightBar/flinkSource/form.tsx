@@ -24,8 +24,6 @@ import {
 	KAFKA_DATA_LIST,
 	KAFKA_DATA_TYPE,
 	SOURCE_TIME_TYPE,
-	TABLE_SOURCE,
-	TABLE_TYPE,
 } from '@/constant';
 import { isAvro, isKafka, showTimeForOffsetReset } from '@/utils/enums';
 import {
@@ -43,13 +41,15 @@ import {
 } from 'antd';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import React, { useMemo, useState } from 'react';
-import { generateSourceValidDes, inputDefaultValue, parseColumnText } from '../flinkHelper';
+import { generateSourceValidDes, parseColumnText } from '../flinkHelper';
 import Editor from '@/components/editor';
 import { debounce, isString } from 'lodash';
 import { CustomParams } from '../component/customParams';
 import DataPreviewModal from '../../source/dataPreviewModal';
-import { formatOffsetResetTime, generateMapValues } from '../customParamsUtil';
+import { generateMapValues } from '../customParamsUtil';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
+import type { PendingInputColumnType } from '.';
+import type { DefaultOptionType } from 'antd/lib/cascader';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -65,12 +65,18 @@ const DATASOURCE_OPTIONS_TYPE = [
 ];
 
 interface ISourceFormProps {
+	/**
+	 * 控制 editor 是否展示
+	 */
 	isShow: boolean;
 	sync: boolean;
-	panelColumn: any;
+	/**
+	 * 当前数据
+	 */
+	panelColumn: PendingInputColumnType;
 	topicOptionType: string[];
 	originOptionType: IDataSourceUsedInSyncProps[];
-	timeZoneData: string[];
+	timeZoneData: DefaultOptionType[];
 	currentPage: any;
 	handleInputChange: (type: any, value: any, subValue?: any) => void;
 	textChange: () => void;
@@ -112,7 +118,6 @@ export default function SourceForm({
 	textChange,
 }: ISourceFormProps) {
 	const [form] = Form.useForm<ISourceFormFieldProps>();
-	const { getFieldValue } = form;
 	const { componentVersion } = currentPage || {};
 
 	const [visible, setVisible] = useState(false);
@@ -121,31 +126,6 @@ export default function SourceForm({
 
 	const originOption = (type: any, arrData: any) => {
 		switch (type) {
-			case 'dataSource':
-				return DATASOURCE_OPTIONS_TYPE.map((t) => (
-					<Option key={t} value={t}>
-						{DATA_SOURCE_TEXT[t]}
-					</Option>
-				));
-
-			case 'originType':
-				return arrData.map((v: any) => {
-					return (
-						<Option key={v} value={`${v.id}`}>
-							{v.name}
-							{DATA_SOURCE_VERSION[v.type as DATA_SOURCE_ENUM] &&
-								` (${DATA_SOURCE_VERSION[v.type as DATA_SOURCE_ENUM]})`}
-						</Option>
-					);
-				});
-			case 'currencyType':
-				return arrData.map((v: any) => {
-					return (
-						<Option key={v} value={`${v}`}>
-							{v}
-						</Option>
-					);
-				});
 			case 'eventTime':
 				return arrData.map((v: any, index: any) => {
 					return (
@@ -154,31 +134,14 @@ export default function SourceForm({
 						</Option>
 					);
 				});
-			case 'database':
-				return arrData.map((db: any) => (
-					<Option key={db.dbId} value={db.dbId}>
-						{db.dbName}
-					</Option>
-				));
-			case 'assetTable':
-				return arrData.map((table: any) => (
-					<Option key={table.tableId} value={table.tableId}>
-						{table.tableName}
-					</Option>
-				));
+
 			default:
 				return null;
 		}
 	};
 	// 获取时间列
 	const getEventTimeOptionTypes = () => {
-		const { createType, columnsText, columns } = panelColumn;
-		if (createType === TABLE_SOURCE.DATA_ASSET) {
-			return (columns || []).map((item: any) => ({
-				column: item.targetCol || item.column,
-				type: item.type,
-			}));
-		}
+		const { columnsText } = panelColumn;
 		return parseColumnText(columnsText) || [];
 	};
 	const showPreviewModal = () => {
@@ -201,63 +164,42 @@ export default function SourceForm({
 	const debounceEditorChange = debounce(editorParamsChange, 300, { maxWait: 2000 });
 
 	const changeTimeTypeArr = (timeTypeArr: any[]) => {
+		let nextTimeType = timeTypeArr.concat();
 		// 勾选 EventTime 时需同时勾选 ProcTime
 		if (
 			!panelColumn?.timeTypeArr?.includes(SOURCE_TIME_TYPE.EVENT_TIME) &&
-			timeTypeArr?.includes(SOURCE_TIME_TYPE.EVENT_TIME)
+			nextTimeType?.includes(SOURCE_TIME_TYPE.EVENT_TIME)
 		) {
-			timeTypeArr = [1, 2];
+			nextTimeType = [1, 2];
 		}
-		form.setFieldsValue({ timeTypeArr });
-		handleInputChange('timeTypeArr', timeTypeArr);
+		form.setFieldsValue({ timeTypeArr: nextTimeType });
+		handleInputChange('timeTypeArr', nextTimeType);
 	};
 
 	const initialValues = useMemo(() => {
-		const {
-			sourceId,
-			type,
-			topic,
-			timeZone,
-			customParams,
-			timestampOffset,
-			sourceDataType,
-			assetsDbName,
-			assetsTableName,
-		} = panelColumn;
+		const { timeZone, customParams, ...restCols } = panelColumn;
+
 		const initialTimeZoneValue =
 			timeZone && isString(timeZone) ? timeZone.split('/') : ['Asia', 'Shanghai'];
-		const initialSourceIdValue = originOptionType.length ? sourceId : undefined;
-		let values = {};
-		Object.entries(panelColumn).forEach(([key, value]) => {
-			if (inputDefaultValue(key)) {
-				values = { ...values, [key]: value };
-			}
-		});
-		const initialDbId = assetsDbName;
-		const initialTableId = assetsTableName;
 
 		return {
-			sourceId: initialSourceIdValue,
-			type: parseInt(type, 10),
-			topic_input: topic,
 			timeZone: initialTimeZoneValue,
-			timestampOffset: timestampOffset
-				? formatOffsetResetTime(parseInt(timestampOffset, 10))
-				: null,
-			sourceDataType,
-			...values,
 			...generateMapValues(customParams),
-			dbId: initialDbId,
-			tableId: initialTableId,
+			...restCols,
 		};
 	}, [panelColumn]);
 
 	const eventTimeOptionType = originOption('eventTime', getEventTimeOptionTypes());
 
-	const validDes: any = generateSourceValidDes(panelColumn, componentVersion);
+	const validDes = generateSourceValidDes(panelColumn, componentVersion);
+
 	return (
 		<Row className="title-content">
-			<Form {...formItemLayout} form={form} initialValues={initialValues}>
+			<Form<ISourceFormFieldProps>
+				{...formItemLayout}
+				form={form}
+				initialValues={initialValues}
+			>
 				<FormItem label="类型" name="type" rules={validDes.type}>
 					<Select<DATA_SOURCE_ENUM>
 						placeholder="请选择类型"
@@ -331,51 +273,60 @@ export default function SourceForm({
 						<Option value={CODE_TYPE.GBK_2312}>{CODE_TYPE.GBK_2312}</Option>
 					</Select>
 				</FormItem>
-				{isKafka(panelColumn.type) && (
-					<FormItem
-						{...formItemLayout}
-						label="读取类型"
-						className="right-select"
-						name="sourceDataType"
-						rules={validDes.sourceDataType}
-					>
-						<Select
-							disabled={panelColumn?.createType === TABLE_SOURCE.DATA_ASSET}
-							onChange={(v: any) => {
-								handleInputChange('sourceDataType', v);
-							}}
-						>
-							{panelColumn.type === DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
-								<Option
-									value={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
-									key={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
+				<FormItem noStyle dependencies={['type']}>
+					{({ getFieldValue }) =>
+						isKafka(getFieldValue('type')) && (
+							<FormItem
+								{...formItemLayout}
+								label="读取类型"
+								className="right-select"
+								name="sourceDataType"
+								rules={validDes.sourceDataType}
+							>
+								<Select
+									onChange={(v: any) => {
+										handleInputChange('sourceDataType', v);
+									}}
 								>
-									{KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
-								</Option>
-							) : (
-								KAFKA_DATA_LIST.map(({ text, value }) => (
-									<Option value={value} key={text + value}>
-										{text}
-									</Option>
-								))
-							)}
-						</Select>
-					</FormItem>
-				)}
-				{isAvro(getFieldValue('sourceDataType')) && (
-					<FormItem
-						{...formItemLayout}
-						label="Schema"
-						name="schemaInfo"
-						rules={validDes.schemaInfo}
-					>
-						<Input.TextArea
-							rows={9}
-							placeholder={`填写Avro Schema信息，示例如下：\n{\n\t"name": "testAvro",\n\t"type": "record",\n\t"fields": [{\n\t\t"name": "id",\n\t\t"type": "string"\n\t}]\n}`}
-							onChange={(e: any) => handleInputChange('schemaInfo', e.target.value)}
-						/>
-					</FormItem>
-				)}
+									{getFieldValue('type') === DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
+										<Option
+											value={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
+											key={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
+										>
+											{KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
+										</Option>
+									) : (
+										KAFKA_DATA_LIST.map(({ text, value }) => (
+											<Option value={value} key={text + value}>
+												{text}
+											</Option>
+										))
+									)}
+								</Select>
+							</FormItem>
+						)
+					}
+				</FormItem>
+				<FormItem noStyle dependencies={['sourceDataType']}>
+					{({ getFieldValue }) =>
+						isAvro(getFieldValue('sourceDataType')) && (
+							<FormItem
+								{...formItemLayout}
+								label="Schema"
+								name="schemaInfo"
+								rules={validDes.schemaInfo}
+							>
+								<Input.TextArea
+									rows={9}
+									placeholder={`填写Avro Schema信息，示例如下：\n{\n\t"name": "testAvro",\n\t"type": "record",\n\t"fields": [{\n\t\t"name": "id",\n\t\t"type": "string"\n\t}]\n}`}
+									onChange={(e: any) =>
+										handleInputChange('schemaInfo', e.target.value)
+									}
+								/>
+							</FormItem>
+						)
+					}
+				</FormItem>
 				<Row>
 					<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6"></div>
 					<Col offset={6} style={{ marginBottom: 12 }}>
@@ -394,30 +345,37 @@ export default function SourceForm({
 						onChange={(e: any) => handleInputChange('table', e.target.value)}
 					/>
 				</FormItem>
-				<Row>
-					<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-						<label className="required-tip">字段</label>
-					</div>
-					<Col span={18} style={{ marginBottom: 20, height: 202 }}>
-						{isShow && (
-							<Editor
-								style={{ minHeight: 202, height: '100%', borderRadius: 4 }}
-								className="bd"
-								sync={sync}
-								placeholder={`字段 类型, 比如 id int 一行一个字段${
-									panelColumn?.type !== DATA_SOURCE_ENUM.KAFKA_CONFLUENT
-										? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
-										: ''
-								}`}
-								value={panelColumn.columnsText}
-								onChange={(val: string) => debounceEditorChange('columnsText', val)}
-								// editorRef={(ref: any) => {
-								//     this._editorRef = ref;
-								// }}
-							/>
-						)}
-					</Col>
-				</Row>
+				<FormItem noStyle dependencies={['type']}>
+					{({ getFieldValue }) => (
+						<Row>
+							<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+								<label className="required-tip">字段</label>
+							</div>
+							<Col span={18} style={{ marginBottom: 20, height: 202 }}>
+								{isShow && (
+									<Editor
+										style={{ minHeight: 202, height: '100%', borderRadius: 4 }}
+										className="bd"
+										sync={sync}
+										placeholder={`字段 类型, 比如 id int 一行一个字段${
+											getFieldValue('type') !==
+											DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+												? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
+												: ''
+										}`}
+										value={panelColumn.columnsText}
+										onChange={(val: string) =>
+											debounceEditorChange('columnsText', val)
+										}
+										// editorRef={(ref: any) => {
+										//     this._editorRef = ref;
+										// }}
+									/>
+								)}
+							</Col>
+						</Row>
+					)}
+				</FormItem>
 				<FormItem
 					label="Offset"
 					tooltip={
@@ -442,43 +400,54 @@ export default function SourceForm({
 						<Radio value="custom">自定义参数</Radio>
 					</Radio.Group>
 				</FormItem>
-				{getFieldValue('offsetReset') === 'timestamp' && (
-					<FormItem
-						label="选择时间"
-						style={{ textAlign: 'left' }}
-						name="timestampOffset"
-						rules={[{ required: true, message: '请选择时间' }]}
-					>
-						<DatePicker
-							onChange={(v: any) => {
-								handleInputChange('timestampOffset', v.valueOf());
-							}}
-							showTime
-							placeholder="请选择起始时间"
-							format={'YYYY-MM-DD HH:mm:ss'}
-							style={{ width: '100%' }}
-						/>
-					</FormItem>
-				)}
-				{getFieldValue('offsetReset') === 'custom' && (
-					<Row>
-						<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-							<label>偏移量</label>
-						</div>
-						<Col span={18} style={{ marginBottom: 20, height: 202 }}>
-							{isShow && (
-								<Editor
-									style={{ minHeight: 202, height: '100%' }}
-									className="bd"
-									sync={sync}
-									placeholder="分区 偏移量，比如pt 2 一行一对值"
-									value={panelColumn.offsetValue}
-									onChange={debounceEditorChange.bind(undefined, 'offsetValue')}
+				<FormItem noStyle dependencies={['offsetReset']}>
+					{({ getFieldValue }) =>
+						getFieldValue('offsetReset') === 'timestamp' && (
+							<FormItem
+								label="选择时间"
+								style={{ textAlign: 'left' }}
+								name="timestampOffset"
+								rules={[{ required: true, message: '请选择时间' }]}
+							>
+								<DatePicker
+									onChange={(v: any) => {
+										handleInputChange('timestampOffset', v.valueOf());
+									}}
+									showTime
+									placeholder="请选择起始时间"
+									format={'YYYY-MM-DD HH:mm:ss'}
+									style={{ width: '100%' }}
 								/>
-							)}
-						</Col>
-					</Row>
-				)}
+							</FormItem>
+						)
+					}
+				</FormItem>
+				<FormItem noStyle dependencies={['offsetReset', 'offsetValue']}>
+					{({ getFieldValue }) =>
+						getFieldValue('offsetReset') === 'custom' && (
+							<Row>
+								<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+									<label>偏移量</label>
+								</div>
+								<Col span={18} style={{ marginBottom: 20, height: 202 }}>
+									{isShow && (
+										<Editor
+											style={{ minHeight: 202, height: '100%' }}
+											className="bd"
+											sync={sync}
+											placeholder="分区 偏移量，比如pt 2 一行一对值"
+											value={getFieldValue('offsetValue')}
+											onChange={debounceEditorChange.bind(
+												undefined,
+												'offsetValue',
+											)}
+										/>
+									)}
+								</Col>
+							</Row>
+						)
+					}
+				</FormItem>
 				<FormItem
 					label="时间特征"
 					tooltip={
@@ -521,85 +490,107 @@ export default function SourceForm({
 						/>
 					)}
 				</FormItem>
-				{componentVersion === '1.12' &&
-					panelColumn?.timeTypeArr?.includes?.(SOURCE_TIME_TYPE.PROC_TIME) && (
-						<FormItem
-							label="ProcTime 名称"
-							name="procTime"
-							rules={[{ pattern: /^\w*$/, message: '仅支持输入英文、数字、下划线' }]}
-						>
-							<Input
-								className="right-input"
-								maxLength={64}
-								placeholder="自定义ProcTime名称，为空时默认为 proc_time"
-								onChange={(e) => {
-									handleInputChange('procTime', e.target.value);
-								}}
-							/>
-						</FormItem>
-					)}
-				{((componentVersion !== '1.12' &&
-					panelColumn.timeType === SOURCE_TIME_TYPE.EVENT_TIME) ||
-					(componentVersion === '1.12' &&
-						panelColumn?.timeTypeArr?.includes?.(SOURCE_TIME_TYPE.EVENT_TIME))) && (
-					<React.Fragment>
-						<FormItem label="时间列" name="timeColumn" rules={validDes.timeColumn}>
-							<Select
-								placeholder="请选择"
-								className="right-select"
-								onChange={(v: any) => {
-									handleInputChange('timeColumn', v);
-								}}
-								showSearch
-								filterOption={(input: any, option: any) =>
-									option.props.children
-										.toLowerCase()
-										.indexOf(input.toLowerCase()) >= 0
-								}
+				<FormItem noStyle dependencies={['timeTypeArr']}>
+					{({ getFieldValue }) =>
+						componentVersion === '1.12' &&
+						getFieldValue('timeTypeArr')?.includes?.(SOURCE_TIME_TYPE.PROC_TIME) && (
+							<FormItem
+								label="ProcTime 名称"
+								name="procTime"
+								rules={[
+									{ pattern: /^\w*$/, message: '仅支持输入英文、数字、下划线' },
+								]}
 							>
-								{eventTimeOptionType}
-							</Select>
-						</FormItem>
-						<FormItem
-							label="最大延迟时间"
-							tooltip="当event time超过最大延迟时间时，系统自动丢弃此条数据"
-							name="offset"
-							rules={validDes.offset}
-						>
-							<InputNumber
-								min={0}
-								className="number-input"
-								style={{
-									width: componentVersion === '1.12' ? '70%' : '90%',
-									height: '32px',
-								}}
-								onChange={(value: any) => handleInputChange('offset', value)}
-								addonAfter={
-									componentVersion === '1.12' ? (
-										<Form.Item name="offsetUnit" noStyle initialValue="SECOND">
-											<Select
-												className="right-select"
-												style={{ width: 80 }}
-												onChange={(value) => {
-													handleInputChange('offsetUnit', value);
-												}}
-											>
-												<Option value="SECOND">sec</Option>
-												<Option value="MINUTE">min</Option>
-												<Option value="HOUR">hour</Option>
-												<Option value="DAY">day</Option>
-												<Option value="MONTH">mon</Option>
-												<Option value="YEAR">year</Option>
-											</Select>
-										</Form.Item>
-									) : (
-										'ms'
-									)
-								}
-							/>
-						</FormItem>
-					</React.Fragment>
-				)}
+								<Input
+									className="right-input"
+									maxLength={64}
+									placeholder="自定义ProcTime名称，为空时默认为 proc_time"
+									onChange={(e) => {
+										handleInputChange('procTime', e.target.value);
+									}}
+								/>
+							</FormItem>
+						)
+					}
+				</FormItem>
+				<FormItem noStyle dependencies={['timeType', 'timeTypeArr']}>
+					{({ getFieldValue }) =>
+						((componentVersion !== '1.12' &&
+							getFieldValue('timeType') === SOURCE_TIME_TYPE.EVENT_TIME) ||
+							(componentVersion === '1.12' &&
+								getFieldValue('timeTypeArr')?.includes?.(
+									SOURCE_TIME_TYPE.EVENT_TIME,
+								))) && (
+							<React.Fragment>
+								<FormItem
+									label="时间列"
+									name="timeColumn"
+									rules={validDes.timeColumn}
+								>
+									<Select
+										placeholder="请选择"
+										className="right-select"
+										onChange={(v: any) => {
+											handleInputChange('timeColumn', v);
+										}}
+										showSearch
+										filterOption={(input: any, option: any) =>
+											option.props.children
+												.toLowerCase()
+												.indexOf(input.toLowerCase()) >= 0
+										}
+									>
+										{eventTimeOptionType}
+									</Select>
+								</FormItem>
+								<FormItem
+									label="最大延迟时间"
+									tooltip="当event time超过最大延迟时间时，系统自动丢弃此条数据"
+									name="offset"
+									rules={validDes.offset}
+								>
+									<InputNumber
+										min={0}
+										className="number-input"
+										style={{
+											width: componentVersion === '1.12' ? '70%' : '90%',
+											height: '32px',
+										}}
+										onChange={(value: any) =>
+											handleInputChange('offset', value)
+										}
+										addonAfter={
+											componentVersion === '1.12' ? (
+												<Form.Item
+													name="offsetUnit"
+													noStyle
+													initialValue="SECOND"
+												>
+													<Select
+														className="right-select"
+														style={{ width: 80 }}
+														onChange={(value) => {
+															handleInputChange('offsetUnit', value);
+														}}
+													>
+														<Option value="SECOND">sec</Option>
+														<Option value="MINUTE">min</Option>
+														<Option value="HOUR">hour</Option>
+														<Option value="DAY">day</Option>
+														<Option value="MONTH">mon</Option>
+														<Option value="YEAR">year</Option>
+													</Select>
+												</Form.Item>
+											) : (
+												'ms'
+											)
+										}
+									/>
+								</FormItem>
+							</React.Fragment>
+						)
+					}
+				</FormItem>
 				{/* 高级参数按钮 */}
 				<div style={{ margin: '12px 0', textAlign: 'center' }}>
 					<span
@@ -648,7 +639,6 @@ export default function SourceForm({
 			<DataPreviewModal
 				visible={visible}
 				type={panelColumn?.type}
-				isAssetCreate={panelColumn?.createType === TABLE_SOURCE.DATA_ASSET}
 				onCancel={() => {
 					setVisible(false);
 				}}
