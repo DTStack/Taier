@@ -299,7 +299,12 @@ export default function Target({
 		}
 
 		// reset table value
-		const resetField = { table: undefined, index: undefined, indexType: undefined };
+		const resetField = {
+			table: undefined,
+			index: undefined,
+			indexType: undefined,
+			schema: undefined,
+		};
 		form.setFieldsValue(resetField);
 		handleFormFieldsChanged(resetField, form.getFieldsValue());
 	};
