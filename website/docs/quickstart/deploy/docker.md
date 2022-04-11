@@ -1,4 +1,4 @@
-# taier docker 部署
+# docker 部署
 
 ## 1. 使用docker-compose快速部署
 
@@ -45,6 +45,14 @@ services:
 
 ## 2. 直接获取hub上面镜像部署
 如果您想要使用自己mysql和zk，你只需要下载taier-ui镜像和taier镜像
+```
+// taier地址
+docker pull dtopensource/taier:1.0
+
+// taier-ui地址
+docker pull dtopensource/taier-ui:1.0
+```
+
 可以在taier镜像中配置环境变量mysql和zk地址如下
 ```
 MYSQL_ROOT: 数据库用户名
@@ -73,6 +81,8 @@ taier-ui的docker打包方式
 * 首先进入到ui的项目工程里面 ```cd taier-ui```
 * 执行命令 ``` yarn install ``` 执行完成后继续执行 ``` yarn build ``` 执行完成后，项目工程会多出来一个目录dist，说明前面打包成功。
 * 然后在ui目录下执行 ``` docker build -t tag:version . ```
+
+启动镜像请参考步骤二
 
 
 
