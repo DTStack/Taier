@@ -38,7 +38,7 @@ const sidebars = {
                             'quickstart/deploy/pre-operation',
                             'quickstart/deploy/backend',
                             'quickstart/deploy/web',
-                            'quickstart/deploy/docker'
+                            'quickstart/deploy/docker',
                         ],
                  },
                   'quickstart/start',
