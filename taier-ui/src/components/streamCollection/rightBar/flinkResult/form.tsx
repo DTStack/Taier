@@ -70,7 +70,6 @@ import { CloseOutlined, UpOutlined, DownOutlined } from '@ant-design/icons';
 import Column from 'antd/lib/table/Column';
 import { debounce, isUndefined } from 'lodash';
 import React, { useState } from 'react';
-import { AssetPanel } from '../component/assetPanel';
 import { generateMapValues, getColumnsByColumnsText } from '../customParamsUtil';
 import Editor from '@/components/editor';
 import { CustomParams } from '../component/customParams';

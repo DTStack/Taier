@@ -56,7 +56,6 @@ import {
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
-import { AssetPanel } from '../component/assetPanel';
 import Editor from '@/components/editor';
 import { asyncTimeoutNumDoc, queryFault } from '@/components/helpDoc/docs';
 import { CustomParams } from '../component/customParams';

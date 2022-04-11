@@ -44,9 +44,8 @@ import {
 	EDIT_TASK_PREFIX,
 	FOLDERTREE_CONTEXT_EDIT,
 	TASK_RUN_ID,
-	TASK_SAVE_ID,
-	TASK_SUBMIT_ID,
 	DATA_SYNC_TYPE,
+	TASK_STOP_ID,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
@@ -305,11 +304,8 @@ export function openTaskInTab(taskId: any, file?: any) {
 							})) || [],
 					};
 					molecule.editor.open(tabData);
-					molecule.editor.updateActions([
-						{ id: TASK_RUN_ID, disabled: false },
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
+					performSyncTaskActions();
+					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -343,11 +339,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 
 					molecule.editor.open(tabData);
 					performSyncTaskActions();
-					molecule.editor.updateActions([
-						{ id: TASK_RUN_ID, disabled: false },
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
+					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -373,10 +365,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					}
 					molecule.editor.open(tabData);
 					performSyncTaskActions();
-					molecule.editor.updateActions([
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
+					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -398,10 +387,8 @@ export function openTaskInTab(taskId: any, file?: any) {
 							})) || [],
 					};
 					molecule.editor.open(tabData);
-					molecule.editor.updateActions([
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
+					performSyncTaskActions();
+					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 				default:

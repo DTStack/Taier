@@ -20,21 +20,12 @@ import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
 
 export const TASK_RUN_ID = 'task.run';
 export const TASK_STOP_ID = 'task.stop';
-export const TASK_CREATE_ID = 'task.create';
 export const TASK_SUBMIT_ID = 'task.submit';
 export const TASK_SAVE_ID = 'task.save';
-export const TASK_RELEASE_ID = 'task.release';
 export const TASK_OPS_ID = 'task_ops';
-export const TASK_ATTRIBUTONS = 'task.attributions';
-export const TASK_PARAMS_ID = 'task.params';
-export const TASK_SCHEDULE_CONFIG = 'task.schedule.config';
-export const TASK_SWAP = 'task.swap';
-export const TASK_IMPORT_TEMPALTE = 'task.import.tempalte';
 export const TASK_CONVERT_SCRIPT = 'task.convert.script';
 export const TASK_IMPORT_ID = 'task.import';
 export const TASK_DEBUG_ID = 'task.debug';
-export const TASK_CHECK_ID = 'task.check';
-export const TASK_INTRODUCE_ID = 'task.introduce';
 
 export const ENV_PARAMS = 'env.params';
 

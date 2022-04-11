@@ -433,6 +433,10 @@ export interface IDataSourceUsedInSyncProps {
  */
 export interface IFlinkDataProps {
 	source: IFlinkSourceProps;
+	/**
+	 * @description 任务类型，目前来说 flinkSQL 暂时只有 1.12
+	 */
+	componentVersion: string;
 }
 
 export interface IFlinkSourceProps {

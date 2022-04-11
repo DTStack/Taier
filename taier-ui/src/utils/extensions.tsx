@@ -17,29 +17,119 @@
  */
 
 import molecule from '@dtinsight/molecule/esm';
+import { message } from 'antd';
+import { LoginOutlined, UploadOutlined, SwapOutlined, ImportOutlined } from '@ant-design/icons';
+import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { FlinkSQLIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
+import { TASK_DEBUG_ID } from '@/constant';
 import {
+	TASK_CONVERT_SCRIPT,
+	TASK_IMPORT_ID,
+	TASK_OPS_ID,
+	TASK_SUBMIT_ID,
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
 	DATA_SYNC_TYPE,
-	TASK_IMPORT_TEMPALTE,
-	TASK_SWAP,
 	CATELOGUE_TYPE,
 	TASK_RUN_ID,
 	TASK_STOP_ID,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { filterSql, getTenantId, getUserId } from '.';
-import { message } from 'antd';
 import executeService from '@/services/executeService';
 import taskResultService from '@/services/taskResultService';
 import Result from '@/components/task/result';
+import { filterSql, getTenantId, getUserId } from '.';
+
+/**
+ * 保存按钮 for toolbar
+ */
+const SAVE_TASK: IEditorActionsProps = {
+	id: TASK_SAVE_ID,
+	name: 'Save Task',
+	title: '保存',
+	icon: 'save',
+	place: 'outer',
+};
+
+/**
+ * 运行任务按钮 for toolbar
+ */
+const RUN_TASK: IEditorActionsProps = {
+	id: TASK_RUN_ID,
+	name: 'Run Task',
+	title: '运行',
+	icon: 'play',
+	place: 'outer',
+};
+
+/**
+ * 停止任务按钮 for toolbar
+ */
+const STOP_TASK: IEditorActionsProps = {
+	id: TASK_STOP_ID,
+	name: 'Stop Task',
+	title: '停止运行',
+	icon: 'debug-pause',
+	place: 'outer',
+};
+
+const DEBUG_TASK: IEditorActionsProps = {
+	id: TASK_DEBUG_ID,
+	name: 'Debug task',
+	title: '调试',
+	icon: 'debug-alt',
+	place: 'outer',
+};
+
+/**
+ * 提交至调度按钮
+ */
+const SUBMIT_TASK: IEditorActionsProps = {
+	id: TASK_SUBMIT_ID,
+	name: '提交至调度',
+	title: '提交至调度',
+	icon: <UploadOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 任务运维按钮
+ */
+const OPERATOR_TASK: IEditorActionsProps = {
+	id: TASK_OPS_ID,
+	name: '运维',
+	title: '运维',
+	icon: <LoginOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 转换为脚本按钮
+ */
+const CONVERT_TASK: IEditorActionsProps = {
+	id: TASK_CONVERT_SCRIPT,
+	name: '转换为脚本',
+	title: '转换为脚本',
+	icon: <SwapOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 导入模板按钮
+ */
+const IMPORT_TASK: IEditorActionsProps = {
+	id: TASK_IMPORT_ID,
+	name: '引入数据源',
+	title: '引入数据源',
+	icon: <ImportOutlined />,
+	place: 'outer',
+};
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
@@ -49,49 +139,76 @@ export function resetEditorGroup() {
 }
 
 /**
- * 针对不同模式的数据同步任务，更新 actions
+ * 针对不同的任务类型，渲染不同的 `toolbar`
+ * @notice 需要确保 `current` 是数据是正确的
  */
 export function performSyncTaskActions() {
 	const { current } = molecule.editor.getState();
 	if (current?.tab?.data) {
-		const { data } = current.tab;
-		if (data.taskType === TASK_TYPE_ENUM.SYNC) {
-			// 向导模式需要转换为脚本的按钮
-			if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_SWAP,
-							icon: 'arrow-swap',
-							place: 'outer',
-							title: '转换为脚本模式',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
-			} else {
-				// 脚本模式需要导入模板的按钮
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_IMPORT_TEMPALTE,
-							icon: 'references',
-							place: 'outer',
-							title: '导入模板',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
+		const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
+		let taskToolbar: IEditorActionsProps[] = [];
+
+		switch (currentTabData.taskType) {
+			case TASK_TYPE_ENUM.SYNC: {
+				if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+					taskToolbar = [
+						CONVERT_TASK,
+						SAVE_TASK,
+						RUN_TASK,
+						STOP_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
+				} else {
+					taskToolbar = [
+						IMPORT_TASK,
+						SAVE_TASK,
+						RUN_TASK,
+						STOP_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
+				}
+				break;
 			}
-		} else {
-			// reset actions
-			molecule.editor.updateGroup(current.id, {
-				actions: molecule.editor.getDefaultActions(),
-			});
+			case TASK_TYPE_ENUM.SQL:
+				if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+					taskToolbar = [
+						CONVERT_TASK,
+						SAVE_TASK,
+						DEBUG_TASK,
+						STOP_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
+				} else {
+					taskToolbar = [
+						IMPORT_TASK,
+						SAVE_TASK,
+						DEBUG_TASK,
+						STOP_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
+				}
+				break;
+
+			case TASK_TYPE_ENUM.SPARK:
+			case TASK_TYPE_ENUM.HIVE_SQL:
+			default:
+				taskToolbar = [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+				break;
 		}
+
+		molecule.editor.updateGroup(current.id, {
+			actions: [...taskToolbar, ...molecule.editor.getDefaultActions()],
+		});
 	}
 }
 
+/**
+ * 根据不同任务渲染不同的图标
+ */
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE,
 	source: CATELOGUE_TYPE,

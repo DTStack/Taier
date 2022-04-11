@@ -235,6 +235,10 @@ const _saveTask = async (saveMode?: any, isSilent?: boolean | 'undefined') => {
 							disabled: false,
 						},
 					]);
+					molecule.editor.updateTab({
+						id: id.toString(),
+						status: undefined,
+					});
 				}
 			});
 		};

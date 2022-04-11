@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-// 从config文件全局读取
-
 export const STREAM_BASE_URL = '/taier';
 
 export default {
@@ -30,4 +28,5 @@ export default {
 	GET_TOPIC_TYPE: `${STREAM_BASE_URL}/dataSource/manager/getKafkaTopics`, // 获取Topic
 	GET_STREAM_TABLECOLUMN: `${STREAM_BASE_URL}/dataSource/addDs/tablecolumn`, // 输出tablecolumn
 	GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/flinkSql/getAllTimeZone`, // 获取源表中的时区列表
+	CONVERT_TO_SCRIPT_MODE: `${STREAM_BASE_URL}/task/guideToTemplate `, // 转换向导到脚本模式
 };

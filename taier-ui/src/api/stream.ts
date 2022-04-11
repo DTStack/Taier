@@ -17,9 +17,7 @@
  */
 
 import { TASK_TYPE_ENUM } from '@/constant';
-import { Utils } from '@dtinsight/dt-utils/lib';
 import { cloneDeep } from 'lodash';
-import moment from 'moment';
 import { convertRequestParams, taskParams } from './defaultParams';
 import http from './http';
 import req from './reqStream';
@@ -102,5 +100,9 @@ export default {
 	// 获取源表中的时区列表
 	getTimeZoneList(params?: any) {
 		return http.post(req.GET_TIMEZONE_LIST, params);
+	},
+	// 转换向导到脚本模式
+	convertToScriptMode(params: any) {
+		return http.post(req.CONVERT_TO_SCRIPT_MODE, params);
 	},
 };

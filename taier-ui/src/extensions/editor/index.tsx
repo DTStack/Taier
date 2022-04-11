@@ -17,16 +17,8 @@
  */
 
 import { message, Modal } from 'antd';
-import {
-	UploadOutlined,
-	LoginOutlined,
-	SwapOutlined,
-	ImportOutlined,
-	BugOutlined,
-	FontColorsOutlined,
-} from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
-import type { IEditorActionsProps, IExtension } from '@dtinsight/molecule/esm/model';
+import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { performSyncTaskActions, resetEditorGroup, runTask } from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
@@ -35,15 +27,10 @@ import {
 	TASK_OPS_ID,
 	TASK_SAVE_ID,
 	DRAWER_MENU_ENUM,
-	TASK_SWAP,
-	TASK_IMPORT_TEMPALTE,
-	TASK_LANGUAGE,
 	TASK_CONVERT_SCRIPT,
-	DATA_SYNC_TYPE,
-	TASK_DEBUG_ID,
 	TASK_IMPORT_ID,
-	TASK_CHECK_ID,
-	TASK_INTRODUCE_ID,
+	TASK_LANGUAGE,
+	TASK_DEBUG_ID,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -52,6 +39,7 @@ import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals } from '@/utils';
 import api from '@/api';
+import apiStream from '@/api/stream';
 import { searchById } from '@dtinsight/molecule/esm/common/utils';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
@@ -62,114 +50,6 @@ import { saveTask } from '@/components/dataSync/help';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
 import { saveTask as streamSaveTask } from '@/components/streamCollection/streamAction';
-
-function initActions() {
-	const { builtInEditorInitialActions } = molecule.builtin.getModules();
-
-	const { current } = molecule.editor.getState();
-	const currentTabData:
-		| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
-		| undefined = current?.tab?.data;
-
-	const save: IEditorActionsProps = {
-		id: TASK_SAVE_ID,
-		name: 'Save Task',
-		icon: 'save',
-		place: 'outer',
-		disabled: true,
-		title: '保存',
-	};
-	const run: IEditorActionsProps = {
-		id: TASK_RUN_ID,
-		name: 'Run Task',
-		icon: 'play',
-		place: 'outer',
-		disabled: true,
-		title: '运行',
-	};
-	const stop: IEditorActionsProps = {
-		id: TASK_STOP_ID,
-		name: 'Stop Task',
-		icon: 'debug-pause',
-		place: 'outer',
-		disabled: true,
-		title: '停止运行',
-	};
-	const submit: IEditorActionsProps = {
-		id: TASK_SUBMIT_ID,
-		name: '提交至调度',
-		icon: <UploadOutlined />,
-		place: 'outer',
-		disabled: true,
-		title: '提交至调度',
-	};
-	const ops: IEditorActionsProps = {
-		id: TASK_OPS_ID,
-		name: '运维',
-		title: '运维',
-		icon: <LoginOutlined />,
-		place: 'outer',
-	};
-	const convertScript: IEditorActionsProps = {
-		id: TASK_CONVERT_SCRIPT,
-		name: '转换为脚本',
-		icon: <SwapOutlined />,
-		place: 'outer',
-		title: '转换为脚本',
-	};
-	const taskImport: IEditorActionsProps = {
-		id: TASK_IMPORT_ID,
-		name: '导入',
-		icon: <ImportOutlined />,
-		place: 'outer',
-		title: '倒入',
-	};
-	const debug: IEditorActionsProps = {
-		id: TASK_DEBUG_ID,
-		name: '调试',
-		icon: <BugOutlined />,
-		place: 'outer',
-		title: '调试',
-	};
-	const check: IEditorActionsProps = {
-		id: TASK_CHECK_ID,
-		name: '语法检查',
-		icon: <FontColorsOutlined />,
-		place: 'outer',
-		title: '语法检查',
-	};
-	const introduce: IEditorActionsProps = {
-		id: TASK_INTRODUCE_ID,
-		name: '引入数据源',
-		icon: <ImportOutlined />,
-		place: 'outer',
-		title: '引入数据源',
-	};
-	let actions: IEditorActionsProps[] = [];
-
-	switch (currentTabData?.taskType) {
-		case TASK_TYPE_ENUM.DATA_ACQUISITION:
-			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
-				actions = [save, convertScript, submit, ops];
-			} else {
-				actions = [save, taskImport, submit, ops];
-			}
-			break;
-		case TASK_TYPE_ENUM.SQL:
-			if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
-				actions = [save, debug, convertScript, check, introduce, submit, ops];
-			} else {
-				actions = [save, check, submit, ops];
-			}
-			break;
-		case TASK_TYPE_ENUM.SYNC:
-		default:
-			actions = [save, run, stop, submit, ops];
-			break;
-	}
-
-	molecule.editor.setDefaultActions([...actions, ...builtInEditorInitialActions]);
-}
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -262,7 +142,7 @@ function emitEvent() {
 				}
 				break;
 			}
-			case TASK_SWAP: {
+			case TASK_CONVERT_SCRIPT: {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
@@ -280,23 +160,55 @@ function emitEvent() {
 						okText: '确认',
 						cancelText: '取消',
 						onOk() {
-							api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
-								(res) => {
-									if (res.code === 1) {
-										message.success('转换成功！');
-										const nextTabData = current.tab!;
-										nextTabData.data.language = 'json';
-										Reflect.deleteProperty(nextTabData, 'renderPane');
-										molecule.editor.updateTab(nextTabData);
-									}
-								},
-							);
+							switch (currentTabData.taskType) {
+								case TASK_TYPE_ENUM.SYNC:
+									api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
+										(res) => {
+											if (res.code === 1) {
+												message.success('转换成功！');
+												const nextTabData = current.tab!;
+												nextTabData.data.language = 'json';
+												Reflect.deleteProperty(nextTabData, 'renderPane');
+												molecule.editor.updateTab(nextTabData);
+											}
+										},
+									);
+									break;
+								case TASK_TYPE_ENUM.SQL: {
+									apiStream
+										.convertToScriptMode({
+											id: currentTabData.id,
+											createModel: currentTabData.createModel,
+											componentVersion: currentTabData.componentVersion,
+										})
+										.then((res) => {
+											if (res.code === 1) {
+												message.success('转换成功！');
+												// update current values
+												api.getOfflineTaskByID({
+													id: currentTabData.id,
+												}).then((result) => {
+													if (result.code === 1) {
+														const nextTabData = result.data;
+														molecule.editor.updateTab({
+															id: nextTabData.id.toString(),
+															...nextTabData,
+														});
+													}
+												});
+											}
+										});
+									break;
+								}
+								default:
+									break;
+							}
 						},
 					});
 				}
 				break;
 			}
-			case TASK_IMPORT_TEMPALTE: {
+			case TASK_IMPORT_ID: {
 				const currentTab = current.tab;
 				const root = document.getElementById('molecule')!;
 
@@ -319,6 +231,10 @@ function emitEvent() {
 						node,
 					);
 				}
+				break;
+			}
+			// FlinkSQL 调试
+			case TASK_DEBUG_ID: {
 				break;
 			}
 			default:
@@ -376,7 +292,6 @@ export default class EditorExtension implements IExtension {
 		throw new Error('Method not implemented.');
 	}
 	activate() {
-		initActions();
 		emitEvent();
 		registerCompletion();
 
