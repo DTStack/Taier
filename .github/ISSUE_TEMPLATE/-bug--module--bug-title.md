@@ -1,8 +1,8 @@
 ---
-name: 'Bug '
+name: "[BUG][module] bug title"
 about: 发现了一个新bug
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
