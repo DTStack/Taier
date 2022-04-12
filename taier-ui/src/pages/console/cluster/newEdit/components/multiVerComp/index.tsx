@@ -217,6 +217,7 @@ export default function MultiVersionComp({
 			<Tabs
 				tabPosition="top"
 				className={`${className}__tabs`}
+				destroyInactiveTabPane
 				tabBarExtraContent={
 					<Dropdown
 						disabled={view}
