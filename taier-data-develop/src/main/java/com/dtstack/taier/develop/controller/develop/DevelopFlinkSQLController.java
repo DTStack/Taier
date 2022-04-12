@@ -51,6 +51,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import java.util.List;
+
 @Api(value = "FlinkSQL任务管理", tags = {"FlinkSQL任务管理"})
 @RestController
 @RequestMapping(value = "/flinkSql")
@@ -138,5 +140,15 @@ public class DevelopFlinkSQLController {
         return R.ok(checkResult);
     }
 
+    @ApiOperation("获取所有时区信息")
+    @PostMapping(value = "getAllTimeZone")
+    public R<List<String>> getAllTimeZone() {
+        return new APITemplate<List<String>>() {
+            @Override
+            protected List<String> process() {
+                return flinkSqlTaskService.getAllTimeZone();
+            }
+        }.execute();
+    }
 
 }
