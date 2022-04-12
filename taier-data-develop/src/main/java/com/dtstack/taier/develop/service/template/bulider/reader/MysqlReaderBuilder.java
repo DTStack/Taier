@@ -288,7 +288,7 @@ public class MysqlReaderBuilder implements DaReaderBuilder {
                 Long sourceId = Long.parseLong(map.get("sourceId").toString());
                 DsInfo source = dataSourceCenterService.getOneById(sourceId);
                 map.put("source", source);
-                map.put("type", Integer.valueOf(source.getDataTypeCode()));
+                map.put("type", source.getDataTypeCode());
                 map.put("dataName", source.getDataName());
 
                 //for hive writer

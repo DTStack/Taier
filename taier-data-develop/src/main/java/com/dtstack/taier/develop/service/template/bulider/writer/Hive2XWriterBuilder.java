@@ -146,7 +146,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             if (StringUtils.isNotBlank(writerParam.getTable())) {
                 try {
                     //获取hive客户端
-                    IClient client = ClientCache.getClient(Integer.valueOf(targetSource.getDataType()));
+                    IClient client = ClientCache.getClient(targetSource.getDataTypeCode());
                     Table tableInfo = client.getTable(dataSourceAPIClient.getSourceDTO(targetSource.getId()), SqlQueryDTO.builder().tableName(writerParam.getTable()).build());
                     writerParam.setPath(tableInfo.getPath());
                     writerParam.setFileType(tableInfo.getStoreType());
@@ -208,7 +208,7 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
             if (StringUtils.isNotBlank(writerParam.getTable())) {
                 try {
                     //获取hive客户端
-                    IClient client = ClientCache.getClient(Integer.valueOf(targetSource.getDataType()));
+                    IClient client = ClientCache.getClient(targetSource.getDataTypeCode());
                     Table tableInfo = client.getTable(dataSourceAPIClient.getSourceDTO(targetSource.getId()), SqlQueryDTO.builder().tableName(writerParam.getTable()).build());
                     writerParam.setPath(tableInfo.getPath());
                     writerParam.setFileType(tableInfo.getStoreType());
