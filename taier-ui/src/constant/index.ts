@@ -1131,7 +1131,7 @@ export const KAFKA_DATA_TYPE = {
 	TYPE_COLLECT_JSON: 'json',
 	TYPE_COLLECT_TEXT: 'text',
 	TYPE_AVRO_CONFLUENT: 'avro-confluent',
-};
+} as const;
 
 export const KAFKA_DATA_LIST = [
 	{ text: 'json', value: KAFKA_DATA_TYPE.TYPE_JSON },

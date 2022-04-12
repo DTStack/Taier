@@ -27,6 +27,7 @@ import {
 } from '@/constant';
 import { isAvro, isKafka, showTimeForOffsetReset } from '@/utils/enums';
 import {
+	Button,
 	Cascader,
 	Checkbox,
 	Col,
@@ -50,6 +51,7 @@ import { generateMapValues } from '../customParamsUtil';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
 import type { PendingInputColumnType } from '.';
 import type { DefaultOptionType } from 'antd/lib/cascader';
+import CodeEditor from '@/components/codeEditor';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -327,12 +329,18 @@ export default function SourceForm({
 						)
 					}
 				</FormItem>
-				<Row>
-					<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6"></div>
-					<Col offset={6} style={{ marginBottom: 12 }}>
-						<a onClick={showPreviewModal}>数据预览</a>
-					</Col>
-				</Row>
+				<FormItem
+					wrapperCol={{
+						sm: {
+							offset: formItemLayout.labelCol.sm.span,
+							span: formItemLayout.wrapperCol.sm.span,
+						},
+					}}
+				>
+					<Button block type="link" onClick={showPreviewModal}>
+						数据预览
+					</Button>
+				</FormItem>
 				<FormItem
 					label="映射表"
 					name="table"
@@ -353,8 +361,8 @@ export default function SourceForm({
 							</div>
 							<Col span={18} style={{ marginBottom: 20, height: 202 }}>
 								{isShow && (
-									<Editor
-										style={{ minHeight: 202, height: '100%', borderRadius: 4 }}
+									<CodeEditor
+										style={{ minHeight: 202, height: '100%' }}
 										className="bd"
 										sync={sync}
 										placeholder={`字段 类型, 比如 id int 一行一个字段${
@@ -367,9 +375,6 @@ export default function SourceForm({
 										onChange={(val: string) =>
 											debounceEditorChange('columnsText', val)
 										}
-										// editorRef={(ref: any) => {
-										//     this._editorRef = ref;
-										// }}
 									/>
 								)}
 							</Col>
@@ -392,12 +397,22 @@ export default function SourceForm({
 							handleInputChange('offsetReset', v.target.value);
 						}}
 					>
-						<Radio value="latest">latest</Radio>
-						<Radio value="earliest">earliest</Radio>
-						{showTimeForOffsetReset(panelColumn.type) && (
-							<Radio value="timestamp">time</Radio>
-						)}
-						<Radio value="custom">自定义参数</Radio>
+						<Row>
+							<Col span={12}>
+								<Radio value="latest">latest</Radio>
+							</Col>
+							<Col span={12}>
+								<Radio value="earliest">earliest</Radio>
+							</Col>
+							{showTimeForOffsetReset(panelColumn.type) && (
+								<Col span={12}>
+									<Radio value="timestamp">time</Radio>
+								</Col>
+							)}
+							<Col span={12}>
+								<Radio value="custom">自定义参数</Radio>
+							</Col>
+						</Row>
 					</Radio.Group>
 				</FormItem>
 				<FormItem noStyle dependencies={['offsetReset']}>
@@ -553,7 +568,7 @@ export default function SourceForm({
 										min={0}
 										className="number-input"
 										style={{
-											width: componentVersion === '1.12' ? '70%' : '90%',
+											width: componentVersion === '1.12' ? '100%' : '90%',
 											height: '32px',
 										}}
 										onChange={(value: any) =>
@@ -592,19 +607,17 @@ export default function SourceForm({
 					}
 				</FormItem>
 				{/* 高级参数按钮 */}
-				<div style={{ margin: '12px 0', textAlign: 'center' }}>
-					<span
-						style={{ cursor: 'pointer', color: '#666666' }}
-						onClick={() => {
-							setShowAdvancedParams(!showAdvancedParams);
-						}}
+				<FormItem wrapperCol={{ span: 24 }}>
+					<Button
+						block
+						type="link"
+						onClick={() => setShowAdvancedParams(!showAdvancedParams)}
 					>
-						高级参数&nbsp;
-						{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
-					</span>
-				</div>
+						高级参数{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
+					</Button>
+				</FormItem>
 				{/* 高级参数抽屉 */}
-				<div style={{ display: showAdvancedParams ? 'block' : 'none' }}>
+				<FormItem hidden={!showAdvancedParams} noStyle>
 					<FormItem name="parallelism" label="并行度">
 						<InputNumber
 							className="number-input"
@@ -628,13 +641,12 @@ export default function SourceForm({
 						/>
 					</FormItem>
 					<CustomParams
-						formItemLayout={formItemLayout}
 						customParams={panelColumn.customParams || []}
 						onChange={(type: any, id?: any, value?: any) => {
 							handleInputChange('customParams', value, { id, type });
 						}}
 					/>
-				</div>
+				</FormItem>
 			</Form>
 			<DataPreviewModal
 				visible={visible}

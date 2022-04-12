@@ -21,6 +21,7 @@ import type {
 	CODE_TYPE,
 	DATA_SOURCE_ENUM,
 	DATA_SYNC_TYPE,
+	KAFKA_DATA_TYPE,
 	MENU_TYPE_ENUM,
 	PARAMS_ENUM,
 	RESOURCE_TYPE,
@@ -432,7 +433,8 @@ export interface IDataSourceUsedInSyncProps {
  * flinkSQL 任务的属性
  */
 export interface IFlinkDataProps {
-	source: IFlinkSourceProps;
+	source: IFlinkSourceProps[];
+	sink: IFlinkSinkProps[];
 	/**
 	 * @description 任务类型，目前来说 flinkSQL 暂时只有 1.12
 	 */
@@ -441,7 +443,7 @@ export interface IFlinkDataProps {
 
 export interface IFlinkSourceProps {
 	charset: CODE_TYPE;
-	columns: [{ column: 'id'; type: 'int' }];
+	columns: { column: string; type: string }[];
 	columnsText: string;
 	offset: number;
 	offsetReset: string;
@@ -449,10 +451,12 @@ export interface IFlinkSourceProps {
 	offsetValue: string;
 	parallelism: number;
 	procTime: string;
+	schemaInfo: string;
 	sourceDataType: string;
 	sourceId: number;
 	sourceName: string;
 	table: string;
+	timeColumn: string;
 	timeType: SOURCE_TIME_TYPE;
 	timeTypeArr: SOURCE_TIME_TYPE[];
 	timeZone: string;
@@ -463,4 +467,39 @@ export interface IFlinkSourceProps {
 
 	// the unique key for front-end panel
 	panelKey: string;
+}
+
+export interface IFlinkSinkProps {
+	collection?: string;
+	bucket?: string;
+	objectName?: string;
+	schema?: string;
+	columns: Partial<{ type: IDataColumnsProps['type']; column: IDataColumnsProps['key'] }>[];
+	parallelism: number;
+	sourceId: number;
+	sourceName: string;
+	table?: string;
+	tableName: string;
+	index?: string;
+	esId?: string;
+	esType?: string;
+	rowKey?: string;
+	rowKeyType?: string;
+	sinkDataType?: Valueof<typeof KAFKA_DATA_TYPE>;
+	schemaInfo?: string;
+	topic?: string;
+	type: DATA_SOURCE_ENUM;
+	updateMode: 'append' | 'upsert';
+	allReplace?: 'true' | 'false';
+	primaryKey?: string | string[];
+	bulkFlushMaxActions?: number;
+	enableKeyPartitions?: boolean;
+	indexDefinition?: string;
+	partitionKeys?: string[];
+	batchWaitInterval?: number;
+	batchSize?: number;
+	partitionType?: string;
+	columnsText?: string;
+	// 自定义参数
+	customParams: { id: string; key?: string; type?: string }[];
 }

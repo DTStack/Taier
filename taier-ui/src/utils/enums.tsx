@@ -424,8 +424,8 @@ export function haveTableColumn(type: number) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveTopic(type: any) {
-	const list: any = [
+export function haveTopic(type: DATA_SOURCE_ENUM) {
+	const list = [
 		DATA_SOURCE_ENUM.KAFKA,
 		DATA_SOURCE_ENUM.KAFKA_11,
 		DATA_SOURCE_ENUM.KAFKA_09,
@@ -469,7 +469,7 @@ export function haveSchema(type: number) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveTableList(type: number) {
+export function haveTableList(type: DATA_SOURCE_ENUM) {
 	const list = [
 		DATA_SOURCE_ENUM.MYSQL,
 		DATA_SOURCE_ENUM.UPDRDB,
@@ -612,13 +612,34 @@ export function showTimeForOffsetReset(type?: DATA_SOURCE_ENUM) {
 /**
  * 是否拥有collection
  */
-export function haveCollection(type: any) {
+export function haveCollection(type: DATA_SOURCE_ENUM) {
 	return [DATA_SOURCE_ENUM.SOLR].includes(type);
 }
-export function isES(type: number): boolean {
+
+/**
+ * 是否渲染 Bucket
+ */
+export function showBucket(type: DATA_SOURCE_ENUM) {
+	return [DATA_SOURCE_ENUM.S3, DATA_SOURCE_ENUM.CSP_S3].includes(type);
+}
+
+export function isShowSchema(type: DATA_SOURCE_ENUM) {
+	return (
+		type === DATA_SOURCE_ENUM.ORACLE ||
+		type === DATA_SOURCE_ENUM.POSTGRESQL ||
+		type === DATA_SOURCE_ENUM.KINGBASE8 ||
+		isSqlServer(type)
+	);
+}
+
+export function isRedis(type: DATA_SOURCE_ENUM) {
+	return [DATA_SOURCE_ENUM.REDIS, DATA_SOURCE_ENUM.UPRedis].includes(type);
+}
+
+export function isES(type: DATA_SOURCE_ENUM): boolean {
 	return [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7].includes(type);
 }
-export function isHbase(type: any) {
+export function isHbase(type: DATA_SOURCE_ENUM) {
 	return [
 		DATA_SOURCE_ENUM.HBASE,
 		DATA_SOURCE_ENUM.TBDS_HBASE,
@@ -640,7 +661,7 @@ export function haveUpdateMode(type: number) {
 /**
  * 是否允许更新模式切换
  */
-export function haveUpsert(type: any, version?: string) {
+export function haveUpsert(type: DATA_SOURCE_ENUM, version?: string) {
 	const list: any = [
 		DATA_SOURCE_ENUM.MYSQL,
 		DATA_SOURCE_ENUM.UPDRDB,

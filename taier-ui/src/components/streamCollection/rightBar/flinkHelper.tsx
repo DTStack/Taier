@@ -22,24 +22,22 @@ import type { Rule } from 'antd/lib/form';
 import { checkColumnsData } from '../taskFunc';
 import type { PendingInputColumnType } from './flinkSource';
 
-export function parseColumnText(text = ''): any {
+export function parseColumnText(text = '') {
 	const columns = text
 		.split('\n')
 		.filter(Boolean)
-		.map((v: any) => {
+		.map((v) => {
 			const asCase = /^.*\w.*\s+as\s+(\w+)$/i.exec(v);
 			if (asCase) {
 				return {
 					column: asCase[1],
 				};
 			}
-			const column = v.trim().split(' ');
+			const [column, type] = v.trim().split(' ');
 
-			return { column: column[0], type: column[1] };
+			return { column, type };
 		})
-		.filter((v: any) => {
-			return v.column;
-		});
+		.filter((v) => v.column);
 	return columns;
 }
 

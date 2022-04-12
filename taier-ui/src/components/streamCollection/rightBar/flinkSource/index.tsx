@@ -154,37 +154,35 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	const handleInputChange = async (index: any, type: any, value: any, subValue: any) => {
 		// 监听数据改变
 		const panelColumnSocp = cloneDeep(panelColumn);
-		let panel = panelColumnSocp[index];
+		const panel = panelColumnSocp[index];
 		let shouldUpdateEditor = false;
 		switch (type) {
 			case 'type': {
-				panel = panelColumnSocp[index] = {
+				panelColumnSocp[index] = {
 					...DEFAULT_INPUT_VALUE,
-					createType: panel.createType,
 					panelKey: panel.panelKey,
+					[type]: value,
 				};
-				panel[type] = value;
 				getTypeOriginData(value);
 				shouldUpdateEditor = true;
 				if (isKafka(value)) {
 					if (value === DATA_SOURCE_ENUM.KAFKA_CONFLUENT) {
-						panel['sourceDataType'] = KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT;
+						panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT;
 					} else {
-						panel['sourceDataType'] = KAFKA_DATA_TYPE.TYPE_JSON;
+						panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_JSON;
 					}
 				}
 
 				break;
 			}
 			case 'sourceId': {
-				panel = panelColumnSocp[index] = {
+				panelColumnSocp[index] = {
 					...DEFAULT_INPUT_VALUE,
-					createType: panel.createType,
 					type: panel.type,
 					panelKey: panel.panelKey,
 					sourceDataType: panel.sourceDataType,
+					[type]: value,
 				};
-				panel[type] = value;
 				getTopicType(value);
 				shouldUpdateEditor = true;
 				break;
@@ -194,19 +192,19 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 				break;
 			}
 			case 'columnsText': {
-				let columns = parseColumnText(value);
-				panel[type] = value;
+				const columns = parseColumnText(value);
+				panel.columnsText = value;
 				panel.timeColumn = timeColumnCheck(columns);
 				break;
 			}
 			case 'sourceDataType':
-				panel[type] = value;
+				panel.sourceDataType = value;
 				if (!isAvro(value)) {
 					panel.schemaInfo = undefined;
 				}
 				break;
 			case 'timeTypeArr':
-				panel[type] = value;
+				panel.timeTypeArr = value;
 				// timeTypeArr 这个字段只有前端用，根据 timeTypeArr ，清空相应字段
 				// 不勾选 ProcTime，不传 procTime 名称字段
 				// 不勾选 EventTime，不传时间列、最大延迟时间字段
@@ -221,6 +219,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 				}
 				break;
 			default: {
+				// @ts-ignore
 				panel[type] = value;
 			}
 		}
@@ -233,7 +232,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 			if (panel.timeColumn) {
 				if (
 					!columns.find((c: any) => {
-						return c.column == panel.timeColumn;
+						return c.column === panel.timeColumn;
 					})
 				) {
 					return undefined;
@@ -252,18 +251,6 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 		return (
 			<div className="input-panel-title">
 				<span>{` 源表 ${index + 1} ${tableName ? `(${tableName})` : ''}`}</span>
-				<Popconfirm
-					placement="topLeft"
-					title="你确定要删除此源表吗？"
-					onConfirm={() => handlePanelChanged('delete', panelKey)}
-					{...{
-						onClick: (e: any) => {
-							e.stopPropagation();
-						},
-					}}
-				>
-					<DeleteOutlined className={classNames('title-icon')} />
-				</Popconfirm>
 			</div>
 		);
 	};
@@ -309,6 +296,20 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 							<Panel
 								header={renderPanelHeader(index, key, panelColumnData)}
 								key={key}
+								extra={
+									<Popconfirm
+										placement="topLeft"
+										title="你确定要删除此源表吗？"
+										onConfirm={() => handlePanelChanged('delete', key)}
+										{...{
+											onClick: (e: any) => {
+												e.stopPropagation();
+											},
+										}}
+									>
+										<DeleteOutlined className={classNames('title-icon')} />
+									</Popconfirm>
+								}
 								style={{ position: 'relative' }}
 								className="input-panel"
 							>

@@ -16,68 +16,82 @@
  * limitations under the License.
  */
 
-import { Col, Form, Input, Row } from "antd";
-import { CloseOutlined } from '@ant-design/icons'
+import { Button, Col, Form, Input, Row } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import { formItemLayout } from '@/constant';
 
 interface ICustomParamsProps {
-    customParams: any;
-    onChange: (type: any, id?: any, value?: any) => void;
-    formItemLayout: any
+	customParams: any[];
+	onChange: (type: any, id?: any, value?: any) => void;
 }
 
-export const CustomParams = ({
-    customParams,
-    onChange,
-    formItemLayout
-}: ICustomParamsProps) => {
-    const renderCustomParams = () => {
-        return customParams.map((customParam: any, index: number) => {
-            return (
-                <Row key={customParam.id}>
-                    <Col offset={index ? formItemLayout.labelCol.sm.span : 0} span={formItemLayout.labelCol.sm.span + 2}>
-                        <Form.Item
-                            name={customParam.id + '-key'}
-                            rules={[{ required: true, message: '请输入参数名' }]}
-                        >
-                            <Input onChange={(e: any) => {
-                                onChange('key', customParam.id, e.target.value);
-                            }} style={{ width: 'calc(100% - 20px)' }} />
-                        </Form.Item>
-                        :
-                    </Col>
-                    <Col span={formItemLayout.labelCol.sm.span + 4}>
-                        <Form.Item
-                            name={customParam.id + '-value'}
-                            rules={[{ required: true, message: '请输入参数值' }]}
-                        >
-                            <Input onChange={(e: any) => {
-                                onChange('value', customParam.id, e.target.value);
-                            }} style={{ width: 'calc(100% - 30px)' }} />
-                        </Form.Item>
-                        <CloseOutlined className="delete-action" onClick={deleteCustomParam.bind(undefined, customParam.id)} />
-                    </Col>
-                </Row>
-            )
-        })
-    }
-    const deleteCustomParam = (id: any) => {
-        onChange?.('deleteCustomParam', id)
-    }
-    const addCustomParams = () => {
-        onChange?.('newCustomParam')
-    }
-    return <div> {customParams.length > 0 && <Row>
-        <Col span={formItemLayout.labelCol.sm.span} className="c-sidePanel__customParams">
-            自定义参数:
-        </Col>
-        <Col>
-            {renderCustomParams()}
-        </Col>
-    </Row>}
-        <Row>
-            <Col offset={formItemLayout.labelCol.sm.span} span={formItemLayout.wrapperCol.sm.span} style={{ marginBottom: '12px' }}>
-                <a style={{ color: '#3f87ff' }} onClick={addCustomParams.bind(this)}>添加自定义参数</a>
-            </Col>
-        </Row>
-    </div>
-}
+export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => {
+	const handleDeleteCustomParams = (id: any) => {
+		onChange?.('deleteCustomParam', id);
+	};
+	const handleAddCustomParams = () => {
+		onChange?.('newCustomParam');
+	};
+
+	const renderCustomParams = () => {
+		return customParams.map((customParam: any) => {
+			return (
+				<Row key={customParam.id} justify="center">
+					<Col span={9}>
+						<Form.Item
+							noStyle
+							name={`${customParam.id}-key`}
+							rules={[{ required: true, message: '请输入参数名' }]}
+						>
+							<Input
+								className="w-full"
+								onChange={(e) => onChange('key', customParam.id, e.target.value)}
+							/>
+						</Form.Item>
+					</Col>
+					<Col span={2}>
+						<div className="text-center" style={{ lineHeight: '25px' }}>
+							:
+						</div>
+					</Col>
+					<Col span={9}>
+						<Form.Item
+							noStyle
+							name={`${customParam.id}-value`}
+							rules={[{ required: true, message: '请输入参数值' }]}
+						>
+							<Input
+								className="w-full"
+								onChange={(e) => onChange('value', customParam.id, e.target.value)}
+							/>
+						</Form.Item>
+					</Col>
+					<Col span={4}>
+						<CloseOutlined
+							className="delete-action"
+							onClick={handleDeleteCustomParams.bind(undefined, customParam.id)}
+						/>
+					</Col>
+				</Row>
+			);
+		});
+	};
+
+	return (
+		<div>
+			{customParams.length > 0 && (
+				<Form.Item label="自定义参数">{renderCustomParams()}</Form.Item>
+			)}
+			<Form.Item
+				wrapperCol={{
+					offset: formItemLayout.labelCol.sm.span,
+					span: formItemLayout.wrapperCol.sm.span,
+				}}
+			>
+				<Button block type="link" onClick={handleAddCustomParams}>
+					添加自定义参数
+				</Button>
+			</Form.Item>
+		</div>
+	);
+};
