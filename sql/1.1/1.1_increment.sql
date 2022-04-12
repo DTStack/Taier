@@ -443,6 +443,20 @@ log.level=INFO
 # pipeline.operator-chaining=true', '2022-04-06 18:37:24', '2022-04-06 18:37:24', 0);
 
 
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
+                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('hive_version', '1.x', '1.x', null, 4, 1, 'STRING', '', 0, now(),now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
+                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('hive_version', '2.x', '2.x', null, 4, 2, 'STRING', '', 1, now(),now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
+                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('hive_version', '3.x-apache', '3.x-apache', null, 4, 3, 'STRING', '', 1, now(),now(), 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
+                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('hive_version', '3.x-cdp', '3.x-cdp', null, 4, 3, 'STRING', '', 1, now(),now(), 0);
+
+
 INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt_create, gmt_modified, is_deleted) VALUES (17, 'HIVE_SQL', '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
 #hiveconf:mapreduce.job.name=
 
