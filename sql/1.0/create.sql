@@ -234,7 +234,7 @@ create table develop_catalogue
 )
 comment '文件夹、目录表';
 
-create index index_catologue_name
+create index index_catalogue_name
 	on develop_catalogue (node_pid, node_name);
 
 
@@ -283,7 +283,7 @@ create table develop_hive_select_sql
 (
 	id int auto_increment
 		primary key,
-	job_id varchar(256) not null comment '工作任务id',
+	job_id varchar(64) not null comment '工作任务id',
 	temp_table_name varchar(256) not null comment '临时表名',
 	is_select_sql tinyint(1) default 0 not null comment '0-否 1-是',
 	tenant_id int not null comment '租户id',
@@ -303,10 +303,10 @@ create table develop_read_write_lock
 (
 	id int auto_increment
 		primary key,
-	lock_name varchar(256) not null comment '锁名称',
+	lock_name varchar(128) not null comment '锁名称',
 	tenant_id int null comment '租户Id',
 	relation_id int not null comment 'Id',
-	type varchar(256) not null comment '任务类型 ',
+	type varchar(64) not null comment '任务类型 ',
 	create_user_id int null comment '创建人Id',
 	modify_user_id int not null comment '修改的用户',
 	version int default 1 not null comment '乐观锁,0是特殊含义',
@@ -316,7 +316,7 @@ create table develop_read_write_lock
 	constraint index_lock
 		unique (relation_id, type),
 	constraint index_read_write_lock
-		unique (lock_name)
+		unique (lock_name(128))
 )
 comment '读写锁记录表';
 
@@ -381,11 +381,6 @@ create table develop_task
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	task_desc varchar(256) not null,
 	main_class varchar(256) not null,
-    source_str longtext COMMENT '输入源',
-    target_str longtext COMMENT '输出源',
-    side_str longtext COMMENT '输出源',
-    setting_str longtext COMMENT '输出源',
-    create_model tinyint(1) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
 	exe_args text null,
 	flow_id int default 0 not null comment '工作流id',
 	component_version varchar(25) null comment '组件版本'
@@ -556,7 +551,7 @@ create table schedule_engine_job_cache
 (
 	id int auto_increment
 		primary key,
-	job_id varchar(256) not null comment '任务id',
+	job_id varchar(64) not null comment '任务id',
 	job_name varchar(256) null comment '任务名称',
 	compute_type tinyint(2) not null comment '计算类型stream/batch',
 	stage tinyint(2) not null comment '处于master等待队列：1 还是exe等待队列 2',
@@ -579,7 +574,7 @@ create table schedule_engine_job_retry
 	id int auto_increment
 		primary key,
 	status tinyint(1) default 0 not null comment '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-	job_id varchar(256) not null comment '离线任务id',
+	job_id varchar(64) not null comment '离线任务id',
 	engine_job_id varchar(256) null comment '离线任务计算引擎id',
 	application_id varchar(256) null comment '独立运行的任务需要记录额外的id',
 	exec_start_time datetime null comment '执行开始时间',
@@ -621,8 +616,8 @@ create table schedule_job
 	id int auto_increment
 		primary key,
 	tenant_id int not null comment '租户id',
-	job_id varchar(256) not null comment '工作任务id',
-	job_key varchar(256) default '' not null comment '工作任务key',
+	job_id varchar(64) not null comment '工作任务id',
+	job_key varchar(128) default '' not null comment '工作任务key',
 	job_name varchar(256) default '' not null comment '工作任务名称',
 	task_id int not null comment '任务id',
 	gmt_create datetime default CURRENT_TIMESTAMP not null comment '新增时间',
@@ -633,7 +628,7 @@ create table schedule_job
 	is_restart tinyint(1) default 0 not null comment '0：非重启任务, 1：重启任务',
 	cyc_time varchar(64) not null comment '调度时间 yyyyMMddHHmmss',
 	dependency_type tinyint(2) default 0 not null comment '依赖类型',
-	flow_job_id varchar(256) default '0' not null comment '工作流实例id',
+	flow_job_id varchar(64) default '0' not null comment '工作流实例id',
 	period_type tinyint(2) null comment '周期类型',
 	status tinyint(1) default 0 not null comment '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
 	task_type tinyint(1) not null comment '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
@@ -660,7 +655,7 @@ create table schedule_job
 		unique (job_id, is_deleted)
 );
 
-create index idx_cyctime
+create index idx_cyc_time
 	on schedule_job (cyc_time);
 
 create index idx_exec_start_time
@@ -691,7 +686,7 @@ create table schedule_job_expand
 (
 	id int auto_increment
 		primary key,
-	job_id varchar(256) not null comment '工作任务id',
+	job_id varchar(64) not null comment '工作任务id',
 	retry_task_params mediumtext null comment '重试任务参数',
 	job_graph mediumtext null comment 'jobGraph构建json',
 	job_extra_info mediumtext null comment '任务提交额外信息',
@@ -759,7 +754,7 @@ create table schedule_plugin_job_info
 (
 	id int auto_increment
 		primary key,
-	job_id varchar(255) not null comment '任务id',
+	job_id varchar(64) not null comment '任务id',
 	job_info longtext not null comment '任务信息',
 	log_info text null comment '任务信息',
 	status tinyint(2) not null comment '任务状态',
@@ -873,4 +868,3 @@ create table user
 
 create index index_user_name
 	on user (user_name(128));
-
