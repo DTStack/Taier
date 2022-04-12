@@ -15,9 +15,11 @@ import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.PubSvcDefineException;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.po.DsListBO;
@@ -30,10 +32,13 @@ import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.mapstruct.datasource.DsListTransfer;
 import com.dtstack.taier.develop.service.develop.impl.SourceLoaderService;
+import com.dtstack.taier.develop.service.template.bulider.db.DbBuilder;
+import com.dtstack.taier.develop.service.template.bulider.db.DbBuilderFactory;
 import com.dtstack.taier.develop.vo.datasource.BinLogFileVO;
 import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
+import com.dtstack.taier.develop.vo.datasource.DsPollPreviewResultVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -45,12 +50,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -69,6 +79,9 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
     private DsInfoMapper dsInfoMapper;
 
     @Autowired
+    private DbBuilderFactory dbBuilderFactory;
+
+    @Autowired
     private EnvironmentContext env;
 
     @Autowired
@@ -84,6 +97,17 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
     private static final String SHOW_BINLOG_SQL = "show binary logs";
     private static final Integer LIMIT_COUNT = 100;
     public static final String KERBEROS_PATH = "kerberosDir";
+
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final int QUEUE_CAPACITY = 16;
+    private static final int KEEP_ALIVE = 60;
+    private static final Integer TOPIC_MESSAGE_LENGTH = 5;
+
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE,
+            KEEP_ALIVE, TimeUnit.SECONDS, new LinkedBlockingQueue<>(QUEUE_CAPACITY),
+            new RdosThreadFactory("kafka-consumer"), new ThreadPoolExecutor.DiscardOldestPolicy());
     /**
      * 数据源列表分页
      *
@@ -426,7 +450,7 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
         String userName = DataSourceUtils.getJdbcUsername(dataJson);
         String password = DataSourceUtils.getJdbcPassword(dataJson);
         List<BinLogFileVO> binLogFileVOS = new ArrayList<>();
-        Integer type = Integer.valueOf(dsServiceInfoDTO.getDataType());
+        Integer type = dsServiceInfoDTO.getDataTypeCode();
         if (DataSourceType.Oracle.getVal().equals(type)) {
             //暂时只支持oracle
             List<Map<String, Object>> mapList = null;
@@ -586,5 +610,64 @@ public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
         return resultList;
     }
 
+    /**
+     * 获取当前数据源的所有 schema
+     *
+     * @param sourceId         数据源id
+     * @param schema           schema
+     * @param tableNamePattern 模糊查询
+     * @return schema 集合
+     */
+    public List<String> listTablesBySchema(Long sourceId, String schema, String tableNamePattern) {
 
+        if (StringUtils.isBlank(schema)) {
+            return tableList(sourceId, tableNamePattern, false);
+        }
+        ISourceDTO sourceDTO = getSourceDTO(sourceId, schema);
+        DbBuilder dbBuilder = dbBuilderFactory.getDbBuilder(sourceDTO.getSourceType());
+        List<String> tables = dbBuilder.listTablesBySchema(schema, tableNamePattern, sourceDTO, null);
+        // 按照字典表排序
+        if (CollectionUtils.isNotEmpty(tables)) {
+            tables.sort(String::compareTo);
+        }
+        return tables;
+    }
+
+
+    public JSONObject pollPreview(Long sourceId, String tableName, String schema) {
+        DsInfo dataSource = this.getById(sourceId);
+        ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(dataSource.getId(), schema);
+        DbBuilder dbBuilder = dbBuilderFactory.getDbBuilder(sourceDTO.getSourceType());
+        return dbBuilder.pollPreview(tableName, sourceDTO);
+    }
+
+    public List<String> getTopicData(Long sourceId, String topic, String previewModel) {
+        List<String> kafkaTopicData = getKafkaTopicData( sourceId, previewModel, topic);
+        if (kafkaTopicData != null && kafkaTopicData.size() > TOPIC_MESSAGE_LENGTH) {
+            kafkaTopicData = kafkaTopicData.subList(0, TOPIC_MESSAGE_LENGTH);
+        }
+        return kafkaTopicData;
+    }
+
+    public List<String> getKafkaTopicData(Long dtCenterSourceId, String previewModel, String topic) {
+        List<Object> records = new ArrayList<>();
+        Future<List<Object>> future = executor.submit(() -> {
+            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(dtCenterSourceId);
+            SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(topic).build();
+            List<List<Object>> preview;
+            try {
+                preview = ClientCache.getKafka(DataSourceType.KAFKA.getVal()).getPreview(sourceDTO, sqlQueryDTO, previewModel);
+            } catch (Exception e) {
+                throw new DtCenterDefException(String.format("Kafka 预览异常,Caused by: %s", e.getMessage()), e);
+            }
+            return preview.get(0);
+        });
+        try {
+            records = future.get(5000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            future.cancel(true);
+        }
+        return records.stream().map(Object::toString).collect(Collectors.toList());
+    }
 }

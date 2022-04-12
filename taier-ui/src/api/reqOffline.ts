@@ -97,7 +97,7 @@ const offlineReq = {
 	EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batchJob/startSyncImmediately`, // 立即执行数据同步
 	STOP_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batchJob/stopSyncJob`, // 停止执行数据同步
 	SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
-	GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/getIncreColumn`, // 获取增量字段
+	GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/task/getIncreColumn`, // 获取增量字段
 	CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batchDataSource/canSetIncreConf`, // 检测是否满足增量
 	CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batchDataSource/getHivePartitions`, // 获取hive表分区值
 	GET_PARTITION_TYPE: `${RDOS_BASE_URL}/batchDataSource/tableLocation`, // 检测当前impala数据源表类型 hive or kudu
