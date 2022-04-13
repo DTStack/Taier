@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
@@ -33,7 +33,7 @@ import {
 	EDIT_FOLDER_PREFIX,
 	EDIT_TASK_PREFIX,
 	TASK_TYPE_ENUM,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 } from '@/constant';
 import StreamSetting from '@/components/streamCollection/rightBar/streamSetting';
 import FlinkSourcePanel from '@/components/streamCollection/rightBar/flinkSource';
@@ -173,7 +173,7 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 			case TASK_TYPE_ENUM.DATA_ACQUISITION:
 				return STREAM_RIGHTBAR;
 			case TASK_TYPE_ENUM.SQL:
-				if (currentData?.createModel === DATA_SYNC_TYPE.GUIDE) {
+				if (currentData?.createModel === CREATE_MODEL_TYPE.GUIDE) {
 					return FLINKSQL_RIGHTBAR;
 				}
 				return STREAM_RIGHTBAR;
@@ -209,6 +209,15 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 				break;
 		}
 	};
+
+	useEffect(() => {
+		if (propsCurrent?.tab?.data) {
+			const currentTabSupportTabs = renderTabs();
+			if (currentTabSupportTabs.find((t) => t.key === current)) return;
+			// current tab isn't have current rightBar, so we should back to taskInfo
+			setCurrent((c) => (c === '' ? '' : RIGHT_BAR_ITEM.TASK));
+		}
+	}, [propsCurrent]);
 
 	return (
 		<div className="dt-right-bar" style={{ width }}>

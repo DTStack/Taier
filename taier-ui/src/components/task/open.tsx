@@ -24,7 +24,7 @@ import FolderPicker from '../../components/folderPicker';
 import {
 	CATELOGUE_TYPE,
 	DATA_SYNC_MODE,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 	FLINK_VERSIONS,
 	FLINK_VERSION_TYPE,
 	formItemLayout,
@@ -55,7 +55,7 @@ interface IFormFieldProps {
 	nodePid: number;
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
-	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
+	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
 	componentVersion: string;
 }
 
@@ -162,11 +162,11 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 									message: '请选择配置模式',
 								},
 							]}
-							initialValue={DATA_SYNC_TYPE.GUIDE}
+							initialValue={CREATE_MODEL_TYPE.GUIDE}
 						>
 							<RadioGroup disabled={!!record}>
-								<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-								<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+								<Radio value={CREATE_MODEL_TYPE.GUIDE}>向导模式</Radio>
+								<Radio value={CREATE_MODEL_TYPE.SCRIPT}>脚本模式</Radio>
 							</RadioGroup>
 						</FormItem>
 						<FormItem

@@ -41,70 +41,6 @@ export function parseColumnText(text = '') {
 	return columns;
 }
 
-/** 源表中的表单项 */
-export function inputDefaultValue(key: string): boolean {
-	const keys = [
-		'topic',
-		'charset',
-		'table',
-		'columns',
-		'timeType',
-		'timeTypeArr',
-		'timeColumn',
-		'procTime',
-		'offset',
-		'offsetUnit',
-		'offsetReset',
-		'columnsText',
-		'parallelism',
-		'schemaInfo',
-		'createType',
-		'dbId',
-		'tableId',
-	];
-	return keys.includes(key);
-}
-
-export function outputDefaultValue(key: string): boolean {
-	const keys = [
-		'table',
-		'columns',
-		'columnsText',
-		'id',
-		'index',
-		'writePolicy',
-		'esId',
-		'esType',
-		'topic',
-		'isUpsert',
-		'advanConf',
-		'rowKey',
-		'rowKeyType',
-		'parallelism',
-		'batchWaitInterval',
-		'batchSize',
-		'tableName',
-		'primaryKey',
-		'partitionfields',
-		'partitionKeys',
-		'enableKeyPartitions',
-		'schema',
-		'bucket',
-		'collection',
-		'objectName',
-		'allReplace',
-		'updateMode',
-		'indexDefinition',
-		'schemaInfo',
-		'createType',
-		'dbId',
-		'tableId',
-		'partitionType',
-		'bulkFlushMaxActions',
-	];
-	return keys.includes(key);
-}
-
 export function dimensionDefaultValue(key: string): boolean {
 	const keys = [
 		'table',
@@ -135,15 +71,6 @@ export function dimensionDefaultValue(key: string): boolean {
 	];
 	return keys.indexOf(key) > -1;
 }
-
-export const assetValidRules = {
-	dbId: [{ required: true, message: '请选择数据库' }],
-	tableId: [{ required: true, message: '请选择数据表' }],
-	columns: [
-		{ required: true, message: '字段信息不能为空', type: 'array' },
-		{ validator: checkColumnsData },
-	],
-};
 
 /**
  * 根据 flink 版本动态生成规则

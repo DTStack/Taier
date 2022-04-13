@@ -16,9 +16,6 @@
  * limitations under the License.
  */
 
-import { TASK_TYPE_ENUM } from '@/constant';
-import { cloneDeep } from 'lodash';
-import { convertRequestParams, taskParams } from './defaultParams';
 import http from './http';
 import req from './reqStream';
 
@@ -38,34 +35,8 @@ export default {
 		return http.post(req.POLL_PREVIEW, params);
 	},
 	// 添加或更新任务
-	saveTask(task: any) {
-		let params = cloneDeep(task);
-		if (params.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION) {
-			delete params.sourceParams;
-			delete params.sinkParams;
-			delete params.sideParams;
-		} else {
-			params.sourceParams = params?.sourceParams;
-			params.sinkParams = params?.sinkParams;
-			params.sideParams = params?.sideParams;
-		}
-		params.sqlText = params?.sqlText;
-
-		delete params.dataSourceList;
-		// 1.12 时时间特征勾选了 ProcTime，ProcTime 名称字段未填写时需补上 proc_time
-		if (params.componentVersion === '1.12' && Array.isArray(params.source)) {
-			for (const form of params.source) {
-				if (form.timeTypeArr?.includes(1)) {
-					form.procTime = form.procTime || 'proc_time';
-				}
-			}
-		}
-
-		params = convertRequestParams(taskParams, params);
-		return http.post(req.SAVE_TASK, params).then((res) => {
-			res.data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-			return Promise.resolve(res);
-		});
+	saveTask(params: any) {
+		return http.post(req.SAVE_TASK, params);
 	},
 	getTask(params: any) {
 		return http.post(req.GET_TASK, params).then((res) => {

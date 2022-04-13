@@ -22,11 +22,10 @@ import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
-import './index.scss';
+import saveTask from '@/utils/saveTask';
 import { Modal } from 'antd';
-import CollectionGuid from './steps'
-import { saveTask } from './streamAction';
-
+import CollectionGuid from './steps';
+import './index.scss';
 
 const confirm = Modal.confirm;
 
@@ -36,27 +35,24 @@ const propType: any = {
 	console: PropTypes.object,
 };
 const initialState = {
-    showPublish: false,
-    showDebug: false,
-    notPublish: false,
+	showPublish: false,
+	showDebug: false,
+	notPublish: false,
 	runTitle: 'Command/Ctrl + R',
 };
 type Istate = typeof initialState;
 
-class StreamCollection extends React.Component<
-	IEditor & typeof propType,
-	Istate
-> {
+class StreamCollection extends React.Component<IEditor & typeof propType, Istate> {
 	state = {
-        showPublish: false,
-        showDebug: false,
-        notPublish: false,
+		showPublish: false,
+		showDebug: false,
+		notPublish: false,
 		runTitle: 'Command/Ctrl + R',
 	};
 
 	static propTypes = propType;
 
-	saveTask = saveTask
+	saveTask = saveTask;
 
 	render() {
 		const currentTabData = this.props.current?.tab?.data;
@@ -72,10 +68,10 @@ class StreamCollection extends React.Component<
 								position: 'relative',
 							}}
 						>
-                            <CollectionGuid
-                                saveTask={this.saveTask.bind(this)}
-                                currentPage={currentTabData}
-                            />
+							<CollectionGuid
+								saveTask={this.saveTask.bind(this)}
+								currentPage={currentTabData}
+							/>
 						</div>
 					</div>
 				</div>

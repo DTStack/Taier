@@ -1,6 +1,6 @@
 import stream from '@/api/stream';
-import { FLINK_SQL_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import { DefaultOptionType } from 'antd/lib/cascader';
+import { CREATE_MODEL_TYPE, TASK_TYPE_ENUM } from '@/constant';
+import type { DefaultOptionType } from 'antd/lib/cascader';
 import { streamTaskActions } from '../taskFunc';
 
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
@@ -58,7 +58,7 @@ export function getTimeZoneList() {
 export const getDataBaseList = async (createTypes: any[]) => {
 	const currentPage = streamTaskActions.getCurrentPage();
 	const { taskType, createModel }: any = currentPage || {};
-	const isGuideMode = createModel === FLINK_SQL_TYPE.GUIDE || !createModel;
+	const isGuideMode = createModel === CREATE_MODEL_TYPE.GUIDE || !createModel;
 	if (taskType === TASK_TYPE_ENUM.SPARK_SQL && isGuideMode && createTypes?.length) {
 		const res = await stream.getDBList();
 		if (res.code === 1) {

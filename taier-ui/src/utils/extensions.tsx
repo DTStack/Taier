@@ -34,7 +34,7 @@ import {
 	TASK_SUBMIT_ID,
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 	CATELOGUE_TYPE,
 	TASK_RUN_ID,
 	TASK_STOP_ID,
@@ -79,6 +79,9 @@ const STOP_TASK: IEditorActionsProps = {
 	place: 'outer',
 };
 
+/**
+ * 调试按钮
+ */
 const DEBUG_TASK: IEditorActionsProps = {
 	id: TASK_DEBUG_ID,
 	name: 'Debug task',
@@ -150,7 +153,7 @@ export function performSyncTaskActions() {
 
 		switch (currentTabData.taskType) {
 			case TASK_TYPE_ENUM.SYNC: {
-				if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+				if (currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE) {
 					taskToolbar = [
 						CONVERT_TASK,
 						SAVE_TASK,
@@ -172,7 +175,7 @@ export function performSyncTaskActions() {
 				break;
 			}
 			case TASK_TYPE_ENUM.SQL:
-				if (currentTabData.createModel === DATA_SYNC_TYPE.GUIDE) {
+				if (currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE) {
 					taskToolbar = [
 						CONVERT_TASK,
 						SAVE_TASK,

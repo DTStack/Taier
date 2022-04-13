@@ -399,7 +399,7 @@ export function isAvro(type?: string) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveTableColumn(type: number) {
+export function haveTableColumn(type?: DATA_SOURCE_ENUM) {
 	const list = [
 		DATA_SOURCE_ENUM.MYSQL,
 		DATA_SOURCE_ENUM.UPDRDB,
@@ -416,7 +416,7 @@ export function haveTableColumn(type: number) {
 		DATA_SOURCE_ENUM.HIVE,
 		DATA_SOURCE_ENUM.INCEPTOR,
 	];
-	return list.includes(type);
+	return type !== undefined && list.includes(type);
 }
 
 /**
@@ -424,7 +424,7 @@ export function haveTableColumn(type: number) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveTopic(type: DATA_SOURCE_ENUM) {
+export function haveTopic(type?: DATA_SOURCE_ENUM) {
 	const list = [
 		DATA_SOURCE_ENUM.KAFKA,
 		DATA_SOURCE_ENUM.KAFKA_11,
@@ -435,7 +435,7 @@ export function haveTopic(type: DATA_SOURCE_ENUM) {
 		DATA_SOURCE_ENUM.KAFKA_HUAWEI,
 		DATA_SOURCE_ENUM.KAFKA_CONFLUENT,
 	];
-	return list.indexOf(type) > -1;
+	return type !== undefined && list.includes(type);
 }
 
 /**
@@ -443,9 +443,9 @@ export function haveTopic(type: DATA_SOURCE_ENUM) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function havePartition(type: number) {
+export function havePartition(type?: DATA_SOURCE_ENUM) {
 	const list = [DATA_SOURCE_ENUM.IMPALA, DATA_SOURCE_ENUM.HIVE, DATA_SOURCE_ENUM.INCEPTOR];
-	return list.includes(type);
+	return type !== undefined && list.includes(type);
 }
 
 /**
@@ -469,7 +469,7 @@ export function haveSchema(type: number) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveTableList(type: DATA_SOURCE_ENUM) {
+export function haveTableList(type?: DATA_SOURCE_ENUM) {
 	const list = [
 		DATA_SOURCE_ENUM.MYSQL,
 		DATA_SOURCE_ENUM.UPDRDB,
@@ -492,7 +492,7 @@ export function haveTableList(type: DATA_SOURCE_ENUM) {
 		DATA_SOURCE_ENUM.HIVE,
 		DATA_SOURCE_ENUM.INCEPTOR,
 	];
-	return list.includes(type);
+	return type !== undefined && list.includes(type);
 }
 
 /**
@@ -623,6 +623,10 @@ export function showBucket(type: DATA_SOURCE_ENUM) {
 	return [DATA_SOURCE_ENUM.S3, DATA_SOURCE_ENUM.CSP_S3].includes(type);
 }
 
+export function isS3(type?: DATA_SOURCE_ENUM) {
+	return type !== undefined && [DATA_SOURCE_ENUM.S3, DATA_SOURCE_ENUM.CSP_S3].includes(type);
+}
+
 export function isShowSchema(type: DATA_SOURCE_ENUM) {
 	return (
 		type === DATA_SOURCE_ENUM.ORACLE ||
@@ -632,19 +636,26 @@ export function isShowSchema(type: DATA_SOURCE_ENUM) {
 	);
 }
 
-export function isRedis(type: DATA_SOURCE_ENUM) {
-	return [DATA_SOURCE_ENUM.REDIS, DATA_SOURCE_ENUM.UPRedis].includes(type);
+export function isRedis(type?: DATA_SOURCE_ENUM) {
+	return type !== undefined && [DATA_SOURCE_ENUM.REDIS, DATA_SOURCE_ENUM.UPRedis].includes(type);
 }
 
 export function isES(type: DATA_SOURCE_ENUM): boolean {
 	return [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6, DATA_SOURCE_ENUM.ES7].includes(type);
 }
-export function isHbase(type: DATA_SOURCE_ENUM) {
-	return [
-		DATA_SOURCE_ENUM.HBASE,
-		DATA_SOURCE_ENUM.TBDS_HBASE,
-		DATA_SOURCE_ENUM.HBASE_HUAWEI,
-	].includes(type);
+
+export function isLowerES(type?: DATA_SOURCE_ENUM) {
+	return type !== undefined && [DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6].includes(type);
+}
+export function isHbase(type?: DATA_SOURCE_ENUM) {
+	return (
+		type !== undefined &&
+		[
+			DATA_SOURCE_ENUM.HBASE,
+			DATA_SOURCE_ENUM.TBDS_HBASE,
+			DATA_SOURCE_ENUM.HBASE_HUAWEI,
+		].includes(type)
+	);
 }
 /**
  * 是否有更新模式

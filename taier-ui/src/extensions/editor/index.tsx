@@ -46,10 +46,9 @@ import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
-import { saveTask } from '@/components/dataSync/help';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import { saveTask as streamSaveTask } from '@/components/streamCollection/streamAction';
+import saveTask from '@/utils/saveTask';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -83,32 +82,30 @@ function emitEvent() {
 				break;
 			}
 			case TASK_SAVE_ID: {
-				if (
-					current.tab?.data.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION ||
-					current.tab?.data.taskType === TASK_TYPE_ENUM.SQL
-				) {
-					streamSaveTask();
-				} else {
-					saveTask()
-						?.then((res) => res?.data?.id)
-						.then((id) => {
-							if (id !== undefined) {
-								api.getOfflineTaskByID({ id }).then((res) => {
-									const { success, data } = res;
-									if (success) {
-										molecule.folderTree.update({
-											id,
-											data,
-										});
-										molecule.editor.updateTab({
-											id: current.tab!.id,
-											status: undefined,
-										});
-									}
-								});
-							}
-						});
-				}
+				saveTask()
+					.then((res) => res?.data?.id)
+					.then((id) => {
+						if (id !== undefined) {
+							api.getOfflineTaskByID({ id }).then((res) => {
+								const { code, data } = res;
+								if (code === 1) {
+									molecule.folderTree.update({
+										id,
+										data,
+									});
+									molecule.editor.updateTab({
+										id: current.tab!.id,
+										status: undefined,
+									});
+								}
+							});
+						}
+					})
+					.catch((err: Error | undefined) => {
+						if (err) {
+							message.error(err.message);
+						}
+					});
 				break;
 			}
 			case TASK_SUBMIT_ID: {

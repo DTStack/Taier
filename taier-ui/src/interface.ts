@@ -20,7 +20,7 @@ import type {
 	BINARY_ROW_KEY_FLAG,
 	CODE_TYPE,
 	DATA_SOURCE_ENUM,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 	KAFKA_DATA_TYPE,
 	MENU_TYPE_ENUM,
 	PARAMS_ENUM,
@@ -150,9 +150,9 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	scheduleConf: string;
 	scheduleStatus: SCHEDULE_STATUS;
 	/**
-	 * 数据同步任务配置模式
+	 * 任务配置模式
 	 */
-	createModel: Valueof<typeof DATA_SYNC_TYPE>;
+	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 	/**
 	 * 是否是增量同步模式
 	 */
@@ -435,6 +435,10 @@ export interface IDataSourceUsedInSyncProps {
 export interface IFlinkDataProps {
 	source: IFlinkSourceProps[];
 	sink: IFlinkSinkProps[];
+	/**
+	 * TODO
+	 */
+	side: any[];
 	/**
 	 * @description 任务类型，目前来说 flinkSQL 暂时只有 1.12
 	 */

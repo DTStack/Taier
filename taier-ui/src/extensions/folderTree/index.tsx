@@ -44,7 +44,7 @@ import {
 	EDIT_TASK_PREFIX,
 	FOLDERTREE_CONTEXT_EDIT,
 	TASK_RUN_ID,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 	TASK_STOP_ID,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
@@ -329,7 +329,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					};
 
 					// 向导模式渲染数据同步任务，脚本模式渲染编辑器
-					if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
 						tabData.renderPane = () => {
 							return <DataSync key={fileId} />;
 						};
@@ -358,7 +358,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 								name: item,
 							})) || [],
 					};
-					if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
 						tabData.renderPane = () => <StreamCollection key={fileId} />;
 					} else {
 						tabData.data = { ...tabData.data, language: 'sql' };
