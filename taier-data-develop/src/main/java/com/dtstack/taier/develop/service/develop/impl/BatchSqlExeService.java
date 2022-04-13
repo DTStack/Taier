@@ -82,7 +82,12 @@ public class BatchSqlExeService {
         if (StringUtils.isNotBlank(executeContent.getDatabase())) {
             return executeContent.getDatabase();
         }
-        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        TenantComponent tenantEngine = null;
+        if (executeContent.getTaskType().equals(EScheduleJobType.HIVE_SQL.getType())){
+             tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), EScheduleJobType.SPARK_SQL.getType());
+        }else {
+             tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        }
         if (Objects.isNull(tenantEngine)) {
             throw new RdosDefineException("引擎不能为空");
         }
@@ -349,7 +354,12 @@ public class BatchSqlExeService {
     private ParseResult parseSql(final ExecuteContent executeContent) {
         String dbName = this.getDbName(executeContent);
         executeContent.setDatabase(dbName);
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        TenantComponent tenantEngine = null;
+        if (executeContent.getTaskType().equals(EScheduleJobType.HIVE_SQL.getType())){
+            tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), EScheduleJobType.SPARK_SQL.getType());
+        }else {
+             tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        }
         Preconditions.checkNotNull(tenantEngine, String.format("tenantEngine %d not support hadoop engine.", executeContent.getTenantId()));
 
         SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);

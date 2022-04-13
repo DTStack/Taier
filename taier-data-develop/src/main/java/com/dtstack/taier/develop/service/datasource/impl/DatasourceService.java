@@ -2104,7 +2104,9 @@ public class DatasourceService {
         DataSourceTypeEnum datasourceTypeEnum = getDatasourceTypeByComponent(eComponentType, jdbcInfo);
         dataSourceVO.setDataType(datasourceTypeEnum.getDataType());
         dataSourceVO.setIsMeta(1);
-        dataSourceVO.setDataVersion(jdbcInfo.getVersionName());
+        if (Objects.nonNull(datasourceTypeEnum.getDataVersion())){
+            dataSourceVO.setDataVersion(jdbcInfo.getVersionName());
+        }
         addOrUpdate(dataSourceVO, userId);
     }
 
