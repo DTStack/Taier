@@ -22,29 +22,34 @@ package com.dtstack.taier.dao.domain;
  * @author yuebai
  * @date 2019-05-17
  */
-public class TaskParamTemplate {
+public class TaskTemplate {
 
-    private String params;
+    /**
+     * 类型
+     */
+    private Integer type;
 
+    /**
+     * 任务类型
+     */
     private Integer taskType;
 
     /**
-     * 任务版本
+     * 模版值的类型
      */
-    private String taskVersion;
+    private String valueType;
 
     /**
-     * 任务名称
+     * 模板内容
      */
-    private String taskName;
+    private String content;
 
-
-    public String getParams() {
-        return params;
+    public Integer getType() {
+        return type;
     }
 
-    public void setParams(String params) {
-        this.params = params;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public Integer getTaskType() {
@@ -55,19 +60,19 @@ public class TaskParamTemplate {
         this.taskType = taskType;
     }
 
-    public String getTaskVersion() {
-        return taskVersion;
+    public String getValueType() {
+        return valueType;
     }
 
-    public void setTaskVersion(String taskVersion) {
-        this.taskVersion = taskVersion;
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getContent() {
+        return content;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setContent(String content) {
+        this.content = content;
     }
 }

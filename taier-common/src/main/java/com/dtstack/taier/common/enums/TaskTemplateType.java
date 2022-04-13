@@ -16,26 +16,35 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.service.develop.impl;
+package com.dtstack.taier.common.enums;
 
-import com.dtstack.taier.dao.mapper.DevelopTaskTemplateDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-@Service
-public class BatchTaskTemplateService {
-
-    @Autowired
-    private DevelopTaskTemplateDao developTaskTemplateDao;
+public enum TaskTemplateType {
 
     /**
-     * 根据条件 获取模版
-     *
-     * @param taskType
-     * @param type
-     * @return
+     * 任务参数模版
      */
-    public String getContentByType(Integer taskType, Integer type) {
-        return developTaskTemplateDao.getContentByType(taskType, type);
+    TASK_PARAMS(0, "任务参数模版"),
+
+    /**
+     * 任务SQL模版
+     */
+    TASK_SQL(0, "任务SQL模版");
+
+    private Integer type;
+
+    private String name;
+
+    TaskTemplateType(Integer type, String name) {
+        this.type = type;
+        this.name = name;
     }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }
