@@ -266,8 +266,13 @@ public class BatchSparkHiveSqlExeService {
                 return result;
             }
         }
-
-        DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.SPARKTHRIFT2_1 : null;
+        DataSourceType dataSourceType = null;
+        if (EScheduleJobType.SPARK_SQL ==scheduleJobType){
+             dataSourceType = DataSourceType.SPARKTHRIFT2_1;
+        }else if (EScheduleJobType.HIVE_SQL ==scheduleJobType){
+             dataSourceType = DataSourceType.HIVE1X;
+        }
+        //DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.SPARKTHRIFT2_1 : null;
         if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
             String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
@@ -281,7 +286,12 @@ public class BatchSparkHiveSqlExeService {
             result.setJobId(jobId);
         } else {
             if (!executeContent.isExecuteSqlLater()) {
-                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+                TenantComponent tenantEngine = null;
+                if (executeContent.getTaskType().equals(EScheduleJobType.HIVE_SQL.getType())){
+                    tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), EScheduleJobType.SPARK_SQL.getType());
+                }else {
+                    tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+                }
                 Preconditions.checkNotNull(tenantEngine, "引擎不能为空");
                 if (SqlType.CREATE.equals(parseResult.getSqlType())
                         || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
