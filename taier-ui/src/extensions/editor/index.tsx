@@ -19,7 +19,12 @@
 import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { performSyncTaskActions, resetEditorGroup, runTask } from '@/utils/extensions';
+import {
+	performSyncTaskActions,
+	resetEditorGroup,
+	runTask,
+	syntaxValidate,
+} from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
 	TASK_STOP_ID,
@@ -30,7 +35,7 @@ import {
 	TASK_CONVERT_SCRIPT,
 	TASK_IMPORT_ID,
 	TASK_LANGUAGE,
-	TASK_DEBUG_ID,
+	TASK_SYNTAX_ID,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -230,8 +235,9 @@ function emitEvent() {
 				}
 				break;
 			}
-			// FlinkSQL 调试
-			case TASK_DEBUG_ID: {
+			// FlinkSQL 语法检查
+			case TASK_SYNTAX_ID: {
+				syntaxValidate(current);
 				break;
 			}
 			default:

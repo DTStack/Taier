@@ -21,12 +21,12 @@ import { message } from 'antd';
 import { LoginOutlined, UploadOutlined, SwapOutlined, ImportOutlined } from '@ant-design/icons';
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { FlinkSQLIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import { FlinkSQLIcon, SyntaxIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
-import { TASK_DEBUG_ID } from '@/constant';
+import { TASK_SYNTAX_ID } from '@/constant';
 import {
 	TASK_CONVERT_SCRIPT,
 	TASK_IMPORT_ID,
@@ -45,6 +45,8 @@ import executeService from '@/services/executeService';
 import taskResultService from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql, getTenantId, getUserId } from '.';
+import stream from '@/api/stream';
+import { createLog } from 'dt-react-codemirror-editor';
 
 /**
  * 保存按钮 for toolbar
@@ -76,17 +78,6 @@ const STOP_TASK: IEditorActionsProps = {
 	name: 'Stop Task',
 	title: '停止运行',
 	icon: 'debug-pause',
-	place: 'outer',
-};
-
-/**
- * 调试按钮
- */
-const DEBUG_TASK: IEditorActionsProps = {
-	id: TASK_DEBUG_ID,
-	name: 'Debug task',
-	title: '调试',
-	icon: 'debug-alt',
 	place: 'outer',
 };
 
@@ -134,6 +125,17 @@ const IMPORT_TASK: IEditorActionsProps = {
 	place: 'outer',
 };
 
+/**
+ * 语法检查按钮
+ */
+const GRAMMAR_TASK: IEditorActionsProps = {
+	id: TASK_SYNTAX_ID,
+	name: '语法检查',
+	title: '语法检查',
+	icon: <SyntaxIcon />,
+	place: 'outer',
+};
+
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
 		{ id: TASK_RUN_ID, disabled: true },
@@ -178,21 +180,13 @@ export function performSyncTaskActions() {
 				if (currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE) {
 					taskToolbar = [
 						CONVERT_TASK,
+						GRAMMAR_TASK,
 						SAVE_TASK,
-						DEBUG_TASK,
-						STOP_TASK,
 						SUBMIT_TASK,
 						OPERATOR_TASK,
 					];
 				} else {
-					taskToolbar = [
-						IMPORT_TASK,
-						SAVE_TASK,
-						DEBUG_TASK,
-						STOP_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
+					taskToolbar = [IMPORT_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
 				}
 				break;
 
@@ -543,4 +537,69 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				});
 		}
 	}
+}
+
+/**
+ * 语法检查
+ */
+export function syntaxValidate(current: molecule.model.IEditorGroup) {
+	const currentTabData: IOfflineTaskProps | undefined = current.tab?.data;
+	if (!currentTabData) return;
+	// 禁用语法检查
+	molecule.editor.updateActions([
+		{
+			id: TASK_SYNTAX_ID,
+			icon: 'loading~spin',
+			disabled: true,
+		},
+	]);
+
+	// active 日志 窗口
+	const { data } = molecule.panel.getState();
+	const {
+		panel: { hidden },
+	} = molecule.layout.getState();
+	if (hidden) {
+		molecule.layout.togglePanelVisibility();
+	}
+	molecule.panel.setState({
+		current: data?.find((item) => item.id === OUTPUT_LOG),
+	});
+
+	const logId = currentTabData.id.toString();
+	taskResultService.clearLogs(logId);
+	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
+
+	let isSuccess = false;
+	stream
+		.checkSyntax({})
+		.then((res) => {
+			if (res.message) {
+				taskResultService.appendLogs(logId, createLog(res.message, 'error'));
+			}
+			if (res && res.code === 1) {
+				if (res.data.code === 1) {
+					taskResultService.appendLogs(logId, createLog('语法检查通过', 'info'));
+					isSuccess = true;
+				} else {
+					taskResultService.appendLogs(logId, createLog(res.data.errorMsg, 'error'));
+				}
+			}
+		})
+		.catch((e) => {
+			console.trace(e);
+		})
+		.finally(() => {
+			if (!isSuccess) {
+				taskResultService.appendLogs(logId, createLog('语法检查失败！', 'error'));
+			}
+			// 恢复语法检查按钮
+			molecule.editor.updateActions([
+				{
+					id: TASK_SYNTAX_ID,
+					icon: <SyntaxIcon />,
+					disabled: false,
+				},
+			]);
+		});
 }

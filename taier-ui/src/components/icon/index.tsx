@@ -302,3 +302,26 @@ export const DataSourceLinkFailed = ({ style }: IConProps) => {
 		</span>
 	);
 };
+
+export const SyntaxIcon = ({ style }: IConProps) => {
+	return (
+		<span title="语法检查" style={{ fontSize: 0, ...style }}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="1em"
+				height="1em"
+				className="icon"
+				viewBox="0 0 1024 1024"
+			>
+				<path
+					fill="currentColor"
+					d="M259.413 677.376l46.08-126.976h212.224l46.08 127.019h88.747L458.837 170.667h-94.464L170.667 677.376h88.746zm233.472-195.157h-162.56l80.214-222.123h2.858l79.488 222.123z"
+				/>
+				<path
+					fill="currentColor"
+					d="M831.019 588.203a32 32 0 0145.226 45.013l-3.328 3.413L578.22 891.563a32 32 0 01-41.43.384l-3.37-3.286-105.515-118.016a32 32 0 0144.288-45.952l3.413 3.286 84.523 94.549 270.933-234.325z"
+				/>
+			</svg>
+		</span>
+	);
+};

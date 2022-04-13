@@ -25,7 +25,7 @@ export const TASK_SAVE_ID = 'task.save';
 export const TASK_OPS_ID = 'task_ops';
 export const TASK_CONVERT_SCRIPT = 'task.convert.script';
 export const TASK_IMPORT_ID = 'task.import';
-export const TASK_DEBUG_ID = 'task.debug';
+export const TASK_SYNTAX_ID = 'task.syntax';
 
 export const ENV_PARAMS = 'env.params';
 
