@@ -50,6 +50,7 @@ import com.dtstack.taier.common.enums.FuncType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
 import com.dtstack.taier.common.enums.ResourceRefType;
+import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -69,7 +70,7 @@ import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskParamTemplate;
+import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
@@ -97,7 +98,7 @@ import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.schedule.TaskService;
-import com.dtstack.taier.develop.service.task.TaskParamTemplateService;
+import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
 import com.dtstack.taier.develop.service.template.DefaultSetting;
 import com.dtstack.taier.develop.service.template.FlinkxJobTemplate;
@@ -198,7 +199,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopTaskMapper developTaskMapper;
 
     @Autowired
-    private TaskParamTemplateService taskParamTemplateService;
+    private TaskTemplateService taskTemplateService;
 
     @Autowired
     private BatchTaskResourceService batchTaskResourceService;
@@ -353,25 +354,26 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return taskVO;
     }
 
-    private void setTaskOperatorModelAndOptions(final ScheduleTaskVO taskVO, final Task task) {
-        if (task.getTaskType().equals(EScheduleJobType.SPARK.getVal())) {
-            if (StringUtils.isBlank(task.getExeArgs())) {
-                //  兼容之前v3.3及以前生成的task
-                taskVO.setOperateModel(TaskOperateType.RESOURCE.getType());
-            } else {
-                JSONObject exeArgsJson;
-                try {
-                    exeArgsJson = JSON.parseObject(task.getExeArgs());
-                } catch (final Exception e) {
-                    // 兼容v3.3之前
-                    exeArgsJson = new JSONObject();
-                    exeArgsJson.put(CMD_OPTS, task.getExeArgs());
-                    exeArgsJson.put(OPERATE_MODEL, TaskOperateType.RESOURCE.getType());
-                }
-                taskVO.setOptions(exeArgsJson.getString(CMD_OPTS));
-                taskVO.setOperateModel(exeArgsJson.getIntValue(OPERATE_MODEL));
+    /**
+     * 构建依赖任务信息列表
+     *
+     * @param taskId
+     * @return
+     */
+    private List<Task> buildDependTaskList(Long taskId){
+        List<BatchTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(taskId);
+        List<Task> fatherTaskVOs = Lists.newArrayList();
+        for (BatchTaskTask taskTask : taskTasks) {
+            Long parentTaskId = taskTask.getParentTaskId();
+            ScheduleTaskShade taskShade = this.taskService.findTaskByTaskId(parentTaskId);
+            if (Objects.nonNull(taskShade)) {
+                Task taskInfo = new Task();
+                taskInfo.setId(taskShade.getTaskId());
+                taskInfo.setName(taskShade.getName());
+                fatherTaskVOs.add(taskInfo);
             }
         }
+        return fatherTaskVOs;
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {
@@ -943,12 +945,18 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return (TaskVO) updateTask(taskVO, true);
         } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
             flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
-            taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(), taskVO.getTaskType()).getParams() : taskVO.getTaskParams());
+            taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
             return (TaskVO) updateTask(taskVO, false);
         }
         return addOrUpdateSyncTask(taskResourceParam);
     }
 
+    /**
+     * 添加或者修改 数据同步、实时采集 任务
+     *
+     * @param taskResourceParam
+     * @return
+     */
     public TaskVO addOrUpdateSyncTask(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
@@ -1008,6 +1016,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
         }
 
+        // 添加任务依赖关系
+        batchTaskTaskService.addOrUpdateTaskTask(taskVO.getId(), taskVO.getDependencyTasks());
 
         if (!taskVO.getUpdateSource()) {
             return taskVO;
@@ -1022,7 +1032,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private void addTask(TaskVO taskVO) {
         taskVO.setJobId(actionService.generateUniqueSign());
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ?taskParamTemplateService.getTaskParamTemplate(taskVO.getComponentVersion(),taskVO.getTaskType()).getParams():taskVO.getTaskParams());
+        taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent():taskVO.getTaskParams());
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
@@ -1031,13 +1041,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setMainClass(Objects.isNull(taskVO.getMainClass()) ? "" : taskVO.getMainClass());
         taskVO.setTaskDesc(Objects.isNull(taskVO.getTaskDesc()) ? "" : taskVO.getTaskDesc());
         taskVO.setSubmitStatus(0);
-        try {
-
-            developTaskMapper.insert(taskVO);
-        } catch (Exception e) {
-            throw new RdosDefineException("新建任务失败", e);
-        }
+        developTaskMapper.insert(taskVO);
     }
+
     /**
      * 转化环境参数，不同版本之间切换需要刷新环境参数信息
      *
@@ -1051,7 +1057,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (before.equals(after)) {
             return paramsBefore;
         }
-        return taskParamTemplateService.getTaskParamTemplate(after.getType(),taskType).getParams();
+        return taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, after.getType()).getContent();
     }
 
     /**
@@ -1071,7 +1077,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setTaskParams(convertParams);
 
         //由于密码脱敏，脚本模式保存时密码变成"******"，进行按照原储存信息进行还原，依据是url+username
-        if (CREATE_MODEL_TEMPLATE == specialTask.getCreateModel() && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
+        if (Objects.nonNull(specialTask.getCreateModel())
+                && CREATE_MODEL_TEMPLATE == specialTask.getCreateModel()
+                && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             String sqlText = TaskUtils.resumeTemplatePwd(taskVO.getSqlText(), specialTask);
             taskVO.setSqlText(sqlText);
         }
@@ -1701,8 +1709,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         // todo 后续多版本再进行扩展
         String version = componentList.get(0).getVersionName();
-        TaskParamTemplate taskParamTemplate = taskParamTemplateService.getTaskParamTemplate(version, taskType);
-        return Objects.isNull(taskParamTemplate) ? Strings.EMPTY_STRING : taskParamTemplate.getParams();
+        TaskTemplate taskParamTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, version);
+        return Objects.isNull(taskParamTemplate) ? Strings.EMPTY_STRING : taskParamTemplate.getContent();
     }
 
     /**
