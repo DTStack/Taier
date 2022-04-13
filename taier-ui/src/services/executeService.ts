@@ -618,11 +618,6 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 								createLog('获取结果成功', 'info'),
 							);
 							taskResultService.setResult(jobId.toString(), res.data.result);
-						} else {
-							taskResultService.appendLogs(
-								currentTabId.toString(),
-								createLog(`获取结果失败: ${res.data?.msg}`, 'error'),
-							);
 						}
 					}
 				})
