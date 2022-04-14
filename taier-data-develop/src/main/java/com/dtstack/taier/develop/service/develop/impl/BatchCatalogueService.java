@@ -343,6 +343,9 @@ public class BatchCatalogueService {
 
             try {
                 TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_SQL.getType(), EScheduleJobType.SPARK_SQL.getVal(), String.valueOf(templateCatalogue.getType()));
+                if(taskTemplate == null){
+                    throw new RdosDefineException(TaskTemplateType.TASK_SQL.getName() + "未初始化");
+                }
                 String content = taskTemplate.getContent();
                 //初始化任务
                 TaskResourceParam task = new TaskResourceParam();

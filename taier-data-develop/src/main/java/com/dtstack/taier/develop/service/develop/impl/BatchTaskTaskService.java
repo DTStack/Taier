@@ -102,6 +102,9 @@ public class BatchTaskTaskService {
      */
     private List<BatchTaskTask> getTaskTasksByTaskIdAndTasks(Long taskId, List<Task> tasks) {
         List<BatchTaskTask> taskTasks = Lists.newArrayList();
+        if (CollectionUtils.isEmpty(tasks)) {
+            return taskTasks;
+        }
         for (Task task : tasks) {
             BatchTaskTask taskTask = new BatchTaskTask();
             taskTask.setParentTaskId(task.getId());
