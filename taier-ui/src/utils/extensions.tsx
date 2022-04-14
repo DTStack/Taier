@@ -18,7 +18,7 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { message } from 'antd';
-import { LoginOutlined, UploadOutlined, SwapOutlined, ImportOutlined } from '@ant-design/icons';
+import { LoginOutlined, UploadOutlined, SwapOutlined } from '@ant-design/icons';
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { FlinkSQLIcon, SyntaxIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
@@ -29,7 +29,6 @@ import type { RESOURCE_TYPE } from '@/constant';
 import { TASK_SYNTAX_ID } from '@/constant';
 import {
 	TASK_CONVERT_SCRIPT,
-	TASK_IMPORT_ID,
 	TASK_OPS_ID,
 	TASK_SUBMIT_ID,
 	OUTPUT_LOG,
@@ -117,13 +116,13 @@ const CONVERT_TASK: IEditorActionsProps = {
 /**
  * 导入模板按钮
  */
-const IMPORT_TASK: IEditorActionsProps = {
-	id: TASK_IMPORT_ID,
-	name: '引入数据源',
-	title: '引入数据源',
-	icon: <ImportOutlined />,
-	place: 'outer',
-};
+// const IMPORT_TASK: IEditorActionsProps = {
+// 	id: TASK_IMPORT_ID,
+// 	name: '引入数据源',
+// 	title: '引入数据源',
+// 	icon: <ImportOutlined />,
+// 	place: 'outer',
+// };
 
 /**
  * 语法检查按钮
@@ -166,7 +165,7 @@ export function performSyncTaskActions() {
 					];
 				} else {
 					taskToolbar = [
-						IMPORT_TASK,
+						// IMPORT_TASK,
 						SAVE_TASK,
 						RUN_TASK,
 						STOP_TASK,
@@ -186,7 +185,12 @@ export function performSyncTaskActions() {
 						OPERATOR_TASK,
 					];
 				} else {
-					taskToolbar = [IMPORT_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
+					taskToolbar = [
+						// IMPORT_TASK,
+						SAVE_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
 				}
 				break;
 
@@ -211,7 +215,7 @@ export function fileIcon(
 	source: CATELOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
-		case 'task': {
+		case CATELOGUE_TYPE.TASK: {
 			switch (type) {
 				case TASK_TYPE_ENUM.SPARK_SQL:
 					return <SparkSQLIcon style={{ color: '#519aba' }} />;
@@ -225,10 +229,10 @@ export function fileIcon(
 					return 'file';
 			}
 		}
-		case 'resource': {
+		case CATELOGUE_TYPE.RESOURCE: {
 			return 'file';
 		}
-		case 'function':
+		case CATELOGUE_TYPE.FUNCTION:
 		default:
 			return 'code';
 	}

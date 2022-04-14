@@ -270,22 +270,27 @@ const updateTaskVariables = debounce((tab) => {
 
 // 注册自动补全
 function registerCompletion() {
-	const sqlProvider: languages.CompletionItemProvider = {
-		provideCompletionItems(model, position) {
-			const word = model.getWordUntilPosition(position);
-			const range = {
-				startLineNumber: position.lineNumber,
-				endLineNumber: position.lineNumber,
-				startColumn: word.startColumn,
-				endColumn: word.endColumn,
-			};
-			return {
-				suggestions: createSQLProposals(range),
-			};
-		},
-	};
-	languages.registerCompletionItemProvider(TASK_LANGUAGE.SPARKSQL, sqlProvider);
-	languages.registerCompletionItemProvider(TASK_LANGUAGE.HIVESQL, sqlProvider);
+	const COMPLETION_SQL = [
+		TASK_LANGUAGE.SPARKSQL,
+		TASK_LANGUAGE.HIVESQL,
+		TASK_LANGUAGE.SQL,
+	] as const;
+	COMPLETION_SQL.forEach((sql) =>
+		languages.registerCompletionItemProvider(sql, {
+			provideCompletionItems(model, position) {
+				const word = model.getWordUntilPosition(position);
+				const range = {
+					startLineNumber: position.lineNumber,
+					endLineNumber: position.lineNumber,
+					startColumn: word.startColumn,
+					endColumn: word.endColumn,
+				};
+				return {
+					suggestions: createSQLProposals(range),
+				};
+			},
+		}),
+	);
 }
 
 export default class EditorExtension implements IExtension {

@@ -267,7 +267,10 @@ function editTreeNodeName() {
 	});
 }
 
-export function openTaskInTab(taskId: any, file?: any) {
+export function openTaskInTab(
+	taskId: UniqueId,
+	file?: Pick<IFolderTreeNodeProps, 'id' | 'location'> | null,
+) {
 	if (!file) {
 		// 通过id打开任务
 		// eslint-disable-next-line no-param-reassign
@@ -361,7 +364,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
 						tabData.renderPane = () => <StreamCollection key={fileId} />;
 					} else {
-						tabData.data = { ...tabData.data, language: 'sql' };
+						tabData.data!.language = mappingTaskTypeToLanguage(data.taskType);
 					}
 					molecule.editor.open(tabData);
 					performSyncTaskActions();
@@ -388,7 +391,6 @@ export function openTaskInTab(taskId: any, file?: any) {
 					};
 					molecule.editor.open(tabData);
 					performSyncTaskActions();
-					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 				default:
