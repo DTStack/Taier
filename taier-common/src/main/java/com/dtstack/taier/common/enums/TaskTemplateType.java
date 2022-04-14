@@ -28,7 +28,7 @@ public enum TaskTemplateType {
     /**
      * 任务SQL模版
      */
-    TASK_SQL(0, "任务SQL模版");
+    TASK_SQL(1, "任务SQL模版");
 
     private Integer type;
 
