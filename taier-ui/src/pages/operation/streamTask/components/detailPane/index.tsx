@@ -31,8 +31,8 @@ import History from './components/runLog/historyLog'
 
 import { TASK_TYPE_ENUM } from '@/constant';
 import TaskManager from './components/taskManager';
-import RunMsg from './tabs/runMsg';
-import StreamDetailGraph from '@/views/operation/realtime/pane/tabs/graph';
+import RunMsg from './components/runMsg'
+// import StreamDetailGraph from '@/views/operation/realtime/pane/tabs/graph';
 
 const Api = {} as any
 
@@ -117,7 +117,7 @@ class TaskDetailPane extends React.Component<IProps, IState> {
 
         const taskGraph = (
             <TabPane style={scrollStyleNoPt} tab="数据曲线" key="taskGraph">
-                {tabKey == 'taskGraph' && <StreamDetailGraph data={data} />}
+                {/* {tabKey == 'taskGraph' && <StreamDetailGraph data={data} />} */}
             </TabPane>
         )
 

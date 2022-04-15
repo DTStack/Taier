@@ -9,10 +9,6 @@ import { IStreamTaskProps } from '@/interface';
 
 const Api = {} as any
 
-declare var APP_CONF: any;
-
-const API_PREFIX = APP_CONF.API_PREFIX || '';
-
 const editorOptions = {
     mode: 'simpleLog',
     lineNumbers: true,

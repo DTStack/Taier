@@ -26,7 +26,7 @@ import molecule, { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
 import API from '@/api/operation';
 import Task from '@/pages/operation/task';
-import StreamTask from '@/pages/operation/schedule';
+import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';
 import Patch from '@/pages/operation/patch';
 import Layout from '@/layout';
