@@ -38,36 +38,45 @@
 	}
 
 	.column-container {
-		border: 1px solid #dddddd;
+		border: 1px solid var(--panel-border);
+
 		.ant-table {
 			border: 0;
+
 			.ant-table-tbody > tr > td {
 				padding: 6px 5px;
 			}
+
 			.ant-table-thead > tr > th {
 				padding: 10px 5px;
 			}
+
 			.ant-table-thead > tr > th:first-child,
 			.ant-table-tbody > tr > td:first-child {
 				padding-left: 12px;
 			}
+
 			.ant-table-tbody > tr > td:last-child {
 				padding-right: 12px;
 			}
+
+			.ant-table-tbody > tr:last-child > td {
+				border-bottom: 0;
+			}
 		}
-		.ant-table-small > .ant-table-content > .ant-table-body {
-			margin: 0;
-		}
+
 		.column-table__select,
 		.column-table__input,
 		.column-table__select .ant-select-selection--single {
 			height: 28px;
 			line-height: 28px;
 		}
+
 		.column-table__select .ant-select-selection__rendered {
 			line-height: 26px;
 		}
 	}
+
 	.column-btn {
 		display: flex;
 		align-items: center;
@@ -75,10 +84,12 @@
 		padding: 0 12px;
 		color: var(--list-focusOutline);
 		font-size: 12px;
-		background: var(--activityBar-foreground);
+		background: var(--editorGroupHeader-tabsBackground);
 		border: 0;
 	}
+
 	.delete-action {
+		width: 100%;
 		color: var(--panelTitle-inactiveForeground);
 		font-size: 14px;
 		line-height: 32px;

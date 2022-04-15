@@ -51,7 +51,6 @@ import { generateMapValues } from '../customParamsUtil';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
 import type { PendingInputColumnType } from '.';
 import type { DefaultOptionType } from 'antd/lib/cascader';
-import CodeEditor from '@/components/codeEditor';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -355,30 +354,30 @@ export default function SourceForm({
 				</FormItem>
 				<FormItem noStyle dependencies={['type']}>
 					{({ getFieldValue }) => (
-						<Row>
-							<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-								<label className="required-tip">字段</label>
-							</div>
-							<Col span={18} style={{ marginBottom: 20, height: 202 }}>
-								{isShow && (
-									<CodeEditor
-										style={{ minHeight: 202, height: '100%' }}
-										className="bd"
-										sync={sync}
-										placeholder={`字段 类型, 比如 id int 一行一个字段${
-											getFieldValue('type') !==
-											DATA_SOURCE_ENUM.KAFKA_CONFLUENT
-												? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
-												: ''
-										}`}
-										value={panelColumn.columnsText}
-										onChange={(val: string) =>
-											debounceEditorChange('columnsText', val)
-										}
-									/>
-								)}
-							</Col>
-						</Row>
+						<FormItem label="字段" required>
+							{isShow && (
+								<Editor
+									style={{ minHeight: 202 }}
+									className="bd"
+									sync={sync}
+									options={{
+										fontSize: 12,
+										minimap: {
+											enabled: false,
+										},
+									}}
+									placeholder={`字段 类型, 比如 id int 一行一个字段${
+										getFieldValue('type') !== DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+											? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
+											: ''
+									}`}
+									value={panelColumn.columnsText}
+									onChange={(val: string) =>
+										debounceEditorChange('columnsText', val)
+									}
+								/>
+							)}
+						</FormItem>
 					)}
 				</FormItem>
 				<FormItem

@@ -54,14 +54,12 @@ import {
 import {
 	Button,
 	Checkbox,
-	Col,
 	Form,
 	Input,
 	InputNumber,
 	message,
 	Popconfirm,
 	Radio,
-	Row,
 	Select,
 	Table,
 	Tooltip,
@@ -74,8 +72,9 @@ import { generateMapValues, getColumnsByColumnsText } from '../customParamsUtil'
 import { CustomParams } from '../component/customParams';
 import DataPreviewModal from '../../source/dataPreviewModal';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } from '@/interface';
-import CodeEditor from '@/components/codeEditor';
+import Editor from '@/components/editor';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import classNames from 'classnames';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -665,7 +664,7 @@ export default function ResultForm({
 	);
 
 	return (
-		<Row className="title-content">
+		<div className="title-content">
 			<Form<IFlinkSinkProps>
 				{...formItemLayout}
 				form={form}
@@ -680,6 +679,7 @@ export default function ResultForm({
 					<Select
 						className="right-select"
 						showSearch
+						style={{ width: '100%' }}
 						filterOption={(input, option) =>
 							option?.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
 						}
@@ -988,165 +988,160 @@ export default function ResultForm({
 				<FormItem label="字段" required dependencies={['type']}>
 					{({ getFieldValue }) =>
 						haveTableColumn(getFieldValue('type')) ? (
-							<Col span={18} style={{ marginBottom: 20 }}>
-								<div className="column-container">
-									<Table<IFlinkSinkProps['columns'][number]>
-										rowKey="column"
-										dataSource={data.columns}
-										pagination={false}
-										size="small"
-									>
-										<Column<IFlinkSinkProps['columns'][number]>
-											title="字段"
-											dataIndex="column"
-											key="字段"
-											width="45%"
-											render={(text, record, index) => {
-												return (
-													<Select
+							<div className="column-container">
+								<Table<IFlinkSinkProps['columns'][number]>
+									rowKey="column"
+									dataSource={data.columns}
+									pagination={false}
+									size="small"
+								>
+									<Column<IFlinkSinkProps['columns'][number]>
+										title="字段"
+										dataIndex="column"
+										key="字段"
+										width="45%"
+										render={(text, record, index) => {
+											return (
+												<Select
+													value={text}
+													showSearch
+													className="sub-right-select column-table__select"
+													onChange={(val) =>
+														handleColumnsChanged(
+															COLUMNS_OPERATORS.CHANGE_ONE_LINE,
+															index,
+															{
+																column: val,
+																// assign type automatically
+																type: tableColumnOptionType.find(
+																	(c) => c.key.toString() === val,
+																)?.type,
+															},
+														)
+													}
+												>
+													{tableColumnOptionTypes}
+												</Select>
+											);
+										}}
+									/>
+									<Column<IFlinkSinkProps['columns'][number]>
+										title="类型"
+										dataIndex="type"
+										key="类型"
+										width="45%"
+										render={(text: string, record, index) => (
+											<span
+												className={
+													text?.toLowerCase() ===
+													'Not Support'.toLowerCase()
+														? 'has-error'
+														: ''
+												}
+											>
+												<Tooltip
+													title={text}
+													trigger={'hover'}
+													placement="topLeft"
+													overlayClassName="numeric-input"
+												>
+													<Input
 														value={text}
-														showSearch
-														className="sub-right-select column-table__select"
-														onChange={(val) =>
+														className="column-table__input"
+														onChange={(e) => {
 															handleColumnsChanged(
 																COLUMNS_OPERATORS.CHANGE_ONE_LINE,
 																index,
 																{
-																	column: val,
-																	// assign type automatically
-																	type: tableColumnOptionType.find(
-																		(c) =>
-																			c.key.toString() ===
-																			val,
-																	)?.type,
+																	...record,
+																	type: e.target.value,
 																},
-															)
-														}
-													>
-														{tableColumnOptionTypes}
-													</Select>
-												);
-											}}
-										/>
-										<Column<IFlinkSinkProps['columns'][number]>
-											title="类型"
-											dataIndex="type"
-											key="类型"
-											width="45%"
-											render={(text: string, record, index) => (
-												<span
-													className={
-														text?.toLowerCase() ===
-														'Not Support'.toLowerCase()
-															? 'has-error'
-															: ''
-													}
-												>
-													<Tooltip
-														title={text}
-														trigger={'hover'}
-														placement="topLeft"
-														overlayClassName="numeric-input"
-													>
-														<Input
-															value={text}
-															className="column-table__input"
-															onChange={(e) => {
-																handleColumnsChanged(
-																	COLUMNS_OPERATORS.CHANGE_ONE_LINE,
-																	index,
-																	{
-																		...record,
-																		type: e.target.value,
-																	},
-																);
-															}}
-														/>
-													</Tooltip>
-												</span>
-											)}
-										/>
-										<Column
-											key="delete"
-											render={(_, __, index) => {
-												return (
-													<CloseOutlined
-														style={{ fontSize: 12, color: '#999' }}
-														onClick={() =>
-															handleColumnsChanged(
-																COLUMNS_OPERATORS.DELETE_ONE_LINE,
-																index,
-															)
-														}
+															);
+														}}
 													/>
-												);
-											}}
-										/>
-									</Table>
-									<div style={{ padding: '0 20 20' }}>
-										<div
-											className="stream-btn column-btn"
-											style={{ borderRadius: 5 }}
-										>
-											<span>
-												<a
-													onClick={() =>
-														handleColumnsChanged(
-															COLUMNS_OPERATORS.ADD_ONE_LINE,
-														)
-													}
-												>
-													添加输入
-												</a>
+												</Tooltip>
 											</span>
-											<span>
-												<a
-													onClick={() =>
-														handleColumnsChanged(
-															COLUMNS_OPERATORS.ADD_ALL_LINES,
-														)
-													}
-													style={{ marginRight: 12 }}
-												>
-													导入全部字段
-												</a>
-												{data?.columns?.length ? (
-													<Popconfirm
-														title="确认清空所有字段？"
-														onConfirm={() =>
-															handleColumnsChanged(
-																COLUMNS_OPERATORS.DELETE_ALL_LINES,
-															)
-														}
-														okText="确认"
-														cancelText="取消"
-													>
-														<a>清空</a>
-													</Popconfirm>
-												) : (
-													<a style={{ color: '#999' }}>清空</a>
-												)}
-											</span>
-										</div>
-									</div>
-								</div>
-							</Col>
-						) : (
-							<Col span={18} style={{ marginBottom: 20, height: 200 }}>
-								{isShow && (
-									<CodeEditor
-										style={{
-											minHeight: 202,
-											border: '1px solid #ddd',
-											height: '100%',
-										}}
-										sync={sync}
-										placeholder={getPlaceholder(data.type!)}
-										value={data.columnsText}
-										onChange={debounceEditorChange}
+										)}
 									/>
-								)}
-							</Col>
+									<Column
+										key="delete"
+										render={(_, __, index) => {
+											return (
+												<CloseOutlined
+													style={{
+														fontSize: 12,
+														color: 'var(--editor-foreground)',
+													}}
+													onClick={() =>
+														handleColumnsChanged(
+															COLUMNS_OPERATORS.DELETE_ONE_LINE,
+															index,
+														)
+													}
+												/>
+											);
+										}}
+									/>
+								</Table>
+								<div className="stream-btn column-btn">
+									<span>
+										<a
+											onClick={() =>
+												handleColumnsChanged(COLUMNS_OPERATORS.ADD_ONE_LINE)
+											}
+										>
+											添加输入
+										</a>
+									</span>
+									<span>
+										<a
+											onClick={() =>
+												handleColumnsChanged(
+													COLUMNS_OPERATORS.ADD_ALL_LINES,
+												)
+											}
+											style={{ marginRight: 12 }}
+										>
+											导入全部字段
+										</a>
+										{data?.columns?.length ? (
+											<Popconfirm
+												title="确认清空所有字段？"
+												onConfirm={() =>
+													handleColumnsChanged(
+														COLUMNS_OPERATORS.DELETE_ALL_LINES,
+													)
+												}
+												okText="确认"
+												cancelText="取消"
+											>
+												<a>清空</a>
+											</Popconfirm>
+										) : (
+											<a style={{ color: 'var(--editor-foreground)' }}>
+												清空
+											</a>
+										)}
+									</span>
+								</div>
+							</div>
+						) : (
+							isShow && (
+								<Editor
+									style={{
+										minHeight: 202,
+									}}
+									sync={sync}
+									options={{
+										minimap: {
+											enabled: false,
+										},
+									}}
+									placeholder={getPlaceholder(data.type!)}
+									value={data.columnsText}
+									onChange={debounceEditorChange}
+								/>
+							)
 						)
 					}
 				</FormItem>
@@ -1316,13 +1311,19 @@ export default function ResultForm({
 						<>
 							{haveParallelism(getFieldValue('type')) && (
 								<FormItem name="parallelism" label="并行度">
-									<InputNumber className="number-input" min={1} precision={0} />
+									<InputNumber
+										className={classNames('number-input')}
+										style={{ width: '100%' }}
+										min={1}
+										precision={0}
+									/>
 								</FormItem>
 							)}
 							{isES(getFieldValue('type')) && isFlink112 && (
 								<FormItem name="bulkFlushMaxActions" label="数据输出条数">
 									<InputNumber
-										className="number-input"
+										className={classNames('number-input')}
+										style={{ width: '100%' }}
 										min={1}
 										max={10000}
 										precision={0}
@@ -1405,7 +1406,8 @@ export default function ResultForm({
 										rules={[{ required: true, message: '请输入数据输出时间' }]}
 									>
 										<InputNumber
-											className="number-input"
+											className={classNames('number-input')}
+											style={{ width: '100%' }}
 											min={0}
 											max={600000}
 											precision={0}
@@ -1418,7 +1420,8 @@ export default function ResultForm({
 										rules={[{ required: true, message: '请输入数据输出条数' }]}
 									>
 										<InputNumber
-											className="number-input"
+											className={classNames('number-input')}
+											style={{ width: '100%' }}
 											min={0}
 											max={
 												getFieldValue('type') === DATA_SOURCE_ENUM.KUDU
@@ -1464,6 +1467,6 @@ export default function ResultForm({
 				}}
 				params={params}
 			/>
-		</Row>
+		</div>
 	);
 }

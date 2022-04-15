@@ -37,7 +37,7 @@ export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => 
 		return customParams.map((customParam: any) => {
 			return (
 				<Row key={customParam.id} justify="center">
-					<Col span={9}>
+					<Col span={10}>
 						<Form.Item
 							noStyle
 							name={`${customParam.id}-key`}
@@ -54,7 +54,7 @@ export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => 
 							:
 						</div>
 					</Col>
-					<Col span={9}>
+					<Col span={10}>
 						<Form.Item
 							noStyle
 							name={`${customParam.id}-value`}
@@ -66,7 +66,7 @@ export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => 
 							/>
 						</Form.Item>
 					</Col>
-					<Col span={4}>
+					<Col span={2}>
 						<CloseOutlined
 							className="delete-action"
 							onClick={handleDeleteCustomParams.bind(undefined, customParam.id)}
