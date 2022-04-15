@@ -17,9 +17,10 @@ import {
 	formItemLayout,
 	DATA_SOURCE_ENUM,
 	DATA_SOURCE_TEXT,
+	TASK_LANGUAGE,
 } from '@/constant';
 import { filterValueOption, formJsonValidator } from '@/utils';
-import Editor from '@/components/codeEditor';
+import Editor from '@/components/editor';
 import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'rc-field-form';
 import { API } from '../../api/dataSource';
@@ -1059,13 +1060,14 @@ export default function Target({
 								(l) => l.dataInfoId === getFieldValue('sourceId'),
 							);
 							if (!target) return;
-							const mode =
-								target.dataTypeCode === DATA_SOURCE_ENUM.IMPALA ? 'sql' : 'dtsql';
+							// const mode =
+							// 	target.dataTypeCode === DATA_SOURCE_ENUM.IMPALA ? 'sql' : 'sql';
 							return (
 								<Modal
 									className="m-codemodal"
 									title={<span>建表语句</span>}
 									confirmLoading={modalInfo.loading}
+									destroyOnClose
 									maskClosable={false}
 									style={{ height: 424 }}
 									visible={modalInfo.visible}
@@ -1075,13 +1077,17 @@ export default function Target({
 									onOk={createTable}
 								>
 									<Editor
-										language={mode}
+										style={{ height: 400, marginTop: 1 }}
+										language={TASK_LANGUAGE.MYSQL}
 										value={editorInfo.textSql}
 										sync={editorInfo.sync}
 										placeholder={DDL_IDE_PLACEHOLDER}
-										onChange={(_: any, newVal: string) =>
+										options={{
+											minimap: { enabled: false },
+										}}
+										onChange={(val) =>
 											setEditorInfo({
-												textSql: newVal,
+												textSql: val,
 												sync: false,
 											})
 										}
