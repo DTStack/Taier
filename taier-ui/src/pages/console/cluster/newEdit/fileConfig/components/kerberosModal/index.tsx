@@ -18,7 +18,7 @@
 
 import * as React from 'react';
 import { message, Modal } from 'antd';
-import Editor from '@/components/codeEditor';
+import Editor from '@/components/editor';
 import { debounce } from 'lodash';
 import Api from '@/api/console';
 import './index.scss';
@@ -35,15 +35,6 @@ interface IState {
 	krb5Content: string;
 }
 
-const editorOptions: any = {
-	mode: 'simpleConfig',
-	lineNumbers: false,
-	readOnly: false,
-	autofocus: false,
-	indentWithTabs: true,
-	smartIndent: true,
-};
-
 export default class KerberosModal extends React.Component<IProps, IState> {
 	state: IState = {
 		krb5Content: '',
@@ -56,9 +47,7 @@ export default class KerberosModal extends React.Component<IProps, IState> {
 		});
 	}
 
-	public editor: Editor | null = null;
-
-	editorParamsChange = (preValue: string, nextValue: string) => {
+	editorParamsChange = (nextValue: string) => {
 		this.setState({
 			krb5Content: nextValue,
 		});
@@ -93,11 +82,13 @@ export default class KerberosModal extends React.Component<IProps, IState> {
 						sync
 						value={krbconfig || ''}
 						className="c-kerberosModal__edior"
-						ref={(e) => {
-							this.editor = e;
+						language="ini"
+						options={{
+							readOnly: false,
+							minimap: {
+								enabled: false,
+							},
 						}}
-						style={{ height: '100%' }}
-						options={editorOptions}
 						onChange={this.debounceEditorChange.bind(this)}
 					/>
 				</div>

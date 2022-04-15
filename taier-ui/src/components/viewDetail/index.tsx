@@ -43,18 +43,18 @@ class ViewDetail extends React.Component<any, any> {
 				onCancel={this.props.onCancel}
 				onOk={this.props.onCancel}
 				visible={this.props.visible}
+				destroyOnClose
 			>
 				<CodeEditor
 					style={{ height: '400px', marginTop: '1px' }}
 					value={this.props.resource}
-					language="ini"
+					language="json"
 					options={{
 						readOnly: true,
 						minimap: {
 							enabled: false,
 						},
 					}}
-					sync={true}
 				/>
 			</Modal>
 		);
