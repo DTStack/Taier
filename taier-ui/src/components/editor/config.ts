@@ -19,14 +19,14 @@
 export const defaultOptions: any = {
     language: 'sql',
     readOnly: false,
-    contextmenu: true,
+    contextmenu: false,
     autoIndent: true,
     automaticLayout: true,
     showFoldingControls: 'always',
     folding: true,
     foldingStrategy: 'auto',
-    suggestFontSize: 13,
-    fontSize: 13,
+    suggestFontSize: 12,
+    fontSize: 12,
     iconsInSuggestions: false,
     fixedOverflowWidgets: true,
     renderControlCharacters: true

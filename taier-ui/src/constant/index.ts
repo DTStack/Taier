@@ -57,13 +57,7 @@ export const HDFSCONG = `{
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }`;
 
-export const DDL_IDE_PLACEHOLDER = `CREATE TABLE employee ( 
-    eid int, 
-    name String,
-    salary String, 
-    destination String)
-    STORED AS ORC
-    lifecycle 10`;
+export const DDL_IDE_PLACEHOLDER = 'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
 
 // 表单正常布局
 export const formItemLayout = {
