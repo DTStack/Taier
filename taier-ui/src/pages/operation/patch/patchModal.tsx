@@ -102,8 +102,9 @@ interface IFormFieldProps {
 	concreteEndTime?: moment.Moment;
 }
 
+// 补数据可以选择今日数据
 const disabledDate = (current: moment.Moment) => {
-	return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
+	return current && current.valueOf() > moment().valueOf();
 };
 
 /**
