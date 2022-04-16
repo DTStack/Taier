@@ -2,13 +2,11 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Builder;
 
 import java.sql.Timestamp;
 
 public class StreamTaskCheckpoint {
 
-    @Builder.Default
     @TableId(value = "id",type = IdType.AUTO)
     private Long id = 0L;
 
