@@ -21,8 +21,9 @@ public interface Scheduler {
 
 
     /**
-     * 获取调度名称
-     * @return
+     * 获取名称，提交时，会以调度名称发布提交事件
+     *
+     * @return 名称
      */
     String getSchedulerName();
 }

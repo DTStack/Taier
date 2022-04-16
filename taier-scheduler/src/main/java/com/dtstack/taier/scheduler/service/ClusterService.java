@@ -253,9 +253,6 @@ public class ClusterService {
         } else {
             confConfig = clusterConfigJson.getJSONObject(componentType.getConfName());
         }
-        if (null == confConfig || confConfig.size() == 0) {
-            throw new RdosDefineException("Flink configuration information is empty");
-        }
         pluginInfo = confConfig.getJSONObject(deploy.getMode());
         if (Objects.isNull(pluginInfo)) {
             throw new RdosDefineException(String.format("Corresponding mode [%s] no information is configured", deploy.name()));

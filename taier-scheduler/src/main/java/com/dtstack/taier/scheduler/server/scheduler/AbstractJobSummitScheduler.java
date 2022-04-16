@@ -80,7 +80,8 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
             executorService.submit(() -> {
                 ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
                 try {
-                    //提交代码里面会将jobStatus设置为submitting
+                    // 发布提交事件
+
                     scheduleJobService.startJob(scheduleJobDetails);
                     LOGGER.info("--- jobId:{} scheduleType:{} send to engine.", scheduleJob.getJobId(), getSchedulerName());
                 } catch (Exception e) {

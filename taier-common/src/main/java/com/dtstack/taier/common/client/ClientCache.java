@@ -125,7 +125,6 @@ public class ClientCache {
                         defaultClientMap.putIfAbsent(typeName, defaultClient);
                     }
                 }
-
             }
         } catch (Throwable e) {
             LOGGER.error("-------job.pluginInfo is empty, either can't find plugin('In console is the typeName') which typeName:{}", typeName, e);

@@ -8,7 +8,6 @@ import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
-import com.dtstack.taier.scheduler.server.scheduler.exec.JudgeJobExecOperator;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobJobService;
 import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
@@ -19,7 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -40,9 +42,6 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
 
     @Autowired
     protected ScheduleJobCacheService scheduleJobCacheService;
-
-    @Autowired
-    protected List<JudgeJobExecOperator> judgeJobExecOperators;
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
