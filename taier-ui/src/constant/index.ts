@@ -1452,3 +1452,43 @@ export enum BIND_TYPE {
 	AUTO = 1, // 强制绑定
 	MANUAL = 0, // 手动绑定
 }
+
+/** metric 状态 */
+export enum METRIC_STATUS_TYPE {
+	NORMAL = 1,
+	ABNORMAL = 2,
+}
+
+export const UNIT_TYPE = {
+	B: 0,
+	KB: 1,
+	MB: 2,
+	GB: 3,
+	TB: 4,
+} as const;
+
+export const SOURCE_INPUT_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bps',
+	[UNIT_TYPE.KB]: 'Kbps',
+	[UNIT_TYPE.MB]: 'Mbps',
+	[UNIT_TYPE.GB]: 'Gbps',
+	[UNIT_TYPE.TB]: 'Tbps',
+} as const;
+
+export const COLLECTION_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bytes',
+	[UNIT_TYPE.KB]: 'Kbytes',
+	[UNIT_TYPE.MB]: 'Mbytes',
+	[UNIT_TYPE.GB]: 'Gbytes',
+	[UNIT_TYPE.TB]: 'Tbytes',
+} as const;
+
+
+export const CHARTS_COLOR = [
+    '#339CFF',
+    '#15D275',
+    '#5579ED',
+    '#00C3E5',
+    '#16DFB4',
+    '#86E159'
+] as const;
