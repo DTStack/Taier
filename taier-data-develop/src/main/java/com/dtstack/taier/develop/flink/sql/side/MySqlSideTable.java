@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.flink.sql.side;
 
 import com.dtstack.taier.develop.flink.sql.core.ISqlParamEnum;
 import com.dtstack.taier.develop.flink.sql.side.param.MySqlSideParamEnum;
-import lombok.Data;
 
 /**
  * mysql 维表
@@ -11,7 +10,6 @@ import lombok.Data;
  * @author ：qianyi
  * company: www.dtstack.com
  */
-@Data
 public class MySqlSideTable extends AbstractSideTable {
 
     @Override
