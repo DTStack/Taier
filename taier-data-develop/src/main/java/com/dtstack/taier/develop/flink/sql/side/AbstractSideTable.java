@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.flink.sql.side;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.develop.flink.sql.core.AbstractBaseTable;
 import com.dtstack.taier.develop.flink.sql.core.SqlConstant;
-import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.Map;
  * @author ：qianyi
  * company: www.dtstack.com
  */
-@Data
 public abstract class AbstractSideTable extends AbstractBaseTable {
 
     /**

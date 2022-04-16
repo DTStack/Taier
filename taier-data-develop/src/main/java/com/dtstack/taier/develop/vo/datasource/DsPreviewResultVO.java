@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.vo.datasource;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.util.List;
 
