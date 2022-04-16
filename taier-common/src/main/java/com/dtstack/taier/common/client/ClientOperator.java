@@ -116,11 +116,11 @@ public class ClientOperator {
 
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
-        if(jobClient.getEngineTaskId() == null){
+        if (jobClient.getApplicationId() == null) {
             return JobResult.createSuccessResult(jobClient.getJobId());
         }
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
-        ,jobClient.getTenantId(),jobClient.getTaskType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
+                , jobClient.getTenantId(), jobClient.getTaskType(), jobClient.getDeployMode(), jobClient.getUserId(), jobClient.getPluginInfo(), jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getPluginInfo(), jobIdentifier);
 

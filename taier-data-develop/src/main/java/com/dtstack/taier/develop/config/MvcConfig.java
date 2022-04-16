@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,10 +57,11 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(MediaType.TEXT_PLAIN);
-        mediaTypes.add(MediaType.APPLICATION_JSON);
-        mediaTypes.add(MediaType.MULTIPART_FORM_DATA);
+        mediaTypes.add(MediaType.parseMediaType(MediaType.TEXT_PLAIN_VALUE));
+        mediaTypes.add(MediaType.parseMediaType(MediaType.APPLICATION_JSON_VALUE));
+        mediaTypes.add(MediaType.parseMediaType(MediaType.MULTIPART_FORM_DATA_VALUE));
         mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+        mappingJackson2HttpMessageConverter.setDefaultCharset(StandardCharsets.UTF_8);
         converters.add(0, mappingJackson2HttpMessageConverter);
         super.configureMessageConverters(converters);
     }
@@ -71,7 +73,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/^((?!login).)*$");
+        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**");
         super.addInterceptors(registry);
     }
 

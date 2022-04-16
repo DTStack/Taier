@@ -10,7 +10,7 @@ sidebar_label: 依赖组件
 
 ## 三方框架
 >- DatasourceX（数据源插件）：[**4.3.0**](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0)
->- FlinkX（数据同步插件）：[**1.10**](https://github.com/DTStack/flinkx/releases/tag/1.10.5)
+>- Chunjun（数据同步插件）：[**1.10**](https://github.com/DTStack/Chunjun/releases/tag/1.10.5)
 
 ## 大数据组件
 * [Flink](https://flink.apache.org/)  On Yarn

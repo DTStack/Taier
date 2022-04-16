@@ -19,7 +19,7 @@ public class DsDetailVO {
     @ApiModelProperty(value = "数据源类型", example = "Mysql")
     private String dataType;
 
-    @ApiModelProperty("数据源报表")
+    @ApiModelProperty("数据源版本 如1.x, 0.9")
     private String dataVersion;
 
     @ApiModelProperty("数据源名称")
