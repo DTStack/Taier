@@ -12,10 +12,10 @@ import java.util.Map;
 
 /**
  * @company: www.dtstack.com
- * @Author ：Nanqi
+ * @Author ：K
  * @Date ：Created in 11:18 2019-07-04
  */
-public class Hive2XWriter extends HiveWriterBase {
+public class Hive2XReader extends HiveReaderBase {
 
     private String msg = "";
     protected List connection;
@@ -24,7 +24,6 @@ public class Hive2XWriter extends HiveWriterBase {
     protected String remoteDir;
     protected Map<String, Object> sftpConf;
     protected String encoding = "utf-8";
-//    @Override
     public void checkFormat(JSONObject data) {
         data = data.getJSONObject("parameter");
         if (StringUtils.isEmpty(data.getString("jdbcUrl"))) {
@@ -91,9 +90,9 @@ public class Hive2XWriter extends HiveWriterBase {
     @Override
     public String pluginName() {
         if (CollectionUtils.isNotEmpty(connection)) {
-            return PluginName.HDFS_W;
+            return PluginName.HDFS_R;
         }else {
-            return PluginName.HIVE_W;
+            return PluginName.Hive_R;
         }
     }
 
