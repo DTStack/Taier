@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author: zhichen
  * create: 2019/04/17
  */
-public class HdfsWriter extends HdfsBase  {
+public class HdfsWriter extends HdfsWriterBase  {
 
     private String writeMode = WriteMode.APPEND.getVal();
     private String fileName;

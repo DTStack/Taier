@@ -9,7 +9,7 @@ import com.dtstack.dtcenter.loader.dto.source.HiveSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
-import com.dtstack.taier.develop.service.template.hdfs.HdfsBase;
+import com.dtstack.taier.develop.service.template.hdfs.HdfsWriterBase;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * @Date ：Created in 11:16 2019-07-04
  */
 @Component
-public class HiveBase extends HdfsBase {
+public class HiveWriterBase extends HdfsWriterBase {
 
     @Autowired
     DsInfoService dataSourceAPIClient;
