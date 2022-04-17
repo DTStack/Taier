@@ -3,6 +3,7 @@ package com.dtstack.taier.develop.service.template.hdfs;
 
 
 import com.dtstack.taier.develop.enums.develop.FileType;
+import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @author: toutian
  * create: 2019/04/17
  */
-public abstract class HdfsBase extends BaseWriterPlugin {
+public abstract class HdfsReaderBase extends BaseReaderPlugin {
 
 
     protected String defaultFS;
