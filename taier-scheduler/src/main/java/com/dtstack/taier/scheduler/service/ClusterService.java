@@ -31,10 +31,7 @@ import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.mapper.*;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.HivePluginInfoStrategy;
-import com.dtstack.taier.scheduler.server.pluginInfo.SparkPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.*;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -86,10 +83,10 @@ public class ClusterService {
         }
         JSONObject clusterConfigJson = buildClusterConfig(clusterId, componentVersion, componentType);
         ComponentPluginInfoStrategy pluginInfoStrategy = convertPluginInfo(componentType);
-        JSONObject pluginJson = pluginInfoStrategy.convertPluginInfo(clusterConfigJson, clusterId, deployMode);
+        KerberosPluginInfo kerberosPluginInfo = new KerberosPluginInfo(pluginInfoStrategy, consoleKerberosMapper, componentMapper);
+        JSONObject pluginJson = kerberosPluginInfo.configSecurity(clusterConfigJson, clusterId, deployMode);
         Queue queue = getQueue(tenantId, clusterId);
         pluginJson.put(QUEUE, queue == null ? "" : queue.getQueueName());
-        setComponentSftpDir(clusterId, clusterConfigJson, pluginJson, componentType);
         return pluginJson;
     }
 
@@ -106,37 +103,7 @@ public class ClusterService {
         }
     }
 
-    /**
-     * 填充对应的组件信息
-     *
-     * @param clusterId
-     * @param clusterConfigJson
-     * @param pluginJson
-     * @param componentType
-     */
-    private void setComponentSftpDir(Long clusterId, JSONObject clusterConfigJson, JSONObject pluginJson, EComponentType componentType) {
-        //sftp Dir
-        JSONObject sftpConfig = clusterConfigJson.getJSONObject(EComponentType.SFTP.getConfName());
-        if (null != sftpConfig) {
-            pluginJson.put(EComponentType.SFTP.getConfName(), sftpConfig);
-        }
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, componentType.getTypeCode(),
-                ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
-        if (null != kerberosConfig) {
-            Integer openKerberos = kerberosConfig.getOpenKerberos();
-            String remotePath = kerberosConfig.getRemotePath();
-            Preconditions.checkState(StringUtils.isNotEmpty(remotePath), "remotePath can not be null");
-            pluginJson.fluentPut("openKerberos", null != openKerberos && openKerberos > 0)
-                    .fluentPut("remoteDir", remotePath)
-                    .fluentPut("principalFile", kerberosConfig.getName())
-                    .fluentPut("principal", kerberosConfig.getPrincipal())
-                    .fluentPut("krbName", kerberosConfig.getKrbName())
-                    .fluentPut("kerberosFileTimestamp", kerberosConfig.getGmtModified())
-                    .fluentPut(MERGE_KRB5_CONTENT_KEY, kerberosConfig.getMergeKrbContent());
-            //如果 hiveSQL  impalaSQL中没有yarnConf 需要添加yarnConf做kerberos认证
-            pluginJson.putIfAbsent(EComponentType.YARN.getConfName(), clusterConfigJson.getJSONObject(EComponentType.YARN.getConfName()));
-        }
-    }
+
 
 
     public Queue getQueue(Long tenantId, Long clusterId) {

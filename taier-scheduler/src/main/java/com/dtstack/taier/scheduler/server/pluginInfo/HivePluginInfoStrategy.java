@@ -14,4 +14,9 @@ public class HivePluginInfoStrategy implements ComponentPluginInfoStrategy{
         computePluginInfo.put(ConfigConstant.JDBCURL, jdbcUrl);
         return computePluginInfo;
     }
+
+    @Override
+    public EComponentType getComponentTypeCode() {
+        return EComponentType.HIVE_SERVER;
+    }
 }
