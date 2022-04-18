@@ -71,6 +71,7 @@ public class ConfigConstant {
 
     public static final String REMOTE_DIR = "remoteDir";
     public static final String PRINCIPAL_FILE = "principalFile";
+    public static final String KERBEROS_FILE_TIMESTAMP = "kerberosFileTimestamp";
     public static final String PRINCIPAL = "principal";
     public static final String KRB_NAME = "krbName";
     public static final String OPEN_KERBEROS = "openKerberos";
