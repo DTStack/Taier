@@ -33,7 +33,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * company: www.dtstack.com
@@ -47,25 +50,30 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
 
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
-    private static String[] excludeTargets = {"/download/component/downloadFile", "/upload/component/config", "/upload/component/addOrUpdateComponent",
-            "/upload/batch/batchResource/addResource","/upload/batch/batchResource/replaceResource", "/upload/component/parseKerberos",
-            "/upload/component/uploadKerberos","/user/login","/user/logout",
-            "/datasource/addDs/getPrincipalsWithConf","/datasource/addDs/addOrUpdateSourceWithKerberos",
-    "/datasource/addDs/testConWithKerberos", "/batchResource/addResource",
-    "/batchResource/replaceResource", "/developDownload/downloadJobLog"};
+    private static final List<String> excludeTargets = Stream.of(
+            "/taier/download/component/downloadFile",
+            "/taier/upload/component/config",
+            "/taier/upload/component/addOrUpdateComponent",
+            "/taier/upload/batch/batchResource/addResource",
+            "/taier/upload/batch/batchResource/replaceResource",
+            "/taier/upload/component/parseKerberos",
+            "/taier/upload/component/uploadKerberos",
+            "/taier/user/login",
+            "/taier/user/logout",
+            "/taier/dataSource/addDs/getPrincipalsWithConf",
+            "/taier/dataSource/addDs/addOrUpdateSourceWithKerberos",
+            "/taier/dataSource/addDs/testConWithKerberos",
+            "/taier/batchResource/addResource",
+            "/taier/batchResource/replaceResource",
+            "/taier/developDownload/downloadJobLog"
+    ).collect(Collectors.toList());
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String uri = request.getRequestURI();
         MultiReadHttpServletRequest requestWrapper = new MultiReadHttpServletRequest(request);
 
-        boolean isExclude = false;
-        for (String exc: excludeTargets) {
-            if (uri.endsWith(exc)) {
-                isExclude = true;
-                break;
-            }
-        }
+        boolean isExclude = excludeTargets.contains(uri);
 
         JSONObject reqBody;
         if (isExclude) {
