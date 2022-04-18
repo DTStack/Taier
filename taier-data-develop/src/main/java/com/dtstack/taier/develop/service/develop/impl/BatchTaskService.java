@@ -527,16 +527,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             if (!checkTaskCanRunByStatus(task)) {
                 throw new RdosDefineException("任务状态未提交发布");
             }
-            return publishTaskInfo(task, userId, publishDesc);
-        } else if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-            JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
-            //判断自定义调度是否合法
-//            checkCronValid(scheduleConf);
-            return publishTaskInfo(task, userId, publishDesc);
         }
-        TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
-        checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-        return checkResultVO;
+
+            return publishTaskInfo(task, userId, publishDesc);
+
     }
 
 
@@ -618,8 +612,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         final Map<String, Object> actionParam = new HashMap<>(10);
         // todo 离线用到
         List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
-//        taskParam.forEach(paramShade -> paramShade.setType(EParamType.getEngineTypeByType(paramShade.getType())));
-        hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
+
+        if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())){
+            hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
+        }else {
+            actionParam.put("sqlText",task.getSqlText());
+        }
         JSONObject confProp = new JSONObject();
         actionParam.put("confProp", JSON.toJSONString(confProp));
 
@@ -725,17 +723,23 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskVersion taskVersion = new TaskVersion();
         taskVersion.setCreateUserId(userId);
         if (StringUtils.isNotBlank(task.getSqlText())) {
-            final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
-            Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
-            JSONObject job = jsonTask.getJSONObject("job");
-            if (Objects.isNull(job)) {
-                throw new RdosDefineException(String.format("数据同步任务：%s 未配置", task.getName()));
+
+            if (EScheduleJobType.SYNC.equals(task.getTaskType())){
+                final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
+                Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
+                JSONObject job = jsonTask.getJSONObject("job");
+                if (Objects.isNull(job)) {
+                    throw new RdosDefineException(String.format("数据同步任务：%s 未配置", task.getName()));
+                }
+                // 检测job格式
+                if(BooleanUtils.isTrue(isCheckFormat)){
+                    DaJobCheck.checkJobFormat(job.toJSONString(), createModelType);
+                }
+                taskVersion.setSqlText(jsonTask.toJSONString());
+            }else {
+                taskVersion.setSqlText(task.getSqlText());
             }
-            // 检测job格式
-            if(BooleanUtils.isTrue(isCheckFormat)){
-                DaJobCheck.checkJobFormat(job.toJSONString(), createModelType);
-            }
-            taskVersion.setSqlText(jsonTask.toJSONString());
+
             taskVersion.setOriginSql(task.getSqlText());
         }else {
             taskVersion.setSqlText(StringUtils.EMPTY);
