@@ -40,7 +40,7 @@ const Api = {} as any;
 const TabPane = Tabs.TabPane;
 
 interface IProps {
-	data: IStreamTaskProps | undefined;
+	data: IStreamTaskProps | null;
 	visibleSlidePane: boolean;
 	extButton: React.ReactNode;
 	closeSlidePane: () => void;

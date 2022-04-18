@@ -221,14 +221,6 @@ $defaultFontColor: #333;
     }
 }
 
-.ope-statistics {
-    font-weight: bold;
-    font-size: 12px;
-    span {
-        margin-right: 24px;
-    }
-}
-
 .circle {
     display: inline-block;
     width: 8px;
@@ -929,48 +921,5 @@ $defaultFontColor: #333;
     line-height: 34px;
     i {
         color: #979797;
-    }
-}
-
-// 重跑 modal 样式
-.o-modal {
-    .ant-radio-wrapper {
-        height: 30px;
-        line-height: 30px;
-    }
-    &__radio {
-        display: block;
-        &--content {
-            margin: 0 0 10px 30px;
-            span:first-child {
-                display: inline-block;
-                width: 100px;
-                text-align: right;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                overflow: hidden;
-                line-height: 1;
-            }
-        }
-        &--padding {
-            span:nth-child(2) {
-                padding-right: 0;
-            }
-        }
-    }
-    &__content {
-        background: rgb(250, 250, 250);
-        border: 1px solid rgb(221, 221, 221);
-        border-radius: 4px;
-        padding: 12px;
-    }
-    &__datepick--content {
-        width: 200px;
-    }
-    &__datepick--empty {
-        text-align: center;
-    }
-    &__datepick--text {
-        font-weight: bold;
     }
 }

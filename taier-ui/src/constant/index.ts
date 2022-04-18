@@ -1403,16 +1403,6 @@ export const FLINK_VERSION_TYPE_FILTER = [
 		label: 'flink1.12',
 		text: '1.12',
 	},
-	{
-		value: FLINK_VERSIONS.FLINK_1_10,
-		label: 'flink1.10',
-		text: '1.10',
-	},
-	{
-		value: FLINK_VERSIONS.FLINK_1_8,
-		label: 'flink1.8',
-		text: '1.8',
-	},
 ];
 
 export enum FLINK_SQL_TYPE {
@@ -1483,12 +1473,11 @@ export const COLLECTION_BPS_UNIT_TYPE = {
 	[UNIT_TYPE.TB]: 'Tbytes',
 } as const;
 
-
 export const CHARTS_COLOR = [
-    '#339CFF',
-    '#15D275',
-    '#5579ED',
-    '#00C3E5',
-    '#16DFB4',
-    '#86E159'
+	'#339CFF',
+	'#15D275',
+	'#5579ED',
+	'#00C3E5',
+	'#16DFB4',
+	'#86E159',
 ] as const;

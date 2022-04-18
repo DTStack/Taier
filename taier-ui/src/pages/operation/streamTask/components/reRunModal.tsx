@@ -16,200 +16,203 @@
  * limitations under the License.
  */
 
-import * as React from 'react';
-import { Modal, Alert, Radio, DatePicker,
-    Tooltip, message, RadioChangeEvent } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
+import type { RadioChangeEvent } from 'antd';
+import { Modal, Alert, Radio, DatePicker, Tooltip, message, Space } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { showTimeForOffsetReset, formatOffsetResetTime } from '@/utils';
+import './reRunModal.scss';
 
-const Api = {} as any
+const Api = {
+	getTask: () =>
+		Promise.resolve({
+			code: 1,
+			message: null,
+			data: {
+				source: [],
+			},
+			space: 0,
+			version: null,
+			success: true,
+		}),
+} as any;
 
-const offsetResetFormat = 'YYYY-MM-DD HH:mm:ss'
+const offsetResetFormat = 'YYYY-MM-DD HH:mm:ss';
 
-interface IProps {
-    visible?: boolean;
-    taskId?: number | undefined;
-    refresh: () => void;
-    onCancel: () => void;
-}
-
-interface IStates {
-    checkedValue?: RERUN_TYPE;
-    offsetSource: IOffsetSource[];
+interface IReRunModalProps {
+	visible?: boolean;
+	taskId?: number | undefined;
+	refresh: () => void;
+	onCancel: () => void;
 }
 
 interface IOffsetSource {
-    sourceId: number;
-    tableName?: string;
-    timestampOffset?: number;
-    type: number;
-    table?: string;
+	sourceId: number;
+	tableName?: string;
+	timestampOffset?: number;
+	type: number;
+	table?: string;
 }
 
-enum RERUN_TYPE  {
-    LAST = 'last',
-    OFFSET = 'offset'
+enum RERUN_TYPE {
+	LAST = 'last',
+	OFFSET = 'offset',
 }
 
-class ReRunModal extends React.Component<IProps, IStates> {
-    constructor (props: IProps) {
-        super(props);
-        this.state = {
-            checkedValue: RERUN_TYPE.LAST,
-            offsetSource: []
-        }
-    }
-
-    componentDidUpdate (prevProps: IProps) {
-        const { taskId, visible } = this.props;
-        if (taskId && taskId != prevProps.taskId && visible) {
-            this.getTaskInfo(taskId)
-        }
-    }
-
-    getTaskInfo = async (id: number) => {
-        let res = await Api.getTask({ id });
-        if (res.code === 1) {
-            const sourceMap: IOffsetSource[] = res.data?.source || [];
-            const offsetSource = sourceMap.map(({ sourceId, table, timestampOffset, type }) => (
-                {
-                    sourceId,
-                    tableName: table,
-                    timestampOffset: timestampOffset || moment().valueOf(),
-                    type
-                }
-            ))
-            this.setState({ offsetSource: offsetSource || [] })
-        }
-    }
-
-    handleConfirmReRun = async () => {
-        const { checkedValue, offsetSource } = this.state;
-        const { refresh, onCancel, taskId } = this.props;
-        let reqParams = {}
-        let apiName = ''
-        if (checkedValue === RERUN_TYPE.LAST) {
-            reqParams = {
-                id: taskId,
-                isRestoration: 0
-            }
-            apiName = 'startTask';
-        } else {
-            reqParams = {
-                taskId: taskId,
-                kafkaOffsetVOS: offsetSource
-            }
-            apiName = 'reRunTaskByOffset'
-        }
-        let res = await Api[apiName](reqParams);
-        if (res.code === 1) {
-            message.success('任务操作成功！');
-            onCancel();
-            refresh();
-        }
-    }
-
-    handleChangeRadioValue = (e: RadioChangeEvent) => {
-        this.setState({ checkedValue: e.target.value })
-    }
-
-    changeDateTime = (value: moment.Moment | null, index: number) => {
-        let { offsetSource } = this.state;
-        let clone = [...offsetSource];
-        clone[index].timestampOffset = value?.valueOf();
-        this.setState({
-            offsetSource: clone
-        })
-    }
-
-    range (start: number, end: number) {
-        const result = [];
-        for (let i = start; i < end; i++) {
-            result.push(i);
-        }
-        return result;
-    }
-
-    disabledDate = (current: moment.Moment) => {
-        return current && current > moment().endOf('day');
-    }
-
-    disabledTime: any = (date: any) => {
-        const formatType = 'YYYY-MM-DD';
-        const nowMomentDate = moment(new Date());
-        const nowDate = nowMomentDate.format(formatType);
-        if (nowDate === date.format(formatType)) { // select today
-            if (date.hours() < nowMomentDate.hours()) {
-                return {
-                    disabledHours: () => this.range(nowMomentDate?.hours() + 1, 24)
-                }
-            }
-            if (date.minutes() < nowMomentDate.minutes()) {
-                return {
-                    disabledHours: () => this.range(nowMomentDate?.hours() + 1, 24),
-                    disabledMinutes: () => this.range(nowMomentDate?.minutes() + 1, 60)
-                }
-            }
-            return {
-                disabledHours: () => this.range(nowMomentDate?.hours() + 1, 24),
-                disabledMinutes: () => this.range(nowMomentDate?.minutes() + 1, 60),
-                disabledSeconds: () => this.range(nowMomentDate?.seconds(), 60)
-            };
-        }
-    }
-
-    loopOffsetDatePicker = () => {
-        const { offsetSource } = this.state;
-        if (offsetSource?.length === 0) return <div className='o-modal__datepick--empty'>暂未配置Offset Time</div>;
-        return offsetSource.map((item, index) => {
-            const { tableName, type, timestampOffset } = item;
-            return <div key={index} className='o-modal__radio--content'>
-                <span title={tableName}>{`源表${index + 1}(${tableName})`}</span> ：
-                {showTimeForOffsetReset(type) ? <DatePicker
-                    className='o-modal__datepick--content'
-                    showTime
-                    allowClear={false}
-                    disabledDate={this.disabledDate}
-                    disabledTime={this.disabledTime}
-                    onChange={(value) => {
-                        this.changeDateTime(value, index)
-                    }}
-                    value={formatOffsetResetTime(timestampOffset)}
-                    format={offsetResetFormat} /> : <span className='o-modal__datepick--text'>Kafka 版本不支持指定Time重跑</span>}<br />
-            </div>
-        })
-    }
-
-    render () {
-        const { visible, onCancel } = this.props;
-        const { checkedValue } = this.state;
-        return (
-            <Modal
-                className='o-modal'
-                title='重跑任务'
-                visible={visible}
-                onCancel={onCancel}
-                onOk={this.handleConfirmReRun}
-            >
-                <Alert message="重跑，则任务将丢弃停止前的状态，重新运行，若存在启停策略，将恢复自动启停" type="warning" />
-                <Radio.Group defaultValue={RERUN_TYPE.LAST} onChange={this.handleChangeRadioValue}>
-                    <Radio className='o-modal__radio' value={RERUN_TYPE.LAST}>使用上次任务参数重跑</Radio>
-                    <Radio className='o-modal__radio--padding' value={RERUN_TYPE.OFFSET}>指定Offset Time位置重跑</Radio>
-                    <Tooltip title="仅支持Kafka 0.10版本以上的源表从指定Offset Time开始消费，确定后任务自动保存历史版本并进行重跑">
-                        <ExclamationCircleFilled />
-                    </Tooltip>
-                </Radio.Group>
-                {
-                    checkedValue === RERUN_TYPE.OFFSET && (
-                        <div className='o-modal__content'>
-                            {this.loopOffsetDatePicker()}
-                        </div>
-                    )
-                }
-            </Modal>
-        )
-    }
+function disabledDate(current: moment.Moment) {
+	return current && current > moment().endOf('day');
 }
 
-export default ReRunModal;
+function range(start: number, end: number) {
+	const result = [];
+	for (let i = start; i < end; i += 1) {
+		result.push(i);
+	}
+	return result;
+}
+
+function disabledTime(date: moment.Moment) {
+	const formatType = 'YYYY-MM-DD';
+	const nowMomentDate = moment(new Date());
+	const nowDate = nowMomentDate.format(formatType);
+	if (nowDate === date.format(formatType)) {
+		// select today
+		if (date.hours() < nowMomentDate.hours()) {
+			return {
+				disabledHours: () => range(nowMomentDate?.hours() + 1, 24),
+			};
+		}
+		if (date.minutes() < nowMomentDate.minutes()) {
+			return {
+				disabledHours: () => range(nowMomentDate?.hours() + 1, 24),
+				disabledMinutes: () => range(nowMomentDate?.minutes() + 1, 60),
+			};
+		}
+		return {
+			disabledHours: () => range(nowMomentDate?.hours() + 1, 24),
+			disabledMinutes: () => range(nowMomentDate?.minutes() + 1, 60),
+			disabledSeconds: () => range(nowMomentDate?.seconds(), 60),
+		};
+	}
+}
+
+export default function ReRunModal({ taskId, visible, onCancel, refresh }: IReRunModalProps) {
+	const [checkedValue, setCheckedValue] = useState(RERUN_TYPE.LAST);
+	const [offsetSource, setOffsetSource] = useState<IOffsetSource[]>([]);
+
+	const getTaskInfo = async (id?: number) => {
+		const res = await Api.getTask({ id });
+		if (res.code === 1) {
+			const sourceMap: IOffsetSource[] = res.data?.source || [];
+			const nextSource = sourceMap.map(({ sourceId, table, timestampOffset, type }) => ({
+				sourceId,
+				tableName: table,
+				timestampOffset: timestampOffset || moment().valueOf(),
+				type,
+			}));
+			setOffsetSource(nextSource);
+		}
+	};
+
+	const handleChangeRadioValue = (e: RadioChangeEvent) => {
+		setCheckedValue(e.target.value);
+	};
+
+	const handleConfirmReRun = async () => {
+		let reqParams = {};
+		let apiName = '';
+		if (checkedValue === RERUN_TYPE.LAST) {
+			reqParams = {
+				id: taskId,
+				isRestoration: 0,
+			};
+			apiName = 'startTask';
+		} else {
+			reqParams = {
+				taskId,
+				kafkaOffsetVOS: offsetSource,
+			};
+			apiName = 'reRunTaskByOffset';
+		}
+		const res = await Api[apiName](reqParams);
+		if (res.code === 1) {
+			message.success('任务操作成功！');
+			onCancel();
+			refresh();
+		}
+	};
+
+	const changeDateTime = (value: moment.Moment | null, index: number) => {
+		const nextSource = [...offsetSource];
+		nextSource[index].timestampOffset = value?.valueOf();
+		setOffsetSource(nextSource);
+	};
+
+	const loopOffsetDatePicker = () => {
+		if (offsetSource?.length === 0)
+			return <div className="o-modal__datepick--empty">暂未配置Offset Time</div>;
+		return offsetSource.map((item, index) => {
+			const { tableName, type, timestampOffset, sourceId } = item;
+			return (
+				<div key={sourceId} className="o-modal__radio--content">
+					<span title={tableName}>{`源表${index + 1}(${tableName})`}</span> ：
+					{showTimeForOffsetReset(type) ? (
+						<DatePicker
+							className="o-modal__datepick--content"
+							showTime
+							allowClear={false}
+							disabledDate={disabledDate}
+							disabledTime={disabledTime as any}
+							onChange={(value) => changeDateTime(value, index)}
+							value={formatOffsetResetTime(timestampOffset)}
+							format={offsetResetFormat}
+						/>
+					) : (
+						<span className="o-modal__datepick--text">
+							Kafka 版本不支持指定Time重跑
+						</span>
+					)}
+					<br />
+				</div>
+			);
+		});
+	};
+
+	useEffect(() => {
+		if (visible) {
+			getTaskInfo(taskId);
+		}
+	}, [taskId, visible]);
+
+	return (
+		<Modal
+			className="o-modal"
+			title="重跑任务"
+			visible={visible}
+			onCancel={onCancel}
+			onOk={handleConfirmReRun}
+		>
+			<Alert
+				message="重跑，则任务将丢弃停止前的状态，重新运行，若存在启停策略，将恢复自动启停"
+				type="warning"
+			/>
+			<Radio.Group value={checkedValue} onChange={handleChangeRadioValue}>
+				<Space direction="vertical">
+					<Radio className="o-modal__radio" value={RERUN_TYPE.LAST}>
+						使用上次任务参数重跑
+					</Radio>
+					<Radio className="o-modal__radio--padding" value={RERUN_TYPE.OFFSET}>
+						指定Offset Time位置重跑
+						<Tooltip title="仅支持Kafka 0.10版本以上的源表从指定Offset Time开始消费，确定后任务自动保存历史版本并进行重跑">
+							<ExclamationCircleOutlined />
+						</Tooltip>
+					</Radio>
+				</Space>
+			</Radio.Group>
+			{checkedValue === RERUN_TYPE.OFFSET && (
+				<div className="o-modal__content">{loopOffsetDatePicker()}</div>
+			)}
+		</Modal>
+	);
+}
