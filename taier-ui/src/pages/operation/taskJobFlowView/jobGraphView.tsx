@@ -688,13 +688,13 @@ class JobGraphView extends React.Component<any, any> {
 				</Spin>
 				<div className="graph-toolbar">
 					<Tooltip placement="bottom" title="刷新">
-						<ReloadOutlined onClick={this.refresh} style={{ color: '#333333' }} />
+						<ReloadOutlined onClick={this.refresh} />
 					</Tooltip>
 					<Tooltip placement="bottom" title="放大">
-						<ZoomInOutlined onClick={this.zoomIn} style={{ color: '#333333' }} />
+						<ZoomInOutlined onClick={this.zoomIn} />
 					</Tooltip>
 					<Tooltip placement="bottom" title="缩小">
-						<ZoomOutOutlined onClick={this.zoomOut} style={{ color: '#333333' }} />
+						<ZoomOutOutlined onClick={this.zoomOut} />
 					</Tooltip>
 				</div>
 				<StatusColumn />
