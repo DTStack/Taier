@@ -1,9 +1,9 @@
 div.mxPopupMenu {
 	position: absolute;
-	background: #fff;
+	background: var(--menu-background);
 	border: 0;
 	border-radius: 0;
-	box-shadow: 0 0 6px 0 rgb(0 0 0 / 15%);
+	box-shadow: 0 0 6px 0 var(--minimapSlider-hoverBackground);
 }
 
 table.mxPopupMenu {
@@ -12,13 +12,13 @@ table.mxPopupMenu {
 }
 
 tr.mxPopupMenuItem {
-	color: #666;
+	color: var(--menu-foreground);
 	cursor: default;
 }
 
 td.mxPopupMenuItem {
 	padding: 6px 60px 6px 30px;
-	color: #666;
+	color: var(--menu-foreground);
 	font-size: 12px;
 	font-family: 'PingFangSC-Regular', sans-serif;
 	letter-spacing: 0;
@@ -53,19 +53,23 @@ table.mxPopupMenu tr {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 10px !important;
-	color: black;
+	color: var(--menu-foreground);
 	font-size: 8pt;
 	font-family: 'Arial', sans-serif;
 	font-variant: tabular-nums;
 	line-height: 1.5;
 	word-wrap: break-word;
 	list-style: none;
-	background: #fff !important;
+	background: var(--menu-background) !important;
 	border: none !important;
 	border-radius: 0;
-	box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.08) !important;
+	box-shadow: 0 2px 20px 0 var(--minimapSlider-hoverBackground) !important;
 	cursor: default;
 	font-feature-settings: 'tnum';
+
+	.vertex .blood-title-flag {
+		color: var(--menu-foreground);
+	}
 }
 
 .mxPopupMenu {
@@ -156,7 +160,7 @@ table.mxPopupMenu tr {
 	}
 
 	.vertex-desc {
-		color: #666;
+		color: var(--descriptionForeground);
 		font-weight: initial;
 		font-size: 10px;
 		font-family: 'PingFang-SC-Medium', sans-serif;
