@@ -62,6 +62,12 @@ public class TaskVO extends Task {
     private List<Map> taskVariables;
 
     private Long parentId;
+
+    /**
+     * 依赖任务信息
+     */
+    private List<Task> dependencyTasks;
+
     public Long getParentId() {
         return parentId;
     }
@@ -165,4 +171,13 @@ public class TaskVO extends Task {
     public List<JSONObject> getSide() {
         return side;
     }
+
+    public List<Task> getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(List<Task> dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
+    }
+
 }

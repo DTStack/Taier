@@ -51,6 +51,9 @@ public class StoragePart extends PartImpl {
     @Override
     public Long getExtraVersionParameters() {
         Component resourceComponent = componentScheduleGroup.get(EComponentScheduleType.RESOURCE).get(0);
+        if(null == resourceComponent){
+            throw new RdosDefineException(ErrorCode.RESOURCE_COMPONENT_NOT_CONFIG);
+        }
         String resourceVersion = resourceComponent.getVersionName();
         EComponentType resourceType = EComponentType.getByCode(resourceComponent.getComponentTypeCode());
         Optional<JSONObject> resourceModelExtraVersionParameters = context.getModelExtraVersionParameters(resourceType, resourceVersion);

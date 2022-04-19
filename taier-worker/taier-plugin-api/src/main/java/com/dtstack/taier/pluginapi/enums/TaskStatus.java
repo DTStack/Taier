@@ -120,13 +120,19 @@ public enum TaskStatus implements Serializable {
      */
     public static TaskStatus getTaskStatus(String taskStatus){
 
-        if(Strings.isNullOrEmpty(taskStatus)){
+        if (Strings.isNullOrEmpty(taskStatus)) {
             return null;
-        }else if("error".equalsIgnoreCase(taskStatus)){
+        } else if ("ERROR".equalsIgnoreCase(taskStatus)) {
             return TaskStatus.FAILED;
         } else if ("RESTARTING".equalsIgnoreCase(taskStatus)) {
-            //yarn   tried again and thought it was running
+            //yarn做重试认为运行中
             return TaskStatus.RUNNING;
+        } else if ("INITIALIZING".equalsIgnoreCase(taskStatus)) {
+            return TaskStatus.SCHEDULED;
+        } else if ("SUSPENDED".equalsIgnoreCase(taskStatus)) {
+            return TaskStatus.FINISHED;
+        } else if ("RECONCILING".equalsIgnoreCase(taskStatus)) {
+            return TaskStatus.WAITENGINE;
         }
 
 	    try {
@@ -250,19 +256,6 @@ public enum TaskStatus implements Serializable {
         return UN_SUBMIT_STATUSES;
     }
 
-    private final static Map<Integer, List<Integer>> COLLECTION_STATUS = new HashMap<>();
-
-    static {
-        COLLECTION_STATUS.put(UNSUBMIT.getStatus(), Lists.newArrayList(UNSUBMIT.getStatus()));
-        COLLECTION_STATUS.put(RUNNING.getStatus(), RUNNING_STATUS);
-        COLLECTION_STATUS.put(FINISHED.getStatus(), FINISH_STATUS);
-        COLLECTION_STATUS.put(FAILED.getStatus(), FAILED_STATUS);
-        COLLECTION_STATUS.put(PARENTFAILED.getStatus(), PARENTFAILED_STATUS);
-        COLLECTION_STATUS.put(WAITENGINE.getStatus(), WAIT_STATUS);
-        COLLECTION_STATUS.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
-        COLLECTION_STATUS.put(CANCELED.getStatus(), STOP_STATUS);
-        COLLECTION_STATUS.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
-    }
 
     private final static Map<Integer, List<Integer>> STATUS_FAILED_DETAIL = new HashMap<>();
 
@@ -275,7 +268,8 @@ public enum TaskStatus implements Serializable {
         STATUS_FAILED_DETAIL.put(PARENTFAILED.getStatus(), Lists.newArrayList(PARENTFAILED.getStatus()));
         STATUS_FAILED_DETAIL.put(WAITENGINE.getStatus(), WAIT_STATUS);
         STATUS_FAILED_DETAIL.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
-        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), STOP_STATUS);
+        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), Lists.newArrayList(KILLED.getStatus(),CANCELED.getStatus()));
+        STATUS_FAILED_DETAIL.put(AUTOCANCELED.getStatus(), Lists.newArrayList(AUTOCANCELED.getStatus()));
         STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
 
     }
@@ -287,16 +281,6 @@ public enum TaskStatus implements Serializable {
     }
 
 
-    public static List<Integer> getCollectionStatus(Integer status) {
-        return COLLECTION_STATUS.computeIfAbsent(status, k -> new ArrayList<>(0));
-    }
-
-
-
-    public static Map<Integer, List<Integer>> getCollectionStatus() {
-        return COLLECTION_STATUS;
-    }
-
     public static Map<Integer, List<Integer>> getStatusFailedDetail() {
         return STATUS_FAILED_DETAIL;
     }
@@ -306,11 +290,13 @@ public enum TaskStatus implements Serializable {
     }
 
     public static int getShowStatus(Integer status) {
-        if (FAILED_STATUS.contains(status)) {
+        if (SUBMITFAILD.getStatus().equals(status)) {
+            return SUBMITTED.getStatus();
+        } else if (FAILED_STATUS.contains(status)) {
             status = FAILED.getStatus();
         } else if (PARENTFAILED_STATUS.contains(status)) {
             status = PARENTFAILED.getStatus();
-        }else {
+        } else {
             status = getShowStatusWithoutStop(status);
         }
         return status;

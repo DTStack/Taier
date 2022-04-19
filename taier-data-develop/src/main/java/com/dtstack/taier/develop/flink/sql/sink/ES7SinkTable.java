@@ -18,7 +18,6 @@ import static com.dtstack.taier.develop.enums.develop.FlinkVersion.FLINK_112;
  * @author ：qianyi
  * company: www.dtstack.com
  */
-@Data
 public class ES7SinkTable extends AbstractSinkTable {
 
     @Override
