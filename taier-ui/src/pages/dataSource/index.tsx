@@ -99,7 +99,7 @@ const DataSourceView = () => {
 		if (typeof requestParams.isMeta === 'boolean') {
 			requestParams.isMeta = Number(requestParams.isMeta);
 		}
-		const { data, success, message: resMessage } = await API.dataSourcepage(requestParams);
+		const { data, success } = await API.dataSourcepage(requestParams);
 		if (success) {
 			const { currentPage, totalCount } = data;
 			setParams({
@@ -129,8 +129,6 @@ const DataSourceView = () => {
 					return nextSources;
 				});
 			}
-		} else {
-			message.error(resMessage);
 		}
 	};
 
