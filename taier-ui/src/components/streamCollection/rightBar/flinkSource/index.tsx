@@ -261,7 +261,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 
 	useEffect(() => {
 		if (!isInValidTab) {
-			currentPage?.source.forEach((s: IFlinkSourceProps) => {
+			currentPage?.source?.forEach((s: IFlinkSourceProps) => {
 				getTypeOriginData(s.type);
 			});
 		}

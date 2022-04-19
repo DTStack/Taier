@@ -143,6 +143,41 @@ export function resetEditorGroup() {
 }
 
 /**
+ * 定义不同的任务具有不同的 Toolbar
+ */
+export function getToolbar(taskType: TASK_TYPE_ENUM, isGuide?: boolean) {
+	switch (taskType) {
+		case TASK_TYPE_ENUM.SYNC: {
+			if (isGuide) {
+				return [CONVERT_TASK, SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+			}
+			return [
+				// IMPORT_TASK,
+				SAVE_TASK,
+				RUN_TASK,
+				STOP_TASK,
+				SUBMIT_TASK,
+				OPERATOR_TASK,
+			];
+		}
+		case TASK_TYPE_ENUM.SQL:
+			if (isGuide) {
+				return [CONVERT_TASK, GRAMMAR_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
+			}
+			return [
+				// IMPORT_TASK,
+				SAVE_TASK,
+				SUBMIT_TASK,
+				OPERATOR_TASK,
+			];
+		case TASK_TYPE_ENUM.SPARK:
+		case TASK_TYPE_ENUM.HIVE_SQL:
+		default:
+			return [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+	}
+}
+
+/**
  * 针对不同的任务类型，渲染不同的 `toolbar`
  * @notice 需要确保 `current` 是数据是正确的
  */
@@ -150,57 +185,10 @@ export function performSyncTaskActions() {
 	const { current } = molecule.editor.getState();
 	if (current?.tab?.data) {
 		const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
-		let taskToolbar: IEditorActionsProps[] = [];
-
-		switch (currentTabData.taskType) {
-			case TASK_TYPE_ENUM.SYNC: {
-				if (currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE) {
-					taskToolbar = [
-						CONVERT_TASK,
-						SAVE_TASK,
-						RUN_TASK,
-						STOP_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
-				} else {
-					taskToolbar = [
-						// IMPORT_TASK,
-						SAVE_TASK,
-						RUN_TASK,
-						STOP_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
-				}
-				break;
-			}
-			case TASK_TYPE_ENUM.SQL:
-				if (currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE) {
-					taskToolbar = [
-						CONVERT_TASK,
-						GRAMMAR_TASK,
-						SAVE_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
-				} else {
-					taskToolbar = [
-						// IMPORT_TASK,
-						SAVE_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
-				}
-				break;
-
-			case TASK_TYPE_ENUM.SPARK:
-			case TASK_TYPE_ENUM.HIVE_SQL:
-			default:
-				taskToolbar = [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
-				break;
-		}
-
+		const taskToolbar = getToolbar(
+			currentTabData.taskType,
+			currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
+		);
 		molecule.editor.updateGroup(current.id, {
 			actions: [...taskToolbar, ...molecule.editor.getDefaultActions()],
 		});
