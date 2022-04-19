@@ -6,30 +6,20 @@ import {
 	Checkbox,
 	Form,
 	Input,
-	InputNumber,
 	Select,
 	Space,
 	Spin,
 } from 'antd';
 import {
 	breakpointContinualTransferHelp,
-	errorCount,
-	errorPercentConfig,
 	jobConcurrence,
 	jobSpeedLimit,
-	recordDirtyData,
 	S3Concurrence,
 	transTableConcurrence,
 } from '../helpDoc/docs';
 import ajax from '../../api';
-import type {
-	IChannelFormProps,
-	ISourceMapProps,
-	ITargetMapProps,
-} from '@/interface';
+import type { IChannelFormProps, ISourceMapProps, ITargetMapProps } from '@/interface';
 import { isRDB } from '@/utils';
-import classNames from 'classnames';
-import LifeCycleSelect from '../lifeCycleSelect';
 
 const FormItem = Form.Item;
 
@@ -275,7 +265,7 @@ export default function Channel({
 						optionFilterProp="value"
 					/>
 				</FormItem>
-				{!isStandeAlone && (
+				{/* {!isStandeAlone && (
 					<>
 						<FormItem
 							name="isSaveDirty"
@@ -333,7 +323,7 @@ export default function Channel({
 							</span>
 						</FormItem>
 					</>
-				)}
+				)} */}
 				{renderBreakpointContinualTransfer()}
 			</Form>
 			{!readonly && (
