@@ -17,29 +17,123 @@
  */
 
 import molecule from '@dtinsight/molecule/esm';
+import { message } from 'antd';
+import { LoginOutlined, UploadOutlined, SwapOutlined } from '@ant-design/icons';
+import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import { FlinkSQLIcon, SyntaxIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
+import { TASK_SYNTAX_ID } from '@/constant';
 import {
+	TASK_CONVERT_SCRIPT,
+	TASK_OPS_ID,
+	TASK_SUBMIT_ID,
 	OUTPUT_LOG,
 	TASK_SAVE_ID,
-	DATA_SYNC_TYPE,
-	TASK_IMPORT_TEMPALTE,
-	TASK_SWAP,
+	CREATE_MODEL_TYPE,
 	CATELOGUE_TYPE,
 	TASK_RUN_ID,
 	TASK_STOP_ID,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { filterSql, getTenantId, getUserId } from '.';
-import { message } from 'antd';
 import executeService from '@/services/executeService';
 import taskResultService from '@/services/taskResultService';
 import Result from '@/components/task/result';
+import { filterSql, getTenantId, getUserId } from '.';
+import stream from '@/api/stream';
+import { createLog } from 'dt-react-codemirror-editor';
+
+/**
+ * 保存按钮 for toolbar
+ */
+const SAVE_TASK: IEditorActionsProps = {
+	id: TASK_SAVE_ID,
+	name: 'Save Task',
+	title: '保存',
+	icon: 'save',
+	place: 'outer',
+};
+
+/**
+ * 运行任务按钮 for toolbar
+ */
+const RUN_TASK: IEditorActionsProps = {
+	id: TASK_RUN_ID,
+	name: 'Run Task',
+	title: '运行',
+	icon: 'play',
+	place: 'outer',
+};
+
+/**
+ * 停止任务按钮 for toolbar
+ */
+const STOP_TASK: IEditorActionsProps = {
+	id: TASK_STOP_ID,
+	name: 'Stop Task',
+	title: '停止运行',
+	icon: 'debug-pause',
+	place: 'outer',
+};
+
+/**
+ * 提交至调度按钮
+ */
+const SUBMIT_TASK: IEditorActionsProps = {
+	id: TASK_SUBMIT_ID,
+	name: '提交至调度',
+	title: '提交至调度',
+	icon: <UploadOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 任务运维按钮
+ */
+const OPERATOR_TASK: IEditorActionsProps = {
+	id: TASK_OPS_ID,
+	name: '运维',
+	title: '运维',
+	icon: <LoginOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 转换为脚本按钮
+ */
+const CONVERT_TASK: IEditorActionsProps = {
+	id: TASK_CONVERT_SCRIPT,
+	name: '转换为脚本',
+	title: '转换为脚本',
+	icon: <SwapOutlined />,
+	place: 'outer',
+};
+
+/**
+ * 导入模板按钮
+ */
+// const IMPORT_TASK: IEditorActionsProps = {
+// 	id: TASK_IMPORT_ID,
+// 	name: '引入数据源',
+// 	title: '引入数据源',
+// 	icon: <ImportOutlined />,
+// 	place: 'outer',
+// };
+
+/**
+ * 语法检查按钮
+ */
+const GRAMMAR_TASK: IEditorActionsProps = {
+	id: TASK_SYNTAX_ID,
+	name: '语法检查',
+	title: '语法检查',
+	icon: <SyntaxIcon />,
+	place: 'outer',
+};
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
@@ -49,70 +143,84 @@ export function resetEditorGroup() {
 }
 
 /**
- * 针对不同模式的数据同步任务，更新 actions
+ * 定义不同的任务具有不同的 Toolbar
+ */
+export function getToolbar(taskType: TASK_TYPE_ENUM, isGuide?: boolean) {
+	switch (taskType) {
+		case TASK_TYPE_ENUM.SYNC: {
+			if (isGuide) {
+				return [CONVERT_TASK, SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+			}
+			return [
+				// IMPORT_TASK,
+				SAVE_TASK,
+				RUN_TASK,
+				STOP_TASK,
+				SUBMIT_TASK,
+				OPERATOR_TASK,
+			];
+		}
+		case TASK_TYPE_ENUM.SQL:
+			if (isGuide) {
+				return [CONVERT_TASK, GRAMMAR_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
+			}
+			return [
+				// IMPORT_TASK,
+				SAVE_TASK,
+				SUBMIT_TASK,
+				OPERATOR_TASK,
+			];
+		case TASK_TYPE_ENUM.SPARK:
+		case TASK_TYPE_ENUM.HIVE_SQL:
+		default:
+			return [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+	}
+}
+
+/**
+ * 针对不同的任务类型，渲染不同的 `toolbar`
+ * @notice 需要确保 `current` 是数据是正确的
  */
 export function performSyncTaskActions() {
 	const { current } = molecule.editor.getState();
 	if (current?.tab?.data) {
-		const { data } = current.tab;
-		if (data.taskType === TASK_TYPE_ENUM.SYNC) {
-			// 向导模式需要转换为脚本的按钮
-			if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_SWAP,
-							icon: 'arrow-swap',
-							place: 'outer',
-							title: '转换为脚本模式',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
-			} else {
-				// 脚本模式需要导入模板的按钮
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_IMPORT_TEMPALTE,
-							icon: 'references',
-							place: 'outer',
-							title: '导入模板',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
-			}
-		} else {
-			// reset actions
-			molecule.editor.updateGroup(current.id, {
-				actions: molecule.editor.getDefaultActions(),
-			});
-		}
+		const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
+		const taskToolbar = getToolbar(
+			currentTabData.taskType,
+			currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
+		);
+		molecule.editor.updateGroup(current.id, {
+			actions: [...taskToolbar, ...molecule.editor.getDefaultActions()],
+		});
 	}
 }
 
+/**
+ * 根据不同任务渲染不同的图标
+ */
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE,
 	source: CATELOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
-		case 'task': {
+		case CATELOGUE_TYPE.TASK: {
 			switch (type) {
-				case TASK_TYPE_ENUM.SQL:
+				case TASK_TYPE_ENUM.SPARK_SQL:
 					return <SparkSQLIcon style={{ color: '#519aba' }} />;
 				case TASK_TYPE_ENUM.SYNC:
 					return 'sync';
-				case TASK_TYPE_ENUM.HIVESQL:
+				case TASK_TYPE_ENUM.HIVE_SQL:
 					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
+				case TASK_TYPE_ENUM.SQL:
+					return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
 				default:
 					return 'file';
 			}
 		}
-		case 'resource': {
+		case CATELOGUE_TYPE.RESOURCE: {
 			return 'file';
 		}
-		case 'function':
+		case CATELOGUE_TYPE.FUNCTION:
 		default:
 			return 'code';
 	}
@@ -421,4 +529,69 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				});
 		}
 	}
+}
+
+/**
+ * 语法检查
+ */
+export function syntaxValidate(current: molecule.model.IEditorGroup) {
+	const currentTabData: IOfflineTaskProps | undefined = current.tab?.data;
+	if (!currentTabData) return;
+	// 禁用语法检查
+	molecule.editor.updateActions([
+		{
+			id: TASK_SYNTAX_ID,
+			icon: 'loading~spin',
+			disabled: true,
+		},
+	]);
+
+	// active 日志 窗口
+	const { data } = molecule.panel.getState();
+	const {
+		panel: { hidden },
+	} = molecule.layout.getState();
+	if (hidden) {
+		molecule.layout.togglePanelVisibility();
+	}
+	molecule.panel.setState({
+		current: data?.find((item) => item.id === OUTPUT_LOG),
+	});
+
+	const logId = currentTabData.id.toString();
+	taskResultService.clearLogs(logId);
+	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
+
+	let isSuccess = false;
+	stream
+		.checkSyntax({})
+		.then((res) => {
+			if (res.message) {
+				taskResultService.appendLogs(logId, createLog(res.message, 'error'));
+			}
+			if (res && res.code === 1) {
+				if (res.data.code === 1) {
+					taskResultService.appendLogs(logId, createLog('语法检查通过', 'info'));
+					isSuccess = true;
+				} else {
+					taskResultService.appendLogs(logId, createLog(res.data.errorMsg, 'error'));
+				}
+			}
+		})
+		.catch((e) => {
+			console.trace(e);
+		})
+		.finally(() => {
+			if (!isSuccess) {
+				taskResultService.appendLogs(logId, createLog('语法检查失败！', 'error'));
+			}
+			// 恢复语法检查按钮
+			molecule.editor.updateActions([
+				{
+					id: TASK_SYNTAX_ID,
+					icon: <SyntaxIcon />,
+					disabled: false,
+				},
+			]);
+		});
 }

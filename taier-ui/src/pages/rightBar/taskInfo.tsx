@@ -83,11 +83,7 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 	};
 
 	return (
-		<Collapse
-			defaultActiveKey={['1']}
-			bordered={false}
-			style={{ backgroundColor: 'transparent' }}
-		>
+		<Collapse defaultActiveKey={['1']} bordered={false} className="bg-transparent">
 			<Panel header="活动属性" key="1">
 				{renderTaskInfo()}
 			</Panel>
