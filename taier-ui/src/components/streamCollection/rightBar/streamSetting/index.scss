@@ -1,0 +1,14 @@
+.task-info,
+.strategy-info {
+    .ant-form, .ant-row, .ant-alert{
+        width: 100%;
+    }
+}
+.strategy-info {
+    .c-strategyPanel__time {
+        width: 100%;
+        padding: 12px;
+        border-radius: 4px;
+        border: 1px solid var(--sideBarSectionHeader-border);
+    }
+}

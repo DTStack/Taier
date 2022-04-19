@@ -16,11 +16,15 @@
  * limitations under the License.
  */
 
-import { UploadOutlined, LoginOutlined } from '@ant-design/icons';
-import { Modal, message } from 'antd';
+import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import { performSyncTaskActions, resetEditorGroup, runTask } from '@/utils/extensions';
+import {
+	performSyncTaskActions,
+	resetEditorGroup,
+	runTask,
+	syntaxValidate,
+} from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
 	TASK_STOP_ID,
@@ -28,9 +32,10 @@ import {
 	TASK_OPS_ID,
 	TASK_SAVE_ID,
 	DRAWER_MENU_ENUM,
-	TASK_SWAP,
-	TASK_IMPORT_TEMPALTE,
+	TASK_CONVERT_SCRIPT,
+	TASK_IMPORT_ID,
 	TASK_LANGUAGE,
+	TASK_SYNTAX_ID,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -39,62 +44,16 @@ import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals } from '@/utils';
 import api from '@/api';
+import apiStream from '@/api/stream';
 import { searchById } from '@dtinsight/molecule/esm/common/utils';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import executeService from '@/services/executeService';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
-import { saveTask } from '@/components/dataSync/help';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-
-function initActions() {
-	const { builtInEditorInitialActions } = molecule.builtin.getModules();
-
-	molecule.editor.setDefaultActions([
-		{
-			id: TASK_SAVE_ID,
-			name: 'Save Task',
-			icon: 'save',
-			place: 'outer',
-			disabled: true,
-			title: '保存',
-		},
-		{
-			id: TASK_RUN_ID,
-			name: 'Run Task',
-			icon: 'play',
-			place: 'outer',
-			disabled: true,
-			title: '运行',
-		},
-		{
-			id: TASK_STOP_ID,
-			name: 'Stop Task',
-			icon: 'debug-pause',
-			place: 'outer',
-			disabled: true,
-			title: '停止运行',
-		},
-		{
-			id: TASK_SUBMIT_ID,
-			name: '提交至调度',
-			icon: <UploadOutlined />,
-			place: 'outer',
-			disabled: true,
-			title: '提交至调度',
-		},
-		{
-			id: TASK_OPS_ID,
-			name: '运维',
-			title: '运维',
-			icon: <LoginOutlined />,
-			place: 'outer',
-		},
-		...builtInEditorInitialActions,
-	]);
-}
+import saveTask from '@/utils/saveTask';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -129,12 +88,12 @@ function emitEvent() {
 			}
 			case TASK_SAVE_ID: {
 				saveTask()
-					?.then((res) => res?.data?.id)
+					.then((res) => res?.data?.id)
 					.then((id) => {
 						if (id !== undefined) {
 							api.getOfflineTaskByID({ id }).then((res) => {
-								const { success, data } = res;
-								if (success) {
+								const { code, data } = res;
+								if (code === 1) {
 									molecule.folderTree.update({
 										id,
 										data,
@@ -145,6 +104,11 @@ function emitEvent() {
 									});
 								}
 							});
+						}
+					})
+					.catch((err: Error | undefined) => {
+						if (err) {
+							message.error(err.message);
 						}
 					});
 				break;
@@ -180,7 +144,7 @@ function emitEvent() {
 				}
 				break;
 			}
-			case TASK_SWAP: {
+			case TASK_CONVERT_SCRIPT: {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
@@ -198,23 +162,55 @@ function emitEvent() {
 						okText: '确认',
 						cancelText: '取消',
 						onOk() {
-							api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
-								(res) => {
-									if (res.code === 1) {
-										message.success('转换成功！');
-										const nextTabData = current.tab!;
-										nextTabData.data.language = 'json';
-										Reflect.deleteProperty(nextTabData, 'renderPane');
-										molecule.editor.updateTab(nextTabData);
-									}
-								},
-							);
+							switch (currentTabData.taskType) {
+								case TASK_TYPE_ENUM.SYNC:
+									api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
+										(res) => {
+											if (res.code === 1) {
+												message.success('转换成功！');
+												const nextTabData = current.tab!;
+												nextTabData.data.language = 'json';
+												Reflect.deleteProperty(nextTabData, 'renderPane');
+												molecule.editor.updateTab(nextTabData);
+											}
+										},
+									);
+									break;
+								case TASK_TYPE_ENUM.SQL: {
+									apiStream
+										.convertToScriptMode({
+											id: currentTabData.id,
+											createModel: currentTabData.createModel,
+											componentVersion: currentTabData.componentVersion,
+										})
+										.then((res) => {
+											if (res.code === 1) {
+												message.success('转换成功！');
+												// update current values
+												api.getOfflineTaskByID({
+													id: currentTabData.id,
+												}).then((result) => {
+													if (result.code === 1) {
+														const nextTabData = result.data;
+														molecule.editor.updateTab({
+															id: nextTabData.id.toString(),
+															...nextTabData,
+														});
+													}
+												});
+											}
+										});
+									break;
+								}
+								default:
+									break;
+							}
 						},
 					});
 				}
 				break;
 			}
-			case TASK_IMPORT_TEMPALTE: {
+			case TASK_IMPORT_ID: {
 				const currentTab = current.tab;
 				const root = document.getElementById('molecule')!;
 
@@ -237,6 +233,11 @@ function emitEvent() {
 						node,
 					);
 				}
+				break;
+			}
+			// FlinkSQL 语法检查
+			case TASK_SYNTAX_ID: {
+				syntaxValidate(current);
 				break;
 			}
 			default:
@@ -269,22 +270,27 @@ const updateTaskVariables = debounce((tab) => {
 
 // 注册自动补全
 function registerCompletion() {
-	const sqlProvider: languages.CompletionItemProvider = {
-		provideCompletionItems(model, position) {
-			const word = model.getWordUntilPosition(position);
-			const range = {
-				startLineNumber: position.lineNumber,
-				endLineNumber: position.lineNumber,
-				startColumn: word.startColumn,
-				endColumn: word.endColumn,
-			};
-			return {
-				suggestions: createSQLProposals(range),
-			};
-		},
-	};
-	languages.registerCompletionItemProvider(TASK_LANGUAGE.SPARKSQL, sqlProvider);
-	languages.registerCompletionItemProvider(TASK_LANGUAGE.HIVESQL, sqlProvider);
+	const COMPLETION_SQL = [
+		TASK_LANGUAGE.SPARKSQL,
+		TASK_LANGUAGE.HIVESQL,
+		TASK_LANGUAGE.SQL,
+	] as const;
+	COMPLETION_SQL.forEach((sql) =>
+		languages.registerCompletionItemProvider(sql, {
+			provideCompletionItems(model, position) {
+				const word = model.getWordUntilPosition(position);
+				const range = {
+					startLineNumber: position.lineNumber,
+					endLineNumber: position.lineNumber,
+					startColumn: word.startColumn,
+					endColumn: word.endColumn,
+				};
+				return {
+					suggestions: createSQLProposals(range),
+				};
+			},
+		}),
+	);
 }
 
 export default class EditorExtension implements IExtension {
@@ -294,7 +300,6 @@ export default class EditorExtension implements IExtension {
 		throw new Error('Method not implemented.');
 	}
 	activate() {
-		initActions();
 		emitEvent();
 		registerCompletion();
 
@@ -304,7 +309,7 @@ export default class EditorExtension implements IExtension {
 			const group = molecule.editor.getGroupById(groupId || current.id!);
 			if (group) {
 				const targetTab = group.data?.find(searchById(tabId));
-				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SQL) {
+				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
 					molecule.editor.updateActions([
 						{ id: TASK_RUN_ID, disabled: false },
 						{ id: TASK_SAVE_ID, disabled: false },
@@ -320,7 +325,7 @@ export default class EditorExtension implements IExtension {
 
 		molecule.editor.onCloseTab(() => {
 			const { current } = molecule.editor.getState();
-			if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
+			if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
 				molecule.editor.updateActions([
 					{ id: TASK_RUN_ID, disabled: false },
 					{ id: TASK_SAVE_ID, disabled: false },

@@ -5,6 +5,7 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import { API } from '@/api/dataSource';
 import { message, Spin, Steps } from 'antd';
 import { checkExist, getTenantId } from '@/utils';
+import saveTask from '@/utils/saveTask';
 import type {
 	IDataSourceUsedInSyncProps,
 	ISyncDataProps,
@@ -21,7 +22,7 @@ import Target from './target';
 import Channel, { UnlimitedSpeed } from './channel';
 import Source from './source';
 import Preview from './preview';
-import { getStepStatus, saveTask } from './help';
+import { getStepStatus } from './help';
 import './index.scss';
 
 const { Step } = Steps;

@@ -406,15 +406,6 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			// 如果存在 jobId，则需要轮训根据 jobId 继续获取后续结果
 			if (res.data?.jobId) {
 				this.runningSql.set(currentTabId, res.data.jobId);
-				if (
-					task.taskType === TASK_TYPE_ENUM.ADB ||
-					task.taskType === TASK_TYPE_ENUM.IMPALA_SQL ||
-					task.taskType === TASK_TYPE_ENUM.INCEPTOR
-				) {
-					this.getDataOver(currentTabId, res, res.data.jobId);
-					return true;
-				}
-
 				return this.selectData(res.data.jobId, currentTabId, task);
 			}
 
@@ -433,7 +424,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		jobId: string,
 		currentTabId: number,
 		task: Pick<ITask, 'id' | 'taskType'>,
-		taskType: TASK_TYPE_ENUM = TASK_TYPE_ENUM.SQL,
+		taskType: TASK_TYPE_ENUM = TASK_TYPE_ENUM.SPARK_SQL,
 	) => this.doSelect(jobId, currentTabId, task, taskType);
 
 	/**

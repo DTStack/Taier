@@ -783,3 +783,22 @@ export function copyText(text: string) {
 		document.body.removeChild(textarea);
 	}
 }
+
+/** 去除不同版本的相同数据源，只保留第一个版本，并使用数据源 groupTag 来代替原来带具体版本号的 name */
+export const formatSourceTypes = (
+	sourceTypes: { name: string; value: number; groupTag: string }[],
+) => {
+	if (!sourceTypes.length) {
+		return [];
+	}
+	const result: { name: string; value: number; groupTag: string }[] = [];
+	// 因为不同版本的相同数据源是连续的，可以只一次遍历，与上一个比较即可
+	for (let i = 0; i < sourceTypes.length; i += 1) {
+		if (sourceTypes[i].groupTag !== sourceTypes?.[i - 1]?.groupTag) {
+			const temp = { ...sourceTypes[i] };
+			temp.name = sourceTypes[i].groupTag;
+			result.push(temp);
+		}
+	}
+	return result;
+};

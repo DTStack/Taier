@@ -56,7 +56,7 @@ function FnForm({
 			return formData?.taskType;
 		}
 		return Array.isArray(flags) && flags.indexOf('Hadoop') !== -1
-			? TASK_TYPE_ENUM.SQL
+			? TASK_TYPE_ENUM.SPARK_SQL
 			: undefined;
 	};
 
@@ -124,7 +124,7 @@ function FnForm({
 						getPopupContainer={() => document.getElementById('molecule')!}
 					>
 						{Array.isArray(flags) && flags.indexOf('Hadoop') !== -1 && (
-							<Option value={TASK_TYPE_ENUM.SQL}>Spark SQL</Option>
+							<Option value={TASK_TYPE_ENUM.SPARK_SQL}>Spark SQL</Option>
 						)}
 					</Select>
 				</FormItem>
