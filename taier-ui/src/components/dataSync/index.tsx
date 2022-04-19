@@ -78,6 +78,16 @@ function DataSync({ current }: molecule.model.IEditor) {
 				type: target?.dataTypeCode || nextData.sourceMap?.type,
 			};
 
+			// 以下属性的变更会引起 columns 的变更
+			const PROPERTY_OF_EFFECTS = ['table', 'schema', 'sourceId'];
+
+			if (PROPERTY_OF_EFFECTS.some((property) => Object.keys(values).includes(property))) {
+				nextData.sourceMap.column = [];
+				if (nextData.targetMap) {
+					nextData.targetMap.column = [];
+				}
+			}
+
 			return nextData;
 		});
 	};
@@ -101,12 +111,21 @@ function DataSync({ current }: molecule.model.IEditor) {
 		// increment updates
 		setCurrentData((d) => {
 			const nextData = { ...d! };
+
 			nextData.targetMap = {
-				name: target?.dataName || nextData.targetMap?.name,
-				type: target?.dataTypeCode || nextData.targetMap?.type,
 				...nextData.targetMap,
 				...values,
+				name: target?.dataName || nextData.targetMap?.name,
+				type: target?.dataTypeCode || nextData.targetMap?.type,
 			};
+
+			// 以下属性的变更会引起 columns 的变更
+			const PROPERTY_OF_EFFECTS = ['table', 'schema', 'sourceId'];
+
+			if (PROPERTY_OF_EFFECTS.some((property) => Object.keys(values).includes(property))) {
+				nextData.sourceMap!.column = [];
+				nextData.targetMap.column = [];
+			}
 			return nextData;
 		});
 	};

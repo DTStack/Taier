@@ -98,8 +98,8 @@ public class BatchScheduleTaskVO {
     @ApiModelProperty(value = "是否是当前项目", example = "true")
     private Boolean currentProject = false;
 
-    @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskVO> taskVOS;
+    @ApiModelProperty(value = "任务依赖信息")
+    private List<BatchTaskBaseVO> dependencyTasks;
 
     @ApiModelProperty(value = "任务信息")
     private List<BatchScheduleTaskVO> subTaskVOS;
@@ -381,14 +381,6 @@ public class BatchScheduleTaskVO {
         this.currentProject = currentProject;
     }
 
-    public List<BatchScheduleTaskVO> getTaskVOS() {
-        return taskVOS;
-    }
-
-    public void setTaskVOS(List<BatchScheduleTaskVO> taskVOS) {
-        this.taskVOS = taskVOS;
-    }
-
     public List<BatchScheduleTaskVO> getSubTaskVOS() {
         return subTaskVOS;
     }
@@ -643,5 +635,13 @@ public class BatchScheduleTaskVO {
 
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public List<BatchTaskBaseVO> getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(List<BatchTaskBaseVO> dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
     }
 }

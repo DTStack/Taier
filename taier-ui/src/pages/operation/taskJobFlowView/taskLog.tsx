@@ -18,35 +18,15 @@
 
 import { Row, Pagination, Col } from 'antd';
 import type { PaginationProps } from 'antd';
-import Editor from '@/components/codeEditor';
+import Editor from '@/components/editor';
 import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
 import { formatDateTime, prettierJSONstring } from '@/utils';
 import { useMemo } from 'react';
-
-const editorOptions: any = {
-	mode: 'text',
-	lineNumbers: true,
-	readOnly: true,
-	autofocus: false,
-	indentWithTabs: true,
-	lineWrapping: true,
-	smartIndent: true,
-};
 
 const defaultEditorStyle: React.CSSProperties = { height: '300px' };
 
 function wrappTitle(title: string) {
 	return `====================${title}====================`;
-}
-
-function getLogsInfo(title: any, data: any, type = 'info') {
-	let res = '';
-	if (data && data.length > 0) {
-		for (let i = 0; i < data.length; i += 1) {
-			res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`;
-		}
-	}
-	return createLogMark(res, type);
 }
 
 function showTaskInfo(obj: any) {
@@ -134,10 +114,7 @@ export default function LogInfo(props: ILogInfoProps) {
 			const { engineLogErr } = log;
 			const flinkLog = errors;
 
-			const appLogs = engineLogErr
-				? `${wrappTitle('appLogs')}\n${engineLogErr}\n`
-				: getLogsInfo('appLogs', log.appLog);
-			const driverLog = getLogsInfo('driverLog', log.driverLog);
+			const appLogs = engineLogErr && `${wrappTitle('appLogs')}\n${engineLogErr}\n`;
 			if (props.downloadLog) {
 				text = `完整日志下载地址：${createLinkMark({
 					href: props.downloadLog,
@@ -195,11 +172,8 @@ export default function LogInfo(props: ILogInfoProps) {
 				)} \n ${createLogMark(log['root-exception'], 'error') || ''}`;
 			}
 
-			if (appLogs || driverLog) {
-				text = `${text} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(
-					driverLog,
-					'error',
-				)}`;
+			if (appLogs) {
+				text = `${text} \n${createLogMark(appLogs, 'error')} \n`;
 			}
 
 			if (log.msg_info) {
@@ -223,7 +197,10 @@ export default function LogInfo(props: ILogInfoProps) {
 			}
 
 			if (downLoadUrl) {
-				text = `${text}完整日志下载地址：${createLinkMark({ href: downLoadUrl, download: '' })}\n`;
+				text = `${text}完整日志下载地址：${createLinkMark({
+					href: downLoadUrl,
+					download: '',
+				})}\n`;
 			}
 
 			// last to render sqlText
@@ -286,7 +263,13 @@ export default function LogInfo(props: ILogInfoProps) {
 						style={{ height: editorStyle.height }}
 						sync
 						value={logText}
-						options={editorOptions}
+						language="jsonlog"
+						options={{
+							readOnly: true,
+							minimap: {
+								enabled: false,
+							},
+						}}
 					/>
 				</Col>
 			</Row>

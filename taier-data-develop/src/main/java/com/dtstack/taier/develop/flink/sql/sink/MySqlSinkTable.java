@@ -10,7 +10,6 @@ import lombok.Data;
  * @author ：qianyi
  * company: www.dtstack.com
  */
-@Data
 public class MySqlSinkTable extends AbstractSinkTable {
 
     @Override

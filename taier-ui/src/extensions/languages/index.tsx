@@ -25,6 +25,8 @@ import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { TASK_LANGUAGE } from '@/constant';
 import 'monaco-sql-languages/out/esm/sparksql/sparksql.contribution';
 import 'monaco-sql-languages/out/esm/hivesql/hivesql.contribution';
+import 'monaco-sql-languages/out/esm/sql/sql.contribution';
+import 'monaco-sql-languages/out/esm/mysql/mysql.contribution';
 
 interface ValidMessage {
 	endCol: number;

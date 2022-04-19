@@ -563,6 +563,7 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         Map<Integer, List<Integer>> statusMap = TaskStatus.getStatusFailedDetail();
         for (Map.Entry<Integer, List<Integer>> entry : statusMap.entrySet()) {
             ReturnJobStatusStatisticsVO vo = new ReturnJobStatusStatisticsVO();
+            vo.setCount(0L);
             String statusName = TaskStatus.getCode(entry.getKey());
             List<Integer> statuses = entry.getValue();
             vo.setStatusKey(statusName);

@@ -28,6 +28,7 @@ import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
+import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
@@ -35,12 +36,15 @@ import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.enums.develop.TemplateCatalogue;
+import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
@@ -97,7 +101,7 @@ public class BatchCatalogueService {
     public BatchTaskService batchTaskService;
 
     @Autowired
-    public BatchTaskTemplateService batchTaskTemplateService;
+    public TaskTemplateService taskTemplateService;
 
     private static final String FUNCTION_MANAGER_NAME = "函数管理";
 
@@ -338,7 +342,11 @@ public class BatchCatalogueService {
             templateCatalogueList.add(batchTempTaskCatalogue);
 
             try {
-                String content = batchTaskTemplateService.getContentByType(EScheduleJobType.SPARK_SQL.getVal(), templateCatalogue.getType());
+                TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_SQL.getType(), EScheduleJobType.SPARK_SQL.getVal(), String.valueOf(templateCatalogue.getType()));
+                if(taskTemplate == null){
+                    throw new RdosDefineException(TaskTemplateType.TASK_SQL.getName() + "未初始化");
+                }
+                String content = taskTemplate.getContent();
                 //初始化任务
                 TaskResourceParam task = new TaskResourceParam();
                 task.setId(0L);

@@ -116,11 +116,11 @@ public class ClientOperator {
 
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
-        if(jobClient.getEngineTaskId() == null){
+        if (jobClient.getApplicationId() == null) {
             return JobResult.createSuccessResult(jobClient.getJobId());
         }
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
-        ,jobClient.getTenantId(),jobClient.getTaskType(),jobClient.getDeployMode(),jobClient.getUserId(),jobClient.getPluginInfo(),jobClient.getComponentVersion());
+                , jobClient.getTenantId(), jobClient.getTaskType(), jobClient.getDeployMode(), jobClient.getUserId(), jobClient.getPluginInfo(), jobClient.getComponentVersion());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getPluginInfo(), jobIdentifier);
 
@@ -184,5 +184,21 @@ public class ClientOperator {
     public List<FileResult> listFile(String path, String pluginInfo) throws Exception {
         IClient client = clientCache.getClient(pluginInfo);
         return client.listFile(path);
+    }
+
+
+    public List<String> getRollingLogBaseInfo(String pluginInfo, JobIdentifier jobIdentifier) {
+        checkoutOperator(pluginInfo, jobIdentifier);
+        try {
+            IClient client = clientCache.getClient(pluginInfo);
+            return client.getRollingLogBaseInfo(jobIdentifier);
+        } catch (Exception e) {
+            throw new RdosDefineException("get job rollingLogBaseInfo:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public CheckResult grammarCheck(JobClient jobClient) throws ClientAccessException {
+        IClient clusterClient = clientCache.getClient(jobClient.getPluginInfo());
+        return clusterClient.grammarCheck(jobClient);
     }
 }

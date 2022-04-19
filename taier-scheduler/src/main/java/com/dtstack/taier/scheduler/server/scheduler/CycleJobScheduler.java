@@ -5,13 +5,10 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
-import com.dtstack.taier.scheduler.server.scheduler.exec.JudgeJobExecOperator;
-import com.dtstack.taier.scheduler.server.scheduler.handler.JudgeNoPassJobHandler;
+import com.dtstack.taier.scheduler.server.scheduler.interceptor.SubmitInterceptor;
 import com.dtstack.taier.scheduler.service.ScheduleJobJobService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.utils.JobExecuteOrderUtil;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +38,7 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     private ScheduleJobJobService scheduleJobJobService;
 
     @Autowired(required = false)
-    private List<JudgeJobExecOperator> judgeJobExecOperators;
-
-    @Autowired(required = false)
-    private List<JudgeNoPassJobHandler> judgeNoPassJobHandlers;
+    private List<SubmitInterceptor> submitInterceptorList;
 
     private final String DATA_YMD = "yyyyMMdd";
 
@@ -76,20 +70,25 @@ public class CycleJobScheduler extends AbstractJobSummitScheduler {
     }
 
     @Override
-    protected List<JudgeJobExecOperator> getJudgeJobExecOperator() {
-        if (CollectionUtils.isNotEmpty(judgeJobExecOperators)) {
-            return judgeJobExecOperators;
-        }
-        return Lists.newArrayList();
+    protected List<SubmitInterceptor> getInterceptor() {
+        return submitInterceptorList;
     }
 
-    @Override
-    protected List<JudgeNoPassJobHandler> getJudgeNoPassJobHandler() {
-        if (CollectionUtils.isNotEmpty(judgeNoPassJobHandlers)) {
-            return judgeNoPassJobHandlers;
-        }
-        return Lists.newArrayList();
-    }
+//    @Override
+//    protected List<JudgeJobExecOperator> getJudgeJobExecOperator() {
+//        if (CollectionUtils.isNotEmpty(judgeJobExecOperators)) {
+//            return judgeJobExecOperators;
+//        }
+//        return Lists.newArrayList();
+//    }
+//
+//    @Override
+//    protected List<JudgeNoPassJobHandler> getJudgeNoPassJobHandler() {
+//        if (CollectionUtils.isNotEmpty(judgeNoPassJobHandlers)) {
+//            return judgeNoPassJobHandlers;
+//        }
+//        return Lists.newArrayList();
+//    }
 
     public EScheduleType getScheduleType() {
         return EScheduleType.NORMAL_SCHEDULE;
