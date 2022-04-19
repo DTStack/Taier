@@ -745,13 +745,13 @@ const TaskGraphView = ({
 			)}
 			<div className="graph-toolbar">
 				<Tooltip placement="bottom" title="刷新">
-					<ReloadOutlined onClick={refresh} style={{ color: '#333333' }} />
+					<ReloadOutlined onClick={refresh} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="放大">
-					<ZoomInOutlined onClick={() => handleLayoutZoom('in')} style={{ color: '#333333' }} />
+					<ZoomInOutlined onClick={() => handleLayoutZoom('in')} />
 				</Tooltip>
 				<Tooltip placement="bottom" title="缩小">
-					<ZoomOutOutlined onClick={() => handleLayoutZoom('out')} style={{ color: '#333333' }} />
+					<ZoomOutOutlined onClick={() => handleLayoutZoom('out')} />
 				</Tooltip>
 			</div>
 		</div>

@@ -134,8 +134,13 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         List<String> fieldNamesShow = BatchHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
         String db = matcher.group("db");
         if (StringUtils.isEmpty(db)) {
-            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
-            Preconditions.checkNotNull(tenantEngine, String.format("项目:%d 不支持引擎:HADOOP", tenantId));
+            TenantComponent tenantEngine = null ;
+            if (EScheduleJobType.HIVE_SQL.getType().equals(taskType)){
+                 tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, EScheduleJobType.SPARK_SQL.getType());
+            }else {
+                 tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
+            }
+            Preconditions.checkNotNull(tenantEngine, String.format("项目:%d 不支持该任务类型", tenantId));
             db = tenantEngine.getComponentIdentity();
         }
         String tableName = matcher.group("name");
