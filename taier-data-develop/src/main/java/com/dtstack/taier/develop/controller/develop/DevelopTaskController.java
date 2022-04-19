@@ -142,6 +142,17 @@ public class DevelopTaskController {
         }.execute();
     }
 
+    @PostMapping(value = "canSetIncreConf")
+    @ApiOperation(value = "判断任务是否可以配置增量标识")
+    public R<Boolean> canSetIncreConf(@RequestBody BatchScheduleTaskVO vo) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return batchTaskService.canSetIncreConf(vo.getId());
+            }
+        }.execute();
+    }
+
     @PostMapping(value = "guideToTemplate")
     @ApiOperation("向导模式转模版")
     public R<TaskCatalogueResultVO> guideToTemplate(@RequestBody BatchTaskResourceParamVO paramVO) {
