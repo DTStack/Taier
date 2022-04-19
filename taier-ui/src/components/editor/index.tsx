@@ -142,10 +142,6 @@ export default function Editor({
 				}
 			});
 
-			monacoEditor.current.onDidFocusEditorWidget(() => {
-				handleHidePlaceholder();
-			});
-
 			monacoEditor.current.onDidChangeCursorSelection(() => {
 				const ranges = monacoEditor.current!.getSelections() || [];
 				const model = monacoEditor.current!.getModel();
@@ -193,11 +189,9 @@ export default function Editor({
 	const handleShowPlaceholder = (val?: string) => {
 		if (!val) {
 			document.querySelector<HTMLDivElement>('.dt-placeholder')!.style.display = 'initial';
+		} else {
+			document.querySelector<HTMLDivElement>('.dt-placeholder')!.style.display = 'none';
 		}
-	};
-
-	const handleHidePlaceholder = () => {
-		document.querySelector<HTMLDivElement>('.dt-placeholder')!.style.display = 'none';
 	};
 
 	const destroyMonaco = () => {
@@ -251,7 +245,9 @@ export default function Editor({
 			}}
 			ref={container}
 		>
-			<pre className="dt-placeholder">{placeholder}</pre>
+			<pre className="dt-placeholder" style={{ fontSize: options?.fontSize || 12 }}>
+				{placeholder}
+			</pre>
 		</div>
 	);
 }

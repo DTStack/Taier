@@ -17,14 +17,16 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Select, Form, Radio, Spin, Empty } from 'antd';
+import { Button, Input, Select, Form, Radio, Spin, Empty, Modal } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
 import {
 	CATELOGUE_TYPE,
 	DATA_SYNC_MODE,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
+	FLINK_VERSIONS,
+	FLINK_VERSION_TYPE,
 	formItemLayout,
 	tailFormItemLayout,
 	TASK_TYPE_ENUM,
@@ -37,6 +39,7 @@ import type { DefaultOptionType } from 'antd/lib/select';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const { Option } = Select;
 
 interface OpenProps extends molecule.model.IEditor {
 	onSubmit?: (values: IFormFieldProps) => Promise<boolean>;
@@ -52,7 +55,8 @@ interface IFormFieldProps {
 	nodePid: number;
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
-	createModel?: Valueof<typeof DATA_SYNC_TYPE>;
+	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
+	componentVersion: string;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
@@ -105,10 +109,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 		});
 	};
 
-	const handleValuesChanged = (
-		_: Partial<IFormFieldProps>,
-		values: IFormFieldProps,
-	) => {
+	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
 		if (current?.tab) {
 			const { id } = current.tab;
 			// Insert form values into tab for preventing losting the values when switch tabs
@@ -117,6 +118,20 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				data: values,
 			});
 		}
+	};
+	const confirmFlink = () => {
+		Modal.confirm({
+			title: '正在切换引擎版本',
+			content: (
+				<>
+					<span style={{ color: 'red' }}>切换引擎版本后将重置环境参数</span>
+					，请确认是否继续？
+				</>
+			),
+			onCancel: () => {
+				form.resetFields(['componentVersion']);
+			},
+		});
 	};
 
 	const checkSyncMode = async (_: any, value: DATA_SYNC_MODE) => {
@@ -147,11 +162,11 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 									message: '请选择配置模式',
 								},
 							]}
-							initialValue={DATA_SYNC_TYPE.GUIDE}
+							initialValue={CREATE_MODEL_TYPE.GUIDE}
 						>
 							<RadioGroup disabled={!!record}>
-								<Radio value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-								<Radio value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+								<Radio value={CREATE_MODEL_TYPE.GUIDE}>向导模式</Radio>
+								<Radio value={CREATE_MODEL_TYPE.SCRIPT}>脚本模式</Radio>
 							</RadioGroup>
 						</FormItem>
 						<FormItem
@@ -177,6 +192,20 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					</>
 				);
 			}
+			case TASK_TYPE_ENUM.SQL:
+			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
+				return (
+					<FormItem label="引擎版本" name="componentVersion">
+						<Select onChange={confirmFlink}>
+							{FLINK_VERSION_TYPE.map(({ value, label }) => (
+								<Option key={value} value={value}>
+									{label}
+								</Option>
+							))}
+						</Select>
+					</FormItem>
+				);
+			}
 			default:
 				break;
 		}
@@ -195,6 +224,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				taskType: data.taskType,
 				nodePid: data.nodePid?.toString().split('-')[0],
 				taskDesc: data.taskDesc,
+				componentVersion: data.componentVersion || FLINK_VERSIONS.FLINK_1_12,
 			};
 		}
 		return undefined;

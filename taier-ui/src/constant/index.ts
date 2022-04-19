@@ -20,16 +20,12 @@ import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
 
 export const TASK_RUN_ID = 'task.run';
 export const TASK_STOP_ID = 'task.stop';
-export const TASK_CREATE_ID = 'task.create';
 export const TASK_SUBMIT_ID = 'task.submit';
 export const TASK_SAVE_ID = 'task.save';
-export const TASK_RELEASE_ID = 'task.release';
 export const TASK_OPS_ID = 'task_ops';
-export const TASK_ATTRIBUTONS = 'task.attributions';
-export const TASK_PARAMS_ID = 'task.params';
-export const TASK_SCHEDULE_CONFIG = 'task.schedule.config';
-export const TASK_SWAP = 'task.swap';
-export const TASK_IMPORT_TEMPALTE = 'task.import.tempalte';
+export const TASK_CONVERT_SCRIPT = 'task.convert.script';
+export const TASK_IMPORT_ID = 'task.import';
+export const TASK_SYNTAX_ID = 'task.syntax';
 
 export const ENV_PARAMS = 'env.params';
 
@@ -112,39 +108,30 @@ export const tailFormItemLayout = {
  * 任务类型
  */
 export enum TASK_TYPE_ENUM {
-	VIRTUAL_NODE = -1,
+	/**
+	 * 虚节点
+	 */
+	VIRTUAL = -1,
 	/**
 	 * SparkSQL
 	 */
-	SQL = 0,
-	MR = 1,
+	SPARK_SQL = 0,
+	SPARK = 1,
 	SYNC = 2,
-	PYTHON = 3,
-	R = 4,
-	DEEP_LEARNING = 5,
-	PYTHON_23 = 6,
-	SHELL = 7,
-	ML = 8,
-	HAHDOOPMR = 9,
-	WORKFLOW = 10, // 工作流
-	DATA_COLLECTION = 11, // 实时采集
-	CARBONSQL = 12, // CarbonSQL
-	NOTEBOOK = 13,
-	EXPERIMENT = 14,
-	LIBRASQL = 15,
-	CUBE_KYLIN = 16,
-	HIVESQL = 17,
-	IMPALA_SQL = 18, // ImpalaSQL
-	TI_DB_SQL = 19,
-	ORACLE_SQL = 20,
-	GREEN_PLUM_SQL = 21,
-	TENSORFLOW_1X = 22,
-	KERAS = 23,
-	PRESTO = 24,
-	PYTORCH = 25,
-	INCEPTOR = 28,
-	SHELL_AGENT = 29,
-	ADB = 30,
+	SHELL = 3,
+	/**
+	 * FlinkSQL
+	 */
+	SQL = 5,
+	/**
+	 * 工作流
+	 */
+	WORK_FLOW = 10,
+	HIVE_SQL = 17,
+	/**
+	 * 实时任务
+	 */
+	DATA_ACQUISITION = 37,
 }
 
 /**
@@ -220,10 +207,13 @@ export enum DATA_SOURCE_ENUM {
 	TBDS_KAFKA = 62,
 	DorisRestful = 64,
 	HIVE3_CDP = 65,
+	KAFKA_HUAWEI = 70,
+	HBASE_HUAWEI = 71,
 	DRDS = 72,
 	UPDRDB = 73,
 	UPRedis = 74,
 	CSP_S3 = 75,
+	KAFKA_CONFLUENT = 79,
 }
 
 export const DATA_SOURCE_ENUM_OBJ = {
@@ -333,6 +323,11 @@ export const HELP_DOC_URL = {
 	DATA_SOURCE_ENUM: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
 	DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
 	TASKPARAMS: '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig',
+	FORCE_ORDER: `/public/helpSite/stream/v4.0/StreamSync/Kafka.html#_写入kafka目标源`,
+	JOB_CONFIG: `/public/helpSite/stream/v4.0/DataCollection.html#collection_jobConfig`,
+	JOB_SETTING: `/public/helpSite/stream/v4.0/DataDvlp/JobSetting.html`,
+	ASSET_MANAGE: `/public/helpSite/assets/v4.0/Datamodel/standardtable.html#_功能介绍`,
+	HBASE: `/public/helpSite/stream/v4.0/DataSource/HBase.html`,
 };
 /**
  *
@@ -350,9 +345,9 @@ export enum DATA_SYNC_MODE {
 }
 
 /**
- * 数据同步配置模式
+ * 任务模式枚举
  */
-export const DATA_SYNC_TYPE = {
+export const CREATE_MODEL_TYPE = {
 	/**
 	 * 向导模式
 	 */
@@ -361,6 +356,11 @@ export const DATA_SYNC_TYPE = {
 	 * 脚本模式
 	 */
 	SCRIPT: 1,
+	/**
+	 * 只有 FlinkSQL 支持 GRAPH
+	 * @deprecated
+	 */
+	GRAPH: 2,
 } as const;
 
 /**
@@ -383,6 +383,10 @@ export const DATA_SOURCE_TEXT: Partial<{ [key in DATA_SOURCE_ENUM]: string }> = 
 	[DATA_SOURCE_ENUM.ES6]: 'Elasticsearch6.x',
 	[DATA_SOURCE_ENUM.ES7]: 'Elasticsearch7.x',
 	[DATA_SOURCE_ENUM.REDIS]: 'Redis',
+	[DATA_SOURCE_ENUM.KAFKA_2X]: 'Kafka2.x',
+	[DATA_SOURCE_ENUM.KAFKA]: 'Kafka',
+	[DATA_SOURCE_ENUM.KAFKA_11]: 'Kafka_0.11',
+	[DATA_SOURCE_ENUM.KAFKA_10]: 'Kafka_0.10',
 	[DATA_SOURCE_ENUM.MONGODB]: 'MongoDB',
 	[DATA_SOURCE_ENUM.DB2]: 'DB2',
 	[DATA_SOURCE_ENUM.CARBONDATA]: 'DTinsightAnalytics',
@@ -404,6 +408,9 @@ export const DATA_SOURCE_TEXT: Partial<{ [key in DATA_SOURCE_ENUM]: string }> = 
 	[DATA_SOURCE_ENUM.ADB_FOR_PG]: 'AnalyticDB PostgreSQL',
 	[DATA_SOURCE_ENUM.INFLUXDB]: 'InfluxDB',
 	[DATA_SOURCE_ENUM.OPENTSDB]: 'OpenTSDB',
+	[DATA_SOURCE_ENUM.KAFKA_HUAWEI]: 'Kafka_huawei',
+	[DATA_SOURCE_ENUM.HBASE_HUAWEI]: 'Hbase_huawei',
+	[DATA_SOURCE_ENUM.KAFKA_CONFLUENT]: 'Confluent',
 };
 
 /**
@@ -423,6 +430,16 @@ export const RDB_TYPE_ARRAY = [
 	DATA_SOURCE_ENUM.DMDB,
 	DATA_SOURCE_ENUM.GREENPLUM6,
 	DATA_SOURCE_ENUM.KINGBASE8,
+
+	// 实时计算的关系型数据库
+	DATA_SOURCE_ENUM.UPDRDB,
+	DATA_SOURCE_ENUM.IMPALA,
+	DATA_SOURCE_ENUM.KUDU,
+	DATA_SOURCE_ENUM.HBASE,
+	DATA_SOURCE_ENUM.TBDS_HBASE,
+	DATA_SOURCE_ENUM.HBASE_HUAWEI,
+	DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
+	DATA_SOURCE_ENUM.SOLR,
 ];
 
 /**
@@ -1099,3 +1116,211 @@ export enum TASK_LANGUAGE {
 	SQL = 'sql',
 	JSON = 'json',
 }
+
+export const FLINK_VERSIONS = {
+	FLINK_1_12: '1.12',
+	FLINK_1_10: '1.10',
+	FLINK_1_8: '1.8',
+} as const;
+
+export const FLINK_VERSION_TYPE = [
+	{ value: FLINK_VERSIONS.FLINK_1_12, label: 'flink1.12', text: '1.12' },
+];
+export const KAFKA_DATA_TYPE = {
+	TYPE_JSON: 'dt_nest',
+	TYPE_CSV: 'csv',
+	TYPE_AVRO: 'avro',
+	TYPE_COLLECT_JSON: 'json',
+	TYPE_COLLECT_TEXT: 'text',
+	TYPE_AVRO_CONFLUENT: 'avro-confluent',
+} as const;
+
+export const KAFKA_DATA_LIST = [
+	{ text: 'json', value: KAFKA_DATA_TYPE.TYPE_JSON },
+	{ text: 'csv', value: KAFKA_DATA_TYPE.TYPE_CSV },
+	{ text: 'avro', value: KAFKA_DATA_TYPE.TYPE_AVRO },
+];
+// 表来源
+export enum TABLE_SOURCE {
+	DATA_ASSET = 1,
+	DATA_CREATE = 0,
+}
+/** 源表中时间特征字段 */
+export enum SOURCE_TIME_TYPE {
+	PROC_TIME = 1,
+	EVENT_TIME = 2,
+}
+export enum NODE_TYPE {
+	KAFKA_11 = 'COMPONENT_SOURCE',
+	MYSQL_DES = 2, // 维表mysql
+	SELECT = 'COMPONENT_SELECT',
+	WINDOW = 'COMPONENT_WINDOW',
+	FILTER = 'COMPONENT_FILTER',
+	JOIN = 6,
+	MYSQL_RESULT = 'COMPONENT_RESULT', // 结果表mysql
+}
+
+// 脏数据保存方式
+export enum DIRTY_DATA_SAVE {
+	NO_SAVE = 'log',
+	BY_MYSQL = 'jdbc',
+}
+
+export enum COLLECT_TYPE {
+	ALL = 0,
+	TIME = 1,
+	FILE = 2,
+	SCN = 3,
+	BEGIN = 4,
+	LSN = 5,
+}
+export enum QOS_TYPE {
+	AT_MOST_ONCE = 0,
+	AT_LEAST_ONCE = 1,
+	EXACTLY_ONCE = 2,
+}
+// 任务类型
+export enum SYNC_TYPE {
+	BINLOG = 1,
+	INTERVAL = 2,
+	RESET = 3,
+}
+/**
+ * 数据操作类型
+ */
+export enum CAT_TYPE {
+	/**
+	 * 插入
+	 */
+	INSERT = 1,
+	/**
+	 * 更新
+	 */
+	UPDATE = 2,
+	/**
+	 * 删除
+	 */
+	DELETE = 3,
+}
+/**
+ * 读取方式
+ */
+export enum READ_MODE_TYPE {
+	/**
+	 * 固定消息长度读取
+	 */
+	LENGTH = 'FixedLength',
+	/**
+	 * 分割字符串读取
+	 */
+	STRING = 'DelimiterBased',
+}
+
+export const READ_MODE_NAME = {
+	[READ_MODE_TYPE.LENGTH]: '固定消息长度读取',
+	[READ_MODE_TYPE.STRING]: '分割字符串读取',
+};
+export const RESTFUL_PROPTOCOL = [{ text: 'HTTP/HTTPS', value: 'http' }];
+export const RESTFUL_METHOD = [
+	{ text: 'GET', value: 'get' },
+	{ text: 'POST', value: 'post' },
+];
+export const RESTFUL_RESP_MODE = [
+	{ text: 'TEXT', value: 'text' },
+	{ text: 'JSON', value: 'json' },
+];
+export const SLOAR_CONFIG_TYPE = {
+	1: '选择已有Slot',
+	2: '创建Slot',
+};
+export enum PARTITION_TYPE {
+	HOUR = 0,
+	DAY = 1,
+}
+export enum WRITE_TABLE_TYPE {
+	AUTO = '0',
+	HAND = '1',
+}
+/** 有版本区分的数据源的版本后缀 */
+export const DATA_SOURCE_VERSION: Partial<{ [key in DATA_SOURCE_ENUM]: string }> = {
+	[DATA_SOURCE_ENUM.HIVE]: '2.x',
+	[DATA_SOURCE_ENUM.HIVE3X]: '3.x',
+	[DATA_SOURCE_ENUM.ES]: '5.x',
+	[DATA_SOURCE_ENUM.ES6]: '6.x',
+	[DATA_SOURCE_ENUM.ES7]: '7.x',
+	[DATA_SOURCE_ENUM.KAFKA_2X]: '2.x',
+	[DATA_SOURCE_ENUM.KAFKA]: '1.x',
+	[DATA_SOURCE_ENUM.KAFKA_11]: '0.11',
+	[DATA_SOURCE_ENUM.KAFKA_10]: '0.10',
+	[DATA_SOURCE_ENUM.KAFKA_HUAWEI]: 'HUAWEI',
+	[DATA_SOURCE_ENUM.KAFKA_CONFLUENT]: '5.x',
+};
+export const NEST_KEYS = [
+	{ text: ', (英文逗号)', value: ',' },
+	{ text: '_ (下划线)', value: '_' },
+	{ text: '/ (斜杠)', value: '/' },
+	{ text: '. (英文句号)', value: '.' },
+	{ text: '- (中划线)', value: '-' },
+	{ text: ': (冒号)', value: ':' },
+];
+export const RESTFUL_STRATEGY = [
+	{ text: '立刻停止任务', value: 'stop' },
+	{ text: '连续三次后停止任务', value: 'retry' },
+];
+export enum INTERVAL_TYPE {
+	EVERY = 0,
+	WORKDAY = 1,
+	CUSTOM = 2,
+}
+// 启停策略 - 启动方式
+export enum STRATEGY_TYPE {
+	RERUN = 0,
+	CONTINUERUN = 1,
+}
+export const STRATEGY_START_TYPE = [
+	{ text: '重跑', value: STRATEGY_TYPE.RERUN },
+	{ text: '续跑', value: STRATEGY_TYPE.CONTINUERUN },
+];
+export enum CODE_TYPE {
+	UTF_8 = 'utf-8',
+	GBK_2312 = 'gbk2312',
+	GB_2312 = 'gb2312',
+}
+export enum TABLE_TYPE {
+	SOURCE_TABLE = 1,
+	OUTPUT_TABLE = 2,
+	DIMENSION_TABLE = 3,
+}
+export const hbaseColsText = `列簇: 字段名 类型 as 别名, 比如
+user_info: name varchar as name
+user_info: age varchar as age
+一行一个字段, 采用回车分隔`;
+export const hbaseColsText112 = `列簇 row<字段1 类型，字段2 类型>，比如
+user_id row<id int>
+user_info row<name varchar, age varchar>
+一行一个列簇，采用回车分隔。列簇中的多个字段以逗号分隔`;
+
+export const defaultColsText = '字段 类型, 比如 id int 一行一个字段';
+export const DEFAULT_MAPPING_TEXT = `默认使用ElasticSearch自带的Mapping参数创建索引，用户可手动输入参数进行控制，比如
+{
+    "settings": {
+        "number_of_shards": 5,
+        "number_of_replicas": 3
+    },
+    "mappings": {
+        "properties": {
+            "user_id": {
+                "type": "long"
+            },
+            "user_name": {
+                "type": "text"
+            },
+            "user_age": {
+                "type": "text"
+            },
+            "birthday": {
+                "type": "date"
+            }
+        }
+    }
+}`;
