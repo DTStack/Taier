@@ -59,29 +59,42 @@ export default () => {
 	}>();
 	const [tenants, setTenants] = useState<ITenantProps[]>([]);
 
+	const getTenantList = async () => {
+		const res = await api.getTenantList();
+		if (res.code === 1) {
+			setTenants(res.data);
+		}
+		return res;
+	};
+
 	const handleOk = () => {
-		form.validateFields().then(async (values) => {
-			setLoading(true);
-			api.login(values)
-				.then((res) => {
-					if (res.code === 1) {
-						// 判断是否有默认绑定的租户，如果有则绑定默认租户
-						const userId = getCookie('userId');
-						const defaultTenant = localStorage.getItem(`${userId}_default_tenant`);
-						const isValidTenant = tenants.some(
-							(t) => t.tenantId.toString() === defaultTenant,
-						);
-						if (defaultTenant && isValidTenant) {
-							doTenantChange(Number(defaultTenant), true);
-						} else {
-							setLogin(true);
-						}
+		form.validateFields()
+			.then((values) => {
+				setLoading(true);
+				return api.login(values);
+			})
+			.then((res) => {
+				if (res.code === 1) {
+					return getTenantList();
+				}
+			})
+			.then((res) => {
+				if (res?.code === 1) {
+					const userId = getCookie('userId');
+					const defaultTenant = localStorage.getItem(`${userId}_default_tenant`);
+					const isValidTenant = (res.data as ITenantProps[]).some(
+						(t) => t.tenantId.toString() === defaultTenant,
+					);
+					if (defaultTenant && isValidTenant) {
+						doTenantChange(Number(defaultTenant), true);
+					} else {
+						setLogin(true);
 					}
-				})
-				.finally(() => {
-					setLoading(false);
-				});
-		});
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	const handleCancel = () => {
@@ -109,14 +122,6 @@ export default () => {
 			}
 		});
 	};
-
-	useEffect(() => {
-		api.getTenantList().then((res) => {
-			if (res.code === 1) {
-				setTenants(res.data);
-			}
-		});
-	}, []);
 
 	useLayoutEffect(() => {
 		listener.setVisible = setVisible;

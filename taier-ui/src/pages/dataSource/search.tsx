@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Form, Checkbox, Select, Tooltip, message, Input } from 'antd';
+import { Form, Checkbox, Select, Tooltip, Input } from 'antd';
 import { API } from '@/api/dataSource';
 import { SearchOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import './search.scss';
@@ -64,8 +64,6 @@ export default function Search({ onSearch }: IProps) {
 				});
 			}
 			setTypeList(data || []);
-		} else {
-			message.error('获取类型下拉框内容失败！');
 		}
 	};
 

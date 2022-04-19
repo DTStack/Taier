@@ -43,6 +43,10 @@
 		background-color: var(--editor-background);
 	}
 
+	.ant-notification-notice {
+		background: var(--notifications-background);
+	}
+
 	* {
 		&::-webkit-scrollbar {
 			background-color: var(--scrollbarSlider-background);
