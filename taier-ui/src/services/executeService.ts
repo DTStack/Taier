@@ -164,7 +164,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			return API.stopSQLImmediately({
 				taskId: currentTabData.id,
 				jobId,
-			});
+			}).then(() => Promise.resolve());
 		}
 
 		// 脚本执行
@@ -172,7 +172,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			return API.stopScript({
 				scriptId: currentTabData.id,
 				jobId,
-			});
+			}).then(() => Promise.resolve());
 		}
 
 		return Promise.resolve();
