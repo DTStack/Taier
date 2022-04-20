@@ -7,11 +7,6 @@ declare module '*.svg' {
 	export default url;
 }
 
-declare module 'mirror-creator' {
-	function mc(strs: string[], options?: { prefix?: string }): Record<string, string>;
-	export default mc;
-}
-
 interface BrowserInter {
 	chrome?: string;
 	ie?: string;
