@@ -19,9 +19,6 @@
 /* eslint-disable no-bitwise */
 import { debounce, endsWith } from 'lodash';
 import moment from 'moment';
-import { createLogger } from 'redux-logger';
-import thunkMiddleware from 'redux-thunk';
-import { createStore, applyMiddleware, compose } from 'redux';
 import {
 	FAILED_STATUS,
 	FINISH_STATUS,
@@ -142,38 +139,6 @@ export function formJsonValidator(_: any, value: string) {
 		return Promise.reject(new Error(msg));
 	}
 	return Promise.resolve();
-}
-
-declare let window: any;
-
-function configureStoreDev(rootReducer: any) {
-	const store = createStore(
-		rootReducer,
-		compose(
-			applyMiddleware(thunkMiddleware, createLogger()),
-			window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn,
-		),
-	);
-	return store;
-}
-
-function configureStoreProd(rootReducer: any) {
-	const stroe = createStore(rootReducer, applyMiddleware(thunkMiddleware));
-	return stroe;
-}
-
-/**
- *
- * @param { Object } rootReducer
- */
-export function getStore(rootReducer: any) {
-	const store =
-		process.env.NODE_ENV === 'production'
-			? configureStoreProd(rootReducer)
-			: configureStoreDev(rootReducer);
-	return {
-		store,
-	};
 }
 
 interface FilterParser {
