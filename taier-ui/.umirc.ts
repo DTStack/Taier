@@ -4,6 +4,8 @@ import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 export default defineConfig({
 	title: 'Taier | DTStack',
 	favicon: 'images/favicon.png',
+	hash: true,
+	ignoreMomentLocale: true,
 	targets: {
 		ios: false,
 	},
@@ -34,7 +36,7 @@ export default defineConfig({
 		);
 		memo.plugin('monaco-editor').use(MonacoWebpackPlugin, [
 			{
-				languages: ['markdown', 'json'],
+				languages: ['json'],
 			},
 		]);
 		return memo;
