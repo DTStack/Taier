@@ -21,7 +21,13 @@ import { message } from 'antd';
 import { LoginOutlined, UploadOutlined, SwapOutlined } from '@ant-design/icons';
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { FlinkSQLIcon, SyntaxIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import {
+	FlinkSQLIcon,
+	SyntaxIcon,
+	HiveSQLIcon,
+	SparkSQLIcon,
+	ResourceIcon,
+} from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
@@ -218,7 +224,7 @@ export function fileIcon(
 			}
 		}
 		case CATELOGUE_TYPE.RESOURCE: {
-			return 'file';
+			return <ResourceIcon style={{ color: '#0065f6' }} />;
 		}
 		case CATELOGUE_TYPE.FUNCTION:
 		default:
