@@ -2,7 +2,6 @@ package com.dtstack.taier.scheduler.server.builder.dependency;
 
 import com.dtstack.taier.common.enums.DependencyType;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
@@ -43,13 +42,13 @@ public class DependencyManager {
      * @param corn             执行周期
      * @return 依赖处理器链
      */
-    public DependencyHandler getDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, ScheduleCorn corn) {
+    public JobDependency getDependencyHandler(String keyPreStr, ScheduleTaskShade currentTaskShade, ScheduleCorn corn) {
         // 查询上游任务
         List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList = scheduleTaskTaskService.lambdaQuery()
                 .eq(ScheduleTaskTaskShade::getTaskId, currentTaskShade.getTaskId())
                 .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
-        DependencyHandler dependencyHandler = null;
+
         List<Long> parentTaskIds = scheduleTaskTaskShadeList.stream().map(ScheduleTaskTaskShade::getParentTaskId).collect(Collectors.toList());
 
         // 如果没有上游任务，就不需要UpstreamDependencyHandler
@@ -60,32 +59,25 @@ public class DependencyManager {
                     .in(ScheduleTaskShade::getTaskId, parentTaskIds)
                     .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
-
-            if (CollectionUtils.isNotEmpty(taskShadeList)) {
-                dependencyHandler = new UpstreamDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService);
-            }
         }
+
+        // 上游任务的依赖处理器
+        JobDependency jobDependency = new UpstreamDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService,taskShadeList);
 
         // 判断是否设置自依赖
         ScheduleConf scheduleConf = corn.getScheduleConf();
         if (DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.SELF_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
-            if (dependencyHandler == null) {
-                dependencyHandler = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService);
-            } else {
-                dependencyHandler.setNext(new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade,scheduleJobService));
-            }
+            // 需要自依赖任务, 对上游依赖做增强，生成自依赖
+            jobDependency = new SelfRelianceDependencyHandler(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList, jobDependency);
         } else if (DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_SUCCESS.getType().equals(scheduleConf.getSelfReliance())
                 || DependencyType.PRE_PERIOD_CHILD_DEPENDENCY_END.getType().equals(scheduleConf.getSelfReliance())) {
             if (CollectionUtils.isNotEmpty(taskShadeList)) {
-                if (dependencyHandler == null) {
-                    dependencyHandler = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService);
-                } else {
-                    dependencyHandler.setNext(new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, taskShadeList,scheduleJobService));
-                }
+                // 依赖下游任务的上一个周期 对jobDependency进行增强
+                jobDependency = new UpstreamNextJobDependencyHandler(keyPreStr, currentTaskShade, scheduleJobService, taskShadeList,jobDependency);
             }
         }
 
-        return dependencyHandler;
+        return jobDependency;
     }
 }

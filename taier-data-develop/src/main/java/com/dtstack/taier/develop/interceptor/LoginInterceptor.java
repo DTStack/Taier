@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.interceptor;
 
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.utils.CookieUtil;
@@ -36,6 +37,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String requestURI = request.getRequestURI();
+        if(requestURI.contains(CommonConstant.LOGIN)){
+            return true;
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{}:{}", requestURI, request.getParameterMap());
         }
