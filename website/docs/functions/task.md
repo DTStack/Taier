@@ -46,3 +46,25 @@ taier 提供了丰富的时间周期和依赖关系支持，并提供了基于�
 5. 预览保存：再次确认已配置的规则并保存。
 ### 运行任务
 在当前任务打开的状态下，单击编辑器右上角的「运行」按钮，可触发数据同步任务的运行
+
+### 支持的数据源
+
+#### 数据源
+* MySQL
+* ORACLE
+* POSTGRESQL
+* HDFS
+* HIVE
+* SPARK THRIFT
+
+#### 写入源
+* MySQL
+* ORACLE
+* POSTGRESQL
+* HDFS
+* HIVE
+* SPARK THRIFT
+
+:::tip
+数据同步同步任务默认为session模式 需要拉启session 请参考集群配置Flink组件 确保配置是否正确
+:::
