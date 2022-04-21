@@ -94,9 +94,9 @@
         </dependency>
 
         <dependency>
-            <groupId>dt.insight.plat</groupId>
+            <groupId>com.dtstack</groupId>
             <artifactId>dt-insight-hive-shade</artifactId>
-            <version>4.1.2-RELEASE</version>
+            <version>4.1.3</version>
         </dependency>
     </dependencies>
 
@@ -191,13 +191,13 @@
                         <configuration>
                             <tasks>
                                 <copy file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}-with-dependencies.jar"/>
+                                      tofile="${basedir}/target/${project.name}-with-dependencies.jar"/>
                                 <move todir="${basedir}/../lib/"
-                                      file="${basedir}/target/${project.name}-${git.branch}-with-dependencies.jar"/>
+                                      file="${basedir}/target/${project.name}-with-dependencies.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/../lib/"
                                              includes="${project.name}-*.jar"
-                                             excludes="${project.name}-${git.branch}-with-dependencies.jar"/>
+                                             excludes="${project.name}-with-dependencies.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

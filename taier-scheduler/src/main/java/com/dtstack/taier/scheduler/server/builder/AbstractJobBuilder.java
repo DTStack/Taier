@@ -14,7 +14,7 @@ import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
-import com.dtstack.taier.scheduler.server.builder.dependency.DependencyHandler;
+import com.dtstack.taier.scheduler.server.builder.dependency.JobDependency;
 import com.dtstack.taier.scheduler.server.builder.dependency.DependencyManager;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -190,12 +190,8 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
 
         // 获得依赖
         List<ScheduleJobJob> jobJobList = Lists.newArrayList();
-        DependencyHandler dependencyHandler = dependencyManager.getDependencyHandler(getKeyPreStr(name), scheduleTaskShade, corn);
-
-        while (dependencyHandler != null) {
-            jobJobList.addAll(dependencyHandler.generationJobJobForTask(corn, currentData,jobKey));
-            dependencyHandler = dependencyHandler.next();
-        }
+        JobDependency dependencyHandler = dependencyManager.getDependencyHandler(getKeyPreStr(name), scheduleTaskShade, corn);
+        jobJobList.addAll(dependencyHandler.generationJobJobForTask(corn, currentData,jobKey));
 
         ScheduleJobDetails jobBuilderBean = new ScheduleJobDetails();
         jobBuilderBean.setJobJobList(jobJobList);

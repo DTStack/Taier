@@ -23,13 +23,12 @@
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`的调度，
-* 支持众多的任务类型，目前支持 Spark SQL、Chunjun
+* 支持众多的任务类型，目前支持 Spark SQL、数据同步
 
 ```
   后续将开源：:
-  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
-HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
-greenplum、inceptor、kingbase、presto)
+  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、HadoopMR、Kylin、Odps、
+  SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)
 ```
 
 * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
