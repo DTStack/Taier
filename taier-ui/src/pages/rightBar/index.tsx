@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
@@ -32,7 +32,13 @@ import {
 	EDIT_DATASOURCE_PREFIX,
 	EDIT_FOLDER_PREFIX,
 	EDIT_TASK_PREFIX,
+	TASK_TYPE_ENUM,
+	CREATE_MODEL_TYPE,
 } from '@/constant';
+import StreamSetting from '@/components/streamCollection/rightBar/streamSetting';
+import FlinkSourcePanel from '@/components/streamCollection/rightBar/flinkSource';
+import FlinkResultPanel from '@/components/streamCollection/rightBar/flinkResult';
+import FlinkDimensionPanel from '@/components/streamCollection/rightBar/flinkDimension';
 import './index.scss';
 
 enum RIGHT_BAR_ITEM {
@@ -40,6 +46,11 @@ enum RIGHT_BAR_ITEM {
 	DEPENDENCY = 'dependency',
 	TASK_PARAMS = 'task_params',
 	ENV_PARAMS = 'env_params',
+	STREAM_INFO = 'stream_info',
+	STREAM_SETTING = 'stream_setting',
+	FLINKSQL_SOURCE = 'flinksql_source',
+	FLINKSQL_RESULT = 'flinksql_result',
+	FLINKSQL_DIMENSION = 'flinksql_dimension',
 }
 
 const RIGHTBAR = [
@@ -54,6 +65,38 @@ const RIGHTBAR = [
 	{
 		key: RIGHT_BAR_ITEM.TASK_PARAMS,
 		value: '任务参数',
+	},
+	{
+		key: RIGHT_BAR_ITEM.ENV_PARAMS,
+		value: '环境参数',
+	},
+];
+const STREAM_RIGHTBAR = [
+	{
+		key: RIGHT_BAR_ITEM.TASK,
+		value: '任务详情',
+	},
+	{
+		key: RIGHT_BAR_ITEM.ENV_PARAMS,
+		value: '环境参数',
+	},
+];
+const FLINKSQL_RIGHTBAR = [
+	{
+		key: RIGHT_BAR_ITEM.TASK,
+		value: '任务详情',
+	},
+	{
+		key: RIGHT_BAR_ITEM.FLINKSQL_SOURCE,
+		value: '源表',
+	},
+	{
+		key: RIGHT_BAR_ITEM.FLINKSQL_RESULT,
+		value: '结果表',
+	},
+	{
+		key: RIGHT_BAR_ITEM.FLINKSQL_DIMENSION,
+		value: '维表',
 	},
 	{
 		key: RIGHT_BAR_ITEM.ENV_PARAMS,
@@ -122,6 +165,23 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 		molecule.editor.updateTab(tab);
 	};
 
+	const renderTabs = () => {
+		const currentData = propsCurrent?.tab?.data;
+		switch (currentData?.taskType) {
+			case TASK_TYPE_ENUM.SYNC:
+				return RIGHTBAR;
+			case TASK_TYPE_ENUM.DATA_ACQUISITION:
+				return STREAM_RIGHTBAR;
+			case TASK_TYPE_ENUM.SQL:
+				if (currentData?.createModel === CREATE_MODEL_TYPE.GUIDE) {
+					return FLINKSQL_RIGHTBAR;
+				}
+				return STREAM_RIGHTBAR;
+			default:
+				return RIGHTBAR;
+		}
+	};
+
 	const renderContent = () => {
 		switch (current) {
 			case RIGHT_BAR_ITEM.TASK:
@@ -137,10 +197,27 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 				return <TaskParams current={propsCurrent} onChange={handleChangeVariables} />;
 			case RIGHT_BAR_ITEM.ENV_PARAMS:
 				return <EnvParams current={propsCurrent} onChange={handleValueChanged} />;
+			case RIGHT_BAR_ITEM.STREAM_SETTING:
+				return <StreamSetting current={propsCurrent} />;
+			case RIGHT_BAR_ITEM.FLINKSQL_SOURCE:
+				return <FlinkSourcePanel current={propsCurrent} />;
+			case RIGHT_BAR_ITEM.FLINKSQL_RESULT:
+				return <FlinkResultPanel current={propsCurrent} />;
+			case RIGHT_BAR_ITEM.FLINKSQL_DIMENSION:
+				return <FlinkDimensionPanel current={propsCurrent} />;
 			default:
 				break;
 		}
 	};
+
+	useEffect(() => {
+		if (propsCurrent?.tab?.data) {
+			const currentTabSupportTabs = renderTabs();
+			if (currentTabSupportTabs.find((t) => t.key === current)) return;
+			// current tab isn't have current rightBar, so we should back to taskInfo
+			setCurrent((c) => (c === '' ? '' : RIGHT_BAR_ITEM.TASK));
+		}
+	}, [propsCurrent]);
 
 	return (
 		<div className="dt-right-bar" style={{ width }}>
@@ -148,7 +225,7 @@ export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, wi
 				{renderContent()}
 			</div>
 			<div className="dt-right-bar-title">
-				{RIGHTBAR.map((bar) => (
+				{renderTabs().map((bar) => (
 					<div
 						className={classNames(
 							'dt-right-bar-title-item',

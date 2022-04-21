@@ -72,7 +72,7 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 	const [rightBarSize, setRightBarSize] = useState(30);
 
 	const handleClickTab = (key?: string) => {
-		setRightBarSize(key ? 400 : 30);
+		setRightBarSize(key ? 480 : 30);
 	};
 
 	const handleSideBarChanged = (sizes: number[]) => {

@@ -19,9 +19,6 @@
 /* eslint-disable no-bitwise */
 import { debounce, endsWith } from 'lodash';
 import moment from 'moment';
-import { createLogger } from 'redux-logger';
-import thunkMiddleware from 'redux-thunk';
-import { createStore, applyMiddleware, compose } from 'redux';
 import {
 	FAILED_STATUS,
 	FINISH_STATUS,
@@ -142,38 +139,6 @@ export function formJsonValidator(_: any, value: string) {
 		return Promise.reject(new Error(msg));
 	}
 	return Promise.resolve();
-}
-
-declare let window: any;
-
-function configureStoreDev(rootReducer: any) {
-	const store = createStore(
-		rootReducer,
-		compose(
-			applyMiddleware(thunkMiddleware, createLogger()),
-			window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn,
-		),
-	);
-	return store;
-}
-
-function configureStoreProd(rootReducer: any) {
-	const stroe = createStore(rootReducer, applyMiddleware(thunkMiddleware));
-	return stroe;
-}
-
-/**
- *
- * @param { Object } rootReducer
- */
-export function getStore(rootReducer: any) {
-	const store =
-		process.env.NODE_ENV === 'production'
-			? configureStoreProd(rootReducer)
-			: configureStoreDev(rootReducer);
-	return {
-		store,
-	};
 }
 
 interface FilterParser {
@@ -783,3 +748,22 @@ export function copyText(text: string) {
 		document.body.removeChild(textarea);
 	}
 }
+
+/** 去除不同版本的相同数据源，只保留第一个版本，并使用数据源 groupTag 来代替原来带具体版本号的 name */
+export const formatSourceTypes = (
+	sourceTypes: { name: string; value: number; groupTag: string }[],
+) => {
+	if (!sourceTypes.length) {
+		return [];
+	}
+	const result: { name: string; value: number; groupTag: string }[] = [];
+	// 因为不同版本的相同数据源是连续的，可以只一次遍历，与上一个比较即可
+	for (let i = 0; i < sourceTypes.length; i += 1) {
+		if (sourceTypes[i].groupTag !== sourceTypes?.[i - 1]?.groupTag) {
+			const temp = { ...sourceTypes[i] };
+			temp.name = sourceTypes[i].groupTag;
+			result.push(temp);
+		}
+	}
+	return result;
+};

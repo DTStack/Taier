@@ -18,13 +18,16 @@
 
 import type {
 	BINARY_ROW_KEY_FLAG,
+	CODE_TYPE,
 	DATA_SOURCE_ENUM,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
+	KAFKA_DATA_TYPE,
 	MENU_TYPE_ENUM,
 	PARAMS_ENUM,
 	RESOURCE_TYPE,
 	SCHEDULE_DEPENDENCY,
 	SCHEDULE_STATUS,
+	SOURCE_TIME_TYPE,
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
@@ -127,9 +130,9 @@ export interface IResourceProps {
 }
 
 /**
- * 离线任务类型
+ * 所有任务类型
  */
-export interface IOfflineTaskProps extends ISyncDataProps {
+export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -147,9 +150,9 @@ export interface IOfflineTaskProps extends ISyncDataProps {
 	scheduleConf: string;
 	scheduleStatus: SCHEDULE_STATUS;
 	/**
-	 * 数据同步任务配置模式
+	 * 任务配置模式
 	 */
-	createModel: Valueof<typeof DATA_SYNC_TYPE>;
+	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 	/**
 	 * 是否是增量同步模式
 	 */
@@ -424,4 +427,83 @@ export interface IDataSourceUsedInSyncProps {
 	dataInfoId: number;
 	dataName: string;
 	dataTypeCode: DATA_SOURCE_ENUM;
+}
+
+/**
+ * flinkSQL 任务的属性
+ */
+export interface IFlinkDataProps {
+	source: IFlinkSourceProps[];
+	sink: IFlinkSinkProps[];
+	/**
+	 * TODO
+	 */
+	side: any[];
+	/**
+	 * @description 任务类型，目前来说 flinkSQL 暂时只有 1.12
+	 */
+	componentVersion: string;
+}
+
+export interface IFlinkSourceProps {
+	charset: CODE_TYPE;
+	columns: { column: string; type: string }[];
+	columnsText: string;
+	offset: number;
+	offsetReset: string;
+	offsetUnit: string;
+	offsetValue: string;
+	parallelism: number;
+	procTime: string;
+	schemaInfo: string;
+	sourceDataType: string;
+	sourceId: number;
+	sourceName: string;
+	table: string;
+	timeColumn: string;
+	timeType: SOURCE_TIME_TYPE;
+	timeTypeArr: SOURCE_TIME_TYPE[];
+	timeZone: string;
+	topic: string;
+	type: DATA_SOURCE_ENUM;
+	// 自定义参数
+	customParams: any;
+
+	// the unique key for front-end panel
+	panelKey: string;
+}
+
+export interface IFlinkSinkProps {
+	collection?: string;
+	bucket?: string;
+	objectName?: string;
+	schema?: string;
+	columns: Partial<{ type: IDataColumnsProps['type']; column: IDataColumnsProps['key'] }>[];
+	parallelism: number;
+	sourceId: number;
+	sourceName: string;
+	table?: string;
+	tableName: string;
+	index?: string;
+	esId?: string;
+	esType?: string;
+	rowKey?: string;
+	rowKeyType?: string;
+	sinkDataType?: Valueof<typeof KAFKA_DATA_TYPE>;
+	schemaInfo?: string;
+	topic?: string;
+	type: DATA_SOURCE_ENUM;
+	updateMode: 'append' | 'upsert';
+	allReplace?: 'true' | 'false';
+	primaryKey?: string | string[];
+	bulkFlushMaxActions?: number;
+	enableKeyPartitions?: boolean;
+	indexDefinition?: string;
+	partitionKeys?: string[];
+	batchWaitInterval?: number;
+	batchSize?: number;
+	partitionType?: string;
+	columnsText?: string;
+	// 自定义参数
+	customParams: { id: string; key?: string; type?: string }[];
 }

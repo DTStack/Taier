@@ -19,6 +19,19 @@
 import 'whatwg-fetch';
 import { message } from 'antd';
 import ProgressBar from '@/components/progressBar';
+import notification from '@/components/notification';
+
+const controller = new AbortController();
+const { signal } = controller;
+
+interface IResponseBodyProps {
+	code: number;
+	data: any;
+	message: string;
+	success: boolean;
+
+	[key: string]: any;
+}
 
 class Http {
 	get(url: any, params: any, config: Record<string, any> = {}) {
@@ -63,27 +76,38 @@ class Http {
 
 	request(url: string, options: RequestInit) {
 		ProgressBar.show();
-		options.credentials = 'same-origin';
-		options.headers = {
-			...options.headers,
-		};
-		return fetch(url, options)
+		return fetch(url, { ...options, credentials: 'same-origin', signal })
 			.then((response) => {
 				setTimeout(() => {
 					ProgressBar.hide();
 				}, 300);
 				return response.json();
 			})
-			.then((res) => {
-				if (res.code !== 1) {
-					message.error(res.message);
+			.then((res: IResponseBodyProps) => {
+				if (res.code !== 1 && res.message === '未登录') {
+					notification.error({
+						key: 'NotLogin',
+						message: `未登录，请登陆后进行操作`,
+					});
 				}
 				return res;
 			})
-			.catch((err) => {
-				ProgressBar.hide();
-				console.log('err:', err);
-				return err;
+			.then((res) => {
+				if (res.code !== 1) {
+					// 相同的错误文案只提示一次
+					message.error({ content: res.message, key: res.message });
+				}
+				return res;
+			})
+			.catch((err: Error) => {
+				setTimeout(() => {
+					ProgressBar.hide();
+				}, 300);
+				if (err.name === 'AbortError') {
+					// eslint-disable-next-line no-param-reassign
+					err.stack = '';
+				}
+				throw err;
 			});
 	}
 

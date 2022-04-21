@@ -83,6 +83,7 @@
 		"minimapGutter.addedBackground": "#109868",
 		"minimapGutter.deletedBackground": "#9A353D",
 		"minimapGutter.modifiedBackground": "#948B60",
+		"notifications.background": "#23272e",
 		"panel.background": "#23272e",
 		"panel.border": "#3e4452",
 		"panelSectionHeader.background": "#1e2227",

@@ -4,7 +4,7 @@ $file-size: 216px;
 	width: $file-size;
 	height: 100%;
 	padding-bottom: 40px;
-	overflow-y: scroll;
+	overflow-y: auto;
 	font-size: 12px;
 	background: var(--editor-background);
 	border-right: 1px solid var(--panel-border);

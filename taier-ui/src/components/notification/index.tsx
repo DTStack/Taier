@@ -1,94 +1,106 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import molecule from '@dtinsight/molecule';
+import { notification as antNotification } from 'antd';
+import type { ArgsProps } from 'antd/lib/notification';
+import './notification.scss';
 
-import { notification, Modal } from 'antd';
-import type { NotificationApi } from 'antd/lib/notification';
+type INotificationConfigs = Pick<ArgsProps, 'message'> & { key: string };
 
-let singletonNotificationCursorTime = 0;
-/**
- * 校验是否处在单实例的时间段
- */
-function checkIsTimeout() {
-	const offset = 1000;
-	const now = new Date().getTime();
-	const old = singletonNotificationCursorTime;
-
-	singletonNotificationCursorTime = new Date().getTime();
-	if (now - offset > old) {
-		return true;
+class Notification {
+	private assertNotExistNotification(key: string) {
+		const { data } = molecule.notification.getState();
+		return !data?.find((n) => n.id === key);
 	}
-	return false;
-}
+	private showNotification() {
+		const { showNotifications } = molecule.notification.getState();
+		if (!showNotifications) {
+			molecule.notification.toggleNotification();
+		}
+	}
+	private highlightNotification(key: string) {
+		const notificationItem = document.getElementById(key)?.parentElement;
+		if (notificationItem) {
+			notificationItem.tabIndex = 0;
+			notificationItem.focus();
+		}
+	}
+	/**
+	 * Add a notification both in antd and molecule
+	 */
+	openWithMolecule(config: INotificationConfigs) {
+		const { showNotifications } = molecule.notification.getState();
+		// the antd's notification pops up only when the molecule's notification invisible
+		if (!showNotifications) {
+			antNotification.open({
+				key: config.key,
+				message: config.message,
+				placement: 'bottomRight',
+				className: 'dt-notification',
+				duration: 8,
+				closeIcon: <></>,
+				onClose() {},
+				onClick: () => {
+					antNotification.close(config.key);
+					this.showNotification();
+					setTimeout(() => {
+						this.highlightNotification(config.key);
+					}, 0);
+				},
+			});
+		}
 
-/**
- * 包装一下
- */
-function dtNotification(title: any, message: any, type: any, config: any) {
-	const showType: any = type || 'error';
-	const WrapperModal: any = Modal;
-	const showMessage =
-		message.length > 100 ? (
-			<span>
-				{message.substring(0, 100)}...{' '}
-				<a
-					onClick={() => {
-						WrapperModal[showType]({
-							title,
-							content: message,
-							width: 520,
-							style: { wordBreak: 'break-word' },
-						});
-					}}
-				>
-					查看详情
-				</a>
-			</span>
-		) : (
-			message
-		);
-	notification[showType as keyof NotificationApi]({
-		...config,
-		message: title,
-		description: showMessage,
-	});
-}
-
-/**
- * 全局唯一的notification实例
- * 规则：在固定时间段内，相连并且相同的错误信息只会弹出一个。
- * @param {*} title
- * @param {*} message
- */
-export default function singletonNotification(title: any, message?: any, type?: any, style?: any) {
-	const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
+		if (this.assertNotExistNotification(config.key)) {
+			molecule.notification.add([
+				{
+					id: config.key,
+					value: '',
+					render() {
+						return config.message;
+					},
+				},
+			]);
+		}
+	}
 
 	/**
-	 * 1.当前无实例
-	 * 2.当前存在实例，但是当前实例的最后一个信息和调用的信息不相等
-	 * 3.存在实例，并且相等，但是已经超出了限定的时间
+	 * Open a notification both in antd and molecule in bottomRight with danger icon
 	 */
-	if (
-		!notifyMsgs.length ||
-		notifyMsgs[notifyMsgs.length - 1].innerHTML !== message ||
-		checkIsTimeout()
-	) {
-		dtNotification(title, message, type, {
-			style,
+	error({ key, message }: { key: string; message: string }) {
+		this.openWithMolecule({
+			key,
+			message: (
+				<>
+					<CloseCircleOutlined
+						style={{
+							color: 'var(--editorError-foreground)',
+							marginRight: 5,
+						}}
+					/>
+					<span id={key} title={message}>
+						{message}
+					</span>
+				</>
+			),
+		});
+	}
+
+	success({ key, message }: { key: string; message: string }) {
+		this.openWithMolecule({
+			key,
+			message: (
+				<>
+					<CheckCircleOutlined
+						style={{
+							color: 'var(--terminal-ansiBrightGreen)',
+							marginRight: 5,
+						}}
+					/>
+					<span id={key} title={message}>
+						{message}
+					</span>
+				</>
+			),
 		});
 	}
 }
+export default new Notification();

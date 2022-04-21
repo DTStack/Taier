@@ -1,0 +1,18 @@
+.strategy-time-range {
+    line-height: 0;
+    &_item:not(:last-child) {
+        margin-bottom: 12px;
+    }
+    &_btn-delete {
+        font-size: 14px;
+        margin-left: 8px;
+        cursor: pointer;
+        &:hover {
+            color: #333;
+        }
+    }
+    &_btn-add {
+        display: inline-block;
+        margin-top: 12px;
+    }
+}
