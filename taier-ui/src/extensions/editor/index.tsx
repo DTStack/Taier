@@ -19,12 +19,7 @@
 import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
-import {
-	performSyncTaskActions,
-	resetEditorGroup,
-	runTask,
-	syntaxValidate,
-} from '@/utils/extensions';
+import { runTask, syntaxValidate } from '@/utils/extensions';
 import {
 	TASK_RUN_ID,
 	TASK_STOP_ID,
@@ -45,15 +40,16 @@ import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals } from '@/utils';
 import api from '@/api';
 import apiStream from '@/api/stream';
-import { searchById } from '@dtinsight/molecule/esm/common/utils';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import executeService from '@/services/executeService';
+import { executeService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
 import saveTask from '@/utils/saveTask';
+import { editorActionBarService } from '@/services';
+import notification from '@/components/notification';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -73,17 +69,6 @@ function emitEvent() {
 				} else {
 					executeService.stopSql(currentTabData.id, currentTabData, false);
 				}
-				molecule.editor.updateActions([
-					{
-						id: TASK_RUN_ID,
-						icon: 'play',
-						disabled: false,
-					},
-					{
-						id: TASK_STOP_ID,
-						disabled: true,
-					},
-				]);
 				break;
 			}
 			case TASK_SAVE_ID: {
@@ -303,46 +288,39 @@ export default class EditorExtension implements IExtension {
 		emitEvent();
 		registerCompletion();
 
-		molecule.editor.onSelectTab((tabId, groupId) => {
-			const { current } = molecule.editor.getState();
-			if (!current) return;
-			const group = molecule.editor.getGroupById(groupId || current.id!);
-			if (group) {
-				const targetTab = group.data?.find(searchById(tabId));
-				if (targetTab?.data?.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
-					molecule.editor.updateActions([
-						{ id: TASK_RUN_ID, disabled: false },
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-						{ id: TASK_OPS_ID, disabled: false },
-					]);
-				} else {
-					resetEditorGroup();
-				}
-			}
-			performSyncTaskActions();
+		molecule.editor.onOpenTab(() => {
+			// Should delay to performSyncTaskActions
+			// because when onOpenTab called, the current tab was not changed
+			window.setTimeout(() => {
+				editorActionBarService.performSyncTaskActions();
+			}, 0);
+		});
+
+		molecule.editor.onSelectTab(() => {
+			editorActionBarService.performSyncTaskActions();
 		});
 
 		molecule.editor.onCloseTab(() => {
-			const { current } = molecule.editor.getState();
-			if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
-				molecule.editor.updateActions([
-					{ id: TASK_RUN_ID, disabled: false },
-					{ id: TASK_SAVE_ID, disabled: false },
-					{ id: TASK_SUBMIT_ID, disabled: false },
-					{ id: TASK_OPS_ID, disabled: false },
-				]);
-			} else {
-				resetEditorGroup();
-			}
-
-			performSyncTaskActions();
+			editorActionBarService.performSyncTaskActions();
 		});
 
 		molecule.editor.onUpdateTab((tab) => {
 			updateTaskVariables(tab);
 			// update edited status
 			molecule.editor.updateTab({ id: tab.id, status: 'edited' });
+		});
+
+		executeService.onEndRun((currentTabId) => {
+			if (currentTabId.toString() !== molecule.editor.getState().current?.activeTab) {
+				const groupId = molecule.editor.getGroupIdByTab(currentTabId.toString());
+				if (groupId === null) return;
+				const tab = molecule.editor.getTabById(currentTabId.toString(), groupId);
+				if (!tab) return;
+				notification.success({
+					key: `${currentTabId}-${new Date()}`,
+					message: `${tab.name} 任务执行完成!`,
+				});
+			}
 		});
 	}
 }

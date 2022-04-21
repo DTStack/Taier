@@ -18,8 +18,6 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { message } from 'antd';
-import { LoginOutlined, UploadOutlined, SwapOutlined } from '@ant-design/icons';
-import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import {
 	FlinkSQLIcon,
@@ -33,172 +31,20 @@ import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
 import { TASK_SYNTAX_ID } from '@/constant';
-import {
-	TASK_CONVERT_SCRIPT,
-	TASK_OPS_ID,
-	TASK_SUBMIT_ID,
-	OUTPUT_LOG,
-	TASK_SAVE_ID,
-	CREATE_MODEL_TYPE,
-	CATELOGUE_TYPE,
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_TYPE_ENUM,
-} from '@/constant';
+import { OUTPUT_LOG, CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import executeService from '@/services/executeService';
+import { executeService } from '@/services';
 import taskResultService from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql, getTenantId, getUserId } from '.';
 import stream from '@/api/stream';
 import { createLog } from 'dt-react-codemirror-editor';
 
-/**
- * 保存按钮 for toolbar
- */
-const SAVE_TASK: IEditorActionsProps = {
-	id: TASK_SAVE_ID,
-	name: 'Save Task',
-	title: '保存',
-	icon: 'save',
-	place: 'outer',
-};
-
-/**
- * 运行任务按钮 for toolbar
- */
-const RUN_TASK: IEditorActionsProps = {
-	id: TASK_RUN_ID,
-	name: 'Run Task',
-	title: '运行',
-	icon: 'play',
-	place: 'outer',
-};
-
-/**
- * 停止任务按钮 for toolbar
- */
-const STOP_TASK: IEditorActionsProps = {
-	id: TASK_STOP_ID,
-	name: 'Stop Task',
-	title: '停止运行',
-	icon: 'debug-pause',
-	place: 'outer',
-};
-
-/**
- * 提交至调度按钮
- */
-const SUBMIT_TASK: IEditorActionsProps = {
-	id: TASK_SUBMIT_ID,
-	name: '提交至调度',
-	title: '提交至调度',
-	icon: <UploadOutlined />,
-	place: 'outer',
-};
-
-/**
- * 任务运维按钮
- */
-const OPERATOR_TASK: IEditorActionsProps = {
-	id: TASK_OPS_ID,
-	name: '运维',
-	title: '运维',
-	icon: <LoginOutlined />,
-	place: 'outer',
-};
-
-/**
- * 转换为脚本按钮
- */
-const CONVERT_TASK: IEditorActionsProps = {
-	id: TASK_CONVERT_SCRIPT,
-	name: '转换为脚本',
-	title: '转换为脚本',
-	icon: <SwapOutlined />,
-	place: 'outer',
-};
-
-/**
- * 导入模板按钮
- */
-// const IMPORT_TASK: IEditorActionsProps = {
-// 	id: TASK_IMPORT_ID,
-// 	name: '引入数据源',
-// 	title: '引入数据源',
-// 	icon: <ImportOutlined />,
-// 	place: 'outer',
-// };
-
-/**
- * 语法检查按钮
- */
-const GRAMMAR_TASK: IEditorActionsProps = {
-	id: TASK_SYNTAX_ID,
-	name: '语法检查',
-	title: '语法检查',
-	icon: <SyntaxIcon />,
-	place: 'outer',
-};
-
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
 		{ id: TASK_RUN_ID, disabled: true },
 		{ id: TASK_STOP_ID, disabled: true },
 	]);
-}
-
-/**
- * 定义不同的任务具有不同的 Toolbar
- */
-export function getToolbar(taskType: TASK_TYPE_ENUM, isGuide?: boolean) {
-	switch (taskType) {
-		case TASK_TYPE_ENUM.SYNC: {
-			if (isGuide) {
-				return [CONVERT_TASK, SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
-			}
-			return [
-				// IMPORT_TASK,
-				SAVE_TASK,
-				RUN_TASK,
-				STOP_TASK,
-				SUBMIT_TASK,
-				OPERATOR_TASK,
-			];
-		}
-		case TASK_TYPE_ENUM.SQL:
-			if (isGuide) {
-				return [CONVERT_TASK, GRAMMAR_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
-			}
-			return [
-				// IMPORT_TASK,
-				SAVE_TASK,
-				SUBMIT_TASK,
-				OPERATOR_TASK,
-			];
-		case TASK_TYPE_ENUM.SPARK:
-		case TASK_TYPE_ENUM.HIVE_SQL:
-		default:
-			return [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
-	}
-}
-
-/**
- * 针对不同的任务类型，渲染不同的 `toolbar`
- * @notice 需要确保 `current` 是数据是正确的
- */
-export function performSyncTaskActions() {
-	const { current } = molecule.editor.getState();
-	if (current?.tab?.data) {
-		const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
-		const taskToolbar = getToolbar(
-			currentTabData.taskType,
-			currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
-		);
-		molecule.editor.updateGroup(current.id, {
-			actions: [...taskToolbar, ...molecule.editor.getDefaultActions()],
-		});
-	}
 }
 
 /**
@@ -407,19 +253,6 @@ export function runTask(current: molecule.model.IEditorGroup) {
 		| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 		| undefined = current.tab?.data;
 	if (currentTabData) {
-		// 禁用运行按钮，启用停止按钮
-		molecule.editor.updateActions([
-			{
-				id: TASK_RUN_ID,
-				icon: 'loading~spin',
-				disabled: true,
-			},
-			{
-				id: TASK_STOP_ID,
-				disabled: false,
-			},
-		]);
-
 		// active 日志 窗口
 		const { data } = molecule.panel.getState();
 		const {
@@ -438,24 +271,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				name: currentTabData.name,
 				taskParams: currentTabData.taskParams,
 			};
-			executeService.execDataSync(currentTabData.id, params).finally(() => {
-				// update the status of buttons
-				molecule.editor.updateActions([
-					{
-						id: TASK_SAVE_ID,
-						disabled: false,
-					},
-					{
-						id: TASK_RUN_ID,
-						icon: 'play',
-						disabled: false,
-					},
-					{
-						id: TASK_STOP_ID,
-						disabled: true,
-					},
-				]);
-			});
+			executeService.execDataSync(currentTabData.id, params);
 		} else {
 			const params = {
 				taskVariables: currentTabData.taskVariables || [],
@@ -483,56 +299,36 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			} else {
 				sqls.push(...filterSql(value));
 			}
-			executeService
-				.execSql(currentTabData.id, currentTabData, params, sqls)
-				.then(() => {
-					const allResult = taskResultService.getState().results;
-					Object.keys(allResult).forEach((key) => {
-						const results = allResult[key];
-						const panel = molecule.panel.getPanel(key);
+			executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
+				const allResult = taskResultService.getState().results;
+				Object.keys(allResult).forEach((key) => {
+					const results = allResult[key];
+					const panel = molecule.panel.getPanel(key);
 
-						if (!panel) {
-							const panels = molecule.panel.getState().data || [];
-							const resultPanles = panels.filter((p) => p.name?.includes('结果'));
-							const lastIndexOf = Number(
-								resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
-							);
+					if (!panel) {
+						const panels = molecule.panel.getState().data || [];
+						const resultPanles = panels.filter((p) => p.name?.includes('结果'));
+						const lastIndexOf = Number(
+							resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
+						);
 
-							molecule.panel.open({
-								id: key,
-								name: `结果 ${lastIndexOf + 1}`,
-								closable: true,
-								renderPane: () => (
-									<Result
-										data={results}
-										tab={{
-											tableType: 0,
-										}}
-										extraView={null}
-									/>
-								),
-							});
-						}
-					});
-				})
-				.finally(() => {
-					// update the status of buttons
-					molecule.editor.updateActions([
-						{
-							id: TASK_SAVE_ID,
-							disabled: false,
-						},
-						{
-							id: TASK_RUN_ID,
-							icon: 'play',
-							disabled: false,
-						},
-						{
-							id: TASK_STOP_ID,
-							disabled: true,
-						},
-					]);
+						molecule.panel.open({
+							id: key,
+							name: `结果 ${lastIndexOf + 1}`,
+							closable: true,
+							renderPane: () => (
+								<Result
+									data={results}
+									tab={{
+										tableType: 0,
+									}}
+									extraView={null}
+								/>
+							),
+						});
+					}
 				});
+			});
 		}
 	}
 }
