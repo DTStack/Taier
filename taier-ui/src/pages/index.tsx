@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import "reflect-metadata";
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';

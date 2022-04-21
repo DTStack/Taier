@@ -30,7 +30,7 @@ $form-size: 32px;
 
 		.ant-tabs-content-holder {
 			flex: 1;
-			overflow-y: scroll;
+			overflow-y: auto;
 		}
 	}
 }

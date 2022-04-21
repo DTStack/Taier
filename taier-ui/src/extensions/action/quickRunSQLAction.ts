@@ -8,7 +8,8 @@ import {
 	TASK_RUN_ID,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { getToolbar, runTask } from '@/utils/extensions';
+import { editorActionBarService } from '@/services';
+import { runTask } from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
 import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
 import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
@@ -50,7 +51,7 @@ export default class QuickRunSQLAction extends Action2 {
 		];
 		if (current && !NOT_RUN.some((prefix) => current.activeTab?.toString().includes(prefix))) {
 			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
-			const taskToolbar = getToolbar(
+			const taskToolbar = editorActionBarService.getActionBar(
 				currentTabData.taskType,
 				currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
 			);

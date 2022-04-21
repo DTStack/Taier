@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useState, useLayoutEffect, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 import { Button, Checkbox, Form, Input, message, Modal, Select } from 'antd';
 import api from '@/api/console';
 import { formItemLayout } from '@/constant';
@@ -125,6 +125,10 @@ export default () => {
 
 	useLayoutEffect(() => {
 		listener.setVisible = setVisible;
+
+		if (isLogin) {
+			getTenantList();
+		}
 
 		return () => {
 			Reflect.deleteProperty(listener, 'setVisible');
