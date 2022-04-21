@@ -29,6 +29,8 @@ interface IResponseBodyProps {
 	data: any;
 	message: string;
 	success: boolean;
+
+	[key: string]: any;
 }
 
 class Http {
