@@ -8,7 +8,7 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        去中心化的分布式模式、水平扩容,数百家企业客户生产环境实战检验
+        去中心化的分布式模式、水平扩容，数百家企业客户生产环境实战检验
       </>
     ),
   },

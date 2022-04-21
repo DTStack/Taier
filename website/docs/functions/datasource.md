@@ -1,6 +1,6 @@
 ---
-title: 数据源管理
-sidebar_label: 数据源管理
+title: 创建数据源
+sidebar_label: 创建数据源
 ---
 
 # 创建数据源

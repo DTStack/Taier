@@ -29,7 +29,7 @@ sidebar_position: 1
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`的调度，
-* 支持众多的任务类型，目前支持 Spark SQL、Flinkx
+* 支持众多的任务类型，目前支持 Spark SQL、数据同步
 :::tip
 后续将开源：  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
   HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
@@ -65,8 +65,8 @@ sidebar_position: 1
 请参考官方文档: [快速上手](./quickstart/start.md)
 
 ## 未来规划
-* 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
-HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)
+* 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、TensorFlow、Pytorch、
+HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、Inceptor、Kingbase、Presto)
 * 调度方式：同时支持Yarn/K8s
 * 计算引擎：同时支持Spark-2.1.x/2.4.x、Flink-1.10/1.12（与Flink后续版本）
 * 部署方式：同时支持Scheduler/Worker整合与分离部署
