@@ -27,10 +27,8 @@ import DataSync from '@/components/dataSync';
 import {
 	transformCatalogueToTree,
 	loadTreeNode,
-	resetEditorGroup,
 	getCatalogueViaNode,
 	fileIcon,
-	performSyncTaskActions,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -43,13 +41,11 @@ import {
 	EDIT_FOLDER_PREFIX,
 	EDIT_TASK_PREFIX,
 	FOLDERTREE_CONTEXT_EDIT,
-	TASK_RUN_ID,
-	TASK_SAVE_ID,
-	TASK_SUBMIT_ID,
-	DATA_SYNC_TYPE,
+	CREATE_MODEL_TYPE,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import StreamCollection from '@/components/streamCollection';
 
 /**
  * Update task tree node
@@ -164,7 +160,6 @@ function createTask() {
 			return;
 		}
 		if (type === 'File') {
-			resetEditorGroup();
 			openCreateTab();
 		} else if (type === 'Folder') {
 			// work through addNode function
@@ -197,6 +192,8 @@ function editTreeNodeName() {
 		api.saveOfflineJobData({
 			...data,
 			name,
+			// 标识位，false 表示只修改了当前任务文件属性，不涉及任务内容属性
+			preSave: false,
 		}).then((res: any) => {
 			if (res.code === 1) {
 				updateTree({
@@ -265,7 +262,10 @@ function editTreeNodeName() {
 	});
 }
 
-export function openTaskInTab(taskId: any, file?: any) {
+export function openTaskInTab(
+	taskId: UniqueId,
+	file?: Pick<IFolderTreeNodeProps, 'id' | 'location'> | null,
+) {
 	if (!file) {
 		// 通过id打开任务
 		// eslint-disable-next-line no-param-reassign
@@ -283,8 +283,8 @@ export function openTaskInTab(taskId: any, file?: any) {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
 		if (success) {
 			switch (data.taskType) {
-				case TASK_TYPE_ENUM.SQL:
-				case TASK_TYPE_ENUM.HIVESQL: {
+				case TASK_TYPE_ENUM.HIVE_SQL:
+				case TASK_TYPE_ENUM.SPARK_SQL: {
 					const tabData = {
 						id: fileId.toString(),
 						name: data.name,
@@ -292,7 +292,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 							...data,
 							// set sqlText into value so that molecule-editor could read from this
 							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType)
+							language: mappingTaskTypeToLanguage(data.taskType),
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
@@ -302,11 +302,6 @@ export function openTaskInTab(taskId: any, file?: any) {
 							})) || [],
 					};
 					molecule.editor.open(tabData);
-					molecule.editor.updateActions([
-						{ id: TASK_RUN_ID, disabled: false },
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
 					break;
 				}
 
@@ -318,7 +313,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 						data: {
 							...data,
 							value: data.sqlText,
-							language: 'json',
+							language: mappingTaskTypeToLanguage(data.taskType),
 							taskDesc: data.taskDesc,
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
@@ -330,7 +325,7 @@ export function openTaskInTab(taskId: any, file?: any) {
 					};
 
 					// 向导模式渲染数据同步任务，脚本模式渲染编辑器
-					if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
+					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
 						tabData.renderPane = () => {
 							return <DataSync key={fileId} />;
 						};
@@ -339,20 +334,56 @@ export function openTaskInTab(taskId: any, file?: any) {
 					}
 
 					molecule.editor.open(tabData);
-					performSyncTaskActions();
-					molecule.editor.updateActions([
-						{ id: TASK_RUN_ID, disabled: false },
-						{ id: TASK_SAVE_ID, disabled: false },
-						{ id: TASK_SUBMIT_ID, disabled: false },
-					]);
 					break;
 				}
 
+				case TASK_TYPE_ENUM.DATA_ACQUISITION: {
+					const tabData: molecule.model.IEditorTab = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							value: data.sqlText,
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
+					};
+					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
+						tabData.renderPane = () => <StreamCollection key={fileId} />;
+					} else {
+						tabData.data!.language = mappingTaskTypeToLanguage(data.taskType);
+					}
+					molecule.editor.open(tabData);
+					break;
+				}
+
+				case TASK_TYPE_ENUM.SQL: {
+					const tabData = {
+						id: fileId.toString(),
+						name: data.name,
+						data: {
+							...data,
+							// set sqlText into value so that molecule-editor could read from this
+							value: data.sqlText,
+							language: mappingTaskTypeToLanguage(data.taskType),
+						},
+						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
+						breadcrumb:
+							location?.split('/')?.map((item: string) => ({
+								id: item,
+								name: item,
+							})) || [],
+					};
+					molecule.editor.open(tabData);
+					break;
+				}
 				default:
 					break;
 			}
-		} else {
-			resetEditorGroup();
 		}
 	});
 
@@ -411,13 +442,10 @@ function contextMenu() {
 	molecule.folderTree.onContextMenu((menu, treeNode) => {
 		switch (menu.id) {
 			case 'task.create': {
-				resetEditorGroup();
-
 				openCreateTab(treeNode!.data.id);
 				break;
 			}
 			case FOLDERTREE_CONTEXT_EDIT: {
-				resetEditorGroup();
 				const isFile = treeNode!.fileType === 'File';
 
 				const tabId = isFile
@@ -450,17 +478,6 @@ function contextMenu() {
 					// 关闭当前编辑的 tab
 					const groupId = molecule.editor.getGroupIdByTab(tabId)!;
 					molecule.editor.closeTab(tabId, groupId);
-
-					// 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
-					const { current } = molecule.editor.getState();
-					if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SQL) {
-						molecule.editor.updateActions([
-							{
-								id: TASK_RUN_ID,
-								disabled: false,
-							},
-						]);
-					}
 				};
 
 				const onSubmit = (values: any) => {

@@ -17,29 +17,28 @@
  */
 
 import molecule from '@dtinsight/molecule/esm';
+import { message } from 'antd';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
-import { HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import {
+	FlinkSQLIcon,
+	SyntaxIcon,
+	HiveSQLIcon,
+	SparkSQLIcon,
+	ResourceIcon,
+} from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
 import type { RESOURCE_TYPE } from '@/constant';
-import {
-	OUTPUT_LOG,
-	TASK_SAVE_ID,
-	DATA_SYNC_TYPE,
-	TASK_IMPORT_TEMPALTE,
-	TASK_SWAP,
-	CATELOGUE_TYPE,
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_TYPE_ENUM,
-} from '@/constant';
+import { TASK_SYNTAX_ID } from '@/constant';
+import { OUTPUT_LOG, CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { filterSql, getTenantId, getUserId } from '.';
-import { message } from 'antd';
-import executeService from '@/services/executeService';
+import { executeService } from '@/services';
 import taskResultService from '@/services/taskResultService';
 import Result from '@/components/task/result';
+import { filterSql, getTenantId, getUserId } from '.';
+import stream from '@/api/stream';
+import { createLog } from 'dt-react-codemirror-editor';
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
@@ -49,70 +48,31 @@ export function resetEditorGroup() {
 }
 
 /**
- * 针对不同模式的数据同步任务，更新 actions
+ * 根据不同任务渲染不同的图标
  */
-export function performSyncTaskActions() {
-	const { current } = molecule.editor.getState();
-	if (current?.tab?.data) {
-		const { data } = current.tab;
-		if (data.taskType === TASK_TYPE_ENUM.SYNC) {
-			// 向导模式需要转换为脚本的按钮
-			if (data.createModel === DATA_SYNC_TYPE.GUIDE) {
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_SWAP,
-							icon: 'arrow-swap',
-							place: 'outer',
-							title: '转换为脚本模式',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
-			} else {
-				// 脚本模式需要导入模板的按钮
-				molecule.editor.updateGroup(current.id, {
-					actions: [
-						{
-							id: TASK_IMPORT_TEMPALTE,
-							icon: 'references',
-							place: 'outer',
-							title: '导入模板',
-						},
-						...molecule.editor.getDefaultActions(),
-					],
-				});
-			}
-		} else {
-			// reset actions
-			molecule.editor.updateGroup(current.id, {
-				actions: molecule.editor.getDefaultActions(),
-			});
-		}
-	}
-}
-
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE,
 	source: CATELOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
-		case 'task': {
+		case CATELOGUE_TYPE.TASK: {
 			switch (type) {
-				case TASK_TYPE_ENUM.SQL:
+				case TASK_TYPE_ENUM.SPARK_SQL:
 					return <SparkSQLIcon style={{ color: '#519aba' }} />;
 				case TASK_TYPE_ENUM.SYNC:
 					return 'sync';
-				case TASK_TYPE_ENUM.HIVESQL:
+				case TASK_TYPE_ENUM.HIVE_SQL:
 					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
+				case TASK_TYPE_ENUM.SQL:
+					return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
 				default:
 					return 'file';
 			}
 		}
-		case 'resource': {
-			return 'file';
+		case CATELOGUE_TYPE.RESOURCE: {
+			return <ResourceIcon style={{ color: '#0065f6' }} />;
 		}
-		case 'function':
+		case CATELOGUE_TYPE.FUNCTION:
 		default:
 			return 'code';
 	}
@@ -293,19 +253,6 @@ export function runTask(current: molecule.model.IEditorGroup) {
 		| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 		| undefined = current.tab?.data;
 	if (currentTabData) {
-		// 禁用运行按钮，启用停止按钮
-		molecule.editor.updateActions([
-			{
-				id: TASK_RUN_ID,
-				icon: 'loading~spin',
-				disabled: true,
-			},
-			{
-				id: TASK_STOP_ID,
-				disabled: false,
-			},
-		]);
-
 		// active 日志 窗口
 		const { data } = molecule.panel.getState();
 		const {
@@ -324,24 +271,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				name: currentTabData.name,
 				taskParams: currentTabData.taskParams,
 			};
-			executeService.execDataSync(currentTabData.id, params).finally(() => {
-				// update the status of buttons
-				molecule.editor.updateActions([
-					{
-						id: TASK_SAVE_ID,
-						disabled: false,
-					},
-					{
-						id: TASK_RUN_ID,
-						icon: 'play',
-						disabled: false,
-					},
-					{
-						id: TASK_STOP_ID,
-						disabled: true,
-					},
-				]);
-			});
+			executeService.execDataSync(currentTabData.id, params);
 		} else {
 			const params = {
 				taskVariables: currentTabData.taskVariables || [],
@@ -369,56 +299,101 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			} else {
 				sqls.push(...filterSql(value));
 			}
-			executeService
-				.execSql(currentTabData.id, currentTabData, params, sqls)
-				.then(() => {
-					const allResult = taskResultService.getState().results;
-					Object.keys(allResult).forEach((key) => {
-						const results = allResult[key];
-						const panel = molecule.panel.getPanel(key);
+			executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
+				const allResult = taskResultService.getState().results;
+				Object.keys(allResult).forEach((key) => {
+					const results = allResult[key];
+					const panel = molecule.panel.getPanel(key);
 
-						if (!panel) {
-							const panels = molecule.panel.getState().data || [];
-							const resultPanles = panels.filter((p) => p.name?.includes('结果'));
-							const lastIndexOf = Number(
-								resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
-							);
+					if (!panel) {
+						const panels = molecule.panel.getState().data || [];
+						const resultPanles = panels.filter((p) => p.name?.includes('结果'));
+						const lastIndexOf = Number(
+							resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
+						);
 
-							molecule.panel.open({
-								id: key,
-								name: `结果 ${lastIndexOf + 1}`,
-								closable: true,
-								renderPane: () => (
-									<Result
-										data={results}
-										tab={{
-											tableType: 0,
-										}}
-										extraView={null}
-									/>
-								),
-							});
-						}
-					});
-				})
-				.finally(() => {
-					// update the status of buttons
-					molecule.editor.updateActions([
-						{
-							id: TASK_SAVE_ID,
-							disabled: false,
-						},
-						{
-							id: TASK_RUN_ID,
-							icon: 'play',
-							disabled: false,
-						},
-						{
-							id: TASK_STOP_ID,
-							disabled: true,
-						},
-					]);
+						molecule.panel.open({
+							id: key,
+							name: `结果 ${lastIndexOf + 1}`,
+							closable: true,
+							renderPane: () => (
+								<Result
+									data={results}
+									tab={{
+										tableType: 0,
+									}}
+									extraView={null}
+								/>
+							),
+						});
+					}
 				});
+			});
 		}
 	}
+}
+
+/**
+ * 语法检查
+ */
+export function syntaxValidate(current: molecule.model.IEditorGroup) {
+	const currentTabData: IOfflineTaskProps | undefined = current.tab?.data;
+	if (!currentTabData) return;
+	// 禁用语法检查
+	molecule.editor.updateActions([
+		{
+			id: TASK_SYNTAX_ID,
+			icon: 'loading~spin',
+			disabled: true,
+		},
+	]);
+
+	// active 日志 窗口
+	const { data } = molecule.panel.getState();
+	const {
+		panel: { hidden },
+	} = molecule.layout.getState();
+	if (hidden) {
+		molecule.layout.togglePanelVisibility();
+	}
+	molecule.panel.setState({
+		current: data?.find((item) => item.id === OUTPUT_LOG),
+	});
+
+	const logId = currentTabData.id.toString();
+	taskResultService.clearLogs(logId);
+	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
+
+	let isSuccess = false;
+	stream
+		.checkSyntax({})
+		.then((res) => {
+			if (res.message) {
+				taskResultService.appendLogs(logId, createLog(res.message, 'error'));
+			}
+			if (res && res.code === 1) {
+				if (res.data.code === 1) {
+					taskResultService.appendLogs(logId, createLog('语法检查通过', 'info'));
+					isSuccess = true;
+				} else {
+					taskResultService.appendLogs(logId, createLog(res.data.errorMsg, 'error'));
+				}
+			}
+		})
+		.catch((e) => {
+			console.trace(e);
+		})
+		.finally(() => {
+			if (!isSuccess) {
+				taskResultService.appendLogs(logId, createLog('语法检查失败！', 'error'));
+			}
+			// 恢复语法检查按钮
+			molecule.editor.updateActions([
+				{
+					id: TASK_SYNTAX_ID,
+					icon: <SyntaxIcon />,
+					disabled: false,
+				},
+			]);
+		});
 }
