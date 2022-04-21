@@ -1,0 +1,41 @@
+$primary-color: #CCDFFF;
+$disabled-color: #ddd;
+.date-range_calendar {
+    &.rc-calendar {
+        box-shadow: none;
+    }
+    &.rc-calendar-range {
+        width: 422px;
+    }
+    .rc-calendar-range-part {
+        width: 210px;
+    }
+    .rc-calendar-disabled-cell {
+        .rc-calendar-date {
+            border-radius: 4px;
+            width: 26px;
+        }
+    }
+    .rc-calendar-date {
+        background: transparent;
+        color: #333;
+        border-color: transparent;
+        &:hover {
+            background: transparent;
+        }
+        &.rc-calendar-date-selected {
+            background: $primary-color;
+            border: 1px solid $primary-color;
+        }
+    }
+    &.disabled {
+        .rc-calendar-date {
+            background: transparent;
+            cursor: not-allowed;
+            &.rc-calendar-date-selected {
+                background: $disabled-color;
+                border-color: $disabled-color;
+            }
+        }
+    }
+}

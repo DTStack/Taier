@@ -4,7 +4,11 @@ import {
 	CREATE_TASK_PREFIX,
 	CREATE_DATASOURCE_PREFIX,
 	EDIT_DATASOURCE_PREFIX,
+	CREATE_MODEL_TYPE,
+	TASK_RUN_ID,
 } from '@/constant';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { editorActionBarService } from '@/services';
 import { runTask } from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
 import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
@@ -46,7 +50,15 @@ export default class QuickRunSQLAction extends Action2 {
 			EDIT_DATASOURCE_PREFIX,
 		];
 		if (current && !NOT_RUN.some((prefix) => current.activeTab?.toString().includes(prefix))) {
-			runTask(current);
+			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
+			const taskToolbar = editorActionBarService.getActionBar(
+				currentTabData.taskType,
+				currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
+			);
+			// 只要当前任务存在运行按钮才可以执行运行命令
+			if (taskToolbar.find((t) => t.id === TASK_RUN_ID)) {
+				runTask(current);
+			}
 		}
 	}
 }

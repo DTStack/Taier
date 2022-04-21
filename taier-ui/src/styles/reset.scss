@@ -34,11 +34,17 @@
 
 	.ant-drawer .ant-table thead > tr > th,
 	.ant-table-thead > tr > th,
+	.ant-table-small .ant-table-thead > tr > th,
 	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
 	.ant-table-tbody > tr.ant-table-placeholder:hover > td,
 	.ant-table-tbody > tr.ant-table-row:hover > td,
 	.ant-table-tbody > tr > td.ant-table-cell-row-hover {
 		background: var(--editor-background);
+		background-color: var(--editor-background);
+	}
+
+	.ant-notification-notice {
+		background: var(--notifications-background);
 	}
 
 	* {
@@ -72,7 +78,8 @@
 	.ant-picker-input > input,
 	.ant-table,
 	.ant-checkbox-wrapper,
-	.ant-tooltip {
+	.ant-tooltip,
+	.ant-table-cell {
 		font-size: $font-size;
 	}
 }

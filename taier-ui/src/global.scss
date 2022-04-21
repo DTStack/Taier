@@ -9,8 +9,10 @@ body {
 	padding: 0;
 }
 
-code {
+.mo code {
+	padding: 2px 5px;
 	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+	background: var(--textBlockQuote-background);
 }
 
 #root {

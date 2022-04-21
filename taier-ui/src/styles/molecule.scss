@@ -35,3 +35,8 @@
 		opacity: 1;
 	}
 }
+
+.mo-notification__item:focus {
+	background: var(--list-hoverBackground);
+	outline: 1px solid var(--list-focusOutline);
+}

@@ -1,0 +1,26 @@
+.c-multiple-table__transfer {
+    padding: 0 4px;
+    .ant-transfer-list {
+        width: 200px;
+        height: 392px;
+        .ant-transfer-list-header {
+            padding: 11px 14px;
+        }
+        .ant-transfer-list-body {
+            .ant-transfer-list-search {
+                border-radius: 2px;
+            }
+        }
+    }
+    .ant-transfer-operation {
+        margin: 0 24px;
+        .ant-btn-icon-only.ant-btn-sm {
+            width: 24px;
+            height: 24px;
+            border-radius: 1px;
+            &:first-child {
+                margin-bottom: 20px;
+            }
+        }
+    }
+}

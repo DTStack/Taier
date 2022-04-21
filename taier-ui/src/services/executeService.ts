@@ -25,6 +25,13 @@ import { checkExist } from '@/utils';
 import { OFFLINE_TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import { createLinkMark, createLog, createTitle } from 'dt-react-codemirror-editor';
 import moment from 'moment';
+import { singleton } from 'tsyringe';
+
+export enum EXECUTE_EVENT {
+	onStartRun = 'onStartRun',
+	onEndRun = 'onEndRun',
+	onStop = 'onStop',
+}
 
 /**
  * 任务执行的结果
@@ -67,7 +74,7 @@ const SELECT_TYPE = {
  */
 type ITask = CatalogueDataProps & IOfflineTaskProps;
 
-interface IExecuteService {
+export interface IExecuteService {
 	/**
 	 * 执行 sql 任务
 	 * @param currentTabId 当前任务 id
@@ -97,11 +104,15 @@ interface IExecuteService {
 	 * @param isSilent 静默关闭，不通知任何人（服务器，用户）
 	 */
 	stopDataSync: (currentTabId: number, isSilent: boolean) => Promise<void>;
+	onStartRun: (callback: (currentTabId: number) => void) => void;
+	onEndRun: (callback: (currentTabId: number) => void) => void;
+	onStopTab: (callback: (currentTabId: number) => void) => void;
 }
 
 type IExecuteStates = Record<string, void>;
 
-class ExecuteService extends Component<IExecuteStates> implements IExecuteService {
+@singleton()
+export default class ExecuteService extends Component<IExecuteStates> implements IExecuteService {
 	private INTERVALS = 1500;
 	protected state: IExecuteStates;
 	/**
@@ -120,6 +131,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 	private taskResultService: ITaskResultService;
 
 	constructor() {
+		console.log('constructor');
 		super();
 		this.state = {};
 		this.taskResultService = taskResultService;
@@ -135,6 +147,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		sqls: string[],
 	) => {
 		this.stopSign.set(currentTabId, false);
+		this.emit(EXECUTE_EVENT.onStartRun, currentTabId);
 		const key = this.getUniqueKey(task.id);
 		const params = {
 			...rawParams,
@@ -144,6 +157,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 	};
 
 	public stopSql = (currentTabId: number, currentTabData: ITask, isSilent: boolean) => {
+		this.emit(EXECUTE_EVENT.onStop, currentTabId);
 		if (isSilent) {
 			this.stopSign.set(currentTabId, true);
 			this.taskResultService.appendLogs(
@@ -164,7 +178,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			return API.stopSQLImmediately({
 				taskId: currentTabData.id,
 				jobId,
-			});
+			}).then(() => Promise.resolve());
 		}
 
 		// 脚本执行
@@ -172,7 +186,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			return API.stopScript({
 				scriptId: currentTabData.id,
 				jobId,
-			});
+			}).then(() => Promise.resolve());
 		}
 
 		return Promise.resolve();
@@ -180,6 +194,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 
 	public execDataSync = async (currentTabId: number, params: Record<string, any>) => {
 		this.stopSign.set(currentTabId, false);
+		this.emit(EXECUTE_EVENT.onStartRun, currentTabId);
 		this.taskResultService.clearLogs(currentTabId.toString());
 		this.taskResultService.appendLogs(
 			currentTabId.toString(),
@@ -226,8 +241,9 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 				currentTabId.toString(),
 				createLog(`执行返回结果异常`, 'error'),
 			);
-			return true;
 		}
+
+		this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
 
 		return true;
 	};
@@ -235,6 +251,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 	public stopDataSync = async (currentTabId: number, isSilent: boolean) => {
 		if (isSilent) {
 			this.stopSign.set(currentTabId, true);
+			this.emit(EXECUTE_EVENT.onStop, currentTabId);
 			this.taskResultService.appendLogs(
 				currentTabId.toString(),
 				createLog('执行停止', 'warning'),
@@ -302,9 +319,12 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 							} else {
 								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
+								return;
 							}
 						}
 					}
+
+					this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
 				});
 		}
 
@@ -406,15 +426,6 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			// 如果存在 jobId，则需要轮训根据 jobId 继续获取后续结果
 			if (res.data?.jobId) {
 				this.runningSql.set(currentTabId, res.data.jobId);
-				if (
-					task.taskType === TASK_TYPE_ENUM.ADB ||
-					task.taskType === TASK_TYPE_ENUM.IMPALA_SQL ||
-					task.taskType === TASK_TYPE_ENUM.INCEPTOR
-				) {
-					this.getDataOver(currentTabId, res, res.data.jobId);
-					return true;
-				}
-
 				return this.selectData(res.data.jobId, currentTabId, task);
 			}
 
@@ -433,7 +444,7 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 		jobId: string,
 		currentTabId: number,
 		task: Pick<ITask, 'id' | 'taskType'>,
-		taskType: TASK_TYPE_ENUM = TASK_TYPE_ENUM.SQL,
+		taskType: TASK_TYPE_ENUM = TASK_TYPE_ENUM.SPARK_SQL,
 	) => this.doSelect(jobId, currentTabId, task, taskType);
 
 	/**
@@ -766,6 +777,16 @@ class ExecuteService extends Component<IExecuteStates> implements IExecuteServic
 			}
 		});
 	};
-}
 
-export default new ExecuteService();
+	public onStartRun = (callback: (currentTabId: number) => void) => {
+		this.subscribe(EXECUTE_EVENT.onStartRun, callback);
+	};
+
+	public onEndRun = (callback: (currentTabId: number) => void) => {
+		this.subscribe(EXECUTE_EVENT.onEndRun, callback);
+	};
+
+	public onStopTab = (callback: (currentTabId: number) => void) => {
+		this.subscribe(EXECUTE_EVENT.onStop, callback);
+	};
+}

@@ -4,8 +4,12 @@
 	left: 65px;
 	z-index: 1;
 	display: none;
+	width: calc(100% - 75px);
+	height: 100%;
+	overflow: hidden;
 	color: var(--input-placeholderForeground);
 	font-style: italic;
-	opacity: 0.7;
+	white-space: pre-line;
+	opacity: 0.6;
 	pointer-events: none;
 }

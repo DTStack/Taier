@@ -19,7 +19,7 @@
 import { Row, Pagination, Col } from 'antd';
 import type { PaginationProps } from 'antd';
 import Editor from '@/components/editor';
-import { createLinkMark, createLogMark } from '@/components/codeEditor/utils';
+import { createLinkMark, createLogMark } from 'dt-react-codemirror-editor';
 import { formatDateTime, prettierJSONstring } from '@/utils';
 import { useMemo } from 'react';
 
