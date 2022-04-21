@@ -61,12 +61,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.carbondata</groupId>
-            <artifactId>carbondata-spark2</artifactId>
-            <version>${carbondata.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -117,13 +111,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}.jar"/>
                                 <copy todir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      file="${basedir}/target/${jar.name}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/target/../../../../../../pluginLibs/${pluginDir.name}/"
                                              includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                             excludes="${jar.name}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

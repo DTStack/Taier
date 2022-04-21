@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.controller.console;
 
 import com.dtstack.taier.common.constant.Cookies;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
@@ -28,10 +29,12 @@ import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
+import com.dtstack.taier.develop.vo.console.ComponentBindDBVO;
 import com.dtstack.taier.develop.vo.console.ComponentBindTenantVO;
 import com.dtstack.taier.develop.vo.console.TenantVO;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import io.swagger.annotations.Api;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -43,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/tenant")
@@ -74,6 +78,13 @@ public class TenantController {
         Cluster cluster = clusterService.getCluster(vo.getClusterId());
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
+        }
+        if (CollectionUtils.isNotEmpty(vo.getBindDBList())){
+            for (ComponentBindDBVO bindDBVO : vo.getBindDBList()) {
+                if (Objects.isNull(bindDBVO.getComponentCode())) {
+                    throw new RdosDefineException(String.format(ErrorCode.META_COMPONENT_NOT_EXISTS.getMsg(), EComponentType.SPARK_THRIFT.getName()));
+                }
+            }
         }
         tenantService.bindingTenant(vo.getTenantId(), vo.getClusterId(), vo.getQueueId(), cluster.getClusterName(), vo.getBindDBList());
         return R.empty();

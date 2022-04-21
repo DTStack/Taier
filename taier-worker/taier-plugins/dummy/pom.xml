@@ -91,13 +91,13 @@
                         <configuration>
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      tofile="${basedir}/target/${jar.name}.jar"/>
                                 <copy todir="${basedir}/target/../../../../pluginLibs/dummy/"
-                                      file="${basedir}/target/${jar.name}-${git.branch}.jar"/>
+                                      file="${basedir}/target/${jar.name}.jar"/>
                                 <delete>
                                     <fileset dir="${basedir}/target/../../../../pluginLibs/dummy/"
                                              includes="${jar.name}-*.jar"
-                                             excludes="${jar.name}-${git.branch}.jar"/>
+                                             excludes="${jar.name}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>

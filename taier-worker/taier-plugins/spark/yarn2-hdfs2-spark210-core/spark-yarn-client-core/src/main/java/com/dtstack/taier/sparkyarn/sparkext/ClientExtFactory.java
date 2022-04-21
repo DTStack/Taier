@@ -36,13 +36,8 @@ public class ClientExtFactory {
     public static ClientExt getClientExt(FilesystemManager filesystemManager,
                                          ClientArguments args,
                                          Configuration hadoopConf,
-                                         SparkConf sparkConf,
-                                         boolean isCarbondata){
+                                         SparkConf sparkConf){
 
-        if(!isCarbondata){
-            return new ClientExt(filesystemManager, args, hadoopConf, sparkConf);
-        }else{
-            return new CarbondataClientExt(filesystemManager, args, hadoopConf, sparkConf);
-        }
+        return new ClientExt(filesystemManager, args, hadoopConf, sparkConf);
     }
 }
