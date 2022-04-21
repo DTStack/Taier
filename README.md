@@ -23,7 +23,7 @@
 
 #### 易用性
 * 支持大数据作业`Spark`、`Flink`的调度，
-* 支持众多的任务类型，目前支持 Spark SQL、Flinkx
+* 支持众多的任务类型，目前支持 Spark SQL、Chunjun
 
 ```
   后续将开源：:
