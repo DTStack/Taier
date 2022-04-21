@@ -37,6 +37,7 @@ import {
 	Switch,
 	Form,
 	Space,
+	Spin,
 } from 'antd';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
@@ -187,6 +188,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 	const [templateData, setTemplateData] = useState<IFormFieldVoList[]>([]);
 	const [principalsList, setPrincipalsList] = useState<any[]>([]);
 	const [detailData, setDetailData] = useState<Record<string, any>>({});
+	const [loading, setLoading] = useState(false);
 
 	useImperativeHandle(ref, () => form);
 
@@ -210,6 +212,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 	};
 
 	const getAllData = async () => {
+		setLoading(true);
 		const { fromFieldVoList = [] } = await templateForm();
 
 		const formFieldVoList = fromFieldVoList.filter(
@@ -248,6 +251,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 			}
 		}
 
+		setLoading(false);
 		setTemplateData(formFieldVoList || []);
 	};
 
@@ -1283,7 +1287,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 				>
 					<Input disabled />
 				</Form.Item>
-				{formItem}
+				<Spin spinning={loading}>{formItem}</Spin>
 			</Form>
 		</div>
 	);

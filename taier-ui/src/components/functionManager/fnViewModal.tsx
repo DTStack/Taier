@@ -60,7 +60,7 @@ export default function FnViewModal({ visible, fnId, closeModal }: IFnViewModalP
 					<tr>
 						<td className="w-1/5">函数名称</td>
 						<td className="break-all" title={data.name}>
-							{data.name}
+							<code>{data.name}</code>
 						</td>
 					</tr>
 					{data.className && (
@@ -87,7 +87,9 @@ export default function FnViewModal({ visible, fnId, closeModal }: IFnViewModalP
 					</tr>
 					<tr>
 						<td>命令格式</td>
-						<td className="break-all">{data.commandFormate || '/'}</td>
+						<td className="break-all">
+							<code>{data.commandFormate || '/'}</code>
+						</td>
 					</tr>
 					<tr>
 						<td>参数说明</td>

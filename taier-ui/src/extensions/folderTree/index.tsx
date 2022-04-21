@@ -27,10 +27,8 @@ import DataSync from '@/components/dataSync';
 import {
 	transformCatalogueToTree,
 	loadTreeNode,
-	resetEditorGroup,
 	getCatalogueViaNode,
 	fileIcon,
-	performSyncTaskActions,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -43,9 +41,7 @@ import {
 	EDIT_FOLDER_PREFIX,
 	EDIT_TASK_PREFIX,
 	FOLDERTREE_CONTEXT_EDIT,
-	TASK_RUN_ID,
 	CREATE_MODEL_TYPE,
-	TASK_STOP_ID,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
@@ -164,7 +160,6 @@ function createTask() {
 			return;
 		}
 		if (type === 'File') {
-			resetEditorGroup();
 			openCreateTab();
 		} else if (type === 'Folder') {
 			// work through addNode function
@@ -307,8 +302,6 @@ export function openTaskInTab(
 							})) || [],
 					};
 					molecule.editor.open(tabData);
-					performSyncTaskActions();
-					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -341,8 +334,6 @@ export function openTaskInTab(
 					}
 
 					molecule.editor.open(tabData);
-					performSyncTaskActions();
-					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -367,8 +358,6 @@ export function openTaskInTab(
 						tabData.data!.language = mappingTaskTypeToLanguage(data.taskType);
 					}
 					molecule.editor.open(tabData);
-					performSyncTaskActions();
-					molecule.editor.updateActions([{ id: TASK_STOP_ID, disabled: true }]);
 					break;
 				}
 
@@ -390,14 +379,11 @@ export function openTaskInTab(
 							})) || [],
 					};
 					molecule.editor.open(tabData);
-					performSyncTaskActions();
 					break;
 				}
 				default:
 					break;
 			}
-		} else {
-			resetEditorGroup();
 		}
 	});
 
@@ -456,13 +442,10 @@ function contextMenu() {
 	molecule.folderTree.onContextMenu((menu, treeNode) => {
 		switch (menu.id) {
 			case 'task.create': {
-				resetEditorGroup();
-
 				openCreateTab(treeNode!.data.id);
 				break;
 			}
 			case FOLDERTREE_CONTEXT_EDIT: {
-				resetEditorGroup();
 				const isFile = treeNode!.fileType === 'File';
 
 				const tabId = isFile
@@ -495,17 +478,6 @@ function contextMenu() {
 					// 关闭当前编辑的 tab
 					const groupId = molecule.editor.getGroupIdByTab(tabId)!;
 					molecule.editor.closeTab(tabId, groupId);
-
-					// 关闭后编辑任务的 tab 后，需要去更新 actions 的状态
-					const { current } = molecule.editor.getState();
-					if (current?.tab?.data.taskType === TASK_TYPE_ENUM.SPARK_SQL) {
-						molecule.editor.updateActions([
-							{
-								id: TASK_RUN_ID,
-								disabled: false,
-							},
-						]);
-					}
 				};
 
 				const onSubmit = (values: any) => {
