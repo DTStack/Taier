@@ -1,6 +1,6 @@
 ---
-title: 集群管理
-sidebar_label: 集群管理
+title: 集群配置
+sidebar_label: 集群配置
 ---
 
 # 控制台
@@ -24,6 +24,10 @@ sidebar_label: 集群管理
 
 公共组件用于配置 SFTP 组件，相关资源、配置文件上传下载都会使用对应的sftp组件来操作
 
+:::tip
+sftp组件用于保存yarn组件中的配置文件信息 以及kerberos文件信息 任意一台机器即可 但需要保证计算节点和Taier网络能访问
+:::
+
 ![SFTP 配置](/img/readme/sftp.png)
 
 ### 资源调度组件
@@ -31,10 +35,10 @@ sidebar_label: 集群管理
 资源调度组件主要用于配置 YARN 组件，因为某些计算组件需要依赖资源调度组件，比如 Flink 计算组件需要依赖 YARN，所以需要提前配置好资源调度组件
 
 ![YARN 配置](/img/readme/yarn.png)
-:::info
+:::tip
 不同厂商的hadoop集群提交任务会依赖不同的参数，可以在适配hadoop集群的时候通过自定义参数来动态调整
 
-这里默认以Apache Hadoop2 为例
+这里默认以Apache Hadoop2 为例 如果没有对应hadoop版本 可以使用Apache Hadoop2 通过采用适配集群的方式来提交任务
 :::
 
 ### 存储组件
@@ -68,8 +72,8 @@ sidebar_label: 集群管理
 | pluginLoadMode            | shipfile                                 | 插件加载类型                                          | 否       |
 | monitorAcceptedApp        | false                                    | 是否监控yarn accepted状态任务                         | 否       |
 | yarnAccepterTaskNumber    | 3                                        | 允许yarn accepter任务数量，达到这个值后不允许任务提交 | 否       |
-| prometheusHost            |                                          | prometheus地址，平台端使用                            | 是       |
-| prometheusPort            | 9090                                     | prometheus，平台端使用                                | 是       |
+| prometheusHost            |                                          | prometheus地址，获取数据同步指标使用                           | 是       |
+| prometheusPort            | 9090                                     | prometheus，获取数据同步指标使用                                | 是       |
 | classloader.dtstack-cache | true                                     | 是否缓存classloader                                   | 否       |
 
 ##### session
@@ -79,8 +83,8 @@ sidebar_label: 集群管理
 | checkSubmitJobGraphInterval | 60            | session check间隔（60 * 10s）           | 是       |
 | flinkSessionSlotCount       | 10            | flink session允许的最大slot数           | 是       |
 | sessionRetryNum             | 5             | session重试次数，达到后会放缓重试的频率 | 是       |
-| sessionStartAuto            | true          | 是否允许engine启动flink session         | 是       |
-| flinkSess ionName           | flink_session | flink session任务名                     | 是       |
+| sessionStartAuto            | true          | 是否允许Taier启动flink session         | 是       |
+| flinkSessionName           | flink_session | flink session任务名                     | 是       |
 | jobmanager.heap.mb          | 2048          | jobmanager内存大小                      | 是       |
 | taskmanager.heap.mb         | 1024          | taskmanager内存大小                     | 是       |
 
@@ -112,6 +116,224 @@ sidebar_label: 集群管理
 | akka.tcp.timeout                                    | 60 s                                                         |                              | 否       |
 
 更多 Flink 参数项详见[官方文档](https://ci.apache.org/projects/flink/flink-docs-release-1.10/ops/config.html)
+
+prejob和session 都依赖chunjun的插件包和flink的lib包  
+
+**flinkJarPath**配置的是flink 的lib目录  
+如:flinkJarPath = /opt/dtstack/flink110_lib  
+/opt/dtstack/flink110_lib 目录结构为:
+```shell
+├── flink-dist_2.11-1.10.0.jar
+├── flink-metrics-prometheus-1.10.0.jar
+├── flink-shaded-hadoop-2-uber-2.7.5-10.0.jar
+├── flink-streaming-java_2.11-1.10.0.jar
+├── flink-table_2.11-1.10.0.jar
+├── flink-table-blink_2.11-1.10.0.jar
+└── log4j-1.2.17.jar
+```
+**flinkPluginRoot**配置的是chunjun的插件包目录  
+如:flinkPluginRoot = /opt/dtstack/110_flinkplugin  
+/opt/dtstack/110_flinkplugin 目录结构为:
+```shell
+└── syncplugin
+    ├── adbpostgresqlreader
+    │   └── flinkx-adbpostgresql-reader-feat_1.10_4.3.x_metadata.jar
+    ├── adbpostgresqlwriter
+    │   └── flinkx-adbpostgresql-writer-feat_1.10_4.3.x_metadata.jar
+    ├── binlogreader
+    │   └── flinkx-binlog-reader-feat_1.10_4.3.x_metadata.jar
+    ├── carbondatareader
+    │   └── flinkx-carbondata-reader.jar
+    ├── carbondatawriter
+    │   └── flinkx-carbondata-writer.jar
+    ├── cassandrareader
+    │   └── flinkx-cassandra-reader-feat_1.10_4.3.x_metadata.jar
+    ├── cassandrawriter
+    │   └── flinkx-cassandra-writer-feat_1.10_4.3.x_metadata.jar
+    ├── clickhousereader
+    │   └── flinkx-clickhouse-reader-feat_1.10_4.3.x_metadata.jar
+    ├── clickhousewriter
+    │   └── flinkx-clickhouse-writer-feat_1.10_4.3.x_metadata.jar
+    ├── common
+    │   ├── flinkx-rdb-core-feat_1.10_4.3.x_metadata.jar
+    │   ├── flinkx-rdb-reader-feat_1.10_4.3.x_metadata.jar
+    │   └── flinkx-rdb-writer-feat_1.10_4.3.x_metadata.jar
+    ├── db2reader
+    │   └── flinkx-db2-reader-feat_1.10_4.3.x_metadata.jar
+    ├── db2writer
+    │   └── flinkx-db2-writer-feat_1.10_4.3.x_metadata.jar
+    ├── dmreader
+    │   └── flinkx-dm-reader-feat_1.10_4.3.x_metadata.jar
+    ├── dmwriter
+    │   └── flinkx-dm-writer-feat_1.10_4.3.x_metadata.jar
+    ├── doriswriter
+    │   └── flinkx-doris-writer-feat_1.10_4.3.x_metadata.jar
+    ├── emqxreader
+    │   └── flinkx-emqx-reader-feat_1.10_4.3.x_metadata.jar
+    ├── emqxwriter
+    │   └── flinkx-emqx-writer-feat_1.10_4.3.x_metadata.jar
+    ├── esreader
+    │   └── flinkx-es-reader-feat_1.10_4.3.x_metadata.jar
+    ├── eswriter
+    │   └── flinkx-es-writer-feat_1.10_4.3.x_metadata.jar
+    ├── ftpreader
+    │   └── flinkx-ftp-reader-feat_1.10_4.3.x_metadata.jar
+    ├── ftpwriter
+    │   └── flinkx-ftp-writer-feat_1.10_4.3.x_metadata.jar
+    ├── gbasereader
+    │   └── flinkx-gbase-reader-feat_1.10_4.3.x_metadata.jar
+    ├── gbasewriter
+    │   └── flinkx-gbase-writer-feat_1.10_4.3.x_metadata.jar
+    ├── greenplumreader
+    │   └── flinkx-greenplum-reader-feat_1.10_4.3.x_metadata.jar
+    ├── greenplumwriter
+    │   └── flinkx-greenplum-writer-feat_1.10_4.3.x_metadata.jar
+    ├── hbasereader
+    │   └── flinkx-hbase-reader-feat_1.10_4.3.x_metadata.jar
+    ├── hbasewriter
+    │   └── flinkx-hbase-writer-feat_1.10_4.3.x_metadata.jar
+    ├── hdfsreader
+    │   └── flinkx-hdfs-reader-feat_1.10_4.3.x_metadata.jar
+    ├── hdfswriter
+    │   └── flinkx-hdfs-writer-feat_1.10_4.3.x_metadata.jar
+    ├── hivewriter
+    │   └── flinkx-hive-writer-feat_1.10_4.3.x_metadata.jar
+    ├── inceptorreader
+    │   └── flinkx-inceptor-reader-feat_1.10_4.3.x_metadata.jar
+    ├── inceptorwriter
+    │   └── flinkx-inceptor-writer-feat_1.10_4.3.x_metadata.jar
+    ├── influxdbreader
+    │   └── flinkx-influxdb-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kafka09reader
+    │   └── flinkx-kafka09-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kafka09writer
+    │   └── flinkx-kafka09-writer-feat_1.10_4.3.x_metadata.jar
+    ├── kafka10reader
+    │   └── flinkx-kafka10-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kafka10writer
+    │   └── flinkx-kafka10-writer-feat_1.10_4.3.x_metadata.jar
+    ├── kafka11reader
+    │   └── flinkx-kafka11-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kafka11writer
+    │   └── flinkx-kafka11-writer-feat_1.10_4.3.x_metadata.jar
+    ├── kafkareader
+    │   └── flinkx-kafka-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kafkawriter
+    │   └── flinkx-kafka-writer-feat_1.10_4.3.x_metadata.jar
+    ├── kingbasereader
+    │   └── flinkx-kingbase-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kingbasewriter
+    │   └── flinkx-kingbase-writer-feat_1.10_4.3.x_metadata.jar
+    ├── kudureader
+    │   └── flinkx-kudu-reader-feat_1.10_4.3.x_metadata.jar
+    ├── kuduwriter
+    │   └── flinkx-kudu-writer-feat_1.10_4.3.x_metadata.jar
+    ├── metadatahbasereader
+    │   └── flinkx-metadata-hbase-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatahive1reader
+    │   └── flinkx-metadata-hive1-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatahive2reader
+    │   └── flinkx-metadata-hive2-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatahivecdcreader
+    │   └── flinkx-metadata-hivecdc-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatakafkareader
+    │   └── flinkx-metadata-kafka-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatamysqlreader
+    │   └── flinkx-metadata-mysql-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadataoraclereader
+    │   └── flinkx-metadata-oracle-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadataphoenix5reader
+    │   └── flinkx-metadata-phoenix5-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatasparkthriftreader
+    │   └── flinkx-metadata-sparkthrift-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatasqlserverreader
+    │   └── flinkx-metadata-sqlserver-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadatatidbreader
+    │   └── flinkx-metadata-tidb-reader-feat_1.10_4.3.x_metadata.jar
+    ├── metadataverticareader
+    │   └── flinkx-metadata-vertica-reader-feat_1.10_4.3.x_metadata.jar
+    ├── mongodbreader
+    │   └── flinkx-mongodb-reader-feat_1.10_4.3.x_metadata.jar
+    ├── mongodbwriter
+    │   └── flinkx-mongodb-writer-feat_1.10_4.3.x_metadata.jar
+    ├── mysqlcdcreader
+    │   └── flinkx-cdc-reader-feat_1.10_4.3.x_metadata.jar
+    ├── mysqldreader
+    │   └── flinkx-mysql-dreader-feat_1.10_4.3.x_metadata.jar
+    ├── mysqlreader
+    │   └── flinkx-mysql-reader-feat_1.10_4.3.x_metadata.jar
+    ├── mysqlwriter
+    │   └── flinkx-mysql-writer-feat_1.10_4.3.x_metadata.jar
+    ├── odpsreader
+    │   └── flinkx-odps-reader-feat_1.10_4.3.x_metadata.jar
+    ├── odpswriter
+    │   └── flinkx-odps-writer-feat_1.10_4.3.x_metadata.jar
+    ├── opentsdbreader
+    │   └── flinkx-opentsdb-reader-feat_1.10_4.3.x_metadata.jar
+    ├── oracle9reader
+    │   ├── flinkx-oracle9-reader-feat_1.10_4.3.x_metadata.jar
+    │   └── flinkx-oracle9reader.zip
+    ├── oracle9writer
+    │   ├── flinkx-oracle9-writer-feat_1.10_4.3.x_metadata.jar
+    │   └── flinkx-oracle9writer.zip
+    ├── oraclelogminerreader
+    │   └── flinkx-oraclelogminer-reader-feat_1.10_4.3.x_metadata.jar
+    ├── oraclereader
+    │   └── flinkx-oracle-reader-feat_1.10_4.3.x_metadata.jar
+    ├── oraclewriter
+    │   └── flinkx-oracle-writer-feat_1.10_4.3.x_metadata.jar
+    ├── pgwalreader
+    │   └── flinkx-pgwal-reader-feat_1.10_4.3.x_metadata.jar
+    ├── phoenix5reader
+    │   └── flinkx-phoenix5-reader-feat_1.10_4.3.x_metadata.jar
+    ├── phoenix5writer
+    │   └── flinkx-phoenix5-writer-feat_1.10_4.3.x_metadata.jar
+    ├── polardbdreader
+    │   └── flinkx-polardb-dreader-feat_1.10_4.3.x_metadata.jar
+    ├── polardbreader
+    │   └── flinkx-polardb-reader-feat_1.10_4.3.x_metadata.jar
+    ├── polardbwriter
+    │   └── flinkx-polardb-writer-feat_1.10_4.3.x_metadata.jar
+    ├── postgresqlreader
+    │   └── flinkx-postgresql-reader-feat_1.10_4.3.x_metadata.jar
+    ├── postgresqlwriter
+    │   └── flinkx-postgresql-writer-feat_1.10_4.3.x_metadata.jar
+    ├── rediswriter
+    │   └── flinkx-redis-writer-feat_1.10_4.3.x_metadata.jar
+    ├── restapireader
+    │   └── flinkx-restapi-reader-feat_1.10_4.3.x_metadata.jar
+    ├── restapiwriter
+    │   └── flinkx-restapi-writer-feat_1.10_4.3.x_metadata.jar
+    ├── s3reader
+    │   └── flinkx-s3-reader-feat_1.10_4.3.x_metadata.jar
+    ├── s3writer
+    │   └── flinkx-s3-writer-feat_1.10_4.3.x_metadata.jar
+    ├── saphanareader
+    │   └── flinkx-saphana-reader-feat_1.10_4.3.x_metadata.jar
+    ├── saphanawriter
+    │   └── flinkx-saphana-writer-feat_1.10_4.3.x_metadata.jar
+    ├── socketreader
+    │   └── flinkx-socket-reader-feat_1.10_4.3.x_metadata.jar
+    ├── solrreader
+    │   └── flinkx-solr-reader-feat_1.10_4.3.x_metadata.jar
+    ├── solrwriter
+    │   └── flinkx-solr-writer-feat_1.10_4.3.x_metadata.jar
+    ├── sqlservercdcreader
+    │   └── flinkx-sqlservercdc-reader-feat_1.10_4.3.x_metadata.jar
+    ├── sqlserverreader
+    │   └── flinkx-sqlserver-reader-feat_1.10_4.3.x_metadata.jar
+    ├── sqlserverwriter
+    │   └── flinkx-sqlserver-writer-feat_1.10_4.3.x_metadata.jar
+    ├── streamreader
+    │   └── flinkx-stream-reader-feat_1.10_4.3.x_metadata.jar
+    ├── streamwriter
+    │   └── flinkx-stream-writer-feat_1.10_4.3.x_metadata.jar
+    └── websocketreader
+        └── flinkx-websocket-reader-feat_1.10_4.3.x_metadata.jar
+```
+:::tip
+配置好数据同步之后运行，如果一直提示等待运行，可以去monitor.log查看相应日志，确认flinkPluginRoot是否包含syncplugin的插件目录
+:::
 
 #### Spark
 
@@ -147,3 +369,11 @@ sidebar_label: 集群管理
 | sparkYarnArchive       | hdfs://ns1/dtInsight/spark240/jars                           | spark jars路径                             | 是       |
 | yarnAccepterTaskNumber | 3                                                            | 允许的accepter任务数量                     | 否       |
 
+
+**sparkSqlProxyPath**是Spark SQL任务运行的jar   
+需要将pluginLibs/yarn2-hdfs2-spark210/spark-sql-proxy.jar 手动上传到对应的目录
+**sparkYarnArchive**是Spark SQL程序运行时加载的包 直接将spark目录下的jar包上传到对应目录
+
+:::tip
+Flink、Spark可以添加自定义参数，在自定义参数中添加Flink、Spark官方参数来调整1任务提交参数信息
+:::
