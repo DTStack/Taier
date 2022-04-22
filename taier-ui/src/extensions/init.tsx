@@ -35,7 +35,7 @@ import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm
 import { Float } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
 import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
-import Markdown from '@/components/markdown';
+import LogEditor from '@/components/logEditor';
 import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
@@ -90,8 +90,10 @@ export default class InitializeExtension implements IExtension {
  * 初始化主题
  */
 function initializeColorTheme() {
-	// 默认主题为亮色
-	molecule.colorTheme.setTheme('Default Light+');
+	// 默认加载 DtStack 主题色
+	molecule.colorTheme.setTheme('DTStack Theme');
+	loadStyles('https://unpkg.com/antd@4.18.5/dist/antd.dark.css');
+	document.documentElement.setAttribute('data-prefers-color', 'dark');
 	molecule.colorTheme.onChange((_, __, themeMode) => {
 		if (themeMode === ColorThemeMode.dark) {
 			loadStyles('https://unpkg.com/antd@4.18.5/dist/antd.dark.css');
@@ -211,7 +213,7 @@ function initializePane() {
 		id: OUTPUT_LOG,
 		name: '日志',
 		closable: false,
-		renderPane: () => <Markdown />,
+		renderPane: () => <LogEditor />,
 	});
 	molecule.panel.setActive(OUTPUT_LOG);
 }

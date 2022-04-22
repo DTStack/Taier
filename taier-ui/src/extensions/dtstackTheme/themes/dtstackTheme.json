@@ -147,5 +147,25 @@
 		"walkThrough.embeddedEditorBackground": "#2e3440",
 		"welcomePage.buttonHoverBackground": "#404754",
 		"workbenchBackground": "#232730"
-	}
+	},
+	"tokenColors": [
+		{
+			"scope": "error-token",
+			"settings": {
+				"foreground": "#f44747"
+			}
+		},
+		{
+			"scope": "info-token",
+			"settings": {
+				"foreground": "#999977"
+			}
+		},
+		{
+			"scope": "warn-token",
+			"settings": {
+				"foreground": "#d19a66"
+			}
+		}
+	]
 }
