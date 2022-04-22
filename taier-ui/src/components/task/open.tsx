@@ -49,7 +49,7 @@ interface OpenProps extends molecule.model.IEditor {
 	record?: CatalogueDataProps;
 }
 
-interface IFormFieldProps {
+export interface IFormFieldProps {
 	name: string;
 	taskType: TASK_TYPE_ENUM;
 	nodePid: number;

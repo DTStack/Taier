@@ -21,6 +21,7 @@ import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/m
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
+import type { IFormFieldProps } from '@/components/task/open';
 import Open from '@/components/task/open';
 import EditFolder from '@/components/task/editFolder';
 import DataSync from '@/components/dataSync';
@@ -67,14 +68,19 @@ function updateTree(data: Partial<CatalogueDataProps>) {
  * Open a tab for creating task
  */
 function openCreateTab(id?: string) {
-	const onSubmit = (values: any) => {
+	const onSubmit = (values: IFormFieldProps) => {
+		const { syncModel, ...restValues } = values;
 		return new Promise<boolean>((resolve) => {
-			const params = {
-				...values,
+			const params: Record<string, any> = {
+				...restValues,
 				computeType: 1,
 				parentId: values.nodePid,
-				version: 0,
 			};
+
+			// syncModel 需要被放置到 sourceMap 中
+			if (syncModel !== undefined) {
+				params.sourceMap = { syncModel };
+			}
 			api.addOfflineTask(params)
 				.then((res) => {
 					if (res.code === 1) {
