@@ -626,4 +626,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
     }
 
+
+    public ScheduleJob getScheduleJob(Long taskId,Integer computeType){
+        return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, taskId).eq(ScheduleJob::getComputeType, computeType));
+    }
 }

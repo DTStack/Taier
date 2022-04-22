@@ -50,12 +50,12 @@ public enum EScheduleJobType {
      * FlinkSQL
      */
     SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK),
+    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK),
     /**
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null),
     HIVE_SQL(17, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER),
-    DATA_ACQUISITION(37, "实时任务", 2, 4,EComponentType.FLINK)
     ;
 
 
