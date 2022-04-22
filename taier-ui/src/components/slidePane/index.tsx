@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { DoubleRightOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
 import './index.scss';
@@ -41,6 +41,7 @@ export default function SlidePane({
 	onClose,
 	style = {},
 }: SlidePaneProps) {
+	const slide = useRef<HTMLDivElement>(null);
 	const myStyle: React.CSSProperties = {
 		top: 0,
 		transform: visible ? undefined : 'translate3d(150%, 0, 0)',
@@ -50,8 +51,29 @@ export default function SlidePane({
 		myStyle.pointerEvents = 'none';
 	}
 
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === 'Escape') {
+			e.stopPropagation();
+			if (onClose) {
+				onClose(e as any);
+			}
+		}
+	};
+
+	useEffect(() => {
+		if (visible) {
+			slide.current?.focus();
+		}
+	}, [visible]);
+
 	return (
-		<div className={classNames(slidePrefixCls, className)} style={{ ...myStyle, ...style }}>
+		<div
+			ref={slide}
+			className={classNames(slidePrefixCls, className)}
+			tabIndex={-1}
+			style={{ ...myStyle, ...style }}
+			onKeyDown={handleKeyDown}
+		>
 			<div
 				className={`${slidePrefixCls}-conent`}
 				data-testid="slidepane_container"

@@ -8,7 +8,7 @@ monaco.languages.setMonarchTokensProvider(jsonlog, {
 	tokenizer: {
 		root: [
 			// split
-			[/^====================.*/gm, { token: 'comment' }],
+			[/^===========.*/, { token: 'comment' }],
 			[/[;,.]/, 'delimiter'],
 
 			// string
@@ -24,6 +24,12 @@ monaco.languages.setMonarchTokensProvider(jsonlog, {
 
 			// chinese character
 			[/[\u4e00-\u9fa5]+/, 'keyword'],
+
+			// error message
+			[/<error.*/, 'error-token'],
+			[/<warning.*/, 'warn-token'],
+			[/<info.*/, 'info-token'],
+			[/\[[a-zA-Z 0-9:]+\]/, 'comment'],
 		],
 		string: [
 			[/[^\\"]+/, 'string'],
