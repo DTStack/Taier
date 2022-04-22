@@ -8,7 +8,7 @@ public class DownloadLogVO {
 
     private String taskManagerId;
 
-    private Long dtuicTenantId;
+    private Long tenantId;
 
     public String getJobId() {
         return jobId;
@@ -34,20 +34,20 @@ public class DownloadLogVO {
         this.taskManagerId = taskManagerId;
     }
 
-    public Long getDtuicTenantId() {
-        return dtuicTenantId;
-    }
-
-    public void setDtuicTenantId(Long dtuicTenantId) {
-        this.dtuicTenantId = dtuicTenantId;
-    }
-
     public Integer getByteNum() {
         return byteNum;
     }
 
     public void setByteNum(Integer byteNum) {
         this.byteNum = byteNum;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 
     private Integer byteNum;
