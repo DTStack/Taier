@@ -758,7 +758,7 @@ public class DatasourceService {
     }
 
 
-    private void setPluginDataSourceInfo(JSONObject plugin, Long tenantId, Integer createModel) {
+    public void setPluginDataSourceInfo(JSONObject plugin, Long tenantId, Integer createModel) {
         String pluginName = plugin.getString("name");
         JSONObject param = plugin.getJSONObject("parameter");
         if (PluginName.MySQLD_R.equals(pluginName)) {

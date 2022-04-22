@@ -4,7 +4,7 @@ package com.dtstack.taier.develop.service.template.hdfs;
 
 import com.dtstack.taier.develop.enums.develop.FileType;
 import com.dtstack.taier.develop.service.template.BaseReaderPlugin;
-import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
+import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public abstract class HdfsReaderBase extends BaseReaderPlugin {
     protected String fieldDelimiter = "\001";
     protected Map<String,Object> hadoopConfig;
     protected long interval;
-    protected List<String> column;
+    protected List<JSONObject> column;
 
     public String getDefaultFS() {
         return defaultFS;
@@ -63,11 +63,11 @@ public abstract class HdfsReaderBase extends BaseReaderPlugin {
         this.fieldDelimiter = fieldDelimiter;
     }
 
-    public List<String> getColumn() {
+    public List<JSONObject> getColumn() {
         return column;
     }
 
-    public void setColumn(List<String> column) {
+    public void setColumn(List<JSONObject> column) {
         this.column = column;
     }
 

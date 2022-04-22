@@ -26,6 +26,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -43,6 +44,14 @@ public class JsonUtils {
 
     static {
         objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    public static <T> T objectToObject(Object params, Class<T> clazz) {
+        return JSONObject.parseObject(JSONObject.toJSONString(params), clazz);
+    }
+
+    public static String objectToStr(Object object) {
+        return JSONObject.toJSONString(object);
     }
 
 
@@ -72,5 +81,9 @@ public class JsonUtils {
         Objects.requireNonNull(dataJson);
         Objects.requireNonNull(key);
         return dataJson.containsKey(key) ? dataJson.getString(key) : "";
+    }
+
+    public static Map<String, Object> objectToMap(Object obj) {
+        return JSONObject.parseObject(JSONObject.toJSONString(obj));
     }
 }
