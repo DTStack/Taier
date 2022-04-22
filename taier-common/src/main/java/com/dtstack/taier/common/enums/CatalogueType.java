@@ -55,6 +55,11 @@ public enum CatalogueType {
     SPARKSQL_FUNCTION("SparkSQLFunction"),
 
     /**
+     * flink系统函数
+     */
+    FLINKSQL_FUNCTION("FlinkSQLFunction"),
+
+    /**
      * 函数管理
      */
     FUNCTION_MANAGER("FunctionManager");

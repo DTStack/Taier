@@ -17,39 +17,30 @@
  */
 
 import { useMemo } from 'react';
-import CodeMirrorEditor from 'dt-react-codemirror-editor';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultStates } from '@/services/taskResultService';
 import taskResultService from '@/services/taskResultService';
-import 'dt-react-codemirror-editor/lib/codemirror/style.css';
-import './index.scss';
+import Editor from '../editor';
 
-interface IMarkdownProps {
+interface ILogEditorProps {
 	results: ITaskResultStates;
 	editor: molecule.model.IEditor;
 }
 
-const defaultEditorOptions = {
-	mode: 'dtlog',
-	lint: true,
-	indentWithTabs: true,
-	smartIndent: true,
-	lineNumbers: false,
-	autofocus: false,
-	lineWrapping: true,
-	readOnly: true,
-};
-
 export default connect(
 	{ results: taskResultService, editor: molecule.editor },
-	({ editor, results: { logs } }: IMarkdownProps) => {
+	({ editor, results: { logs } }: ILogEditorProps) => {
 		const { current } = editor;
-		const currentTabId = useMemo(() => {
-			return current?.tab?.id;
-		}, [current]);
 
-		if (!currentTabId) {
+		const value = useMemo(() => {
+			if (current?.tab?.id && logs[current.tab.id]) {
+				return logs[current.tab.id];
+			}
+			return '暂无日志';
+		}, [logs, current?.tab?.id]);
+
+		if (!current || !current.activeTab) {
 			return (
 				<div
 					style={{
@@ -61,17 +52,24 @@ export default connect(
 				</div>
 			);
 		}
-		const defaultValue = logs[currentTabId!];
 
 		return (
-			<div className="mo_code_mirror">
-				<CodeMirrorEditor
-					style={{ minHeight: 'auto', height: '100%' }}
-					value={defaultValue}
-					options={defaultEditorOptions}
-					sync={true}
-				/>
-			</div>
+			<Editor
+				language="jsonlog"
+				value={value}
+				sync
+				options={{
+					automaticLayout: true,
+					readOnly: true,
+					wordWrap: 'on',
+					contextmenu: false,
+					scrollBeyondLastLine: true,
+					lineNumbers: 'off',
+					minimap: {
+						enabled: false,
+					},
+				}}
+			/>
 		);
 	},
 );

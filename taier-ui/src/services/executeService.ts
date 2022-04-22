@@ -18,12 +18,11 @@
 
 import { Component } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultService } from './taskResultService';
-import taskResultService from './taskResultService';
+import taskResultService, { createLinkMark, createLog, createTitle } from './taskResultService';
 import type { CatalogueDataProps, IOfflineTaskProps, IResponseProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
 import { OFFLINE_TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import { createLinkMark, createLog, createTitle } from 'dt-react-codemirror-editor';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
 
@@ -131,7 +130,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	private taskResultService: ITaskResultService;
 
 	constructor() {
-		console.log('constructor');
 		super();
 		this.state = {};
 		this.taskResultService = taskResultService;
