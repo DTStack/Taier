@@ -11,4 +11,30 @@
 	.logo {
 		opacity: 0.1;
 	}
+
+	.commands {
+		width: 200px;
+		color: var(--foreground);
+		opacity: 0.5;
+
+		.command {
+			display: flex;
+			margin-bottom: 15px;
+		}
+
+		.label {
+			width: 60%;
+			margin-right: 10px;
+			text-align: right;
+		}
+
+		.keybindings {
+			text-align: left;
+
+			.keyCode {
+				margin: 0 2px;
+				box-shadow: inset 0 -1px 1px 0 var(--scrollbar-shadow);
+			}
+		}
+	}
 }

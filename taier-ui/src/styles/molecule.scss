@@ -40,3 +40,7 @@
 	background: var(--list-hoverBackground);
 	outline: 1px solid var(--list-focusOutline);
 }
+
+.mo-statusBar__item > a:empty {
+	padding: 0;
+}
