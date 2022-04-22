@@ -67,6 +67,14 @@ public interface TaskMapstructTransfer {
 
 
     /**
+     * Task -> TaskListResultVO
+     *
+     * @param task
+     * @return
+     */
+    TaskListResultVO taskVToTaskListResult(Task task);
+
+    /**
      * TaskCatalogueVO -> TaskCatalogueResultVO
      * @param taskCatalogueVO
      * @return
