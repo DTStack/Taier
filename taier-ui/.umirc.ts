@@ -44,7 +44,6 @@ export default defineConfig({
 	proxy: {
 		'/taier': {
 			target: 'http://localhost:8090',
-			// target: 'http://192.168.96.73:8090',
 			changeOrigin: true,
 			secure: false,
 		},
