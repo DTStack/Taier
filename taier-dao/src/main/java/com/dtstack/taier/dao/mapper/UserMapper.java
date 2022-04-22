@@ -21,11 +21,13 @@ package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.User;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author yuebai
  * @date 2020-02-17
  */
+@Mapper
 public interface UserMapper extends BaseMapper<User> {
 
 }

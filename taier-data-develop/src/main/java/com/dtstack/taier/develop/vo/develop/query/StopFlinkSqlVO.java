@@ -16,28 +16,24 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.dao.mapper;
+package com.dtstack.taier.develop.vo.develop.query;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.BatchTaskDTO;
-import com.dtstack.taier.dao.pager.PageQuery;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import com.dtstack.taier.common.param.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.List;
+@ApiModel("运行FlinkSQL任务")
+public class StopFlinkSqlVO extends DtInsightAuthParam {
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2017/5/4
- */
-@Mapper
-public interface DevelopTaskMapper extends BaseMapper<Task> {
 
-    List<Task> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
+    @ApiModelProperty(value = "任务Id", example = "1L", required = true)
+    private Long taskId;
 
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
 }
