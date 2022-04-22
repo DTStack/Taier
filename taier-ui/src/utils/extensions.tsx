@@ -34,11 +34,10 @@ import { TASK_SYNTAX_ID } from '@/constant';
 import { OUTPUT_LOG, CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
-import taskResultService from '@/services/taskResultService';
+import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql, getTenantId, getUserId } from '.';
 import stream from '@/api/stream';
-import { createLog } from 'dt-react-codemirror-editor';
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
