@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -307,7 +308,7 @@ public class BatchCatalogueService {
      * @return
      */
     private boolean isNeedFunction(String name) {
-        return EngineCatalogueType.SPARK.getDesc().equalsIgnoreCase(name);
+        return EngineCatalogueType.SPARK.getDesc().equalsIgnoreCase(name) || EngineCatalogueType.FLINK.getDesc().equalsIgnoreCase(name);
     }
 
 
@@ -724,7 +725,7 @@ public class BatchCatalogueService {
     private void changeSQLFunctionCatalogueType(BatchCatalogue catalogue, CatalogueVO cv, CatalogueVO currentCatalogueVO) {
         cv.setCatalogueType(currentCatalogueVO.getCatalogueType());
         //如果是libraSQL 或者是sparkSQl下的function  需要替换child 的catalogueType
-        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
+        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) || CatalogueType.FLINKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
             if ("自定义函数".equals(catalogue.getNodeName())) {
                 cv.setCatalogueType(CatalogueType.CUSTOM_FUNCTION.getType());
             }
@@ -738,6 +739,9 @@ public class BatchCatalogueService {
         if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
             if (EngineCatalogueType.SPARK.getDesc().equals(catalogue.getNodeName())) {
                 cv.setCatalogueType(CatalogueType.SPARKSQL_FUNCTION.getType());
+            }
+            if (EngineCatalogueType.FLINK.getDesc().equals(catalogue.getNodeName())) {
+                cv.setCatalogueType(CatalogueType.FLINKSQL_FUNCTION.getType());
             }
         }
 
@@ -821,26 +825,35 @@ public class BatchCatalogueService {
      */
     private void replaceSystemFunction(Long catalogueId, String catalogueType, List<BatchCatalogue> childCatalogues) {
         if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(catalogueType)) {
-            BatchCatalogue one = developCatalogueMapper.selectById(catalogueId);
-            EngineCatalogueType systemEngineType = EngineCatalogueType.getByeName(one == null ? null : one.getNodeName());
-            //需要将系统函数替换对应 引擎的函数模板
-            BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                    .eq(BatchCatalogue::getNodePid, systemEngineType.getType())
-                    .eq(BatchCatalogue::getLevel, 1)
-                    .eq(BatchCatalogue::getTenantId, -1)
-                    .last("limit 1"));
-            if (systemFuncCatalogue == null) {
-                return;
-            }
+            replaceSystemFunction(catalogueId, catalogueType, childCatalogues, "系统函数");
+        } else if (CatalogueType.FLINKSQL_FUNCTION.getType().equals(catalogueType)) {
+            replaceSystemFunction(catalogueId, catalogueType, childCatalogues, "Flink系统函数");
+        }
+    }
 
-            for (BatchCatalogue childCatalogue : childCatalogues) {
-                if ("系统函数".equals(childCatalogue.getNodeName())) {
-                    childCatalogue.setNodePid(systemFuncCatalogue.getNodePid());
-                    childCatalogue.setId(systemFuncCatalogue.getId());
-                }
+
+    private void replaceSystemFunction(Long catalogueId, String catalogueType, List<BatchCatalogue> childCatalogues, String catalogName) {
+        BatchCatalogue one = developCatalogueMapper.selectById(catalogueId);
+        EngineCatalogueType systemEngineType = EngineCatalogueType.getByeName(one == null ? null : one.getNodeName());
+        //需要将系统函数替换对应 引擎的函数模板
+        BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
+                .eq(BatchCatalogue::getNodePid, systemEngineType.getType())
+                .eq(BatchCatalogue::getLevel, 1)
+                .eq(BatchCatalogue::getNodeName, catalogName)
+                .eq(BatchCatalogue::getTenantId, -1)
+                .last("limit 1"));
+        if (systemFuncCatalogue == null) {
+            return;
+        }
+
+        for (BatchCatalogue childCatalogue : childCatalogues) {
+            if ("系统函数".equals(childCatalogue.getNodeName())) {
+                childCatalogue.setNodePid(systemFuncCatalogue.getNodePid());
+                childCatalogue.setId(systemFuncCatalogue.getId());
             }
         }
     }
+
 
 
     /**
