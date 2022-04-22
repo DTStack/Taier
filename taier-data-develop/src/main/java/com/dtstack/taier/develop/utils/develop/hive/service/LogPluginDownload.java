@@ -145,4 +145,8 @@ public class LogPluginDownload implements IDownload {
         }
         return "";
     }
+
+    public IDownloader getHdfsLogDownloader() {
+        return hdfsLogDownloader;
+    }
 }
