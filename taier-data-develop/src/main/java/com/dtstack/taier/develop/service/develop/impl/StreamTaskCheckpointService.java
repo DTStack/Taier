@@ -5,6 +5,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.util.MathUtil;
+import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.develop.dto.devlop.CheckPointTimeRangeResultDTO;
 import com.dtstack.taier.develop.dto.devlop.EngineJobCheckpoint;
 import com.dtstack.taier.develop.dto.devlop.StreamTaskCheckpoint;
@@ -12,11 +13,13 @@ import com.dtstack.taier.develop.dto.devlop.StreamTaskCheckpointVO;
 import com.dtstack.taier.develop.utils.DataSizeUtil;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.ParamsCheck;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -46,7 +49,8 @@ public class StreamTaskCheckpointService {
     private static final String END_TO_END_DURATION = "lastCheckpointDuration";
 
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
-
+    @Autowired
+    private ClusterTenantMapper clusterTenantMapper;
 
     /**
      * 获取任务的checkpoint可选时间范围
@@ -202,18 +206,17 @@ public class StreamTaskCheckpointService {
      * @return checkpoint存储路径
      */
     public String getSavepointPath(Long tenantId) {
-        //todo
-        String clusterInfo = null;// = clusterServiceClient.clusterInfo(tenantId);
-        if (clusterInfo != null) {
-            JSONObject clusterJson = JSONObject.parseObject(clusterInfo);
-            JSONObject flinkConf = clusterJson.getJSONObject(EComponentType.FLINK.getConfName());
+        Long clusterIdByTenantId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+        JSONObject flinkConf = Engine2DTOService.getComponentConfigByClusterId(clusterIdByTenantId, EComponentType.FLINK);
+
+        if (flinkConf != null) {
             if (flinkConf == null || !flinkConf.containsKey(KEY_SAVEPOINT)) {
                 return null;
             }
             String savepointPath = flinkConf.getString(KEY_SAVEPOINT);
             logger.info("savepoint path:{}", savepointPath);
 
-            if (org.apache.commons.lang.StringUtils.isEmpty(savepointPath)) {
+            if (StringUtils.isEmpty(savepointPath)) {
                 throw new DtCenterDefException("savepoint path can not be null");
             }
 

@@ -21,8 +21,6 @@ public class BatchDataSourceIncreColumnVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "用户id", hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "项目id", hidden = true)
-    private Long projectId;
 
     public Long getSourceId() {
         return sourceId;
@@ -58,11 +56,4 @@ public class BatchDataSourceIncreColumnVO extends DtInsightAuthParam {
         this.userId = userId;
     }
 
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
 }
