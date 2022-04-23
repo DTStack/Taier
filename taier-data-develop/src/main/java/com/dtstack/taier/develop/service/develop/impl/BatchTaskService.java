@@ -256,13 +256,11 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private BatchTaskResourceShadeService batchTaskResourceShadeService;
 
     @Autowired
-    private BatchJobService batchJobService;
-
-    @Autowired
     private HadoopJobExeService hadoopJobExeService;
 
     @Autowired
     private DaReaderBuilderFactory daReaderBuilderFactory;
+
     @Autowired
     private NameMappingBuilderFactory nameMappingBuilderFactory;
 
@@ -280,11 +278,18 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private FlinkSqlTaskService flinkSqlTaskService;
+
     @Autowired
     private ScheduleActionService scheduleActionService;
 
     @Autowired
     private StreamTaskCheckpointService streamTaskCheckpointService;
+
+    @Autowired
+    private JobService jobService;
+
+    @Autowired
+    private ClusterService clusterService;
 
     private static final String KEY = "key";
 
@@ -293,16 +298,13 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private static final String COLUMN = "column";
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
-    private static final String DEFAULT_BATCH_SCHEDULE_CONF = "{\"selfReliance\":false, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"%s\",\"endDate\":\"%s\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
-    private static final String DEFAULT_STREAM_SCHEDULE_CONF = "{\"isFailRetry\":false,\"beginDate\":\"%s\",\"endDate\":\"%s\",\"periodType\":\"5\",\"maxRetryNum\":\"3\",\"submitExpiredUnit\":\"1\",\"submitExpired\":\"3\",\"retryInterval\":\"3\",\"retryIntervalUnit\":\"1\"}";
     private static final String KEY_OPEN_CHECKPOINT = "openCheckpoint";
     private static final String JOB_SAVEPOINT_ARGS_TEMPLATE = " -confProp %s";
     private static final String JOB_NAME_ARGS_TEMPLATE = "-jobName %s -job %s";
     public static final String KEY_CHECKPOINT_INTERVAL = "flink.checkpoint.interval";
     private static final String DEFAULT_VAL_CHECKPOINT_INTERVAL = "300000";
     private static final String KEY_CHECKPOINT_STATE_BACKEND = "flink.checkpoint.stateBackend";
-    @Autowired
-    private ClusterService clusterService;
+
 
     /**
      * kerberos认证文件在 ftp上的相对路径
@@ -320,30 +322,13 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
-    private static final Integer DEFAULT_SCHEDULE_PERIOD = ESchedulePeriodType.DAY.getVal();
-
-    private static final String CMD_OPTS = "--cmd-opts";
-
-    private static final String OPERATE_MODEL = "operateModel";
-
     private static final Integer IS_FILE = 1;
-
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    private static final Integer INIT_LOCK_VERSION = 0;
-
-
     public static final String HADOOP_CONFIG = "hadoopConfig";
 
-    private static final String TASK_PATTERN = "[\\u4e00-\\u9fa5_a-z0-9A-Z-]+";
-
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*([0-9a-zA-Z-_]+)\\s*\\(");
-
-    /**
-     * 需要展示分区字段的数据源类型
-     */
-    private static final List<Integer> NEED_PARTITION_DATASOURCES = Lists.newArrayList(DataSourceType.HIVE1X.getVal(), DataSourceType.HIVE.getVal(), DataSourceType.HIVE3X.getVal(), DataSourceType.SparkThrift2_1.getVal());
 
 
     @PostConstruct
@@ -617,13 +602,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
 
-    @Autowired
-    private JobService jobService;
-
     /**
      * 重置任务的状态为unSubmit
      *
-     * @param jobId
+     * @param taskId
      * @throws Exception
      */
     private void resetTaskStatus(Long taskId) {
@@ -635,11 +617,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             if (!TaskStatusCheckUtil.CAN_RESET_STATUS.contains(status)) {
                 throw new RdosDefineException("(任务状态不匹配)");
             }
-            //todo 月白添加
-//            boolean reset = streamEngineJobService.resetTaskStatus(jobId);
-//            if (!reset) {
-//                throw new RdosDefineException("fail to reset task status");
-//            }
+            boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(),status,environmentContext.getLocalAddress());
+            if (!reset) {
+                throw new RdosDefineException("fail to reset task status");
+            }
         }
     }
 
@@ -648,7 +629,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * 启动任务，写日志，触发引擎执行任务
      *
      * @param taskDTO
-     * @param failRetry 是否失败重试
      * @throws IOException
      */
     public String startTask(StartTaskVO taskDTO) {
@@ -736,7 +716,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     /**
      * 拼接引擎参数
      *
-     * @param dtuicTenantId
+     * @param tenantId
      * @param streamTask
      * @param externalPath
      * @param taskParams
@@ -780,7 +760,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         confProp.put(TaskDirtyDataManageParamEnum.MAX_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_ROWS.getDefaultValue()));
         confProp.put(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getDefaultValue()));
         confProp.put(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getDefaultValue()));
-        return;
     }
 
     /**
@@ -1033,46 +1012,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return checkVo;
     }
 
-    /**
-     * 构建一个要发布到engine的任务DTO {@link ScheduleTaskShadeDTO}
-     * @param task 要发布的任务集合
-     * @param parentTaskIds 父任务的id
-     * @return 调度任务DTO
-     */
-    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, List<Long> parentTaskIds) {
-        if (task.getId() <= 0) {
-            //只有异常情况才会走到该逻辑
-            throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
-        }
 
-        final long taskId = task.getId();
-        //清空任务关联的batch_task_param, task_resource, task_task 表信息
-        this.batchTaskParamShadeService.clearDataByTaskId(taskId);
-        this.batchTaskResourceShadeService.clearDataByTaskId(taskId);
-
-        final List<BatchTaskParam> batchTaskParamList = this.batchTaskParamService.getTaskParam(task.getId());
-        //查询出任务所有的关联的资源(运行主体资源和依赖引用资源)
-        final List<BatchTaskResource> batchTaskResourceList = this.batchTaskResourceService.getTaskResources(task.getId(), null);
-        List<Long> parentTaskList = this.batchTaskTaskService.getAllParentTaskId(task.getId());
-        parentTaskIds.addAll(parentTaskList);
-
-        if (!CollectionUtils.isEmpty(batchTaskResourceList)) {
-            this.batchTaskResourceShadeService.saveTaskResource(batchTaskResourceList);
-        }
-        //保存batch_task_shade
-        final ScheduleTaskShade scheduleTaskShadeDTO = new ScheduleTaskShade();
-        BeanUtils.copyProperties(task, scheduleTaskShadeDTO);
-        scheduleTaskShadeDTO.setTaskId(task.getId());
-        scheduleTaskShadeDTO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-
-        if (!CollectionUtils.isEmpty(batchTaskParamList)) {
-            this.batchTaskParamShadeService.saveTaskParam(batchTaskParamList);
-        }else{
-            scheduleTaskShadeDTO.setTaskParams("");
-        }
-
-        return scheduleTaskShadeDTO;
-    }
 
     public List<BatchTaskVersionDetailDTO> getTaskVersionRecord(Long taskId, Integer pageSize, Integer pageNo) {
         if (pageNo == null) {
@@ -1111,13 +1051,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVersion.setDependencyTasks(taskParams);
         }
         return taskVersion;
-    }
-
-
-    @Transactional(rollbackFor = Exception.class)
-    public TaskVO getTaskVOAndAddOrUpdateTask(TaskResourceParam taskResourceParam) {
-        TaskVO task = addOrUpdateTask(taskResourceParam);
-        return this.getTaskById(task);
     }
 
     /**
@@ -1991,14 +1924,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
 
-    public List<Task> getTaskByIds(final List<Long> taskIdArray) {
-        if (CollectionUtils.isEmpty(taskIdArray)) {
-            return ListUtils.EMPTY_LIST;
-        }
-        return this.developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
-    }
-
-
     /**
      * 判断任务是否可以发布
      * 当前只对sql任务做判断--不允许提交空的sql任务
@@ -2279,32 +2204,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     public List<Task> catalogueListBatchTaskByNodePid(Long tenantId, Long nodePid) {
         return developTaskMapper.catalogueListBatchTaskByNodePid(tenantId, nodePid);
-    }
-
-    public JSONObject trace(final Long taskId) {
-        String sqlText = null;
-        final Task task = this.getBatchTaskById(taskId);
-
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        } else {
-            sqlText = task.getSqlText();
-        }
-
-        final String sql = sqlText;
-        if (StringUtils.isBlank(sql)) {
-            return null;
-        }
-
-        final JSONObject sqlJson = JSON.parseObject(sql);
-        JSONObject parserJson = sqlJson.getJSONObject("parser");
-        if (parserJson != null) {
-            parserJson = this.checkTrace(parserJson);
-            parserJson.put("sqlText", sqlJson.getString("job"));
-            parserJson.put("syncMode", sqlJson.get("syncMode"));
-            parserJson.put("taskId", taskId);
-        }
-        return parserJson;
     }
 
 
@@ -2814,28 +2713,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
         return supportType;
-    }
-    /**
-     * 获取sql中包含的方法名称
-     *
-     * @param sql
-     * @return
-     */
-    public Set<String> getFuncName(String sql) {
-
-        if (com.google.common.base.Strings.isNullOrEmpty(sql)) {
-            return Sets.newHashSet();
-        }
-        sql = SqlFormatUtil.formatSql(sql);
-
-        Set<String> funcSet = Sets.newHashSet();
-        Matcher matcher = FUNCTION_PATTERN.matcher(sql);
-        while (matcher.find()) {
-            String funcName = matcher.group(1);
-            funcSet.add(funcName.toUpperCase());
-        }
-
-        return funcSet;
     }
 
 
