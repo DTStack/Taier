@@ -31,6 +31,7 @@ import type {
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
+	DATA_SYNC_MODE,
 } from './constant';
 
 interface IUserProps {}
@@ -154,7 +155,8 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	 */
 	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 	/**
-	 * 是否是增量同步模式
+	 * @deprecated
+	 * 是否是增量同步模式, 接口要求把该字段放到 sourceMap 中
 	 */
 	syncModel: number;
 	sqlText: string;
@@ -175,7 +177,7 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
  */
 export interface ISyncDataProps {
 	settingMap?: IChannelFormProps;
-	sourceMap?: ISourceMapProps;
+	sourceMap: ISourceMapProps;
 	targetMap?: ITargetMapProps;
 	taskId: number;
 }
@@ -247,6 +249,10 @@ export interface ISourceMapProps extends ISourceFormField {
 		sourceId?: number;
 	}[];
 	type?: DATA_SOURCE_ENUM;
+	/**
+	 * 同步任务是否增量
+	 */
+	syncModel: DATA_SYNC_MODE;
 
 	[key: string]: any;
 }

@@ -232,7 +232,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 					currentTabId,
 					{ id: currentTabId, taskType: SELECT_TYPE.TASK },
 					TASK_TYPE_ENUM.SYNC,
-				);
+				).then((result) => {
+					this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
+					return result;
+				});
 			}
 
 			this.taskResultService.appendLogs(

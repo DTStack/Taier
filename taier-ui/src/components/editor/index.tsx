@@ -209,6 +209,14 @@ export default function Editor({
 				const editorText = value || '';
 				monacoEditor.current.setValue(editorText);
 				handleShowPlaceholder(editorText);
+
+				const currentLanguage = monacoEditor.current.getModel()?.getLanguageId();
+				const isScrollToBottom = currentLanguage?.endsWith('log');
+				if (isScrollToBottom) {
+					monacoEditor.current.revealLineInCenterIfOutsideViewport(
+						monacoEditor.current.getModel()!.getLineCount(),
+					);
+				}
 			}
 		}
 	}, [value]);

@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from 'react';
+import type { FormInstance } from 'antd';
 import { API } from '@/api/dataSource';
 import api from '@/api';
 import {
@@ -23,9 +25,7 @@ import {
 	Tooltip,
 	Radio,
 } from 'antd';
-import type { FormInstance } from 'rc-field-form';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
-import { useEffect, useMemo, useState } from 'react';
 import {
 	dataFilterDoc,
 	dataSyncExtralConfigHelp,
@@ -277,8 +277,13 @@ export default function Source({
 		}
 	};
 
-	const loadIncrementColumn = async () => {
-		const { sourceId, schema, table } = form.getFieldsValue();
+	/**
+	 * 支持在 didmount 阶段 form 表单还未赋值的情况下，通过 params 获取参数请求接口
+	 */
+	const loadIncrementColumn = async (
+		rawParams?: Pick<IFormFieldProps, 'sourceId' | 'table' | 'schema'>,
+	) => {
+		const { sourceId, schema, table } = rawParams || form.getFieldsValue();
 		if (!table) return;
 		const params = {
 			sourceId,
@@ -529,7 +534,7 @@ export default function Source({
 		);
 	};
 
-	const renderDynamicForm = (f: FormInstance) => {
+	const renderDynamicForm = (f: Pick<FormInstance, 'getFieldValue'>) => {
 		const sourceId = f.getFieldValue('sourceId');
 		const targetSource = dataSourceList.find((l) => l.dataInfoId === sourceId);
 
@@ -554,7 +559,10 @@ export default function Source({
 								showSearch
 								showArrow
 								optionFilterProp="value"
-								filterOption={false}
+								filterOption={(input, option) =>
+									// @ts-ignore
+									option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+								}
 								notFoundContent={fetching ? <Spin size="small" /> : null}
 							>
 								{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
@@ -1122,6 +1130,14 @@ export default function Source({
 			if (isRDB(sourceType) || sourceType === DATA_SOURCE_ENUM.POSTGRESQL) {
 				getCopate(sourceMap);
 			}
+
+			if (sourceMap.increColumn) {
+				loadIncrementColumn({
+					sourceId: sourceMap.sourceId,
+					table: sourceMap.table as string,
+					schema: sourceMap.schema,
+				});
+			}
 		}
 	}, []);
 
@@ -1134,6 +1150,7 @@ export default function Source({
 			return {
 				sourceId: sourceMap.sourceId,
 				table: supportSubLibrary ? sourceMap.sourceList?.[0].tables : sourceMap.table,
+				increColumn: sourceMap.increColumn,
 				where: sourceMap.where,
 				splitPK: sourceMap.splitPK,
 				schema: sourceMap.schema,
@@ -1188,9 +1205,14 @@ export default function Source({
 							const tmpSupportDataSource = [
 								DATA_SOURCE_ENUM.MYSQL,
 								DATA_SOURCE_ENUM.ORACLE,
-								DATA_SOURCE_ENUM.SQLSERVER,
 								DATA_SOURCE_ENUM.POSTGRESQL,
+								DATA_SOURCE_ENUM.HIVE,
+								DATA_SOURCE_ENUM.HIVE1X,
+								DATA_SOURCE_ENUM.HIVE3X,
+								DATA_SOURCE_ENUM.ES,
+								DATA_SOURCE_ENUM.ES6,
 								DATA_SOURCE_ENUM.ES7,
+								DATA_SOURCE_ENUM.SPARKTHRIFT,
 							];
 
 							const disableSelect =
