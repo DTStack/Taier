@@ -259,6 +259,7 @@ function registerCompletion() {
 		TASK_LANGUAGE.SPARKSQL,
 		TASK_LANGUAGE.HIVESQL,
 		TASK_LANGUAGE.SQL,
+		TASK_LANGUAGE.FLINKSQL,
 	] as const;
 	COMPLETION_SQL.forEach((sql) =>
 		languages.registerCompletionItemProvider(sql, {
