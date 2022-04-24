@@ -32,6 +32,7 @@ import type {
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
 	DATA_SYNC_MODE,
+	UDF_TYPE_VALUES,
 } from './constant';
 
 interface IUserProps {}
@@ -408,6 +409,10 @@ export interface IFunctionProps {
 	 * 函数类型
 	 */
 	taskType?: TASK_TYPE_ENUM;
+	/**
+	 * UDF类型
+	 */
+	udfType?: UDF_TYPE_VALUES;
 	resources?: number | null;
 	type: number;
 }
