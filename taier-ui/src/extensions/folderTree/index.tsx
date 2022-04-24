@@ -73,7 +73,8 @@ function openCreateTab(id?: string) {
 		return new Promise<boolean>((resolve) => {
 			const params: Record<string, any> = {
 				...restValues,
-				computeType: 1,
+				// 批任务还是流任务
+				computeType: values.taskType === TASK_TYPE_ENUM.SQL ? 0 : 1,
 				parentId: values.nodePid,
 			};
 
