@@ -80,7 +80,8 @@ export default function saveTask() {
 			const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
 			if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
 				const isIncrementMode =
-					params.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === params.syncModel;
+					params.sourceMap.syncModel !== undefined &&
+					DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
 				if (!isIncrementMode) {
 					params.sourceMap!.increColumn = undefined; // Delete increColumn
 				}
@@ -180,7 +181,7 @@ export default function saveTask() {
 			const params: IParamsProps = cloneDeep(data);
 			// TODO：实时采集任务 dataSourceList 移除
 			// @ts-ignore
-			const { sourceMap = {}, targetMap = {}, createModel, dataSourceList } = params;
+			const { sourceMap, targetMap = {}, createModel, dataSourceList } = params;
 			/**
 			 * 当目标数据源为Hive时，必须勾选Json平铺
 			 */

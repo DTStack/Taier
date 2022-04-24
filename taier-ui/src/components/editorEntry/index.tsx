@@ -16,12 +16,54 @@
  * limitations under the License.
  */
 
+import { useEffect, useState } from 'react';
+import { KeybindingHelper } from '@dtinsight/molecule/esm/services/keybinding';
 import './index.scss';
 
+const commands = [
+	{ id: 'sidebar', label: '切换侧边栏' },
+	{ id: 'workbench.action.showPanel', label: '切换面板' },
+	{ id: 'RunSQL', label: '运行 SQL' },
+	{ id: 'workbench.action.selectTheme', label: '切换主题颜色' },
+];
+
 export default function EditorEntry() {
+	const [keys, setKeys] = useState<{ id: string; label: string; keybindings: string }[]>([]);
+
+	useEffect(() => {
+		setKeys(
+			commands
+				.map((command) => {
+					const simpleKeybindings = KeybindingHelper.queryGlobalKeybinding(command.id);
+					if (simpleKeybindings?.length) {
+						const keybindings =
+							KeybindingHelper.convertSimpleKeybindingToString(simpleKeybindings);
+						return { ...command, keybindings };
+					}
+					return null;
+				})
+				.filter(Boolean) as { id: string; label: string; keybindings: string }[],
+		);
+	}, []);
+
 	return (
 		<div className="entry">
-			<img className='logo' width={200} src='images/taier.png' />
+			<img className="logo" width={200} src="images/taier.png" />
+			<div className="commands">
+				{keys.map((key) => (
+					<div className="command">
+						<div className="label">{key.label}</div>
+						<div className="keybindings">
+							{key.keybindings
+								.split('')
+								.filter(Boolean)
+								.map((keyCode) => (
+									<code className="keyCode">{keyCode}</code>
+								))}
+						</div>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 }
