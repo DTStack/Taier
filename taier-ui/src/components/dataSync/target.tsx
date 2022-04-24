@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from 'react';
+import type { FormInstance } from 'antd';
 import {
 	Spin,
 	Modal,
@@ -12,6 +14,7 @@ import {
 	Tooltip,
 	InputNumber,
 } from 'antd';
+import { throttle } from 'lodash';
 import {
 	DDL_IDE_PLACEHOLDER,
 	formItemLayout,
@@ -21,8 +24,13 @@ import {
 } from '@/constant';
 import { filterValueOption, formJsonValidator } from '@/utils';
 import Editor from '@/components/editor';
-import { useEffect, useMemo, useState } from 'react';
-import type { FormInstance } from 'rc-field-form';
+import type {
+	IDataColumnsProps,
+	ISourceMapProps,
+	ITargetFormField,
+	ITargetMapProps,
+	IDataSourceUsedInSyncProps,
+} from '@/interface';
 import { API } from '../../api/dataSource';
 import {
 	dataSyncExtralConfigHelp,
@@ -32,14 +40,6 @@ import {
 	partitionDesc,
 	splitCharacter,
 } from '../helpDoc/docs';
-import { throttle } from 'lodash';
-import type {
-	IDataColumnsProps,
-	ISourceMapProps,
-	ITargetFormField,
-	ITargetMapProps,
-	IDataSourceUsedInSyncProps,
-} from '@/interface';
 import { ALLOW_CREATE_TABLE_IN_SOURCE, ALLOW_CREATE_TABLE_IN_TARGET, noWhiteSpace } from './help';
 
 const FormItem = Form.Item;
@@ -259,7 +259,10 @@ export default function Target({
 		}
 
 		if (changedValue.hasOwnProperty('schema')) {
-			getTableList(values.sourceId!, changedValue.schema);
+			const { schema } = changedValue;
+			if (schema) {
+				getTableList(values.sourceId!, changedValue.schema);
+			}
 			form.setFieldsValue({ table: undefined });
 		}
 
@@ -402,7 +405,7 @@ export default function Target({
 		});
 	};
 
-	const renderDynamicForm = (f: FormInstance) => {
+	const renderDynamicForm = (f: Pick<FormInstance, 'getFieldValue'>) => {
 		const target = dataSourceList.find((l) => l.dataInfoId === f.getFieldValue('sourceId'));
 		if (!target) return;
 
@@ -1120,12 +1123,15 @@ export default function Target({
 								// 暂时支持以下类型的数据源
 								const tmpSupportDataSource = [
 									DATA_SOURCE_ENUM.MYSQL,
-									DATA_SOURCE_ENUM.SQLSERVER,
 									DATA_SOURCE_ENUM.ORACLE,
 									DATA_SOURCE_ENUM.POSTGRESQL,
 									DATA_SOURCE_ENUM.HIVE,
 									DATA_SOURCE_ENUM.HIVE1X,
+									DATA_SOURCE_ENUM.HIVE3X,
+									DATA_SOURCE_ENUM.ES,
+									DATA_SOURCE_ENUM.ES6,
 									DATA_SOURCE_ENUM.ES7,
+									DATA_SOURCE_ENUM.SPARKTHRIFT,
 								];
 
 								/**
