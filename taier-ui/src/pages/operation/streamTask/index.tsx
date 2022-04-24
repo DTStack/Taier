@@ -16,91 +16,34 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import type { ModalProps } from 'antd';
 import { message, Modal, Button, Popconfirm, Tooltip, Alert, Radio, Space, Divider } from 'antd';
 import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
 import { history } from 'umi';
-import { Utils, DateTime } from '@dtinsight/dt-utils';
+import { DateTime } from '@dtinsight/dt-utils';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { IStreamTaskProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType } from '@/constant';
-import { taskStatusFilter, TASK_STATUS, DATA_SOURCE_ENUM, FLINK_VERSION_TYPE_FILTER } from '@/constant';
-import { TaskStatus } from '@/utils/enums';
+import {
+	taskStatusFilter,
+	TASK_STATUS,
+	DATA_SOURCE_ENUM,
+	FLINK_VERSION_TYPE_FILTER,
+} from '@/constant';
+import { TaskStatus, taskTypeText } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
 
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
 import ReRunModal from './components/reRunModal';
-import HandTiedModal from './components/handTiedModal';
+import stream from '@/api/stream';
 
 // TODO
 const Api = {
-	getRealtimeTaskTypes: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	taskStatistics: () => {
-		return new Promise((resolve) => resolve({ code: 11, data: [] }));
-	},
-	getAllStrategy: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	getTasks: () => {
-		return new Promise((resolve) =>
-			resolve({
-				code: 1,
-				data: {
-					data: [
-						{
-							id: 6971,
-							taskId: '4i1iuvspof70',
-							name: '1_26_eee',
-							status: 24,
-							strategyName: null,
-							taskType: 0,
-							createUserName: 'admin@dtstack.com',
-							modifyUserName: 'admin@dtstack.com',
-							isDirty: null,
-							gmtCreate: '2022-02-09T02:39:54.000+00:00',
-							gmtModified: '2022-04-15T08:07:27.000+00:00',
-							taskDesc: null,
-							submitModified: '2022-04-15T08:07:27.000+00:00',
-							operateModified: '2022-04-15T08:07:27.000+00:00',
-							originSourceType: null,
-							execStartTime: null,
-							createModel: 1,
-							componentVersion: '1.12',
-							outputType: 'log',
-						},
-						{
-							componentVersion: '1.12',
-							createModel: 0,
-							createUserName: 'admin@dtstack.com',
-							execStartTime: null,
-							gmtCreate: '2022-04-01T08:31:39.000+00:00',
-							gmtModified: '2022-04-01T08:32:31.000+00:00',
-							id: 7283,
-							isDirty: null,
-							modifyUserName: 'admin@dtstack.com',
-							name: 'tianhe_test_np6',
-							operateModified: '2022-04-01T08:32:31.000+00:00',
-							originSourceType: null,
-							outputType: null,
-							status: 7,
-							strategyName: null,
-							submitModified: '2022-04-01T08:32:31.000+00:00',
-							taskDesc: null,
-							taskId: '4ie5kd34cvn0',
-							taskType: 0,
-						},
-					],
-				},
-			}),
-		);
-	},
 	startTask: () => {
 		return new Promise((resolve) => resolve({ code: 1, data: [] }));
 	},
@@ -111,9 +54,6 @@ const Api = {
 		return new Promise((resolve) => resolve({ code: 1, data: [] }));
 	},
 	batchStopTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	roleUserAdmin: () => {
 		return new Promise((resolve) => resolve({ code: 1, data: [] }));
 	},
 };
@@ -131,12 +71,6 @@ function isFlinkSqlGuideMode(taskData: IStreamTaskProps) {
 }
 
 export default function StreamTask() {
-	const [taskTypes, setTaskTypes] = useState<
-		{
-			key: number;
-			value: string;
-		}[]
-	>([]);
 	const [overview, setOverview] = useState<{
 		ALL: number;
 		FAILED: number;
@@ -144,21 +78,12 @@ export default function StreamTask() {
 		CANCELED: number;
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
-	// 启停策略过滤下拉条件
-	const [strategyNameFilters, setStrategyName] = useState<
-		{
-			text: string;
-			value: number;
-		}[]
-	>([]);
-	const [isAdmin, setAdmin] = useState(false);
 	const [polling, setPolling] = useState<
 		| boolean
 		| {
 				delay?: number | undefined;
 		  }
 	>(false);
-	const [handTiedModelVisible, setTiedVisible] = useState(false);
 	// 批量提交/重跑
 	const [batchReRunVisible, setBatchReRunTaskVisible] = useState(false);
 	const [goOnTask, setGoOnTask] = useState<IStreamTaskProps['id'] | undefined>(undefined);
@@ -183,42 +108,10 @@ export default function StreamTask() {
 		return true;
 	};
 
-	const loadTaskTypes = () => {
-		Api.getRealtimeTaskTypes().then((res: any) => {
-			if (res.code === 1) {
-				setTaskTypes(res.data || []);
-			}
-		});
-	};
-
 	const loadCount = (params: any) => {
-		Api.taskStatistics(params).then((res: any) => {
-			if (res.code === 1) {
-				setOverview(res?.data?.data);
-			}
-		});
-	};
-
-	const loadStrategy = () => {
-		Api.getAllStrategy().then((res: any) => {
-			if (res?.code !== 1) return;
-			const data: {
-				name: string;
-				id: number;
-			}[] = res?.data || [];
-			const nextStrategy = data?.map(({ name, id }) => ({
-				text: name,
-				value: id,
-			}));
-			nextStrategy.unshift({ value: 0, text: '无' });
-			setStrategyName(nextStrategy);
-		});
-	};
-
-	const isAdminTied = async () => {
-		await Api.roleUserAdmin().then((res: { code: number; data: boolean }) => {
-			if (res?.code === 1) {
-				setAdmin(!!res?.data);
+		stream.getStatusCount(params).then((res) => {
+			if (res.code === 1 && res?.data) {
+				setOverview(res.data);
 			}
 		});
 	};
@@ -300,12 +193,6 @@ export default function StreamTask() {
 		}
 	};
 
-	const handTiedModal = async () => {
-		if (assertAtLeastOneTask()) {
-			setTiedVisible(true);
-		}
-	};
-
 	const handleStopTask = () => {
 		if (assertAtLeastOneTask()) {
 			const confirmInstance = confirm({
@@ -349,10 +236,6 @@ export default function StreamTask() {
 		}
 	};
 
-	const handleFinishTied = () => {
-		actionRef.current?.submit();
-		setTiedVisible(false);
-	};
 	const debounceUpdateTaskStatus = debounce(
 		(task: IStreamTaskProps, mode?: string, isForce?: number) => {
 			const { status } = task;
@@ -504,14 +387,14 @@ export default function StreamTask() {
 		};
 		// setLoading(true);
 		loadCount({
-			taskName: values.name,
+			taskName: values.name || '',
 			statusList: status,
 			type: taskType,
 			strategyId: strategyName,
 			componentVersion,
 		});
 		// this.clearTimeOut();
-		return Api.getTasks(reqParams).then((res: any) => {
+		return stream.getTaskList(reqParams).then((res) => {
 			if (res.code === 1) {
 				debounceLoadtask(res.data?.data);
 				return {
@@ -524,6 +407,7 @@ export default function StreamTask() {
 
 	const renderStatus = () => {
 		const statusList = getStatusList();
+		console.log('statusList:', statusList);
 		return statusList.map(({ className, children }) => (
 			<span key={className} className={className}>
 				{children.map(({ title, dataSource }) => (
@@ -697,20 +581,8 @@ export default function StreamTask() {
 		}
 	};
 
-	useEffect(() => {
-		loadTaskTypes();
-		loadStrategy();
-		isAdminTied();
-	}, []);
-
-	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(() => {
-		const taskTypesMap = taskTypes.reduce((pre, cur) => {
-			const next = pre;
-			next[cur.key] = cur.value;
-			return next;
-		}, {} as Record<number, string>);
-
-		return [
+	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(
+		() => [
 			{
 				title: '任务名称',
 				dataIndex: 'name',
@@ -736,36 +608,18 @@ export default function StreamTask() {
 				title: '版本',
 				dataIndex: 'componentVersion',
 				key: 'componentVersion',
-				filters: FLINK_VERSION_TYPE,
-				filterMultiple: true,
-			},
-			{
-				title: '启停配置',
-				dataIndex: 'strategyName',
-				key: 'strategyName',
-				render: (text) => {
-					return (
-						<Tooltip placement="top" title={text}>
-							<span>{Utils.textOverflowExchange(text, 8) || '无'}</span>
-						</Tooltip>
-					);
-				},
-				filters: strategyNameFilters,
+				filters: FLINK_VERSION_TYPE_FILTER,
 				filterMultiple: true,
 			},
 			{
 				title: '任务类型',
 				dataIndex: 'taskType',
 				key: 'taskType',
-				render: (text) => {
-					return taskTypesMap[text];
-				},
-				filters: taskTypes.map((taskType) => {
-					return {
-						text: taskType.value,
-						value: taskType.key,
-					};
-				}),
+				render: (text) => taskTypeText(text),
+				filters: [TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.DATA_ACQUISITION].map((t) => ({
+					text: taskTypeText(t),
+					value: t,
+				})),
 				filterMultiple: true,
 			},
 			{
@@ -799,8 +653,9 @@ export default function StreamTask() {
 					return getDealButton(record);
 				},
 			},
-		];
-	}, [taskTypes, strategyNameFilters]);
+		],
+		[],
+	);
 
 	return (
 		<div className="h-full">
@@ -848,7 +703,6 @@ export default function StreamTask() {
 								续跑
 							</Button>
 						</Tooltip>
-						{isAdmin ? <Button onClick={handTiedModal}>手动重绑</Button> : null}
 					</Space>
 				}
 			/>
@@ -857,14 +711,6 @@ export default function StreamTask() {
 				onCancel={() => setBatchReRunTaskVisible(false)}
 				onOk={handleStartJobInBatch}
 			/>
-			{handTiedModelVisible && (
-				<HandTiedModal
-					visible={handTiedModelVisible}
-					onCancel={() => setTiedVisible(false)}
-					selectedRowKeys={actionRef.current?.selectedRowKeys || []}
-					finishTied={handleFinishTied}
-				/>
-			)}
 			<DetailPane
 				data={slidePane.selectTask}
 				visibleSlidePane={slidePane.visible}

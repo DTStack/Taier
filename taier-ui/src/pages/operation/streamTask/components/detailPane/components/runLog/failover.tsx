@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { IStreamTaskProps } from '@/interface'
-import Editor from '@/components/codeEditor'
+import Editor from '@/components/editor'
 
 const Api = {} as any
 

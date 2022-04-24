@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Form, Input, Radio, Select } from 'antd';
 import type { ITaskParams } from '@/interface';
-import Editor from '@/components/codeEditor';
+import Editor from '@/components/editor';
 import Address from './address';
 import ResultTable from './resultTable';
-import { formItemLayout, DATA_SOURCE_ENUM, TASK_TYPE_ENUM, DATA_SYNC_TYPE } from '@/constant';
+import { formItemLayout, DATA_SOURCE_ENUM, TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 
 const Api = {
 	getRealtimeTaskTypes: () =>
@@ -81,7 +81,7 @@ class RunCode extends React.Component<IProps, IState> {
 
 		switch (taskType) {
 			case TASK_TYPE_ENUM.SQL:
-			case TASK_TYPE_ENUM.DATA_COLLECTION: {
+			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				return (
 					<Editor
 						sync={true}
@@ -92,7 +92,7 @@ class RunCode extends React.Component<IProps, IState> {
 					/>
 				);
 			}
-			case TASK_TYPE_ENUM.MR:
+			// case TASK_TYPE_ENUM.MR:
 			default: {
 				return (
 					<Form>
@@ -148,7 +148,7 @@ class RunCode extends React.Component<IProps, IState> {
 			case TASK_TYPE_ENUM.SQL: {
 				return 'sql';
 			}
-			case TASK_TYPE_ENUM.DATA_COLLECTION: {
+			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				return 'json';
 			}
 			default: {
@@ -184,12 +184,12 @@ class RunCode extends React.Component<IProps, IState> {
 			taskParams,
 		} = data || {};
 		const isShowAddress =
-			taskType == TASK_TYPE_ENUM.DATA_COLLECTION &&
+			taskType == TASK_TYPE_ENUM.DATA_ACQUISITION &&
 			originSourceType == DATA_SOURCE_ENUM.BEATS;
 		const isflinkSql = taskType == TASK_TYPE_ENUM.SQL;
-		const isGuideMode = createModel != DATA_SYNC_TYPE.SCRIPT;
+		const isGuideMode = createModel != CREATE_MODEL_TYPE.SCRIPT;
 		const isShowResultTable =
-			taskType == TASK_TYPE_ENUM.DATA_COLLECTION && targetSourceType == DATA_SOURCE_ENUM.HIVE;
+			taskType == TASK_TYPE_ENUM.DATA_ACQUISITION && targetSourceType == DATA_SOURCE_ENUM.HIVE;
 
 		const editorBoxStyle: React.CSSProperties = { height: 'calc(100% - 44px)' };
 

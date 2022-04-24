@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Editor from '@/components/codeEditor'
+import Editor from '@/components/editor'
 import { TASK_STATUS } from '@/constant'
 import { Pagination, Tooltip, Breadcrumb } from 'antd'
 import { SyncOutlined } from '@ant-design/icons';
