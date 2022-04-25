@@ -69,7 +69,7 @@ export interface IActionRef {
 	getTableData: () => any[];
 }
 
-interface ISketchProps<T, P> {
+export interface ISketchProps<T, P> {
 	/**
 	 * 通过 actionRef 获取内部值
 	 */
@@ -109,9 +109,9 @@ interface ISketchProps<T, P> {
 	 */
 	columns?: ColumnsType<T>;
 	/**
-	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` 属性以外
+	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` | `scroll` 属性以外
 	 */
-	tableProps?: Omit<Partial<TableProps<T>>, 'columns' | 'dataSource'>;
+	tableProps?: Omit<Partial<TableProps<T>>, 'columns' | 'dataSource' | 'scroll'>;
 	/**
 	 * 头部需要额外的组件，如添加按钮，刷新按钮等
 	 */
@@ -292,7 +292,7 @@ export default function Sketch<
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, scroll: tableScroll, ...restTableProps } = tableProps;
+	const { className: tableClassName, ...restTableProps } = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
@@ -387,7 +387,7 @@ export default function Sketch<
 					onChange: handleSelectedRowChanged,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
-				scroll={{ ...calcTableScroll, ...tableScroll }}
+				scroll={{ ...calcTableScroll }}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}
