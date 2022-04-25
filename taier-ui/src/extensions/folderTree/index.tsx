@@ -30,6 +30,7 @@ import {
 	loadTreeNode,
 	getCatalogueViaNode,
 	fileIcon,
+	getParentNode,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -125,14 +126,41 @@ function openCreateTab(id?: string) {
 
 function init() {
 	molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
-		const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
 		const { SAMPLE_FOLDER_PANEL_ID } = molecule.builtin.getConstants();
 		// 如果是任务刷新，执行重新加载
 		if (panel.id === SAMPLE_FOLDER_PANEL_ID && toolbarId === 'refresh') {
-			const rootNode = getRootNode();
-			if (rootNode) {
-				loadTreeNode(rootNode.data, CATELOGUE_TYPE.TASK);
+			const { current } = molecule.editor.getState();
+			const { folderTree } = molecule.folderTree.getState();
+			if (!folderTree?.data?.length) return;
+			if (current) {
+				// keep the folderTree's current consistent with the editor's current
+				molecule.folderTree.setActive(Number(current.activeTab));
 			}
+			const currentFolderTree = molecule.folderTree.getState().folderTree?.current;
+			if (!currentFolderTree) return;
+			// expand the current Node's parentNode
+			const expandKeys = molecule.folderTree.getExpandKeys();
+			const parentNode = getParentNode(folderTree!.data![0], currentFolderTree);
+			if (!parentNode) return;
+			if (!expandKeys.includes(parentNode.id)) {
+				molecule.folderTree.setExpandKeys([...expandKeys, parentNode.id]);
+			}
+
+			// reload the parentNode
+			loadTreeNode(parentNode.data, CATELOGUE_TYPE.TASK).then(() => {
+				// TODO: don't need it after fix the issue https://github.com/DTStack/molecule/issues/724
+				if (molecule.folderTree.getState().folderTree?.current?.id !== undefined) {
+					document
+						.querySelector<HTMLDivElement>('.mo-tree__treenode--active')
+						?.classList.remove('mo-tree__treenode--active');
+					const dom = document.querySelector<HTMLDivElement>(
+						`div.mo-tree__treenode[data-key="${
+							molecule.folderTree.getState().folderTree?.current?.id
+						}"]`,
+					);
+					dom?.classList.add('mo-tree__treenode--active');
+				}
+			});
 		}
 	});
 }

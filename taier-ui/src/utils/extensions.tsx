@@ -18,7 +18,7 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { message } from 'antd';
-import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { FileTypes, IFolderTreeNodeProps, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import {
 	FlinkSQLIcon,
 	SyntaxIcon,
@@ -38,6 +38,8 @@ import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql, getTenantId, getUserId } from '.';
 import stream from '@/api/stream';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import { transformTabDataToParams } from './saveTask';
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
@@ -151,6 +153,7 @@ export function transformCatalogueToTree(
 			const prevNode = molecule.folderTree.get(
 				fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
 			);
+
 			// file always generate the new one
 			if (prevNode && fileType !== FileTypes.File) {
 				return new TreeNodeModel({
@@ -218,7 +221,7 @@ export function transformCatalogueToTree(
  * @param source
  */
 export async function loadTreeNode(
-	node: CatalogueDataProps,
+	node: Partial<CatalogueDataProps>,
 	source: CATELOGUE_TYPE,
 ): Promise<TreeNodeModel | null> {
 	const data = await getCatalogueViaNode(node);
@@ -363,9 +366,11 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 	taskResultService.clearLogs(logId);
 	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
 
+	const params = transformTabDataToParams(currentTabData);
+
 	let isSuccess = false;
 	stream
-		.checkSyntax({})
+		.checkSyntax(params)
 		.then((res) => {
 			if (res.message) {
 				taskResultService.appendLogs(logId, createLog(res.message, 'error'));
@@ -395,4 +400,13 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 				},
 			]);
 		});
+}
+
+export function getParentNode(treeList: IFolderTreeNodeProps, currentNode: IFolderTreeNodeProps) {
+	const treeView = new TreeViewUtil(treeList);
+	const parentNode = treeView.getHashMap(currentNode.id)?.parent;
+	if (parentNode) {
+		return treeView.getNode(parentNode);
+	}
+	return null;
 }

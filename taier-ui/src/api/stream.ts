@@ -76,18 +76,10 @@ export default {
 	convertToScriptMode(params: any) {
 		return http.post(req.CONVERT_TO_SCRIPT_MODE, params);
 	},
-	// TODO: 语法检查
-	checkSyntax(data: any) {
-		return new Promise<any>((resolve) =>
-			resolve({
-				code: 1,
-				data: {
-					code: 999,
-					errorMsg:
-						"error test",
-				},
-			}),
-		);
-		// return http.post(, params);
+	checkSyntax(params: any) {
+		return http.post(req.GRAMMAR_CHECK, params);
+	},
+	sqlFormat(params: any) {
+		return http.post(req.SQL_FORMAT, params);
 	},
 };

@@ -23,6 +23,7 @@ export const TASK_STOP_ID = 'task.stop';
 export const TASK_SUBMIT_ID = 'task.submit';
 export const TASK_SAVE_ID = 'task.save';
 export const TASK_OPS_ID = 'task_ops';
+export const TASK_FORMAT_ID = 'task.format';
 export const TASK_CONVERT_SCRIPT = 'task.convert.script';
 export const TASK_IMPORT_ID = 'task.import';
 export const TASK_SYNTAX_ID = 'task.syntax';
@@ -53,7 +54,8 @@ export const HDFSCONG = `{
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }`;
 
-export const DDL_IDE_PLACEHOLDER = 'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
+export const DDL_IDE_PLACEHOLDER =
+	'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
 
 // 表单正常布局
 export const formItemLayout = {
@@ -1324,3 +1326,15 @@ export const DEFAULT_MAPPING_TEXT = `默认使用ElasticSearch自带的Mapping�
         }
     }
 }`;
+
+export enum UDF_TYPE_VALUES {
+	UDF = 0,
+	UDTF = 1,
+	UDAF = 2,
+}
+
+export const UDF_TYPE_NAMES = {
+	[UDF_TYPE_VALUES.UDF]: 'UDF',
+	[UDF_TYPE_VALUES.UDTF]: 'UDTF',
+	[UDF_TYPE_VALUES.UDAF]: 'UDAF',
+} as const;
