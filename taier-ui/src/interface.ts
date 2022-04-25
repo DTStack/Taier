@@ -77,6 +77,24 @@ export interface ITaskProps extends ITaskBasicProps {
 	taskType: TASK_TYPE_ENUM;
 }
 
+// 实时任务管理——任务类型
+export interface IStreamTaskProps extends ITaskBasicProps {
+	id: number;
+	status: number;
+	componentVersion: string;
+	strategyName: string;
+	taskType: number;
+	createUserName: string;
+	execStartTime: string;
+	gmtModified: string;
+	modifyUserName: string;
+	originSourceType: number;
+	createModel: number;
+	nextData: {
+		id: number;
+	}
+}
+
 // 查询任务树的遍历方向
 export enum DIRECT_TYPE_ENUM {
 	FATHER = 1,
@@ -518,3 +536,38 @@ export interface IFlinkSinkProps {
 	// 自定义参数
 	customParams: { id: string; key?: string; type?: string }[];
 }
+/**
+ * 实时-任务属性参数
+ */
+export interface ITaskParams {
+    id: number;
+	name: string;
+	exeArgs: string;
+    sqlText: string;
+    taskDesc: string;
+	mainClass: string;
+    taskParams: string;
+    originSourceType: number;
+    createModel: number;
+	taskType: number;
+	targetSourceType: number;
+	sourceParams: string;
+	sinkParams: string;
+	sideParams: string;
+	resourceList: IResourceList[];
+	additionalResourceList: IResourceList[];
+}
+
+/**
+ * 实时-资源相关的参数
+ */
+ export interface IResourceList { 
+	id: number;
+	url: string;
+	originFileName: string;
+	projectId: number;
+	resourceDesc: string;
+	resourceName: string;
+	isAdditionResource: number;
+ }
+

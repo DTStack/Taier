@@ -82,4 +82,10 @@ export default {
 	sqlFormat(params: any) {
 		return http.post(req.SQL_FORMAT, params);
 	},
+	getTaskList(params: any) {
+		return http.post(req.GET_TASK_LIST, params);
+	},
+	getStatusCount(params: any) {
+		return http.post(req.GET_STATUS_COUNT, params);
+	},
 };
