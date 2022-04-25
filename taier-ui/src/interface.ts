@@ -92,7 +92,7 @@ export interface IStreamTaskProps extends ITaskBasicProps {
 	createModel: number;
 	nextData: {
 		id: number;
-	}
+	};
 }
 
 // 查询任务树的遍历方向
@@ -410,19 +410,19 @@ export interface IFunctionProps {
 	 * 命令格式
 	 */
 	commandFormate: string;
-	className?: string | null;
-	createUser?: null | IUserProps;
+	className?: string;
+	createUser?: IUserProps;
 	createUserId: number;
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
-	modifyUser?: null | IUserProps;
+	modifyUser?: IUserProps;
 	modifyUserId: number;
 	name: string;
 	nodePid: number;
 	paramDesc: string;
 	purpose: string;
-	sqlText?: null | string;
+	sqlText?: string;
 	/**
 	 * 函数类型
 	 */
@@ -431,7 +431,7 @@ export interface IFunctionProps {
 	 * UDF类型
 	 */
 	udfType?: UDF_TYPE_VALUES;
-	resources?: number | null;
+	resources?: number;
 	type: number;
 }
 
@@ -540,15 +540,15 @@ export interface IFlinkSinkProps {
  * 实时-任务属性参数
  */
 export interface ITaskParams {
-    id: number;
+	id: number;
 	name: string;
 	exeArgs: string;
-    sqlText: string;
-    taskDesc: string;
+	sqlText: string;
+	taskDesc: string;
 	mainClass: string;
-    taskParams: string;
-    originSourceType: number;
-    createModel: number;
+	taskParams: string;
+	originSourceType: number;
+	createModel: number;
 	taskType: number;
 	targetSourceType: number;
 	sourceParams: string;
@@ -561,7 +561,7 @@ export interface ITaskParams {
 /**
  * 实时-资源相关的参数
  */
- export interface IResourceList { 
+export interface IResourceList {
 	id: number;
 	url: string;
 	originFileName: string;
@@ -569,5 +569,4 @@ export interface ITaskParams {
 	resourceDesc: string;
 	resourceName: string;
 	isAdditionResource: number;
- }
-
+}

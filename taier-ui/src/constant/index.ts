@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import type molecule from '@dtinsight/molecule';
 import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
 
 export const TASK_RUN_ID = 'task.run';
@@ -457,6 +458,7 @@ export enum MENU_TYPE_ENUM {
 	FUNCTION = 'FunctionManager',
 	PROCEDURE = 'ProcedureManager',
 	SPARKFUNC = 'SparkSQLFunction',
+	FLINKFUNC = 'FlinkSQLFunction',
 	LIBRAFUNC = 'LibraSQLFunction',
 	LIBRASYSFUN = 'LibraSysFunc',
 	COSTOMFUC = 'CustomFunction',
@@ -819,14 +821,20 @@ export const TENANT_MENU = {
 	ADD_TENANT: 'add-tenant',
 } as const;
 
-export const OPERATIONS = [
+export const OPERATIONS: molecule.model.IMenuBarItem[] = [
 	{
-		id: DRAWER_MENU_ENUM.TASK,
-		name: '离线任务管理',
-	},
-	{
-		id: DRAWER_MENU_ENUM.STREAM_TASK,
-		name: '实时任务管理',
+		id: 'test',
+		name: '任务管理',
+		data: [
+			{
+				id: DRAWER_MENU_ENUM.TASK,
+				name: '离线任务管理',
+			},
+			{
+				id: DRAWER_MENU_ENUM.STREAM_TASK,
+				name: '实时任务管理',
+			},
+		],
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,
