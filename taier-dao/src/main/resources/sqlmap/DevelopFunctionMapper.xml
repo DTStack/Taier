@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopFunctionDao">
 
     <sql id="select_content_fragment">
-        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,type,gmt_create,gmt_modified,is_deleted,task_type,sql_text
+        id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,udf_type,type,gmt_create,gmt_modified,is_deleted,task_type,sql_text
     </sql>
 
     <sql id="update_fragment">
@@ -49,6 +49,9 @@
             </if>
             <if test="taskType !=null">
                 task_type = #{taskType},
+            </if>
+            <if test="udfType !=null">
+                udf_type = #{udfType},
             </if>
             <if test="sqlText !=null">
                 sql_text = #{sqlText},
@@ -102,6 +105,24 @@
         </if>
     </select>
 
+
+    <select id="listTenantByFunction" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM develop_function
+        WHERE is_deleted = 0 and tenant_id = #{tenantId}
+        <if test="taskType !=null">
+            AND task_type = #{taskType}
+        </if>
+        <if test="funcNameSet != null">
+            and name in
+            <foreach item="name" index="index" collection="funcNameSet" open="(" separator="," close=")">
+                #{name}
+            </foreach>
+        </if>
+
+    </select>
+
     <select id="listByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchFunction">
         SELECT
         <include refid="select_content_fragment"/>
@@ -119,9 +140,9 @@
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchFunction" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_function
         (name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id,
-         modify_user_id, type, gmt_create, gmt_modified, is_deleted,task_type,sql_text)
+         modify_user_id,udf_type, type, gmt_create, gmt_modified, is_deleted,task_type,sql_text)
         VALUES (#{name}, #{className}, #{purpose}, #{commandFormate}, #{paramDesc}, #{nodePid}, #{tenantId},
-                #{createUserId}, #{createUserId}, #{type}, now(), now(), 0,#{taskType},#{sqlText})
+                #{createUserId}, #{createUserId}, #{udfType},#{type}, now(), now(), 0,#{taskType},#{sqlText})
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchFunction">

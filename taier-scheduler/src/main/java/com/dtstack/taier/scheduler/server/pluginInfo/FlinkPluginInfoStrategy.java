@@ -16,7 +16,7 @@ public class FlinkPluginInfoStrategy implements ComponentPluginInfoStrategy {
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
         //默认为session
-        EDeployMode deploy = deployMode == null ? EDeployMode.getByType(deployMode) : EDeployMode.SESSION;
+        EDeployMode deploy = deployMode == null ? EDeployMode.SESSION : EDeployMode.getByType(deployMode);
         JSONObject confConfig = clusterConfigJson.getJSONObject(EComponentType.FLINK.getConfName());
         String typeName = confConfig.getString(TYPE_NAME);
         if (!StringUtils.isBlank(typeName)) {

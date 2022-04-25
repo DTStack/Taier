@@ -22,18 +22,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.PatternConstant;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.FuncType;
 import com.dtstack.taier.common.enums.FunctionType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionDao;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taier.develop.enums.develop.FlinkUDFType;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
@@ -53,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +89,16 @@ public class BatchFunctionService {
     @Autowired
     private BatchTaskService batchTaskService;
 
+
+    @Autowired
+    private StreamSqlFormatService streamSqlFormatService;
+
+    public static final List<String> ADD_FUNCTION_NAME = new ArrayList<>();
+    static {
+        ADD_FUNCTION_NAME.add("TIMETOSECOND");
+        ADD_FUNCTION_NAME.add("TIMETOMILLISECOND");
+    }
+
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     /**
@@ -98,6 +113,8 @@ public class BatchFunctionService {
      * 创建临时函数
      */
     private static final String CREATE_TEMP_FUNCTION = "create temporary function %s as '%s' using jar '%s';";
+
+    private static String CUSTOM_FUNCTION_TEMPLATE = "CREATE %s FUNCTION %s WITH %s";
 
 
     /**
@@ -199,7 +216,6 @@ public class BatchFunctionService {
         batchFunctionResource.setFunctionId(function.getId());
         batchFunctionResource.setTenantId(function.getTenantId());
         batchFunctionResource.setResourceId(resourceId);
-        batchFunctionResource.setResource_Id(resourceId);
         BatchFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
         if (Objects.isNull(resourceFunctionByFunctionId)) {
             batchFunctionResourceService.insert(batchFunctionResource);
@@ -393,6 +409,80 @@ public class BatchFunctionService {
     public List<BatchFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
         return developFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
     }
+
+    public List<BatchFunction> getFlinkFunctions(Set<String> funcNameSet, Long tenantId) {
+        if (CollectionUtils.isEmpty(funcNameSet)) {
+            return Lists.newArrayList();
+        }
+        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId,funcNameSet, EScheduleJobType.SQL.getType());
+        if (funcNameSet.size() != streamFunctionList.size()) {
+            for (String funcName : funcNameSet) {
+                for (BatchFunction dbFunc : streamFunctionList) {
+                    if (dbFunc.getName().equals(funcName)) {
+                        break;
+                    }
+                }
+            }
+        }
+        return streamFunctionList;
+    }
+
+    public String createRegisterFlinkFuncSQL(BatchFunction function) {
+        FlinkUDFType udfType = FlinkUDFType.fromTypeValue(function.getUdfType());
+        return String.format(CUSTOM_FUNCTION_TEMPLATE, udfType.getName(), function.getName(), function.getClassName());
+    }
+
+    /**
+     * 自定义函数区分大小写
+     *
+     * @param funcNameSet      函数集合
+     * @return create xxx function sql
+     */
+    public List<String> generateFuncSql(Set<String> funcNameSet, Long tenantId) {
+        List<BatchFunction> functionList = getFlinkFunctions(funcNameSet, tenantId);
+        List<String> result = Lists.newArrayList();
+        List<Long> resourceIds = new ArrayList<>();
+        for (BatchFunction function : functionList) {
+            BatchFunctionResource batchFunctionResource = batchFunctionResourceService.getResourceFunctionByFunctionId(function.getId());
+            AssertUtils.notNull(batchFunctionResource, "函数资源为null");
+            resourceIds.add(batchFunctionResource.getResourceId());
+        }
+        //add jar
+        resourceIds.forEach(resourceId -> result.add(streamSqlFormatService.generateAddJarSQL(resourceId, null)));
+        // register function
+        functionList.forEach(streamFunction -> result.add(createRegisterFlinkFuncSQL(streamFunction)));
+        return result;
+    }
+
+
+
+    public Set<String> getFuncSet(Task task, Boolean isFilterSys) {
+        //sql 任务需要解析出关联的资源(eg:自定义function)
+        Set<String> funcSet = streamSqlFormatService.getFuncName(task.getSqlText());
+        Set<String> sourceFuncs = streamSqlFormatService.getFuncName(task.getSourceStr());
+        Set<String> sidFuncs = streamSqlFormatService.getFuncName(task.getTargetStr());
+        Set<String> sideFuncs = streamSqlFormatService.getFuncName(task.getSideStr());
+        funcSet.addAll(sourceFuncs);
+        funcSet.addAll(sidFuncs);
+        funcSet.addAll(sideFuncs);
+        if (!isFilterSys) {
+            return funcSet;
+        }
+        List<BatchFunction> batchFunctions = developFunctionDao.listSystemFunction(EScheduleJobType.SQL.getType());
+        List<String> sysFuncNames = batchFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
+
+        //FIXME 区分大小写
+        for (String sysFuncName :  sysFuncNames) {
+            if (funcSet.contains(sysFuncName) && !ADD_FUNCTION_NAME.contains(sysFuncName)) {
+                funcSet.remove(sysFuncName);
+                if (CollectionUtils.isEmpty(funcSet)) {
+                    break;
+                }
+            }
+        }
+        return funcSet;
+    }
+
 
     /**
      * 校验是否包含了函数
