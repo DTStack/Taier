@@ -313,25 +313,7 @@ $defaultFontColor: #333;
         margin-right: 20px;
     }
 }
-.basegraph-size {
-    height: 300px;
-}
-.alarm-graph-row {
-    padding-left: 2px;
-    display: flex;
-    & ~ .alarm-graph-row {
-        margin-top: 11px;
-    }
-    section {
-        & ~ section {
-            margin-left: 10px;
-        }
-        width: 50%;
-        flex-basis: 50%;
-        flex-grow: 1;
-        flex-shrink: 1;
-    }
-}
+
 .not-run-box {
     margin-top: 100px;
     margin-left: 400px;
@@ -447,69 +429,6 @@ $defaultFontColor: #333;
             & > .ant-collapse-content {
                 border: 0;
             }
-        }
-    }
-}
-
-.alarm-basegraph-box {
-    background: #fff;
-    border: 1px solid #dddddd;
-    position: relative;
-    height: 100%;
-    width: 100%;
-    header {
-        padding: 7.5px 0px 8.5px 21px;
-        font-size: 14px;
-        color: #333;
-        line-height: 24px;
-        border-bottom: 1px solid #dddddd;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        z-index: 1;
-        .title {
-            font-weight: 500;
-            font-size: 12px;
-            color: #333;
-        }
-    }
-    .alt,
-    .icon-delete {
-        line-height: 22px;
-        float: right;
-        margin: 2px 8px 0 0;
-        cursor: pointer;
-        transition-duration: .3s;
-        color: #999999;
-        &:hover {
-            // color:rgba(0,0,0,0.5)
-            color: #333;
-        }
-    }
-    .icon-delete {
-        margin-top: 3px;
-    }
-    .loading-box {
-        width: 100%;
-        height: 100%;
-        padding-top: 40px;
-        text-align: center;
-        .loading {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-    }
-    .graph-content {
-        padding-top: 40px;
-        height: 100%;
-        position: relative;
-        .no-data-text {
-            color: #666666;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 100px;
         }
     }
 }

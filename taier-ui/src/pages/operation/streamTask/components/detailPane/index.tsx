@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import * as React from 'react';
-import moment from 'moment';
+import { useState } from 'react';
 import { Tabs, Radio } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
@@ -28,7 +27,6 @@ import Failover from './components/runLog/failover';
 import CheckPoint from './components/runLog/checkPoint';
 import RunCode from './components/runCode';
 import History from './components/runLog/historyLog';
-
 import { TASK_TYPE_ENUM } from '@/constant';
 import TaskManager from './components/taskManager';
 import RunMsg from './components/runMsg';
@@ -40,59 +38,43 @@ const Api = {} as any;
 const TabPane = Tabs.TabPane;
 
 interface IProps {
-	data: IStreamTaskProps | null;
+	data?: IStreamTaskProps;
 	visibleSlidePane: boolean;
 	extButton: React.ReactNode;
 	closeSlidePane: () => void;
 }
 
-interface IState {
-	tabKey: string;
-	logSubTabKey: string;
-	taskParams: Partial<ITaskParams>;
-}
+export default function TaskDetailPane({
+	visibleSlidePane,
+	data,
+	extButton,
+	closeSlidePane,
+}: IProps) {
+	const [tabKey, setTabKey] = useState('taskGraph');
+	const [logSubTabKey, setLogSubTabKey] = useState('runLog');
+	const [taskParams, setTaskParams] = useState({});
 
-class TaskDetailPane extends React.Component<IProps, IState> {
-	constructor(props: IProps) {
-		super(props);
-		this.state = {
-			tabKey: 'taskGraph',
-			logSubTabKey: 'runLog',
-			taskParams: {},
-		};
-	}
-
-	// eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps(nextProps: IProps) {
-		const { data } = this.props;
-		const { data: nextData } = nextProps;
-		if (data?.id != nextData?.id) {
-			this.setState({ tabKey: 'taskGraph', logSubTabKey: 'runLog' });
-		}
-	}
-
-	onTabChange(activeKey: string) {
-		this.setState({ tabKey: activeKey });
-		if (activeKey === 'runCode') this.getTaskParams();
-	}
-
-	subTabChange = (e: RadioChangeEvent) => {
-		const logSubTabKey = e.target.value;
-		this.setState({ logSubTabKey });
-	};
-
-	getTaskParams = async () => {
-		const { taskId, componentVersion } = this.props?.data || {};
+	const getTaskParams = async () => {
+		const { taskId, componentVersion } = data!;
 		let res = await Api.getTaskParams({ taskId, componentVersion });
 		if (res?.code === 1) {
-			this.setState({ taskParams: res.data || {} });
+			setTaskParams(res.data || {});
 		}
 	};
 
-	getTabs() {
-		const { tabKey, taskParams, logSubTabKey } = this.state;
-		const { data } = this.props;
-		const { taskType, id, taskId } = data || {};
+	const onTabChange = (activeKey: string) => {
+		setTabKey(activeKey);
+		if (activeKey === 'runCode') {
+			getTaskParams();
+		}
+	};
+
+	const subTabChange = (e: RadioChangeEvent) => {
+		setLogSubTabKey(e.target.value);
+	};
+
+	const getTabs = () => {
+		const { taskType, id, taskId } = data!;
 
 		const scrollStyle: React.CSSProperties = {
 			position: 'absolute',
@@ -133,12 +115,12 @@ class TaskDetailPane extends React.Component<IProps, IState> {
 				<Radio.Group
 					style={{ padding: '12px 20px' }}
 					value={logSubTabKey}
-					onChange={this.subTabChange}
+					onChange={subTabChange}
 				>
 					<Radio.Button value="runLog">运行日志</Radio.Button>
 					<Radio.Button value="failover">failover</Radio.Button>
 					<Radio.Button value="taskManager">Task Manager</Radio.Button>
-					{taskType !== TASK_TYPE_ENUM.DATA_COLLECTION && (
+					{taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && (
 						<Radio.Button value="checkpoint">checkpoint</Radio.Button>
 					)}
 					<Radio.Button value="historyLog">历史日志</Radio.Button>
@@ -164,64 +146,43 @@ class TaskDetailPane extends React.Component<IProps, IState> {
 		tabs.unshift(taskGraph, runMsg, log);
 		tabs.push(runCodeView);
 		return tabs.filter(Boolean);
-	}
-
-	formatTime = (timeStamp: number): string | moment.Moment => {
-		if (!timeStamp) return '--';
-		return moment(timeStamp).format('YYYY-MM-DD HH:mm:ss');
 	};
 
-	render() {
-		const { visibleSlidePane, data, extButton, closeSlidePane } = this.props;
-		const { tabKey } = this.state;
-		const { name, status } = data || {};
+	if (!data) return null;
 
-		const extButtonStyle: React.CSSProperties = {
-			position: 'absolute',
-			right: '16px',
-			top: '11px',
-		};
-
-		return (
-			<SlidePane
-				onClose={closeSlidePane}
-				visible={visibleSlidePane}
-				className="dt-slide-pane"
-				style={{
-					top: '33px',
-					right: '0px',
-					bottom: '22px',
-					width: '60%',
-					position: 'fixed',
-				}}
-			>
-				{visibleSlidePane && (
-					<div className="c-operation__slidePane">
-						<header className="detailPane-header">
-							<span
-								style={{ fontSize: 14, fontWeight: 500, color: 'rgba(51,51,51,1)' }}
-							>
-								{name}
-							</span>
-							<span style={{ marginLeft: '25px' }}>
-								<TaskStatus value={status!} />
-							</span>
-							<span style={extButtonStyle}>{extButton}</span>
-						</header>
-						<Tabs
-							className="c-operation__pane__tabs"
-							style={{ position: 'relative' }}
-							animated={false}
-							onChange={this.onTabChange.bind(this)}
-							activeKey={tabKey}
-						>
-							{this.getTabs()}
-						</Tabs>
-					</div>
-				)}
-			</SlidePane>
-		);
-	}
+	return (
+		<SlidePane
+			onClose={closeSlidePane}
+			visible={visibleSlidePane}
+			className="dt-slide-pane"
+			style={{
+				top: '33px',
+				right: '0px',
+				bottom: '22px',
+				width: '60%',
+				position: 'fixed',
+			}}
+		>
+			{
+				<div className="c-operation__slidePane">
+					<header className="detailPane-header">
+						<span style={{ fontSize: 14, fontWeight: 500 }}>{data.name}</span>
+						<span style={{ marginLeft: '25px' }}>
+							<TaskStatus value={data.status} />
+						</span>
+						<span className='detailPane-header-extra'>{extButton}</span>
+					</header>
+					<Tabs
+						className="c-operation__pane__tabs"
+						style={{ position: 'relative' }}
+						animated={false}
+						onChange={onTabChange}
+						activeKey={tabKey}
+					>
+						{getTabs()}
+					</Tabs>
+				</div>
+			}
+		</SlidePane>
+	);
 }
-
-export default TaskDetailPane;
