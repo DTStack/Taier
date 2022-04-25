@@ -51,14 +51,14 @@ export default function EditorEntry() {
 			<img className="logo" width={200} src="images/taier.png" />
 			<div className="commands">
 				{keys.map((key) => (
-					<div className="command">
+					<div className="command" key={key.id}>
 						<div className="label">{key.label}</div>
 						<div className="keybindings">
 							{key.keybindings
 								.split('')
 								.filter(Boolean)
 								.map((keyCode) => (
-									<code className="keyCode">{keyCode}</code>
+									<code key={keyCode} className="keyCode">{keyCode}</code>
 								))}
 						</div>
 					</div>
