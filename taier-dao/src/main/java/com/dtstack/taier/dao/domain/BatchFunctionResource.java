@@ -24,8 +24,6 @@ public class BatchFunctionResource extends TenantEntity {
 
     private Long resourceId;
 
-    private Long resource_Id;
-
     public Long getFunctionId() {
         return functionId;
     }
@@ -40,13 +38,5 @@ public class BatchFunctionResource extends TenantEntity {
 
     public void setResourceId(Long resourceId) {
         this.resourceId = resourceId;
-    }
-
-    public Long getResource_Id() {
-        return resource_Id;
-    }
-
-    public void setResource_Id(Long resource_Id) {
-        this.resource_Id = resource_Id;
     }
 }

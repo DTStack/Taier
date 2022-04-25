@@ -23,12 +23,16 @@ import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.FlinkSqlTaskManagerVO;
 import com.dtstack.taier.develop.dto.devlop.RuntimeLogResultVO;
+import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.service.develop.impl.FlinkSqlRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkSqlTaskService;
+import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
 import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import com.dtstack.taier.pluginapi.pojo.CheckResult;
@@ -41,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @Api(value = "FlinkSQL任务管理", tags = {"FlinkSQL任务管理"})
 @RestController
@@ -61,9 +66,26 @@ public class DevelopFlinkSQLController {
     }
 
 
+    @ApiOperation(value = "停止FlinkSQL任务")
+    @PostMapping(value = "stop")
+    public R<Boolean> stopFlinkSql(@RequestBody StartFlinkSqlVO vo) {
+        return R.ok(flinkSqlTaskService.stopFlinkSql(vo.getTaskId()));
+    }
+
     @PostMapping(value = "/grammarCheck")
     @ApiOperation(value = "语法检测")
-    public R<CheckResult> grammarCheck(@RequestBody StartFlinkSqlVO vo) {
+    public R<CheckResultVO> grammarCheck(@RequestBody TaskResourceParam taskResourceParam) {
+        return new APITemplate<CheckResultVO>() {
+            @Override
+            protected CheckResultVO process() {
+                return flinkSqlTaskService.grammarCheck(taskResourceParam);
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "/grammarCheck1")
+    @ApiOperation(value = "语法检测")
+    public R<CheckResult> grammarCheck1(@RequestBody StartFlinkSqlVO vo) {
         return new APITemplate<CheckResult>() {
             @Override
             protected CheckResult process() {
@@ -90,6 +112,28 @@ public class DevelopFlinkSQLController {
             @Override
             protected PageResult<List<TaskListResultVO>> process() {
                 return flinkSqlTaskService.getTaskList(taskSearchVO);
+            }
+        }.execute();
+    }
+
+    @ApiOperation("获取各个状态任务的数量")
+    @PostMapping(value = "getStatusCount")
+    public R<Map<String, Integer>> getStatusCount(@RequestBody TaskStatusSearchVO taskStatusSearchVO) {
+        return new APITemplate<Map<String, Integer>>() {
+            @Override
+            protected Map<String, Integer> process() {
+                return flinkSqlTaskService.getStatusCountByCondition(taskStatusSearchVO);
+            }
+        }.execute();
+    }
+
+    @ApiOperation("FlinkSQL任务SQL格式化")
+    @PostMapping(value = "sqlFormat")
+    public R<String> sqlFormat(@RequestBody TaskSqlFormatVO sqlFormatVO) {
+        return new APITemplate<String>() {
+            @Override
+            protected String process() {
+                return flinkSqlTaskService.sqlFormat(sqlFormatVO.getSql());
             }
         }.execute();
     }

@@ -273,7 +273,6 @@ create table develop_function_resource
 	gmt_modified datetime default CURRENT_TIMESTAMP not null comment '修改时间',
 	is_deleted tinyint(1) default 0 not null comment '0正常 1逻辑删除',
 	tenant_id bigint null,
-	resourceId bigint null,
 	constraint index_rdos_function_resource
 		unique (function_id, resource_id, is_deleted)
 )

@@ -29,9 +29,9 @@
 
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchFunctionResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_function_resource
-          (function_id,resource_id,gmt_create,gmt_modified,is_deleted,tenant_id,resourceId)
+          (function_id,resource_id,gmt_create,gmt_modified,is_deleted,tenant_id)
         VALUES
-            (#{functionId},#{resource_Id},now(),now(),0,#{tenantId},#{resourceId})
+            (#{functionId},#{resourceId},now(),now(),0,#{tenantId})
     </insert>
 
     <select id="listByFunctionId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
@@ -45,7 +45,7 @@
         SELECT resource_id AS resource_id,
         <include refid="select_content_fragment"/>
         FROM develop_function_resource
-        WHERE resource_id = #{resource_Id} AND is_deleted = 0
+        WHERE resource_id = #{resourceId} AND is_deleted = 0
     </select>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchFunctionResource">
