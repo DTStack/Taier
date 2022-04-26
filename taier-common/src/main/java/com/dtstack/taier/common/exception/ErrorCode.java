@@ -105,6 +105,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CHANGE_META_NOT_PERMIT_WHEN_BIND_CLUSTER(224, "cluster has bind tenant can not change metadata component", "集群已经绑定过租户,不允许修改"),
     PRE_COMPONENT_NOT_EXISTS(225, "pre Component does not exist", "前置组件不存在"),
     META_COMPONENT_NOT_EXISTS(226, "%s component does not exist or not is metadata component", "当前集群未添加%s组件或未设置该组件为元数据获取方式"),
+    CLUSTER_NOT_CONFIG(227, "please config cluster", "请先配置集群并进行绑定"),
 
     TEMPLATE_TASK_CONTENT_NOT_NULL(249, "Template task content can not be null","模板任务的内容不能为空"),
     CAN_NOT_FIND_TASK(250, "task can not found","该任务不存在"),
