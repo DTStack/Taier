@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { CATELOGUE_TYPE } from '@/constant';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerService from '@/services/resourceManagerService';
 import { transformCatalogueToTree, loadTreeNode, getCatalogueViaNode } from '@/utils/extensions';
@@ -55,12 +55,11 @@ export function getCatalogueTree() {
 			const functionNode = transformCatalogueToTree(funcRoot, CATELOGUE_TYPE.FUNCTION, true)!;
 			functionManagerService.add(functionNode);
 
-			const SparkSqlNode = funcRoot?.children?.find(
-				(child: any) => child.catalogueType === MENU_TYPE_ENUM.SPARKFUNC,
-			);
-			if (SparkSqlNode) {
-				loadTreeNode(SparkSqlNode, CATELOGUE_TYPE.FUNCTION);
-			}
+			// sql 节点必存在 catalogueType，对所有的节点都求一遍子树
+			const SqlNodes = funcRoot?.children?.filter((child: any) => child.catalogueType) || [];
+			SqlNodes.forEach((sqlNode) => {
+				loadTreeNode(sqlNode, CATELOGUE_TYPE.FUNCTION);
+			});
 		}
 
 		// 任务开发根目录

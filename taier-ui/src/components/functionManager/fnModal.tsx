@@ -17,12 +17,18 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import type { FormInstance } from 'antd';
+import { FormInstance, Radio } from 'antd';
 import { Modal, Button, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import FolderPicker from '../../components/folderPicker';
 import { getContainer } from '../resourceManager/resModal';
-import { CATELOGUE_TYPE, formItemLayout, TASK_TYPE_ENUM } from '@/constant';
+import {
+	CATELOGUE_TYPE,
+	formItemLayout,
+	TASK_TYPE_ENUM,
+	UDF_TYPE_NAMES,
+	UDF_TYPE_VALUES,
+} from '@/constant';
 import type { CatalogueDataProps, IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
 
@@ -101,8 +107,9 @@ function FnForm({
 	return (
 		<>
 			<Form
+				{...formItemLayout}
 				form={form}
-				autoComplete='off'
+				autoComplete="off"
 				initialValues={{
 					taskType: getTaskTypeDefaultValue(),
 				}}
@@ -124,9 +131,37 @@ function FnForm({
 						getPopupContainer={() => document.getElementById('molecule')!}
 					>
 						{Array.isArray(flags) && flags.indexOf('Hadoop') !== -1 && (
-							<Option value={TASK_TYPE_ENUM.SPARK_SQL}>Spark SQL</Option>
+							<>
+								<Option value={TASK_TYPE_ENUM.SPARK_SQL}>Spark SQL</Option>
+								<Option value={TASK_TYPE_ENUM.SQL}>Flink SQL</Option>
+							</>
 						)}
 					</Select>
+				</FormItem>
+				<FormItem noStyle dependencies={['taskType']}>
+					{({ getFieldValue }) =>
+						getFieldValue('taskType') === TASK_TYPE_ENUM.SQL && (
+							<FormItem
+								name="udfType"
+								label="UDF类型"
+								rules={[
+									{
+										required: true,
+										message: '请选择UDF类型',
+									},
+								]}
+								initialValue={formData ? formData.udfType : UDF_TYPE_VALUES.UDF}
+							>
+								<Radio.Group disabled={!!fnType}>
+									{Object.entries(UDF_TYPE_NAMES).map(([key, value]) => (
+										<Radio key={key} value={Number(key)}>
+											{value}
+										</Radio>
+									))}
+								</Radio.Group>
+							</FormItem>
+						)
+					}
 				</FormItem>
 				<>
 					<FormItem

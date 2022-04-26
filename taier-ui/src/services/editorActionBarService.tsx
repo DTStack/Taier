@@ -9,9 +9,15 @@ import {
 	TASK_SYNTAX_ID,
 	TASK_TYPE_ENUM,
 	CREATE_MODEL_TYPE,
+	TASK_FORMAT_ID,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import { UploadOutlined, LoginOutlined, SwapOutlined } from '@ant-design/icons';
+import {
+	UploadOutlined,
+	LoginOutlined,
+	SwapOutlined,
+	FormatPainterOutlined,
+} from '@ant-design/icons';
 import molecule from '@dtinsight/molecule';
 import type { IEditorActionsProps } from '@dtinsight/molecule/esm/model';
 import { Component } from '@dtinsight/molecule/esm/react';
@@ -122,6 +128,17 @@ const RUNNING_TASK: IEditorActionsProps = {
 	disabled: true,
 };
 
+/**
+ * 格式化
+ */
+const FORMAT_TASK: IEditorActionsProps = {
+	id: TASK_FORMAT_ID,
+	name: '格式化',
+	title: '格式化',
+	icon: <FormatPainterOutlined />,
+	place: 'outer'
+};
+
 interface IEditorActionBarState {
 	runningTab: Set<number>;
 }
@@ -218,7 +235,14 @@ export default class EditorActionBarService
 			}
 			case TASK_TYPE_ENUM.SQL:
 				if (isGuide) {
-					return [CONVERT_TASK, GRAMMAR_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
+					return [
+						CONVERT_TASK,
+						FORMAT_TASK,
+						GRAMMAR_TASK,
+						SAVE_TASK,
+						SUBMIT_TASK,
+						OPERATOR_TASK,
+					];
 				}
 				return [
 					// IMPORT_TASK,

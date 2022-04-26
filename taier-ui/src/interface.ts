@@ -31,6 +31,8 @@ import type {
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
+	DATA_SYNC_MODE,
+	UDF_TYPE_VALUES,
 } from './constant';
 
 interface IUserProps {}
@@ -73,6 +75,24 @@ export interface ITaskProps extends ITaskBasicProps {
 	periodType: TASK_PERIOD_ENUM;
 	scheduleStatus: SCHEDULE_STATUS;
 	taskType: TASK_TYPE_ENUM;
+}
+
+// 实时任务管理——任务类型
+export interface IStreamTaskProps extends ITaskBasicProps {
+	id: number;
+	status: number;
+	componentVersion: string;
+	strategyName: string;
+	taskType: number;
+	createUserName: string;
+	execStartTime: string;
+	gmtModified: string;
+	modifyUserName: string;
+	originSourceType: number;
+	createModel: number;
+	nextData: {
+		id: number;
+	}
 }
 
 // 查询任务树的遍历方向
@@ -154,7 +174,8 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	 */
 	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 	/**
-	 * 是否是增量同步模式
+	 * @deprecated
+	 * 是否是增量同步模式, 接口要求把该字段放到 sourceMap 中
 	 */
 	syncModel: number;
 	sqlText: string;
@@ -175,7 +196,7 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
  */
 export interface ISyncDataProps {
 	settingMap?: IChannelFormProps;
-	sourceMap?: ISourceMapProps;
+	sourceMap: ISourceMapProps;
 	targetMap?: ITargetMapProps;
 	taskId: number;
 }
@@ -247,6 +268,10 @@ export interface ISourceMapProps extends ISourceFormField {
 		sourceId?: number;
 	}[];
 	type?: DATA_SOURCE_ENUM;
+	/**
+	 * 同步任务是否增量
+	 */
+	syncModel: DATA_SYNC_MODE;
 
 	[key: string]: any;
 }
@@ -402,6 +427,10 @@ export interface IFunctionProps {
 	 * 函数类型
 	 */
 	taskType?: TASK_TYPE_ENUM;
+	/**
+	 * UDF类型
+	 */
+	udfType?: UDF_TYPE_VALUES;
 	resources?: number | null;
 	type: number;
 }
@@ -507,3 +536,38 @@ export interface IFlinkSinkProps {
 	// 自定义参数
 	customParams: { id: string; key?: string; type?: string }[];
 }
+/**
+ * 实时-任务属性参数
+ */
+export interface ITaskParams {
+    id: number;
+	name: string;
+	exeArgs: string;
+    sqlText: string;
+    taskDesc: string;
+	mainClass: string;
+    taskParams: string;
+    originSourceType: number;
+    createModel: number;
+	taskType: number;
+	targetSourceType: number;
+	sourceParams: string;
+	sinkParams: string;
+	sideParams: string;
+	resourceList: IResourceList[];
+	additionalResourceList: IResourceList[];
+}
+
+/**
+ * 实时-资源相关的参数
+ */
+ export interface IResourceList { 
+	id: number;
+	url: string;
+	originFileName: string;
+	projectId: number;
+	resourceDesc: string;
+	resourceName: string;
+	isAdditionResource: number;
+ }
+
