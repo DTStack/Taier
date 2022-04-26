@@ -168,8 +168,12 @@ function emitEvent() {
 														const nextTabData = result.data;
 														molecule.editor.updateTab({
 															id: nextTabData.id.toString(),
-															...nextTabData,
+															data: {
+																...currentTabData,
+																...nextTabData,
+															},
 														});
+														editorActionBarService.performSyncTaskActions();
 													}
 												});
 											}
