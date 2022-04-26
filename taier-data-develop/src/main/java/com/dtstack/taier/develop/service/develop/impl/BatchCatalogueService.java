@@ -37,13 +37,13 @@ import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskTemplate;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.enums.develop.TemplateCatalogue;
+import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
@@ -70,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -103,6 +102,10 @@ public class BatchCatalogueService {
 
     @Autowired
     public TaskTemplateService taskTemplateService;
+
+    @Autowired
+    private ClusterTenantService clusterTenantService;
+
 
     private static final String FUNCTION_MANAGER_NAME = "函数管理";
 
@@ -427,6 +430,7 @@ public class BatchCatalogueService {
      * @return
      */
     public CatalogueVO getCatalogue(Boolean isGetFile, Long nodePid, String catalogueType, Long userId, Long tenantId) {
+        beforeGetCatalogue(tenantId);
         CatalogueVO rootCatalogue = new CatalogueVO();
         //0表示根目录
         if (nodePid == 0) {
@@ -437,12 +441,26 @@ public class BatchCatalogueService {
             rootCatalogue.setCatalogueType(catalogueType);
             rootCatalogue = getChildNode(rootCatalogue, isGetFile, userId, tenantId);
         }
-
         return rootCatalogue;
     }
 
     /**
-     * 更新目录（移动和重命名）
+     * 目录获取前置处理
+     *
+     * @param tenantId
+     */
+    public void beforeGetCatalogue(Long tenantId) {
+        if (Objects.isNull(tenantId)) {
+            throw new RdosDefineException(ErrorCode.TENANT_ID_NOT_NULL);
+        }
+        Long clusterId = clusterTenantService.getClusterIdByTenantId(tenantId);
+        if (Objects.isNull(clusterId)) {
+            throw new RdosDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
+        }
+    }
+
+    /**
+     * 更新目录（移动和重命
      */
     public void updateCatalogue(BatchCatalogueVO catalogueInput) {
 
