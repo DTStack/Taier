@@ -304,7 +304,7 @@ export default function SchedulingConfig({
 	}, [current]);
 
 	const isIncrementMode = useMemo(
-		() => current?.tab?.data?.syncModel === DATA_SYNC_MODE.INCREMENT,
+		() => current?.tab?.data?.sourceMap?.syncModel === DATA_SYNC_MODE.INCREMENT,
 		[],
 	);
 

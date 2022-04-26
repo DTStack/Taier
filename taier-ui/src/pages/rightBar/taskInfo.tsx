@@ -17,13 +17,11 @@
  */
 
 import { useMemo } from 'react';
-import { Col, Row, Collapse } from 'antd';
+import { Collapse } from 'antd';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
-import { formatDateTime } from '@/utils';
-import { taskTypeText } from '@/utils/enums';
 import classNames from 'classnames';
 import { TAB_WITHOUT_DATA } from '.';
-import './taskInfo.scss';
+import DetailInfo from '@/components/detailInfo';
 
 const { Panel } = Collapse;
 
@@ -44,42 +42,7 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 			return <div className={classNames('text-center', 'mt-10px')}>无法提供活动属性</div>;
 		}
 		const tab = current!.tab!;
-		const labelPrefix = '任务';
-
-		return (
-			<Row className="dt-taskinfo">
-				<Col className="dt-taskinfo-key" span={8}>
-					{labelPrefix}名称：
-				</Col>
-				<Col className="dt-taskinfo-value" span={16}>
-					{tab.name}
-				</Col>
-				<Col className="dt-taskinfo-key" span={8}>
-					{labelPrefix}类型：
-				</Col>
-				<Col className="dt-taskinfo-value" span={16}>
-					<span>{taskTypeText(tab.data.taskType)}</span>
-				</Col>
-				<Col className="dt-taskinfo-key" span={8}>
-					创建时间：
-				</Col>
-				<Col className="dt-taskinfo-value" span={16}>
-					{formatDateTime(tab.data.gmtCreate)}
-				</Col>
-				<Col className="dt-taskinfo-key" span={8}>
-					修改时间：
-				</Col>
-				<Col className="dt-taskinfo-value" span={16}>
-					{formatDateTime(tab.data.gmtModified)}
-				</Col>
-				<Col className="dt-taskinfo-key" span={8}>
-					描述：
-				</Col>
-				<Col className={classNames('dt-taskinfo-value', 'leading-20px')} span={16}>
-					{tab.data.taskDesc || '-'}
-				</Col>
-			</Row>
-		);
+		return <DetailInfo type="task" data={tab.data} />;
 	};
 
 	return (

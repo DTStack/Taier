@@ -31,6 +31,7 @@ import {
 	TASK_IMPORT_ID,
 	TASK_LANGUAGE,
 	TASK_SYNTAX_ID,
+	TASK_FORMAT_ID,
 } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
@@ -225,6 +226,15 @@ function emitEvent() {
 				syntaxValidate(current);
 				break;
 			}
+			// FlinkSQL 格式化
+			case TASK_FORMAT_ID: {
+				apiStream.sqlFormat({ sql: current.tab?.data.value }).then((res) => {
+					if (res.code === 1) {
+						molecule.editor.editorInstance.getModel()?.setValue(res.data);
+					}
+				});
+				break;
+			}
 			default:
 				break;
 		}
@@ -259,6 +269,7 @@ function registerCompletion() {
 		TASK_LANGUAGE.SPARKSQL,
 		TASK_LANGUAGE.HIVESQL,
 		TASK_LANGUAGE.SQL,
+		TASK_LANGUAGE.FLINKSQL,
 	] as const;
 	COMPLETION_SQL.forEach((sql) =>
 		languages.registerCompletionItemProvider(sql, {

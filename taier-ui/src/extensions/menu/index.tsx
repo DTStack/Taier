@@ -26,6 +26,7 @@ function handleMenuBarEvents() {
 	molecule.menuBar.onSelect((menuId) => {
 		switch (menuId) {
 			case DRAWER_MENU_ENUM.TASK:
+			case DRAWER_MENU_ENUM.STREAM_TASK:
 			case DRAWER_MENU_ENUM.SCHEDULE:
 			case DRAWER_MENU_ENUM.PATCH:
 			case DRAWER_MENU_ENUM.QUEUE:

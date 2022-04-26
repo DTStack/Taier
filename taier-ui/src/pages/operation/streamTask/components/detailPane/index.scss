@@ -1,0 +1,73 @@
+@import '@/styles/variables';
+
+$lightTaskBgColor: #666;
+
+.c-operation__slidePane {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	.detailPane-header {
+		position: relative;
+		padding: 16px 30px 16px 18px;
+		color: #333333;
+		line-height: 17px;
+	}
+
+	.c-operation__pane__tabs {
+		flex-grow: 1;
+		height: auto;
+
+		> .ant-tabs-bar {
+			height: 40px;
+			background: #f5f5f5;
+			border-bottom: none;
+			.ant-tabs-nav {
+				background: #f5f5f5;
+				.ant-tabs-tab {
+					width: 100px;
+					padding: 10px 0;
+					text-align: center;
+					border: 0;
+				}
+				.ant-tabs-tab-active,
+				.ant-tabs-tab:hover {
+					i {
+						color: $main-color;
+					}
+				}
+				.ant-tabs-ink-bar {
+					top: auto;
+					bottom: 0;
+					height: 3px;
+				}
+			}
+		}
+
+		.c-graph__container {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			.c-graph__header {
+				z-index: 1;
+				padding: 12px 20px;
+			}
+			.c-graph__time-picker {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+			}
+			.c-graph__content {
+				flex: 1;
+				padding: 0 20px;
+				overflow: auto;
+				background: $lightTaskBgColor;
+				.ant-collapse > .ant-collapse-item > .ant-collapse-header > .ant-collapse-arrow {
+					left: 20px;
+					color: #999;
+				}
+			}
+		}
+	}
+}
