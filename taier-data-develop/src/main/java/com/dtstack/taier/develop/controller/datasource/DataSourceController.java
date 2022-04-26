@@ -151,4 +151,19 @@ public class DataSourceController {
         }.execute();
     }
 
+    /**
+     * 判断 oracle 数据源是否开启 cdb
+     * @return 判断结果
+     */
+    @ApiOperation(value = "判断 oracle 数据源是否开启 cdb")
+    @PostMapping("isOpenCdb")
+    public R<Boolean> isOpenCdb(@RequestBody DsInfoIdParam openCdbVO) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return datasourceService.isOpenCdb(openCdbVO.getDataInfoId());
+            }
+        }.execute();
+    }
+
 }

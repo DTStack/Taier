@@ -104,8 +104,8 @@ public class ResponseAdvisor implements ResponseBodyAdvice<Object> {
             }
         } else {
             errorCode = ErrorCode.SERVER_EXCEPTION;
-            errorMsg = ErrorCode.SERVER_EXCEPTION.getDescription();
-            LOGGER.error("", e);
+            errorMsg = e.getMessage();
+            LOGGER.error("", e.getMessage());
         }
 
         if (errorCode.equals(ErrorCode.PERMISSION_LIMIT)) {
