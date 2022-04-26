@@ -55,10 +55,7 @@ export default function FolderPicker(props: FolderPickerProps) {
 			}
 			case 'function': {
 				// function manager only support to insert data into custom function
-				const functionData = (functionManagerService.getState().folderTree?.data || [])[0];
-				return functionData?.children?.find(
-					(item) => item.data.catalogueType === MENU_TYPE_ENUM.SPARKFUNC,
-				);
+				return (functionManagerService.getState().folderTree?.data || [])[0];
 			}
 			default:
 				return undefined;

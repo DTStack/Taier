@@ -56,21 +56,8 @@ function DataSync({ current }: molecule.model.IEditor) {
 				  ]
 				: [];
 
-			if (!d) {
-				if (!target) return null;
-				return {
-					taskId: current!.tab!.data!.id,
-					sourceMap: {
-						name: target.dataName,
-						sourceList,
-						type: target.dataTypeCode,
-						...values,
-					},
-				};
-			}
-
 			// increment updates
-			const nextData = d;
+			const nextData = d!;
 
 			nextData.sourceMap = {
 				...nextData.sourceMap,
@@ -264,23 +251,15 @@ function DataSync({ current }: molecule.model.IEditor) {
 	const getJobData = () => {
 		const taskId = current?.tab?.data.id;
 		if (typeof taskId === 'undefined') return;
-		const [isLoaded, step] = getStepStatus(current?.tab?.data);
+		const [, step] = getStepStatus(current?.tab?.data);
 		setCurrentStep(step);
-		// 未加载过则加载数据
-		if (!isLoaded) {
-			if (step === 0) {
-				// the task opened first time or never saved before
-				setCurrentData({ taskId });
-			}
-		} else {
-			const { id, sourceMap, targetMap, settingMap } = current?.tab?.data || {};
-			setCurrentData({
-				sourceMap,
-				targetMap,
-				settingMap,
-				taskId: id,
-			});
-		}
+		const { id, sourceMap, targetMap, settingMap } = current?.tab?.data || {};
+		setCurrentData({
+			sourceMap,
+			targetMap,
+			settingMap,
+			taskId: id,
+		});
 	};
 
 	const getDataSourceList = () => {
@@ -313,8 +292,8 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 	// 是否是增量模式
 	const isIncrementMode = useMemo(() => {
-		if (current?.tab?.data.syncModel !== undefined) {
-			return current?.tab?.data.syncModel === DATA_SYNC_MODE.INCREMENT;
+		if (current?.tab?.data?.sourceMap?.syncModel !== undefined) {
+			return current?.tab?.data?.sourceMap?.syncModel === DATA_SYNC_MODE.INCREMENT;
 		}
 		return false;
 	}, [current]);

@@ -46,6 +46,25 @@ interface IParamsProps extends IOfflineTaskProps {
 }
 
 /**
+ * Only works for flinkSQL
+ */
+export const transformTabDataToParams = (data: IOfflineTaskProps) => {
+	const params: IOfflineTaskProps & { value?: string } = { ...data };
+	params.sqlText = params.value || '';
+
+	if (params.componentVersion === FLINK_VERSIONS.FLINK_1_12 && Array.isArray(params.source)) {
+		params.source.forEach((form) => {
+			if (form.timeTypeArr.includes(1)) {
+				// eslint-disable-next-line no-param-reassign
+				form.procTime = form.procTime || 'proc_time';
+			}
+		});
+	}
+
+	return params;
+};
+
+/**
  * 保存当前任务
  */
 export default function saveTask() {
@@ -80,7 +99,8 @@ export default function saveTask() {
 			const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
 			if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
 				const isIncrementMode =
-					params.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === params.syncModel;
+					params.sourceMap.syncModel !== undefined &&
+					DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
 				if (!isIncrementMode) {
 					params.sourceMap!.increColumn = undefined; // Delete increColumn
 				}
@@ -133,36 +153,13 @@ export default function saveTask() {
 						}
 
 						params.preSave = true;
-						params.sqlText = params.value || '';
 						// 后端区分右键编辑保存
 						params.updateSource = true;
 
 						return params;
 					})
 					.then((preParams) => {
-						const { sink = [] } = preParams;
-						// 对结果表中多余参数进行处理
-						if (Array.isArray(sink)) {
-							// sink.forEach((pane) => {
-							// 	if ('havePartitionfields' in pane) {
-							// 		delete pane.havePartitionfields;
-							// 	}
-							// });
-						}
-						// 1.12 时时间特征勾选了 ProcTime，ProcTime 名称字段未填写时需补上 proc_time
-						if (
-							preParams.componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
-							Array.isArray(preParams.source)
-						) {
-							preParams.source.forEach((form) => {
-								if (form.timeTypeArr.includes(1)) {
-									// eslint-disable-next-line no-param-reassign
-									form.procTime = form.procTime || 'proc_time';
-								}
-							});
-						}
-
-						return preParams;
+						return transformTabDataToParams(preParams);
 					})
 					.then((realParams) => {
 						return stream.saveTask(realParams).then((res) => {
@@ -180,7 +177,7 @@ export default function saveTask() {
 			const params: IParamsProps = cloneDeep(data);
 			// TODO：实时采集任务 dataSourceList 移除
 			// @ts-ignore
-			const { sourceMap = {}, targetMap = {}, createModel, dataSourceList } = params;
+			const { sourceMap, targetMap = {}, createModel, dataSourceList } = params;
 			/**
 			 * 当目标数据源为Hive时，必须勾选Json平铺
 			 */

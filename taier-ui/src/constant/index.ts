@@ -23,6 +23,7 @@ export const TASK_STOP_ID = 'task.stop';
 export const TASK_SUBMIT_ID = 'task.submit';
 export const TASK_SAVE_ID = 'task.save';
 export const TASK_OPS_ID = 'task_ops';
+export const TASK_FORMAT_ID = 'task.format';
 export const TASK_CONVERT_SCRIPT = 'task.convert.script';
 export const TASK_IMPORT_ID = 'task.import';
 export const TASK_SYNTAX_ID = 'task.syntax';
@@ -43,6 +44,8 @@ export const EDIT_DATASOURCE_PREFIX = 'edit-datasource';
 
 export const LANGUAGE_STATUS_BAR = 'language';
 
+export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
 /**
  * 高可用配置的 placeholder
  */
@@ -53,7 +56,8 @@ export const HDFSCONG = `{
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }`;
 
-export const DDL_IDE_PLACEHOLDER = 'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
+export const DDL_IDE_PLACEHOLDER =
+	'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
 
 // 表单正常布局
 export const formItemLayout = {
@@ -628,6 +632,54 @@ export const OFFLINE_TASK_STATUS_FILTERS = [
 	},
 ];
 
+// 实时任务状态
+export const taskStatusFilter: any = [
+	{
+		text: '等待提交',
+		value: TASK_STATUS.WAIT_SUBMIT,
+	},
+	{
+		text: '提交中',
+		value: TASK_STATUS.SUBMITTING,
+	},
+	{
+		text: '提交失败',
+		value: TASK_STATUS.SUBMIT_FAILED,
+	},
+	{
+		text: '等待运行',
+		value: TASK_STATUS.WAIT_RUN,
+	},
+	{
+		text: '运行中',
+		value: TASK_STATUS.RUNNING,
+	},
+	{
+		text: '取消',
+		value: TASK_STATUS.STOPED,
+	},
+	{
+		text: '超时取消',
+		value: TASK_STATUS.AUTO_CANCEL,
+	},
+	{
+		text: '运行失败',
+		value: TASK_STATUS.RUN_FAILED,
+	},
+	{
+		text: '失败中',
+		value: TASK_STATUS.DO_FAIL,
+	},
+	{
+		text: '停止中',
+		value: TASK_STATUS.STOPING,
+	},
+	{
+		text: '已完成',
+		value: TASK_STATUS.FINISHED,
+	},
+];
+
 /**
  * 脚本类型
  */
@@ -726,6 +778,10 @@ export enum DRAWER_MENU_ENUM {
 	 */
 	TASK = 'task',
 	/**
+	 * 实时任务管理
+	 */
+	STREAM_TASK = 'stream-task',
+	/**
 	 * 周期实例
 	 */
 	SCHEDULE = 'schedule',
@@ -766,7 +822,11 @@ export const TENANT_MENU = {
 export const OPERATIONS = [
 	{
 		id: DRAWER_MENU_ENUM.TASK,
-		name: '任务管理',
+		name: '离线任务管理',
+	},
+	{
+		id: DRAWER_MENU_ENUM.STREAM_TASK,
+		name: '实时任务管理',
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,
@@ -1324,3 +1384,100 @@ export const DEFAULT_MAPPING_TEXT = `默认使用ElasticSearch自带的Mapping�
         }
     }
 }`;
+
+export enum UDF_TYPE_VALUES {
+	UDF = 0,
+	UDTF = 1,
+	UDAF = 2,
+}
+
+export const UDF_TYPE_NAMES = {
+	[UDF_TYPE_VALUES.UDF]: 'UDF',
+	[UDF_TYPE_VALUES.UDTF]: 'UDTF',
+	[UDF_TYPE_VALUES.UDAF]: 'UDAF',
+} as const;
+
+export const FLINK_VERSION_TYPE_FILTER = [
+	{
+		value: FLINK_VERSIONS.FLINK_1_12,
+		label: 'flink1.12',
+		text: '1.12',
+	},
+];
+
+export enum FLINK_SQL_TYPE {
+	GUIDE = 0,
+	SCRIPT = 1,
+	GRAPH = 2,
+}
+
+// 强制停止类型
+export enum IForceType {
+	NOTFORCE = 0,
+	ISFORCE = 1,
+}
+
+export enum CHECK_TYPE_VALUE {
+	CHECK_POINT = 0,
+	SAVE_POINT = 1,
+	CHECK_POINT_FILE = 2,
+}
+
+/** 手动绑定弹框状态 */
+export enum HAND_BUTTON_STATUS {
+	READY_TIED = 0,
+	TIED_SUCCESS = 1,
+	TIED_MIDDLE = -1,
+}
+
+/** 绑定状态 */
+export enum HAND_TIED_STATUS {
+	TIED_WAIT = 0,
+	TIED_SUCCESS = 1,
+	TIED_FAIED = 2,
+}
+
+/** 绑定类型 */
+export enum BIND_TYPE {
+	AUTO = 1, // 强制绑定
+	MANUAL = 0, // 手动绑定
+}
+
+/** metric 状态 */
+export enum METRIC_STATUS_TYPE {
+	NORMAL = 1,
+	ABNORMAL = 2,
+}
+
+export const UNIT_TYPE = {
+	B: 0,
+	KB: 1,
+	MB: 2,
+	GB: 3,
+	TB: 4,
+} as const;
+
+export const SOURCE_INPUT_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bps',
+	[UNIT_TYPE.KB]: 'Kbps',
+	[UNIT_TYPE.MB]: 'Mbps',
+	[UNIT_TYPE.GB]: 'Gbps',
+	[UNIT_TYPE.TB]: 'Tbps',
+} as const;
+
+export const COLLECTION_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bytes',
+	[UNIT_TYPE.KB]: 'Kbytes',
+	[UNIT_TYPE.MB]: 'Mbytes',
+	[UNIT_TYPE.GB]: 'Gbytes',
+	[UNIT_TYPE.TB]: 'Tbytes',
+} as const;
+
+export const CHARTS_COLOR = [
+	'#339CFF',
+	'#15D275',
+	'#5579ED',
+	'#00C3E5',
+	'#16DFB4',
+	'#86E159',
+] as const;

@@ -29,4 +29,8 @@ export default {
 	GET_STREAM_TABLECOLUMN: `${STREAM_BASE_URL}/dataSource/addDs/tablecolumn`, // 输出tablecolumn
 	GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/flinkSql/getAllTimeZone`, // 获取源表中的时区列表
 	CONVERT_TO_SCRIPT_MODE: `${STREAM_BASE_URL}/task/guideToTemplate `, // 转换向导到脚本模式
+	SQL_FORMAT: `${STREAM_BASE_URL}/flinkSql/sqlFormat`,
+	GRAMMAR_CHECK: `${STREAM_BASE_URL}/flinkSql/grammarCheck`, // 语法检查
+	GET_TASK_LIST: `${STREAM_BASE_URL}/flinkSql/getTaskList`,
+	GET_STATUS_COUNT: `${STREAM_BASE_URL}/flinkSql/getStatusCount`,
 };
