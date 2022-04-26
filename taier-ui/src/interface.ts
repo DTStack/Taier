@@ -184,7 +184,10 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	taskPeriodId: TASK_PERIOD_ENUM;
 	taskPeriodType: string;
 	taskType: TASK_TYPE_ENUM;
-	taskVOS: null | ITaskVOProps[];
+	/**
+	 * 任务依赖
+	 */
+	dependencyTasks: null | ITaskVOProps[];
 	taskVariables: null | ITaskVariableProps[];
 	tenantId: string | null;
 	tenantName: string | null;
@@ -392,9 +395,7 @@ export interface IScheduleConfProps {
 /**
  * 任务上下游依赖类型
  */
-export interface ITaskVOProps extends IOfflineTaskProps {
-	taskId: number;
-}
+export type ITaskVOProps = Pick<IOfflineTaskProps, 'id' | 'name' | 'tenantId' | 'tenantName'>;
 
 export interface ITaskVariableProps {
 	paramCommand: string;

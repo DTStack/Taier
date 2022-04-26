@@ -36,10 +36,6 @@ interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
 	updateSource?: boolean;
 	/**
-	 * 离线任务的上下游依赖数组
-	 */
-	dependencyTasks?: IOfflineTaskProps['taskVOS'];
-	/**
 	 * the monaco editor content
 	 */
 	value?: string;
@@ -78,12 +74,6 @@ export default function saveTask() {
 			const params: IParamsProps = cloneDeep(data);
 			// 修改task配置时接口要求的标记位
 			params.preSave = true;
-
-			// 接口要求上游任务字段名修改为dependencyTasks
-			if (params.taskVOS) {
-				params.dependencyTasks = params.taskVOS.map((o) => o);
-				Reflect.deleteProperty(params, 'taskVOS');
-			}
 			params.sqlText = params.value || '';
 
 			return api.saveOfflineJobData(params).then((res) => {
@@ -113,12 +103,6 @@ export default function saveTask() {
 
 			// 修改task配置时接口要求的标记位
 			params.preSave = true;
-
-			// 接口要求上游任务字段名修改为dependencyTasks
-			if (params.taskVOS) {
-				params.dependencyTasks = params.taskVOS.map((o) => o);
-				Reflect.deleteProperty(params, 'taskVOS');
-			}
 			params.sqlText = params.value || '';
 
 			return api.saveOfflineJobData(params).then((res) => {
