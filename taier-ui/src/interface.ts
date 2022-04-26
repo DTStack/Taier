@@ -333,7 +333,7 @@ export interface ISourceFormField {
 	/**
 	 * 行健二进制转换
 	 */
-	isBinaryRowkey?: Valueof<typeof BINARY_ROW_KEY_FLAG>;
+	isBinaryRowkey?: BINARY_ROW_KEY_FLAG;
 	/**
 	 * 每次 RPC 请求获取行数
 	 */

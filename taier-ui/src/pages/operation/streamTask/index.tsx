@@ -29,7 +29,7 @@ import type { IStreamTaskProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType, WAIT_STATUS } from '@/constant';
 import {
-	taskStatusFilter,
+	TASK_STATUS_FILTERS,
 	TASK_STATUS,
 	DATA_SOURCE_ENUM,
 	FLINK_VERSION_TYPE_FILTER,
@@ -589,7 +589,7 @@ export default function StreamTask() {
 				render: (text) => {
 					return <TaskStatus value={text} />;
 				},
-				filters: taskStatusFilter,
+				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
 			},
 			{
