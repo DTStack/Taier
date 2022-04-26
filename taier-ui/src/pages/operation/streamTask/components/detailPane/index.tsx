@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tabs, Radio } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
@@ -44,15 +44,61 @@ interface IProps {
 	closeSlidePane: () => void;
 }
 
+enum TABS_ENUM {
+	/**
+	 * 数据曲线
+	 */
+	GRAPH = 'taskGraph',
+	/**
+	 * 运行信息
+	 */
+	MESSAGE = 'runMsg',
+	/**
+	 * 日志
+	 */
+	LOG = 'log',
+	/**
+	 * 属性参数
+	 */
+	PARAMS = 'runCode',
+}
+
+enum TABS_LOG_ENUM {
+	RUN_LOG = 'runLog',
+	FAILOVER = 'failover',
+	TASK_MANAGER = 'taskManager',
+	CHECKPOINT = 'checkpoint',
+	HISTORY_LOG = 'historyLog',
+}
+
+const TABS_OPTIONS = [
+	{
+		label: '数据曲线',
+		value: TABS_ENUM.GRAPH,
+	},
+	{
+		label: '运行信息',
+		value: TABS_ENUM.MESSAGE,
+	},
+	{
+		label: '日志',
+		value: TABS_ENUM.LOG,
+	},
+	{
+		label: '属性参数',
+		value: TABS_ENUM.PARAMS,
+	},
+];
+
 export default function TaskDetailPane({
 	visibleSlidePane,
 	data,
 	extButton,
 	closeSlidePane,
 }: IProps) {
-	const [tabKey, setTabKey] = useState('taskGraph');
-	const [logSubTabKey, setLogSubTabKey] = useState('runLog');
-	const [taskParams, setTaskParams] = useState({});
+	const [tabKey, setTabKey] = useState<TABS_ENUM>(TABS_ENUM.GRAPH);
+	const [logSubTabKey, setLogSubTabKey] = useState(TABS_LOG_ENUM.RUN_LOG);
+	const [taskParams, setTaskParams] = useState<Partial<ITaskParams> | undefined>(undefined);
 
 	const getTaskParams = async () => {
 		const { taskId, componentVersion } = data!;
@@ -63,8 +109,8 @@ export default function TaskDetailPane({
 	};
 
 	const onTabChange = (activeKey: string) => {
-		setTabKey(activeKey);
-		if (activeKey === 'runCode') {
+		setTabKey(activeKey as TABS_ENUM);
+		if (activeKey === TABS_ENUM.PARAMS) {
 			getTaskParams();
 		}
 	};
@@ -73,116 +119,110 @@ export default function TaskDetailPane({
 		setLogSubTabKey(e.target.value);
 	};
 
-	const getTabs = () => {
-		const { taskType, id, taskId } = data!;
-
-		const scrollStyle: React.CSSProperties = {
-			position: 'absolute',
-			top: '40px',
-			bottom: '1px',
-			paddingBottom: '1px',
-			paddingTop: '16px',
-		};
-
-		const scrollStyleNoPt: React.CSSProperties = {
-			position: 'absolute',
-			top: '40px',
-			bottom: '1px',
-			overflow: 'auto',
-			paddingBottom: '1px',
-		};
-
-		const runCodeView = (
-			<TabPane style={scrollStyle} tab="属性参数" key="runCode">
-				<RunCode isShow={tabKey == 'runCode'} data={taskParams} />
-			</TabPane>
-		);
-
-		const taskGraph = (
-			<TabPane style={scrollStyleNoPt} tab="数据曲线" key="taskGraph">
-				{tabKey == 'taskGraph' && <StreamDetailGraph data={data} />}
-			</TabPane>
-		);
-
-		const runMsg = (
-			<TabPane style={scrollStyleNoPt} tab="运行信息" key="runMsg">
-				<RunMsg key={id} isShow={tabKey == 'runMsg'} data={data} />
-			</TabPane>
-		);
-
-		const log = (
-			<TabPane style={{ ...scrollStyle, paddingTop: 0 }} tab="日志" key="log">
-				<Radio.Group
-					style={{ padding: '12px 20px' }}
-					value={logSubTabKey}
-					onChange={subTabChange}
-				>
-					<Radio.Button value="runLog">运行日志</Radio.Button>
-					<Radio.Button value="failover">failover</Radio.Button>
-					<Radio.Button value="taskManager">Task Manager</Radio.Button>
-					{taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && (
-						<Radio.Button value="checkpoint">checkpoint</Radio.Button>
-					)}
-					<Radio.Button value="historyLog">历史日志</Radio.Button>
-				</Radio.Group>
-				{/* RunLog 里有定时器，tab 时不展示时不会销毁，手动销毁一下 */}
-				{logSubTabKey === 'runLog' && tabKey === 'log' && (
-					<RunLog key={id} data={data} isShow={logSubTabKey === 'runLog'} />
-				)}
-				{logSubTabKey === 'failover' && (
-					<Failover key={id} isShow={logSubTabKey === 'failover'} data={data} />
-				)}
-				{logSubTabKey === 'taskManager' && (
-					<TaskManager key={id} isShow={logSubTabKey === 'taskManager'} data={data} />
-				)}
-				{logSubTabKey === 'checkpoint' && <CheckPoint data={data} tabKey={logSubTabKey} />}
-				{logSubTabKey === 'historyLog' && (
-					<History id={id!} jobId={taskId!} isShow={logSubTabKey === 'historyLog'} />
-				)}
-			</TabPane>
-		);
-
-		let tabs: React.ReactNode[] = [];
-		tabs.unshift(taskGraph, runMsg, log);
-		tabs.push(runCodeView);
-		return tabs.filter(Boolean);
+	const handleCloseSlidePane = () => {
+		setTabKey(TABS_ENUM.GRAPH);
+		setTaskParams(undefined);
+		closeSlidePane();
 	};
 
-	if (!data) return null;
+	const renderSubContent = (key: TABS_LOG_ENUM) => {
+		const { id, taskId } = data!;
+		switch (key) {
+			case TABS_LOG_ENUM.RUN_LOG:
+				return <RunLog key={id} data={data} isShow={logSubTabKey === 'runLog'} />;
+			case TABS_LOG_ENUM.FAILOVER:
+				return <Failover key={id} isShow={logSubTabKey === 'failover'} data={data} />;
+			case TABS_LOG_ENUM.TASK_MANAGER:
+				return <TaskManager key={id} isShow={logSubTabKey === 'taskManager'} data={data} />;
+			case TABS_LOG_ENUM.CHECKPOINT:
+				return <CheckPoint data={data} tabKey={logSubTabKey} />;
+			case TABS_LOG_ENUM.HISTORY_LOG:
+				return <History id={id!} jobId={taskId!} isShow={logSubTabKey === 'historyLog'} />;
+			default:
+				return null;
+		}
+	};
+
+	const renderTabContent = (key: TABS_ENUM) => {
+		const { taskType } = data!;
+		switch (key) {
+			case TABS_ENUM.GRAPH:
+				return <StreamDetailGraph data={data} />;
+			case TABS_ENUM.MESSAGE:
+				return <RunMsg data={data} />;
+			case TABS_ENUM.LOG:
+				return (
+					<>
+						<Radio.Group
+							style={{ padding: '12px 20px' }}
+							value={logSubTabKey}
+							onChange={subTabChange}
+						>
+							<Radio.Button value={TABS_LOG_ENUM.RUN_LOG}>运行日志</Radio.Button>
+							<Radio.Button value={TABS_LOG_ENUM.FAILOVER}>failover</Radio.Button>
+							<Radio.Button value={TABS_LOG_ENUM.TASK_MANAGER}>
+								Task Manager
+							</Radio.Button>
+							{taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && (
+								<Radio.Button value={TABS_LOG_ENUM.CHECKPOINT}>
+									checkpoint
+								</Radio.Button>
+							)}
+							<Radio.Button value={TABS_LOG_ENUM.HISTORY_LOG}>历史日志</Radio.Button>
+						</Radio.Group>
+						{renderSubContent(logSubTabKey)}
+					</>
+				);
+			case TABS_ENUM.PARAMS:
+				return <RunCode key={data?.id} data={taskParams} />;
+			default:
+				break;
+		}
+	};
+
+	useEffect(() => {
+		if (visibleSlidePane) {
+			// while data changed, reset the tabKey
+			setTabKey(TABS_ENUM.GRAPH);
+		}
+	}, [data]);
 
 	return (
 		<SlidePane
-			onClose={closeSlidePane}
+			onClose={handleCloseSlidePane}
 			visible={visibleSlidePane}
-			className="dt-slide-pane"
 			style={{
-				top: '33px',
-				right: '0px',
-				bottom: '22px',
+				top: 33,
+				right: 0,
+				bottom: 22,
 				width: '60%',
 				position: 'fixed',
 			}}
 		>
-			{
+			{data && (
 				<div className="c-operation__slidePane">
 					<header className="detailPane-header">
 						<span style={{ fontSize: 14, fontWeight: 500 }}>{data.name}</span>
 						<span style={{ marginLeft: '25px' }}>
 							<TaskStatus value={data.status} />
 						</span>
-						<span className='detailPane-header-extra'>{extButton}</span>
+						<span className="detailPane-header-extra">{extButton}</span>
 					</header>
 					<Tabs
 						className="c-operation__pane__tabs"
-						style={{ position: 'relative' }}
 						animated={false}
 						onChange={onTabChange}
 						activeKey={tabKey}
+						destroyInactiveTabPane
 					>
-						{getTabs()}
+						{TABS_OPTIONS.map((option) => (
+							<TabPane tab={option.label} key={option.value}>
+								{renderTabContent(option.value)}
+							</TabPane>
+						))}
 					</Tabs>
 				</div>
-			}
+			)}
 		</SlidePane>
 	);
 }

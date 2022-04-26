@@ -20,6 +20,7 @@
 		.ant-tabs-nav {
 			padding: 0 16px;
 			background: var(--editorGroupHeader-tabsBackground);
+			margin-bottom: 0;
 
 			.ant-tabs-tab {
 				width: 100px;
@@ -31,6 +32,10 @@
 					text-shadow: none;
 				}
 			}
+		}
+
+		.ant-tabs-content {
+			height: 100%;
 		}
 	}
 }

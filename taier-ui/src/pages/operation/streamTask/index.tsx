@@ -90,8 +90,8 @@ export default function StreamTask() {
 	// 任务详情信息
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
-		selectTask: null | IStreamTaskProps;
-	}>({ visible: false, selectTask: null });
+		selectTask?: IStreamTaskProps;
+	}>({ visible: false, selectTask: undefined });
 	const actionRef = useRef<IActionRef>(null);
 
 	const assertAtLeastOneTask = () => {
@@ -160,7 +160,7 @@ export default function StreamTask() {
 	};
 
 	const closeSlidePane = () => {
-		setSlidePane({ visible: false, selectTask: null });
+		setSlidePane({ visible: false, selectTask: undefined });
 	};
 
 	const handleContinueJobInBatch = async () => {
@@ -405,7 +405,7 @@ export default function StreamTask() {
 		));
 	};
 
-	const getDealButton = (record: IStreamTaskProps | null) => {
+	const getDealButton = (record?: IStreamTaskProps) => {
 		if (!record) return null;
 		const notGoOn = [
 			DATA_SOURCE_ENUM.WEBSOCKET,
