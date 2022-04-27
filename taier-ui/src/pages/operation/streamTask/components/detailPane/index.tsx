@@ -126,10 +126,10 @@ export default function TaskDetailPane({
 	};
 
 	const renderSubContent = (key: TABS_LOG_ENUM) => {
-		const { id, taskId } = data!;
+		const { id, jobId } = data!;
 		switch (key) {
 			case TABS_LOG_ENUM.RUN_LOG:
-				return <RunLog key={id} data={data} isShow={logSubTabKey === 'runLog'} />;
+				return <RunLog key={id} data={data} />;
 			case TABS_LOG_ENUM.FAILOVER:
 				return <Failover key={id} isShow={logSubTabKey === 'failover'} data={data} />;
 			case TABS_LOG_ENUM.TASK_MANAGER:
@@ -137,7 +137,7 @@ export default function TaskDetailPane({
 			case TABS_LOG_ENUM.CHECKPOINT:
 				return <CheckPoint data={data} tabKey={logSubTabKey} />;
 			case TABS_LOG_ENUM.HISTORY_LOG:
-				return <History id={id!} jobId={taskId!} isShow={logSubTabKey === 'historyLog'} />;
+				return <History id={id!} jobId={jobId!} isShow={logSubTabKey === 'historyLog'} />;
 			default:
 				return null;
 		}

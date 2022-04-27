@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import type { ModalProps } from 'antd';
 import { message, Modal, Button, Popconfirm, Tooltip, Alert, Radio, Space, Divider } from 'antd';
 import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -27,7 +27,7 @@ import type { IActionRef, ISketchProps } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { IStreamTaskProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
-import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType, WAIT_STATUS } from '@/constant';
+import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType } from '@/constant';
 import {
 	TASK_STATUS_FILTERS,
 	TASK_STATUS,
@@ -44,9 +44,6 @@ import stream from '@/api/stream';
 
 // TODO
 const Api = {
-	startTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
 	stopTask: () => {
 		return new Promise((resolve) => resolve({ code: 1, data: [] }));
 	},
@@ -260,13 +257,21 @@ export default function StreamTask() {
 					// 续跑
 					setGoOnTask(task.id);
 				} else {
-					Api.startTask({
-						id: task.id,
-						isRestoration: isRestore,
-					}).then(() => {
-						message.success('任务操作成功！');
-						actionRef.current?.submit();
-					});
+					stream
+						.startTask({
+							taskId: task.id,
+							isRestoration: isRestore,
+						})
+						.then((res) => {
+							if (res.code === 1) {
+								if (res.data.status === TASK_STATUS.SUBMITTING) {
+									message.success('任务操作成功！');
+									actionRef.current?.submit();
+								} else {
+									message.error(res.data.msg);
+								}
+							}
+						});
 				}
 				break;
 			}
@@ -291,15 +296,17 @@ export default function StreamTask() {
 
 	const debounceRecoverTask = debounce(
 		(task: IStreamTaskProps) => {
-			Api.startTask({
-				id: task.id,
-				isRestoration: 0,
-			}).then((res: any) => {
-				if (res.code === 1) {
-					message.success('任务操作成功！');
-					actionRef.current?.submit();
-				}
-			});
+			stream
+				.startTask({
+					taskId: task.id,
+					isRestoration: 0,
+				})
+				.then((res: any) => {
+					if (res.code === 1) {
+						message.success('任务操作成功！');
+						actionRef.current?.submit();
+					}
+				});
 		},
 		1000,
 		{ maxWait: 5000 },
@@ -446,6 +453,14 @@ export default function StreamTask() {
 			case TASK_STATUS.SUBMIT_FAILED:
 				return (
 					<Space size={5} split={<Divider type="vertical" />}>
+						<a
+							href="#"
+							onClick={() => {
+								handleUpdateTaskStatus(record);
+							}}
+						>
+							提交
+						</a>
 						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
 							修改
 						</a>
@@ -567,6 +582,12 @@ export default function StreamTask() {
 		}
 	};
 
+	useEffect(() => {
+		if (polling) {
+			actionRef.current?.submit();
+		}
+	}, [polling]);
+
 	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(
 		() => [
 			{
@@ -621,7 +642,7 @@ export default function StreamTask() {
 			{
 				title: '运行开始时间',
 				dataIndex: 'execStartTime',
-				width: 150,
+				width: 200,
 				key: 'execStartTime',
 				render: (text) => (text ? DateTime.formatDateTime(text) : '-'),
 			},
@@ -678,10 +699,6 @@ export default function StreamTask() {
 				headerTitleClassName="ope-statistics"
 				request={loadTaskList}
 				columns={tableColumns}
-				tableProps={{
-					// scroll: { x: 1709.6 },
-					rowKey: 'id',
-				}}
 				tableFooter={
 					<Space>
 						<Button key="submit" type="primary" onClick={handleReTaskRunning}>

@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Table, Breadcrumb } from 'antd';
 import { IStreamTaskProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
-
-const Api = {} as any
+import stream from '@/api/stream';
 
 interface IState {
     taskList: ITaskList[];
@@ -32,7 +31,7 @@ class TaskManagerList extends React.Component<IProps, IState> {
 
     getTaskManageList = async () => {
         const { data } = this.props;
-        const res = await Api.getTaskManageList({ taskId: data?.id });
+        const res = await stream.listTaskManager({ taskId: data?.id });
         if (res.code == 1) {
             this.setState({
                 taskList: res.data

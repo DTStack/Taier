@@ -80,19 +80,17 @@ export interface ITaskProps extends ITaskBasicProps {
 // 实时任务管理——任务类型
 export interface IStreamTaskProps extends ITaskBasicProps {
 	id: number;
-	status: number;
+	jobId: string;
+	status: TASK_STATUS;
 	componentVersion: string;
 	strategyName: string;
-	taskType: number;
+	taskType: TASK_TYPE_ENUM;
 	createUserName: string;
 	execStartTime: string;
 	gmtModified: string;
 	modifyUserName: string;
 	originSourceType: number;
-	createModel: number;
-	nextData: {
-		id: number;
-	};
+	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 }
 
 // 查询任务树的遍历方向

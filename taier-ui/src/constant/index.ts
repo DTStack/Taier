@@ -668,10 +668,6 @@ export const TASK_STATUS_FILTERS = [
 		value: TASK_STATUS.AUTO_CANCEL,
 	},
 	{
-		text: '提交失败',
-		value: TASK_STATUS.SUBMIT_FAILED,
-	},
-	{
 		text: '运行失败',
 		value: TASK_STATUS.RUN_FAILED,
 	},

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useLayoutEffect, useImperativeHandle } from 'react';
+import { useRef, useState, useLayoutEffect, useImperativeHandle, useEffect } from 'react';
 import type { FormInstance, FormItemProps, PaginationProps } from 'antd';
 import { Form, Pagination, Table } from 'antd';
 import {
@@ -88,6 +88,10 @@ export interface ISketchProps<T, P> {
 	headerClassName?: string;
 	/**
 	 * 在条件满足的情况下，会执行该方法获取表格数据
+	 * @param values 当前表单域的值
+	 * @param pagination 当前分页数据
+	 * @param filters 当前表格过滤条件
+	 * @param sorter 当前表格排序条件
 	 * @required
 	 */
 	request: (
@@ -178,6 +182,13 @@ export default function Sketch<
 	const timeout = useRef<number | undefined>(undefined);
 	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' });
 
+	// keep a ref object for polling
+	// since the inner of async function can't get the lastest values of polling
+	const pollingRef = useRef(polling);
+	useEffect(() => {
+		pollingRef.current = polling;
+	});
+
 	// we should save the filter and sorter from table
 	const tableInfo = useRef<{
 		filters?: Record<string, FilterValue | null>;
@@ -224,8 +235,9 @@ export default function Sketch<
 			})
 			.finally(() => {
 				setLoading(false);
-				if (polling) {
-					const delay = typeof polling === 'object' && polling.delay;
+				if (pollingRef.current) {
+					const delay =
+						typeof pollingRef.current === 'object' && pollingRef.current.delay;
 					timeout.current = window.setTimeout(() => {
 						// 轮训请求不触发 loading 状态的修改
 						getDataSource(
