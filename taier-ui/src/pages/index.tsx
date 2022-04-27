@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import "reflect-metadata";
+import 'reflect-metadata';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';
@@ -126,7 +126,7 @@ export default function HomePage() {
 					title: (
 						<Breadcrumb>
 							<Breadcrumb.Item>
-								{OPERATIONS.find((i) => i.id === drawerId)?.name || 'Default'}
+								{molecule.menuBar.getMenuById(drawerId)?.name || 'Default'}
 							</Breadcrumb.Item>
 						</Breadcrumb>
 					),

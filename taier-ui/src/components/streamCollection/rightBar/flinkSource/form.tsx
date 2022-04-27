@@ -163,6 +163,7 @@ export default function SourceForm({
 	};
 
 	const debounceEditorChange = debounce(editorParamsChange, 300, { maxWait: 2000 });
+	const debounceInputChange = debounce(handleInputChange, 300, { maxWait: 2000 });
 
 	const changeTimeTypeArr = (timeTypeArr: any[]) => {
 		let nextTimeType = timeTypeArr.concat();
@@ -321,7 +322,7 @@ export default function SourceForm({
 									rows={9}
 									placeholder={`填写Avro Schema信息，示例如下：\n{\n\t"name": "testAvro",\n\t"type": "record",\n\t"fields": [{\n\t\t"name": "id",\n\t\t"type": "string"\n\t}]\n}`}
 									onChange={(e: any) =>
-										handleInputChange('schemaInfo', e.target.value)
+										debounceInputChange('schemaInfo', e.target.value)
 									}
 								/>
 							</FormItem>
@@ -349,7 +350,7 @@ export default function SourceForm({
 					<Input
 						placeholder="请输入映射表名"
 						className="right-input"
-						onChange={(e: any) => handleInputChange('table', e.target.value)}
+						onChange={(e: any) => debounceInputChange('table', e.target.value)}
 					/>
 				</FormItem>
 				<FormItem noStyle dependencies={['type']}>
@@ -520,7 +521,7 @@ export default function SourceForm({
 									maxLength={64}
 									placeholder="自定义ProcTime名称，为空时默认为 proc_time"
 									onChange={(e) => {
-										handleInputChange('procTime', e.target.value);
+										debounceInputChange('procTime', e.target.value);
 									}}
 								/>
 							</FormItem>
@@ -571,7 +572,7 @@ export default function SourceForm({
 											height: '32px',
 										}}
 										onChange={(value: any) =>
-											handleInputChange('offset', value)
+											debounceInputChange('offset', value)
 										}
 										addonAfter={
 											componentVersion === '1.12' ? (
@@ -621,7 +622,7 @@ export default function SourceForm({
 						<InputNumber
 							className="number-input"
 							min={1}
-							onChange={(value: any) => handleInputChange('parallelism', value)}
+							onChange={(value: any) => debounceInputChange('parallelism', value)}
 						/>
 					</FormItem>
 					<FormItem

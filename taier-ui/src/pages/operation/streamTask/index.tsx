@@ -16,20 +16,20 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import type { ModalProps } from 'antd';
 import { message, Modal, Button, Popconfirm, Tooltip, Alert, Radio, Space, Divider } from 'antd';
 import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
 import { history } from 'umi';
 import { DateTime } from '@dtinsight/dt-utils';
-import type { IActionRef } from '@/components/sketch';
+import type { IActionRef, ISketchProps } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { IStreamTaskProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType } from '@/constant';
 import {
-	taskStatusFilter,
+	TASK_STATUS_FILTERS,
 	TASK_STATUS,
 	DATA_SOURCE_ENUM,
 	FLINK_VERSION_TYPE_FILTER,
@@ -44,9 +44,6 @@ import stream from '@/api/stream';
 
 // TODO
 const Api = {
-	startTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
 	stopTask: () => {
 		return new Promise((resolve) => resolve({ code: 1, data: [] }));
 	},
@@ -78,12 +75,7 @@ export default function StreamTask() {
 		CANCELED: number;
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
-	const [polling, setPolling] = useState<
-		| boolean
-		| {
-				delay?: number | undefined;
-		  }
-	>(false);
+	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
 	// 批量提交/重跑
 	const [batchReRunVisible, setBatchReRunTaskVisible] = useState(false);
 	const [goOnTask, setGoOnTask] = useState<IStreamTaskProps['id'] | undefined>(undefined);
@@ -95,8 +87,8 @@ export default function StreamTask() {
 	// 任务详情信息
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
-		selectTask: null | IStreamTaskProps;
-	}>({ visible: false, selectTask: null });
+		selectTask?: IStreamTaskProps;
+	}>({ visible: false, selectTask: undefined });
 	const actionRef = useRef<IActionRef>(null);
 
 	const assertAtLeastOneTask = () => {
@@ -165,7 +157,7 @@ export default function StreamTask() {
 	};
 
 	const closeSlidePane = () => {
-		setSlidePane({ visible: false, selectTask: null });
+		setSlidePane({ visible: false, selectTask: undefined });
 	};
 
 	const handleContinueJobInBatch = async () => {
@@ -236,80 +228,85 @@ export default function StreamTask() {
 		}
 	};
 
-	const debounceUpdateTaskStatus = debounce(
-		(task: IStreamTaskProps, mode?: string, isForce?: number) => {
-			const { status } = task;
-			const isRestore =
-				status === TASK_STATUS.STOPED ||
+	const handleUpdateTaskStatus = (task: IStreamTaskProps, mode?: string, isForce?: number) => {
+		const { status } = task;
+		const isRestore = Number(
+			status === TASK_STATUS.STOPED ||
 				status === TASK_STATUS.FINISHED ||
 				status === TASK_STATUS.RUN_FAILED ||
 				status === TASK_STATUS.WAIT_SUBMIT ||
 				status === TASK_STATUS.SUBMIT_FAILED ||
-				status === TASK_STATUS.AUTO_CANCEL
-					? 1
-					: 0;
+				status === TASK_STATUS.AUTO_CANCEL,
+		);
 
-			switch (status) {
-				case TASK_STATUS.WAIT_SUBMIT:
-				case TASK_STATUS.STOPED:
-				case TASK_STATUS.RUN_FAILED:
-				case TASK_STATUS.KILLED:
-				case TASK_STATUS.FINISHED:
-				case TASK_STATUS.SUBMIT_FAILED:
-				case TASK_STATUS.AUTO_CANCEL: {
-					if (
-						mode !== 'normal' &&
-						(status === TASK_STATUS.STOPED ||
-							status === TASK_STATUS.RUN_FAILED ||
-							status === TASK_STATUS.FINISHED ||
-							status === TASK_STATUS.AUTO_CANCEL)
-					) {
-						// 续跑
-						setGoOnTask(task.id);
-					} else {
-						Api.startTask({
-							id: task.id,
+		switch (status) {
+			case TASK_STATUS.WAIT_SUBMIT:
+			case TASK_STATUS.STOPED:
+			case TASK_STATUS.RUN_FAILED:
+			case TASK_STATUS.KILLED:
+			case TASK_STATUS.FINISHED:
+			case TASK_STATUS.SUBMIT_FAILED:
+			case TASK_STATUS.AUTO_CANCEL: {
+				if (
+					mode !== 'normal' &&
+					(status === TASK_STATUS.STOPED ||
+						status === TASK_STATUS.RUN_FAILED ||
+						status === TASK_STATUS.FINISHED ||
+						status === TASK_STATUS.AUTO_CANCEL)
+				) {
+					// 续跑
+					setGoOnTask(task.id);
+				} else {
+					stream
+						.startTask({
+							taskId: task.id,
 							isRestoration: isRestore,
-						}).then(() => {
-							message.success('任务操作成功！');
-							actionRef.current?.submit();
+						})
+						.then((res) => {
+							if (res.code === 1) {
+								if (res.data.status === TASK_STATUS.SUBMITTING) {
+									message.success('任务操作成功！');
+									actionRef.current?.submit();
+								} else {
+									message.error(res.data.msg);
+								}
+							}
 						});
-					}
-					break;
 				}
-				case TASK_STATUS.RUNNING:
-				case TASK_STATUS.SUBMITTING:
-				case TASK_STATUS.RESTARTING:
-				case TASK_STATUS.WAIT_RUN:
-				case TASK_STATUS.WAIT_COMPUTE: {
-					Api.stopTask({
-						id: task.id,
-						isForce,
-					}).then(() => {
-						message.success('任务正在停止！');
-						actionRef.current?.submit();
-					});
-					break;
-				}
-				default:
-					break;
+				break;
 			}
-		},
-		1000,
-		{ maxWait: 5000 },
-	);
+			case TASK_STATUS.RUNNING:
+			case TASK_STATUS.SUBMITTING:
+			case TASK_STATUS.RESTARTING:
+			case TASK_STATUS.WAIT_RUN:
+			case TASK_STATUS.WAIT_COMPUTE: {
+				Api.stopTask({
+					id: task.id,
+					isForce,
+				}).then(() => {
+					message.success('任务正在停止！');
+					actionRef.current?.submit();
+				});
+				break;
+			}
+			default:
+				break;
+		}
+	};
 
 	const debounceRecoverTask = debounce(
 		(task: IStreamTaskProps) => {
-			Api.startTask({
-				id: task.id,
-				isRestoration: 0,
-			}).then((res: any) => {
-				if (res.code === 1) {
-					message.success('任务操作成功！');
-					actionRef.current?.submit();
-				}
-			});
+			stream
+				.startTask({
+					taskId: task.id,
+					isRestoration: 0,
+				})
+				.then((res: any) => {
+					if (res.code === 1) {
+						message.success('任务操作成功！');
+						actionRef.current?.submit();
+					}
+				});
 		},
 		1000,
 		{ maxWait: 5000 },
@@ -319,12 +316,11 @@ export default function StreamTask() {
 	 * 这里判断是否需要自动刷新，
 	 * 当有等待提交之类的状态，则自动刷新
 	 */
-	const debounceLoadtask = (data?: IStreamTaskProps[]) => {
+	const shouldRequstPolling = (data?: IStreamTaskProps[]) => {
 		if (!data) {
 			return;
 		}
-		let haveRun = false;
-		const haveRunList = [
+		const SHOULD_POLLING_STATUS = [
 			TASK_STATUS.RUNNING,
 			TASK_STATUS.STOPING,
 			TASK_STATUS.SUBMITTING,
@@ -332,17 +328,17 @@ export default function StreamTask() {
 			TASK_STATUS.WAIT_RUN,
 			TASK_STATUS.WAIT_COMPUTE,
 		];
-		for (let i = 0; i < data.length; i += 1) {
-			const { status } = data[i];
-			if (haveRunList.includes(status)) {
-				haveRun = true;
-				break;
-			}
+		const doPolling = data.some(({ status }) => SHOULD_POLLING_STATUS.includes(status));
+		if (doPolling) {
+			setPolling(
+				(pollingState) =>
+					pollingState || {
+						delay: 5000,
+					},
+			);
+		} else {
+			setPolling(false);
 		}
-		if (!haveRun) {
-			return;
-		}
-		setPolling({ delay: 5000 });
 	};
 
 	const goOnTaskSuccess = () => {
@@ -385,7 +381,6 @@ export default function StreamTask() {
 			sort: sortMapping[order],
 			componentVersion,
 		};
-		// setLoading(true);
 		loadCount({
 			taskName: values.name || '',
 			statusList: status,
@@ -393,10 +388,9 @@ export default function StreamTask() {
 			strategyId: strategyName,
 			componentVersion,
 		});
-		// this.clearTimeOut();
 		return stream.getTaskList(reqParams).then((res) => {
 			if (res.code === 1) {
-				debounceLoadtask(res.data?.data);
+				shouldRequstPolling(res.data?.data);
 				return {
 					total: 1,
 					data: res.data?.data,
@@ -407,7 +401,6 @@ export default function StreamTask() {
 
 	const renderStatus = () => {
 		const statusList = getStatusList();
-		console.log('statusList:', statusList);
 		return statusList.map(({ className, children }) => (
 			<span key={className} className={className}>
 				{children.map(({ title, dataSource }) => (
@@ -419,7 +412,7 @@ export default function StreamTask() {
 		));
 	};
 
-	const getDealButton = (record: IStreamTaskProps | null) => {
+	const getDealButton = (record?: IStreamTaskProps) => {
 		if (!record) return null;
 		const notGoOn = [
 			DATA_SOURCE_ENUM.WEBSOCKET,
@@ -442,7 +435,7 @@ export default function StreamTask() {
 							}}
 							onClick={() => {
 								Confirm.destroy();
-								debounceUpdateTaskStatus(record, 'normal', 1);
+								handleUpdateTaskStatus(record, 'normal', 1);
 							}}
 						>
 							不保存
@@ -451,7 +444,7 @@ export default function StreamTask() {
 				),
 				okText: '确认',
 				cancelText: '取消',
-				onOk: () => debounceUpdateTaskStatus(record, 'normal', 0),
+				onOk: () => handleUpdateTaskStatus(record, 'normal', 0),
 			});
 		};
 
@@ -460,6 +453,14 @@ export default function StreamTask() {
 			case TASK_STATUS.SUBMIT_FAILED:
 				return (
 					<Space size={5} split={<Divider type="vertical" />}>
+						<a
+							href="#"
+							onClick={() => {
+								handleUpdateTaskStatus(record);
+							}}
+						>
+							提交
+						</a>
 						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
 							修改
 						</a>
@@ -477,7 +478,7 @@ export default function StreamTask() {
 							<a
 								href="#"
 								onClick={() => {
-									debounceUpdateTaskStatus(record);
+									handleUpdateTaskStatus(record);
 								}}
 							>
 								续跑
@@ -520,13 +521,13 @@ export default function StreamTask() {
 							<a
 								href="#"
 								onClick={() => {
-									debounceUpdateTaskStatus(record);
+									handleUpdateTaskStatus(record);
 								}}
 							>
 								续跑
 							</a>
 						)}
-						<a href="#" onClick={() => debounceUpdateTaskStatus(record, 'normal')}>
+						<a href="#" onClick={() => handleUpdateTaskStatus(record, 'normal')}>
 							重试
 						</a>
 					</Space>
@@ -565,13 +566,13 @@ export default function StreamTask() {
 							<a
 								href="#"
 								onClick={() => {
-									debounceUpdateTaskStatus(record);
+									handleUpdateTaskStatus(record);
 								}}
 							>
 								续跑
 							</a>
 						)}
-						<a href="#" onClick={() => debounceUpdateTaskStatus(record, 'normal')}>
+						<a href="#" onClick={() => handleUpdateTaskStatus(record, 'normal')}>
 							重试
 						</a>
 					</Space>
@@ -581,13 +582,20 @@ export default function StreamTask() {
 		}
 	};
 
+	useEffect(() => {
+		if (polling) {
+			actionRef.current?.submit();
+		}
+	}, [polling]);
+
 	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(
 		() => [
 			{
 				title: '任务名称',
 				dataIndex: 'name',
 				key: 'name',
-				width: 240,
+				width: 230,
+				ellipsis: true,
 				fixed: 'left',
 				render: (text, record) => {
 					return <a onClick={() => chooseTask(record)}>{text}</a>;
@@ -597,16 +605,18 @@ export default function StreamTask() {
 				title: '状态',
 				dataIndex: 'status',
 				key: 'status',
+				width: 120,
 				fixed: 'left',
 				render: (text) => {
 					return <TaskStatus value={text} />;
 				},
-				filters: taskStatusFilter,
+				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
 			},
 			{
 				title: '版本',
 				dataIndex: 'componentVersion',
+				width: 80,
 				key: 'componentVersion',
 				filters: FLINK_VERSION_TYPE_FILTER,
 				filterMultiple: true,
@@ -615,6 +625,7 @@ export default function StreamTask() {
 				title: '任务类型',
 				dataIndex: 'taskType',
 				key: 'taskType',
+				width: 120,
 				render: (text) => taskTypeText(text),
 				filters: [TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.DATA_ACQUISITION].map((t) => ({
 					text: taskTypeText(t),
@@ -625,17 +636,20 @@ export default function StreamTask() {
 			{
 				title: '责任人',
 				dataIndex: 'createUserName',
+				width: 150,
 				key: 'createUserName',
 			},
 			{
 				title: '运行开始时间',
 				dataIndex: 'execStartTime',
+				width: 200,
 				key: 'execStartTime',
 				render: (text) => (text ? DateTime.formatDateTime(text) : '-'),
 			},
 			{
 				title: '最近操作时间',
 				dataIndex: 'gmtModified',
+				width: 180,
 				key: 'gmtModified',
 				render: (text) => (text ? DateTime.formatDateTime(text) : '-'),
 				sorter: true,
@@ -643,12 +657,14 @@ export default function StreamTask() {
 			{
 				title: '最近操作人',
 				dataIndex: 'modifyUserName',
+				width: 150,
 				key: 'modifyUserName',
 			},
 			{
 				title: '操作',
 				width: 160,
 				key: 'operation',
+				fixed: 'right',
 				render: (_, record) => {
 					return getDealButton(record);
 				},
@@ -675,7 +691,7 @@ export default function StreamTask() {
 				extra={
 					<Tooltip title="刷新数据">
 						<Button className="dt-refresh">
-							<SyncOutlined onClick={handleRefresh} />
+							<SyncOutlined onClick={handleRefresh} spin={!!polling} />
 						</Button>
 					</Tooltip>
 				}
@@ -683,10 +699,6 @@ export default function StreamTask() {
 				headerTitleClassName="ope-statistics"
 				request={loadTaskList}
 				columns={tableColumns}
-				tableProps={{
-					scroll: { x: 1709.6 },
-					rowKey: 'id',
-				}}
 				tableFooter={
 					<Space>
 						<Button key="submit" type="primary" onClick={handleReTaskRunning}>

@@ -164,3 +164,19 @@ $footer-height: 35px;
 	border-radius: 0;
 	box-shadow: 0 2px 6px 0 var(--minimapSlider-hoverBackground);
 }
+
+.modal-body-nopadding {
+	.ant-modal-body {
+		padding: 0;
+	}
+}
+
+// 全链路图
+.modal-body--height100 {
+	.ant-modal-content {
+		height: 100%;
+		.ant-modal-body {
+			height: 528px;
+		}
+	}
+}
