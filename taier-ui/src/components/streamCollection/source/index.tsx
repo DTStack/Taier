@@ -25,7 +25,7 @@ import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import { Form, Radio, Select, FormInstance, Button, message } from "antd";
 import { cloneDeep, debounce } from "lodash";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import { sourceDefaultValue } from "../helper";
 import { streamTaskActions } from "../taskFunc";
 import Beats from "./component/beats";
@@ -180,6 +180,30 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
                 return null;
         }
     }
+    const rdbmsDaTypeRadioDom = () => {
+        const { type } = sourceMap;
+        const isMYSQl = type === DATA_SOURCE_ENUM.MYSQL;
+        const isORACLE = type === DATA_SOURCE_ENUM.ORACLE;
+        const isDB2 = type == DATA_SOURCE_ENUM.DB2;
+        const isSQLSERVER = type === DATA_SOURCE_ENUM.SQLSERVER;
+        if (isDB2 || isSQLSERVER) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio>
+            </Radio.Group>
+        } else if (isMYSQl) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.BINLOG}>Binlog</Radio>
+                {/* <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio> */}
+            </Radio.Group>
+        } else if (isORACLE) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.LogMiner}>LogMiner</Radio>
+                {/* <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio> */}
+            </Radio.Group>
+        } else {
+            return null
+        }
+    }
 
     const checkGroup = () => {
         const { sourceMap = {} } = collectionData;
@@ -243,6 +267,9 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
             if ([DATA_SOURCE_ENUM.DB2, DATA_SOURCE_ENUM.SQLSERVER, DATA_SOURCE_ENUM.GREENPLUM6].includes(fields.type)) {
                 fields.rdbmsDaType = SYNC_TYPE.INTERVAL;
             }
+            if (fields.type === DATA_SOURCE_ENUM.ORACLE) {
+                fields.rdbmsDaType = SYNC_TYPE.LogMiner;
+            }
             // Oracle 需要处理格式转换
             fields.transferType = fields.type === DATA_SOURCE_ENUM.ORACLE ? 0 : undefined;
             /**
@@ -270,6 +297,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
             fields.tableName = undefined;
             fields.distributeTable = undefined;
             fields.allTable = false;
+            fields.increColumn = undefined;
         }
 
         /**
@@ -452,24 +480,22 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
                     }).filter(Boolean)}
                 </Select>
             </FormItem>
-            {showInterval && (
-                <FormItem
-                    label="任务类型"
-                    name='rdbmsDaType'
-                    rules={[{ required: true, message: '请选择任务类型' }]}
-                    tooltip={syncSourceType}
-                >
-                    {/* <Radio.Group disabled={isEdit}>
-                        {!onlyShowInterval && <Radio value={SYNC_TYPE.BINLOG}>{intervalLabel}</Radio>}
-                        {sourceMap?.type !== DATA_SOURCE_ENUM.SQLSERVER_2017_LATER && <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio>}
-                    </Radio.Group> */}
-                    <Radio.Group disabled={isEdit}>
-                        <Radio value={SYNC_TYPE.BINLOG}>{intervalLabel}</Radio>
-                    </Radio.Group>
-                </FormItem>
-            )}
             <FormItem noStyle dependencies={['type']}>
-                {(f) => renderForm(f.getFieldValue('type'))}
+                {(f) => {
+                    return <Fragment>
+                        {showInterval && (
+                            <FormItem
+                                label="任务类型"
+                                name='rdbmsDaType'
+                                rules={[{ required: true, message: '请选择任务类型' }]}
+                                tooltip={syncSourceType}
+                            >
+                                {rdbmsDaTypeRadioDom()}
+                            </FormItem>
+                        )}
+                        {renderForm(f.getFieldValue('type'))}
+                    </Fragment>
+                }}
             </FormItem>
         </Form>
         {!readonly && (

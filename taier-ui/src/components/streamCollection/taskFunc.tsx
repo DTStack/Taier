@@ -201,7 +201,7 @@ export const streamTaskActions = {
 		if (typeof page.currentStep != 'undefined') {
 			return;
 		}
-		if (page.taskVersions && page.taskVersions.length) {
+		if (page.submitted) {
 			this.setCurrentPageValue('isEdit', true);
 		}
 		const { sourceMap, targetMap } = page;

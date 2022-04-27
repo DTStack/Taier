@@ -1184,6 +1184,7 @@ export enum SYNC_TYPE {
 	BINLOG = 1,
 	INTERVAL = 2,
 	RESET = 3,
+	LogMiner = 4
 }
 /**
  * 数据操作类型

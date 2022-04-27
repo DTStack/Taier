@@ -481,24 +481,14 @@ export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncP
     }
     const renderTransferType = (type: number, isEdit: boolean) => {
         return (
-            type === DATA_SOURCE_ENUM.ORACLE ? (<FormItem
-                label="格式转换"
-                name='transferType'
-                tooltip={transferTypeFormat}
-            >
-                <Radio.Group disabled={isEdit} style={{ position: 'relative' }}>
-                    <Radio value={0}>无</Radio>
-                    <Radio value={1}>表结构解析</Radio>
-                    <Radio value={2}>嵌套JSON平铺</Radio>
-                </Radio.Group>
-            </FormItem>) : (<FormItem
+            <FormItem
                 name="pavingData"
                 label="格式转换"
                 valuePropName="checked"
                 tooltip={sourceFormat}
             >
                 <Checkbox disabled={isEdit}>嵌套JSON平铺</Checkbox>
-            </FormItem>)
+            </FormItem>
         )
     }
     const sourceDataOptions = sourceList?.filter(d => d.dataTypeCode === sourceMap?.type).map?.((o: IDataSourceUsedInSyncProps) => {
