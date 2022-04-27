@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import { taskTypeText } from '@/utils/enums';
 import molecule from '@dtinsight/molecule';
+import { isTaskTab, taskTypeText } from '@/utils/enums';
 import { connect } from '@dtinsight/molecule/esm/react';
 
 const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
@@ -25,10 +25,21 @@ const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) 
 
 	const renderLanguage = () => {
 		const dataType = current.tab?.data?.taskType;
-		return taskTypeText(dataType);
+		return isTaskTab(current.tab?.id) && taskTypeText(dataType);
 	};
 
-	return <span>{renderLanguage()}</span>;
+	// 渲染是否是增量
+	const renderIncrement = () => {
+		const isIncrement = isTaskTab(current.tab?.id) && current.tab?.data?.sourceMap?.syncModel;
+		return isIncrement ? '(增量模式)' : null;
+	};
+
+	return (
+		<span>
+			{renderLanguage()}
+			{renderIncrement()}
+		</span>
+	);
 });
 
 export default Language;

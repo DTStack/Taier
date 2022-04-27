@@ -16,45 +16,22 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from 'react';
-import { MonacoEditor } from '@dtinsight/molecule/esm/components';
-import { editor as monacoEditor, Uri } from '@dtinsight/molecule/esm/monaco';
+import Editor from '../editor';
 import type { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
-import type { editor } from '@dtinsight/molecule/esm/monaco';
-import { ID_COLLECTIONS } from '@/constant';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
-
-const getUniqPath = (path: string) => {
-	return Uri.parse(`file://tab/${path}`);
-};
+import { isTaskTab } from '@/utils/enums';
 
 interface IEnvParams extends Pick<IEditor, 'current'> {
 	onChange?: (tab: IEditorTab, value: string) => void;
 }
 
 export default function EnvParams({ current, onChange }: IEnvParams) {
-	const editorIns = useRef<editor.IStandaloneCodeEditor>();
-
-	const getEditorModel = (c: IEnvParams['current']) => {
-		const model =
-			monacoEditor.getModel(getUniqPath(c?.tab?.data.id)) ||
-			monacoEditor.createModel(
-				c?.tab?.data.taskParams || '',
-				'ini',
-				getUniqPath(c?.tab?.data.id),
-			);
-		return model;
+	const handleValueChanged = (value: string) => {
+		if (current?.tab) {
+			onChange?.(current?.tab, value);
+		}
 	};
 
-	useEffect(() => {
-		if (current && typeof current.tab?.id === 'number') {
-			const model = getEditorModel(current);
-
-			editorIns.current?.setModel(model);
-		}
-	}, [current?.id, current?.tab?.id]);
-
-	if (!current || !current.activeTab || TAB_WITHOUT_DATA.includes(current.activeTab.toString())) {
+	if (!isTaskTab(current?.tab?.id)) {
 		return (
 			<div
 				style={{
@@ -68,31 +45,15 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 	}
 
 	return (
-		<MonacoEditor
+		<Editor
+			sync
+			value={current?.tab?.data.taskParams || ''}
+			language="ini"
 			options={{
-				value: '',
-				language: 'ini',
 				automaticLayout: true,
-				minimap: {
-					enabled: false,
-				},
+				minimap: { enabled: false },
 			}}
-			path={ID_COLLECTIONS.ENV_PARAMS_ID}
-			editorInstanceRef={(editorInstance) => {
-				// This assignment will trigger moleculeCtx update, and subNodes update
-				editorIns.current = editorInstance;
-
-				editorInstance.onDidChangeModelContent(() => {
-					const currentValue = editorIns.current?.getModel()?.getValue() || '';
-
-					if (current?.tab) {
-						onChange?.(current?.tab, currentValue);
-					}
-				});
-
-				const model = getEditorModel(current);
-				editorInstance.setModel(model);
-			}}
+			onChange={handleValueChanged}
 		/>
 	);
 }

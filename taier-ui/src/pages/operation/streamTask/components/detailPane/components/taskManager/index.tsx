@@ -1,50 +1,26 @@
-import * as React from 'react';
-import { TASK_STATUS } from '@/constant';
+import { useState } from 'react';
 import { IStreamTaskProps } from '@/interface';
 import TaskManagerList, { ITaskList } from './list';
 import TaskManagerLog from './log';
 
 interface IProps {
-    data: IStreamTaskProps | undefined;
-    isShow: boolean;
+	data: IStreamTaskProps | undefined;
 }
 
-interface IState {
-    taskDetail: ITaskList | null;
+export default function TaskManager({ data }: IProps) {
+	const [taskDetail, setTaskDetail] = useState<ITaskList | null>(null);
+
+	return (
+		<div style={{ height: '100%' }}>
+			{taskDetail ? (
+				<TaskManagerLog
+					data={data}
+					taskDetail={taskDetail}
+					toTaskDetail={(record) => setTaskDetail(record)}
+				/>
+			) : (
+				<TaskManagerList onTaskDetail={(record) => setTaskDetail(record)} data={data} />
+			)}
+		</div>
+	);
 }
-
-class TaskManager extends React.Component<IProps, IState> {
-    state: IState = {
-        taskDetail: null
-    }
-    
-    toTaskDetail = (record: ITaskList | null) => {
-        this.setState({
-            taskDetail: record
-        })
-    }
-
-    isFail = (status: any) => {
-        return status == TASK_STATUS.RUN_FAILED || status == TASK_STATUS.STOPED;
-    }
-
-    render () {
-        const { taskDetail } = this.state;
-        const { data, isShow } = this.props;
-        if (!isShow) return null
-        return (
-            <div style={{ height: '100%' }}>
-                {taskDetail
-                    ? <TaskManagerLog
-                        data={data}
-                        taskDetail={taskDetail}
-                        toTaskDetail={this.toTaskDetail}
-                        isFail={this.isFail(data?.status)} />
-                    : <TaskManagerList
-                        toTaskDetail={this.toTaskDetail}
-                        data={data} />}
-            </div>
-        )
-    }
-}
-export default TaskManager;

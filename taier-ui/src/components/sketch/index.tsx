@@ -231,23 +231,24 @@ export default function Sketch<
 						pageSize: nextPageSize,
 					});
 					setDataSource(data);
+
+					if (pollingRef.current) {
+						const delay =
+							typeof pollingRef.current === 'object' && pollingRef.current.delay;
+						timeout.current = window.setTimeout(() => {
+							// 轮训请求不触发 loading 状态的修改
+							getDataSource(
+								{ current: nextCurrent, pageSize: nextPageSize },
+								filters,
+								sorter,
+								true,
+							);
+						}, delay || 36000);
+					}
 				}
 			})
 			.finally(() => {
 				setLoading(false);
-				if (pollingRef.current) {
-					const delay =
-						typeof pollingRef.current === 'object' && pollingRef.current.delay;
-					timeout.current = window.setTimeout(() => {
-						// 轮训请求不触发 loading 状态的修改
-						getDataSource(
-							{ current: nextCurrent, pageSize: nextPageSize },
-							filters,
-							sorter,
-							true,
-						);
-					}, delay || 36000);
-				}
 			});
 	};
 

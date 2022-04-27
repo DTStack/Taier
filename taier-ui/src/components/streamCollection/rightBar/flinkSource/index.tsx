@@ -26,8 +26,7 @@ import { Utils } from '@dtinsight/dt-utils/lib';
 import stream from '@/api/stream';
 import { cloneDeep } from 'lodash';
 import { streamTaskActions } from '../../taskFunc';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
-import { isAvro, isKafka } from '@/utils/enums';
+import { isAvro, isKafka, isTaskTab } from '@/utils/enums';
 import { changeCustomParams } from '../customParamsUtil';
 import { parseColumnText } from '../flinkHelper';
 import SourceForm from './form';
@@ -273,13 +272,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务详情</div>;
