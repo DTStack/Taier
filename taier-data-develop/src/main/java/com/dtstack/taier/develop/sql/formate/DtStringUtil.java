@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.sql.formate;
 
-import javafx.util.Pair;
+
+import com.dtstack.taier.develop.sql.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
