@@ -92,6 +92,8 @@ export function taskStatusText(type: TASK_STATUS) {
 			return '等待计算';
 		case TASK_STATUS.FROZEN:
 			return '冻结';
+		case TASK_STATUS.ENGINEACCEPTED:
+			return '提交至引擎';
 		case TASK_STATUS.PARENT_FAILD:
 			return '上游失败';
 		case TASK_STATUS.DO_FAIL:
