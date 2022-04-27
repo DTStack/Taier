@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Select, Form, Radio, Spin, Empty, Modal } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
@@ -57,6 +57,7 @@ export interface IFormFieldProps {
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
 	componentVersion: string;
+	sourceMap: any;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
@@ -192,8 +193,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					</>
 				);
 			}
-			case TASK_TYPE_ENUM.SQL:
-			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
+			case TASK_TYPE_ENUM.SQL: {
 				return (
 					<FormItem label="引擎版本" name="componentVersion">
 						<Select onChange={confirmFlink}>
@@ -204,6 +204,38 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							))}
 						</Select>
 					</FormItem>
+				);
+			}
+			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
+				return (
+					<React.Fragment>
+						<FormItem
+								label="配置模式"
+								name="createModel"
+								tooltip={syncTaskHelp}
+								rules={[
+									{
+										required: true,
+										message: '请选择配置模式',
+									},
+								]}
+								initialValue={CREATE_MODEL_TYPE.GUIDE}
+							>
+								<RadioGroup disabled={!!record}>
+									<Radio value={CREATE_MODEL_TYPE.GUIDE}>向导模式</Radio>
+									<Radio value={CREATE_MODEL_TYPE.SCRIPT}>脚本模式</Radio>
+								</RadioGroup>
+							</FormItem>
+						<FormItem label="引擎版本" name="componentVersion">
+							<Select onChange={confirmFlink}>
+								{FLINK_VERSION_TYPE.map(({ value, label }) => (
+									<Option key={value} value={value}>
+										{label}
+									</Option>
+								))}
+							</Select>
+						</FormItem>
+					</React.Fragment>
 				);
 			}
 			default:

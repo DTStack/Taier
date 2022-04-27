@@ -23,11 +23,12 @@ import { DownOutlined } from "@ant-design/icons"
 import React, { useState } from "react";
 import FormItemEditor from "./formItemEditor";
 import DataPreviewModal from "../dataPreviewModal";
+import { IDataSourceUsedInSyncProps } from "@/interface";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default (props: { collectionData: any; sourceList: any[]; form: FormInstance }) => {
+export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncProps[]; form: FormInstance }) => {
     const { collectionData, sourceList, form } = props;
     const { isEdit, sourceMap } = collectionData;
     const { getFieldValue } = form;

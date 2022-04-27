@@ -49,7 +49,7 @@ export default defineConfig({
 	tailwindcss: {},
 	proxy: {
 		'/taier': {
-			target: 'http://172.16.100.225:7001/proxy/156',
+			target: 'http://192.168.96.211:8090',
 			changeOrigin: true,
 			secure: false,
 		},

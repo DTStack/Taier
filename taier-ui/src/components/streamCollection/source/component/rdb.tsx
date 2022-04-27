@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-import api from "@/api";
 import stream from "@/api/stream";
+import { API } from '@/api/dataSource';
 import { extralConfig, intervalColumn, multipleTableTip, sourceFormat, startLocation, temporary, transferTypeFormat, writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { CAT_TYPE, COLLECT_TYPE, DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, SLOAR_CONFIG_TYPE, SYNC_TYPE } from "@/constant";
 import { isSqlServer } from "@/utils/enums";
@@ -29,11 +29,12 @@ import { debounce, get } from "lodash";
 import { isPostgre } from "../../helper";
 import TablePreview from "./tablepreview";
 import EditMultipleTableModal from "./editMultipleTableModal";
+import { IDataSourceUsedInSyncProps } from "@/interface";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default (props: { collectionData: any; sourceList: any }) => {
+export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncProps[] }) => {
     const { collectionData, sourceList } = props;
     const { isEdit, sourceMap, componentVersion } = collectionData;
     const {
@@ -53,22 +54,22 @@ export default (props: { collectionData: any; sourceList: any }) => {
     const [editMultipleTableModalVisible, setEditMultipleTableModalVisible] = useState(false);
     const [multipleTableDataIndex, setMultipleTableDataIndex] = useState()
 
-    const needSchema = (data?: any) => {
+    const needSchema = () => {
         const isInterval = rdbmsDaType == SYNC_TYPE.INTERVAL;
-        return isInterval || sourceMap.type == DATA_SOURCE_ENUM.ORACLE || sourceMap.type == DATA_SOURCE_ENUM.SQLSERVER ||
-            sourceMap.type == DATA_SOURCE_ENUM.SQLSERVER_2017_LATER || sourceMap.type == DATA_SOURCE_ENUM.POSTGRESQL;
+        return isInterval || type == DATA_SOURCE_ENUM.ORACLE || type == DATA_SOURCE_ENUM.SQLSERVER ||
+            type == DATA_SOURCE_ENUM.SQLSERVER_2017_LATER || type == DATA_SOURCE_ENUM.POSTGRESQL;
     }
 
-    const getPDB = (sourceId: number) => {
+    const getPDB = (dataInfoId: number) => {
         setPDBList([])
-        if (!sourceId || type !== DATA_SOURCE_ENUM.ORACLE) {
+        if (!dataInfoId || type !== DATA_SOURCE_ENUM.ORACLE) {
             return
         }
-        stream.isOpenCdb({ sourceId }).then((res: any) => {
+        stream.isOpenCdb({ dataInfoId }).then((res: any) => {
             if (res.code === 1) {
                 setShowPDB(res.data)
                 if (res.data) {
-                    return stream.getPDBList({ sourceId })
+                    return stream.getPDBList({ dataInfoId })
                 }
             }
         }).then((res: any) => {
@@ -80,18 +81,20 @@ export default (props: { collectionData: any; sourceList: any }) => {
         if (!sourceId) {
             return
         }
-        let res = await api.getAllSchemas({ sourceId, db });
+        let res = await API.getAllSchemas({ sourceId, db });
         if (res && res.code == 1) {
             setSchemaList(res.data || [])
         }
     }
 
     const getTableList = (sourceId: any, searchKey?: any) => {
-        stream.getStreamTablelist({
-            sourceId,
-            isSys: false,
-            searchKey
-        }).then((res: any) => {
+        API.getOfflineTableList({
+			sourceId,
+			// schema,
+			isSys: false,
+			name: searchKey,
+			isRead: true,
+		}).then((res: any) => {
             if (res.code === 1) {
                 setTableList(res.data || [])
             }
@@ -262,9 +265,17 @@ export default (props: { collectionData: any; sourceList: any }) => {
             distributeTable: newDistributeTable
         });
     }
+    
+    const resetList = () => {
+        setSchemaList([]);
+        setPDBList([]);
+        setTableList([]);
+        setTableFieldsList([]);
+    }
 
     useEffect(() => {
         if (sourceId) {
+            resetList()
             if (needSchema()) {
                 getSchema(sourceId, pdbName);
                 isOracle && getPDB(sourceId);
@@ -281,6 +292,9 @@ export default (props: { collectionData: any; sourceList: any }) => {
             }
         }
     }, [sourceId])
+    useEffect(() => {
+        getSchemaTableList(sourceId, schema, pdbName);
+    }, [schema])
 
     useEffect(() => {
         if (needSchema()) {
@@ -294,6 +308,10 @@ export default (props: { collectionData: any; sourceList: any }) => {
             getIncreaseColumns(sourceId, tableName, schema, tableFields);
         }
     }, [tableFields])
+
+    useEffect(() => {
+        resetList()
+    }, [type])
 
     const renderCollectType = () => {
         const isCollectTypeEdit = !!sourceId;
@@ -463,29 +481,18 @@ export default (props: { collectionData: any; sourceList: any }) => {
     }
     const renderTransferType = (type: number, isEdit: boolean) => {
         return (
-            type === DATA_SOURCE_ENUM.ORACLE ? (<FormItem
-                label="格式转换"
-                name='transferType'
-                tooltip={transferTypeFormat}
-            >
-                <Radio.Group disabled={isEdit} style={{ position: 'relative' }}>
-                    <Radio value={0}>无</Radio>
-                    <Radio value={1}>表结构解析</Radio>
-                    <Radio value={2}>嵌套JSON平铺</Radio>
-                </Radio.Group>
-            </FormItem>) : (<FormItem
+            <FormItem
                 name="pavingData"
                 label="格式转换"
                 valuePropName="checked"
                 tooltip={sourceFormat}
             >
                 <Checkbox disabled={isEdit}>嵌套JSON平铺</Checkbox>
-            </FormItem>)
+            </FormItem>
         )
     }
-
-    const sourceDataOptions = sourceList?.map?.((o: any) => {
-        return <Option key={o.id} value={o.id}>{o.name}{DATA_SOURCE_VERSION[o.type as DATA_SOURCE_ENUM] && ` (${DATA_SOURCE_VERSION[o.type as DATA_SOURCE_ENUM]})`}</Option>
+    const sourceDataOptions = sourceList?.filter(d => d.dataTypeCode === sourceMap?.type).map?.((o: IDataSourceUsedInSyncProps) => {
+        return <Option key={o.dataInfoId} value={o.dataInfoId}>{o.dataName}{DATA_SOURCE_VERSION[o.dataTypeCode] && ` (${DATA_SOURCE_VERSION[o.dataTypeCode]})`}</Option>
     })
     const schemaOptions = schemaList.map((schema: any) => {
         return <Option key={`${schema}`} value={schema}>{schema}</Option>
@@ -523,7 +530,7 @@ export default (props: { collectionData: any; sourceList: any }) => {
                 {PDBList.map((item: any) => <Option key={item} value={item}>{item}</Option>)}
             </Select>
         </FormItem>}
-        {needSchema || rdbmsDaType === SYNC_TYPE.INTERVAL && <FormItem
+        {needSchema() && <FormItem
             name="schema"
             label="schema"
             rules={[{ required: true, message: '请选择schema' }]}
@@ -700,7 +707,7 @@ export default (props: { collectionData: any; sourceList: any }) => {
                                     }
                                 </FormItem>
                             </Card>
-                            {couldEdit && <DeleteOutlined onClick={() => deleteGroup(index)} />}
+                            {couldEdit && <DeleteOutlined className="distribute-table-box__icon-delete" onClick={() => deleteGroup(index)} />}
                         </div>)
                     })}
                     <Button type="primary" ghost onClick={onAddDistributeTable}><PlusOutlined />添加分组</Button>

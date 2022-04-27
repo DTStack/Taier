@@ -23,17 +23,24 @@ export default {
 	LIST_TABLE_BY_SCHEMA: `${STREAM_BASE_URL}/dataSource/manager/listTablesBySchema`,
 	POLL_PREVIEW: `${STREAM_BASE_URL}/dataSource/manager/pollPreview`,
 	GET_DATA_PREVIEW: `${STREAM_BASE_URL}/dataSource/manager/getTopicData`, // 获取kafka topic预览数据
-	GET_TASK: `${STREAM_BASE_URL}/task/getTaskById`, // 通过ID获取任务
 	SAVE_TASK: `${STREAM_BASE_URL}/task/addOrUpdateTask`, // 添加或者更新任务
 	GET_TOPIC_TYPE: `${STREAM_BASE_URL}/dataSource/manager/getKafkaTopics`, // 获取Topic
 	GET_STREAM_TABLECOLUMN: `${STREAM_BASE_URL}/dataSource/addDs/tablecolumn`, // 输出tablecolumn
 	GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/flinkSql/getAllTimeZone`, // 获取源表中的时区列表
 	CONVERT_TO_SCRIPT_MODE: `${STREAM_BASE_URL}/task/guideToTemplate `, // 转换向导到脚本模式
+	IS_OPEN_CDB: `${STREAM_BASE_URL}/dataSource/manager/isOpenCdb`,
+	GET_PDB_LIST: `${STREAM_BASE_URL}/dataSource/manager/listOraclePdb`,
+	GET_TOPIC_PARTITION_NUM: `${STREAM_BASE_URL}/dataSource/manager/getTopicPartitionNum`, // 获取最大读取并发数
+	GET_ALL_STRATEGY: `${STREAM_BASE_URL}/streamStrategy/getStrategyByProjectId`, // 获取所有策略
+	GET_SCHEMA_TABLE_COLUMN: `${STREAM_BASE_URL}/dataSource/manager/listPollTableColumn`,
+	GET_SLOT_LIST: `${STREAM_BASE_URL}/dataSource/manager/listSlot`, // 获取slot列表
+	GET_BINLOG_LIST_BY_SOURCE: `${STREAM_BASE_URL}/dataSource/manager/getBinLogListBySource`, // 获取binlog列表
 	SQL_FORMAT: `${STREAM_BASE_URL}/flinkSql/sqlFormat`,
 	GRAMMAR_CHECK: `${STREAM_BASE_URL}/flinkSql/grammarCheck`, // 语法检查
 	GET_TASK_LIST: `${STREAM_BASE_URL}/flinkSql/getTaskList`,
 	GET_STATUS_COUNT: `${STREAM_BASE_URL}/flinkSql/getStatusCount`,
 	START_TASK: `${STREAM_BASE_URL}/flinkSql/start`,
+	START_COLLECTION_TASK: `${STREAM_BASE_URL}/task/startTask`,
 	GET_TASK_MANAGER_LOG: `${STREAM_BASE_URL}//flinkSql/getTaskManagerLog`,
 	GET_JOB_MANAGER_LOG: `${STREAM_BASE_URL}/flinkSql/getJobManagerLog`,
 	LIST_TASK_MANAGER: `${STREAM_BASE_URL}/flinkSql/listTaskManagerByTaskId`,

@@ -25,6 +25,7 @@ import {
 	HiveSQLIcon,
 	SparkSQLIcon,
 	ResourceIcon,
+	DataCollectionIcon,
 } from '@/components/icon';
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
@@ -65,6 +66,8 @@ export function fileIcon(
 					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
 				case TASK_TYPE_ENUM.SQL:
 					return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
+				case TASK_TYPE_ENUM.DATA_ACQUISITION:
+					return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
 				default:
 					return 'file';
 			}

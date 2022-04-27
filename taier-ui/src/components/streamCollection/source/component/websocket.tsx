@@ -17,13 +17,14 @@
  */
 
 import { DATA_SOURCE_ENUM, DATA_SOURCE_VERSION } from "@/constant";
+import { IDataSourceUsedInSyncProps } from "@/interface";
 import { Form, Input, InputNumber, Radio, Select } from "antd";
 import React from "react";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-export default (props: { collectionData: any; sourceList: any[] }) => {
+export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncProps[] }) => {
     const { collectionData, sourceList } = props;
     const { isEdit, sourceMap } = collectionData;
     const { type } = sourceMap;

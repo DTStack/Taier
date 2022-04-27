@@ -257,8 +257,8 @@ export default function StreamTask() {
 					// 续跑
 					setGoOnTask(task.id);
 				} else {
-					stream
-						.startTask({
+					const startRequest = task.taskType === TASK_TYPE_ENUM.SQL ? stream.startTask : stream.startCollectionTask;
+					startRequest({
 							taskId: task.id,
 							isRestoration: isRestore,
 						})
