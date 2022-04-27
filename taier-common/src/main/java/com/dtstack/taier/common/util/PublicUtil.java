@@ -109,6 +109,16 @@ public class PublicUtil {
 		return properties;
 	}
 
+	public static String propertiesRemoveEmpty(String propertiesStr) throws IOException {
+		Properties properties = new Properties();
+		properties.load(new ByteArrayInputStream(propertiesStr.getBytes("UTF-8")));
+		StringBuffer stringBuffer = new StringBuffer();
+		for (Object key : properties.keySet()) {
+			stringBuffer.append(key).append("=").append(properties.get(key)).append("\r\n");
+		}
+		return stringBuffer.toString();
+	}
+
 
 	public static boolean count(int index,int multiples){
 		return index%multiples==0;
