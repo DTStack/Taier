@@ -23,10 +23,13 @@ import { TreeSelect, Input } from 'antd';
 import type { TreeSelectProps } from 'antd/lib/tree-select';
 import { Icon } from '@dtinsight/molecule/esm/components';
 import type molecule from '@dtinsight/molecule';
+import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { fileIcon } from '@/utils/extensions';
 
 const { TreeNode } = TreeSelect;
 
 export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'> {
+	dataType: CATELOGUE_TYPE;
 	value?: number;
 	treeData?: molecule.model.IFolderTreeNodeProps;
 	onChange?: TreeSelectProps['onChange'];
@@ -39,7 +42,7 @@ export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'>
  * 使用 Input 和 TreeSelect 组件分别承担 数据收集和选择、展示的功能
  */
 export default function CustomTreeSelect(props: CustomTreeSelectProps) {
-	const { value, showFile, treeData, nodeNameField, onChange } = props;
+	const { value, showFile, treeData, nodeNameField, dataType, onChange } = props;
 	// 表单收集数据时真正的值，兼容 initialValue
 	const [realValue, setRealValue] = useState(value);
 	const [showName, setShowName] = useState(value);
@@ -61,9 +64,9 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 		setShowName(node.props?.[nextNodeNameField]);
 	};
 
-	const renderIcon = (isShowFile: boolean, type: string) => {
+	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATELOGUE_TYPE) => {
 		if (isShowFile) {
-			return type === 'file' ? <Icon type="file" /> : <Icon type="folder" />;
+			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder" />;
 		}
 		return null;
 	};
@@ -71,25 +74,29 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 	// TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
 	const generateTreeNodes = () => {
 		const loop = (data: molecule.model.IFolderTreeNodeProps) => {
-			const { createUser, id, name, type } = data?.data || {};
+			const { createUser, id, name, type, catalogueType } = data?.data || {};
 			const isLeaf = type === 'file';
 			if (!showFile && type === 'file') return null;
+			const disabled = [MENU_TYPE_ENUM.FUNCTION, MENU_TYPE_ENUM.SYSFUC].includes(
+				catalogueType,
+			);
 			return (
 				<TreeNode
 					title={
-						<span title={name}>
-							{name}&nbsp;
-							<i className="item-tooltip" title={createUser}>
-								<span className="text-ccc">{createUser}</span>
+						<>
+							<span title={name}>{name}&nbsp;</span>
+							<i title={createUser} className="text-ccc">
+								{createUser}
 							</i>
-						</span>
+						</>
 					}
 					value={id}
 					name={name}
 					dataRef={data}
 					key={id}
+					disabled={disabled}
 					isLeaf={isLeaf}
-					icon={renderIcon(showFile, type)}
+					icon={renderIcon(showFile, type, dataType)}
 				>
 					{data?.children?.map((o) => loop(o))}
 				</TreeNode>
@@ -102,7 +109,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 		<>
 			<Input type="hidden" value={realValue} />
 			<TreeSelect
-				{...omit(props, ['onChange', 'treeData', 'value', 'showFile'])}
+				{...omit(props, ['onChange', 'treeData', 'value', 'showFile', 'dataType'])}
 				value={showName}
 				onChange={onTreeChange}
 				onSelect={updateShowName}

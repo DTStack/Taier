@@ -662,6 +662,7 @@ export default forwardRef((_, ref) => {
 									tabBarExtraContent={tabBarExtraContent(comps)}
 									className="c-editCluster__container__componentTabs"
 									onChange={handleTabChange}
+									destroyInactiveTabPane
 								>
 									{comps?.map((comp) => renderContent(comp, isCheckBoxs))}
 								</Tabs>

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useLayoutEffect, useImperativeHandle } from 'react';
+import { useRef, useState, useLayoutEffect, useImperativeHandle, useEffect } from 'react';
 import type { FormInstance, FormItemProps, PaginationProps } from 'antd';
 import { Form, Pagination, Table } from 'antd';
 import {
@@ -69,7 +69,7 @@ export interface IActionRef {
 	getTableData: () => any[];
 }
 
-interface ISketchProps<T, P> {
+export interface ISketchProps<T, P> {
 	/**
 	 * 通过 actionRef 获取内部值
 	 */
@@ -88,6 +88,10 @@ interface ISketchProps<T, P> {
 	headerClassName?: string;
 	/**
 	 * 在条件满足的情况下，会执行该方法获取表格数据
+	 * @param values 当前表单域的值
+	 * @param pagination 当前分页数据
+	 * @param filters 当前表格过滤条件
+	 * @param sorter 当前表格排序条件
 	 * @required
 	 */
 	request: (
@@ -109,9 +113,9 @@ interface ISketchProps<T, P> {
 	 */
 	columns?: ColumnsType<T>;
 	/**
-	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` 属性以外
+	 * 表格的 Props，会透传给表格组件，除了 `columns` | `dataSource` | `scroll` 属性以外
 	 */
-	tableProps?: Omit<Partial<TableProps<T>>, 'columns' | 'dataSource'>;
+	tableProps?: Omit<Partial<TableProps<T>>, 'columns' | 'dataSource' | 'scroll'>;
 	/**
 	 * 头部需要额外的组件，如添加按钮，刷新按钮等
 	 */
@@ -178,6 +182,13 @@ export default function Sketch<
 	const timeout = useRef<number | undefined>(undefined);
 	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' });
 
+	// keep a ref object for polling
+	// since the inner of async function can't get the lastest values of polling
+	const pollingRef = useRef(polling);
+	useEffect(() => {
+		pollingRef.current = polling;
+	});
+
 	// we should save the filter and sorter from table
 	const tableInfo = useRef<{
 		filters?: Record<string, FilterValue | null>;
@@ -224,8 +235,9 @@ export default function Sketch<
 			})
 			.finally(() => {
 				setLoading(false);
-				if (polling) {
-					const delay = typeof polling === 'object' && polling.delay;
+				if (pollingRef.current) {
+					const delay =
+						typeof pollingRef.current === 'object' && pollingRef.current.delay;
 					timeout.current = window.setTimeout(() => {
 						// 轮训请求不触发 loading 状态的修改
 						getDataSource(
@@ -292,7 +304,7 @@ export default function Sketch<
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, scroll: tableScroll, ...restTableProps } = tableProps;
+	const { className: tableClassName, ...restTableProps } = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
@@ -387,7 +399,7 @@ export default function Sketch<
 					onChange: handleSelectedRowChanged,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
-				scroll={{ ...calcTableScroll, ...tableScroll }}
+				scroll={{ ...calcTableScroll }}
 				loading={loading}
 				columns={columns}
 				dataSource={dataSource}

@@ -1,100 +1,146 @@
-import * as React from 'react'
-import LogInfo from './logInfo'
+import React, { useState, useRef, useMemo } from 'react';
 import { TASK_STATUS } from '@/constant';
 import { IStreamTaskProps } from '@/interface';
-
-const Api = {} as any
-
-interface IState {
-    logInfo: {
-        engineLog?: string;
-    };
-    offset: number;
-}
+import stream from '@/api/stream';
+import Editor from '@/components/editor';
+import { createLinkMark, createLog } from '@/services/taskResultService';
+import { Spin } from 'antd';
 
 interface IProps {
-    data: IStreamTaskProps | undefined;
-    isShow: boolean;
+	data: IStreamTaskProps | undefined;
 }
 
-class RunLog extends React.Component<IProps, IState> {
-    MAX_ENGINE_LOG = 10240
-    timer: NodeJS.Timer | undefined
-    state: IState = {
-        logInfo: {},
-        offset: -1
-    }
-
-
-    componentDidMount () {
-        this.getLog()
-        if (this.props?.data?.status == TASK_STATUS.RUNNING) {
-            this.timer = setInterval(this.getLog, 5000)
-        }
-    }
-
-    componentWillUnmount () {
-        if(!this.timer) return
-        clearInterval(this.timer)
-    }
-
-    prepareLogInfo (logInfo: IState['logInfo']) {
-        if (!logInfo) return null
-        let { engineLog } = logInfo;
-        if(!engineLog) return null
-        const { engineLog: oldEngineLog } = this.state.logInfo;
-        if (oldEngineLog) {
-            engineLog = oldEngineLog + engineLog;
-        }
-        if (engineLog.length > this.MAX_ENGINE_LOG) {
-            engineLog = engineLog.substr(-this.MAX_ENGINE_LOG);
-        }
-        return {
-            ...logInfo,
-            engineLog: engineLog.substr(-this.MAX_ENGINE_LOG)
-        }
-    }
-
-    getLog = async () => {
-        const { data, isShow } = this.props;
-        if (!data?.id || !isShow) return
-        const { offset } = this.state;
-        let res: any;
-        if (data.status == TASK_STATUS.RUNNING) {
-            res = await Api.getTaskRunningLogs({ taskId: data.id, place: offset });
-            if (res?.code == 1 && res?.data?.place) {
-                this.setState((preState) => ({
-                    logInfo: {
-                        ...res.data,
-                        engineLog: (preState.logInfo?.engineLog ?? '') + (res.data?.engineLog ?? '')
-                    },
-                    offset: res.data?.place
-                }));
-            }
-        } else {
-            res = await Api.getTaskLogs({ taskId: data.id });
-            if (res?.code == 1) {
-                this.setState({
-                    logInfo: res.data
-                });
-            }
-        }
-    }
-
-    render () {
-        const { data, isShow } = this.props;
-        const { status } = data || {};
-        const { logInfo } = this.state;
-        /**
-         * 不显示的时候这里不能渲染，
-         * 因为Editor和echarts绘图的时候会计算当前dom大小
-         * 不显示的时候大小为0，会造成显示错误
-         */
-        return isShow ? 
-            <div style={{ marginLeft: '20px', paddingLeft: '8px', height: 'calc(100% - 56px)', background: '#f7f7f7' }}>
-                <LogInfo status={status} log={logInfo} />
-            </div>: null
-    }
+interface ILogsProps {
+	jobId: string;
+	logInfo: string;
+	engineLog: string;
+	downLoadLog: string;
+	submitLog: string;
+	'all-exceptions'?: {
+		exception?: string;
+	}[];
 }
 
-export default RunLog;
+const wrappTitle = (title: string) => {
+	return `====================${title}====================`;
+};
+
+function getLogType(status: TASK_STATUS | undefined) {
+	switch (status) {
+		case TASK_STATUS.RUN_FAILED:
+		case TASK_STATUS.SUBMIT_FAILED:
+		case TASK_STATUS.PARENT_FAILD: {
+			return 'error';
+		}
+		case TASK_STATUS.FINISHED: {
+			return 'success';
+		}
+		default: {
+			return 'info';
+		}
+	}
+}
+
+export default function RunLog({ data }: IProps) {
+	const [logInfo, setLogInfo] = useState<ILogsProps>({
+		jobId: '',
+		logInfo: '',
+		engineLog: '',
+		downLoadLog: '',
+		submitLog: '',
+	});
+	const offset = useRef();
+	const timer = useRef<number>();
+
+	const getLog = async () => {
+		if (!data?.id) return;
+		if (data.status == TASK_STATUS.RUNNING) {
+			const res = await stream.getJobManagerLog({ taskId: data.id, place: offset });
+			if (res?.code == 1 && res?.data?.place) {
+				setLogInfo((info) => ({
+					...res.data,
+					engineLog: (info.engineLog ?? '') + (res.data?.engineLog ?? ''),
+				}));
+				offset.current = res.data.place;
+			}
+		} else {
+			const res = await stream.getTaskLogs({ taskId: data.id });
+			if (res?.code == 1) {
+				setLogInfo(res.data);
+			}
+		}
+	};
+
+	React.useEffect(() => {
+		getLog();
+
+		if (data?.status === TASK_STATUS.RUNNING) {
+			timer.current = window.setInterval(getLog, 5000);
+		}
+
+		return () => {
+			if (timer.current) {
+				window.clearInterval(timer.current);
+			}
+		};
+	}, []);
+
+	const logText = useMemo(() => {
+		const log = logInfo;
+		let engineLog: Partial<ILogsProps> = {};
+
+		try {
+			engineLog = log.engineLog ? JSON.parse(log.engineLog) : {};
+		} catch (e) {
+			engineLog = {
+				'all-exceptions': [{ exception: log.engineLog }],
+			};
+		}
+
+		const errors = engineLog?.['all-exceptions'] || '';
+
+		let engineLogs =
+			Array.isArray(errors) && errors.length > 0
+				? errors.map((item: any) => {
+						return `${item.exception} \n`;
+				  })
+				: errors;
+
+		let logText = '';
+		if (log.downLoadLog) {
+			logText = `完整日志下载地址：${createLinkMark({
+				href: `${log.downLoadLog}`,
+				download: '',
+			})}\n`;
+		}
+		if (log.logInfo) {
+			logText = `${logText}${wrappTitle('基本日志')}\n${createLog(
+				log.logInfo,
+				getLogType(data?.status),
+			)}`;
+		}
+		if (log.submitLog) {
+			logText = `${logText} \n${wrappTitle('操作日志')}\n${createLog(log.submitLog)}`;
+		}
+		if (engineLogs) {
+			logText = `${logText} \n${wrappTitle('引擎日志')} \n ${engineLogs}`;
+		}
+
+		return logText;
+	}, [logInfo, data?.status]);
+
+	return (
+		<Editor
+			style={{ height: '100%' }}
+			sync
+			value={logText}
+			language="jsonlog"
+			options={{
+				readOnly: true,
+				minimap: {
+					enabled: false,
+				},
+			}}
+		/>
+	);
+}

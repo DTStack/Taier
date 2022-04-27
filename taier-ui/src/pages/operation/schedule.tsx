@@ -29,7 +29,7 @@ import Sketch, { useSketchRef } from '@/components/sketch';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter } from '@/constant';
 import {
-	OFFLINE_TASK_STATUS_FILTERS,
+	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
@@ -387,7 +387,7 @@ export default () => {
 				render: (text) => {
 					return <TaskStatus value={text} />;
 				},
-				filters: OFFLINE_TASK_STATUS_FILTERS,
+				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
 			},
 			{
@@ -587,7 +587,6 @@ export default () => {
 				request={handleGetTableData}
 				columns={columns}
 				tableProps={{
-					scroll: { x: 1709.6 },
 					rowKey: 'jobId',
 					rowClassName: (record) => {
 						if (selectedTask && selectedTask.jobId === record.jobId) {

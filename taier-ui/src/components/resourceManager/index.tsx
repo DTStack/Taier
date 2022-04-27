@@ -30,7 +30,7 @@ import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { loadTreeNode } from '@/utils/extensions';
-import { CATELOGUE_TYPE, folderMenu } from '@/constant';
+import { CATELOGUE_TYPE, RESOURCE_ACTIONSS_ID_COLLECTION, RESOURCE_ACTION_BAR } from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal from './resModal';
 import ResViewModal from './resViewModal';
@@ -119,13 +119,13 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 			}
 			case FileTypes.Folder: {
 				if (treeNode.name === '资源管理') {
-					return folderMenu.concat();
+					return RESOURCE_ACTION_BAR.concat();
 				}
-				return folderMenu.concat([editMenu, deleteMenu]);
+				return RESOURCE_ACTION_BAR.concat([editMenu, deleteMenu]);
 			}
 			case FileTypes.RootFolder: {
 				// In general, root folder have no contextMenu, because it can't be clicked
-				return folderMenu.concat();
+				return RESOURCE_ACTION_BAR.concat();
 			}
 			default:
 				break;
@@ -190,21 +190,21 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 				setFolderVisible(true);
 				break;
 			}
-			case 'upload': {
+			case RESOURCE_ACTIONSS_ID_COLLECTION.UPLOAD: {
 				setData({
 					parentId: treeNode!.data.id,
 				});
 				handleUpload();
 				break;
 			}
-			case 'replace': {
+			case RESOURCE_ACTIONSS_ID_COLLECTION.REPLACE: {
 				setData({
 					parentId: treeNode!.data.id,
 				});
 				handleReplace();
 				break;
 			}
-			case 'create-folder': {
+			case RESOURCE_ACTIONSS_ID_COLLECTION.CREATE: {
 				setFolderData({ parentId: treeNode!.data.id });
 				setFolderVisible(true);
 				break;

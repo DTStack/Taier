@@ -32,6 +32,7 @@ function useCalcTableScroll<T>(props: IProps) {
 	const calcTableScroll = useCallback((targetTableEle: HTMLElement) => {
 		return () => {
 			const tableContentHeight = targetTableEle.offsetHeight;
+			const tableContentWidth = targetTableEle.offsetWidth;
 			const tableHeader = targetTableEle.querySelector<HTMLElement>('.ant-table-thead');
 			const tableFooter = targetTableEle.querySelector<HTMLElement>('.ant-table-footer');
 			setScroll({
@@ -39,6 +40,7 @@ function useCalcTableScroll<T>(props: IProps) {
 					tableContentHeight -
 					(tableHeader?.offsetHeight || 0) -
 					(tableFooter?.offsetHeight || 0),
+				x: tableContentWidth,
 			});
 		};
 	}, []);

@@ -1,73 +1,45 @@
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import type { ColumnsType } from 'antd/lib/table/interface';
-
-const Api = {} as any
-
+import stream from '@/api/stream';
 interface IProps {
-    taskId: number;
-}
-
-interface IState {
-    loading: boolean;
-    data: IDataSource[];
+	taskId?: number;
 }
 
 interface IDataSource {
-    tableName: string;
+	tableName: string;
 }
 
+export default function ResultTable({ taskId }: IProps) {
+	const [loading, setLoading] = useState(false);
+	const [data, setData] = useState<IDataSource[]>([]);
 
-class ResultTable extends React.Component<IProps, IState> {
-    state: IState = {
-        data: [],
-        loading: false
-    }
+	useEffect(() => {
+		if (taskId !== undefined) {
+			setLoading(true);
+			stream
+				.getResultTable({ taskId })
+				.then((res) => {
+					if (res.code === 1) {
+						setData(res.data || []);
+					}
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+		}
+	}, []);
 
-    componentDidMount () {
-        this.initData();
-    }
-
-    async initData () {
-        const { taskId } = this.props;
-        if (!taskId) return
-        this.setState({
-            loading: true
-        })
-        try {
-            let res = await Api.getResultTable({ taskId });
-            if (res?.code == 1) {
-                this.setState({
-                    data: res.data || []
-                })
-            }
-        } finally {
-            this.setState({
-                loading: false
-            })
-        }
-    }
-
-    columns: ColumnsType<IDataSource> = [
-        {
-            title: '表名',
-            key: 'tableName'
-        }
-    ]
-
-    render () {
-        const { data } = this.state;
-
-        return (
-            <div>
-                <Table
-                    columns={this.columns}
-                    dataSource={data}
-                    pagination={false}
-                />
-            </div>
-        )
-    }
+	return (
+		<Table
+			loading={loading}
+			dataSource={data}
+			pagination={false}
+			columns={[
+				{
+					title: '表名',
+					key: 'tableName',
+				},
+			]}
+		/>
+	);
 }
-
-export default ResultTable;

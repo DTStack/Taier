@@ -22,7 +22,7 @@ import taskResultService, { createLinkMark, createLog, createTitle } from './tas
 import type { CatalogueDataProps, IOfflineTaskProps, IResponseProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
-import { OFFLINE_TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
+import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
 
@@ -482,12 +482,12 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	};
 
 	private outputStatus = (currentTabId: number, status: TASK_STATUS, extText?: string) => {
-		for (let i = 0; i < OFFLINE_TASK_STATUS_FILTERS.length; i += 1) {
-			if (OFFLINE_TASK_STATUS_FILTERS[i].value === status) {
+		for (let i = 0; i < TASK_STATUS_FILTERS.length; i += 1) {
+			if (TASK_STATUS_FILTERS[i].value === status) {
 				taskResultService.appendLogs(
 					currentTabId.toString(),
 					createLog(
-						`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`,
+						`${TASK_STATUS_FILTERS[i].text}${extText || ''}`,
 						this.typeCreate(status),
 					),
 				);

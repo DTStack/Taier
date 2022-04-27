@@ -152,94 +152,97 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 
 	// 时区不做处理
 	const handleInputChange = async (index: any, type: any, value: any, subValue: any) => {
-		// 监听数据改变
-		const panelColumnSocp = cloneDeep(panelColumn);
-		const panel = panelColumnSocp[index];
-		let shouldUpdateEditor = false;
-		switch (type) {
-			case 'type': {
-				panelColumnSocp[index] = {
-					...DEFAULT_INPUT_VALUE,
-					panelKey: panel.panelKey,
-					[type]: value,
-				};
-				getTypeOriginData(value);
-				shouldUpdateEditor = true;
-				if (isKafka(value)) {
-					if (value === DATA_SOURCE_ENUM.KAFKA_CONFLUENT) {
-						panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT;
-					} else {
-						panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_JSON;
+		setPanelColumn((columns) => {
+			// 监听数据改变
+			const panelColumnSocp = cloneDeep(columns);
+			const panel = panelColumnSocp[index];
+			let shouldUpdateEditor = false;
+			switch (type) {
+				case 'type': {
+					panelColumnSocp[index] = {
+						...DEFAULT_INPUT_VALUE,
+						panelKey: panel.panelKey,
+						[type]: value,
+					};
+					getTypeOriginData(value);
+					shouldUpdateEditor = true;
+					if (isKafka(value)) {
+						if (value === DATA_SOURCE_ENUM.KAFKA_CONFLUENT) {
+							panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT;
+						} else {
+							panel.sourceDataType = KAFKA_DATA_TYPE.TYPE_JSON;
+						}
 					}
-				}
 
-				break;
-			}
-			case 'sourceId': {
-				panelColumnSocp[index] = {
-					...DEFAULT_INPUT_VALUE,
-					type: panel.type,
-					panelKey: panel.panelKey,
-					sourceDataType: panel.sourceDataType,
-					[type]: value,
-				};
-				getTopicType(value);
-				shouldUpdateEditor = true;
-				break;
-			}
-			case 'customParams': {
-				changeCustomParams(panel, value, subValue);
-				break;
-			}
-			case 'columnsText': {
-				const columns = parseColumnText(value);
-				panel.columnsText = value;
-				panel.timeColumn = timeColumnCheck(columns);
-				break;
-			}
-			case 'sourceDataType':
-				panel.sourceDataType = value;
-				if (!isAvro(value)) {
-					panel.schemaInfo = undefined;
+					break;
 				}
-				break;
-			case 'timeTypeArr':
-				panel.timeTypeArr = value;
-				// timeTypeArr 这个字段只有前端用，根据 timeTypeArr ，清空相应字段
-				// 不勾选 ProcTime，不传 procTime 名称字段
-				// 不勾选 EventTime，不传时间列、最大延迟时间字段
-				if (currentPage.componentVersion === '1.12') {
-					if (!value.includes(1)) {
-						panel.procTime = undefined;
-					}
-					if (!value.includes(2)) {
-						panel.timeColumn = undefined;
-						panel.offset = undefined;
-					}
+				case 'sourceId': {
+					panelColumnSocp[index] = {
+						...DEFAULT_INPUT_VALUE,
+						type: panel.type,
+						panelKey: panel.panelKey,
+						sourceDataType: panel.sourceDataType,
+						[type]: value,
+					};
+					getTopicType(value);
+					shouldUpdateEditor = true;
+					break;
 				}
-				break;
-			default: {
-				// @ts-ignore
-				panel[type] = value;
+				case 'customParams': {
+					changeCustomParams(panel, value, subValue);
+					break;
+				}
+				case 'columnsText': {
+					const columns = parseColumnText(value);
+					panel.columnsText = value;
+					panel.timeColumn = timeColumnCheck(columns);
+					break;
+				}
+				case 'sourceDataType':
+					panel.sourceDataType = value;
+					if (!isAvro(value)) {
+						panel.schemaInfo = undefined;
+					}
+					break;
+				case 'timeTypeArr':
+					panel.timeTypeArr = value;
+					// timeTypeArr 这个字段只有前端用，根据 timeTypeArr ，清空相应字段
+					// 不勾选 ProcTime，不传 procTime 名称字段
+					// 不勾选 EventTime，不传时间列、最大延迟时间字段
+					if (currentPage.componentVersion === '1.12') {
+						if (!value.includes(1)) {
+							panel.procTime = undefined;
+						}
+						if (!value.includes(2)) {
+							panel.timeColumn = undefined;
+							panel.offset = undefined;
+						}
+					}
+					break;
+				default: {
+					// @ts-ignore
+					panel[type] = value;
+				}
 			}
-		}
-		streamTaskActions.setCurrentPageValue('source', panelColumnSocp, true);
-		setSync(shouldUpdateEditor);
-		setPanelColumn(panelColumnSocp);
+			streamTaskActions.setCurrentPageValue('source', panelColumnSocp, true);
+			setSync(shouldUpdateEditor);
 
-		// timeColumn 是否需要重置
-		function timeColumnCheck(columns: any) {
-			if (panel.timeColumn) {
-				if (
-					!columns.find((c: any) => {
-						return c.column === panel.timeColumn;
-					})
-				) {
-					return undefined;
+			// timeColumn 是否需要重置
+			function timeColumnCheck(columns: any) {
+				if (panel.timeColumn) {
+					if (
+						!columns.find((c: any) => {
+							return c.column === panel.timeColumn;
+						})
+					) {
+						return undefined;
+					}
 				}
+				return panel.timeColumn;
 			}
-			return panel.timeColumn;
-		}
+
+			return panelColumnSocp;
+		});
 	};
 
 	const renderPanelHeader = (

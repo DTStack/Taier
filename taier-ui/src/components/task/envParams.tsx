@@ -21,7 +21,7 @@ import { MonacoEditor } from '@dtinsight/molecule/esm/components';
 import { editor as monacoEditor, Uri } from '@dtinsight/molecule/esm/monaco';
 import type { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { editor } from '@dtinsight/molecule/esm/monaco';
-import { ENV_PARAMS } from '@/constant';
+import { ID_COLLECTIONS } from '@/constant';
 import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 
 const getUniqPath = (path: string) => {
@@ -77,7 +77,7 @@ export default function EnvParams({ current, onChange }: IEnvParams) {
 					enabled: false,
 				},
 			}}
-			path={ENV_PARAMS}
+			path={ID_COLLECTIONS.ENV_PARAMS_ID}
 			editorInstanceRef={(editorInstance) => {
 				// This assignment will trigger moleculeCtx update, and subNodes update
 				editorIns.current = editorInstance;

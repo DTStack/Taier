@@ -19,6 +19,7 @@ import GraphTimePicker from '@/components/graphTime/graphTimePicker';
 import AlarmBaseGraph from './baseGraph';
 import DataDelay from './dataDelay';
 import MetricSelect from './metricSelect';
+import './index.scss';
 
 const Api = {
 	checkSourceStatus: () => Promise.resolve({ code: 1, data: null }),
@@ -546,7 +547,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			return;
 		}
 		const { taskType } = data;
-		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_COLLECTION;
+		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_ACQUISITION;
 		const { time, endTime } = this.state;
 		let metricsList = [];
 
@@ -674,7 +675,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		} = this.state;
 		const { data = {} } = this.props;
 		const { taskType } = data;
-		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_COLLECTION;
+		const isDataCollection = taskType == TASK_TYPE_ENUM.DATA_ACQUISITION;
 		const sourceIptUnit = matchSourceInputUnit(
 			{ ...lineDatas[metricsType.SOURCE_INPUT_BPS] },
 			metricsType.SOURCE_INPUT_BPS,
