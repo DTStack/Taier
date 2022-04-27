@@ -73,6 +73,9 @@ export default {
 	startTask(params: any) {
 		return http.post(req.START_TASK, params);
 	},
+	startCollectionTask(params: any) {
+		return http.post(req.START_COLLECTION_TASK, params);
+	},
 	getTaskManagerLog(params: any) {
 		return http.post(req.GET_TASK_MANAGER_LOG, params);
 	},
