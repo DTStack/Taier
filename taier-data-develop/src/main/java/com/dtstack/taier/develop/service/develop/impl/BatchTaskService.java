@@ -1067,8 +1067,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getVal().equals(taskVO.getTaskType())) {
             return (TaskVO) updateTask(taskVO, true);
-        } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
-            flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
+        } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType())) {
+            if(TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
+                flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
+            }
             taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
             return (TaskVO) updateTask(taskVO, false);
         }
@@ -1546,17 +1548,18 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskVO taskVO = new TaskVO();
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task,taskVO);
         taskVO.setCreateModel(TaskCreateModelType.TEMPLATE.getType());
-        JSONObject sqlJson = null;
-        if (StringUtils.isBlank(task.getSqlText())) {
-            sqlJson = new JSONObject();
-        }else {
-            sqlJson =  JSON.parseObject(task.getSqlText());
-        }
-        sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
-
-        taskVO.setSqlText(sqlJson.toJSONString());
         if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
             taskVO.setSqlText(flinkSqlTaskService.generateCreateFlinkSql(task));
+        }else{
+            JSONObject sqlJson = null;
+            if (StringUtils.isBlank(task.getSqlText())) {
+                sqlJson = new JSONObject();
+            }else {
+                sqlJson =  JSON.parseObject(task.getSqlText());
+            }
+            sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
+
+            taskVO.setSqlText(sqlJson.toJSONString());
         }
         this.updateTask(taskVO, true);
         final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
