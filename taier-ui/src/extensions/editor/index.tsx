@@ -20,18 +20,7 @@ import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { runTask, syntaxValidate } from '@/utils/extensions';
-import {
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_SUBMIT_ID,
-	TASK_OPS_ID,
-	TASK_SAVE_ID,
-	DRAWER_MENU_ENUM,
-	TASK_CONVERT_SCRIPT,
-	TASK_IMPORT_ID,
-	TASK_LANGUAGE,
-	TASK_SYNTAX_ID,
-} from '@/constant';
+import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
 import { history } from 'umi';
 import { cloneDeep, debounce } from 'lodash';
 import ReactDOM from 'react-dom';
@@ -54,11 +43,11 @@ import notification from '@/components/notification';
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
 		switch (menuId) {
-			case TASK_RUN_ID: {
+			case ID_COLLECTIONS.TASK_RUN_ID: {
 				runTask(current);
 				break;
 			}
-			case TASK_STOP_ID: {
+			case ID_COLLECTIONS.TASK_STOP_ID: {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
@@ -71,7 +60,7 @@ function emitEvent() {
 				}
 				break;
 			}
-			case TASK_SAVE_ID: {
+			case ID_COLLECTIONS.TASK_SAVE_ID: {
 				saveTask()
 					.then((res) => res?.data?.id)
 					.then((id) => {
@@ -98,7 +87,7 @@ function emitEvent() {
 					});
 				break;
 			}
-			case TASK_SUBMIT_ID: {
+			case ID_COLLECTIONS.TASK_SUBMIT_ID: {
 				const currentTab = current.tab;
 				const root = document.getElementById('molecule')!;
 
@@ -115,7 +104,7 @@ function emitEvent() {
 				break;
 			}
 
-			case TASK_OPS_ID: {
+			case ID_COLLECTIONS.TASK_OPS_ID: {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
@@ -129,7 +118,7 @@ function emitEvent() {
 				}
 				break;
 			}
-			case TASK_CONVERT_SCRIPT: {
+			case ID_COLLECTIONS.TASK_CONVERT_SCRIPT: {
 				const currentTabData:
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
@@ -179,8 +168,12 @@ function emitEvent() {
 														const nextTabData = result.data;
 														molecule.editor.updateTab({
 															id: nextTabData.id.toString(),
-															...nextTabData,
+															data: {
+																...currentTabData,
+																...nextTabData,
+															},
 														});
+														editorActionBarService.performSyncTaskActions();
 													}
 												});
 											}
@@ -195,7 +188,7 @@ function emitEvent() {
 				}
 				break;
 			}
-			case TASK_IMPORT_ID: {
+			case ID_COLLECTIONS.TASK_IMPORT_ID: {
 				const currentTab = current.tab;
 				const root = document.getElementById('molecule')!;
 
@@ -221,8 +214,17 @@ function emitEvent() {
 				break;
 			}
 			// FlinkSQL 语法检查
-			case TASK_SYNTAX_ID: {
+			case ID_COLLECTIONS.TASK_SYNTAX_ID: {
 				syntaxValidate(current);
+				break;
+			}
+			// FlinkSQL 格式化
+			case ID_COLLECTIONS.TASK_FORMAT_ID: {
+				apiStream.sqlFormat({ sql: current.tab?.data.value }).then((res) => {
+					if (res.code === 1) {
+						molecule.editor.editorInstance.getModel()?.setValue(res.data);
+					}
+				});
 				break;
 			}
 			default:
@@ -259,6 +261,7 @@ function registerCompletion() {
 		TASK_LANGUAGE.SPARKSQL,
 		TASK_LANGUAGE.HIVESQL,
 		TASK_LANGUAGE.SQL,
+		TASK_LANGUAGE.FLINKSQL,
 	] as const;
 	COMPLETION_SQL.forEach((sql) =>
 		languages.registerCompletionItemProvider(sql, {

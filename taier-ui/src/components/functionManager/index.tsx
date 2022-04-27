@@ -30,27 +30,47 @@ import { Modal } from 'antd';
 import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { CATELOGUE_TYPE, MENU_TYPE_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { loadTreeNode } from '@/utils/extensions';
-import type { CatalogueDataProps } from '@/interface';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import './index.scss';
 
 const { confirm } = Modal;
 const FolderTreeView = connect(functionManagerService, FolderTree);
 
-interface IFunctionProps {
+interface IFunctionViewProps {
 	panel: any;
 	headerToolBar: any[];
 }
 
-const supportEngines = [
-	{
-		name: 'Hadoop',
-		value: 1,
-	},
-];
+/**
+ * 获取当前文件夹所属的类型，从当前文件出发，逐步往上找，直到找到 SparkSQL 文件夹或者 FlinkSQL 文件夹
+ */
+function getBaseType(id: UniqueId): typeof TYPE_ITERATOR[number] | null {
+	const root = functionManagerService.getState().folderTree?.data?.[0];
+	const TYPE_ITERATOR = [MENU_TYPE_ENUM.SPARKFUNC, MENU_TYPE_ENUM.FLINKFUNC] as const;
+	if (root) {
+		const treeHelper = new TreeViewUtil(root);
+		let node = treeHelper.getHashMap(id);
+		while (node) {
+			const isTargetFile = TYPE_ITERATOR.includes(node.node.data.catalogueType);
+			if (isTargetFile) {
+				return node.node.data.catalogueType;
+			} else {
+				if (node.parent) {
+					node = treeHelper.getHashMap(node.parent);
+				} else {
+					node = null;
+				}
+			}
+		}
+	}
 
-const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderTree) => {
+	return null;
+}
+
+const FunctionManagerView = ({ headerToolBar, panel }: IFunctionViewProps & IFolderTree) => {
 	const [viewVisible, setViewVisible] = useState(false);
 	const [isModalShow, setModalShow] = useState(false);
 	const [folderVisible, setFolderVisible] = useState(false);
@@ -86,8 +106,17 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 		const menuId = contextMenu.id;
 		switch (menuId) {
 			case FUNCTION_NEW_FUNCTION.id: {
+				// 获取右键文件夹属于所属文件夹
+				const belongTo = getBaseType(treeNode!.id);
+				const CATELOGUE_TO_TYPE = {
+					[MENU_TYPE_ENUM.SPARKFUNC]: TASK_TYPE_ENUM.SPARK_SQL,
+					[MENU_TYPE_ENUM.FLINKFUNC]: TASK_TYPE_ENUM.SQL,
+				};
+				setMenuData({
+					nodePid: treeNode!.data.id,
+					taskType: belongTo ? CATELOGUE_TO_TYPE[belongTo] : undefined,
+				});
 				setModalShow(true);
-				setMenuData({ parentId: treeNode!.data.id });
 				break;
 			}
 			case FUNCTION_NEW_FOLDER.id: {
@@ -99,11 +128,12 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 				if (treeNode!.data.type === 'file') {
 					ajax.getOfflineFn({
 						functionId: treeNode!.data.id,
-					}).then((res: any) => {
+					}).then((res) => {
 						if (res.code === 1) {
 							setMenuData({
-								parentId: treeNode!.data.id,
-								formData: { data: res.data },
+								...res.data,
+								taskType: res.data.type,
+								nodePid: treeNode!.data.parentId,
 							});
 							setModalShow(true);
 						}
@@ -130,7 +160,7 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 						fun.then((res) => {
 							if (res.code) {
 								const parentNode = functionManagerService.get(
-									`${treeNode!.data.parentId}-folder` as any,
+									`${treeNode!.data.parentId}-folder`,
 								);
 								if (parentNode) {
 									updateNodePid(parentNode);
@@ -163,8 +193,8 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	};
 
 	const handleToggleCreatFn = () => {
-		setModalShow(false);
 		setMenuData(undefined);
+		setModalShow(false);
 	};
 
 	const handleCloseFolderModal = () => {
@@ -191,10 +221,12 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 
 		if (treeNode.data.type === 'folder') {
 			// 判断当前文件夹是否属于系统函数或者 SparkSQL 根目录
-			if (
-				treeNode.data.catalogueType === MENU_TYPE_ENUM.SYSFUC ||
-				treeNode.data.catalogueType === MENU_TYPE_ENUM.SPARKFUNC
-			) {
+			const SHOULD_NOT_HAVE_CONTEXT_MENU = [
+				MENU_TYPE_ENUM.SYSFUC,
+				MENU_TYPE_ENUM.SPARKFUNC,
+				MENU_TYPE_ENUM.FLINKFUNC,
+			];
+			if (SHOULD_NOT_HAVE_CONTEXT_MENU.includes(treeNode.data.catalogueType)) {
 				return [];
 			}
 
@@ -244,18 +276,16 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	const handleEditCatalogue = (params: any) => {
 		return ajax
 			.editOfflineCatalogue({ ...params, type: 'folder' }) // 文件夹编辑，新增参数固定为folder
-			.then((res: any) => {
+			.then((res) => {
 				if (res.code === 1) {
-					const currentNode = functionManagerService.get(
-						`${params.id}-${params.type}` as any,
-					);
+					const currentNode = functionManagerService.get(`${params.id}-${params.type}`);
 					const parentNode = functionManagerService.get(
-						`${params.nodePid}-${params.type}` as any,
+						`${params.nodePid}-${params.type}`,
 					);
 					// the saving position has been changed
 					if (currentNode?.data.parentId !== params.nodePid) {
 						const nextParentNode = functionManagerService.get(
-							`${currentNode?.data.parentId}-folder` as any,
+							`${currentNode?.data.parentId}-folder`,
 						);
 						updateNodePid(nextParentNode!);
 					}
@@ -269,19 +299,19 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 	};
 
 	const handleEditFunction = (params: any) => {
-		return ajax.addOfflineFunction(params).then((res: any) => {
+		return ajax.addOfflineFunction(params).then((res) => {
 			if (res.code === 1) {
-				const currentNode = functionManagerService.get(`${params.id}-file` as any);
+				const currentNode = functionManagerService.get(`${params.id}-file`);
 				// the saving position has been changed
 				if (currentNode?.data.parentId !== params.nodePid) {
 					const parentNode = functionManagerService.get(
-						`${currentNode?.data.parentId}-folder` as any,
+						`${currentNode?.data.parentId}-folder`,
 					);
 					updateNodePid(parentNode!);
 				}
 
 				// update the parent node
-				const parentNode = functionManagerService.get(`${params.nodePid}-folder` as any);
+				const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
 				if (parentNode) {
 					updateNodePid(parentNode);
 				}
@@ -320,22 +350,11 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionProps & IFolderT
 			</Content>
 			<FnViewModal visible={viewVisible} fnId={resId} closeModal={handleCloseViewModal} />
 			<FnModal
-				isModalShow={isModalShow}
-				functionTreeData={
-					functionManagerService
-						.getState()
-						.folderTree?.data?.[0]?.children?.[0]?.children?.find(
-							(item) =>
-								(item.data as CatalogueDataProps).catalogueType ===
-								MENU_TYPE_ENUM.COSTOMFUC,
-						)?.data
-				}
-				toggleCreateFn={handleToggleCreatFn}
-				engine={supportEngines}
-				fnType={currentMenuData ? 'Hadoop' : undefined}
-				defaultData={currentMenuData}
-				addFn={handleAddFunction}
-				editFn={handleEditFunction}
+				visible={isModalShow}
+				onClose={handleToggleCreatFn}
+				onAddFunction={handleAddFunction}
+				onEditFunction={handleEditFunction}
+				data={currentMenuData}
 			/>
 			<FolderModal
 				isModalShow={folderVisible}

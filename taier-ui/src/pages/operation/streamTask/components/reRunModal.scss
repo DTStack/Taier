@@ -1,0 +1,26 @@
+// 重跑 modal 样式
+.o-modal {
+	.ant-radio-wrapper {
+		height: 30px;
+		line-height: 30px;
+	}
+
+	&__content {
+		padding: 12px;
+		background: rgb(250, 250, 250);
+		border: 1px solid rgb(221, 221, 221);
+		border-radius: 4px;
+	}
+
+	&__datepick--content {
+		width: 200px;
+	}
+
+	&__datepick--empty {
+		text-align: center;
+	}
+
+	&__datepick--text {
+		font-weight: bold;
+	}
+}

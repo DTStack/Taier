@@ -66,7 +66,12 @@ public class TaskVO extends Task {
     /**
      * 依赖任务信息
      */
-    private List<Task> dependencyTasks;
+    private List<TaskVO> dependencyTasks;
+
+    /**
+     * 租户名称
+     */
+    private String tenantName;
 
     public Long getParentId() {
         return parentId;
@@ -172,12 +177,19 @@ public class TaskVO extends Task {
         return side;
     }
 
-    public List<Task> getDependencyTasks() {
+    public List<TaskVO> getDependencyTasks() {
         return dependencyTasks;
     }
 
-    public void setDependencyTasks(List<Task> dependencyTasks) {
+    public void setDependencyTasks(List<TaskVO> dependencyTasks) {
         this.dependencyTasks = dependencyTasks;
     }
 
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
 }

@@ -91,7 +91,7 @@ public class BatchTaskGetTaskByIdResultVO {
     private Boolean currentProject = false;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchScheduleTaskResultVO> taskVOS;
+    private List<BatchScheduleTaskResultVO> dependencyTasks;
 
     @ApiModelProperty(value = "任务信息")
     private List<BatchScheduleTaskResultVO> subTaskVOS;
@@ -221,7 +221,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     @ApiModelProperty(value = "前端设置信息")
     private Map<String, Object> settingMap;
-
 
     @ApiModelProperty(value = "")
     private List<JSONObject> source;
@@ -439,14 +438,6 @@ public class BatchTaskGetTaskByIdResultVO {
 
     public void setCurrentProject(Boolean currentProject) {
         this.currentProject = currentProject;
-    }
-
-    public List<BatchScheduleTaskResultVO> getTaskVOS() {
-        return taskVOS;
-    }
-
-    public void setTaskVOS(List<BatchScheduleTaskResultVO> taskVOS) {
-        this.taskVOS = taskVOS;
     }
 
     public List<BatchScheduleTaskResultVO> getSubTaskVOS() {
@@ -767,5 +758,13 @@ public class BatchTaskGetTaskByIdResultVO {
 
     public void setOwnerUser(BatchUserGetTaskByIdResultVO ownerUser) {
         this.ownerUser = ownerUser;
+    }
+
+    public List<BatchScheduleTaskResultVO> getDependencyTasks() {
+        return dependencyTasks;
+    }
+
+    public void setDependencyTasks(List<BatchScheduleTaskResultVO> dependencyTasks) {
+        this.dependencyTasks = dependencyTasks;
     }
 }

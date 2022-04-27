@@ -30,6 +30,7 @@ import {
 	loadTreeNode,
 	getCatalogueViaNode,
 	fileIcon,
+	getParentNode,
 } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -37,12 +38,8 @@ import {
 	CATELOGUE_TYPE,
 	MENU_TYPE_ENUM,
 	TASK_TYPE_ENUM,
-	CREATE_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	EDIT_TASK_PREFIX,
-	FOLDERTREE_CONTEXT_EDIT,
 	CREATE_MODEL_TYPE,
+	ID_COLLECTIONS,
 } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
@@ -102,7 +99,7 @@ function openCreateTab(id?: string) {
 		});
 	};
 
-	const tabId = `${CREATE_TASK_PREFIX}_${new Date().getTime()}`;
+	const tabId = `${ID_COLLECTIONS.CREATE_TASK_PREFIX}_${new Date().getTime()}`;
 	const { folderTree } = molecule.folderTree.getState();
 	if (!folderTree?.current && !folderTree?.data?.length) return;
 	const tabData = {
@@ -125,14 +122,41 @@ function openCreateTab(id?: string) {
 
 function init() {
 	molecule.explorer.onPanelToolbarClick((panel, toolbarId: string) => {
-		const getRootNode = () => molecule.folderTree.getState().folderTree?.data![0];
 		const { SAMPLE_FOLDER_PANEL_ID } = molecule.builtin.getConstants();
 		// 如果是任务刷新，执行重新加载
 		if (panel.id === SAMPLE_FOLDER_PANEL_ID && toolbarId === 'refresh') {
-			const rootNode = getRootNode();
-			if (rootNode) {
-				loadTreeNode(rootNode.data, CATELOGUE_TYPE.TASK);
+			const { current } = molecule.editor.getState();
+			const { folderTree } = molecule.folderTree.getState();
+			if (!folderTree?.data?.length) return;
+			if (current) {
+				// keep the folderTree's current consistent with the editor's current
+				molecule.folderTree.setActive(Number(current.activeTab));
 			}
+			const currentFolderTree = molecule.folderTree.getState().folderTree?.current;
+			if (!currentFolderTree) return;
+			// expand the current Node's parentNode
+			const expandKeys = molecule.folderTree.getExpandKeys();
+			const parentNode = getParentNode(folderTree!.data![0], currentFolderTree);
+			if (!parentNode) return;
+			if (!expandKeys.includes(parentNode.id)) {
+				molecule.folderTree.setExpandKeys([...expandKeys, parentNode.id]);
+			}
+
+			// reload the parentNode
+			loadTreeNode(parentNode.data, CATELOGUE_TYPE.TASK).then(() => {
+				// TODO: don't need it after fix the issue https://github.com/DTStack/molecule/issues/724
+				if (molecule.folderTree.getState().folderTree?.current?.id !== undefined) {
+					document
+						.querySelector<HTMLDivElement>('.mo-tree__treenode--active')
+						?.classList.remove('mo-tree__treenode--active');
+					const dom = document.querySelector<HTMLDivElement>(
+						`div.mo-tree__treenode[data-key="${
+							molecule.folderTree.getState().folderTree?.current?.id
+						}"]`,
+					);
+					dom?.classList.add('mo-tree__treenode--active');
+				}
+			});
 		}
 	});
 }
@@ -148,12 +172,12 @@ function initContextMenu() {
 			// insert these menus into folder context
 			menu.splice(0, 1, { id: 'task.create', name: '新建任务' });
 			menu.splice(3, 0, {
-				id: FOLDERTREE_CONTEXT_EDIT,
+				id: ID_COLLECTIONS.FOLDERTREE_CONTEXT_EDIT,
 				name: '编辑',
 			});
 		} else {
 			menu.splice(2, 0, {
-				id: FOLDERTREE_CONTEXT_EDIT,
+				id: ID_COLLECTIONS.FOLDERTREE_CONTEXT_EDIT,
 				name: '编辑',
 			});
 		}
@@ -172,7 +196,7 @@ function createTask() {
 			// work through addNode function
 			molecule.folderTree.add(
 				new TreeNodeModel({
-					id: `${CREATE_FOLDER_PREFIX}_${new Date().getTime()}`,
+					id: `${ID_COLLECTIONS.CREATE_FOLDER_PREFIX}_${new Date().getTime()}`,
 					name: '',
 					isLeaf: false,
 					fileType: FileTypes.Folder,
@@ -261,7 +285,7 @@ function editTreeNodeName() {
 		const { fileType, id } = file;
 		if (fileType === 'File') {
 			renameFile(file);
-		} else if (`${id}`.startsWith(CREATE_FOLDER_PREFIX)) {
+		} else if (`${id}`.startsWith(ID_COLLECTIONS.CREATE_FOLDER_PREFIX)) {
 			createFolder(file);
 		} else {
 			renameFolder(file);
@@ -452,12 +476,12 @@ function contextMenu() {
 				openCreateTab(treeNode!.data.id);
 				break;
 			}
-			case FOLDERTREE_CONTEXT_EDIT: {
+			case ID_COLLECTIONS.FOLDERTREE_CONTEXT_EDIT: {
 				const isFile = treeNode!.fileType === 'File';
 
 				const tabId = isFile
-					? `${EDIT_TASK_PREFIX}_${new Date().getTime()}`
-					: `${EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
+					? `${ID_COLLECTIONS.EDIT_TASK_PREFIX}_${new Date().getTime()}`
+					: `${ID_COLLECTIONS.EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
 				const afterSubmit = (params: any, values: any) => {
 					// 更新旧结点所在的文件夹
