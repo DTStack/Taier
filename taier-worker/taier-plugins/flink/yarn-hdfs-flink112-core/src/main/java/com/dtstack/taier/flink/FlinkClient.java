@@ -29,6 +29,7 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
@@ -50,6 +51,8 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.ResourceManagerOptions;
 import org.apache.flink.runtime.jobgraph.JobGraph;
@@ -1040,5 +1043,67 @@ public class FlinkClient extends AbstractClient {
                     }
                     return response;
                 }, clientManager.getHadoopConfig().getYarnConfiguration());
+    }
+
+
+    @Override
+    public CheckResult grammarCheck(JobClient jobClient) {
+
+        CheckResult checkResult = CheckResult.success();
+        String taskId = jobClient.getJobId();
+        try {
+            // 1. before download jar
+            beforeSubmitFunc(jobClient);
+
+            // 2. flink sql args
+            String taskWorkspace = FlinkUtil.getTaskWorkspace(jobClient.getJobId());
+            List<String> args = pluginConfig.buildProgramArgs(jobClient);
+            List<String> attachJarLists = cacheFile.get(taskWorkspace);
+
+
+            List<URL> attachJarUrls = Lists.newArrayList();
+            if(!CollectionUtils.isEmpty(attachJarLists)){
+                args.add("-addjar");
+                String attachJarStr = PublicUtil.objToString(attachJarLists);
+                args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
+
+                attachJarUrls = attachJarLists.stream().map(k -> {
+                    try {
+                        return new File(k).toURL();
+                    } catch (MalformedURLException e) {
+                        throw new PluginDefineException(e);
+                    }
+                }).collect(Collectors.toList());
+            }
+
+            JarFileInfo coreJarInfo = pluginConfig.getCoreJarInfo();
+            jobClient.setCoreJarInfo(coreJarInfo);
+
+
+            // 3. build jobGraph
+            String[] programArgs = args.toArray(new String[args.size()]);
+            Configuration flinkConfig = clientManager.getFlinkConfiguration();
+            String dtstackAppend = ConfigConstant.PARENT_FIRST_LOADER_PATTERNS_DEFAULT;
+            flinkConfig.setString(CoreOptions.ALWAYS_PARENT_FIRST_LOADER_PATTERNS_ADDITIONAL, dtstackAppend);
+            PackagedProgram program = PackagedProgram.newBuilder()
+                    .setJarFile(new File(coreJarInfo.getJarPath()))
+                    .setUserClassPaths(attachJarUrls)
+                    .setConfiguration(flinkConfig)
+                    .setArguments(programArgs)
+                    .build();
+            PackagedProgramUtils.createJobGraph(program, flinkConfig, 1, false);
+
+            LOG.info("TaskId: {}, GrammarCheck success!", taskId);
+        } catch (Exception e) {
+            LOG.error("TaskId: {}, GrammarCheck error: ", taskId, e);
+            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
+        } finally {
+            try {
+                afterSubmitFunc(jobClient);
+            } catch (Exception e) {
+                LOG.error(jobClient.getJobId() + "failed to deal with aftermath.", e);
+            }
+        }
+        return checkResult;
     }
 }

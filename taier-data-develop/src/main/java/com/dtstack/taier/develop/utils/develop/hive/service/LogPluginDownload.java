@@ -57,12 +57,24 @@ public class LogPluginDownload implements IDownload {
 
     private Integer readLimit;
 
+    private String taskManagerId;
+
     public LogPluginDownload(String applicationStr, Map<String, Object> yarnConf, Map<String, Object> hdfsConf, String user, Integer readLimit) throws Exception {
         this.applicationStr = applicationStr;
         this.yarnConf = yarnConf;
         this.hdfsConf = hdfsConf;
         this.user = user;
         this.readLimit = readLimit;
+        init();
+    }
+
+    public LogPluginDownload(String applicationStr, Map<String, Object> yarnConf, Map<String, Object> hdfsConf, String user, String taskManagerId, Integer readLimit) throws Exception {
+        this.applicationStr = applicationStr;
+        this.yarnConf = yarnConf;
+        this.hdfsConf = hdfsConf;
+        this.user = user;
+        this.readLimit = readLimit;
+        this.taskManagerId = taskManagerId;
         init();
     }
 
@@ -84,6 +96,7 @@ public class LogPluginDownload implements IDownload {
                 .appIdStr(applicationStr)
                 .readLimit(readLimit)
                 .user(user)
+                .containerId(taskManagerId)
                 .build();
         IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
         SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder()

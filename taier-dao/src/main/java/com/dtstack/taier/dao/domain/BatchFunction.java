@@ -59,6 +59,8 @@ public class BatchFunction extends TenantEntity{
 
     private Long modifyUserId;
 
+    private Integer udfType;
+
     /**
      * 0：自定义函数  1：系统函数  2：存储过程
      */
@@ -173,5 +175,14 @@ public class BatchFunction extends TenantEntity{
 
     public void setSqlText(String sqlText) {
         this.sqlText = sqlText;
+    }
+
+
+    public Integer getUdfType() {
+        return udfType;
+    }
+
+    public void setUdfType(Integer udfType) {
+        this.udfType = udfType;
     }
 }

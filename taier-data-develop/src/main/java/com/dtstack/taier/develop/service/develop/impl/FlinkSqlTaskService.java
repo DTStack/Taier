@@ -3,18 +3,26 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.dtcenter.loader.utils.AssertUtils;
+import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.enums.TableType;
+import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.common.util.JobClientUtil;
+import com.dtstack.taier.common.util.TaskParamsUtils;
+import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -27,6 +35,7 @@ import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
+import com.dtstack.taier.develop.enums.develop.FlinkUDFType;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
@@ -36,7 +45,11 @@ import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.JsonUtils;
+import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -49,13 +62,16 @@ import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +84,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -99,9 +116,20 @@ public class FlinkSqlTaskService {
     @Autowired
     private DsInfoService dsInfoService;
 
-
     @Autowired
     private ScheduleActionService actionService;
+
+    @Autowired
+    private ClusterService clusterService;
+
+    @Autowired
+    private BatchFunctionService batchFunctionService;
+
+    @Autowired
+    private JobService jobService;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
 
     /**
@@ -203,7 +231,7 @@ public class FlinkSqlTaskService {
 
 
     public String generateCreateFlinkSql(Task task) {
-        StringBuilder sql = new StringBuilder();
+        StringBuilder sql = new StringBuilder(generateAddJarSQL(task));
         sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
         sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
         sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
@@ -219,7 +247,9 @@ public class FlinkSqlTaskService {
         //将资源数据拼接到sql
         sql.append(generateAddJarSQL(task));
         if (TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
-            sql.append(generateCreateFlinkSql(task));
+            sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
+            sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
+            sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
         }
         //用户填写的sql
         sql.append(task.getSqlText());
@@ -234,7 +264,12 @@ public class FlinkSqlTaskService {
      * @return
      */
     private String generateAddJarSQL(Task task) {
-        return "";
+        //sql 任务需要解析出关联的资源(eg:自定义function)
+        Set<String> funcSet = batchFunctionService.getFuncSet(task, true);
+        List<String> addJarSqlList = batchFunctionService.generateFuncSql(funcSet, task.getTenantId());
+        StringBuilder sb = new StringBuilder();
+        addJarSqlList.forEach(sql -> sb.append(sql).append(";"));
+        return sb.toString();
     }
 
 
@@ -260,21 +295,64 @@ public class FlinkSqlTaskService {
     }
 
     private void checkFlinkConfig(Long tenantId) {
+        JSONObject configByKey = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
+        AssertUtils.notNull(configByKey, "当前租户未配置flink集群信息");
+
     }
 
 
     private void checkTaskStatus(Task task) {
+        ScheduleJob scheduleJob = getByJobId(task.getJobId());
+        boolean canStart = scheduleJob == null || scheduleJob.getStatus() == null || TaskStatus.CAN_RUN_STATUS.contains(scheduleJob.getStatus());
+        AssertUtils.isTrue(canStart, "任务状态不能运行");
+    }
+
+
+    public ScheduleJob getByJobId(String jobId) {
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.getRdosJobByJobIds(Arrays.asList(jobId));
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(scheduleJobs)) {
+            return scheduleJobs.get(0);
+        } else {
+            return null;
+        }
     }
 
     private String sendTaskStartTrigger(Task task, String externalPath) {
+        //重置任务状态
+        resetTaskStatus(task.getJobId());
         actionService.start(generateParamActionExt(task, externalPath));
         return "";
+    }
+
+
+    /**
+     * 重置任务的状态为unSubmit
+     *
+     * @param jobId
+     * @throws Exception
+     */
+    private void resetTaskStatus(String jobId) {
+        ScheduleJob scheduleJob = getByJobId(jobId);
+        //engineJob==null 说明任务为首次提交，由engine自行初始化job
+        if (scheduleJob == null) {
+            return;
+        }
+        Integer status = scheduleJob.getStatus();
+        if (status != null) {
+            //续跑或重跑
+            if (!TaskStatusCheckUtil.CAN_RESET_STATUS.contains(status)) {
+                throw new RdosDefineException("(任务状态不匹配)");
+            }
+            boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());
+            if (!reset) {
+                throw new RdosDefineException("fail to reset task status");
+            }
+        }
     }
 
     public ParamActionExt generateParamActionExt(Task task, String externalPath) {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
-        JSONObject confProp = new JSONObject();
         //生成最终拼接的sql
         String sql = generateSqlToScheduler(task).toString();
         task.setSqlText(sql);
@@ -381,6 +459,18 @@ public class FlinkSqlTaskService {
         return startFlinkSqlResultVO;
     }
 
+
+    /**
+     * 停止任务
+     *
+     * @param taskId
+     * @return
+     */
+    public Boolean stopFlinkSql(Long taskId) {
+        Task task = developTaskMapper.selectById(taskId);
+        return actionService.stop(Arrays.asList(task.getJobId()));
+    }
+
     /**
      * 返回所有时区
      *
@@ -391,16 +481,28 @@ public class FlinkSqlTaskService {
     }
 
 
+    public CheckResultVO grammarCheck(TaskResourceParam taskResourceParam) {
+        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
+        convertTableStr(taskResourceParam, taskVO);
+        CheckResult data = grammarCheck(taskVO);
+        if (data == null) {
+            throw new DtCenterDefException("engine service exception");
+        }
+        CheckResultVO checkResultVO = new CheckResultVO();
+        if (data.isResult()) {
+            checkResultVO.setCode(1);
+            checkResultVO.setData("语法检查正常");
+        } else {
+            checkResultVO.setCode(999);
+            checkResultVO.setErrorMsg(data.getErrorMsg());
+        }
+        return checkResultVO;
+    }
+
     public CheckResult grammarCheck(Long taskId) {
         Task task = developTaskMapper.selectById(taskId);
         return grammarCheck(task);
     }
-
-
-    public Boolean stopTask(String jobId) {
-        return actionService.stop(Arrays.asList(jobId));
-    }
-
 
     public CheckResult grammarCheck(Task task) {
         return grammarCheck(generateParamActionExt(task, null));
@@ -420,7 +522,8 @@ public class FlinkSqlTaskService {
 
 
     public PageResult<List<TaskListResultVO>> getTaskList(TaskSearchVO taskSearchVO) {
-        List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, EScheduleJobType.getStreamJobTypes()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
+        List<Integer> type = CollectionUtils.isEmpty(taskSearchVO.getType()) ? EScheduleJobType.getStreamJobTypes() : taskSearchVO.getType().stream().filter(EScheduleJobType.getStreamJobTypes()::contains).collect(Collectors.toList());
+        List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchVO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
         if (CollectionUtils.isEmpty(taskList)) {
             return PageResult.EMPTY_PAGE_RESULT;
         }
@@ -457,6 +560,81 @@ public class FlinkSqlTaskService {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        return new PageResult<>(streamTaskVOS, taskList.size(), pageQuery);
+        return new PageResult<>(streamTaskVOS, streamTaskVOS.size(), pageQuery);
     }
+
+    public Map<String, Integer> getStatusCountByCondition(TaskStatusSearchVO taskSearchDTO) {
+
+        Map<String, Integer> statusCount = Maps.newHashMap();
+        statusCount.put("ALL", 0);
+        statusCount.put(TaskStatus.FAILED.name(), 0);
+        statusCount.put(TaskStatus.RUNNING.name(), 0);
+        statusCount.put(TaskStatus.CANCELED.name(), 0);
+        statusCount.put("UNRUNNING", 0);
+        List<Integer> type = CollectionUtils.isEmpty(taskSearchDTO.getType()) ? EScheduleJobType.getStreamJobTypes() : taskSearchDTO.getType().stream().filter(EScheduleJobType.getStreamJobTypes()::contains).collect(Collectors.toList());
+        List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchDTO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchDTO.getTaskName()));
+        List<String> jobIds = taskList.stream().map(Task::getJobId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(jobIds)) {
+            return statusCount;
+        }
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.getRdosJobByJobIds(jobIds);
+
+        Map<String, Integer> jobIdStatusMap = new HashMap<>();
+        for (ScheduleJob scheduleJob : scheduleJobs) {
+            jobIdStatusMap.put(scheduleJob.getJobId(), scheduleJob.getStatus());
+        }
+
+        int totalCount = 0;
+        for (String jobId : jobIds) {
+            Integer status = jobIdStatusMap.getOrDefault(jobId, TaskStatus.UNSUBMIT.getStatus());
+            if (CollectionUtils.isEmpty(taskSearchDTO.getStatusList()) || taskSearchDTO.getStatusList().contains(status)) {
+                if (TaskStatus.RUNNING_STATUS.contains(status)
+                        || TaskStatus.FAILED_STATUS.contains(status)
+                        || TaskStatus.STOP_STATUS.contains(status)) {
+                    String key = TaskStatus.getCode(status);
+                    int count = statusCount.getOrDefault(key, 0);
+                    statusCount.put(key, count + 1);
+                } else {
+                    String key = "UNRUNNING";
+                    int count = statusCount.getOrDefault(key, 0);
+                    statusCount.put(key, count + 1);
+                }
+                totalCount++;
+            }
+        }
+        statusCount.put("ALL", totalCount);
+        return statusCount;
     }
+
+
+    /**
+     * 格式化sql
+     */
+    public String sqlFormat(String sql) {
+        if (!Strings.isNullOrEmpty(sql)) {
+            boolean isJSON;
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = (JSONObject) JSONObject.parse(sql);
+                isJSON = true;
+            } catch (Exception e) {
+                isJSON = false;
+            }
+            try {
+                if (isJSON) {
+                    sql = JSON.toJSONString(jsonObject, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue,
+                            SerializerFeature.WriteDateUseDateFormat);
+                    return sql;
+
+                } else {
+                    return SqlFormatter.format(sql);
+                }
+
+            } catch (Exception e) {
+                LOGGER.error("failure to format sql, e:{}", e.getMessage(), e);
+            }
+        }
+
+        return sql;
+    }
+}
