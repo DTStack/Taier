@@ -245,6 +245,19 @@ public enum TaskStatus implements Serializable {
         UNFINISHED_STATUSES.addAll(WAIT_STATUS);
     }
 
+
+    /**
+     * 可以运行的状态
+     */
+    public final static List<Integer> CAN_RUN_STATUS = Lists.newArrayList(
+            TaskStatus.UNSUBMIT.getStatus(),
+            TaskStatus.FAILED.getStatus(),
+            TaskStatus.FINISHED.getStatus(),
+            TaskStatus.CANCELED.getStatus(),
+            TaskStatus.KILLED.getStatus(),
+            TaskStatus.SUBMITFAILD.getStatus()
+    );
+
     /**
      * Incomplete job
      */

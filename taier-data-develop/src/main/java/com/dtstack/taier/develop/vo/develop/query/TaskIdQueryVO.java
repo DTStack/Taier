@@ -13,13 +13,13 @@ public class TaskIdQueryVO extends DtInsightAuthParam {
 
 
     @ApiModelProperty(value = "任务ID", example = "1", required = true)
-    private String taskId;
+    private Long taskId;
 
-    public String getTaskId() {
+    public Long getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(String taskId) {
+    public void setTaskId(Long taskId) {
         this.taskId = taskId;
     }
 

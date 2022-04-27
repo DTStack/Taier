@@ -24,6 +24,7 @@ import com.dtstack.taier.dao.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 
 public interface DevelopFunctionDao {
@@ -58,6 +59,16 @@ public interface DevelopFunctionDao {
      * @return
      */
     List<BatchFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType, @Param("taskType") Integer taskType);
+
+    /**
+     * 根据 租户 查询
+     * @param tenantId
+     * @param funcNameSet
+     * @param taskType
+     * @return
+     */
+    List<BatchFunction> listTenantByFunction(@Param("tenantId") Long tenantId, @Param("funcNameSet")Set<String> funcNameSet, @Param("taskType") Integer taskType);
+
 
     /**
      * 根据 租户、名称、类型 查询

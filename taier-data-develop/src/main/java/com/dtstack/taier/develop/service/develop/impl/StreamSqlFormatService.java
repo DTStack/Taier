@@ -1,10 +1,11 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.develop.service.console.TenantService;
-import com.dtstack.taier.develop.service.datasource.impl.KerberosService;
+import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +27,8 @@ public class StreamSqlFormatService {
 
     private static final String ADD_FILE_RENAME_FORMAT = "ADD FILE WITH %s RENAME %s;";
 
-
     @Autowired
-    private TenantService tenantService;
-
-    @Autowired
-    private KerberosService kerberosService;
+    private BatchResourceService batchResourceService;
 
     /**
      * 获取sql中包含的方法名称
@@ -54,6 +51,24 @@ public class StreamSqlFormatService {
         }
 
         return funcSet;
+    }
+
+
+    public String generateAddJarSQL(Long resourceId, String mainClass) {
+        BatchResource resource = batchResourceService.getResource(resourceId);
+        if (resource == null || StringUtils.isBlank(resource.getUrl())) {
+            throw new DtCenterDefException("任务资源地址为空");
+        }
+        return generateAddJarSQL(resource.getUrl(), mainClass);
+    }
+
+
+    public String generateAddJarSQL(String url, String mainClass) {
+        if (Strings.isNullOrEmpty(mainClass)) {
+            return String.format(ADD_JAR_FORMAT, url.replaceAll("//*", "/"));
+        } else {
+            return String.format(ADD_JAR_WITH_MAIN_FORMAT, url.replaceAll("//*", "/"), mainClass);
+        }
     }
 
     public String generateAddFileSQL(String path) {
