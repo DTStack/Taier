@@ -35,4 +35,16 @@ export default {
 	GET_SCHEMA_TABLE_COLUMN: `${STREAM_BASE_URL}/dataSource/manager/listPollTableColumn`,
 	GET_SLOT_LIST: `${STREAM_BASE_URL}/dataSource/manager/listSlot`, // 获取slot列表
 	GET_BINLOG_LIST_BY_SOURCE: `${STREAM_BASE_URL}/dataSource/manager/getBinLogListBySource`, // 获取binlog列表
+	SQL_FORMAT: `${STREAM_BASE_URL}/flinkSql/sqlFormat`,
+	GRAMMAR_CHECK: `${STREAM_BASE_URL}/flinkSql/grammarCheck`, // 语法检查
+	GET_TASK_LIST: `${STREAM_BASE_URL}/flinkSql/getTaskList`,
+	GET_STATUS_COUNT: `${STREAM_BASE_URL}/flinkSql/getStatusCount`,
+	START_TASK: `${STREAM_BASE_URL}/flinkSql/start`,
+	GET_TASK_MANAGER_LOG: `${STREAM_BASE_URL}//flinkSql/getTaskManagerLog`,
+	GET_JOB_MANAGER_LOG: `${STREAM_BASE_URL}/flinkSql/getJobManagerLog`,
+	LIST_TASK_MANAGER: `${STREAM_BASE_URL}/flinkSql/listTaskManagerByTaskId`,
+	GET_TASK_LOGS: `${STREAM_BASE_URL}/flinkSql/getLogsByTaskId`,
+	GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/flinkSql/getFailoverLogsByTaskId`, // 获取任务告警日志
+	GET_HISTORY_LOG: `${STREAM_BASE_URL}/flinkSql/getJobHistoryList`,
+	DOWNLOAD_HISTORY_LOG: `${STREAM_BASE_URL}/download/streamDownload/downloadHistoryLog`,
 };

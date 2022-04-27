@@ -18,12 +18,11 @@
 
 import { Component } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultService } from './taskResultService';
-import taskResultService from './taskResultService';
+import taskResultService, { createLinkMark, createLog, createTitle } from './taskResultService';
 import type { CatalogueDataProps, IOfflineTaskProps, IResponseProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
-import { OFFLINE_TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import { createLinkMark, createLog, createTitle } from 'dt-react-codemirror-editor';
+import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
 
@@ -131,7 +130,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	private taskResultService: ITaskResultService;
 
 	constructor() {
-		console.log('constructor');
 		super();
 		this.state = {};
 		this.taskResultService = taskResultService;
@@ -234,7 +232,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 					currentTabId,
 					{ id: currentTabId, taskType: SELECT_TYPE.TASK },
 					TASK_TYPE_ENUM.SYNC,
-				);
+				).then((result) => {
+					this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
+					return result;
+				});
 			}
 
 			this.taskResultService.appendLogs(
@@ -481,12 +482,12 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	};
 
 	private outputStatus = (currentTabId: number, status: TASK_STATUS, extText?: string) => {
-		for (let i = 0; i < OFFLINE_TASK_STATUS_FILTERS.length; i += 1) {
-			if (OFFLINE_TASK_STATUS_FILTERS[i].value === status) {
+		for (let i = 0; i < TASK_STATUS_FILTERS.length; i += 1) {
+			if (TASK_STATUS_FILTERS[i].value === status) {
 				taskResultService.appendLogs(
 					currentTabId.toString(),
 					createLog(
-						`${OFFLINE_TASK_STATUS_FILTERS[i].text}${extText || ''}`,
+						`${TASK_STATUS_FILTERS[i].text}${extText || ''}`,
 						this.typeCreate(status),
 					),
 				);

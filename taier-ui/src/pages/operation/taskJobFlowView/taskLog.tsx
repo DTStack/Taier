@@ -16,12 +16,12 @@
  * limitations under the License.
  */
 
+import { useMemo } from 'react';
 import { Row, Pagination, Col } from 'antd';
 import type { PaginationProps } from 'antd';
 import Editor from '@/components/editor';
-import { createLinkMark, createLogMark } from 'dt-react-codemirror-editor';
 import { formatDateTime, prettierJSONstring } from '@/utils';
-import { useMemo } from 'react';
+import { createLinkMark, createLog } from '@/services/taskResultService';
 
 const defaultEditorStyle: React.CSSProperties = { height: '300px' };
 
@@ -130,7 +130,7 @@ export default function LogInfo(props: ILogInfoProps) {
 				});
 			}
 			if (log.msg_info) {
-				text = `${text}${wrappTitle('基本日志')}\n${createLogMark(
+				text = `${text}${wrappTitle('基本日志')}\n${createLog(
 					log.msg_info,
 					'info',
 				)} ${safeSpace} \n`;
@@ -150,7 +150,7 @@ export default function LogInfo(props: ILogInfoProps) {
 			}
 
 			if (log.perf) {
-				text = `${text}\n${wrappTitle('性能指标')}\n${createLogMark(
+				text = `${text}\n${wrappTitle('性能指标')}\n${createLog(
 					log.perf,
 					'warning',
 				)}${safeSpace} \n`;
@@ -159,21 +159,21 @@ export default function LogInfo(props: ILogInfoProps) {
 			 * 数据增量同步配置信息
 			 */
 			if (log.increInfo) {
-				text = `${text}\n${wrappTitle('增量标志信息')}\n${createLogMark(
+				text = `${text}\n${wrappTitle('增量标志信息')}\n${createLog(
 					log.increInfo,
 					'info',
 				)}${safeSpace} \n`;
 			}
 
 			if (flinkLog || log['root-exception']) {
-				text = `${text}\n\n${wrappTitle('Flink日志')} \n${createLogMark(
+				text = `${text}\n\n${wrappTitle('Flink日志')} \n${createLog(
 					flinkLog,
 					'error',
-				)} \n ${createLogMark(log['root-exception'], 'error') || ''}`;
+				)} \n ${createLog(log['root-exception'], 'error') || ''}`;
 			}
 
 			if (appLogs) {
-				text = `${text} \n${createLogMark(appLogs, 'error')} \n`;
+				text = `${text} \n${createLog(appLogs, 'error')} \n`;
 			}
 
 			if (log.msg_info) {
@@ -182,13 +182,13 @@ export default function LogInfo(props: ILogInfoProps) {
 					logSql = JSON.stringify(logSql, null, 2);
 				}
 				if (logSql) {
-					text = `${text}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`;
+					text = `${text}${wrappTitle('任务信息')}\n${createLog(logSql, 'info')} \n`;
 				}
 			}
 			if (Array.isArray(log.ruleLogList) && log.ruleLogList.length > 0) {
 				// eslint-disable-next-line no-restricted-syntax
 				for (const logInfo of log.ruleLogList) {
-					text = `${text}\n${wrappTitle('')}\n${createLogMark(
+					text = `${text}\n${wrappTitle('')}\n${createLog(
 						logInfo,
 						'info',
 					)} ${safeSpace} \n`;
@@ -208,10 +208,7 @@ export default function LogInfo(props: ILogInfoProps) {
 				text = `${text}${wrappTitle('任务信息')}\n${prettierJSONstring(sqlText)}`;
 			}
 		} catch (e: any) {
-			text = `${createLogMark('日志解析错误', 'error')}\n${createLogMark(
-				e,
-				'error',
-			)}\n${createLogMark(props.log, 'warning')}`;
+			text = `${createLog(props.log || '', 'error')}`;
 		}
 
 		return text;

@@ -31,6 +31,8 @@ import type {
 	TASK_PERIOD_ENUM,
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
+	DATA_SYNC_MODE,
+	UDF_TYPE_VALUES,
 } from './constant';
 
 interface IUserProps {}
@@ -73,6 +75,22 @@ export interface ITaskProps extends ITaskBasicProps {
 	periodType: TASK_PERIOD_ENUM;
 	scheduleStatus: SCHEDULE_STATUS;
 	taskType: TASK_TYPE_ENUM;
+}
+
+// 实时任务管理——任务类型
+export interface IStreamTaskProps extends ITaskBasicProps {
+	id: number;
+	jobId: string;
+	status: TASK_STATUS;
+	componentVersion: string;
+	strategyName: string;
+	taskType: TASK_TYPE_ENUM;
+	createUserName: string;
+	execStartTime: string;
+	gmtModified: string;
+	modifyUserName: string;
+	originSourceType: number;
+	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 }
 
 // 查询任务树的遍历方向
@@ -154,7 +172,8 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	 */
 	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 	/**
-	 * 是否是增量同步模式
+	 * @deprecated
+	 * 是否是增量同步模式, 接口要求把该字段放到 sourceMap 中
 	 */
 	syncModel: number;
 	sqlText: string;
@@ -163,7 +182,10 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	taskPeriodId: TASK_PERIOD_ENUM;
 	taskPeriodType: string;
 	taskType: TASK_TYPE_ENUM;
-	taskVOS: null | ITaskVOProps[];
+	/**
+	 * 任务依赖
+	 */
+	dependencyTasks: null | ITaskVOProps[];
 	taskVariables: null | ITaskVariableProps[];
 	tenantId: string | null;
 	tenantName: string | null;
@@ -175,7 +197,7 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
  */
 export interface ISyncDataProps {
 	settingMap?: IChannelFormProps;
-	sourceMap?: ISourceMapProps;
+	sourceMap: ISourceMapProps;
 	targetMap?: ITargetMapProps;
 	taskId: number;
 }
@@ -247,6 +269,10 @@ export interface ISourceMapProps extends ISourceFormField {
 		sourceId?: number;
 	}[];
 	type?: DATA_SOURCE_ENUM;
+	/**
+	 * 同步任务是否增量
+	 */
+	syncModel: DATA_SYNC_MODE;
 
 	[key: string]: any;
 }
@@ -308,7 +334,7 @@ export interface ISourceFormField {
 	/**
 	 * 行健二进制转换
 	 */
-	isBinaryRowkey?: Valueof<typeof BINARY_ROW_KEY_FLAG>;
+	isBinaryRowkey?: BINARY_ROW_KEY_FLAG;
 	/**
 	 * 每次 RPC 请求获取行数
 	 */
@@ -367,9 +393,7 @@ export interface IScheduleConfProps {
 /**
  * 任务上下游依赖类型
  */
-export interface ITaskVOProps extends IOfflineTaskProps {
-	taskId: number;
-}
+export type ITaskVOProps = Pick<IOfflineTaskProps, 'id' | 'name' | 'tenantId' | 'tenantName'>;
 
 export interface ITaskVariableProps {
 	paramCommand: string;
@@ -385,24 +409,28 @@ export interface IFunctionProps {
 	 * 命令格式
 	 */
 	commandFormate: string;
-	className?: string | null;
-	createUser?: null | IUserProps;
+	className?: string;
+	createUser?: IUserProps;
 	createUserId: number;
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
-	modifyUser?: null | IUserProps;
+	modifyUser?: IUserProps;
 	modifyUserId: number;
 	name: string;
 	nodePid: number;
 	paramDesc: string;
 	purpose: string;
-	sqlText?: null | string;
+	sqlText?: string;
 	/**
 	 * 函数类型
 	 */
 	taskType?: TASK_TYPE_ENUM;
-	resources?: number | null;
+	/**
+	 * UDF类型
+	 */
+	udfType?: UDF_TYPE_VALUES;
+	resources?: number;
 	type: number;
 }
 
@@ -506,4 +534,38 @@ export interface IFlinkSinkProps {
 	columnsText?: string;
 	// 自定义参数
 	customParams: { id: string; key?: string; type?: string }[];
+}
+/**
+ * 实时-任务属性参数
+ */
+export interface ITaskParams {
+	id: number;
+	name: string;
+	exeArgs: string;
+	sqlText: string;
+	taskDesc: string;
+	mainClass: string;
+	taskParams: string;
+	originSourceType: number;
+	createModel: number;
+	taskType: number;
+	targetSourceType: number;
+	sourceParams: string;
+	sinkParams: string;
+	sideParams: string;
+	resourceList: IResourceList[];
+	additionalResourceList: IResourceList[];
+}
+
+/**
+ * 实时-资源相关的参数
+ */
+export interface IResourceList {
+	id: number;
+	url: string;
+	originFileName: string;
+	projectId: number;
+	resourceDesc: string;
+	resourceName: string;
+	isAdditionResource: number;
 }

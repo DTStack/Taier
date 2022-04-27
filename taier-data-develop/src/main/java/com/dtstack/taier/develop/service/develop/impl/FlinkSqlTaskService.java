@@ -3,41 +3,76 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.lang.coc.APITemplate;
+import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.common.util.JobClientUtil;
 import com.dtstack.taier.dao.domain.DsInfo;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
+import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
+import com.dtstack.taier.dao.mapper.UserMapper;
+import com.dtstack.taier.dao.pager.PageQuery;
+import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
+import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
+import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.JsonUtils;
+import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
+import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
+import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
+import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.ParamAction;
+import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
+import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -49,6 +84,17 @@ public class FlinkSqlTaskService {
 
     private static final String PIPELINE_TIME_CHARACTERISTIC = "pipeline.time-characteristic=EventTime";
 
+    @Autowired
+    private DevelopTaskMapper developTaskMapper;
+
+    @Autowired
+    private ScheduleJobMapper scheduleJobMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     @Autowired
     private DsInfoService dsInfoService;
@@ -56,9 +102,6 @@ public class FlinkSqlTaskService {
 
     @Autowired
     private ScheduleActionService actionService;
-
-    @Autowired
-    private DevelopTaskMapper developTaskMapper;
 
 
     /**
@@ -348,5 +391,72 @@ public class FlinkSqlTaskService {
     }
 
 
+    public CheckResult grammarCheck(Long taskId) {
+        Task task = developTaskMapper.selectById(taskId);
+        return grammarCheck(task);
+    }
 
-}
+
+    public Boolean stopTask(String jobId) {
+        return actionService.stop(Arrays.asList(jobId));
+    }
+
+
+    public CheckResult grammarCheck(Task task) {
+        return grammarCheck(generateParamActionExt(task, null));
+    }
+
+
+    public CheckResult grammarCheck(ParamActionExt paramActionExt) {
+        CheckResult checkResult = null;
+        try {
+            JobClient jobClient = JobClientUtil.conversionJobClient(paramActionExt);
+            checkResult = workerOperator.grammarCheck(jobClient);
+        } catch (Exception e) {
+            checkResult = CheckResult.exception(ExceptionUtil.getErrorMessage(e));
+        }
+        return checkResult;
+    }
+
+
+    public PageResult<List<TaskListResultVO>> getTaskList(TaskSearchVO taskSearchVO) {
+        List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, EScheduleJobType.getStreamJobTypes()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
+        if (CollectionUtils.isEmpty(taskList)) {
+            return PageResult.EMPTY_PAGE_RESULT;
+        }
+        List<String> jobIds = taskList.stream().map(Task::getJobId).collect(Collectors.toList());
+        List<ScheduleJob> scheduleJobs = scheduleJobMapper.getRdosJobByJobIds(jobIds);
+        Map<String, ScheduleJob> engineJobMap = new HashMap<>();
+        for (ScheduleJob scheduleJob : scheduleJobs) {
+            engineJobMap.put(scheduleJob.getJobId(), scheduleJob);
+        }
+
+        PageQuery<TaskListResultVO> pageQuery = new PageQuery<>(taskSearchVO.getCurrentPage(), taskSearchVO.getPageSize());
+        List<TaskListResultVO> streamTaskVOS = new ArrayList<>(taskList.size());
+        for (Task task : taskList) {
+            try {
+                TaskListResultVO vo = TaskMapstructTransfer.INSTANCE.taskVToTaskListResult(task);
+                Integer status = null;
+                ScheduleJob scheduleJob = engineJobMap.get(vo.getJobId());
+                if (scheduleJob != null) {
+                    status = scheduleJob.getStatus();
+                    if (TaskStatus.RUNNING.getStatus().equals(status)) {
+                        vo.setExecStartTime(scheduleJob.getExecStartTime());
+                    }
+                }
+                //任务状态为null 设置为未提交状态
+                vo.setStatus(status != null ? status : TaskStatus.UNSUBMIT.getStatus());
+
+                if (CollectionUtils.isEmpty(taskSearchVO.getStatusList()) || taskSearchVO.getStatusList().contains(vo.getStatus())) {
+                    vo.setSubmitModified(task.getGmtModified());
+                    vo.setCreateUserName(userMapper.selectById(task.getCreateUserId()).getUserName());
+                    vo.setModifyUserName(userMapper.selectById(task.getModifyUserId()).getUserName());
+                    streamTaskVOS.add(vo);
+                }
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return new PageResult<>(streamTaskVOS, taskList.size(), pageQuery);
+    }
+    }

@@ -324,9 +324,7 @@ export default function ResultForm({
 	const renderTableOptions = () => {
 		return (tableOptionType[searchKey.current] || []).map((v) => (
 			<Option key={v} value={`${v}`}>
-				<Tooltip placement="topLeft" title={v}>
-					<span className="panel-tooltip">{v}</span>
-				</Tooltip>
+				{v}
 			</Option>
 		));
 	};

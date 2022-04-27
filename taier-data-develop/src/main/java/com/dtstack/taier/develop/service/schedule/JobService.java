@@ -38,6 +38,7 @@ import com.dtstack.taier.scheduler.dto.schedule.QueryJobStatusStatisticsDTO;
 import com.dtstack.taier.scheduler.enums.FillDataTypeEnum;
 import com.dtstack.taier.scheduler.enums.FillGeneratStatusEnum;
 import com.dtstack.taier.scheduler.enums.FillJobTypeEnum;
+import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.action.fill.FillDataRunnable;
 import com.dtstack.taier.scheduler.server.action.fill.FillDataThreadPoolExecutor;
 import com.google.common.collect.Lists;
@@ -46,6 +47,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -61,6 +64,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(JobService.class);
 
     @Autowired
     private UserService userService;
@@ -626,4 +631,32 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getJobId, jobId));
     }
 
+
+    public ScheduleJob getScheduleJob(Long taskId,Integer computeType){
+        return getBaseMapper().selectOne(Wrappers.lambdaQuery(ScheduleJob.class).eq(ScheduleJob::getTaskId, taskId).eq(ScheduleJob::getComputeType, computeType));
+    }
+
+
+    public boolean resetTaskStatus(String jobId, Integer currStatus,String localAddress) {
+        //check job status can reset
+        if (!TaskStatus.canReset(currStatus)) {
+            LOGGER.error("jobId:{} can not update status current status is :{} ", jobId, currStatus);
+            throw new RdosDefineException(String.format(" taskId(%s) can't reset status, current status(%d)", jobId, currStatus));
+        }
+        ScheduleJob updateScheduleJob = new ScheduleJob();
+        updateScheduleJob.setApplicationId("");
+        updateScheduleJob.setJobId(jobId);
+        updateScheduleJob.setEngineJobId("");
+        updateScheduleJob.setExecTime(0L);
+        updateScheduleJob.setExecStartTime(null);
+        updateScheduleJob.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        updateScheduleJob.setRetryNum(0);
+        updateScheduleJob.setNodeAddress(localAddress);
+        updateScheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
+        updateScheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
+        getBaseMapper().update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
+                .eq(ScheduleJob::getJobId, jobId));
+        LOGGER.info("jobId:{} update job status:{}.", jobId, TaskStatus.UNSUBMIT.getStatus());
+        return true;
+    }
 }

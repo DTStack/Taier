@@ -18,7 +18,7 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { message } from 'antd';
-import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import { FileTypes, IFolderTreeNodeProps, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import {
 	FlinkSQLIcon,
 	SyntaxIcon,
@@ -30,21 +30,21 @@ import {
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
-import type { RESOURCE_TYPE } from '@/constant';
-import { TASK_SYNTAX_ID } from '@/constant';
-import { OUTPUT_LOG, CATELOGUE_TYPE, TASK_RUN_ID, TASK_STOP_ID, TASK_TYPE_ENUM } from '@/constant';
+import { ID_COLLECTIONS, RESOURCE_TYPE } from '@/constant';
+import { CATELOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
-import taskResultService from '@/services/taskResultService';
+import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql, getTenantId, getUserId } from '.';
 import stream from '@/api/stream';
-import { createLog } from 'dt-react-codemirror-editor';
+import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
+import { transformTabDataToParams } from './saveTask';
 
 export function resetEditorGroup() {
 	molecule.editor.updateActions([
-		{ id: TASK_RUN_ID, disabled: true },
-		{ id: TASK_STOP_ID, disabled: true },
+		{ id: ID_COLLECTIONS.TASK_RUN_ID, disabled: true },
+		{ id: ID_COLLECTIONS.TASK_STOP_ID, disabled: true },
 	]);
 }
 
@@ -155,6 +155,7 @@ export function transformCatalogueToTree(
 			const prevNode = molecule.folderTree.get(
 				fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
 			);
+
 			// file always generate the new one
 			if (prevNode && fileType !== FileTypes.File) {
 				return new TreeNodeModel({
@@ -222,7 +223,7 @@ export function transformCatalogueToTree(
  * @param source
  */
 export async function loadTreeNode(
-	node: CatalogueDataProps,
+	node: Partial<CatalogueDataProps>,
 	source: CATELOGUE_TYPE,
 ): Promise<TreeNodeModel | null> {
 	const data = await getCatalogueViaNode(node);
@@ -265,7 +266,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			molecule.layout.togglePanelVisibility();
 		}
 		molecule.panel.setState({
-			current: data?.find((item) => item.id === OUTPUT_LOG),
+			current: data?.find((item) => item.id === ID_COLLECTIONS.OUTPUT_LOG_ID),
 		});
 
 		if (currentTabData.taskType === TASK_TYPE_ENUM.SYNC) {
@@ -345,7 +346,7 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 	// 禁用语法检查
 	molecule.editor.updateActions([
 		{
-			id: TASK_SYNTAX_ID,
+			id: ID_COLLECTIONS.TASK_SYNTAX_ID,
 			icon: 'loading~spin',
 			disabled: true,
 		},
@@ -360,16 +361,18 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 		molecule.layout.togglePanelVisibility();
 	}
 	molecule.panel.setState({
-		current: data?.find((item) => item.id === OUTPUT_LOG),
+		current: data?.find((item) => item.id === ID_COLLECTIONS.OUTPUT_LOG_ID),
 	});
 
 	const logId = currentTabData.id.toString();
 	taskResultService.clearLogs(logId);
 	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
 
+	const params = transformTabDataToParams(currentTabData);
+
 	let isSuccess = false;
 	stream
-		.checkSyntax({})
+		.checkSyntax(params)
 		.then((res) => {
 			if (res.message) {
 				taskResultService.appendLogs(logId, createLog(res.message, 'error'));
@@ -393,10 +396,19 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 			// 恢复语法检查按钮
 			molecule.editor.updateActions([
 				{
-					id: TASK_SYNTAX_ID,
+					id: ID_COLLECTIONS.TASK_SYNTAX_ID,
 					icon: <SyntaxIcon />,
 					disabled: false,
 				},
 			]);
 		});
+}
+
+export function getParentNode(treeList: IFolderTreeNodeProps, currentNode: IFolderTreeNodeProps) {
+	const treeView = new TreeViewUtil(treeList);
+	const parentNode = treeView.getHashMap(currentNode.id)?.parent;
+	if (parentNode) {
+		return treeView.getNode(parentNode);
+	}
+	return null;
 }

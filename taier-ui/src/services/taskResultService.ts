@@ -17,6 +17,7 @@
  */
 
 import { Component } from '@dtinsight/molecule/esm/react';
+import moment from 'moment';
 
 export interface ITaskResultService {
 	/**
@@ -39,6 +40,30 @@ export interface ITaskResultService {
 	clearResult: (key: string) => void;
 }
 
+/**
+ * 输出固定格式的日志前缀
+ * @example `[14:00:01] <error> xxxx`
+ */
+export function createLog(log: string, type: string = 'info') {
+	return `[${moment().format('HH:mm:ss')}] <${type}> ${log}`;
+}
+
+/**
+ * 生成固定格式的 title
+ * @example `=====title=====`
+ * @example `===============`
+ */
+export function createTitle(title = '') {
+	const baseLength = 15;
+	const offsetLength = Math.floor((1.5 * title.length) / 2);
+	const arr = new Array(Math.max(baseLength - offsetLength, 5));
+	const wraptext = arr.join('=');
+	return `${wraptext}${title}${wraptext}`;
+}
+
+export function createLinkMark(attrs: Record<string, string>) {
+	return `${window.location.origin}${attrs.href}`;
+}
 export interface ITaskResultStates {
 	/**
 	 * 存储不同任务执行的日志结果
@@ -79,7 +104,7 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 		nextLogs[key] = nextLogs[key] || '';
 		nextLogs[key] += `${log}\n`;
 		this.setState({
-			logs: nextLogs,
+			logs: { ...nextLogs },
 		});
 	}
 
@@ -87,7 +112,7 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 		const nextLogs = this.state.logs;
 		nextLogs[key] = '';
 		this.setState({
-			logs: nextLogs,
+			logs: { ...nextLogs },
 		});
 	}
 }

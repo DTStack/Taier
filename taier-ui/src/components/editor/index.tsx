@@ -18,9 +18,9 @@
  */
 import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import classNames from 'classnames';
 import { defaultOptions } from './config';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import './language/jsonlog';
 import './style.scss';
 
@@ -209,6 +209,14 @@ export default function Editor({
 				const editorText = value || '';
 				monacoEditor.current.setValue(editorText);
 				handleShowPlaceholder(editorText);
+
+				const currentLanguage = monacoEditor.current.getModel()?.getLanguageId();
+				const isScrollToBottom = currentLanguage?.endsWith('log');
+				if (isScrollToBottom) {
+					monacoEditor.current.revealLineInCenterIfOutsideViewport(
+						monacoEditor.current.getModel()!.getLineCount(),
+					);
+				}
 			}
 		}
 	}, [value]);

@@ -49,7 +49,7 @@ interface OpenProps extends molecule.model.IEditor {
 	record?: CatalogueDataProps;
 }
 
-interface IFormFieldProps {
+export interface IFormFieldProps {
 	name: string;
 	taskType: TASK_TYPE_ENUM;
 	nodePid: number;
@@ -57,6 +57,7 @@ interface IFormFieldProps {
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
 	componentVersion: string;
+	sourceMap: any;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {

@@ -31,18 +31,21 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
 import com.dtstack.taier.common.metric.batch.MetricBuilder;
 import com.dtstack.taier.common.metric.prometheus.PrometheusMetricQuery;
-import com.dtstack.taier.common.util.*;
-import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.common.util.DataFilter;
+import com.dtstack.taier.common.util.JsonUtils;
+import com.dtstack.taier.common.util.MathUtil;
+import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
 import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
 import com.dtstack.taier.develop.service.schedule.TaskService;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatterUtil;
+import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.vo.develop.result.BatchServerLogByAppLogTypeResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -170,10 +173,10 @@ public class BatchServerLogService {
         info.put("status", job.getStatus());
         if (EScheduleJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
             // 处理sql注释，先把注释base64编码，再处理非注释的自定义参数
-            String sql = SqlFormatterUtil.dealAnnotationBefore(scheduleTaskShade.getSqlText());
+            String sql = SqlFormatUtil.dealAnnotationBefore(scheduleTaskShade.getSqlText());
             final List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             sql = this.jobParamReplace.paramReplace(sql, taskParamsToReplace, job.getCycTime());
-            sql = SqlFormatterUtil.dealAnnotationAfter(sql);
+            sql = SqlFormatUtil.dealAnnotationAfter(sql);
             info.put("sql", sql);
         } else if (EScheduleJobType.SYNC.getVal().equals(scheduleTaskShade.getTaskType())) {
             final JSONObject jobJson;

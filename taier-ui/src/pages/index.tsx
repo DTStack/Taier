@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import "reflect-metadata";
+import 'reflect-metadata';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';
@@ -26,6 +26,7 @@ import molecule, { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
 import API from '@/api/operation';
 import Task from '@/pages/operation/task';
+import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';
 import Patch from '@/pages/operation/patch';
 import Layout from '@/layout';
@@ -116,6 +117,7 @@ export default function HomePage() {
 	const openDrawer = (drawerId: string) => {
 		switch (drawerId) {
 			case DRAWER_MENU_ENUM.TASK:
+			case DRAWER_MENU_ENUM.STREAM_TASK:
 			case DRAWER_MENU_ENUM.SCHEDULE:
 			case DRAWER_MENU_ENUM.PATCH:
 				updateDrawer({
@@ -124,7 +126,7 @@ export default function HomePage() {
 					title: (
 						<Breadcrumb>
 							<Breadcrumb.Item>
-								{OPERATIONS.find((i) => i.id === drawerId)?.name || 'Default'}
+								{molecule.menuBar.getMenuById(drawerId)?.name || 'Default'}
 							</Breadcrumb.Item>
 						</Breadcrumb>
 					),
@@ -133,6 +135,8 @@ export default function HomePage() {
 							switch (drawerId) {
 								case DRAWER_MENU_ENUM.TASK:
 									return <Task />;
+								case DRAWER_MENU_ENUM.STREAM_TASK:
+									return <StreamTask />;
 								case DRAWER_MENU_ENUM.SCHEDULE:
 									return <Schedule />;
 								case DRAWER_MENU_ENUM.PATCH:

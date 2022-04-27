@@ -792,6 +792,65 @@ log.level=INFO
 
 ## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。
 # pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
+INSERT INTO task_template (id, task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES (36, 6, 0, '1.12', '## 资源相关
+parallelism.default=1
+taskmanager.numberOfTaskSlots=1
+jobmanager.memory.process.size=1g
+taskmanager.memory.process.size=2g
+
+## 时间相关
+## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选
+## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime
+# pipeline.time-characteristic=EventTime
+
+## Checkpoint相关
+## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成
+execution.checkpointing.interval=5min
+## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE
+# execution.checkpointing.mode=EXACTLY_ONCE
+##任务取消后保留hdfs上的checkpoint文件
+execution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION
+
+# Flink SQL独有，状态过期时间
+table.exec.state.ttl=1d
+
+log.level=INFO
+
+## 使用Iceberg和Hive维表开启
+# table.dynamic-table-options.enabled=true
+
+## Kerberos相关
+# security.kerberos.login.contexts=Client,KafkaClient
+
+
+## 高阶参数
+## 窗口提前触发时间
+# table.exec.emit.early-fire.enabled=true
+# table.exec.emit.early-fire.delay=1s
+
+## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲
+# table.exec.source.idle-timeout=10ms
+
+## 是否开启minibatch
+## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡
+# table.exec.mini-batch.enabled=true
+## 状态缓存时间
+# table.exec.mini-batch.allow-latency=5s
+## 状态最大缓存条数
+# table.exec.mini-batch.size=5000
+
+## 是否开启Local-Global 聚合。前提需要开启minibatch
+## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式
+# table.optimizer.agg-phase-strategy=TWO_PHASE
+
+## 是否开启拆分 distinct 聚合
+## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。
+## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启
+# table.optimizer.distinct-agg.split.enabled=true
+
+
+## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。
+# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO task_template (id, task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES (37, 17, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
 #hiveconf:mapreduce.job.name=
 
@@ -899,3 +958,97 @@ INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt
 
 ## hivevar配置,用户自定义变量
 #hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
+
+
+
+
+begin;
+INSERT into develop_catalogue(tenant_id, node_name, node_pid, order_val, level, gmt_create, gmt_modified, create_user_id, is_deleted, catalogue_type) VALUES ( -1, 'Flink系统函数', 0, 3, 1, now(), now(), -1, 0, 0);
+set @stream_sys_id=(select id from develop_catalogue where node_name='Flink系统函数');
+INSERT into develop_catalogue(tenant_id, node_name, node_pid, order_val, level, gmt_create, gmt_modified, create_user_id, is_deleted, catalogue_type)
+VALUES (-1,'数学函数',@stream_sys_id,3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0),
+       (-1,'日期函数',@stream_sys_id,3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0),
+       (-1,'字符函数',@stream_sys_id,3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0),
+       (-1,'聚合函数',@stream_sys_id,3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0),
+       (-1,'其它函数',@stream_sys_id,3, 1, '2022-04-12 23:33:10', '2022-04-12 23:33:10', -1, 0, 0);
+commit;
+
+ALTER TABLE `develop_function` ADD COLUMN `udf_type` int COMMENT '函数类型' AFTER `type`;
+
+begin;
+set @math=(select id from develop_catalogue where node_name='数学函数' and node_pid = (select id from develop_catalogue where node_name='Flink系统函数'));
+INSERT INTO `develop_function`(name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id, modify_user_id, udf_type, type, task_type, gmt_create, gmt_modified, is_deleted, sql_text)
+VALUES ('POWER', 'null', '计算次幂', 'POWER(numeric1, numeric2)', '返回 numeric1 的 numeric2 次幂.', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('ABS', 'null', '计算numeric的绝对值', 'ABS(numeric)', '计算numeric的绝对值.', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('MOD', 'null', 'numeric1 对 numeric2 取模', 'MOD(numeric1, numeric2)', '返回numeric1除以numeric2的余数(模数). 仅当numeric1为负时结果为负.', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('SQRT', 'null', '计算平方根', 'SQRT(numeric)', '计算numeric平方根.', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('LN', 'null', '	计算自然数的对数', 'LN(numeric)', '返回numeric的自然对数(以e为底)', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('LOG10', 'null', '	返回数字10的对数', 'LOG10(numeric) ', '返回numeric的对数(以10为底)', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('EXP', 'null', '	计算自然指数的指数', 'EXP(numeric)', '返回自然对数e的numeric幂次方', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('CEIL', 'null', '向上取整', 'CEIL(numeric) or CEILING(numeric)', '求其不小于小给定实数的最小整数如：ceil(6.1)= ceil(6.9) = 7', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('FLOOR', 'null', '向下取整', 'FLOOR(numeric)', '求其不大于给定实数的最小整数如：FLOOR(6.1)= FLOOR(6.9) = 6', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('SIN', 'null', '计算正弦值', 'SIN(numeric)', '计算正弦值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('COS', 'null', '计算余弦值', 'COS(numeric)', '计算余弦值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('TAN', 'null', '计算正切值', 'TAN(numeric)', '计算正切值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('COT', 'null', '计算余切值', 'COT(numeric)', '计算余切值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('ASIN', 'null', '计算反正弦值', 'ASIN(numeric)', '计算反正弦值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('ACOS', 'null', '计算反余弦值', 'ACOS(numeric)', '计算反余弦值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('ATAN', 'null', '计算反正切值', 'ATAN(numeric)', '计算反正切值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('DEGREES', 'null', '弧度值转换角度值', 'DEGREES(numeric)', '弧度值转换角度值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('RADIANS', 'null', '将角度值转换成弧度值', 'RADIANS(numeric)', '将角度值转换成弧度值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('SIGN', 'null', '计算数字的标志', 'SIGN(numeric)', '如果numeric是正数则返回1.0, 是负数则返回-1.0, 否则返回0.0 ', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('ROUND', 'null', '取近似值', 'ROUND(numeric, int)', '返回numeric的保留int位小数的近似值', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('PI', 'null', '取数学常数pi', 'PI()', '取数学常数pi', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('E', 'null', '取数学常数e', 'E()', '取数学常数e', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('RAND', 'null', '取随机数', 'RAND() or RAND(seed integer)', '返回一个0到1范围内的随机数,如果指定种子seed，则会等到一个稳定的随机数序列.', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('RAND_INTEGER', 'null', '取随机数', 'RAND_INTEGER(bound integer) or RAND_INTEGER(seed integer, bound integer) ', '返回0.0(包含)和指定值(不包括)之间的伪随机整数值, 如果指定种子seed，则会等到一个稳定的随机数序列 ', @math, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('LOG', 'null', '计算对数', 'LOG(x numeric) or LOG(base numeric, x numeric)', '未指定base 则以自然数e为底', @math,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null);
+
+set @date=(select id from develop_catalogue where node_name='日期函数' and node_pid = (select id from develop_catalogue where node_name='Flink系统函数'));
+INSERT INTO `develop_function`(name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id, modify_user_id, udf_type, type, task_type, gmt_create, gmt_modified, is_deleted, sql_text)
+VALUES ('EXTRACT', 'null', '提取指定单位的时间数值', 'EXTRACT(timeintervalunit FROM temporal)', '提取部分的时间数值,并返回长整形, 比如 EXTRACT(DAY FROM DATE \'2006-06-05\') 返回 5.', @date,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('QUARTER', 'null', '计算季节', 'QUARTER(date)', '返回当前时间属性哪个季度 如QUARTER(DATE \'1994-09-27\') 返回 3', @date, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('DATE_FORMAT', 'null', '时间格式化', 'DATE_FORMAT(timestamp, format)', '根据指定format 格式化timestamp 并返回字符串, format 必须和mysql的格式化语法兼容(date_parse), 比如:DATE_FORMAT(ts, \'%Y, %d %M\') results in strings formatted as \'2017, 05 May\'', @date,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('TIMESTAMPADD', 'null', '时间加减操作', 'TIMESTAMPADD(unit, interval, timestamp)', '将(有符号)整数interval添加到timestamp. interval的单位由unit参数给出, 它应该是以下值之一：SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, or YEAR. 比如：TIMESTAMPADD(WEEK, 1, \'2003-01-02\') 返回 2003-01-09', @date,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null);
+
+
+set @char=(select id from develop_catalogue where node_name='字符函数' and node_pid = (select id from develop_catalogue where node_name='Flink系统函数'));
+INSERT INTO `develop_function`(name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id, modify_user_id, udf_type, type, task_type, gmt_create, gmt_modified, is_deleted, sql_text)
+VALUES ('CHAR_LENGTH', 'null', '计算字符串长度', 'CHAR_LENGTH(string)', '返回字符串的长度', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('CHARACTER_LENGTH', 'null', '计算字符串长度', 'CHARACTER_LENGTH(string)', '返回字符串的长度', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('UPPER', 'null', '将字符串的字母转换成大写字母', 'UPPER(string)', '将字符串的字母转换成大写字母', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('LOWER', 'null', '将字符串的字母转换成小写字母', 'LOWER(string)', '将字符串的字母转换成小写字母', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('POSITION', 'null', '返回string2中第一次出现string1的位置', 'POSITION(string1 IN string2)', '返回string2中第一次出现string1的位置', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('TRIM', 'null', '删除指定字符', 'TRIM( { BOTH | LEADING | TRAILING } string1 FROM string2)', '从string2 中删除指定位置的String1, 默认是删除前后的空格', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('OVERLAY', 'null', '替换字符串', 'OVERLAY(string1 PLACING string2 FROM integer [ FOR integer2 ])', '用string2替换string1的子字符串', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('SUBSTRING', 'null', '截取字符串', 'SUBSTRING(string FROM integer) or SUBSTRING(string FROM integer FOR integer)', '截取字符串中start位置之后的字符串并返回 截取字符串中start位置之后的长度为length的字符串', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('INITCAP', 'null', '字符串中的单词首字母大写', 'INITCAP(string)', '返回字符串，每个单词的第一个字母大写, 所有其他字母以小写形式显示. 单词由空格分割.', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('CONCAT', 'null', '字符串和字节拼接', 'CONCAT(string1, string2,...)', '将字符串或字节拼接，如：concat(\'foo\', \'bar\') = \'foobar\', 函数可以拼接任意数量的字符串或字节。', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('CONCAT_WS', 'null', '使用指定的分隔符拼接字符串', 'CONCAT_WS(separator, string1, string2,...)', '使用指定的分隔符拼接字符串', @char, -1, -1, -1, 0, 1, 5, now(), now(), 0, null);
+
+set @merge=(select id from develop_catalogue where node_name='聚合函数' and node_pid = (select id from develop_catalogue where node_name='Flink系统函数'));
+INSERT INTO `develop_function`(name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id, modify_user_id, udf_type, type, task_type, gmt_create, gmt_modified, is_deleted, sql_text)
+VALUES ('COUNT', 'null', '统计总行数', 'COUNT(*) or COUNT(value [, value]* )', '统计总行数，包括含有NULL值的行, 统计提供非NULL的expr表达式值的行数.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('AVG', 'null', '求指定列的平均值', 'AVG(numeric)', '求指定列的平均值.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('SUM', 'null', '求指定列的和', 'SUM(numeric)', '求指定列的和.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('MAX', 'null', '求指定列的最大值', 'MAX(value)', '求指定列的最大值.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('MIN', 'null', '求指定列的最小值', 'MIN(value)', '求指定列的最小值.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('STDDEV_POP', 'null', '求指定列数值的标准偏差', 'STDDEV_POP(value)', '求指定列数值的标准偏差.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('STDDEV_SAMP', 'null', '求指定列数值的样本标准偏差', 'STDDEV_SAMP(value)', '求指定列数值的样本标准偏差.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('VAR_POP', 'null', '求指定列数值的方差', 'VAR_POP(value)', '求指定列数值的方差.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('VAR_SAMP', 'null', '求指定列数值的样本方差', 'VAR_POP(value)', '求指定列数值的样本方差.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('COLLECT', 'null', '返回包含值的multiset', 'COLLECT(value)', '返回包含值的multiset. null将被忽略.如果仅添加null,则返回一个空multiset.', @merge, -1, -1, -1, 0, 1, 5, now(), now(), 0, null);
+
+set @other=(select id from develop_catalogue where node_name='其它函数' and node_pid = (select id from develop_catalogue where node_name='Flink系统函数'));
+INSERT INTO `develop_function`(name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id, modify_user_id, udf_type, type, task_type, gmt_create, gmt_modified, is_deleted, sql_text)
+VALUES ('NULLIF', 'null', '如果值相同着返回null', 'NULLIF(value, value)', '如果值相同着返回null, 比如 NULLIF(5, 5) 返回 NULL; NULLIF(5, 0) 返回 5.', @other, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('COALESCE', 'null', '返回第一非null的值', 'COALESCE(value, value [, value ]* )', '返回第一非null的值, 比如: COALESCE(NULL, 5) 返回 5.', @other, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('CAST', 'null', '类型转换', 'CAST(value AS type)', '将value 转换为指定type', @other, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('GROUP_ID', 'null', '返回一个唯一标识分组键的整数', 'GROUP_ID()', '返回一个唯一标识分组键的整数.', @other,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('GROUPING', 'null', '如果表达式在当前行的分组集合中返回1, 否则返回0', 'GROUPING(expression)', '如果表达式在当前行的分组集合中返回1, 否则返回0.', @other, -1, -1, -1, 0, 1, 5, now(), now(), 0, null),
+       ('GROUPING_ID', 'null', '返回给定分组表达式的位向量', 'GROUPING_ID(expression [, expression]* )', '返回给定分组表达式的位向量.', @other,  -1, -1, -1, 0, 1, 5, now(), now(), 0, null);
+
+commit;
+
+
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, now(), now(), 0);

@@ -36,14 +36,29 @@ interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
 	updateSource?: boolean;
 	/**
-	 * 离线任务的上下游依赖数组
-	 */
-	dependencyTasks?: IOfflineTaskProps['taskVOS'];
-	/**
 	 * the monaco editor content
 	 */
 	value?: string;
 }
+
+/**
+ * Only works for flinkSQL
+ */
+export const transformTabDataToParams = (data: IOfflineTaskProps) => {
+	const params: IOfflineTaskProps & { value?: string } = { ...data };
+	params.sqlText = params.value || '';
+
+	if (params.componentVersion === FLINK_VERSIONS.FLINK_1_12 && Array.isArray(params.source)) {
+		params.source.forEach((form) => {
+			if (form.timeTypeArr.includes(1)) {
+				// eslint-disable-next-line no-param-reassign
+				form.procTime = form.procTime || 'proc_time';
+			}
+		});
+	}
+
+	return params;
+};
 
 /**
  * 保存当前任务
@@ -59,12 +74,6 @@ export default function saveTask() {
 			const params: IParamsProps = cloneDeep(data);
 			// 修改task配置时接口要求的标记位
 			params.preSave = true;
-
-			// 接口要求上游任务字段名修改为dependencyTasks
-			if (params.taskVOS) {
-				params.dependencyTasks = params.taskVOS.map((o) => o);
-				Reflect.deleteProperty(params, 'taskVOS');
-			}
 			params.sqlText = params.value || '';
 
 			return api.saveOfflineJobData(params).then((res) => {
@@ -80,7 +89,8 @@ export default function saveTask() {
 			const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
 			if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
 				const isIncrementMode =
-					params.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === params.syncModel;
+					params.sourceMap.syncModel !== undefined &&
+					DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
 				if (!isIncrementMode) {
 					params.sourceMap!.increColumn = undefined; // Delete increColumn
 				}
@@ -93,12 +103,6 @@ export default function saveTask() {
 
 			// 修改task配置时接口要求的标记位
 			params.preSave = true;
-
-			// 接口要求上游任务字段名修改为dependencyTasks
-			if (params.taskVOS) {
-				params.dependencyTasks = params.taskVOS.map((o) => o);
-				Reflect.deleteProperty(params, 'taskVOS');
-			}
 			params.sqlText = params.value || '';
 
 			return api.saveOfflineJobData(params).then((res) => {
@@ -115,7 +119,7 @@ export default function saveTask() {
 			const isFlinkSQLGuide = createModel === CREATE_MODEL_TYPE.GUIDE || !createModel;
 
 			/**
-			 * 校验源表和结果表和维表
+			 * 如果是向导模式，校验源表和结果表和维表
 			 */
 			if (isFlinkSQLGuide) {
 				// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
@@ -133,36 +137,13 @@ export default function saveTask() {
 						}
 
 						params.preSave = true;
-						params.sqlText = params.value || '';
 						// 后端区分右键编辑保存
 						params.updateSource = true;
 
 						return params;
 					})
 					.then((preParams) => {
-						const { sink = [] } = preParams;
-						// 对结果表中多余参数进行处理
-						if (Array.isArray(sink)) {
-							// sink.forEach((pane) => {
-							// 	if ('havePartitionfields' in pane) {
-							// 		delete pane.havePartitionfields;
-							// 	}
-							// });
-						}
-						// 1.12 时时间特征勾选了 ProcTime，ProcTime 名称字段未填写时需补上 proc_time
-						if (
-							preParams.componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
-							Array.isArray(preParams.source)
-						) {
-							preParams.source.forEach((form) => {
-								if (form.timeTypeArr.includes(1)) {
-									// eslint-disable-next-line no-param-reassign
-									form.procTime = form.procTime || 'proc_time';
-								}
-							});
-						}
-
-						return preParams;
+						return transformTabDataToParams(preParams);
 					})
 					.then((realParams) => {
 						return stream.saveTask(realParams).then((res) => {
@@ -173,14 +154,29 @@ export default function saveTask() {
 							return Promise.reject();
 						});
 					});
+			} else {
+				return stream
+					.saveTask({
+						...params,
+						sqlText: params.value,
+						preSave: true,
+						// 后端区分右键编辑保存
+						updateSource: true,
+					})
+					.then((res) => {
+						if (res.code === 1) {
+							message.success('保存成功！');
+							return res;
+						}
+						return Promise.reject();
+					});
 			}
-			return Promise.reject();
 		}
 		case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 			const params: IParamsProps = cloneDeep(data);
 			// TODO：实时采集任务 dataSourceList 移除
 			// @ts-ignore
-			const { sourceMap = {}, targetMap = {}, createModel } = params;
+			const { sourceMap, targetMap = {}, createModel, dataSourceList } = params;
 			/**
 			 * 当目标数据源为Hive时，必须勾选Json平铺
 			 */

@@ -23,6 +23,7 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.BatchTaskDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
@@ -34,6 +35,7 @@ import java.util.List;
  * author: toutian
  * create: 2017/5/4
  */
+@Mapper
 public interface DevelopTaskMapper extends BaseMapper<Task> {
 
     List<Task> catalogueListBatchTaskByNodePid(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);

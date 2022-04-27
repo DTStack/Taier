@@ -20,7 +20,7 @@ import { useMemo, useState } from 'react';
 import { omit } from 'lodash';
 import type { CustomTreeSelectProps } from './customTreeSelect';
 import CustomTreeSelect from './customTreeSelect';
-import type { CATELOGUE_TYPE } from '@/constant';
+import { CATELOGUE_TYPE } from '@/constant';
 import { MENU_TYPE_ENUM } from '@/constant';
 import molecule from '@dtinsight/molecule';
 import resourceManagerTree from '@/services/resourceManagerService';
@@ -44,21 +44,18 @@ export default function FolderPicker(props: FolderPickerProps) {
 
 	const treeData = useMemo(() => {
 		switch (props.dataType) {
-			case 'task':
+			case CATELOGUE_TYPE.TASK:
 				return (molecule.folderTree.getState().folderTree?.data || [])[0];
-			case 'resource': {
+			case CATELOGUE_TYPE.RESOURCE: {
 				// resource manager NOT support to insert data into root folder
 				const resourceData = (resourceManagerTree.getState().folderTree?.data || [])[0];
 				return resourceData?.children?.find(
 					(item) => item.data.catalogueType === MENU_TYPE_ENUM.RESOURCE,
 				);
 			}
-			case 'function': {
+			case CATELOGUE_TYPE.FUNCTION: {
 				// function manager only support to insert data into custom function
-				const functionData = (functionManagerService.getState().folderTree?.data || [])[0];
-				return functionData?.children?.find(
-					(item) => item.data.catalogueType === MENU_TYPE_ENUM.SPARKFUNC,
-				);
+				return (functionManagerService.getState().folderTree?.data || [])[0];
 			}
 			default:
 				return undefined;
@@ -68,7 +65,8 @@ export default function FolderPicker(props: FolderPickerProps) {
 	return (
 		<>
 			<CustomTreeSelect
-				{...omit(props, ['treeData', 'loadData', 'dataType'])}
+				{...omit(props, ['treeData', 'loadData'])}
+				dataType={props.dataType}
 				showFile={props.showFile}
 				loadData={loadDataAsync}
 				treeData={treeData}

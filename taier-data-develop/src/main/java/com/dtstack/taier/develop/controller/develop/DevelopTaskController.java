@@ -41,6 +41,7 @@ import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetTaskVersionRecordV
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskPublishTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskVersionScheduleConfVO;
+import com.dtstack.taier.develop.vo.develop.query.StartTaskVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetChildTasksResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchSysParameterResultVO;
@@ -54,6 +55,7 @@ import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -142,6 +144,17 @@ public class DevelopTaskController {
         }.execute();
     }
 
+    @PostMapping(value = "canSetIncreConf")
+    @ApiOperation(value = "判断任务是否可以配置增量标识")
+    public R<Boolean> canSetIncreConf(@RequestBody BatchScheduleTaskVO vo) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return batchTaskService.canSetIncreConf(vo.getId());
+            }
+        }.execute();
+    }
+
     @PostMapping(value = "guideToTemplate")
     @ApiOperation("向导模式转模版")
     public R<TaskCatalogueResultVO> guideToTemplate(@RequestBody BatchTaskResourceParamVO paramVO) {
@@ -221,17 +234,6 @@ public class DevelopTaskController {
         }.execute();
     }
 
-    @PostMapping(value = "trace")
-    @ApiOperation(value = "追踪")
-    public R<JSONObject> trace(@RequestBody BatchDataSourceTraceVO vo) {
-        return new APITemplate<JSONObject>() {
-            @Override
-            protected JSONObject process() {
-                return batchTaskService.trace(vo.getTaskId());
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "allProductGlobalSearch")
     @ApiOperation("所有产品的已提交任务查询")
     public R<List<BatchAllProductGlobalReturnVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
@@ -278,6 +280,17 @@ public class DevelopTaskController {
         }.execute();
     }
 
+
+    @ApiOperation("启动任务")
+    @PostMapping(value = "startTask")
+    public R<String> startTask(@RequestBody @Validated StartTaskVO startTaskVO) {
+        return new APITemplate<String>() {
+            @Override
+            protected String process() {
+                return batchTaskService.startTask(startTaskVO);
+            }
+        }.execute();
+    }
 
 
 }

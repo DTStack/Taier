@@ -26,7 +26,9 @@ public enum EngineCatalogueType {
     /**
      *
      */
-    SPARK(-1, "SparkSQL");
+    SPARK(-1, "SparkSQL"),
+
+    FLINK(0, "FlinkSQL");
 
     private int type;
 

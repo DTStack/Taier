@@ -17,13 +17,10 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Modal, Button, Spin, message } from 'antd';
-import CopyToClipboard from 'react-copy-to-clipboard';
+import { Modal, Button, Spin } from 'antd';
 import ajax from '../../api';
 import { getContainer } from './resModal';
-import { formatDateTime } from '@/utils';
-import classNames from 'classnames';
-import './resViewModal.scss';
+import DetailInfo from '../detailInfo';
 
 interface IResViewModalProps {
 	visible: boolean;
@@ -50,43 +47,7 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 		if (loading) return <Spin />;
 		if (!data) return '系统异常';
 
-		return (
-			<table className={classNames('ant-table', 'resouce-detail')}>
-				<tbody className="ant-table-tbody">
-					<tr>
-						<td className="w-1/5">资源名称</td>
-						<td>{data.resourceName}</td>
-					</tr>
-					<tr>
-						<td>资源描述</td>
-						<td className="break-all">{data.resourceDesc}</td>
-					</tr>
-					<tr>
-						<td>存储路径</td>
-						<td className="break-all">
-							{data.url}
-							<CopyToClipboard
-								key="copy"
-								text={data.url}
-								onCopy={() => message.success('复制成功！')}
-							>
-								<a style={{ marginLeft: 4 }}>复制</a>
-							</CopyToClipboard>
-						</td>
-					</tr>
-					<tr>
-						<td>创建</td>
-						<td>
-							{data.createUser.userName} 于 {formatDateTime(data.gmtCreate)}
-						</td>
-					</tr>
-					<tr>
-						<td>修改时间</td>
-						<td>{formatDateTime(data.gmtModified)}</td>
-					</tr>
-				</tbody>
-			</table>
-		);
+		return <DetailInfo type="resource" data={data} />;
 	};
 
 	useEffect(() => {

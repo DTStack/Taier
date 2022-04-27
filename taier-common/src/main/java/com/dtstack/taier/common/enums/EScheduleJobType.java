@@ -20,6 +20,10 @@ package com.dtstack.taier.common.enums;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public enum EScheduleJobType {
 
     /**
@@ -50,14 +54,13 @@ public enum EScheduleJobType {
      * FlinkSQL
      */
     SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK),
+    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK),
     /**
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null),
     HIVE_SQL(17, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER),
-    DATA_ACQUISITION(37, "实时任务", 2, 4,EComponentType.FLINK)
     ;
-
 
     private Integer type;
 
@@ -77,6 +80,7 @@ public enum EScheduleJobType {
 
     private EComponentType componentType;
 
+    private static final List<Integer> STREAM_JOB_TYPES = Arrays.asList(SQL.getVal(), DATA_ACQUISITION.getVal());
 
     public Integer getType() {
         return type;
@@ -136,6 +140,9 @@ public enum EScheduleJobType {
 
         }
         throw new RdosDefineException("不支持的任务类型");
+    }
+    public static List<Integer> getStreamJobTypes() {
+        return STREAM_JOB_TYPES;
     }
 
 

@@ -38,7 +38,11 @@
 	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
 	.ant-table-tbody > tr.ant-table-placeholder:hover > td,
 	.ant-table-tbody > tr.ant-table-row:hover > td,
-	.ant-table-tbody > tr > td.ant-table-cell-row-hover {
+	.ant-table-tbody > tr > td.ant-table-cell-row-hover,
+	.ant-table-tbody > tr.ant-table-row-selected > td,
+	.ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-left,
+	.ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-right,
+	.ant-descriptions-bordered .ant-descriptions-item-label {
 		background: var(--editor-background);
 		background-color: var(--editor-background);
 	}
@@ -79,7 +83,11 @@
 	.ant-table,
 	.ant-checkbox-wrapper,
 	.ant-tooltip,
-	.ant-table-cell {
+	.ant-table-cell,
+	.ant-descriptions-item-label,
+	.ant-descriptions-item-content,
+	.ant-radio-button-wrapper,
+	.ant-tabs-tab {
 		font-size: $font-size;
 	}
 }

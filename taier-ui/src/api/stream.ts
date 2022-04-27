@@ -58,19 +58,39 @@ export default {
 	convertToScriptMode(params: any) {
 		return http.post(req.CONVERT_TO_SCRIPT_MODE, params);
 	},
-	// TODO: 语法检查
-	checkSyntax(data: any) {
-		return new Promise<any>((resolve) =>
-			resolve({
-				code: 1,
-				data: {
-					code: 999,
-					errorMsg:
-						"error test",
-				},
-			}),
-		);
-		// return http.post(, params);
+	checkSyntax(params: any) {
+		return http.post(req.GRAMMAR_CHECK, params);
+	},
+	sqlFormat(params: any) {
+		return http.post(req.SQL_FORMAT, params);
+	},
+	getTaskList(params: any) {
+		return http.post(req.GET_TASK_LIST, params);
+	},
+	getStatusCount(params: any) {
+		return http.post(req.GET_STATUS_COUNT, params);
+	},
+	startTask(params: any) {
+		return http.post(req.START_TASK, params);
+	},
+	getTaskManagerLog(params: any) {
+		return http.post(req.GET_TASK_MANAGER_LOG, params);
+	},
+	getJobManagerLog(params: any) {
+		return http.post(req.GET_JOB_MANAGER_LOG, params);
+	},
+	listTaskManager(params: any) {
+		return http.post(req.LIST_TASK_MANAGER, params);
+	},
+	getTaskLogs(params: any) {
+		return http.post(req.GET_TASK_LOGS, params);
+	},
+	// failover 日志
+	getFailoverLogsByTaskId(params: any) {
+		return http.post(req.GET_TASK_FAILOVER_LOG, params);
+	},
+	getHistoryLog(params: any) {
+		return http.post(req.GET_HISTORY_LOG, params);
 	},
 	isOpenCdb (params: { dataInfoId: number }) {
         return http.post(req.IS_OPEN_CDB, params)
