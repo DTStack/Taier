@@ -80,19 +80,17 @@ export interface ITaskProps extends ITaskBasicProps {
 // 实时任务管理——任务类型
 export interface IStreamTaskProps extends ITaskBasicProps {
 	id: number;
-	status: number;
+	jobId: string;
+	status: TASK_STATUS;
 	componentVersion: string;
 	strategyName: string;
-	taskType: number;
+	taskType: TASK_TYPE_ENUM;
 	createUserName: string;
 	execStartTime: string;
 	gmtModified: string;
 	modifyUserName: string;
 	originSourceType: number;
-	createModel: number;
-	nextData: {
-		id: number;
-	}
+	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 }
 
 // 查询任务树的遍历方向
@@ -184,7 +182,10 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	taskPeriodId: TASK_PERIOD_ENUM;
 	taskPeriodType: string;
 	taskType: TASK_TYPE_ENUM;
-	taskVOS: null | ITaskVOProps[];
+	/**
+	 * 任务依赖
+	 */
+	dependencyTasks: null | ITaskVOProps[];
 	taskVariables: null | ITaskVariableProps[];
 	tenantId: string | null;
 	tenantName: string | null;
@@ -333,7 +334,7 @@ export interface ISourceFormField {
 	/**
 	 * 行健二进制转换
 	 */
-	isBinaryRowkey?: Valueof<typeof BINARY_ROW_KEY_FLAG>;
+	isBinaryRowkey?: BINARY_ROW_KEY_FLAG;
 	/**
 	 * 每次 RPC 请求获取行数
 	 */
@@ -392,9 +393,7 @@ export interface IScheduleConfProps {
 /**
  * 任务上下游依赖类型
  */
-export interface ITaskVOProps extends IOfflineTaskProps {
-	taskId: number;
-}
+export type ITaskVOProps = Pick<IOfflineTaskProps, 'id' | 'name' | 'tenantId' | 'tenantName'>;
 
 export interface ITaskVariableProps {
 	paramCommand: string;
@@ -410,19 +409,19 @@ export interface IFunctionProps {
 	 * 命令格式
 	 */
 	commandFormate: string;
-	className?: string | null;
-	createUser?: null | IUserProps;
+	className?: string;
+	createUser?: IUserProps;
 	createUserId: number;
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
-	modifyUser?: null | IUserProps;
+	modifyUser?: IUserProps;
 	modifyUserId: number;
 	name: string;
 	nodePid: number;
 	paramDesc: string;
 	purpose: string;
-	sqlText?: null | string;
+	sqlText?: string;
 	/**
 	 * 函数类型
 	 */
@@ -431,7 +430,7 @@ export interface IFunctionProps {
 	 * UDF类型
 	 */
 	udfType?: UDF_TYPE_VALUES;
-	resources?: number | null;
+	resources?: number;
 	type: number;
 }
 
@@ -540,15 +539,15 @@ export interface IFlinkSinkProps {
  * 实时-任务属性参数
  */
 export interface ITaskParams {
-    id: number;
+	id: number;
 	name: string;
 	exeArgs: string;
-    sqlText: string;
-    taskDesc: string;
+	sqlText: string;
+	taskDesc: string;
 	mainClass: string;
-    taskParams: string;
-    originSourceType: number;
-    createModel: number;
+	taskParams: string;
+	originSourceType: number;
+	createModel: number;
 	taskType: number;
 	targetSourceType: number;
 	sourceParams: string;
@@ -561,7 +560,7 @@ export interface ITaskParams {
 /**
  * 实时-资源相关的参数
  */
- export interface IResourceList { 
+export interface IResourceList {
 	id: number;
 	url: string;
 	originFileName: string;
@@ -569,5 +568,4 @@ export interface ITaskParams {
 	resourceDesc: string;
 	resourceName: string;
 	isAdditionResource: number;
- }
-
+}

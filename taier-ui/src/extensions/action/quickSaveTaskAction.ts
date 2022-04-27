@@ -1,12 +1,7 @@
 import api from '@/api';
 import {
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	CREATE_DATASOURCE_PREFIX,
-	EDIT_DATASOURCE_PREFIX,
 	CREATE_MODEL_TYPE,
-	TASK_SAVE_ID,
+	ID_COLLECTIONS,
 } from '@/constant';
 import { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { editorActionBarService } from '@/services';
@@ -45,11 +40,11 @@ export default class QuickSaveTaskAction extends Action2 {
 		const { current } = molecule.editor.getState();
 		// 不需要保存任务的 tab
 		const NOT_RUN = [
-			EDIT_TASK_PREFIX,
-			EDIT_FOLDER_PREFIX,
-			CREATE_TASK_PREFIX,
-			CREATE_DATASOURCE_PREFIX,
-			EDIT_DATASOURCE_PREFIX,
+			ID_COLLECTIONS.EDIT_TASK_PREFIX,
+			ID_COLLECTIONS.EDIT_FOLDER_PREFIX,
+			ID_COLLECTIONS.CREATE_TASK_PREFIX,
+			ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+			ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
 		];
 		if (current && !NOT_RUN.some((prefix) => current.activeTab?.toString().includes(prefix))) {
 			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
@@ -57,7 +52,7 @@ export default class QuickSaveTaskAction extends Action2 {
 				currentTabData.taskType,
 				currentTabData.createModel === CREATE_MODEL_TYPE.GUIDE,
 			);
-			if (taskToolbar.find((t) => t.id === TASK_SAVE_ID)) {
+			if (taskToolbar.find((t) => t.id === ID_COLLECTIONS.TASK_SAVE_ID)) {
 				saveTask()
 					.then((res) => res?.data?.id)
 					.then((id) => {

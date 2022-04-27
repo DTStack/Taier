@@ -1,51 +1,54 @@
-import * as React from 'react';
+import { useState, useRef } from 'react';
 import { Modal } from 'antd';
 import LinkDiagram from './linkDiagram';
 
-interface States {
-    visible: boolean;
-    subTreeData: any[];
-    targetKey: string;
+interface ICommonProps {
+	flinkJson: any[];
+	loading: boolean;
+	refresh: () => void;
 }
 
-class Common extends React.Component<any, States> {
-    constructor (props: any) {
-        super(props);
-        this.state = {
-            visible: false,
-            subTreeData: [],
-            targetKey: '' + Math.random() // 绑定 graph id
-        }
-    }
-    showSubVertex = (data: any) => {
-        this.setState({ subTreeData: data || [], visible: true })
-    }
-    render () {
-        const { visible, subTreeData, targetKey } = this.state;
-        const heightFix = {
-            height: '600px'
-        }
-        return (
-            <>
-                <LinkDiagram {...this.props} targetKey={targetKey} showSubVertex={this.showSubVertex}/>
-                <Modal
-                    wrapClassName="vertical-center-modal modal-body-nopadding modal-body--height100"
-                    visible={visible}
-                    title='工作流'
-                    onCancel={() => {
-                        this.setState({ visible: false })
-                    }}
-                    footer={null}
-                    zIndex={1000}
-                    {...heightFix}
-                    width={900}
-                >
-                    <div id={targetKey} className='graph_wrapper__height'>
-                        <LinkDiagram {...this.props} targetKey={targetKey} subTreeData={subTreeData} style={{ height: '100%' }} isSubVertex showSubVertex={this.showSubVertex} />
-                    </div>
-                </Modal>
-            </>
-        )
-    }
+export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
+	const [visible, setVisible] = useState(false);
+	const [subTreeData, setSubTreeData] = useState([]);
+	// 绑定 graph id
+	const targetKey = useRef('' + Math.random());
+
+	const showSubVertex = (data: any) => {
+		setVisible(true);
+		setSubTreeData(data);
+	};
+
+	return (
+		<>
+			<LinkDiagram
+				loading={loading}
+				targetKey={targetKey.current}
+				flinkJson={flinkJson}
+				refresh={refresh}
+				showSubVertex={showSubVertex}
+			/>
+			<Modal
+				wrapClassName="modal-body-nopadding modal-body--height100"
+				visible={visible}
+				title="工作流"
+				onCancel={() => setVisible(false)}
+				footer={null}
+				zIndex={1000}
+				width={900}
+			>
+				<div id={targetKey.current} className="graph_wrapper__height">
+					<LinkDiagram
+						loading={loading}
+						flinkJson={flinkJson}
+						refresh={refresh}
+						targetKey={targetKey.current}
+						subTreeData={subTreeData}
+						isSubVertex
+						showSubVertex={showSubVertex}
+					/>
+				</div>
+			</Modal>
+		</>
+	);
 }
-export default Common;

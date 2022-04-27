@@ -1,16 +1,5 @@
 import { SyntaxIcon } from '@/components/icon';
-import {
-	TASK_SAVE_ID,
-	TASK_RUN_ID,
-	TASK_STOP_ID,
-	TASK_SUBMIT_ID,
-	TASK_OPS_ID,
-	TASK_CONVERT_SCRIPT,
-	TASK_SYNTAX_ID,
-	TASK_TYPE_ENUM,
-	CREATE_MODEL_TYPE,
-	TASK_FORMAT_ID,
-} from '@/constant';
+import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import {
 	UploadOutlined,
@@ -30,7 +19,7 @@ import { container, singleton } from 'tsyringe';
  * 保存按钮 for toolbar
  */
 const SAVE_TASK: IEditorActionsProps = {
-	id: TASK_SAVE_ID,
+	id: ID_COLLECTIONS.TASK_SAVE_ID,
 	name: 'Save Task',
 	title: '保存',
 	icon: 'save',
@@ -41,7 +30,7 @@ const SAVE_TASK: IEditorActionsProps = {
  * 运行任务按钮 for toolbar
  */
 const RUN_TASK: IEditorActionsProps = {
-	id: TASK_RUN_ID,
+	id: ID_COLLECTIONS.TASK_RUN_ID,
 	name: 'Run Task',
 	title: '运行',
 	icon: 'play',
@@ -54,7 +43,7 @@ const RUN_TASK: IEditorActionsProps = {
  * @default disabled 默认是 disabled
  */
 const STOP_TASK: IEditorActionsProps = {
-	id: TASK_STOP_ID,
+	id: ID_COLLECTIONS.TASK_STOP_ID,
 	name: 'Stop Task',
 	title: '停止运行',
 	icon: 'debug-pause',
@@ -66,7 +55,7 @@ const STOP_TASK: IEditorActionsProps = {
  * 提交至调度按钮
  */
 const SUBMIT_TASK: IEditorActionsProps = {
-	id: TASK_SUBMIT_ID,
+	id: ID_COLLECTIONS.TASK_SUBMIT_ID,
 	name: '提交至调度',
 	title: '提交至调度',
 	icon: <UploadOutlined />,
@@ -77,7 +66,7 @@ const SUBMIT_TASK: IEditorActionsProps = {
  * 任务运维按钮
  */
 const OPERATOR_TASK: IEditorActionsProps = {
-	id: TASK_OPS_ID,
+	id: ID_COLLECTIONS.TASK_OPS_ID,
 	name: '运维',
 	title: '运维',
 	icon: <LoginOutlined />,
@@ -88,7 +77,7 @@ const OPERATOR_TASK: IEditorActionsProps = {
  * 转换为脚本按钮
  */
 const CONVERT_TASK: IEditorActionsProps = {
-	id: TASK_CONVERT_SCRIPT,
+	id: ID_COLLECTIONS.TASK_CONVERT_SCRIPT,
 	name: '转换为脚本',
 	title: '转换为脚本',
 	icon: <SwapOutlined />,
@@ -110,7 +99,7 @@ const CONVERT_TASK: IEditorActionsProps = {
  * 语法检查按钮
  */
 const GRAMMAR_TASK: IEditorActionsProps = {
-	id: TASK_SYNTAX_ID,
+	id: ID_COLLECTIONS.TASK_SYNTAX_ID,
 	name: '语法检查',
 	title: '语法检查',
 	icon: <SyntaxIcon />,
@@ -121,7 +110,7 @@ const GRAMMAR_TASK: IEditorActionsProps = {
  * 运行中按钮，通常和运行按钮是互斥存在，所以和运行按钮 id 保持一致
  */
 const RUNNING_TASK: IEditorActionsProps = {
-	id: TASK_RUN_ID,
+	id: ID_COLLECTIONS.TASK_RUN_ID,
 	name: 'Running',
 	title: '运行中',
 	icon: 'loading~spin',
@@ -132,11 +121,11 @@ const RUNNING_TASK: IEditorActionsProps = {
  * 格式化
  */
 const FORMAT_TASK: IEditorActionsProps = {
-	id: TASK_FORMAT_ID,
+	id: ID_COLLECTIONS.TASK_FORMAT_ID,
 	name: '格式化',
 	title: '格式化',
 	icon: <FormatPainterOutlined />,
-	place: 'outer'
+	place: 'outer',
 };
 
 interface IEditorActionBarState {
@@ -181,7 +170,7 @@ export default class EditorActionBarService
 				molecule.editor.updateActions([
 					RUNNING_TASK,
 					{
-						id: TASK_STOP_ID,
+						id: ID_COLLECTIONS.TASK_STOP_ID,
 						disabled: false,
 					},
 				]);
@@ -276,7 +265,7 @@ export default class EditorActionBarService
 				molecule.editor.updateActions([
 					RUNNING_TASK,
 					{
-						id: TASK_STOP_ID,
+						id: ID_COLLECTIONS.TASK_STOP_ID,
 						disabled: false,
 					},
 				]);
