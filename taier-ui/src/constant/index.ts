@@ -595,10 +595,12 @@ export enum TASK_STATUS {
 	WAIT_RUN = 16,
 	WAIT_COMPUTE = 17,
 	FROZEN = 18,
+	ENGINEACCEPTED = 19,
 	PARENT_FAILD = 21, // 上游失败
 	DO_FAIL = 22,
 	COMPUTING = 23,
-	AUTO_CANCEL = 24, // 自动取消
+	LACKING = 25,
+	AUTO_CANCEL = 26, // 自动取消
 }
 
 /**
@@ -1270,7 +1272,7 @@ export enum SYNC_TYPE {
 	BINLOG = 1,
 	INTERVAL = 2,
 	RESET = 3,
-	LogMiner = 4
+	LogMiner = 4,
 }
 /**
  * 数据操作类型

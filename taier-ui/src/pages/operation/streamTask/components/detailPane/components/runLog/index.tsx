@@ -4,7 +4,6 @@ import { IStreamTaskProps } from '@/interface';
 import stream from '@/api/stream';
 import Editor from '@/components/editor';
 import { createLinkMark, createLog } from '@/services/taskResultService';
-import { Spin } from 'antd';
 
 interface IProps {
 	data: IStreamTaskProps | undefined;
@@ -55,7 +54,7 @@ export default function RunLog({ data }: IProps) {
 	const getLog = async () => {
 		if (!data?.id) return;
 		if (data.status == TASK_STATUS.RUNNING) {
-			const res = await stream.getJobManagerLog({ taskId: data.id, place: offset });
+			const res = await stream.getJobManagerLog({ taskId: data.id, place: offset.current });
 			if (res?.code == 1 && res?.data?.place) {
 				setLogInfo((info) => ({
 					...res.data,
