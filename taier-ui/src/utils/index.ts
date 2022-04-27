@@ -17,7 +17,7 @@
  */
 
 /* eslint-disable no-bitwise */
-import { debounce, endsWith } from 'lodash';
+import { debounce, endsWith, range } from 'lodash';
 import moment from 'moment';
 import {
 	FAILED_STATUS,
@@ -33,7 +33,7 @@ import {
 } from '@/constant';
 import { CATELOGUE_TYPE, ENGINE_SOURCE_TYPE_ENUM, MENU_TYPE_ENUM } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
-import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY } from '@/constant';
+import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY, OFFSET_RESET_FORMAT } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
@@ -767,3 +767,76 @@ export const formatSourceTypes = (
 	}
 	return result;
 };
+
+/**
+ * 是否展示OffsetReset的时间
+ * @param {number} type --任务类型
+ */
+export function showTimeForOffsetReset (type: number) {
+    return [
+        DATA_SOURCE_ENUM.KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_2X,
+        DATA_SOURCE_ENUM.KAFKA_10,
+        DATA_SOURCE_ENUM.KAFKA_11,
+        DATA_SOURCE_ENUM.TBDS_KAFKA,
+        DATA_SOURCE_ENUM.KAFKA_HUAWEI
+    ].includes(type);
+}
+
+/**
+ * 格式化时间
+ * @param {number | undefined} timestamp --时间戳
+ */
+export const formatOffsetResetTime = (timestamp: number | undefined): moment.Moment => {
+    const dateString = moment(timestamp).format(OFFSET_RESET_FORMAT);
+    return moment(dateString, OFFSET_RESET_FORMAT)
+}
+
+/**
+ * 创建timepicker disable区间
+ * @param beginDate moment.Moment
+ * @param endDate moment.Moment
+ * @param type string
+ * @param isEnd boolean
+ */
+ export function disableRangeCreater (beginDate: moment.Moment | null | undefined, endDate: moment.Moment | null | undefined, type: 'hour' | 'minute' | 'second', isEnd?: boolean): number[] {
+    if (!beginDate || !endDate) {
+        return []
+    }
+    beginDate = beginDate.clone();
+    endDate = endDate.clone();
+    let compareDate = isEnd ? endDate : beginDate;
+    let otherDate = isEnd ? beginDate : endDate;
+    let max;
+    let rangeValue;
+    switch (type) {
+        case 'hour': {
+            max = 24;
+            compareDate.hours(otherDate.hours());
+            rangeValue = otherDate.hours();
+            break;
+        }
+        case 'minute': {
+            if (otherDate.hours() != compareDate.hours()) {
+                return [];
+            }
+            max = 60;
+            compareDate.minutes(otherDate.minutes());
+            rangeValue = otherDate.minutes();
+            break;
+        }
+        case 'second': {
+            if (otherDate.hours() != compareDate.hours() || otherDate.minutes() != compareDate.minutes()) {
+                return [];
+            }
+            max = 60;
+            compareDate.seconds(otherDate.seconds());
+            rangeValue = otherDate.seconds();
+            break;
+        }
+    }
+    if (isEnd) {
+        return range(compareDate < otherDate ? (rangeValue - 1) : rangeValue);
+    }
+    return range(compareDate > otherDate ? rangeValue : (rangeValue + 1), max)
+}

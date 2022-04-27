@@ -17,14 +17,7 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import {
-	CONSOLE,
-	folderMenu,
-	LANGUAGE_STATUS_BAR,
-	OPERATIONS,
-	OUTPUT_LOG,
-	TENANT_MENU,
-} from '@/constant';
+import { CONSOLE, RESOURCE_ACTION_BAR, OPERATIONS, TENANT_MENU, ID_COLLECTIONS } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
 import classNames from 'classnames';
@@ -154,7 +147,7 @@ function initResourceManager() {
 			id: 'menus',
 			title: '更多操作',
 			icon: 'menu',
-			contextMenu: folderMenu,
+			contextMenu: RESOURCE_ACTION_BAR,
 		},
 	];
 
@@ -210,12 +203,12 @@ function initializePane() {
 
 	molecule.panel.remove(PANEL_OUTPUT!);
 	molecule.panel.add({
-		id: OUTPUT_LOG,
+		id: ID_COLLECTIONS.OUTPUT_LOG_ID,
 		name: '日志',
 		closable: false,
 		renderPane: () => <LogEditor />,
 	});
-	molecule.panel.setActive(OUTPUT_LOG);
+	molecule.panel.setActive(ID_COLLECTIONS.OUTPUT_LOG_ID);
 }
 
 /**
@@ -383,7 +376,7 @@ function initDataSource() {
 function initLanguage() {
 	molecule.statusBar.add(
 		{
-			id: LANGUAGE_STATUS_BAR,
+			id: ID_COLLECTIONS.LANGUAGE_STATUS_BAR,
 			render: () => <Language />,
 		},
 		Float.right,

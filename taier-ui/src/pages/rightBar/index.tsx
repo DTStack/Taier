@@ -26,15 +26,7 @@ import EnvParams from '@/components/task/envParams';
 import TaskParams from '@/components/task/taskParams';
 import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
-import {
-	CREATE_DATASOURCE_PREFIX,
-	CREATE_TASK_PREFIX,
-	EDIT_DATASOURCE_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	EDIT_TASK_PREFIX,
-	TASK_TYPE_ENUM,
-	CREATE_MODEL_TYPE,
-} from '@/constant';
+import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
 import StreamSetting from '@/components/streamCollection/rightBar/streamSetting';
 import FlinkSourcePanel from '@/components/streamCollection/rightBar/flinkSource';
 import FlinkResultPanel from '@/components/streamCollection/rightBar/flinkResult';
@@ -112,12 +104,12 @@ interface IProps extends molecule.model.IEditor {
 /**
  * 不存在右边属性配置的 tab，譬如修改任务 tab 等
  */
-export const TAB_WITHOUT_DATA = [
-	EDIT_TASK_PREFIX,
-	EDIT_FOLDER_PREFIX,
-	CREATE_TASK_PREFIX,
-	CREATE_DATASOURCE_PREFIX,
-	EDIT_DATASOURCE_PREFIX,
+export const TAB_WITHOUT_DATA: string[] = [
+	ID_COLLECTIONS.EDIT_TASK_PREFIX,
+	ID_COLLECTIONS.EDIT_FOLDER_PREFIX,
+	ID_COLLECTIONS.CREATE_TASK_PREFIX,
+	ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+	ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
 ];
 
 export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, width }: IProps) => {

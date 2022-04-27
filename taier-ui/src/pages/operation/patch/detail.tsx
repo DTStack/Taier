@@ -25,7 +25,7 @@ import SlidePane from '@/components/slidePane';
 import Api from '@/api/operation';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import {
-	OFFLINE_TASK_STATUS_FILTERS,
+	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
@@ -380,7 +380,7 @@ export default () => {
 					return <TaskStatus value={text} />;
 				},
 				width: '110px',
-				filters: OFFLINE_TASK_STATUS_FILTERS,
+				filters: TASK_STATUS_FILTERS,
 				filterMultiple: true,
 			},
 			{
@@ -586,7 +586,6 @@ export default () => {
 						}
 						return '';
 					},
-					scroll: { x: 1700 },
 				}}
 				tableFooter={[
 					<Button

@@ -65,7 +65,6 @@ import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchDataSource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.Dict;
@@ -115,7 +114,6 @@ import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.EncoderUtil;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
@@ -144,7 +142,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -357,6 +354,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
             taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
             setTaskVariables(taskVO, taskVO.getId());
+            taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
         return taskVO;
     }
@@ -367,16 +365,19 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param taskId
      * @return
      */
-    private List<Task> buildDependTaskList(Long taskId){
+    private List<TaskVO> buildDependTaskList(Long taskId){
         List<BatchTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(taskId);
-        List<Task> fatherTaskVOs = Lists.newArrayList();
+        List<TaskVO> fatherTaskVOs = Lists.newArrayList();
         for (BatchTaskTask taskTask : taskTasks) {
             Long parentTaskId = taskTask.getParentTaskId();
             ScheduleTaskShade taskShade = this.taskService.findTaskByTaskId(parentTaskId);
             if (Objects.nonNull(taskShade)) {
-                Task taskInfo = new Task();
+                TaskVO taskInfo = new TaskVO();
                 taskInfo.setId(taskShade.getTaskId());
                 taskInfo.setName(taskShade.getName());
+                taskInfo.setTenantId(taskShade.getTenantId());
+                Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
+                taskInfo.setTenantName(Objects.nonNull(tenant) ? tenant.getTenantName() : "");
                 fatherTaskVOs.add(taskInfo);
             }
         }
