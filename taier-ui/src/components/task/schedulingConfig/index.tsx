@@ -25,14 +25,13 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { isArray } from 'lodash';
 import api from '@/api';
-import type { SCHEDULE_STATUS } from '@/constant';
 import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import HelpDoc from '../../../components/helpDoc';
+import { isTaskTab } from '@/utils/enums';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -263,7 +262,7 @@ export default function SchedulingConfig({
 
 	const handleDelVOS = (record: ITaskVOProps) => {
 		const dependencyTasks: ITaskVOProps[] = (current!.tab?.data.dependencyTasks || []).concat();
-		const index = dependencyTasks.findIndex((vo) => vo.taskId === record.taskId);
+		const index = dependencyTasks.findIndex((vo) => vo.id === record.id);
 		if (index === -1) return;
 		dependencyTasks.splice(index, 1);
 		changeScheduleConf?.(current!.tab!, { dependencyTasks });
@@ -274,13 +273,7 @@ export default function SchedulingConfig({
 		setSelfReliance(value);
 	};
 
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 
 	useEffect(() => {
 		if (!isInValidTab) {

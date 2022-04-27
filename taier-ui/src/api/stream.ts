@@ -95,26 +95,26 @@ export default {
 	getHistoryLog(params: any) {
 		return http.post(req.GET_HISTORY_LOG, params);
 	},
-	isOpenCdb (params: { dataInfoId: number }) {
-        return http.post(req.IS_OPEN_CDB, params)
-    },
-	getPDBList (params: { dataInfoId: number; searchKey?: string }) {
-        return http.post(req.GET_PDB_LIST, params)
-    },
+	isOpenCdb(params: { dataInfoId: number }) {
+		return http.post(req.IS_OPEN_CDB, params);
+	},
+	getPDBList(params: { dataInfoId: number; searchKey?: string }) {
+		return http.post(req.GET_PDB_LIST, params);
+	},
 	// 数据开发 - 获取启停策略列表
-    getAllStrategy () {
-        return http.post(req.GET_ALL_STRATEGY)
-    },
-	getTopicPartitionNum (params: any) {
-        return http.post(req.GET_TOPIC_PARTITION_NUM, params)
-    },
-	getSchemaTableColumn (params: any) {
-        return http.post(req.GET_SCHEMA_TABLE_COLUMN, params)
-    },
-	getSlotList (params: any) {
-        return http.post(req.GET_SLOT_LIST, params)
-    },
-	getBinlogListBySource (params: any) {
-        return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params)
-    },
+	getAllStrategy() {
+		return http.post(req.GET_ALL_STRATEGY);
+	},
+	getTopicPartitionNum(params: any) {
+		return http.post(req.GET_TOPIC_PARTITION_NUM, params);
+	},
+	getSchemaTableColumn(params: any) {
+		return http.post(req.GET_SCHEMA_TABLE_COLUMN, params);
+	},
+	getSlotList(params: any) {
+		return http.post(req.GET_SLOT_LIST, params);
+	},
+	getBinlogListBySource(params: any) {
+		return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params);
+	},
 };

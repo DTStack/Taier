@@ -257,21 +257,23 @@ export default function StreamTask() {
 					// 续跑
 					setGoOnTask(task.id);
 				} else {
-					const startRequest = task.taskType === TASK_TYPE_ENUM.SQL ? stream.startTask : stream.startCollectionTask;
+					const startRequest =
+						task.taskType === TASK_TYPE_ENUM.SQL
+							? stream.startTask
+							: stream.startCollectionTask;
 					startRequest({
-							taskId: task.id,
-							isRestoration: isRestore,
-						})
-						.then((res) => {
-							if (res.code === 1) {
-								if (res.data.status === TASK_STATUS.SUBMITTING) {
-									message.success('任务操作成功！');
-									actionRef.current?.submit();
-								} else {
-									message.error(res.data.msg);
-								}
+						taskId: task.id,
+						isRestoration: isRestore,
+					}).then((res) => {
+						if (res.code === 1) {
+							if (res.data.status === TASK_STATUS.SUBMITTING) {
+								message.success('任务操作成功！');
+								actionRef.current?.submit();
+							} else {
+								message.error(res.data.msg);
 							}
-						});
+						}
+					});
 				}
 				break;
 			}

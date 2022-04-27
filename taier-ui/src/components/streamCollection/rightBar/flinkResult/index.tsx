@@ -21,7 +21,6 @@ import { Button, Collapse, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import { cloneDeep } from 'lodash';
 import molecule from '@dtinsight/molecule';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DATA_SOURCE_ENUM } from '@/constant';
@@ -34,6 +33,7 @@ import {
 	haveTableList,
 	haveTopic,
 	isSqlServer,
+	isTaskTab,
 } from '@/utils/enums';
 import { streamTaskActions } from '../../taskFunc';
 import { initCustomParam } from '../customParamsUtil';
@@ -387,13 +387,7 @@ export default function FlinkResultPanel({ current }: Pick<IEditor, 'current'>) 
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务详情</div>;
 	}
