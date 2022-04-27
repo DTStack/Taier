@@ -4,12 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.IDownloader;
 import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IHdfsFile;
 import com.dtstack.dtcenter.loader.client.IRestful;
 import com.dtstack.dtcenter.loader.dto.restful.Response;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.RestfulSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -17,7 +16,11 @@ import com.dtstack.taier.common.http.PoolHttpClient;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
+import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.DownloadLogVO;
 import com.dtstack.taier.develop.dto.devlop.FlinkSqlRuntimeLogDTO;
 import com.dtstack.taier.develop.dto.devlop.FlinkSqlTaskManagerVO;
@@ -25,6 +28,8 @@ import com.dtstack.taier.develop.dto.devlop.RuntimeLogResultVO;
 import com.dtstack.taier.develop.enums.develop.ClusterMode;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.utils.JsonUtils;
+import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -56,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
+
 @Service
 public class FlinkSqlRuntimeLogService {
 
@@ -76,6 +83,9 @@ public class FlinkSqlRuntimeLogService {
 
     @Autowired
     FlinkDownloadLogService flinkDownloadLogService;
+
+    @Autowired
+    private DevelopTaskMapper developTaskMapper;
 
 
     private static Logger logger = LoggerFactory.getLogger(FlinkSqlRuntimeLogService.class);
@@ -99,13 +109,15 @@ public class FlinkSqlRuntimeLogService {
     /**
      * 获取taskManager信息
      *
-     * @param jobId   任务id
+     * @param taskId   任务id
      * @param tenantId
      * @return
      * @throws Exception
      */
-    public List<FlinkSqlTaskManagerVO> listTaskManagerByJobId(String jobId, Long tenantId) {
-        List<FlinkSqlRuntimeLogDTO> runtimeLogs = getTaskLogList(jobId, tenantId);
+    public List<FlinkSqlTaskManagerVO> listTaskManagerByJobId(Long taskId, Long tenantId) {
+        Task task = developTaskMapper.selectById(taskId);
+        AssertUtils.notNull(task, "任务不存在");
+        List<FlinkSqlRuntimeLogDTO> runtimeLogs = getTaskLogList(task.getJobId(), tenantId);
         List<FlinkSqlTaskManagerVO> taskManagerList = Lists.newArrayList();
         if (CollectionUtils.isEmpty(runtimeLogs)) {
             return Lists.newArrayList();
@@ -139,28 +151,30 @@ public class FlinkSqlRuntimeLogService {
         return taskManagerList;
     }
 
-    public RuntimeLogResultVO getJobManagerLog(String jobId, Integer place, Long tenantId) {
-        return getTaskRunTimeLog(jobId, null, null, place, JOB_MANAGER, tenantId);
+    public RuntimeLogResultVO getJobManagerLog(Long taskId, Integer place, Long tenantId) {
+        return getTaskRunTimeLog(taskId, null, null, place, JOB_MANAGER, tenantId);
     }
 
-    public RuntimeLogResultVO getTaskManagerLog(String jobId, String taskManagerId, Integer currentPage, int place, Long dtuicTenantId) {
-        return getTaskRunTimeLog(jobId, taskManagerId, currentPage, place, TASK_MANAGER, dtuicTenantId);
+    public RuntimeLogResultVO getTaskManagerLog(Long taskId, String taskManagerId, Integer currentPage, int place, Long dtuicTenantId) {
+        return getTaskRunTimeLog(taskId, taskManagerId, currentPage, place, TASK_MANAGER, dtuicTenantId);
     }
 
-    private RuntimeLogResultVO getTaskRunTimeLog(String jobId, String taskManagerId, Integer page, Integer place, String logType, Long tenantId) {
+    private RuntimeLogResultVO getTaskRunTimeLog(Long taskId, String taskManagerId, Integer page, Integer place, String logType, Long tenantId) {
+        Task task = developTaskMapper.selectById(taskId);
+        AssertUtils.notNull(task, "任务不存在");
         RuntimeLogResultVO runtimeLog = new RuntimeLogResultVO();
         try {
-            runtimeLog = dealRuntimeLog(jobId, taskManagerId, page, place, logType, tenantId);
+            runtimeLog = dealRuntimeLog(taskId, taskManagerId, page, place, logType, tenantId);
             return runtimeLog;
         } catch (Exception e) {
             //记录日志，不做其他处理
             logger.error("获取taskManager日志异常,{}", e.getMessage(), e);
         }
         try {
-            logger.info("再次从engine获取日志，调用接口/node/action/log jobId :{}", jobId);
-            ActionLogVO apiResponse = actionService.log(jobId);
-            if (apiResponse != null) {
-                runtimeLog.setEngineLog(apiResponse.getEngineLog());
+            logger.info("再次从engine获取日志，调用接口/node/action/log jobId :{}", task.getJobId());
+            ActionLogVO log = actionService.log(task.getJobId());
+            if (log != null) {
+                runtimeLog.setEngineLog(log.getEngineLog());
                 runtimeLog.setTotalBytes(0);
             }
         } catch (Exception e) {
@@ -173,20 +187,20 @@ public class FlinkSqlRuntimeLogService {
     /**
      * 分页处理taskManager实时日志，一页1MB
      *
-     * @param jobId
+     * @param taskId
      * @param taskManagerId
      * @param page          页码
      * @param place         起始位
      * @return
      */
-    private RuntimeLogResultVO dealRuntimeLog(String jobId, String taskManagerId, Integer page, Integer place, String logType, Long dtuicTenantId) throws Exception {
+    private RuntimeLogResultVO dealRuntimeLog(Long taskId, String taskManagerId, Integer page, Integer place, String logType, Long dtuicTenantId) throws Exception {
         Map<String, Object> logInfo = null;
         if (JOB_MANAGER.equals(logType)) {
             //获取jobManager日志相关信息
-            logInfo = getJobManagerLogInfo(jobId, dtuicTenantId);
+            logInfo = getJobManagerLogInfo(taskId, dtuicTenantId);
         } else if (TASK_MANAGER.equals(logType)) {
             //获取taskManager日志相关信息
-            logInfo = getTaskManagerLogInfo(jobId
+            logInfo = getTaskManagerLogInfo(taskId
                     , taskManagerId, dtuicTenantId);
         }
         if (CollectionUtils.isEmpty(logInfo)) {
@@ -276,12 +290,12 @@ public class FlinkSqlRuntimeLogService {
     /**
      * 获取taskManagerLog信息，包括日志名称 name、日志总字节数 totalbytes、日志路径 url
      *
-     * @param jobId        任务id
+     * @param taskId        任务id
      * @param taskManagerId
      * @return
      */
-    private Map<String, Object> getTaskManagerLogInfo(String jobId, String taskManagerId, Long tenantId) {
-        List<FlinkSqlTaskManagerVO> managerVOS = listTaskManagerByJobId(jobId, tenantId);
+    private Map<String, Object> getTaskManagerLogInfo(Long taskId, String taskManagerId, Long tenantId) {
+        List<FlinkSqlTaskManagerVO> managerVOS = listTaskManagerByJobId(taskId, tenantId);
         HashMap<String, Object> taskInfo = Maps.newHashMap();
         if (managerVOS != null && !managerVOS.isEmpty()) {
             for (FlinkSqlTaskManagerVO managerVO : managerVOS) {
@@ -299,11 +313,13 @@ public class FlinkSqlRuntimeLogService {
     /**
      * 获取jobManagerLog信息，包括日志名称 name、日志总字节数 totalbytes、日志路径 url
      *
-     * @param jobId
+     * @param taskId
      * @return
      */
-    private Map<String, Object> getJobManagerLogInfo(String jobId, Long tenantId) {
-        List<FlinkSqlRuntimeLogDTO> runtimeLogs = getTaskLogList(jobId, tenantId);
+    private Map<String, Object> getJobManagerLogInfo(Long taskId, Long tenantId) {
+        Task task = developTaskMapper.selectById(taskId);
+        AssertUtils.notNull(task, "任务不存在");
+        List<FlinkSqlRuntimeLogDTO> runtimeLogs = getTaskLogList(task.getJobId(), tenantId);
         if (CollectionUtils.isEmpty(runtimeLogs)) {
             return new HashMap<>();
         }
@@ -425,5 +441,46 @@ public class FlinkSqlRuntimeLogService {
         } else {
             return null;
         }
+    }
+
+
+    public String loadJobLogWithEngineJob(Long tenantId, Integer taskType, String applicationId, Integer byteNum, String taskManagerId) {
+        IDownloader downloader = this.downloadJobLogWithEngineJob(applicationId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum, taskManagerId);
+
+        return readJobLog(downloader);
+    }
+
+    private String readJobLog(IDownloader downloader) {
+        if (downloader == null) {
+            logger.error("-----日志文件导出失败-----");
+            return "";
+        }
+        StringBuilder result = new StringBuilder();
+        while (!downloader.reachedEnd()) {
+            Object row = downloader.readNext();
+            result.append(row);
+        }
+        return result.toString();
+    }
+
+    public IDownloader downloadJobLogWithEngineJob(String applicationId, Integer taskType, Long tenantId, Integer limitNum, String taskManagerId) {
+        JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId, EComponentType.YARN);
+        Map<String, Object> hadoop = Engine2DTOService.getHdfs(tenantId);
+        AssertUtils.notNull(yarnConf, "获取yarn集群信息失败");
+        if (MapUtils.isEmpty(hadoop)) {
+            throw new DtCenterDefException("获取hdfs信息失败");
+        }
+
+        try {
+            return new LogPluginDownload(applicationId, yarnConf, hadoop, null, taskManagerId, limitNum).getHdfsLogDownloader();
+        } catch (Exception e) {
+            logger.error("downloadJobLog 失败:" + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    //todo
+    public PageResult<List<ScheduleJobHistory>> getHistoryList(Long taskId, Integer currentPage, Integer pageSize) {
+        return null;
     }
 }
