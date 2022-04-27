@@ -2,7 +2,6 @@ package com.dtstack.taier.scheduler.server.scheduler;
 
 import com.dtstack.taier.common.CustomThreadRunsPolicy;
 import com.dtstack.taier.dao.domain.ScheduleJob;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
@@ -113,8 +112,10 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
         executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
-                new CustomThreadFactory(threadName),
-                new CustomThreadRunsPolicy(threadName, getSchedulerName()));
+                new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(),(job -> {
+                    scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
+                    LOGGER.warn("start job processor reject job {},return job to db", job.getJobId());
+                })));
     }
 
 
