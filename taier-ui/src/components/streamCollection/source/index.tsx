@@ -16,17 +16,16 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
 import { kafkaTip, sqlserverTip, syncSourceType } from "@/components/helpDoc/docs";
 import { COLLECT_TYPE, DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE, RESTFUL_METHOD, RESTFUL_RESP_MODE, SYNC_TYPE } from "@/constant";
-import { formatSourceTypes } from "@/utils";
+import { IDataSourceUsedInSyncProps } from "@/interface";
 import { getFlinkDisabledSource, isKafka } from "@/utils/enums";
 import molecule from "@dtinsight/molecule";
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
-import { Form, Radio, Select } from "antd";
+import { Form, Radio, Select, FormInstance, Button, message } from "antd";
 import { cloneDeep, debounce } from "lodash";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { sourceDefaultValue } from "../helper";
 import { streamTaskActions } from "../taskFunc";
 import Beats from "./component/beats";
@@ -40,9 +39,16 @@ import Websocket from "./component/websocket";
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
-    let { readonly, collectionData } = props;
-    collectionData.sourceMap = {...collectionData.sourceMap, ...collectionData.sourceMap.type}
+const dataSourceTypes = [{
+    name: 'MySQL',
+    value: DATA_SOURCE_ENUM.MYSQL
+}, {
+    name: 'Oracle',
+    value: DATA_SOURCE_ENUM.ORACLE
+}]
+
+const CollectionSource = (props: { readonly: any; collectionData: any; sourceList: IDataSourceUsedInSyncProps[] }) => {
+    let { readonly, collectionData = {}, sourceList } = props;
     const { isEdit, sourceMap = {}, targetMap = {}, componentVersion } = collectionData;
     const showInterval = [
         DATA_SOURCE_ENUM.DB2,
@@ -62,37 +68,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
     const onlyShowInterval = [DATA_SOURCE_ENUM.DB2, DATA_SOURCE_ENUM.GREENPLUM6, DATA_SOURCE_ENUM.SQLSERVER].includes(sourceMap?.type);
 
     const [form] = Form.useForm();
-    const [dataSourceTypes, setDataSourceTypes] = useState<{ name: string; value: number; groupTag: string; }[]>([]);
-    const [sourceList, setSourceList] = useState([]);
     const [invalidSubmit, setInvalidSubmit] = useState(false);
-    const getSupportDaTypes = () => {
-        stream.getSupportDaTypes().then(
-            (res: any) => {
-                if (res.code == 1) {
-                    setDataSourceTypes(formatSourceTypes(res.data || []))
-                }
-            }
-        )
-    }
-
-    const onSourceTypeChange = (sourceType: any) => {
-        loadSourceList(sourceType);
-    }
-
-    /**
-     * 获取合法的kafka数据源
-     */
-    const loadSourceList = (type: number) => {
-        stream.getTypeOriginData({ type }).then((res: any) => {
-            if (res.code === 1) {
-                setSourceList(res.data || [])
-            }
-        });
-    }
-
-    useEffect(() => {
-        getSupportDaTypes();
-    }, [])
 
     const mapPropsToFields = () => {
         if (!sourceMap) return {};
@@ -170,12 +146,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
     }
     const debounceFormValuesChange = debounce(onFormValuesChange, 500);
 
-    const renderForm = () => {
-        const {
-            allTable, allFileds, type, multipleTable, distributeTable = [],
-            rdbmsDaType, requestMode, decode, sourceId
-        } = sourceMap;
-        console.log(sourceMap)
+    const renderForm = (type: DATA_SOURCE_ENUM) => {
         switch (type) {
             case DATA_SOURCE_ENUM.POLAR_DB_For_MySQL:
             case DATA_SOURCE_ENUM.MYSQL:
@@ -186,11 +157,9 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
             case DATA_SOURCE_ENUM.SQLSERVER_2017_LATER:
             case DATA_SOURCE_ENUM.POSTGRESQL:
             case DATA_SOURCE_ENUM.GREENPLUM6:
-                <Rdb collectionData={collectionData} sourceList={sourceList}/>
-                break;
+                return <Rdb collectionData={collectionData} sourceList={sourceList}/>
             case DATA_SOURCE_ENUM.BEATS:
-                <Beats />
-                break;
+                return <Beats />
             case DATA_SOURCE_ENUM.TBDS_KAFKA:
             case DATA_SOURCE_ENUM.KAFKA:
             case DATA_SOURCE_ENUM.KAFKA_2X:
@@ -198,42 +167,108 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
             case DATA_SOURCE_ENUM.KAFKA_09:
             case DATA_SOURCE_ENUM.KAFKA_10:
             case DATA_SOURCE_ENUM.KAFKA_HUAWEI:
-                <Kafka collectionData={collectionData} sourceList={sourceList} form={form} />
-                break;
+                return <Kafka collectionData={collectionData} sourceList={sourceList} form={form} />
             case DATA_SOURCE_ENUM.EMQ:
-                <Emq collectionData={collectionData} sourceList={sourceList} />
-                break;
+                return <Emq collectionData={collectionData} sourceList={sourceList} />
             case DATA_SOURCE_ENUM.WEBSOCKET:
-                <Websocket collectionData={collectionData} sourceList={sourceList} />
-                break;
+                return <Websocket collectionData={collectionData} sourceList={sourceList} />
             case DATA_SOURCE_ENUM.SOCKET:
-                <Socket collectionData={collectionData} sourceList={sourceList} />
-                break;
+                return <Socket collectionData={collectionData} sourceList={sourceList} />
             case DATA_SOURCE_ENUM.RESTFUL:
-                <Restful collectionData={collectionData} />
-                break;
+                return <Restful collectionData={collectionData} />
             default:
                 return null;
         }
     }
+    const rdbmsDaTypeRadioDom = () => {
+        const { type } = sourceMap;
+        const isMYSQl = type === DATA_SOURCE_ENUM.MYSQL;
+        const isORACLE = type === DATA_SOURCE_ENUM.ORACLE;
+        const isDB2 = type == DATA_SOURCE_ENUM.DB2;
+        const isSQLSERVER = type === DATA_SOURCE_ENUM.SQLSERVER;
+        if (isDB2 || isSQLSERVER) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio>
+            </Radio.Group>
+        } else if (isMYSQl) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.BINLOG}>Binlog</Radio>
+                {/* <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio> */}
+            </Radio.Group>
+        } else if (isORACLE) {
+            return <Radio.Group disabled={isEdit}>
+                <Radio value={SYNC_TYPE.LogMiner}>LogMiner</Radio>
+                {/* <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio> */}
+            </Radio.Group>
+        } else {
+            return null
+        }
+    }
+
+    const checkGroup = () => {
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [], multipleTable } = sourceMap;
+        if (multipleTable) {
+            if (!distributeTable.length) {
+                message.warn('分表模式下至少需要一个分组！');
+                return false;
+            }
+            let nameMap: any = {};
+            for (let i = 0; i < distributeTable.length; i++) {
+                let table = distributeTable[i];
+                if (!table.name) {
+                    message.warn('请填写分组名！');
+                    return false;
+                }
+                if (!/^\w*$/.test(table.name)) {
+                    message.warn('分组名只能由字母、数字和下划线组成！');
+                    return false;
+                }
+                if (nameMap[table.name]) {
+                    message.warn('分组名不允许重复！');
+                    return false;
+                }
+                if (!table.tables?.length) {
+                    message.warn('请选择表！');
+                    return false;
+                }
+                nameMap[table.name] = true;
+            }
+        }
+        return true;
+    }
+    const next = () => {
+        form.validateFields().then(values => {
+            const { body, param } = values
+            const dataSource = body || param
+            if (validateParams(dataSource, ['key', 'value']) && checkGroup()) {
+                streamTaskActions.navtoStep(1)
+            }
+        })
+    }
 
     const onValuesChange = (fields: any) => {
         let clear = false;
+        console.log(fields)
         /**
          * 联动的 targetMap, settingMap
          */
-        let settingMap = cloneDeep(props.collectionData.settingMap);
-        let targetMap = cloneDeep(props.collectionData.targetMap);
+        let settingMap = cloneDeep(props.collectionData?.settingMap || {});
+        let targetMap = cloneDeep(props.collectionData?.targetMap || {});
         let sourceMap = props.collectionData.sourceMap;
         /**
          * 数据源类型改变，清空数据源
          */
         if (fields.type != undefined) {
             fields.sourceId = undefined;
+            fields.schema = undefined
             fields.rdbmsDaType = SYNC_TYPE.BINLOG;
             // DB2，SQLSERVER，GREENPLUM 选中间隔轮询
             if ([DATA_SOURCE_ENUM.DB2, DATA_SOURCE_ENUM.SQLSERVER, DATA_SOURCE_ENUM.GREENPLUM6].includes(fields.type)) {
                 fields.rdbmsDaType = SYNC_TYPE.INTERVAL;
+            }
+            if (fields.type === DATA_SOURCE_ENUM.ORACLE) {
+                fields.rdbmsDaType = SYNC_TYPE.LogMiner;
             }
             // Oracle 需要处理格式转换
             fields.transferType = fields.type === DATA_SOURCE_ENUM.ORACLE ? 0 : undefined;
@@ -242,6 +277,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
              */
             fields.codec = isKafka(fields.type) ? KAFKA_DATA_TYPE.TYPE_COLLECT_JSON : 'plain'
             clear = true;
+            fields.multipleTable = false;
         } else if (fields.rdbmsDaType != undefined) {
             /**
              * 任务类型改变，清空数据
@@ -261,6 +297,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
             fields.tableName = undefined;
             fields.distributeTable = undefined;
             fields.allTable = false;
+            fields.increColumn = undefined;
         }
 
         /**
@@ -386,6 +423,21 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
         if (debounceFormValuesChange) {
             debounceFormValuesChange();
         }
+        
+        const data = cloneDeep(fields || { });
+        if (data.allTable) {
+            data.table = -1
+        }
+        if (data.allFileds) {
+            data.tableFields = -1
+        }
+        if (data.timestamp) {
+            data.timestamp = moment(fields.timestamp)
+        }
+        if (data.pollingInterval) {
+            data.pollingInterval = fields.pollingInterval / 1000
+        }
+        form.setFieldsValue(data)
     }
 
     return (<div id="test_source_form">
@@ -393,6 +445,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
             {...formItemLayout}
             initialValues={mapPropsToFields()}
             onValuesChange={onValuesChange}
+            form={form}
         >
             <FormItem
                 label="数据源类型"
@@ -406,7 +459,6 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
                     getPopupContainer={(triggerNode: any) => triggerNode}
                     allowClear
                     disabled={isEdit}
-                    onChange={onSourceTypeChange}
                     placeholder="请选择数据源类型"
                     style={{ width: '100%' }}
                 >
@@ -428,23 +480,29 @@ const CollectionSource = (props: { readonly: any; collectionData: any; }) => {
                     }).filter(Boolean)}
                 </Select>
             </FormItem>
-            {showInterval && (
-                <FormItem
-                    label="任务类型"
-                    name='rdbmsDaType'
-                    rules={[{ required: true, message: '请选择任务类型' }]}
-                    tooltip={syncSourceType}
-                >
-                    <Radio.Group disabled={isEdit}>
-                        {/* DB2，SQLSERVER 只展示间隔轮询 */}
-                        {!onlyShowInterval && <Radio value={SYNC_TYPE.BINLOG}>{intervalLabel}</Radio>}
-                        {/* SQLSERVER2017 不展示间隔轮询 */}
-                        {sourceMap?.type !== DATA_SOURCE_ENUM.SQLSERVER_2017_LATER && <Radio value={SYNC_TYPE.INTERVAL}>间隔轮询</Radio>}
-                    </Radio.Group>
-                </FormItem>
-            )}
-            {renderForm()}
+            <FormItem noStyle dependencies={['type']}>
+                {(f) => {
+                    return <Fragment>
+                        {showInterval && (
+                            <FormItem
+                                label="任务类型"
+                                name='rdbmsDaType'
+                                rules={[{ required: true, message: '请选择任务类型' }]}
+                                tooltip={syncSourceType}
+                            >
+                                {rdbmsDaTypeRadioDom()}
+                            </FormItem>
+                        )}
+                        {renderForm(f.getFieldValue('type'))}
+                    </Fragment>
+                }}
+            </FormItem>
         </Form>
+        {!readonly && (
+            <div className="steps-action">
+                <Button type="primary" onClick={() => next()}>下一步</Button>
+            </div>
+        )}
     </div>)
     // }
 }

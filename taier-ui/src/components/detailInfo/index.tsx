@@ -24,6 +24,9 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 					<Descriptions.Item label={`${labelPrefix}类型：`} span={12}>
 						{taskTypeText(tab.taskType)}
 					</Descriptions.Item>
+					{tab?.componentVersion && <Descriptions.Item label="引擎版本：" span={12}>
+						{tab?.componentVersion}
+					</Descriptions.Item>}
 					<Descriptions.Item label="创建时间：" span={12}>
 						{formatDateTime(tab.gmtCreate)}
 					</Descriptions.Item>

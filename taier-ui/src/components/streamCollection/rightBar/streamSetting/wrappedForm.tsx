@@ -34,17 +34,17 @@ export default function WrappedCataForm({ defaultData, taskChange, formItemLayou
     const onChange = (val: any, item: string) => {
         const { getFieldsValue } = form;
         let params = {};
-        if (item === 'failRetry') {
+        if (item === 'isFailRetry') {
             if (val) {
                 params = {
-                    failRetry: 1,
+                    isFailRetry: 1,
                     retryIntervalUnit: 1,
                     maxRetryNum: 3,
                     retryInterval: 1
                 };
             } else {
                 params = {
-                    failRetry: 0
+                    isFailRetry: 0
                 };
             }
             params = Object.assign(params, {
@@ -59,33 +59,33 @@ export default function WrappedCataForm({ defaultData, taskChange, formItemLayou
             }
             params = {
                 ...res,
-                failRetry: res.failRetry ? 1 : 0
+                isFailRetry: res.isFailRetry ? 1 : 0
             };
         }
         taskChange(params);
     }
     const changeItem = debounce(onChange, 500, { 'maxWait': 2000 });
-    const { failRetry = 0, retryIntervalUnit, submitExpiredUnit } = defaultData || {};
+    const { isFailRetry = false, retryIntervalUnit, submitExpiredUnit } = defaultData || {};
     const retryIntervalUnitElm = (
-        <Select key={failRetry} defaultValue={retryIntervalUnit === undefined ? 1 : retryIntervalUnit} onChange={(val: any) => changeItem(val, 'retryIntervalUnit')} >
+        <Select key={isFailRetry} defaultValue={retryIntervalUnit === undefined ? 1 : retryIntervalUnit} onChange={(val: any) => changeItem(val, 'retryIntervalUnit')} >
             <Option value={1}>分钟</Option>
             <Option value={0}>秒</Option>
         </Select>
     )
 
     const submitExpiredUnitElm = (
-        <Select key={failRetry} defaultValue={submitExpiredUnit === undefined ? 1 : submitExpiredUnit} onChange={(val: any) => changeItem(val, 'submitExpiredUnit')} >
+        <Select key={isFailRetry} defaultValue={submitExpiredUnit === undefined ? 1 : submitExpiredUnit} onChange={(val: any) => changeItem(val, 'submitExpiredUnit')} >
             <Option value={1}>分钟</Option>
             <Option value={0}>秒</Option>
         </Select>
     )
     return (
         <Form
-            key={failRetry}
+            key={isFailRetry}
             form={form}
             {...formItemLayout}
             initialValues={{
-                failRetry: failRetry === 1,
+                isFailRetry: isFailRetry,
                 maxRetryNum: defaultData?.maxRetryNum || 3,
                 retryInterval: defaultData?.retryInterval || 1,
                 submitExpired: defaultData?.submitExpired || 3,
@@ -93,12 +93,12 @@ export default function WrappedCataForm({ defaultData, taskChange, formItemLayou
         >
             <Form.Item
                 label={'出错重试'}
-                name='failRetry'
+                name='isFailRetry'
                 tooltip='开启时任务失败会自动重试'
             >
-                <Checkbox onChange={(e: any) => changeItem(e.target.checked, 'failRetry')} checked={failRetry === 1}>是</Checkbox>
+                <Checkbox onChange={(e: any) => changeItem(e.target.checked, 'isFailRetry')} checked={isFailRetry}>是</Checkbox>
             </Form.Item>
-            {failRetry === 1 && <React.Fragment>
+            {isFailRetry && <React.Fragment>
                 <Form.Item
                     label="重试次数"
                     name='maxRetryNum'

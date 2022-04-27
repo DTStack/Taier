@@ -72,6 +72,11 @@ export default (props: { collectionData: any; }) => {
         }
     }, [])
 
+    useEffect(() => {
+        setTableFieldsList([])
+        setTopicList([])
+    }, [targetMap.sourceId])
+
     return (<React.Fragment>
         <FormItem
             name='topic'

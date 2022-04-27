@@ -18,7 +18,7 @@
 
 import React, { useState } from 'react';
 import { message, Modal, Form, Input, Row, Col } from 'antd';
-import { formItemLayout } from '@/constant';
+import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
 import ajax from '../../api';
 
 const { confirm } = Modal;
@@ -53,6 +53,9 @@ export default ({ data }: any) => {
     delete result.increColumn;
     delete result.input;
     delete result.isPublishToProduce;
+    if (result.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION) {
+      result.preSave = true;
+    }
     ajax
       .publishOfflineTask(result)
       .then((res: any) => {

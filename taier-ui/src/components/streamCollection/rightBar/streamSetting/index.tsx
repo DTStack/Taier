@@ -35,20 +35,20 @@ import classNames from "classnames";
 const Panel = Collapse.Panel;
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
-const formItemLayout: any = { // 表单正常布局
+const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
         sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 19 }
+        sm: { span: 18 }
     }
 }
 
 export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
     const currentPage = current?.tab?.data || {};
-    const { streamTaskRetry, streamTaskDirtyDataManageVO, isDirtyDataManage, taskType, componentVersion, strategyId } = currentPage;
+    const { scheduleConf, streamTaskDirtyDataManageVO, isDirtyDataManage, taskType, componentVersion, strategyId } = currentPage;
     const showDirtyManage =  taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && componentVersion === FLINK_VERSIONS.FLINK_1_12;
 
     const [strategyList, useStrategyList] = useState([{ id: 0, name: '无' }]);
@@ -58,7 +58,7 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
         stream.getAllStrategy().then((res: any) => {
             if (res.code == 1) {
                 const strategyList = [{ id: 0, name: '无' }, ...res.data]
-                useState(strategyList);
+                useStrategyList(strategyList);
                 strategyId && getTarget(strategyId);
             }
         })
@@ -69,7 +69,7 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
     }
     const taskChange = (res: any) => {
         const data = {
-            streamTaskRetry: { ...res, failRetry: res.failRetry === 1 ? 1 : 0 },
+            scheduleConf: JSON.stringify({ ...res, isFailRetry: res.isFailRetry }),
             notSynced: true
         }
         streamTaskActions.updateCurrentPage(data);
@@ -97,10 +97,6 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
         strategyChange(id)
     }
 
-    useEffect(() => {
-        initData()
-    }, [])
-
     /**
      * 当前的 tab 是否不合法，如不合法则展示 Empty
      */
@@ -119,14 +115,15 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
         return (<Option key={item.id} value={`${item.id}`}>{item.name}</Option>)
     })
     const extendConfig = target?.extendConfig ? JSON.parse(target.extendConfig) : {};
+    const scheduleConfData = scheduleConf ? JSON.parse(scheduleConf) : {}
     return <Collapse className="strategy-panel" bordered={false} defaultActiveKey={showDirtyManage ? ['1', '2', '3'] : ['1', '2']}>
         <Panel key="1" header="任务设置">
             <Row className="task-info strategy-info">
-                <WrappedCataForm formItemLayout={formItemLayout} defaultData={streamTaskRetry} taskChange={taskChange} />
+                <WrappedCataForm formItemLayout={formItemLayout} defaultData={scheduleConfData} taskChange={taskChange} />
             </Row>
             <LockPanel lockTarget={currentPage} />
         </Panel>
-        <Panel key="2" header="启停策略">
+        { false && <Panel key="2" header="启停策略">
             <Row className="task-info strategy-info">
                 <Alert
                     closable
@@ -135,8 +132,8 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
                     style={{ marginBottom: 20 }}
                     message="任务保存后，启停策略立刻生效" />
                 <Row>
-                    <Col span={5} className="txt-right">策略名称：</Col>
-                    <Col span={19}>
+                    <Col span={formItemLayout.labelCol.sm.span} className="txt-right">策略名称：</Col>
+                    <Col span={formItemLayout.wrapperCol.sm.span}>
                         <Select
                             className="strategy-select"
                             optionFilterProp="name"
@@ -151,14 +148,14 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
                 </Row>
                 {target?.id ? <React.Fragment>
                     <Row>
-                        <Col span={5} className="txt-right">时区：</Col>
-                        <Col span={19}>
+                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">时区：</Col>
+                        <Col span={formItemLayout.wrapperCol.sm.span}>
                             <Input disabled defaultValue={target?.timeZone} />
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={5} className="txt-right">生效区间：</Col>
-                        <Col span={19}>
+                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">生效区间：</Col>
+                        <Col span={formItemLayout.wrapperCol.sm.span}>
                             <Radio.Group value={target?.intervalType} disabled>
                                 <Radio value={INTERVAL_TYPE.EVERY}>每天</Radio>
                                 <Radio value={INTERVAL_TYPE.WORKDAY}>周一至周五</Radio>
@@ -171,22 +168,22 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
                             ? (
                                 <React.Fragment>
                                     <Row>
-                                        <Col span={5} className="txt-right">自定义文件：</Col>
-                                        <Col span={19}>
+                                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">自定义文件：</Col>
+                                        <Col span={formItemLayout.wrapperCol.sm.span}>
                                             <span>{extendConfig.csvFile?.name}</span>
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col span={5} className="txt-right">区间预览：</Col>
-                                        <Col span={19}>
+                                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">区间预览：</Col>
+                                        <Col span={formItemLayout.wrapperCol.sm.span}>
                                             <DateRange value={extendConfig.date || []} type="single" />
                                         </Col>
                                     </Row>
                                 </React.Fragment>
                             ) : (
                                 <Row>
-                                    <Col span={5} className="txt-right">日期范围：</Col>
-                                    <Col span={19}>
+                                    <Col span={formItemLayout.labelCol.sm.span} className="txt-right">日期范围：</Col>
+                                    <Col span={formItemLayout.wrapperCol.sm.span}>
                                         <div className="c-strategyPanel__time">
                                             {target?.strategyDateVOS.map((item: any) => {
                                                 return (
@@ -204,14 +201,14 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
                             )
                     }
                     <Row>
-                        <Col span={5} className="txt-right">时间范围：</Col>
-                        <Col span={19}>
+                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">时间范围：</Col>
+                        <Col span={formItemLayout.wrapperCol.sm.span}>
                             <StrategyTimeRange value={target?.strategyTimeVOS || []} disabled />
                         </Col>
                     </Row>
                     <Row>
-                        <Col span={5} className="txt-right">启动方式：</Col>
-                        <Col span={19}>
+                        <Col span={formItemLayout.labelCol.sm.span} className="txt-right">启动方式：</Col>
+                        <Col span={formItemLayout.wrapperCol.sm.span}>
                             <Radio.Group value={target?.startType} disabled>
                                 {STRATEGY_START_TYPE.map((item: any) => <Radio key={item.value} value={item.value}>{item.text}</Radio>)}
                             </Radio.Group>
@@ -220,7 +217,7 @@ export default function StreamSetting({ current }: Pick<IEditor, 'current'>) {
                 </React.Fragment> : null}
             </Row>
             <LockPanel lockTarget={currentPage} />
-        </Panel>
+        </Panel>}
         {showDirtyManage && (
             <Panel key="3" header="脏数据管理">
                 <Row className="task-info strategy-info">
