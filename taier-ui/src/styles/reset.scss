@@ -9,6 +9,9 @@
 		color: var(--menu-foreground);
 		background: var(--menu-background);
 	}
+	.ant-tooltip-arrow-content{
+		--antd-arrow-background-color: var(--menu-background)
+	}
 
 	.ant-drawer-header,
 	.ant-drawer-body,
