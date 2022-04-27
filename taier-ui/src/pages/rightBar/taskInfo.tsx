@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
+import { useMemo, Fragment } from 'react';
 import { Col, Row, Collapse } from 'antd';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import { formatDateTime } from '@/utils';
@@ -24,6 +24,7 @@ import { taskTypeText } from '@/utils/enums';
 import classNames from 'classnames';
 import { TAB_WITHOUT_DATA } from '.';
 import './taskInfo.scss';
+import React from '@handsontable/react';
 
 const { Panel } = Collapse;
 
@@ -60,6 +61,14 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 				<Col className="dt-taskinfo-value" span={16}>
 					<span>{taskTypeText(tab.data.taskType)}</span>
 				</Col>
+				{tab.data?.componentVersion && <Fragment>
+					<Col className="dt-taskinfo-key" span={8}>
+						引擎版本：
+					</Col>
+					<Col className="dt-taskinfo-value" span={16}>
+						{tab.data?.componentVersion}
+					</Col>
+				</Fragment>}
 				<Col className="dt-taskinfo-key" span={8}>
 					创建时间：
 				</Col>

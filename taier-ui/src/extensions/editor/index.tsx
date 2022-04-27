@@ -50,6 +50,7 @@ import { languages } from '@dtinsight/molecule/esm/monaco';
 import saveTask from '@/utils/saveTask';
 import { editorActionBarService } from '@/services';
 import notification from '@/components/notification';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -161,6 +162,7 @@ function emitEvent() {
 										},
 									);
 									break;
+								case TASK_TYPE_ENUM.DATA_ACQUISITION:
 								case TASK_TYPE_ENUM.SQL: {
 									apiStream
 										.convertToScriptMode({
@@ -176,6 +178,15 @@ function emitEvent() {
 													id: currentTabData.id,
 												}).then((result) => {
 													if (result.code === 1) {
+														if (currentTabData.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION) {
+															const nextTabData = current.tab!;
+															nextTabData!.data = result.data
+															Reflect.deleteProperty(nextTabData, 'renderPane');
+															nextTabData.data.language = mappingTaskTypeToLanguage(result.data.taskType);
+															nextTabData.data.value = result?.data?.sqlText;
+															molecule.editor.updateTab(nextTabData);
+															return;
+														}
 														const nextTabData = result.data;
 														molecule.editor.updateTab({
 															id: nextTabData.id.toString(),

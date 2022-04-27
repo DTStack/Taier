@@ -2,6 +2,7 @@ import api from '@/api';
 import {
 	CAT_TYPE,
 	COLLECT_TYPE,
+	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
 	KAFKA_DATA_TYPE,
 	QOS_TYPE,
@@ -12,10 +13,15 @@ import {
 	SLOAR_CONFIG_TYPE,
 	SOURCE_TIME_TYPE,
 	SYNC_TYPE,
+	TASK_SAVE_ID,
+	TASK_SUBMIT_ID,
+	TASK_TYPE_ENUM,
 } from '@/constant';
 import { haveTableColumn, isKafka } from '@/utils/enums';
 import molecule from '@dtinsight/molecule';
 import { cloneDeep, isEmpty } from 'lodash';
+
+export const UnlimitedSpeed = '不限制上传速率';
 
 // 校验字段信息
 export function checkColumnsData(rule: any, value: any, callback: any, source: any) {
@@ -83,7 +89,7 @@ export const streamTaskActions = {
 		},
 		settingMap: {
 			// 通道控制
-			speed: '-1',
+			speed: -1,
 			readerChannel: '1',
 			writerChannel: 1,
 		},
@@ -114,18 +120,45 @@ export const streamTaskActions = {
 
 		tab['data'] = page;
 		molecule.editor.updateTab(tab);
+		this.updateAction(page)
 	},
 	setCurrentPage(data: any) {
 		const state = molecule.editor.getState();
 		const tab: any = state.current?.tab || {};
 		tab['data'] = data;
 		molecule.editor.updateTab(tab);
+		this.updateAction(data)
 	},
 	updateCurrentPage(data: any) {
 		let page = this.getCurrentPage();
 		page = Object.assign({}, page, data);
 
 		this.setCurrentPage(page);
+	},
+	/**
+	 * 更新保存和提交按钮的启用禁用状态
+	 * @param page 
+	 */
+	updateAction(page: any) {
+		const { invalid, invalidSubmit, notSynced, taskType, createModel, sourceMap, targetMap } = page;
+		const isSyncTaskGuideMode = taskType === TASK_TYPE_ENUM.DATA_ACQUISITION && createModel === CREATE_MODEL_TYPE.GUIDE;
+        let isDisableSubmit = !sourceMap?.sourceId || !targetMap?.sourceId || !!(isSyncTaskGuideMode && (invalid || invalidSubmit));
+        let isDisableSave = !sourceMap?.sourceId
+			|| !targetMap?.sourceId
+			|| (isSyncTaskGuideMode && (invalid || invalidSubmit || !notSynced))
+			|| (!isSyncTaskGuideMode && !notSynced)
+		setTimeout(() => {
+			molecule.editor.updateActions([
+				{
+					id: TASK_SUBMIT_ID,
+					disabled: isDisableSubmit,
+				},
+				{
+					id: TASK_SAVE_ID,
+					disabled: isDisableSave,
+				},
+			]);
+		}, 0);
 	},
 	navtoStep(step: number) {
 		this.setCurrentPageValue('currentStep', step);
@@ -151,83 +184,84 @@ export const streamTaskActions = {
 			},
 		);
 	},
+	initCurrentPage () {
+		const page = cloneDeep(this.getCurrentPage());
+		this.setCurrentPage({ ...page, ...this.initState })
+	},
 	/**
 	 * 获取实时采集task初始化信息
 	 * @param {Int} taskId
 	 */
 	initCollectionTask(taskId: any) {
 		const page = this.getCurrentPage();
+		this.updateAction(page)
 		/**
 		 * 假如已经存在这个属性，则说明当前的task不是第一次打开，所以采用原来的数据
 		 */
 		if (typeof page.currentStep != 'undefined') {
 			return;
 		}
-		// initCurrentPage(dispatch);
 		if (page.taskVersions && page.taskVersions.length) {
 			this.setCurrentPageValue('isEdit', true);
 		}
-		api.getOfflineJobData({
-			taskId,
-		}).then((res: any) => {
-			if (!isEmpty(res.data)) {
-				const { sourceMap, targetMap } = res.data;
-				sourceMap.pavingData = !!sourceMap.pavingData;
-				sourceMap.multipleTable = sourceMap.multipleTable || false;
-				if (sourceMap.journalName || sourceMap.startSCN) {
-					sourceMap.collectType = COLLECT_TYPE.FILE;
-				} else if (sourceMap.timestamp) {
-					sourceMap.collectType = COLLECT_TYPE.TIME;
-				} else if (sourceMap.lsn) {
-					sourceMap.collectType = COLLECT_TYPE.LSN;
-				} else {
-					sourceMap.collectType = COLLECT_TYPE.ALL;
-				}
-				if (sourceMap.distributeTable) {
-					sourceMap.distributeTable = this.exchangeDistributeTable(
-						sourceMap.distributeTable,
-					);
-					sourceMap.multipleTable = true;
-				}
-				/**
-				 * 针对 kafka 的 codec, timestamp 做处理
-				 */
-				if (isKafka(sourceMap.type)) {
-					sourceMap.collectType = undefined;
-					sourceMap.codec = sourceMap.codec || KAFKA_DATA_TYPE.TYPE_COLLECT_JSON;
-				}
-				if (
-					[
-						DATA_SOURCE_ENUM.KAFKA,
-						DATA_SOURCE_ENUM.KAFKA_2X,
-						DATA_SOURCE_ENUM.TBDS_KAFKA,
-						DATA_SOURCE_ENUM.KAFKA_HUAWEI,
-					].includes(targetMap.type)
-				) {
-					targetMap.dataSequence = targetMap.dataSequence || false;
-				}
-				this.updateSourceMap(res.data.sourceMap, false, true);
-				this.updateTargetMap(res.data.targetMap, false, true);
-				this.updateChannelControlMap(res.data.setting, false, true);
-				this.setCurrentPageValue('currentStep', 3);
+		const { sourceMap, targetMap } = page;
+		if (!isEmpty(sourceMap) || !isEmpty(targetMap)) {
+			sourceMap.pavingData = !!sourceMap.pavingData;
+			sourceMap.multipleTable = sourceMap.multipleTable || false;
+			if (sourceMap.journalName || sourceMap.startSCN) {
+				sourceMap.collectType = COLLECT_TYPE.FILE;
+			} else if (sourceMap.timestamp) {
+				sourceMap.collectType = COLLECT_TYPE.TIME;
+			} else if (sourceMap.lsn) {
+				sourceMap.collectType = COLLECT_TYPE.LSN;
 			} else {
-				this.setCurrentPageValue('currentStep', 0);
+				sourceMap.collectType = COLLECT_TYPE.ALL;
 			}
-		});
+			if (sourceMap.distributeTable) {
+				sourceMap.distributeTable = this.exchangeDistributeTable(
+					sourceMap.distributeTable,
+				);
+				sourceMap.multipleTable = true;
+			}
+			/**
+			 * 针对 kafka 的 codec, timestamp 做处理
+			 */
+			if (isKafka(sourceMap.type)) {
+				sourceMap.collectType = undefined;
+				sourceMap.codec = sourceMap.codec || KAFKA_DATA_TYPE.TYPE_COLLECT_JSON;
+			}
+			if (
+				[
+					DATA_SOURCE_ENUM.KAFKA,
+					DATA_SOURCE_ENUM.KAFKA_2X,
+					DATA_SOURCE_ENUM.TBDS_KAFKA,
+					DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+				].includes(targetMap.type)
+			) {
+				targetMap.dataSequence = targetMap.dataSequence || false;
+			}
+			this.updateSourceMap(page.sourceMap, false, true);
+			this.updateTargetMap(page.targetMap, false, true);
+			this.updateChannelControlMap(page.setting, false, true);
+			this.setCurrentPageValue('currentStep', 3);
+		} else {
+			this.initCurrentPage();
+			this.setCurrentPageValue('currentStep', 0);
+		}
 	},
 
 	updateSourceMap(params: any = {}, clear: any = false, notDirty: any = false) {
 		const page = this.getCurrentPage();
-		let { sourceMap = {} } = page;
+		let sourceMap = page?.sourceMap || {}
 		if (clear) {
 			sourceMap = {
 				...this.initState.sourceMap,
-				type: sourceMap.type,
-				sourceId: sourceMap.sourceId,
-				rdbmsDaType: sourceMap.rdbmsDaType,
+				type: sourceMap?.type,
+				sourceId: sourceMap?.sourceId,
+				rdbmsDaType: sourceMap?.rdbmsDaType,
 				multipleTable: false,
-				pavingData: sourceMap.type == DATA_SOURCE_ENUM.POSTGRESQL,
-				codec: isKafka(sourceMap.type) ? KAFKA_DATA_TYPE.TYPE_COLLECT_JSON : 'plain',
+				pavingData: sourceMap?.type == DATA_SOURCE_ENUM.POSTGRESQL,
+				codec: isKafka(sourceMap?.type) ? KAFKA_DATA_TYPE.TYPE_COLLECT_JSON : 'plain',
 			};
 			this.setCurrentPageValue('targetMap', cloneDeep(this.initState.targetMap));
 		}
@@ -249,7 +283,7 @@ export const streamTaskActions = {
 
 	updateTargetMap(params = {}, clear: any, notDirty: boolean = false) {
 		const page = this.getCurrentPage();
-		let { targetMap = {} } = page;
+		let targetMap = page?.targetMap || {};
 		if (clear) {
 			targetMap = this.initState.targetMap;
 		}
@@ -268,9 +302,8 @@ export const streamTaskActions = {
 		clear: any = false,
 		notDirty: boolean = false,
 	) {
-		console.log(this);
 		const page = this.getCurrentPage();
-		let { settingMap = {} } = page;
+		let settingMap = page?.settingMap || {};
 		if (clear) {
 			settingMap = this.initState.settingMap;
 		}
@@ -281,6 +314,7 @@ export const streamTaskActions = {
 		} else if (params.isSaveDirty) {
 			params.lifeDay = 90;
 		}
+		if (params.speed === UnlimitedSpeed) params.speed = -1;
 		this.setCurrentPageValue(
 			'settingMap',
 			cloneDeep({

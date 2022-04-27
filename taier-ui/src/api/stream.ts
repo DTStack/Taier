@@ -38,24 +38,6 @@ export default {
 	saveTask(params: any) {
 		return http.post(req.SAVE_TASK, params);
 	},
-	getTask(params: any) {
-		return http.post(req.GET_TASK, params).then((res) => {
-			res.data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-			if (res.data.taskVersionsStr) {
-				res.data.taskVersions = JSON.parse(res.data.taskVersionsStr);
-			}
-			if (res.data.sideStr) {
-				res.data.side = JSON.parse(res.data.sideStr);
-			}
-			if (res.data.sinkStr) {
-				res.data.sink = JSON.parse(res.data.sinkStr);
-			}
-			if (res.data.sourceStr) {
-				res.data.source = JSON.parse(res.data.sourceStr);
-			}
-			return Promise.resolve(res);
-		});
-	},
 	// 获取Topic
 	getTopicType(params: any) {
 		return http.post(req.GET_TOPIC_TYPE, params);
@@ -90,4 +72,26 @@ export default {
 		);
 		// return http.post(, params);
 	},
+	isOpenCdb (params: { dataInfoId: number }) {
+        return http.post(req.IS_OPEN_CDB, params)
+    },
+	getPDBList (params: { dataInfoId: number; searchKey?: string }) {
+        return http.post(req.GET_PDB_LIST, params)
+    },
+	// 数据开发 - 获取启停策略列表
+    getAllStrategy () {
+        return http.post(req.GET_ALL_STRATEGY)
+    },
+	getTopicPartitionNum (params: any) {
+        return http.post(req.GET_TOPIC_PARTITION_NUM, params)
+    },
+	getSchemaTableColumn (params: any) {
+        return http.post(req.GET_SCHEMA_TABLE_COLUMN, params)
+    },
+	getSlotList (params: any) {
+        return http.post(req.GET_SLOT_LIST, params)
+    },
+	getBinlogListBySource (params: any) {
+        return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params)
+    },
 };

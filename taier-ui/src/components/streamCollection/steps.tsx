@@ -7,16 +7,23 @@ import Complete from './complete';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import { streamTaskActions } from './taskFunc';
+import { getTenantId } from '@/utils';
+import { API } from '@/api/dataSource';
+import { cloneDeep } from 'lodash';
 
 const Step = Steps.Step;
 
 class CollectionGuide extends React.Component<any, any> {
+    state = {
+        sourceList: []
+    }
     // eslint-disable-next-line
     componentDidMount () {
         // this.props.getDataSource();
         if (this.props.currentPage) {
             streamTaskActions.initCollectionTask(this.props.currentPage.id);
         }
+        this.loadSourceList()
     }
 
     navtoStep = (step: any) => {
@@ -27,49 +34,60 @@ class CollectionGuide extends React.Component<any, any> {
         this.props.saveTask();
     }
 
+    loadSourceList = () => {
+        API.queryByTenantId({ tenantId: getTenantId() })
+			.then((res) => {
+				if (res.code === 1) {
+                    this.setState({ sourceList: res.data || [] })
+				}
+			})
+    }
+
     render () {
-        // const { currentPage } = this.props;
         const currentPage = this.props.current?.tab?.data;
-        const { updateCurrentPage, updateSourceMap, updateTargetMap, updateChannelControlMap } = streamTaskActions;
-        const collectionData = currentPage || {};
+        const collectionData = cloneDeep(currentPage || {});
         const { currentStep } = collectionData;
-        // const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
         const isLocked = false;
+
         const steps: any = [
             {
                 title: '选择来源',
                 content: <Source
                     collectionData={collectionData}
+                    sourceList={this.state.sourceList}
                 />
             },
             {
                 title: '选择目标',
                 content: <Target
                     collectionData={collectionData}
+                    sourceList={this.state.sourceList}
                 />
             },
             {
                 title: '通道控制',
                 content: <Channel
                     collectionData={collectionData}
+                    sourceList={this.state.sourceList}
                 />
             },
             {
                 title: '预览保存',
                 content: <Complete
                     collectionData={collectionData}
+                    sourceList={this.state.sourceList}
                     saveJob={this.save.bind(this)}
                 />
             }
         ];
         return (currentStep || currentStep == 0) && (
-                <div className="m-datasync">
-                    <Steps current={currentStep}>
+                <div className="dt-datasync">
+                    <Steps size="small" current={currentStep}>
                         {steps.map((item: any) => <Step key={item.title} title={item.title} />)}
                     </Steps>
                     <div
                         style={{ pointerEvents: isLocked ? 'none' : 'unset' }}
-                        className={currentStep === 3 ? 'steps-content step-content-complete' : 'steps-content'}
+                        className={`steps-content step-content-complete dt-datasync-content ${currentStep === 3 && 'step-content-complete'}`}
                     >
                         {steps[currentStep] && steps[currentStep].content}
                     </div>

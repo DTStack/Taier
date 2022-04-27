@@ -180,7 +180,7 @@ export default function saveTask() {
 			const params: IParamsProps = cloneDeep(data);
 			// TODO：实时采集任务 dataSourceList 移除
 			// @ts-ignore
-			const { sourceMap = {}, targetMap = {}, createModel, dataSourceList } = params;
+			const { sourceMap = {}, targetMap = {}, createModel } = params;
 			/**
 			 * 当目标数据源为Hive时，必须勾选Json平铺
 			 */
@@ -188,10 +188,8 @@ export default function saveTask() {
 				isKafka(sourceMap?.type) ||
 				sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
 				sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
-			const index = dataSourceList.findIndex((v: any) => v.id === targetMap?.sourceId);
 			if (
-				index > -1 &&
-				dataSourceList[index].type === DATA_SOURCE_ENUM.HIVE &&
+				targetMap?.type === DATA_SOURCE_ENUM.HIVE &&
 				!sourceMap.pavingData &&
 				!haveJson
 			) {

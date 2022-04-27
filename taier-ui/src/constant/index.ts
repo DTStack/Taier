@@ -131,7 +131,7 @@ export enum TASK_TYPE_ENUM {
 	/**
 	 * 实时任务
 	 */
-	DATA_ACQUISITION = 37,
+	DATA_ACQUISITION = 6,
 }
 
 /**

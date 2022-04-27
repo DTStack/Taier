@@ -46,6 +46,7 @@ import {
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import StreamCollection from '@/components/streamCollection';
+import { editorActionBarService } from '@/services';
 
 /**
  * Update task tree node
@@ -275,6 +276,9 @@ export function openTaskInTab(
 	if (molecule.editor.isOpened(taskId.toString())) {
 		const groupId = molecule.editor.getGroupIdByTab(taskId.toString())!;
 		molecule.editor.setActive(groupId, taskId.toString());
+		window.setTimeout(() => {
+			editorActionBarService.performSyncTaskActions();
+		}, 0);
 		return;
 	}
 
