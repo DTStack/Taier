@@ -25,52 +25,34 @@
         </encoder>
     </appender>
 
-    <appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${log.file}</File>
-        <Append>false</Append>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n</pattern>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <maxIndex>3</maxIndex>
-            <FileNamePattern>${log.file}.%i</FileNamePattern>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>30MB</MaxFileSize>
-        </triggeringPolicy>
-    </appender>
-
     <!-- This affects logging for both user code and Flink -->
-    <root level="DEBUG">
-        <appender-ref ref="rollingFile"/>
+    <root level="FATAL">
+        <appender-ref ref="file"/>
     </root>
 
     <!-- Uncomment this if you want to only change Flink's logging -->
-    <logger name="org.apache.flink" level="DEBUG">
-        <appender-ref ref="rollingFile"/>
-    </logger>
+    <!--<logger name="org.apache.flink" level="INFO">-->
+        <!--<appender-ref ref="file"/>-->
+    <!--</logger>-->
 
     <!-- The following lines keep the log level of common libraries/connectors on
          log level INFO. The root logger does not override this. You have to manually
          change the log levels here. -->
-    <logger name="akka" level="DEBUG">
-        <appender-ref ref="rollingFile"/>
+    <logger name="akka" level="INFO">
+        <appender-ref ref="file"/>
     </logger>
-    <logger name="org.apache.kafka" level="DEBUG">
-        <appender-ref ref="rollingFile"/>
+    <logger name="org.apache.kafka" level="INFO">
+        <appender-ref ref="file"/>
     </logger>
-    <logger name="org.apache.hadoop" level="DEBUG">
-        <appender-ref ref="rollingFile"/>
+    <logger name="org.apache.hadoop" level="INFO">
+        <appender-ref ref="file"/>
     </logger>
-    <logger name="org.apache.zookeeper" level="DEBUG">
-        <appender-ref ref="rollingFile"/>
+    <logger name="org.apache.zookeeper" level="INFO">
+        <appender-ref ref="file"/>
     </logger>
 
     <!-- Suppress the irrelevant (wrong) warnings from the Netty channel handler -->
     <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR">
-        <appender-ref ref="rollingFile"/>
+        <appender-ref ref="file"/>
     </logger>
 </configuration>
