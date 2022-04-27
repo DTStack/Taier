@@ -22,15 +22,19 @@ import { PlusOutlined, ExclamationCircleFilled, DeleteOutlined } from '@ant-desi
 import { cloneDeep, isEmpty } from 'lodash';
 import { useEffect, useMemo, useReducer, useState } from 'react';
 import { streamTaskActions } from '../../taskFunc';
-import { getCreateTypes, getDataBaseList } from '../panelData';
 import classNames from 'classnames';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
 import { DATA_SOURCE_ENUM, TABLE_SOURCE, TABLE_TYPE } from '@/constant';
 import stream from '@/api/stream';
 import LockPanel from '../lockPanel';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import { changeCustomParams, initCustomParam } from '../customParamsUtil';
-import { haveSchema, haveTableColumn, haveTableList, isCacheExceptLRU } from '@/utils/enums';
+import {
+	haveSchema,
+	haveTableColumn,
+	haveTableList,
+	isCacheExceptLRU,
+	isTaskTab,
+} from '@/utils/enums';
 import DimensionForm from './form';
 import molecule from '@dtinsight/molecule';
 
@@ -754,9 +758,7 @@ export default function FlinkDimensionPanel({ current }: Pick<IEditor, 'current'
 					visible={popoverVisible[index]}
 					{...onClickFix}
 				>
-					<DeleteOutlined
-						className={classNames('title-icon')}
-					/>
+					<DeleteOutlined className={classNames('title-icon')} />
 				</Popover>
 			</div>
 		);
@@ -812,13 +814,7 @@ export default function FlinkDimensionPanel({ current }: Pick<IEditor, 'current'
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务详情</div>;
 	}

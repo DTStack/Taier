@@ -92,7 +92,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 						if (res.code === 1) {
 							form.setFieldsValue({
 								createModel: res.data.createModel,
-								syncModel: res.data.syncModel,
+								syncModel: res.data.sourceMap.syncModel,
 							});
 						}
 					})
@@ -138,9 +138,9 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const checkSyncMode = async (_: any, value: DATA_SYNC_MODE) => {
 		if (record && value === DATA_SYNC_MODE.INCREMENT) {
 			// 当编辑同步任务，且改变同步模式为增量模式时，需要检测任务是否满足增量同步的条件
-			const res = await api.checkSyncMode(record);
+			const res = await api.checkSyncMode({ id: record.id });
 			if (res.code === 1) {
-				return Promise.resolve();
+				return res.data ? Promise.resolve() : Promise.reject();
 			}
 
 			return Promise.reject(new Error('当前同步任务不支持增量模式！'));

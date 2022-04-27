@@ -1,10 +1,8 @@
 import api from '@/api';
-import {
-	CREATE_MODEL_TYPE,
-	ID_COLLECTIONS,
-} from '@/constant';
+import { CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
 import { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { editorActionBarService } from '@/services';
+import { isTaskTab } from '@/utils/enums';
 import saveTask from '@/utils/saveTask';
 import molecule from '@dtinsight/molecule';
 import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
@@ -38,15 +36,7 @@ export default class QuickSaveTaskAction extends Action2 {
 
 	run() {
 		const { current } = molecule.editor.getState();
-		// 不需要保存任务的 tab
-		const NOT_RUN = [
-			ID_COLLECTIONS.EDIT_TASK_PREFIX,
-			ID_COLLECTIONS.EDIT_FOLDER_PREFIX,
-			ID_COLLECTIONS.CREATE_TASK_PREFIX,
-			ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
-			ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
-		];
-		if (current && !NOT_RUN.some((prefix) => current.activeTab?.toString().includes(prefix))) {
+		if (current && isTaskTab(current.tab?.id)) {
 			const currentTabData: CatalogueDataProps & IOfflineTaskProps = current?.tab?.data;
 			const taskToolbar = editorActionBarService.getActionBar(
 				currentTabData.taskType,

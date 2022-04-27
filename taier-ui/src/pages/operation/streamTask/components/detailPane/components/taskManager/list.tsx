@@ -1,100 +1,87 @@
-import * as React from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Table, Breadcrumb } from 'antd';
 import { IStreamTaskProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import stream from '@/api/stream';
 
-interface IState {
-    taskList: ITaskList[];
-}
-
 interface IProps {
-    data: IStreamTaskProps | undefined;
-    toTaskDetail: (record: ITaskList) => void;
+	data: IStreamTaskProps | undefined;
+	onTaskDetail: (record: ITaskList) => void;
 }
 
 export interface ITaskList {
-    id: number;
-    dataPort: string;
-    freeSlots: number;
-    slotsNumber: number;
+	id: number;
+	dataPort: string;
+	freeSlots: number;
+	slotsNumber: number;
 }
 
-class TaskManagerList extends React.Component<IProps, IState> {
-    state: IState = {
-        taskList: []
-    }
+export default function TaskManagerList({ data, onTaskDetail }: IProps) {
+	const [taskList, setTaskList] = useState<ITaskList[]>([]);
+	const [loading, setLoading] = useState(false);
 
-    componentDidMount () {
-        this.getTaskManageList();
-    }
+	const getTaskManageList = async () => {
+		setLoading(true);
+		const res = await stream.listTaskManager({ taskId: data?.id });
+		if (res.code == 1) {
+			setTaskList(res.data || []);
+		}
+		setLoading(false);
+	};
 
-    getTaskManageList = async () => {
-        const { data } = this.props;
-        const res = await stream.listTaskManager({ taskId: data?.id });
-        if (res.code == 1) {
-            this.setState({
-                taskList: res.data
-            })
-        }
-    }
+	useEffect(() => {
+		getTaskManageList();
+	}, []);
 
-    toTaskDetail = (record: ITaskList) => {
-        this.props.toTaskDetail(record);
-    }
-
-    columns: ColumnsType<ITaskList> = [
-        {
-            title: 'Task ID',
-            dataIndex: 'id',
-            render: (id, record) => {
-                return <a onClick={this.toTaskDetail.bind(this, record)}>{id}</a>
-            }
-        },
-        {
-            title: 'Data Port',
-            dataIndex: 'dataPort',
-            render: (dataPort, record) => {
-                return <a onClick={this.toTaskDetail.bind(this, record)}>{dataPort || '-'}</a>
-            }
-        },
-        {
-            title: 'Free /All Slots',
-            dataIndex: 'freeSlots',
-            render: (freeSlots, record) => {
-                const freeSlot = freeSlots || freeSlots == 0 ? freeSlots : '-'
-                const slotsNumber = record.slotsNumber || record.slotsNumber == 0 ? record.slotsNumber : '-'
-                return `${freeSlot} / ${slotsNumber}`
-            }
-        },
-        {
-            title: '操作',
-            dataIndex: 'deal',
-            width: 100,
-            render: (_, record) => {
-                return <a onClick={this.toTaskDetail.bind(this, record)}>查看详情</a>
-            }
-        }
-    ]
-
-    render () {
-        const { taskList } = this.state
-
-        return (
-            <div style={{ padding: '0 20px 25px' }}>
-                <Breadcrumb>
-                    <Breadcrumb.Item>Task List</Breadcrumb.Item>
-                </Breadcrumb>
-                <Table
-                    columns={this.columns}
-                    style={{ marginTop: 16, boxShadow: 'unset' }}
-                    dataSource={taskList}
-                    className="dt-table-border"
-                    pagination={false}
-                />
-            </div>
-        )
-    }
+	const columns = useMemo<ColumnsType<ITaskList>>(() => {
+		return [
+			{
+				title: 'Task ID',
+				dataIndex: 'id',
+				render: (id, record) => {
+					return <a onClick={() => onTaskDetail(record)}>{id}</a>;
+				},
+			},
+			{
+				title: 'Data Port',
+				dataIndex: 'dataPort',
+				render: (dataPort, record) => {
+					return <a onClick={() => onTaskDetail(record)}>{dataPort || '-'}</a>;
+				},
+			},
+			{
+				title: 'Free /All Slots',
+				dataIndex: 'freeSlots',
+				render: (freeSlots, record) => {
+					const freeSlot = freeSlots || freeSlots == 0 ? freeSlots : '-';
+					const slotsNumber =
+						record.slotsNumber || record.slotsNumber == 0 ? record.slotsNumber : '-';
+					return `${freeSlot} / ${slotsNumber}`;
+				},
+			},
+			{
+				title: '操作',
+				dataIndex: 'deal',
+				width: 100,
+				render: (_, record) => {
+					return <a onClick={() => onTaskDetail(record)}>查看详情</a>;
+				},
+			},
+		];
+	}, []);
+	return (
+		<div style={{ padding: '0 20px 25px' }}>
+			<Breadcrumb>
+				<Breadcrumb.Item>Task List</Breadcrumb.Item>
+			</Breadcrumb>
+			<Table<ITaskList>
+				loading={loading}
+				columns={columns}
+				style={{ marginTop: 16 }}
+				dataSource={taskList}
+				className="dt-table-border"
+				pagination={false}
+			/>
+		</div>
+	);
 }
-
-export default TaskManagerList;

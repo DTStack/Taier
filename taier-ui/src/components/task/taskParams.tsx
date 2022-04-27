@@ -23,7 +23,7 @@ import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import { formItemLayout, PARAMS_ENUM } from '@/constant';
 import HelpDoc from '../../components/helpDoc';
-import { TAB_WITHOUT_DATA } from '@/pages/rightBar';
+import { isTaskTab } from '@/utils/enums';
 import './taskParams.scss';
 
 const FormItem = Form.Item;
@@ -71,13 +71,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 
 	const systemParams = useMemo(() => {
 		if (isInValidTab) {

@@ -119,9 +119,14 @@ export default function TaskDetailPane({
 		setLogSubTabKey(e.target.value);
 	};
 
-	const handleCloseSlidePane = () => {
+	const resetTabs = () => {
 		setTabKey(TABS_ENUM.GRAPH);
+		setLogSubTabKey(TABS_LOG_ENUM.RUN_LOG);
 		setTaskParams(undefined);
+	};
+
+	const handleCloseSlidePane = () => {
+		resetTabs();
 		closeSlidePane();
 	};
 
@@ -133,7 +138,7 @@ export default function TaskDetailPane({
 			case TABS_LOG_ENUM.FAILOVER:
 				return <Failover key={id} isShow={logSubTabKey === 'failover'} data={data} />;
 			case TABS_LOG_ENUM.TASK_MANAGER:
-				return <TaskManager key={id} isShow={logSubTabKey === 'taskManager'} data={data} />;
+				return <TaskManager key={id} data={data} />;
 			case TABS_LOG_ENUM.CHECKPOINT:
 				return <CheckPoint data={data} tabKey={logSubTabKey} />;
 			case TABS_LOG_ENUM.HISTORY_LOG:
@@ -183,7 +188,7 @@ export default function TaskDetailPane({
 	useEffect(() => {
 		if (visibleSlidePane) {
 			// while data changed, reset the tabKey
-			setTabKey(TABS_ENUM.GRAPH);
+			resetTabs();
 		}
 	}, [data]);
 

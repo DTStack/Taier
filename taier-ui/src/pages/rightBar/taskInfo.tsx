@@ -20,8 +20,8 @@ import { useMemo } from 'react';
 import { Collapse } from 'antd';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import classNames from 'classnames';
-import { TAB_WITHOUT_DATA } from '.';
 import DetailInfo from '@/components/detailInfo';
+import { isTaskTab } from '@/utils/enums';
 
 const { Panel } = Collapse;
 
@@ -29,13 +29,7 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
-	const isInValidTab = useMemo(
-		() =>
-			!current ||
-			!current.activeTab ||
-			TAB_WITHOUT_DATA.some((prefix) => current.activeTab?.toString().includes(prefix)),
-		[current],
-	);
+	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 
 	const renderTaskInfo = () => {
 		if (isInValidTab) {

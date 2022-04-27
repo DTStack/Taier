@@ -4,6 +4,7 @@ import {
 	COLLECT_TYPE,
 	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
+	ID_COLLECTIONS,
 	KAFKA_DATA_TYPE,
 	QOS_TYPE,
 	READ_MODE_TYPE,
@@ -13,8 +14,6 @@ import {
 	SLOAR_CONFIG_TYPE,
 	SOURCE_TIME_TYPE,
 	SYNC_TYPE,
-	TASK_SAVE_ID,
-	TASK_SUBMIT_ID,
 	TASK_TYPE_ENUM,
 } from '@/constant';
 import { haveTableColumn, isKafka } from '@/utils/enums';
@@ -120,14 +119,14 @@ export const streamTaskActions = {
 
 		tab['data'] = page;
 		molecule.editor.updateTab(tab);
-		this.updateAction(page)
+		this.updateAction(page);
 	},
 	setCurrentPage(data: any) {
 		const state = molecule.editor.getState();
 		const tab: any = state.current?.tab || {};
 		tab['data'] = data;
 		molecule.editor.updateTab(tab);
-		this.updateAction(data)
+		this.updateAction(data);
 	},
 	updateCurrentPage(data: any) {
 		let page = this.getCurrentPage();
@@ -137,24 +136,30 @@ export const streamTaskActions = {
 	},
 	/**
 	 * 更新保存和提交按钮的启用禁用状态
-	 * @param page 
+	 * @param page
 	 */
 	updateAction(page: any) {
-		const { invalid, invalidSubmit, notSynced, taskType, createModel, sourceMap, targetMap } = page;
-		const isSyncTaskGuideMode = taskType === TASK_TYPE_ENUM.DATA_ACQUISITION && createModel === CREATE_MODEL_TYPE.GUIDE;
-        let isDisableSubmit = !sourceMap?.sourceId || !targetMap?.sourceId || !!(isSyncTaskGuideMode && (invalid || invalidSubmit));
-        let isDisableSave = !sourceMap?.sourceId
-			|| !targetMap?.sourceId
-			|| (isSyncTaskGuideMode && (invalid || invalidSubmit || !notSynced))
-			|| (!isSyncTaskGuideMode && !notSynced)
+		const { invalid, invalidSubmit, notSynced, taskType, createModel, sourceMap, targetMap } =
+			page;
+		const isSyncTaskGuideMode =
+			taskType === TASK_TYPE_ENUM.DATA_ACQUISITION && createModel === CREATE_MODEL_TYPE.GUIDE;
+		let isDisableSubmit =
+			!sourceMap?.sourceId ||
+			!targetMap?.sourceId ||
+			!!(isSyncTaskGuideMode && (invalid || invalidSubmit));
+		let isDisableSave =
+			!sourceMap?.sourceId ||
+			!targetMap?.sourceId ||
+			(isSyncTaskGuideMode && (invalid || invalidSubmit || !notSynced)) ||
+			(!isSyncTaskGuideMode && !notSynced);
 		setTimeout(() => {
 			molecule.editor.updateActions([
 				{
-					id: TASK_SUBMIT_ID,
+					id: ID_COLLECTIONS.TASK_SUBMIT_ID,
 					disabled: isDisableSubmit,
 				},
 				{
-					id: TASK_SAVE_ID,
+					id: ID_COLLECTIONS.TASK_SAVE_ID,
 					disabled: isDisableSave,
 				},
 			]);
@@ -184,9 +189,9 @@ export const streamTaskActions = {
 			},
 		);
 	},
-	initCurrentPage () {
+	initCurrentPage() {
 		const page = cloneDeep(this.getCurrentPage());
-		this.setCurrentPage({ ...page, ...this.initState })
+		this.setCurrentPage({ ...page, ...this.initState });
 	},
 	/**
 	 * 获取实时采集task初始化信息
@@ -194,7 +199,7 @@ export const streamTaskActions = {
 	 */
 	initCollectionTask(taskId: any) {
 		const page = this.getCurrentPage();
-		this.updateAction(page)
+		this.updateAction(page);
 		/**
 		 * 假如已经存在这个属性，则说明当前的task不是第一次打开，所以采用原来的数据
 		 */
@@ -218,9 +223,7 @@ export const streamTaskActions = {
 				sourceMap.collectType = COLLECT_TYPE.ALL;
 			}
 			if (sourceMap.distributeTable) {
-				sourceMap.distributeTable = this.exchangeDistributeTable(
-					sourceMap.distributeTable,
-				);
+				sourceMap.distributeTable = this.exchangeDistributeTable(sourceMap.distributeTable);
 				sourceMap.multipleTable = true;
 			}
 			/**
@@ -252,7 +255,7 @@ export const streamTaskActions = {
 
 	updateSourceMap(params: any = {}, clear: any = false, notDirty: any = false) {
 		const page = this.getCurrentPage();
-		let sourceMap = page?.sourceMap || {}
+		let sourceMap = page?.sourceMap || {};
 		if (clear) {
 			sourceMap = {
 				...this.initState.sourceMap,
