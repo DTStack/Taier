@@ -262,17 +262,18 @@ export default function StreamTask() {
 							? stream.startTask
 							: stream.startCollectionTask;
 					startRequest({
-						taskId: task.id,
-						isRestoration: isRestore,
-					}).then((res) => {
-						if (res.code === 1) {
-							if (res.data.status === TASK_STATUS.SUBMITTING) {
-								message.success('任务操作成功！');
-								actionRef.current?.submit();
-							} else {
-								message.error(res.data.msg);
+							id: task.id,
+							isRestoration: isRestore,
+						})
+						.then((res) => {
+							if (res.code === 1) {
+								if (res.data.status === TASK_STATUS.SUBMITTING) {
+									message.success('任务操作成功！');
+									actionRef.current?.submit();
+								} else {
+									message.error(res.data.msg);
+								}
 							}
-						}
 					});
 				}
 				break;
