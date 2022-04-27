@@ -1,192 +1,156 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { Pagination, Tooltip, Breadcrumb } from 'antd';
 import Editor from '@/components/editor';
 import { TASK_STATUS } from '@/constant';
-import { Pagination, Tooltip, Breadcrumb } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { isEmpty } from 'lodash';
-import { ITaskList } from './list';
 import { IStreamTaskProps } from '@/interface';
 import stream from '@/api/stream';
-
-const editorOptions = {
-	mode: 'simpleLog',
-	lineNumbers: true,
-	readOnly: true,
-	autofocus: false,
-	indentWithTabs: true,
-	smartIndent: true,
-};
-
-interface IState {
-	logInfo: {
-		place?: number;
-		totalPage?: number;
-		engineLog?: string;
-		downLoadLog?: string;
-	} | null;
-	spin: boolean;
-	current: number;
-}
+import { ITaskList } from './list';
+import './log.scss';
 
 interface IProps {
-	isFail: boolean;
 	taskDetail: ITaskList | null;
 	data: IStreamTaskProps | undefined;
 	toTaskDetail: (record: ITaskList | null) => void;
 }
 
-class TaskManagerLog extends React.Component<IProps, IState> {
-	state: IState = {
-		logInfo: {
-			place: -1,
-			engineLog: '',
-		},
-		spin: false,
-		current: 1,
-	};
-	FIRST_CURRENT = 1;
-	MAX_ENGINE_LOG = 1024 * 1024;
-	_editorRef: any;
+interface ILogInfoProps {
+	place?: number;
+	totalPage?: number;
+	engineLog?: string;
+	downLoadLog?: string;
+}
 
-	componentDidMount() {
-		this.getLog();
-	}
+const FIRST_CURRENT = 1;
+const MAX_ENGINE_LOG = 1024 * 1024;
 
-	prepareLogInfo(logInfo: IState['logInfo']): IState['logInfo'] {
+export default function TaskManagerLog({ data, taskDetail, toTaskDetail }: IProps) {
+	const [spin, setSpin] = useState(false);
+	const [logInfo, setLogInfo] = useState<ILogInfoProps>({
+		place: -1,
+		engineLog: '',
+	});
+	const [current, setCurrent] = useState(1);
+
+	const prepareLogInfo = (logInfo: ILogInfoProps): ILogInfoProps | null => {
 		if (isEmpty(logInfo)) return null;
 		let { engineLog } = logInfo || {};
-		if (engineLog!.length > this.MAX_ENGINE_LOG) {
-			engineLog = engineLog?.substr(0, this.MAX_ENGINE_LOG);
+		if (engineLog!.length > MAX_ENGINE_LOG) {
+			engineLog = engineLog?.substr(0, MAX_ENGINE_LOG);
 		}
 		return {
 			...logInfo,
 			engineLog,
 		};
-	}
+	};
 
-	getLog = async () => {
-		const { taskDetail, data } = this.props;
-		const { current, logInfo } = this.state;
+	const getLog = async () => {
 		if (!taskDetail || !taskDetail.id) {
 			return;
 		}
-		const params: any = {
+		const params = {
 			taskId: data?.id,
 			taskManagerId: taskDetail.id,
 			currentPage: current,
-			place: current == this.FIRST_CURRENT ? -1 : logInfo?.place,
+			place: current == FIRST_CURRENT ? -1 : logInfo?.place,
 		};
+		setSpin(true);
 		if (data?.status == TASK_STATUS.RUNNING) {
 			const res = await stream.getTaskManagerLog(params);
 			if (res && res.code == 1) {
-				this.setState({
-					logInfo: this.prepareLogInfo(res.data),
-					spin: false,
-				});
+				const nextLogInfo = prepareLogInfo(res.data);
+				if (nextLogInfo) {
+					setLogInfo(nextLogInfo);
+				}
 			}
+			setSpin(false);
 		} else {
 			const res = await stream.getTaskLogs({
 				taskId: data?.id,
 				taskManagerId: taskDetail.id,
 			});
 			if (res && res.code == 1) {
-				this.setState({
-					logInfo: res.data,
-					spin: false,
-				});
+				setLogInfo(res.data);
 			}
+			setSpin(false);
 		}
 	};
 
-	refreshData = () => {
-		this.setState(
-			{
-				spin: true,
-			},
-			this.getLog,
-		);
+	const refreshData = () => {
+		getLog();
 	};
 
-	onPaginationChange = (current: number) => {
-		this.setState(
-			{
-				current,
-			},
-			this.getLog,
-		);
+	const onPaginationChange = (current: number) => {
+		setCurrent(current);
 	};
 
-	getBaseInfo() {
-		const { logInfo, current, spin } = this.state;
-		const { isFail, taskDetail, data } = this.props;
-		const isRunning = data?.status == TASK_STATUS.RUNNING;
-		const pagination: any = {
-			current,
-			pageSize: 1,
-			total: logInfo?.totalPage ?? 1,
-		};
+	useEffect(() => {
+		getLog();
+	}, [current]);
 
-		return (
-			<div style={{ height: '100%' }}>
-				<div className="c-taskManage__log__header">
-					<Breadcrumb>
-						<Breadcrumb.Item
-							onClick={() => {
-								this.props.toTaskDetail(null);
-							}}
-						>
-							<a>Task List</a>
-						</Breadcrumb.Item>
-						<Breadcrumb.Item>{taskDetail?.id}</Breadcrumb.Item>
-					</Breadcrumb>
-					<Tooltip title="刷新数据">
-						<SyncOutlined
-							type="sync"
-							spin={spin}
-							onClick={this.refreshData}
-							style={{
-								cursor: 'pointer',
-								color: '#94A8C6',
-							}}
-						/>
-					</Tooltip>
-				</div>
-				{isFail && (
-					<div className="c-taskManage__log__downLoadLog">
-						当前Task Manager完整日志下载地址：
-						{logInfo?.downLoadLog ? (
-							<a href={`taier/${logInfo.downLoadLog}`}>logDownload</a>
-						) : (
-							<span>日志加载中...</span>
-						)}
-					</div>
-				)}
-				<div className="c-taskManage__log__editor">
-					<Editor
-						sync
-						style={{ height: '100%' }}
-						value={logInfo?.engineLog ?? ''}
-						options={editorOptions}
-						editorRef={(ref: any) => {
-							this._editorRef = ref;
+	const isRunning = data?.status == TASK_STATUS.RUNNING;
+	const isFail = data?.status == TASK_STATUS.RUN_FAILED || data?.status == TASK_STATUS.STOPED;
+
+	return (
+		<div style={{ height: '100%' }}>
+			<div className="c-taskManage__log__header">
+				<Breadcrumb>
+					<Breadcrumb.Item
+						onClick={() => {
+							toTaskDetail(null);
+						}}
+					>
+						<a>Task List</a>
+					</Breadcrumb.Item>
+					<Breadcrumb.Item>{taskDetail?.id}</Breadcrumb.Item>
+				</Breadcrumb>
+				<Tooltip title="刷新数据">
+					<SyncOutlined
+						type="sync"
+						spin={spin}
+						onClick={refreshData}
+						style={{
+							cursor: 'pointer',
+							color: '#94A8C6',
 						}}
 					/>
-				</div>
-				{isRunning && (
-					<Pagination
-						{...pagination}
-						showQuickJumper
-						className="c-taskManage__log__pagination"
-						onChange={this.onPaginationChange}
-					/>
-				)}
+				</Tooltip>
 			</div>
-		);
-	}
-
-	render() {
-		return this.getBaseInfo();
-	}
+			{isFail && (
+				<div className="c-taskManage__log__downLoadLog">
+					当前Task Manager完整日志下载地址：
+					{logInfo?.downLoadLog ? (
+						<a href={`taier/${logInfo.downLoadLog}`}>logDownload</a>
+					) : (
+						<span>日志加载中...</span>
+					)}
+				</div>
+			)}
+			<div className="c-taskManage__log__editor">
+				<Editor
+					sync
+					style={{ height: '100%' }}
+					value={logInfo?.engineLog ?? ''}
+					language="jsonlog"
+					options={{
+						readOnly: true,
+						minimap: {
+							enabled: false,
+						},
+					}}
+				/>
+			</div>
+			{isRunning && (
+				<Pagination
+					current={current}
+					pageSize={1}
+					total={logInfo?.totalPage ?? 1}
+					showQuickJumper
+					className="c-taskManage__log__pagination"
+					onChange={onPaginationChange}
+				/>
+			)}
+		</div>
+	);
 }
-
-export default TaskManagerLog;

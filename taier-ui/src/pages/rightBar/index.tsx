@@ -105,17 +105,6 @@ interface IProps extends molecule.model.IEditor {
 	width: number;
 }
 
-/**
- * 不存在右边属性配置的 tab，譬如修改任务 tab 等
- */
-export const TAB_WITHOUT_DATA: string[] = [
-	ID_COLLECTIONS.EDIT_TASK_PREFIX,
-	ID_COLLECTIONS.EDIT_FOLDER_PREFIX,
-	ID_COLLECTIONS.CREATE_TASK_PREFIX,
-	ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
-	ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
-];
-
 export default connect(molecule.editor, ({ current: propsCurrent, onTabClick, width }: IProps) => {
 	const [current, setCurrent] = useState('');
 

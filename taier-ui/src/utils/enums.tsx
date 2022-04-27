@@ -22,6 +22,7 @@ import {
 	DATA_SOURCE_TEXT,
 	ENGINE_SOURCE_TYPE_ENUM,
 	FLINK_VERSIONS,
+	ID_COLLECTIONS,
 	KAFKA_DATA_TYPE,
 	RESOURCE_TYPE,
 	TASK_LANGUAGE,
@@ -29,6 +30,7 @@ import {
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
 } from '@/constant';
+import { UniqueId } from '@dtinsight/molecule/esm/common/types';
 
 export function taskTypeText(type: TASK_TYPE_ENUM) {
 	switch (type) {
@@ -763,4 +765,21 @@ export function haveCustomParams(type: any) {
 		DATA_SOURCE_ENUM.KUDU,
 	];
 	return list.indexOf(type) > -1;
+}
+
+/**
+ * 根据任务 ID 来区分是否是任务 Tab
+ */
+export function isTaskTab(id?: UniqueId) {
+	if (!id) return false;
+	if (typeof id === 'number') return true;
+	const NON_TASK_TAB = [
+		ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+		ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
+		ID_COLLECTIONS.CREATE_TASK_PREFIX,
+		ID_COLLECTIONS.EDIT_TASK_PREFIX,
+		ID_COLLECTIONS.EDIT_FOLDER_PREFIX,
+	];
+
+	return !NON_TASK_TAB.some((prefix) => id.startsWith(prefix));
 }

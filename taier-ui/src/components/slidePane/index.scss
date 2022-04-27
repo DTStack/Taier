@@ -3,10 +3,8 @@
 	z-index: 99;
 	display: inline-block;
 	line-height: 50px;
-	background: var(--editor-background);
-	// border-bottom: 1px solid var(--panel-border);
+	background: var(--editorGroupHeader-tabsBackground);
 	border-left: 1px solid var(--panel-border);
-	// box-shadow: -2px 0 2px 0 var(--widget-shadow);
 	transition: transform 0.3s ease-in;
 
 	.dtc-slide-pane-conent {
