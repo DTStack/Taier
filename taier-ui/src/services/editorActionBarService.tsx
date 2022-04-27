@@ -242,6 +242,11 @@ export default class EditorActionBarService
 			case TASK_TYPE_ENUM.SPARK_SQL:
 			case TASK_TYPE_ENUM.HIVE_SQL:
 				return [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
+			case TASK_TYPE_ENUM.DATA_ACQUISITION:
+				if (isGuide) {
+					return [CONVERT_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK]
+				}
+				return [SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
 			default:
 				return [];
 		}

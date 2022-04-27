@@ -87,14 +87,7 @@ export const taskParams = {
         outputType: '',
         taskId: 0
     },
-    streamTaskRetry: {
-        failRetry: 0,
-        maxRetryNum: 3,
-        retryInterval: 10,
-        retryIntervalUnit: 0,
-        submitExpired: 3,
-        submitExpiredUnit: 0
-    },
+    scheduleConf: '',
     targetMap: {},
     taskDesc: '',
     taskId: 1,

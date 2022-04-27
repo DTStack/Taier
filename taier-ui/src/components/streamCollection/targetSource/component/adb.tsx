@@ -17,6 +17,7 @@
  */
 
 import stream from "@/api/stream";
+import { API } from '@/api/dataSource';
 import { writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { Form, Input, Radio, Select, Table } from "antd";
 import React, { useEffect, useState } from "react";
@@ -33,9 +34,9 @@ export default (props: { collectionData: any; }) => {
     const [schemaList, setSchemaList] = useState([]);
     const [adbTableList, setAdbTableList] = useState([])
 
-    const getSchemaList = async (sourceId: any, searchKey?: string) => {
+    const getSchemaList = async (sourceId: any, schema?: string) => {
         setSchemaList([]);
-        const res = await stream.listSchemas({ sourceId, isSys: false, searchKey });
+        const res = await API.getAllSchemas({ sourceId, isSys: false, schema });
         if (res?.code === 1) {
             setSchemaList(res.data || [])
         }

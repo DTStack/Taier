@@ -20,6 +20,7 @@ import api from "@/api";
 import stream from "@/api/stream";
 import { dirtySource, jobSpeedLimit, recordDirtyStream, writerChannel } from "@/components/helpDoc/docs";
 import { DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout } from "@/constant";
+import { IDataSourceUsedInSyncProps } from "@/interface";
 import { isKafka } from "@/utils/enums";
 import molecule from "@dtinsight/molecule";
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
@@ -27,15 +28,15 @@ import { AutoComplete, Button, Checkbox, Form, FormInstance, FormProps, Input, S
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { get } from "lodash";
 import React from "react"
-import { SettingMap, streamTaskActions } from "../taskFunc";
+import { SettingMap, streamTaskActions, UnlimitedSpeed } from "../taskFunc";
 
 interface IProps extends FormProps {
     collectionData?: any;
+    sourceList: IDataSourceUsedInSyncProps[];
     readonly?: boolean;
 }
 class CollectionChannel extends React.Component<IProps, any> {
     state: any = {
-        dirtySourceList: [],
         topicPartitionNum: 5
     }
     formRef = React.createRef<FormInstance>(); 
@@ -44,10 +45,6 @@ class CollectionChannel extends React.Component<IProps, any> {
     }
 
     componentDidMount() {
-        const settingMap: SettingMap = get(this.props, 'collectionData.settingMap.isSaveDirty');
-        if (settingMap) {
-            this.loadSource();
-        }
         this.getTopicPartitionNum();
     }
 
@@ -60,24 +57,6 @@ class CollectionChannel extends React.Component<IProps, any> {
         this.setState({
             topicPartitionNum: res?.data
         })
-    }
-    recordDirtyChange(e: CheckboxChangeEvent) {
-        if (e.target.checked) {
-            this.loadSource();
-        }
-    }
-    async loadSource() {
-        this.setState({
-            dirtySourceList: []
-        })
-        const res = await api.getOfflineDataSource({
-            sourceType: DATA_SOURCE_ENUM.HIVE
-        });
-        if (res && res.code == 1) {
-            this.setState({
-                dirtySourceList: res?.data
-            })
-        }
     }
 
     renderOptions(max: number, min = 1) {
@@ -103,26 +82,23 @@ class CollectionChannel extends React.Component<IProps, any> {
         })
     }
     render(): React.ReactNode {
-        const { collectionData, readonly } = this.props;
-        const { dirtySourceList, topicPartitionNum } = this.state;
+        const { collectionData, readonly, sourceList } = this.props;
+        const { topicPartitionNum } = this.state;
+        const dirtySourceList = sourceList.filter(d => d.dataTypeCode === DATA_SOURCE_ENUM.HIVE)
         const settingMap: SettingMap = get(collectionData, 'settingMap', {});
         const sourceMap = get(collectionData, 'sourceMap', {});
         const targetMap = get(collectionData, 'targetMap', {});
         const componentVersion = get(collectionData, 'componentVersion', '');
         const { isSaveDirty } = settingMap;
 
-        // const unLimitedOption: any[] = [
-        //     <Select.Option value='-1' key={-1}>不限制上传速率</Select.Option>
-        // ]
         const unLimitedOption: any[] = [
 			{
-                value: '不限制上传速率'
+                value: UnlimitedSpeed
 			},
 		];
         const speedOption: any = this.renderOptions(20);
         const kafkaDataSequence = (isKafka(targetMap?.type) && targetMap?.dataSequence) || (sourceMap?.type === DATA_SOURCE_ENUM.ORACLE && sourceMap?.transferType === 1);
-        
-        settingMap.speed = settingMap.speed === -1 ? '不限制上传速率' : settingMap.speed
+        settingMap.speed = settingMap.speed === -1 ? UnlimitedSpeed : settingMap.speed
         
         return (<div className="g-step4">
             <Form 
@@ -143,7 +119,6 @@ class CollectionChannel extends React.Component<IProps, any> {
                 </Form.Item>
                 <Form.Item
                     name='readerChannel'
-                    initialValue={1}
                     label="作业读取并发数"
                 >
                     <Select showSearch disabled={!isKafka(sourceMap?.type)} options={this.renderOptions(topicPartitionNum)}>
@@ -152,7 +127,6 @@ class CollectionChannel extends React.Component<IProps, any> {
                 </Form.Item>
                 <Form.Item
                     name='writerChannel'
-                    initialValue={1}
                     label="作业写入并发数"
                     tooltip={writerChannel}
                 >
@@ -167,7 +141,7 @@ class CollectionChannel extends React.Component<IProps, any> {
                             label="错误记录数"
                             tooltip={recordDirtyStream}
                         >
-                            <Checkbox onChange={this.recordDirtyChange.bind(this)}>记录保存</Checkbox>
+                            <Checkbox>记录保存</Checkbox>
                         </Form.Item>
                         {isSaveDirty ? (
                             <React.Fragment>
@@ -177,8 +151,8 @@ class CollectionChannel extends React.Component<IProps, any> {
                                     label="脏数据写入hive库"
                                 >
                                     <Select placeholder='请选择脏数据写入的hive库'>
-                                        {dirtySourceList.map((source: any) => {
-                                            return <Select.Option key={source.id} value={source.id}>{source.dataName}</Select.Option>
+                                        {dirtySourceList.map((source: IDataSourceUsedInSyncProps) => {
+                                            return <Select.Option key={source.dataInfoId} value={source.dataInfoId}>{source.dataName}</Select.Option>
                                         })}
                                     </Select>
                                 </Form.Item>

@@ -44,6 +44,7 @@ import {
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import StreamCollection from '@/components/streamCollection';
+import { editorActionBarService } from '@/services';
 
 /**
  * Update task tree node
@@ -62,16 +63,27 @@ function updateTree(data: Partial<CatalogueDataProps>) {
 }
 
 /**
+ * 	实时采集和FlinkSql任务的computeType返回0
+ * @param type 任务类型
+ * @returns 
+ */
+function getComputeType(type: TASK_TYPE_ENUM): number {
+	if (type === TASK_TYPE_ENUM.DATA_ACQUISITION || type === TASK_TYPE_ENUM.SQL) {
+		return 0;
+	}
+	return 1
+}
+
+/**
  * Open a tab for creating task
  */
 function openCreateTab(id?: string) {
 	const onSubmit = (values: IFormFieldProps) => {
 		const { syncModel, ...restValues } = values;
 		return new Promise<boolean>((resolve) => {
-			const params: Record<string, any> = {
-				...restValues,
-				// 批任务还是流任务
-				computeType: values.taskType === TASK_TYPE_ENUM.SQL ? 0 : 1,
+			const params = {
+				...values,
+				computeType: getComputeType(values.taskType),
 				parentId: values.nodePid,
 			};
 
@@ -306,6 +318,9 @@ export function openTaskInTab(
 	if (molecule.editor.isOpened(taskId.toString())) {
 		const groupId = molecule.editor.getGroupIdByTab(taskId.toString())!;
 		molecule.editor.setActive(groupId, taskId.toString());
+		window.setTimeout(() => {
+			editorActionBarService.performSyncTaskActions();
+		}, 0);
 		return;
 	}
 
@@ -516,9 +531,10 @@ function contextMenu() {
 						const params = {
 							id: treeNode!.data.id,
 							isUseComponent: 0,
-							computeType: 1,
+							computeType: getComputeType(values.taskType),
 							version: 0,
 							...values,
+							updateSource: false
 						};
 						api.addOfflineTask(params)
 							.then((res: any) => {

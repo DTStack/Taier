@@ -192,7 +192,7 @@ export enum TASK_TYPE_ENUM {
 	/**
 	 * 实时任务
 	 */
-	DATA_ACQUISITION = 37,
+	DATA_ACQUISITION = 6,
 }
 
 /**
@@ -1270,6 +1270,7 @@ export enum SYNC_TYPE {
 	BINLOG = 1,
 	INTERVAL = 2,
 	RESET = 3,
+	LogMiner = 4
 }
 /**
  * 数据操作类型
