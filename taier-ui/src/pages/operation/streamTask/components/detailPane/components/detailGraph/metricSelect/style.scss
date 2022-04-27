@@ -1,0 +1,14 @@
+.c-check-select {
+    .ant-select {
+        .ant-select-selection {
+            border-radius: 2px 0 0 2px;
+            border-right: 0;
+            &:hover {
+                border-color: #ddd;
+            }
+        }
+    }
+    .ant-btn {
+        border-radius: 0 2px 2px 0;
+    }
+}

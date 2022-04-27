@@ -1,0 +1,41 @@
+.c-operation__slidePane {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	.detailPane-header {
+		position: relative;
+		padding: 16px 30px 16px 18px;
+		color: var(--foreground);
+		line-height: 17px;
+
+		.detailPane-header-extra {
+			float: right;
+		}
+	}
+
+	.c-operation__pane__tabs {
+		flex: 1;
+
+		.ant-tabs-nav {
+			padding: 0 16px;
+			background: var(--editorGroupHeader-tabsBackground);
+			margin-bottom: 0;
+
+			.ant-tabs-tab {
+				width: 80px;
+				padding: 8px 0;
+
+				.ant-tabs-tab-btn {
+					width: 100%;
+					text-align: center;
+					text-shadow: none;
+				}
+			}
+		}
+
+		.ant-tabs-content {
+			height: 100%;
+		}
+	}
+}

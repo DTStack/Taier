@@ -16,67 +16,78 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from 'react';
-import type { FormInstance } from 'antd';
-import { Modal, Button, Input, message, Select, Form } from 'antd';
+import { useEffect, useMemo } from 'react';
+import { Radio } from 'antd';
+import { Modal, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import FolderPicker from '../../components/folderPicker';
-import { getContainer } from '../resourceManager/resModal';
-import { CATELOGUE_TYPE, formItemLayout, TASK_TYPE_ENUM } from '@/constant';
-import type { CatalogueDataProps, IFunctionProps } from '@/interface';
+import {
+	CATELOGUE_TYPE,
+	formItemLayout,
+	TASK_TYPE_ENUM,
+	UDF_TYPE_NAMES,
+	UDF_TYPE_VALUES,
+} from '@/constant';
+import type { IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
+import { taskTypeText } from '@/utils/enums';
 
-const { Option } = Select;
 const FormItem = Form.Item;
 
-interface IFnFormProps {
-	form: FormInstance;
-	flags?: string[] | null;
-	fnType: IFnModalProps['fnType'];
-	defaultData: IFnModalProps['defaultData'];
-	isCreateFromMenu: boolean;
-	isCreateNormal: boolean;
-	functionTreeData: IFnModalProps['functionTreeData'];
-	resTreeData: any;
+interface IFnModalProps {
+	visible?: boolean;
+	onClose?: () => void;
+	data?: Partial<IFunctionProps>;
+	onAddFunction?: (data: IFormFieldProps) => Promise<boolean>;
+	onEditFunction?: (data: Partial<IFunctionProps>) => Promise<boolean>;
 }
 
-function FnForm({
-	form,
-	flags,
-	defaultData,
-	isCreateFromMenu,
-	isCreateNormal,
-	fnType,
-	functionTreeData,
-	resTreeData,
-}: IFnFormProps) {
-	const formData = defaultData?.formData?.data;
-	const getTaskTypeDefaultValue = () => {
-		if (formData?.taskType) {
-			return formData?.taskType;
-		}
-		return Array.isArray(flags) && flags.indexOf('Hadoop') !== -1
-			? TASK_TYPE_ENUM.SPARK_SQL
-			: undefined;
-	};
+interface IFormFieldProps {
+	taskType: TASK_TYPE_ENUM;
+	udfType?: UDF_TYPE_VALUES;
+	name?: string;
+	className?: string;
+	resourceId?: number;
+	purpose?: string;
+	commandFormate: string;
+	paramDesc?: string;
+	nodePid?: number;
+}
 
-	const getNodePidDefaultValue = () => {
-		if (formData) return formData.nodePid;
-		if (isCreateNormal) return functionTreeData?.id;
-		if (isCreateFromMenu) return defaultData?.parentId;
-		return undefined;
-	};
+const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL];
 
-	const handleResSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ resourceId: value });
-		form.validateFields(['resourceId']);
-	};
+export default function FnModal({
+	data,
+	visible,
+	onClose,
+	onAddFunction,
+	onEditFunction,
+}: IFnModalProps) {
+	const [form] = Form.useForm<IFormFieldProps>();
 
-	const handleSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ nodePid: value });
+	const handleSubmit = () => {
+		form.validateFields().then((values) => {
+			if (data?.id !== undefined) {
+				onEditFunction?.({ ...data, ...values }).then((res) => {
+					if (res) {
+						message.success('创建成功');
+						onClose?.();
+					}
+				});
+			} else {
+				onAddFunction?.({ ...values }).then((res) => {
+					if (res) {
+						message.success('编辑成功');
+						onClose?.();
+					}
+				});
+			}
+		});
 	};
 
 	const checkNotDir = (_: any, value: number) => {
+		const resouceTreeData = resourceManagerTree.getState().folderTree?.data?.[0]?.data;
+		if (!resouceTreeData) return Promise.resolve();
 		let nodeType: any;
 
 		const loop = (arr: any) => {
@@ -89,7 +100,7 @@ function FnForm({
 			});
 		};
 
-		loop([resTreeData]);
+		loop([resouceTreeData]);
 
 		if (nodeType === 'folder') {
 			return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
@@ -98,18 +109,65 @@ function FnForm({
 		return Promise.resolve();
 	};
 
+	const handleResSelectTreeChange = (value: number) => {
+		form.setFieldsValue({ resourceId: value });
+		form.validateFields(['resourceId']);
+	};
+
+	const handleSelectTreeChange = (value: number) => {
+		form.setFieldsValue({ nodePid: value });
+	};
+
+	useEffect(() => {
+		if (visible) {
+			if (data) {
+				form.setFieldsValue({
+					taskType: data?.taskType,
+					udfType: data?.taskType === TASK_TYPE_ENUM.SQL ? data?.udfType : undefined,
+					name: data?.name,
+					className: data?.className,
+					resourceId: data?.resources,
+					purpose: data?.purpose,
+					commandFormate: data?.commandFormate,
+					paramDesc: data?.paramDesc,
+					nodePid: data?.nodePid,
+				});
+			} else {
+				form.resetFields();
+			}
+		}
+	}, [visible, data]);
+
+	const isEdit = useMemo(() => !!data?.id, [data]);
+	const initialValues = useMemo<Partial<IFormFieldProps>>(
+		() => ({
+			taskType: TASK_TYPE_ENUM.SPARK_SQL,
+		}),
+		[],
+	);
+
 	return (
-		<>
-			<Form
+		<Modal
+			title={`${isEdit ? '编辑' : '新建'}自定义函数`}
+			visible={visible}
+			destroyOnClose
+			onCancel={onClose}
+			onOk={handleSubmit}
+		>
+			{isEdit && (
+				<div className="task_offline_message">
+					<ExclamationCircleOutlined style={{ marginRight: 7 }} />
+					替换资源时，如果资源的新文件与现有文件名称保持一致，那么替换后关联函数对应任务可立即生效，否则关联函数对应任务需重新提交才可生效。
+				</div>
+			)}
+			<Form<IFormFieldProps>
+				{...formItemLayout}
 				form={form}
-				autoComplete='off'
-				initialValues={{
-					taskType: getTaskTypeDefaultValue(),
-				}}
+				autoComplete="off"
 				preserve={false}
+				initialValues={initialValues}
 			>
 				<FormItem
-					{...formItemLayout}
 					label="函数类型"
 					name="taskType"
 					rules={[
@@ -120,277 +178,138 @@ function FnForm({
 					]}
 				>
 					<Select
-						disabled={!!fnType}
+						disabled={isEdit}
 						getPopupContainer={() => document.getElementById('molecule')!}
-					>
-						{Array.isArray(flags) && flags.indexOf('Hadoop') !== -1 && (
-							<Option value={TASK_TYPE_ENUM.SPARK_SQL}>Spark SQL</Option>
-						)}
-					</Select>
+						options={TASK_TYPE_OPTIONS.map((o) => ({
+							label: taskTypeText(o),
+							value: o,
+						}))}
+					/>
 				</FormItem>
-				<>
+				<FormItem noStyle dependencies={['taskType']}>
+					{({ getFieldValue }) =>
+						getFieldValue('taskType') === TASK_TYPE_ENUM.SQL && (
+							<FormItem
+								name="udfType"
+								label="UDF类型"
+								rules={[
+									{
+										required: true,
+										message: '请选择UDF类型',
+									},
+								]}
+								initialValue={UDF_TYPE_VALUES.UDF}
+							>
+								<Radio.Group disabled={isEdit}>
+									{Object.entries(UDF_TYPE_NAMES).map(([key, value]) => (
+										<Radio key={key} value={Number(key)}>
+											{value}
+										</Radio>
+									))}
+								</Radio.Group>
+							</FormItem>
+						)
+					}
+				</FormItem>
+				<FormItem
+					label="函数名称"
+					name="name"
+					rules={[
+						{
+							required: true,
+							message: '函数名称不可为空！',
+						},
+						{
+							pattern: /^[a-z0-9_]+$/,
+							message: '函数名称只能由小写字母、数字、下划线组成!',
+						},
+						{
+							max: 20,
+							message: '函数名称不得超过20个字符！',
+						},
+					]}
+				>
+					<Input placeholder="请输入函数名称" disabled={isEdit} />
+				</FormItem>
+				<FormItem
+					label="类名"
+					name="className"
+					rules={[
+						{
+							required: true,
+							message: '类名不能为空',
+						},
+						{
+							pattern: /^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*$/,
+							message: '请输入有效的类名!',
+						},
+					]}
+				>
+					<Input placeholder="请输入类名" />
+				</FormItem>
+				<FormItem {...formItemLayout} label="资源" required>
 					<FormItem
-						{...formItemLayout}
-						label="函数名称"
-						name="name"
+						noStyle
+						name="resourceId"
 						rules={[
 							{
 								required: true,
-								message: '函数名称不可为空！',
+								message: '请选择关联资源',
 							},
 							{
-								pattern: /^[a-z0-9_]+$/,
-								message: '函数名称只能由小写字母、数字、下划线组成!',
-							},
-							{
-								max: 20,
-								message: '函数名称不得超过20个字符！',
+								validator: checkNotDir,
 							},
 						]}
-						initialValue={formData ? formData.name : undefined}
 					>
-						<Input placeholder="请输入函数名称" disabled={!!formData} />
+						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
 					</FormItem>
+				</FormItem>
+				<FormItem label="用途" name="purpose">
+					<Input placeholder="用途" />
+				</FormItem>
+				<FormItem
+					label="命令格式"
+					name="commandFormate"
+					rules={[
+						{
+							required: true,
+							message: '请输入命令格式',
+						},
+						{
+							max: 128,
+							message: '描述请控制在128个字符以内！',
+						},
+					]}
+				>
+					<Input placeholder="命令格式" />
+				</FormItem>
+				<FormItem
+					label="参数说明"
+					name="paramDesc"
+					rules={[
+						{
+							max: 200,
+							message: '描述请控制在200个字符以内！',
+						},
+					]}
+				>
+					<Input.TextArea rows={4} placeholder="请输入函数的参数说明" />
+				</FormItem>
+				<FormItem {...formItemLayout} label="选择存储位置" required>
 					<FormItem
-						{...formItemLayout}
-						label="类名"
-						name="className"
+						noStyle
+						name="nodePid"
 						rules={[
 							{
 								required: true,
-								message: '类名不能为空',
-							},
-							{
-								pattern: /^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*$/,
-								message: '请输入有效的类名!',
+								message: '存储位置必选！',
 							},
 						]}
-						initialValue={formData ? formData.className : undefined}
 					>
-						<Input placeholder="请输入类名" />
+						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.FUNCTION} />
 					</FormItem>
-					<FormItem {...formItemLayout} label="资源" required>
-						<FormItem
-							noStyle
-							name="resourceId"
-							rules={[
-								{
-									required: true,
-									message: '请选择关联资源',
-								},
-								{
-									validator: checkNotDir,
-								},
-							]}
-							initialValue={formData ? formData.resources : undefined}
-						>
-							<Input type="hidden" />
-						</FormItem>
-						<FolderPicker
-							dataType={CATELOGUE_TYPE.RESOURCE}
-							showFile
-							defaultValue={formData ? formData.resources : undefined}
-							onChange={handleResSelectTreeChange}
-						/>
-					</FormItem>
-					<FormItem
-						{...formItemLayout}
-						label="用途"
-						name="purpose"
-						initialValue={formData ? formData.purpose : undefined}
-					>
-						<Input placeholder="" />
-					</FormItem>
-					<FormItem
-						{...formItemLayout}
-						label="命令格式"
-						name="commandFormate"
-						rules={[
-							{
-								required: true,
-								message: '请输入命令格式',
-							},
-							{
-								max: 128,
-								message: '描述请控制在128个字符以内！',
-							},
-						]}
-						initialValue={formData ? formData.commandFormate : undefined}
-					>
-						<Input placeholder="" />
-					</FormItem>
-					<FormItem
-						{...formItemLayout}
-						label="参数说明"
-						name="paramDesc"
-						rules={[
-							{
-								max: 200,
-								message: '描述请控制在200个字符以内！',
-							},
-						]}
-						initialValue={formData?.paramDesc ? formData?.paramDesc : undefined}
-					>
-						<Input.TextArea rows={4} placeholder="请输入函数的参数说明" />
-					</FormItem>
-					<FormItem {...formItemLayout} label="选择存储位置" required>
-						<FormItem
-							noStyle
-							name="nodePid"
-							rules={[
-								{
-									required: true,
-									message: '存储位置必选！',
-								},
-							]}
-							initialValue={getNodePidDefaultValue()}
-						>
-							<Input type="hidden" />
-						</FormItem>
-						<FolderPicker
-							showFile={false}
-							dataType={CATELOGUE_TYPE.FUNCTION}
-							onChange={handleSelectTreeChange}
-							defaultValue={getNodePidDefaultValue()}
-						/>
-					</FormItem>
-				</>
+				</FormItem>
 			</Form>
-		</>
-	);
-}
-
-interface IFnModalProps {
-	fnType?: string;
-	isModalShow: boolean;
-	/**
-	 * 函数目录树的根节点
-	 */
-	functionTreeData: CatalogueDataProps;
-	greenPlumFuncTreeData?: any;
-	engine: { name: string; value: number }[];
-	/**
-	 * 如果不存在该数据，则说明是根目录新建
-	 * 如果存在该数据，且存在 id，name 则为编辑
-	 * 如果存在该数据，但不存在 id 而存在 parentId 则表示从某一个目录新建
-	 */
-	defaultData:
-		| Partial<
-				Pick<CatalogueDataProps, 'id' | 'parentId' | 'name'> & {
-					formData: { data: IFunctionProps };
-				}
-		  >
-		| undefined;
-	toggleCreateFn: () => void;
-	addFn: (values: any) => Promise<boolean>;
-	editFn: (values: any) => Promise<boolean>;
-}
-
-let dtcount = 0;
-export default function FnModal({
-	fnType,
-	isModalShow,
-	functionTreeData,
-	defaultData,
-	engine,
-	toggleCreateFn,
-	addFn,
-	editFn,
-}: IFnModalProps) {
-	const [form] = Form.useForm();
-	const [flags, setFlags] = useState<string[]>([]);
-
-	const handleCancel = () => {
-		closeModal();
-	};
-
-	const closeModal = () => {
-		dtcount += 1;
-		toggleCreateFn();
-		setFlags([]);
-	};
-
-	const handleSubmit = () => {
-		form.validateFields().then((values) => {
-			const formData = defaultData?.formData?.data;
-			const id = formData?.id;
-			if (id) {
-				editFn(
-					Object.assign(values, {
-						id,
-					}),
-				).then((res) => {
-					if (res) {
-						message.success('编辑成功');
-						closeModal();
-						form.resetFields();
-					}
-				});
-			} else {
-				addFn(values).then((res) => {
-					if (res) {
-						message.success('创建成功');
-						closeModal();
-						form.resetFields();
-					}
-				});
-			}
-		});
-	};
-
-	useEffect(() => {
-		const engineArray: string[] = [];
-		if (flags.length === 0 && isModalShow === true) {
-			engine.forEach((item) => {
-				engineArray.push(item.name);
-			});
-			setFlags(engineArray);
-		}
-	}, [isModalShow, engine]);
-
-	const isCreateNormal = typeof defaultData === 'undefined';
-	const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
-	const flag = defaultData?.formData?.data?.name;
-	const title = flag ? '修改自定义函数' : '新建自定义函数';
-
-	const resTreeData: CatalogueDataProps | undefined =
-		resourceManagerTree.getState().folderTree?.data?.[0]?.data;
-
-	return (
-		<div id="JS_func_modal">
-			<Modal
-				title={title}
-				visible={isModalShow}
-				footer={[
-					<Button key="back" size="large" onClick={handleCancel}>
-						取消
-					</Button>,
-					<Button key="submit" type="primary" size="large" onClick={handleSubmit}>
-						确认
-					</Button>,
-				]}
-				destroyOnClose
-				key={dtcount}
-				onCancel={handleCancel}
-				getContainer={() => getContainer('JS_func_modal')}
-			>
-				{flag && (
-					<div className="task_offline_message">
-						<ExclamationCircleOutlined style={{ marginRight: 7 }} />
-						替换资源时，如果资源的新文件与现有文件名称保持一致，那么替换后关联函数对应任务可立即生效，否则关联函数对应任务需重新提交才可生效。
-					</div>
-				)}
-				<FnForm
-					form={form}
-					functionTreeData={functionTreeData}
-					resTreeData={resTreeData}
-					fnType={fnType}
-					flags={flags}
-					isCreateFromMenu={isCreateFromMenu}
-					isCreateNormal={isCreateNormal}
-					defaultData={defaultData}
-				/>
-			</Modal>
-		</div>
+		</Modal>
 	);
 }

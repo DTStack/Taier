@@ -42,17 +42,17 @@ export default function TaskDependence({
 	const [currentTenantName] = useState(getCookie('tenant_name'));
 
 	const goEdit = (task: ITaskVOProps) => {
-		openTaskInTab(task.taskId, {
+		openTaskInTab(task.id, {
 			id: task.id,
 			location: task.name,
 		});
 	};
 
 	const getSpanBottom = () => {
-		if (Array.isArray(tabData.taskVOS) && tabData.taskVOS.length > 5) {
+		if (Array.isArray(tabData.dependencyTasks) && tabData.dependencyTasks.length > 5) {
 			return 20;
 		}
-		return tabData?.taskVOS?.length ? 0 : -30;
+		return tabData?.dependencyTasks?.length ? 0 : -30;
 	};
 
 	const dependencyModalShow = () => {
@@ -60,10 +60,10 @@ export default function TaskDependence({
 	};
 
 	const submitData = (task: ITaskSearchResultProps) => {
-		// 任务搜索结果类型和 taskVOS 的类型不一致，这里做一层转化，添加 id 属性
+		// 任务搜索结果类型和 dependencyTasks 的类型不一致，这里做一层转化，添加 id 属性
 		const data: Partial<ITaskVOProps> = {
-			...task,
-			tenantId: getCookie('tenantId'),
+			tenantName: task.taskName,
+			tenantId: task.tenantId.toString(),
 			name: task.taskName,
 			id: task.taskId,
 		};
@@ -88,7 +88,7 @@ export default function TaskDependence({
 				dataIndex: 'name',
 				key: 'name',
 				render: (text, record) => {
-					if (record.tenantName === currentTenantName) {
+					if (record.tenantId?.toString() === getCookie('tenantId')) {
 						return <a onClick={() => goEdit(record)}>{text}</a>;
 					}
 
@@ -122,13 +122,15 @@ export default function TaskDependence({
 				<Col span={24}>
 					<Table
 						pagination={
-							Array.isArray(tabData.taskVOS) && tabData.taskVOS.length > 5
-								? { pageSize: 5, total: tabData.taskVOS.length }
+							Array.isArray(tabData.dependencyTasks) &&
+							tabData.dependencyTasks.length > 5
+								? { pageSize: 5, total: tabData.dependencyTasks.length }
 								: false
 						}
 						style={{
 							marginBottom:
-								Array.isArray(tabData.taskVOS) && tabData.taskVOS.length > 5
+								Array.isArray(tabData.dependencyTasks) &&
+								tabData.dependencyTasks.length > 5
 									? 0
 									: 20,
 							minHeight: 50,
@@ -136,7 +138,7 @@ export default function TaskDependence({
 						columns={columns}
 						bordered={false}
 						scroll={{ x: 450 }}
-						dataSource={tabData.taskVOS || []}
+						dataSource={tabData.dependencyTasks || []}
 						rowKey="taskId"
 					/>
 				</Col>

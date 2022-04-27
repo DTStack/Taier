@@ -170,7 +170,7 @@ public class DatasourceService {
      * FIMXE 暂时将数据源读写权限设置在程序    里面
      */
     private static final Map<Integer, Integer> DATASOURCE_PERMISSION_MAP = Maps.newHashMap();
-
+    private static final String IS_OPEN_CDB = "select * from v$database";
     public static final String JDBC_URL = "jdbcUrl";
     public static final String JDBC_USERNAME = "username";
     public static final String JDBC_PASSWORD = "password";
@@ -2296,7 +2296,36 @@ public class DatasourceService {
         return kafka.getTopicList(sourceDTO);
     }
 
-
+    /**
+     * 判断 oracle 是否开启 cdb
+     * @param sourceId 数据源 id
+     * @return 是否开启 cdb
+     */
+    public Boolean isOpenCdb(Long sourceId) {
+        DsInfo dsInfo = dsInfoService.getOneById(sourceId);
+        String dataJson = dsInfo.getDataJson();
+        JSONObject json = JSON.parseObject(dataJson);
+        ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, dsInfo.getDataTypeCode(), null, null, null);
+        // 非 oracle 返回 false
+        if (!DataSourceType.Oracle.getVal().equals(sourceDTO.getSourceType())) {
+            return false;
+        }
+        IClient client = ClientCache.getClient(sourceDTO.getSourceType());
+        List<Map<String, Object>> result;
+        try {
+            result = client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(IS_OPEN_CDB).build());
+        } catch (Exception e) {
+            LOGGER.error("error in judging whether to open CDB...{}", e.getMessage(), e);
+            return false;
+        }
+        if (CollectionUtils.isEmpty(result)) {
+            return false;
+        }
+        Map<String, Object> cdbResult = result.get(0);
+        return !MapUtils.isEmpty(cdbResult) &&
+                cdbResult.containsKey("CDB") &&
+                StringUtils.equalsIgnoreCase("YES", MapUtils.getString(cdbResult, "CDB"));
+    }
     /**
      * 数据同步-获得表中字段与类型信息
      *

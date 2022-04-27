@@ -28,7 +28,7 @@ import dataSourceService from '@/services/dataSourceService';
 import { API } from '@/api/dataSource';
 import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
-import { CREATE_DATASOURCE_PREFIX, EDIT_DATASOURCE_PREFIX } from '@/constant';
+import { ID_COLLECTIONS } from '@/constant';
 import LinkInfoCell from './linkInfoCell';
 import Search from './search';
 import Add from './add';
@@ -166,18 +166,18 @@ const DataSourceView = () => {
 		contextView.hide();
 		switch (menu.id) {
 			case 'edit':
-				if (molecule.editor.isOpened(EDIT_DATASOURCE_PREFIX)) {
+				if (molecule.editor.isOpened(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)) {
 					message.warning('请先保存或关闭编辑数据源');
-					const groupId = molecule.editor.getGroupIdByTab(EDIT_DATASOURCE_PREFIX)!;
-					molecule.editor.setActive(groupId, EDIT_DATASOURCE_PREFIX);
+					const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)!;
+					molecule.editor.setActive(groupId, ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX);
 				} else {
 					molecule.editor.open({
-						id: EDIT_DATASOURCE_PREFIX,
+						id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
 						name: '编辑数据源',
 						icon: 'edit',
 						renderPane: (
 							<Add
-								key={EDIT_DATASOURCE_PREFIX}
+								key={ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX}
 								record={record}
 								onSubmit={handleSubmitDataSource}
 							/>
@@ -188,7 +188,7 @@ const DataSourceView = () => {
 								name: '数据源中心',
 							},
 							{
-								id: EDIT_DATASOURCE_PREFIX,
+								id: ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
 								name: '编辑数据源',
 							},
 						],
@@ -250,17 +250,17 @@ const DataSourceView = () => {
 	};
 
 	const handleHeaderBarClick = () => {
-		if (molecule.editor.isOpened(CREATE_DATASOURCE_PREFIX)) {
+		if (molecule.editor.isOpened(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)) {
 			message.warning('请先保存或关闭新增数据源');
-			const groupId = molecule.editor.getGroupIdByTab(CREATE_DATASOURCE_PREFIX)!;
-			molecule.editor.setActive(groupId, CREATE_DATASOURCE_PREFIX);
+			const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)!;
+			molecule.editor.setActive(groupId, ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX);
 		} else {
 			molecule.editor.open({
-				id: CREATE_DATASOURCE_PREFIX,
+				id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
 				name: '新增数据源',
 				icon: 'server-process',
 				renderPane: (
-					<Add key={CREATE_DATASOURCE_PREFIX} onSubmit={handleSubmitDataSource} />
+					<Add key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX} onSubmit={handleSubmitDataSource} />
 				),
 				breadcrumb: [
 					{
@@ -268,7 +268,7 @@ const DataSourceView = () => {
 						name: '数据源中心',
 					},
 					{
-						id: CREATE_DATASOURCE_PREFIX,
+						id: ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
 						name: '新增数据源',
 					},
 				],

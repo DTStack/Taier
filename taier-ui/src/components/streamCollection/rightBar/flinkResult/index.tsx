@@ -281,7 +281,7 @@ export default function FlinkResultPanel({ current }: Pick<IEditor, 'current'>) 
 			setOutputData({ panelColumn }, true);
 		}
 
-		const changedFields = Object.keys(prev).filter(
+		const changedFields = Object.keys(next).filter(
 			(key) => prev[key as keyof IFlinkSinkProps] !== next[key as keyof IFlinkSinkProps],
 		);
 

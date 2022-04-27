@@ -208,10 +208,7 @@ export default function LogInfo(props: ILogInfoProps) {
 				text = `${text}${wrappTitle('任务信息')}\n${prettierJSONstring(sqlText)}`;
 			}
 		} catch (e: any) {
-			text = `${createLog('日志解析错误', 'error')}\n${createLog(e, 'error')}\n${createLog(
-				props.log || '',
-				'warning',
-			)}`;
+			text = `${createLog(props.log || '', 'error')}`;
 		}
 
 		return text;

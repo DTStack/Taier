@@ -103,11 +103,9 @@ interface ISchedulingConfigProps extends Pick<molecule.model.IEditor, 'current'>
 	 */
 	changeScheduleConf?: (
 		values: molecule.model.IEditorTab<any>,
-		nextValue: Partial<{
-			scheduleStatus: SCHEDULE_STATUS;
-			scheduleConf: string;
-			taskVOS: ITaskVOProps[];
-		}>,
+		nextValue: Partial<
+			Pick<IOfflineTaskProps, 'scheduleConf' | 'scheduleStatus' | 'dependencyTasks'>
+		>,
 	) => void;
 }
 
@@ -258,17 +256,17 @@ export default function SchedulingConfig({
 	};
 
 	const handleAddVOS = (record: Partial<ITaskVOProps>) => {
-		const taskVOS = (current!.tab?.data.taskVOS || []).concat();
-		taskVOS.push(record);
-		changeScheduleConf?.(current!.tab!, { taskVOS });
+		const dependencyTasks = (current!.tab?.data.dependencyTasks || []).concat();
+		dependencyTasks.push(record);
+		changeScheduleConf?.(current!.tab!, { dependencyTasks });
 	};
 
 	const handleDelVOS = (record: ITaskVOProps) => {
-		const taskVOS: ITaskVOProps[] = (current!.tab?.data.taskVOS || []).concat();
-		const index = taskVOS.findIndex((vo) => vo.taskId === record.taskId);
+		const dependencyTasks: ITaskVOProps[] = (current!.tab?.data.dependencyTasks || []).concat();
+		const index = dependencyTasks.findIndex((vo) => vo.taskId === record.taskId);
 		if (index === -1) return;
-		taskVOS.splice(index, 1);
-		changeScheduleConf?.(current!.tab!, { taskVOS });
+		dependencyTasks.splice(index, 1);
+		changeScheduleConf?.(current!.tab!, { dependencyTasks });
 	};
 
 	const handleRadioChanged = (evt: RadioChangeEvent) => {

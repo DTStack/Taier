@@ -16,32 +16,92 @@
  * limitations under the License.
  */
 
+import type molecule from '@dtinsight/molecule';
 import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
 
-export const TASK_RUN_ID = 'task.run';
-export const TASK_STOP_ID = 'task.stop';
-export const TASK_SUBMIT_ID = 'task.submit';
-export const TASK_SAVE_ID = 'task.save';
-export const TASK_OPS_ID = 'task_ops';
-export const TASK_CONVERT_SCRIPT = 'task.convert.script';
-export const TASK_IMPORT_ID = 'task.import';
-export const TASK_SYNTAX_ID = 'task.syntax';
+/**
+ * ID 集合
+ */
+export enum ID_COLLECTIONS {
+	/**
+	 * 任务运行按钮
+	 */
+	TASK_RUN_ID = 'task.run',
+	/**
+	 * 任务停止按钮
+	 */
+	TASK_STOP_ID = 'task.stop',
+	/**
+	 * 任务提交到运维中心按钮
+	 */
+	TASK_SUBMIT_ID = 'task.submit',
+	/**
+	 * 任务保存按钮
+	 */
+	TASK_SAVE_ID = 'task.save',
+	/**
+	 * 任务运维按钮
+	 */
+	TASK_OPS_ID = 'task_ops',
+	/**
+	 * 任务格式化按钮
+	 */
+	TASK_FORMAT_ID = 'task.format',
+	/**
+	 * 任务转化为脚本按钮
+	 */
+	TASK_CONVERT_SCRIPT = 'task.convert.script',
+	/**
+	 * 导入数据源按钮
+	 */
+	TASK_IMPORT_ID = 'task.import',
+	/**
+	 * 语法检查按钮
+	 */
+	TASK_SYNTAX_ID = 'task.syntax',
+	/**
+	 * 环境参数编辑器唯一标识符
+	 */
+	ENV_PARAMS_ID = 'env.params',
+	/**
+	 * 面板-日志
+	 */
+	OUTPUT_LOG_ID = 'panel.output.log',
+	/**
+	 * 状态栏-任务语言 Panel
+	 */
+	LANGUAGE_STATUS_BAR = 'language',
+	/**
+	 * 任务目录树右键「编辑」项
+	 */
+	FOLDERTREE_CONTEXT_EDIT = 'explorer.edit',
+	/**
+	 * 创建任务 Tab 的 ID 前缀
+	 */
+	CREATE_TASK_PREFIX = 'createTask',
+	/**
+	 * 创建文件夹 Tab 的 ID 前缀
+	 */
+	CREATE_FOLDER_PREFIX = 'createFolder',
+	/**
+	 * 编辑任务 Tab 的 ID 前缀
+	 */
+	EDIT_TASK_PREFIX = 'editTask',
+	/**
+	 * 编辑文件夹 Tab 的 ID 前缀
+	 */
+	EDIT_FOLDER_PREFIX = 'editFolder',
+	/**
+	 * 创建数据源 Tab 的 ID 前缀
+	 */
+	CREATE_DATASOURCE_PREFIX = 'create-datasource',
+	/**
+	 * 编辑数据源 Tab 的 ID 前缀
+	 */
+	EDIT_DATASOURCE_PREFIX = 'edit-datasource',
+}
 
-export const ENV_PARAMS = 'env.params';
-
-export const OUTPUT_LOG = 'panel.output.log';
-
-export const FOLDERTREE_CONTEXT_EDIT = 'explorer.edit';
-
-export const CREATE_TASK_PREFIX = 'createTask';
-export const CREATE_FOLDER_PREFIX = 'createFolder';
-export const EDIT_TASK_PREFIX = 'editTask';
-export const EDIT_FOLDER_PREFIX = 'editFolder';
-
-export const CREATE_DATASOURCE_PREFIX = 'create-datasource';
-export const EDIT_DATASOURCE_PREFIX = 'edit-datasource';
-
-export const LANGUAGE_STATUS_BAR = 'language';
+export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 /**
  * 高可用配置的 placeholder
@@ -53,7 +113,8 @@ export const HDFSCONG = `{
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }`;
 
-export const DDL_IDE_PLACEHOLDER = 'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
+export const DDL_IDE_PLACEHOLDER =
+	'CREATE TABLE employee (eid int,\n\tname String,\n\tsalary String,\n\tdestination String\n) STORED AS ORC lifecycle 10';
 
 // 表单正常布局
 export const formItemLayout = {
@@ -453,6 +514,7 @@ export enum MENU_TYPE_ENUM {
 	FUNCTION = 'FunctionManager',
 	PROCEDURE = 'ProcedureManager',
 	SPARKFUNC = 'SparkSQLFunction',
+	FLINKFUNC = 'FlinkSQLFunction',
 	LIBRAFUNC = 'LibraSQLFunction',
 	LIBRASYSFUN = 'LibraSysFunc',
 	COSTOMFUC = 'CustomFunction',
@@ -569,77 +631,63 @@ export const SUBMITTING_STATUS = [TASK_STATUS.SUBMITTING];
 export const STOP_STATUS = [TASK_STATUS.KILLED, TASK_STATUS.AUTO_CANCEL];
 export const FROZEN_STATUS = [TASK_STATUS.FROZEN];
 
-// 离线任务状态
-export const OFFLINE_TASK_STATUS_FILTERS = [
+/**
+ * 任务状态过滤筛选
+ */
+export const TASK_STATUS_FILTERS = [
 	{
-		id: 1,
 		text: '等待提交',
 		value: TASK_STATUS.WAIT_SUBMIT,
 	},
 	{
-		id: 2,
 		text: '提交中',
 		value: TASK_STATUS.SUBMITTING,
 	},
 	{
-		id: 3,
-		text: '等待运行',
-		value: TASK_STATUS.WAIT_RUN,
-	},
-	{
-		id: 4,
-		text: '运行中',
-		value: TASK_STATUS.RUNNING,
-	},
-	{
-		id: 5,
-		text: '成功',
-		value: TASK_STATUS.FINISHED,
-	},
-	{
-		id: 6,
-		text: '手动取消',
-		value: TASK_STATUS.STOPED,
-	},
-	{
-		id: 11,
-		text: '自动取消',
-		value: TASK_STATUS.AUTO_CANCEL,
-	},
-	{
-		id: 7,
 		text: '提交失败',
 		value: TASK_STATUS.SUBMIT_FAILED,
 	},
 	{
-		id: 8,
+		text: '等待运行',
+		value: TASK_STATUS.WAIT_RUN,
+	},
+	{
+		text: '运行中',
+		value: TASK_STATUS.RUNNING,
+	},
+	{
+		text: '成功',
+		value: TASK_STATUS.FINISHED,
+	},
+	{
+		text: '手动取消',
+		value: TASK_STATUS.STOPED,
+	},
+	{
+		text: '超时取消',
+		value: TASK_STATUS.AUTO_CANCEL,
+	},
+	{
 		text: '运行失败',
 		value: TASK_STATUS.RUN_FAILED,
 	},
 	{
-		id: 9,
+		text: '失败中',
+		value: TASK_STATUS.DO_FAIL,
+	},
+	{
+		text: '停止中',
+		value: TASK_STATUS.STOPING,
+	},
+	{
 		text: '上游失败',
 		value: TASK_STATUS.PARENT_FAILD,
 	},
 	{
-		id: 10,
 		text: '冻结',
 		value: TASK_STATUS.FROZEN,
 	},
 ];
-
-/**
- * 脚本类型
- */
-export enum SCRIPT_TYPE {
-	SQL = 0,
-	PYTHON2 = 1,
-	PYTHON3 = 2,
-	SHELL = 3,
-	LIBRASQL = 4,
-	IMPALA_SQL = 5,
-	TI_DB_SQL = 6,
-}
 
 /**
  * hdfs 类型
@@ -720,11 +768,18 @@ export enum STATISTICS_TYPE_ENUM {
 	FILL_DATA = 1,
 }
 
+/**
+ * 菜单抽屉类别
+ */
 export enum DRAWER_MENU_ENUM {
 	/**
 	 * 任务管理
 	 */
 	TASK = 'task',
+	/**
+	 * 实时任务管理
+	 */
+	STREAM_TASK = 'stream-task',
 	/**
 	 * 周期实例
 	 */
@@ -763,10 +818,23 @@ export const TENANT_MENU = {
 	ADD_TENANT: 'add-tenant',
 } as const;
 
-export const OPERATIONS = [
+/**
+ * 运维中心下拉菜单
+ */
+export const OPERATIONS: molecule.model.IMenuBarItem[] = [
 	{
-		id: DRAWER_MENU_ENUM.TASK,
+		id: 'test',
 		name: '任务管理',
+		data: [
+			{
+				id: DRAWER_MENU_ENUM.TASK,
+				name: '离线任务管理',
+			},
+			{
+				id: DRAWER_MENU_ENUM.STREAM_TASK,
+				name: '实时任务管理',
+			},
+		],
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,
@@ -778,6 +846,9 @@ export const OPERATIONS = [
 	},
 ];
 
+/**
+ * 控制台下拉菜单
+ */
 export const CONSOLE = [
 	{
 		id: DRAWER_MENU_ENUM.QUEUE,
@@ -866,26 +937,29 @@ export const MEMORY_ITEMS = [
 	'executor.memory',
 ];
 
-export enum FOLDERMENU_TOOLTIPS {
+/**
+ * 资源管理 Actions 集合
+ */
+export enum RESOURCE_ACTIONSS_ID_COLLECTION {
 	UPLOAD = 'upload',
 	REPLACE = 'replace',
 	CREATE = 'create-folder',
 }
 
 /**
- * 资源管理 tooltip
+ * 资源管理页面的 actions
  */
-export const folderMenu: ISubMenuProps = [
+export const RESOURCE_ACTION_BAR: ISubMenuProps = [
 	{
-		id: FOLDERMENU_TOOLTIPS.UPLOAD,
+		id: RESOURCE_ACTIONSS_ID_COLLECTION.UPLOAD,
 		name: '上传资源',
 	},
 	{
-		id: FOLDERMENU_TOOLTIPS.REPLACE,
+		id: RESOURCE_ACTIONSS_ID_COLLECTION.REPLACE,
 		name: '替换资源',
 	},
 	{
-		id: FOLDERMENU_TOOLTIPS.CREATE,
+		id: RESOURCE_ACTIONSS_ID_COLLECTION.CREATE,
 		name: '新建文件夹',
 	},
 ];
@@ -975,13 +1049,9 @@ export const COMPONENT_CONFIG_NAME = {
 	[COMPONENT_TYPE_VALUE.SFTP]: 'SFTP',
 } as const;
 
-export const VERSION_TYPE = {
-	[COMPONENT_TYPE_VALUE.FLINK]: 'Flink',
-	[COMPONENT_TYPE_VALUE.HIVE_SERVER]: 'HiveServer',
-	[COMPONENT_TYPE_VALUE.SPARK]: 'Spark',
-	[COMPONENT_TYPE_VALUE.SPARK_THRIFT]: 'SparkThrift',
-} as const;
-
+/**
+ * 控制台-多集群管理按钮类别
+ */
 export const CONFIG_BUTTON_TYPE = {
 	[TABS_TITLE_KEY.COMMON]: [
 		{
@@ -1021,12 +1091,18 @@ export const CONFIG_BUTTON_TYPE = {
 	],
 };
 
+/**
+ * 控制台-多集群管理文件类别
+ */
 export const FILE_TYPE = {
 	KERNEROS: 0,
 	CONFIGS: 1,
 	PARAMES: 2,
 } as const;
 
+/**
+ * 控制台-多集群管理组件类别
+ */
 export const CONFIG_ITEM_TYPE = {
 	RADIO: 'RADIO',
 	INPUT: 'INPUT',
@@ -1092,10 +1168,10 @@ export const notSupportTargetTypesInScript = [
 /**
  * 数据同步任务 HBASE 是否行健二进制转换
  */
-export const BINARY_ROW_KEY_FLAG = {
-	FALSE: '0',
-	TRUE: '1',
-} as const;
+export enum BINARY_ROW_KEY_FLAG {
+	FALSE = '0',
+	TRUE = '1',
+}
 
 /**
  * 关系型数据库类型
@@ -1107,6 +1183,9 @@ export const rdbmsDaType = {
 	LOGMINER: 4,
 };
 
+/**
+ * 任务语言类别
+ */
 export enum TASK_LANGUAGE {
 	SPARKSQL = 'sparksql',
 	HIVESQL = 'hivesql',
@@ -1117,15 +1196,22 @@ export enum TASK_LANGUAGE {
 	JSON = 'json',
 }
 
+/**
+ * FLinkSQL 的版本
+ */
 export const FLINK_VERSIONS = {
 	FLINK_1_12: '1.12',
 	FLINK_1_10: '1.10',
 	FLINK_1_8: '1.8',
 } as const;
 
+/**
+ * FlinkSQL 目前支持的版本
+ */
 export const FLINK_VERSION_TYPE = [
 	{ value: FLINK_VERSIONS.FLINK_1_12, label: 'flink1.12', text: '1.12' },
 ];
+
 export const KAFKA_DATA_TYPE = {
 	TYPE_JSON: 'dt_nest',
 	TYPE_CSV: 'csv',
@@ -1324,3 +1410,100 @@ export const DEFAULT_MAPPING_TEXT = `默认使用ElasticSearch自带的Mapping�
         }
     }
 }`;
+
+export enum UDF_TYPE_VALUES {
+	UDF = 0,
+	UDTF = 1,
+	UDAF = 2,
+}
+
+export const UDF_TYPE_NAMES = {
+	[UDF_TYPE_VALUES.UDF]: 'UDF',
+	[UDF_TYPE_VALUES.UDTF]: 'UDTF',
+	[UDF_TYPE_VALUES.UDAF]: 'UDAF',
+} as const;
+
+export const FLINK_VERSION_TYPE_FILTER = [
+	{
+		value: FLINK_VERSIONS.FLINK_1_12,
+		label: 'flink1.12',
+		text: '1.12',
+	},
+];
+
+export enum FLINK_SQL_TYPE {
+	GUIDE = 0,
+	SCRIPT = 1,
+	GRAPH = 2,
+}
+
+// 强制停止类型
+export enum IForceType {
+	NOTFORCE = 0,
+	ISFORCE = 1,
+}
+
+export enum CHECK_TYPE_VALUE {
+	CHECK_POINT = 0,
+	SAVE_POINT = 1,
+	CHECK_POINT_FILE = 2,
+}
+
+/** 手动绑定弹框状态 */
+export enum HAND_BUTTON_STATUS {
+	READY_TIED = 0,
+	TIED_SUCCESS = 1,
+	TIED_MIDDLE = -1,
+}
+
+/** 绑定状态 */
+export enum HAND_TIED_STATUS {
+	TIED_WAIT = 0,
+	TIED_SUCCESS = 1,
+	TIED_FAIED = 2,
+}
+
+/** 绑定类型 */
+export enum BIND_TYPE {
+	AUTO = 1, // 强制绑定
+	MANUAL = 0, // 手动绑定
+}
+
+/** metric 状态 */
+export enum METRIC_STATUS_TYPE {
+	NORMAL = 1,
+	ABNORMAL = 2,
+}
+
+export const UNIT_TYPE = {
+	B: 0,
+	KB: 1,
+	MB: 2,
+	GB: 3,
+	TB: 4,
+} as const;
+
+export const SOURCE_INPUT_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bps',
+	[UNIT_TYPE.KB]: 'Kbps',
+	[UNIT_TYPE.MB]: 'Mbps',
+	[UNIT_TYPE.GB]: 'Gbps',
+	[UNIT_TYPE.TB]: 'Tbps',
+} as const;
+
+export const COLLECTION_BPS_UNIT_TYPE = {
+	[UNIT_TYPE.B]: 'Bytes',
+	[UNIT_TYPE.KB]: 'Kbytes',
+	[UNIT_TYPE.MB]: 'Mbytes',
+	[UNIT_TYPE.GB]: 'Gbytes',
+	[UNIT_TYPE.TB]: 'Tbytes',
+} as const;
+
+export const CHARTS_COLOR = [
+	'#339CFF',
+	'#15D275',
+	'#5579ED',
+	'#00C3E5',
+	'#16DFB4',
+	'#86E159',
+] as const;

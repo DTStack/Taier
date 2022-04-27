@@ -147,7 +147,7 @@ export const ComponentConfigIcon = ({ style }: IConProps) => {
 
 export const ResourceIcon = ({ style }: IConProps) => {
 	return (
-		<span title="资源文件" style={{ fontSize: 0, ...style }}>
+		<span title="资源文件" style={{ ...style }}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				width="1em"
