@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.sql.formate;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.dtstack.taier.common.util.Base64Util;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,9 +161,8 @@ public class SqlFormatter {
 
 
     public static String formatSql(String sql) {
-        int allDelimiter = getDelimiterCount(sql);
-        String[] arrSql = com.dtstack.taier.common.util.Strings.splitIgnoreQuotaBrackets(sql, SQL_DELIMITER);
-        StringBuffer sb = new StringBuffer("");
+        String[] arrSql = DtStringUtil.splitIgnoreQuotaNotUsingRegex(sql, SQL_DELIMITER);
+        StringBuilder sb = new StringBuilder();
 
         int index = 0;
         for (String tmpSql : arrSql) {
@@ -178,7 +176,7 @@ public class SqlFormatter {
             } else {
                 sb.append(basicFormat.format(tmpSql));
             }
-            if (index < allDelimiter) {
+            if (index < arrSql.length) {
                 sb.append(SQL_DELIMITER);
             }
             sb.append("\n");
