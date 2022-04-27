@@ -18,8 +18,11 @@
 
 package com.dtstack.taier.develop.utils.develop.common.util;
 
+import com.dtstack.taier.common.util.Base64Util;
 import com.dtstack.taier.common.util.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -89,7 +92,7 @@ public class SqlFormatUtil {
 
 
     public static List<String> splitSqlWithoutSemi(String sqlText) {
-        if(!sqlText.endsWith(";")){
+        if (!sqlText.endsWith(";")) {
             sqlText = sqlText + ";";
         }
         return splitSqlText(sqlText);
@@ -135,7 +138,6 @@ public class SqlFormatUtil {
     }
 
 
-
     public static SqlFormatUtil init(String sql) {
         SqlFormatUtil util = new SqlFormatUtil();
         util.sql = sql;
@@ -151,7 +153,7 @@ public class SqlFormatUtil {
                 .getSql();
     }
 
-    public static boolean checkSelectStar(String sql){
+    public static boolean checkSelectStar(String sql) {
 
         return selectStarPattern.matcher(sql).find();
     }
@@ -167,13 +169,13 @@ public class SqlFormatUtil {
                 .getSql();
     }
 
-    public static String   replaceKeyWord(String sql){
+    public static String replaceKeyWord(String sql) {
 
-        return  sql.replaceAll(EXTERNAL,EXTERNAL_X);
+        return sql.replaceAll(EXTERNAL, EXTERNAL_X);
     }
 
-    public SqlFormatUtil removeBlanks(){
-        sql = sql.replaceAll(MULTIPLE_BLANKS," ");
+    public SqlFormatUtil removeBlanks() {
+        sql = sql.replaceAll(MULTIPLE_BLANKS, " ");
         return this;
     }
 
@@ -198,7 +200,6 @@ public class SqlFormatUtil {
     }
 
 
-
     /**
      * 去除注释 -- 开头的sql
      */
@@ -212,10 +213,11 @@ public class SqlFormatUtil {
 
     /**
      * 去除 --注释  避免了" '的影响
+     *
      * @param osql
      * @return
      */
-    private static String removeCommentByQuotes(String osql){
+    private static String removeCommentByQuotes(String osql) {
         String[] sqls = osql.split("\n");
         StringBuffer buffer = new StringBuffer();
         //修复-- 注释在sql中间的情况
@@ -223,17 +225,17 @@ public class SqlFormatUtil {
             String sqlLine = sqls[j];
             Boolean flag = false;
             char[] sqlindex = sqlLine.toCharArray();
-            for (int i=0;sqlLine.length()>i;i++){
+            for (int i = 0; sqlLine.length() > i; i++) {
                 if (!flag) {
                     if (sqlindex[i] == '\"' || sqlindex[i] == '\'') {
                         flag = true;
-                    }else {
-                        if (sqlindex[i]=='-' && i+1<sqlLine.length() && sqlindex[i+1] == '-'){
+                    } else {
+                        if (sqlindex[i] == '-' && i + 1 < sqlLine.length() && sqlindex[i + 1] == '-') {
                             break;
                         }
                     }
                     buffer.append(sqlindex[i]);
-                }else {
+                } else {
                     if (sqlindex[i] == '\"' || sqlindex[i] == '\'') {
                         flag = false;
                     }
@@ -305,6 +307,7 @@ public class SqlFormatUtil {
 
     /**
      * 处理 array<struct<room_id:string,days:array<struct<day_id:string,price:int>>>> 格式
+     *
      * @param sql
      * @return
      */
@@ -314,7 +317,7 @@ public class SqlFormatUtil {
             return sql;
         }
         Matcher matcher = pattern.matcher(sql);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             return sql;
         }
         String replace_type = sql.replaceAll("(?i)(map|struct|array)\\s*<", "replace_type<");
@@ -333,7 +336,7 @@ public class SqlFormatUtil {
                     stack.push(value);
                 } else if (">".equals(value)) {
                     stack.pop();
-                    if(stack.isEmpty()){
+                    if (stack.isEmpty()) {
                         isBegin = false;
                     }
                 }
@@ -341,58 +344,89 @@ public class SqlFormatUtil {
                     stringBuilder.append(value);
                 }
             }
-           if(i != s.length -1 && !isBegin && stack.isEmpty() ){
-               stringBuilder.append(" string ");
-           }
+            if (i != s.length - 1 && !isBegin && stack.isEmpty()) {
+                stringBuilder.append(" string ");
+            }
         }
         return stringBuilder.toString();
     }
 
 
-
-
-
-
-
     /**
      * 向后读一个token
+     *
      * @param originSql
      * @param start
      * @return
      */
-    public static String readTokenBackwards(String originSql,int start){
+    public static String readTokenBackwards(String originSql, int start) {
         Deque<Character> charStack = new LinkedList<>();
-        for (int i = start;i<originSql.length();i++){
+        for (int i = start; i < originSql.length(); i++) {
             char c = originSql.charAt(i);
-            if (!charStack.isEmpty()){
+            if (!charStack.isEmpty()) {
                 //栈不为空判断栈顶元素，如果是结束标志，则结束，否则压栈
                 Character peek = charStack.peek();
-                if (isStopSignal(peek)){
+                if (isStopSignal(peek)) {
                     charStack.pop();
                     break;
                 }
                 charStack.push(c);
-            }else {
+            } else {
                 //栈为空则直接压栈非空元素
-                if (' ' == c){
+                if (' ' == c) {
                     continue;
                 }
                 charStack.push(c);
             }
         }
         StringBuilder builder = new StringBuilder();
-        while (!charStack.isEmpty()){
+        while (!charStack.isEmpty()) {
             Character pop = charStack.removeLast();
             builder.append(pop);
         }
         return builder.toString();
     }
 
-    private static boolean isStopSignal(char c){
-        if (' ' == c || ',' == c || '(' == c || ')' == c){
+    private static boolean isStopSignal(char c) {
+        if (' ' == c || ',' == c || '(' == c || ')' == c) {
             return true;
         }
         return false;
+    }
+
+
+    private static final Logger logger = LoggerFactory.getLogger(SqlFormatUtil.class);
+    private static final Pattern note_pattern = Pattern.compile("--.*\n|/\\*\\*[\\s\\S]*\\*/");
+    private static final Pattern note_pattern_new = Pattern.compile("##.*\n");
+
+    public static String dealAnnotationBefore(String sql) {
+        sql = sql + "\n";
+        for (Matcher matcher = note_pattern.matcher(sql);
+             matcher.find(); matcher = note_pattern.matcher(sql)) {
+            sql = matcher.replaceFirst("##" +
+                    Base64Util.baseEncode(matcher.group()) + "\n");
+        }
+        return sql;
+    }
+
+    public static String dealAnnotationAfter(String sql) {
+        for (Matcher matcher = note_pattern_new.matcher(sql);
+             matcher.find(); matcher = note_pattern_new.matcher(sql)) {
+            String group = matcher.group();
+            if (group.endsWith("\n")) {
+                group = group.substring(2, group.length() - 1);
+            }
+            String s = group;
+            try {
+                s = group;
+            } catch (IllegalArgumentException var5) {
+                logger.warn("baseEncode failed, sql={}, e={}", sql, var5);
+            }
+            s = s.replaceAll("\\$", "RDS_CHAR_DOLLAR");
+            sql = matcher.replaceFirst(s);
+            sql = sql.replaceAll("RDS_CHAR_DOLLAR", "\\$");
+        }
+        return sql;
     }
 
 
