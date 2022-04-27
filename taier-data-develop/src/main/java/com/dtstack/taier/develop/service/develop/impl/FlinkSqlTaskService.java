@@ -120,7 +120,7 @@ public class FlinkSqlTaskService {
     private ScheduleActionService actionService;
 
     @Autowired
-    private  ClusterService clusterService;
+    private ClusterService clusterService;
 
     @Autowired
     private BatchFunctionService batchFunctionService;
@@ -303,7 +303,7 @@ public class FlinkSqlTaskService {
 
     private void checkTaskStatus(Task task) {
         ScheduleJob scheduleJob = getByJobId(task.getJobId());
-        boolean canStart = scheduleJob.getStatus() == null || TaskStatus.CAN_RUN_STATUS.contains(scheduleJob.getStatus());
+        boolean canStart = scheduleJob == null || scheduleJob.getStatus() == null || TaskStatus.CAN_RUN_STATUS.contains(scheduleJob.getStatus());
         AssertUtils.isTrue(canStart, "任务状态不能运行");
     }
 
@@ -334,7 +334,7 @@ public class FlinkSqlTaskService {
     private void resetTaskStatus(String jobId) {
         ScheduleJob scheduleJob = getByJobId(jobId);
         //engineJob==null 说明任务为首次提交，由engine自行初始化job
-        if(scheduleJob == null) {
+        if (scheduleJob == null) {
             return;
         }
         Integer status = scheduleJob.getStatus();
@@ -343,7 +343,7 @@ public class FlinkSqlTaskService {
             if (!TaskStatusCheckUtil.CAN_RESET_STATUS.contains(status)) {
                 throw new RdosDefineException("(任务状态不匹配)");
             }
-            boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(),status,environmentContext.getLocalAddress());
+            boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());
             if (!reset) {
                 throw new RdosDefineException("fail to reset task status");
             }
@@ -484,7 +484,7 @@ public class FlinkSqlTaskService {
     public CheckResultVO grammarCheck(TaskResourceParam taskResourceParam) {
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         convertTableStr(taskResourceParam, taskVO);
-        CheckResult data  = grammarCheck(taskVO);
+        CheckResult data = grammarCheck(taskVO);
         if (data == null) {
             throw new DtCenterDefException("engine service exception");
         }

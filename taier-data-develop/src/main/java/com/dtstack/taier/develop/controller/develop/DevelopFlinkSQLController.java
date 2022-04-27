@@ -20,30 +20,37 @@ package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.develop.dto.devlop.FlinkServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.FlinkSqlTaskManagerVO;
 import com.dtstack.taier.develop.dto.devlop.RuntimeLogResultVO;
+import com.dtstack.taier.develop.dto.devlop.ServerLogsVO;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkSqlRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkSqlTaskService;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
+import com.dtstack.taier.develop.vo.develop.query.GetFailoverLogsByTaskIdVO;
 import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
-import com.dtstack.taier.pluginapi.pojo.CheckResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +64,9 @@ public class DevelopFlinkSQLController {
 
     @Autowired
     private FlinkSqlRuntimeLogService flinkSqlRuntimeLogService;
+
+    @Autowired
+    private FlinkServerLogService flinkServerLogService;
 
 
     @ApiOperation(value = "运行FlinkSQL任务")
@@ -79,17 +89,6 @@ public class DevelopFlinkSQLController {
             @Override
             protected CheckResultVO process() {
                 return flinkSqlTaskService.grammarCheck(taskResourceParam);
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "/grammarCheck1")
-    @ApiOperation(value = "语法检测")
-    public R<CheckResult> grammarCheck1(@RequestBody StartFlinkSqlVO vo) {
-        return new APITemplate<CheckResult>() {
-            @Override
-            protected CheckResult process() {
-                return flinkSqlTaskService.grammarCheck(vo.getTaskId());
             }
         }.execute();
     }
@@ -144,7 +143,10 @@ public class DevelopFlinkSQLController {
         return new APITemplate<List<FlinkSqlTaskManagerVO>>() {
             @Override
             protected List<FlinkSqlTaskManagerVO> process() {
-                return flinkSqlRuntimeLogService.listTaskManagerByJobId(taskIdQueryVO.getTaskId(), taskIdQueryVO.getTenantId());
+                flinkSqlRuntimeLogService.listTaskManagerByJobId(taskIdQueryVO.getTaskId(), taskIdQueryVO.getTenantId());
+                FlinkSqlTaskManagerVO flinkSqlTaskManagerVO = new FlinkSqlTaskManagerVO();
+                flinkSqlTaskManagerVO.setId("container_e82_1650723732517_8257_01_000002");
+                return Arrays.asList(flinkSqlTaskManagerVO);
             }
         }.execute();
     }
@@ -155,7 +157,7 @@ public class DevelopFlinkSQLController {
         return new APITemplate<RuntimeLogResultVO>() {
             @Override
             protected RuntimeLogResultVO process() {
-                return flinkSqlRuntimeLogService.getJobManagerLog(logQueryVO.getJobId(), logQueryVO.getPlace(), logQueryVO.getTenantId());
+                return flinkSqlRuntimeLogService.getJobManagerLog(logQueryVO.getTaskId(), logQueryVO.getPlace(), logQueryVO.getTenantId());
             }
         }.execute();
     }
@@ -166,10 +168,42 @@ public class DevelopFlinkSQLController {
         return new APITemplate<RuntimeLogResultVO>() {
             @Override
             protected RuntimeLogResultVO process() {
-                return flinkSqlRuntimeLogService.getTaskManagerLog(logQueryVO.getJobId(), logQueryVO.getTaskManagerId(), logQueryVO.getCurrentPage(),
+                return flinkSqlRuntimeLogService.getTaskManagerLog(logQueryVO.getTaskId(), logQueryVO.getTaskManagerId(), logQueryVO.getCurrentPage(),
                         logQueryVO.getPlace(), logQueryVO.getTenantId());
             }
         }.execute();
     }
 
+    @ApiOperation("根据任务 ID 获取日志信息")
+    @PostMapping(value = "getLogsByTaskId")
+    public R<FlinkServerLogVO> getLogsByTaskId(@RequestBody ServerLogsVO vo) {
+        return new APITemplate<FlinkServerLogVO>() {
+            @Override
+            protected FlinkServerLogVO process() {
+              return   flinkServerLogService.getLogsByTaskId(vo);
+            }
+        }.execute();
+    }
+
+    @ApiOperation("根据任务 ID 获取失败日志信息")
+    @PostMapping(value = "getFailoverLogsByTaskId")
+    public R<String> getFailoverLogsByTaskId(@RequestBody GetFailoverLogsByTaskIdVO vo) {
+        return new APITemplate<String>() {
+            @Override
+            protected String process() {
+                return "error";
+            }
+        }.execute();
+    }
+
+    @ApiOperation(value = "获取任务历史信息")
+    @PostMapping(value = "getJobHistoryList")
+    public R<PageResult<List<ScheduleJobHistory>>> getJobHistoryList(@RequestBody @Validated TaskJobHistorySearchVO jobHistorySearchVO) {
+        return new APITemplate<PageResult<List<ScheduleJobHistory>>>() {
+            @Override
+            protected PageResult<List<ScheduleJobHistory>> process() {
+                return flinkSqlRuntimeLogService.getHistoryList(jobHistorySearchVO.getTaskId(), 0, 1);
+            }
+        }.execute();
+    }
 }
