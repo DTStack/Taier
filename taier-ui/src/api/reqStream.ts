@@ -48,4 +48,8 @@ export default {
 	GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/flinkSql/getFailoverLogsByTaskId`, // 获取任务告警日志
 	GET_HISTORY_LOG: `${STREAM_BASE_URL}/flinkSql/getJobHistoryList`,
 	DOWNLOAD_HISTORY_LOG: `${STREAM_BASE_URL}/download/streamDownload/downloadHistoryLog`,
+	GET_TASK_METRICS: `${STREAM_BASE_URL}/streamJobMetric/getTaskMetrics`, // 获取指标
+	GET_METRIC_VALUES: `${STREAM_BASE_URL}/streamJobMetric/values`, // 获取所有指标
+	CHECK_SOURCE_STATUS: `${STREAM_BASE_URL}/dataSource/manager/getDataSourceLinkStatus`, // 获取任务的异常数据源
+	QUERY_TASK_METRICES: `${STREAM_BASE_URL}/streamJobMetric/queryTaskMetrics`, // 查询指标数据
 };
