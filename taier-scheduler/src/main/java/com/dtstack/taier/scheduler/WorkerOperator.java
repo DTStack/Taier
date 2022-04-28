@@ -153,8 +153,8 @@ public class WorkerOperator {
         return clientOperator.getClusterResource(pluginInfo);
     }
 
-    public List<FileResult> listFile(String path, String pluginInfo) throws Exception{
-        return clientOperator.listFile(path,pluginInfo);
+    public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception{
+        return clientOperator.listFile(path,isPathPattern,pluginInfo);
     }
 
     public CheckResult grammarCheck(JobClient jobClient) throws Exception {
