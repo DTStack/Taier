@@ -9,6 +9,7 @@ import {
 	DATA_SOURCE_TEXT,
 	CHARTS_COLOR,
 	TASK_TYPE_ENUM,
+	DATA_SOURCE_ENUM,
 } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import { Alert, Radio, Tooltip, Row, Col } from 'antd';
@@ -20,52 +21,11 @@ import AlarmBaseGraph from './baseGraph';
 import DataDelay from './dataDelay';
 import MetricSelect from './metricSelect';
 import './index.scss';
+import stream from '@/api/stream';
 
 const Api = {
-	checkSourceStatus: () => Promise.resolve({ code: 1, data: null }),
-	getMetricValues: () =>
-		Promise.resolve({
-			code: 1,
-			message: null,
-			data: [
-				'flink_taskmanager_job_task_operator_flinkx_numReadPerSecond',
-				'flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond',
-				'flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond',
-				'flink_taskmanager_job_task_operator_flinkx_numWritePerSecond',
-				'flink_taskmanager_job_task_operator_flinkx_KafkaConsumer_topic_partition_lag',
-				'flink_jobmanager_Status_JVM_CPU_Load',
-				'flink_jobmanager_Status_JVM_CPU_Time',
-				'flink_taskmanager_Status_JVM_CPU_Load',
-				'flink_taskmanager_Status_JVM_CPU_Time',
-				'flink_jobmanager_Status_JVM_Memory_Heap_Max',
-				'flink_taskmanager_Status_JVM_Memory_Heap_Max',
-				'flink_jobmanager_Status_JVM_Memory_Heap_Used',
-				'flink_taskmanager_Status_JVM_Memory_Heap_Used',
-				'flink_jobmanager_Status_JVM_Memory_NonHeap_Max',
-				'flink_taskmanager_Status_JVM_Memory_NonHeap_Max',
-				'flink_jobmanager_Status_JVM_Memory_NonHeap_Used',
-				'flink_taskmanager_Status_JVM_Memory_NonHeap_Used',
-				'flink_jobmanager_Status_JVM_Memory_Direct_TotalCapacity',
-				'flink_taskmanager_Status_JVM_Memory_Direct_TotalCapacity',
-				'flink_jobmanager_Status_JVM_Memory_Direct_MemoryUsed',
-				'flink_taskmanager_Status_JVM_Memory_Direct_MemoryUsed',
-				'flink_jobmanager_Status_JVM_Threads_Count',
-				'flink_taskmanager_Status_JVM_Threads_Count',
-				'flink_taskmanager_job_task_buffers_inputQueueLength',
-				'flink_taskmanager_job_task_buffers_outputQueueLength',
-				'flink_jobmanager_job_numRestarts',
-				'flink_jobmanager_job_restartingTime',
-				'flink_jobmanager_job_lastCheckpointDuration',
-				'flink_jobmanager_job_lastCheckpointSize',
-				'flink_jobmanager_job_totalNumberOfCheckpoints',
-				'flink_jobmanager_job_numberOfFailedCheckpoints',
-				'flink_taskmanager_job_task_checkpointAlignmentTime',
-			],
-			space: 0,
-			version: null,
-			success: true,
-		}),
-	getMetricStatus: () =>
+	checkSourceStatus: (params: any) => Promise.resolve({ code: 1, data: null }),
+	getMetricStatus: (params: any) =>
 		Promise.resolve({
 			code: 1,
 			message: null,
@@ -73,11 +33,6 @@ const Api = {
 			space: 0,
 			version: null,
 			success: true,
-		}),
-	getTaskMetrics: ({ chartNames }) =>
-		Promise.resolve({
-			code: 1,
-			data: JSON.stringify(chartNames.map((name) => ({ chartName: name, data: [] }))),
 		}),
 };
 
@@ -121,8 +76,8 @@ const defaultData: any = {
 	[metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
 };
 
-function matchSourceInputUnit(metricsData: any = {}, type?: string) {
-	function matchType(type: string, key: string) {
+function matchSourceInputUnit(metricsData: any = {}, type: string) {
+	function matchType(type: string, key: UNIT_TYPE) {
 		switch (type) {
 			case metricsType.DATA_COLLECTION_TOTAL_BPS: {
 				unit = COLLECTION_BPS_UNIT_TYPE[key];
@@ -137,7 +92,7 @@ function matchSourceInputUnit(metricsData: any = {}, type?: string) {
 	}
 
 	const { y = [[]] } = metricsData;
-	let unit = '';
+	let unit: string | undefined = '';
 	const depth = type == metricsType.SOURCE_INPUT_BPS ? 2 : 1;
 	const dataFlat = y.flat(depth) || [];
 	const maxVal = Math.max.apply(null, dataFlat);
@@ -174,12 +129,12 @@ interface IProps {
 
 const initState = {
 	lineDatas: defaultData,
-	sourceStatusList: [],
+	sourceStatusList: [] as any,
 	time: defaultTimeValue,
 	endTime: moment(),
-	metricValue: undefined,
+	metricValue: undefined as undefined | string,
 	metricLists: [],
-	metricDatas: {},
+	metricDatas: {} as any,
 	metricStatus: {
 		status: METRIC_STATUS_TYPE.NORMAL, // 正常 1, 异常 2
 		msg: '',
@@ -251,7 +206,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		if (!data.id) {
 			return;
 		}
-		Api.getMetricValues({
+		stream.getMetricValues({
 			taskId: data?.id,
 		}).then((res: any) => {
 			const { code, data } = res;
@@ -281,7 +236,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	// 查询指标数据
 	queryTaskMetrics = (chartName: string, id: number) => {
 		const { time, endTime } = this.state;
-		Api.queryTaskMetrics({
+		stream.queryTaskMetrics({
 			taskId: id,
 			chartName,
 			timespan: time,
@@ -297,9 +252,9 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	// 格式化数据
 	setMetricData = (chartName: string, data: any[]) => {
 		const { metricDatas } = this.state;
-		let xAxis = [];
-		let yAxis = [];
-		let legend = [];
+		let xAxis: Array<any> = [];
+		let yAxis: Array<any> = [];
+		let legend: string[] = [];
 		data.forEach((item: any) => {
 			const { metric, values } = item;
 			const { x, y } = this.setChartValue(values);
@@ -326,9 +281,9 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	};
 
 	// 格式化图例名
-	setMetricKey = (metric: any) => {
+	setMetricKey = (metric: any): string => {
 		if (metric === undefined) {
-			return;
+			return '';
 		}
 		const NAME_KEY = '__name__';
 		const SHOW_KEYS = ['job_id', 'job_name', 'exported_job', 'operator_name'];
@@ -341,8 +296,8 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 
 	// 处理横纵坐标数据
 	setChartValue = (values: any[]) => {
-		let x = [];
-		let y = [];
+		let x: Array<string | number> = [];
+		let y: Array<string | number> = [];
 		Array.isArray(values) &&
 			values.forEach((value: any) => {
 				x.push(value.time);
@@ -426,7 +381,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		const { lineDatas } = this.state;
 		let stateLineData: any = { ...lineDatas };
 		for (let i = 0; i < data.length; i++) {
-			let item = data[i];
+			let item: any = data[i];
 			let lineData = item.data;
 			let type = item.chartName;
 			let x = [];
@@ -572,7 +527,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 
 		const successFunc = (res: any) => {
 			if (res.code == 1) {
-				this.setLineData(JSON.parse(res.data));
+				this.setLineData(res.data);
 			}
 		};
 
@@ -580,7 +535,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			let serverChart = metricsList[i];
 			// 间隔时间，防止卡顿
 			setTimeout(() => {
-				Api.getTaskMetrics({
+				stream.getTaskMetrics({
 					taskId: data.id,
 					timespan: time,
 					end: endTime.valueOf(),
@@ -597,7 +552,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		const sourceMsg = Utils.textOverflowExchange(
 			sourceStatusList
 				.map(([sourceName, type]: any[]) => {
-					return `${sourceName}(${DATA_SOURCE_TEXT[type]})`;
+					return `${sourceName}(${DATA_SOURCE_TEXT[type as DATA_SOURCE_ENUM]})`;
 				})
 				.join('，'),
 			60,
@@ -634,7 +589,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	// 选择metric
 	handleMetricSelect = (value: string) => {
 		if (value) {
-			// const { dispatch, data } = this.props;
+			const { data } = this.props;
 			// dispatch(GraphAction.saveTaskMetrics(data.id, value));
 			this.queryTaskMetrics(value, data.id);
 			this.setState({
@@ -646,7 +601,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	// 删除metric
 	handleMetricDelete = (name: string) => {
 		// const { dispatch, data } = this.props;
-		const metricDatas = cloneDeep(this.state.metricDatas);
+		const metricDatas: any = cloneDeep(this.state.metricDatas);
 		delete metricDatas[name];
 		this.setState({
 			metricDatas,
@@ -713,7 +668,6 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 											right: 'initial',
 											top: 'initial',
 											marginRight: '0px',
-											color: tabKey === 'dataDelay' && '#3F87FF',
 										}}
 										doc="delayTabWarning"
 									/>

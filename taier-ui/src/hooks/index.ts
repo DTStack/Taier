@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface IPagination {
 	current?: number;
@@ -32,6 +32,12 @@ export const usePagination = ({
 	const [current, setCurrent] = useState(initialCurrent);
 	const [pageSize, setPageSize] = useState(initalPageSize);
 	const [total, setTotal] = useState(initialTotal);
+
+	// ensure get the lastest value inside async function
+	const pageInfoRef = useRef({ current, pageSize, total });
+	useEffect(() => {
+		pageInfoRef.current = { current, pageSize, total };
+	});
 
 	const setPagination = ({
 		current: c,
@@ -53,5 +59,5 @@ export const usePagination = ({
 		}
 	};
 
-	return { current, pageSize, total, setPagination };
+	return { ...pageInfoRef.current, setPagination };
 };

@@ -1,5 +1,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
+import com.dtstack.taier.dao.domain.ScheduleJobExpand;
+
 public class FlinkServerLogVO {
 
 
@@ -67,5 +69,13 @@ public class FlinkServerLogVO {
         this.jobId = jobId;
         this.logInfo = logInfo;
         this.engineLog = engineLog;
+    }
+
+    public FlinkServerLogVO(ScheduleJobExpand scheduleJobExpand, String downLoadLog,String submitLog) {
+        this.jobId = scheduleJobExpand.getJobId();
+        this.logInfo = scheduleJobExpand.getLogInfo();
+        this.engineLog = scheduleJobExpand.getEngineLog();
+        this.downLoadLog = downLoadLog;
+        this.submitLog =submitLog;
     }
 }

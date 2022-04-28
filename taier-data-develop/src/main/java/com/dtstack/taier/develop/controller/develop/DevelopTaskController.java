@@ -25,7 +25,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
-import com.dtstack.taier.develop.service.develop.impl.FlinkSqlTaskService;
+import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceIncreColumnVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchFrozenTaskVO;
@@ -73,7 +73,7 @@ public class DevelopTaskController {
     @Autowired
     private BatchTaskService batchTaskService;
     @Autowired
-    private FlinkSqlTaskService flinkSqlTaskService;
+    private FlinkTaskService flinkTaskService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
@@ -301,7 +301,7 @@ public class DevelopTaskController {
         return new APITemplate<Boolean>() {
             @Override
             protected Boolean process() {
-                return flinkSqlTaskService.stopStreamTask(operateTaskVO.getId());
+                return flinkTaskService.stopStreamTask(operateTaskVO.getId());
             }
         }.execute();
     }

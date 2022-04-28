@@ -7,7 +7,6 @@ public class ServerLogsVO extends DtInsightAuthParam {
 
     private Long taskId;
 
-
     private String taskManagerId;
 
     public Long getTaskId() {
