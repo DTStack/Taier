@@ -126,6 +126,7 @@ public class Task  {
     @TableField("tenant_id")
     private Long tenantId;
 
+    private String jobId;
     public Long getId() {
         return id;
     }
@@ -166,9 +167,6 @@ public class Task  {
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
-
-
-    private String jobId;
 
     public String getMainClass() {
         return mainClass;

@@ -25,9 +25,9 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
+import com.dtstack.taier.develop.service.develop.impl.FlinkSqlTaskService;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceIncreColumnVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTraceVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchFrozenTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskCheckIsLoopVO;
@@ -41,6 +41,7 @@ import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetTaskVersionRecordV
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskPublishTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskVersionScheduleConfVO;
+import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.StartTaskVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetChildTasksResultVO;
@@ -71,6 +72,8 @@ public class DevelopTaskController {
 
     @Autowired
     private BatchTaskService batchTaskService;
+    @Autowired
+    private FlinkSqlTaskService flinkSqlTaskService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
@@ -292,5 +295,15 @@ public class DevelopTaskController {
         }.execute();
     }
 
+    @ApiOperation("任务停止")
+    @PostMapping(value = "stopTask")
+    public R<Boolean> stopTask(@RequestBody OperateTaskVO operateTaskVO) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return flinkSqlTaskService.stopStreamTask(operateTaskVO.getId());
+            }
+        }.execute();
+    }
 
 }

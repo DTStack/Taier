@@ -43,6 +43,7 @@ public class CommonResource {
             switch (taskType) {
                 case SYNC:
                 case SQL:
+                case DATA_ACQUISITION:
                     commonResource = new FlinkResource();
                     commonResource.setClusterMapper(clusterMapper);
                     commonResource.setClusterService(clusterService);

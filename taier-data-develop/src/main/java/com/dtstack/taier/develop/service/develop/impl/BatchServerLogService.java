@@ -626,7 +626,7 @@ public class BatchServerLogService {
         }
         Task batchTaskById = batchTaskService.getBatchTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,batchTaskById.getTaskParams());
+        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,batchTaskById.getTaskParams(),ComputeType.BATCH);
         if (prometheusHostAndPort == null){
             return "promethues配置为空";
         }
@@ -652,7 +652,7 @@ public class BatchServerLogService {
         return formatPerfLogInfo.buildReadableLog();
     }
 
-    private Pair<String,String> getPrometheusHostAndPort(final Long tenantId, final String taskParams){
+    public Pair<String,String> getPrometheusHostAndPort(final Long tenantId, final String taskParams,ComputeType computeType){
         Boolean hasStandAlone = clusterService.hasStandalone(tenantId, EComponentType.FLINK.getTypeCode());
         JSONObject flinkJsonObject ;
         if (hasStandAlone) {
@@ -664,7 +664,7 @@ public class BatchServerLogService {
                 LOGGER.info("console tenantId {} pluginInfo is null", tenantId);
                 return null;
             }
-            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,ComputeType.BATCH.getType());
+            EDeployMode deployModeEnum = TaskParamsUtils.parseDeployTypeByTaskParams(taskParams,computeType.getType());
             flinkJsonObject = jsonObject.getJSONObject(deployModeEnum.name().toLowerCase(Locale.ROOT));
         }
         String prometheusHost = flinkJsonObject.getString("prometheusHost");

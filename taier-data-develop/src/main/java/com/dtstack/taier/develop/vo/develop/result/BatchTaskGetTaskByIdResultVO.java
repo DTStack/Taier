@@ -231,6 +231,16 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "")
     private List<JSONObject> side;
 
+    @ApiModelProperty(value = "是否提交过")
+    private Boolean submitted;
+
+    public Boolean getSubmitted() {
+        return submitted;
+    }
+
+    public void setSubmitted(Boolean submitted) {
+        this.submitted = submitted;
+    }
 
     public List<JSONObject> getSource() {
         return source;

@@ -52,9 +52,9 @@ public class TaskVO extends Task {
     private Integer syncContent;
 
     /**
-     * 任务版本
+     * 是否提交过
      */
-    private List<TaskVersionVO> taskVersions;
+    private Boolean submitted;
 
     /**
      * 离线的参数替换字段
@@ -72,6 +72,14 @@ public class TaskVO extends Task {
      * 租户名称
      */
     private String tenantName;
+
+    public Boolean getSubmitted() {
+        return submitted;
+    }
+
+    public void setSubmitted(Boolean submitted) {
+        this.submitted = submitted;
+    }
 
     public Long getParentId() {
         return parentId;
