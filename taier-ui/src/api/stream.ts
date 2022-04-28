@@ -118,26 +118,33 @@ export default {
 		return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params);
 	},
 	// 获取指标
-    getTaskMetrics (params: {
+	getTaskMetrics(params: {
 		taskId: number;
 		timespan: string;
 		end: number;
 		chartNames: Array<string>;
 	}) {
-        return http.post(req.GET_TASK_METRICS, params)
-    },
-	getMetricValues (params: { taskId: number }) { // 获取所有指标
-        return http.get(req.GET_METRIC_VALUES, params);
-    },
-	checkSourceStatus (params: { taskId: number }) { // 获取任务的异常数据源
-        return http.post(req.CHECK_SOURCE_STATUS, params)
-    },
-	queryTaskMetrics (params: {
-		taskId: number;
-		chartName: string;
-		timespan: string;
-		end: number;
-	}) { // 查询指标数据
-        return http.post(req.QUERY_TASK_METRICES, params);
-    },
+		return http.post(req.GET_TASK_METRICS, params);
+	},
+	getMetricValues(params: { taskId: number }) {
+		// 获取所有指标
+		return http.get(req.GET_METRIC_VALUES, params);
+	},
+	checkSourceStatus(params: { taskId: number }) {
+		// 获取任务的异常数据源
+		return http.post(req.CHECK_SOURCE_STATUS, params);
+	},
+	queryTaskMetrics(params: { taskId: number; chartName: string; timespan: string; end: number }) {
+		// 查询指标数据
+		return http.post(req.QUERY_TASK_METRICES, params);
+	},
+	getListHistory(params: any) {
+		return http.post(req.GET_LIST_HISTORY, params);
+	},
+	listCheckPoint(params: any) {
+		return http.post(req.LIST_CHECK_POINT, params);
+	},
+	stopTask(params: any) {
+		return http.post(req.STOP_TASK, params);
+	},
 };

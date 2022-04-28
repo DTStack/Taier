@@ -5,6 +5,7 @@
 	.ant-tooltip-inner,
 	.ant-dropdown-menu,
 	.ant-table-filter-dropdown-btns,
+	.ant-table-filter-dropdown,
 	.ant-select-dropdown {
 		color: var(--menu-foreground);
 		background: var(--menu-background);
@@ -39,7 +40,9 @@
 	.ant-drawer .ant-table thead > tr > th,
 	.ant-table-thead > tr > th,
 	.ant-table-small .ant-table-thead > tr > th,
+	.ant-modal .ant-table.ant-table-small thead > tr > th,
 	.ant-drawer .ant-table tbody > tr.ant-table-row:hover > td,
+	.ant-modal .ant-table tbody > tr.ant-table-row:hover > td,
 	.ant-table-tbody > tr.ant-table-placeholder:hover > td,
 	.ant-table-tbody > tr.ant-table-row:hover > td,
 	.ant-table-tbody > tr > td.ant-table-cell-row-hover,
@@ -48,7 +51,6 @@
 	.ant-drawer .ant-table tbody > tr.ant-table-row-selected > td.ant-table-cell-fix-right,
 	.ant-descriptions-bordered .ant-descriptions-item-label {
 		background: var(--editor-background);
-		background-color: var(--editor-background);
 	}
 
 	.ant-notification-notice {

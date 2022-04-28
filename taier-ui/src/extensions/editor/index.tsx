@@ -26,7 +26,7 @@ import { cloneDeep, debounce } from 'lodash';
 import ReactDOM from 'react-dom';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { createSQLProposals } from '@/utils';
+import { createSQLProposals, prettierJSONstring } from '@/utils';
 import api from '@/api';
 import apiStream from '@/api/stream';
 import { TASK_TYPE_ENUM } from '@/constant';
@@ -161,10 +161,23 @@ function emitEvent() {
 										(res) => {
 											if (res.code === 1) {
 												message.success('转换成功！');
-												const nextTabData = current.tab!;
-												nextTabData.data.language = 'json';
-												Reflect.deleteProperty(nextTabData, 'renderPane');
-												molecule.editor.updateTab(nextTabData);
+												api.getOfflineTaskByID({
+													id: currentTabData.id,
+												}).then((result) => {
+													if (result.code === 1) {
+														molecule.editor.updateTab({
+															id: result.data.id.toString(),
+															data: {
+																...currentTabData,
+																language: 'json',
+																value: prettierJSONstring(
+																	result.data.sqlText,
+																),
+															},
+															renderPane: undefined,
+														});
+													}
+												});
 											}
 										},
 									);
