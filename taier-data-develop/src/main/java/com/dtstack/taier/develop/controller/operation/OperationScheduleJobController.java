@@ -63,7 +63,7 @@ public class OperationScheduleJobController {
 
     @PostMapping(value = "/listHistory")
     public R<List<JobHistoryVO>> listHistory(@RequestParam("jobId") String jobId,
-                                             @RequestParam("limit") Integer limit) {
+                                             @RequestParam(value = "limit",defaultValue = "20") Integer limit) {
         List<ScheduleJobHistory> scheduleJobHistories = jobHistoryService.listHistory(jobId, limit);
         List<JobHistoryVO> jobHistoryVOS = JobMapstructTransfer.INSTANCE.toHistoryVOS(scheduleJobHistories);
         return R.ok(jobHistoryVOS);

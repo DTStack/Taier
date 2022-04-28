@@ -153,7 +153,7 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public List<FileResult> listFile(String path) {
+    public List<FileResult> listFile(String path,boolean isPathPattern) {
         return null;
     }
 }

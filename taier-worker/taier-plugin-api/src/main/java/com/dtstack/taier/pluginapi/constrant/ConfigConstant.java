@@ -99,5 +99,6 @@ public class ConfigConstant {
     public final static String CLUSTER = "cluster";
     public final static String QUEUE = "queue";
     public static final String DEPLOY_MODEL = "deployMode";
-    public static final String CHECKPOINTS_DIR = "state.checkpoints.dir";
+    public static final String CHECK_POINTS_DIR = "state.checkpoints.dir";
+    public static final String SAVE_POINTS_DIR = "state.savepoints.dir";
 }
