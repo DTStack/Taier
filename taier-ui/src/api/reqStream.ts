@@ -26,7 +26,7 @@ export default {
 	SAVE_TASK: `${STREAM_BASE_URL}/task/addOrUpdateTask`, // 添加或者更新任务
 	GET_TOPIC_TYPE: `${STREAM_BASE_URL}/dataSource/manager/getKafkaTopics`, // 获取Topic
 	GET_STREAM_TABLECOLUMN: `${STREAM_BASE_URL}/dataSource/addDs/tablecolumn`, // 输出tablecolumn
-	GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/flinkSql/getAllTimeZone`, // 获取源表中的时区列表
+	GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/flink/getAllTimeZone`, // 获取源表中的时区列表
 	CONVERT_TO_SCRIPT_MODE: `${STREAM_BASE_URL}/task/guideToTemplate `, // 转换向导到脚本模式
 	IS_OPEN_CDB: `${STREAM_BASE_URL}/dataSource/manager/isOpenCdb`,
 	GET_PDB_LIST: `${STREAM_BASE_URL}/dataSource/manager/listOraclePdb`,
@@ -35,18 +35,18 @@ export default {
 	GET_SCHEMA_TABLE_COLUMN: `${STREAM_BASE_URL}/dataSource/manager/listPollTableColumn`,
 	GET_SLOT_LIST: `${STREAM_BASE_URL}/dataSource/manager/listSlot`, // 获取slot列表
 	GET_BINLOG_LIST_BY_SOURCE: `${STREAM_BASE_URL}/dataSource/manager/getBinLogListBySource`, // 获取binlog列表
-	SQL_FORMAT: `${STREAM_BASE_URL}/flinkSql/sqlFormat`,
-	GRAMMAR_CHECK: `${STREAM_BASE_URL}/flinkSql/grammarCheck`, // 语法检查
-	GET_TASK_LIST: `${STREAM_BASE_URL}/flinkSql/getTaskList`,
-	GET_STATUS_COUNT: `${STREAM_BASE_URL}/flinkSql/getStatusCount`,
-	START_TASK: `${STREAM_BASE_URL}/flinkSql/start`,
+	SQL_FORMAT: `${STREAM_BASE_URL}/flink/sqlFormat`,
+	GRAMMAR_CHECK: `${STREAM_BASE_URL}/flink/grammarCheck`, // 语法检查
+	GET_TASK_LIST: `${STREAM_BASE_URL}/flink/getTaskList`,
+	GET_STATUS_COUNT: `${STREAM_BASE_URL}/flink/getStatusCount`,
+	START_TASK: `${STREAM_BASE_URL}/flink/start`,
 	START_COLLECTION_TASK: `${STREAM_BASE_URL}/task/startTask`,
-	GET_TASK_MANAGER_LOG: `${STREAM_BASE_URL}//flinkSql/getTaskManagerLog`,
-	GET_JOB_MANAGER_LOG: `${STREAM_BASE_URL}/flinkSql/getJobManagerLog`,
-	LIST_TASK_MANAGER: `${STREAM_BASE_URL}/flinkSql/listTaskManagerByTaskId`,
-	GET_TASK_LOGS: `${STREAM_BASE_URL}/flinkSql/getLogsByTaskId`,
-	GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/flinkSql/getFailoverLogsByTaskId`, // 获取任务告警日志
-	GET_HISTORY_LOG: `${STREAM_BASE_URL}/flinkSql/getJobHistoryList`,
+	GET_TASK_MANAGER_LOG: `${STREAM_BASE_URL}/flink/getTaskManagerLog`,
+	GET_JOB_MANAGER_LOG: `${STREAM_BASE_URL}/flink/getJobManagerLog`,
+	LIST_TASK_MANAGER: `${STREAM_BASE_URL}/flink/listTaskManagerByTaskId`,
+	GET_TASK_LOGS: `${STREAM_BASE_URL}/flink/getLogsByTaskId`,
+	GET_TASK_FAILOVER_LOG: `${STREAM_BASE_URL}/flink/getFailoverLogsByTaskId`, // 获取任务告警日志
+	GET_HISTORY_LOG: `${STREAM_BASE_URL}/flink/getJobHistoryList`,
 	DOWNLOAD_HISTORY_LOG: `${STREAM_BASE_URL}/download/streamDownload/downloadHistoryLog`,
 	GET_TASK_METRICS: `${STREAM_BASE_URL}/streamJobMetric/getTaskMetrics`, // 获取指标
 	GET_METRIC_VALUES: `${STREAM_BASE_URL}/streamJobMetric/values`, // 获取所有指标
