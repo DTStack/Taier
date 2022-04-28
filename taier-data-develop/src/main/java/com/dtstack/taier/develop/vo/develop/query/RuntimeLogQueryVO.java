@@ -9,7 +9,7 @@ public class RuntimeLogQueryVO extends DtInsightAuthParam {
     private Long taskId;
 
     @ApiModelProperty(value = "日志起始地址", example = "0")
-    private Integer place;
+    private Integer place = 0;
 
     @ApiModelProperty(value = "任务管理节点ID", example = "1")
     private String taskManagerId;

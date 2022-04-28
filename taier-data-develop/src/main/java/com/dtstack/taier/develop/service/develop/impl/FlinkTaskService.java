@@ -35,7 +35,7 @@ import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
-import com.dtstack.taier.develop.vo.develop.result.StartFlinkSqlResultVO;
+import com.dtstack.taier.develop.vo.develop.result.StartFlinkResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
@@ -61,8 +61,8 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class FlinkSqlTaskService {
-    public static Logger LOGGER = LoggerFactory.getLogger(FlinkSqlTaskService.class);
+public class FlinkTaskService {
+    public static Logger LOGGER = LoggerFactory.getLogger(FlinkTaskService.class);
 
 
     private static final String TIME_CHARACTERISTIC = "time.characteristic=EventTime";
@@ -253,7 +253,7 @@ public class FlinkSqlTaskService {
      * @param externalPath
      * @return
      */
-    public String startFlinkSqlTask(Task task, String externalPath) {
+    public String startFlinkTask(Task task, String externalPath) {
         //检查是否配置flink 集群
         checkFlinkConfig(task.getTenantId());
         //检查任务状态
@@ -411,20 +411,20 @@ public class FlinkSqlTaskService {
      *
      * @return
      */
-    public StartFlinkSqlResultVO startFlinkSql(Long taskId, String externalPath) {
-        StartFlinkSqlResultVO startFlinkSqlResultVO = new StartFlinkSqlResultVO();
+    public StartFlinkResultVO startFlinkTask(Long taskId, String externalPath) {
+        StartFlinkResultVO startFlinkResultVO = new StartFlinkResultVO();
         Task task = developTaskMapper.selectById(taskId);
         try {
-            startFlinkSqlTask(task, externalPath);
-            startFlinkSqlResultVO.setMsg(String.format("任务提交成功,名称为: %s", task.getName()));
-            startFlinkSqlResultVO.setJobId(task.getJobId());
-            startFlinkSqlResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
+            startFlinkTask(task, externalPath);
+            startFlinkResultVO.setMsg(String.format("任务提交成功,名称为: %s", task.getName()));
+            startFlinkResultVO.setJobId(task.getJobId());
+            startFlinkResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
         } catch (Exception e) {
             LOGGER.warn("startFlinkSQL-->", e);
-            startFlinkSqlResultVO.setMsg(e.getMessage());
-            startFlinkSqlResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
+            startFlinkResultVO.setMsg(e.getMessage());
+            startFlinkResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
         }
-        return startFlinkSqlResultVO;
+        return startFlinkResultVO;
     }
 
 
@@ -465,11 +465,6 @@ public class FlinkSqlTaskService {
             checkResultVO.setErrorMsg(data.getErrorMsg());
         }
         return checkResultVO;
-    }
-
-    public CheckResult grammarCheck(Long taskId) {
-        Task task = developTaskMapper.selectById(taskId);
-        return grammarCheck(task);
     }
 
     public CheckResult grammarCheck(Task task) {
