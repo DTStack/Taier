@@ -78,7 +78,9 @@ export default function StreamTask() {
 	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
 	// 批量提交/重跑
 	const [batchReRunVisible, setBatchReRunTaskVisible] = useState(false);
-	const [goOnTask, setGoOnTask] = useState<IStreamTaskProps['id'] | undefined>(undefined);
+	const [goOnTask, setGoOnTask] = useState<
+		Pick<IStreamTaskProps, 'jobId' | 'taskId'> | undefined
+	>(undefined);
 	// 重跑 Modal 信息
 	const [reRunInfo, setReRunInfo] = useState<{
 		visible: boolean;
@@ -255,7 +257,7 @@ export default function StreamTask() {
 						status === TASK_STATUS.AUTO_CANCEL)
 				) {
 					// 续跑
-					setGoOnTask(task.id);
+					setGoOnTask({ taskId: task.taskId, jobId: task.jobId });
 				} else {
 					const startRequest =
 						task.taskType === TASK_TYPE_ENUM.SQL
@@ -722,7 +724,7 @@ export default function StreamTask() {
 			/>
 			<GoOnTask
 				visible={!!goOnTask}
-				taskId={goOnTask}
+				data={goOnTask}
 				onOk={goOnTaskSuccess}
 				onCancel={hideGoOnTask}
 			/>

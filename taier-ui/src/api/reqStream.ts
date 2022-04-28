@@ -52,4 +52,6 @@ export default {
 	GET_METRIC_VALUES: `${STREAM_BASE_URL}/streamJobMetric/values`, // 获取所有指标
 	CHECK_SOURCE_STATUS: `${STREAM_BASE_URL}/dataSource/manager/getDataSourceLinkStatus`, // 获取任务的异常数据源
 	QUERY_TASK_METRICES: `${STREAM_BASE_URL}/streamJobMetric/queryTaskMetrics`, // 查询指标数据
+	GET_LIST_HISTORY: `${STREAM_BASE_URL}/scheduleJob/listHistory`, // 获取 CheckPoint 下拉列表
+	LIST_CHECK_POINT: `${STREAM_BASE_URL}/checkpoint/listCheckPoint`, // 获取 CheckPointPath 下拉列表
 };
