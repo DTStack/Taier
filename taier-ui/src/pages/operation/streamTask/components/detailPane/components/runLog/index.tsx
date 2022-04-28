@@ -65,7 +65,7 @@ export default function RunLog({ data }: IProps) {
 		} else {
 			const res = await stream.getTaskLogs({ taskId: data.id });
 			if (res?.code == 1) {
-				setLogInfo(res.data);
+				setLogInfo(res.data || {});
 			}
 		}
 	};
