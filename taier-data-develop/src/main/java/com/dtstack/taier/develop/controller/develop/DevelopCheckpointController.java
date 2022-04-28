@@ -79,7 +79,7 @@ public class DevelopCheckpointController {
         JSONObject pluginInfo = componentService.wrapperConfig(clusterId, EComponentType.HDFS.getTypeCode(), null, null);
         String typeName = componentService.buildUploadTypeName(clusterId);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, typeName);
-        List<FileResult> fileResults = workerOperator.listFile(pointPathDir + File.separator + engineId, pluginInfo.toJSONString());
+        List<FileResult> fileResults = workerOperator.listFile(pointPathDir + File.separator + engineId,checkPointVO.isGetSavePointPath(), pluginInfo.toJSONString());
         fileResults = fileResults.stream().filter(file -> !file.getPath().endsWith("shared") && !file.getPath().endsWith("taskowned")).collect(Collectors.toList());
         return R.ok(FileMapstructTransfer.INSTANCE.toInfoVO(fileResults));
     }
