@@ -21,6 +21,7 @@ package com.dtstack.taier.scheduler.jobdealer.bo;
 
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 
 /**
  * @author toutian
@@ -49,9 +50,11 @@ public class EngineJobRetry extends com.dtstack.taier.dao.domain.ScheduleEngineJ
             scheduleJobRetry.setEngineJobId(scheduleJob.getEngineJobId());
         }
         try {
-            scheduleJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
+            if (jobClient.getJobResult() != null) {
+                scheduleJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
+            }
         } catch (Throwable e) {
-            scheduleJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
+            scheduleJobRetry.setLogInfo("commit job error，parses log error:" + ExceptionUtil.getErrorMessage(e));
         }
         return scheduleJobRetry;
     }

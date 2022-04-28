@@ -21,7 +21,7 @@ package com.dtstack.taier.scheduler.jobdealer.cache;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.jobdealer.JobStatusDealer;
-import com.dtstack.taier.scheduler.service.EngineJobCacheService;
+import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -48,8 +48,8 @@ public class ShardCache implements ApplicationContextAware {
     private Map<String, ShardManager> jobResourceShardManager = new ConcurrentHashMap<>();
 
     private ShardManager getShardManager(String jobId) {
-        EngineJobCacheService engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
-        ScheduleEngineJobCache engineJobCache = engineJobCacheService.getByJobId(jobId);
+        ScheduleJobCacheService ScheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
+        ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
         if (engineJobCache == null) {
             return null;
         }
