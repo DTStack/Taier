@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.common.metric;
 
+import com.dtstack.taier.common.param.MetricPO;
+
 import java.util.List;
 
 /**
@@ -32,6 +34,26 @@ public class MetricResult {
     private String metricName;
 
     private List<MetricData> metricDataList;
+
+    private MetricPO metric;
+
+    private List<Object> value;
+
+    public MetricPO getMetric() {
+        return metric;
+    }
+
+    public void setMetric(MetricPO metric) {
+        this.metric = metric;
+    }
+
+    public List<Object> getValue() {
+        return value;
+    }
+
+    public void setValue(List<Object> value) {
+        this.value = value;
+    }
 
     public List<MetricData> getMetricDataList() {
         return metricDataList;

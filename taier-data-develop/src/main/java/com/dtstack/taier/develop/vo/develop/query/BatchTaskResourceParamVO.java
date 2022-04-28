@@ -192,6 +192,17 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "组件版本号", example = "111")
     private String componentVersion;
 
+    @ApiModelProperty(value = "是否更新数据源")
+    private Boolean updateSource = true;
+
+    public Boolean getUpdateSource() {
+        return updateSource;
+    }
+
+    public void setUpdateSource(Boolean updateSource) {
+        this.updateSource = updateSource;
+    }
+
     public String getDtToken() {
         return dtToken;
     }
