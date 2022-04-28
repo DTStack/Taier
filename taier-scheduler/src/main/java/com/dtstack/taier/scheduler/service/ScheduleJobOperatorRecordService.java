@@ -49,4 +49,8 @@ public class ScheduleJobOperatorRecordService extends ServiceImpl<ScheduleJobOpe
         this.baseMapper.insertIgnoreBatch(scheduleJobOperatorRecords);
     }
 
+
+    public void deleteById(Long stopJobId) {
+        this.baseMapper.deleteById(stopJobId);
+    }
 }

@@ -278,7 +278,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag );
                             asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
-                            //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
+                            //jobCache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             ScheduleJob scheduleJob = new ScheduleJob();
                             scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
                             scheduleJobService.lambdaUpdate()
@@ -328,6 +328,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     private void asyncDealStopJob(StoppedJob<JobElement> stoppedJob) {
         try {
             if (!checkExpired(stoppedJob.getJob())) {
+                ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(stoppedJob.getJob().jobId);
                 StoppedStatus stoppedStatus = this.stopJob(stoppedJob.getJob());
                 switch (stoppedStatus) {
                     case STOPPED:
@@ -345,8 +346,14 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             stoppedJob.incrCount();
                             stopJobQueue.put(stoppedJob);
                         } else {
-                            removeMemStatusAndJobCache(stoppedJob.getJob().jobId);
-                            LOGGER.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                            if (ComputeType.STREAM.getType() == jobCache.getComputeType()) {
+                                // stream 任务 超过停止最大限制不更改状态
+                                scheduleJobOperatorRecordService.deleteById(stoppedJob.getJob().stopJobId);
+                                LOGGER.warn("stream jobId:{} retry limited ,job status can not change!", stoppedJob.getJob().jobId);
+                            } else {
+                                removeMemStatusAndJobCache(stoppedJob.getJob().jobId);
+                                LOGGER.warn("jobId:{} retry limited!", stoppedJob.getJob().jobId);
+                            }
                         }
                     default:
                 }
