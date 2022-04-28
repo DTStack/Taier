@@ -181,9 +181,9 @@ public class ClientOperator {
         return client.getClusterResource();
     }
 
-    public List<FileResult> listFile(String path, String pluginInfo) throws Exception {
+    public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception {
         IClient client = clientCache.getClient(pluginInfo);
-        return client.listFile(path);
+        return client.listFile(path,isPathPattern);
     }
 
 

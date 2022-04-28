@@ -355,11 +355,11 @@ public class ClientProxy implements IClient {
     }
 
     @Override
-    public List<FileResult> listFile(String path) {
+    public List<FileResult> listFile(String path,boolean isPathPattern) {
         try {
             return CompletableFuture.supplyAsync(() -> {
                 try {
-                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path), targetClient.getClass().getClassLoader(), true);
+                    return ClassLoaderCallBackMethod.callbackAndReset(() -> targetClient.listFile(path,isPathPattern), targetClient.getClass().getClassLoader(), true);
                 } catch (Exception e) {
                     throw new RdosDefineException(e);
                 }
