@@ -79,7 +79,7 @@ public class DevelopFlinkSQLController {
     @ApiOperation(value = "停止FlinkSQL任务")
     @PostMapping(value = "stop")
     public R<Boolean> stopFlinkSql(@RequestBody StartFlinkSqlVO vo) {
-        return R.ok(flinkSqlTaskService.stopFlinkSql(vo.getTaskId()));
+        return R.ok(flinkSqlTaskService.stopStreamTask(vo.getTaskId()));
     }
 
     @PostMapping(value = "/grammarCheck")

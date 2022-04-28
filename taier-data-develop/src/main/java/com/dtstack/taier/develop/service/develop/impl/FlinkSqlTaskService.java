@@ -466,7 +466,7 @@ public class FlinkSqlTaskService {
      * @param taskId
      * @return
      */
-    public Boolean stopFlinkSql(Long taskId) {
+    public Boolean stopStreamTask(Long taskId) {
         Task task = developTaskMapper.selectById(taskId);
         return actionService.stop(Arrays.asList(task.getJobId()));
     }
