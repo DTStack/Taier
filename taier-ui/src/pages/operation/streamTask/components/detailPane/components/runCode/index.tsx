@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Radio } from 'antd';
 import type { ITaskParams } from '@/interface';
 import Editor from '@/components/editor';
+import { prettierJSONstring } from '@/utils';
 import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 import Address from './address';
 import ResultTable from './resultTable';
@@ -24,7 +25,6 @@ export default function RunCode({ data }: IProps) {
 	const [tabKey, setTabKey] = useState<TAB_KEYS>(TAB_KEYS.ENV);
 
 	const renderContent = (key: TAB_KEYS) => {
-		const editorBoxStyle: React.CSSProperties = { height: 'calc(100% - 44px)' };
 		switch (key) {
 			case TAB_KEYS.CODE:
 				return (
@@ -33,7 +33,7 @@ export default function RunCode({ data }: IProps) {
 						style={{ height: '100%' }}
 						language={data?.taskType === TASK_TYPE_ENUM.SQL ? 'hivesql' : 'json'}
 						options={{ readOnly: true, minimap: { enabled: false } }}
-						value={data?.sqlText}
+						value={prettierJSONstring(data?.sqlText || '')}
 					/>
 				);
 			case TAB_KEYS.SOURCE:
@@ -103,16 +103,16 @@ export default function RunCode({ data }: IProps) {
 	return (
 		<div className="m-tabs h-full">
 			<Radio.Group
-				style={{ padding: '0 20px 12px' }}
+				style={{ padding: '12px 20px' }}
 				value={tabKey}
 				onChange={(e) => setTabKey(e.target.value)}
 			>
 				<Radio.Button value={TAB_KEYS.CODE}>运行代码</Radio.Button>
 				{isflinkSql && isGuideMode && (
 					<>
-						<Radio.Button value={TAB_KEYS.SOURCE}>源表</Radio.Button>
+						{/* <Radio.Button value={TAB_KEYS.SOURCE}>源表</Radio.Button>
 						<Radio.Button value={TAB_KEYS.SINK}>结果表</Radio.Button>
-						<Radio.Button value={TAB_KEYS.SIDE}>维表</Radio.Button>
+						<Radio.Button value={TAB_KEYS.SIDE}>维表</Radio.Button> */}
 					</>
 				)}
 				{isShowResultTable && (

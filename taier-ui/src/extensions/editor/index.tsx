@@ -110,12 +110,30 @@ function emitEvent() {
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
 				if (currentTabData) {
-					history.push({
-						query: {
-							drawer: DRAWER_MENU_ENUM.TASK,
-							tname: currentTabData.name,
-						},
-					});
+					switch (currentTabData.taskType) {
+						case TASK_TYPE_ENUM.SPARK_SQL:
+						case TASK_TYPE_ENUM.HIVE_SQL:
+						case TASK_TYPE_ENUM.SYNC:
+							history.push({
+								query: {
+									drawer: DRAWER_MENU_ENUM.TASK,
+									tname: currentTabData.name,
+								},
+							});
+							break;
+						case TASK_TYPE_ENUM.DATA_ACQUISITION:
+						case TASK_TYPE_ENUM.SQL:
+							history.push({
+								query: {
+									drawer: DRAWER_MENU_ENUM.STREAM_TASK,
+									tname: currentTabData.name,
+								},
+							});
+							break;
+
+						default:
+							return null;
+					}
 				}
 				break;
 			}
@@ -167,12 +185,22 @@ function emitEvent() {
 													id: currentTabData.id,
 												}).then((result) => {
 													if (result.code === 1) {
-														if (currentTabData.taskType === TASK_TYPE_ENUM.DATA_ACQUISITION) {
+														if (
+															currentTabData.taskType ===
+															TASK_TYPE_ENUM.DATA_ACQUISITION
+														) {
 															const nextTabData = current.tab!;
-															nextTabData!.data = result.data
-															Reflect.deleteProperty(nextTabData, 'renderPane');
-															nextTabData.data.language = mappingTaskTypeToLanguage(result.data.taskType);
-															nextTabData.data.value = result?.data?.sqlText;
+															nextTabData!.data = result.data;
+															Reflect.deleteProperty(
+																nextTabData,
+																'renderPane',
+															);
+															nextTabData.data.language =
+																mappingTaskTypeToLanguage(
+																	result.data.taskType,
+																);
+															nextTabData.data.value =
+																result?.data?.sqlText;
 															molecule.editor.updateTab(nextTabData);
 															return;
 														}
