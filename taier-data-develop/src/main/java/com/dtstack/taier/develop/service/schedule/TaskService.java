@@ -2,6 +2,7 @@ package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
@@ -17,7 +18,6 @@ import com.dtstack.taier.develop.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnTaskSupportTypesVO;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskListDTO;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
-import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeInfoService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -184,6 +184,7 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .like(StringUtils.isNotBlank(dto.getName()), ScheduleTaskShade::getName, dto.getName())
                 .eq(dto.getOperatorId() != null, ScheduleTaskShade::getCreateUserId, dto.getOperatorId())
+                .eq(ScheduleTaskShade::getComputeType, ComputeType.BATCH.getType())
                 .eq(dto.getTenantId() != null, ScheduleTaskShade::getTenantId, dto.getTenantId())
                 .eq(dto.getScheduleStatus() != null, ScheduleTaskShade::getScheduleStatus, dto.getScheduleStatus())
                 .between(dto.getStartModifiedTime() != null && dto.getEndModifiedTime() != null, ScheduleTaskShade::getGmtModified,

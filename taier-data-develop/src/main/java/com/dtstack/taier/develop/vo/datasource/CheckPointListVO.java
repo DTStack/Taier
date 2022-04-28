@@ -17,6 +17,16 @@ public class CheckPointListVO {
 
     private String engineJobId;
 
+    private boolean getSavePointPath;
+
+    public boolean isGetSavePointPath() {
+        return getSavePointPath;
+    }
+
+    public void setGetSavePointPath(boolean getSavePointPath) {
+        this.getSavePointPath = getSavePointPath;
+    }
+
     public String getJobId() {
         return jobId;
     }

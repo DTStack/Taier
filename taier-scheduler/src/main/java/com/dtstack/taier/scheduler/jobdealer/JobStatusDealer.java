@@ -19,6 +19,7 @@
 package com.dtstack.taier.scheduler.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.BlockCallerPolicy;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -26,6 +27,8 @@ import com.dtstack.taier.common.util.LogCountUtil;
 import com.dtstack.taier.common.util.TaskParamsUtils;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
+import com.dtstack.taier.dao.mapper.ScheduleJobHistoryMapper;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -42,6 +45,7 @@ import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -86,6 +90,7 @@ public class JobStatusDealer implements Runnable {
     private JobRestartDealer jobRestartDealer;
     private WorkerOperator workerOperator;
     private EnvironmentContext environmentContext;
+    private ScheduleJobHistoryMapper scheduleJobHistoryMapper;
     private long jobLogDelay;
     private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
 
@@ -202,6 +207,7 @@ public class JobStatusDealer implements Runnable {
                     jobLogDelayDealer(jobId, jobIdentifier, engineJobCache.getComputeType(),scheduleJob.getType());
                     jobStatusFrequency.remove(jobId);
                     scheduleJobCacheService.deleteByJobId(jobId);
+                    updateHistoryEndTime(jobId,appId);
                     LOGGER.info("------ jobId:{} is stop status {} delete jobCache", jobId, status);
                 }
 
@@ -211,6 +217,16 @@ public class JobStatusDealer implements Runnable {
                 }
             }
         }
+    }
+
+    private void updateHistoryEndTime(String jobId, String appId) {
+        ScheduleJobHistory scheduleJobHistory = new ScheduleJobHistory();
+        scheduleJobHistory.setJobId(jobId);
+        scheduleJobHistory.setApplicationId(appId);
+        scheduleJobHistory.setExecEndTime(DateTime.now().toDate());
+        scheduleJobHistoryMapper.update(scheduleJobHistory, Wrappers.lambdaQuery(ScheduleJobHistory.class)
+                .eq(ScheduleJobHistory::getJobId, jobId)
+                .eq(ScheduleJobHistory::getApplicationId, appId));
     }
 
     private void updateJobStatusWithPredicate(ScheduleJob scheduleJob, String jobId, Integer status) {
@@ -300,6 +316,7 @@ public class JobStatusDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
+        ScheduleJobHistoryMapper bean = applicationContext.getBean(ScheduleJobHistoryMapper.class);
     }
 
     private void createLogDelayDealer() {
