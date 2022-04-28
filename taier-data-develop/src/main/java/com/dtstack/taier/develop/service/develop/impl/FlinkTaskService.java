@@ -3,6 +3,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
@@ -24,12 +25,15 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
+import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
+import com.dtstack.taier.develop.utils.EncoderUtil;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
@@ -46,16 +50,21 @@ import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,6 +77,13 @@ public class FlinkTaskService {
     private static final String TIME_CHARACTERISTIC = "time.characteristic=EventTime";
 
     private static final String PIPELINE_TIME_CHARACTERISTIC = "pipeline.time-characteristic=EventTime";
+    public static final String KEY_CHECKPOINT_INTERVAL = "flink.checkpoint.interval";
+    private static final String DEFAULT_VAL_CHECKPOINT_INTERVAL = "300000";
+    private static final String KEY_CHECKPOINT_STATE_BACKEND = "flink.checkpoint.stateBackend";
+    private static final String KEY_OPEN_CHECKPOINT = "openCheckpoint";
+    private static final String JOB_SAVEPOINT_ARGS_TEMPLATE = " -confProp %s";
+    private static final String JOB_NAME_ARGS_TEMPLATE = "-jobName %s -job %s";
+
 
     @Autowired
     private DevelopTaskMapper developTaskMapper;
@@ -99,6 +115,10 @@ public class FlinkTaskService {
     @Autowired
     private EnvironmentContext environmentContext;
 
+    @Autowired
+    private DatasourceService dataSourceService;
+    @Autowired
+    private StreamTaskCheckpointService streamTaskCheckpointService;
 
     /**
      * 将前端接收的结果表维表转化
@@ -284,10 +304,62 @@ public class FlinkTaskService {
             return null;
         }
     }
+    private boolean isRestore(String job) {
+        JSONObject jobJson = JSONObject.parseObject(job);
+        Object isRestore = JSONPath.eval(jobJson, "$.job.setting.restore.isRestore");
+        return BooleanUtils.toBoolean(String.valueOf(null == isRestore ? "true" : isRestore));
+    }
+
+
+    private void buildSyncTaskExecArgs(Long tenantId, String taskParams, JSONObject confProp) {
+        String savepointPath = streamTaskCheckpointService.getSavepointPath(tenantId);
+        Properties properties = new Properties();
+        try {
+            properties.load(new ByteArrayInputStream(taskParams.getBytes(StandardCharsets.UTF_8)));
+        } catch (IOException e) {
+            throw new RdosDefineException(String.format("task parameter resolution exception:%s", e.getMessage()), e);
+        }
+        String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
+        confProp.put(KEY_CHECKPOINT_STATE_BACKEND, savepointPath);
+        confProp.put(KEY_CHECKPOINT_INTERVAL, interval);
+    }
+
+    public void buildTaskDirtyDataManageDefaultArgs(JSONObject confProp) {
+        //1.12flink要传默认值
+        confProp.put(TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getParam(), TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getDefaultValue());
+        confProp.put(TaskDirtyDataManageParamEnum.MAX_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_ROWS.getDefaultValue()));
+        confProp.put(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getDefaultValue()));
+        confProp.put(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getDefaultValue()));
+    }
 
     private String sendTaskStartTrigger(Task task, String externalPath) {
         //重置任务状态
         resetTaskStatus(task.getJobId());
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getType())) {
+            // 构造savepoint参数
+            String taskParams = task.getTaskParams();
+            JSONObject confProp = new JSONObject();
+            String job = JSONObject.parseObject(task.getSqlText()).getString("job");
+            dataSourceService.setJobDataSourceInfo(job, task.getTenantId(), task.getCreateModel());
+//        if (TaskCreateModelType.GUIDE.getType().equals(streamTask.getCreateModel())) {
+//            job = setJobDataSourceInfo(job);
+//        }
+            boolean isRestore = isRestore(job);
+            if (isRestore) {
+                buildSyncTaskExecArgs(task.getTenantId(), taskParams, confProp);
+                taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
+                task.setTaskParams(taskParams);
+            }
+
+            task.setExeArgs(String.format(JOB_NAME_ARGS_TEMPLATE, task.getName(), EncoderUtil.encoderURL(job, Charsets.UTF_8.name())));
+            buildTaskDirtyDataManageDefaultArgs(confProp);
+            if (!Objects.equals(confProp.toString(), "{}")) {
+                String confPropArgs = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, EncoderUtil.encoderURL(confProp.toJSONString(), Charsets.UTF_8.name()));
+                if (StringUtils.isNotBlank(confPropArgs)) {
+                    task.setExeArgs(task.getExeArgs() == null ? confPropArgs : task.getExeArgs() + confPropArgs);
+                }
+            }
+        }
         actionService.start(generateParamActionExt(task, externalPath));
         return "";
     }
@@ -322,12 +394,16 @@ public class FlinkTaskService {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
         //生成最终拼接的sql
-        String sql = generateSqlToScheduler(task).toString();
-        task.setSqlText(sql);
-        task.setTaskType(EScheduleJobType.SQL.getType());
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.SQL.getType())) {
+            String sql = generateSqlToScheduler(task).toString();
+            task.setSqlText(sql);
+        }
         return generateParamActionExt(task, externalPath, taskParams);
     }
 
+    public String getJobName(String taskName, String jobId) {
+        return taskName + "_" + jobId;
+    }
 
     private ParamActionExt generateParamActionExt(Task task, String externalPath, String taskParams) {
         Map<String, Object> actionParam = JsonUtils.objectToMap(task);
@@ -337,8 +413,8 @@ public class FlinkTaskService {
         // 补充其他的字段
         actionParam.put("type", EScheduleType.NORMAL_SCHEDULE.getType());
         actionParam.put("tenantId", task.getTenantId());
-        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion()));
-        actionParam.put("name", task.getName());
+        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(),task.getTaskType()));
+        actionParam.put("name",getJobName( task.getName(),task.getJobId()));
         actionParam.put("deployMode", EDeployMode.PERJOB.getType());
 
         if (!Strings.isNullOrEmpty(externalPath)) {
@@ -347,7 +423,7 @@ public class FlinkTaskService {
         return JsonUtils.objectToObject(actionParam, ParamActionExt.class);
     }
 
-    private String formatTaskParams(String taskParams, String sourceParam, String componentVersion) {
+    private String formatTaskParams(String taskParams, String sourceParam, String componentVersion,Integer taskType) {
         List<String> params = new ArrayList<>();
         String[] tempParams = taskParams.split("\r|\n");
         for (String param : tempParams) {
@@ -356,7 +432,7 @@ public class FlinkTaskService {
                 params.add(String.format("%s=%s", param.substring(0, special).trim(), param.substring(special + 1).trim()));
             }
         }
-        if (StringUtils.isNotEmpty(sourceParam)) {
+        if (StringUtils.isNotEmpty(sourceParam) && Objects.equals(taskType, EScheduleJobType.SQL.getType())) {
             //为时间特征为eventTime的的任务添加参数
             JSONArray array = JSON.parseArray(sourceParam);
             boolean timeCharacteristic = true;
