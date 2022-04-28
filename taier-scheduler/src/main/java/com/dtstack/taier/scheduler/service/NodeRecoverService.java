@@ -53,7 +53,7 @@ public class NodeRecoverService {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private EngineJobCacheService engineJobCacheService;
+    private ScheduleJobCacheService ScheduleJobCacheService;
 
     @Autowired
     private JobDealer jobDealer;
@@ -77,7 +77,7 @@ public class NodeRecoverService {
         try {
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
+                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, localAddress, EJobCacheStage.SUBMITTED.getStage(),null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

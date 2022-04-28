@@ -27,7 +27,7 @@ import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.jobdealer.bo.EngineJobRetry;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
-import com.dtstack.taier.scheduler.service.EngineJobCacheService;
+import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public class JobRestartDealer {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRestartDealer.class);
 
     @Autowired
-    private EngineJobCacheService engineJobCacheService;
+    private ScheduleJobCacheService ScheduleJobCacheService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -168,7 +168,7 @@ public class JobRestartDealer {
     }
 
     private boolean restartJob(JobClient jobClient,BiConsumer<ScheduleJob,JobClient> saveRetryFunction){
-        ScheduleEngineJobCache jobCache = engineJobCacheService.getByJobId(jobClient.getJobId());
+        ScheduleEngineJobCache jobCache = ScheduleJobCacheService.getByJobId(jobClient.getJobId());
         if (jobCache == null) {
             LOGGER.info("jobId:{} restart but jobCache is null.", jobClient.getJobId());
             return false;

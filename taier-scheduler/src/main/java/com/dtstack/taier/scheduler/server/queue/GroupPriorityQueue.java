@@ -30,7 +30,7 @@ import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.jobdealer.JobSubmitDealer;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
-import com.dtstack.taier.scheduler.service.EngineJobCacheService;
+import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class GroupPriorityQueue {
 
     private ApplicationContext applicationContext;
     private EnvironmentContext environmentContext;
-    private EngineJobCacheService engineJobCacheService;
+    private ScheduleJobCacheService ScheduleJobCacheService;
     private JobDealer jobDealer;
     private JobPartitioner jobPartitioner;
     private WorkerOperator workerOperator;
@@ -149,7 +149,7 @@ public class GroupPriorityQueue {
             long startId = 0L;
             outLoop:
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
+                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, localAddress, EJobCacheStage.DB.getStage(), jobResource);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     empty = true;
                     break;
@@ -200,7 +200,7 @@ public class GroupPriorityQueue {
         public void run() {
             try {
                 if (Boolean.FALSE == blocked.get()) {
-                    int jobSize = engineJobCacheService.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
+                    int jobSize = ScheduleJobCacheService.countByStage(jobResource, EJobCacheStage.unSubmitted(), environmentContext.getLocalAddress());
                     if (jobSize == 0) {
                         return;
                     }
@@ -258,7 +258,7 @@ public class GroupPriorityQueue {
      */
     public GroupPriorityQueue build() {
         this.environmentContext = applicationContext.getBean(EnvironmentContext.class);
-        this.engineJobCacheService = applicationContext.getBean(EngineJobCacheService.class);
+        this.ScheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
 
