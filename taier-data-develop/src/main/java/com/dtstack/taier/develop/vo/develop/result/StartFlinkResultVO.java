@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel("运行flinksql任务返回信息")
-public class StartFlinkSqlResultVO {
+public class StartFlinkResultVO {
 
     @ApiModelProperty(value = "信息", example = "1")
     private String msg;

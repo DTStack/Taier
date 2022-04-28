@@ -274,7 +274,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private ScheduleActionService actionService;
 
     @Autowired
-    private FlinkSqlTaskService flinkSqlTaskService;
+    private FlinkTaskService flinkTaskService;
 
     @Autowired
     private ScheduleActionService scheduleActionService;
@@ -346,9 +346,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         Task task = getOne(taskVO.getId());
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
         if (EScheduleJobType.SQL.getType().equals(task.getTaskType())) {
-            taskVO.setSource(flinkSqlTaskService.dealWithSourceName(task.getSourceStr()));
-            taskVO.setSink(flinkSqlTaskService.dealWithSourceName(task.getTargetStr()));
-            taskVO.setSide(flinkSqlTaskService.dealWithSourceName(task.getSideStr()));
+            taskVO.setSource(flinkTaskService.dealWithSourceName(task.getSourceStr()));
+            taskVO.setSink(flinkTaskService.dealWithSourceName(task.getTargetStr()));
+            taskVO.setSide(flinkTaskService.dealWithSourceName(task.getSideStr()));
         } else {
             taskVO.setSourceMap(JSON.parseObject(taskVO.getSourceStr(), Map.class));
             taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
@@ -1088,7 +1088,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return (TaskVO) updateTask(taskVO, true);
         } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType())) {
             if(TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
-                flinkSqlTaskService.convertTableStr(taskResourceParam, taskVO);
+                flinkTaskService.convertTableStr(taskResourceParam, taskVO);
             }
             taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
             return (TaskVO) updateTask(taskVO, false);
@@ -1515,10 +1515,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             operateIncreCol(param);
         } else {
             JSONObject sql = new JSONObject();
-            if (param.getCreateModel() == TaskCreateModelType.TEMPLATE.getType()) {
+            if (TaskCreateModelType.TEMPLATE.getType().equals(param.getCreateModel())) {
                 sql.put("job", param.getSqlText());
                 this.batchTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
-            } else if ((param.isPreSave() || param.getId() == 0) && param.getCreateModel() == TaskCreateModelType.GUIDE.getType()) {
+            } else if ((param.isPreSave() || param.getId() == 0) && TaskCreateModelType.GUIDE.getType().equals(param.getCreateModel()) ) {
                 if (param.getId() != 0) {
                     String sqlText = this.dataSourceService.getSyncSql(param, false);
                     sql = JSON.parseObject(sqlText);
@@ -1573,7 +1573,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
         taskVO.setCreateModel(TaskCreateModelType.TEMPLATE.getType());
         if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
-            taskVO.setSqlText(flinkSqlTaskService.generateCreateFlinkSql(task));
+            taskVO.setSqlText(flinkTaskService.generateCreateFlinkSql(task));
         }else{
             JSONObject sqlJson = null;
             if (StringUtils.isBlank(task.getSqlText())) {
