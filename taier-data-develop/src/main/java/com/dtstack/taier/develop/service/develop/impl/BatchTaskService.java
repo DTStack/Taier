@@ -280,9 +280,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private ScheduleActionService scheduleActionService;
 
     @Autowired
-    private StreamTaskCheckpointService streamTaskCheckpointService;
-
-    @Autowired
     private JobService jobService;
 
     @Autowired
@@ -295,13 +292,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private static final String COLUMN = "column";
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
-    private static final String KEY_OPEN_CHECKPOINT = "openCheckpoint";
-    private static final String JOB_SAVEPOINT_ARGS_TEMPLATE = " -confProp %s";
-    private static final String JOB_NAME_ARGS_TEMPLATE = "-jobName %s -job %s";
-    public static final String KEY_CHECKPOINT_INTERVAL = "flink.checkpoint.interval";
-    private static final String DEFAULT_VAL_CHECKPOINT_INTERVAL = "300000";
-    private static final String KEY_CHECKPOINT_STATE_BACKEND = "flink.checkpoint.stateBackend";
-
 
     /**
      * kerberos认证文件在 ftp上的相对路径
@@ -607,177 +597,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
 
-    /**
-     * 重置任务的状态为unSubmit
-     *
-     * @param taskId
-     * @throws Exception
-     */
-    private void resetTaskStatus(Long taskId) {
-        ScheduleJob scheduleJob = jobService.getScheduleJob(getOne(taskId).getJobId());
-        if (scheduleJob == null) {
-            return;
-        }
-        Integer status = scheduleJob.getStatus();
-        if (status != null) {
-            //续跑或重跑
-            if (!TaskStatusCheckUtil.CAN_RESET_STATUS.contains(status)) {
-                throw new RdosDefineException("(任务状态不匹配)");
-            }
-            boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());
-            if (!reset) {
-                throw new RdosDefineException("fail to reset task status");
-            }
-        }
-    }
-
-
-    /**
-     * 启动任务，写日志，触发引擎执行任务
-     *
-     * @param taskDTO
-     * @throws IOException
-     */
-    public String startTask(StartTaskVO taskDTO) {
-        Task task = getOne(taskDTO.getId());
-        if (!checkTaskCanRunByStatus(task)) {
-            throw new RdosDefineException("Task status does not match");
-        }
-        //重置任务状态
-        resetTaskStatus(task.getId());
-        String response = "";
-        try {
-            response = sendTaskStartTrigger(taskDTO.getTenantId(), task, taskDTO.getExternalPath());
-        } catch (Exception e) {
-            LOGGER.error("failure to submit task,taskId:{}, e:{}", task.getId(), e);
-            throw new RdosDefineException(e.getMessage(), e);
-        }
-        return response;
-    }
-
-    private Integer getStatusByTaskId(Long taskId) {
-        ScheduleJob scheduleJob = jobService.getScheduleJob(taskId, ComputeType.STREAM.getType());
-        if (scheduleJob == null) {
-            LOGGER.info("can't find stream task by id: {}", taskId);
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-        }
-       return scheduleJob.getStatus();
-    }
-
-    private void buildSyncTaskExecArgs(Long tenantId, String taskParams, JSONObject confProp) {
-        String savepointPath = streamTaskCheckpointService.getSavepointPath(tenantId);
-        Properties properties = new Properties();
-        try {
-            properties.load(new ByteArrayInputStream(taskParams.getBytes(StandardCharsets.UTF_8)));
-        } catch (IOException e) {
-            throw new RdosDefineException(String.format("task parameter resolution exception:%s", e.getMessage()), e);
-        }
-        String interval = properties.getProperty(KEY_CHECKPOINT_INTERVAL, DEFAULT_VAL_CHECKPOINT_INTERVAL);
-        confProp.put(KEY_CHECKPOINT_STATE_BACKEND, savepointPath);
-        confProp.put(KEY_CHECKPOINT_INTERVAL, interval);
-    }
-
-    /**
-     * 触发 engine 执行指定task
-     *
-     * @param streamTask
-     * @param externalPath
-     * @throws IOException
-     */
-    public String sendTaskStartTrigger(Long tenantId, Task streamTask, String externalPath) {
-        // 构造savepoint参数
-        String taskParams = streamTask.getTaskParams();
-        JSONObject confProp = new JSONObject();
-        String job = JSONObject.parseObject(streamTask.getSqlText()).getString("job");
-        dataSourceService.setJobDataSourceInfo(job, tenantId, streamTask.getCreateModel());
-//        if (TaskCreateModelType.GUIDE.getType().equals(streamTask.getCreateModel())) {
-//            job = setJobDataSourceInfo(job);
-//        }
-        boolean isRestore = isRestore(job);
-        if (isRestore) {
-            buildSyncTaskExecArgs(tenantId, taskParams, confProp);
-            taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
-        }
-
-        streamTask.setExeArgs(String.format(JOB_NAME_ARGS_TEMPLATE, streamTask.getName(), EncoderUtil.encoderURL(job, Charsets.UTF_8.name())));
-        buildTaskDirtyDataManageDefaultArgs(confProp);
-        if (!Objects.equals(confProp.toString(), "{}")) {
-            String confPropArgs = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, EncoderUtil.encoderURL(confProp.toJSONString(), Charsets.UTF_8.name()));
-            if (StringUtils.isNotBlank(confPropArgs)) {
-                streamTask.setExeArgs(streamTask.getExeArgs() == null ? confPropArgs : streamTask.getExeArgs() + confPropArgs);
-            }
-        }
-        ParamActionExt paramActionExt = generateParamActionExt(tenantId, streamTask, externalPath, taskParams);
-        LOGGER.info("最终发往 engine 的完整任务信息 :{}", JsonUtils.objectToStr(paramActionExt));
-        scheduleActionService.start(paramActionExt);
-        return "";
-    }
-
-    public String getJobName(String taskName, String jobId) {
-        return taskName + "_" + jobId;
-    }
-
-
-    public String formatTaskParams(String taskParams) {
-        List<String> params = new ArrayList<>();
-        String[] tempParams = taskParams.split("\r|\n");
-        for (String param : tempParams) {
-            if (StringUtils.isNotEmpty(param.trim()) && !param.trim().startsWith("#") && param.contains("=")) {
-                int special = param.indexOf("=");
-                params.add(String.format("%s=%s", param.substring(0, special).trim(), param.substring(special + 1).trim()));
-            }
-        }
-        return StringUtils.join(params, "\n");
-    }
-
-
-    /**
-     * 拼接引擎参数
-     *
-     * @param tenantId
-     * @param streamTask
-     * @param externalPath
-     * @param taskParams
-     * @return
-     */
-    private ParamActionExt generateParamActionExt(Long tenantId, Task streamTask, String externalPath, String taskParams) {
-        String jobName = getJobName(streamTask.getName(), streamTask.getJobId());
-        Map<String, Object> actionParam = JsonUtils.objectToMap(streamTask);
-        // 去除默认生成的字段
-        actionParam.remove("mainClass");
-        actionParam.remove("class");
-        actionParam.put("tenantId", tenantId);
-        actionParam.put("taskParams", formatTaskParams(taskParams));
-        actionParam.put("name", jobName);
-        actionParam.put("taskType", streamTask.getTaskType());
-        if (!Strings.isNullOrEmpty(externalPath)) {
-            actionParam.put("externalPath", externalPath);
-        }
-        final JSONObject scheduleConf = JSON.parseObject(streamTask.getScheduleConf());
-        Boolean isFailRetry = (Boolean) scheduleConf.get("isFailRetry");
-        if (BooleanUtils.isTrue(isFailRetry)) {
-            Long submitExpired = scheduleConf.getLong("submitExpired");
-            Integer submitExpiredUnit = scheduleConf.getInteger("submitExpiredUnit");
-            //超时时间
-            actionParam.put("submitExpiredTime", TimeUnit.transformMillisecond(submitExpired, submitExpiredUnit));
-            actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
-            final int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
-            actionParam.put("maxRetryNum", maxRetryNum);
-            actionParam.put("retryIntervalTime", TimeUnit.transformMillisecond(scheduleConf.getLong("retryInterval"), scheduleConf.getInteger("retryIntervalUnit")));
-        } else {
-            actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
-            actionParam.put("maxRetryNum", 0);
-        }
-        return JsonUtils.objectToObject(actionParam, ParamActionExt.class);
-    }
-
-    private void buildTaskDirtyDataManageDefaultArgs(JSONObject confProp) {
-        //1.12flink要传默认值
-        confProp.put(TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getParam(), TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getDefaultValue());
-        confProp.put(TaskDirtyDataManageParamEnum.MAX_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_ROWS.getDefaultValue()));
-        confProp.put(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getDefaultValue()));
-        confProp.put(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getDefaultValue()));
-    }
 
     /**
      * 初始化engine info接口extroInfo信息
@@ -798,7 +617,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
             JSONObject confProp = new JSONObject();
-            buildTaskDirtyDataManageDefaultArgs(confProp);
+            flinkTaskService.buildTaskDirtyDataManageDefaultArgs(confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else {
             actionParam.put("sqlText", task.getSqlText());
