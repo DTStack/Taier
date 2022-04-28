@@ -54,4 +54,5 @@ export default {
 	QUERY_TASK_METRICES: `${STREAM_BASE_URL}/streamJobMetric/queryTaskMetrics`, // 查询指标数据
 	GET_LIST_HISTORY: `${STREAM_BASE_URL}/scheduleJob/listHistory`, // 获取 CheckPoint 下拉列表
 	LIST_CHECK_POINT: `${STREAM_BASE_URL}/checkpoint/listCheckPoint`, // 获取 CheckPointPath 下拉列表
+	STOP_TASK: `${STREAM_BASE_URL}/flink/stopTask`, // 停止任务
 };

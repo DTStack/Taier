@@ -33,25 +33,11 @@ import {
 	DATA_SOURCE_ENUM,
 	FLINK_VERSION_TYPE_FILTER,
 } from '@/constant';
+import stream from '@/api/stream';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
-
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
-import stream from '@/api/stream';
-
-// TODO
-const Api = {
-	stopTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	batchGoONTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	batchStopTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-};
 
 const { confirm } = Modal;
 
@@ -147,13 +133,15 @@ export default function StreamTask() {
 				setGoOnTask({ taskId: task.taskId, jobId: task.jobId });
 				break;
 			case OPERATOR_MODE.stop:
-				Api.stopTask({
-					id: task.id,
-					isForce: params?.isForce,
-				}).then(() => {
-					message.success('任务正在停止！');
-					actionRef.current?.submit();
-				});
+				stream
+					.stopTask({
+						taskId: task.id,
+						isForce: params?.isForce,
+					})
+					.then(() => {
+						message.success('任务正在停止！');
+						actionRef.current?.submit();
+					});
 				break;
 			case OPERATOR_MODE.submit: {
 				stream

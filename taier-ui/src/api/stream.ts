@@ -144,4 +144,7 @@ export default {
 	listCheckPoint(params: any) {
 		return http.post(req.LIST_CHECK_POINT, params);
 	},
+	stopTask(params: any) {
+		return http.post(req.STOP_TASK, params);
+	},
 };
