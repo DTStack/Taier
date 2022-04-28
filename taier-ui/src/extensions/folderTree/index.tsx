@@ -45,6 +45,7 @@ import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import StreamCollection from '@/components/streamCollection';
 import { editorActionBarService } from '@/services';
+import { prettierJSONstring } from '@/utils';
 
 /**
  * Update task tree node
@@ -65,13 +66,13 @@ function updateTree(data: Partial<CatalogueDataProps>) {
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
  * @param type 任务类型
- * @returns 
+ * @returns
  */
 function getComputeType(type: TASK_TYPE_ENUM): number {
 	if (type === TASK_TYPE_ENUM.DATA_ACQUISITION || type === TASK_TYPE_ENUM.SQL) {
 		return 0;
 	}
-	return 1
+	return 1;
 }
 
 /**
@@ -358,7 +359,7 @@ export function openTaskInTab(
 						name: data.name,
 						data: {
 							...data,
-							value: data.sqlText,
+							value: prettierJSONstring(data.sqlText),
 							language: mappingTaskTypeToLanguage(data.taskType),
 							taskDesc: data.taskDesc,
 						},
@@ -534,7 +535,7 @@ function contextMenu() {
 							computeType: getComputeType(values.taskType),
 							version: 0,
 							...values,
-							updateSource: false
+							updateSource: false,
 						};
 						api.addOfflineTask(params)
 							.then((res: any) => {

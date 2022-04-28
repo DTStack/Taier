@@ -1442,7 +1442,6 @@ export enum IForceType {
 
 export enum CHECK_TYPE_VALUE {
 	CHECK_POINT = 0,
-	SAVE_POINT = 1,
 	CHECK_POINT_FILE = 2,
 }
 
@@ -1478,7 +1477,7 @@ export enum UNIT_TYPE {
 	MB = 2,
 	GB = 3,
 	TB = 4,
-};
+}
 
 export const SOURCE_INPUT_BPS_UNIT_TYPE: Partial<{ [key in UNIT_TYPE]: string }> = {
 	[UNIT_TYPE.B]: 'Bps',

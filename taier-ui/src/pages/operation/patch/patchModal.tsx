@@ -418,12 +418,12 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 				</FormItem>
 				<FormItem
 					name="rangeDate"
-					label="业务日期"
+					label="计划日期"
 					rules={[
 						{
 							type: 'array',
 							required: true,
-							message: '请选择业务时间!',
+							message: '请选择计划时间!',
 						},
 					]}
 				>
