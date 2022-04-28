@@ -20,6 +20,6 @@ public class JobHistoryService extends ServiceImpl<ScheduleJobHistoryMapper, Sch
 
     public List<ScheduleJobHistory> listHistory(String jobId, Integer limit) {
         return getBaseMapper().selectList(Wrappers.lambdaQuery(ScheduleJobHistory.class)
-                .eq(ScheduleJobHistory::getJobId, jobId).orderBy(true,true,ScheduleJobHistory::getId).last("limit " + limit));
+                .eq(ScheduleJobHistory::getJobId, jobId).orderBy(true, true, ScheduleJobHistory::getId).last("limit " + limit));
     }
 }

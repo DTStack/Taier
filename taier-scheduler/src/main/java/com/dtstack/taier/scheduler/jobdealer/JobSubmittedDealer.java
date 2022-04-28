@@ -21,6 +21,8 @@ package com.dtstack.taier.scheduler.jobdealer;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.util.JobGraphUtil;
+import com.dtstack.taier.dao.domain.ScheduleJobHistory;
+import com.dtstack.taier.dao.mapper.ScheduleJobHistoryMapper;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -29,6 +31,7 @@ import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,10 @@ public class JobSubmittedDealer implements Runnable {
     @Autowired
     private JobRestartDealer jobRestartDealer;
 
+    @Autowired
+    private ScheduleJobHistoryMapper historyMapper;
+
+
     public JobSubmittedDealer() {
         queue = JobSubmitDealer.getSubmittedQueue();
     }
@@ -95,6 +102,7 @@ public class JobSubmittedDealer implements Runnable {
                         LOGGER.warn("success submit job to Engine, jobId:{} jobResult:{} but shareManager is not found ...", jobId, finalJobClient.getJobResult());
                         finalJobClient.doStatusCallBack(TaskStatus.CANCELED.getStatus());
                     });
+                    saveHistory(jobClient);
                 } else {
                     jobClientFail(jobClient.getJobId(), jobClient.getJobResult().getJsonStr());
                 }
@@ -105,6 +113,15 @@ public class JobSubmittedDealer implements Runnable {
                 }
             }
         }
+    }
+
+    private void saveHistory(JobClient jobClient) {
+        ScheduleJobHistory scheduleJobHistory = new ScheduleJobHistory();
+        scheduleJobHistory.setJobId(jobClient.getJobId());
+        scheduleJobHistory.setEngineJobId(jobClient.getEngineTaskId());
+        scheduleJobHistory.setApplicationId(jobClient.getApplicationId());
+        scheduleJobHistory.setExecStartTime(DateTime.now().toDate());
+        historyMapper.insert(scheduleJobHistory);
     }
 
     private void jobClientFail(String jobId, String info) {
