@@ -31,8 +31,10 @@ import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
+import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
+import com.dtstack.taier.develop.vo.develop.query.StartTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
@@ -54,7 +56,7 @@ import java.util.Map;
 
 @Api(value = "FlinkSQL任务管理", tags = {"FlinkSQL任务管理"})
 @RestController
-@RequestMapping(value = "/flinkSql")
+@RequestMapping(value = "/flink")
 public class DevelopFlinkController {
 
     @Autowired
@@ -198,6 +200,17 @@ public class DevelopFlinkController {
             @Override
             protected PageResult<List<ScheduleJobHistory>> process() {
                 return flinkRuntimeLogService.getHistoryList(jobHistorySearchVO.getTaskId(), jobHistorySearchVO.getCurrentPage(), jobHistorySearchVO.getPageSize());
+            }
+        }.execute();
+    }
+
+    @ApiOperation("任务停止")
+    @PostMapping(value = "stopTask")
+    public R<Boolean> stopTask(@RequestBody OperateTaskVO operateTaskVO) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return flinkTaskService.stopStreamTask(operateTaskVO.getId());
             }
         }.execute();
     }

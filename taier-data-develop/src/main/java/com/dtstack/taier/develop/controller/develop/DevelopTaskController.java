@@ -283,27 +283,4 @@ public class DevelopTaskController {
         }.execute();
     }
 
-
-    @ApiOperation("启动任务")
-    @PostMapping(value = "startTask")
-    public R<String> startTask(@RequestBody @Validated StartTaskVO startTaskVO) {
-        return new APITemplate<String>() {
-            @Override
-            protected String process() {
-                return batchTaskService.startTask(startTaskVO);
-            }
-        }.execute();
-    }
-
-    @ApiOperation("任务停止")
-    @PostMapping(value = "stopTask")
-    public R<Boolean> stopTask(@RequestBody OperateTaskVO operateTaskVO) {
-        return new APITemplate<Boolean>() {
-            @Override
-            protected Boolean process() {
-                return flinkTaskService.stopStreamTask(operateTaskVO.getId());
-            }
-        }.execute();
-    }
-
 }
