@@ -39,11 +39,11 @@ public class FlinkServerLogService {
     private ScheduleJobExpandService scheduleJobExpandService;
 
     @Autowired
-    private FlinkSqlRuntimeLogService flinkSqlRuntimeLogService;
+    private FlinkRuntimeLogService flinkRuntimeLogService;
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkServerLogService.class);
 
-    private static final String DOWNLOAD_LOG = "/api/streamapp/download/streamDownload/downloadJobLog?jobId=%s&taskType=%s&taskManagerId=%s";
+    private static final String DOWNLOAD_LOG = "/taier/download/streamDownload/downloadJobLog?jobId=%s&taskType=%s&taskManagerId=%s";
 
     /**
      * 针对引擎获取的基本日志可能是String或者json
@@ -75,7 +75,7 @@ public class FlinkServerLogService {
         ScheduleJobExpand scheduleJobExpand = null;
         ScheduleJob scheduleJob = null;
         try {
-            scheduleJob = flinkSqlRuntimeLogService.getByJobId(task.getJobId());
+            scheduleJob = flinkRuntimeLogService.getByJobId(task.getJobId());
             scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
         } catch (Exception e) {
             logger.error("任务{}从Engine获取任务失败{}", task.getJobId(), e.getMessage(), e);
@@ -113,22 +113,21 @@ public class FlinkServerLogService {
                 String engineLog = scheduleJobExpand.getEngineLog() == null ? "" : scheduleJobExpand.getEngineLog() + "\n";
                 //yarn日志下载
                 downLoadUrl = String.format(DOWNLOAD_LOG, task.getJobId(), task.getTaskType(), taskManagerId);
-                scheduleJobExpand.setEngineLog(engineLog + flinkSqlRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
+                scheduleJobExpand.setEngineLog(engineLog + flinkRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
 
             }
         } else if (task.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
             //yarn日志下载
-            scheduleJobExpand.setEngineLog(flinkSqlRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
+            scheduleJobExpand.setEngineLog(flinkRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
             downLoadUrl = String.format(DOWNLOAD_LOG, task.getJobId(), task.getTaskType(), taskManagerId);
         }
-        return new FlinkServerLogVO(scheduleJob.getJobId(), downLoadUrl, scheduleJobExpand.getLogInfo());
+        return new FlinkServerLogVO(scheduleJobExpand, downLoadUrl, "");
     }
 
 
-    //todo
     public String getFailoverLogsByTaskId(ServerLogsVO logsVO) {
         Task task = developTaskMapper.selectById(logsVO.getTaskId());
-        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        ScheduleJobExpand  scheduleJobExpand = scheduleJobExpandService.getByJobId(task.getJobId());
         return scheduleJobExpand.getEngineLog();
     }
 

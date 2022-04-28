@@ -12,7 +12,6 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.http.PoolHttpClient;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -58,7 +57,7 @@ import java.util.*;
 import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
 
 @Service
-public class FlinkSqlRuntimeLogService {
+public class FlinkRuntimeLogService {
 
     @Autowired
     private ScheduleJobMapper scheduleJobMapper;
@@ -82,7 +81,7 @@ public class FlinkSqlRuntimeLogService {
     private DevelopTaskMapper developTaskMapper;
 
 
-    private static Logger logger = LoggerFactory.getLogger(FlinkSqlRuntimeLogService.class);
+    private static Logger logger = LoggerFactory.getLogger(FlinkRuntimeLogService.class);
 
     private static final String JOB_MANAGER = "jobmanager";
 
@@ -187,22 +186,22 @@ public class FlinkSqlRuntimeLogService {
      * @param place         起始位
      * @return
      */
-    private RuntimeLogResultVO dealRuntimeLog(Long taskId, String taskManagerId, Integer page, Integer place, String logType, Long dtuicTenantId) throws Exception {
+    private RuntimeLogResultVO dealRuntimeLog(Long taskId, String taskManagerId, Integer page, Integer place, String logType, Long tenantId) throws Exception {
         Map<String, Object> logInfo = null;
         if (JOB_MANAGER.equals(logType)) {
             //获取jobManager日志相关信息
-            logInfo = getJobManagerLogInfo(taskId, dtuicTenantId);
+            logInfo = getJobManagerLogInfo(taskId, tenantId);
         } else if (TASK_MANAGER.equals(logType)) {
             //获取taskManager日志相关信息
             logInfo = getTaskManagerLogInfo(taskId
-                    , taskManagerId, dtuicTenantId);
+                    , taskManagerId, tenantId);
         }
         if (CollectionUtils.isEmpty(logInfo)) {
             return new RuntimeLogResultVO();
         }
         RuntimeLogResultVO runtimeLog = new RuntimeLogResultVO();
         //获取集群类型
-        String clusterMode = getClusterMode(dtuicTenantId);
+        String clusterMode = getClusterMode(tenantId);
         //获取到总字节数
         int totalBytes = MapUtils.getIntValue(logInfo, TOTAL_BYTES, 0);
         //计算总页码
@@ -217,19 +216,10 @@ public class FlinkSqlRuntimeLogService {
         int end = 0;
         //处理taskManager日志分页
         if (TASK_MANAGER.equals(logType)) {
-            if (ClusterMode.K8S.getVal().equals(clusterMode)) {
-                //正序分页
-                start = (page - 1) * MAX_PAGE_SIZE;
-                if (page == totalPage) {
-                    end = totalBytes;
-                } else {
-                    end = (page) * MAX_PAGE_SIZE;
-                }
-            } else {
-                //正序分页
-                start = (page - 1) * MAX_PAGE_SIZE;
-                end = (page) * MAX_PAGE_SIZE;
-            }
+
+            //正序分页
+            start = (page - 1) * MAX_PAGE_SIZE;
+            end = (page) * MAX_PAGE_SIZE;
 
         }
         //处理jobManager日志分页
@@ -242,22 +232,15 @@ public class FlinkSqlRuntimeLogService {
                 end = totalBytes;
             }
         }
+        AssertUtils.isTrue(ClusterMode.YARN.getVal().equals(clusterMode), "暂不支持" + clusterMode + "调度引擎类型的日志获取");
+        //最终url
+        String logUrl = String.format("%s?start=%s&end=%s", url, start, end);
+        logger.info("获取日志的最终Url{}", logUrl);
+        IRestful restful = ClientCache.getRestful(DataSourceType.RESTFUL.getVal());
+        RestfulSourceDTO sourceDTO = RestfulSourceDTO.builder().url(logUrl).build();
+        Response restResponse = restful.get(sourceDTO, null, null, null);
+        runtimeLog.setEngineLog(getEntityPre(restResponse.getContent()));
 
-        if (ClusterMode.K8S.getVal().equals(clusterMode)) {
-            String logs = PoolHttpClient.get(url, null);
-            runtimeLog.setEngineLog(logs.substring(start, end));
-        } else if (ClusterMode.YARN.getVal().equals(clusterMode)) {
-            //最终url
-            String logUrl = String.format("%s?start=%s&end=%s", url, start, end);
-            logger.info("获取日志的最终Url{}", logUrl);
-
-            IRestful restful = ClientCache.getRestful(DataSourceType.RESTFUL.getVal());
-            RestfulSourceDTO sourceDTO = RestfulSourceDTO.builder().url(logUrl).build();
-            Response restResponse = restful.get(sourceDTO, null, null, null);
-            runtimeLog.setEngineLog(getEntityPre(restResponse.getContent()));
-        } else {
-            throw new DtCenterDefException("暂不支持" + clusterMode + "调度引擎类型的日志获取");
-        }
 
         return runtimeLog;
     }

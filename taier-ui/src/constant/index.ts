@@ -825,18 +825,12 @@ export const TENANT_MENU = {
  */
 export const OPERATIONS: molecule.model.IMenuBarItem[] = [
 	{
-		id: 'test',
-		name: '任务管理',
-		data: [
-			{
-				id: DRAWER_MENU_ENUM.TASK,
-				name: '离线任务管理',
-			},
-			{
-				id: DRAWER_MENU_ENUM.STREAM_TASK,
-				name: '实时任务管理',
-			},
-		],
+		id: DRAWER_MENU_ENUM.TASK,
+		name: '离线任务',
+	},
+	{
+		id: DRAWER_MENU_ENUM.STREAM_TASK,
+		name: '实时任务',
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,
@@ -1478,29 +1472,29 @@ export enum METRIC_STATUS_TYPE {
 	ABNORMAL = 2,
 }
 
-export const UNIT_TYPE = {
-	B: 0,
-	KB: 1,
-	MB: 2,
-	GB: 3,
-	TB: 4,
-} as const;
+export enum UNIT_TYPE {
+	B = 0,
+	KB = 1,
+	MB = 2,
+	GB = 3,
+	TB = 4,
+};
 
-export const SOURCE_INPUT_BPS_UNIT_TYPE = {
+export const SOURCE_INPUT_BPS_UNIT_TYPE: Partial<{ [key in UNIT_TYPE]: string }> = {
 	[UNIT_TYPE.B]: 'Bps',
 	[UNIT_TYPE.KB]: 'Kbps',
 	[UNIT_TYPE.MB]: 'Mbps',
 	[UNIT_TYPE.GB]: 'Gbps',
 	[UNIT_TYPE.TB]: 'Tbps',
-} as const;
+};
 
-export const COLLECTION_BPS_UNIT_TYPE = {
+export const COLLECTION_BPS_UNIT_TYPE: Partial<{ [key in UNIT_TYPE]: string }> = {
 	[UNIT_TYPE.B]: 'Bytes',
 	[UNIT_TYPE.KB]: 'Kbytes',
 	[UNIT_TYPE.MB]: 'Mbytes',
 	[UNIT_TYPE.GB]: 'Gbytes',
 	[UNIT_TYPE.TB]: 'Tbytes',
-} as const;
+};
 
 export const CHARTS_COLOR = [
 	'#339CFF',

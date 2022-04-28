@@ -34,8 +34,8 @@ function HistoryLog(props: HistoryLogProps) {
 			.getHistoryLog({ taskId: props.id, currentPage: page, pageSize, sort, orderBy })
 			.then((res) => {
 				if (res.code === 1) {
-					setTableData(res.data.data);
-					setPageInfo({ current: page, pageSize, total: res.data.totalCount });
+					setTableData(res.data?.data || []);
+					setPageInfo({ current: page, pageSize, total: res.data?.totalCount || 0 });
 				}
 			});
 	}
