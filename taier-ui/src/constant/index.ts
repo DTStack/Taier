@@ -825,18 +825,12 @@ export const TENANT_MENU = {
  */
 export const OPERATIONS: molecule.model.IMenuBarItem[] = [
 	{
-		id: 'test',
-		name: '任务管理',
-		data: [
-			{
-				id: DRAWER_MENU_ENUM.TASK,
-				name: '离线任务管理',
-			},
-			{
-				id: DRAWER_MENU_ENUM.STREAM_TASK,
-				name: '实时任务管理',
-			},
-		],
+		id: DRAWER_MENU_ENUM.TASK,
+		name: '离线任务',
+	},
+	{
+		id: DRAWER_MENU_ENUM.STREAM_TASK,
+		name: '实时任务',
 	},
 	{
 		id: DRAWER_MENU_ENUM.SCHEDULE,

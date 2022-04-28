@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import type { ModalProps } from 'antd';
 import { message, Modal, Button, Popconfirm, Tooltip, Alert, Radio, Space, Divider } from 'antd';
 import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -262,18 +262,17 @@ export default function StreamTask() {
 							? stream.startTask
 							: stream.startCollectionTask;
 					startRequest({
-							id: task.id,
-							isRestoration: isRestore,
-						})
-						.then((res) => {
-							if (res.code === 1) {
-								if (res.data.status === TASK_STATUS.SUBMITTING) {
-									message.success('任务操作成功！');
-									actionRef.current?.submit();
-								} else {
-									message.error(res.data.msg);
-								}
+						id: task.id,
+						isRestoration: isRestore,
+					}).then((res) => {
+						if (res.code === 1) {
+							if (res.data.status === TASK_STATUS.SUBMITTING) {
+								message.success('任务操作成功！');
+								actionRef.current?.submit();
+							} else {
+								message.error(res.data.msg);
 							}
+						}
 					});
 				}
 				break;
@@ -585,12 +584,6 @@ export default function StreamTask() {
 		}
 	};
 
-	useEffect(() => {
-		if (polling) {
-			actionRef.current?.submit();
-		}
-	}, [polling]);
-
 	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(
 		() => [
 			{
@@ -686,7 +679,7 @@ export default function StreamTask() {
 						name: 'input',
 						props: {
 							formItemProps: {
-								initialValue: history.location.query?.tName,
+								initialValue: history.location.query?.tname,
 							},
 						},
 					},
