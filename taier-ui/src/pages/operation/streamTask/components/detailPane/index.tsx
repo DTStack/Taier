@@ -22,6 +22,7 @@ import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
 import type { IStreamTaskProps, ITaskParams } from '@/interface';
 import { TaskStatus } from '@/utils/enums';
+import api from '@/api';
 import RunLog from './components/runLog';
 import Failover from './components/runLog/failover';
 import CheckPoint from './components/runLog/checkPoint';
@@ -32,8 +33,6 @@ import TaskManager from './components/taskManager';
 import RunMsg from './components/runMsg';
 import StreamDetailGraph from './components/detailGraph';
 import './index.scss';
-
-const Api = {} as any;
 
 const TabPane = Tabs.TabPane;
 
@@ -101,8 +100,7 @@ export default function TaskDetailPane({
 	const [taskParams, setTaskParams] = useState<Partial<ITaskParams> | undefined>(undefined);
 
 	const getTaskParams = async () => {
-		const { taskId, componentVersion } = data!;
-		let res = await Api.getTaskParams({ taskId, componentVersion });
+		let res = await api.getOfflineTaskByID({ id: data?.id });
 		if (res?.code === 1) {
 			setTaskParams(res.data || {});
 		}

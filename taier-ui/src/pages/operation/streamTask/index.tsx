@@ -196,8 +196,8 @@ export default function StreamTask() {
 							style={{
 								height: 32,
 								position: 'absolute',
-								right: 168,
-								top: 122,
+								right: 167,
+								top: 153,
 								padding: '0 15px',
 							}}
 							onClick={() => {
@@ -421,6 +421,7 @@ export default function StreamTask() {
 			DATA_SOURCE_ENUM.SOCKET,
 			DATA_SOURCE_ENUM.POSTGRESQL,
 		].includes(record.originSourceType);
+
 		const openModal = () => {
 			const Confirm = confirm({
 				title: '是否停止任务',
@@ -431,8 +432,8 @@ export default function StreamTask() {
 							style={{
 								height: 32,
 								position: 'absolute',
-								right: 160,
-								top: '164px',
+								right: 167,
+								top: 153,
 								padding: '0 15px',
 							}}
 							onClick={() => {
@@ -628,12 +629,6 @@ export default function StreamTask() {
 					value: t,
 				})),
 				filterMultiple: true,
-			},
-			{
-				title: '责任人',
-				dataIndex: 'createUserName',
-				width: 150,
-				key: 'createUserName',
 			},
 			{
 				title: '运行开始时间',
