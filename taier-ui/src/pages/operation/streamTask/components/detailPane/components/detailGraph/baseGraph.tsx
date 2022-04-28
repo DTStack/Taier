@@ -247,6 +247,11 @@ class AlarmBaseGraph extends React.Component<any, any> {
 		} else {
 			options.yAxis[0].name = unit;
 		}
+
+		const splitLineColor = window
+			.getComputedStyle(document.documentElement)
+			.getPropertyValue('--breadcrumb-foreground');
+		options.yAxis[0].splitLine.lineStyle.color = splitLineColor;
 		/**
 		 * 设置横坐标数值
 		 */
@@ -278,6 +283,13 @@ class AlarmBaseGraph extends React.Component<any, any> {
 		options.legend.right = '20px';
 		options.legend.itemWidth = 6;
 		options.legend.itemHeight = 6;
+
+		const fontCSSColor = window
+			.getComputedStyle(document.documentElement)
+			.getPropertyValue('--descriptionForeground');
+		options.legend.textStyle = {
+			color: fontCSSColor,
+		};
 		// options.legend.borderRadius="50%";
 		/**
 		 * 画图区域的定位
@@ -291,13 +303,15 @@ class AlarmBaseGraph extends React.Component<any, any> {
 		 * tooltip
 		 */
 		options.tooltip.formatter = (params: any[]) => {
-			return `${params[0].axisValueLabel}</br>${params
+			return `<span style="color: var(--descriptionForeground)">${
+				params[0].axisValueLabel
+			}</br>${params
 				.map((param) => {
 					return `${param.marker} ${param.seriesName}: ${
 						isArray(param.data) ? param.data[1] : param.data
 					}`;
 				})
-				.join('</br>')}`;
+				.join('</br>')}</span>`;
 		};
 		/**
 		 * 设置具体的数据

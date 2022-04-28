@@ -3,7 +3,7 @@
 	z-index: 99;
 	display: inline-block;
 	line-height: 50px;
-	background: var(--editorGroupHeader-tabsBackground);
+	background: var(--editorGroupHeader-tabsBackground, #fff);
 	border-left: 1px solid var(--panel-border);
 	transition: transform 0.3s ease-in;
 

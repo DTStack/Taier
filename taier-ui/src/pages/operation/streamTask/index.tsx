@@ -17,9 +17,8 @@
  */
 
 import { useRef, useState, useMemo } from 'react';
-import type { ModalProps } from 'antd';
-import { message, Modal, Button, Popconfirm, Tooltip, Alert, Radio, Space, Divider } from 'antd';
-import { SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { message, Modal, Button, Popconfirm, Tooltip, Space, Divider } from 'antd';
+import { SyncOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
 import { history } from 'umi';
 import { DateTime } from '@dtinsight/dt-utils';
@@ -27,38 +26,29 @@ import type { IActionRef, ISketchProps } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { IStreamTaskProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
-import { TASK_TYPE_ENUM, FLINK_SQL_TYPE, IForceType } from '@/constant';
+import { TASK_TYPE_ENUM, FLINK_SQL_TYPE } from '@/constant';
 import {
 	TASK_STATUS_FILTERS,
 	TASK_STATUS,
 	DATA_SOURCE_ENUM,
 	FLINK_VERSION_TYPE_FILTER,
 } from '@/constant';
+import stream from '@/api/stream';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
-
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
-import ReRunModal from './components/reRunModal';
-import stream from '@/api/stream';
-
-// TODO
-const Api = {
-	stopTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	batchGoONTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-	batchStopTask: () => {
-		return new Promise((resolve) => resolve({ code: 1, data: [] }));
-	},
-};
 
 const { confirm } = Modal;
 
 interface IFormFieldProps {
 	name?: string;
+}
+
+enum OPERATOR_MODE {
+	goOn,
+	stop,
+	submit,
 }
 
 // 是否为 flinksql 向导模式
@@ -76,29 +66,15 @@ export default function StreamTask() {
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
 	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
-	// 批量提交/重跑
-	const [batchReRunVisible, setBatchReRunTaskVisible] = useState(false);
-	const [goOnTask, setGoOnTask] = useState<IStreamTaskProps['id'] | undefined>(undefined);
-	// 重跑 Modal 信息
-	const [reRunInfo, setReRunInfo] = useState<{
-		visible: boolean;
-		taskId: IStreamTaskProps['id'] | undefined;
-	}>({ visible: false, taskId: undefined });
+	const [goOnTask, setGoOnTask] = useState<
+		Pick<IStreamTaskProps, 'jobId' | 'taskId'> | undefined
+	>(undefined);
 	// 任务详情信息
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
 		selectTask?: IStreamTaskProps;
 	}>({ visible: false, selectTask: undefined });
 	const actionRef = useRef<IActionRef>(null);
-
-	const assertAtLeastOneTask = () => {
-		const { selectedRowKeys } = actionRef.current!;
-		if (selectedRowKeys?.length === 0) {
-			message.warning('请至少选择1个任务！');
-			return false;
-		}
-		return true;
-	};
 
 	const loadCount = (params: any) => {
 		stream.getStatusCount(params).then((res) => {
@@ -139,156 +115,52 @@ export default function StreamTask() {
 		actionRef.current?.submit();
 	};
 
-	const handleReRunCancel = () => {
-		setReRunInfo({
-			taskId: undefined,
-			visible: false,
-		});
-	};
-
 	const chooseTask = (record: IStreamTaskProps) => {
 		setSlidePane({ visible: true, selectTask: record });
-	};
-
-	const handleReTaskRunning = () => {
-		if (assertAtLeastOneTask()) {
-			setBatchReRunTaskVisible(true);
-		}
 	};
 
 	const closeSlidePane = () => {
 		setSlidePane({ visible: false, selectTask: undefined });
 	};
 
-	const handleContinueJobInBatch = async () => {
-		if (assertAtLeastOneTask()) {
-			const { selectedRowKeys } = actionRef.current!;
-			const res = await Api.batchGoONTask({
-				ids: selectedRowKeys,
-			});
-			if (res?.code === 1) return;
-			message.success('任务操作成功！');
-			actionRef.current?.submit();
-		}
-	};
-
-	const batchStop = async (isForce: IForceType) => {
-		if (assertAtLeastOneTask()) {
-			const { selectedRowKeys } = actionRef.current!;
-			const res = await Api.batchStopTask({
-				ids: selectedRowKeys,
-				isForce,
-			});
-			if (res?.code !== 1) return;
-			message.success('任务操作成功！');
-			actionRef.current?.submit();
-		}
-	};
-
-	const handleStopTask = () => {
-		if (assertAtLeastOneTask()) {
-			const confirmInstance = confirm({
-				title: '批量停止任务',
-				content: (
-					<div>
-						此操作执行后不可逆，任务可能取消失败，是否保存SavePoint并停止任务？
-						<Button
-							style={{
-								height: 32,
-								position: 'absolute',
-								right: 167,
-								top: 153,
-								padding: '0 15px',
-							}}
-							onClick={() => {
-								batchStop(IForceType.ISFORCE);
-								confirmInstance.destroy();
-							}}
-						>
-							不保存
-						</Button>
-					</div>
-				),
-				okText: '确认',
-				cancelText: '取消',
-				onOk: () => batchStop(IForceType.NOTFORCE),
-			});
-		}
-	};
-
-	const handleStartJobInBatch = async () => {
-		if (assertAtLeastOneTask()) {
-			const { selectedRowKeys } = actionRef.current!;
-			const res = await Api.batchStartTask({
-				ids: selectedRowKeys,
-			});
-			if (res?.code !== 1) return;
-			message.success('任务操作成功！');
-			actionRef.current?.submit();
-		}
-	};
-
-	const handleUpdateTaskStatus = (task: IStreamTaskProps, mode?: string, isForce?: number) => {
-		const { status } = task;
-		const isRestore = Number(
-			status === TASK_STATUS.STOPED ||
-				status === TASK_STATUS.FINISHED ||
-				status === TASK_STATUS.RUN_FAILED ||
-				status === TASK_STATUS.WAIT_SUBMIT ||
-				status === TASK_STATUS.SUBMIT_FAILED ||
-				status === TASK_STATUS.AUTO_CANCEL,
-		);
-
-		switch (status) {
-			case TASK_STATUS.WAIT_SUBMIT:
-			case TASK_STATUS.STOPED:
-			case TASK_STATUS.RUN_FAILED:
-			case TASK_STATUS.KILLED:
-			case TASK_STATUS.FINISHED:
-			case TASK_STATUS.SUBMIT_FAILED:
-			case TASK_STATUS.AUTO_CANCEL: {
-				if (
-					mode !== 'normal' &&
-					(status === TASK_STATUS.STOPED ||
-						status === TASK_STATUS.RUN_FAILED ||
-						status === TASK_STATUS.FINISHED ||
-						status === TASK_STATUS.AUTO_CANCEL)
-				) {
-					// 续跑
-					setGoOnTask(task.id);
-				} else {
-					const startRequest =
-						task.taskType === TASK_TYPE_ENUM.SQL
-							? stream.startTask
-							: stream.startCollectionTask;
-					startRequest({
-						id: task.id,
-						isRestoration: isRestore,
-					}).then((res) => {
+	const handleUpdateTaskStatus = (
+		mode: OPERATOR_MODE,
+		task: IStreamTaskProps,
+		params?: Record<string, any>,
+	) => {
+		switch (mode) {
+			case OPERATOR_MODE.goOn:
+				setGoOnTask({ taskId: task.taskId, jobId: task.jobId });
+				break;
+			case OPERATOR_MODE.stop:
+				stream
+					.stopTask({
+						taskId: task.id,
+						isForce: params?.isForce,
+					})
+					.then(() => {
+						message.success('任务正在停止！');
+						actionRef.current?.submit();
+					});
+				break;
+			case OPERATOR_MODE.submit: {
+				stream
+					.startTask({
+						taskId: task.id,
+						isRestoration: params?.isRestore,
+					})
+					.then((res) => {
 						if (res.code === 1) {
 							if (res.data.status === TASK_STATUS.SUBMITTING) {
 								message.success('任务操作成功！');
 								actionRef.current?.submit();
 							} else {
-								message.error(res.data.msg);
+								if (res.data.msg) {
+									message.error(res.data.msg);
+								}
 							}
 						}
 					});
-				}
-				break;
-			}
-			case TASK_STATUS.RUNNING:
-			case TASK_STATUS.SUBMITTING:
-			case TASK_STATUS.RESTARTING:
-			case TASK_STATUS.WAIT_RUN:
-			case TASK_STATUS.WAIT_COMPUTE: {
-				Api.stopTask({
-					id: task.id,
-					isForce,
-				}).then(() => {
-					message.success('任务正在停止！');
-					actionRef.current?.submit();
-				});
 				break;
 			}
 			default:
@@ -303,7 +175,7 @@ export default function StreamTask() {
 					taskId: task.id,
 					isRestoration: 0,
 				})
-				.then((res: any) => {
+				.then((res) => {
 					if (res.code === 1) {
 						message.success('任务操作成功！');
 						actionRef.current?.submit();
@@ -438,7 +310,7 @@ export default function StreamTask() {
 							}}
 							onClick={() => {
 								Confirm.destroy();
-								handleUpdateTaskStatus(record, 'normal', 1);
+								handleUpdateTaskStatus(OPERATOR_MODE.stop, record, { isForce: 1 });
 							}}
 						>
 							不保存
@@ -447,7 +319,7 @@ export default function StreamTask() {
 				),
 				okText: '确认',
 				cancelText: '取消',
-				onOk: () => handleUpdateTaskStatus(record, 'normal', 0),
+				onOk: () => handleUpdateTaskStatus(OPERATOR_MODE.stop, record, { isForce: 0 }),
 			});
 		};
 
@@ -456,16 +328,18 @@ export default function StreamTask() {
 			case TASK_STATUS.SUBMIT_FAILED:
 				return (
 					<Space size={5} split={<Divider type="vertical" />}>
+						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+							修改
+						</a>
 						<a
 							href="#"
 							onClick={() => {
-								handleUpdateTaskStatus(record);
+								handleUpdateTaskStatus(OPERATOR_MODE.submit, record, {
+									isRestore: 1,
+								});
 							}}
 						>
 							提交
-						</a>
-						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
-							修改
 						</a>
 					</Space>
 				);
@@ -480,9 +354,7 @@ export default function StreamTask() {
 						{!notGoOn && (
 							<a
 								href="#"
-								onClick={() => {
-									handleUpdateTaskStatus(record);
-								}}
+								onClick={() => handleUpdateTaskStatus(OPERATOR_MODE.goOn, record)}
 							>
 								续跑
 							</a>
@@ -490,9 +362,11 @@ export default function StreamTask() {
 						{isFlinkSqlGuideMode(record) ? (
 							<a
 								href="#"
-								onClick={() => {
-									setReRunInfo({ visible: true, taskId: record.id });
-								}}
+								onClick={() =>
+									handleUpdateTaskStatus(OPERATOR_MODE.submit, record, {
+										isRestore: 0,
+									})
+								}
 							>
 								重跑
 							</a>
@@ -503,13 +377,9 @@ export default function StreamTask() {
 								onConfirm={() => {
 									debounceRecoverTask(record);
 								}}
-								title={
-									<div style={{ width: 200 }}>
-										重跑，则任务将丢弃停止前的状态，重新运行，若存在启停策略，将恢复自动启停
-									</div>
-								}
+								title="重跑，则任务将丢弃停止前的状态，重新运行，若存在启停策略，将恢复自动启停"
 							>
-								重跑
+								<a href="#">重跑</a>
 							</Popconfirm>
 						)}
 					</Space>
@@ -523,14 +393,19 @@ export default function StreamTask() {
 						{!notGoOn && (
 							<a
 								href="#"
-								onClick={() => {
-									handleUpdateTaskStatus(record);
-								}}
+								onClick={() => handleUpdateTaskStatus(OPERATOR_MODE.goOn, record)}
 							>
 								续跑
 							</a>
 						)}
-						<a href="#" onClick={() => handleUpdateTaskStatus(record, 'normal')}>
+						<a
+							href="#"
+							onClick={() =>
+								handleUpdateTaskStatus(OPERATOR_MODE.submit, record, {
+									isRestore: 1,
+								})
+							}
+						>
 							重试
 						</a>
 					</Space>
@@ -569,13 +444,38 @@ export default function StreamTask() {
 							<a
 								href="#"
 								onClick={() => {
-									handleUpdateTaskStatus(record);
+									handleUpdateTaskStatus(OPERATOR_MODE.goOn, record);
 								}}
 							>
 								续跑
 							</a>
 						)}
-						<a href="#" onClick={() => handleUpdateTaskStatus(record, 'normal')}>
+						<a
+							href="#"
+							onClick={() =>
+								handleUpdateTaskStatus(OPERATOR_MODE.submit, record, {
+									isRestore: 1,
+								})
+							}
+						>
+							重试
+						</a>
+					</Space>
+				);
+			case TASK_STATUS.LACKING:
+				return (
+					<Space size={5} split={<Divider type="vertical" />}>
+						<a href="#" onClick={() => goToTaskDev({ id: record?.id })}>
+							修改
+						</a>
+						<a
+							href="#"
+							onClick={() =>
+								handleUpdateTaskStatus(OPERATOR_MODE.submit, record, {
+									isRestore: 1,
+								})
+							}
+						>
 							重试
 						</a>
 					</Space>
@@ -686,33 +586,11 @@ export default function StreamTask() {
 						</Button>
 					</Tooltip>
 				}
+				tableProps={{ rowSelection: undefined }}
 				headerTitle={renderStatus()}
 				headerTitleClassName="ope-statistics"
 				request={loadTaskList}
 				columns={tableColumns}
-				tableFooter={
-					<Space>
-						<Button key="submit" type="primary" onClick={handleReTaskRunning}>
-							提交/重跑
-						</Button>
-						<Button key="stop" onClick={handleStopTask}>
-							停止
-						</Button>
-						<Tooltip
-							placement="top"
-							title="默认从SavePoint恢复，若无可用SavePoint，则选择最近的CheckPoint点位进行续跑"
-						>
-							<Button key="continue" onClick={handleContinueJobInBatch}>
-								续跑
-							</Button>
-						</Tooltip>
-					</Space>
-				}
-			/>
-			<BatchReRunModal
-				visible={batchReRunVisible}
-				onCancel={() => setBatchReRunTaskVisible(false)}
-				onOk={handleStartJobInBatch}
 			/>
 			<DetailPane
 				data={slidePane.selectTask}
@@ -722,38 +600,10 @@ export default function StreamTask() {
 			/>
 			<GoOnTask
 				visible={!!goOnTask}
-				taskId={goOnTask}
+				data={goOnTask}
 				onOk={goOnTaskSuccess}
 				onCancel={hideGoOnTask}
 			/>
-			<ReRunModal
-				visible={reRunInfo.visible}
-				taskId={reRunInfo.taskId}
-				refresh={handleRefresh}
-				onCancel={handleReRunCancel}
-			/>
 		</div>
-	);
-}
-
-function BatchReRunModal({ visible, onCancel, onOk }: ModalProps) {
-	return (
-		<Modal title="批量提交/重跑任务" visible={visible} onCancel={onCancel} onOk={onOk}>
-			<Alert
-				message="重跑，则任务将丢弃停止前的状态，重新运行，若存在启停策略，将恢复自动启停"
-				type="warning"
-			/>
-			<Radio.Group defaultValue={0}>
-				<Space direction="vertical">
-					<Radio value={0}>使用上次任务参数重跑</Radio>
-					<Radio value={1} disabled>
-						指定Offset Time位置重跑
-						<Tooltip title="仅支持Kafka 0.10版本以上的源表从指定Offset Time开始消费，确定后任务自动保存历史版本并进行重跑">
-							<ExclamationCircleOutlined />
-						</Tooltip>
-					</Radio>
-				</Space>
-			</Radio.Group>
-		</Modal>
 	);
 }

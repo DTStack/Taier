@@ -16,322 +16,313 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import moment from 'moment';
-import { Space, message, Modal, DatePicker, Radio, Select, Alert, Input, Form } from 'antd';
-import type { RadioChangeEvent } from 'antd';
-import { DateTime } from '@dtinsight/dt-utils';
-import { CHECK_TYPE_VALUE } from '@/constant';
-import type { FormItemProps, ValidateStatus } from 'antd/lib/form/FormItem';
-import type { RangePickerProps } from 'antd/lib/date-picker';
-import { isEmpty } from 'lodash';
+import { Modal, Radio, Select, Alert, Input, Form, Space, Table, Tooltip, message } from 'antd';
+import { CHECK_TYPE_VALUE, formItemLayout } from '@/constant';
+import stream from '@/api/stream';
+import { SearchOutlined } from '@ant-design/icons';
+import { IStreamTaskProps } from '@/interface';
 
-const Api = {
-	getSavePoint: () =>
-		Promise.resolve({
-			code: 1,
-			message: null,
-			data: { id: null, time: null, externalPath: null },
-			space: 0,
-			version: null,
-			success: true,
-		}),
-	getCheckPointRange: () =>
-		Promise.resolve({
-			code: 1,
-			message: null,
-			data: { startTime: null, endTime: null },
-			space: 0,
-			version: null,
-			success: true,
-		}),
-} as any;
-
-const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 interface IProps {
-	taskId: number | undefined;
+	data?: Pick<IStreamTaskProps, 'jobId' | 'taskId'>;
 	visible: boolean;
 	onOk: () => void;
 	onCancel: () => void;
 }
 
-interface ICheckPoint {
-	id: number;
-	time: string;
-	externalPath: string;
+interface ICheckPointList {
+	jobId: string;
+	execStartTime: number;
+	execEndTime: number;
+	engineJobId: string;
+	applicationId: string;
 }
 
-// 文件路径校验
-function validateFilePath(value: string) {
-	let help = '';
-	let validateStatus: ValidateStatus = 'success';
-	if (!/^hdfs:\/\//.test(value)) {
-		help = '请输入以”hdfs://”开头的HDFS地址';
-		validateStatus = 'error';
-	} else if (/\s/.test(value)) {
-		help = '文件路径不支持空格';
-		validateStatus = 'error';
-	}
-	return { help, validateStatus };
+interface IFormFieldProps {
+	type: CHECK_TYPE_VALUE;
+	filePath?: string;
+	checkPoint?: string;
+	checkPointPath?: string;
+	pointType?: POINT_TYPE;
 }
 
-export default function GoOnTask({ visible, taskId, onCancel, onOk }: IProps) {
-	const [checkedValue, setCheckedValue] = useState(CHECK_TYPE_VALUE.CHECK_POINT_FILE);
-	const [savePoint, setSavePoint] = useState<{ externalPath: null; id: null; time: null }>();
-	const [dateRange, setDateRange] = useState<null | { startTime: string; endTime: string }>(null);
-	const [rangeValue, setRangeValue] = useState<RangePickerProps['value'] | undefined>(undefined);
-	const [externalPath, setExternalPath] = useState<string | undefined>(undefined);
-	const [checkPoints, setCheckPoints] = useState<ICheckPoint[]>([]);
-	const [filePath, setFilePath] = useState<{
-		value?: string;
-		help?: FormItemProps['help'];
-		validateStatus?: FormItemProps['validateStatus'];
-	}>({ value: undefined, help: undefined, validateStatus: undefined });
+interface ICheckPointPathProps {
+	path: string;
+	modificationTime: number;
+	blockSize: number;
+	owner: string;
+}
 
-	const getCheckPointRange = (params: { taskId: number }) => {
-		Api.getCheckPointRange(params).then((res: any) => {
+enum POINT_TYPE {
+	CHECK_POINT,
+	SAVE_POINT,
+}
+
+export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
+	const [form] = Form.useForm<IFormFieldProps>();
+	const [checkPointList, setPointList] = useState<ICheckPointList[]>([]);
+	const [checkPointPathList, setPathList] = useState<ICheckPointPathProps[]>([]);
+	const [loading, setLoading] = useState(false);
+
+	const getCheckPointList = () => {
+		stream.getListHistory({ jobId: data?.jobId }).then((res) => {
 			if (res.code === 1) {
-				const { startTime, endTime } = res.data;
-				if (startTime && endTime) {
-					setDateRange(res.data);
-					// get the lastest savepoint value and check the existence
-					setSavePoint((prev) => {
-						setCheckedValue(
-							isEmpty(savePoint)
-								? CHECK_TYPE_VALUE.CHECK_POINT
-								: CHECK_TYPE_VALUE.SAVE_POINT,
-						);
-
-						return prev;
-					});
-				}
+				setPointList(res.data || []);
 			}
 		});
 	};
 
-	const getCheckPoints = (params: any) => {
-		if (!dateRange) return;
-		Api.getCheckPoints(params).then((res: any) => {
-			if (res.code === 1) {
-				setCheckPoints(res.data);
-			}
-		});
-	};
-
-	const getSavePoint = async (params: { taskId: number }) => {
-		const res = await Api.getSavePoint(params);
-		if (res.code === 1) {
-			if (Object.values(res.data).every((d) => !!d)) {
-				setSavePoint(res.data);
-				setCheckedValue(CHECK_TYPE_VALUE.SAVE_POINT);
-			}
-		}
-
-		return res;
-	};
-
-	const handleCheckedChange = (e: RadioChangeEvent) => {
-		setCheckedValue(e.target.value);
-	};
-
-	// 通过文件续跑
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { value } = e.target;
-		const filePathValid = validateFilePath(value);
-		setFilePath({
-			value,
-			...filePathValid,
-		});
-	};
-
-	const taskReadRangeChange = (value: RangePickerProps['value']) => {
-		setRangeValue(value);
-		setExternalPath(undefined);
-		setCheckPoints([]);
-		if (!value) return;
-
-		const start = value[0]?.hour(0).minute(0).second(0);
-		const end = value[1]?.hour(23).minute(59).second(59);
-
-		getCheckPoints({
-			taskId,
-			startTime: start?.valueOf(),
-			endTime: end?.valueOf(),
-		});
-	};
-
-	/**
-	 * 置灰startTime至endTime时间段之外的时间
-	 */
-	const disabledDate = (current: moment.Moment) => {
-		if (!dateRange) return false;
-		const startTime = moment(dateRange.startTime);
-		const endTime = moment(dateRange.endTime);
-		startTime.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-		endTime.set({ hour: 23, minute: 59, second: 59, millisecond: 0 });
-
-		return current.valueOf() < startTime.valueOf() || current.valueOf() > endTime.valueOf();
-	};
-
-	// 处理 path
-	const getExternalPath = () => {
-		switch (checkedValue) {
-			case CHECK_TYPE_VALUE.CHECK_POINT:
-				return externalPath;
-			case CHECK_TYPE_VALUE.SAVE_POINT:
-				return savePoint?.externalPath;
+	const renderContent = (type: CHECK_TYPE_VALUE) => {
+		switch (type) {
 			case CHECK_TYPE_VALUE.CHECK_POINT_FILE:
-				return filePath.value;
+				return (
+					<Form.Item
+						name="filePath"
+						label="目录"
+						tooltip="例如：hdfs://"
+						rules={[
+							{
+								required: true,
+							},
+							{
+								validator: (_, value) => {
+									if (!/^hdfs:\/\//.test(value)) {
+										return Promise.reject(
+											new Error('请输入以”hdfs://”开头的HDFS地址'),
+										);
+									} else if (/\s/.test(value)) {
+										return Promise.reject(new Error('文件路径不支持空格'));
+									}
+									return Promise.resolve();
+								},
+							},
+						]}
+					>
+						<Input placeholder="请输入HDFS中CheckPoin文件完整路径" />
+					</Form.Item>
+				);
+
+			case CHECK_TYPE_VALUE.CHECK_POINT:
+				return (
+					<>
+						<Form.Item
+							name="pointType"
+							label="选择类型"
+							initialValue={POINT_TYPE.CHECK_POINT}
+						>
+							<Radio.Group style={{ marginTop: 6 }}>
+								<Space direction="vertical">
+									<Radio value={POINT_TYPE.CHECK_POINT}>CheckPoint</Radio>
+									<Radio value={POINT_TYPE.SAVE_POINT}>SavePoint</Radio>
+								</Space>
+							</Radio.Group>
+						</Form.Item>
+						<Form.Item
+							name="checkPoint"
+							label="CheckPoint"
+							tooltip="只暂时近20条数据"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<Select<string>
+								placeholder="请选择 CheckPoint"
+								filterOption={(input, option) =>
+									option?.props.children
+										?.toLowerCase()
+										.indexOf(input.toLowerCase()) >= 0
+								}
+							>
+								{checkPointList.map((checkPoint) => (
+									<Option value={checkPoint.applicationId}>
+										{checkPoint.applicationId}(
+										{moment(checkPoint.execStartTime).format('YYYY-MM-DD')})
+									</Option>
+								))}
+							</Select>
+						</Form.Item>
+						<Form.Item
+							name="checkPointPath"
+							label="目录"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<PathTable loading={loading} data={checkPointPathList} />
+						</Form.Item>
+					</>
+				);
 			default:
-				return null;
+				break;
 		}
 	};
 
-	// 提交续跑
-	const doGoOn = () => {
-		// 文件路径校验
-		if (
-			checkedValue === CHECK_TYPE_VALUE.CHECK_POINT_FILE &&
-			filePath.validateStatus === 'error'
-		) {
-			return;
-		}
-		const pathInParam = getExternalPath();
-		if (!pathInParam) {
-			message.error('请选择续跑点！');
-			return;
-		}
-		Api.startTask({
-			id: taskId,
-			externalPath: pathInParam,
-			isRestoration: 0,
-		}).then((res: any) => {
-			if (res.code === 1) {
-				message.success('续跑操作成功！');
-				onOk();
+	const handleValuesChanged = (checkedValue: Partial<IFormFieldProps>) => {
+		if (Object.keys(checkedValue).includes('type')) {
+			if (checkedValue.type === CHECK_TYPE_VALUE.CHECK_POINT) {
+				getCheckPointList();
 			}
-		});
-	};
 
-	const cancel = () => {
-		// reset all values in form
-		setExternalPath(undefined);
-		setDateRange(null);
-		setCheckPoints([]);
-		setRangeValue(undefined);
-		setSavePoint(undefined);
-		setCheckedValue(CHECK_TYPE_VALUE.CHECK_POINT_FILE);
-		setFilePath({ value: undefined, help: undefined, validateStatus: undefined });
-		onCancel();
-	};
+			// reset path list
+			setPathList([]);
+		}
 
-	useEffect(() => {
-		if (visible && taskId) {
-			getSavePoint({ taskId }).then(() => {
-				// 优先级,有 savepoint 默认选 savepoint 续跑，没有就默认选择 checkpoint, 最后文件续跑
-				getCheckPointRange({ taskId });
+		if (Object.keys(checkedValue).includes('checkPoint')) {
+			setLoading(true);
+			stream
+				.listCheckPoint({ jobId: data?.jobId, applicationId: checkedValue.checkPoint })
+				.then((res) => {
+					if (res.code === 1) {
+						setPathList(res.data || []);
+					}
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+
+			form.setFieldsValue({
+				checkPointPath: undefined,
 			});
 		}
-	}, [visible]);
+	};
 
-	const options = useMemo(
-		() =>
-			checkPoints?.map((item) => {
-				const { time, id, externalPath: value } = item || {};
-				const title = DateTime.formatDateTime(time);
-				const nameFix = { name: item };
-
-				return (
-					<Option title={title} key={id} value={value} {...nameFix}>
-						{time}
-					</Option>
-				);
-			}),
-		[checkPoints],
-	);
+	const doGoOn = () => {
+		form.validateFields().then((values) => {
+			stream
+				.startTask({
+					id: data?.taskId,
+					externalPath:
+						values.type === CHECK_TYPE_VALUE.CHECK_POINT
+							? values.checkPointPath
+							: values.filePath,
+					isRestoration: 0,
+					getSavePointPath: values.pointType === POINT_TYPE.SAVE_POINT,
+				})
+				.then((res) => {
+					if (res.code === 1) {
+						message.success('续跑操作成功！');
+						onOk?.();
+					}
+				});
+		});
+	};
 
 	return (
 		<Modal
 			title="续跑任务"
 			visible={visible}
 			okText="确认"
-			onCancel={cancel}
+			onCancel={onCancel}
 			onOk={doGoOn}
 			cancelText="取消"
 			maskClosable={false}
+			destroyOnClose
 		>
-			<Alert
-				message="续跑，任务将恢复至停止前的状态继续运行，若存在启停策略，将恢复自动启停!"
-				type="warning"
-				showIcon
-			/>
-			<Radio.Group value={checkedValue} onChange={handleCheckedChange}>
-				<Space direction="vertical" size={20}>
-					<Radio disabled={!savePoint?.time} value={CHECK_TYPE_VALUE.SAVE_POINT}>
-						{`通过SavePoint恢复并续跑（上次保存时间：${
-							savePoint?.time ? DateTime.formatDateTime(savePoint.time) : '- '
-						}）`}
-					</Radio>
-					<Radio disabled={!savePoint?.time} value={CHECK_TYPE_VALUE.SAVE_POINT}>
-						{`通过SavePoint恢复并续跑（上次保存时间：${
-							savePoint?.time ? DateTime.formatDateTime(savePoint.time) : '- '
-						}）`}
-					</Radio>
-					<div>
-						<Radio disabled={!dateRange} value={CHECK_TYPE_VALUE.CHECK_POINT}>
-							通过CheckPoint恢复并续跑
-						</Radio>
-						<div>
-							<span style={{ marginRight: '12px' }}>
-								<RangePicker
-									style={{ width: '280px' }}
-									format="YYYY-MM-DD"
-									disabledDate={disabledDate}
-									onChange={taskReadRangeChange}
-									value={rangeValue}
-									disabled={
-										!dateRange || checkedValue !== CHECK_TYPE_VALUE.CHECK_POINT
-									}
-								/>
-							</span>
-							<span>
-								<Select
-									showSearch
-									style={{ width: '180px' }}
-									placeholder="时间点"
-									optionFilterProp="name"
-									onChange={(value) => setExternalPath(value)}
-									disabled={
-										!dateRange || checkedValue !== CHECK_TYPE_VALUE.CHECK_POINT
-									}
-									value={externalPath}
-								>
-									{options}
-								</Select>
-							</span>
-						</div>
-					</div>
-					<div>
-						<Radio value={CHECK_TYPE_VALUE.CHECK_POINT_FILE}>
-							通过指定文件恢复并续跑
-						</Radio>
-						<Form.Item
-							style={{ marginBottom: 0 }}
-							help={filePath.help}
-							validateStatus={filePath.validateStatus}
-						>
-							<Input
-								placeholder="请输入HDFS中CheckPoin文件完整路径，例如：hdfs://"
-								disabled={checkedValue !== CHECK_TYPE_VALUE.CHECK_POINT_FILE}
-								value={filePath.value}
-								onChange={handleInputChange}
-							/>
-						</Form.Item>
-					</div>
-				</Space>
-			</Radio.Group>
+			<Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" showIcon />
+			<Form<IFormFieldProps>
+				{...formItemLayout}
+				form={form}
+				onValuesChange={handleValuesChanged}
+				initialValues={{
+					type: CHECK_TYPE_VALUE.CHECK_POINT_FILE,
+				}}
+				preserve={false}
+			>
+				<Form.Item name="type" label="续跑方式">
+					<Radio.Group style={{ marginTop: 6 }}>
+						<Space direction="vertical">
+							<Radio value={CHECK_TYPE_VALUE.CHECK_POINT_FILE}>
+								通过指定文件恢复并续跑
+							</Radio>
+							<Radio value={CHECK_TYPE_VALUE.CHECK_POINT}>选择 CheckPoint 续跑</Radio>
+						</Space>
+					</Radio.Group>
+				</Form.Item>
+				<Form.Item noStyle dependencies={['type']}>
+					{({ getFieldValue }) => renderContent(getFieldValue('type'))}
+				</Form.Item>
+			</Form>
 		</Modal>
+	);
+}
+
+interface IPathTable {
+	data: ICheckPointPathProps[];
+	value?: ICheckPointPathProps['path'];
+	loading?: boolean;
+	onChange?: (data: ICheckPointPathProps['path']) => void;
+}
+function PathTable({ value, data, loading, onChange }: IPathTable) {
+	const [search, setSearch] = useState<string>('');
+	const [filterData, setFilterData] = useState<ICheckPointPathProps[]>(data);
+
+	const handleChanged = (selectedRowKeys: React.Key[]) => {
+		onChange?.(selectedRowKeys[0].toString());
+	};
+
+	const handleSearch = () => {
+		setFilterData(data.filter((d) => d.path.toLowerCase().includes(search.toLowerCase())));
+	};
+
+	useEffect(() => {
+		setFilterData(data);
+		setSearch('');
+	}, [data]);
+
+	return (
+		<Table<ICheckPointPathProps>
+			dataSource={filterData}
+			rowKey="path"
+			size="small"
+			loading={loading}
+			pagination={false}
+			scroll={{ y: 300 }}
+			columns={[
+				{
+					title: 'Path',
+					dataIndex: 'path',
+					key: 'path',
+					filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+						<Input
+							onPressEnter={() => {
+								handleSearch();
+								confirm();
+							}}
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+							style={{ margin: 8, width: 'auto' }}
+						/>
+					),
+					filterIcon: () => (
+						<SearchOutlined style={{ color: search ? '#1890ff' : undefined }} />
+					),
+					render: (text: string) => (
+						<Tooltip title={text}>
+							{text.slice(0, 20)}...{text.slice(-20)}
+						</Tooltip>
+					),
+				},
+				{
+					title: '修改时间',
+					dataIndex: 'modificationTime',
+					width: 100,
+					key: 'modificationTime',
+					render: (text) => moment(text).format('YYYY-MM-DD'),
+				},
+			]}
+			onRow={(record) => ({ onClick: () => handleChanged([record.path]) })}
+			rowSelection={{
+				type: 'radio',
+				onChange: handleChanged,
+				selectedRowKeys: value ? [value] : [],
+			}}
+		/>
 	);
 }
