@@ -182,13 +182,6 @@ export default function Sketch<
 	const timeout = useRef<number | undefined>(undefined);
 	const { scroll: calcTableScroll } = useCalcTableScroll({ className: 'dt-sketch-table' });
 
-	// keep a ref object for polling
-	// since the inner of async function can't get the lastest values of polling
-	const pollingRef = useRef(polling);
-	useEffect(() => {
-		pollingRef.current = polling;
-	});
-
 	// we should save the filter and sorter from table
 	const tableInfo = useRef<{
 		filters?: Record<string, FilterValue | null>;
@@ -210,9 +203,6 @@ export default function Sketch<
 		sorter?: SorterResult<any>,
 		silent: boolean = false,
 	) => {
-		if (timeout.current) {
-			window.clearTimeout(timeout.current);
-		}
 		if (!silent) {
 			setLoading(true);
 		}
@@ -231,20 +221,6 @@ export default function Sketch<
 						pageSize: nextPageSize,
 					});
 					setDataSource(data);
-
-					if (pollingRef.current) {
-						const delay =
-							typeof pollingRef.current === 'object' && pollingRef.current.delay;
-						timeout.current = window.setTimeout(() => {
-							// 轮训请求不触发 loading 状态的修改
-							getDataSource(
-								{ current: nextCurrent, pageSize: nextPageSize },
-								filters,
-								sorter,
-								true,
-							);
-						}, delay || 36000);
-					}
 				}
 			})
 			.finally(() => {
@@ -280,13 +256,30 @@ export default function Sketch<
 
 	useLayoutEffect(() => {
 		getDataSource();
+	}, []);
+
+	useEffect(() => {
+		if (polling) {
+			const delay = (typeof polling === 'object' && polling.delay) || 36000;
+			timeout.current = window.setInterval(() => {
+				// 轮训需要静默请求
+				getDataSource(
+					{ current, pageSize },
+					tableInfo.current.filters,
+					tableInfo.current.sorter as SorterResult<any>,
+					true,
+				);
+			}, delay);
+		} else {
+			window.clearInterval(timeout.current);
+		}
 
 		return () => {
 			if (timeout.current) {
-				window.clearTimeout(timeout.current);
+				window.clearInterval(timeout.current);
 			}
 		};
-	}, []);
+	}, [polling]);
 
 	const pagination: PaginationProps = {
 		total,
