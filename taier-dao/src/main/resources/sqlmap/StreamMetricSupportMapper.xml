@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.taier.dao.mapper.StreamMetricSupportDao">
+
+    <sql id="select_content_fragment">
+      id,name,task_type,value,metric_tag,gmt_create,gmt_modified,is_deleted
+    </sql>
+
+    <select id="getMetricKeyByType" resultType="java.lang.String">
+        SELECT
+        value
+        FROM rdos_stream_metric_support
+        WHERE is_deleted = 0 AND task_type = #{taskType} AND component_version = #{componentVersion}
+    </select>
+
+    <select id="getMetricByType" resultType="com.dtstack.taier.dao.domain.StreamMetricSupport">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_stream_metric_support
+        WHERE is_deleted = 0 AND task_type = #{taskType} AND component_version = #{componentVersion}
+    </select>
+
+    <select id="getMetricByValue" resultType="com.dtstack.taier.dao.domain.StreamMetricSupport">
+        SELECT
+        <include refid="select_content_fragment"/>
+        FROM rdos_stream_metric_support
+        WHERE is_deleted = 0 AND value = #{value} AND component_version = #{componentVersion} LIMIT 1
+    </select>
+</mapper>

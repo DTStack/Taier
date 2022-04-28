@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.MathUtil;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.develop.dto.devlop.CheckPointTimeRangeResultDTO;
 import com.dtstack.taier.develop.dto.devlop.EngineJobCheckpoint;
@@ -49,20 +51,22 @@ public class StreamTaskCheckpointService {
     private static final String END_TO_END_DURATION = "lastCheckpointDuration";
 
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
+
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
+
+    @Autowired
+    private BatchTaskService taskService;
 
     /**
      * 获取任务的checkpoint可选时间范围
      *
-     * @param taskId
+     * @param  id
      * @return
      */
-    public CheckPointTimeRangeResultDTO getCheckpointTimeRange(String taskId) {
+    public CheckPointTimeRangeResultDTO getCheckpointTimeRange(String jobId) {
 
-        ParamsCheck.checkNotNull(taskId);
-
-        List<StreamTaskCheckpoint> checkpointList = listByTaskId(taskId);
+        List<StreamTaskCheckpoint> checkpointList = listByTaskId(jobId);
         if (CollectionUtils.isEmpty(checkpointList)) {
             return new CheckPointTimeRangeResultDTO();
         }
@@ -77,9 +81,9 @@ public class StreamTaskCheckpointService {
         return dto;
     }
 
-    public JSONObject pageQuery(String taskId, Long startTime, Long endTime) {
+    public JSONObject pageQuery(String jobId, Long startTime, Long endTime) {
 
-        List<StreamTaskCheckpoint> streamTaskCheckpointList = listByRangeTime(taskId, startTime, endTime);
+        List<StreamTaskCheckpoint> streamTaskCheckpointList = listByRangeTime(jobId, startTime, endTime);
 
         List<JSONObject> simpleHistory = new ArrayList<>();
         for (StreamTaskCheckpoint checkpoint : streamTaskCheckpointList) {
@@ -110,8 +114,8 @@ public class StreamTaskCheckpointService {
     }
 
 
-    public List<StreamTaskCheckpointVO> getCheckpointListVo(String taskId, Long startTime, Long endTime) {
-        List<StreamTaskCheckpoint> taskCheckpointList = getCheckpointList(taskId, startTime, endTime);
+    public List<StreamTaskCheckpointVO> getCheckpointListVo(String jobId, Long startTime, Long endTime) {
+        List<StreamTaskCheckpoint> taskCheckpointList = getCheckpointList(jobId, startTime, endTime);
         if (CollectionUtils.isEmpty(taskCheckpointList)) {
             return new ArrayList<>();
         }
