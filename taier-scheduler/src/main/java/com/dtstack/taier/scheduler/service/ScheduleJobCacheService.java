@@ -26,8 +26,8 @@ public class ScheduleJobCacheService extends ServiceImpl<ScheduleEngineJobCacheM
                 .eq(ScheduleEngineJobCache::getJobId, jobId));
     }
 
-    public List<ScheduleEngineJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource,Boolean selectJobInfo) {
-        return scheduleEngineJobCacheMapper.listByStage(startId, localAddress, stage, jobResource,selectJobInfo);
+    public List<ScheduleEngineJobCache> listByStage(long startId, String localAddress, Integer stage, String jobResource, Boolean selectJobInfo) {
+        return scheduleEngineJobCacheMapper.listByStage(startId, localAddress, stage, jobResource, selectJobInfo);
     }
 
     public int updateStage(String jobId, int stage, String nodeAddress, long priority, String waitReason) {
@@ -78,4 +78,34 @@ public class ScheduleJobCacheService extends ServiceImpl<ScheduleEngineJobCacheM
         engineJobCache.setTenantId(tenantId);
         this.save(engineJobCache);
     }
+
+
+    public ScheduleEngineJobCache getByJobId(String jobId) {
+        return getBaseMapper()
+                .selectOne(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
+                        .eq(ScheduleEngineJobCache::getJobId, jobId));
+    }
+
+    public List<ScheduleEngineJobCache> listByStage(Long startId, String nodeAddress, Integer stage, String resource) {
+        return getBaseMapper().listByStage(startId, nodeAddress, stage, resource, Boolean.FALSE);
+    }
+
+    public int updateNodeAddressFailover(String nodeAddress, List<String> jobIds, Integer stage) {
+        ScheduleEngineJobCache jobCache = new ScheduleEngineJobCache();
+        jobCache.setNodeAddress(nodeAddress);
+        jobCache.setStage(stage);
+        return getBaseMapper()
+                .update(jobCache, Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
+                        .in(ScheduleEngineJobCache::getJobId, jobIds));
+
+    }
+
+
+    public List<ScheduleEngineJobCache> getByJobIds(List<String> jobIds) {
+        return getBaseMapper()
+                .selectList(Wrappers.lambdaQuery(ScheduleEngineJobCache.class)
+                        .in(ScheduleEngineJobCache::getJobId, jobIds));
+    }
+
+
 }

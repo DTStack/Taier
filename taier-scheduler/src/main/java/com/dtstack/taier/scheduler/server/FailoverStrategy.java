@@ -27,9 +27,6 @@ import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
-import com.dtstack.taier.dao.domain.po.SimpleScheduleJobPO;
-import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
-import com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -37,8 +34,8 @@ import com.dtstack.taier.pluginapi.http.PoolHttpClient;
 import com.dtstack.taier.scheduler.dto.scheduler.SimpleScheduleJobDTO;
 import com.dtstack.taier.scheduler.enums.JobPhaseStatus;
 import com.dtstack.taier.scheduler.server.builder.CycleJobBuilder;
-import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.NodeRecoverService;
+import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
@@ -85,7 +82,7 @@ public class FailoverStrategy {
     private NodeRecoverService nodeRecoverService;
 
     @Autowired
-    private EngineJobCacheService engineJobCacheService;
+    private ScheduleJobCacheService ScheduleJobCacheService;
 
     @Autowired
     private JobGraphBuilderTrigger jobGraphBuilderTrigger;
@@ -325,7 +322,7 @@ public class FailoverStrategy {
             LOGGER.warn("----- nodeAddress:{} JobCache mission begins to resume----", nodeAddress);
             long startId = 0L;
             while (true) {
-                List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(startId, nodeAddress, null, null);
+                List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(startId, nodeAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
@@ -350,7 +347,7 @@ public class FailoverStrategy {
                 distributeSubmittedJobs(submittedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
-            List<ScheduleEngineJobCache> jobCaches = engineJobCacheService.listByStage(0L, nodeAddress, null, null);
+            List<ScheduleEngineJobCache> jobCaches = ScheduleJobCacheService.listByStage(0L, nodeAddress, null, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
                 //如果尚有任务未迁移完成，重置 nodeAddress 继续恢复
                 zkService.updateSynchronizedLocalBrokerHeartNode(nodeAddress, BrokerHeartNode.initNullBrokerHeartNode(), true);
@@ -415,7 +412,7 @@ public class FailoverStrategy {
                 continue;
             }
 
-            engineJobCacheService.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
+            ScheduleJobCacheService.updateNodeAddressFailover(nodeEntry.getKey(), nodeEntry.getValue(), stage);
             LOGGER.info("jobIds:{} failover to address:{}, set stage={}", nodeEntry.getValue(), nodeEntry.getKey(), stage);
         }
     }
@@ -426,7 +423,7 @@ public class FailoverStrategy {
      * @param errorMsg 错误信息，用于更新日志
      */
     public void dealSubmitFailJob(String jobId, String errorMsg){
-        engineJobCacheService.deleteByJobId(jobId);
+        ScheduleJobCacheService.deleteByJobId(jobId);
         scheduleJobService.jobFail(jobId, TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(errorMsg));
         LOGGER.info("jobId:{} update job status:{}, job is finished.", jobId, TaskStatus.SUBMITFAILD.getStatus());
     }

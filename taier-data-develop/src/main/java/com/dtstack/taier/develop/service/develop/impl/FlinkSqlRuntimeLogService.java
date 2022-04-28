@@ -36,8 +36,8 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
-import com.dtstack.taier.scheduler.service.EngineJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -53,13 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
 
@@ -73,7 +67,7 @@ public class FlinkSqlRuntimeLogService {
     private ScheduleActionService actionService;
 
     @Autowired
-    private EngineJobCacheService engineJobCacheService;
+    private ScheduleJobCacheService ScheduleJobCacheService;
 
     @Autowired
     private JobService jobService;
@@ -417,7 +411,7 @@ public class FlinkSqlRuntimeLogService {
             throw new RdosDefineException(String.format("job %s not running in perjob", jobId), ErrorCode.INVALID_TASK_RUN_MODE);
         }
         try {
-            ScheduleEngineJobCache engineJobCache = engineJobCacheService.getByJobId(jobId);
+            ScheduleEngineJobCache engineJobCache = ScheduleJobCacheService.getByJobId(jobId);
             if (engineJobCache == null) {
                 throw new RdosDefineException(String.format("job:%s not exist in job cache table ", jobId), ErrorCode.JOB_CACHE_NOT_EXIST);
             }
