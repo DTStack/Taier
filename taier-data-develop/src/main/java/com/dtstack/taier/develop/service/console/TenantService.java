@@ -24,11 +24,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.Queue;
-import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.TenantComponent;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
@@ -151,7 +147,7 @@ public class TenantService {
             updateTenantQueue(tenantId, clusterId, queueId);
         }
         List<ComponentBindDBDTO> bindDTOList = ClusterTransfer.INSTANCE.bindDBtoDTOList(bindDBDTOList);
-        initDataDevelop(clusterId, tenantId, tenant.getCreateUserId(), tenant.getTenantName(), tenant.getTenantDesc(), bindDTOList);
+        initDataDevelop(clusterId, tenantId, tenant.getCreateUserId(), tenant.getTenantIdentity(), tenant.getTenantDesc(), bindDTOList);
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -251,10 +247,11 @@ public class TenantService {
         return tenantMapper.selectOne(Wrappers.lambdaQuery(Tenant.class).eq(Tenant::getTenantName, tenantName));
     }
 
-    public void addTenant(String tenantName, Long createUserId) {
+    public void addTenant(String tenantName, Long createUserId,String tenantIdentity) {
         Tenant tenant = new Tenant();
         tenant.setTenantName(tenantName);
         tenant.setCreateUserId(createUserId);
+        tenant.setTenantIdentity(tenantIdentity);
         tenant.setGmtCreate(Timestamp.from(Instant.now()));
         tenantMapper.insert(tenant);
     }

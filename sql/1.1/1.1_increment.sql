@@ -1113,4 +1113,7 @@ insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_versio
 insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '193', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_numberOfFailedCheckpoints', '99', '2021-09-26 17:04:01', '1', '任务checkpoint失败数量');
 insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '195', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_checkpointAlignmentTime', '99', '2021-09-26 17:04:01', '1', 'barrier 对齐花费时间');
 
+
+alter table tenant add tenant_identity varchar(64) default '' null comment '租户标识';
+
 COMMIT;
