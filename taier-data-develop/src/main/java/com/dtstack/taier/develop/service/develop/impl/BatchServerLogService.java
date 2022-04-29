@@ -567,7 +567,7 @@ public class BatchServerLogService {
 
             String perfLogInfo = jobInfoMap.getOrDefault("perf", StringUtils.EMPTY).toString();
             final boolean parsePerfLog = startTime != null && endTime != null
-                    && jobInfoMap.get("jobid") != null && this.environmentContext.getSyncLogPromethues();
+                    && jobInfoMap.get("jobid") != null;
 
             if (parsePerfLog) {
                 perfLogInfo = this.formatPerfLogInfo(jobInfoMap.get("jobid").toString(),jobId, startTime.getTime(), endTime.getTime(), tenantId);

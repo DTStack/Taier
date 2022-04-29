@@ -671,7 +671,7 @@ public class ConsoleComponentService {
         if (null == one) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        return env.getLocalKerberosDir() + File.separator + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS;
+        return env.getTempDir() + File.separator + one.getClusterName() + File.separator + EComponentType.getByCode(componentCode).name() + File.separator + KERBEROS;
     }
 
 

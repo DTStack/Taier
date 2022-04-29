@@ -69,7 +69,7 @@ public class QueueListener implements InitializingBean, Runnable {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
+        checkJobMaxPriorityStrategy = environmentContext.isCheckJobMaxPriorityStrategy();
 
         scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
         scheduledService.scheduleWithFixedDelay(

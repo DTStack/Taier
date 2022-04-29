@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.scheduler.service;
 
+import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -25,7 +26,6 @@ import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.DictMapper;
-import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class ScheduleDictService {
      * @return
      */
     public List<ComponentConfig> loadExtraComponentConfig(String version, Integer componentCode) {
-        if (StringUtils.isBlank(version) || defaultVersion.test(version) || !environmentContext.isCanAddExtraConfig()) {
+        if (StringUtils.isBlank(version) || defaultVersion.test(version)) {
             return new ArrayList<>(0);
         }
         EComponentType componentType = EComponentType.getByCode(componentCode);

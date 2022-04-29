@@ -130,9 +130,9 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOGGER.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getSchedulerName(), env.getAcquireQueueJobInterval(), env.getQueueSize());
+        LOGGER.info("Initializing scheduleType:{} acquireQueueJobInterval:{} queueSize:{}", getSchedulerName(), env.getJobAcquireQueueJobInterval(), env.getQueueSize());
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(getSchedulerName() + "_AcquireJob"));
-        scheduledService.scheduleWithFixedDelay(this::scanningJob, 0, env.getAcquireQueueJobInterval(), TimeUnit.MILLISECONDS);
+        scheduledService.scheduleWithFixedDelay(this::scanningJob, 0, env.getJobAcquireQueueJobInterval(), TimeUnit.MILLISECONDS);
     }
 
 

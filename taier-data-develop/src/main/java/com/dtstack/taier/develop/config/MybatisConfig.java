@@ -66,16 +66,16 @@ public class MybatisConfig {
         dataSource.setMaxActive(environmentContext.getMaxPoolSize());
         dataSource.setMinIdle(environmentContext.getMinPoolSize());
         dataSource.setInitialSize(environmentContext.getInitialPoolSize());
-        dataSource.setKeepAlive(environmentContext.getKeepAlive());
+        dataSource.setKeepAlive(environmentContext.isKeepAlive());
         dataSource.setMinEvictableIdleTimeMillis(environmentContext.getMinEvictableIdleTimeMillis());
         dataSource.setTimeBetweenConnectErrorMillis(environmentContext.getTimeBetweenEvictionRunsMillis());
-        dataSource.setRemoveAbandoned(environmentContext.getRemoveAbandoned());
-        dataSource.setLogAbandoned(environmentContext.getRemoveAbandoned());
+        dataSource.setRemoveAbandoned(environmentContext.isRemoveAbandoned());
+        dataSource.setLogAbandoned(environmentContext.isRemoveAbandoned());
         dataSource.setRemoveAbandonedTimeout(environmentContext.getRemoveAbandonedTimeout());
-        dataSource.setTestWhileIdle(environmentContext.getTestWhileIdle());
-        dataSource.setTestOnBorrow(environmentContext.getTestOnBorrow());
-        dataSource.setTestOnReturn(environmentContext.getTestOnReturn());
-        dataSource.setPoolPreparedStatements(environmentContext.getPoolPreparedStatements());
+        dataSource.setTestWhileIdle(environmentContext.isTestWhileIdle());
+        dataSource.setTestOnBorrow(environmentContext.isTestOnBorrow());
+        dataSource.setTestOnReturn(environmentContext.isTestOnReturn());
+        dataSource.setPoolPreparedStatements(environmentContext.isPoolPreparedStatements());
         dataSource.setMaxPoolPreparedStatementPerConnectionSize(environmentContext.getMaxPoolPreparedStatementPerConnectionSize());
         return dataSource;
     }
@@ -87,11 +87,11 @@ public class MybatisConfig {
         sqlSessionFactoryBean.setDataSource(dataSource());
         sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.taier.dao.domain,com.dtstack.taier.develop.domain");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resourceDash = resolver.getResources(environmentContext.getMybatisMapperLocations());
+        Resource[] resourceDash = resolver.getResources("classpath*:sqlmap/**/*.xml");
         Resource[] resources = ArrayUtils.addAll(resourceDash);
         sqlSessionFactoryBean.setMapperLocations(resources);
         sqlSessionFactoryBean.setPlugins(mybatisPlusInterceptor());
-        Resource resource = resolver.getResource(environmentContext.getMybatisConfigLocation());
+        Resource resource = resolver.getResource("classpath:mybatis-config.xml");
         sqlSessionFactoryBean.setConfigLocation(resource);
         sqlSessionFactoryBean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
         return sqlSessionFactoryBean.getObject();
