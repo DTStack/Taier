@@ -64,8 +64,11 @@ public class BatchResourceAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "项目代号")
     private String productCode;
 
+    /**
+     * 实时暂时上传到sftp , 离线上传到hdfs
+     */
     @ApiModelProperty(value = "计算类型 0实时，1 离线")
-    private Integer computeType;
+    private Integer computeType = 0;
 
     public String getResourceName() {
         return resourceName;
