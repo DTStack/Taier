@@ -19,11 +19,15 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.CatalogueType;
+import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.sftp.SFTPHandler;
+import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
@@ -36,6 +40,7 @@ import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
 import com.dtstack.taier.develop.utils.develop.common.HdfsOperator;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +52,7 @@ import java.io.File;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -78,6 +84,7 @@ public class BatchResourceService {
     @Autowired
     private EnvironmentContext environmentContext;
 
+   public static final String TAIER_RESOURCE = "/taier/resource";
     /**
      * 添加资源
      */
@@ -102,7 +109,9 @@ public class BatchResourceService {
             resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
         }
 
-        String hdfsPath = uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+      String remotePath = ComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
+              uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
+              uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         BatchResource batchResource = null;
         //重新上传资源
@@ -113,12 +122,12 @@ public class BatchResourceService {
             }
             batchResource.setResourceDesc(batchResourceAddDTO.getResourceDesc());
             batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
-            batchResource.setUrl(hdfsPath);
+            batchResource.setUrl(remotePath);
         } else {
             //判断是否已经存在相同的资源了
             batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
 
-            batchResourceAddDTO.setUrl(hdfsPath);
+            batchResourceAddDTO.setUrl(remotePath);
             batchResourceAddDTO.setCreateUserId(userId);
             batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
             if (Objects.isNull(batchResource)){
@@ -244,9 +253,12 @@ public class BatchResourceService {
         }
 
         String resourceName = resourceDb.getResourceName();
-        String hdfsPath = uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
-        resourceDb.setUrl(hdfsPath);
+        String remotePath = ComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
+                uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
+                uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+
+        resourceDb.setUrl(remotePath);
         resourceDb.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
         resourceDb.setResourceDesc(batchResourceAddDTO.getResourceDesc());
         resourceDb.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
@@ -280,6 +292,34 @@ public class BatchResourceService {
             }
         }
         return hdfsPath;
+    }
+
+    private String uploadToSftp(Long tenantId, String resourceName, String oriFileName, String tmpFilePath) {
+        Map<String, String> sftpConf = Engine2DTOService.getSftp(tenantId);
+        String path = sftpConf.get("path");
+        if (StringUtils.isBlank(path)) {
+            throw new DtCenterDefException("sftp路径配置错误");
+        }
+        String sftpFileName = String.format("%s_%s_%s", tenantId, resourceName, oriFileName);
+        String remotePath = new StringBuilder(path)
+                .append(TAIER_RESOURCE)
+                .append(File.separator)
+                .append(sftpFileName)
+                .toString();
+        SFTPHandler instance = null;
+        try {
+            instance = SFTPHandler.getInstance(sftpConf);
+            boolean success = instance.upload(remotePath, tmpFilePath);
+            AssertUtils.isTrue(success, "上传sftp异常");
+        } catch (Exception e) {
+            throw new DtCenterDefException(e.getMessage(), e);
+        } finally {
+            File tmpFile = new File(tmpFilePath);
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+        }
+        return remotePath;
     }
 
     /**
