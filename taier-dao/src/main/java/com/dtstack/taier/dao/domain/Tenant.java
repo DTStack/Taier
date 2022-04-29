@@ -33,6 +33,16 @@ public class Tenant extends BaseEntity {
 
     private String tenantDesc;
 
+    private String tenantIdentity;
+
+    public String getTenantIdentity() {
+        return tenantIdentity;
+    }
+
+    public void setTenantIdentity(String tenantIdentity) {
+        this.tenantIdentity = tenantIdentity;
+    }
+
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
     }

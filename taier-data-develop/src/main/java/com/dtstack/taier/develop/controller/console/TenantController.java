@@ -37,13 +37,7 @@ import io.swagger.annotations.Api;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -104,7 +98,7 @@ public class TenantController {
     }
 
     @PostMapping(value = "/addTenant")
-    public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
+    public R<Void> addTenant(@RequestParam("tenantName") String tenantName,@RequestParam("tenantIdentity") String tenantIdentity, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
         if(StringUtils.isBlank(tenantName)){
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
@@ -112,7 +106,7 @@ public class TenantController {
         if(null != tenant){
             throw new RdosDefineException("tenant has exist");
         }
-        tenantService.addTenant(tenantName,userId);
+        tenantService.addTenant(tenantName,userId,tenantIdentity);
         return R.empty();
     }
 
