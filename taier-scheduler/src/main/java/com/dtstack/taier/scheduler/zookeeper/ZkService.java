@@ -158,7 +158,6 @@ public class ZkService implements InitializingBean, DisposableBean {
         ZkConfig zkConfig = new ZkConfig();
         zkConfig.setNodeZkAddress(environmentContext.getNodeZkAddress());
         zkConfig.setLocalAddress(environmentContext.getLocalAddress());
-        zkConfig.setSecurity(environmentContext.getSecurity());
         this.zkConfig = zkConfig;
     }
 

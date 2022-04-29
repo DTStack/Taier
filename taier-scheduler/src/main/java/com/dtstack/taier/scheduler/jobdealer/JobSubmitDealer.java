@@ -101,7 +101,7 @@ public class JobSubmitDealer implements Runnable {
         jobLackingInterval = environmentContext.getJobLackingInterval();
         jobSubmitExpired = environmentContext.getJobSubmitExpired();
         jobLackingCountLimited = environmentContext.getJobLackingCountLimited();
-        checkJobMaxPriorityStrategy = environmentContext.getCheckJobMaxPriorityStrategy();
+        checkJobMaxPriorityStrategy = environmentContext.isCheckJobMaxPriorityStrategy();
         jobSubmitConcurrent = environmentContext.getJobSubmitConcurrent();
 
         this.localAddress = localAddress;
@@ -191,7 +191,7 @@ public class JobSubmitDealer implements Runnable {
                 if (!checkMaxPriority(jobResource)) {
                     LOGGER.info("jobId:{} checkMaxPriority is false, wait other node job which priority higher.", jobClient.getJobId());
                     queue.put(jobClient);
-                    Thread.sleep(jobLackingInterval);
+                    SleepUtil.sleep(jobLackingInterval);
                     continue;
                 }
 
