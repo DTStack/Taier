@@ -103,7 +103,7 @@ public class KerberosService {
      * @return
      */
     public String getLocalKerberosPath(Long sourceId) {
-        String kerberosPath = environmentContext.getKerberosLocalPath();
+        String kerberosPath = environmentContext.getTempDir();
         String key = getSourceKey(sourceId, null);
         return kerberosPath + File.separator + key;
     }

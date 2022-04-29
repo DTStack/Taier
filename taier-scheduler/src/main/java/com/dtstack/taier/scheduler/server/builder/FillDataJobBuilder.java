@@ -1,8 +1,8 @@
 package com.dtstack.taier.scheduler.server.builder;
 
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
@@ -13,7 +13,6 @@ import com.dtstack.taier.scheduler.enums.FillJobTypeEnum;
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -22,7 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +92,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     private void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
                                        String beginTime, String endTime) throws Exception {
         List<Long> allList = Lists.newArrayList(all);
-        List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobLimitSize());
+        List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobGraphTaskLimitSize());
         AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();
 
         for (List<Long> taskKey : partition) {

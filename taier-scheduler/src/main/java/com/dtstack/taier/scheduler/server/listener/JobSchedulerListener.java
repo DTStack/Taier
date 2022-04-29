@@ -114,7 +114,7 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
     }
 
     public Pair<String, String> getCycTimeLimit() {
-        Integer dayGap = environmentContext.getCycTimeDayGap();
+        Integer dayGap = environmentContext.getJobCycTimeGap();
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, dayGap-1);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -140,7 +140,7 @@ public class JobSchedulerListener implements DisposableBean, ApplicationListener
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         LOGGER.info("Initializing " + this.getClass().getName());
-        if (!environmentContext.openJobSchedule()) {
+        if (!environmentContext.isOpenJobSchedule()) {
             LOGGER.info("job schedule is not open!!!");
             return;
         }

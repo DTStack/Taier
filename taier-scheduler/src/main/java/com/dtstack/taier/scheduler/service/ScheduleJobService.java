@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.enums.ForceCancelFlag;
+import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
@@ -111,7 +114,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                         }
                     });
 
-            List<List<String>> partition = Lists.partition(restartJobId, environmentContext.getRestartOperatorRecordMaxSize());
+            List<List<String>> partition = Lists.partition(restartJobId, environmentContext.getBatchInsertSize());
             for (List<String> scheduleJobs : partition) {
                 Set<String> jobIds = new HashSet<>(scheduleJobs.size());
                 Set<ScheduleJobOperatorRecord> records = new HashSet<>(scheduleJobs.size());
@@ -164,7 +167,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         //1: 批量插入BatchJob
         //2: 批量插入BatchJobJobList
         int count = 0;
-        int jobBatchSize = environmentContext.getBatchJobInsertSize();
+        int jobBatchSize = environmentContext.getBatchInsertSize();
         int jobJobBatchSize = environmentContext.getBatchJobJobInsertSize();
         Long minJobId=null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();

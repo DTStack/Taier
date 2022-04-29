@@ -28,8 +28,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-
 
 /**
  * @author sishu.yss
@@ -42,98 +40,214 @@ public class EnvironmentContext implements InitializingBean {
     @Autowired
     private Environment environment;
 
-    /**
-     * =========base=======
-     */
-    public String getSecurity() {
-        return environment.getProperty("security");
-    }
+    @Value("${jdbc.driverClassName:com.mysql.jdbc.Driver}")
+    private String jdbcDriverClassName;
 
-    public Long getAcquireQueueJobInterval() {
-        return Long.parseLong(environment.getProperty("acquireQueueJobInterval", "3000"));
-    }
+    @Value("${jdbc.url:}")
+    private String jdbcUrl;
 
-    public Integer getCycTimeDayGap() {
-        return Math.abs(Integer.parseInt(environment.getProperty("cycTimeDayGap", "1")));
-    }
+    @Value("${jdbc.password:}")
+    private String jdbcPassword;
 
-    /**
-     * =========jdbc=======
-     */
-    public String getJdbcDriverClassName() {
-        return environment.getProperty("jdbc.driverClassName");
-    }
+    @Value("${jdbc.username:}")
+    private String jdbcUser;
 
-    public String getJdbcUrl() {
-        return environment.getProperty("jdbc.url");
-    }
+    @Value("${max.pool.size:100}")
+    private int maxPoolSize;
 
-    public String getJdbcPassword() {
-        return environment.getProperty("jdbc.password");
-    }
+    @Value("${min.pool.size:20}")
+    private int minPoolSize;
 
-    public String getJdbcUser() {
-        return environment.getProperty("jdbc.username");
-    }
+    @Value("${initial.pool.size:20}")
+    private int initialPoolSize;
 
-    public int getMaxPoolSize() {
-        return Integer.parseInt(environment.getProperty("max.pool.size", "500"));
-    }
+    @Value("${hadoop.user.name:admin}")
+    private String hadoopUserName;
 
-    public int getMinPoolSize() {
-        return Integer.parseInt(environment.getProperty("min.pool.size", "50"));
-    }
+    @Value("${hdfs.task.path:/dtInsight/taier/}")
+    private String hdfsTaskPath;
 
-    public int getInitialPoolSize() {
-        return Integer.parseInt(environment.getProperty("initial.pool.size", "50"));
-    }
+    @Value("${nodeZkAddress:}")
+    private String nodeZkAddress;
 
-    /**
-     * =========mybatis=======
-     */
+    @Value("${job.graph.build.cron:22:00:00}")
+    private String jobGraphBuildCron;
 
-    public String getMybatisMapperLocations() {
-        return environment.getProperty("mybatis.mapper-locations", "classpath*:sqlmap/**/*.xml");
-    }
+    @Value("${job.acquire.queue.job.interval:3000}")
+    private int jobAcquireQueueJobInterval;
 
-    public String getMybatisConfigLocation() {
-        return environment.getProperty("mybatis.config-location", "classpath:mybatis-config.xml");
-    }
+    @Value("${job.cyc.time.gap:2}")
+    private int jobCycTimeGap;
 
-    /**
-     * =========end=======
-     */
-    public Integer getHttpPort() {
-        return Integer.parseInt(environment.getProperty("http.port", "9020"));
-    }
+    @Value("${job.queue.size:500}")
+    private int queueSize;
 
-    private volatile String httpAddress;
+    @Value("${job.stop.delay:3000}")
+    private long jobStoppedDelay;
 
-    public String getHttpAddress() {
-        if (StringUtils.isNotBlank(httpAddress)) {
-            return httpAddress;
-        }
+    @Value("${job.stop.retry:6}")
+    private int jobStoppedRetry;
 
-        httpAddress = environment.getProperty("http.address", AddressUtil.getOneIp());
-        return httpAddress;
-    }
+    @Value("${job.restart.delay:120000}")
+    private long jobRestartDelay;
+
+    @Value("${job.lacking.delay:120000}")
+    private long jobLackingDelay;
+
+    @Value("${job.priority.step:3}")
+    private long jobPriorityStep;
+
+    @Value("${job.lacking.count.limited:3}")
+    private int jobLackingCountLimited;
+
+    @Value("${job.submit.expired:0}")
+    private long jobSubmitExpired;
+
+    @Value("${job.log.delay:5}")
+    private long jobLogDelay;
+
+    @Value("${job.compute.resource.plain:EngineTypeClusterQueueComputeType}")
+    private String computeResourcePlain;
+
+    @Value("${job.submit.concurrent:1}")
+    private int jobSubmitConcurrent;
+
+    @Value("${job.graph.builder:false}")
+    private boolean jobGraphBuilderSwitch;
+
+    @Value("${job.executor.pool.core.size:20}")
+    private Integer jobExecutorPoolCorePoolSize;
+
+    @Value("${job.executor.pool.maximum.size:20}")
+    private Integer jobExecutorPoolMaximumPoolSize;
+
+    @Value("${job.executor.pool.keep.alive.time:1000}")
+    private Integer jobExecutorPoolKeepAliveTime;
+
+    @Value("${job.executor.pool.queue.size:1000}")
+    private Integer jobExecutorPoolQueueSize;
+
+    @Value("${job.status.check.interval:3500}")
+    private Long jobStatusCheckInterVal;
+
+    @Value("${retry.frequency:3}")
+    private int retryFrequency;
+
+    @Value("${retry.interval:3500}")
+    private Long retryInterval;
+
+    @Value("${check.job.max.priority.strategy:false}")
+    private boolean checkJobMaxPriorityStrategy;
+
+    @Value("${task.status.dealer.pool.size:5}")
+    private int taskStatusDealerPoolSize;
+
+    @Value("${test.connect.timeout:5}")
+    private int testConnectTimeout;
+
+    @Value("${build.job.retry:5}")
+    private int buildJobErrorRetry;
+
+    @Value("${component.jdbc.replace:/default}")
+    private String componentJdbcToReplace;
+
+    @Value("${dataSource.min.evictable.idle.time.millis:300000}")
+    private Integer minEvictableIdleTimeMillis;
+
+    @Value("${dataSource.time.between.eviction.runs.millis:60000}")
+    private Integer timeBetweenEvictionRunsMillis;
+
+    @Value("${max.level:20}")
+    private Integer maxLevel;
+
+    @Value("${fork.join.timeout:300}")
+    private Long forkJoinResultTimeOut;
+
+    @Value("${job.schedule:true}")
+    private boolean openJobSchedule;
+
+    @Value("${dataSource.keep.alive:true}")
+    private boolean keepAlive;
+
+    @Value("${dataSource.remove.abandoned:true}")
+    private boolean removeAbandoned;
+
+    @Value("${dataSource.remove.abandoned.timeout:120}")
+    private Integer removeAbandonedTimeout;
+
+    @Value("${dataSource.test.while.idle:true}")
+    private boolean testWhileIdle;
+
+    @Value("${dataSource.test.on.borrow:true}")
+    private boolean testOnBorrow;
+
+    @Value("${dataSource.test.on.return:true}")
+    private boolean testOnReturn;
+
+    @Value("${dataSource.pool.prepared.statements:true}")
+    private boolean poolPreparedStatements;
+
+    @Value("${dataSource.max.prepared.statement.per.connection.size:20}")
+    private Integer maxPoolPreparedStatementPerConnectionSize;
+
+    @Value("${batch.insert.size:200}")
+    private Integer batchInsertSize;
+
+    @Value("${batch.insert.jobjob.size:500}")
+    private Integer batchJobJobInsertSize;
+
+    @Value("${fillData.threadPool.core.pool.size:2}")
+    private Integer fillDataThreadPoolCorePoolSize;
+
+    @Value("${fillData.threadPool.max.pool.size:20}")
+    private Integer maxFillDataThreadPoolSize;
+
+    @Value("${fillData.threadPool.queue.size:100}")
+    private Integer fillDataQueueCapacity;
+
+    @Value("${fill.data.limit.size:2000}")
+    private Integer fillDataLimitSize;
+
+    @Value("${fillData.max.level.size:1000}")
+    private Integer fillDataRootTaskMaxLevel;
+
+    @Value("${build.pool.core.pool.size:10}")
+    private Integer graphBuildPoolCorePoolSize;
+
+    @Value("${build.pool.maximum.pool.size:20}")
+    private Integer graphBuildPoolMaximumPoolSize;
+
+    @Value("${build.pool.queue.size:1000}")
+    private Integer graphBuildPoolQueueSize;
+
+    @Value("${max.task.build.thread:20}")
+    private Integer maxTaskBuildThread;
+
+    @Value("${job.graph.task.limit.size:50}")
+    private Integer jobGraphTaskLimitSize;
+
+    @Value("${create.table.type:parquet}")
+    private String createTableType;
+
+    @Value("${hdfs.batch.path:/taier/}")
+    private String hdfsBatchPath;
+
+    @Value("${temp.path:#{systemProperties['user.dir']}/temp}")
+    private String tempDir;
+
+    @Value("${explain.enable:true}")
+    private Boolean explainEnable;
+
+    @Value("${datasource.plugin.path:}")
+    private String dataSourcePluginPath;
+
+    @Value("${plugin.path:#{systemProperties['user.dir']}/pluginLibs}")
+    private String pluginPath;
 
 
-    /**
-     * ===============hadoop ===============
-     */
-
-    public String getHadoopUserName() {
-        return environment.getProperty("hadoop.user.name", "admin");
-    }
-
-
-    public String getJobGraphBuildCron() {
-        return environment.getProperty("batch.job.graph.build.cron", "22:00:00");
-    }
-
-    public String getHdfsTaskPath() {
-        return environment.getProperty("hdfs.task.path", "/dtInsight/task/");
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        ClientCache.setUserDir(getDataSourcePluginPath());
     }
 
     private volatile String localAddress;
@@ -149,45 +263,8 @@ public class EnvironmentContext implements InitializingBean {
         return localAddress;
     }
 
-    public String getNodeZkAddress() {
-        return environment.getProperty("nodeZkAddress");
-    }
-
-    public int getQueueSize() {
-        return Integer.parseInt(environment.getProperty("queueSize", "500"));
-    }
-
-    public int getJobStoppedRetry() {
-        return Integer.parseInt(environment.getProperty("jobStoppedRetry", "6"));
-    }
-
-    public long getJobStoppedDelay() {
-        return Integer.parseInt(environment.getProperty("jobStoppedDelay", "3000"));
-    }
-
-    /**
-     * plain 1:cluster、2:cluster+queue
-     *
-     * @return
-     */
-    public String getComputeResourcePlain() {
-        return environment.getProperty("computeResourcePlain", "EngineTypeClusterQueueComputeType");
-    }
-
-    public long getJobRestartDelay() {
-        return Long.parseLong(environment.getProperty("jobRestartDelay", Integer.toString(2 * 60 * 1000)));
-    }
-
-    public long getJobLackingDelay() {
-        return Long.parseLong(environment.getProperty("jobLackingDelay", Integer.toString(2 * 60 * 1000)));
-    }
-
-    public long getJobPriorityStep() {
-        return Long.parseLong(environment.getProperty("jobPriorityStep", "10000"));
-    }
-
     public long getJobLackingInterval() {
-        String intervalObj = environment.getProperty("jobLackingInterval");
+        String intervalObj = environment.getProperty("job.lacking.interval");
         if (StringUtils.isBlank(intervalObj)) {
             long interval = getJobLackingDelay() / getQueueSize();
             long defaultInterval = 3000L;
@@ -199,418 +276,279 @@ public class EnvironmentContext implements InitializingBean {
         return Long.parseLong(intervalObj);
     }
 
-    public int getJobLackingCountLimited() {
-        return Integer.parseInt(environment.getProperty("jobLackingCountLimited", "3"));
-    }
-
-    public long getJobSubmitExpired() {
-        return Long.parseLong(environment.getProperty("jobSubmitExpired", "0"));
-    }
-
-    public String getLocalKerberosDir() {
-        return environment.getProperty("local.kerberos.dir", System.getProperty("user.dir") + "/kerberosUploadTempDir");
-    }
-
-    public long getJobLogDelay() {
-        return Integer.parseInt(environment.getProperty("jobLogDelay", "30000"));
-    }
-
-    public boolean getCheckJobMaxPriorityStrategy() {
-        return Boolean.parseBoolean(environment.getProperty("checkJobMaxPriorityStrategy", "false"));
-    }
-
-    public int getTaskStatusDealerPoolSize() {
-        return Integer.parseInt(environment.getProperty("taskStatusDealerPoolSize", "10"));
-    }
-
-    public int getTestConnectTimeout() {
-        return Integer.parseInt(environment.getProperty("testConnectTimeout", "100"));
-    }
-
-    public int getBuildJobErrorRetry() {
-        return Integer.parseInt(environment.getProperty("build.job.retry", "3"));
-    }
-
-    public int getJobSubmitConcurrent() {
-        return Integer.parseInt(environment.getProperty("job.submit.concurrent", "1"));
-    }
-
-    public boolean getJobGraphBuilderSwitch() {
-        return Boolean.parseBoolean(environment.getProperty("jobGraphBuilderSwitch", "false"));
-    }
-
-    public Integer getJobExecutorPoolCorePoolSize() {
-        return Integer.valueOf(environment.getProperty("job.executor.pool.core.size", "10"));
-    }
-
-    public Integer getJobExecutorPoolMaximumPoolSize() {
-        return Integer.valueOf(environment.getProperty("job.executor.pool.maximum.size", "10"));
-    }
-
-    public Long getJobExecutorPoolKeepAliveTime() {
-        return Long.valueOf(environment.getProperty("job.executor.pool.keep.alive.time", "1000"));
-    }
-
-    public Integer getJobExecutorPoolQueueSize() {
-        return Integer.valueOf(environment.getProperty("job.executor.pool.queue.size", "1000"));
-    }
-
-    public Integer getRetryFrequency() {
-        return Integer.valueOf(environment.getProperty("retry.frequency", "3"));
-    }
-
-    public Integer getRetryInterval() {
-        return Integer.valueOf(environment.getProperty("retry.interval", "30000"));
-    }
-
-    public long getJobStatusCheckInterVal() {
-        return Long.parseLong(environment.getProperty("job.status.check.interval", "3500"));
-    }
-
-    public String getComponentJdbcToReplace() {
-        return environment.getProperty("component.jdbc.replace", "/default");
-    }
-
-
-    public Integer getMinEvictableIdleTimeMillis() {
-        return Integer.valueOf(environment.getProperty("dataSource.min.evictable.idle.time.millis", "300000"));
-    }
-
-    public Integer getTimeBetweenEvictionRunsMillis() {
-        return Integer.valueOf(environment.getProperty("dataSource.time.between.eviction.runs.millis", "60000"));
-    }
-
-    /**控制任务展开层数**/
-    public Integer getMaxLevel(){
-        return Integer.valueOf(environment.getProperty("max.level","20"));
-    }
-
-    /**
-     * 是否开启任务调度
-     *
-     * @return
-     */
-    public boolean openJobSchedule() {
-        return Boolean.parseBoolean(environment.getProperty("job.schedule", "true"));
-    }
-
-
-    public long getForkJoinResultTimeOut() {
-        return Long.parseLong(environment.getProperty("fork.join.timeout", Long.toString(60 * 5)));
-    }
-
-    public boolean getKeepAlive() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.keep.alive", "true"));
-    }
-
-    public boolean getRemoveAbandoned() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.remove.abandoned", "true"));
-    }
-
-    public Integer getRemoveAbandonedTimeout() {
-        return Integer.valueOf(environment.getProperty("dataSource.remove.abandoned.timeout", "120"));
-    }
-
-
-    public boolean getTestWhileIdle() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.test.while.idle", "true"));
-    }
-
-    public boolean getTestOnBorrow() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.borrow", "true"));
-    }
-
-    public boolean getTestOnReturn() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.test.on.return", "true"));
-    }
-
-    public boolean getPoolPreparedStatements() {
-        return Boolean.parseBoolean(environment.getProperty("dataSource.pool.prepared.statements", "true"));
-    }
-
-    public Integer getMaxPoolPreparedStatementPerConnectionSize() {
-        return Integer.valueOf(environment.getProperty("dataSource.max.prepared.statement.per.connection.size", "20"));
-    }
-
-    /**
-     * 是否根据版本加载默认的配置
-     *
-     * @return
-     */
-    public boolean isCanAddExtraConfig() {
-        return Boolean.parseBoolean(environment.getProperty("console.extra.config", "true"));
-    }
-
-    public String getPluginPath() {
-        return environment.getProperty("plugin.path",  System.getProperty("user.dir") + File.separator +"pluginLibs");
-    }
-
-    public int getBatchJobInsertSize() {
-        return Integer.parseInt(environment.getProperty("batchJob.insert.size", "20"));
-    }
-
-    public int getBatchJobJobInsertSize() {
-        return Integer.parseInt(environment.getProperty("batchJobJob.insert.size", "1000"));
-    }
-
-    public Integer getRestartOperatorRecordMaxSize() {
-        return Integer.parseInt(environment.getProperty("restart.operator.record.max.size", "200"));
-    }
-
-    public int getFillDataThreadPoolCorePoolSize() {
-        return Integer.parseInt(environment.getProperty("fillData.threadPool.core.pool.size", "2"));
-    }
-
-    public int getMaxFillDataThreadPoolSize() {
-        return Integer.parseInt(environment.getProperty("fillData.threadPool.max.pool.size", "20"));
-    }
-
-    public int getFillDataQueueCapacity() {
-        return Integer.parseInt(environment.getProperty("fillData.threadPool.queue.size", "100"));
-    }
-
-
-    public Integer getFillDataLimitSize() {
-        return Integer.parseInt(environment.getProperty("fill.data.limit.size", "2000"));
-    }
-
-    public Integer getFillDataRootTaskMaxLevel() {
-        return Integer.parseInt(environment.getProperty("fillData.max.level.size", "1000"));
-    }
-
-    public Integer getGraphBuildPoolCorePoolSize() {
-        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.core.pool.size", "20"));
-    }
-
-    public Integer getGraphBuildPoolMaximumPoolSize() {
-        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.maximum.pool.size", "20"));
-    }
-
-    public Integer getGraphBuildPoolQueueSize() {
-        return Integer.parseInt(environment.getProperty("fillData.job.graph.build.pool.queue.size", "1000"));
-    }
-
-    public Integer getJobLimitSize() {
-        return Integer.parseInt(environment.getProperty("fillData.job.limit.size", "50"));
-    }
-
-    public Integer getMaxTaskBuildThread() {
-        return Integer.parseInt(environment.getProperty("fillData.job.max.task.build.thread", "20"));
-    }
-
-
-    /* datadevelop */
-
-
-    @Value("${notify.sendtype.phone:false}")
-    private Boolean notifyPhone;
-
-    @Value("${create.table.type:parquet}")
-    private String createTableType;
-
-    @Value("${http.port:9020}")
-    private Integer httpPort;
-
-    @Value("${hadoop.user.name:admin}")
-    private String hadoopUserName;
-
-    @Value("${hdfs.batch.path:/dtInsight/batch/}")
-    private String hdfsBatchPath;
-
-    @Value("${public.service.node:}")
-    private String publicServiceNode;
-
-    @Value("${sync.log.promethues:true}")
-    private Boolean syncLogPromethues;
-
-    @Value("${kerberos.local.path:}")
-    private String kerberosLocalPath;
-
-    public String getKerberosLocalPath() {
-        return StringUtils.isNotBlank(kerberosLocalPath) ? kerberosLocalPath : String.format("%s%s%s",
-                System.getProperty("user.dir"), File.separator, "kerberosConf");
-    }
-
-    @Value("${kerberos.template.path:}")
-    private String kerberosTemplatePath;
-
-    public String getKerberosTemplatePath() {
-        return  StringUtils.isNotBlank(kerberosLocalPath) ? kerberosTemplatePath : String.format("%s%s%s%s%s",
-                System.getProperty("user.dir"), File.separator, "conf", File.separator, "kerberos");
-    }
-
-    @Value("${temp.table.lifecycle:1440}")
-    private Integer tempTableLifecycle;
-
-    @Value("${delete.life.time:7}")
-    private Integer deleteLifeTime;
-
-    @Value("${explain.enable:true}")
-    private Boolean explainEnable;
-
-    @Value("${table.limit:200}")
-    private Integer tableLimit;
-
-    /**
-     * 小文件合并的备份文件删除时间，单位：天
-     */
-    @Value("${delete.merge.file.time:7}")
-    private Long deleteMergeFileTime;
-
-    /**
-     * 数据保留天数
-     */
-    @Value("${data.keepDay:180}")
-    private Long dataKeepDay;
-
-    /**
-     * 数据源插件地址
-     */
-    @Value("${datasource.plugin.path:}")
-    private String dataSourcePluginPath;
-
-    @Value("${engine.console.upload.path:${user.dir}/upload}")
-    private String uploadPath;
-
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        ClientCache.setUserDir(getDataSourcePluginPath());
-    }
-
     public Environment getEnvironment() {
         return environment;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public String getJdbcDriverClassName() {
+        return jdbcDriverClassName;
     }
 
-    public void setHttpAddress(String httpAddress) {
-        this.httpAddress = httpAddress;
+    public String getJdbcUrl() {
+        return jdbcUrl;
     }
 
-    public void setLocalAddress(String localAddress) {
-        this.localAddress = localAddress;
+    public String getJdbcPassword() {
+        return jdbcPassword;
     }
 
-    public Boolean getNotifyPhone() {
-        return notifyPhone;
+    public String getJdbcUser() {
+        return jdbcUser;
     }
 
-    public void setNotifyPhone(Boolean notifyPhone) {
-        this.notifyPhone = notifyPhone;
+    public int getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
+    public int getMinPoolSize() {
+        return minPoolSize;
+    }
+
+    public int getInitialPoolSize() {
+        return initialPoolSize;
+    }
+
+    public String getHadoopUserName() {
+        return hadoopUserName;
+    }
+
+    public String getHdfsTaskPath() {
+        return hdfsTaskPath;
+    }
+
+    public String getNodeZkAddress() {
+        return nodeZkAddress;
+    }
+
+    public String getJobGraphBuildCron() {
+        return jobGraphBuildCron;
+    }
+
+    public int getJobAcquireQueueJobInterval() {
+        return jobAcquireQueueJobInterval;
+    }
+
+    public int getJobCycTimeGap() {
+        return jobCycTimeGap;
+    }
+
+    public int getQueueSize() {
+        return queueSize;
+    }
+
+    public long getJobStoppedDelay() {
+        return jobStoppedDelay;
+    }
+
+    public int getJobStoppedRetry() {
+        return jobStoppedRetry;
+    }
+
+    public long getJobRestartDelay() {
+        return jobRestartDelay;
+    }
+
+    public long getJobLackingDelay() {
+        return jobLackingDelay;
+    }
+
+    public long getJobPriorityStep() {
+        return jobPriorityStep;
+    }
+
+    public int getJobLackingCountLimited() {
+        return jobLackingCountLimited;
+    }
+
+    public long getJobSubmitExpired() {
+        return jobSubmitExpired;
+    }
+
+    public long getJobLogDelay() {
+        return jobLogDelay;
+    }
+
+    public String getComputeResourcePlain() {
+        return computeResourcePlain;
+    }
+
+    public int getJobSubmitConcurrent() {
+        return jobSubmitConcurrent;
+    }
+
+    public boolean isJobGraphBuilderSwitch() {
+        return jobGraphBuilderSwitch;
+    }
+
+    public Integer getJobExecutorPoolCorePoolSize() {
+        return jobExecutorPoolCorePoolSize;
+    }
+
+    public Integer getJobExecutorPoolMaximumPoolSize() {
+        return jobExecutorPoolMaximumPoolSize;
+    }
+
+    public Integer getJobExecutorPoolKeepAliveTime() {
+        return jobExecutorPoolKeepAliveTime;
+    }
+
+    public Integer getJobExecutorPoolQueueSize() {
+        return jobExecutorPoolQueueSize;
+    }
+
+    public Long getJobStatusCheckInterVal() {
+        return jobStatusCheckInterVal;
+    }
+
+    public int getRetryFrequency() {
+        return retryFrequency;
+    }
+
+    public Long getRetryInterval() {
+        return retryInterval;
+    }
+
+    public boolean isCheckJobMaxPriorityStrategy() {
+        return checkJobMaxPriorityStrategy;
+    }
+
+    public int getTaskStatusDealerPoolSize() {
+        return taskStatusDealerPoolSize;
+    }
+
+    public int getTestConnectTimeout() {
+        return testConnectTimeout;
+    }
+
+    public int getBuildJobErrorRetry() {
+        return buildJobErrorRetry;
+    }
+
+    public String getComponentJdbcToReplace() {
+        return componentJdbcToReplace;
+    }
+
+    public Integer getMinEvictableIdleTimeMillis() {
+        return minEvictableIdleTimeMillis;
+    }
+
+    public Integer getTimeBetweenEvictionRunsMillis() {
+        return timeBetweenEvictionRunsMillis;
+    }
+
+    public Integer getMaxLevel() {
+        return maxLevel;
+    }
+
+    public Long getForkJoinResultTimeOut() {
+        return forkJoinResultTimeOut;
+    }
+
+    public boolean isOpenJobSchedule() {
+        return openJobSchedule;
+    }
+
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+
+    public boolean isRemoveAbandoned() {
+        return removeAbandoned;
+    }
+
+    public Integer getRemoveAbandonedTimeout() {
+        return removeAbandonedTimeout;
+    }
+
+    public boolean isTestWhileIdle() {
+        return testWhileIdle;
+    }
+
+    public boolean isTestOnBorrow() {
+        return testOnBorrow;
+    }
+
+    public boolean isTestOnReturn() {
+        return testOnReturn;
+    }
+
+    public boolean isPoolPreparedStatements() {
+        return poolPreparedStatements;
+    }
+
+    public Integer getMaxPoolPreparedStatementPerConnectionSize() {
+        return maxPoolPreparedStatementPerConnectionSize;
+    }
+
+    public Integer getBatchInsertSize() {
+        return batchInsertSize;
+    }
+
+    public Integer getBatchJobJobInsertSize() {
+        return batchJobJobInsertSize;
+    }
+
+    public Integer getFillDataThreadPoolCorePoolSize() {
+        return fillDataThreadPoolCorePoolSize;
+    }
+
+    public Integer getMaxFillDataThreadPoolSize() {
+        return maxFillDataThreadPoolSize;
+    }
+
+    public Integer getFillDataQueueCapacity() {
+        return fillDataQueueCapacity;
+    }
+
+    public Integer getFillDataLimitSize() {
+        return fillDataLimitSize;
+    }
+
+    public Integer getFillDataRootTaskMaxLevel() {
+        return fillDataRootTaskMaxLevel;
+    }
+
+    public Integer getGraphBuildPoolCorePoolSize() {
+        return graphBuildPoolCorePoolSize;
+    }
+
+    public Integer getGraphBuildPoolMaximumPoolSize() {
+        return graphBuildPoolMaximumPoolSize;
+    }
+
+    public Integer getGraphBuildPoolQueueSize() {
+        return graphBuildPoolQueueSize;
+    }
+
+    public Integer getMaxTaskBuildThread() {
+        return maxTaskBuildThread;
+    }
+
+    public Integer getJobGraphTaskLimitSize() {
+        return jobGraphTaskLimitSize;
     }
 
     public String getCreateTableType() {
         return createTableType;
     }
 
-    public void setCreateTableType(String createTableType) {
-        this.createTableType = createTableType;
-    }
-
-    public void setHttpPort(Integer httpPort) {
-        this.httpPort = httpPort;
-    }
-
-    public void setHadoopUserName(String hadoopUserName) {
-        this.hadoopUserName = hadoopUserName;
-    }
-
     public String getHdfsBatchPath() {
         return hdfsBatchPath;
     }
 
-    public void setHdfsBatchPath(String hdfsBatchPath) {
-        this.hdfsBatchPath = hdfsBatchPath;
-    }
-
-    public String getPublicServiceNode() {
-        return publicServiceNode;
-    }
-
-    public void setPublicServiceNode(String publicServiceNode) {
-        this.publicServiceNode = publicServiceNode;
-    }
-
-    public Boolean getSyncLogPromethues() {
-        return syncLogPromethues;
-    }
-
-    public void setSyncLogPromethues(Boolean syncLogPromethues) {
-        this.syncLogPromethues = syncLogPromethues;
-    }
-
-    public void setKerberosLocalPath(String kerberosLocalPath) {
-        this.kerberosLocalPath = kerberosLocalPath;
-    }
-
-    public void setKerberosTemplatePath(String kerberosTemplatePath) {
-        this.kerberosTemplatePath = kerberosTemplatePath;
-    }
-
-    public Integer getTempTableLifecycle() {
-        return tempTableLifecycle;
-    }
-
-    public void setTempTableLifecycle(Integer tempTableLifecycle) {
-        this.tempTableLifecycle = tempTableLifecycle;
-    }
-
-    public Integer getDeleteLifeTime() {
-        return deleteLifeTime;
-    }
-
-    public void setDeleteLifeTime(Integer deleteLifeTime) {
-        this.deleteLifeTime = deleteLifeTime;
+    public String getTempDir() {
+        return tempDir;
     }
 
     public Boolean getExplainEnable() {
         return explainEnable;
     }
 
-    public void setExplainEnable(Boolean explainEnable) {
-        this.explainEnable = explainEnable;
-    }
-
-    public Integer getTableLimit() {
-        return tableLimit;
-    }
-
-    public void setTableLimit(Integer tableLimit) {
-        this.tableLimit = tableLimit;
-    }
-
-    public Long getDeleteMergeFileTime() {
-        return deleteMergeFileTime;
-    }
-
-    public void setDeleteMergeFileTime(Long deleteMergeFileTime) {
-        this.deleteMergeFileTime = deleteMergeFileTime;
-    }
-
-    public Long getDataKeepDay() {
-        return dataKeepDay;
-    }
-
-    public void setDataKeepDay(Long dataKeepDay) {
-        this.dataKeepDay = dataKeepDay;
-    }
-
     public String getDataSourcePluginPath() {
         return dataSourcePluginPath;
     }
 
-    public void setDataSourcePluginPath(String dataSourcePluginPath) {
-        this.dataSourcePluginPath = dataSourcePluginPath;
-    }
-
-    public String getUploadPath() {
-        return uploadPath;
-    }
-
-    public void setUploadPath(String uploadPath) {
-        this.uploadPath = uploadPath;
+    public String getPluginPath() {
+        return pluginPath;
     }
 }

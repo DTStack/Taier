@@ -1,8 +1,8 @@
 package com.dtstack.taier.scheduler.server.builder;
 
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.EScheduleType;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -46,7 +46,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
     private final Lock lock = new ReentrantLock();
 
     public void buildTaskJobGraph(String triggerDay) {
-        if (environmentContext.getJobGraphBuilderSwitch()) {
+        if (!environmentContext.isOpenJobSchedule()) {
             return;
         }
 
@@ -72,8 +72,8 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             }
             clearInterruptJob(triggerTime);
             // 2. 切割总数 限制 thread 并发
-            int totalBatch = totalTask / environmentContext.getJobLimitSize();
-            if (totalTask % environmentContext.getJobLimitSize() != 0) {
+            int totalBatch = totalTask / environmentContext.getJobGraphTaskLimitSize();
+            if (totalTask % environmentContext.getJobGraphTaskLimitSize() != 0) {
                 totalBatch++;
             }
 
@@ -87,7 +87,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                 // 取50个任务
                 final List<ScheduleTaskShade> batchTaskShades = scheduleTaskService.listRunnableTask(startId,
                         Lists.newArrayList(EScheduleStatus.NORMAL.getVal(), EScheduleStatus.FREEZE.getVal()),
-                        environmentContext.getJobLimitSize());
+                        environmentContext.getFillDataLimitSize());
 
                 // 如果取出来的任务集合是空的
                 if (CollectionUtils.isEmpty(batchTaskShades)) {
@@ -108,7 +108,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                                     // 插入周期实例
                                     savaJobList(scheduleJobDetails);
                                 } catch (Throwable e) {
-                                    LOGGER.error("build task failure taskId:{} apptype:{}",batchTaskShade.getTaskId(),null, e);
+                                    LOGGER.error("build task failure taskId:{}",batchTaskShade.getTaskId(), e);
                                 }
                             }
                         } catch (Throwable e) {
