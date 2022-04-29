@@ -57,6 +57,9 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "任务类型", example = "0", required = true)
     private Integer taskType;
 
+    @ApiModelProperty(value = "udf类型", example = "0", required = true)
+    private Integer udfType;
+
     @ApiModelProperty(value = "函数资源名称", example = "test_name")
     private String resourceName;
 
@@ -236,5 +239,12 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
 
     public void setResourceId(Long resourceId) {
         this.resourceId = resourceId;
+    }
+    public Integer getUdfType() {
+        return udfType;
+    }
+
+    public void setUdfType(Integer udfType) {
+        this.udfType = udfType;
     }
 }
