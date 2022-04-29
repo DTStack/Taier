@@ -126,14 +126,16 @@ export default () => {
 	useLayoutEffect(() => {
 		listener.setVisible = setVisible;
 
-		if (isLogin) {
-			getTenantList();
-		}
-
 		return () => {
 			Reflect.deleteProperty(listener, 'setVisible');
 		};
 	}, []);
+
+	useLayoutEffect(() => {
+		if (isModalVisible && isLogin) {
+			getTenantList();
+		}
+	}, [isModalVisible]);
 
 	const renderLoginForm = () => {
 		return (
