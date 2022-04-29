@@ -79,6 +79,21 @@ public class BatchResourceAddDTO {
      */
     private Long createUserId;
 
+    /**
+     * 实时暂时上传到sftp , 离线上传到hdfs
+     */
+    private Integer computeType;
+
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
+
     public String getResourceName() {
         return resourceName;
     }
