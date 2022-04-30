@@ -18,28 +18,17 @@
 
 package com.dtstack.taier.develop.controller.develop;
 
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
 import com.dtstack.taier.dao.pager.PageResult;
-import com.dtstack.taier.develop.dto.devlop.FlinkServerLogVO;
-import com.dtstack.taier.develop.dto.devlop.FlinkSqlTaskManagerVO;
-import com.dtstack.taier.develop.dto.devlop.RuntimeLogResultVO;
-import com.dtstack.taier.develop.dto.devlop.ServerLogsVO;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
+import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
+import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
-import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
-import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
-import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
-import com.dtstack.taier.develop.vo.develop.query.StartTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.*;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import io.swagger.annotations.Api;
@@ -72,14 +61,38 @@ public class DevelopFlinkController {
     @ApiOperation(value = "运行FlinkSQL任务")
     @PostMapping(value = "start")
     public R<StartFlinkResultVO> startFlinkTask(@RequestBody StartFlinkSqlVO vo) {
-        return R.ok(flinkTaskService.startFlinkTask(vo.getTaskId(), vo.getExternalPath()));
+        return new APITemplate<StartFlinkResultVO>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+                if(null == vo.getTaskId()){
+                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                }
+            }
+
+            @Override
+            protected StartFlinkResultVO process() throws RdosDefineException {
+                return flinkTaskService.startFlinkTask(vo.getTaskId(), vo.getExternalPath());
+            }
+        }.execute();
     }
 
 
     @ApiOperation(value = "停止FlinkSQL任务")
     @PostMapping(value = "stop")
     public R<Boolean> stopFlinkTask(@RequestBody StartFlinkSqlVO vo) {
-        return R.ok(flinkTaskService.stopStreamTask(vo.getTaskId()));
+        return new APITemplate<Boolean>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+                if(null == vo.getTaskId()){
+                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                }
+            }
+
+            @Override
+            protected Boolean process() throws RdosDefineException {
+                return flinkTaskService.stopStreamTask(vo.getTaskId());
+            }
+        }.execute();
     }
 
     @PostMapping(value = "/grammarCheck")
