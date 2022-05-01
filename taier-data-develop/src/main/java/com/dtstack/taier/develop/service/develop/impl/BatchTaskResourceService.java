@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchResource;
@@ -137,8 +138,9 @@ public class BatchTaskResourceService {
 
     public BatchTaskResource addOrUpdate(BatchTaskResource batchTaskResource) {
         if (batchTaskResource.getId() > 0) {
-            developTaskResourceDao.update(batchTaskResource);
+            developTaskResourceDao.updateById(batchTaskResource);
         } else {
+            batchTaskResource.setIsDeleted(Deleted.NORMAL.getStatus());
             developTaskResourceDao.insert(batchTaskResource);
         }
         return batchTaskResource;

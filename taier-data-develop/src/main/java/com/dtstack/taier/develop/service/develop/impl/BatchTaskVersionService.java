@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
@@ -50,6 +51,7 @@ public class BatchTaskVersionService {
      * @return
      */
     public Integer insert(TaskVersion taskVersion) {
+        taskVersion.setIsDeleted(Deleted.NORMAL.getStatus());
         return developTaskVersionDao.insert(taskVersion);
     }
 
@@ -115,16 +117,6 @@ public class BatchTaskVersionService {
      */
     public BatchTaskVersionDetailDTO getBytaskIdAndVersionId(Long taskId, Long versionId){
         return developTaskVersionDao.getBytaskIdAndVersionId(taskId, versionId);
-    }
-
-    /**
-     * 根据taskId versionId 查询固定记录
-     * @param taskId
-     * @param version
-     * @return
-     */
-    public BatchTaskVersion getByTaskIdAndVersion(Long taskId, Integer version){
-        return developTaskVersionDao.getByTaskIdAndVersion(taskId, version);
     }
 
 }
