@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTenantComponentDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +39,21 @@ public class DevelopTenantComponentService {
     @Autowired
     private DevelopTenantComponentDao developTenantComponentDao;
 
+    /**
+     * 根据 tenantId、taskType 查询组件信息
+     *
+     */
     public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
-        return developTenantComponentDao.getByTenantAndTaskType(tenantId, taskType);
+        return developTenantComponentDao.selectOne(Wrappers.lambdaQuery(TenantComponent.class)
+                        .eq(TenantComponent::getTenantId,tenantId)
+                        .eq(TenantComponent::getTaskType,taskType)
+                        .eq(TenantComponent::getIsDeleted, Deleted.NORMAL.getStatus())
+                        .last("limit 1"));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean insert(TenantComponent tenantComponent) {
+    public int insert(TenantComponent tenantComponent) {
+        tenantComponent.setIsDeleted(Deleted.NORMAL.getStatus());
         return developTenantComponentDao.insert(tenantComponent);
     }
 

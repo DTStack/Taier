@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
@@ -50,10 +52,6 @@ public class BatchTaskParamShadeService {
     @Autowired
     private BatchSysParamService batchSysParamService;
 
-    public void clearDataByTaskId(Long taskId) {
-        developTaskParamShadeDao.deleteByTaskId(taskId);
-    }
-
     public void saveTaskParam(List<BatchTaskParam> paramList) {
         for (BatchTaskParam batchTaskParam : paramList) {
             BatchTaskParamShade paramShade = new BatchTaskParamShade();
@@ -66,18 +64,27 @@ public class BatchTaskParamShadeService {
         if (StringUtils.isBlank(batchTaskParamShade.getParamCommand())) {
             throw new RdosDefineException("自定义参数赋值不能为空");
         }
-        BatchTaskParamShade dbTaskParam = developTaskParamShadeDao.getByTypeAndName(batchTaskParamShade.getTaskId(), batchTaskParamShade.getType(), batchTaskParamShade.getParamName());
+        BatchTaskParamShade dbTaskParam = developTaskParamShadeDao.selectOne(Wrappers.lambdaQuery(BatchTaskParamShade.class)
+                                    .eq(BatchTaskParamShade::getTaskId,batchTaskParamShade.getTaskId())
+                                    .eq(BatchTaskParamShade::getType,batchTaskParamShade.getType())
+                                    .eq(BatchTaskParamShade::getParamName, batchTaskParamShade.getParamName())
+                                    .eq(BatchTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus())
+                                    .last("limit 1"));
         if (Objects.nonNull(dbTaskParam)) {
             dbTaskParam.setParamCommand(batchTaskParamShade.getParamCommand());
             dbTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            developTaskParamShadeDao.update(dbTaskParam);
+            developTaskParamShadeDao.updateById(dbTaskParam);
         } else {
+            batchTaskParamShade.setIsDeleted(Deleted.NORMAL.getStatus());
             developTaskParamShadeDao.insert(batchTaskParamShade);
         }
     }
 
     public List<BatchTaskParamShade> getTaskParam(long taskId) {
-        List<BatchTaskParamShade> taskParamShades = developTaskParamShadeDao.listByTaskId(taskId);
+
+        List<BatchTaskParamShade> taskParamShades = developTaskParamShadeDao.selectList(Wrappers.lambdaQuery(BatchTaskParamShade.class)
+                                    .eq(BatchTaskParamShade::getTaskId,taskId)
+                                    .eq(BatchTaskParamShade::getIsDeleted,Deleted.NORMAL.getStatus()));
 
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParamShade taskParamShade : taskParamShades) {

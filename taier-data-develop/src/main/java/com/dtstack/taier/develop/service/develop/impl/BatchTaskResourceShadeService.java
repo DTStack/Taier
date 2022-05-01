@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.domain.BatchTaskResourceShade;
@@ -46,7 +48,8 @@ public class BatchTaskResourceShadeService {
     private DevelopTaskResourceShadeDao developTaskResourceShadeDao;
 
     public void clearDataByTaskId(Long taskId) {
-        developTaskResourceShadeDao.deleteByTaskId(taskId);
+        developTaskResourceShadeDao.delete(Wrappers.lambdaQuery(BatchTaskResourceShade.class)
+                                        .eq(BatchTaskResourceShade::getTaskId,taskId));
         logger.info(String.format("clear taskResource success  taskId = %s",taskId));
     }
 
@@ -63,12 +66,13 @@ public class BatchTaskResourceShadeService {
     public void addOrUpdate(BatchTaskResourceShade batchTaskResourceShade) {
         if (batchTaskResourceShade.getId()!= null && batchTaskResourceShade.getId()>0) {
             //查询是否传入参数有问题
-            BatchTaskResourceShade one = developTaskResourceShadeDao.getOne(batchTaskResourceShade.getId());
+            BatchTaskResourceShade one = developTaskResourceShadeDao.selectById(batchTaskResourceShade.getId());
             if (one == null){
                 throw new RdosDefineException(String.format("未查询到id = %s对应的记录", batchTaskResourceShade.getId()));
             }
-            developTaskResourceShadeDao.update(batchTaskResourceShade);
+            developTaskResourceShadeDao.updateById(batchTaskResourceShade);
         } else {
+            batchTaskResourceShade.setIsDeleted(Deleted.NORMAL.getStatus());
             developTaskResourceShadeDao.insert(batchTaskResourceShade);
         }
     }
@@ -80,6 +84,7 @@ public class BatchTaskResourceShadeService {
      * @return
      */
     public Integer deleteByTaskId(Long taskId) {
-        return developTaskResourceShadeDao.deleteByTaskId(taskId);
+        return developTaskResourceShadeDao.delete(Wrappers.lambdaQuery(BatchTaskResourceShade.class)
+                .eq(BatchTaskResourceShade::getTaskId,taskId));
     }
 }

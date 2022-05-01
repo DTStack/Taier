@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import com.dtstack.taier.dao.mapper.DevelopFunctionResourceDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,7 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void insert(BatchFunctionResource batchFunctionResource) {
+        batchFunctionResource.setIsDeleted(Deleted.NORMAL.getStatus());
         developFunctionResourceDao.insert(batchFunctionResource);
     }
 
@@ -46,7 +49,9 @@ public class BatchFunctionResourceService {
      * @param batchFunctionResource
      */
     public void updateByFunctionId(BatchFunctionResource batchFunctionResource) {
-        developFunctionResourceDao.update(batchFunctionResource);
+        developFunctionResourceDao.update(batchFunctionResource,Wrappers.lambdaUpdate(BatchFunctionResource.class)
+                                    .eq(BatchFunctionResource::getFunctionId,batchFunctionResource.getFunctionId())
+                                    .eq(BatchFunctionResource::getIsDeleted,Deleted.NORMAL.getStatus()));
     }
 
     /**
