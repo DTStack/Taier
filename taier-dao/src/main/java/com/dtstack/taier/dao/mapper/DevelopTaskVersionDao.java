@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
@@ -30,11 +31,9 @@ import java.util.List;
 /**
  * @author: toutian
  */
-public interface DevelopTaskVersionDao {
+public interface DevelopTaskVersionDao extends BaseMapper<TaskVersion> {
 
     List<BatchTaskVersionDetailDTO> listByTaskId(@Param("taskId") Long taskId, @Param("pageQuery") PageQuery pageQuery);
-
-    Integer insert(TaskVersion taskVersion);
 
     BatchTaskVersionDetailDTO getByVersionId(@Param("versionId") Long versionId);
 
@@ -49,7 +48,5 @@ public interface DevelopTaskVersionDao {
     Integer getMaxVersionId(@Param("taskId") Long taskId);
 
     BatchTaskVersionDetailDTO getBytaskIdAndVersionId(@Param("taskId") Long taskId, @Param("versionId") Long versionId);
-
-    BatchTaskVersion getByTaskIdAndVersion(@Param("taskId") Long taskId, @Param("version") Integer version);
 
 }

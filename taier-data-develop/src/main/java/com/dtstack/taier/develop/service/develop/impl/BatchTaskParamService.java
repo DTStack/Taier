@@ -20,7 +20,9 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.constant.FormNames;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -227,22 +229,23 @@ public class BatchTaskParamService {
      * @param batchParamDTOS
      */
     public List<BatchTaskParam> saveTaskParams(final Long taskId, final List<BatchParamDTO> batchParamDTOS) {
-        this.developTaskParamDao.deleteByTaskId(taskId);
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(BatchTaskParam.class).eq(BatchTaskParam::getTaskId,taskId));
         final List<BatchTaskParam> batchTaskParams = this.buildBatchTaskParams(taskId, batchParamDTOS);
         return batchTaskParams;
     }
 
     public BatchTaskParam addOrUpdate(final BatchTaskParam batchTaskParam) {
         if (batchTaskParam.getId() > 0) {
-            this.developTaskParamDao.update(batchTaskParam);
+            this.developTaskParamDao.updateById(batchTaskParam);
         } else {
+            batchTaskParam.setIsDeleted(Deleted.NORMAL.getStatus());
             this.developTaskParamDao.insert(batchTaskParam);
         }
         return batchTaskParam;
     }
 
     public void deleteTaskParam(long taskId) {
-        this.developTaskParamDao.deleteByTaskId(taskId);
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(BatchTaskParam.class).eq(BatchTaskParam::getTaskId,taskId));
     }
 
     public List<BatchTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
@@ -297,7 +300,9 @@ public class BatchTaskParamService {
     }
 
     public List<BatchTaskParam> getTaskParam(final long taskId) {
-        List<BatchTaskParam> taskParams = developTaskParamDao.listByTaskId(taskId);
+        List<BatchTaskParam> taskParams = developTaskParamDao.selectList(Wrappers.lambdaQuery(BatchTaskParam.class)
+                                .eq(BatchTaskParam::getTaskId,taskId)
+                                .eq(BatchTaskParam::getIsDeleted,Deleted.NORMAL.getStatus()));
         // 特殊处理 TaskParam 系统参数
         for (BatchTaskParam taskParamShade : taskParams) {
             if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {

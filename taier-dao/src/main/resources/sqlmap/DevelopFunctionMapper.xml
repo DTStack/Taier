@@ -60,12 +60,6 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchFunction">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM develop_function
-        WHERE id = #{id} AND is_deleted = 0
-    </select>
 
     <select id="listByNodePidAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchFunction">
         SELECT
@@ -136,22 +130,6 @@
         FROM develop_function
         WHERE name = #{name} and tenant_id = #{tenantId} and is_deleted = 0 limit 1
     </select>
-
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchFunction" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO develop_function
-        (name, class_name, purpose, command_formate, param_desc, node_pid, tenant_id, create_user_id,
-         modify_user_id,udf_type, type, gmt_create, gmt_modified, is_deleted,task_type,sql_text)
-        VALUES (#{name}, #{className}, #{purpose}, #{commandFormate}, #{paramDesc}, #{nodePid}, #{tenantId},
-                #{createUserId}, #{createUserId}, #{udfType},#{type}, now(), now(), 0,#{taskType},#{sqlText})
-    </insert>
-
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchFunction">
-        UPDATE
-        develop_function
-        <include refid="update_fragment"/>
-        WHERE
-        id = #{id} AND is_deleted = 0
-    </update>
 
     <select id="listNameByTenantId" resultType="java.lang.String">
         SELECT name

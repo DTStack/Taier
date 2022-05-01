@@ -19,12 +19,7 @@
         order by rb.${pageQuery.orderBy} ${pageQuery.sort} limit #{pageQuery.start} , #{pageQuery.pageSize}
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskVersion" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO develop_task_version
-          (tenant_id,task_id,origin_sql,sql_text,publish_desc,create_user_id,version,task_params,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted)
-        VALUES
-          (#{tenantId},#{taskId},#{originSql},#{sqlText},#{publishDesc},#{createUserId},#{version},#{taskParams},#{scheduleConf},#{scheduleStatus},#{dependencyTaskIds},now(),now(),#{isDeleted})
-    </insert>
+
 
     <select id="getByVersionId" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
         select
@@ -91,7 +86,7 @@
         WHERE task_id = #{taskId} and is_deleted = 0
     </select>
 
-    <select id="getByTaskIdAndVersion" resultType="com.dtstack.taier.dao.domain.BatchTaskVersion">
+    <select id="getByTaskIdAndVersion" resultType="com.dtstack.taier.dao.domain.TaskVersion">
         select
         <include refid="select_content_fragment"/>
         from develop_task_version
