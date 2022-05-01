@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.constant.PatternConstant;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
@@ -141,7 +142,9 @@ public class BatchFunctionService {
      * @return
      */
     public BatchFunctionVO getFunction(Long functionId) {
-        BatchFunction batchFunction = developFunctionDao.getOne(functionId);
+        BatchFunction batchFunction = developFunctionDao.selectOne(Wrappers.lambdaQuery(BatchFunction.class)
+                .eq(BatchFunction::getId,functionId)
+                .eq(BatchFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(batchFunction)) {
             return new BatchFunctionVO();
         }
@@ -253,8 +256,9 @@ public class BatchFunctionService {
      */
     private BatchFunction addOrUpdate(BatchFunction batchFunction) {
         if (batchFunction.getId() > 0) {
-            developFunctionDao.update(batchFunction);
+            developFunctionDao.updateById(batchFunction);
         } else {
+            batchFunction.setIsDeleted(Deleted.NORMAL.getStatus());
             developFunctionDao.insert(batchFunction);
         }
         return batchFunction;
@@ -267,7 +271,9 @@ public class BatchFunctionService {
      * @param nodePid
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
-        BatchFunction bf = developFunctionDao.getOne(functionId);
+        BatchFunction bf = developFunctionDao.selectOne(Wrappers.lambdaQuery(BatchFunction.class)
+                .eq(BatchFunction::getId,functionId)
+                .eq(BatchFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(bf)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
@@ -288,7 +294,9 @@ public class BatchFunctionService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteFunction(Long userId, Long functionId) {
-        BatchFunction batchFunction = developFunctionDao.getOne(functionId);
+        BatchFunction batchFunction = developFunctionDao.selectOne(Wrappers.lambdaQuery(BatchFunction.class)
+                .eq(BatchFunction::getId,functionId)
+                .eq(BatchFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(batchFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }

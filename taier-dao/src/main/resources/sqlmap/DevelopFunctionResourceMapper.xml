@@ -27,12 +27,6 @@
         </set>
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchFunctionResource" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO develop_function_resource
-          (function_id,resource_id,gmt_create,gmt_modified,is_deleted,tenant_id)
-        VALUES
-            (#{functionId},#{resourceId},now(),now(),0,#{tenantId})
-    </insert>
 
     <select id="listByFunctionId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
         SELECT resource_id AS resource_id,
@@ -47,13 +41,6 @@
         FROM develop_function_resource
         WHERE resource_id = #{resourceId} AND is_deleted = 0
     </select>
-
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchFunctionResource">
-        UPDATE develop_function_resource
-        <include refid="update_fragment"/>
-        WHERE
-        function_id = #{functionId} AND is_deleted = 0
-    </update>
 
     <update id="deleteByFunctionId">
         update develop_function_resource set is_deleted = 1

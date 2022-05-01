@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,53 +32,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public interface DevelopTenantComponentDao {
+public interface DevelopTenantComponentDao extends BaseMapper<TenantComponent> {
 
-    /**
-     * 根据 tenantId 查询租户下所有的组件
-     * @param tenantId
-     * @return
-     */
-    List<TenantComponent> getByTenantId(@Param("tenantId") Long tenantId);
-
-    /**
-     * 插入租户组件信息
-     * @param tenantComponent
-     * @return
-     */
-    boolean insert(TenantComponent tenantComponent);
-
-    /**
-     * 根据 tenantId、taskType 查询组件信息
-     * @param tenantId
-     * @param taskType
-     * @return
-     */
-    TenantComponent getByTenantAndTaskType(@Param("tenantId") Long tenantId, @Param("taskType") Integer taskType);
-
-    /**
-     * 根据 tenantId 查询组件信息
-     * @param tenantId
-     * @return
-     */
-    List<Integer> getUsedTaskTypeList(@Param("tenantId") Long tenantId);
-
-    /**
-     * 根据 tenantId、componentIdentity、taskType
-     * @param tenantId
-     * @param componentIdentity 组件标识
-     * @param taskType
-     * @return
-     */
-    TenantComponent getByTenantIdAndComponentIdentity(@Param("tenantId") Long tenantId, @Param("componentIdentity") String componentIdentity, @Param("taskType") Integer taskType);
-
-
-    /**
-     * 根据租户Id删除租户下的组件
-     * @param tenantId
-     * @param modifyUserId
-     * @return
-     */
-    Integer deleteByTenantId(@Param("tenantId") Long tenantId, @Param("modifyUserId") Long modifyUserId);
 
 }

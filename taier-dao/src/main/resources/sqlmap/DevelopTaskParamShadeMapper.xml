@@ -35,33 +35,6 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM develop_task_param_shade
-        WHERE id = #{id} AND is_deleted = 0
-    </select>
-
-    <select id="getByTypeAndName" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM develop_task_param_shade
-        WHERE task_id = #{taskId} AND type = #{type} AND param_name = #{paramName} AND is_deleted = 0 limit 1
-    </select>
-
-    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
-        SELECT
-        <include refid="select_content_fragment"/>
-        FROM develop_task_param_shade
-        WHERE task_id = #{taskId} AND is_deleted = 0
-    </select>
-
-    <update id="deleteByTaskId">
-        UPDATE develop_task_param_shade
-        SET is_deleted = 1, gmt_modified = NOW()
-        WHERE task_id = #{taskId}
-    </update>
-
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskParamShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_task_param_shade
           (task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted)
