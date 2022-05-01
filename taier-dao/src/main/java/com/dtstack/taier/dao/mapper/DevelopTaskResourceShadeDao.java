@@ -18,40 +18,13 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskResourceShade;
 import org.apache.ibatis.annotations.Param;
 
 /**
  * Created by jiangbo on 2017/5/3 0003.
  */
-public interface DevelopTaskResourceShadeDao {
-
-    /**
-     * 根据 Id 查询
-     * @param id
-     * @return
-     */
-    BatchTaskResourceShade getOne(@Param("id") Long id);
-
-    /**
-     * 根据 任务Id 查询
-     * @param taskId
-     * @return
-     */
-    Integer deleteByTaskId(@Param("taskId") long taskId);
-
-    /**
-     * 插入任务资源
-     * @param batchTaskResourceShade
-     * @return
-     */
-    Integer insert(BatchTaskResourceShade batchTaskResourceShade);
-
-    /**
-     * 更新任务资源
-     * @param batchTaskResourceShade
-     * @return
-     */
-    Integer update(BatchTaskResourceShade batchTaskResourceShade);
+public interface DevelopTaskResourceShadeDao  extends BaseMapper<BatchTaskResourceShade>{
 
 }

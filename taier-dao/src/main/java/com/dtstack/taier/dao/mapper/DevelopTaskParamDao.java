@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,15 +30,6 @@ import java.util.List;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public interface DevelopTaskParamDao {
+public interface DevelopTaskParamDao extends BaseMapper<BatchTaskParam> {
 
-    Integer deleteByTaskId(@Param("taskId") long taskId);
-
-    List<BatchTaskParam> listByTaskId(@Param("taskId") long taskId);
-
-    Integer insert(BatchTaskParam batchTaskParam);
-
-    Integer batchInsert(@Param("list") List<BatchTaskParam> batchTaskParamList);
-
-    Integer update(BatchTaskParam batchTaskParam);
 }

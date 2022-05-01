@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,62 +32,6 @@ import java.util.List;
  * @ahthor xuchao
  */
 
-public interface DevelopTaskTaskDao {
+public interface DevelopTaskTaskDao extends BaseMapper<BatchTaskTask> {
 
-    /**
-     * 根据 任务Id 查询锁列表
-     * @param taskId
-     * @return
-     */
-    List<BatchTaskTask> listByTaskId(@Param("taskId") Long taskId);
-
-    /**
-     * 根据 父任务Id 查询锁列表
-     * @param parentTaskId
-     * @return
-     */
-    List<BatchTaskTask> listByParentTaskId(@Param("parentTaskId") Long parentTaskId);
-
-    /**
-     * 根据 任务id  删除锁
-     * @param taskId
-     * @return
-     */
-    Integer deleteByTaskId(@Param("taskId") Long taskId);
-
-    /**
-     * 根据 Id 删除锁
-     * @param id
-     * @return
-     */
-    Integer delete(@Param("id") Long id);
-
-    /**
-     * 插入锁
-     * @param batchTaskTask
-     * @return
-     */
-    Integer insert(BatchTaskTask batchTaskTask);
-
-    /**
-     * 更新锁
-     * @param batchTaskTask
-     * @return
-     */
-    Integer update(BatchTaskTask batchTaskTask);
-
-    /**
-     * 根据父任务id删除项目
-     * @param parentId
-     * @return
-     */
-    Integer deleteByParentId(@Param("parentId") Long parentId);
-
-
-    /**
-     * 根据任务Id，获取所有父任务的id
-     * @param taskId
-     * @return
-     */
-    List<Long> listParentTaskIdByTaskId(@Param("taskId") Long taskId);
 }

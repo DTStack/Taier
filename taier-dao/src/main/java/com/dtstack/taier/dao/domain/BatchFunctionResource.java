@@ -18,11 +18,52 @@
 
 package com.dtstack.taier.dao.domain;
 
-public class BatchFunctionResource extends TenantEntity {
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.sql.Timestamp;
+
+@TableName("develop_function_resource")
+public class BatchFunctionResource{
+
+    @TableField("function_id")
     private Long functionId;
 
+    @TableField("resourceId")
     private Long resourceId;
+
+    @TableId(value="id", type= IdType.AUTO)
+    private Long id = 0L;
+
+    @TableField("is_deleted")
+    private Integer isDeleted = 0;
+
+    /**
+     * 租户Id
+     */
+    @TableField("tenant_id")
+    private Long tenantId;
+
+    /**
+     * 实体创建时间
+     */
+    @TableField(
+            value = "gmt_create",
+            fill = FieldFill.INSERT
+    )
+    private Timestamp gmtCreate;
+    /**
+     * 实体修改时间
+     */
+    @TableField(
+            value = "gmt_modified",
+            fill = FieldFill.INSERT_UPDATE
+    )
+    private Timestamp gmtModified;
 
     public Long getFunctionId() {
         return functionId;
@@ -38,5 +79,45 @@ public class BatchFunctionResource extends TenantEntity {
 
     public void setResourceId(Long resourceId) {
         this.resourceId = resourceId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Timestamp getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
     }
 }

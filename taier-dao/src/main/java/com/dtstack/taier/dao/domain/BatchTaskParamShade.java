@@ -19,6 +19,14 @@
 package com.dtstack.taier.dao.domain;
 
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.sql.Timestamp;
+
 /**
  * Reason:
  * Date: 2017/6/7
@@ -26,15 +34,44 @@ package com.dtstack.taier.dao.domain;
  *
  * @ahthor xuchao
  */
-public class BatchTaskParamShade extends BaseEntity {
+@TableName("develop_task_param_shade")
+public class BatchTaskParamShade{
 
+    @TableField("task_id")
     private Long taskId;
 
+    @TableField("type")
     private Integer type;
 
+    @TableField("param_name")
     private String paramName;
 
+    @TableField("param_command")
     private String paramCommand;
+
+    @TableId(value="id", type= IdType.AUTO)
+    private Long id = 0L;
+
+    @TableField("is_deleted")
+    private Integer isDeleted = 0;
+
+    /**
+     * 实体创建时间
+     */
+    @TableField(
+            value = "gmt_create",
+            fill = FieldFill.INSERT
+    )
+    private Timestamp gmtCreate;
+    /**
+     * 实体修改时间
+     */
+    @TableField(
+            value = "gmt_modified",
+            fill = FieldFill.INSERT_UPDATE
+    )
+    private Timestamp gmtModified;
+
 
     public Long getTaskId() {
         return taskId;
@@ -66,5 +103,37 @@ public class BatchTaskParamShade extends BaseEntity {
 
     public void setParamCommand(String paramCommand) {
         this.paramCommand = paramCommand;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Timestamp getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
     }
 }
