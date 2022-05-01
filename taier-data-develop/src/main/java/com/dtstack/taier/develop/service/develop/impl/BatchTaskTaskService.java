@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.BatchTaskTask;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
@@ -62,7 +64,10 @@ public class BatchTaskTaskService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateTaskTask(Long taskId, List<TaskVO> dependencyTasks) {
-        List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(taskId);
+        List<BatchTaskTask> taskTasks =  developTaskTaskDao.selectList(Wrappers.lambdaQuery(BatchTaskTask.class)
+                                    .eq(BatchTaskTask::getTaskId,taskId)
+                                    .eq(BatchTaskTask::getIsDeleted, Deleted.NORMAL.getStatus())
+                                    .orderBy(true,false,BatchTaskTask::getGmtModified));
         List<BatchTaskTask> dependencyTaskTasks = getTaskTasksByTaskIdAndTasks(taskId, dependencyTasks);
         List<BatchTaskTask> existDependencyTasks = Lists.newArrayList();
         for (BatchTaskTask taskTask : taskTasks) {
@@ -71,7 +76,8 @@ public class BatchTaskTaskService {
                 existDependencyTasks.add(existTaskTask);
                 continue;
             }
-            developTaskTaskDao.delete(taskTask.getId());
+
+            developTaskTaskDao.deleteById(taskTask.getId());
         }
 
         dependencyTaskTasks.removeAll(existDependencyTasks);
@@ -118,8 +124,9 @@ public class BatchTaskTaskService {
 
     public BatchTaskTask addOrUpdate(BatchTaskTask batchTaskTask) {
         if (batchTaskTask.getId() > 0) {
-            developTaskTaskDao.update(batchTaskTask);
+            developTaskTaskDao.updateById(batchTaskTask);
         } else {
+            batchTaskTask.setIsDeleted(Deleted.NORMAL.getStatus());
             developTaskTaskDao.insert(batchTaskTask);
         }
         return batchTaskTask;
@@ -127,22 +134,17 @@ public class BatchTaskTaskService {
 
 
     public List<BatchTaskTask> getByParentTaskId(long parentId) {
-        return developTaskTaskDao.listByParentTaskId(parentId);
+        return developTaskTaskDao.selectList(Wrappers.lambdaQuery(BatchTaskTask.class)
+                                .eq(BatchTaskTask::getParentTaskId,parentId)
+                                .eq(BatchTaskTask::getIsDeleted,Deleted.NORMAL.getStatus()));
     }
 
     public List<BatchTaskTask> getAllParentTask(long taskId) {
-        return developTaskTaskDao.listByTaskId(taskId);
+        return developTaskTaskDao.selectList(Wrappers.lambdaQuery(BatchTaskTask.class)
+                .eq(BatchTaskTask::getTaskId,taskId)
+                .eq(BatchTaskTask::getIsDeleted, Deleted.NORMAL.getStatus())
+                .orderBy(true,false,BatchTaskTask::getGmtModified));
     }
-
-    /**
-     * 根据任务Id，获取所有父任务的id
-     * @param taskId
-     * @return
-     */
-    public List<Long> getAllParentTaskId(Long taskId) {
-        return developTaskTaskDao.listParentTaskIdByTaskId(taskId);
-    }
-
 
     /**
      * 展开上一个父节点
@@ -158,7 +160,10 @@ public class BatchTaskTaskService {
         vo.setModifyUser(userService.getUserByDTO(task.getModifyUserId()));
         vo.setTenantName(tenantService.getTenantById(task.getTenantId()).getTenantName());
 
-        List<BatchTaskTask> taskTasks = developTaskTaskDao.listByTaskId(task.getId());
+        List<BatchTaskTask> taskTasks = developTaskTaskDao.selectList(Wrappers.lambdaQuery(BatchTaskTask.class)
+                .eq(BatchTaskTask::getTaskId,task.getId())
+                .eq(BatchTaskTask::getIsDeleted, Deleted.NORMAL.getStatus())
+                .orderBy(true,false,BatchTaskTask::getGmtModified));
         if (CollectionUtils.isEmpty(taskTasks)) {
             return vo;
         }
@@ -188,7 +193,8 @@ public class BatchTaskTaskService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTaskTaskByTaskId(Long taskId) {
-        developTaskTaskDao.deleteByTaskId(taskId);
+        developTaskTaskDao.delete(Wrappers.lambdaQuery(BatchTaskTask.class)
+                                .eq(BatchTaskTask::getTaskId,taskId));
     }
 
     /**
@@ -198,7 +204,8 @@ public class BatchTaskTaskService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteTaskTaskByParentId(Long parentId) {
-        developTaskTaskDao.deleteByParentId(parentId);
+        developTaskTaskDao.delete(Wrappers.lambdaQuery(BatchTaskTask.class)
+                .eq(BatchTaskTask::getParentTaskId,parentId));
     }
 
 

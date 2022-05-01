@@ -18,43 +18,83 @@
 
 package com.dtstack.taier.dao.domain;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * 项目引擎类型关联表
  * Date: 2019/6/1
  * Company: www.dtstack.com
  * @author xuchao
  */
-public class TenantComponent extends BaseEntity {
+@TableName("develop_tenant_component")
+public class TenantComponent {
+
+    @TableId(value="id", type= IdType.AUTO)
+    private Long id = 0L;
+
+    private Integer isDeleted = 0;
 
     /**
      * 租户Id
      */
+    @TableField("tenant_id")
     private Long tenantId;
 
     /**
      * 任务类型
      */
+    @TableField("task_type")
     private Integer taskType;
 
     /**
      * 状态
      */
+    @TableField("status")
     private Integer status;
 
     /**
      * 组件标识
      */
+    @TableField("component_identity")
     private String componentIdentity;
 
     /**
      * 创建人id
      */
+    @TableField("create_user_id")
     private Long createUserId;
 
     /**
      * 修改人id
      */
+    @TableField("modify_user_id")
     private Long modifyUserId;
+
+    /**
+     * 实体创建时间
+     */
+    @TableField(
+            value = "gmt_create",
+            fill = FieldFill.INSERT
+    )
+    private Timestamp gmtCreate;
+    /**
+     * 实体修改时间
+     */
+    @TableField(
+            value = "gmt_modified",
+            fill = FieldFill.INSERT_UPDATE
+    )
+    private Timestamp gmtModified;
 
     public Long getTenantId() {
         return tenantId;
@@ -102,5 +142,37 @@ public class TenantComponent extends BaseEntity {
 
     public void setModifyUserId(Long modifyUserId) {
         this.modifyUserId = modifyUserId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public Timestamp getGmtCreate() {
+        return gmtCreate;
+    }
+
+    public void setGmtCreate(Timestamp gmtCreate) {
+        this.gmtCreate = gmtCreate;
+    }
+
+    public Timestamp getGmtModified() {
+        return gmtModified;
+    }
+
+    public void setGmtModified(Timestamp gmtModified) {
+        this.gmtModified = gmtModified;
     }
 }

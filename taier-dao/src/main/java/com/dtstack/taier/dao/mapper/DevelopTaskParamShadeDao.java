@@ -18,6 +18,8 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,18 +32,7 @@ import java.util.List;
  *
  * @ahthor xuchao
  */
-public interface DevelopTaskParamShadeDao {
+public interface DevelopTaskParamShadeDao extends BaseMapper<BatchTaskParamShade> {
 
-    BatchTaskParamShade getOne(@Param("id") Long id);
-
-    BatchTaskParamShade getByTypeAndName(@Param("taskId") long taskId, @Param("type") Integer type, @Param("paramName") String paramName);
-
-    List<BatchTaskParamShade> listByTaskId(@Param("taskId") long taskId);
-
-    Integer deleteByTaskId(@Param("taskId") long taskId);
-
-    Integer insert(BatchTaskParamShade batchTaskParamShade);
-
-    Integer update(BatchTaskParamShade batchTaskParamShade);
 
 }

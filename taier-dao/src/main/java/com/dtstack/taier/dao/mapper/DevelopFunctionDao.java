@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.dto.BatchFunctionDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
@@ -27,14 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public interface DevelopFunctionDao {
-
-    /**
-     * 根据id查询
-     * @param id
-     * @return
-     */
-    BatchFunction getOne(@Param("id") Long id);
+public interface DevelopFunctionDao extends BaseMapper<BatchFunction> {
 
     /**
      * 根据 租户、父目录id 查询
@@ -86,20 +80,6 @@ public interface DevelopFunctionDao {
      * @return
      */
     BatchFunction getByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("name") String name);
-
-    /**
-     * 插入数据
-     * @param batchFunction
-     * @return
-     */
-    Integer insert(BatchFunction batchFunction);
-
-    /**
-     * 更新数据
-     * @param batchFunction
-     * @return
-     */
-    Integer update(BatchFunction batchFunction);
 
     /**
      * 根据 租户、名称查询

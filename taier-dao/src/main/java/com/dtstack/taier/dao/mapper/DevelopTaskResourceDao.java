@@ -18,12 +18,13 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchTaskResource;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface DevelopTaskResourceDao {
+public interface DevelopTaskResourceDao extends BaseMapper<BatchTaskResource> {
 
     /**
      * @param taskId
@@ -55,20 +56,6 @@ public interface DevelopTaskResourceDao {
      * @return
      */
     List<BatchTaskResource> listByResourceId(@Param("resourceId") Long resourceId);
-
-    /**
-     * 插入数据
-     * @param batchTaskResource
-     * @return
-     */
-    Integer insert(BatchTaskResource batchTaskResource);
-
-    /**
-     * 更新数据
-     * @param batchTaskResource
-     * @return
-     */
-    Integer update(BatchTaskResource batchTaskResource);
 
     /**
      * 根据 租户Id 删除

@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,7 +27,7 @@ import java.util.List;
 /**
  * 函数 和 资源 的关联关系
  */
-public interface DevelopFunctionResourceDao {
+public interface DevelopFunctionResourceDao extends BaseMapper<BatchFunctionResource> {
 
     /**
      * 根据 资源id 获取函数和资源的关联关系
@@ -43,13 +44,6 @@ public interface DevelopFunctionResourceDao {
     int deleteByFunctionId(@Param("functionId") Long functionId);
 
     /**
-     * 保存函数和资源的关联关系
-     * @param batchFunctionResource
-     * @return
-     */
-    int insert(BatchFunctionResource batchFunctionResource);
-
-    /**
      * 根据 函数id 查询函数和资源的关联关系的列表
      * @param functionId
      * @return
@@ -62,13 +56,6 @@ public interface DevelopFunctionResourceDao {
      * @return
      */
     List<BatchFunctionResource> listByFunctionResourceId(@Param("resource_Id") Long resource_Id);
-
-    /**
-     * 更新 函数、资源的关联关系
-     * @param batchFunctionResource
-     * @return
-     */
-    int update(BatchFunctionResource batchFunctionResource);
 
     /**
      * 根据函数id获取函数资源关联关系
