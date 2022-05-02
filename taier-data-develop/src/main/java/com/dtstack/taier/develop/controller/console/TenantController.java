@@ -105,13 +105,6 @@ public class TenantController {
 
     @PostMapping(value = "/addTenant")
     public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
-        if(StringUtils.isBlank(tenantName)){
-            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
-        }
-        Tenant tenant = tenantService.findByName(tenantName.trim());
-        if(null != tenant){
-            throw new RdosDefineException("tenant has exist");
-        }
         tenantService.addTenant(tenantName,userId);
         return R.empty();
     }
