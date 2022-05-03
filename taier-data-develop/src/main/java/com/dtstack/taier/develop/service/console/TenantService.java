@@ -25,6 +25,12 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.common.util.RegexUtils;
+import com.dtstack.taier.dao.domain.ClusterTenant;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.Queue;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
@@ -47,6 +53,7 @@ import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,13 +254,27 @@ public class TenantService {
         return tenantMapper.selectOne(Wrappers.lambdaQuery(Tenant.class).eq(Tenant::getTenantName, tenantName));
     }
 
+
     public void addTenant(String tenantName, Long createUserId,String tenantIdentity) {
+        // pre check
+        preCheckForAddTenant(tenantName);
         Tenant tenant = new Tenant();
         tenant.setTenantName(tenantName);
         tenant.setCreateUserId(createUserId);
         tenant.setTenantIdentity(tenantIdentity);
         tenant.setGmtCreate(Timestamp.from(Instant.now()));
         tenantMapper.insert(tenant);
+    }
+
+    private void preCheckForAddTenant(String tenantName) {
+        if(StringUtils.isBlank(tenantName)){
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+        }
+        if (!RegexUtils.tenantName(tenantName)) throw new RdosDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
+        Tenant tenant = findByName(tenantName.trim());
+        if(null != tenant){
+            throw new RdosDefineException("tenant has exist");
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -76,6 +76,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CATALOGUE_EXISTS(146, "this catalogue exist","目录已存在"),
     CATALOGUE_INIT_FAILED(147, "init catalogue failed","初始化目录失败"),
     CATALOGUE_FUNCTION_MANAGE_UN_INIT(148, "function manage catalogue un init","函数管理未初始化"),
+    TENANT_NAME_VERIFICATION_ERROR(149, "tenant name verification error","租户名称只能由字母、数字、下划线组成，且长度不超过64个字符"),
 
 
 

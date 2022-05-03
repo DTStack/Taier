@@ -51,6 +51,9 @@ Taier 页面功能依赖data-develop.jar 任务提交依赖plugins相关jar
 |---- yarn2-hdfs2-flink110
 |---- .......
 ```
+:::caution
+pluginLibs目录需要放到Taier进程的根目录 或者通过在application.properties指定pluginLibs的路径 否则会导致集群测试连通性找不到插件
+:::
 
 ## 配置文件
 
@@ -80,6 +83,9 @@ jdbc.url=jdbc:mysql://127.0.0.1:3306/taier?charset=utf8&autoReconnect=true&tinyI
 jdbc.username=root
 jdbc.password=
 ```
+:::caution
+jdbc需要指定charset=utf8 否则在对接完集群之后，获取开发目录可能会乱码
+:::
 
 #### 配置web
 ```properties
@@ -93,9 +99,8 @@ server.tomcat.basedir = ./tmpSave
 datasource.plugin.path=/opt/dtstack/DTCommon/InsightPlugin/dataSourcePlugin
 ```
 
-:::info
-DatasourceX的依赖版本为v4.3.0  DatasourceX  
-https://github.com/DTStack/DatasourceX/releases/download/v4.3.0/datasourceX.zip  
+:::caution
+DatasourceX的依赖版本为v4.3.0 [DatasourceX](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0) 需要依赖DatasourceX 去获取数据源表、字段信息
 可以直接下载链接中datasourceX.zip 解压之后配置即可
 :::
 
