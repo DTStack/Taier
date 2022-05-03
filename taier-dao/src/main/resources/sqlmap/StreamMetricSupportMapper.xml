@@ -9,21 +9,21 @@
     <select id="getMetricKeyByType" resultType="java.lang.String">
         SELECT
         value
-        FROM rdos_stream_metric_support
+        FROM stream_metric_support
         WHERE is_deleted = 0 AND task_type = #{taskType} AND component_version = #{componentVersion}
     </select>
 
     <select id="getMetricByType" resultType="com.dtstack.taier.dao.domain.StreamMetricSupport">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_stream_metric_support
+        FROM stream_metric_support
         WHERE is_deleted = 0 AND task_type = #{taskType} AND component_version = #{componentVersion}
     </select>
 
     <select id="getMetricByValue" resultType="com.dtstack.taier.dao.domain.StreamMetricSupport">
         SELECT
         <include refid="select_content_fragment"/>
-        FROM rdos_stream_metric_support
+        FROM stream_metric_support
         WHERE is_deleted = 0 AND value = #{value} AND component_version = #{componentVersion} LIMIT 1
     </select>
 </mapper>
