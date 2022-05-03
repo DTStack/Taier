@@ -383,7 +383,7 @@ ADD COLUMN `side_str` longtext COMMENT '维表' AFTER `target_str`;
 
 
 drop table if exists develop_task_template;
-drop table if exists task_param_template;
+drop table if exists task_template;
 
 CREATE TABLE `task_template` (
                                  `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -868,7 +868,8 @@ INSERT INTO task_template (id, task_type, type, value_type, content, gmt_create,
 #hivevar:ageParams=30', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 
 
-INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt_create, gmt_modified, is_deleted) VALUES (5, 'FlinkSQL', '1.12', '## 资源相关
+
+INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES (5,0, '1.12', '## 资源相关
 parallelism.default=1
 taskmanager.numberOfTaskSlots=1
 jobmanager.memory.process.size=1g
@@ -930,20 +931,20 @@ log.level=INFO
 
 
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
-                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+                  depend_name, is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('hive_version', '1.x', '1.x', null, 4, 1, 'STRING', '', 0, now(),now(), 0);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
-                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+                  depend_name, is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('hive_version', '2.x', '2.x', null, 4, 2, 'STRING', '', 1, now(),now(), 0);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
-                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+                  depend_name, is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('hive_version', '3.x-apache', '3.x-apache', null, 4, 3, 'STRING', '', 1, now(),now(), 0);
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type,
-                                                depend_name, is_default, gmt_create, gmt_modified, is_deleted)
+                  depend_name, is_default, gmt_create, gmt_modified, is_deleted)
 VALUES ('hive_version', '3.x-cdp', '3.x-cdp', null, 4, 3, 'STRING', '', 1, now(),now(), 0);
 
 
-INSERT INTO task_param_template (task_type, task_name, task_version, params, gmt_create, gmt_modified, is_deleted) VALUES (17, 'HIVE_SQL', '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
+INSERT INTO task_template (task_type, type, value_type, content, gmt_create, gmt_modified, is_deleted) VALUES (7, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复
 #hiveconf:mapreduce.job.name=
 
 ## 指定mapreduce运行的队列，默认走控制台配置的queue
@@ -1054,8 +1055,8 @@ commit;
 INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, now(), now(), 0);
 
 
-DROP TABLE IF EXISTS `rdos_stream_metric_support`;
-CREATE TABLE `rdos_stream_metric_support` (
+DROP TABLE IF EXISTS `stream_metric_support`;
+CREATE TABLE `stream_metric_support` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
   `name` varchar(255) NOT NULL COMMENT '指标中文名称',
   `task_type` tinyint(4) NOT NULL COMMENT '指标支持的任务类型',
@@ -1069,49 +1070,49 @@ CREATE TABLE `rdos_stream_metric_support` (
 ) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8 COMMENT='任务支持的metric指标';
 
 -- ----------------------------
---  Records of `rdos_stream_metric_support_copy`
+--  Records of `stream_metric_support_copy`
 -- ----------------------------
 BEGIN;
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '231', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numReadPerSecond', '5', '2021-09-26 17:04:01', '1', '各source rps数据输入');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '233', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond', '5', '2021-09-26 17:04:01', '1', '各source bps数据输入');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '235', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond', '5', '2021-09-26 17:04:01', '1', '各sink bps数据输出');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '237', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWritePerSecond', '5', '2021-09-26 17:04:01', '1', '各sink rps输出');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '239', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_KafkaConsumer_topic_partition_lag', '5', '2021-09-26 17:04:01', '1', '数据延迟');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '241', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numReadPerSecond', '6', '2021-09-26 17:04:01', '1', '输入rps');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '243', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWritePerSecond', '6', '2021-09-26 17:04:01', '1', '输出rps');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '245', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond', '6', '2021-09-26 17:04:01', '1', '输入bps');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '247', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond', '6', '2021-09-26 17:04:01', '1', '输出bps');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '249', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numRead', '6', '2021-09-26 17:04:01', '1', '累计输入记录数');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '251', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWrite', '6', '2021-09-26 17:04:01', '1', '累计输出记录数');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '253', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteRead', '6', '2021-09-26 17:04:01', '1', '累计输入数据量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '255', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWrite', '6', '2021-09-26 17:04:01', '1', '累计输出数据量');
-  insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '143', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_CPU_Load', '99', '2021-09-26 17:04:01', '2', 'jobmanager cpu负载');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '145', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_CPU_Time', '99', '2021-09-26 17:04:01', '2', 'jobmanager cpu使用时间');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '147', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_CPU_Load', '99', '2021-09-26 17:04:01', '2', 'taskmanager cpu负载');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '149', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_CPU_Time', '99', '2021-09-26 17:04:01', '2', 'taskmanager cpu使用时间');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '151', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Heap_Max', '99', '2021-09-26 17:04:01', '2', 'bmanager jvm最大堆内存');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '153', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Heap_Max', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm最大堆内存');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '155', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Heap_Used', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm堆内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '157', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Heap_Used', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm堆内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '159', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_NonHeap_Max', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm最大非堆内存');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '161', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_NonHeap_Max', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm最大非堆内存');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '163', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_NonHeap_Used', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm非堆内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '165', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_NonHeap_Used', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm非堆内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '167', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Direct_TotalCapacity', '99', '2021-09-26 17:04:01', '2', 'jobmanager直接缓冲区总容量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '169', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Direct_TotalCapacity', '99', '2021-09-26 17:04:01', '2', 'taskmanager直接缓冲区总容量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '171', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Direct_MemoryUsed', '99', '2021-09-26 17:04:01', '2', 'jobmanager直接缓冲区内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '173', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Direct_MemoryUsed', '99', '2021-09-26 17:04:01', '2', 'taskmanager直接缓冲区内存使用量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '175', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Threads_Count', '99', '2021-09-26 17:04:01', '2', 'jobmanager 线程数');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '177', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Threads_Count', '99', '2021-09-26 17:04:01', '2', 'taskmanager 线程数');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '179', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_buffers_inputQueueLength', '99', '2021-09-26 17:04:01', '1', '排队进入输入缓存区的数量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '181', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_buffers_outputQueueLength', '99', '2021-09-26 17:04:01', '1', '排队进入输出缓存区的数量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '183', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_numRestarts', '99', '2021-09-26 17:04:01', '1', '任务重启次数');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '185', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_restartingTime', '99', '2021-09-26 17:04:01', '1', '任务重启花费时间');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '187', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_lastCheckpointDuration', '99', '2021-09-26 17:04:01', '1', '任务最后一次checkpoint花费时间');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '189', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_lastCheckpointSize', '99', '2021-09-26 17:04:01', '1', '任务最后一次checkpoint大小');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '191', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_totalNumberOfCheckpoints', '99', '2021-09-26 17:04:01', '1', '任务checkpoint总数量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '193', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_numberOfFailedCheckpoints', '99', '2021-09-26 17:04:01', '1', '任务checkpoint失败数量');
-insert into `rdos_stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '195', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_checkpointAlignmentTime', '99', '2021-09-26 17:04:01', '1', 'barrier 对齐花费时间');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '231', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numReadPerSecond', '5', '2021-09-26 17:04:01', '1', '各source rps数据输入');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '233', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond', '5', '2021-09-26 17:04:01', '1', '各source bps数据输入');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '235', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond', '5', '2021-09-26 17:04:01', '1', '各sink bps数据输出');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '237', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWritePerSecond', '5', '2021-09-26 17:04:01', '1', '各sink rps输出');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '239', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_KafkaConsumer_topic_partition_lag', '5', '2021-09-26 17:04:01', '1', '数据延迟');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '241', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numReadPerSecond', '6', '2021-09-26 17:04:01', '1', '输入rps');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '243', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWritePerSecond', '6', '2021-09-26 17:04:01', '1', '输出rps');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '245', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond', '6', '2021-09-26 17:04:01', '1', '输入bps');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '247', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond', '6', '2021-09-26 17:04:01', '1', '输出bps');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '249', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numRead', '6', '2021-09-26 17:04:01', '1', '累计输入记录数');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '251', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_numWrite', '6', '2021-09-26 17:04:01', '1', '累计输出记录数');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '253', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteRead', '6', '2021-09-26 17:04:01', '1', '累计输入数据量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '255', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_operator_flinkx_byteWrite', '6', '2021-09-26 17:04:01', '1', '累计输出数据量');
+  insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '143', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_CPU_Load', '99', '2021-09-26 17:04:01', '2', 'jobmanager cpu负载');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '145', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_CPU_Time', '99', '2021-09-26 17:04:01', '2', 'jobmanager cpu使用时间');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '147', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_CPU_Load', '99', '2021-09-26 17:04:01', '2', 'taskmanager cpu负载');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '149', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_CPU_Time', '99', '2021-09-26 17:04:01', '2', 'taskmanager cpu使用时间');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '151', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Heap_Max', '99', '2021-09-26 17:04:01', '2', 'bmanager jvm最大堆内存');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '153', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Heap_Max', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm最大堆内存');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '155', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Heap_Used', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm堆内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '157', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Heap_Used', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm堆内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '159', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_NonHeap_Max', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm最大非堆内存');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '161', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_NonHeap_Max', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm最大非堆内存');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '163', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_NonHeap_Used', '99', '2021-09-26 17:04:01', '2', 'jobmanager jvm非堆内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '165', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_NonHeap_Used', '99', '2021-09-26 17:04:01', '2', 'taskmanager jvm非堆内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '167', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Direct_TotalCapacity', '99', '2021-09-26 17:04:01', '2', 'jobmanager直接缓冲区总容量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '169', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Direct_TotalCapacity', '99', '2021-09-26 17:04:01', '2', 'taskmanager直接缓冲区总容量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '171', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Memory_Direct_MemoryUsed', '99', '2021-09-26 17:04:01', '2', 'jobmanager直接缓冲区内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '173', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Memory_Direct_MemoryUsed', '99', '2021-09-26 17:04:01', '2', 'taskmanager直接缓冲区内存使用量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '175', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_Status_JVM_Threads_Count', '99', '2021-09-26 17:04:01', '2', 'jobmanager 线程数');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '177', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_Status_JVM_Threads_Count', '99', '2021-09-26 17:04:01', '2', 'taskmanager 线程数');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '179', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_buffers_inputQueueLength', '99', '2021-09-26 17:04:01', '1', '排队进入输入缓存区的数量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '181', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_buffers_outputQueueLength', '99', '2021-09-26 17:04:01', '1', '排队进入输出缓存区的数量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '183', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_numRestarts', '99', '2021-09-26 17:04:01', '1', '任务重启次数');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '185', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_restartingTime', '99', '2021-09-26 17:04:01', '1', '任务重启花费时间');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '187', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_lastCheckpointDuration', '99', '2021-09-26 17:04:01', '1', '任务最后一次checkpoint花费时间');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '189', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_lastCheckpointSize', '99', '2021-09-26 17:04:01', '1', '任务最后一次checkpoint大小');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '191', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_totalNumberOfCheckpoints', '99', '2021-09-26 17:04:01', '1', '任务checkpoint总数量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '193', '1.12', '2021-09-26 17:04:01', 'flink_jobmanager_job_numberOfFailedCheckpoints', '99', '2021-09-26 17:04:01', '1', '任务checkpoint失败数量');
+insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `gmt_modified`, `value`, `task_type`, `gmt_create`, `metric_tag`, `name`) values ( '0', '195', '1.12', '2021-09-26 17:04:01', 'flink_taskmanager_job_task_checkpointAlignmentTime', '99', '2021-09-26 17:04:01', '1', 'barrier 对齐花费时间');
 
 
 alter table tenant add tenant_identity varchar(64) default '' null comment '租户标识';
