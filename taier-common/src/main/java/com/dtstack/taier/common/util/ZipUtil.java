@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -40,6 +41,9 @@ import java.util.zip.ZipOutputStream;
 public class ZipUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZipUtil.class);
+
+    private static byte[] ZIP_HEADER_1 = new byte[] { 80, 75, 3, 4 };
+    private static byte[] ZIP_HEADER_2 = new byte[] { 80, 75, 5, 6 };
 
     private static byte[] _byte = new byte[1024];
 
@@ -234,12 +238,21 @@ public class ZipUtil {
                     }
                     _in = _zipFile.getInputStream(entry);
                     _out = new FileOutputStream(_file);
+                    byte[] buffer = new byte[4];
+                    int length = _in.read(buffer, 0, 4);
                     int len = 0;
+                    _out.write(buffer);
                     while ((len = _in.read(_byte)) > 0) {
                         _out.write(_byte, 0, len);
                     }
                     _out.flush();
-                    _list.add(_file);
+
+                    if (length == 4 && (Arrays.equals(ZIP_HEADER_1, buffer) || Arrays.equals(ZIP_HEADER_2, buffer))) {
+                        _list.addAll(upzipFile(_file, _file.getPath() + "tmp"));
+                    } else {
+                        _list.add(_file);
+                    }
+
                 }
             }
         } catch (IOException e) {
