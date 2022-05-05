@@ -15,7 +15,7 @@ import java.util.List;
  * @Date: 2021/3/10
  */
 @Mapper
-public interface DsInfoMapper extends IMapper<DsInfo> {
+public interface DsInfoMapper extends com.baomidou.mybatisplus.core.mapper.BaseMapper<DsInfo> {
 
 
 

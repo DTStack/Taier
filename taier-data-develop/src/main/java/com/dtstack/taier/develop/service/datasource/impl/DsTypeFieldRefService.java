@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.service.datasource.impl;
 
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.dao.domain.DsTypeFieldRef;
 import com.dtstack.taier.dao.mapper.DsTypeFieldRefMapper;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @Date: 2021/3/11
  */
 @Service
-public class DsTypeFieldRefService extends BaseService<DsTypeFieldRefMapper, DsTypeFieldRef> {
+public class DsTypeFieldRefService extends ServiceImpl<DsTypeFieldRefMapper, DsTypeFieldRef> {
 
 
 }
