@@ -1,10 +1,6 @@
 package com.dtstack.taier.dao.domain;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 
 import java.sql.Timestamp;
 
@@ -39,11 +35,6 @@ public class TaskVersion{
      */
     @TableField("create_user_id")
     private Long createUserId;
-
-    /**
-     * 最后修改task的用户
-     */
-    private Long modifyUserId;
 
     /**
      * 'task版本'
@@ -188,14 +179,6 @@ public class TaskVersion{
 
     public void setCreateUserId(Long createUserId) {
         this.createUserId = createUserId;
-    }
-
-    public Long getModifyUserId() {
-        return modifyUserId;
-    }
-
-    public void setModifyUserId(Long modifyUserId) {
-        this.modifyUserId = modifyUserId;
     }
 
     public Integer getVersion() {

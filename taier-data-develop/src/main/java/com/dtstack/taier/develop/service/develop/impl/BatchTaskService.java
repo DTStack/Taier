@@ -697,7 +697,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVersion.setSourceStr(task.getSourceStr());
         taskVersion.setTargetStr(task.getTargetStr());
         taskVersion.setSettingStr(task.getSettingStr());
-        taskVersion.setModifyUserId(task.getModifyUserId());
+        taskVersion.setCreateUserId(task.getModifyUserId());
         taskVersion.setTaskDesc(task.getTaskDesc());
         taskVersion.setCreateModel(task.getCreateModel());
         taskVersion.setComponentVersion(task.getComponentVersion());
@@ -707,6 +707,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVersion.setTenantId(task.getTenantId());
         // todo 添加依赖
         taskVersion.setDependencyTaskIds(StringUtils.EMPTY);
+        taskVersion.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        taskVersion.setGmtModified(new Timestamp(System.currentTimeMillis()));
         taskVersionService.insert(taskVersion);
         return taskVersion;
     }
