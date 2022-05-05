@@ -34,7 +34,6 @@ import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamDao;
 import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
-import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,11 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.sql.Timestamp;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -236,9 +232,12 @@ public class BatchTaskParamService {
 
     public BatchTaskParam addOrUpdate(final BatchTaskParam batchTaskParam) {
         if (batchTaskParam.getId() > 0) {
+            batchTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
             this.developTaskParamDao.updateById(batchTaskParam);
         } else {
             batchTaskParam.setIsDeleted(Deleted.NORMAL.getStatus());
+            batchTaskParam.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+            batchTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
             this.developTaskParamDao.insert(batchTaskParam);
         }
         return batchTaskParam;
