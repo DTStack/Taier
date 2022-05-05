@@ -38,7 +38,7 @@ import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerRe
 import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
-import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
+import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
@@ -385,7 +385,7 @@ public class BatchJobService {
             result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, isRoot, task, dtToken, isEnd, jobId);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
-            result.setMsg(e.getMessage());
+            result.setMsg(ExceptionUtil.getErrorMessage(e));
             result.setStatus(TaskStatus.FAILED.getStatus());
             result.setSqlText(sql);
             return result;
