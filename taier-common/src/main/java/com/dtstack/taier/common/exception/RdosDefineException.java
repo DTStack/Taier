@@ -53,7 +53,6 @@ public class RdosDefineException extends RuntimeException {
     public RdosDefineException(ErrorCode errorCode, Throwable cause) {
         super(buildErrorInfo(errorCode, errorCode.getDescription()), cause);
         this.errorCode = errorCode;
-        this.errorMessage = errorCode.getDescription();
     }
 
     public RdosDefineException(String message, ErrorCode errorCode, Throwable cause) {

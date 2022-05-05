@@ -316,7 +316,7 @@ public class JobStatusDealer implements Runnable {
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
-        ScheduleJobHistoryMapper bean = applicationContext.getBean(ScheduleJobHistoryMapper.class);
+        this.scheduleJobHistoryMapper = applicationContext.getBean(ScheduleJobHistoryMapper.class);
     }
 
     private void createLogDelayDealer() {
