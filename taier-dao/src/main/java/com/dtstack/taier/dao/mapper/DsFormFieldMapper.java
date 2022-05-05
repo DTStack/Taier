@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @Date: 2021/3/10
  */
 @Mapper
-public interface DsFormFieldMapper extends IMapper<DsFormField> {
+public interface DsFormFieldMapper extends com.baomidou.mybatisplus.core.mapper.BaseMapper<DsFormField> {
 }

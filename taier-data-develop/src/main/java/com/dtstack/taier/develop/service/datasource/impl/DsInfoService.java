@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
 import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
@@ -28,35 +29,23 @@ import com.dtstack.taier.dao.mapper.DsInfoMapper;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
 import com.dtstack.taier.develop.enums.develop.PatternType;
-import com.dtstack.taier.develop.enums.develop.SourceDTOType;
-import com.dtstack.taier.develop.mapstruct.datasource.DsDetailTransfer;
 import com.dtstack.taier.develop.mapstruct.datasource.DsListTransfer;
 import com.dtstack.taier.develop.service.develop.impl.SourceLoaderService;
 import com.dtstack.taier.develop.service.template.bulider.db.DbBuilder;
 import com.dtstack.taier.develop.service.template.bulider.db.DbBuilderFactory;
 import com.dtstack.taier.develop.vo.datasource.BinLogFileVO;
-import com.dtstack.taier.develop.vo.datasource.DsDetailVO;
 import com.dtstack.taier.develop.vo.datasource.DsInfoVO;
 import com.dtstack.taier.develop.vo.datasource.DsListVO;
-import com.dtstack.taier.develop.vo.datasource.DsPollPreviewResultVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -72,7 +61,7 @@ import static com.dtstack.taier.develop.service.template.bulider.reader.DaReader
  * @Date: 2021/3/10
  */
 @Service
-public class DsInfoService  extends BaseService<DsInfoMapper, DsInfo>{
+public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
 
     @Autowired

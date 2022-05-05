@@ -3,6 +3,7 @@ package com.dtstack.taier.develop.service.datasource.impl;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.DsFormField;
 import com.dtstack.taier.dao.mapper.DsFormFieldMapper;
@@ -23,7 +24,7 @@ import java.util.Map;
  * @date: 2021/3/12
  */
 @Service
-public class DsFormFieldService extends BaseService<DsFormFieldMapper, DsFormField> {
+public class DsFormFieldService extends ServiceImpl<DsFormFieldMapper, DsFormField> {
 
     private static String COMMON = "common";
 
