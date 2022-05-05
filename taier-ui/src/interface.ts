@@ -144,6 +144,7 @@ export interface IResourceProps {
 	resourceName: string;
 	resourceType: RESOURCE_TYPE;
 	tenantId: number;
+	computeType: IComputeType;
 	url: string;
 }
 
@@ -568,4 +569,9 @@ export interface IResourceList {
 	resourceDesc: string;
 	resourceName: string;
 	isAdditionResource: number;
+}
+
+export enum IComputeType {
+	STFP = 0,
+	HDFS = 1,
 }
