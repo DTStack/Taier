@@ -199,7 +199,7 @@ function initContextMenu() {
 function createTask() {
 	molecule.folderTree.onCreate((type, id) => {
 		if (!id && !molecule.folderTree.getState().folderTree?.data?.length) {
-			message.error('获取任务开发目录失败，请联系管理员');
+			message.error('请先配置集群并进行绑定!');
 			return;
 		}
 		if (type === 'File') {

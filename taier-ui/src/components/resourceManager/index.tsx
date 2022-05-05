@@ -26,7 +26,7 @@ import type {
 	ITreeNodeItemProps,
 } from '@dtinsight/molecule/esm/components';
 import { ActionBar } from '@dtinsight/molecule/esm/components';
-import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import type { IFolderTree, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { loadTreeNode } from '@/utils/extensions';
@@ -37,7 +37,6 @@ import ResViewModal from './resViewModal';
 import ajax from '../../api';
 import { deleteMenu, editMenu } from './menu';
 import FolderModal from '../functionManager/folderModal';
-import classNames from 'classnames';
 import type molecule from '@dtinsight/molecule';
 import type { CatalogueDataProps } from '@/interface';
 import './index.scss';
@@ -56,7 +55,7 @@ enum DELETE_SOURCE {
 	file,
 }
 
-export default ({ panel, headerToolBar }: IResourceProps) => {
+export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) => {
 	const [isModalShow, setModalShow] = useState(false);
 	const [isViewModalShow, setViewModalShow] = useState(false);
 	const [resId, setResId] = useState<string | undefined>(undefined);
@@ -305,10 +304,6 @@ export default ({ panel, headerToolBar }: IResourceProps) => {
 			return false;
 		});
 	};
-
-	const entry = (
-		<div className={classNames('text-center', 'mt-20px')}>未找到资源管理目录，请联系管理员</div>
-	);
 
 	return (
 		<div className="resourceManager-container">
