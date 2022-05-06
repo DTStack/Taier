@@ -70,7 +70,7 @@ function getBaseType(id: UniqueId): typeof TYPE_ITERATOR[number] | null {
 	return null;
 }
 
-const FunctionManagerView = ({ headerToolBar, panel }: IFunctionViewProps & IFolderTree) => {
+const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps & IFolderTree) => {
 	const [viewVisible, setViewVisible] = useState(false);
 	const [isModalShow, setModalShow] = useState(false);
 	const [folderVisible, setFolderVisible] = useState(false);
@@ -320,10 +320,6 @@ const FunctionManagerView = ({ headerToolBar, panel }: IFunctionViewProps & IFol
 			return false;
 		});
 	};
-
-	const entry = (
-		<div style={{ textAlign: 'center', marginTop: 20 }}>未找到函数管理目录，请联系管理员</div>
-	);
 
 	return (
 		<div className="functionManager-container">
