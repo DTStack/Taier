@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Badge, Button, message, Modal, Tag } from 'antd';
+import { Badge, Button, Empty, message, Modal, Tag } from 'antd';
 import moment from 'moment';
 import Base64 from 'base-64';
 import molecule from '@dtinsight/molecule';
@@ -66,7 +66,6 @@ export interface IDataSourceProps {
 	status: number;
 	linkJson: string | null;
 }
-
 
 const DataSourceView = () => {
 	const [dataSources, setDataSources] = useState<IDataSourceProps[]>([]);
@@ -168,7 +167,9 @@ const DataSourceView = () => {
 			case 'edit':
 				if (molecule.editor.isOpened(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)) {
 					message.warning('请先保存或关闭编辑数据源');
-					const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX)!;
+					const groupId = molecule.editor.getGroupIdByTab(
+						ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX,
+					)!;
 					molecule.editor.setActive(groupId, ID_COLLECTIONS.EDIT_DATASOURCE_PREFIX);
 				} else {
 					molecule.editor.open({
@@ -252,7 +253,9 @@ const DataSourceView = () => {
 	const handleHeaderBarClick = () => {
 		if (molecule.editor.isOpened(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)) {
 			message.warning('请先保存或关闭新增数据源');
-			const groupId = molecule.editor.getGroupIdByTab(ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX)!;
+			const groupId = molecule.editor.getGroupIdByTab(
+				ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX,
+			)!;
 			molecule.editor.setActive(groupId, ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX);
 		} else {
 			molecule.editor.open({
@@ -260,7 +263,10 @@ const DataSourceView = () => {
 				name: '新增数据源',
 				icon: 'server-process',
 				renderPane: (
-					<Add key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX} onSubmit={handleSubmitDataSource} />
+					<Add
+						key={ID_COLLECTIONS.CREATE_DATASOURCE_PREFIX}
+						onSubmit={handleSubmitDataSource}
+					/>
 				),
 				breadcrumb: [
 					{
@@ -300,55 +306,59 @@ const DataSourceView = () => {
 			/>
 			<Content>
 				<Search onSearch={handleSearch} />
-				<div tabIndex={0} className="datasource-content">
-					<ul className="datasource-list">
-						{dataSources.map((item) => (
-							<li
-								key={item.dataInfoId}
-								tabIndex={-1}
-								className="datasource-record"
-								onClick={() => handleOpenDetail(item)}
-								onContextMenu={(e) => handleContextmenu(e, item)}
-							>
-								{item.status === 0 ? (
-									<DataSourceLinkFailed
-										style={{ color: '#ed5b56', fontSize: 0 }}
-									/>
-								) : (
-									<DataSourceLinkSuccess
-										style={{ color: '#72c140', fontSize: 0 }}
-									/>
-								)}
-								<div className="datasource-title">
-									{item.isMeta === 0 ? (
-										<>
-											<span className="title" title={item.dataName}>
-												{item.dataName}({item.dataType}
-												{item.dataVersion || ''})
-											</span>
-											<span className={classNames('desc')}>
-												{item.dataDesc || '--'}
-											</span>
-										</>
+				{dataSources.length ? (
+					<div tabIndex={0} className="datasource-content">
+						<ul className="datasource-list">
+							{dataSources.map((item) => (
+								<li
+									key={item.dataInfoId}
+									tabIndex={-1}
+									className="datasource-record"
+									onClick={() => handleOpenDetail(item)}
+									onContextMenu={(e) => handleContextmenu(e, item)}
+								>
+									{item.status === 0 ? (
+										<DataSourceLinkFailed
+											style={{ color: '#ed5b56', fontSize: 0 }}
+										/>
 									) : (
-										<>
-											<span className="title" title={item.dataName}>
-												{item.dataName}({item.dataType}
-												{item.dataVersion || ''})
-											</span>
-											<Tag>Meta</Tag>
-										</>
+										<DataSourceLinkSuccess
+											style={{ color: '#72c140', fontSize: 0 }}
+										/>
 									)}
-								</div>
-							</li>
-						))}
-					</ul>
-					{total !== dataSources.length && !!total && (
-						<Button block onClick={handleLoadMore}>
-							加载更多...
-						</Button>
-					)}
-				</div>
+									<div className="datasource-title">
+										{item.isMeta === 0 ? (
+											<>
+												<span className="title" title={item.dataName}>
+													{item.dataName}({item.dataType}
+													{item.dataVersion || ''})
+												</span>
+												<span className={classNames('desc')}>
+													{item.dataDesc || '--'}
+												</span>
+											</>
+										) : (
+											<>
+												<span className="title" title={item.dataName}>
+													{item.dataName}({item.dataType}
+													{item.dataVersion || ''})
+												</span>
+												<Tag>Meta</Tag>
+											</>
+										)}
+									</div>
+								</li>
+							))}
+						</ul>
+						{total !== dataSources.length && !!total && (
+							<Button block onClick={handleLoadMore}>
+								加载更多...
+							</Button>
+						)}
+					</div>
+				) : (
+					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+				)}
 				<Modal
 					title="数据源详情"
 					visible={visible}

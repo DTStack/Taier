@@ -17,9 +17,17 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import { CONSOLE, RESOURCE_ACTION_BAR, OPERATIONS, TENANT_MENU, ID_COLLECTIONS } from '@/constant';
+import {
+	CONSOLE,
+	RESOURCE_ACTION_BAR,
+	OPERATIONS,
+	TENANT_MENU,
+	ID_COLLECTIONS,
+	DRAWER_MENU_ENUM,
+} from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
+import { history } from 'umi';
 import classNames from 'classnames';
 import FunctionManager from '@/components/functionManager';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -34,7 +42,7 @@ import resourceManagerService from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
 import { showLoginModal } from '@/pages/login';
 import { getCookie, deleteCookie } from '@/utils';
-import { message } from 'antd';
+import { Button, message } from 'antd';
 import { Logo } from '@/components/icon';
 import Language from '@/components/language';
 import ReactDOM from 'react-dom';
@@ -104,24 +112,77 @@ function initializeColorTheme() {
 function initializeEntry() {
 	molecule.editor.setEntry(<EditorEntry />);
 
+	const handleGoto = (url: string) => {
+		history.push({
+			query: {
+				drawer: url,
+			},
+		});
+	};
+
 	// 设置目录树的入口页面
 	molecule.folderTree.setEntry(
-		<div className={classNames('mt-20px', 'text-center')}>
-			未找到任务开发目录，请联系管理员
+		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
+			未找到任务开发目录，请先
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
+			>
+				配置集群
+			</Button>
+			并进行
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
+			>
+				绑定
+			</Button>
 		</div>,
 	);
 
 	// 设置资源管理的入口页面
 	resourceManagerService.setEntry(
-		<div className={classNames('mt-20px', 'text-center')}>
-			未找到资源开发目录，请联系管理员
+		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
+			未找到资源开发目录，请先
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
+			>
+				配置集群
+			</Button>
+			并进行
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
+			>
+				绑定
+			</Button>
 		</div>,
 	);
 
 	// 设置函数管理的入口页面
 	functionManagerService.setEntry(
-		<div className={classNames('mt-20px', 'text-center')}>
-			未找到函数开发目录，请联系管理员
+		<div className={classNames('mt-20px', 'text-center', 'text-xs')}>
+			未找到函数管理目录，请先
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.CLUSTER)}
+			>
+				配置集群
+			</Button>
+			并进行
+			<Button
+				style={{ padding: 0 }}
+				type="link"
+				onClick={() => handleGoto(DRAWER_MENU_ENUM.RESOURCE)}
+			>
+				绑定
+			</Button>
 		</div>,
 	);
 }
