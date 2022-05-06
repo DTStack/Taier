@@ -76,25 +76,6 @@ public class DevelopFlinkController {
         }.execute();
     }
 
-
-    @ApiOperation(value = "停止FlinkSQL任务")
-    @PostMapping(value = "stop")
-    public R<Boolean> stopFlinkTask(@RequestBody StartFlinkSqlVO vo) {
-        return new APITemplate<Boolean>() {
-            @Override
-            protected void checkParams() throws IllegalArgumentException {
-                if(null == vo.getTaskId()){
-                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-                }
-            }
-
-            @Override
-            protected Boolean process() throws RdosDefineException {
-                return flinkTaskService.stopStreamTask(vo.getTaskId());
-            }
-        }.execute();
-    }
-
     @PostMapping(value = "/grammarCheck")
     @ApiOperation(value = "语法检测")
     public R<CheckResultVO> grammarCheck(@RequestBody TaskResourceParam taskResourceParam) {
@@ -223,7 +204,7 @@ public class DevelopFlinkController {
         return new APITemplate<Boolean>() {
             @Override
             protected Boolean process() {
-                return flinkTaskService.stopStreamTask(operateTaskVO.getId());
+                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId());
             }
         }.execute();
     }

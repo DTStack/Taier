@@ -2,13 +2,13 @@ package com.dtstack.taier.develop.vo.develop.query;
 
 public class OperateTaskVO {
 
-    private Long id;
+    private Long taskId;
 
-    public Long getId() {
-        return id;
+    public Long getTaskId() {
+        return taskId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 }
