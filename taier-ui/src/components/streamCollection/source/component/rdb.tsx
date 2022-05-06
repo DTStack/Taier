@@ -27,7 +27,7 @@ import React, { useEffect, useState } from "react";
 import { streamTaskActions } from "../../taskFunc";
 import { debounce, get } from "lodash";
 import { isPostgre } from "../../helper";
-import TablePreview from "./tablepreview";
+import TablePreview from "./tablePreview";
 import EditMultipleTableModal from "./editMultipleTableModal";
 import { IDataSourceUsedInSyncProps } from "@/interface";
 
