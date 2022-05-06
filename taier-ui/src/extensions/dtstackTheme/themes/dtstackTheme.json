@@ -143,6 +143,7 @@
 		"titleBar.activeForeground": "#9da5b4",
 		"titleBar.inactiveBackground": "#1e2227",
 		"titleBar.inactiveForeground": "#6b717d",
+		"tree.indentGuidesStroke": "#343a45",
 		"tree.tableColumnsBorder": "#CCCCCC20",
 		"walkThrough.embeddedEditorBackground": "#2e3440",
 		"welcomePage.buttonHoverBackground": "#404754",

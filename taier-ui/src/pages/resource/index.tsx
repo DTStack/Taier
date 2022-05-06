@@ -30,22 +30,21 @@ import type { IFolderTree, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { loadTreeNode } from '@/utils/extensions';
-import { CATELOGUE_TYPE, RESOURCE_ACTIONSS_ID_COLLECTION, RESOURCE_ACTION_BAR } from '@/constant';
+import { CATELOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
-import ResModal from './resModal';
-import ResViewModal from './resViewModal';
+import ResModal, { IFormFieldProps } from './resModal';
 import ajax from '../../api';
-import { deleteMenu, editMenu } from './menu';
-import FolderModal from '../functionManager/folderModal';
+import FolderModal from '../function/folderModal';
 import type molecule from '@dtinsight/molecule';
-import type { CatalogueDataProps } from '@/interface';
+import type { CatalogueDataProps, IResourceProps } from '@/interface';
+import { DetailInfoModal } from '@/components/detailInfo';
 import './index.scss';
 
 const { confirm } = Modal;
 
 const FolderTreeView = connect(resourceManagerTree, FolderTree);
 
-interface IResourceProps {
+interface IResourceViewProps {
 	panel: molecule.model.IActivityBarItem;
 	headerToolBar: IActionBarItemProps[];
 }
@@ -55,12 +54,15 @@ enum DELETE_SOURCE {
 	file,
 }
 
-export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) => {
+type IRightClickDataProps = IFormFieldProps | undefined;
+
+export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTree) => {
 	const [isModalShow, setModalShow] = useState(false);
 	const [isViewModalShow, setViewModalShow] = useState(false);
-	const [resId, setResId] = useState<string | undefined>(undefined);
+	const [detailLoading, setDetailLoading] = useState(false);
+	const [detailData, setDetailData] = useState<Record<string, any> | undefined>(undefined);
 	const [isCoverUpload, setCoverUpload] = useState(false);
-	const [rightClickData, setData] = useState<any>(undefined);
+	const [rightClickData, setData] = useState<IRightClickDataProps>(undefined);
 	const [folderVisible, setFolderVisible] = useState(false);
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 	const [folderData, setFolderData] = useState<
@@ -97,13 +99,13 @@ export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) =
 	) => {
 		e.preventDefault();
 		switch (item?.id) {
-			case 'upload':
+			case ID_COLLECTIONS.RESOURCE_UPLOAD:
 				handleUpload();
 				break;
-			case 'replace':
+			case ID_COLLECTIONS.RESOURCE_REPLACE:
 				handleReplace();
 				break;
-			case 'create-folder':
+			case ID_COLLECTIONS.RESOURCE_CREATE:
 				handleCreate();
 				break;
 			default:
@@ -112,22 +114,23 @@ export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) =
 	};
 
 	const handleRightClick = (treeNode: ITreeNodeItemProps) => {
+		const ROOT_FOLDER_ACTIONS = [RESOURCE_ACTIONS.UPLOAD, RESOURCE_ACTIONS.CREATE];
 		switch (treeNode.fileType) {
 			case FileTypes.File: {
-				return [{ ...deleteMenu }];
+				return [RESOURCE_ACTIONS.REPLACE, RESOURCE_ACTIONS.DELETE];
 			}
 			case FileTypes.Folder: {
 				if (treeNode.name === '资源管理') {
-					return RESOURCE_ACTION_BAR.concat();
+					return ROOT_FOLDER_ACTIONS;
 				}
-				return RESOURCE_ACTION_BAR.concat([editMenu, deleteMenu]);
+				return ROOT_FOLDER_ACTIONS.concat([RESOURCE_ACTIONS.EDIT, RESOURCE_ACTIONS.DELETE]);
 			}
 			case FileTypes.RootFolder: {
 				// In general, root folder have no contextMenu, because it can't be clicked
-				return RESOURCE_ACTION_BAR.concat();
+				return ROOT_FOLDER_ACTIONS;
 			}
 			default:
-				break;
+				return [];
 		}
 	};
 
@@ -180,30 +183,42 @@ export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) =
 	const handleContextMenu = (contextMenu: IMenuItemProps, treeNode?: ITreeNodeItemProps) => {
 		const menuId = contextMenu.id;
 		switch (menuId) {
-			case deleteMenu.id: {
+			case ID_COLLECTIONS.RESOURCE_DELETE: {
 				handleDelete(treeNode!, treeNode!.fileType === FileTypes.File ? 'file' : 'folder');
 				break;
 			}
-			case editMenu.id: {
+			case ID_COLLECTIONS.RESOURCE_EDIT: {
 				setFolderData(treeNode!.data);
 				setFolderVisible(true);
 				break;
 			}
-			case RESOURCE_ACTIONSS_ID_COLLECTION.UPLOAD: {
+			case ID_COLLECTIONS.RESOURCE_UPLOAD: {
 				setData({
-					parentId: treeNode!.data.id,
+					nodePid: treeNode!.data.id,
 				});
 				handleUpload();
 				break;
 			}
-			case RESOURCE_ACTIONSS_ID_COLLECTION.REPLACE: {
-				setData({
-					parentId: treeNode!.data.id,
+			case ID_COLLECTIONS.RESOURCE_REPLACE: {
+				ajax.getOfflineRes({
+					resourceId: treeNode?.data.id,
+				}).then((res) => {
+					if (res.code === 1) {
+						const { originFileName, resourceType, computeType, resourceDesc } =
+							res.data as IResourceProps;
+						setData({
+							id: treeNode?.data.id,
+							originFileName,
+							resourceType,
+							computeType,
+							resourceDesc,
+						});
+						handleReplace();
+					}
 				});
-				handleReplace();
 				break;
 			}
-			case RESOURCE_ACTIONSS_ID_COLLECTION.CREATE: {
+			case ID_COLLECTIONS.RESOURCE_CREATE: {
 				setFolderData({ parentId: treeNode!.data.id });
 				setFolderVisible(true);
 				break;
@@ -222,14 +237,25 @@ export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) =
 		if (file) {
 			if (file.isLeaf) {
 				setViewModalShow(true);
-				setResId(file.data.id);
+				setDetailLoading(true);
+				ajax.getOfflineRes({
+					resourceId: file.data.id,
+				})
+					.then((res) => {
+						if (res.code === 1) {
+							setDetailData(res.data);
+						}
+					})
+					.finally(() => {
+						setDetailLoading(false);
+					});
 			}
 		}
 	};
 
 	const handleCloseViewModal = () => {
 		setViewModalShow(false);
-		setResId(undefined);
+		setDetailData(undefined);
 	};
 
 	const handleCloseFolderModal = () => {
@@ -329,20 +355,20 @@ export default ({ panel, headerToolBar, entry }: IResourceProps & IFolderTree) =
 				</div>
 			</Content>
 			<ResModal
-				isModalShow={isModalShow}
+				visible={isModalShow}
+				defaultValue={rightClickData}
 				isCoverUpload={isCoverUpload}
-				resourceTreeData={
-					resourceManagerTree.getState().folderTree?.data?.[0]?.children?.[0]
-				}
-				defaultData={rightClickData}
-				addResource={handleAddResource}
-				replaceResource={handleReplaceResource}
-				toggleUploadModal={toggleUploadModal}
+				onAddResource={handleAddResource}
+				onReplaceResource={handleReplaceResource}
+				onClose={toggleUploadModal}
 			/>
-			<ResViewModal
-				visible={Boolean(isViewModalShow && resId)}
-				resId={resId}
-				closeModal={handleCloseViewModal}
+			<DetailInfoModal
+				title="资源详情"
+				data={detailData}
+				type={CATELOGUE_TYPE.RESOURCE}
+				loading={detailLoading}
+				visible={isViewModalShow}
+				onCancel={handleCloseViewModal}
 			/>
 			<FolderModal
 				dataType={CATELOGUE_TYPE.RESOURCE}

@@ -70,14 +70,14 @@ export default function FnModal({
 			if (data?.id !== undefined) {
 				onEditFunction?.({ ...data, ...values }).then((res) => {
 					if (res) {
-						message.success('创建成功');
+						message.success('编辑成功');
 						onClose?.();
 					}
 				});
 			} else {
 				onAddFunction?.({ ...values }).then((res) => {
 					if (res) {
-						message.success('编辑成功');
+						message.success('创建成功');
 						onClose?.();
 					}
 				});
@@ -107,15 +107,6 @@ export default function FnModal({
 		}
 
 		return Promise.resolve();
-	};
-
-	const handleResSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ resourceId: value });
-		form.validateFields(['resourceId']);
-	};
-
-	const handleSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ nodePid: value });
 	};
 
 	useEffect(() => {
