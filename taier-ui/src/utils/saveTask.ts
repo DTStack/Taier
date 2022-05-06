@@ -87,18 +87,21 @@ export default function saveTask() {
 		case TASK_TYPE_ENUM.SYNC: {
 			const params: IParamsProps = cloneDeep(data);
 			const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
-			if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
-				const isIncrementMode =
-					params.sourceMap.syncModel !== undefined &&
-					DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
-				if (!isIncrementMode) {
-					params.sourceMap!.increColumn = undefined; // Delete increColumn
-				}
+			// 向导模式需要去检查填写是否正确
+			if (params.createModel === CREATE_MODEL_TYPE.GUIDE) {
+				if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
+					const isIncrementMode =
+						params.sourceMap.syncModel !== undefined &&
+						DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
+					if (!isIncrementMode) {
+						params.sourceMap!.increColumn = undefined; // Delete increColumn
+					}
 
-				// 服务端需要的参数
-				params.sourceMap!.rdbmsDaType = rdbmsDaType.Poll;
-			} else {
-				return Promise.reject(new Error('请检查数据同步任务是否填写正确'));
+					// 服务端需要的参数
+					params.sourceMap!.rdbmsDaType = rdbmsDaType.Poll;
+				} else {
+					return Promise.reject(new Error('请检查数据同步任务是否填写正确'));
+				}
 			}
 
 			// 修改task配置时接口要求的标记位
@@ -184,11 +187,7 @@ export default function saveTask() {
 				isKafka(sourceMap?.type) ||
 				sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
 				sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
-			if (
-				targetMap?.type === DATA_SOURCE_ENUM.HIVE &&
-				!sourceMap.pavingData &&
-				!haveJson
-			) {
+			if (targetMap?.type === DATA_SOURCE_ENUM.HIVE && !sourceMap.pavingData && !haveJson) {
 				message.error('请勾选嵌套Json平铺后重试');
 				return Promise.reject();
 			}

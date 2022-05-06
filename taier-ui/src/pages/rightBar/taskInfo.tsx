@@ -17,13 +17,11 @@
  */
 
 import { useMemo } from 'react';
-import { Collapse } from 'antd';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import classNames from 'classnames';
 import DetailInfo from '@/components/detailInfo';
 import { isTaskTab } from '@/utils/enums';
-
-const { Panel } = Collapse;
+import { CATELOGUE_TYPE } from '@/constant';
 
 export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 	/**
@@ -33,17 +31,11 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 
 	const renderTaskInfo = () => {
 		if (isInValidTab) {
-			return <div className={classNames('text-center', 'mt-10px')}>无法提供活动属性</div>;
+			return <div className={classNames('text-center', 'mt-10px')}>无法获取任务属性</div>;
 		}
 		const tab = current!.tab!;
-		return <DetailInfo type="task" data={tab.data} />;
+		return <DetailInfo type={CATELOGUE_TYPE.TASK} data={tab.data} />;
 	};
 
-	return (
-		<Collapse defaultActiveKey={['1']} bordered={false} className="bg-transparent">
-			<Panel header="活动属性" key="1">
-				{renderTaskInfo()}
-			</Panel>
-		</Collapse>
-	);
+	return renderTaskInfo();
 }

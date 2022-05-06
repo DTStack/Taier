@@ -695,11 +695,12 @@ export function isEqualArr(arr1: string[], arr2: string[]): boolean {
 }
 
 function formatJSON(str: string) {
-	const standardStr = str.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-	const jsonObj = JSON.parse(standardStr);
+	const jsonObj = JSON.parse(str);
 	Object.keys(jsonObj).forEach((key) => {
 		if (typeof jsonObj[key] === 'string') {
-			jsonObj[key] = formatJSON(jsonObj[key]);
+			try {
+				jsonObj[key] = formatJSON(jsonObj[key]);
+			} catch {}
 		}
 	});
 
@@ -772,15 +773,15 @@ export const formatSourceTypes = (
  * 是否展示OffsetReset的时间
  * @param {number} type --任务类型
  */
-export function showTimeForOffsetReset (type: number) {
-    return [
-        DATA_SOURCE_ENUM.KAFKA,
-        DATA_SOURCE_ENUM.KAFKA_2X,
-        DATA_SOURCE_ENUM.KAFKA_10,
-        DATA_SOURCE_ENUM.KAFKA_11,
-        DATA_SOURCE_ENUM.TBDS_KAFKA,
-        DATA_SOURCE_ENUM.KAFKA_HUAWEI
-    ].includes(type);
+export function showTimeForOffsetReset(type: number) {
+	return [
+		DATA_SOURCE_ENUM.KAFKA,
+		DATA_SOURCE_ENUM.KAFKA_2X,
+		DATA_SOURCE_ENUM.KAFKA_10,
+		DATA_SOURCE_ENUM.KAFKA_11,
+		DATA_SOURCE_ENUM.TBDS_KAFKA,
+		DATA_SOURCE_ENUM.KAFKA_HUAWEI,
+	].includes(type);
 }
 
 /**
@@ -788,9 +789,9 @@ export function showTimeForOffsetReset (type: number) {
  * @param {number | undefined} timestamp --时间戳
  */
 export const formatOffsetResetTime = (timestamp: number | undefined): moment.Moment => {
-    const dateString = moment(timestamp).format(OFFSET_RESET_FORMAT);
-    return moment(dateString, OFFSET_RESET_FORMAT)
-}
+	const dateString = moment(timestamp).format(OFFSET_RESET_FORMAT);
+	return moment(dateString, OFFSET_RESET_FORMAT);
+};
 
 /**
  * 创建timepicker disable区间
@@ -799,44 +800,52 @@ export const formatOffsetResetTime = (timestamp: number | undefined): moment.Mom
  * @param type string
  * @param isEnd boolean
  */
- export function disableRangeCreater (beginDate: moment.Moment | null | undefined, endDate: moment.Moment | null | undefined, type: 'hour' | 'minute' | 'second', isEnd?: boolean): number[] {
-    if (!beginDate || !endDate) {
-        return []
-    }
-    beginDate = beginDate.clone();
-    endDate = endDate.clone();
-    let compareDate = isEnd ? endDate : beginDate;
-    let otherDate = isEnd ? beginDate : endDate;
-    let max;
-    let rangeValue;
-    switch (type) {
-        case 'hour': {
-            max = 24;
-            compareDate.hours(otherDate.hours());
-            rangeValue = otherDate.hours();
-            break;
-        }
-        case 'minute': {
-            if (otherDate.hours() != compareDate.hours()) {
-                return [];
-            }
-            max = 60;
-            compareDate.minutes(otherDate.minutes());
-            rangeValue = otherDate.minutes();
-            break;
-        }
-        case 'second': {
-            if (otherDate.hours() != compareDate.hours() || otherDate.minutes() != compareDate.minutes()) {
-                return [];
-            }
-            max = 60;
-            compareDate.seconds(otherDate.seconds());
-            rangeValue = otherDate.seconds();
-            break;
-        }
-    }
-    if (isEnd) {
-        return range(compareDate < otherDate ? (rangeValue - 1) : rangeValue);
-    }
-    return range(compareDate > otherDate ? rangeValue : (rangeValue + 1), max)
+export function disableRangeCreater(
+	beginDate: moment.Moment | null | undefined,
+	endDate: moment.Moment | null | undefined,
+	type: 'hour' | 'minute' | 'second',
+	isEnd?: boolean,
+): number[] {
+	if (!beginDate || !endDate) {
+		return [];
+	}
+	beginDate = beginDate.clone();
+	endDate = endDate.clone();
+	let compareDate = isEnd ? endDate : beginDate;
+	let otherDate = isEnd ? beginDate : endDate;
+	let max;
+	let rangeValue;
+	switch (type) {
+		case 'hour': {
+			max = 24;
+			compareDate.hours(otherDate.hours());
+			rangeValue = otherDate.hours();
+			break;
+		}
+		case 'minute': {
+			if (otherDate.hours() != compareDate.hours()) {
+				return [];
+			}
+			max = 60;
+			compareDate.minutes(otherDate.minutes());
+			rangeValue = otherDate.minutes();
+			break;
+		}
+		case 'second': {
+			if (
+				otherDate.hours() != compareDate.hours() ||
+				otherDate.minutes() != compareDate.minutes()
+			) {
+				return [];
+			}
+			max = 60;
+			compareDate.seconds(otherDate.seconds());
+			rangeValue = otherDate.seconds();
+			break;
+		}
+	}
+	if (isEnd) {
+		return range(compareDate < otherDate ? rangeValue - 1 : rangeValue);
+	}
+	return range(compareDate > otherDate ? rangeValue : rangeValue + 1, max);
 }

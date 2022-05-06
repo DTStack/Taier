@@ -22,6 +22,7 @@ import ajax from '../../api';
 import type { IFunctionProps } from '@/interface';
 import { getContainer } from '../resourceManager/resModal';
 import DetailInfo from '../detailInfo';
+import { CATELOGUE_TYPE } from '@/constant';
 
 interface IFnViewModalProps {
 	visible: boolean;
@@ -52,7 +53,7 @@ export default function FnViewModal({ visible, fnId, closeModal }: IFnViewModalP
 		if (loading) return <Spin />;
 		if (!data) return '系统异常';
 
-		return <DetailInfo type="function" data={data} />;
+		return <DetailInfo type={CATELOGUE_TYPE.FUNCTION} data={data} />;
 	};
 
 	useEffect(() => {

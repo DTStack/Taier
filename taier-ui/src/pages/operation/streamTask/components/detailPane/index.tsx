@@ -179,7 +179,7 @@ export default function TaskDetailPane({
 			case TABS_ENUM.PARAMS:
 				return <RunCode key={data?.id} data={taskParams} />;
 			default:
-				break;
+				return null;
 		}
 	};
 
@@ -202,7 +202,7 @@ export default function TaskDetailPane({
 				position: 'fixed',
 			}}
 		>
-			{data && (
+			{data && visibleSlidePane && (
 				<div className="c-operation__slidePane">
 					<header className="detailPane-header">
 						<span style={{ fontSize: 14, fontWeight: 500 }}>{data.name}</span>

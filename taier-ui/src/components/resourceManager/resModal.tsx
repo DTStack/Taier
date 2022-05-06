@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { forwardRef, useMemo, useRef, useState } from 'react';
-import type { FormInstance } from 'antd';
+import { FormInstance, Radio, Space } from 'antd';
 import { Form, Modal, Button, Input, Select, Spin, Upload } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import ajax from '../../api';
@@ -25,7 +25,7 @@ import { CATELOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
 import { useImperativeHandle } from 'react';
 import { getResourceName } from '@/utils/enums';
 import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
-import type { CatalogueDataProps, IResourceProps } from '@/interface';
+import { CatalogueDataProps, IComputeType, IResourceProps } from '@/interface';
 import type { RcFile } from 'antd/lib/upload';
 
 export function getContainer(id: string) {
@@ -70,6 +70,10 @@ interface IFormFieldProps {
 	file: RcFile;
 	nodePid: number;
 	resourceDesc?: string;
+	/**
+	 * 计算类型
+	 */
+	computeType: IComputeType;
 }
 
 const ResForm = forwardRef(
@@ -153,8 +157,9 @@ const ResForm = forwardRef(
 					if (res.code === 1) {
 						const data = res.data as IResourceProps;
 						form.setFieldsValue({
-							originFileName: data.originFileName || '',
-							resourceType: data.resourceType,
+							originFileName: data?.originFileName || '',
+							resourceType: data?.resourceType,
+							computeType: data?.computeType,
 						});
 						form.validateFields(['originFileName']);
 					}
@@ -283,6 +288,22 @@ const ResForm = forwardRef(
 							</>
 						)}
 					</FormItem>,
+					<FormItem
+						key="computeType"
+						{...formItemLayout}
+						name="computeType"
+						label="计算类型"
+						required
+						initialValue={IComputeType.STFP}
+						tooltip="设置资源上传的计算组件类型"
+					>
+						<Radio.Group>
+							<Space>
+								<Radio value={IComputeType.STFP}>STFP</Radio>
+								<Radio value={IComputeType.HDFS}>HDFS</Radio>
+							</Space>
+						</Radio.Group>
+					</FormItem>,
 					<FormItem {...formItemLayout} required label="选择存储位置" key="nodePid">
 						<FormItem
 							noStyle
@@ -318,14 +339,6 @@ const ResForm = forwardRef(
 						initialValue=""
 					>
 						<Input.TextArea rows={4} />
-					</FormItem>,
-					<FormItem
-						key="computeType"
-						style={{ display: 'none' }}
-						name="computeType"
-						initialValue={1}
-					>
-						<Input type="hidden" />
 					</FormItem>,
 				];
 			}
@@ -398,6 +411,21 @@ const ResForm = forwardRef(
 							其它
 						</Option>
 					</Select>
+				</FormItem>,
+				<FormItem
+					key="computeType"
+					{...formItemLayout}
+					name="computeType"
+					label="计算类型"
+					required
+					tooltip="设置资源上传的计算组件类型"
+				>
+					<Radio.Group disabled>
+						<Space>
+							<Radio value={IComputeType.STFP}>STFP</Radio>
+							<Radio value={IComputeType.HDFS}>HDFS</Radio>
+						</Space>
+					</Radio.Group>
 				</FormItem>,
 				<FormItem
 					{...formItemLayout}
