@@ -28,7 +28,7 @@ public interface IComponentService {
     /**
      * 获取数据源下所有的db
      *
-     * @param clusterId      租户ID
+     * @param clusterId      集群ID
      * @param eComponentType 组件类型
      * @param schema         schema
      * @return
