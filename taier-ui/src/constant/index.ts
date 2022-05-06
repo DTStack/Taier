@@ -185,14 +185,14 @@ export enum TASK_TYPE_ENUM {
 	 */
 	SQL = 5,
 	/**
-	 * 工作流
-	 */
-	WORK_FLOW = 10,
-	HIVE_SQL = 17,
-	/**
 	 * 实时任务
 	 */
 	DATA_ACQUISITION = 6,
+	HIVE_SQL = 7,
+	/**
+	 * 工作流
+	 */
+	WORK_FLOW = 10,
 }
 
 /**

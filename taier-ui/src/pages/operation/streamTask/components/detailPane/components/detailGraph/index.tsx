@@ -145,8 +145,23 @@ const initState = {
 type IState = typeof initState;
 
 export default class StreamDetailGraph extends React.Component<IProps & any, IState> {
-	state = initState;
-
+	constructor(props: any) {
+		super(props);
+		this.state = {
+			lineDatas: defaultData,
+			sourceStatusList: [],
+			time: defaultTimeValue,
+			endTime: moment(),
+			metricValue: undefined,
+			metricLists: [],
+			metricDatas: {},
+			metricStatus: {
+				status: METRIC_STATUS_TYPE.NORMAL, // 正常 1, 异常 2
+				msg: '',
+			},
+			tabKey: 'OverView',
+		};
+	}
 	componentDidMount() {
 		this.getMetricValues();
 		this.initGraph();
@@ -206,18 +221,20 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 		if (!data.id) {
 			return;
 		}
-		stream.getMetricValues({
-			taskId: data?.id,
-		}).then((res: any) => {
-			const { code, data } = res;
-			if (code === 1) {
-				const metricLists = (data || []).map((item: string) => ({
-					text: item,
-					value: item,
-				}));
-				this.setState({ metricLists });
-			}
-		});
+		stream
+			.getMetricValues({
+				taskId: data?.id,
+			})
+			.then((res: any) => {
+				const { code, data } = res;
+				if (code === 1) {
+					const metricLists = (data || []).map((item: string) => ({
+						text: item,
+						value: item,
+					}));
+					this.setState({ metricLists });
+				}
+			});
 	};
 
 	// 初始化缓存中有的自定义metrics
@@ -236,17 +253,19 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 	// 查询指标数据
 	queryTaskMetrics = (chartName: string, id: number) => {
 		const { time, endTime } = this.state;
-		stream.queryTaskMetrics({
-			taskId: id,
-			chartName,
-			timespan: time,
-			end: endTime.valueOf(),
-		}).then((res: any) => {
-			const { code, data } = res;
-			if (code === 1) {
-				this.setMetricData(chartName, data || []);
-			}
-		});
+		stream
+			.queryTaskMetrics({
+				taskId: id,
+				chartName,
+				timespan: time,
+				end: endTime.valueOf(),
+			})
+			.then((res: any) => {
+				const { code, data } = res;
+				if (code === 1) {
+					this.setMetricData(chartName, data || []);
+				}
+			});
 	};
 
 	// 格式化数据
@@ -535,12 +554,14 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 			let serverChart = metricsList[i];
 			// 间隔时间，防止卡顿
 			setTimeout(() => {
-				stream.getTaskMetrics({
-					taskId: data.id,
-					timespan: time,
-					end: endTime.valueOf(),
-					chartNames: [serverChart],
-				}).then(successFunc);
+				stream
+					.getTaskMetrics({
+						taskId: data.id,
+						timespan: time,
+						end: endTime.valueOf(),
+						chartNames: [serverChart],
+					})
+					.then(successFunc);
 			}, 100 + 25 * i);
 		}
 	}
@@ -925,6 +946,7 @@ export default class StreamDetailGraph extends React.Component<IProps & any, ISt
 										key={index}
 										gutter={10}
 										style={{ marginTop: 10, paddingLeft: 2 }}
+										className="alarm-graph-row"
 									>
 										{row.map((name: string) => (
 											<Col key={name} span={12}>
