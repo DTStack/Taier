@@ -41,7 +41,7 @@ import {
 	CREATE_MODEL_TYPE,
 	ID_COLLECTIONS,
 } from '@/constant';
-import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { CatalogueDataProps, IComputeType, IOfflineTaskProps } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import StreamCollection from '@/components/streamCollection';
 import { editorActionBarService } from '@/services';
@@ -70,9 +70,9 @@ function updateTree(data: Partial<CatalogueDataProps>) {
  */
 function getComputeType(type: TASK_TYPE_ENUM): number {
 	if (type === TASK_TYPE_ENUM.DATA_ACQUISITION || type === TASK_TYPE_ENUM.SQL) {
-		return 0;
+		return IComputeType.STFP;
 	}
-	return 1;
+	return IComputeType.HDFS;
 }
 
 /**
@@ -163,8 +163,7 @@ function init() {
 						.querySelector<HTMLDivElement>('.mo-tree__treenode--active')
 						?.classList.remove('mo-tree__treenode--active');
 					const dom = document.querySelector<HTMLDivElement>(
-						`div.mo-tree__treenode[data-key="${
-							molecule.folderTree.getState().folderTree?.current?.id
+						`div.mo-tree__treenode[data-key="${molecule.folderTree.getState().folderTree?.current?.id
 						}"]`,
 					);
 					dom?.classList.add('mo-tree__treenode--active');
@@ -200,7 +199,7 @@ function initContextMenu() {
 function createTask() {
 	molecule.folderTree.onCreate((type, id) => {
 		if (!id && !molecule.folderTree.getState().folderTree?.data?.length) {
-			message.error('获取任务开发目录失败，请联系管理员');
+			message.error('请先配置集群并进行绑定!');
 			return;
 		}
 		if (type === 'File') {
@@ -390,7 +389,7 @@ export function openTaskInTab(
 						name: data.name,
 						data: {
 							...data,
-							value: data.sqlText,
+							value: prettierJSONstring(data.sqlText),
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
@@ -450,9 +449,8 @@ function onRemove() {
 		const type = treeNode?.data?.type;
 		Modal.confirm({
 			title: `确认要删除此${type === 'file' ? '任务' : '文件夹'}吗?`,
-			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${
-				type === 'file' ? '找回' : '恢复'
-			}！`,
+			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${type === 'file' ? '找回' : '恢复'
+				}！`,
 			onOk() {
 				if (treeNode?.data?.type === 'folder') {
 					api.delOfflineFolder({ id: treeNode.data.id }).then((res) => {
@@ -480,7 +478,7 @@ function onRemove() {
 					});
 				}
 			},
-			onCancel() {},
+			onCancel() { },
 		});
 	});
 }
@@ -572,17 +570,17 @@ function contextMenu() {
 					id: tabId,
 					data: isFile
 						? {
-								id: treeNode?.data.id,
-								name: treeNode?.name,
-								taskType: treeNode?.data.taskType,
-								nodePid: treeNode?.data.parentId,
-								taskDesc: treeNode?.data.taskDesc,
-						  }
+							id: treeNode?.data.id,
+							name: treeNode?.name,
+							taskType: treeNode?.data.taskType,
+							nodePid: treeNode?.data.parentId,
+							taskDesc: treeNode?.data.taskDesc,
+						}
 						: {
-								id: treeNode?.id,
-								nodePid: treeNode?.data.parentId,
-								dt_nodeName: treeNode?.name,
-						  },
+							id: treeNode?.id,
+							nodePid: treeNode?.data.parentId,
+							dt_nodeName: treeNode?.name,
+						},
 					icon: 'edit',
 					breadcrumb:
 						treeNode?.location?.split('/')?.map((item: string) => ({

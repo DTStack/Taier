@@ -1127,6 +1127,7 @@ CREATE TABLE `develop_task` (
                                 `side_str` longtext COLLATE utf8_bin COMMENT '维表',
                                 `setting_str` longtext COLLATE utf8_bin COMMENT '设置',
                                 `create_model` tinyint(4) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
+                                `job_id` varchar(64) DEFAULT null,
                                 PRIMARY KEY (`id`),
                                 KEY `index_name` (`name`(128))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务表';

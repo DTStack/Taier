@@ -138,12 +138,17 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 										.indexOf(input.toLowerCase()) >= 0
 								}
 							>
-								{checkPointList.map((checkPoint) => (
-									<Option value={checkPoint.applicationId}>
-										{checkPoint.applicationId}(
-										{moment(checkPoint.execStartTime).format('YYYY-MM-DD')})
-									</Option>
-								))}
+								{checkPointList.map((checkPoint) => {
+									const label = `${checkPoint.applicationId}(
+										${moment(checkPoint.execStartTime).format('YYYY-MM-DD HH:mm:ss')})`;
+									return (
+										<Option value={checkPoint.applicationId}>
+											<Tooltip title={label}>
+												{label.slice(0, 20)}......{label.slice(-22)}
+											</Tooltip>
+										</Option>
+									)
+								})}
 							</Select>
 						</Form.Item>
 						<Form.Item
@@ -164,7 +169,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 		}
 	};
 
-	const handleValuesChanged = (checkedValue: Partial<IFormFieldProps>) => {
+	const handleValuesChanged = (checkedValue: Partial<IFormFieldProps>, values: IFormFieldProps) => {
 		if (Object.keys(checkedValue).includes('type')) {
 			if (checkedValue.type === CHECK_TYPE_VALUE.CHECK_POINT) {
 				getCheckPointList();
@@ -177,7 +182,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 		if (Object.keys(checkedValue).includes('checkPoint')) {
 			setLoading(true);
 			stream
-				.listCheckPoint({ jobId: data?.jobId, applicationId: checkedValue.checkPoint })
+				.listCheckPoint({ jobId: data?.jobId, applicationId: checkedValue.checkPoint, getSavePointPath: values.pointType === POINT_TYPE.SAVE_POINT })
 				.then((res) => {
 					if (res.code === 1) {
 						setPathList(res.data || []);
@@ -191,6 +196,16 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 				checkPointPath: undefined,
 			});
 		}
+
+
+		// 选择类型切换重制 checkPoint
+		if (Object.keys(checkedValue).includes('pointType')) {
+			form.setFieldsValue({
+				checkPoint: undefined,
+				checkPointPath: undefined,
+			})
+			setPathList([]);
+		}
 	};
 
 	const doGoOn = () => {
@@ -203,7 +218,6 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 							? values.checkPointPath
 							: values.filePath,
 					isRestoration: 0,
-					getSavePointPath: values.pointType === POINT_TYPE.SAVE_POINT,
 				})
 				.then((res) => {
 					if (res.code === 1) {
@@ -314,7 +328,7 @@ function PathTable({ value, data, loading, onChange }: IPathTable) {
 					dataIndex: 'modificationTime',
 					width: 100,
 					key: 'modificationTime',
-					render: (text) => moment(text).format('YYYY-MM-DD'),
+					render: (text) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
 				},
 			]}
 			onRow={(record) => ({ onClick: () => handleChanged([record.path]) })}

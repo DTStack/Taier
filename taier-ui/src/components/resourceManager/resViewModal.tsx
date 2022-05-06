@@ -21,6 +21,7 @@ import { Modal, Button, Spin } from 'antd';
 import ajax from '../../api';
 import { getContainer } from './resModal';
 import DetailInfo from '../detailInfo';
+import { CATELOGUE_TYPE } from '@/constant';
 
 interface IResViewModalProps {
 	visible: boolean;
@@ -47,7 +48,7 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 		if (loading) return <Spin />;
 		if (!data) return '系统异常';
 
-		return <DetailInfo type="resource" data={data} />;
+		return <DetailInfo type={CATELOGUE_TYPE.RESOURCE} data={data} />;
 	};
 
 	useEffect(() => {
