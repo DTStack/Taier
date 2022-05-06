@@ -164,7 +164,7 @@ public class BatchFunctionService {
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, Long resourceId, Long tenantId) {
+    public TaskCatalogueVO addOrUpdateFunction(BatchFunction batchFunction, Long resourceId, Long tenantId, Long userId) {
         if (!PublicUtil.matcher(batchFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
@@ -182,8 +182,7 @@ public class BatchFunctionService {
 			}
 
 			batchFunction.setType(FuncType.CUSTOM.getType());
-			batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-			addOrUpdate(batchFunction);
+			addOrUpdate(batchFunction, userId);
             addOrUpdateFunctionResource(batchFunction, resourceId);
 			// 添加类目关系
 			TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
@@ -199,12 +198,7 @@ public class BatchFunctionService {
 			return taskCatalogueVO;
 		} catch (Exception e) {
             LOGGER.error("addFunction, functions={},resource={},tenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
-            LOGGER.error(e.getMessage(), e);
-            if (e instanceof RdosDefineException) {
-                throw e;
-            } else {
-                throw new RdosDefineException(String.format("添加函数失败：%s", e.getMessage()));
-            }
+            throw new RdosDefineException(String.format("添加函数失败：%s", e.getMessage()), e);
 		}
     }
 
@@ -221,8 +215,11 @@ public class BatchFunctionService {
         batchFunctionResource.setResourceId(resourceId);
         BatchFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
         if (Objects.isNull(resourceFunctionByFunctionId)) {
+            batchFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
+            batchFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             batchFunctionResourceService.insert(batchFunctionResource);
         }else {
+            batchFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             batchFunctionResourceService.updateByFunctionId(batchFunctionResource);
         }
     }
@@ -248,16 +245,22 @@ public class BatchFunctionService {
         }
     }
 
-
     /**
      * 新增、更新 函数信息
-     * @param batchFunction
+     *
+     * @param batchFunction 函数信息
+     * @param userId        用户ID
      * @return
      */
-    private BatchFunction addOrUpdate(BatchFunction batchFunction) {
+    private BatchFunction addOrUpdate(BatchFunction batchFunction, Long userId) {
         if (batchFunction.getId() > 0) {
+            batchFunction.setModifyUserId(userId);
+            batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             developFunctionDao.updateById(batchFunction);
         } else {
+            batchFunction.setCreateUserId(userId);
+            batchFunction.setModifyUserId(userId);
+            batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             batchFunction.setIsDeleted(Deleted.NORMAL.getStatus());
             developFunctionDao.insert(batchFunction);
         }
@@ -283,8 +286,7 @@ public class BatchFunctionService {
         bf = new BatchFunction();
         bf.setId(functionId);
         bf.setNodePid(nodePid);
-        bf.setModifyUserId(userId);
-        addOrUpdate(bf);
+        addOrUpdate(bf, userId);
     }
 
     /**
@@ -308,8 +310,7 @@ public class BatchFunctionService {
         batchFunction = new BatchFunction();
         batchFunction.setId(functionId);
         batchFunction.setIsDeleted(Deleted.DELETED.getStatus());
-        batchFunction.setModifyUserId(userId);
-        addOrUpdate(batchFunction);
+        addOrUpdate(batchFunction, userId);
     }
 
 
