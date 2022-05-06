@@ -1,19 +1,20 @@
+import { Descriptions, message, Tooltip } from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { CATELOGUE_TYPE } from '@/constant';
 import type { IFunctionProps, IOfflineTaskProps } from '@/interface';
 import { formatDateTime } from '@/utils';
 import { taskTypeText } from '@/utils/enums';
 import { CopyOutlined } from '@ant-design/icons';
-import { Descriptions, message, Tooltip } from 'antd';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import './index.scss';
 
 interface IDetailInfoProps {
-	type: 'task' | 'function' | 'resource';
+	type: CATELOGUE_TYPE;
 	data: Record<string, any>;
 }
 
 export default function DetailInfo({ type, data }: IDetailInfoProps) {
 	switch (type) {
-		case 'task': {
+		case CATELOGUE_TYPE.TASK: {
 			const labelPrefix = '任务';
 			const tab = data as IOfflineTaskProps;
 			return (
@@ -24,9 +25,11 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 					<Descriptions.Item label={`${labelPrefix}类型：`} span={12}>
 						{taskTypeText(tab.taskType)}
 					</Descriptions.Item>
-					{tab?.componentVersion && <Descriptions.Item label="引擎版本：" span={12}>
-						{tab?.componentVersion}
-					</Descriptions.Item>}
+					{tab?.componentVersion && (
+						<Descriptions.Item label="引擎版本：" span={12}>
+							{tab?.componentVersion}
+						</Descriptions.Item>
+					)}
 					<Descriptions.Item label="创建时间：" span={12}>
 						{formatDateTime(tab.gmtCreate)}
 					</Descriptions.Item>
@@ -39,7 +42,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 				</Descriptions>
 			);
 		}
-		case 'function': {
+		case CATELOGUE_TYPE.FUNCTION: {
 			const functionData = data as IFunctionProps;
 			return (
 				<Descriptions className="dt-taskinfo" bordered size="small">
@@ -75,7 +78,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 				</Descriptions>
 			);
 		}
-		case 'resource': {
+		case CATELOGUE_TYPE.RESOURCE: {
 			const resourceData: Record<string, any> = data;
 			return (
 				<Descriptions className="dt-taskinfo" bordered size="small">
