@@ -345,14 +345,21 @@ export function getEngineSourceTypeName(sourceId: ENGINE_SOURCE_TYPE_ENUM) {
 	}
 }
 
-export function getResourceName(): Partial<Record<RESOURCE_TYPE, string>> {
-	return {
-		[RESOURCE_TYPE.JAR]: 'jar',
-		[RESOURCE_TYPE.PY]: 'py',
-		[RESOURCE_TYPE.EGG]: 'egg',
-		[RESOURCE_TYPE.ZIP]: 'zip',
-		[RESOURCE_TYPE.OTHER]: '其它',
-	};
+export function resourceNameMapping(type?: RESOURCE_TYPE) {
+	switch (type) {
+		case RESOURCE_TYPE.JAR:
+			return 'jar';
+		case RESOURCE_TYPE.PY:
+			return 'py';
+		case RESOURCE_TYPE.EGG:
+			return 'egg';
+		case RESOURCE_TYPE.ZIP:
+			return 'zip';
+		case RESOURCE_TYPE.OTHER:
+			return '其它';
+		default:
+			return '未知';
+	}
 }
 
 /**
