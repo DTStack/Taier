@@ -379,7 +379,9 @@ ALTER TABLE `develop_task` ADD COLUMN `source_str` longtext COMMENT '输入源' 
 ADD COLUMN `target_str` longtext COMMENT '输出源' AFTER `source_str`,
 ADD COLUMN `setting_str` longtext COMMENT '设置' AFTER `target_str`,
 ADD COLUMN `create_model` tinyint COMMENT '任务模式 0 向导模式  1 脚本模式' AFTER `setting_str`,
-ADD COLUMN `side_str` longtext COMMENT '维表' AFTER `target_str`;
+ADD COLUMN `side_str` longtext COMMENT '维表' AFTER `target_str`,
+ADD COLUMN `job_id` varchar(64) default null AFTER `side_str`
+;
 
 
 drop table if exists develop_task_template;

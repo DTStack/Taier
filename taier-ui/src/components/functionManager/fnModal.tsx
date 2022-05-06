@@ -220,8 +220,8 @@ export default function FnModal({
 							message: '函数名称不可为空！',
 						},
 						{
-							pattern: /^[a-z0-9_]+$/,
-							message: '函数名称只能由小写字母、数字、下划线组成!',
+							pattern: /^[a-zA-Z0-9_]+$/,
+							message: '函数名称只能由字母、数字、下划线组成!',
 						},
 						{
 							max: 20,
