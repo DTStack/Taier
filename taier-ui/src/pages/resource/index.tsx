@@ -33,11 +33,11 @@ import { loadTreeNode } from '@/utils/extensions';
 import { CATELOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal, { IFormFieldProps } from './resModal';
-import ResViewModal from './resViewModal';
 import ajax from '../../api';
 import FolderModal from '../function/folderModal';
 import type molecule from '@dtinsight/molecule';
 import type { CatalogueDataProps, IResourceProps } from '@/interface';
+import { DetailInfoModal } from '@/components/detailInfo';
 import './index.scss';
 
 const { confirm } = Modal;
@@ -59,7 +59,8 @@ type IRightClickDataProps = IFormFieldProps | undefined;
 export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTree) => {
 	const [isModalShow, setModalShow] = useState(false);
 	const [isViewModalShow, setViewModalShow] = useState(false);
-	const [resId, setResId] = useState<string | undefined>(undefined);
+	const [detailLoading, setDetailLoading] = useState(false);
+	const [detailData, setDetailData] = useState<Record<string, any> | undefined>(undefined);
 	const [isCoverUpload, setCoverUpload] = useState(false);
 	const [rightClickData, setData] = useState<IRightClickDataProps>(undefined);
 	const [folderVisible, setFolderVisible] = useState(false);
@@ -236,14 +237,25 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 		if (file) {
 			if (file.isLeaf) {
 				setViewModalShow(true);
-				setResId(file.data.id);
+				setDetailLoading(true);
+				ajax.getOfflineRes({
+					resourceId: file.data.id,
+				})
+					.then((res) => {
+						if (res.code === 1) {
+							setDetailData(res.data);
+						}
+					})
+					.finally(() => {
+						setDetailLoading(false);
+					});
 			}
 		}
 	};
 
 	const handleCloseViewModal = () => {
 		setViewModalShow(false);
-		setResId(undefined);
+		setDetailData(undefined);
 	};
 
 	const handleCloseFolderModal = () => {
@@ -350,10 +362,13 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 				onReplaceResource={handleReplaceResource}
 				onClose={toggleUploadModal}
 			/>
-			<ResViewModal
-				visible={Boolean(isViewModalShow && resId)}
-				resId={resId}
-				closeModal={handleCloseViewModal}
+			<DetailInfoModal
+				title="资源详情"
+				data={detailData}
+				type={CATELOGUE_TYPE.RESOURCE}
+				loading={detailLoading}
+				visible={isViewModalShow}
+				onCancel={handleCloseViewModal}
 			/>
 			<FolderModal
 				dataType={CATELOGUE_TYPE.RESOURCE}

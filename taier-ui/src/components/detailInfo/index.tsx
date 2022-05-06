@@ -1,4 +1,4 @@
-import { Descriptions, message, Tooltip } from 'antd';
+import { Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { CATELOGUE_TYPE } from '@/constant';
 import type { IFunctionProps, IOfflineTaskProps } from '@/interface';
@@ -119,4 +119,43 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 		default:
 			return null;
 	}
+}
+
+interface IDetailModalProps {
+	visible?: boolean;
+	title?: string;
+	loading?: boolean;
+	type: IDetailInfoProps['type'];
+	data?: IDetailInfoProps['data'];
+	onCancel?: () => void;
+}
+
+/**
+ * 详情模态框，用于展示函数或资源详情
+ */
+export function DetailInfoModal({
+	visible,
+	loading,
+	title,
+	type,
+	data,
+	onCancel,
+}: IDetailModalProps) {
+	return (
+		<Modal
+			title={title}
+			visible={visible}
+			onCancel={onCancel}
+			width={550}
+			footer={
+				<Button type="default" onClick={onCancel}>
+					关闭
+				</Button>
+			}
+		>
+			<Spin spinning={loading}>
+				{data ? <DetailInfo type={type} data={data} /> : '系统异常'}
+			</Spin>
+		</Modal>
+	);
 }

@@ -70,14 +70,14 @@ export default function FnModal({
 			if (data?.id !== undefined) {
 				onEditFunction?.({ ...data, ...values }).then((res) => {
 					if (res) {
-						message.success('创建成功');
+						message.success('编辑成功');
 						onClose?.();
 					}
 				});
 			} else {
 				onAddFunction?.({ ...values }).then((res) => {
 					if (res) {
-						message.success('编辑成功');
+						message.success('创建成功');
 						onClose?.();
 					}
 				});

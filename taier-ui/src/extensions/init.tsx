@@ -24,6 +24,7 @@ import {
 	ID_COLLECTIONS,
 	DRAWER_MENU_ENUM,
 	RESOURCE_ACTIONS,
+	FUNCTOIN_ACTIONS,
 } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/pages/resource';
@@ -35,7 +36,6 @@ import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
 import { Float } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
-import { FUNCTION_NEW_FUNCTION } from '@/pages/function/menu';
 import LogEditor from '@/components/logEditor';
 import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';
@@ -248,7 +248,7 @@ function initFunctionManager() {
 			id: 'menus',
 			title: '更多操作',
 			icon: 'menu',
-			contextMenu: [FUNCTION_NEW_FUNCTION],
+			contextMenu: [FUNCTOIN_ACTIONS.CREATE_FUNCTION],
 		},
 	];
 

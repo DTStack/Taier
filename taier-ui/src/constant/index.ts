@@ -119,6 +119,22 @@ export enum ID_COLLECTIONS {
 	 * 资源管理-编辑文件夹
 	 */
 	RESOURCE_EDIT = 'resource.edit',
+	/**
+	 * 函数管理-新建文件夹
+	 */
+	FUNCTION_CREATE_FOLDER = 'function.create.folder',
+	/**
+	 * 函数管理-新建自定义函数
+	 */
+	FUNCTION_CREATE = 'function.create',
+	/**
+	 * 函数管理-编辑函数
+	 */
+	FUNCTION_EDIT = 'function.edit',
+	/**
+	 * 函数管理-删除函数
+	 */
+	FUNCTION_DELETE = 'function.delete',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
@@ -972,6 +988,29 @@ export const RESOURCE_ACTIONS = {
 	DELETE: { id: ID_COLLECTIONS.RESOURCE_DELETE, name: '删除' } as ISubMenuProps,
 	EDIT: { id: ID_COLLECTIONS.RESOURCE_EDIT, name: '编辑' } as ISubMenuProps,
 } as const;
+
+/**
+ * 函数管理页面的 actions
+ */
+export const FUNCTOIN_ACTIONS = {
+	CREATE_FOLDER: {
+		id: ID_COLLECTIONS.FUNCTION_CREATE_FOLDER,
+		name: '新建文件夹',
+	} as ISubMenuProps,
+	CREATE_FUNCTION: {
+		id: ID_COLLECTIONS.FUNCTION_CREATE,
+		name: '新建自定义函数',
+	} as ISubMenuProps,
+	EDIT: {
+		id: ID_COLLECTIONS.FUNCTION_EDIT,
+		name: '编辑',
+	} as ISubMenuProps,
+	DELETE: {
+		id: ID_COLLECTIONS.FUNCTION_DELETE,
+		name: '删除',
+	} as ISubMenuProps,
+} as const;
+
 /**
  * 调度依赖中的跨周期依赖
  */
