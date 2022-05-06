@@ -20,8 +20,8 @@ import { useEffect, useState } from 'react';
 import { Modal, Button, Spin } from 'antd';
 import ajax from '../../api';
 import type { IFunctionProps } from '@/interface';
-import { getContainer } from '../resourceManager/resModal';
-import DetailInfo from '../detailInfo';
+import { getContainer } from '../resource/resModal';
+import DetailInfo from '../../components/detailInfo';
 import { CATELOGUE_TYPE } from '@/constant';
 
 interface IFnViewModalProps {

@@ -35,7 +35,7 @@ import resourceManagerTree from '../../services/resourceManagerService';
 import ResModal, { IFormFieldProps } from './resModal';
 import ResViewModal from './resViewModal';
 import ajax from '../../api';
-import FolderModal from '../functionManager/folderModal';
+import FolderModal from '../function/folderModal';
 import type molecule from '@dtinsight/molecule';
 import type { CatalogueDataProps, IResourceProps } from '@/interface';
 import './index.scss';

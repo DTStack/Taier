@@ -26,16 +26,16 @@ import {
 	RESOURCE_ACTIONS,
 } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
-import ResourceManager from '@/components/resourceManager';
+import ResourceManager from '@/pages/resource';
 import { history } from 'umi';
 import classNames from 'classnames';
-import FunctionManager from '@/components/functionManager';
+import FunctionManager from '@/pages/function';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
 import { Float } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
-import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
+import { FUNCTION_NEW_FUNCTION } from '@/pages/function/menu';
 import LogEditor from '@/components/logEditor';
 import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';

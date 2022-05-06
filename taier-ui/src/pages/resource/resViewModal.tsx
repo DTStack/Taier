@@ -19,7 +19,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, Spin } from 'antd';
 import ajax from '../../api';
-import DetailInfo from '../detailInfo';
+import DetailInfo from '../../components/detailInfo';
 import { CATELOGUE_TYPE } from '@/constant';
 
 interface IResViewModalProps {
