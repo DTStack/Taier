@@ -3,8 +3,12 @@ import * as React from 'react';
 import { Spin, Tooltip } from 'antd';
 import { DateTime } from '@dtinsight/dt-utils';
 import { cloneDeep, isArray } from 'lodash';
-import { QuestionCircleOutlined, ArrowsAltOutlined, ShrinkOutlined } from '@ant-design/icons';
-// import SvgIcon from '@/components/svg-icon';
+import {
+	QuestionCircleOutlined,
+	ArrowsAltOutlined,
+	ShrinkOutlined,
+	DeleteOutlined,
+} from '@ant-design/icons';
 
 import { SOURCE_INPUT_BPS_UNIT_TYPE, COLLECTION_BPS_UNIT_TYPE, UNIT_TYPE } from '@/constant';
 
@@ -122,14 +126,7 @@ class AlarmBaseGraphBox extends React.Component<any, any> {
 								isShowTitle={false}
 							/>
 						) : null}
-						{!loading && allowDelete && (
-							<span>an icon</span>
-							// <SvgIcon
-							// 	className="icon-delete"
-							// 	linkHref="iconicon_delete"
-							// 	onClick={onDelete}
-							// />
-						)}
+						{!loading && allowDelete && <DeleteOutlined onClick={onDelete} />}
 					</header>
 					{loading ? (
 						<div className="loading-box">
