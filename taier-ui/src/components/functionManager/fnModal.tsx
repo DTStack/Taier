@@ -109,15 +109,6 @@ export default function FnModal({
 		return Promise.resolve();
 	};
 
-	const handleResSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ resourceId: value });
-		form.validateFields(['resourceId']);
-	};
-
-	const handleSelectTreeChange = (value: number) => {
-		form.setFieldsValue({ nodePid: value });
-	};
-
 	useEffect(() => {
 		if (visible) {
 			if (data) {

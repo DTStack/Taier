@@ -99,6 +99,26 @@ export enum ID_COLLECTIONS {
 	 * 编辑数据源 Tab 的 ID 前缀
 	 */
 	EDIT_DATASOURCE_PREFIX = 'edit-datasource',
+	/**
+	 * 资源管理-上传资源
+	 */
+	RESOURCE_UPLOAD = 'resource.upload',
+	/**
+	 * 资源管理-替换资源
+	 */
+	RESOURCE_REPLACE = 'resource.replace',
+	/**
+	 * 资源管理-创建文件夹
+	 */
+	RESOURCE_CREATE = 'resource.create.folder',
+	/**
+	 * 资源管理-删除资源
+	 */
+	RESOURCE_DELETE = 'resource.delete',
+	/**
+	 * 资源管理-编辑文件夹
+	 */
+	RESOURCE_EDIT = 'resource.edit',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
@@ -934,32 +954,24 @@ export const MEMORY_ITEMS = [
 ];
 
 /**
- * 资源管理 Actions 集合
- */
-export enum RESOURCE_ACTIONSS_ID_COLLECTION {
-	UPLOAD = 'upload',
-	REPLACE = 'replace',
-	CREATE = 'create-folder',
-}
-
-/**
  * 资源管理页面的 actions
  */
-export const RESOURCE_ACTION_BAR: ISubMenuProps = [
-	{
-		id: RESOURCE_ACTIONSS_ID_COLLECTION.UPLOAD,
+export const RESOURCE_ACTIONS = {
+	UPLOAD: {
+		id: ID_COLLECTIONS.RESOURCE_UPLOAD,
 		name: '上传资源',
-	},
-	{
-		id: RESOURCE_ACTIONSS_ID_COLLECTION.REPLACE,
+	} as ISubMenuProps,
+	REPLACE: {
+		id: ID_COLLECTIONS.RESOURCE_REPLACE,
 		name: '替换资源',
-	},
-	{
-		id: RESOURCE_ACTIONSS_ID_COLLECTION.CREATE,
+	} as ISubMenuProps,
+	CREATE: {
+		id: ID_COLLECTIONS.RESOURCE_CREATE,
 		name: '新建文件夹',
-	},
-];
-
+	} as ISubMenuProps,
+	DELETE: { id: ID_COLLECTIONS.RESOURCE_DELETE, name: '删除' } as ISubMenuProps,
+	EDIT: { id: ID_COLLECTIONS.RESOURCE_EDIT, name: '编辑' } as ISubMenuProps,
+} as const;
 /**
  * 调度依赖中的跨周期依赖
  */

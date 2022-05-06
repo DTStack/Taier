@@ -19,11 +19,11 @@
 import molecule from '@dtinsight/molecule';
 import {
 	CONSOLE,
-	RESOURCE_ACTION_BAR,
 	OPERATIONS,
 	TENANT_MENU,
 	ID_COLLECTIONS,
 	DRAWER_MENU_ENUM,
+	RESOURCE_ACTIONS,
 } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
 import ResourceManager from '@/components/resourceManager';
@@ -208,7 +208,11 @@ function initResourceManager() {
 			id: 'menus',
 			title: '更多操作',
 			icon: 'menu',
-			contextMenu: RESOURCE_ACTION_BAR,
+			contextMenu: [
+				RESOURCE_ACTIONS.UPLOAD,
+				RESOURCE_ACTIONS.REPLACE,
+				RESOURCE_ACTIONS.CREATE,
+			],
 		},
 	];
 

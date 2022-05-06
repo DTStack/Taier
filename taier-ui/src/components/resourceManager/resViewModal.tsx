@@ -17,9 +17,8 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Modal, Button, Spin } from 'antd';
+import { Button, Modal, Spin } from 'antd';
 import ajax from '../../api';
-import { getContainer } from './resModal';
 import DetailInfo from '../detailInfo';
 import { CATELOGUE_TYPE } from '@/constant';
 
@@ -58,22 +57,20 @@ export default function ResViewModal({ visible, resId, closeModal }: IResViewMod
 	}, [resId]);
 
 	return (
-		<div id="JS_resView_modal">
-			<Modal
-				title="资源详情"
-				visible={visible}
-				onCancel={closeModal}
-				key={resId}
-				width={550}
-				footer={[
-					<Button size="large" onClick={closeModal} key="cancel">
-						关闭
-					</Button>,
-				]}
-				getContainer={() => getContainer('JS_resView_modal')}
-			>
-				{renderContent()}
-			</Modal>
-		</div>
+		<Modal
+			title="资源详情"
+			visible={visible}
+			onCancel={closeModal}
+			width={550}
+			centered
+			destroyOnClose
+			footer={
+				<Button type="default" onClick={closeModal}>
+					关闭
+				</Button>
+			}
+		>
+			{renderContent()}
+		</Modal>
 	);
 }
