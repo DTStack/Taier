@@ -74,7 +74,7 @@ public abstract class APITemplate<T> {
             checkParams();
         } catch (IllegalArgumentException e) {
             if (log.isInfoEnabled()) {
-                log.info("param check error:{}", e);
+                log.info("param check error:", e);
             }
             throw e;
         } catch (RdosDefineException e) {
