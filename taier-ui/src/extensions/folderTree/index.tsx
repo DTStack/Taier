@@ -389,7 +389,7 @@ export function openTaskInTab(
 						name: data.name,
 						data: {
 							...data,
-							value: data.sqlText,
+							value: prettierJSONstring(data.sqlText),
 						},
 						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
 						breadcrumb:
