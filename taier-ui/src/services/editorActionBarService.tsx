@@ -235,6 +235,7 @@ export default class EditorActionBarService
 				}
 				return [
 					// IMPORT_TASK,
+					GRAMMAR_TASK,
 					SAVE_TASK,
 					SUBMIT_TASK,
 					OPERATOR_TASK,

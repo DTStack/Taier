@@ -168,6 +168,8 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}
 			return Promise.resolve();
 		}
+
+		this.stopSign.set(currentTabId, true);
 		const jobId = this.runningSql.get(currentTabId);
 		if (!jobId) return Promise.resolve();
 
@@ -317,6 +319,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 							// 继续执行之前判断是否停止
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
+								taskResultService.appendLogs(
+									currentTabId.toString(),
+									createLog(`用户主动取消请求！`, 'error'),
+								);
 							} else {
 								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
@@ -341,6 +347,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 							// 继续执行之前判断是否停止
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
+								taskResultService.appendLogs(
+									currentTabId.toString(),
+									createLog(`用户主动取消请求！`, 'error'),
+								);
 							} else {
 								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
@@ -363,6 +373,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 							// 继续执行之前判断是否停止
 							if (this.stopSign.get(currentTabId)) {
 								this.stopSign.set(currentTabId, false);
+								taskResultService.appendLogs(
+									currentTabId.toString(),
+									createLog(`用户主动取消请求！`, 'error'),
+								);
 							} else {
 								// 继续执行下一条 sql
 								this.exec(currentTabId, task, params, sqls, index + 1);
@@ -390,6 +404,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		// 假如已经是停止状态，则弃用结果
 		if (this.stopSign.get(currentTabId)) {
 			this.stopSign.set(currentTabId, false);
+			taskResultService.appendLogs(
+				currentTabId.toString(),
+				createLog(`用户主动取消请求！`, 'error'),
+			);
 			return false;
 		}
 
@@ -557,6 +575,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		}).then((res) => {
 			if (this.stopSign.get(currentTabId)) {
 				this.stopSign.set(currentTabId, false);
+				taskResultService.appendLogs(
+					currentTabId.toString(),
+					createLog(`用户主动取消请求！`, 'error'),
+				);
 				return false;
 			}
 			const { code, data, retryLog } = res;
@@ -615,6 +637,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				.then((res: IResponseProps<ITaskExecResultProps>) => {
 					if (this.stopSign.get(currentTabId)) {
 						this.stopSign.set(currentTabId, false);
+						taskResultService.appendLogs(
+							currentTabId.toString(),
+							createLog(`用户主动取消请求！`, 'error'),
+						);
 						return false;
 					}
 
@@ -660,6 +686,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}).then((res: IResponseProps<ITaskExecResultProps>) => {
 				if (this.stopSign.get(currentTabId)) {
 					this.stopSign.set(currentTabId, false);
+					taskResultService.appendLogs(
+						currentTabId.toString(),
+						createLog(`用户主动取消请求！`, 'error'),
+					);
 					return false;
 				}
 				if (res && res.code) {
@@ -724,6 +754,10 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		}).then((res: IResponseProps<ITaskExecResultProps>) => {
 			if (this.stopSign.get(currentTabId)) {
 				this.stopSign.set(currentTabId, false);
+				taskResultService.appendLogs(
+					currentTabId.toString(),
+					createLog(`用户主动取消请求！`, 'error'),
+				);
 				return false;
 			}
 
@@ -731,7 +765,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			if (res && res.data && res.code === 1) {
 				switch (res.data.status) {
 					case TASK_STATUS.FINISHED: {
-						this.outputStatus(currentTabId, res.data.status, '结果获取中，请稍后');
+						this.outputStatus(currentTabId, res.data.status);
 						return this.selectExecResultData(
 							currentTabId,
 							jobId,

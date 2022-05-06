@@ -1,43 +1,45 @@
 .graph-time {
-    display: flex;
-    .ant-btn,
-    .ant-input {
-        height: 28px;
-        line-height: 28px;
-        text-align: center;
-    }
-    .ant-btn {
-        padding: 0;
-        width: 28px;
-        &.btn-prev {
-            color: #666;
-            border-radius: 2px 0 0 2px;
-        }
-        &.btn-next {
-            color: #666;
-            border-radius: 0 2px 2px 0;
-        }
-    }
-    .ant-input {
-        border-radius: 0;
-        border-right: 0;
-        border-left: 0;
-        z-index: 10;
-        &:hover {
-            border-color: #ddd;
-        }
-    }
+	display: flex;
+	.ant-btn,
+	.ant-input {
+		height: 28px;
+		line-height: 28px;
+		text-align: center;
+	}
+	.ant-btn {
+		padding: 0;
+		width: 28px;
+		&.btn-prev {
+			color: #666;
+			border-radius: 2px 0 0 2px;
+			left: 1px;
+		}
+		&.btn-next {
+			color: #666;
+			border-radius: 0 2px 2px 0;
+			right: 1px;
+		}
+	}
+	.ant-input {
+		border-radius: 0;
+		z-index: 10;
+	}
 }
 .graph-time-range {
-    .ant-input {
-        width: 63px;
-    }
+	.ant-input {
+		width: 63px;
+	}
 }
 .graph-time-picker {
-    .ant-calendar-picker {
-        min-width: 156px !important;
-        &:hover .ant-calendar-picker-input:not(.ant-input-disabled) {
-            border-color: #ddd;
-        }
-    }
+	.ant-picker {
+		border-radius: 0;
+		height: 28px;
+		line-height: 28px;
+	}
+	.ant-calendar-picker {
+		min-width: 156px !important;
+		&:hover .ant-calendar-picker-input:not(.ant-input-disabled) {
+			border-color: #ddd;
+		}
+	}
 }

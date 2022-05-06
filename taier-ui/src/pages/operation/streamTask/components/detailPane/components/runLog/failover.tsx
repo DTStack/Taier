@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { IStreamTaskProps } from '@/interface';
 import Editor from '@/components/editor';
 import stream from '@/api/stream';
+import { prettierJSONstring } from '@/utils';
 
 interface IProps {
 	data: IStreamTaskProps | undefined;
@@ -15,7 +16,7 @@ export default function Failover({ data }: IProps) {
 		if (!data?.id) return;
 		const res = await stream.getFailoverLogsByTaskId({ taskId: data.id });
 		if (res.code == 1) {
-			setLogInfo(res.data);
+			setLogInfo(prettierJSONstring(res.data));
 		}
 	};
 
@@ -28,7 +29,7 @@ export default function Failover({ data }: IProps) {
 			style={{ height: '100%' }}
 			sync
 			value={logInfo || ''}
-			language="text"
+			language="jsonlog"
 			options={{
 				readOnly: true,
 				minimap: {
