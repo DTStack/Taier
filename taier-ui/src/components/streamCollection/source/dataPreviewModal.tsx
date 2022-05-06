@@ -19,7 +19,7 @@
 import * as React from 'react';
 import { Modal, Button, Radio } from 'antd';
 import stream from '@/api/stream';
-import TablePreview, { CollapsePreview } from './component/tablepreview';
+import TablePreview, { CollapsePreview } from './component/tablePreview';
 import { haveDataPreview, haveTopic } from '@/utils/enums';
 
 const previewTypes = {
