@@ -115,7 +115,7 @@ public enum Engine2DTOService {
                     .username(jdbcInfo.getUsername())
                     .password(jdbcInfo.getPassword())
                     .kerberosConfig(jdbcInfo.getKerberosConfig())
-                    .defaultFS(HadoopConf.getDefaultFs(clusterId))
+                    .defaultFS(HadoopConf.getDefaultFsByClusterId(clusterId))
                     .config(config)
                     .poolConfig(buildPoolConfig())
                     .build();
@@ -298,7 +298,6 @@ public enum Engine2DTOService {
      */
     public static ISourceDTO getByClusterId(Long clusterId, EComponentType eComponentType, String dbName) {
         JdbcInfo jdbcInfo = getJdbcInfoByClusterId(clusterId, eComponentType);
-        jdbcInfo.setUsername("admin");
         DataSourceType dataSourceType = componentTypeToDataSourceType(eComponentType, jdbcInfo.getVersion());
         Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
         return engine2DTOEnum.getSourceDTOByClusterId(jdbcInfo, clusterId, dbName);
