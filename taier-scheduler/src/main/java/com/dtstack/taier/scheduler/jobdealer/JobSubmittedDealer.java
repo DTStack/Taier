@@ -29,6 +29,7 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
+import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -69,6 +70,9 @@ public class JobSubmittedDealer implements Runnable {
     @Autowired
     private ScheduleJobHistoryMapper historyMapper;
 
+    @Autowired
+    private ScheduleJobExpandService scheduleJobExpandService;
+
 
     public JobSubmittedDealer() {
         queue = JobSubmitDealer.getSubmittedQueue();
@@ -95,6 +99,7 @@ public class JobSubmittedDealer implements Runnable {
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
                     jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(appId, jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
                     scheduleJobService.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId);
+                    scheduleJobExpandService.updateExtraInfoAndLog(jobClient.getJobId(),jobExtraInfo.toJSONString(),jobClient.getJobResult().getJsonStr(),null);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
                     jobClient.doStatusCallBack(TaskStatus.SUBMITTED.getStatus());
                     JobClient finalJobClient = jobClient;
