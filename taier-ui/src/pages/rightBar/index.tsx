@@ -72,10 +72,6 @@ const STREAM_RIGHTBAR = [
 		key: RIGHT_BAR_ITEM.ENV_PARAMS,
 		value: '环境参数',
 	},
-	{
-		key: RIGHT_BAR_ITEM.STREAM_SETTING,
-		value: '任务设置',
-	},
 ];
 const FLINKSQL_RIGHTBAR = [
 	{

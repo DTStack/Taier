@@ -29,13 +29,13 @@ export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
 	 */
 	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
 
-	const renderTaskInfo = () => {
-		if (isInValidTab) {
-			return <div className={classNames('text-center', 'mt-10px')}>无法获取任务属性</div>;
-		}
-		const tab = current!.tab!;
-		return <DetailInfo type={CATELOGUE_TYPE.TASK} data={tab.data} />;
-	};
+	if (isInValidTab) {
+		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务属性</div>;
+	}
 
-	return renderTaskInfo();
+	return (
+		<div className='p-8'>
+			<DetailInfo type={CATELOGUE_TYPE.TASK} data={current!.tab!.data} />
+		</div>
+	);
 }
