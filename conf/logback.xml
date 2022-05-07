@@ -13,7 +13,7 @@
     <appender name="allAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/taier.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/engine_all_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/taier_all_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -24,7 +24,7 @@
     <appender name="zkAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/taier_zk.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/engine_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/taier_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -35,7 +35,7 @@
     <appender name="request" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/taier_request.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/engine_request_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/taier_request_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -46,7 +46,7 @@
     <appender name="flinkmonitor" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/taier_flink_monitor.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/engine_flinkmonitor_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/taier_flinkmonitor_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -57,7 +57,7 @@
     <appender name="schedule" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${user.dir}/logs/taier_schedule.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/engine_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/taier_schedule_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>5</MaxHistory>
         </rollingPolicy>
         <encoder>
