@@ -24,16 +24,22 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
 import type { IFolderTree, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
-import FnViewModal from './fnViewModal';
-import { FUNCTION_EDIT, FUNCTION_NEW_FOLDER, FUNCTION_NEW_FUNCTION, FUNCTION_REMOVE } from './menu';
 import { Modal } from 'antd';
 import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM, TASK_TYPE_ENUM } from '@/constant';
+import {
+	CATELOGUE_TYPE,
+	FUNCTOIN_ACTIONS,
+	ID_COLLECTIONS,
+	MENU_TYPE_ENUM,
+	TASK_TYPE_ENUM,
+} from '@/constant';
 import { loadTreeNode } from '@/utils/extensions';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import { DetailInfoModal } from '@/components/detailInfo';
+import { IFunctionProps } from '@/interface';
 import './index.scss';
 
 const { confirm } = Modal;
@@ -76,7 +82,8 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const [folderVisible, setFolderVisible] = useState(false);
 	const [currentMenuData, setMenuData] = useState<any>(undefined);
 	const [editData, setEditData] = useState<any>(undefined);
-	const [resId, setResId] = React.useState<number | null>(null);
+	const [detailLoading, setDetailLoading] = useState(false);
+	const [detailData, setDetailData] = useState<IFunctionProps | undefined>(undefined);
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
@@ -92,20 +99,31 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 		if (file) {
 			if (file.isLeaf) {
 				setViewVisible(true);
-				setResId(file.data.id);
+				setDetailLoading(true);
+				ajax.getOfflineFn({
+					functionId: file.data.id,
+				})
+					.then((res) => {
+						if (res.code === 1) {
+							setDetailData(res.data);
+						}
+					})
+					.finally(() => {
+						setDetailLoading(false);
+					});
 			}
 		}
 	};
 
 	const handleCloseViewModal = () => {
 		setViewVisible(false);
-		setResId(null);
+		setDetailData(undefined);
 	};
 
 	const handleContextMenu = (contextMenu: IMenuItemProps, treeNode?: ITreeNodeItemProps) => {
 		const menuId = contextMenu.id;
 		switch (menuId) {
-			case FUNCTION_NEW_FUNCTION.id: {
+			case ID_COLLECTIONS.FUNCTION_CREATE: {
 				// 获取右键文件夹属于所属文件夹
 				const belongTo = getBaseType(treeNode!.id);
 				const CATELOGUE_TO_TYPE = {
@@ -119,12 +137,12 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				setModalShow(true);
 				break;
 			}
-			case FUNCTION_NEW_FOLDER.id: {
+			case ID_COLLECTIONS.FUNCTION_CREATE_FOLDER: {
 				setFolderVisible(true);
 				setEditData({ parentId: treeNode!.data.id });
 				break;
 			}
-			case FUNCTION_EDIT.id: {
+			case ID_COLLECTIONS.FUNCTION_EDIT: {
 				if (treeNode!.data.type === 'file') {
 					ajax.getOfflineFn({
 						functionId: treeNode!.data.id,
@@ -144,7 +162,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				}
 				break;
 			}
-			case FUNCTION_REMOVE.id: {
+			case ID_COLLECTIONS.FUNCTION_DELETE: {
 				const isFolder = !treeNode?.isLeaf;
 				confirm({
 					title: isFolder ? '确认要删除此文件夹吗?' : '确认要删除此函数吗',
@@ -183,7 +201,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	) => {
 		e.preventDefault();
 		switch (item?.id) {
-			case FUNCTION_NEW_FUNCTION.id: {
+			case ID_COLLECTIONS.FUNCTION_CREATE: {
 				setModalShow(true);
 				break;
 			}
@@ -216,7 +234,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				return [];
 			}
 
-			return [FUNCTION_EDIT, FUNCTION_REMOVE];
+			return [FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE];
 		}
 
 		if (treeNode.data.type === 'folder') {
@@ -230,13 +248,16 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				return [];
 			}
 
-			const baseContextMenu = [FUNCTION_NEW_FUNCTION, FUNCTION_NEW_FOLDER];
+			const baseContextMenu = [
+				FUNCTOIN_ACTIONS.CREATE_FUNCTION,
+				FUNCTOIN_ACTIONS.CREATE_FOLDER,
+			];
 			// root folder can't edit and remove
 			if (treeNode.data.level === 1) {
 				return baseContextMenu;
 			}
 
-			return baseContextMenu.concat([FUNCTION_EDIT, FUNCTION_REMOVE]);
+			return baseContextMenu.concat([FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE]);
 		}
 	};
 
@@ -344,7 +365,14 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 					/>
 				</div>
 			</Content>
-			<FnViewModal visible={viewVisible} fnId={resId} closeModal={handleCloseViewModal} />
+			<DetailInfoModal
+				title="函数详情"
+				visible={viewVisible}
+				onCancel={handleCloseViewModal}
+				type={CATELOGUE_TYPE.FUNCTION}
+				data={detailData}
+				loading={detailLoading}
+			/>
 			<FnModal
 				visible={isModalShow}
 				onClose={handleToggleCreatFn}

@@ -19,23 +19,23 @@
 import molecule from '@dtinsight/molecule';
 import {
 	CONSOLE,
-	RESOURCE_ACTION_BAR,
 	OPERATIONS,
 	TENANT_MENU,
 	ID_COLLECTIONS,
 	DRAWER_MENU_ENUM,
+	RESOURCE_ACTIONS,
+	FUNCTOIN_ACTIONS,
 } from '@/constant';
 import EditorEntry from '@/components/editorEntry';
-import ResourceManager from '@/components/resourceManager';
+import ResourceManager from '@/pages/resource';
 import { history } from 'umi';
 import classNames from 'classnames';
-import FunctionManager from '@/components/functionManager';
+import FunctionManager from '@/pages/function';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import DataSource from '@/pages/dataSource';
 import type { IActivityMenuItemProps, IExtension } from '@dtinsight/molecule/esm/model';
 import { Float } from '@dtinsight/molecule/esm/model';
 import { ColorThemeMode } from '@dtinsight/molecule/esm/model';
-import { FUNCTION_NEW_FUNCTION } from '@/components/functionManager/menu';
 import LogEditor from '@/components/logEditor';
 import http from '@/api/http';
 import resourceManagerService from '@/services/resourceManagerService';
@@ -208,7 +208,11 @@ function initResourceManager() {
 			id: 'menus',
 			title: '更多操作',
 			icon: 'menu',
-			contextMenu: RESOURCE_ACTION_BAR,
+			contextMenu: [
+				RESOURCE_ACTIONS.UPLOAD,
+				RESOURCE_ACTIONS.REPLACE,
+				RESOURCE_ACTIONS.CREATE,
+			],
 		},
 	];
 
@@ -244,7 +248,7 @@ function initFunctionManager() {
 			id: 'menus',
 			title: '更多操作',
 			icon: 'menu',
-			contextMenu: [FUNCTION_NEW_FUNCTION],
+			contextMenu: [FUNCTOIN_ACTIONS.CREATE_FUNCTION],
 		},
 	];
 
