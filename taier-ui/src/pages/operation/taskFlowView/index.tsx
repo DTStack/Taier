@@ -24,7 +24,7 @@ import type { IMxCell, IMxGraph } from './taskGraphView';
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView';
 import MxFactory from '@/components/mxGraph';
 import { DRAWER_MENU_ENUM, SCHEDULE_STATUS } from '@/constant';
-import type { ITaskStreamProps, ITaskProps } from '@/interface';
+import type { IUpstreamJobProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 
 const Mx = MxFactory.create();
@@ -32,7 +32,7 @@ const { mxEvent, mxCellHighlight: MxCellHightlight, mxPopupMenu } = Mx;
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
-	onPatchData?: (task: ITaskStreamProps) => void;
+	onPatchData?: (task: IUpstreamJobProps) => void;
 	onForzenTasks?: (taskId: number, status: SCHEDULE_STATUS) => void;
 }
 
@@ -46,10 +46,10 @@ interface IGetTaskChildrenParams {
 }
 
 const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProps) => {
-	const [graphData, setGraphData] = useState<ITaskStreamProps | null>(null);
-	const [selectedTask, setSelectedTask] = useState<ITaskStreamProps | null>(null);
+	const [graphData, setGraphData] = useState<IUpstreamJobProps | null>(null);
+	const [selectedTask, setSelectedTask] = useState<IUpstreamJobProps | null>(null);
 	const [loading, setLoading] = useState(false);
-	const originData = useRef<ITaskStreamProps | undefined>();
+	const originData = useRef<IUpstreamJobProps | undefined>();
 
 	/**
 	 * 获取任务上下游关系
@@ -67,7 +67,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 		} as IGetTaskChildrenParams)
 			.then((res) => {
 				if (res.code === 1) {
-					const data: ITaskStreamProps = res.data?.rootTaskNode || {};
+					const data: IUpstreamJobProps = res.data?.rootTaskNode || {};
 					setSelectedTask(data);
 					renderGraph(data);
 				}
@@ -77,7 +77,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 			});
 	};
 
-	const renderGraph = (data: ITaskStreamProps) => {
+	const renderGraph = (data: IUpstreamJobProps) => {
 		if (originData.current) {
 			mergeTreeNodes(originData.current, data);
 		} else {

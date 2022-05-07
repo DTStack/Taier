@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Radio } from 'antd';
 import stream from '@/api/stream';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import { TASK_STATUS } from '@/constant';
 import Common from './common';
 import DetailTable from './detailTable';
 import './index.scss';
 
 interface IProps {
-	data?: IStreamTaskProps;
+	data?: IStreamJobProps;
 }
 
 export interface IDataSource {
@@ -54,7 +54,7 @@ export default function RunMsg({ data }: IProps) {
 		}
 
 		stream
-			.getTaskJson({ id })
+			.getTaskJson({ taskId: id })
 			.then((res) => {
 				if (res.code === 1) {
 					rollData(status);

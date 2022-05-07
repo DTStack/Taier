@@ -224,20 +224,12 @@ export default class EditorActionBarService
 			}
 			case TASK_TYPE_ENUM.SQL:
 				if (isGuide) {
-					return [
-						CONVERT_TASK,
-						FORMAT_TASK,
-						GRAMMAR_TASK,
-						SAVE_TASK,
-						SUBMIT_TASK,
-						OPERATOR_TASK,
-					];
+					return [CONVERT_TASK, FORMAT_TASK, GRAMMAR_TASK, SAVE_TASK, OPERATOR_TASK];
 				}
 				return [
 					// IMPORT_TASK,
 					GRAMMAR_TASK,
 					SAVE_TASK,
-					SUBMIT_TASK,
 					OPERATOR_TASK,
 				];
 			case TASK_TYPE_ENUM.SPARK_SQL:
@@ -245,9 +237,9 @@ export default class EditorActionBarService
 				return [SAVE_TASK, RUN_TASK, STOP_TASK, SUBMIT_TASK, OPERATOR_TASK];
 			case TASK_TYPE_ENUM.DATA_ACQUISITION:
 				if (isGuide) {
-					return [CONVERT_TASK, SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK]
+					return [CONVERT_TASK, SAVE_TASK, OPERATOR_TASK];
 				}
-				return [SAVE_TASK, SUBMIT_TASK, OPERATOR_TASK];
+				return [SAVE_TASK, OPERATOR_TASK];
 			default:
 				return [];
 		}

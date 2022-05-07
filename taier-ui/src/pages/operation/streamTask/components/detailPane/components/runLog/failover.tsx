@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import Editor from '@/components/editor';
 import stream from '@/api/stream';
 import { prettierJSONstring } from '@/utils';
 
 interface IProps {
-	data: IStreamTaskProps | undefined;
+	data: IStreamJobProps | undefined;
 	isShow: boolean;
 }
 

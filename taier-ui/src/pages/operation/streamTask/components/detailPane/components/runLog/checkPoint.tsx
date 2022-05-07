@@ -3,14 +3,14 @@ import moment from 'moment'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { DateTime } from '@dtinsight/dt-utils'
 import { Table, DatePicker, TimePicker, message } from 'antd'
-import type { IStreamTaskProps } from '@/interface';
+import type { IStreamJobProps } from '@/interface';
 import { disableRangeCreater } from '@/utils';
 import SvgIcon from '@/components/svgIcon'
 
 const Api = {} as any
 
 interface IProps {
-    data: IStreamTaskProps | undefined;
+    data: IStreamJobProps | undefined;
     tabKey: string;
 }
 
@@ -56,7 +56,7 @@ class CheckPoint extends React.Component<IProps, IState> {
         }
     }
 
-    getList (data?: IStreamTaskProps | undefined) {
+    getList (data?: IStreamJobProps | undefined) {
         let { day, beginTime, endTime } = this.state;
         data = data || this.props.data;
 
