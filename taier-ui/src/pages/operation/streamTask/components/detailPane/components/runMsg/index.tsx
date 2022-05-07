@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Radio } from 'antd';
 import stream from '@/api/stream';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import { TASK_STATUS } from '@/constant';
 import Common from './common';
 import DetailTable from './detailTable';
 import './index.scss';
 
 interface IProps {
-	data?: IStreamTaskProps;
+	data?: IStreamJobProps;
 }
 
 export interface IDataSource {

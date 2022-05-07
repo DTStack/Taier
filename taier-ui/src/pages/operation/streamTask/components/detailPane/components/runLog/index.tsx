@@ -1,14 +1,14 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Spin } from 'antd';
 import { TASK_STATUS } from '@/constant';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import stream from '@/api/stream';
 import Editor from '@/components/editor';
 import { createLinkMark, createLog } from '@/services/taskResultService';
 import './index.scss';
 
 interface IProps {
-	data: IStreamTaskProps | undefined;
+	data: IStreamJobProps | undefined;
 }
 
 interface ILogsProps {

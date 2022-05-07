@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Radio } from 'antd';
-import type { ITaskParams } from '@/interface';
+import type { IStreamJobParamsProps } from '@/interface';
 import Editor from '@/components/editor';
 import { prettierJSONstring } from '@/utils';
 import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
@@ -8,7 +8,7 @@ import Address from './address';
 import ResultTable from './resultTable';
 
 export type IRunCodeDataProps = Pick<
-	ITaskParams,
+	IStreamJobParamsProps,
 	| 'createModel'
 	| 'taskType'
 	| 'taskParams'

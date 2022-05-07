@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { Tabs, Radio } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
-import type { IStreamTaskProps } from '@/interface';
+import type { IStreamJobProps } from '@/interface';
 import { TaskStatus } from '@/utils/enums';
 import stream from '@/api/stream';
 import RunLog from './components/runLog';
@@ -36,7 +36,7 @@ import './index.scss';
 const TabPane = Tabs.TabPane;
 
 interface IProps {
-	data?: IStreamTaskProps;
+	data?: IStreamJobProps;
 	visibleSlidePane: boolean;
 	extButton: React.ReactNode;
 	closeSlidePane: () => void;

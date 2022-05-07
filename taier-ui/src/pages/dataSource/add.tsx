@@ -26,10 +26,10 @@ import { ID_COLLECTIONS } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
 import { utf16to8 } from '@/utils';
 import { API } from '@/api/dataSource';
+import type { IDataSourceProps } from '@/interface';
 import Version from './version';
 import SelectSource from './selectSource';
 import InfoConfig from './InfoConfig';
-import type { IDataSourceProps } from '.';
 import './add.scss';
 
 const { Step } = Steps;

@@ -38,7 +38,7 @@ import {
 	RUN_FAILED_STATUS,
 } from '@/constant';
 import type { IScheduleTaskProps } from '../schedule';
-import type { ITaskStreamProps } from '@/interface';
+import type { IUpstreamJobProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { goToTaskDev } from '@/utils';
 import './index.scss';
@@ -85,7 +85,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 	isCurrentProjectTask = (node: any) => {
 		return !node?.existsOnRule || false;
 	};
-	renderGraph = (data: ITaskStreamProps) => {
+	renderGraph = (data: IUpstreamJobProps) => {
 		const originData = this._originData;
 		if (originData) {
 			mergeTreeNodes(originData, data);
@@ -131,7 +131,7 @@ class TaskJobFlowView extends React.Component<any, any> {
 			...params,
 		}).then((res) => {
 			if (res.code === 1 && res.data?.rootNode) {
-				const data = res.data.rootNode as ITaskStreamProps;
+				const data = res.data.rootNode as IUpstreamJobProps;
 				ctx.setState({ selectedJob: data, data });
 				ctx.renderGraph(data);
 			}

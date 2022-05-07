@@ -37,14 +37,16 @@ import type {
 
 interface IUserProps {}
 
-export interface IResponseProps<T = any> {
+/**
+ * 请求返回体
+ */
+export interface IResponseBodyProps<T = any> {
 	code: number;
-	data: null | T;
-	/**
-	 * 请求异常返回的信息
-	 */
-	message: null | string;
+	data: T;
+	message: string;
 	success: boolean;
+
+	[key: string]: any;
 }
 
 /**
@@ -52,8 +54,14 @@ export interface IResponseProps<T = any> {
  */
 export interface CatalogueDataProps {
 	id: number;
+	/**
+	 * 目录类型，区分 file 或者 folder 等
+	 */
 	type: string;
-	taskType: number;
+	/**
+	 * 任务类型，非任务为 null
+	 */
+	taskType: TASK_TYPE_ENUM | null;
 	resourceType: RESOURCE_TYPE;
 	name: string;
 	children: CatalogueDataProps[] | null;
@@ -73,8 +81,10 @@ export interface ITaskProps {
 	name: string;
 }
 
-// 实时任务管理——任务类型
-export interface IStreamTaskProps {
+/**
+ * 实时任务(Job)管理——任务类型
+ */
+export interface IStreamJobProps {
 	id: number;
 	name: string;
 	jobId: string;
@@ -90,14 +100,24 @@ export interface IStreamTaskProps {
 	createModel: Valueof<typeof CREATE_MODEL_TYPE>;
 }
 
-// 查询任务树的遍历方向
+/**
+ * 查询任务树的遍历方向
+ */
 export enum DIRECT_TYPE_ENUM {
+	/**
+	 * 向上遍历
+	 */
 	FATHER = 1,
+	/**
+	 * 向下遍历
+	 */
 	CHILD = 2,
 }
 
-// 任务上下游依赖类型
-export interface ITaskStreamProps {
+/**
+ * 任务上下游依赖类型
+ */
+export interface IUpstreamJobProps {
 	taskId: number;
 	taskName: string;
 	taskType: TASK_TYPE_ENUM;
@@ -118,8 +138,8 @@ export interface ITaskStreamProps {
 	 */
 	operatorName: string;
 	status: TASK_STATUS;
-	parentNode: ITaskStreamProps[];
-	childNode: ITaskStreamProps[];
+	parentNode: IUpstreamJobProps[];
+	childNode: IUpstreamJobProps[];
 }
 
 /**
@@ -152,8 +172,6 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
-	dtuicTenantId: number;
-	forceUpdate: boolean;
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
@@ -393,6 +411,9 @@ export interface IScheduleConfProps {
  */
 export type ITaskVOProps = Pick<IOfflineTaskProps, 'id' | 'name' | 'tenantId' | 'tenantName'>;
 
+/**
+ * 任务参数
+ */
 export interface ITaskVariableProps {
 	paramCommand: string;
 	paramName: string;
@@ -432,6 +453,9 @@ export interface IFunctionProps {
 	type: number;
 }
 
+/**
+ * 数据源类型
+ */
 export interface IDataSourceProps {
 	dataInfoId: number;
 	dataType: DATA_SOURCE_ENUM;
@@ -446,9 +470,11 @@ export interface IDataSourceProps {
 	schemaName: string;
 	status: number;
 	linkJson: string | null;
-	type?: DATA_SOURCE_ENUM;
 }
 
+/**
+ * 在同步任务中用到的数据源类型
+ */
 export interface IDataSourceUsedInSyncProps {
 	dataInfoId: number;
 	dataName: string;
@@ -533,10 +559,11 @@ export interface IFlinkSinkProps {
 	// 自定义参数
 	customParams: { id: string; key?: string; type?: string }[];
 }
+
 /**
  * 实时-任务属性参数
  */
-export interface ITaskParams {
+export interface IStreamJobParamsProps {
 	id: number;
 	name: string;
 	exeArgs: string;

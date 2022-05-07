@@ -22,12 +22,12 @@ import { Modal, Radio, Select, Alert, Input, Form, Space, Table, Tooltip, messag
 import { CHECK_TYPE_VALUE, formItemLayout } from '@/constant';
 import stream from '@/api/stream';
 import { SearchOutlined } from '@ant-design/icons';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 
 const { Option } = Select;
 
 interface IProps {
-	data?: Pick<IStreamTaskProps, 'jobId' | 'id'>;
+	data?: Pick<IStreamJobProps, 'jobId' | 'id'>;
 	visible: boolean;
 	onOk: () => void;
 	onCancel: () => void;
