@@ -29,6 +29,7 @@ import { API } from '@/api/dataSource';
 import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
 import { ID_COLLECTIONS } from '@/constant';
+import { IDataSourceProps } from '@/interface';
 import LinkInfoCell from './linkInfoCell';
 import Search from './search';
 import Add from './add';
@@ -49,22 +50,6 @@ interface IOther {
 	appTypeList: number[];
 	isMeta: number;
 	status: number[];
-}
-
-export interface IDataSourceProps {
-	dataInfoId: number;
-	dataType: string;
-	// 0 for false, 1 for true
-	isMeta: number;
-	appNames: string;
-	dataDesc: string;
-	dataName: string;
-	dataVersion: string;
-	gmtModified: string;
-	isImport: number;
-	schemaName: string;
-	status: number;
-	linkJson: string | null;
 }
 
 const DataSourceView = () => {

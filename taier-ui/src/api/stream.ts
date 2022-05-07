@@ -147,4 +147,10 @@ export default {
 	stopTask(params: any) {
 		return http.post(req.STOP_TASK, params);
 	},
+	getTaskJson(params: any) {
+		return http.post(req.GET_TASK_JSON, params);
+	},
+	getTaskSqlText(params: any) {
+		return http.post(req.GET_TASK_SQL_TEXT, params);
+	},
 };

@@ -61,7 +61,7 @@ export function createTitle(title = '') {
 	return `${wraptext}${title}${wraptext}`;
 }
 
-export function createLinkMark(attrs: Record<string, string>) {
+export function createLinkMark(attrs: Record<string, string | null>) {
 	return `${window.location.origin}${attrs.href}`;
 }
 export interface ITaskResultStates {

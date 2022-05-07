@@ -26,7 +26,7 @@ import EnvParams from '@/components/task/envParams';
 import TaskParams from '@/components/task/taskParams';
 import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
-import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
+import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 import StreamSetting from '@/components/streamCollection/rightBar/streamSetting';
 import FlinkSourcePanel from '@/components/streamCollection/rightBar/flinkSource';
 import FlinkResultPanel from '@/components/streamCollection/rightBar/flinkResult';
@@ -71,10 +71,6 @@ const STREAM_RIGHTBAR = [
 	{
 		key: RIGHT_BAR_ITEM.ENV_PARAMS,
 		value: '环境参数',
-	},
-	{
-		key: RIGHT_BAR_ITEM.STREAM_SETTING,
-		value: '任务设置',
 	},
 ];
 const FLINKSQL_RIGHTBAR = [

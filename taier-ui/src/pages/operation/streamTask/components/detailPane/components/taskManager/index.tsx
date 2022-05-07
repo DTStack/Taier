@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import TaskManagerList, { ITaskList } from './list';
 import TaskManagerLog from './log';
 
 interface IProps {
-	data: IStreamTaskProps | undefined;
+	data: IStreamJobProps | undefined;
 }
 
 export default function TaskManager({ data }: IProps) {

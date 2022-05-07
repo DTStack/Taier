@@ -217,6 +217,7 @@ function emitEvent() {
 															molecule.editor.updateTab(nextTabData);
 															return;
 														}
+
 														const nextTabData = result.data;
 														molecule.editor.updateTab({
 															id: nextTabData.id.toString(),
@@ -225,6 +226,10 @@ function emitEvent() {
 																...nextTabData,
 															},
 														});
+														// update the editor's value
+														molecule.editor.editorInstance
+															.getModel()
+															?.setValue(nextTabData.sqlText);
 														editorActionBarService.performSyncTaskActions();
 													}
 												});

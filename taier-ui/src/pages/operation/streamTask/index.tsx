@@ -24,7 +24,7 @@ import { history } from 'umi';
 import { DateTime } from '@dtinsight/dt-utils';
 import type { IActionRef, ISketchProps } from '@/components/sketch';
 import Sketch from '@/components/sketch';
-import type { IStreamTaskProps } from '@/interface';
+import type { IStreamJobProps } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { TASK_TYPE_ENUM, FLINK_SQL_TYPE } from '@/constant';
 import {
@@ -52,7 +52,7 @@ enum OPERATOR_MODE {
 }
 
 // 是否为 flinksql 向导模式
-function isFlinkSqlGuideMode(taskData: IStreamTaskProps) {
+function isFlinkSqlGuideMode(taskData: IStreamJobProps) {
 	const { taskType, createModel } = taskData;
 	return taskType === TASK_TYPE_ENUM.SQL && createModel === FLINK_SQL_TYPE.GUIDE;
 }
@@ -66,13 +66,13 @@ export default function StreamTask() {
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
 	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
-	const [goOnTask, setGoOnTask] = useState<
-		Pick<IStreamTaskProps, 'jobId' | 'taskId'> | undefined
-	>(undefined);
+	const [goOnTask, setGoOnTask] = useState<Pick<IStreamJobProps, 'jobId' | 'id'> | undefined>(
+		undefined,
+	);
 	// 任务详情信息
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
-		selectTask?: IStreamTaskProps;
+		selectTask?: IStreamJobProps;
 	}>({ visible: false, selectTask: undefined });
 	const actionRef = useRef<IActionRef>(null);
 
@@ -115,7 +115,7 @@ export default function StreamTask() {
 		actionRef.current?.submit();
 	};
 
-	const chooseTask = (record: IStreamTaskProps) => {
+	const chooseTask = (record: IStreamJobProps) => {
 		setSlidePane({ visible: true, selectTask: record });
 	};
 
@@ -125,12 +125,12 @@ export default function StreamTask() {
 
 	const handleUpdateTaskStatus = (
 		mode: OPERATOR_MODE,
-		task: IStreamTaskProps,
+		task: IStreamJobProps,
 		params?: Record<string, any>,
 	) => {
 		switch (mode) {
 			case OPERATOR_MODE.goOn:
-				setGoOnTask({ taskId: task.taskId, jobId: task.jobId });
+				setGoOnTask({ id: task.id, jobId: task.jobId });
 				break;
 			case OPERATOR_MODE.stop:
 				stream
@@ -169,7 +169,7 @@ export default function StreamTask() {
 	};
 
 	const debounceRecoverTask = debounce(
-		(task: IStreamTaskProps) => {
+		(task: IStreamJobProps) => {
 			stream
 				.startTask({
 					taskId: task.id,
@@ -190,7 +190,7 @@ export default function StreamTask() {
 	 * 这里判断是否需要自动刷新，
 	 * 当有等待提交之类的状态，则自动刷新
 	 */
-	const shouldRequstPolling = (data?: IStreamTaskProps[]) => {
+	const shouldRequstPolling = (data?: IStreamJobProps[]) => {
 		if (!data) {
 			return;
 		}
@@ -286,7 +286,7 @@ export default function StreamTask() {
 		));
 	};
 
-	const getDealButton = (record?: IStreamTaskProps) => {
+	const getDealButton = (record?: IStreamJobProps) => {
 		if (!record) return null;
 		const notGoOn = [
 			DATA_SOURCE_ENUM.WEBSOCKET,
@@ -414,6 +414,7 @@ export default function StreamTask() {
 			case TASK_STATUS.WAIT_RUN:
 			case TASK_STATUS.WAIT_COMPUTE:
 			case TASK_STATUS.SUBMITTING:
+			case TASK_STATUS.COMPUTING:
 			case TASK_STATUS.RESTARTING:
 				return (
 					<Space size={5} split={<Divider type="vertical" />}>
@@ -485,7 +486,7 @@ export default function StreamTask() {
 		}
 	};
 
-	const tableColumns = useMemo<ColumnsType<IStreamTaskProps>>(
+	const tableColumns = useMemo<ColumnsType<IStreamJobProps>>(
 		() => [
 			{
 				title: '任务名称',
@@ -566,7 +567,7 @@ export default function StreamTask() {
 
 	return (
 		<div className="h-full">
-			<Sketch<IStreamTaskProps, IFormFieldProps>
+			<Sketch<IStreamJobProps, IFormFieldProps>
 				actionRef={actionRef}
 				polling={polling}
 				header={[
@@ -593,6 +594,7 @@ export default function StreamTask() {
 				columns={tableColumns}
 			/>
 			<DetailPane
+				key={slidePane.selectTask?.id}
 				data={slidePane.selectTask}
 				visibleSlidePane={slidePane.visible}
 				closeSlidePane={closeSlidePane}
