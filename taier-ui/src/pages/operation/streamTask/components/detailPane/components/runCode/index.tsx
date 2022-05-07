@@ -1,14 +1,28 @@
 import { useMemo, useState } from 'react';
 import { Radio } from 'antd';
-import type { ITaskParams } from '@/interface';
+import type { IStreamJobParamsProps } from '@/interface';
 import Editor from '@/components/editor';
 import { prettierJSONstring } from '@/utils';
 import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 import Address from './address';
 import ResultTable from './resultTable';
 
+export type IRunCodeDataProps = Pick<
+	IStreamJobParamsProps,
+	| 'createModel'
+	| 'taskType'
+	| 'taskParams'
+	| 'id'
+	| 'originSourceType'
+	| 'targetSourceType'
+	| 'sqlText'
+> & {
+	sourceStr?: string;
+	targetStr?: string;
+	settingStr?: string;
+};
 interface IProps {
-	data?: Partial<ITaskParams>;
+	data?: IRunCodeDataProps;
 }
 
 enum TAB_KEYS {
@@ -43,7 +57,7 @@ export default function RunCode({ data }: IProps) {
 						style={{ height: '100%' }}
 						language="sql"
 						options={{ readOnly: true, minimap: { enabled: false } }}
-						value={data?.sourceParams}
+						value={data?.sourceStr}
 					/>
 				);
 			case TAB_KEYS.SINK:
@@ -53,7 +67,7 @@ export default function RunCode({ data }: IProps) {
 						style={{ height: '100%' }}
 						language="sql"
 						options={{ readOnly: true, minimap: { enabled: false } }}
-						value={data?.sinkParams}
+						value={data?.targetStr}
 					/>
 				);
 			case TAB_KEYS.SIDE:
@@ -63,7 +77,7 @@ export default function RunCode({ data }: IProps) {
 						style={{ height: '100%' }}
 						language="sql"
 						options={{ readOnly: true, minimap: { enabled: false } }}
-						value={data?.sideParams}
+						value={data?.settingStr}
 					/>
 				);
 			case TAB_KEYS.RESULT_TABLE:
@@ -110,9 +124,9 @@ export default function RunCode({ data }: IProps) {
 				<Radio.Button value={TAB_KEYS.CODE}>运行代码</Radio.Button>
 				{isflinkSql && isGuideMode && (
 					<>
-						{/* <Radio.Button value={TAB_KEYS.SOURCE}>源表</Radio.Button>
+						<Radio.Button value={TAB_KEYS.SOURCE}>源表</Radio.Button>
 						<Radio.Button value={TAB_KEYS.SINK}>结果表</Radio.Button>
-						<Radio.Button value={TAB_KEYS.SIDE}>维表</Radio.Button> */}
+						<Radio.Button value={TAB_KEYS.SIDE}>维表</Radio.Button>
 					</>
 				)}
 				{isShowResultTable && (

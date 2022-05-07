@@ -37,9 +37,9 @@ import {
 } from '@/constant';
 import { loadTreeNode } from '@/utils/extensions';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import { UniqueId } from '@dtinsight/molecule/esm/common/types';
+import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { DetailInfoModal } from '@/components/detailInfo';
-import { IFunctionProps } from '@/interface';
+import type { IFunctionProps } from '@/interface';
 import './index.scss';
 
 const { confirm } = Modal;
@@ -63,12 +63,12 @@ function getBaseType(id: UniqueId): typeof TYPE_ITERATOR[number] | null {
 			const isTargetFile = TYPE_ITERATOR.includes(node.node.data.catalogueType);
 			if (isTargetFile) {
 				return node.node.data.catalogueType;
+			}
+
+			if (node.parent) {
+				node = treeHelper.getHashMap(node.parent);
 			} else {
-				if (node.parent) {
-					node = treeHelper.getHashMap(node.parent);
-				} else {
-					node = null;
-				}
+				node = null;
 			}
 		}
 	}

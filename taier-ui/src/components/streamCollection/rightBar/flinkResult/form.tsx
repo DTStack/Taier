@@ -252,7 +252,10 @@ export default function ResultForm({
 	const debounceEditorChange = debounce(
 		(value: string) => {
 			textChange();
-			handleFormFieldChanged({ columnsText: value }, form.getFieldsValue());
+			handleFormFieldChanged(
+				{ columnsText: value },
+				{ ...form.getFieldsValue(), columnsText: value },
+			);
 		},
 		300,
 		{ maxWait: 2000 },

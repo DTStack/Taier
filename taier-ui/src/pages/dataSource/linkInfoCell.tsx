@@ -17,7 +17,7 @@
  */
 
 import { linkMapping } from '@/utils/enums';
-import type { IDataSourceProps } from '.';
+import type { IDataSourceProps } from '@/interface';
 import './linkInfoCell.scss';
 
 export default function LinkInfoCell(props: { sourceData: IDataSourceProps }) {

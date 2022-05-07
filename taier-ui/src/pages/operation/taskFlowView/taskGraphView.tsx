@@ -26,7 +26,7 @@ import MxFactory from '@/components/mxGraph';
 import { taskTypeText } from '@/utils/enums';
 import { formatDateTime, goToTaskDev } from '@/utils';
 import { SCHEDULE_STATUS } from '@/constant';
-import type { ITaskStreamProps } from '@/interface';
+import type { IUpstreamJobProps } from '@/interface';
 
 const Mx = MxFactory.create();
 const {
@@ -53,7 +53,7 @@ const VertexSize = {
 /**
  * 合并Tree数据
  */
-export const mergeTreeNodes = (treeNodeData: ITaskStreamProps, mergeSource: ITaskStreamProps) => {
+export const mergeTreeNodes = (treeNodeData: IUpstreamJobProps, mergeSource: IUpstreamJobProps) => {
 	if (treeNodeData) {
 		if (treeNodeData.taskId === mergeSource.taskId) {
 			if (mergeSource.childNode) {
@@ -84,7 +84,7 @@ export const mergeTreeNodes = (treeNodeData: ITaskStreamProps, mergeSource: ITas
 	}
 };
 
-interface IGraphFlowNodeProps extends ITaskStreamProps {
+interface IGraphFlowNodeProps extends IUpstreamJobProps {
 	isPushed?: boolean;
 }
 
@@ -95,7 +95,7 @@ interface IGraphProps {
 	/**
 	 * 当前选中的节点，若显示 footer，则在 footer 处会显示该节点信息
 	 */
-	data: ITaskStreamProps | null | undefined;
+	data: IUpstreamJobProps | null | undefined;
 	/**
 	 * 点击刷新触发事件
 	 */
@@ -103,7 +103,7 @@ interface IGraphProps {
 	/**
 	 * 是否是当前项目任务
 	 */
-	isCurrentProjectTask?: (task: ITaskStreamProps) => boolean;
+	isCurrentProjectTask?: (task: IUpstreamJobProps) => boolean;
 	/**
 	 * 注册图的右键菜单
 	 */
@@ -115,7 +115,7 @@ interface IGraphProps {
 	/**
 	 * 图数据
 	 */
-	graphData?: ITaskStreamProps;
+	graphData?: IUpstreamJobProps;
 }
 
 export interface IMxCell {
@@ -356,7 +356,7 @@ function initContainerScroll(graph: IMxGraph) {
 /**
  * 预处理图数据，获取节点之间的关系
  */
-function preHandGraphTree(data: ITaskStreamProps) {
+function preHandGraphTree(data: IUpstreamJobProps) {
 	const relationTree: {
 		source: IGraphFlowNodeProps | null;
 		target: IGraphFlowNodeProps;
@@ -414,7 +414,7 @@ function preHandGraphTree(data: ITaskStreamProps) {
 /**
  * 特殊 vertex 的样式
  */
-function getVertxtStyles(data: ITaskStreamProps) {
+function getVertxtStyles(data: IUpstreamJobProps) {
 	if (data.scheduleStatus === SCHEDULE_STATUS.FORZON) {
 		return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
 	}
@@ -459,7 +459,7 @@ const TaskGraphView = ({
 		graphRef.current[flag === 'in' ? 'zoomIn' : 'zoomOut']();
 	};
 
-	const initGraph = async (initData: ITaskStreamProps) => {
+	const initGraph = async (initData: IUpstreamJobProps) => {
 		if (container.current) {
 			// 清理容器内的Dom元素
 			container.current.innerHTML = '';
@@ -469,7 +469,7 @@ const TaskGraphView = ({
 		}
 	};
 
-	const initRender = (renderData: ITaskStreamProps) => {
+	const initRender = (renderData: IUpstreamJobProps) => {
 		const graph = graphRef.current;
 		graph.getModel().clear();
 		const cells: IMxCell[] = graph.getChildCells(graph.getDefaultParent());
@@ -484,13 +484,13 @@ const TaskGraphView = ({
 		renderGraph(renderData);
 	};
 
-	const renderGraph = (originData: ITaskStreamProps) => {
+	const renderGraph = (originData: IUpstreamJobProps) => {
 		const cellCache: Record<number, IMxCell> = {};
 		const graph = graphRef.current;
 		const defaultParent: IMxCell = graph.getDefaultParent();
 		const dataArr = preHandGraphTree(originData);
 
-		const getVertex = (parentCell: IMxCell, vertexData: ITaskStreamProps) => {
+		const getVertex = (parentCell: IMxCell, vertexData: IUpstreamJobProps) => {
 			if (!vertexData) return null;
 			const style = getVertxtStyles(vertexData);
 			const cell: IMxCell = graph.insertVertex(

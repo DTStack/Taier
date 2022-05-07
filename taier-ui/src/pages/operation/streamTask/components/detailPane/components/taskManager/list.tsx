@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Table, Breadcrumb } from 'antd';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import stream from '@/api/stream';
 
 interface IProps {
-	data: IStreamTaskProps | undefined;
+	data: IStreamJobProps | undefined;
 	onTaskDetail: (record: ITaskList) => void;
 }
 
