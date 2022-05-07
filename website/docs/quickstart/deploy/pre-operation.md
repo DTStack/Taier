@@ -15,7 +15,7 @@ $   cd ${SPARK_HOME}/sbin && sh start-thriftserver.sh
 ```
 
 ### Chunjun
-依赖`Chunjun` [1.10](https://github.com/DTStack/chunjun/releases/tag/1.10.5) 版本
+依赖`Chunjun` [1.12](https://github.com/DTStack/chunjun/releases/tag/v1.12.3) 版本
 [Chunjun源码编译](https://github.com/DTStack/chunjun/blob/master/docs/quickstart.md)
 
 ## maven依赖
@@ -27,11 +27,7 @@ mvn install:install-file -Dfile=datasourcex-core.jar -DgroupId=com.dtstack.dtcen
 ```
 
 ```shell
-mvn install:install-file -Dfile=dt-insight-hive-shade-4.1.2-RELEASE.jar -DgroupId=dt.insight.plat -DartifactId=dt-insight-hive-shade -Dversion=4.1.2-RELEASE -Dpackaging=jar
-```
-
-```shell
-mvn install:install-file -Dfile=carbondata-spark2-1.5.0.jar -DgroupId=org.apache.carbondata -DartifactId=carbondata-spark2 -Dversion=1.5.0-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=dt-insight-hive-shade-4.1.3.jar -DgroupId=dt.insight.plat -DartifactId=dt-insight-hive-shade -Dversion=4.1.3 -Dpackaging=jar
 ```
 
 ## 编辑器依赖

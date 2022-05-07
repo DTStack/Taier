@@ -1,13 +1,13 @@
 ---
 title: 创建数据源
-sidebar_label: 创建数据源
+sidebar_label: 数据源
 ---
 
 # 创建数据源
 
 ## 创建数据源
 
-**点击按钮，进入数据源中心页面**
+**点击按钮，进入数据源添加页面**
 ![add-source](/img/readme/add-source.png)
 
 **配置数据源信息**

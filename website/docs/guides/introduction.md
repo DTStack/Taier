@@ -42,7 +42,7 @@ sidebar_position: 1
 * 多集群连接：支持一套调度系统连接多套`Hadoop`集群
 
 #### 多版本引擎
-* 支持`Spark` 、`Flink`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
+* 支持`Spark` 、`Flink`等引擎的多个版本共存
 
 #### Kerberos支持
 * `Spark`、`Flink`
@@ -68,7 +68,7 @@ sidebar_position: 1
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、TensorFlow、Pytorch、
 HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、Inceptor、Kingbase、Presto)
 * 调度方式：同时支持Yarn/K8s
-* 计算引擎：同时支持Spark-2.1.x/2.4.x、Flink-1.10/1.12（与Flink后续版本）
+* 计算引擎：同时支持Spark-2.1.x/2.4.x、/1.12（与Flink后续版本）
 * 部署方式：同时支持Scheduler/Worker整合与分离部署
 * 功能支持：支持交易日历、事件驱动
 * 外部系统对接：支持Taier系统对接外部调度系统（AZKBAN、Control-M、DS调度）

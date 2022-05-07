@@ -7,11 +7,13 @@ sidebar_label: 后端部署
 
 ### 库
 请登录 **MySQL** 数据库，创建名为 `taier` 数据库
-### 表结构
-初始化数据库，导入 `sql/create.sql` sql文件进行创建表
 ### 表数据
-初始化数据库，导入 `sql/insert.sql` sql文件进行基础数据导入
+#### 版本升级
+低版本升级到高版本 执行高版本目录下的**increment.sql**
 
+如: 1.0升级到1.1 执行sql/1.1/1.1_increment.sql
+#### 初次部署
+直接执行sql下的**init.sql**创建新库
 ## 项目编译
 
 ### 编译脚本
@@ -48,7 +50,7 @@ Taier 页面功能依赖data-develop.jar 任务提交依赖plugins相关jar
 |-- pluginLibs 
 |---- dummy
 |---- flinkcommon
-|---- yarn2-hdfs2-flink110
+|---- yarn2-hdfs2-flink112
 |---- .......
 ```
 :::caution
