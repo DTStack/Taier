@@ -676,4 +676,25 @@ public class FlinkTaskService {
 
         return sql;
     }
+
+
+    public Task getTaskSqlText(Long taskId) {
+        Task task = developTaskMapper.selectById(taskId);
+        if (EScheduleJobType.SQL.getVal().equals(task.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
+
+            String source = generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE);
+            source = sqlFormat(source);
+            task.setSourceStr(source);
+
+            String sink = generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK);
+            sink = sqlFormat(sink);
+            task.setTargetStr(sink);
+
+            String side = generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE);
+            side = sqlFormat(side);
+            task.setSideStr(side);
+        }
+
+        return task;
+    }
 }
