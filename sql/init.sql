@@ -1709,7 +1709,7 @@ CREATE TABLE `tenant` (
 -- Records of tenant
 -- ----------------------------
 BEGIN;
-INSERT INTO `tenant` VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, '');
+INSERT INTO `tenant` VALUES (1, 'taier', NULL, '2021-08-13 16:39:40', '2021-08-13 16:39:40', 1, 0, 'taier');
 COMMIT;
 
 -- ----------------------------
