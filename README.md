@@ -37,7 +37,7 @@
 * 多集群连接：支持一套调度系统连接多套`Hadoop`集群
 
 #### 多版本引擎
-* 支持`Spark` 、`Flink`等引擎的多个版本共存，例如可同时支持`Flink1.10`、`Flink1.12`（后续开源）
+* 支持`Spark` 、`Flink`等引擎的多个版本共存
 
 #### Kerberos支持
 * `Spark`、`Flink`
@@ -58,6 +58,9 @@
 
 ## 快速开始
 请参考官方文档: [快速上手](https://dtstack.github.io/Taier/docs/quickstart/start)
+
+## 问题反馈
+如果在使用上有遇到bug或者优化点，强烈建议你提issue，我们将及时修复
 
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
