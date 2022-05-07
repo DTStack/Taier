@@ -3,10 +3,10 @@
 ## 1. 使用docker-compose快速部署
 
 :::tip
-注意：使用docker部署的时候，您必须先要安装docker和docker-compose
+注意：使用docker部署的时候，必须先要安装docker和docker-compose
 :::
 
-1. 您可以先去git上面拉去taier工程，或者直接在master分支下载docker-compose.yml文件，docker-compose.yml文件存放在项目的根目录下
+1. 可以先去git上面拉去taier工程，或者直接在master分支下载docker-compose.yml文件，docker-compose.yml文件存放在项目的根目录下
 2. 使用终端进入到docker-compose.yml所在的目录，然后执行命令 
 ```shell
 $ docker-compose up -d
@@ -48,7 +48,7 @@ services:
 * taier是taier后端的镜像
 
 ## 2. 直接获取hub上面镜像部署
-如果您想要使用自己mysql和zk，你只需要下载taier-ui镜像和taier镜像
+如果想要使用自己mysql和zk，只需要下载taier-ui镜像和taier镜像
 ```shell
 // taier地址
 docker pull dtopensource/taier:1.0
@@ -76,7 +76,7 @@ TAIER_IP: taier后端的地址
 ```
 
 ## 3. 使用Dockerfile构建镜像
-   如果你想使用Dockerfile构建镜像，则你需要准备一些第三方jar
+   如果想使用Dockerfile构建镜像，则需要准备一些第三方jar
 * 下载taier源码，执行脚本mvn-build.sh 编辑出taier后端所需要的jar包。
 * 下载第三方jar,chunjun和datasourceX并把这两个第三方jar打包成chunjun.tar.gz和datasourceX.tar.gz放在项目的更目录下。（chunjun和datasourceX的jar获取请参考后端快速部署）
 * 执行在项目的更目录下执行

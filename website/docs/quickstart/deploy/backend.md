@@ -9,11 +9,11 @@ sidebar_label: 后端部署
 请登录 **MySQL** 数据库，创建名为 `taier` 数据库
 ### 表数据
 #### 版本升级
-低版本升级到高版本 执行高版本目录下的**increment.sql**
+低版本升级到高版本 执行高版本目录下的`increment.sql`
 
 如: 1.0升级到1.1 执行sql/1.1/1.1_increment.sql
 #### 初次部署
-直接执行sql下的**init.sql**创建新库
+直接执行sql下的`init.sql`创建新库
 ## 项目编译
 
 ### 编译脚本

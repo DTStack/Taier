@@ -28,18 +28,20 @@ sidebar_position: 1
 * 实战检验：得到数百家企业客户生产环境实战检验
 
 #### 易用性
-* 支持大数据作业`Spark`、`Flink`的调度，
+* 支持大数据作业`Spark`、`Flink`、`Hive`的调度，
 * 支持众多的任务类型，目前支持 Spark SQL、数据同步
 :::tip
-后续将开源：  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
-  HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、带格式的:突出显示
-  greenplum、inceptor、kingbase、presto)
+后续将开源：  
+  SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、TersorFlow、Pytorch、
+  HadoopMR、Kylin、Odps  
+  SQL类: MySQL、PostgreSQL、Impala、Oracle、SQLServer、TiDB、
+  greenplum、inceptor、kingbase、presto
 :::
 
 * 可视化工作流配置：支持封装工作流、支持单任务运行，不必封装工作流、支持拖拽模式绘制DAG
 * DAG监控界面：运维中心、支持集群资源查看，了解当前集群资源的剩余情况、支持对调度队列中的任务批量停止、任务状态、任务类型、重试次数、任务运行机器、可视化变量等关键信息一目了然
 * 调度时间配置：可视化配置
-* 多集群连接：支持一套调度系统连接多套`Hadoop`集群
+* 多集群配置：支持一套调度系统对接多`Hadoop`集群
 
 #### 多版本引擎
 * 支持`Spark` 、`Flink`等引擎的多个版本共存
@@ -68,7 +70,7 @@ sidebar_position: 1
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、TensorFlow、Pytorch、
 HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、Inceptor、Kingbase、Presto)
 * 调度方式：同时支持Yarn/K8s
-* 计算引擎：同时支持Spark-2.1.x/2.4.x、/1.12（与Flink后续版本）
+* 计算引擎：同时支持Spark-2.1.x/2.4.x、Flink 1.12（与Flink后续版本）
 * 部署方式：同时支持Scheduler/Worker整合与分离部署
 * 功能支持：支持交易日历、事件驱动
 * 外部系统对接：支持Taier系统对接外部调度系统（AZKBAN、Control-M、DS调度）
