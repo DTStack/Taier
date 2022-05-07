@@ -33,7 +33,7 @@ public class BatchFunctionResource{
     @TableField("function_id")
     private Long functionId;
 
-    @TableField("resourceId")
+    @TableField("resource_id")
     private Long resourceId;
 
     @TableId(value="id", type= IdType.AUTO)

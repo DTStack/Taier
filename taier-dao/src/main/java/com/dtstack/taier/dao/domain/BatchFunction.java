@@ -102,7 +102,7 @@ public class BatchFunction {
     /**
      * 存储过程sql
      */
-    @TableField("class_name")
+    @TableField("sql_text")
     private String sqlText;
 
     @TableId(value="id", type= IdType.AUTO)

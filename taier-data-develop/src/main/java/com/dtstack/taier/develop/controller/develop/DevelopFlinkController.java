@@ -28,7 +28,17 @@ import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
-import com.dtstack.taier.develop.vo.develop.query.*;
+import com.dtstack.taier.develop.service.develop.impl.FlinkTaskVertexGraphService;
+import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
+import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
+import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskVertexGraphVO;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import io.swagger.annotations.Api;
@@ -57,6 +67,9 @@ public class DevelopFlinkController {
     @Autowired
     private FlinkServerLogService flinkServerLogService;
 
+    @Autowired
+    private FlinkTaskVertexGraphService flinkTaskVertexGraphService;
+
 
     @ApiOperation(value = "运行FlinkSQL任务")
     @PostMapping(value = "start")
@@ -72,25 +85,6 @@ public class DevelopFlinkController {
             @Override
             protected StartFlinkResultVO process() throws RdosDefineException {
                 return flinkTaskService.startFlinkTask(vo.getTaskId(), vo.getExternalPath());
-            }
-        }.execute();
-    }
-
-
-    @ApiOperation(value = "停止FlinkSQL任务")
-    @PostMapping(value = "stop")
-    public R<Boolean> stopFlinkTask(@RequestBody StartFlinkSqlVO vo) {
-        return new APITemplate<Boolean>() {
-            @Override
-            protected void checkParams() throws IllegalArgumentException {
-                if(null == vo.getTaskId()){
-                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
-                }
-            }
-
-            @Override
-            protected Boolean process() throws RdosDefineException {
-                return flinkTaskService.stopStreamTask(vo.getTaskId());
             }
         }.execute();
     }
@@ -223,7 +217,19 @@ public class DevelopFlinkController {
         return new APITemplate<Boolean>() {
             @Override
             protected Boolean process() {
-                return flinkTaskService.stopStreamTask(operateTaskVO.getId());
+                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId());
+            }
+        }.execute();
+    }
+
+
+    @ApiOperation("获取任务拓扑图")
+    @PostMapping(value = "getTaskJson")
+    public R<FlinkTaskDTO> getTaskJson(@RequestBody TaskVertexGraphVO taskVertexGraphVO) {
+        return new APITemplate<FlinkTaskDTO>() {
+            @Override
+            protected FlinkTaskDTO process() {
+                return flinkTaskVertexGraphService.getTaskJson(taskVertexGraphVO.getTaskId());
             }
         }.execute();
     }

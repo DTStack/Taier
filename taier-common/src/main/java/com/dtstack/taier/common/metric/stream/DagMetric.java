@@ -36,6 +36,7 @@ public abstract class DagMetric implements IMetric {
 
     /**
      * 根据返回参数组装metricMap
+     *
      * @param result
      * @return
      */
@@ -47,18 +48,35 @@ public abstract class DagMetric implements IMetric {
 
     /**
      * 执行查询操作
+     *
      * @return
      */
     @Override
     public Object getMetric() {
         QueryInfo queryInfo = buildQueryInfo();
-        String result = prometheusMetricQuery.queryResult(getMetricName(),null,queryInfo,getMetricName());
+        String result = prometheusMetricQuery.queryResult(getMetricName(), null, queryInfo, getMetricName());
         return formatData(result);
     }
 
     @Override
     public String getChartName() {
         return null;
+    }
+
+    public String getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
+
+    public DAGPrometheusMetricQuery getPrometheusMetricQuery() {
+        return prometheusMetricQuery;
+    }
+
+    public void setPrometheusMetricQuery(DAGPrometheusMetricQuery prometheusMetricQuery) {
+        this.prometheusMetricQuery = prometheusMetricQuery;
     }
 
 }
