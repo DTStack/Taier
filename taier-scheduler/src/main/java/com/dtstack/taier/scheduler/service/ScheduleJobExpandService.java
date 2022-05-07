@@ -1,10 +1,12 @@
 package com.dtstack.taier.scheduler.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.mapper.ScheduleJobExpandMapper;
+import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,5 +48,37 @@ public class ScheduleJobExpandService extends ServiceImpl<ScheduleJobExpandMappe
         scheduleJobExpand.setEngineLog(engineLog);
         getBaseMapper().update(scheduleJobExpand, Wrappers.lambdaQuery(ScheduleJobExpand.class)
                 .eq(ScheduleJobExpand::getJobId, jobId));
+    }
+
+    public void updateExtraInfo(String jobId, String jobExtraInfo) {
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setJobId(jobId);
+        scheduleJobExpand.setJobExtraInfo(jobExtraInfo);
+        getBaseMapper().update(scheduleJobExpand, Wrappers.lambdaQuery(ScheduleJobExpand.class)
+                .eq(ScheduleJobExpand::getJobId, jobId));
+    }
+
+    public void updateExtraInfoAndLog(String jobId, String jobExtraInfo, String logInfo, String engineLog) {
+        ScheduleJobExpand scheduleJobExpand = new ScheduleJobExpand();
+        scheduleJobExpand.setJobId(jobId);
+        scheduleJobExpand.setJobExtraInfo(jobExtraInfo);
+        scheduleJobExpand.setLogInfo(logInfo);
+        scheduleJobExpand.setEngineLog(engineLog);
+        getBaseMapper().update(scheduleJobExpand, Wrappers.lambdaQuery(ScheduleJobExpand.class)
+                .eq(ScheduleJobExpand::getJobId, jobId));
+    }
+
+    public String getJobGraphJson(String jobId) {
+        String jobExtraInfo =getByJobId(jobId).getJobExtraInfo();
+        JSONObject jobExtraObj = JSONObject.parseObject(jobExtraInfo);
+        if (null != jobExtraObj) {
+            return jobExtraObj.getString(JobResultConstant.JOB_GRAPH);
+        }
+        return "";
+    }
+
+
+    public String getJobExtraInfo(String jobId) {
+        return getByJobId(jobId).getJobExtraInfo();
     }
 }
