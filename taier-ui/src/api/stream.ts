@@ -150,4 +150,7 @@ export default {
 	getTaskJson(params: any) {
 		return http.post(req.GET_TASK_JSON, params);
 	},
+	getTaskSqlText(params: any) {
+		return http.post(req.GET_TASK_SQL_TEXT, params);
+	},
 };

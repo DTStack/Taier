@@ -61,25 +61,22 @@ export interface CatalogueDataProps {
 	parentId: number;
 }
 
-// 所有任务相关的类型都必要的属性
-export interface ITaskBasicProps {
-	taskId: number;
-	name: string;
-}
-
 // 运维中心-任务类型，@todo 应该是 Job
-export interface ITaskProps extends ITaskBasicProps {
+export interface ITaskProps {
 	gmtModified: number;
 	ownerUserId: number;
 	ownerUserName: null | string;
 	periodType: TASK_PERIOD_ENUM;
 	scheduleStatus: SCHEDULE_STATUS;
 	taskType: TASK_TYPE_ENUM;
+	taskId: number;
+	name: string;
 }
 
 // 实时任务管理——任务类型
-export interface IStreamTaskProps extends ITaskBasicProps {
+export interface IStreamTaskProps {
 	id: number;
+	name: string;
 	jobId: string;
 	status: TASK_STATUS;
 	componentVersion: string;

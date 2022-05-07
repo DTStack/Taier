@@ -20,15 +20,14 @@ import { useEffect, useState } from 'react';
 import { Tabs, Radio } from 'antd';
 import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
-import type { IStreamTaskProps, ITaskParams } from '@/interface';
+import type { IStreamTaskProps } from '@/interface';
 import { TaskStatus } from '@/utils/enums';
-import api from '@/api';
+import stream from '@/api/stream';
 import RunLog from './components/runLog';
 import Failover from './components/runLog/failover';
 import CheckPoint from './components/runLog/checkPoint';
-import RunCode from './components/runCode';
+import RunCode, { IRunCodeDataProps } from './components/runCode';
 import History from './components/runLog/historyLog';
-import { TASK_TYPE_ENUM } from '@/constant';
 import TaskManager from './components/taskManager';
 import RunMsg from './components/runMsg';
 import StreamDetailGraph from './components/detailGraph';
@@ -97,10 +96,10 @@ export default function TaskDetailPane({
 }: IProps) {
 	const [tabKey, setTabKey] = useState<TABS_ENUM>(TABS_ENUM.GRAPH);
 	const [logSubTabKey, setLogSubTabKey] = useState(TABS_LOG_ENUM.RUN_LOG);
-	const [taskParams, setTaskParams] = useState<Partial<ITaskParams> | undefined>(undefined);
+	const [taskParams, setTaskParams] = useState<IRunCodeDataProps | undefined>(undefined);
 
 	const getTaskParams = async () => {
-		let res = await api.getOfflineTaskByID({ id: data?.id });
+		const res = await stream.getTaskSqlText({ taskId: data?.id });
 		if (res?.code === 1) {
 			setTaskParams(res.data || {});
 		}

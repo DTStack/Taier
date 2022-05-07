@@ -66,9 +66,9 @@ export default function StreamTask() {
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
 	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
-	const [goOnTask, setGoOnTask] = useState<
-		Pick<IStreamTaskProps, 'jobId' | 'taskId'> | undefined
-	>(undefined);
+	const [goOnTask, setGoOnTask] = useState<Pick<IStreamTaskProps, 'jobId' | 'id'> | undefined>(
+		undefined,
+	);
 	// 任务详情信息
 	const [slidePane, setSlidePane] = useState<{
 		visible: boolean;
@@ -130,7 +130,7 @@ export default function StreamTask() {
 	) => {
 		switch (mode) {
 			case OPERATOR_MODE.goOn:
-				setGoOnTask({ taskId: task.taskId, jobId: task.jobId });
+				setGoOnTask({ id: task.id, jobId: task.jobId });
 				break;
 			case OPERATOR_MODE.stop:
 				stream

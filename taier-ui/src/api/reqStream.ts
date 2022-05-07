@@ -56,4 +56,5 @@ export default {
 	LIST_CHECK_POINT: `${STREAM_BASE_URL}/checkpoint/listCheckPoint`, // 获取 CheckPointPath 下拉列表
 	STOP_TASK: `${STREAM_BASE_URL}/flink/stopTask`, // 停止任务
 	GET_TASK_JSON: `${STREAM_BASE_URL}/flink/getTaskJson`, // 拓扑图
+	GET_TASK_SQL_TEXT: `${STREAM_BASE_URL}/flink/getTaskSqlText`,
 };
