@@ -77,9 +77,12 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 			const { createUser, id, name, type, catalogueType } = data?.data || {};
 			const isLeaf = type === 'file';
 			if (!showFile && type === 'file') return null;
-			const disabled = [MENU_TYPE_ENUM.FUNCTION, MENU_TYPE_ENUM.SYSFUC].includes(
-				catalogueType,
-			);
+			const disabled = [
+				MENU_TYPE_ENUM.FUNCTION,
+				MENU_TYPE_ENUM.SYSFUC,
+				MENU_TYPE_ENUM.FLINKFUNC,
+				MENU_TYPE_ENUM.SPARKFUNC,
+			].includes(catalogueType);
 			return (
 				<TreeNode
 					title={

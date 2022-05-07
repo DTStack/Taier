@@ -4,15 +4,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.common.param.MetricResultVO;
+import com.dtstack.taier.develop.dto.devlop.GetFormatTimespanVO;
 import com.dtstack.taier.develop.dto.devlop.GetMetricValueVO;
 import com.dtstack.taier.develop.dto.devlop.StreamTaskMetricDTO;
-import com.dtstack.taier.develop.mapstruct.console.StreamJobMetricTransfer;
+import com.dtstack.taier.develop.dto.devlop.TimespanVO;
 import com.dtstack.taier.develop.service.develop.impl.StreamJobMetricService;
-import com.dtstack.taier.develop.vo.develop.query.GetTaskMetricsVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,6 +59,17 @@ public class DevelopStreamJobMetricController {
             @Override
             protected List<MetricResultVO> process()   {
                 return streamJobMetricService.queryTaskMetrics(vo.getDtuicTenantId(), vo.getTaskId(), vo.getEnd(), vo.getTimespan(), vo.getChartName());
+            }
+        }.execute();
+    }
+
+    @ApiOperation(value = "格式化时间跨度")
+    @GetMapping(value = "formatTimespan")
+    public R<TimespanVO> formatTimespan(GetFormatTimespanVO vo) {
+        return new APITemplate<TimespanVO>() {
+            @Override
+            protected TimespanVO process()  {
+                return streamJobMetricService.formatTimespan(vo.getTimespan());
             }
         }.execute();
     }

@@ -18,8 +18,10 @@
 
 package com.dtstack.taier.scheduler.jobdealer;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.BlockCallerPolicy;
 import com.dtstack.taier.common.enums.EJobCacheStage;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ClientAccessException;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -29,6 +31,7 @@ import com.dtstack.taier.common.util.SleepUtil;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.JobClient;
+import com.dtstack.taier.pluginapi.constrant.JobResultConstant;
 import com.dtstack.taier.pluginapi.enums.EQueueSourceType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ClientArgumentException;
@@ -41,6 +44,8 @@ import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
+import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -84,12 +89,14 @@ public class JobSubmitDealer implements Runnable {
     private DelayBlockingQueue<SimpleJobDelay<JobClient>> delayJobQueue = null;
     private JudgeResult workerNotFindResult = JudgeResult.notOk( "worker not find");
     private ExecutorService jobSubmitConcurrentService;
+    private ScheduleJobExpandService scheduleJobExpandService;
 
     public JobSubmitDealer(String localAddress, GroupPriorityQueue priorityQueue, ApplicationContext applicationContext) {
         this.jobPartitioner = applicationContext.getBean(JobPartitioner.class);
         this.workerOperator = applicationContext.getBean(WorkerOperator.class);
         this.ScheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.shardCache = applicationContext.getBean(ShardCache.class);
+        this.scheduleJobExpandService = applicationContext.getBean(ScheduleJobExpandService.class);
         EnvironmentContext environmentContext = applicationContext.getBean(EnvironmentContext.class);
         if (null == priorityQueue) {
             throw new RdosDefineException("priorityQueue must not null.");
@@ -313,6 +320,9 @@ public class JobSubmitDealer implements Runnable {
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
+                if (EScheduleJobType.SQL.getType().equals(jobClient.getTaskType())) {
+                    saveArchiveFsDir(jobClient,jobResult);
+                }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("jobId:{} taskType:{} submit jobResult:{}.", jobClient.getJobId(), jobClient.getTaskType(), jobResult);
                 }
@@ -340,6 +350,29 @@ public class JobSubmitDealer implements Runnable {
             handlerFailedWithRetry(jobClient, false, e);
         } catch (Throwable e) {
             handlerFailedWithRetry(jobClient, true, e);
+        }
+    }
+
+
+    private void saveArchiveFsDir(JobClient jobClient,JobResult jobResult) {
+        JSONObject pluginInfo = jobResult.getExtraInfoJson();
+        if (null == pluginInfo || pluginInfo.isEmpty()) {
+            return;
+        }
+
+        String archiveFsDir = pluginInfo.getString(JobResultConstant.ARCHIVE);
+
+        if (StringUtils.isNotBlank(archiveFsDir)) {
+            LOGGER.info("update jobId {} ldap archiveFsDir {}", jobClient.getJobId(), archiveFsDir);
+            String jobExtraInfo = scheduleJobExpandService.getJobExtraInfo(jobClient.getJobId());
+            JSONObject jsonObject;
+            if (StringUtils.isBlank(jobExtraInfo)) {
+                jsonObject = new JSONObject();
+            } else {
+                jsonObject = JSONObject.parseObject(jobExtraInfo);
+            }
+            jsonObject.put(JobResultConstant.ARCHIVE,archiveFsDir);
+            scheduleJobExpandService.updateExtraInfo(jobClient.getJobId(), jsonObject.toJSONString());
         }
     }
 
