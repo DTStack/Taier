@@ -414,6 +414,7 @@ export default function StreamTask() {
 			case TASK_STATUS.WAIT_RUN:
 			case TASK_STATUS.WAIT_COMPUTE:
 			case TASK_STATUS.SUBMITTING:
+			case TASK_STATUS.COMPUTING:
 			case TASK_STATUS.RESTARTING:
 				return (
 					<Space size={5} split={<Divider type="vertical" />}>

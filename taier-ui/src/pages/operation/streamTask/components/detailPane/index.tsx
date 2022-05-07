@@ -166,11 +166,11 @@ export default function TaskDetailPane({
 							<Radio.Button value={TABS_LOG_ENUM.TASK_MANAGER}>
 								Task Manager
 							</Radio.Button>
-							{taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && (
+							{/* {taskType !== TASK_TYPE_ENUM.DATA_ACQUISITION && (
 								<Radio.Button value={TABS_LOG_ENUM.CHECKPOINT}>
 									checkpoint
 								</Radio.Button>
-							)}
+							)} */}
 							<Radio.Button value={TABS_LOG_ENUM.HISTORY_LOG}>历史日志</Radio.Button>
 						</Radio.Group>
 						{renderSubContent(logSubTabKey)}
