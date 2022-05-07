@@ -17,13 +17,13 @@
  */
 
 import { message, Tooltip } from 'antd';
-import type { ITaskStreamProps } from '@/interface';
+import type { IUpstreamJobProps } from '@/interface';
 import { CopyOutlined } from '@ant-design/icons';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import './taskInfo.scss';
 
-export function TaskInfo(props: { task: ITaskStreamProps }) {
+export function TaskInfo(props: { task: IUpstreamJobProps }) {
 	const { task } = props;
 	return (
 		<div className="ant-table bd task-detail">

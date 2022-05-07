@@ -35,7 +35,7 @@ import { Breadcrumb, Button } from 'antd';
 import PatchDetail from './operation/patch/detail';
 import Login from './login';
 import CustomDrawer from '@/components/customDrawer';
-import { CONSOLE, DRAWER_MENU_ENUM, OPERATIONS } from '@/constant';
+import { CONSOLE, DRAWER_MENU_ENUM } from '@/constant';
 import QueueManage from './console/queue';
 import TaskDetail from './console/taskDetail';
 import ResourceManage from './console/resource';

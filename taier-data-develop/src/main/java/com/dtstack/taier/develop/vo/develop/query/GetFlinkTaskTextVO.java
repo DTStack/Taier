@@ -16,26 +16,25 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
-import type { IEditor } from '@dtinsight/molecule/esm/model';
-import classNames from 'classnames';
-import DetailInfo from '@/components/detailInfo';
-import { isTaskTab } from '@/utils/enums';
-import { CATELOGUE_TYPE } from '@/constant';
+package com.dtstack.taier.develop.vo.develop.query;
 
-export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
-	/**
-	 * 当前的 tab 是否不合法，如不合法则展示 Empty
-	 */
-	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
+import com.dtstack.taier.common.param.DtInsightAuthParam;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
-	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务属性</div>;
-	}
+@ApiModel("获取脚本sql")
+public class GetFlinkTaskTextVO extends DtInsightAuthParam {
 
-	return (
-		<div className='p-8'>
-			<DetailInfo type={CATELOGUE_TYPE.TASK} data={current!.tab!.data} />
-		</div>
-	);
+
+    @ApiModelProperty(value = "任务Id", example = "1L", required = true)
+    private Long taskId;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
 }
