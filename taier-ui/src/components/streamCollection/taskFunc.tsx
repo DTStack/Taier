@@ -119,51 +119,18 @@ export const streamTaskActions = {
 
 		tab['data'] = page;
 		molecule.editor.updateTab(tab);
-		this.updateAction(page);
 	},
 	setCurrentPage(data: any) {
 		const state = molecule.editor.getState();
 		const tab: any = state.current?.tab || {};
 		tab['data'] = data;
 		molecule.editor.updateTab(tab);
-		this.updateAction(data);
 	},
 	updateCurrentPage(data: any) {
 		let page = this.getCurrentPage();
 		page = Object.assign({}, page, data);
 
 		this.setCurrentPage(page);
-	},
-	/**
-	 * 更新保存和提交按钮的启用禁用状态
-	 * @param page
-	 */
-	updateAction(page: any) {
-		const { invalid, invalidSubmit, notSynced, taskType, createModel, sourceMap, targetMap } =
-			page;
-		const isSyncTaskGuideMode =
-			taskType === TASK_TYPE_ENUM.DATA_ACQUISITION && createModel === CREATE_MODEL_TYPE.GUIDE;
-		let isDisableSubmit =
-			!sourceMap?.sourceId ||
-			!targetMap?.sourceId ||
-			!!(isSyncTaskGuideMode && (invalid || invalidSubmit));
-		let isDisableSave =
-			!sourceMap?.sourceId ||
-			!targetMap?.sourceId ||
-			(isSyncTaskGuideMode && (invalid || invalidSubmit || !notSynced)) ||
-			(!isSyncTaskGuideMode && !notSynced);
-		setTimeout(() => {
-			molecule.editor.updateActions([
-				{
-					id: ID_COLLECTIONS.TASK_SUBMIT_ID,
-					disabled: isDisableSubmit,
-				},
-				{
-					id: ID_COLLECTIONS.TASK_SAVE_ID,
-					disabled: isDisableSave,
-				},
-			]);
-		}, 0);
 	},
 	navtoStep(step: number) {
 		this.setCurrentPageValue('currentStep', step);
@@ -199,7 +166,6 @@ export const streamTaskActions = {
 	 */
 	initCollectionTask(taskId: any) {
 		const page = this.getCurrentPage();
-		this.updateAction(page);
 		/**
 		 * 假如已经存在这个属性，则说明当前的task不是第一次打开，所以采用原来的数据
 		 */

@@ -19,7 +19,7 @@
 import { Component } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultService } from './taskResultService';
 import taskResultService, { createLinkMark, createLog, createTitle } from './taskResultService';
-import type { CatalogueDataProps, IOfflineTaskProps, IResponseProps } from '@/interface';
+import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
 import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
@@ -200,7 +200,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			currentTabId.toString(),
 			`同步任务【${params.name}】开始执行`,
 		);
-		const res: IResponseProps<ITaskExecResultProps> = await API.execDataSyncImmediately(params);
+		const res = await API.execDataSyncImmediately<ITaskExecResultProps>(params);
 		// 执行结果异常的情况下，存在 message
 		if (res && res.code && res.message) {
 			this.taskResultService.appendLogs(
@@ -309,7 +309,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		// 任务执行
 		if (checkExist(task.taskType)) {
 			params.taskId = task.id;
-			return API.execSQLImmediately(params)
+			return API.execSQLImmediately<ITaskExecResultProps>(params)
 				.then((res) => this.succCall(res, currentTabId, task))
 				.then((res) => {
 					// 执行结果正常，才会去判断是否继续后续步骤
@@ -338,7 +338,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		// 脚本执行
 		if (checkExist(task.type)) {
 			params.scriptId = task.id;
-			return API.execScript(params)
+			return API.execScript<ITaskExecResultProps>(params)
 				.then((res) => this.succCall(res, currentTabId, task))
 				.then((res) => {
 					if (res) {
@@ -364,7 +364,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		if (checkExist((task as any).componentType)) {
 			params.componentId = task.id;
 			params.componentType = (task as any).componentType;
-			return API.execComponent(params)
+			return API.execComponent<ITaskExecResultProps>(params)
 				.then((res) => this.succCall(res, currentTabId, task))
 				.then((res) => {
 					if (res) {
@@ -397,7 +397,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	 * @returns
 	 */
 	private succCall = async (
-		res: IResponseProps<ITaskExecResultProps>,
+		res: IResponseBodyProps<ITaskExecResultProps>,
 		currentTabId: number,
 		task: ITask,
 	) => {
@@ -478,7 +478,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	 */
 	private getDataOver = (
 		currentTabId: number,
-		res: IResponseProps<ITaskExecResultProps>,
+		res: IResponseBodyProps<ITaskExecResultProps>,
 		jobId?: string,
 	) => {
 		if (res.data) {
@@ -567,7 +567,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		type: TASK_TYPE_ENUM,
 		num: number = 0,
 	) => {
-		API.selectRunLog({
+		API.selectRunLog<ITaskExecResultProps>({
 			jobId,
 			taskId: task.id,
 			type,
@@ -634,7 +634,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				},
 				taskType,
 			)
-				.then((res: IResponseProps<ITaskExecResultProps>) => {
+				.then((res: IResponseBodyProps<ITaskExecResultProps>) => {
 					if (this.stopSign.get(currentTabId)) {
 						this.stopSign.set(currentTabId, false);
 						taskResultService.appendLogs(
@@ -683,7 +683,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				taskId: task.id,
 				type: isTask ? SELECT_TYPE.TASK : SELECT_TYPE.SCRIPT,
 				sqlId: null,
-			}).then((res: IResponseProps<ITaskExecResultProps>) => {
+			}).then((res: IResponseBodyProps<ITaskExecResultProps>) => {
 				if (this.stopSign.get(currentTabId)) {
 					this.stopSign.set(currentTabId, false);
 					taskResultService.appendLogs(
@@ -751,7 +751,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			taskId: task.id,
 			type,
 			sqlId: null,
-		}).then((res: IResponseProps<ITaskExecResultProps>) => {
+		}).then((res: IResponseBodyProps<ITaskExecResultProps>) => {
 			if (this.stopSign.get(currentTabId)) {
 				this.stopSign.set(currentTabId, false);
 				taskResultService.appendLogs(

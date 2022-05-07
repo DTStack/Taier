@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import GraphEditor, { GraphEditorRef } from './graphEditor';
 import { cloneDeep } from 'lodash';
 import MxFactory from '@/components/mxGraph';
@@ -76,25 +76,17 @@ export default function LinkDiagram({
 }: ILinkDiagramProps) {
 	const graphEditor = useRef<GraphEditorRef>(null);
 	const rootCellRef = useRef<string>('');
-	const polling = useRef<number>();
 
-	const loadTree = () => {
-		polling.current = window.setTimeout(() => {
-			renderTree(flinkJson || []);
-		}, 500);
-	};
-
-	const insertOutVertex = (parent: any, data: any) => {
-		const { graph } = graphEditor.current!;
+	const insertOutVertex = (graph: any, parent: any, data: any) => {
 		const rootCell = graph.getDefaultParent();
 		const style = graphEditor.current!.getStyles();
 		let newVertex = '';
-		const existCell = getExistCell(data);
+		const existCell = getExistCell(graph, data);
 		// 已存在的节点则不重新生成
 		if (existCell) {
 			newVertex = existCell;
 		} else {
-			newVertex = addVertexInfo(data);
+			newVertex = addVertexInfo(graph, data);
 		}
 		graph.insertEdge(rootCell, null, '', parent, newVertex, style);
 		graph.view.refresh(newVertex);
@@ -104,8 +96,8 @@ export default function LinkDiagram({
 	/**
 	 * 生成节点并插入相关业务数据
 	 */
-	const addVertexInfo = (data: any) => {
-		const { graph, Mx } = graphEditor.current!;
+	const addVertexInfo = (graph: any, data: any) => {
+		const { Mx } = graphEditor.current!;
 		const rootCell = graph.getDefaultParent();
 		const style = graphEditor.current!.getStyles();
 		// 创建节点
@@ -125,21 +117,20 @@ export default function LinkDiagram({
 		return newVertex;
 	};
 
-	const loopOutTree = (currentNode: any, treeNodeData: any) => {
+	const loopOutTree = (graph: any, currentNode: any, treeNodeData: any) => {
 		if (treeNodeData) {
 			const childNodes = treeNodeData.children || [];
 			childNodes.forEach((item: any) => {
 				const nodeData = cloneDeep(item);
-				const current = insertOutVertex(currentNode, nodeData);
+				const current = insertOutVertex(graph, currentNode, nodeData);
 				if (item.children && item.children.length > 0) {
-					loopOutTree(current, item);
+					loopOutTree(graph, current, item);
 				}
 			});
 		}
 	};
 
-	const getExistCell = (data?: any) => {
-		const { graph } = graphEditor.current!;
+	const getExistCell = (graph: any, data?: any) => {
 		const rootCell = graph.getDefaultParent();
 		const allCells = graph.getChildCells(rootCell);
 		for (let cell of allCells) {
@@ -155,8 +146,7 @@ export default function LinkDiagram({
 	/**
 	 * 获取当前节点前一个节点
 	 */
-	const getPrevSourceCell = (newVertex) => {
-		const { graph } = graphEditor.current!;
+	const getPrevSourceCell = (graph, newVertex) => {
 		const rootCell = graph.getDefaultParent();
 		const allCells = graph.getChildCells(rootCell);
 		const curIndex = allCells.findIndex((cell) => cell.id === newVertex.id);
@@ -166,13 +156,12 @@ export default function LinkDiagram({
 		};
 	};
 
-	const loopInnerData = (data: any, index: number) => {
-		const { graph } = graphEditor.current!;
+	const loopInnerData = (graph: any, data: any, index: number) => {
 		const rootCell = graph.getDefaultParent();
 		const style = graphEditor.current!.getStyles();
-		const newVertex = addVertexInfo(Object.assign(data, { sortIndex: index }));
+		const newVertex = addVertexInfo(graph, Object.assign(data, { sortIndex: index }));
 		// 内层 subVertex 依次生成 edge
-		const { prevCell, curIndex } = getPrevSourceCell(newVertex);
+		const { prevCell, curIndex } = getPrevSourceCell(graph, newVertex);
 		if (curIndex !== 0) {
 			// 第一个节点无 prevCell
 			setTimeout(() => {
@@ -182,10 +171,11 @@ export default function LinkDiagram({
 		graph.view.refresh(newVertex);
 	};
 
-	const renderTree = (treeNodeData: any[]) => {
+	const renderTree = (graph: any) => {
 		try {
 			if (graphEditor.current) {
-				const { executeLayout, graph } = graphEditor.current;
+				const treeNodeData = flinkJson;
+				const { executeLayout } = graphEditor.current;
 				graph.getModel().clear();
 				const rootCell = graph.getDefaultParent();
 				const treeData = isSubVertex
@@ -196,16 +186,16 @@ export default function LinkDiagram({
 				const outLayout = () => {
 					for (let data of treeData) {
 						const currentNodeData = cloneDeep(data);
-						const currentNode = insertOutVertex(rootCell, currentNodeData);
+						const currentNode = insertOutVertex(graph, rootCell, currentNodeData);
 						rootCellRef.current = currentNode;
-						loopOutTree(currentNode, data);
+						loopOutTree(graph, currentNode, data);
 					}
 				};
 				// 内层节点渲染
 				const innerLayout = () => {
 					const treeMap: any = new Map(treeData.map((item, index) => [index, item]));
 					for (let [index, item] of treeMap) {
-						loopInnerData(item, index);
+						loopInnerData(graph, item, index);
 					}
 				};
 				const layoutMethod = isSubVertex ? innerLayout() : outLayout();
@@ -238,7 +228,7 @@ export default function LinkDiagram({
 						? ''
 						: `<div><img onclick='showSubVertex(${JSON.stringify(
 								removeStringOfName(chainData),
-						  )})' src='public/img/expand.svg' style="${expandImgStyle}" /></div>`;
+						  )})' src='images/expand.svg' style="${expandImgStyle}" /></div>`;
 					// 获取更多指标数据以title形式展示
 					const getMoreIndex = (indexData = {}, indexType: string): string => {
 						if (indexType === 'Delay') {
@@ -301,19 +291,19 @@ export default function LinkDiagram({
 						const indexArr = [
 							{
 								indexName: 'Delay',
-								imgSrc: 'public/img/delay.svg',
+								imgSrc: 'images/delay.svg',
 								indexTitle: getMoreIndex(delayData, 'Delay') || '',
 								indexData: `${Object.entries(delayData)?.[0]?.[1] || 0}ms`,
 							},
 							{
 								indexName: 'Parallelism',
-								imgSrc: 'public/img/parallelism.svg',
+								imgSrc: 'images/parallelism.svg',
 								indexTitle: '',
 								indexData: chainData.parallelism,
 							},
 							{
 								indexName: 'Record Received',
-								imgSrc: 'public/img/received.svg',
+								imgSrc: 'images/received.svg',
 								indexTitle:
 									getMoreIndex(chainData.recordsReceivedMap, 'Record Received') ||
 									'',
@@ -323,7 +313,7 @@ export default function LinkDiagram({
 							},
 							{
 								indexName: 'Record Sent',
-								imgSrc: 'public/img/send.svg',
+								imgSrc: 'images/send.svg',
 								indexTitle:
 									getMoreIndex(chainData.recordsSentMap, 'Record Sent') || '',
 								indexData: isSubVertex
@@ -332,7 +322,7 @@ export default function LinkDiagram({
 							},
 							{
 								indexName: 'BackPressured(max)',
-								imgSrc: 'public/img/dashboard.svg',
+								imgSrc: 'images/dashboard.svg',
 								indexTitle: 'BackPressured(max)',
 								indexData: (maxBackPressure * 100).toFixed(0) + '%',
 							},
@@ -434,17 +424,9 @@ export default function LinkDiagram({
 		graph.getLabel = renderLabel;
 		graph.htmlLabels = true;
 		graph.addListener(mxEvent.CLICK, onClickMaxGraph);
+
+		renderTree(graph);
 	};
-
-	useEffect(() => {
-		loadTree();
-
-		return () => {
-			if (polling.current) {
-				window.clearTimeout(polling.current);
-			}
-		};
-	}, []);
 
 	return (
 		<div className="tableRelation_graph" id={targetKey}>

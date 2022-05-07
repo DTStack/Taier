@@ -27,7 +27,7 @@ import MxFactory from '@/components/mxGraph';
 import StatusColumn from '@/components/statusColumn';
 import { taskStatusText, taskTypeText } from '@/utils/enums';
 import { formatDateTime, goToTaskDev, removeToolTips, getVertxtStyle } from '@/utils';
-import type { ITaskStreamProps } from '@/interface';
+import type { IUpstreamJobProps } from '@/interface';
 import type { IScheduleTaskProps } from '../schedule';
 import './jobGraphView.scss';
 import classNames from 'classnames';
@@ -89,7 +89,7 @@ export const replaceTreeNodeField = (
  * @param {*} origin
  * @param {*} target
  */
-export const mergeTreeNodes = (treeNodeData: ITaskStreamProps, mergeSource: ITaskStreamProps) => {
+export const mergeTreeNodes = (treeNodeData: IUpstreamJobProps, mergeSource: IUpstreamJobProps) => {
 	if (treeNodeData) {
 		if (treeNodeData.jobId === mergeSource.jobId) {
 			if (mergeSource.childNode) {
@@ -199,7 +199,7 @@ class JobGraphView extends React.Component<any, any> {
 	componentWillUnmount() {
 		document.removeEventListener('click', this.hideMenu, false);
 	}
-	initGraph = async (graphData: ITaskStreamProps) => {
+	initGraph = async (graphData: IUpstreamJobProps) => {
 		this.Container.innerHTML = ''; // 清理容器内的Dom元素
 		this.graph = '';
 		const editor = this.Container;
@@ -287,7 +287,7 @@ class JobGraphView extends React.Component<any, any> {
 		const { isCurrentProjectTask } = this.props;
 
 		if (cell.vertex && cell.value) {
-			const task = cell.value as ITaskStreamProps;
+			const task = cell.value as IUpstreamJobProps;
 			const taskType = taskTypeText(task.taskType);
 			if (task) {
 				return `<div class="vertex">
@@ -325,15 +325,15 @@ class JobGraphView extends React.Component<any, any> {
 		return str;
 	};
 
-	preHandGraphTree = (data: ITaskStreamProps) => {
+	preHandGraphTree = (data: IUpstreamJobProps) => {
 		const relationTree: any = [];
 
 		const loop = (
-			source: (ITaskStreamProps & { isPushed?: boolean }) | null,
-			target: ITaskStreamProps & { isPushed?: boolean },
-			parent: (ITaskStreamProps & { isPushed?: boolean }) | null,
+			source: (IUpstreamJobProps & { isPushed?: boolean }) | null,
+			target: IUpstreamJobProps & { isPushed?: boolean },
+			parent: (IUpstreamJobProps & { isPushed?: boolean }) | null,
 		) => {
-			let node: (ITaskStreamProps & { isPushed?: boolean }) | null = null;
+			let node: (IUpstreamJobProps & { isPushed?: boolean }) | null = null;
 			if (source && !source.isPushed) {
 				node = source;
 			} else if (target && !target.isPushed) {
@@ -375,7 +375,7 @@ class JobGraphView extends React.Component<any, any> {
 		return relationTree;
 	};
 
-	initRender = (data: ITaskStreamProps) => {
+	initRender = (data: IUpstreamJobProps) => {
 		const graph = this.graph;
 		// Clean data;
 		this._cacheLevel = {};
@@ -389,17 +389,17 @@ class JobGraphView extends React.Component<any, any> {
 		this.renderGraph(data);
 	};
 
-	renderGraph = (originData: ITaskStreamProps) => {
+	renderGraph = (originData: IUpstreamJobProps) => {
 		const cellCache: any = {};
 		const graph = this.graph;
 		const defaultParent = graph.getDefaultParent();
 		const dataArr: {
-			parent: null | ITaskStreamProps;
-			source: null | ITaskStreamProps;
-			target: null | ITaskStreamProps;
+			parent: null | IUpstreamJobProps;
+			source: null | IUpstreamJobProps;
+			target: null | IUpstreamJobProps;
 		}[] = this.preHandGraphTree(originData);
 
-		const getVertex = (parentCell: any, data: ITaskStreamProps) => {
+		const getVertex = (parentCell: any, data: IUpstreamJobProps) => {
 			if (!data) return null;
 
 			let style = getVertxtStyle(data.status);
