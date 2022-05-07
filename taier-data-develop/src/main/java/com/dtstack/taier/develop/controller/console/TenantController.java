@@ -23,6 +23,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.pager.PageResult;
@@ -102,6 +103,10 @@ public class TenantController {
         if(StringUtils.isBlank(tenantName)){
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
+        if(StringUtils.isBlank(tenantIdentity)){
+            throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+        }
+        if (!RegexUtils.tenantName(tenantIdentity)) throw new RdosDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
         Tenant tenant = tenantService.findByName(tenantName.trim());
         if(null != tenant){
             throw new RdosDefineException("tenant has exist");
