@@ -1,9 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react';
+import { Spin } from 'antd';
 import { TASK_STATUS } from '@/constant';
 import { IStreamTaskProps } from '@/interface';
 import stream from '@/api/stream';
 import Editor from '@/components/editor';
 import { createLinkMark, createLog } from '@/services/taskResultService';
+import './index.scss';
 
 interface IProps {
 	data: IStreamTaskProps | undefined;
@@ -48,12 +50,14 @@ export default function RunLog({ data }: IProps) {
 		downLoadLog: '',
 		submitLog: '',
 	});
+	const [loading, setLoading] = useState(false);
 	const offset = useRef();
 	const timer = useRef<number>();
 
 	const getLog = async () => {
 		if (!data?.id) return;
 		if (data.status == TASK_STATUS.RUNNING) {
+			setLoading(true);
 			const res = await stream.getJobManagerLog({ taskId: data.id, place: offset.current });
 			if (res?.code == 1 && res?.data?.place) {
 				setLogInfo((info) => ({
@@ -62,6 +66,7 @@ export default function RunLog({ data }: IProps) {
 				}));
 				offset.current = res.data.place;
 			}
+			setLoading(false);
 		} else {
 			const res = await stream.getTaskLogs({ taskId: data.id });
 			if (res?.code == 1) {
@@ -129,17 +134,19 @@ export default function RunLog({ data }: IProps) {
 	}, [logInfo, data?.status]);
 
 	return (
-		<Editor
-			style={{ height: '100%' }}
-			sync
-			value={logText}
-			language="jsonlog"
-			options={{
-				readOnly: true,
-				minimap: {
-					enabled: false,
-				},
-			}}
-		/>
+		<Spin wrapperClassName="dt-loading" spinning={loading}>
+			<Editor
+				style={{ height: '100%' }}
+				sync
+				value={logText}
+				language="jsonlog"
+				options={{
+					readOnly: true,
+					minimap: {
+						enabled: false,
+					},
+				}}
+			/>
+		</Spin>
 	);
 }
