@@ -81,11 +81,11 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "修改时间", example = "2020-08-14 14:41:55", required = true)
     private Timestamp gmtModified;
 
-    @ApiModelProperty(value = "是否删除", example = "1", required = true)
-    private Integer isDeleted = 0;
-
     @ApiModelProperty(value = "资源id列表", required = true)
     private Long resourceId;
+
+    @ApiModelProperty(value = "用户ID", required = true, hidden = true)
+    private Long userId;
 
     public String getName() {
         return name;
@@ -225,14 +225,6 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
         this.gmtModified = gmtModified;
     }
 
-    public Integer getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(Integer isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
     public Long getResourceId() {
         return resourceId;
     }
@@ -246,5 +238,15 @@ public class BatchFunctionAddVO extends DtInsightAuthParam {
 
     public void setUdfType(Integer udfType) {
         this.udfType = udfType;
+    }
+
+    @Override
+    public Long getUserId() {
+        return userId;
+    }
+
+    @Override
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
