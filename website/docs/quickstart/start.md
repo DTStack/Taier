@@ -5,7 +5,7 @@ sidebar_label: 快速上手
 # 快速上手
 ## 访问页面
 代码部署完成之后 就可以访问Taier
->  地址：http://localhost:8090/taier 用户名密码：admin@dtstack.com/admin123
+>  地址：http://127.0.0.1:8090/taier 用户名密码：admin@dtstack.com/admin123
 
 ![login](/img/readme/login.png)
 

@@ -51,7 +51,18 @@ const sidebars = {
             items: [
                 'functions/multi-cluster',
                 'functions/datasource',
-                'functions/task',
+                {
+                    type: 'category',
+                    collapsed: false,
+                    label: '任务类型',
+                    items: [
+                        'functions/task/sync',
+                        'functions/task/data-acquisition',
+                        'functions/task/flink-sql',
+                        'functions/task/spark-sql',
+                        'functions/task/hive-sql',
+                    ],
+                 },
                 'functions/maintenance',
                 'functions/depend',
                 'functions/task-param',

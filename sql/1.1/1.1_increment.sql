@@ -1119,4 +1119,6 @@ insert into `stream_metric_support` ( `is_deleted`, `id`, `component_version`, `
 
 alter table tenant add tenant_identity varchar(64) default '' null comment '租户标识';
 
+UPDATE task_template SET value_type = '1.12' WHERE task_type = 2 and type = 0;
+
 COMMIT;
