@@ -157,29 +157,27 @@ export default function saveTask() {
 							return Promise.reject();
 						});
 					});
-			} else {
-				return stream
-					.saveTask({
-						...params,
-						sqlText: params.value,
-						preSave: true,
-						// 后端区分右键编辑保存
-						updateSource: true,
-					})
-					.then((res) => {
-						if (res.code === 1) {
-							message.success('保存成功！');
-							return res;
-						}
-						return Promise.reject();
-					});
 			}
+
+			return stream
+				.saveTask({
+					...params,
+					sqlText: params.value,
+					preSave: true,
+					// 后端区分右键编辑保存
+					updateSource: true,
+				})
+				.then((res) => {
+					if (res.code === 1) {
+						message.success('保存成功！');
+						return res;
+					}
+					return Promise.reject();
+				});
 		}
 		case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 			const params: IParamsProps = cloneDeep(data);
-			// TODO：实时采集任务 dataSourceList 移除
-			// @ts-ignore
-			const { sourceMap, targetMap = {}, createModel, dataSourceList } = params;
+			const { sourceMap, targetMap = {}, createModel } = params;
 			/**
 			 * 当目标数据源为Hive时，必须勾选Json平铺
 			 */
@@ -301,7 +299,6 @@ export async function dataValidator<T extends any[]>(
 	const errors = await Promise.all(data.map((item) => validator(item, componentVersion)));
 	errors.forEach((error, index) => {
 		if (error) {
-			console.error(error);
 			const tableName = data[index]?.tableName;
 			message.error(
 				`${text} ${index + 1} ${tableName ? `(${tableName})` : ''}: ${error[0].message}`,

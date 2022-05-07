@@ -23,6 +23,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.ScheduleJobHistory;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
@@ -30,6 +31,7 @@ import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskVertexGraphService;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
+import com.dtstack.taier.develop.vo.develop.query.GetFlinkTaskTextVO;
 import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
 import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
@@ -230,6 +232,18 @@ public class DevelopFlinkController {
             @Override
             protected FlinkTaskDTO process() {
                 return flinkTaskVertexGraphService.getTaskJson(taskVertexGraphVO.getTaskId());
+            }
+        }.execute();
+    }
+
+
+    @ApiOperation("获取sqltext")
+    @PostMapping(value = "getTaskSqlText")
+    public R<Task> getTaskSqlText(@RequestBody GetFlinkTaskTextVO flinkTaskTextVO) {
+        return new APITemplate<Task>() {
+            @Override
+            protected Task process() {
+                return flinkTaskService.getTaskSqlText(flinkTaskTextVO.getTaskId());
             }
         }.execute();
     }

@@ -121,7 +121,7 @@ export default class Fullscreen extends React.Component<FullscreenProps, Fullscr
 	};
 
 	render() {
-		const { themeDark, fullIcon, exitFullIcon, iconStyle, ...other } = this.props;
+		const { themeDark, fullIcon, exitFullIcon, iconStyle, isShowTitle, ...other } = this.props;
 		const title = this.state.isFullScreen ? '退出全屏' : '全屏';
 		// const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
 		const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;

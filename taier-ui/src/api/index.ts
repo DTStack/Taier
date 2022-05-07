@@ -312,8 +312,8 @@ const api = {
 	getScriptById(params: any) {
 		return http.post(offlineReq.GET_SCRIPT_BY_ID, params);
 	},
-	execScript(params: any) {
-		return http.post(offlineReq.EXEC_SCRIPT, params);
+	execScript<T>(params: any) {
+		return http.post<T>(offlineReq.EXEC_SCRIPT, params);
 	},
 	stopScript(params: any) {
 		// 获取离线任务日志
@@ -429,9 +429,9 @@ const api = {
 	getTaskJobWorkflowNodes(params: any) {
 		return http.post(offlineReq.GET_TASK_JOB_WORKFLOW_NODES, params);
 	},
-	execSQLImmediately(params: any) {
+	execSQLImmediately<T>(params: any) {
 		// 立即执行SQL
-		return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params);
+		return http.post<T>(offlineReq.EXEC_SQL_IMMEDIATELY, params);
 	},
 	/**
 	 * sparkSql高级运行模式
@@ -451,9 +451,9 @@ const api = {
 		// 停止执行数据同步
 		return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params);
 	},
-	execDataSyncImmediately(params: any) {
+	execDataSyncImmediately<T>(params: any) {
 		// 立即执行数据同步
-		return http.post(offlineReq.EXEC_DATA_SYNC_IMMEDIATELY, params);
+		return http.post<T>(offlineReq.EXEC_DATA_SYNC_IMMEDIATELY, params);
 	},
 	stopDataSyncImmediately(params: any) {
 		// 停止执行SQL
@@ -917,8 +917,8 @@ const api = {
 	publishComponent(params: any) {
 		return http.post(offlineReq.PUBLISH_COMPONENT, params);
 	},
-	execComponent(params: any) {
-		return http.post(offlineReq.EXECUTE_COMPONENT, params);
+	execComponent<T>(params: any) {
+		return http.post<T>(offlineReq.EXECUTE_COMPONENT, params);
 	},
 	getComponentTypes(params?: any) {
 		return http.post(offlineReq.GET_SUPPORT_COMPONENT_TYPE, params);
@@ -930,9 +930,9 @@ const api = {
 		// 非数据同步接口轮训状态
 		return http.post(offlineReq.SELECT_SQL_STATUS, params);
 	},
-	selectRunLog(params: any) {
+	selectRunLog<T>(params: any) {
 		// 非数据同步接口获取日志
-		return http.post(offlineReq.SELECT_SQL_LOG, params);
+		return http.post<T>(offlineReq.SELECT_SQL_LOG, params);
 	},
 	selectExecResultDataSync(params: any) {
 		// 数据同步接口获取结果表

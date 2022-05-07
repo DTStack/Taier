@@ -22,12 +22,12 @@ import { Modal, Radio, Select, Alert, Input, Form, Space, Table, Tooltip, messag
 import { CHECK_TYPE_VALUE, formItemLayout } from '@/constant';
 import stream from '@/api/stream';
 import { SearchOutlined } from '@ant-design/icons';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 
 const { Option } = Select;
 
 interface IProps {
-	data?: Pick<IStreamTaskProps, 'jobId' | 'taskId'>;
+	data?: Pick<IStreamJobProps, 'jobId' | 'id'>;
 	visible: boolean;
 	onOk: () => void;
 	onCancel: () => void;
@@ -147,7 +147,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 												{label.slice(0, 20)}......{label.slice(-22)}
 											</Tooltip>
 										</Option>
-									)
+									);
 								})}
 							</Select>
 						</Form.Item>
@@ -169,7 +169,10 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 		}
 	};
 
-	const handleValuesChanged = (checkedValue: Partial<IFormFieldProps>, values: IFormFieldProps) => {
+	const handleValuesChanged = (
+		checkedValue: Partial<IFormFieldProps>,
+		values: IFormFieldProps,
+	) => {
 		if (Object.keys(checkedValue).includes('type')) {
 			if (checkedValue.type === CHECK_TYPE_VALUE.CHECK_POINT) {
 				getCheckPointList();
@@ -182,7 +185,11 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 		if (Object.keys(checkedValue).includes('checkPoint')) {
 			setLoading(true);
 			stream
-				.listCheckPoint({ jobId: data?.jobId, applicationId: checkedValue.checkPoint, getSavePointPath: values.pointType === POINT_TYPE.SAVE_POINT })
+				.listCheckPoint({
+					jobId: data?.jobId,
+					applicationId: checkedValue.checkPoint,
+					getSavePointPath: values.pointType === POINT_TYPE.SAVE_POINT,
+				})
 				.then((res) => {
 					if (res.code === 1) {
 						setPathList(res.data || []);
@@ -197,13 +204,12 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 			});
 		}
 
-
 		// 选择类型切换重制 checkPoint
 		if (Object.keys(checkedValue).includes('pointType')) {
 			form.setFieldsValue({
 				checkPoint: undefined,
 				checkPointPath: undefined,
-			})
+			});
 			setPathList([]);
 		}
 	};
@@ -212,7 +218,7 @@ export default function GoOnTask({ visible, data, onOk, onCancel }: IProps) {
 		form.validateFields().then((values) => {
 			stream
 				.startTask({
-					id: data?.taskId,
+					taskId: data?.id,
 					externalPath:
 						values.type === CHECK_TYPE_VALUE.CHECK_POINT
 							? values.checkPointPath

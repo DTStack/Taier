@@ -4,14 +4,14 @@ import Editor from '@/components/editor';
 import { TASK_STATUS } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
 import { isEmpty } from 'lodash';
-import { IStreamTaskProps } from '@/interface';
+import { IStreamJobProps } from '@/interface';
 import stream from '@/api/stream';
 import { ITaskList } from './list';
 import './log.scss';
 
 interface IProps {
 	taskDetail: ITaskList | null;
-	data: IStreamTaskProps | undefined;
+	data: IStreamJobProps | undefined;
 	toTaskDetail: (record: ITaskList | null) => void;
 }
 
