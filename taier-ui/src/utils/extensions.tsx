@@ -18,7 +18,8 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import { message } from 'antd';
-import { FileTypes, IFolderTreeNodeProps, TreeNodeModel } from '@dtinsight/molecule/esm/model';
+import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import {
 	FlinkSQLIcon,
 	SyntaxIcon,
@@ -30,7 +31,8 @@ import {
 import api from '@/api';
 import functionManagerService from '@/services/functionManagerService';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { ID_COLLECTIONS, RESOURCE_TYPE } from '@/constant';
+import type { RESOURCE_TYPE } from '@/constant';
+import { ID_COLLECTIONS } from '@/constant';
 import { CATELOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
@@ -52,7 +54,7 @@ export function resetEditorGroup() {
  * 根据不同任务渲染不同的图标
  */
 export function fileIcon(
-	type: TASK_TYPE_ENUM | RESOURCE_TYPE,
+	type: TASK_TYPE_ENUM | RESOURCE_TYPE | null,
 	source: CATELOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
@@ -387,6 +389,7 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 			}
 		})
 		.catch((e) => {
+			// eslint-disable-next-line no-console
 			console.trace(e);
 		})
 		.finally(() => {
