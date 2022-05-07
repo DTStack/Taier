@@ -2,7 +2,14 @@ import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { Tooltip, Spin } from 'antd';
 import MxFactory from '@/components/mxGraph';
 import Fullscreen from '@/components/fullScreen';
-import { ArrowsAltOutlined, ShrinkOutlined } from '@ant-design/icons';
+import {
+	AlignCenterOutlined,
+	ArrowsAltOutlined,
+	ShrinkOutlined,
+	SyncOutlined,
+	ZoomInOutlined,
+	ZoomOutOutlined,
+} from '@ant-design/icons';
 
 interface IProps {
 	targetKey?: string;
@@ -320,8 +327,7 @@ const GraphEditor = forwardRef(
 						{isSubVertex ? null : (
 							<Tooltip placement="left" title="刷新">
 								<div className="toolbar-icon">
-									<img
-										src="public/img/icon/btn_refresh.svg"
+									<SyncOutlined
 										onClick={() => {
 											refresh?.();
 											alignCenter();
@@ -332,23 +338,17 @@ const GraphEditor = forwardRef(
 						)}
 						<Tooltip placement="left" title="居中">
 							<div className="toolbar-icon">
-								<img src="public/img/icon/btn_arrange.svg" onClick={alignCenter} />
+								<AlignCenterOutlined onClick={alignCenter} />
 							</div>
 						</Tooltip>
 						<Tooltip placement="left" title="放大">
 							<div className="toolbar-icon">
-								<img
-									src="public/img/icon/btn_zoomin.svg"
-									onClick={() => graph.current.zoomIn()}
-								/>
+								<ZoomInOutlined onClick={() => graph.current.zoomIn()} />
 							</div>
 						</Tooltip>
 						<Tooltip placement="left" title="缩小">
 							<div className="toolbar-icon">
-								<img
-									src="public/img/icon/btn_zoomout.svg"
-									onClick={() => graph.current.zoomOut()}
-								/>
+								<ZoomOutOutlined onClick={() => graph.current.zoomOut()} />
 							</div>
 						</Tooltip>
 						{!isSubVertex ? null : (

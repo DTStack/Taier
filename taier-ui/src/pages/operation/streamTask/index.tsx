@@ -593,6 +593,7 @@ export default function StreamTask() {
 				columns={tableColumns}
 			/>
 			<DetailPane
+				key={slidePane.selectTask?.id}
 				data={slidePane.selectTask}
 				visibleSlidePane={slidePane.visible}
 				closeSlidePane={closeSlidePane}

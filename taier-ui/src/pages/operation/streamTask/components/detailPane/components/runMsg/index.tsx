@@ -54,7 +54,7 @@ export default function RunMsg({ data }: IProps) {
 		}
 
 		stream
-			.getTaskJson({ id })
+			.getTaskJson({ taskId: id })
 			.then((res) => {
 				if (res.code === 1) {
 					rollData(status);
