@@ -237,7 +237,7 @@ public class DevelopFlinkController {
     }
 
 
-    @ApiOperation("获取任务拓扑图")
+    @ApiOperation("获取sqltext")
     @PostMapping(value = "getTaskSqlText")
     public R<Task> getTaskSqlText(@RequestBody GetFlinkTaskTextVO flinkTaskTextVO) {
         return new APITemplate<Task>() {
