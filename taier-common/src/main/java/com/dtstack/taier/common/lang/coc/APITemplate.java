@@ -60,7 +60,7 @@ public abstract class APITemplate<T> {
      */
     protected void onError(Throwable e) {
         if (log.isErrorEnabled()) {
-            log.error("API Error while execute:{}", e);
+            log.error("API Error while execute ", e);
         }
     }
 
