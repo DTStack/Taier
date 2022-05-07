@@ -375,5 +375,5 @@ prejob和session 都依赖chunjun的插件包和flink的lib包
 **sparkYarnArchive**是Spark SQL程序运行时加载的包 直接将spark目录下的jar包上传到对应目录
 
 :::tip
-Flink、Spark可以添加自定义参数，在自定义参数中添加Flink、Spark官方参数来调整1任务提交参数信息
+Flink、Spark可以添加自定义参数，在自定义参数中添加Flink、Spark官方参数来调整任务提交参数信息
 :::

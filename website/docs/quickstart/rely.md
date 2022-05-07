@@ -10,12 +10,12 @@ sidebar_label: 依赖组件
 
 ## 三方框架
 >- DatasourceX（数据源插件）：[**4.3.0**](https://github.com/DTStack/DatasourceX/releases/tag/v4.3.0)
->- Chunjun（数据同步插件）：[**1.10**](https://github.com/DTStack/chunjun/releases/tag/1.10.5)
+>- Chunjun（数据同步插件）：[**1.12**](https://github.com/DTStack/chunjun/releases/tag/v1.12.3)
 
 ## 大数据组件
 * [Flink](https://flink.apache.org/)  On Yarn
     * 数据同步任务依赖
-    * 版本：`flink-1.10`
+    * 版本：`flink-1.12`
 * [Spark](https://spark.apache.org/)  On Yarn
     * Spark SQL任务运行依赖
     * 版本：`spark-2.1.3`
