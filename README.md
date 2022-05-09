@@ -70,8 +70,6 @@
   <img src="https://contrib.rocks/image?repo=DTStack/Taier" />
 </a>
 
-Made with [contrib.rocks](https://contrib.rocks).
-
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
   HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)
