@@ -62,6 +62,16 @@
 ## 问题反馈
 如果在使用上有遇到bug或者优化点，强烈建议你提issue，我们将及时修复
 
+## 贡献代码
+参考[CONTRIBUTING](https://dtstack.github.io/Taier/docs/contributing).   
+
+感谢所有向 Taier 贡献的朋友  
+<a href="https://github.com/DTStack/Taier/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=DTStack/Taier" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
+
 ## 未来规划
 * 任务类型：支持SparkMR、PySpark、FlinkMR、Python、Shell、Jupyter、Tersorflow、Pytorch、
   HadoopMR、Kylin、Odps、SQL类任务(MySQL、PostgreSQL、Hive、Impala、Oracle、SQLServer、TiDB、greenplum、inceptor、kingbase、presto)
@@ -71,10 +81,6 @@
 * 功能支持：支持交易日历、事件驱动
 * 外部系统对接：支持Taier系统对接外部调度系统（AZKBAN、Control-M、DS调度）
 
-
-## Contributing
-
-Refer to the [CONTRIBUTING](https://dtstack.github.io/Taier/docs/contributing).
 
 ## License
 
