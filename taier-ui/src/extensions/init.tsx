@@ -93,11 +93,11 @@ export default class InitializeExtension implements IExtension {
 function initializeColorTheme() {
 	// 默认加载 DtStack 主题色
 	molecule.colorTheme.setTheme('DTStack Theme');
-	loadStyles('https://unpkg.com/antd/dist/antd.dark.css');
+	loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
 	document.documentElement.setAttribute('data-prefers-color', 'dark');
 	molecule.colorTheme.onChange((_, __, themeMode) => {
 		if (themeMode === ColorThemeMode.dark) {
-			loadStyles('https://unpkg.com/antd/dist/antd.dark.css');
+			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
 			document.documentElement.setAttribute('data-prefers-color', 'dark');
 		} else {
 			removeStyles();
