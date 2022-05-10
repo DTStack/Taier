@@ -22,6 +22,7 @@ const sidebars = {
                 'guides/introduction',
                 'guides/work-deployment',
                 'guides/explain',
+                'guides/taier-architecture',
             ],
         },
         {
