@@ -290,9 +290,37 @@ function emitEvent() {
 	});
 }
 
-const updateTaskVariables = debounce((tab) => {
-	const nextVariables = taskParamsService.matchTaskParams(tab.data?.value || '');
-	const preVariables: Partial<IParamsProps>[] = tab.data.taskVariables || [];
+const updateTaskVariables = debounce((tab: molecule.model.IEditorTab<any>) => {
+	// 不同的任务需要解析不同的字段来获取自定义参数
+	const currentData: IOfflineTaskProps & { value?: string } = tab.data;
+	let sqlText: string = '';
+	switch (currentData.taskType) {
+		case TASK_TYPE_ENUM.SPARK_SQL:
+		case TASK_TYPE_ENUM.HIVE_SQL:
+		case TASK_TYPE_ENUM.SQL:
+			sqlText = currentData.value || '';
+			break;
+		case TASK_TYPE_ENUM.SYNC:
+			// 需要从以下属性中解析出参数
+			sqlText = `
+				${currentData.sourceMap.where}
+				${currentData.sourceMap.partition}
+				${currentData.sourceMap.column
+					?.map((col) => `${col.key || col.index}\n${col.value || ''}`)
+					.join('\n')}
+				${currentData.sourceMap.path}
+				${currentData.targetMap?.preSql || ''}
+				${currentData.targetMap?.postSql || ''}
+				${currentData.targetMap?.partition || ''}
+				${currentData.targetMap?.fileName || ''}
+				${currentData.targetMap?.path || ''}
+				`;
+			break;
+		default:
+			break;
+	}
+	const nextVariables = taskParamsService.matchTaskParams(sqlText);
+	const preVariables: Partial<IParamsProps>[] = currentData?.taskVariables || [];
 
 	// Prevent reset the value of the exist params
 	const data = nextVariables.map((i) => {
@@ -306,7 +334,7 @@ const updateTaskVariables = debounce((tab) => {
 	molecule.editor.updateTab({
 		id: tab.id,
 		data: {
-			...tab.data,
+			...currentData,
 			taskVariables: data,
 		},
 	});
