@@ -80,7 +80,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 		return (
 			current?.tab?.data?.taskVariables?.filter((p) => p.type === PARAMS_ENUM.SYSTEM) || []
 		);
-	}, [current, isInValidTab]);
+	}, [current?.tab?.data?.taskVariables, isInValidTab]);
 
 	const customParams = useMemo(() => {
 		if (isInValidTab) {
@@ -89,14 +89,13 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 		return (
 			current?.tab?.data?.taskVariables?.filter((p) => p.type === PARAMS_ENUM.CUSTOM) || []
 		);
-	}, [current, isInValidTab]);
+	}, [current?.tab?.data?.taskVariables, isInValidTab]);
 
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务参数</div>;
 	}
 
 	const tabData = current!.tab!.data!;
-	const isLocked = false;
 
 	return (
 		<molecule.component.Scrollable>
@@ -104,9 +103,7 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 				form={form}
 				onValuesChange={(changed) => handleFormChanged(changed, tabData)}
 				className="taskParams"
-				style={{ position: 'relative' }}
 			>
-				{isLocked ? <div className="cover-mask" /> : null}
 				<Collapse className="bg-transparent" bordered={false} defaultActiveKey={['1', '2']}>
 					<Panel
 						key="1"

@@ -23,19 +23,70 @@ import Channel, { UnlimitedSpeed } from './channel';
 import Source from './source';
 import Preview from './preview';
 import { getStepStatus } from './help';
+import { EditorEvent } from '@dtinsight/molecule/esm/model';
+import { throttle } from 'lodash';
 import './index.scss';
 
 const { Step } = Steps;
 
+const throttleUpdateTab = throttle((nextTab: molecule.model.IEditorTab, isEmit: boolean) => {
+	const { current } = molecule.editor.getState();
+	if (current?.tab) {
+		molecule.editor.updateTab(nextTab);
+
+		// emit OnUpdateTab so taskParams could be updated
+		if (isEmit) {
+			molecule.editor.emit(EditorEvent.OnUpdateTab, nextTab);
+		}
+	}
+}, 800);
+
 function DataSync({ current }: molecule.model.IEditor) {
 	const [currentStep, setCurrentStep] = useState(0);
-	const [currentData, setCurrentData] = useState<ISyncDataProps | null>(null);
+	const [currentData, rawSetCurrentData] = useState<ISyncDataProps | null>(null);
 	/**
 	 * keymap 中用户自定义的字段
 	 */
 	const [userColumns, setUserColumns] = useState<IKeyMapProps>({ source: [], target: [] });
 	const [loading, setLoading] = useState(false);
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
+
+	/**
+	 * 包装一层 setCurrentData，以便于区分是否触发 onUpdateTab 事件
+	 */
+	const setCurrentData = (
+		nextValues: ISyncDataProps | ((prev: ISyncDataProps | null) => ISyncDataProps),
+		isEmit: boolean = true,
+	) => {
+		if (typeof nextValues === 'function') {
+			rawSetCurrentData((value) => {
+				const nextValue = nextValues(value);
+				setTimeout(() => {
+					if (current?.tab) {
+						const { sourceMap, targetMap, settingMap } = nextValue;
+						const nextTab = {
+							...current.tab,
+							data: { ...current.tab.data, sourceMap, targetMap, settingMap },
+						};
+						throttleUpdateTab(nextTab, isEmit);
+					}
+				}, 0);
+
+				return nextValue;
+			});
+		} else {
+			rawSetCurrentData(nextValues);
+			// sync to tab data
+			if (current?.tab) {
+				const { sourceMap, targetMap, settingMap } = nextValues;
+				const nextTab = {
+					...current.tab,
+					data: { ...current.tab.data, sourceMap, targetMap, settingMap },
+				};
+				throttleUpdateTab(nextTab, isEmit);
+			}
+		}
+	};
 
 	const handleSourceChanged = (values: Partial<ISourceFormField>) => {
 		setCurrentData((d) => {
@@ -254,12 +305,15 @@ function DataSync({ current }: molecule.model.IEditor) {
 		const [, step] = getStepStatus(current?.tab?.data);
 		setCurrentStep(step);
 		const { id, sourceMap, targetMap, settingMap } = current?.tab?.data || {};
-		setCurrentData({
-			sourceMap,
-			targetMap,
-			settingMap,
-			taskId: id,
-		});
+		setCurrentData(
+			{
+				sourceMap,
+				targetMap,
+				settingMap,
+				taskId: id,
+			},
+			false,
+		);
 	};
 
 	const getDataSourceList = () => {
@@ -279,16 +333,6 @@ function DataSync({ current }: molecule.model.IEditor) {
 		getJobData();
 		getDataSourceList();
 	}, [current]);
-
-	useEffect(() => {
-		if (currentData && current?.tab) {
-			const { sourceMap, targetMap, settingMap } = currentData;
-			molecule.editor.updateTab({
-				...current.tab,
-				data: { ...current.tab.data, sourceMap, targetMap, settingMap },
-			});
-		}
-	}, [currentData]);
 
 	// 是否是增量模式
 	const isIncrementMode = useMemo(() => {
