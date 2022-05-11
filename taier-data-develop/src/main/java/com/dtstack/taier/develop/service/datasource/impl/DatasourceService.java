@@ -18,6 +18,7 @@ import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -744,8 +745,54 @@ public class DatasourceService {
         }
     }
 
+    /**
+     * 根据租户ID匹配对应的hadoop引擎默认数据源类型
+     *
+     * @param tenantId
+     * @return
+     */
     public DataSourceType getHadoopDefaultDataSourceByTenantId(Long tenantId) {
-        return DataSourceType.SparkThrift2_1;
+        List<DsInfo> metaDataSourceList = dsInfoService.getAllMetaDataSourceListByTenantId(tenantId);
+        for (DsInfo dsInfo : metaDataSourceList) {
+            if (DataSourceType.HIVE.getVal().equals(dsInfo.getDataTypeCode())) {
+                return DataSourceType.HIVE;
+            }
+            if (DataSourceType.HIVE1X.getVal().equals(dsInfo.getDataTypeCode())) {
+                return DataSourceType.HIVE1X;
+            }
+            if (DataSourceType.HIVE3X.getVal().equals(dsInfo.getDataTypeCode())) {
+                return DataSourceType.HIVE3X;
+            }
+            if (DataSourceType.HIVE3_CDP.getVal().equals(dsInfo.getDataTypeCode())) {
+                return DataSourceType.HIVE3_CDP;
+            }
+            if (DataSourceType.SparkThrift2_1.getVal().equals(dsInfo.getDataTypeCode())) {
+                return DataSourceType.SparkThrift2_1;
+            }
+        }
+        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
+    }
+
+    /**
+     * 根据租户ID匹配对应的hadoop引擎默认数据源类型-及其对应的任务类型
+     *
+     * @param tenantId
+     * @return
+     */
+    public EScheduleJobType getHadoopDefaultJobTypeByTenantId(Long tenantId) {
+        List<DsInfo> metaDataSourceList = dsInfoService.getAllMetaDataSourceListByTenantId(tenantId);
+        for (DsInfo dsInfo : metaDataSourceList) {
+            if (DataSourceType.HIVE.getVal().equals(dsInfo.getDataTypeCode())
+                    || DataSourceType.HIVE1X.getVal().equals(dsInfo.getDataTypeCode())
+                    || DataSourceType.HIVE3X.getVal().equals(dsInfo.getDataTypeCode())
+                    || DataSourceType.HIVE3_CDP.getVal().equals(dsInfo.getDataTypeCode())) {
+                return EScheduleJobType.HIVE_SQL;
+            }
+            if (DataSourceType.SparkThrift2_1.getVal().equals(dsInfo.getDataTypeCode())) {
+                return EScheduleJobType.SPARK_SQL;
+            }
+        }
+        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
     }
 
     public String setJobDataSourceInfo(String jobStr, Long tenantId, Integer createModel) {
