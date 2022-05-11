@@ -20,8 +20,10 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTenantComponentDao;
+import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +41,21 @@ public class DevelopTenantComponentService {
     @Autowired
     private DevelopTenantComponentDao developTenantComponentDao;
 
+    @Autowired
+    private DatasourceService datasourceService;
+
     /**
      * 根据 tenantId、taskType 查询组件信息
      *
      */
     public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
+
+        // SparkSql、HiveSql 都使用的同一个db，所以需要特殊处理
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)
+            || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
+            taskType = datasourceService.getHadoopDefaultJobTypeByTenantId(tenantId).getType();
+        }
+
         return developTenantComponentDao.selectOne(Wrappers.lambdaQuery(TenantComponent.class)
                         .eq(TenantComponent::getTenantId,tenantId)
                         .eq(TenantComponent::getTaskType,taskType)
@@ -57,11 +69,4 @@ public class DevelopTenantComponentService {
         return developTenantComponentDao.insert(tenantComponent);
     }
 
-    public DevelopTenantComponentDao getDevelopTenantComponentDao() {
-        return developTenantComponentDao;
-    }
-
-    public void setDevelopTenantComponentDao(DevelopTenantComponentDao developTenantComponentDao) {
-        this.developTenantComponentDao = developTenantComponentDao;
-    }
 }
