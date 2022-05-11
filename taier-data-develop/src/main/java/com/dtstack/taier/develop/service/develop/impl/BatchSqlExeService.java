@@ -28,14 +28,14 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.dto.devlop.CheckSyntaxResult;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ISqlExeService;
+import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
-import com.dtstack.taier.develop.dto.devlop.CheckSyntaxResult;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -82,12 +82,7 @@ public class BatchSqlExeService {
         if (StringUtils.isNotBlank(executeContent.getDatabase())) {
             return executeContent.getDatabase();
         }
-        TenantComponent tenantEngine = null;
-        if (executeContent.getTaskType().equals(EScheduleJobType.HIVE_SQL.getType())){
-             tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), EScheduleJobType.SPARK_SQL.getType());
-        }else {
-             tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
-        }
+        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
         if (Objects.isNull(tenantEngine)) {
             throw new RdosDefineException("引擎不能为空");
         }
