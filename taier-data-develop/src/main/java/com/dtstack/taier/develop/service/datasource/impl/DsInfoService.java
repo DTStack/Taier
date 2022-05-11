@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.client.IClient;
@@ -15,7 +16,6 @@ import com.dtstack.dtcenter.loader.dto.source.OracleSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
-import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.PubSvcDefineException;
@@ -45,7 +45,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -63,7 +68,6 @@ import static com.dtstack.taier.develop.service.template.bulider.reader.DaReader
 @Service
 public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
-
     @Autowired
     private DsInfoMapper dsInfoMapper;
 
@@ -71,12 +75,13 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     private DbBuilderFactory dbBuilderFactory;
 
     @Autowired
-    private EnvironmentContext env;
+    private KerberosService kerberosService;
 
     @Autowired
-    private KerberosService kerberosService;
-    @Autowired
     private SourceLoaderService sourceLoaderService;
+
+    // 数据源是否是默认数据源
+    private static final Long IS_META = 1L;
 
     private static String KERBEROS_CONFIG = "kerberosConfig";
     private static final String DECIMAL_COLUMN = "%s(%s,%s)";
@@ -563,12 +568,6 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         return CollectionUtils.isNotEmpty(dsInfoList);
     }
 
-
-
-    public List<DsInfo> queryByIds(List<Long> notChecked) {
-        return dsInfoMapper.queryByIds(notChecked);
-    }
-
     /**
      * 根据租户查询数据源列表
      * @param tenantId
@@ -659,4 +658,17 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         }
         return records.stream().map(Object::toString).collect(Collectors.toList());
     }
+
+    /**
+     * 获取
+     *
+     * @param tenantId
+     * @return
+     */
+    public List<DsInfo> getAllMetaDataSourceListByTenantId(Long tenantId) {
+        return dsInfoMapper.selectList(Wrappers.lambdaQuery(DsInfo.class)
+                .eq(DsInfo::getTenantId, tenantId)
+                .eq(DsInfo::getIsMeta, IS_META));
+    }
+
 }
