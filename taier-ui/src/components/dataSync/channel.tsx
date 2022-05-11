@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
-import {
-	AutoComplete,
-	Button,
-	Checkbox,
-	Form,
-	Input,
-	Select,
-	Space,
-	Spin,
-} from 'antd';
+import { AutoComplete, Button, Checkbox, Form, Input, Select, Space, Spin } from 'antd';
 import {
 	breakpointContinualTransferHelp,
 	jobConcurrence,
@@ -91,7 +82,7 @@ export default function Channel({
 }: IChannelProps) {
 	const [form] = Form.useForm<IChannelFormProps>();
 	const [loading, setLoading] = useState(false);
-	const [isTransTable, setTransTable] = useState(true);
+	const [isTransTable, setTransTable] = useState(false);
 	const [idFields, setIdFields] = useState<{ key: string; type: string }[]>([]); // 标识字段
 
 	const loadIdFields = async () => {
