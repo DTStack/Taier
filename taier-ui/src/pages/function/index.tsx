@@ -169,11 +169,11 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 					content: isFolder ? '删除的文件夹无法恢复!' : '删除的函数无法找回！',
 					onOk() {
 						const fun = isFolder
-							? ajax.delOfflineFn({
-									functionId: treeNode!.data.id,
-							  })
-							: ajax.delOfflineFolder({
+							? ajax.delOfflineFolder({
 									id: treeNode!.data.id,
+							  })
+							: ajax.delOfflineFn({
+									functionId: treeNode!.data.id,
 							  });
 						fun.then((res) => {
 							if (res.code) {
