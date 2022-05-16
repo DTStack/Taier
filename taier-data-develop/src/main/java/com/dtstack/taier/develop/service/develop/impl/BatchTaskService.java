@@ -525,14 +525,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
             }
             paramTaskAction.setBatchTask(scheduleTasks);
-            //todo
-//            actionServiceClient.addOrUpdateJob(paramTaskAction);
         }
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
         scheduleTasks.setExtraInfo(extroInfo);
         savaTaskDTO.setScheduleTaskShade(scheduleTasks);
-        //todo 暂不处理依赖
-        savaTaskDTO.setParentTaskIdList(new ArrayList<>());
+        List<BatchTaskTask> allParentTask = batchTaskTaskService.getAllParentTask(taskId);
+        savaTaskDTO.setParentTaskIdList(allParentTask.stream().map(BatchTaskTask::getParentTaskId).collect(Collectors.toList()));
         this.taskService.saveTask(savaTaskDTO);
     }
 
