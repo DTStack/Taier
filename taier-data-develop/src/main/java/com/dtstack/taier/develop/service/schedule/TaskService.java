@@ -130,7 +130,6 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
      */
     public Boolean saveTask(SavaTaskDTO savaTaskDTO) {
         ScheduleTaskShade scheduleTaskShade = savaTaskDTO.getScheduleTaskShade();
-//        ScheduleTaskShade scheduleTaskShade = ScheduleTaskMapstructTransfer.INSTANCE.dtoToBean(scheduleTaskShadeDTO);
 
         ScheduleTaskShade dbTaskShade = this.lambdaQuery()
                 .eq(ScheduleTaskShade::getTaskId, scheduleTaskShade.getTaskId())
@@ -164,7 +163,6 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             scheduleTaskTaskShadeList.add(scheduleTaskTaskShade);
         }
         // TODO 这块后面还需要考虑成环判断
-
         // 删除任务依赖
         tasktaskService.lambdaUpdate().eq(ScheduleTaskTaskShade::getTaskId, scheduleTaskShade.getTaskId()).remove();
         return tasktaskService.saveBatch(scheduleTaskTaskShadeList);
