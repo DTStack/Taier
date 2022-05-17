@@ -1010,13 +1010,29 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         String sqlText = taskResourceParam.getSqlText();
         Integer createModel = taskResourceParam.getCreateModel();
         if (CREATE_MODEL_TEMPLATE == createModel) {
-            JSONObject sql = new JSONObject(2);
-            sql.put("job", sqlText);
-            sql.put("createModel", CREATE_MODEL_TEMPLATE);
-            if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-                batchTaskParamService.checkParams(sql.toJSONString(), taskResourceParam.getTaskVariables());
+            if (StringUtils.isNotBlank(sqlText)) {
+                try {
+                    JSONObject sqlJSON = JSON.parseObject(sqlText);
+                    if (!sqlJSON.containsKey(createModel)) {
+                        JSONObject sql = new JSONObject(2);
+                        sql.put("job", sqlText);
+                        sql.put("createModel", CREATE_MODEL_TEMPLATE);
+                        sqlText = sql.toJSONString();
+                    }
+                } catch (Exception e) {
+                    throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
+                }
+                if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
+                    batchTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
+                }
+                task.setSqlText(sqlText);
+            } else {
+                JSONObject sql = new JSONObject(2);
+                sql.put("job", sqlText);
+                sql.put("createModel", CREATE_MODEL_TEMPLATE);
+                task.setSqlText(sql.toJSONString());
             }
-            task.setSqlText(sql.toJSONString());
+
         } else if (CREATE_MODEL_GUIDE == createModel) {
             String daSqlText;
             if (taskResourceParam.isPreSave()) {
