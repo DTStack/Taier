@@ -525,6 +525,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
             }
             paramTaskAction.setBatchTask(scheduleTasks);
+        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
+                || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+            JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
+            scheduleTasks.setPeriodType(Objects.nonNull(scheduleConf.get("periodType")) ? Integer.valueOf(scheduleConf.get("periodType").toString()): null);
         }
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
         scheduleTasks.setExtraInfo(extroInfo);
