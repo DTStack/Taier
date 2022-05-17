@@ -92,7 +92,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 						if (res.code === 1) {
 							form.setFieldsValue({
 								createModel: res.data.createModel,
-								syncModel: res.data.sourceMap.syncModel,
+								syncModel: res.data.sourceMap?.syncModel,
 							});
 						}
 					})
