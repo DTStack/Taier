@@ -16,18 +16,12 @@
  * limitations under the License.
  */
 
-import { IEditor } from '@dtinsight/molecule/esm/model';
-import { Button, Collapse, Popover } from 'antd';
-import { PlusOutlined, ExclamationCircleFilled, DeleteOutlined } from '@ant-design/icons';
-import { cloneDeep, isEmpty } from 'lodash';
-import { useEffect, useMemo, useReducer, useState } from 'react';
-import { streamTaskActions } from '../../taskFunc';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Collapse, message, Popconfirm } from 'antd';
 import classNames from 'classnames';
-import { DATA_SOURCE_ENUM, TABLE_SOURCE, TABLE_TYPE } from '@/constant';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DATA_SOURCE_ENUM } from '@/constant';
 import stream from '@/api/stream';
-import LockPanel from '../lockPanel';
-import { Utils } from '@dtinsight/dt-utils/lib';
-import { changeCustomParams, initCustomParam } from '../customParamsUtil';
 import {
 	haveSchema,
 	haveTableColumn,
@@ -35,782 +29,260 @@ import {
 	isCacheExceptLRU,
 	isTaskTab,
 } from '@/utils/enums';
-import DimensionForm from './form';
 import molecule from '@dtinsight/molecule';
+import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
+import DimensionForm from './form';
 
-const Panel = Collapse.Panel;
-interface IDimensionState {
-	tabTemplate: any[]; // 模版存储,所有输出源(记录个数)
-	panelActiveKey: any[]; // 输出源是打开或关闭状态
-	popoverVisible: any[]; // 删除显示按钮状态
-	panelColumn: any[]; // 存储数据
-	checkFormParams: any[]; // 存储要检查的参数from
-	originOptionType: any[]; // 数据源选择数据
-	schemaOptionType: any[]; // schema 数据
-	tableOptionType: any[]; // 表选择数据
-	assetTableOptionType: any[]; // 数据资产 - 表选择数据
-	tableColumnOptionType: any[]; // 表字段选择的类型
-}
+const { Panel } = Collapse;
 
-export default function FlinkDimensionPanel({ current }: Pick<IEditor, 'current'>) {
-	const currentPage = current?.tab?.data || {};
-	const [state, dispathState] = useReducer(
-		(state: IDimensionState, data: any) => {
-			let newState = cloneDeep(state);
-			newState = Object.assign(newState, data);
-			return newState;
-		},
-		{
-			tabTemplate: [], // 模版存储,所有输出源(记录个数)
-			panelActiveKey: [], // 输出源是打开或关闭状态
-			popoverVisible: [], // 删除显示按钮状态
-			panelColumn: [], // 存储数据
-			checkFormParams: [], // 存储要检查的参数from
-			originOptionType: [], // 数据源选择数据
-			schemaOptionType: [], // schema 数据
-			tableOptionType: [], // 表选择数据
-			assetTableOptionType: [], // 数据资产 - 表选择数据
-			tableColumnOptionType: [], // 表字段选择的类型
-		},
+type IFlinkDimensionProps = molecule.model.IEditor;
+
+const defualtPanelData: Partial<IFlinkSideProps> = {
+	type: DATA_SOURCE_ENUM.MYSQL,
+	columns: [],
+	sourceId: undefined,
+	table: undefined,
+	tableName: undefined,
+	primaryKey: undefined,
+	hbasePrimaryKey: undefined,
+	hbasePrimaryKeyType: undefined,
+	errorLimit: undefined,
+	esType: undefined,
+	index: undefined,
+	parallelism: 1,
+	cache: 'LRU',
+	cacheSize: 10000,
+	cacheTTLMs: 60000,
+	asyncPoolSize: 5,
+};
+
+export default function FlinkDimensionPanel({ current }: IFlinkDimensionProps) {
+	const [panelActiveKey, setPanelKey] = useState<string[]>([]);
+	const [panelColumn, setPanelColumn] = useState<Partial<IFlinkSideProps>[]>(
+		current?.tab?.data.side || [],
 	);
-	let {
-		tabTemplate,
-		panelActiveKey,
-		popoverVisible,
-		panelColumn,
-		checkFormParams,
-		originOptionType,
-		schemaOptionType,
-		tableOptionType,
-		assetTableOptionType,
-		tableColumnOptionType,
-	} = state;
+	// 数据源下拉列表，用 key 值缓存结果
+	const [dataSourceOptions, setDataSourceOptions] = useState<
+		Record<string, IDataSourceUsedInSyncProps[]>
+	>({});
+	/**
+	 * 表下拉列表,以 soureceId-schema 拼接作 key 值，后以 searchKey 作为 key 值，最后是搜索结果
+	 * {
+	 * 	[`${sourceId}-${schema}`]: {[`${searchKey}`]: string[]}}
+	 * }
+	 */
+	const [tableOptions, setTableOptions] = useState<Record<string, Record<string, string[]>>>({});
+	// 表字段列下拉列表
+	const [columnsOptions, setColOptions] = useState<Record<string, IDataColumnsProps[]>>({});
 
-	const [createTypes, setCreateTypes] = useState<any[]>([]);
-	const [sync, setSync] = useState(false);
-	const [dataBaseOptionType, setDataBaseOptionType] = useState<any>([]);
-	const [dimensionTableTypes, setDimensionTableTypes] = useState<any>([]);
-
-	const setDimensionData = (data: any, notSynced: boolean = false) => {
-		const dispatchSource: any = { ...state, ...data };
-		streamTaskActions.setCurrentPageValue('side', dispatchSource.panelColumn, notSynced);
-	};
-	const handleActiveKey = (key: any) => {
-		setDimensionData({ panelActiveKey: key });
-		dispathState({
-			panelActiveKey: key,
-		});
-	};
-
-	const getTypeOriginData = (index: any, type: any) => {
-		stream.getTypeOriginData({ type }).then((v: any) => {
-			if (v.code === 1) {
-				originOptionType[type] = v.data;
-				setDimensionData({ originOptionType });
-				dispathState({
-					originOptionType,
+	const getTableColumns = (sourceId: number, tableName: string, schema = '') => {
+		if (!sourceId || !tableName) {
+			return;
+		}
+		const uniqKey = `${sourceId}-${tableName}-${schema}`;
+		if (!columnsOptions[uniqKey]) {
+			stream
+				.getStreamTableColumn({
+					sourceId,
+					tableName,
+					schema,
+					flinkVersion: current?.tab?.data?.componentVersion,
+				})
+				.then((v) => {
+					if (v.code === 1) {
+						setColOptions((options) => {
+							const next = options;
+							next[uniqKey] = v.data;
+							return { ...next };
+						});
+					}
 				});
-			}
-		});
+		}
 	};
+
 	/**
 	 * 获取Schema列表
+	 * @deprecated 暂时没有数据源会有请求 schema 列表
 	 */
-	const getSchemaData = async (index: any, sourceId: any, searchKey?: any) => {
-		let schemaOptionTypeScop = cloneDeep(schemaOptionType);
+	const getSchemaData = async () => {};
 
-		if (sourceId) {
-			const v = await stream.listSchemas({ sourceId, isSys: false, searchKey });
-			schemaOptionTypeScop = setOptionTypeList(v, index, 'schemaOptionType');
-		} else {
-			if (index === 'add') {
-				schemaOptionTypeScop.push([]);
-			} else {
-				schemaOptionTypeScop[index] = [];
-			}
+	const getTypeOriginData = (type: DATA_SOURCE_ENUM) => {
+		if (!dataSourceOptions[type]) {
+			stream.getTypeOriginData({ type }).then((v) => {
+				if (v.code === 1) {
+					setDataSourceOptions((options) => {
+						const next = options;
+						next[type] = v.data;
+						return { ...next };
+					});
+				}
+			});
 		}
-
-		setDimensionData({ schemaOptionType: schemaOptionTypeScop });
-		dispathState({
-			schemaOptionType: schemaOptionTypeScop,
-		});
-	};
-	// 对下拉列表请求体进行统一处理
-	const setOptionTypeList = (res: any, index: any, type: keyof IDimensionState) => {
-		const optionType = cloneDeep(state[type]);
-		if (index === 'add') {
-			if (res.code === 1) {
-				optionType.push(res.data);
-			} else {
-				optionType.push([]);
-			}
-		} else {
-			if (res.code === 1) {
-				optionType[index] = res.data;
-			} else {
-				optionType[index] = [];
-			}
-		}
-		return optionType;
 	};
 
 	// 获取表
-	const getTableType = async (index: any, sourceId: any, schema?: any, searchKey?: string) => {
+	const getTableType = async (
+		type: DATA_SOURCE_ENUM,
+		sourceId: number,
+		schema?: string,
+		searchKey?: string,
+	) => {
+		const uniqKey = `${sourceId}-${schema}`;
 		// postgresql kingbasees8 schema必填处理
 		const disableReq =
-			(panelColumn[index]?.type === DATA_SOURCE_ENUM.POSTGRESQL ||
-				panelColumn[index]?.type === DATA_SOURCE_ENUM.KINGBASE8) &&
+			(type === DATA_SOURCE_ENUM.POSTGRESQL || type === DATA_SOURCE_ENUM.KINGBASE8) &&
 			!schema;
-
-		let tableOptionType = cloneDeep(state.tableOptionType);
-
-		if (sourceId && !disableReq) {
-			const v = await stream.listTablesBySchema({
+		if (disableReq) {
+			return;
+		}
+		stream
+			.listTablesBySchema({
 				sourceId,
 				schema: schema || '',
 				isSys: false,
 				searchKey,
-			});
-			tableOptionType = setOptionTypeList(v, index, 'tableOptionType');
-		} else {
-			if (index == 'add') {
-				tableOptionType.push([]);
-			} else {
-				tableOptionType[index] = [];
-			}
-		}
-		setDimensionData({ tableOptionType });
-		dispathState({
-			tableOptionType,
-		});
-	};
-
-	// 获取元数据下对应表
-	const getAssetTableList = async (index: any, dbId: any, searchKey?: string) => {
-		let assetTableOptionType = cloneDeep(state.assetTableOptionType);
-
-		if (dbId) {
-			const res = await stream.getAssetTableList({
-				dbId,
-				tableType: TABLE_TYPE.DIMENSION_TABLE,
-				searchKey,
-			});
-			assetTableOptionType = setOptionTypeList(res, index, 'assetTableOptionType');
-		} else {
-			if (index === 'add') {
-				assetTableOptionType.push([]);
-			} else {
-				assetTableOptionType[index] = [];
-			}
-		}
-		setDimensionData({ assetTableOptionType });
-		dispathState({
-			assetTableOptionType,
-		});
-	};
-	const getTableColumns = (index: any, sourceId: any, tableName: any, schema = '') => {
-		if (!sourceId || !tableName) {
-			return;
-		}
-		stream
-			.getStreamTableColumn({
-				sourceId,
-				tableName,
-				schema,
-				flinkVersion: currentPage?.componentVersion,
 			})
-			.then((v: any) => {
-				if (v.code === 1) {
-					tableColumnOptionType[index] = v.data;
-				} else {
-					tableColumnOptionType[index] = [];
-				}
-				setDimensionData({ tableColumnOptionType });
-				dispathState({
-					tableColumnOptionType,
-				});
-			});
-	};
-
-	// 获取元数据下所有信息
-	const getAssetData = async (tableId: any) => {
-		const res = await stream.getAssetTableDetail({
-			tableId,
-		});
-		let side = {};
-		if (res.code === 1 && !isEmpty(res.data)) {
-			const { sideTableParam, columns } = res.data;
-			side = Object.assign({}, sideTableParam, {
-				columns: columns,
-			});
-		}
-		return side;
-	};
-	const changeActiveKey = (index: any) => {
-		// 删除导致key改变,处理被改变key的值
-		const deleteActiveKey = `${index + 1}`;
-		const deleteActiveKeyIndex = panelActiveKey.indexOf(deleteActiveKey);
-		if (deleteActiveKeyIndex > -1) {
-			panelActiveKey.splice(deleteActiveKeyIndex, 1);
-		}
-		return panelActiveKey.map((v: any) => {
-			return Number(v) > Number(index) ? `${Number(v) - 1}` : v;
-		});
-	};
-	const changeInputTabs = (type: any, index?: any) => {
-		const inputData: any = {
-			type: DATA_SOURCE_ENUM.MYSQL,
-			columns: [],
-			sourceId: undefined,
-			table: undefined,
-			dbId: undefined,
-			tableId: undefined,
-			columnsText: undefined,
-			tableName: undefined,
-			primaryKey: undefined,
-			hbasePrimaryKey: undefined,
-			hbasePrimaryKeyType: undefined,
-			errorLimit: undefined,
-			esType: undefined,
-			index: undefined,
-			parallelism: 1,
-			cache: 'LRU',
-			cacheSize: '10000',
-			cacheTTLMs: '60000',
-			asyncPoolSize: 5,
-		};
-		if (type === 'add') {
-			tabTemplate.push('OutputForm');
-			panelColumn.push(inputData);
-			getTypeOriginData('add', inputData.type);
-			getSchemaData('add', inputData.sourceId);
-			getTableType('add', inputData.table);
-			getAssetTableList('add', inputData.tableId);
-			tableColumnOptionType.push([]);
-			let pushIndex = `${tabTemplate.length}`;
-			panelActiveKey.push(pushIndex);
-		} else {
-			tabTemplate.splice(index, 1);
-			panelColumn.splice(index, 1);
-			originOptionType.splice(index, 1);
-			schemaOptionType.splice(index, 1);
-			tableOptionType.splice(index, 1);
-			assetTableOptionType.splice(index, 1);
-			tableColumnOptionType.splice(index, 1);
-			checkFormParams.pop();
-			panelActiveKey = changeActiveKey(index);
-			popoverVisible[index] = false;
-		}
-		setDimensionData(
-			{
-				tabTemplate,
-				panelActiveKey,
-				popoverVisible,
-				panelColumn,
-				checkFormParams,
-				originOptionType,
-				tableOptionType,
-				assetTableOptionType,
-				tableColumnOptionType,
-			},
-			true,
-		);
-		dispathState({
-			tabTemplate,
-			panelActiveKey,
-			popoverVisible,
-			panelColumn,
-			checkFormParams,
-			originOptionType,
-			schemaOptionType,
-			tableOptionType,
-			assetTableOptionType,
-			tableColumnOptionType,
-		});
-	};
-
-	const handlePopoverVisibleChange = (e: any, index: any, visible: any) => {
-		let popoverVisibleScop = popoverVisible;
-		popoverVisibleScop[index] = visible;
-		if (e) {
-			e.stopPropagation(); // 阻止删除按钮点击后冒泡到panel
-			if (visible) {
-				// 只打开一个Popover提示
-				popoverVisibleScop = popoverVisibleScop.map((v: any, i: any) => {
-					return index == i;
-				});
-			}
-		}
-		setDimensionData({ popoverVisible: popoverVisibleScop });
-		dispathState({ popoverVisible: popoverVisibleScop });
-	};
-	const tableColumnType = (index: any, column: any) => {
-		const filterColumn = tableColumnOptionType[index].filter((v: any) => {
-			return v.key === column;
-		});
-		return filterColumn[0].type;
-	};
-
-	const filterPrimaryKey = (columns: any, primaryKeys: any) => {
-		// 删除导致原始的primaryKey不存在
-		return primaryKeys.filter((v: any) => {
-			let flag = false;
-			columns.map((value: any) => {
-				if (value.column === v) {
-					flag = true;
+			.then((res) => {
+				if (res.code === 1) {
+					setTableOptions((options) => {
+						const next = options;
+						if (next[uniqKey]) {
+							next[uniqKey][searchKey || ''] = res.data;
+						} else {
+							next[uniqKey] = { [searchKey || '']: res.data };
+						}
+						return { ...next };
+					});
 				}
 			});
-			return flag;
-		});
 	};
-	const getAllColumn = (index: number) => {
-		const columns = tableColumnOptionType[index] || [];
-		return columns.map((column: { key: string; type: string }) => {
-			return {
-				column: column.key,
-				type: column.type,
+
+	const handleActiveKey = (key: string | string[]) => {
+		setPanelKey(key as string[]);
+	};
+
+	const handleFormChanged = (
+		preVal: Partial<IFlinkSideProps>,
+		nextVal: Partial<IFlinkSideProps>,
+	) => {
+		const checkedKeys = Object.keys(nextVal).filter(
+			(key) => nextVal[key as keyof IFlinkSideProps] !== preVal[key as keyof IFlinkSideProps],
+		) as (keyof IFlinkSideProps)[];
+
+		let doNextVal = nextVal;
+		if (checkedKeys.includes('type')) {
+			// reset all fields
+			doNextVal = {
+				...defualtPanelData,
+				type: nextVal.type,
+				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
 			};
+			getTypeOriginData(doNextVal.type!);
+		}
+
+		if (checkedKeys.includes('sourceId')) {
+			doNextVal = {
+				...defualtPanelData,
+				type: nextVal.type,
+				sourceId: nextVal.sourceId,
+				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
+			};
+
+			if (haveTableList(doNextVal.type)) {
+				getTableType(doNextVal.type!, doNextVal.sourceId!, doNextVal.schema);
+
+				if (haveSchema(doNextVal.type)) {
+					getSchemaData();
+				}
+			}
+		}
+
+		if (checkedKeys.includes('schema')) {
+			doNextVal = {
+				...defualtPanelData,
+				type: nextVal.type,
+				sourceId: nextVal.sourceId,
+				customParams: nextVal.customParams,
+				schema: nextVal.schema,
+				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
+			};
+
+			if (haveTableList(doNextVal.type)) {
+				getTableType(doNextVal.type!, doNextVal.sourceId!, doNextVal.schema);
+			}
+		}
+
+		if (checkedKeys.includes('table')) {
+			doNextVal = {
+				...defualtPanelData,
+				type: nextVal.type,
+				sourceId: nextVal.sourceId,
+				customParams: nextVal.customParams,
+				schema: nextVal.schema,
+				table: nextVal.table,
+				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
+			};
+
+			if (haveTableColumn(doNextVal.type)) {
+				getTableColumns(doNextVal.sourceId!, doNextVal.table!, doNextVal.schema);
+			}
+		}
+
+		setPanelColumn((cols) => {
+			const nextCols = cols.concat();
+			const idx = nextCols.indexOf(preVal);
+			if (idx !== -1) {
+				nextCols[idx] = doNextVal;
+			}
+			return nextCols;
 		});
 	};
 
-	const handleInputChange = async (type: any, index: any, value: any, subValue: any) => {
-		// 监听数据改变
-		let shouldUpdateEditor = true;
-		const primarykeyInputList = [
-			DATA_SOURCE_ENUM.REDIS,
-			DATA_SOURCE_ENUM.UPRedis,
-			DATA_SOURCE_ENUM.MONGODB,
-			DATA_SOURCE_ENUM.ES6,
-			DATA_SOURCE_ENUM.ES7,
-		];
-		if (type === 'dbId') {
-			const db = dataBaseOptionType?.find((item: any) => item.dbId === value);
-			panelColumn[index]['assetsDbName'] = db?.dbName;
-			panelColumn[index][type] = value;
-		} else if (type === 'tableId') {
-			// 获取当前元数据的类型，并设置
-			const tableList = assetTableOptionType[index] || [];
-			const tableData = tableList.find((item: any) => item.tableId === value);
-			panelColumn[index]['type'] = tableData?.sourceType;
-			panelColumn[index]['assetsTableName'] = tableData?.tableName;
-			panelColumn[index][type] = value;
+	const changeInputTabs = (type: 'add' | 'delete', index?: number) => {
+		switch (type) {
+			case 'add': {
+				const length = panelColumn.push({ ...defualtPanelData });
+				setPanelColumn(panelColumn.concat());
+				setPanelKey((keys) => {
+					keys.push(length.toString());
+					return keys.concat();
+				});
+				getTypeOriginData(defualtPanelData.type!);
+				break;
+			}
+			case 'delete': {
+				if (index === undefined) {
+					message.error('删除失败');
+					return;
+				}
+				panelColumn.splice(index, 1);
+				setPanelKey((keys) => {
+					const idx = keys.indexOf(index.toString());
+					if (idx !== -1) {
+						keys.splice(idx, 1);
+					}
+					return keys.concat();
+				});
+				setPanelColumn(panelColumn.concat());
+				break;
+			}
+			default:
+				break;
 		}
-		if (type == 'keyFilter') {
-			if (!value) {
-				panelColumn[index]['keyField'] = undefined;
-			} else {
-				panelColumn[index]['keyField'] = panelColumn[index]['primaryKey'];
-			}
-		}
-		if (type == 'primaryKey') {
-			panelColumn[index]['keyField'] = value;
-			if (primarykeyInputList.includes(panelColumn[index]['type'])) {
-				panelColumn[index]['primaryKey-input'] = value;
-			}
-		}
-		if (type === 'table') {
-			panelColumn[index][type] = value;
-			if (
-				[DATA_SOURCE_ENUM.REDIS, DATA_SOURCE_ENUM.UPRedis].includes(
-					panelColumn[index]['type'],
-				)
-			) {
-				panelColumn[index]['table-input'] = value;
-			}
-		}
-		if (type === 'columns') {
-			panelColumn[index][type].push(value);
-		} else if (type === 'deleteColumn') {
-			panelColumn[index]['columns'].splice(value, 1);
-			const filterPrimaryKeys = filterPrimaryKey(
-				panelColumn[index]['columns'],
-				panelColumn[index].primaryKey || [],
-			);
-			panelColumn[index].primaryKey = filterPrimaryKeys;
-		} else if (type === 'subColumn') {
-			panelColumn[index]['columns'][value].column = subValue;
-			const subType = tableColumnType(index, subValue);
-			panelColumn[index]['columns'][value].type = subType;
-		} else if (type === 'subType') {
-			panelColumn[index]['columns'][value].type = subValue;
-		} else if (type === 'targetCol') {
-			// 去除空格汉字
-			const reg = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
-			let val = subValue;
-			if (subValue) {
-				val = Utils.trimAll(subValue);
-				if (reg.test(val)) {
-					val = subValue.replace(reg, '');
-				}
-			} else {
-				val = undefined;
-			}
-			panelColumn[index]['columns'][value].targetCol = val;
-		} else if (type == 'addAllColumn') {
-			panelColumn[index]['columns'] = getAllColumn(index);
-		} else if (type == 'deleteAllColumn') {
-			panelColumn[index]['columns'] = [];
-		} else if (type == 'customParams') {
-			changeCustomParams(panelColumn[index], value, subValue);
-		} else if (type === 'errorLimit') {
-			panelColumn[index]['errorLimit'] = value === 0 ? value : value || undefined;
-		} else {
-			panelColumn[index][type] = value;
-		}
-		const allParamsType: any = [
-			'type',
-			'sourceId',
-			'schema',
-			'table',
-			'table-input',
-			'columns',
-			'columnsText',
-			'parallelism',
-			'cache',
-			'cacheSize',
-			'hbasePrimaryKey',
-			'hbasePrimaryKeyType',
-			'cacheTTLMs',
-			'errorLimit',
-			'index',
-			'esType',
-			'tableName',
-			'primaryKey',
-			'primaryKey-input',
-			'customParams',
-			'createType',
-			'dbId',
-			'assetsDbName',
-			'tableId',
-			'assetsTableName',
-		];
-		const { sourceId, dbId, tableId, schema = '' } = panelColumn[index];
-		if (type === 'createType') {
-			originOptionType[index] = [];
-			schemaOptionType[index] = [];
-			tableOptionType[index] = [];
-			tableColumnOptionType[index] = [];
-			panelColumn[index].columns = [];
-			assetTableOptionType[index] = [];
-			allParamsType.map((v: any) => {
-				if (v !== 'createType') {
-					if (v === 'type') {
-						panelColumn[index][v] = DATA_SOURCE_ENUM.MYSQL;
-						if (value === TABLE_SOURCE.DATA_ASSET) {
-							return;
-						}
-						getTypeOriginData(index, DATA_SOURCE_ENUM.MYSQL);
-					} else if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						panelColumn[index][v] = 'LRU';
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-		} else if (type === 'type') {
-			originOptionType[index] = [];
-			schemaOptionType[index] = [];
-			tableOptionType[index] = [];
-			tableColumnOptionType[index] = [];
-			allParamsType.map((v: any) => {
-				if (v !== 'createType' && v != 'type') {
-					if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(value)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			getTypeOriginData(index, value);
-		} else if (type === 'sourceId') {
-			schemaOptionType[index] = [];
-			tableOptionType[index] = [];
-			tableColumnOptionType[index] = [];
-			panelColumn[index].columns = [];
-
-			allParamsType.map((v: any) => {
-				if (v !== 'createType' && v != 'type' && v != 'sourceId' && v != 'customParams') {
-					if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(panelColumn[index].type)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			// this.clearCurrentInfo(type,index,value)
-			if (haveTableList(panelColumn[index].type)) {
-				getTableType(index, value);
-				if (haveSchema(panelColumn[index].type)) {
-					getSchemaData(index, value);
-				}
-			}
-		} else if (type === 'schema') {
-			tableOptionType[index] = [];
-			tableColumnOptionType[index] = [];
-			panelColumn[index].columns = [];
-
-			allParamsType.map((v: any) => {
-				if (
-					v !== 'createType' &&
-					v != 'type' &&
-					v != 'sourceId' &&
-					v != 'customParams' &&
-					v != 'schema'
-				) {
-					if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(panelColumn[index].type)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			if (haveTableList(panelColumn[index].type)) {
-				getTableType(index, sourceId, value);
-			}
-		} else if (type === 'dbId') {
-			assetTableOptionType[index] = [];
-			panelColumn[index].columns = [];
-			allParamsType.map((v: any) => {
-				if (v !== 'createType' && v !== 'dbId' && v !== 'assetsDbName') {
-					if (v === 'type') {
-						panelColumn[index][v] = DATA_SOURCE_ENUM.MYSQL;
-					} else if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(panelColumn[index].type)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			getAssetTableList(index, dbId);
-		} else if (type === 'tableId') {
-			panelColumn[index].columns = [];
-			allParamsType.map((v: any) => {
-				if (
-					v !== 'createType' &&
-					v !== 'dbId' &&
-					v !== 'assetsDbName' &&
-					v !== 'tableId' &&
-					v !== 'assetsTableName' &&
-					v !== 'type'
-				) {
-					if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(panelColumn[index].type)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			const side = await getAssetData(tableId);
-			Object.assign(panelColumn[index], side);
-		} else if (type === 'table') {
-			tableColumnOptionType[index] = [];
-			allParamsType.map((v: any) => {
-				if (
-					v !== 'createType' &&
-					v != 'type' &&
-					v != 'sourceId' &&
-					v != 'table' &&
-					v != 'table-input' &&
-					v != 'customParams' &&
-					v != 'schema'
-				) {
-					if (v == 'parallelism') {
-						panelColumn[index][v] = 1;
-					} else if (v == 'columns') {
-						panelColumn[index][v] = [];
-					} else if (v == 'cache') {
-						if (isCacheExceptLRU(panelColumn[index].type)) {
-							panelColumn[index][v] = 'ALL';
-						} else {
-							panelColumn[index][v] = 'LRU';
-						}
-					} else if (v == 'cacheSize') {
-						panelColumn[index][v] = '10000';
-					} else if (v == 'cacheTTLMs') {
-						panelColumn[index][v] = '60000';
-					} else {
-						panelColumn[index][v] = undefined;
-					}
-				}
-			});
-			if (haveTableColumn(panelColumn[index].type)) {
-				getTableColumns(index, sourceId, value, schema);
-			}
-		} else {
-			shouldUpdateEditor = false;
-		}
-		setDimensionData({ panelColumn }, true);
-		dispathState({
-			panelColumn,
-			sync: shouldUpdateEditor,
-		});
-	};
-	const panelHeader = (index: any) => {
-		const popoverContent = (
-			<div className="input-panel-title">
-				<div style={{ padding: '8 0 12' }}>
-					<ExclamationCircleFilled style={{ color: '#faad14', marginRight: 6 }} />
-					你确定要删除此维表吗？
-				</div>
-				<div style={{ textAlign: 'right', padding: '0 0 8', marginTop: 12 }}>
-					<Button
-						style={{ marginRight: 8 }}
-						size="small"
-						onClick={() => {
-							handlePopoverVisibleChange(null, index, false);
-						}}
-					>
-						取消
-					</Button>
-					<Button
-						type="primary"
-						size="small"
-						onClick={() => {
-							changeInputTabs('delete', index);
-						}}
-					>
-						确定
-					</Button>
-				</div>
-			</div>
-		);
-		const onClickFix = {
-			onClick: (e: any) => {
-				handlePopoverVisibleChange(e, index, !popoverVisible[index]);
-			},
-		};
-		const tableName = panelColumn[index]?.tableName; // 映射表名称
-		return (
-			<div className="input-panel-title">
-				{` 维表 ${index + 1} ${tableName ? `(${tableName})` : ''}`}
-				<Popover
-					trigger="click"
-					placement="topLeft"
-					content={popoverContent}
-					visible={popoverVisible[index]}
-					{...onClickFix}
-				>
-					<DeleteOutlined className={classNames('title-icon')} />
-				</Popover>
-			</div>
-		);
-	};
-	/**
-	 * 存储子组件的所有要检查的form表单
-	 * @param ref
-	 */
-	const recordForm = (ref: any) => {
-		checkFormParams.push(ref);
-		setDimensionData({ checkFormParams });
-		dispathState({
-			checkFormParams,
-		});
-	};
-	// 回显时初始化维表相关信息，例如数据源表等
-	const currentInitData = (side: any) => {
-		side.map((v: any, index: any) => {
-			tabTemplate.push('OutputForm');
-			initCustomParam(v);
-			v['createType'] =
-				v['createType'] === undefined ? TABLE_SOURCE.DATA_CREATE : v['createType'];
-			panelColumn.push(v);
-			if (v.createType === TABLE_SOURCE.DATA_ASSET) {
-				getAssetTableList(index, v.dbId);
-				return;
-			}
-			getTypeOriginData(index, v.type);
-			if (haveTableList(v.type)) {
-				getTableType(index, v.sourceId, v?.schema);
-				if (haveSchema(v.type)) {
-					getSchemaData(index, v.sourceId);
-				}
-				if (haveTableColumn(v.type)) {
-					getTableColumns(index, v.sourceId, v.table, v?.schema);
-				}
-			}
-		});
-		setDimensionData({ tabTemplate, panelColumn });
-		dispathState({
-			tabTemplate,
-			panelColumn,
-		});
 	};
 
 	useEffect(() => {
-		const { side } = currentPage;
-		if (side && side.length > 0) {
-			currentInitData(side);
+		if (panelColumn.length && current?.tab) {
+			molecule.editor.updateTab({
+				id: current.tab.id,
+				data: {
+					...current.tab.data,
+					side: panelColumn,
+				},
+			});
 		}
-		setSync(true);
-	}, [current?.id]);
+	}, [panelColumn]);
+
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */
@@ -818,43 +290,47 @@ export default function FlinkDimensionPanel({ current }: Pick<IEditor, 'current'
 	if (isInValidTab) {
 		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务详情</div>;
 	}
+
 	return (
 		<molecule.component.Scrollable>
 			<div className="m-taksdetail panel-content">
 				<Collapse activeKey={panelActiveKey} bordered={false} onChange={handleActiveKey}>
-					{tabTemplate.map((OutputPutOrigin: any, index: any) => {
+					{panelColumn.map((col, index) => {
 						return (
 							<Panel
-								header={panelHeader(index)}
-								key={index + 1}
-								style={{ position: 'relative' }}
+								header={`维表 ${index + 1} ${
+									col.tableName ? `(${col.tableName})` : ''
+								}`}
+								key={index.toString()}
 								className="input-panel"
+								extra={
+									<Popconfirm
+										placement="topLeft"
+										title="你确定要删除此维表吗？"
+										onConfirm={() => changeInputTabs('delete', index)}
+										onCancel={(e) => e?.stopPropagation()}
+										{...{
+											onClick: (e: any) => {
+												e.stopPropagation();
+											},
+										}}
+									>
+										<DeleteOutlined className={classNames('title-icon')} />
+									</Popconfirm>
+								}
 							>
 								<DimensionForm
-									isShow={
-										panelActiveKey.indexOf(index + 1 + '') > -1 && isInValidTab
+									data={col}
+									sourceOptions={dataSourceOptions[col.type!]}
+									tableOptions={tableOptions[`${col.sourceId}-${col.schema}`]}
+									columnsOptions={
+										columnsOptions[
+											`${col.sourceId}-${col.table}-${col.schema || ''}`
+										]
 									}
-									index={index}
-									sync={sync}
-									getTableType={getTableType}
-									getAssetTableList={getAssetTableList}
-									getSchemaData={getSchemaData}
-									handleInputChange={handleInputChange}
-									panelColumn={panelColumn}
-									dimensionTableTypes={dimensionTableTypes}
-									originOptionType={originOptionType}
-									schemaOptionType={schemaOptionType}
-									tableOptionType={tableOptionType}
-									dataBaseOptionType={dataBaseOptionType}
-									assetTableOptionType={assetTableOptionType}
-									tableColumnOptionType={tableColumnOptionType}
-									onRef={recordForm}
-									textChange={() => {
-										setSync(false);
-									}}
-									currentPage={currentPage}
+									onTableSearch={getTableType}
+									onValuesChange={handleFormChanged}
 								/>
-								<LockPanel lockTarget={currentPage} />
 							</Panel>
 						);
 					})}

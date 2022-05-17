@@ -464,15 +464,15 @@ export function havePartition(type?: DATA_SOURCE_ENUM) {
  * @param type 数据源类型
  * @returns boolean
  */
-export function haveSchema(type: number) {
-	const list: any = [
+export function haveSchema(type?: DATA_SOURCE_ENUM) {
+	const list = [
 		DATA_SOURCE_ENUM.ORACLE,
 		DATA_SOURCE_ENUM.POSTGRESQL,
 		DATA_SOURCE_ENUM.KINGBASE8,
 		DATA_SOURCE_ENUM.SQLSERVER,
 		DATA_SOURCE_ENUM.SQLSERVER_2017_LATER,
 	];
-	return list.indexOf(type) > -1;
+	return type && list.indexOf(type) > -1;
 }
 /**
  * 是否拥有表字段
@@ -732,13 +732,13 @@ export const mergeSourceType = (type: number) => {
 	return type;
 };
 // 缓存策略是否只允许 ALL
-export function isCacheOnlyAll(type: number) {
-	return [DATA_SOURCE_ENUM.INCEPTOR].includes(type);
+export function isCacheOnlyAll(type?: DATA_SOURCE_ENUM) {
+	return type && [DATA_SOURCE_ENUM.INCEPTOR].includes(type);
 }
 
 // 不支持 LRU 的情况（包含支持 None 的情况）
-export function isCacheExceptLRU(type: number) {
-	return [DATA_SOURCE_ENUM.HBASE_HUAWEI].includes(type) || isCacheOnlyAll(type);
+export function isCacheExceptLRU(type?: DATA_SOURCE_ENUM) {
+	return (type && [DATA_SOURCE_ENUM.HBASE_HUAWEI].includes(type)) || isCacheOnlyAll(type);
 }
 export function haveAsyncPoolSize(type: any) {
 	const list: any = [
