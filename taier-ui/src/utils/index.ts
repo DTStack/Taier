@@ -849,3 +849,11 @@ export function disableRangeCreater(
 	}
 	return range(compareDate > otherDate ? rangeValue : rangeValue + 1, max);
 }
+
+/**
+ * 生成数字序列
+ * @example createSeries(5); // [1, 2, 3, 4, 5]
+ */
+export function createSeries(num: number) {
+	return Array.from(new Array(num).keys()).map((item) => item + 1);
+}

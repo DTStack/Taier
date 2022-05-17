@@ -561,6 +561,35 @@ export interface IFlinkSinkProps {
 }
 
 /**
+ * FlinkSQL 维表数据结构
+ */
+export interface IFlinkSideProps {
+	type: DATA_SOURCE_ENUM;
+	sourceId: number;
+	schema?: string;
+	table?: string;
+	index?: string;
+	esType?: string;
+	tableName?: string;
+	primaryKey?: string[] | string;
+	hbasePrimaryKey?: string;
+	hbasePrimaryKeyType?: string;
+	parallelism?: number;
+	columns?: Partial<{
+		type: IDataColumnsProps['type'];
+		column: IDataColumnsProps['key'];
+		targetCol?: string;
+	}>[];
+	cache?: 'None' | 'LRU' | 'ALL';
+	cacheSize?: number;
+	cacheTTLMs?: number;
+	errorLimit?: number;
+	isFaultTolerant?: boolean;
+	asyncPoolSize?: number;
+	customParams?: { id: string; key?: string; type?: string }[];
+}
+
+/**
  * 实时-任务属性参数
  */
 export interface IStreamJobParamsProps {

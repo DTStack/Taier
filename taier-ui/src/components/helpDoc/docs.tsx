@@ -19,6 +19,10 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
+export const targetColText =
+'别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
+
+
 export const delayTabWarning = <p>kafka中堆积的未被消费的数据量（条数）</p>;
 
 export const componentTips = (
