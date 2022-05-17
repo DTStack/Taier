@@ -56,8 +56,8 @@ export interface IFormFieldProps {
 	taskDesc: string;
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
+	sqlText?: string;
 	componentVersion: string;
-	sourceMap: any;
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
@@ -84,8 +84,9 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const getCurrentTaskInfo = () => {
 		if (current?.tab) {
 			const { data } = current.tab;
-			// 数据同步任务才有额外的配置需要请求
-			if (data.taskType === TASK_TYPE_ENUM.SYNC) {
+			// 数据同步任务和实时采集任务才有额外的配置需要请求
+			const EXTRA_INFO_TASK = [TASK_TYPE_ENUM.SYNC, TASK_TYPE_ENUM.DATA_ACQUISITION];
+			if (EXTRA_INFO_TASK.includes(data.taskType)) {
 				setPageLoading(true);
 				api.getOfflineTaskByID({ id: data.id })
 					.then((res) => {
@@ -93,6 +94,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 							form.setFieldsValue({
 								createModel: res.data.createModel,
 								syncModel: res.data.sourceMap?.syncModel,
+								sqlText: res.data.sqlText,
 							});
 						}
 					})
@@ -210,22 +212,22 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				return (
 					<React.Fragment>
 						<FormItem
-								label="配置模式"
-								name="createModel"
-								tooltip={syncTaskHelp}
-								rules={[
-									{
-										required: true,
-										message: '请选择配置模式',
-									},
-								]}
-								initialValue={CREATE_MODEL_TYPE.GUIDE}
-							>
-								<RadioGroup disabled={!!record}>
-									<Radio value={CREATE_MODEL_TYPE.GUIDE}>向导模式</Radio>
-									<Radio value={CREATE_MODEL_TYPE.SCRIPT}>脚本模式</Radio>
-								</RadioGroup>
-							</FormItem>
+							label="配置模式"
+							name="createModel"
+							tooltip={syncTaskHelp}
+							rules={[
+								{
+									required: true,
+									message: '请选择配置模式',
+								},
+							]}
+							initialValue={CREATE_MODEL_TYPE.GUIDE}
+						>
+							<RadioGroup disabled={!!record}>
+								<Radio value={CREATE_MODEL_TYPE.GUIDE}>向导模式</Radio>
+								<Radio value={CREATE_MODEL_TYPE.SCRIPT}>脚本模式</Radio>
+							</RadioGroup>
+						</FormItem>
 						<FormItem label="引擎版本" name="componentVersion">
 							<Select onChange={confirmFlink}>
 								{FLINK_VERSION_TYPE.map(({ value, label }) => (
@@ -349,6 +351,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					>
 						<Input.TextArea disabled={false} rows={4} />
 					</FormItem>
+					<FormItem name="sqlText" hidden />
 					<FormItem {...tailFormItemLayout}>
 						<Button type="primary" htmlType="submit" loading={loading}>
 							确认
