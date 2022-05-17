@@ -169,6 +169,7 @@ function emitEvent() {
 															id: result.data.id.toString(),
 															data: {
 																...currentTabData,
+																...result.data,
 																language: 'json',
 																value: prettierJSONstring(
 																	result.data.sqlText,
