@@ -18,7 +18,7 @@ docker-compose.yml文件内容如下
 version: '3'
 services:
   taier-db:
-    image: dtopensource/taier-mysql:1.0
+    image: dtopensource/taier-mysql:1.10
 #    ports:
 #      - 3306:3306
     environment:
@@ -27,13 +27,13 @@ services:
   taier-zk:
     image: zookeeper:3.4.9
   taier-ui:
-    image: dtopensource/taier-ui:1.0
+    image: dtopensource/taier-ui:1.10
     ports:
       - 80:80
     environment:
       TAIER_IP: taier
   taier:
-    image: dtopensource/taier:1.0
+    image: dtopensource/taier:1.10
 #    ports:
 #      - 8090:8090
     environment:
