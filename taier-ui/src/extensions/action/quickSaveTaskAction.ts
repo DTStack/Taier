@@ -48,12 +48,8 @@ export default class QuickSaveTaskAction extends Action2 {
 					.then((id) => {
 						if (id !== undefined) {
 							api.getOfflineTaskByID({ id }).then((res) => {
-								const { code, data } = res;
+								const { code } = res;
 								if (code === 1) {
-									molecule.folderTree.update({
-										id,
-										data,
-									});
 									molecule.editor.updateTab({
 										id: current.tab!.id,
 										status: undefined,
