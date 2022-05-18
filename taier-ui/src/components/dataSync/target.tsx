@@ -285,6 +285,13 @@ export default function Target({
 			getTableColumn();
 		}
 
+		// 修改数据源需要重置 writeMode
+		if (changedValue.hasOwnProperty('sourceId')) {
+			form.setFieldsValue({
+				writeMode: 'insert',
+			});
+		}
+
 		// It's better to use form.getFieldsValue rather than the values params is for
 		// there are some set methods before this function which will lead to an out of date values
 		onFormValuesChanged?.(form.getFieldsValue());
@@ -558,14 +565,6 @@ export default function Target({
 								<Option key="writeModeInsert" value="insert">
 									insert into（当主键/约束冲突，报脏数据）
 								</Option>
-								<Option key="writeModeReplace" value="replace">
-									replace
-									into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
-								</Option>
-								<Option key="writeModeUpdate" value="update">
-									on duplicate key
-									update（当主键/约束冲突，update数据，未映射的字段值不变）
-								</Option>
 							</Select>
 						</FormItem>
 					</>
@@ -704,7 +703,7 @@ export default function Target({
 							<Input.TextArea placeholder="请输入导入数据后执行的SQL脚本" />
 						</FormItem>
 						<FormItem
-							label={'主键冲突'}
+							label="主键冲突"
 							key="writeMode-mysql"
 							name="writeMode"
 							rules={[
@@ -717,14 +716,6 @@ export default function Target({
 							<Select>
 								<Option key="writeModeInsert" value="insert">
 									insert into（当主键/约束冲突，报脏数据）
-								</Option>
-								<Option key="writeModeReplace" value="replace">
-									replace
-									into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）
-								</Option>
-								<Option key="writeModeUpdate" value="update">
-									on duplicate key
-									update（当主键/约束冲突，update数据，未映射的字段值不变）
 								</Option>
 							</Select>
 						</FormItem>

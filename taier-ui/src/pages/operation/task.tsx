@@ -110,7 +110,7 @@ export default () => {
 			currentPage: current,
 			pageSize,
 			taskTypeList: filters.taskType || [],
-			periodTypeList: filters.taskPeriodId || [],
+			periodTypeList: filters.periodType || [],
 			...requestParams,
 		});
 		if (res.code === 1) {
