@@ -41,7 +41,8 @@ import {
 	CREATE_MODEL_TYPE,
 	ID_COLLECTIONS,
 } from '@/constant';
-import { CatalogueDataProps, IComputeType, IOfflineTaskProps } from '@/interface';
+import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import StreamCollection from '@/components/streamCollection';
 import { editorActionBarService } from '@/services';
@@ -80,7 +81,7 @@ function getComputeType(type: TASK_TYPE_ENUM): number {
  */
 function openCreateTab(id?: string) {
 	const onSubmit = (values: IFormFieldProps) => {
-		const { syncModel, ...restValues } = values;
+		const { syncModel } = values;
 		return new Promise<boolean>((resolve) => {
 			const params = {
 				...values,
@@ -163,7 +164,8 @@ function init() {
 						.querySelector<HTMLDivElement>('.mo-tree__treenode--active')
 						?.classList.remove('mo-tree__treenode--active');
 					const dom = document.querySelector<HTMLDivElement>(
-						`div.mo-tree__treenode[data-key="${molecule.folderTree.getState().folderTree?.current?.id
+						`div.mo-tree__treenode[data-key="${
+							molecule.folderTree.getState().folderTree?.current?.id
 						}"]`,
 					);
 					dom?.classList.add('mo-tree__treenode--active');
@@ -188,7 +190,12 @@ function initContextMenu() {
 				name: '编辑',
 			});
 		} else {
-			menu.splice(2, 0, {
+			// remove rename action
+			const idx = menu.findIndex(
+				(m) => m.id === molecule.builtin.getConstants().RENAME_COMMAND_ID,
+			);
+			menu.splice(idx, 1);
+			menu.splice(1, 0, {
 				id: ID_COLLECTIONS.FOLDERTREE_CONTEXT_EDIT,
 				name: '编辑',
 			});
@@ -449,8 +456,9 @@ function onRemove() {
 		const type = treeNode?.data?.type;
 		Modal.confirm({
 			title: `确认要删除此${type === 'file' ? '任务' : '文件夹'}吗?`,
-			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${type === 'file' ? '找回' : '恢复'
-				}！`,
+			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${
+				type === 'file' ? '找回' : '恢复'
+			}！`,
 			onOk() {
 				if (treeNode?.data?.type === 'folder') {
 					api.delOfflineFolder({ id: treeNode.data.id }).then((res) => {
@@ -478,7 +486,7 @@ function onRemove() {
 					});
 				}
 			},
-			onCancel() { },
+			onCancel() {},
 		});
 	});
 }
@@ -529,15 +537,16 @@ function contextMenu() {
 					return new Promise<boolean>((resolve) => {
 						const params = {
 							id: treeNode!.data.id,
-							isUseComponent: 0,
 							computeType: getComputeType(values.taskType),
 							version: 0,
 							...values,
 							updateSource: false,
+							preSave: false,
 						};
 						api.addOfflineTask(params)
 							.then((res: any) => {
 								if (res.code === 1) {
+									message.success('编辑成功');
 									afterSubmit(params, values);
 								}
 							})
@@ -570,17 +579,17 @@ function contextMenu() {
 					id: tabId,
 					data: isFile
 						? {
-							id: treeNode?.data.id,
-							name: treeNode?.name,
-							taskType: treeNode?.data.taskType,
-							nodePid: treeNode?.data.parentId,
-							taskDesc: treeNode?.data.taskDesc,
-						}
+								id: treeNode?.data.id,
+								name: treeNode?.name,
+								taskType: treeNode?.data.taskType,
+								nodePid: treeNode?.data.parentId,
+								taskDesc: treeNode?.data.taskDesc,
+						  }
 						: {
-							id: treeNode?.id,
-							nodePid: treeNode?.data.parentId,
-							dt_nodeName: treeNode?.name,
-						},
+								id: treeNode?.id,
+								nodePid: treeNode?.data.parentId,
+								dt_nodeName: treeNode?.name,
+						  },
 					icon: 'edit',
 					breadcrumb:
 						treeNode?.location?.split('/')?.map((item: string) => ({
