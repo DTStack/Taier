@@ -557,6 +557,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             JSONObject confProp = new JSONObject();
             flinkTaskService.buildTaskDirtyDataManageDefaultArgs(confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
+        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
+                || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+            String newSqlText = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
+            actionParam.put("sqlText", newSqlText);
         } else {
             actionParam.put("sqlText", task.getSqlText());
         }
@@ -739,14 +743,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
-            //避免重复校验
-            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText);
-            if (!syntaxResult.getCheckResult()) {
-                checkVo.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
-                checkVo.setErrorMessage(syntaxResult.getMessage());
-                return checkVo;
-            }
-
         } else if (EScheduleJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()
                 || EScheduleJobType.DATA_ACQUISITION.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
