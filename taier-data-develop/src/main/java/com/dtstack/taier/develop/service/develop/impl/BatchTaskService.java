@@ -82,7 +82,6 @@ import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
-import com.dtstack.taier.develop.dto.devlop.CheckSyntaxResult;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
