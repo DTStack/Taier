@@ -91,11 +91,26 @@ export default class InitializeExtension implements IExtension {
  * 初始化主题
  */
 function initializeColorTheme() {
-	// 默认加载 DtStack 主题色
-	molecule.colorTheme.setTheme('DTStack Theme');
-	loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
-	document.documentElement.setAttribute('data-prefers-color', 'dark');
-	molecule.colorTheme.onChange((_, __, themeMode) => {
+	const defaultThemeId = localStorage.getItem(ID_COLLECTIONS.COLOR_THEME_ID);
+	const defaultTheme =
+		defaultThemeId &&
+		(molecule.colorTheme.getThemeById(defaultThemeId) as unknown as
+			| molecule.model.IColorTheme
+			| undefined);
+	if (defaultTheme) {
+		molecule.colorTheme.setTheme(defaultTheme.id);
+		if (molecule.colorTheme.getColorThemeMode() === 'dark') {
+			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
+			document.documentElement.setAttribute('data-prefers-color', 'dark');
+		}
+	} else {
+		// 默认加载 DtStack 主题色
+		molecule.colorTheme.setTheme('DTStack Theme');
+		loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
+		document.documentElement.setAttribute('data-prefers-color', 'dark');
+	}
+	molecule.colorTheme.onChange((_, nextTheme, themeMode) => {
+		localStorage.setItem(ID_COLLECTIONS.COLOR_THEME_ID, nextTheme.id);
 		if (themeMode === ColorThemeMode.dark) {
 			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
 			document.documentElement.setAttribute('data-prefers-color', 'dark');

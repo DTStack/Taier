@@ -135,6 +135,10 @@ export enum ID_COLLECTIONS {
 	 * 函数管理-删除函数
 	 */
 	FUNCTION_DELETE = 'function.delete',
+	/**
+	 * 主题存储健
+	 */
+	COLOR_THEME_ID = 'taier.colorTheme',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
