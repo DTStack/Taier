@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.engine.JdbcInfo;
-import com.dtstack.taier.common.enums.ComputeType;
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -579,7 +579,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         ParamActionExt paramActionExt = new ParamActionExt();
         paramActionExt.setTaskType(taskType);
         paramActionExt.setSqlText(sql);
-        paramActionExt.setComputeType(ComputeType.BATCH.getType());
+        paramActionExt.setComputeType(EComputeType.BATCH.getType());
         paramActionExt.setJobId(jobId);
         paramActionExt.setName(String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
         paramActionExt.setTaskParams(taskParams);
