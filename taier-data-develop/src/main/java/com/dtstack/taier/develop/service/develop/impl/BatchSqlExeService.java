@@ -28,7 +28,6 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.dto.devlop.CheckSyntaxResult;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ISqlExeService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
@@ -121,21 +120,15 @@ public class BatchSqlExeService {
      * @param sqlText
      * @return
      */
-    public CheckSyntaxResult processSqlText(final Long tenantId, Integer taskType, final String sqlText) {
-        CheckSyntaxResult result = new CheckSyntaxResult();
+    public String processSqlText(Long tenantId, Integer taskType, String sqlText) {
         TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
         Preconditions.checkNotNull(tenantEngine, String.format("tenantEngine %d not support task type %d", tenantId, taskType));
-
         ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(taskType);
         // 处理自定义函数
         String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
 
         // 构建真正运行的SQL，去掉注释，加上use db 同时格式化SQL
-        String sqls = sqlExeService.process(sqlPlus, tenantEngine.getComponentIdentity());
-        result.setSql(sqls);
-
-        result.setCheckResult(true);
-        return result;
+        return sqlExeService.process(sqlPlus, tenantEngine.getComponentIdentity());
     }
 
 

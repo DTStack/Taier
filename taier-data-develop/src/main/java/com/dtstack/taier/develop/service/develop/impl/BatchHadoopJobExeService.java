@@ -24,11 +24,10 @@ import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.dto.devlop.CheckSyntaxResult;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IBatchJobExeService;
@@ -190,10 +189,8 @@ public class BatchHadoopJobExeService implements IBatchJobExeService {
             //Spark SQL任务默认在前面加上建表的类型
             sql = String.format("set hive.default.fileformat=%s;\n ", environmentContext.getCreateTableType()) + sql;
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
-
             // 构建运行的SQL
-            CheckSyntaxResult result = batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
-            sql = result.getSql();
+            sql =batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
         } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
