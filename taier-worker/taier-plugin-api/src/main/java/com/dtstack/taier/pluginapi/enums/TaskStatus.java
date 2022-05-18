@@ -281,8 +281,7 @@ public enum TaskStatus implements Serializable {
         STATUS_FAILED_DETAIL.put(PARENTFAILED.getStatus(), Lists.newArrayList(PARENTFAILED.getStatus()));
         STATUS_FAILED_DETAIL.put(WAITENGINE.getStatus(), WAIT_STATUS);
         STATUS_FAILED_DETAIL.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
-        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), Lists.newArrayList(KILLED.getStatus(),CANCELED.getStatus()));
-        STATUS_FAILED_DETAIL.put(AUTOCANCELED.getStatus(), Lists.newArrayList(AUTOCANCELED.getStatus()));
+        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), Lists.newArrayList(KILLED.getStatus(),CANCELED.getStatus(),AUTOCANCELED.getStatus()));
         STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
 
     }
