@@ -338,6 +338,34 @@ public enum SourceDTOType {
     },
 
     /**
+     * hbase
+     */
+    HBASE2(DataSourceType.HBASE2.getVal()) {
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String hbaseQuorum = dataJson.containsKey("hbase_quorum") ? dataJson.getString("hbase_quorum") : "";
+            String hbaseParent = dataJson.containsKey("hbase_parent") ? dataJson.getString("hbase_parent") : "";
+            String hbaseOther = dataJson.containsKey("hbase_other") ? dataJson.getString("hbase_other") : "";
+            HbaseSourceDTO hbaseSourceDTO = HbaseSourceDTO
+                    .builder()
+                    .url(hbaseQuorum)
+                    .path(hbaseParent)
+                    .schema(schema)
+                    .sourceType(DataSourceType.HBASE.getVal())
+                    .others(hbaseOther)
+                    .kerberosConfig(confMap)
+                    .build();
+            return hbaseSourceDTO;
+        }
+    },
+
+    /**
      * kafka 0.10
      */
     KAFKA_10(DataSourceType.KAFKA_10.getVal()) {
