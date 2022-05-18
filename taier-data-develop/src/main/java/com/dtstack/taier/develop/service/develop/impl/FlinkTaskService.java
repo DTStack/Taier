@@ -561,7 +561,7 @@ public class FlinkTaskService {
 
 
     public PageResult<List<TaskListResultVO>> getTaskList(TaskSearchVO taskSearchVO) {
-        List<Integer> type = CollectionUtils.isEmpty(taskSearchVO.getType()) ? EScheduleJobType.getStreamJobTypes() : taskSearchVO.getType().stream().filter(EScheduleJobType.getStreamJobTypes()::contains).collect(Collectors.toList());
+        List<Integer> type = CollectionUtils.isEmpty(taskSearchVO.getType()) ? EScheduleJobType.STREAM_JOB_TYPES : taskSearchVO.getType().stream().filter(EScheduleJobType.STREAM_JOB_TYPES::contains).collect(Collectors.toList());
         List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchVO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
         if (CollectionUtils.isEmpty(taskList)) {
             return PageResult.EMPTY_PAGE_RESULT;
@@ -610,7 +610,7 @@ public class FlinkTaskService {
         statusCount.put(TaskStatus.RUNNING.name(), 0);
         statusCount.put(TaskStatus.CANCELED.name(), 0);
         statusCount.put("UNRUNNING", 0);
-        List<Integer> type = CollectionUtils.isEmpty(taskSearchDTO.getType()) ? EScheduleJobType.getStreamJobTypes() : taskSearchDTO.getType().stream().filter(EScheduleJobType.getStreamJobTypes()::contains).collect(Collectors.toList());
+        List<Integer> type = CollectionUtils.isEmpty(taskSearchDTO.getType()) ? EScheduleJobType.STREAM_JOB_TYPES : taskSearchDTO.getType().stream().filter(EScheduleJobType.STREAM_JOB_TYPES::contains).collect(Collectors.toList());
         List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchDTO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchDTO.getTaskName()));
         List<String> jobIds = taskList.stream().map(Task::getJobId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(jobIds)) {
