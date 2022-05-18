@@ -283,7 +283,7 @@ public class AddDatasourceController {
         return new APITemplate<String>() {
             @Override
             protected String process() {
-                return datasourceService.ddlCreateTable(tableVO.getSql(), tableVO.getSourceId(), tableVO.getTargetSchema());
+                return datasourceService.ddlCreateTable(tableVO.getSql(), tableVO.getSourceId());
             }
         }.execute();
     }
