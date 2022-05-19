@@ -510,9 +510,9 @@ public class FlinkTaskService {
      * @param taskId
      * @return
      */
-    public Boolean stopStreamTask(Long taskId) {
+    public Boolean stopStreamTask(Long taskId,Integer isForce) {
         Task task = developTaskMapper.selectById(taskId);
-        return actionService.stop(Arrays.asList(task.getJobId()));
+        return actionService.stop(Collections.singletonList(task.getJobId()),isForce);
     }
 
     /**
