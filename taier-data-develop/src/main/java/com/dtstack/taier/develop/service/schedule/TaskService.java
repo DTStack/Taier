@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
@@ -16,6 +15,7 @@ import com.dtstack.taier.develop.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.schedule.ReturnScheduleTaskVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnTaskSupportTypesVO;
+import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskListDTO;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.service.ScheduleTaskShadeInfoService;

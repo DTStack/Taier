@@ -89,6 +89,7 @@ public enum ColumnType {
     YEAR,
 
     BOOLEAN,
+    BLOB,
     //libra  不能直接使用double
     DOUBLE_PRECISION;
 

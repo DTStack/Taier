@@ -21,7 +21,6 @@ package com.dtstack.taier.common.enums;
 import com.dtstack.taier.common.exception.RdosDefineException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public enum EScheduleJobType {
@@ -29,37 +28,39 @@ public enum EScheduleJobType {
     /**
      * 虚节点
      */
-    VIRTUAL(-1, "虚节点", -1, 0, null),
+    VIRTUAL(-1, "虚节点", -1, 0, null, EComputeType.BATCH),
 
     /**
      * SparkSQL
      */
-    SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK),
+    SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * Spark
      */
-    SPARK(1, "Spark", 1, 2, EComponentType.SPARK),
+    SPARK(1, "Spark", 1, 2, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * 数据同步
      */
-    SYNC(2, "数据同步", 2, 3, EComponentType.FLINK),
+    SYNC(2, "数据同步", 2, 3, EComponentType.FLINK, EComputeType.BATCH),
     /**
      * Shell
      */
-    SHELL(3, "Shell", 2, 3, null),
+    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
 
     /**
      * FlinkSQL
      */
-    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK),
-    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK),
-    HIVE_SQL(7, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER),
+    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK, EComputeType.STREAM),
+
+    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK, EComputeType.STREAM),
+
+    HIVE_SQL(7, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
     /**
      * 工作流
      */
-    WORK_FLOW(10, "工作流", -1, 9, null),
+    WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH),
     ;
 
     private Integer type;
@@ -80,18 +81,61 @@ public enum EScheduleJobType {
 
     private EComponentType componentType;
 
-    private static final List<Integer> STREAM_JOB_TYPES = Arrays.asList(SQL.getVal(), DATA_ACQUISITION.getVal());
+    /**
+     * 任务所属类型
+     */
+    private EComputeType computeType;
+
+
+    public static final List<Integer> STREAM_JOB_TYPES = new ArrayList<>();
+    public static final List<Integer> BATCH_JOB_TYPES = new ArrayList<>();
+    static {
+        for (EScheduleJobType value : EScheduleJobType.values()) {
+            if (EComputeType.STREAM == value.getComputeType()){
+                STREAM_JOB_TYPES.add(value.getValue());
+            }
+            if (EComputeType.BATCH == value.getComputeType()){
+                BATCH_JOB_TYPES.add(value.getValue());
+            }
+        }
+    }
+
+    EScheduleJobType(Integer type, String name, Integer engineJobType, Integer sort, EComponentType componentType, EComputeType computeType) {
+        this.type = type;
+        this.name = name;
+        this.engineJobType = engineJobType;
+        this.sort = sort;
+        this.componentType = componentType;
+        this.computeType = computeType;
+    }
+
+    public static EScheduleJobType getByTaskType(int type) {
+        EScheduleJobType[] eJobTypes = EScheduleJobType.values();
+        for (EScheduleJobType eJobType : eJobTypes) {
+            if (eJobType.type == type) {
+                if (eJobType.getValue() != -1) {
+                    return eJobType;
+                }
+                break;
+            }
+        }
+        throw new RdosDefineException("不支持的任务类型");
+    }
+
+    public Integer getValue() {
+        return type;
+    }
+
+    public Integer getVal() {
+        return type;
+    }
 
     public Integer getType() {
         return type;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return name;
     }
 
     public Integer getEngineJobType() {
@@ -102,48 +146,12 @@ public enum EScheduleJobType {
         return sort;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public EComputeType getComputeType() {
+        return computeType;
     }
 
     public EComponentType getComponentType() {
         return componentType;
     }
-
-
-    EScheduleJobType(Integer type, String name, Integer engineJobType, Integer sort, EComponentType componentType) {
-        this.type = type;
-        this.name = name;
-        this.engineJobType = engineJobType;
-        this.sort = sort;
-        this.componentType = componentType;
-    }
-
-    public Integer getVal() {
-        return this.type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-
-    public static EScheduleJobType getByTaskType(int type) {
-        EScheduleJobType[] eJobTypes = EScheduleJobType.values();
-        for (EScheduleJobType eJobType : eJobTypes) {
-            if (eJobType.type == type) {
-                if (eJobType.getVal() != -1) {
-                    return eJobType;
-                }
-                break;
-            }
-
-        }
-        throw new RdosDefineException("不支持的任务类型");
-    }
-    public static List<Integer> getStreamJobTypes() {
-        return STREAM_JOB_TYPES;
-    }
-
 
 }
