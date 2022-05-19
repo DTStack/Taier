@@ -30,17 +30,7 @@ import com.dtstack.taier.develop.service.develop.impl.FlinkRuntimeLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkServerLogService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskVertexGraphService;
-import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
-import com.dtstack.taier.develop.vo.develop.query.GetFlinkTaskTextVO;
-import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.RuntimeLogQueryVO;
-import com.dtstack.taier.develop.vo.develop.query.StartFlinkSqlVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskIdQueryVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskJobHistorySearchVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskSqlFormatVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
-import com.dtstack.taier.develop.vo.develop.query.TaskVertexGraphVO;
+import com.dtstack.taier.develop.vo.develop.query.*;
 import com.dtstack.taier.develop.vo.develop.result.StartFlinkResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import io.swagger.annotations.Api;
@@ -218,8 +208,15 @@ public class DevelopFlinkController {
     public R<Boolean> stopTask(@RequestBody OperateTaskVO operateTaskVO) {
         return new APITemplate<Boolean>() {
             @Override
-            protected Boolean process() {
-                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId());
+            protected void checkParams() throws IllegalArgumentException {
+                if(null == operateTaskVO.getTaskId()){
+                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                }
+            }
+
+            @Override
+            protected Boolean process() throws RdosDefineException {
+                return flinkTaskService.stopStreamTask(operateTaskVO.getTaskId(),operateTaskVO.getIsForce());
             }
         }.execute();
     }
