@@ -314,6 +314,11 @@ export default function Source({
 		changeValues: Partial<IFormFieldProps>,
 		values: IFormFieldProps,
 	) => {
+		if (changeValues.hasOwnProperty('sourceId')) {
+			// reset all fields except sourceId
+			form.resetFields(Object.keys(values).filter((key) => key !== 'sourceId'));
+		}
+
 		if (changeValues.hasOwnProperty('table')) {
 			setLoading(true);
 
@@ -324,6 +329,7 @@ export default function Source({
 			// 加载增量模式字段
 			if (isIncrementMode) {
 				loadIncrementColumn();
+				form.resetFields(['increColumn']);
 			}
 		}
 
@@ -544,7 +550,7 @@ export default function Source({
 				return (
 					<>
 						<FormItem
-							label="表名(批量)"
+							label={supportSubLibrary ? '表名(批量)' : '表名'}
 							name="table"
 							rules={[
 								{
@@ -555,7 +561,7 @@ export default function Source({
 						>
 							<Select
 								getPopupContainer={(container) => container.parentNode}
-								mode="multiple"
+								mode={supportSubLibrary ? 'multiple' : undefined}
 								showSearch
 								showArrow
 								optionFilterProp="value"
@@ -824,7 +830,6 @@ export default function Source({
 						>
 							<Select
 								getPopupContainer={(container) => container.parentNode}
-								mode="multiple"
 								showSearch
 								showArrow
 								optionFilterProp="value"
@@ -1141,12 +1146,13 @@ export default function Source({
 		}
 	}, []);
 
+	// 非增量模式
+	const supportSubLibrary =
+		SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap?.sourceList?.[0]?.type || -1) > -1 &&
+		!isIncrementMode;
+
 	const initialValues = useMemo<IFormFieldProps | undefined>(() => {
 		if (sourceMap) {
-			// 非增量模式
-			const supportSubLibrary =
-				SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap?.sourceList?.[0]?.type || -1) > -1 &&
-				!isIncrementMode;
 			return {
 				sourceId: sourceMap.sourceId,
 				table: supportSubLibrary ? sourceMap.sourceList?.[0].tables : sourceMap.table,
@@ -1171,7 +1177,7 @@ export default function Source({
 		}
 
 		return undefined;
-	}, []);
+	}, [supportSubLibrary]);
 
 	return (
 		<Spin spinning={tableListLoading}>
