@@ -19,7 +19,11 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -33,7 +37,21 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.constant.PatternConstant;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.CatalogueType;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.DependencyType;
+import com.dtstack.taier.common.enums.DictType;
+import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EDeployType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.enums.ESubmitStatus;
+import com.dtstack.taier.common.enums.FuncType;
+import com.dtstack.taier.common.enums.MultiEngineType;
+import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
+import com.dtstack.taier.common.enums.ResourceRefType;
+import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -43,7 +61,19 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.BatchDataSource;
+import com.dtstack.taier.dao.domain.BatchSysParameter;
+import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.BatchTaskTask;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.TaskVersion;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -52,8 +82,16 @@ import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
-import com.dtstack.taier.develop.dto.devlop.*;
-import com.dtstack.taier.develop.enums.develop.*;
+import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
+import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
+import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taier.develop.dto.devlop.TaskVO;
+import com.dtstack.taier.develop.enums.develop.FlinkVersion;
+import com.dtstack.taier.develop.enums.develop.SourceDTOType;
+import com.dtstack.taier.develop.enums.develop.SyncModel;
+import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taier.develop.enums.develop.TaskOperateType;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -115,7 +153,18 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -515,7 +564,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
         String extroInfo = getExtraInfo(task, userId);
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getValue())) {
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             paramTaskAction.setIsRestart(0);
             scheduleTasks.setExtraInfo(extroInfo);
@@ -525,6 +574,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
             }
             paramTaskAction.setBatchTask(scheduleTasks);
+        } else if(EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType()) {
+            JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
+            scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
         }
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
         scheduleTasks.setExtraInfo(extroInfo);
@@ -557,6 +609,10 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             JSONObject confProp = new JSONObject();
             flinkTaskService.buildTaskDirtyDataManageDefaultArgs(confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
+        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
+                || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+            String newSqlText = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
+            actionParam.put("sqlText", newSqlText);
         } else {
             actionParam.put("sqlText", task.getSqlText());
         }
@@ -739,14 +795,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             // 语法检测
             List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
             versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
-            //避免重复校验
-            CheckSyntaxResult syntaxResult = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), versionSqlText);
-            if (!syntaxResult.getCheckResult()) {
-                checkVo.setErrorSign(PublishTaskStatusEnum.CHECKSYNTAXERROR.getType());
-                checkVo.setErrorMessage(syntaxResult.getMessage());
-                return checkVo;
-            }
-
         } else if (EScheduleJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()
                 || EScheduleJobType.DATA_ACQUISITION.getVal().intValue() == task.getTaskType().intValue()) {
             if (StringUtils.isNotEmpty(task.getSqlText())) {
@@ -1010,13 +1058,29 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         String sqlText = taskResourceParam.getSqlText();
         Integer createModel = taskResourceParam.getCreateModel();
         if (CREATE_MODEL_TEMPLATE == createModel) {
-            JSONObject sql = new JSONObject(2);
-            sql.put("job", sqlText);
-            sql.put("createModel", CREATE_MODEL_TEMPLATE);
-            if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-                batchTaskParamService.checkParams(sql.toJSONString(), taskResourceParam.getTaskVariables());
+            if (StringUtils.isNotBlank(sqlText)) {
+                try {
+                    JSONObject sqlJSON = JSON.parseObject(sqlText);
+                    if (!sqlJSON.containsKey(createModel)) {
+                        JSONObject sql = new JSONObject(2);
+                        sql.put("job", sqlText);
+                        sql.put("createModel", CREATE_MODEL_TEMPLATE);
+                        sqlText = sql.toJSONString();
+                    }
+                } catch (Exception e) {
+                    throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
+                }
+                if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
+                    batchTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
+                }
+                task.setSqlText(sqlText);
+            } else {
+                JSONObject sql = new JSONObject(2);
+                sql.put("job", sqlText);
+                sql.put("createModel", CREATE_MODEL_TEMPLATE);
+                task.setSqlText(sql.toJSONString());
             }
-            task.setSqlText(sql.toJSONString());
+
         } else if (CREATE_MODEL_GUIDE == createModel) {
             String daSqlText;
             if (taskResourceParam.isPreSave()) {

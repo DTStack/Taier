@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSelectSql;
@@ -28,6 +27,7 @@ import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteSelectSqlData;
 import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;

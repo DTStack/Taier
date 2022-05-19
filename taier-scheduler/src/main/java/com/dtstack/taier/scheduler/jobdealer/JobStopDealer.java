@@ -346,7 +346,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             stoppedJob.incrCount();
                             stopJobQueue.put(stoppedJob);
                         } else {
-                            if (ComputeType.STREAM.getType() == jobCache.getComputeType()) {
+                            if (EComputeType.STREAM.getType() == jobCache.getComputeType()) {
                                 // stream 任务 超过停止最大限制不更改状态
                                 scheduleJobOperatorRecordService.deleteById(stoppedJob.getJob().stopJobId);
                                 LOGGER.warn("stream jobId:{} retry limited ,job status can not change!", stoppedJob.getJob().jobId);
