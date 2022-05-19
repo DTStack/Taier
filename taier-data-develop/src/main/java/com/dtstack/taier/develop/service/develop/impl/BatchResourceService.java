@@ -19,8 +19,8 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.CatalogueType;
-import com.dtstack.taier.common.enums.ComputeType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -109,7 +109,7 @@ public class BatchResourceService {
             resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
         }
 
-      String remotePath = ComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
+      String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
               uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
               uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
@@ -254,7 +254,7 @@ public class BatchResourceService {
 
         String resourceName = resourceDb.getResourceName();
 
-        String remotePath = ComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
+        String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
                 uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
                 uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 

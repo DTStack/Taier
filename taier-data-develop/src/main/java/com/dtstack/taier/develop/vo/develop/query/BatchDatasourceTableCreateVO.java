@@ -13,9 +13,6 @@ public class BatchDatasourceTableCreateVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "数据源 ID",  example = "11", required = true)
     private Long sourceId;
 
-    @ApiModelProperty(value = "目标数据源 schema 信息", example = "schema")
-    private String targetSchema;
-
     public String getSql() {
         return sql;
     }
@@ -32,11 +29,4 @@ public class BatchDatasourceTableCreateVO extends DtInsightAuthParam {
         this.sourceId = sourceId;
     }
 
-    public String getTargetSchema() {
-        return targetSchema;
-    }
-
-    public void setTargetSchema(String targetSchema) {
-        this.targetSchema = targetSchema;
-    }
 }

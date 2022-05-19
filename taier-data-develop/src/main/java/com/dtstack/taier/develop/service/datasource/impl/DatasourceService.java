@@ -52,6 +52,7 @@ import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.HiveWriterFormat;
+import com.dtstack.taier.develop.utils.develop.sync.format.writer.OracleWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.PostgreSqlWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taier.develop.utils.develop.sync.job.JobTemplate;
@@ -84,6 +85,7 @@ import com.dtstack.taier.develop.utils.develop.sync.template.RDBWriter;
 import com.dtstack.taier.develop.utils.develop.sync.template.RedisWriter;
 import com.dtstack.taier.develop.utils.develop.sync.util.ADBForPGUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.CreateTableSqlParseUtil;
+import com.dtstack.taier.develop.utils.develop.sync.util.OracleSqlFormatUtil;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -247,6 +249,8 @@ public class DatasourceService {
 
     // 关系型数据库建表模版
     private static final String RDB_CREATE_TABLE_SQL_TEMPLATE = "create table %s ( %s );";
+    
+    private final String SEMICOLON = ";";
 
     static {
         ORIGIN_TABLE_ALLOW_TYPES.addAll(RDBMSSourceType.getRDBMS());
@@ -2668,8 +2672,8 @@ public class DatasourceService {
                 columns = convertTidbWriterColumns(columnMetaData, TYPE_FORMAT);
                 sql = generalTidbCreateSql(columns, tableName, comment);
             } else if (sourceType == DataSourceType.Oracle.getVal()) {
-                columns = convertWriterColumns(columnMetaData, TYPE_FORMAT);
-                sql = this.generalTidbCreateSql(columns, tableName, comment);
+                columns = convertOracleWriterColumns(columnMetaData, new OracleWriterFormat());
+                sql = OracleSqlFormatUtil.generalCreateSql(targetSchema, tableName.toUpperCase(), columns, comment);
             } else if (sourceType == DataSourceType.ADB_FOR_PG.getVal()) {
                 columns = ADBForPGUtil.convertADBForPGWriterColumns(columnMetaData);
                 sql = ADBForPGUtil.generalCreateSql(targetSchema, tableName, columns, comment);
@@ -2699,6 +2703,53 @@ public class DatasourceService {
         }
         return tableName;
     }
+
+    /**
+     * 适配oracle建表字段
+     *
+     * @param dbColumns
+     * @param format
+     * @return
+     */
+    private List convertOracleWriterColumns(List<JSONObject> dbColumns, TypeFormat format) {
+        if (Objects.isNull(format)) {
+            return dbColumns;
+        }
+        List<JSONObject> oracleColumns = new ArrayList<>(dbColumns.size());
+        for (int i = 0; i < dbColumns.size(); i++) {
+            JSONObject oracleColumn = new JSONObject(4);
+            JSONObject dbColumn = dbColumns.get(i);
+            oracleColumn.put("key", dbColumn.getString("key"));
+            oracleColumn.put("index", i);
+            oracleColumn.put("comment", dbColumn.getString("comment"));
+            String dbColumnType = dbColumn.getString("type");
+            String type = format.formatToString(dbColumnType);
+
+            if (dbColumn.getLong("precision") != null && type.equalsIgnoreCase(ColumnType.INT.name())
+                    && dbColumn.getLong("precision") >= 11) {
+                type = ColumnType.NUMBER.name();
+            } else if (type.equalsIgnoreCase("unsigned")
+                    || dbColumn.getString("type").toLowerCase().contains("unsigned")) {
+                type = ColumnType.NUMBER.name();
+            } else if (Lists.newArrayList("UINT8", "UINT16", "INT8", "INT16", "INT32").contains(type.toUpperCase())) {
+                type = ColumnType.INTEGER.name();
+            } else if (Lists.newArrayList("UINT32", "UINT64", "INT64").contains(type.toUpperCase())) {
+                type = ColumnType.NUMBER.name();
+            } else if (ColumnType.FLOAT32.name().equalsIgnoreCase(type)) {
+                type = ColumnType.FLOAT.name();
+            } else if (ColumnType.FLOAT64.name().equalsIgnoreCase(type)) {
+                type = ColumnType.NUMBER.name();
+            } else if (ColumnType.TEXT.name().equalsIgnoreCase(dbColumnType)) {
+                type = ColumnType.VARCHAR2.name() + "(1000)";
+            } else if (ColumnType.VARCHAR2.name().equalsIgnoreCase(type)) {
+                type = ColumnType.VARCHAR2.name() + "(255)";
+            }
+            oracleColumn.put("type", type);
+            oracleColumns.add(oracleColumn);
+        }
+        return oracleColumns;
+    }
+
 
     private List convertWriterColumns(List<JSONObject> dbColumns, TypeFormat format) {
         if (null == format) {
@@ -2872,14 +2923,17 @@ public class DatasourceService {
      *
      * @param sql          建表SQL
      * @param sourceId     数据源ID
-     * @param targetSchema 目标schema
      * @return
      */
-    public String ddlCreateTable(String sql, Long sourceId, String targetSchema) {
+    public String ddlCreateTable(String sql, Long sourceId) {
         if (StringUtils.isNotBlank(sql)) {
             sql = sql.trim();
         } else {
             throw new RdosDefineException("Sql不能为空");
+        }
+        BatchDataSource batchDataSource = datasourceService.getOne(sourceId);
+        if (DataSourceType.Oracle.getVal().equals(batchDataSource.getType())) {
+            return dealOracleCreateSql(sourceId, sql);
         }
         onlyNeedOneSql(sql);
         if (!SqlFormatUtil.isCreateSql(sql)) {
@@ -2887,17 +2941,37 @@ public class DatasourceService {
         }
         sql = SqlFormatUtil.init(sql).removeEndChar().getSql();
         String tableName = CreateTableSqlParseUtil.parseTableName(sql);
-        executeOnSpecifySourceWithOutResult(sourceId, sql, targetSchema);
+        executeOnSpecifySourceWithOutResult(sourceId, Lists.newArrayList(sql));
         return tableName;
+    }
+
+    /**
+     * 处理oracle类型建表sql
+     * 
+     * @param sourceId
+     * @param sql
+     * @param targetSchema
+     * @return
+     */
+    private String dealOracleCreateSql(Long sourceId, String sql) {
+        if (!sql.endsWith(SEMICOLON)) {
+            sql = sql + SEMICOLON;
+        }
+        List<String> sqlList = SqlFormatUtil.splitSqlText(sql);
+        if (CollectionUtils.isNotEmpty(sqlList) && !SqlFormatUtil.isCreateSql(sqlList.get(0))) {
+            throw new RdosDefineException(ErrorCode.ONLY_EXECUTE_CREATE_TABLE_SQL);
+        }
+        String tableName = CreateTableSqlParseUtil.parseTableName(sqlList.get(0));
+        executeOnSpecifySourceWithOutResult(sourceId, sqlList);
+        return tableName.toUpperCase(Locale.ROOT);
     }
 
     /**
      *
      * @param sourceId  数据源id
-     * @param sql  拼写sql
-     * @param targetSchema 只做doris入参,其他类型不用传
+     * @param sqlList  拼写sql
      */
-    private void executeOnSpecifySourceWithOutResult(Long sourceId, String sql, String targetSchema) {
+    private void executeOnSpecifySourceWithOutResult(Long sourceId, List<String> sqlList) {
 
         BatchDataSource source = getOne(sourceId);
         DataSourceType dataSourceType = DataSourceType.getSourceType(source.getType());
@@ -2912,9 +2986,13 @@ public class DatasourceService {
             ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(json, source.getType(), kerberosConfig, expandConfigPrepare);
             IClient iClient = ClientCache.getClient(dataSourceType.getVal());
             Connection con = iClient.getCon(sourceDTO);
-            DBUtil.executeSqlWithoutResultSet(con, sql,false);
+            for (int i = 0; i < sqlList.size(); i++) {
+                if (StringUtils.isNotBlank(sqlList.get(i))) {
+                    DBUtil.executeSqlWithoutResultSet(con, sqlList.get(i),false);
+                }
+            }
         } catch (Exception e) {
-            throw new RdosDefineException(e.getMessage() + "。 执行sql = " + sql, e);
+            throw new RdosDefineException(String.format("执行sql：%s 异常", StringUtils.join(sqlList, ",")), e);
         }
     }
 
