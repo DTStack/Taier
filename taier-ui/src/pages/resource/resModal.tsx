@@ -23,14 +23,8 @@ import { CATELOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { IComputeType } from '@/interface';
 import type { RcFile } from 'antd/lib/upload';
-import resourceManagerTree from '@/services/resourceManagerService';
 import { resourceNameMapping } from '@/utils/enums';
-
-export function getContainer(id: string) {
-	const container = document.createElement('div');
-	document.getElementById(id)?.appendChild(container);
-	return container;
-}
+import { catalogueService } from '@/services';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -128,7 +122,7 @@ export default function ResModal({
 			});
 		};
 
-		const treeData = resourceManagerTree.getState().folderTree?.data?.[0]?.children?.[0];
+		const treeData = catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE);
 		if (treeData) {
 			loop([treeData.data]);
 		}
@@ -274,7 +268,7 @@ export default function ResModal({
 							},
 						]}
 						initialValue={
-							resourceManagerTree.getState().folderTree?.data?.[0]?.children?.[0]?.id
+							catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id
 						}
 					>
 						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile={false} />
@@ -309,9 +303,7 @@ export default function ResModal({
 							validator: checkNotDir,
 						},
 					]}
-					initialValue={
-						resourceManagerTree.getState().folderTree?.data?.[0]?.children?.[0]?.id
-					}
+					initialValue={catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id}
 				>
 					<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
 				</FormItem>
