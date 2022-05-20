@@ -156,7 +156,7 @@ export default function SchedulingConfig({
 		const sucInfo = checked ? '冻结成功' : '解冻成功';
 		const errInfo = checked ? '冻结失败' : '解冻失败';
 		api.forzenTask({
-			taskId: tabData.id,
+			taskIds: [tabData.id],
 			scheduleStatus: status,
 		}).then((res) => {
 			if (res.code === 1) {
