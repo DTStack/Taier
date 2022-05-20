@@ -1059,4 +1059,6 @@ alter table tenant add tenant_identity varchar(64) default '' null comment '租�
 
 UPDATE task_template SET value_type = '1.12' WHERE task_type = 2 and type = 0;
 
+alter table develop_resource add compute_type int default 0 null comment '上传组建类型';
+
 COMMIT;

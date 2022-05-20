@@ -3,7 +3,7 @@
 <mapper namespace="com.dtstack.taier.dao.mapper.DevelopResourceDao">
 
     <sql id="select_content_fragment">
-      id,tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,node_id
+      id,tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,node_id,compute_type
     </sql>
 
     <sql id="update_fragment">
@@ -100,9 +100,9 @@
 
     <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_resource
-          (tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted)
+          (tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,compute_type)
         VALUES
-          (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc}, now(), now(),#{createUserId},#{modifyUserId}, 0)
+          (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc}, now(), now(),#{createUserId},#{modifyUserId}, 0, #{computeType})
     </insert>
 
     <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchResource">
