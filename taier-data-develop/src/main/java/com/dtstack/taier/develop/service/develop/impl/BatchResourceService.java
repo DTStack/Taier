@@ -65,10 +65,10 @@ public class BatchResourceService {
 
     @Autowired
     private DevelopResourceDao developResourceDao;
-    
+
     @Autowired
     private BatchFunctionResourceService batchFunctionResourceService;
-    
+
     @Autowired
     private BatchCatalogueService batchCatalogueService;
 
@@ -84,7 +84,8 @@ public class BatchResourceService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-   public static final String TAIER_RESOURCE = "/taier/resource";
+    public static final String TAIER_RESOURCE = "/taier/resource";
+
     /**
      * 添加资源
      */
@@ -106,12 +107,12 @@ public class BatchResourceService {
                 throw new RdosDefineException("需要设置参数 resourceName.", ErrorCode.INVALID_PARAMETERS);
             }
             resourceName = batchResourceAddDTO.getResourceName();
-            resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
+            resourceType = batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
         }
 
-      String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
-              uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
-              uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+        String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
+                uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()) :
+                uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         BatchResource batchResource = null;
         //重新上传资源
@@ -130,7 +131,7 @@ public class BatchResourceService {
             batchResourceAddDTO.setUrl(remotePath);
             batchResourceAddDTO.setCreateUserId(userId);
             batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
-            if (Objects.isNull(batchResource)){
+            if (Objects.isNull(batchResource)) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
             batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
@@ -161,6 +162,7 @@ public class BatchResourceService {
 
     /**
      * 新增或修改
+     *
      * @param batchResource
      * @return
      */
@@ -182,12 +184,12 @@ public class BatchResourceService {
         }
         List<BatchFunctionResource> functionResources = batchFunctionResourceService.listByResourceId(resourceId);
         if (!CollectionUtils.isEmpty(functionResources)) {
-        	throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
+            throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
         //删除资源在hdfs的实际存储文件
         BatchResource resource = getResource(resourceId);
         try {
-            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),resource.getUrl());
+            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), resource.getUrl());
         } catch (Exception e) {
             LOGGER.error("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId, e);
         }
@@ -213,6 +215,7 @@ public class BatchResourceService {
 
     /**
      * 获取离线上传的资源到HDFS上的路径
+     *
      * @param tenantId
      * @param fileName
      * @return
@@ -224,6 +227,7 @@ public class BatchResourceService {
 
     /**
      * 根据资源ids 查询资源列表
+     *
      * @param resourceIdList
      * @return
      */
@@ -233,6 +237,7 @@ public class BatchResourceService {
 
     /**
      * 根据资源id获取资源信息
+     *
      * @param resourceId
      * @return
      */
@@ -255,7 +260,7 @@ public class BatchResourceService {
         String resourceName = resourceDb.getResourceName();
 
         String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
-                uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
+                uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()) :
                 uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
 
         resourceDb.setUrl(remotePath);
@@ -267,6 +272,7 @@ public class BatchResourceService {
 
     /**
      * 上次资源文件到hdsf上
+     *
      * @param tenantId
      * @param resourceName
      * @param originalFilename
@@ -282,7 +288,7 @@ public class BatchResourceService {
         String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {
-            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),tmpPath, hdfsPath);
+            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), tmpPath, hdfsPath);
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {
@@ -304,12 +310,12 @@ public class BatchResourceService {
         String remotePath = new StringBuilder(path)
                 .append(TAIER_RESOURCE)
                 .append(File.separator)
-                .append(sftpFileName)
                 .toString();
+        File file = renameTmpFile(sftpFileName, tmpFilePath);
         SFTPHandler instance = null;
         try {
             instance = SFTPHandler.getInstance(sftpConf);
-            boolean success = instance.upload(remotePath, tmpFilePath);
+            boolean success = instance.upload(remotePath, file.getPath());
             AssertUtils.isTrue(success, "上传sftp异常");
         } catch (Exception e) {
             throw new DtCenterDefException(e.getMessage(), e);
@@ -319,11 +325,12 @@ public class BatchResourceService {
                 tmpFile.delete();
             }
         }
-        return remotePath;
+        return remotePath + file.getName();
     }
 
     /**
      * 由functionId获取对应的resource
+     *
      * @param functionId
      * @return
      */
@@ -333,6 +340,7 @@ public class BatchResourceService {
 
     /**
      * 根据 租户、目录Id 查询资源列表
+     *
      * @param tenantId
      * @param nodePid
      * @return
@@ -351,5 +359,24 @@ public class BatchResourceService {
     public List<BatchResource> listByNameAndTenantId(Long tenantId, String resourceName) {
         return developResourceDao.listByNameAndTenantId(tenantId, resourceName);
     }
+
+
+    /**
+     *
+     *重命名本地临时文件为格式化名称
+     * @param sftpFileName
+     * @param tmpFilePath
+     * @return
+     */
+    private File renameTmpFile(String sftpFileName, String tmpFilePath) {
+        File file = new File(tmpFilePath);
+        File renameFile = new File(file.getParent() + File.separator + sftpFileName);
+        boolean flag = file.renameTo(renameFile);
+        if (!flag) {
+            throw new DtCenterDefException(String.format("重命名文件【%s】 失败", file.getAbsolutePath()));
+        }
+        return renameFile;
+    }
+
 
 }
