@@ -57,11 +57,10 @@ public interface DevelopFunctionDao extends BaseMapper<BatchFunction> {
     /**
      * 根据 租户 查询
      * @param tenantId
-     * @param funcNameSet
      * @param taskType
      * @return
      */
-    List<BatchFunction> listTenantByFunction(@Param("tenantId") Long tenantId, @Param("funcNameSet")Set<String> funcNameSet, @Param("taskType") Integer taskType);
+    List<BatchFunction> listTenantByFunction(@Param("tenantId") Long tenantId, @Param("taskType") Integer taskType);
 
 
     /**
