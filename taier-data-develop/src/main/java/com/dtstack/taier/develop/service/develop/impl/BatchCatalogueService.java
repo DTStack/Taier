@@ -28,7 +28,6 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
-import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
@@ -36,17 +35,12 @@ import com.dtstack.taier.dao.domain.BatchFunction;
 import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
-import com.dtstack.taier.develop.enums.develop.TemplateCatalogue;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
-import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
 import com.google.common.collect.Lists;
@@ -65,7 +59,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -101,17 +94,12 @@ public class BatchCatalogueService {
     public BatchTaskService batchTaskService;
 
     @Autowired
-    public TaskTemplateService taskTemplateService;
-
-    @Autowired
     private ClusterTenantService clusterTenantService;
 
 
     private static final String FUNCTION_MANAGER_NAME = "函数管理";
 
     private static final Long DEFAULT_NODE_PID = 0L;
-
-    private static final String TASK_DEVELOPE = "任务开发";
 
     private static final String PARAM_COMMAND = "yyyyMMdd-1";
 
@@ -245,10 +233,6 @@ public class BatchCatalogueService {
                     oneBatchCatalogue.setCreateUserId(userId);
                     oneBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
                     addOrUpdate(oneBatchCatalogue);
-                    if (TASK_DEVELOPE.equals(oneCatalogueName)) {
-                        //初始化任务模版
-                        initTemplateCatalogue(oneBatchCatalogue, tenantId, userId);
-                    }
                     this.initEngineCatalogue(tenantId, userId, oneCatalogueName, oneBatchCatalogue);
                 }
             }
@@ -313,86 +297,6 @@ public class BatchCatalogueService {
     private boolean isNeedFunction(String name) {
         return EngineCatalogueType.SPARK.getDesc().equalsIgnoreCase(name) || EngineCatalogueType.FLINK.getDesc().equalsIgnoreCase(name);
     }
-
-
-    /**
-     * 初始化任务开发下的 模板目录 和 模板任务
-     * @param oneCatalogue
-     * @param tenantId
-     * @param userId
-     * @return
-     */
-    private List<BatchCatalogue> initTemplateCatalogue(BatchCatalogue oneCatalogue, Long tenantId, Long userId) {
-        List<BatchCatalogue> templateCatalogueList = new ArrayList<>(TemplateCatalogue.getValues().size());
-
-        //需要初始化的模板任务所在的目录
-        BatchCatalogue batchTempTaskCatalogue = new BatchCatalogue();
-        batchTempTaskCatalogue.setLevel(CatalogueLevel.OTHER.getLevel());
-        batchTempTaskCatalogue.setNodePid(oneCatalogue.getId());
-        batchTempTaskCatalogue.setTenantId(tenantId);
-        batchTempTaskCatalogue.setCreateUserId(userId);
-
-        List<TemplateCatalogue> templateTaskCatalogues = TemplateCatalogue.getValues();
-        HashMap<String, Long> idsMap = new HashMap<>();
-        for (TemplateCatalogue templateCatalogue : templateTaskCatalogues) {
-            //相同目录只创建一次
-            if (!idsMap.containsKey(templateCatalogue.getValue())) {
-                batchTempTaskCatalogue.setNodeName(templateCatalogue.getValue());
-                batchTempTaskCatalogue.setId(0L);
-                batchTempTaskCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-                addOrUpdate(batchTempTaskCatalogue);
-                idsMap.put(templateCatalogue.getValue(), batchTempTaskCatalogue.getId());
-            }
-            templateCatalogueList.add(batchTempTaskCatalogue);
-
-            try {
-                TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_SQL.getType(), EScheduleJobType.SPARK_SQL.getVal(), String.valueOf(templateCatalogue.getType()));
-                if(taskTemplate == null){
-                    throw new RdosDefineException(TaskTemplateType.TASK_SQL.getName() + "未初始化");
-                }
-                String content = taskTemplate.getContent();
-                //初始化任务
-                TaskResourceParam task = new TaskResourceParam();
-                task.setId(0L);
-                task.setName(templateCatalogue.getFileName());
-                task.setTaskType(EScheduleJobType.SPARK_SQL.getVal());
-                task.setNodePid(idsMap.get(templateCatalogue.getValue()));
-                task.setComputeType(EComputeType.BATCH.getType());
-                task.setLockVersion(0);
-                task.setVersion(0);
-                task.setTenantId(tenantId);
-                task.setUserId(userId);
-                task.setCreateUserId(userId);
-                task.setModifyUserId(userId);
-
-                if (StringUtils.isEmpty(content)) {
-                    throw new RdosDefineException(ErrorCode.TEMPLATE_TASK_CONTENT_NOT_NULL);
-                }
-                task.setSqlText(content);
-
-                //添加init脚本中带有的任务参数
-                List<Map> taskVariables = new ArrayList<>();
-                Map<String, String> variable = new HashMap<>(3);
-                variable.put("paramCommand", PARAM_COMMAND);
-                variable.put("paramName", PARAM_NAME);
-                variable.put("type", TYPE4SYSTEM);
-                taskVariables.add(variable);
-                task.setTaskVariables(taskVariables);
-
-                //SparkSQL任务支持多版本运行，添加默认的组件版本
-                List<BatchTaskGetComponentVersionResultVO> hadoopVersions = batchTaskService.getComponentVersionByTaskType(tenantId, EScheduleJobType.SPARK_SQL.getVal());
-                if (CollectionUtils.isNotEmpty(hadoopVersions)) {
-                    task.setComponentVersion(hadoopVersions.get(0).getComponentVersion());
-                }
-                batchTaskService.addOrUpdateTask(task);
-            } catch (Exception e) {
-                LOGGER.error(ErrorCode.CATALOGUE_INIT_FAILED.getDescription(), e);
-                throw new RdosDefineException(ErrorCode.CATALOGUE_INIT_FAILED);
-            }
-        }
-        return templateCatalogueList;
-    }
-
 
     /**
      * 根据当前节点递归查询所有父节点列表，包含当前节点
@@ -665,7 +569,6 @@ public class BatchCatalogueService {
                 List<Task> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
                 taskList.sort(Comparator.comparing(Task::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
-                    List<Long> taskIds = taskList.stream().map(Task::getId).collect(Collectors.toList());
                     //遍历目录下的所有任务
                     for (Task task : taskList) {
                         CatalogueVO childCatalogueTask = new CatalogueVO();
@@ -674,7 +577,6 @@ public class BatchCatalogueService {
                         childCatalogueTask.setLevel(currentCatalogueVO.getLevel() + 1);
                         childCatalogueTask.setParentId(currentCatalogueVO.getId());
                         childCatalogueTask.setCreateUser(getUserNameInMemory(userIdAndNameMap, task.getCreateUserId()));
-
                         catalogueChildFileList.add(childCatalogueTask);
                     }
                 }
@@ -715,7 +617,7 @@ public class BatchCatalogueService {
 
         //获取目录下的子目录
         List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), currentCatalogue.getTenantId());
-        childCatalogues = keepInitCatalogueBeTop(childCatalogues, currentCatalogue);
+        childCatalogues.sort(Comparator.comparing(BatchCatalogue::getNodeName));
         List<CatalogueVO> children = new ArrayList<>();
         for (BatchCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
@@ -780,42 +682,6 @@ public class BatchCatalogueService {
             return name;
         }
     }
-
-    /**
-     * 对文件夹名称排序，并保证默认创建的5个文件夹在最前面
-     * ps--不支持对老项目初始化目录
-     *
-     * @param childCatalogues
-     * @return
-     */
-    private List<BatchCatalogue> keepInitCatalogueBeTop(List<BatchCatalogue> childCatalogues, BatchCatalogue parentCatalogue) {
-        if (parentCatalogue.getLevel().equals(CatalogueLevel.SECOND.getLevel()) &&
-                parentCatalogue.getNodeName().equals(TASK_DEVELOPE)) {
-            //初始化默认目录
-            Map<Boolean, List<BatchCatalogue>> listMap = childCatalogues.stream().collect(Collectors.groupingBy(c -> {
-                List<TemplateCatalogue> templateCatalogueList = TemplateCatalogue.getValues();
-                List<String> values = templateCatalogueList.stream().map(TemplateCatalogue::getValue).collect(Collectors.toList());
-                if (values.contains(c.getNodeName())) {
-                    return true;
-                }
-                return false;
-            }, Collectors.toList()));
-
-            List<BatchCatalogue> batchCatalogueTop5 = new ArrayList<>(listMap.get(Boolean.TRUE));
-            batchCatalogueTop5.sort(Comparator.comparing(BatchCatalogue::getId));
-            if (CollectionUtils.isNotEmpty(listMap.get(Boolean.FALSE))) {
-                List<BatchCatalogue> selfCatalogue = listMap.get(Boolean.FALSE);
-                selfCatalogue.sort(Comparator.comparing(BatchCatalogue::getNodeName));
-                batchCatalogueTop5.addAll(selfCatalogue);
-            }
-            return batchCatalogueTop5;
-
-        } else {
-            childCatalogues.sort(Comparator.comparing(BatchCatalogue::getNodeName));
-            return childCatalogues;
-        }
-    }
-
 
     /**
      * 根据目录类型，获取目录的子目录信息
