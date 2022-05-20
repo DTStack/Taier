@@ -12,6 +12,7 @@ import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.common.util.JobClientUtil;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.ScheduleJob;
@@ -50,6 +51,7 @@ import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -117,8 +119,12 @@ public class FlinkTaskService {
 
     @Autowired
     private DatasourceService dataSourceService;
+
     @Autowired
     private StreamTaskCheckpointService streamTaskCheckpointService;
+
+    @Autowired
+    private ScheduleJobService scheduleJobService;
 
     /**
      * 将前端接收的结果表维表转化
@@ -499,6 +505,7 @@ public class FlinkTaskService {
             LOGGER.warn("startFlinkSQL-->", e);
             startFlinkResultVO.setMsg(e.getMessage());
             startFlinkResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
+            scheduleJobService.jobFail(task.getJobId(), TaskStatus.SUBMITFAILD.getStatus(), GenerateErrorMsgUtil.generateErrorMsg(e.getMessage()));
         }
         return startFlinkResultVO;
     }
@@ -510,9 +517,9 @@ public class FlinkTaskService {
      * @param taskId
      * @return
      */
-    public Boolean stopStreamTask(Long taskId) {
+    public Boolean stopStreamTask(Long taskId,Integer isForce) {
         Task task = developTaskMapper.selectById(taskId);
-        return actionService.stop(Arrays.asList(task.getJobId()));
+        return actionService.stop(Collections.singletonList(task.getJobId()),isForce);
     }
 
     /**
