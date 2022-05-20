@@ -24,6 +24,10 @@ import type { ISubMenuProps } from '@dtinsight/molecule/esm/components';
  */
 export enum ID_COLLECTIONS {
 	/**
+	 * 创建任务
+	 */
+	TASK_CREATE_ID = 'task.create',
+	/**
 	 * 任务运行按钮
 	 */
 	TASK_RUN_ID = 'task.run',

@@ -26,10 +26,10 @@ import type {
 	ITreeNodeItemProps,
 } from '@dtinsight/molecule/esm/components';
 import { ActionBar } from '@dtinsight/molecule/esm/components';
-import type { IFolderTree, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import type { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { loadTreeNode } from '@/utils/extensions';
+import { catalogueService } from '@/services';
 import { CATELOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
 import type { IFormFieldProps } from './resModal';
@@ -71,7 +71,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	>(undefined);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
-		loadTreeNode(node.data, CATELOGUE_TYPE.RESOURCE);
+		catalogueService.loadTreeNode(node.data, CATELOGUE_TYPE.RESOURCE);
 	};
 
 	const handleUpload = () => {
@@ -229,10 +229,6 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 		}
 	};
 
-	const loadData = async (treeNode: IFolderTreeNodeProps) => {
-		loadTreeNode(treeNode.data, CATELOGUE_TYPE.RESOURCE);
-	};
-
 	const handleSelect = (file?: ITreeNodeItemProps) => {
 		resourceManagerTree.setActive(file?.id);
 		if (file) {
@@ -348,7 +344,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 						onRightClick={handleRightClick}
 						draggable={false}
 						onSelectFile={handleSelect}
-						onLoadData={loadData}
+						onLoadData={updateNodePid}
 						onClickContextMenu={handleContextMenu}
 						entry={entry}
 						panel={panel}
@@ -375,7 +371,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 				dataType={CATELOGUE_TYPE.RESOURCE}
 				isModalShow={folderVisible}
 				toggleCreateFolder={handleCloseFolderModal}
-				treeData={resourceManagerTree.getState().folderTree?.data?.[0]?.children?.[0].data}
+				treeData={catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data}
 				defaultData={folderData}
 				addOfflineCatalogue={handleAddCatalogue}
 				editOfflineCatalogue={handleEditCatalogue}

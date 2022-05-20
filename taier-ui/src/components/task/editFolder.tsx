@@ -99,10 +99,11 @@ export default connect(
 						rules={[
 							{
 								max: 64,
-								message: '任务名称不得超过20个字符！',
+								message: '目录名称不得超过64个字符！',
 							},
 							{
 								required: true,
+								message: '文件夹名称不能为空',
 							},
 						]}
 					>

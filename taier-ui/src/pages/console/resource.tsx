@@ -27,7 +27,7 @@ import Resource from './resourceView';
 import BindTenant from './bindTenant';
 import type { IClusterProps } from '@/components/bindCommModal';
 import type { ITableProps } from './bindTenant';
-import { getCatalogueTree } from '@/extensions/catalogue';
+import { catalogueService } from '@/services';
 import './resource.scss';
 
 const FormItem = Form.Item;
@@ -125,7 +125,7 @@ export default () => {
 			// 刷新租户列表
 			bindTenantRef.current?.getTenant();
 			// 刷新目录树
-			getCatalogueTree();
+			catalogueService.loadRootFolder();
 			// 刷新资源管理
 			getClusterList();
 		}
