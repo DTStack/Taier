@@ -424,17 +424,8 @@ public class BatchFunctionService {
         if (CollectionUtils.isEmpty(funcNameSet)) {
             return Lists.newArrayList();
         }
-        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId,funcNameSet, EScheduleJobType.SQL.getType());
-        if (funcNameSet.size() != streamFunctionList.size()) {
-            for (String funcName : funcNameSet) {
-                for (BatchFunction dbFunc : streamFunctionList) {
-                    if (dbFunc.getName().equals(funcName)) {
-                        break;
-                    }
-                }
-            }
-        }
-        return streamFunctionList;
+        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId, EScheduleJobType.SQL.getType());
+        return streamFunctionList.stream().filter(f-> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
     }
 
     public String createRegisterFlinkFuncSQL(BatchFunction function) {
