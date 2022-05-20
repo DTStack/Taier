@@ -18,11 +18,12 @@
 
 import React, { useState } from 'react';
 import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
+import { catalogueService } from '@/services';
 import { ActionBar } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
-import type { IFolderTree, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import type { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
 import { Modal } from 'antd';
 import ajax from '../../api';
@@ -35,7 +36,6 @@ import {
 	MENU_TYPE_ENUM,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import { loadTreeNode } from '@/utils/extensions';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { DetailInfoModal } from '@/components/detailInfo';
@@ -87,11 +87,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
-		loadTreeNode(node.data, CATELOGUE_TYPE.FUNCTION);
-	};
-
-	const loadData = async (treeNode: IFolderTreeNodeProps) => {
-		updateNodePid(treeNode);
+		catalogueService.loadTreeNode(node.data, CATELOGUE_TYPE.FUNCTION);
 	};
 
 	const handleSelect = (file?: ITreeNodeItemProps) => {
@@ -358,7 +354,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 						onRightClick={handleRightClick}
 						draggable={false}
 						onSelectFile={handleSelect}
-						onLoadData={loadData}
+						onLoadData={updateNodePid}
 						onClickContextMenu={handleContextMenu}
 						panel={panel}
 						entry={entry}

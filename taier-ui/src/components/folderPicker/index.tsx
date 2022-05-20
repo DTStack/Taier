@@ -26,7 +26,7 @@ import molecule from '@dtinsight/molecule';
 import resourceManagerTree from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
 import type { TreeSelectProps } from 'antd/lib/tree-select';
-import { loadTreeNode } from '@/utils/extensions';
+import { catalogueService } from '@/services';
 
 interface FolderPickerProps extends CustomTreeSelectProps {
 	dataType: CATELOGUE_TYPE;
@@ -35,9 +35,12 @@ interface FolderPickerProps extends CustomTreeSelectProps {
 export default function FolderPicker(props: FolderPickerProps) {
 	const [flag, rerender] = useState(false);
 	const loadDataAsync: TreeSelectProps['loadData'] = async (treeNode) => {
-		const currentData = treeNode.props.dataRef.data;
+		const currentData = treeNode.props.dataRef;
 		if (!currentData.children?.length) {
-			await loadTreeNode(currentData, props.dataType);
+			await catalogueService.loadTreeNode(
+				{ id: currentData?.data?.id, catalogueType: currentData?.data?.catalogueType },
+				props.dataType,
+			);
 			rerender((f) => !f);
 		}
 	};
