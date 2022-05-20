@@ -1,6 +1,5 @@
 package com.dtstack.taier.develop.controller.operation;
 
-import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.task.ScheduleTaskMapstructTransfer;
@@ -14,12 +13,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -41,20 +35,6 @@ public class OperationScheduleTaskController {
     @ApiOperation(value = "运维中心任务管理 -> 任务列表接口")
     public R<PageResult<List<ReturnScheduleTaskVO>>> queryTasks(@RequestBody @Validated QueryTaskListVO vo) {
         return R.ok(taskService.queryTasks(ScheduleTaskMapstructTransfer.INSTANCE.queryTasksVoToDto(vo)));
-    }
-
-    @PostMapping(value = "/frozenTask")
-    @ApiOperation(value = "运维中心任务管理 -> 冻结和解冻任务")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "taskIdList", value = "任务id", required = true, dataType = "array"),
-            @ApiImplicitParam(name = "scheduleStatus", value = " 调度状态：0 正常 1冻结 2停止", required = true, dataType = "Integer")
-    })
-    public R<Boolean> frozenTask(@RequestParam("taskIdList") List<Long> taskIdList,
-                           @RequestParam("scheduleStatus") Integer scheduleStatus) {
-        if (taskService.frozenTask(taskIdList, scheduleStatus)) {
-            return R.ok(true);
-        }
-        return R.fail(ErrorCode.UPDATE_EXCEPTION);
     }
 
     @RequestMapping(value = "/queryFlowWorkSubTasks", method = {RequestMethod.POST})
