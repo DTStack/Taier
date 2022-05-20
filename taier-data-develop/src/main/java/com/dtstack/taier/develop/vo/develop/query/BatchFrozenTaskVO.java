@@ -23,11 +23,13 @@ import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.List;
+
 @ApiModel("任务信息")
 public class BatchFrozenTaskVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "任务ID", required = true, example = "12")
-    private Long taskId;
+    private List<Long> taskIds;
 
     @ApiModelProperty(value = "调度状态", required = true, example = "1")
     private Integer scheduleStatus;
@@ -35,12 +37,12 @@ public class BatchFrozenTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "选择的租户id", hidden = true)
     private Long userId;
 
-    public Long getTaskId() {
-        return taskId;
+    public List<Long> getTaskIds() {
+        return taskIds;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setTaskIds(List<Long> taskIds) {
+        this.taskIds = taskIds;
     }
 
     public Integer getScheduleStatus() {

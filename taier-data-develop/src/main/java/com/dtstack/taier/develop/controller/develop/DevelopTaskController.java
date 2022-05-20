@@ -19,6 +19,9 @@
 package com.dtstack.taier.develop.controller.develop;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -26,37 +29,12 @@ import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
-import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceIncreColumnVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFrozenTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskCheckIsLoopVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskCheckNameVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskDeleteTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetByNameVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetChildTasksVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetComponentVersionVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetSupportJobTypesVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskGetTaskVersionRecordVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskPublishTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskVersionScheduleConfVO;
-import com.dtstack.taier.develop.vo.develop.query.OperateTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.StartTaskVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetChildTasksResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchSysParameterResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetTaskByIdResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskPublishTaskResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskVersionDetailResultVO;
-import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taier.develop.vo.develop.query.*;
+import com.dtstack.taier.develop.vo.develop.result.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Api(value = "任务管理", tags = {"任务管理"})
 @RestController
@@ -250,12 +229,23 @@ public class DevelopTaskController {
 
     @PostMapping(value = "frozenTask")
     @ApiOperation("所有产品的已提交任务查询")
-    public R<Void> frozenTask(@RequestBody BatchFrozenTaskVO vo) {
-        return new APITemplate<Void>() {
+    public R<Boolean> frozenTask(@RequestBody BatchFrozenTaskVO vo) {
+        return new APITemplate<Boolean>() {
             @Override
-            protected Void process() {
-                batchTaskService.frozenTask(vo.getTaskId(), vo.getScheduleStatus(), vo.getUserId());
-                return null;
+            protected void checkParams() throws IllegalArgumentException {
+                EScheduleStatus targetStatus = EScheduleStatus.getStatus(vo.getScheduleStatus());
+                if (Objects.isNull(targetStatus)) {
+                    throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
+                }
+                if (CollectionUtils.isEmpty(vo.getTaskIds())) {
+                    throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+                }
+            }
+
+            @Override
+            protected Boolean process() {
+                batchTaskService.frozenTask(vo.getTaskIds(), vo.getScheduleStatus(), vo.getUserId());
+                return true;
             }
         }.execute();
     }
