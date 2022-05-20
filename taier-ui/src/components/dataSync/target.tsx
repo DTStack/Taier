@@ -22,7 +22,7 @@ import {
 	DATA_SOURCE_TEXT,
 	TASK_LANGUAGE,
 } from '@/constant';
-import { filterValueOption, formJsonValidator } from '@/utils';
+import { formJsonValidator } from '@/utils';
 import Editor from '@/components/editor';
 import type {
 	IDataColumnsProps,
@@ -171,14 +171,17 @@ export default function Target({
 		});
 	};
 
-	const getHivePartitions = () => {
-		const target = dataSourceList.find((l) => l.dataInfoId === form.getFieldValue('sourceId'));
+	const getHivePartitions = (
+		sourceId: number = form.getFieldValue('sourceId'),
+		table: string = form.getFieldValue('table'),
+	) => {
+		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
 		if (!target) return;
 		// TODO 这里获取 Hive 分区的条件有点模糊
 		if (ALLOW_REQUEST_HIVE.includes(target.dataTypeCode)) {
 			API.getHivePartitions({
-				sourceId: form.getFieldValue('sourceId'),
-				tableName: form.getFieldValue('table'),
+				sourceId,
+				tableName: table,
 			}).then((res) => {
 				setPartitionList(res.data || []);
 			});
@@ -604,35 +607,27 @@ export default function Target({
 							</FormItem>
 							{oneKeyCreateTable}
 						</FormItem>
-						{Boolean(tablePartitionList.length) && (
-							<FormItem
-								tooltip={partitionDesc}
-								name="partition"
-								label="分区"
-								key="partition"
-								rules={[
-									{
-										required: true,
-										message: '目标分区为必填项！',
-									},
-								]}
-							>
-								<AutoComplete
-									showSearch
-									showArrow
-									placeholder="请填写分区信息"
-									filterOption={filterValueOption}
-								>
-									{tablePartitionList.map((pt) => {
-										return (
-											<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
-												{pt}
-											</AutoComplete.Option>
-										);
-									})}
-								</AutoComplete>
-							</FormItem>
-						)}
+						<FormItem
+							tooltip={partitionDesc}
+							name="partition"
+							label="分区"
+							rules={[
+								{
+									required: true,
+									message: '目标分区为必填项！',
+								},
+							]}
+						>
+							<AutoComplete showSearch showArrow placeholder="请填写分区信息">
+								{tablePartitionList.map((pt) => {
+									return (
+										<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
+											{pt}
+										</AutoComplete.Option>
+									);
+								})}
+							</AutoComplete>
+						</FormItem>
 						<FormItem
 							label="写入模式"
 							key="writeMode-hive"
@@ -1010,6 +1005,10 @@ export default function Target({
 			if (ALLOW_REQUEST_SCHEMA.includes(targetMap.type!)) {
 				getSchemaList(targetMap.sourceId);
 			}
+		}
+
+		if (targetMap?.partition) {
+			getHivePartitions(targetMap.sourceId, targetMap.table);
 		}
 	}, []);
 

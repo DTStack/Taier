@@ -1394,7 +1394,27 @@ export default function KeyMap({
 		])
 			.then((results) => {
 				if (results.every((res) => res.code === 1)) {
-					setTableCols({ source: results[0].data, target: results[1].data });
+					const sourceMapCol = sourceMap.column || [];
+					const targetMapCol = targetMap.column || [];
+
+					// TODO: 暂时无法解决没有连线的自定义列或常量保存的问题
+					// 取当前选中数据源的表字段和已连线的字段的并集作为 keymap 的数据
+					// 因为可能存在常量或自定义列不存在在「数据源的表字段」中，需要从已连线的字段中获取
+					const nextSource: IDataColumnsProps[] = results[0].data;
+					sourceMapCol.forEach((col) => {
+						if (!nextSource.find((s) => s.key === col.key)) {
+							nextSource.push(col);
+						}
+					});
+
+					// same as source
+					const nextTarget: IDataColumnsProps[] = results[1].data;
+					targetMapCol.forEach((col) => {
+						if (!nextTarget.find((s) => s.key === col.key)) {
+							nextTarget.push(col);
+						}
+					});
+					setTableCols({ source: nextSource, target: nextTarget });
 				}
 			})
 			.finally(() => {
