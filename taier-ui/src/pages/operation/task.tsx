@@ -24,6 +24,7 @@ import type { ColumnsType } from 'antd/lib/table/interface';
 import moment from 'moment';
 import SlidePane from '@/components/slidePane';
 import API from '@/api/operation';
+import api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { ITaskProps } from '@/interface';
@@ -31,7 +32,8 @@ import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
 import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskTimeType, taskTypeText } from '@/utils/enums';
-import PatchModal, { ITaskBasicProps } from './patch/patchModal';
+import type { ITaskBasicProps } from './patch/patchModal';
+import PatchModal from './patch/patchModal';
 import TaskFlowView from './taskFlowView';
 import './task.scss';
 
@@ -166,8 +168,8 @@ export default () => {
 			message.error('您没有选择任何任务！');
 			return false;
 		}
-		API.forzenTask({
-			taskIdList: selectedRowKeys,
+		api.forzenTask({
+			taskIds: selectedRowKeys,
 			scheduleStatus: mode,
 		}).then((res) => {
 			if (res.code === 1) {
@@ -180,8 +182,8 @@ export default () => {
 	// 冻结或解冻指定任务
 	const handleForzonTask = (taskId: number, mode: SCHEDULE_STATUS) => {
 		const { submit } = actionRef.current!;
-		API.forzenTask({
-			taskIdList: [taskId],
+		api.forzenTask({
+			taskIds: [taskId],
 			scheduleStatus: mode,
 		}).then((res) => {
 			if (res.code === 1) {
