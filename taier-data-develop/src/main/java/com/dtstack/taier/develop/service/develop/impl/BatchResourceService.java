@@ -140,6 +140,7 @@ public class BatchResourceService {
         resourceType = resourceType != null ? resourceType : ResourceType.OTHER.getType();
 
         batchResource.setResourceType(resourceType);
+        batchResource.setComputeType(batchResourceAddDTO.getComputeType());
         batchResource.setModifyUserId(userId);
         addOrUpdate(batchResource);
 

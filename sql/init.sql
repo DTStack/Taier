@@ -1061,6 +1061,7 @@ CREATE TABLE `develop_resource` (
                                     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
                                     `create_user_id` int(11) NOT NULL COMMENT '新建资源的用户',
                                     `modify_user_id` int(11) NOT NULL COMMENT '修改人',
+                                    `compute_type` int(11) NOT NULL DEFAULT '0' COMMENT '上传组建类型'
                                     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
                                     `node_id` bigint(20) DEFAULT NULL,
                                     PRIMARY KEY (`id`),

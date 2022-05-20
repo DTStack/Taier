@@ -74,6 +74,17 @@ public class BatchGetResourceByIdResultVO {
     @ApiModelProperty(value = "是否删除", example = "0")
     private Integer isDeleted = 0;
 
+    @ApiModelProperty(value = "计算类型 0实时，1 离线")
+    private Integer computeType = 0;
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
     public BatchUserBaseResultVO getCreateUser() {
         return createUser;
     }
