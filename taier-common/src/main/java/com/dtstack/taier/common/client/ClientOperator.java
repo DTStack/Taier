@@ -116,7 +116,7 @@ public class ClientOperator {
 
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
-        if (jobClient.getEngineTaskId() == null) {
+        if (jobClient.getEngineTaskId() == null && jobClient.getApplicationId() == null) {
             return JobResult.createSuccessResult(jobClient.getJobId());
         }
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
