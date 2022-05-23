@@ -1,0 +1,562 @@
+
+####################################################################
+################# k8s 部署脚本, 包含:                #################
+#################    1. namespace 创建              #################
+#################    2. zookeeper 集群创建           #################
+#################    3. mysql 创建和表初始化          #################
+#################    4. taier 前后端服务初始化        #################
+#################    5. 容器内 nginx 配置            #################
+####################################################################
+
+---
+# 0. 创建 namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dt-taier
+
+---
+# 1. 部署 zookeeper
+## 创建service服务
+apiVersion: v1
+kind: Service
+metadata:
+  # DNS would be like zookeeper.zoons
+  name: zookeeper
+  namespace: dt-taier
+  labels:
+    app: zookeeper
+spec:
+  ports:
+    - port: 2181
+      name: client
+    - port: 7000
+      name: prometheus
+  selector:
+    app: zookeeper
+    what: node
+---
+## 创建headless服务
+apiVersion: v1
+kind: Service
+metadata:
+  # DNS would be like zookeeper-0.zookeeper-headless.etc
+  name: zookeeper-headless
+  namespace: dt-taier
+  labels:
+    app: zookeeper
+spec:
+  ports:
+    - port: 2888
+      name: server
+    - port: 3888
+      name: leader-election
+  clusterIP: None
+  selector:
+    app: zookeeper
+    what: node
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: zookeeper-pod-disruption-budget
+  namespace: dt-taier
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper
+  maxUnavailable: 1
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+  namespace: dt-taier
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper
+  serviceName: zookeeper-headless
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+        what: node
+      annotations:
+        prometheus.io/port: '7000'
+        prometheus.io/scrape: 'true'
+    spec:
+      containers:
+        - name: zookeeper
+          imagePullPolicy: IfNotPresent
+          image: "zookeeper:3.5.7"
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "0.5"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          ports:
+            - containerPort: 2181
+              name: client
+            - containerPort: 2888
+              name: server
+            - containerPort: 3888
+              name: leader-election
+            - containerPort: 7000
+              name: prometheus
+          command:
+            - bash
+            - -x
+            - -c
+            - |
+              SERVERS=3 &&
+              HOST=`hostname -s` &&
+              DOMAIN=`hostname -d` &&
+              CLIENT_PORT=2181 &&
+              SERVER_PORT=2888 &&
+              ELECTION_PORT=3888 &&
+              PROMETHEUS_PORT=7000 &&
+              ZOO_DATA_DIR=/var/lib/zookeeper/data &&
+              ZOO_DATA_LOG_DIR=/var/lib/zookeeper/datalog &&
+              {
+                echo "clientPort=${CLIENT_PORT}"
+                echo 'tickTime=2000'
+                echo 'initLimit=300'
+                echo 'syncLimit=10'
+                echo 'maxClientCnxns=2000'
+                echo 'maxSessionTimeout=60000000'
+                echo "dataDir=${ZOO_DATA_DIR}"
+                echo "dataLogDir=${ZOO_DATA_LOG_DIR}"
+                echo 'autopurge.snapRetainCount=10'
+                echo 'autopurge.purgeInterval=1'
+                echo 'preAllocSize=131072'
+                echo 'snapCount=3000000'
+                echo 'leaderServes=yes'
+                echo 'standaloneEnabled=false'
+                echo '4lw.commands.whitelist=*'
+                echo 'metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider'
+                echo "metricsProvider.httpPort=${PROMETHEUS_PORT}"
+              } > /conf/zoo.cfg &&
+              {
+                echo "zookeeper.root.logger=CONSOLE"
+                echo "zookeeper.console.threshold=INFO"
+                echo "log4j.rootLogger=\${zookeeper.root.logger}"
+                echo "log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender"
+                echo "log4j.appender.CONSOLE.Threshold=\${zookeeper.console.threshold}"
+                echo "log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout"
+                echo "log4j.appender.CONSOLE.layout.ConversionPattern=%d{ISO8601} [myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n"
+              } > /conf/log4j.properties &&
+              echo 'JVMFLAGS="-Xms128M -Xmx4G -XX:+UseG1GC -XX:+CMSParallelRemarkEnabled"' > /conf/java.env &&
+              if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+                  NAME=${BASH_REMATCH[1]}
+                  ORD=${BASH_REMATCH[2]}
+              else
+                  echo "Failed to parse name and ordinal of Pod"
+                  exit 1
+              fi &&
+              mkdir -p ${ZOO_DATA_DIR} &&
+              mkdir -p ${ZOO_DATA_LOG_DIR} &&
+              export MY_ID=$((ORD+1)) &&
+              echo $MY_ID > $ZOO_DATA_DIR/myid &&
+              for (( i=1; i<=$SERVERS; i++ )); do
+                  echo "server.$i=$NAME-$((i-1)).$DOMAIN:$SERVER_PORT:$ELECTION_PORT" >> /conf/zoo.cfg;
+              done &&
+              chown -Rv zookeeper "$ZOO_DATA_DIR" "$ZOO_DATA_LOG_DIR" "$ZOO_LOG_DIR" "$ZOO_CONF_DIR" &&
+              zkServer.sh start-foreground
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "OK=$(echo ruok | nc 127.0.0.1 2181); if [[ \"$OK\" == \"imok\" ]]; then exit 0; else exit 1; fi"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "OK=$(echo ruok | nc 127.0.0.1 2181); if [[ \"$OK\" == \"imok\" ]]; then exit 0; else exit 1; fi"
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+
+---
+# 2. 部署 mysql
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-svc
+  namespace: dt-taier
+spec:
+  selector:
+    app: mysql
+  type: NodePort
+  ports:
+    - name: mysql-svc
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+      nodePort: 31264
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: dt-taier
+  labels:
+    app: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: dtopensource/taier-mysql:1.0
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: time-zone
+              mountPath: /etc/localtime
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
+      volumes:
+        - name: time-zone
+          hostPath:
+            path: /etc/localtime
+
+---
+# 3. taier-web
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  taier-web
+  namespace: dt-taier
+spec:
+  selector:
+    matchLabels:
+      app: taier-web
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: taier-web
+    spec:
+      containers:
+        - name: taier-web
+          image: dtopensource/taier-ui:1.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 1
+              memory: "1Gi"
+            limits:
+              cpu: 1
+              memory: "2Gi"
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 10
+          ports:
+            - containerPort:  80
+              name:  taier-web
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taier-web-svc
+  namespace: dt-taier
+spec:
+  selector:
+    app: taier-web
+  type: ClusterIP
+  ports:
+    - name: taier-web
+      protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+
+# 4. taier 后端服务
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taier
+  namespace: dt-taier
+spec:
+  selector:
+    matchLabels:
+      app: taier
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: taier
+    spec:
+      containers:
+        - name: taier
+          image: dtopensource/taier:1.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 1
+              memory: "1Gi"
+            limits:
+              cpu: 2
+              memory: "4Gi"
+          livenessProbe:
+            tcpSocket:
+              port: 8090
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 8090
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 30
+          ports:
+            - containerPort: 8090
+              name: taier
+          env:
+            - name: NODE_ZKADDRESS
+              value: zookeeper
+            - name: MYSQL_IP
+              value: mysql-svc
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taier-svc
+  namespace: dt-taier
+spec:
+  selector:
+    app: taier
+  type: ClusterIP
+  ports:
+    - name: taier
+      protocol: TCP
+      port: 8090
+      targetPort: 8090
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: taier-nginx-cm
+  namespace: dt-taier
+data:
+  taier.conf: |
+    server {
+        listen 80;
+
+        server_name dt.taier.cn;
+        underscores_in_headers on;
+
+        charset utf-8;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        location / {
+          proxy_set_header   X-Real-IP $remote_addr;
+          proxy_set_header Host  $host;
+          proxy_set_header   X-Forwarded-Server $host;
+          proxy_set_header x_request_id $request_id;
+          proxy_pass http://taier-web-svc;
+        }
+        location /taier {
+          proxy_set_header   X-Real-IP $remote_addr;
+          proxy_set_header Host  $host;
+          proxy_set_header   X-Forwarded-Server $host;
+          proxy_set_header x_request_id $request_id;
+          proxy_pass http://taier-svc:8090;
+        }
+    }  
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginxconf
+  namespace: dt-taier
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log;
+    pid /run/nginx.pid;
+    include /usr/share/nginx/modules/*.conf;
+    events {
+        worker_connections 1024;
+    }
+    http {
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log  /var/log/nginx/access.log  main;
+    server_tokens off;
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 10240;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml;
+    gzip_disable "MSIE [1-6]\.";
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+    client_max_body_size 100m;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+    include /etc/nginx/conf.d/*.conf;
+
+
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        root         /usr/share/nginx/html;
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+        }
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+      }
+    }
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "dmp-nginx"
+  namespace: dt-taier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "nginx"
+  template:
+    metadata:
+      labels:
+        app: "nginx"
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: taier-nginx-cm
+            defaultMode: 420
+        - name: nginxconf-volume
+          configMap:
+            name: nginxconf
+      containers:
+        - name: nginx
+          image: nginx:1.20
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: config-volume
+            - name: nginxconf-volume
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          ports:
+            - name: web
+              containerPort: 80
+            - name: web-https
+              containerPort: 443
+          envFrom:
+            - configMapRef:
+                name: "taier-nginx-cm"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "100m"
+            limits:
+              memory: "3Gi"
+              cpu: "3"
+      hostAliases:
+        - hostnames:
+            - dt.taier.cn
+          ip: 127.0.0.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: dt-taier
+spec:
+  ports:
+    - name: web
+      port: 80
+      protocol: TCP
+      targetPort: web
+    - name: web-https
+      port: 443
+      protocol: TCP
+      targetPort: web-https
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: ClusterIP
+
+
+
+
