@@ -12,6 +12,7 @@ import './preview.scss';
 interface IPreviewProps {
 	data: ISyncDataProps;
 	dataSourceList: IDataSourceUsedInSyncProps[];
+	isIncrementMode?: boolean;
 	/**
 	 * For keymap
 	 */
@@ -28,6 +29,7 @@ export default function Preview({
 	data,
 	dataSourceList,
 	userColumns,
+	isIncrementMode = false,
 	onStepTo,
 	onSave,
 }: IPreviewProps) {
@@ -43,7 +45,12 @@ export default function Preview({
 						</Button>
 					}
 				>
-					<Source readonly dataSourceList={dataSourceList} sourceMap={data.sourceMap} />
+					<Source
+						readonly
+						dataSourceList={dataSourceList}
+						sourceMap={data.sourceMap}
+						isIncrementMode={isIncrementMode}
+					/>
 					<Mask />
 				</Card>
 				<Card
@@ -60,6 +67,7 @@ export default function Preview({
 						dataSourceList={dataSourceList}
 						targetMap={data.targetMap}
 						sourceMap={data.sourceMap}
+						isIncrementMode={isIncrementMode}
 					/>
 					<Mask />
 				</Card>
@@ -94,6 +102,7 @@ export default function Preview({
 						sourceMap={data.sourceMap!}
 						targetMap={data.targetMap!}
 						setting={data.settingMap}
+						isIncrementMode={isIncrementMode}
 					/>
 					<Mask />
 				</Card>
