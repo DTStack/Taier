@@ -108,12 +108,6 @@
         <if test="taskType !=null">
             AND task_type = #{taskType}
         </if>
-        <if test="funcNameSet != null">
-            and name in
-            <foreach item="name" index="index" collection="funcNameSet" open="(" separator="," close=")">
-                #{name}
-            </foreach>
-        </if>
 
     </select>
 

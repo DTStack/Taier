@@ -52,6 +52,17 @@ public class BatchResource extends TenantEntity {
 
     private String resourceDesc;
 
+    private Integer computeType;
+
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
     public BatchResource(String url) {
         this.url = url;
     }

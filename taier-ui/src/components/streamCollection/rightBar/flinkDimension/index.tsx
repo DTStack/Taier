@@ -283,6 +283,16 @@ export default function FlinkDimensionPanel({ current }: IFlinkDimensionProps) {
 		}
 	}, [panelColumn]);
 
+	useEffect(() => {
+		if (!isInValidTab) {
+			current?.tab?.data?.side?.forEach((item: IFlinkSideProps) => {
+				getTypeOriginData(item.type);
+				getTableType(item.type, item.sourceId, item.schema);
+				getTableColumns(item.sourceId, item.table || '', item.schema);
+			});
+		}
+	}, [current]);
+
 	/**
 	 * 当前的 tab 是否不合法，如不合法则展示 Empty
 	 */

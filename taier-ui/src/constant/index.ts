@@ -783,8 +783,17 @@ export enum TASK_PERIOD_ENUM {
  * 任务调度状态
  */
 export enum SCHEDULE_STATUS {
+	/**
+	 * 正常
+	 */
 	NORMAL = 0,
+	/**
+	 * 冻结
+	 */
 	FORZON = 1,
+	/**
+	 * @deprecated 前端用不到
+	 */
 	STOPPED = 2,
 }
 
