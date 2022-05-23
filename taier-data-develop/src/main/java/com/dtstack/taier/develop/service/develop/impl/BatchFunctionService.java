@@ -43,6 +43,7 @@ import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
+import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -168,38 +169,31 @@ public class BatchFunctionService {
         if (!PublicUtil.matcher(batchFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
-        if (resourceId == null) {
-            throw new RdosDefineException("新增函数必须添加资源", ErrorCode.INVALID_PARAMETERS);
-        } else {
-            checkResourceType(resourceId);
+        AssertUtils.notNull(resourceId, "新增函数必须添加资源");
+        checkResourceType(resourceId, batchFunction.getTaskType());
+
+        // id小于0走新增逻辑
+        if (Objects.isNull(batchFunction.getId()) || batchFunction.getId() < 1) {
+            //名称重复校验
+            batchTaskService.checkName(batchFunction.getName(), CatalogueType.CUSTOM_FUNCTION.name(), null, 1, 0L);
+            batchFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
-        try {
-			// id小于0走新增逻辑
-			if (Objects.isNull(batchFunction.getId()) || batchFunction.getId() < 1) {
-                //名称重复校验
-                batchTaskService.checkName(batchFunction.getName(), CatalogueType.CUSTOM_FUNCTION.name(), null, 1, 0L);
-                batchFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-			}
 
-			batchFunction.setType(FuncType.CUSTOM.getType());
-			addOrUpdate(batchFunction, userId);
-            addOrUpdateFunctionResource(batchFunction, resourceId);
-			// 添加类目关系
-			TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
-			taskCatalogueVO.setId(batchFunction.getId());
-			taskCatalogueVO.setName(batchFunction.getName());
-			taskCatalogueVO.setType("file");
-			taskCatalogueVO.setLevel(null);
-			taskCatalogueVO.setChildren(null);
-			taskCatalogueVO.setParentId(batchFunction.getNodePid());
+        batchFunction.setType(FuncType.CUSTOM.getType());
+        addOrUpdate(batchFunction, userId);
+        addOrUpdateFunctionResource(batchFunction, resourceId);
+        // 添加类目关系
+        TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
+        taskCatalogueVO.setId(batchFunction.getId());
+        taskCatalogueVO.setName(batchFunction.getName());
+        taskCatalogueVO.setType("file");
+        taskCatalogueVO.setLevel(null);
+        taskCatalogueVO.setChildren(null);
+        taskCatalogueVO.setParentId(batchFunction.getNodePid());
 
-            String username = userService.getUserName(batchFunction.getCreateUserId());
-			taskCatalogueVO.setCreateUser(username);
-			return taskCatalogueVO;
-		} catch (Exception e) {
-            LOGGER.error("addFunction, functions={},resource={},tenantId={}", JSONObject.toJSONString(batchFunction), resourceId, tenantId);
-            throw new RdosDefineException(String.format("添加函数失败：%s", e.getMessage()), e);
-		}
+        String username = userService.getUserName(batchFunction.getCreateUserId());
+        taskCatalogueVO.setCreateUser(username);
+        return taskCatalogueVO;
     }
 
     /**
@@ -238,10 +232,17 @@ public class BatchFunctionService {
      * 校验资源是否存在
      * @param resourceId
      */
-    private void checkResourceType(Long resourceId) {
+    private void checkResourceType(Long resourceId, Integer taskType) {
         BatchResource resource = batchResourceService.getResource(resourceId);
         if (Objects.isNull(resource)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
+        }
+        //任务类型是flinkSql ,函数饮用的资源必须是上传sftp
+        if (ComputeType.STREAM.getType().equals(resource.getComputeType())) {
+            AssertUtils.isTrue(EScheduleJobType.SQL.getType().equals(taskType), "sparkSQL 任务只能引用上传到hdfs的资源");
+        }
+        if (ComputeType.BATCH.getType().equals(resource.getComputeType())) {
+            AssertUtils.isTrue(EScheduleJobType.SPARK_SQL.getType().equals(taskType), "flinkSQL 任务只能引用上传到sftp的资源");
         }
     }
 
@@ -423,17 +424,8 @@ public class BatchFunctionService {
         if (CollectionUtils.isEmpty(funcNameSet)) {
             return Lists.newArrayList();
         }
-        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId,funcNameSet, EScheduleJobType.SQL.getType());
-        if (funcNameSet.size() != streamFunctionList.size()) {
-            for (String funcName : funcNameSet) {
-                for (BatchFunction dbFunc : streamFunctionList) {
-                    if (dbFunc.getName().equals(funcName)) {
-                        break;
-                    }
-                }
-            }
-        }
-        return streamFunctionList;
+        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId, EScheduleJobType.SQL.getType());
+        return streamFunctionList.stream().filter(f-> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
     }
 
     public String createRegisterFlinkFuncSQL(BatchFunction function) {

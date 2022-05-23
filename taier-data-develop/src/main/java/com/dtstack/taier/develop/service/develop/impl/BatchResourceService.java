@@ -140,6 +140,7 @@ public class BatchResourceService {
         resourceType = resourceType != null ? resourceType : ResourceType.OTHER.getType();
 
         batchResource.setResourceType(resourceType);
+        batchResource.setComputeType(batchResourceAddDTO.getComputeType());
         batchResource.setModifyUserId(userId);
         addOrUpdate(batchResource);
 
@@ -300,7 +301,8 @@ public class BatchResourceService {
         if (StringUtils.isBlank(path)) {
             throw new DtCenterDefException("sftp路径配置错误");
         }
-        String sftpFileName = String.format("%s_%s_%s", tenantId, resourceName, oriFileName);
+        File localFile = renameTmpFileName(tenantId, oriFileName, tmpFilePath);
+        String sftpFileName = String.format("%s_%s", tenantId, resourceName);
         String remotePath = new StringBuilder(path)
                 .append(TAIER_RESOURCE)
                 .append(File.separator)
@@ -309,17 +311,27 @@ public class BatchResourceService {
         SFTPHandler instance = null;
         try {
             instance = SFTPHandler.getInstance(sftpConf);
-            boolean success = instance.upload(remotePath, tmpFilePath);
+            boolean success = instance.upload(remotePath, localFile.getPath());
             AssertUtils.isTrue(success, "上传sftp异常");
         } catch (Exception e) {
             throw new DtCenterDefException(e.getMessage(), e);
         } finally {
-            File tmpFile = new File(tmpFilePath);
-            if (tmpFile.exists()) {
-                tmpFile.delete();
+            if (localFile.exists()) {
+                localFile.delete();
             }
         }
-        return remotePath;
+        return remotePath + "/" + localFile.getName();
+    }
+
+    private File renameTmpFileName(long tenantId, String originalFileName, String tmpFilePath) {
+        String finalFileName = tenantId  + "_" + originalFileName;
+        File file = new File(tmpFilePath);
+        File renameFile = new File(file.getParent() + File.separator + finalFileName);
+        boolean checkRename = file.renameTo(renameFile);
+        if (!checkRename) {
+            throw new DtCenterDefException(String.format("rename file [%s] to [%s] fail...", file.getAbsolutePath(), renameFile.getAbsolutePath()));
+        }
+        return renameFile;
     }
 
     /**

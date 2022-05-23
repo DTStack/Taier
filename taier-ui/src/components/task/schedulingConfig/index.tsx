@@ -25,7 +25,7 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { isArray } from 'lodash';
 import api from '@/api';
-import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, TASK_PERIOD_ENUM } from '@/constant';
+import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
@@ -151,12 +151,12 @@ export default function SchedulingConfig({
 	// 调度状态 change 处理函数
 	const handleScheduleStatus = (evt: CheckboxChangeEvent) => {
 		const { checked } = evt.target;
-		const status = checked ? 2 : 0;
+		const status = checked ? SCHEDULE_STATUS.FORZON : SCHEDULE_STATUS.NORMAL;
 		const tabData: IOfflineTaskProps = current!.tab!.data;
 		const sucInfo = checked ? '冻结成功' : '解冻成功';
 		const errInfo = checked ? '冻结失败' : '解冻失败';
 		api.forzenTask({
-			taskId: tabData.id,
+			taskIds: [tabData.id],
 			scheduleStatus: status,
 		}).then((res) => {
 			if (res.code === 1) {

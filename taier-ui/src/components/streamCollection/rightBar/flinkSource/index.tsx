@@ -94,17 +94,14 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 			}
 			const res = await stream.getTypeOriginData({ type });
 			if (res.code === 1) {
-				originOptionType[type] = res.data;
-			} else {
-				originOptionType[type] = [];
+				// 没有新建对象来 setState，当有多个源表同时请求数据源的话，新建对象的话会导致旧对象会被新对象覆盖掉
+				setOriginOptionType((options) => ({ ...options, [type]: res.data }));
 			}
-			// 没有新建对象来 setState，当有多个源表同时请求数据源的话，新建对象的话会导致旧对象会被新对象覆盖掉
-			setOriginOptionType({ ...originOptionType });
 		}
 	};
 
 	const getTopicType = async (sourceId?: number) => {
-		if (sourceId) {
+		if (sourceId !== undefined) {
 			// improve the performance
 			const existTopic = topicOptionType[sourceId];
 			if (existTopic) {
@@ -112,10 +109,10 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 			}
 			const res = await stream.getTopicType({ sourceId });
 			if (res.code === 1) {
-				setTopicOptionType({
-					...topicOptionType,
+				setTopicOptionType((options) => ({
+					...options,
 					[sourceId]: res.data,
-				});
+				}));
 			}
 		}
 	};
@@ -265,6 +262,7 @@ export default function FlinkSourcePanel({ current }: Pick<IEditor, 'current'>) 
 		if (!isInValidTab) {
 			currentPage?.source?.forEach((s: IFlinkSourceProps) => {
 				getTypeOriginData(s.type);
+				getTopicType(s.sourceId);
 			});
 		}
 	}, [current]);
