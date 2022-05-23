@@ -62,7 +62,7 @@ export default function TaskDependence({
 	const submitData = (task: ITaskSearchResultProps) => {
 		// 任务搜索结果类型和 dependencyTasks 的类型不一致，这里做一层转化，添加 id 属性
 		const data: Partial<ITaskVOProps> = {
-			tenantName: task.taskName,
+			tenantName: task.tenantName,
 			tenantId: task.tenantId.toString(),
 			name: task.taskName,
 			id: task.taskId,
