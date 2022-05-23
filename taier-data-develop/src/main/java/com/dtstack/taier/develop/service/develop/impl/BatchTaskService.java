@@ -2466,20 +2466,16 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     /**
      * 冻结任务
      *
-     * @param taskId         任务编号
+     * @param taskIds         任务编号
      * @param scheduleStatus 调度状态
      * @param userId         用户ID
      */
-    public void frozenTask(Long taskId, Integer scheduleStatus, Long userId) {
-        Task task = getOneWithError(taskId);
-        EScheduleStatus targetStatus = EScheduleStatus.getStatus(scheduleStatus);
-        if (Objects.isNull(targetStatus)) {
-            throw new RdosDefineException("任务状态参数非法", ErrorCode.INVALID_PARAMETERS);
-        }
+    public void frozenTask(List<Long> taskIds, Integer scheduleStatus, Long userId) {
+        Task task = new Task();
         task.setModifyUserId(userId);
         task.setScheduleStatus(scheduleStatus);
-        developTaskMapper.updateById(task);
-        taskService.frozenTask(Lists.newArrayList(taskId), scheduleStatus);
+        developTaskMapper.update(task,Wrappers.lambdaQuery(Task.class).in(Task::getId,taskIds));
+        taskService.frozenTask(taskIds, scheduleStatus);
     }
 
     private void addParam(TaskResourceParam param) {

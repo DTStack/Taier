@@ -76,7 +76,7 @@ public class BatchFunction {
     @TableField("modify_user_id")
     private Long modifyUserId;
 
-    @TableField(exist = false)
+    @TableField("udf_type")
     private Integer udfType;
 
 
