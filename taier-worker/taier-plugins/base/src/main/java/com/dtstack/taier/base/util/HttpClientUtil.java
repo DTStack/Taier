@@ -384,22 +384,6 @@ public class HttpClientUtil {
             return (Thread.currentThread().getId() + "_" + Thread.currentThread().getName()) == cacheKey;
         }
     }
-
-
-    public static void main(String[] args) {
-
-
-        // 1. 普通访问方式
-        HttpClientUtil.get("http://baidu.coms");
-        HttpClientUtil.post("http://baidu.com");
-
-
-        // 2. 如果目标url有开启ssl、kerberos或者其它安全认证的可能
-        HttpClientUtil.builder()
-                .setBaseConfig(null)
-                .build()
-                .get("http://baidu.com");
-    }
 }
 
 

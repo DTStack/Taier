@@ -25,7 +25,4 @@ public class DataSizeUtil {
                 .format(size / Math.pow(1024, digitGroups)) + UNIT_NAMES[digitGroups];
     }
 
-    public static void main(String[] args) {
-        System.out.println(format(100L));
-    }
 }
