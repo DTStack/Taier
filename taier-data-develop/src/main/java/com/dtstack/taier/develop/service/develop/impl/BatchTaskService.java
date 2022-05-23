@@ -19,11 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.*;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -37,21 +33,7 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.constant.PatternConstant;
-import com.dtstack.taier.common.enums.CatalogueType;
-import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.DependencyType;
-import com.dtstack.taier.common.enums.DictType;
-import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.enums.EDeployType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.ESubmitStatus;
-import com.dtstack.taier.common.enums.FuncType;
-import com.dtstack.taier.common.enums.MultiEngineType;
-import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
-import com.dtstack.taier.common.enums.ResourceRefType;
-import com.dtstack.taier.common.enums.TaskTemplateType;
+import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -61,19 +43,7 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.BatchCatalogue;
-import com.dtstack.taier.dao.domain.BatchDataSource;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskTask;
-import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.Dict;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskTemplate;
-import com.dtstack.taier.dao.domain.TaskVersion;
-import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.User;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -82,16 +52,8 @@ import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
-import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
-import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.enums.develop.FlinkVersion;
-import com.dtstack.taier.develop.enums.develop.SourceDTOType;
-import com.dtstack.taier.develop.enums.develop.SyncModel;
-import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.enums.develop.TaskOperateType;
+import com.dtstack.taier.develop.dto.devlop.*;
+import com.dtstack.taier.develop.enums.develop.*;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -153,18 +115,8 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -335,7 +287,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
-        List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Arrays.asList(taskVO.getId()));
+        List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
         return taskVO;
     }
@@ -346,23 +298,34 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param taskId
      * @return
      */
-    private List<TaskVO> buildDependTaskList(Long taskId){
+    private List<TaskVO> buildDependTaskList(Long taskId) {
         List<BatchTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(taskId);
-        List<TaskVO> fatherTaskVOs = Lists.newArrayList();
-        for (BatchTaskTask taskTask : taskTasks) {
-            Long parentTaskId = taskTask.getParentTaskId();
-            ScheduleTaskShade taskShade = this.taskService.findTaskByTaskId(parentTaskId);
-            if (Objects.nonNull(taskShade)) {
-                TaskVO taskInfo = new TaskVO();
-                taskInfo.setId(taskShade.getTaskId());
-                taskInfo.setName(taskShade.getName());
-                taskInfo.setTenantId(taskShade.getTenantId());
-                Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
-                taskInfo.setTenantName(Objects.nonNull(tenant) ? tenant.getTenantName() : "");
-                fatherTaskVOs.add(taskInfo);
-            }
+        List<Long> parentTaskIds = taskTasks.stream()
+                .map(BatchTaskTask::getParentTaskId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(parentTaskIds)) {
+            return new ArrayList<>();
         }
-        return fatherTaskVOs;
+        List<ScheduleTaskShade> parentTaskShades = taskService.findTaskByTaskIds(parentTaskIds);
+        if (CollectionUtils.isEmpty(parentTaskShades)) {
+            return new ArrayList<>();
+        }
+        List<Long> tenantIds = parentTaskShades.stream().
+                map(ScheduleTaskShade::getTenantId)
+                .collect(Collectors.toList());
+        Map<Long, Tenant> tenantMap = tenantService.getTenants(tenantIds)
+                .stream()
+                .collect(Collectors.toMap(Tenant::getId, Function.identity()));
+
+        return parentTaskShades.stream().map(pt -> {
+            TaskVO taskInfo = new TaskVO();
+            taskInfo.setId(pt.getTaskId());
+            taskInfo.setName(pt.getName());
+            taskInfo.setTenantId(pt.getTenantId());
+            Tenant tenant = tenantMap.get(pt.getTenantId());
+            taskInfo.setTenantName(tenant == null ? "" : tenant.getTenantName());
+            return taskInfo;
+        }).collect(Collectors.toList());
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {

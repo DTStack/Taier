@@ -1,9 +1,9 @@
 package com.dtstack.taier.develop.service.schedule;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
@@ -18,12 +18,15 @@ import com.dtstack.taier.scheduler.dto.schedule.QueryTaskDisplayDTO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +50,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     @Autowired
     private UserService userService;
 
+    private ThreadLocal<HashMap<Long,String>> tenantThreadLocal = ThreadLocal.withInitial(HashMap::new);
 
     /**
      * 展开任务上下游
@@ -87,6 +91,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         ReturnTaskDisplayVO vo = new ReturnTaskDisplayVO();
         vo.setDirectType(dto.getDirectType());
         vo.setRootTaskNode(rootNode);
+        tenantThreadLocal.remove();
         return vo;
     }
 
@@ -159,7 +164,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
                 .eq(ScheduleTaskShade::getFlowId,0)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
-        Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
+        Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, Function.identity()));
 
         for (ScheduleTaskTaskShade taskTaskShade : taskTaskShades) {
             ScheduleTaskShade taskShadeSon;
@@ -265,6 +270,14 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         node.setIsFlowTask(taskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal()));
         node.setScheduleStatus(taskShade.getScheduleStatus());
         node.setGmtCreate(taskShade.getGmtCreate());
+        HashMap<Long, String> tenantMap = tenantThreadLocal.get();
+        String tenantName = tenantMap.get(taskShade.getTenantId());
+        if (StringUtils.isNotBlank(tenantName)) {
+            node.setTenantName(tenantName);
+        } else {
+            Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
+            node.setTenantName(tenant == null ? "" : tenant.getTenantName());
+        }
     }
 
 
