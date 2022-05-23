@@ -331,7 +331,6 @@ spec:
       labels:
         app: taier
     spec:
-      nodeName: jz-desktop-05
       containers:
         - name: taier
           image: dtopensource/taier:1.0
