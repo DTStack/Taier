@@ -80,8 +80,21 @@
 	.ant-descriptions-item-label,
 	.ant-descriptions-item-content,
 	.ant-radio-button-wrapper,
+	.ant-dropdown-menu-item,
+	.ant-dropdown-menu-submenu-title,
+	.ant-form-item-explain,
+	.ant-form-item-extra,
+	.ant-modal-confirm-body .ant-modal-confirm-content,
+	.ant-picker,
+	.ant-input-number-group-addon,
+	.ant-collapse,
+	.ant-form,
 	.ant-tabs-tab {
 		font-size: $font-size;
+	}
+
+	.ant-input {
+		line-height: calc(14 / 12 * 1.5715);
 	}
 
 	.ant-breadcrumb a,
