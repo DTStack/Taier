@@ -185,36 +185,9 @@ spec:
                 - "OK=$(echo ruok | nc 127.0.0.1 2181); if [[ \"$OK\" == \"imok\" ]]; then exit 0; else exit 1; fi"
             initialDelaySeconds: 10
             timeoutSeconds: 5
-          volumeMounts:
-            - name: datadir
-              mountPath: /var/lib/zookeeper
-  volumeClaimTemplates:
-    - metadata:
-        name: datadir
-      spec:
-        accessModes:
-          - ReadWriteMany
-        storageClassName: "nfs-client"
-        resources:
-          requests:
-            storage: 2Gi
 
 ---
 # 2. 部署 mysql
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pvc
-  namespace: dt-taier
-spec:
-  accessModes:
-    - ReadWriteOnce
-    - ReadWriteMany
-  storageClassName: nfs-client
-  resources:
-    requests:
-      storage: 50Gi
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -255,23 +228,12 @@ spec:
           volumeMounts:
             - name: time-zone
               mountPath: /etc/localtime
-            - name: mysql-persistent-storage
-              mountPath: /var/lib/mysql
-          # - name: config
-          #   mountPath: /etc/mysql/conf.d/my.conf
           ports:
             - containerPort: 3306
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "123456"
-            - name: MYSQL_USER
-              value: "kino"
-            - name: MYSQL_PASSWORD
-              value: "Ioubuy123"
       volumes:
-        - name: mysql-persistent-storage
-          persistentVolumeClaim:
-            claimName: mysql-pvc
         - name: time-zone
           hostPath:
             path: /etc/localtime
@@ -301,6 +263,7 @@ spec:
       containers:
         - name: taier-web
           image: dtopensource/taier-ui:1.0
+          imagePullPolicy: IfNotPresent
           resources:
             requests:
               cpu: 1
@@ -368,9 +331,11 @@ spec:
       labels:
         app: taier
     spec:
+      nodeName: jz-desktop-05
       containers:
         - name: taier
           image: dtopensource/taier:1.0
+          imagePullPolicy: IfNotPresent
           resources:
             requests:
               cpu: 1
@@ -402,13 +367,6 @@ spec:
               value: zookeeper
             - name: MYSQL_IP
               value: mysql-svc
-          volumeMounts:
-            - name: localtime
-              mountPath: /opt/log/
-      volumes:
-        - name: localtime
-          hostPath:
-            path: /home/kino/dt/data/taier
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -550,8 +508,6 @@ spec:
         - name: nginxconf-volume
           configMap:
             name: nginxconf
-      imagePullSecrets:
-        - name: jz-registry
       containers:
         - name: nginx
           image: nginx:1.20

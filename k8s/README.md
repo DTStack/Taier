@@ -12,7 +12,7 @@
 
 # Kubernetes 快速部署
 
-使用此操作步骤，默认认为部署者已经有了一套可用的 Kubernetes 环境，并且有配置了NFS、k8s的storageclass.
+此操作步骤，默认部署者有了一套可用的 Kubernetes 环境。
 
 ```bash
 # 查看 k8s 集群
@@ -23,27 +23,30 @@ k8s-n4          Ready                      <none>                 164d   v1.19.4
 k8s-n3          Ready                      control-plane,master   165d   v1.19.4
 k8s-n2          Ready                      control-plane,master   165d   v1.19.4
 k8s-n1          Ready,SchedulingDisabled   master                 165d   v1.19.4
-
-# 查看动态供应
-$ kubectl get sc 
-NAME         PROVISIONER                                               RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-nfs-client   cluster.local/nfs-client-release-nfs-client-provisioner   Delete          Immediate           true                   165d
 ```
-
 
 
 ## 1. 说明
 
 快速部署的组件
 
-| 服务              | 版本  |
-| ----------------- | ----- |
-| mysql（单机版）   | 5.7   |
-| zookeeper（集群） | 3.5.7 |
-| taier 前后端      | 1.11  |
+| 服务              | 版本     |
+| ----------------- |--------|
+| mysql（单机版）   | 5.7    |
+| zookeeper（集群） | 3.5.7  |
+| taier 前后端      | master |
 
 ## 2. 快速部署
 
+共有4个镜像
+
+- taier-db是mysql数据库镜像
+- taier-zk是zk的镜像
+- taier-ui是taier前端的镜像
+- taier是taier后端的镜像
+
+
+参考命令：
 ```bash
 # 从 github 拉 Taier 代码
 $ git clone https://github.com/DTStack/Taier.git
@@ -53,6 +56,21 @@ $ cd Taier/k8s
 
 # 部署
 $ kubectl apply -f taier.yaml
+namespace/dt-taier created
+service/zookeeper created
+service/zookeeper-headless created
+poddisruptionbudget.policy/zookeeper-pod-disruption-budget created
+statefulset.apps/zookeeper created
+service/mysql-svc created
+deployment.apps/mysql created
+deployment.apps/taier-web created
+service/taier-web-svc created
+deployment.apps/taier created
+service/taier-svc created
+configmap/taier-nginx-cm created
+configmap/nginxconf created
+deployment.apps/dmp-nginx created
+service/nginx created
 
 # 部署成功后会看到如下信息
 $ kubectl get all -n dt-taier
@@ -89,161 +107,8 @@ NAME                         READY   AGE
 statefulset.apps/zookeeper   3/3     8h
 ```
 
-## 3. 打包部署
 
-如果需要对taier代码做二次开发，需要自己编译代码重新打包，部署则采用如下方式
-
-```bash
-## 1. building Taier code
-$ cd $TAIER_HOME
-$ mvn clean package -Dmaven.test.skip=true
-
-## 2. 构建好代码之后, 编写 Dockerfile 文件
-$ vim Dockerfile
-FROM openjdk:8u332-oraclelinux7
-
-ENV SERVICE_NAME taier-service 
-ENV LC_ALL zh_CN.UTF-8
-ENV plugin_path /opt/datasourceX
-
-WORKDIR /opt/
-
-# create dir
-RUN mkdir   -p /opt/logs
-RUN mkdir   -p /opt/run
-RUN mkdir   -p /opt/tmpSave
-
-# 减小容器大小，仅拷贝必要文件进容器, datasourceX 等用数据卷挂载进去
-COPY start.sh  /opt/
-COPY bin       /opt/bin
-COPY conf      /opt/conf
-COPY lib       /opt/lib
-
-RUN chmod +x start.sh
-RUN touch /var/log/1.log
-
-# 设置时区
-RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN echo "Asia/shanghai" >> /etc/timezone
-
-CMD ./start.sh && tail -F /var/log/1.log
-
-$ vim start.sh
-#! /bin/sh
-sh ./bin/taier.sh start
-
-
-## 3. 手动打镜像
-docker build -t dtopensource/taier:2.0 -f .
-
-## 4. 部署(需要手动把挂载的文件提前放好)
-### 将 taier.yaml 文件中的 <4. taier 后端服务> 改为如下内容
-# 4. taier 后端服务
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: taier
-  namespace: dt-taier
-spec:
-  selector:
-    matchLabels:
-      app: taier
-  replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
-  template:
-    metadata:
-      labels:
-        app: taier
-    spec:
-      containers:
-      - name: taier
-        image: dtopensource/taier:2.0
-        resources:
-          requests:
-            cpu: 1
-            memory: "1Gi"
-          limits:
-            cpu: 2
-            memory: "4Gi"
-        livenessProbe:
-          tcpSocket:
-            port: 8090
-          initialDelaySeconds: 5
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
-        readinessProbe:
-          tcpSocket:
-            port: 8090
-          initialDelaySeconds: 5
-          timeoutSeconds: 2
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
-        ports:
-        - containerPort: 8090
-          name: taier
-        env:
-          - name: NODE_ZKADDRESS
-            value: zookeeper
-          - name: MYSQL_IP
-            value: mysql-svc
-        volumeMounts:
-          - mountPath: /var/tmp
-            name: tmp-volume
-          - mountPath: /opt/pluginLibs/
-            name: plugin-volume
-          - mountPath: /opt/datasourceX/
-            name: datasourcex-volume
-          - mountPath: /opt/logs/
-            name: log-volume
-          - mountPath: /opt/flink-lib/
-            name: flink-lib
-          - mountPath: /opt/chunjun-plugins/
-            name: chunjun-plugins
-      volumes:
-        - hostPath:
-            path: /opt/log/taier/logs
-            type: DirectoryOrCreate
-          name: log-volume
-        - hostPath:
-            path: /opt/tmp
-            type: DirectoryOrCreate
-          name: tmp-volume
-        - hostPath:
-            path: /app/cephfs/taier/datasourceX/
-            type: DirectoryOrCreate
-          name: datasourcex-volume
-        - hostPath:
-            path: /app/cephfs/taier/pluginLibs/
-            type: DirectoryOrCreate
-          name: plugin-volume
-        - hostPath:
-            path: /app/cephfs/taier/flink/flink113/flinklib/
-            type: DirectoryOrCreate
-          name: flink-lib
-        - hostPath:
-            path: /app/cephfs/taier/chunjun/chunjun112/syncplugin/
-            type: DirectoryOrCreate
-          name: chunjun-plugins
-      restartPolicy: Always
-
-$ kubectl apply -f taier.yaml
-```
-
-挂载参数说明：
-
-- `chunjun-plugins`：chunjun 编译的插件；
-- `flink-lib`: flink 的 lib 目录；
-- `plugin-volume`: Taier plugins；
-- `datasourcex-volume`: datasourcex 插件的目录；
-
-## 4. 配置代理
+## 3. 配置代理
 ### nginx
 
 ```bash
