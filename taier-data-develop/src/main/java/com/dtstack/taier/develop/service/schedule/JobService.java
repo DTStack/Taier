@@ -332,7 +332,6 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         page = this.lambdaQuery()
                 .eq(ScheduleJob::getFlowJobId,0)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .eq(ScheduleJob::getTenantId, dto.getTenantId())
                 .eq(ScheduleJob::getFillId, dto.getFillId())
                 .eq(ScheduleJob::getType, EScheduleType.FILL_DATA.getType())
                 .in(ScheduleJob::getFillType, Lists.newArrayList(FillJobTypeEnum.DEFAULT.getType(),FillJobTypeEnum.RUN_JOB.getType()))

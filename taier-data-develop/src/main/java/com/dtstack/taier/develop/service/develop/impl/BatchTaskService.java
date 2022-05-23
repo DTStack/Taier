@@ -116,6 +116,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -286,7 +287,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
-        List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Arrays.asList(taskVO.getId()));
+        List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
         return taskVO;
     }
@@ -297,23 +298,34 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param taskId
      * @return
      */
-    private List<TaskVO> buildDependTaskList(Long taskId){
+    private List<TaskVO> buildDependTaskList(Long taskId) {
         List<BatchTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(taskId);
-        List<TaskVO> fatherTaskVOs = Lists.newArrayList();
-        for (BatchTaskTask taskTask : taskTasks) {
-            Long parentTaskId = taskTask.getParentTaskId();
-            ScheduleTaskShade taskShade = this.taskService.findTaskByTaskId(parentTaskId);
-            if (Objects.nonNull(taskShade)) {
-                TaskVO taskInfo = new TaskVO();
-                taskInfo.setId(taskShade.getTaskId());
-                taskInfo.setName(taskShade.getName());
-                taskInfo.setTenantId(taskShade.getTenantId());
-                Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
-                taskInfo.setTenantName(Objects.nonNull(tenant) ? tenant.getTenantName() : "");
-                fatherTaskVOs.add(taskInfo);
-            }
+        List<Long> parentTaskIds = taskTasks.stream()
+                .map(BatchTaskTask::getParentTaskId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(parentTaskIds)) {
+            return new ArrayList<>();
         }
-        return fatherTaskVOs;
+        List<ScheduleTaskShade> parentTaskShades = taskService.findTaskByTaskIds(parentTaskIds);
+        if (CollectionUtils.isEmpty(parentTaskShades)) {
+            return new ArrayList<>();
+        }
+        List<Long> tenantIds = parentTaskShades.stream().
+                map(ScheduleTaskShade::getTenantId)
+                .collect(Collectors.toList());
+        Map<Long, Tenant> tenantMap = tenantService.getTenants(tenantIds)
+                .stream()
+                .collect(Collectors.toMap(Tenant::getId, Function.identity()));
+
+        return parentTaskShades.stream().map(pt -> {
+            TaskVO taskInfo = new TaskVO();
+            taskInfo.setId(pt.getTaskId());
+            taskInfo.setName(pt.getName());
+            taskInfo.setTenantId(pt.getTenantId());
+            Tenant tenant = tenantMap.get(pt.getTenantId());
+            taskInfo.setTenantName(tenant == null ? "" : tenant.getTenantName());
+            return taskInfo;
+        }).collect(Collectors.toList());
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {

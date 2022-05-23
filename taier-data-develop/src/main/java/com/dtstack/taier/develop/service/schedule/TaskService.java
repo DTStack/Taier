@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,6 +64,15 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
                 .eq(ScheduleTaskShade::getTaskId, taskId)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .one() : null;
+    }
+
+    public List<ScheduleTaskShade> findTaskByTaskIds(List<Long> taskIds) {
+        if(CollectionUtils.isEmpty(taskIds)){
+            return new ArrayList<>();
+        }
+        return this.lambdaQuery()
+                .in(ScheduleTaskShade::getTaskId, taskIds)
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()).list();
     }
 
     /**
