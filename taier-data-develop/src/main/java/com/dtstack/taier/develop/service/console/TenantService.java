@@ -192,6 +192,10 @@ public class TenantService {
         throw new RdosDefineException(ErrorCode.TENANT_IS_NULL);
     }
 
+    public List<Tenant> getTenants(List<Long> tenantId) {
+        return tenantMapper.selectBatchIds(tenantId);
+    }
+
     public Tenant getByDtTenantId(Long tenantId) {
         return getTenantById(tenantId);
     }
