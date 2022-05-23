@@ -151,10 +151,10 @@ export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
  * 高可用配置的 placeholder
  */
 export const HDFSCONG = `{
-    "dfs.nameservices": "defaultDfs", 
-    "dfs.ha.namenodes.defaultDfs": "namenode1", 
-    "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
-    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
+    "dfs.nameservices": "defaultDfs",
+    "dfs.ha.namenodes.defaultDfs": "namenode1",
+    "dfs.namenode.rpc-address.defaultDfs.namenode1": "",
+    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider"
     }`;
 
 export const DDL_IDE_PLACEHOLDER =
@@ -958,6 +958,16 @@ export enum PROJECT_CREATE_MODEL {
  * 离线任务周期过滤项
  */
 export const offlineTaskPeriodFilter = [
+	{
+		id: 1,
+		text: '分钟任务',
+		value: TASK_PERIOD_ENUM.MINUTE,
+	},
+	{
+		id: 2,
+		text: '小时任务',
+		value: TASK_PERIOD_ENUM.HOUR,
+	},
 	{
 		id: 3,
 		text: '天任务',
