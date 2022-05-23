@@ -460,32 +460,4 @@ public class DtYarnClient extends AbstractClient {
         return PoolHttpClient.get(url, ConfigConstrant.HTTP_MAX_RETRY, headers);
     }
 
-    public static void main(String[] args) throws Exception {
-
-        System.setProperty("HADOOP_USER_NAME", "admin");
-
-        // input params json file path
-        String filePath = args[0];
-        File paramsFile = new File(filePath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
-        String request = reader.readLine();
-        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
-
-        String pluginInfo = jobClient.getPluginInfo();
-        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        String md5plugin = MD5Util.getMd5String(pluginInfo);
-        properties.setProperty("md5sum", md5plugin);
-
-        DtYarnClient client = new DtYarnClient();
-        client.init(properties);
-
-        ClusterResource clusterResource = client.getClusterResource();
-
-        LOG.info("submit success!");
-        LOG.info(clusterResource.toString());
-        System.exit(0);
-    }
-
 }
