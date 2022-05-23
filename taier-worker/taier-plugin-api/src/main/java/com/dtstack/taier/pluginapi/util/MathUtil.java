@@ -116,11 +116,6 @@ public class MathUtil {
         return getString(obj);
     }
 
-    public static void main(String[] args) {
-        Boolean target = true;
-        System.out.println(MathUtil.getBoolean(target, false));
-    }
-
     public static Long getLongVal(Object obj){
         if(obj == null){
             return null;

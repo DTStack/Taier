@@ -44,49 +44,4 @@ public class HiveClient extends AbstractRdbsClient {
     protected AbstractConnFactory getConnFactory() {
         return new HiveConnFactory();
     }
-
-
-    public static void main(String[] args) throws IOException {
-
-        FileInputStream fileInputStream = null;
-        InputStreamReader inputStreamReader = null;
-        BufferedReader reader = null;
-
-        try {
-            System.setProperty("HADOOP_USER_NAME", "admin");
-
-            // input params json file path
-            String filePath = args[0];
-            File paramsFile = new File(filePath);
-            fileInputStream = new FileInputStream(paramsFile);
-            inputStreamReader = new InputStreamReader(fileInputStream);
-            reader = new BufferedReader(inputStreamReader);
-            String request = reader.readLine();
-            Map params = PublicUtil.jsonStrToObject(request, Map.class);
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-
-            String pluginInfo = jobClient.getPluginInfo();
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-            String md5plugin = MD5Util.getMd5String(pluginInfo);
-            properties.setProperty("md5sum", md5plugin);
-
-            HiveClient client = new HiveClient();
-            client.init(properties);
-
-            ClusterResource clusterResource = client.getClusterResource();
-
-            LOG.info("submit success!");
-            LOG.info(clusterResource.toString());
-            System.exit(0);
-        } catch (Exception e) {
-            LOG.error("submit error!", e);
-        } finally {
-            if (reader != null) {
-                reader.close();
-                inputStreamReader.close();
-                fileInputStream.close();
-            }
-        }
-    }
 }
