@@ -1295,17 +1295,16 @@ export default function ResultForm({
 					)}
 				</FormItem>
 				{/* 高级参数按钮 */}
-				<div style={{ margin: '12px 0', textAlign: 'center' }}>
-					<span
-						style={{ cursor: 'pointer', color: '#666666' }}
-						onClick={() => {
-							setShowAdvancedParams(!showAdvancedParams);
-						}}
+
+				<FormItem wrapperCol={{ span: 24 }}>
+					<Button
+						block
+						type="link"
+						onClick={() => setShowAdvancedParams(!showAdvancedParams)}
 					>
-						高级参数&nbsp;
-						{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
-					</span>
-				</div>
+						高级参数{showAdvancedParams ? <UpOutlined /> : <DownOutlined />}
+					</Button>
+				</FormItem>
 				{/* 高级参数抽屉 */}
 				<FormItem hidden={!showAdvancedParams} noStyle dependencies={['type']}>
 					{({ getFieldValue }) => (
