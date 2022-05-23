@@ -410,6 +410,8 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
             List<Integer> statusList = statusMap.get(status);
             if (CollectionUtils.isNotEmpty(statusList)) {
                 statues.addAll(statusList);
+            } else {
+                statues.add(status);
             }
         }
         return statues;
