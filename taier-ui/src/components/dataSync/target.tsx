@@ -432,9 +432,8 @@ export default function Target({
 			case DATA_SOURCE_ENUM.SQLSERVER: {
 				return (
 					<>
-						<FormItem label="表名" key="table">
+						<FormItem label="表名" key="table" required>
 							<FormItem
-								noStyle
 								name="table"
 								rules={[
 									{
@@ -442,6 +441,7 @@ export default function Target({
 										message: '请选择表',
 									},
 								]}
+								noStyle
 							>
 								<Select
 									getPopupContainer={(container) => container.parentNode}
@@ -515,7 +515,7 @@ export default function Target({
 								})}
 							</Select>
 						</FormItem>
-						<FormItem label="表名" key="table">
+						<FormItem label="表名" key="table" required>
 							<FormItem
 								name="table"
 								rules={[
@@ -661,7 +661,7 @@ export default function Target({
 								})}
 							</Select>
 						</FormItem>
-						<FormItem label="表名" key="table">
+						<FormItem label="表名" key="table" required>
 							<FormItem
 								name="table"
 								rules={[

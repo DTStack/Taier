@@ -305,7 +305,7 @@ export default function StreamTask() {
 								height: 32,
 								position: 'absolute',
 								right: 167,
-								top: 153,
+								top: 124,
 								padding: '0 15px',
 							}}
 							onClick={() => {

@@ -36,7 +36,7 @@ export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => 
 	const renderCustomParams = () => {
 		return customParams.map((customParam: any) => {
 			return (
-				<Row key={customParam.id} justify="center">
+				<Row key={customParam.id} justify="center" className="ant-form-item">
 					<Col span={10}>
 						<Form.Item
 							noStyle
@@ -50,7 +50,7 @@ export const CustomParams = ({ customParams, onChange }: ICustomParamsProps) => 
 						</Form.Item>
 					</Col>
 					<Col span={2}>
-						<div className="text-center" style={{ lineHeight: '25px' }}>
+						<div className="text-center" style={{ lineHeight: '32px' }}>
 							:
 						</div>
 					</Col>
