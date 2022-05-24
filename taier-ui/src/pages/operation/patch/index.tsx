@@ -124,7 +124,7 @@ export default () => {
 					const isComplete =
 						record.finishedJobSum === record.doneJobSum &&
 						record.doneJobSum === record.allJobSum;
-					const style = isComplete ? undefined : { color: '#EF5350' };
+					const style = isComplete ? { color: 'var(--editor-foreground)' } : { color: 'var(--editorError-foreground)' };
 					return (
 						<span style={style}>
 							{record.finishedJobSum || 0}/{record.doneJobSum || 0}/
