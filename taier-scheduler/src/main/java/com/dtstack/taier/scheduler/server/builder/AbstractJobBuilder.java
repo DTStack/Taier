@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -255,19 +256,16 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @param triggerRange 预计时间范围
      * @return 实际开始时间
      */
-    private Date getStartData(ScheduleConf scheduleConf, Pair<Date, Date> triggerRange,Long taskId) {
-        Date beginDate = scheduleConf.getBeginDate();
-
+    private Date getStartData(ScheduleConf scheduleConf, Pair<Date, Date> triggerRange, Long taskId) {
+        int  beginHour = scheduleConf.getBeginHour() != null ? scheduleConf.getBeginHour() : 0;
+        int  beginMin = scheduleConf.getBeginMin() != null ? scheduleConf.getBeginMin() : 0;
+        String startStr = DateUtil.getDate(scheduleConf.getBeginDate(), DateUtil.DATE_FORMAT) + " " + beginHour + ":" + beginMin + ":00";
+        Date beginDate = DateUtil.parseDate(startStr, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         // 这里有两个时间范围 1 任务运行的时间范围 2 计划的时间范围
-
-        // 任务运行开始时间在计划时间之前
-        if (beginDate.before(triggerRange.getLeft())) {
-            return triggerRange.getLeft();
-        }
-
-        // 任务运行开始时间在计划时间之中
-        if (beginDate.after(triggerRange.getLeft()) && beginDate.before(triggerRange.getRight())) {
-            return beginDate;
+        // 任务运行开始时间在计划时间之前 任务运行开始时间在计划时间之中
+        if (beginDate.before(triggerRange.getLeft()) || beginDate.after(triggerRange.getLeft()) && beginDate.before(triggerRange.getRight())) {
+            DateTime dateTime = new DateTime(triggerRange.getLeft());
+            return compareAndReplaceMinuteAndHour(dateTime, beginHour, beginMin, true).toDate();
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
@@ -281,30 +279,71 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @return 实际结束时间
      */
     private Date getEndDate(ScheduleConf scheduleConf, Pair<Date, Date> triggerRange, Long taskId) {
-        Date endDate = scheduleConf.getEndDate();
-
-        if (endDate.after(triggerRange.getLeft()) && endDate.before(triggerRange.getRight())) {
-            return endDate;
-        }
-
-        if (endDate.after(triggerRange.getRight())) {
-            Integer endMin = scheduleConf.getEndMin();
-            Integer endHour = scheduleConf.getEndHour();
+        int  endHour = scheduleConf.getBeginHour() != null ? scheduleConf.getEndHour() : 23;
+        int  endMin = scheduleConf.getBeginMin() != null ? scheduleConf.getEndMin() : 59;
+        String endDateStr = DateUtil.getDate(scheduleConf.getEndDate(), DateUtil.DATE_FORMAT) + " " + endHour + ":" + endMin + ":00";
+        Date endDate = DateUtil.parseDate(endDateStr, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
+        if ((endDate.after(triggerRange.getLeft()) && endDate.before(triggerRange.getRight())) || endDate.after(triggerRange.getRight())) {
             DateTime dateTime = new DateTime(triggerRange.getRight());
+            return compareAndReplaceMinuteAndHour(dateTime, endHour, endMin, false).toDate();
 
-            if (endMin != null && endMin > 0 && endMin < 60) {
-                dateTime = dateTime.withMinuteOfHour(endMin);
-            }
 
-            if (endHour != null && endHour > 0 && endHour <= 31) {
-                dateTime = dateTime.withHourOfDay(endHour);
-            }
-
-            return dateTime.toDate();
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
     }
+
+    /**
+     * 替换小时和分钟
+     *
+     * @param dateTime
+     * @param minute
+     * @param hour
+     * @return
+     */
+    private DateTime replaceMinuteAndHour(DateTime dateTime, Integer minute, Integer hour) {
+        if (dateTime != null) {
+            if (minute != null && minute >= 0 && minute < 60) {
+                dateTime = dateTime.withMinuteOfHour(minute);
+            }
+
+            if (hour != null && hour >= 0 && hour < 24) {
+                dateTime = dateTime.withHourOfDay(hour);
+            }
+        }
+        return dateTime;
+    }
+
+    /**
+     * 比较和替换时间
+     *
+     * @param dateTime         目标周期时间
+     * @param scheduleHour     调度周期配置小时
+     * @param scheduleMin      调度周期配置分钟
+     * @param startTimeCompare 开始时间比较 true , false 结束时间比较
+     * @return
+     */
+    private DateTime compareAndReplaceMinuteAndHour(DateTime dateTime, Integer scheduleHour, Integer scheduleMin, boolean startTimeCompare) {
+        Integer hour = dateTime.getHourOfDay();
+        Integer min = dateTime.getMinuteOfHour();
+        DateTime dateTimeNew = new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), scheduleHour, scheduleMin, dateTime.getSecondOfMinute(), DateTimeZone.forID("+08:00"));
+        if (startTimeCompare) {
+            if (dateTimeNew.compareTo(dateTime) >= 0) {
+                hour = scheduleHour;
+                min = scheduleMin;
+            }
+
+        } else {
+            if (dateTimeNew.compareTo(dateTime) < 0) {
+                hour = scheduleHour;
+                min = scheduleMin;
+            }
+        }
+
+        return replaceMinuteAndHour(dateTime, min, hour);
+
+    }
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
