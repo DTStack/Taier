@@ -180,3 +180,9 @@ $footer-height: 35px;
 		}
 	}
 }
+
+.ellipsis{
+	overflow: hidden;
+    text-overflow: ellipsis;
+	white-space: nowrap;
+}
