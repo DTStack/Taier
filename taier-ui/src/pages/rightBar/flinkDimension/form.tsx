@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL } from '@/constant';
 import {
@@ -27,7 +27,9 @@ import {
 	isCacheExceptLRU,
 	isHaveAsyncPoolSize,
 	isHaveCustomParams,
+	isSchemaRequired,
 } from '@/utils/is';
+import type { FormInstance } from 'antd';
 import {
 	Button,
 	Form,
@@ -43,13 +45,12 @@ import {
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import Editor from '@/components/editor';
 import { asyncTimeoutNumDoc, queryFault, targetColText } from '@/components/helpDoc/docs';
-import { CustomParams } from '../component/customParams';
-import DataPreviewModal from '../../source/dataPreviewModal';
-import { generateMapValues } from '../customParamsUtil';
+import { CustomParams } from '../customParams';
+import DataPreviewModal from '../../../components/streamCollection/source/dataPreviewModal';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
-import { Utils } from '@dtinsight/dt-utils/lib';
 import { createSeries } from '@/utils';
-import { isSchemaRequired } from '@/utils/is';
+import { NAME_FIELD } from '.';
+import { FormContext } from '@/services/rightBarService';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -59,7 +60,10 @@ const DATA_SOURCE_OPTIONS = [DATA_SOURCE_ENUM.MYSQL];
 type IFormFieldProps = IFlinkSideProps;
 
 interface IDimensionFormProps {
-	data: Partial<IFormFieldProps>;
+	/**
+	 * 表单 name 前缀
+	 */
+	index: number;
 	sourceOptions?: IDataSourceUsedInSyncProps[];
 	/**
 	 * @deprecated 暂时没有支持具有 schema 的数据源
@@ -71,17 +75,13 @@ interface IDimensionFormProps {
 	tableOptions?: Record<string, string[]>;
 	columnsOptions?: IDataColumnsProps[];
 	isFlink112?: boolean;
-	/**
-	 * @deprecated 暂时没有支持需要展示 editor 的数据源
-	 */
-	isShow?: boolean;
 	onTableSearch?: (
 		type: DATA_SOURCE_ENUM,
 		sourceId: number,
 		schema?: string | undefined,
 		searchKey?: string | undefined,
 	) => Promise<void>;
-	onValuesChange?: (preVal: Partial<IFormFieldProps>, nextVal: Partial<IFormFieldProps>) => void;
+	// onValuesChange?: (preVal: Partial<IFormFieldProps>, nextVal: Partial<IFormFieldProps>) => void;
 }
 
 /**
@@ -98,37 +98,36 @@ enum ColOperatorKind {
 }
 
 export default function DimensionForm({
-	data,
+	index,
 	sourceOptions = [],
 	schemaOptions = [],
 	tableOptions = {},
 	columnsOptions = [],
 	isFlink112 = true,
-	isShow = false,
 	onTableSearch,
-	onValuesChange,
 }: IDimensionFormProps) {
-	const [form] = Form.useForm<IFormFieldProps>();
+	const { form } = useContext(FormContext) as {
+		form?: FormInstance<{ [NAME_FIELD]: IFormFieldProps[] }>;
+	};
 	const [visible, setVisible] = useState(false);
 	const [params, setParams] = useState<Record<string, any>>({});
 	const currentSearchKey = useRef('');
 
 	const handleSearchTable = debounce((key: string) => {
 		currentSearchKey.current = key;
-		const { sourceId, schema, type } = form.getFieldsValue();
+		const { sourceId, schema, type } = form!.getFieldsValue()[NAME_FIELD][index];
 		onTableSearch?.(type, sourceId, schema, key);
 	}, 300);
-
-	const handleValueChanged = () => {
-		onValuesChange?.(data, { ...data, ...form.getFieldsValue() });
-	};
 
 	const handleColsChanged = (ops: ColOperatorKind, idx?: number, value?: string) => {
 		switch (ops) {
 			case ColOperatorKind.ADD: {
-				const nextCols = data.columns?.concat() || [];
+				const nextCols = form?.getFieldsValue()[NAME_FIELD][index].columns?.concat() || [];
 				nextCols.push({});
-				onValuesChange?.(data, { ...data, columns: nextCols });
+
+				const nextValue = form!.getFieldsValue();
+				nextValue[NAME_FIELD][index].columns = nextCols;
+				form?.setFieldsValue(nextValue);
 				break;
 			}
 
@@ -137,48 +136,66 @@ export default function DimensionForm({
 					column: col.key,
 					type: col.type,
 				}));
-				onValuesChange?.(data, { ...data, columns: nextCols });
+
+				const nextValue = form!.getFieldsValue();
+				nextValue[NAME_FIELD][index].columns = nextCols;
+				form?.setFieldsValue(nextValue);
+
 				break;
 			}
 
 			case ColOperatorKind.REMOVE_ALL: {
-				onValuesChange?.(data, { ...data, columns: [] });
+				const nextValue = form!.getFieldsValue();
+				nextValue[NAME_FIELD][index].columns = [];
+				form?.setFieldsValue(nextValue);
 				break;
 			}
 
 			case ColOperatorKind.SET_COL: {
-				const nextCols = data.columns?.concat() || [];
+				const nextCols = form?.getFieldsValue()[NAME_FIELD][index].columns?.concat() || [];
 				if (idx !== undefined && value) {
 					nextCols[idx].column = value;
 					nextCols[idx].type = columnsOptions.find((c) => c.key === value)?.type;
-					onValuesChange?.(data, { ...data, columns: nextCols });
+
+					const nextValue = form!.getFieldsValue();
+					nextValue[NAME_FIELD][index].columns = nextCols;
+					form?.setFieldsValue(nextValue);
 				}
 				break;
 			}
 
 			case ColOperatorKind.SET_TYPE: {
-				const nextCols = data.columns?.concat() || [];
+				const nextCols = form?.getFieldsValue()[NAME_FIELD][index].columns?.concat() || [];
 				if (idx !== undefined && value) {
 					nextCols[idx].type = value;
-					onValuesChange?.(data, { ...data, columns: nextCols });
+
+					const nextValue = form!.getFieldsValue();
+					nextValue[NAME_FIELD][index].columns = nextCols;
+					form?.setFieldsValue(nextValue);
 				}
 				break;
 			}
 
 			case ColOperatorKind.SET_TARGET: {
-				const nextCols = data.columns?.concat() || [];
+				const nextCols = form?.getFieldsValue()[NAME_FIELD][index].columns?.concat() || [];
 				if (idx !== undefined && value) {
 					nextCols[idx].targetCol = value;
-					onValuesChange?.(data, { ...data, columns: nextCols });
+
+					const nextValue = form!.getFieldsValue();
+					nextValue[NAME_FIELD][index].columns = nextCols;
+					form?.setFieldsValue(nextValue);
 				}
 				break;
 			}
 
 			case ColOperatorKind.REMOVE: {
-				const nextCols = data.columns?.concat() || [];
+				const nextCols = form?.getFieldsValue()[NAME_FIELD][index].columns?.concat() || [];
 				if (idx !== undefined) {
 					nextCols.splice(idx, 1);
-					onValuesChange?.(data, { ...data, columns: nextCols });
+
+					const nextValue = form!.getFieldsValue();
+					nextValue[NAME_FIELD][index].columns = nextCols;
+					form?.setFieldsValue(nextValue);
 				}
 				break;
 			}
@@ -188,32 +205,14 @@ export default function DimensionForm({
 		}
 	};
 
-	const handleCustomParamsChanged = (opType: string, id: string, value: string) => {
-		if (opType === 'newCustomParam') {
-			const nextParams = data.customParams?.concat() || [];
-			nextParams.push({
-				id: Utils.generateAKey(),
-			});
-			onValuesChange?.(data, { ...data, customParams: nextParams });
-		} else if (opType === 'deleteCustomParam') {
-			const nextParams = data.customParams?.concat() || [];
-			const idx = nextParams.findIndex((p) => p.id === id);
-			if (idx !== -1) {
-				nextParams.splice(idx, 1);
-			}
-			onValuesChange?.(data, { ...data, customParams: nextParams });
-		} else {
-			const nextParams = data.customParams?.concat() || [];
-			const idx = nextParams.findIndex((p) => p.id === id);
-			if (idx !== -1) {
-				nextParams[idx][opType as 'key' | 'type'] = value;
-			}
-			onValuesChange?.(data, { ...data, customParams: nextParams });
-		}
-	};
-
 	const showPreviewModal = () => {
-		const { type, sourceId, index: tableIndex, table, schema } = form.getFieldsValue();
+		const {
+			type,
+			sourceId,
+			index: tableIndex,
+			table,
+			schema,
+		} = form!.getFieldsValue()[NAME_FIELD][index];
 		let nextParams = {};
 		switch (type) {
 			case DATA_SOURCE_ENUM.ES7: {
@@ -264,24 +263,11 @@ export default function DimensionForm({
 		setParams(nextParams);
 	};
 
-	const initialValues = useMemo<IFormFieldProps>(() => {
-		const { customParams, ...restData } = data;
-		return {
-			...restData,
-			...generateMapValues(customParams),
-		};
-	}, []);
-
 	return (
-		<Form<IFormFieldProps>
-			{...formItemLayout}
-			form={form}
-			initialValues={initialValues}
-			onValuesChange={handleValueChanged}
-		>
+		<>
 			<FormItem
 				label="存储类型"
-				name="type"
+				name={[index, 'type']}
 				rules={[{ required: true, message: '请选择存储类型' }]}
 			>
 				<Select
@@ -299,7 +285,7 @@ export default function DimensionForm({
 			</FormItem>
 			<FormItem
 				label="数据源"
-				name="sourceId"
+				name={[index, 'sourceId']}
 				rules={[{ required: true, message: '请选择数据源' }]}
 			>
 				<Select
@@ -316,12 +302,12 @@ export default function DimensionForm({
 					))}
 				</Select>
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					isShowSchema(getFieldValue('type')) && (
+					isShowSchema(getFieldValue(NAME_FIELD)[index].type) && (
 						<FormItem
 							label="Schema"
-							name="schema"
+							name={[index, 'schema']}
 							rules={[
 								{
 									required: isSchemaRequired(getFieldValue('type')),
@@ -349,16 +335,16 @@ export default function DimensionForm({
 					)
 				}
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) => {
-					const type: Partial<IFormFieldProps> = getFieldValue('type');
+					const { type } = getFieldValue(NAME_FIELD)[index] as IFormFieldProps;
 					switch (type) {
 						case DATA_SOURCE_ENUM.REDIS:
 						case DATA_SOURCE_ENUM.UPRedis: {
 							return (
 								<FormItem
 									label="表"
-									name="table"
+									name={[index, 'table']}
 									rules={[{ required: true, message: '请输入表名' }]}
 								>
 									<Input placeholder="请输入表名" />
@@ -373,7 +359,7 @@ export default function DimensionForm({
 							return (
 								<FormItem
 									label="表"
-									name="table"
+									name={[index, 'table']}
 									rules={[{ required: true, message: '请选择表' }]}
 								>
 									<Select
@@ -394,12 +380,12 @@ export default function DimensionForm({
 					}
 				}}
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					isES(getFieldValue('type')) && (
+					isES(getFieldValue(NAME_FIELD)[index].type) && (
 						<FormItem
 							label="索引"
-							name="index"
+							name={[index, 'index']}
 							rules={[{ required: true, message: '请输入索引' }]}
 						>
 							<Input placeholder="请输入索引" />
@@ -417,13 +403,13 @@ export default function DimensionForm({
 					数据预览
 				</Button>
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					isES(getFieldValue('type')) &&
-					getFieldValue('type') !== DATA_SOURCE_ENUM.ES7 && (
+					isES(getFieldValue(NAME_FIELD)[index].type) &&
+					getFieldValue(NAME_FIELD)[index].type !== DATA_SOURCE_ENUM.ES7 && (
 						<FormItem
 							label="索引类型"
-							name="esType"
+							name={[index, 'esType']}
 							rules={[{ required: true, message: '请输入索引类型' }]}
 						>
 							<Input placeholder="请输入索引类型" />
@@ -433,18 +419,25 @@ export default function DimensionForm({
 			</FormItem>
 			<FormItem
 				label="映射表"
-				name="tableName"
+				name={[index, 'tableName']}
 				rules={[{ required: true, message: '请输入映射表名' }]}
 			>
 				<Input placeholder="请输入映射表名" />
 			</FormItem>
-			<FormItem required label="字段" dependencies={['type']}>
+			<FormItem
+				required
+				label="字段"
+				dependencies={[
+					[index, 'type'],
+					[index, 'columns'],
+				]}
+			>
 				{({ getFieldValue }) =>
-					isHaveTableColumn(getFieldValue('type')) ? (
+					isHaveTableColumn(getFieldValue(NAME_FIELD)[index].type) ? (
 						<div className="column-container">
 							<Table
 								rowKey="column"
-								dataSource={data.columns}
+								dataSource={getFieldValue(NAME_FIELD)[index].columns || []}
 								pagination={false}
 								size="small"
 							>
@@ -453,7 +446,7 @@ export default function DimensionForm({
 									dataIndex="column"
 									key="字段"
 									width="35%"
-									render={(text, _, index) => {
+									render={(text, _, i) => {
 										return (
 											<Select
 												value={text}
@@ -461,7 +454,7 @@ export default function DimensionForm({
 												onChange={(value) =>
 													handleColsChanged(
 														ColOperatorKind.SET_COL,
-														index,
+														i,
 														value,
 													)
 												}
@@ -486,7 +479,7 @@ export default function DimensionForm({
 									dataIndex="type"
 									key="类型"
 									width="25%"
-									render={(text, _, index) => (
+									render={(text, _, i) => (
 										<span
 											className={
 												text?.toLowerCase() === 'Not Support'.toLowerCase()
@@ -504,7 +497,7 @@ export default function DimensionForm({
 													onChange={(e) =>
 														handleColsChanged(
 															ColOperatorKind.SET_TYPE,
-															index,
+															i,
 															e.target.value,
 														)
 													}
@@ -531,14 +524,14 @@ export default function DimensionForm({
 									dataIndex="targetCol"
 									key="别名"
 									width="30%"
-									render={(text, _, index) => {
+									render={(text, _, i) => {
 										return (
 											<Input
 												value={text}
 												onChange={(e) =>
 													handleColsChanged(
 														ColOperatorKind.SET_TARGET,
-														index,
+														i,
 														e.target.value,
 													)
 												}
@@ -548,7 +541,7 @@ export default function DimensionForm({
 								/>
 								<Table.Column
 									key="delete"
-									render={(_, __, index) => {
+									render={(_, __, i) => {
 										return (
 											<CloseOutlined
 												style={{
@@ -556,7 +549,7 @@ export default function DimensionForm({
 													color: 'var(--editor-foreground)',
 												}}
 												onClick={() =>
-													handleColsChanged(ColOperatorKind.REMOVE, index)
+													handleColsChanged(ColOperatorKind.REMOVE, i)
 												}
 											/>
 										);
@@ -594,20 +587,27 @@ export default function DimensionForm({
 							</div>
 						</div>
 					) : (
-						isShow && (
-							<Editor
-								style={{
-									height: '100%',
-								}}
-								sync
-							/>
-						)
+						<Editor
+							style={{
+								height: '100%',
+							}}
+							sync
+						/>
 					)
 				}
 			</FormItem>
-			<FormItem noStyle dependencies={['type', 'columns']}>
+			<FormItem hidden name={[index, 'columns']} />
+			<FormItem
+				noStyle
+				dependencies={[
+					[index, 'type'],
+					[index, 'columns'],
+				]}
+			>
 				{({ getFieldValue }) => {
-					const { type, columns = [] } = getFieldValue('type') as IFormFieldProps;
+					const { type, columns = [] } = getFieldValue(NAME_FIELD)[
+						index
+					] as IFormFieldProps;
 					switch (type) {
 						case DATA_SOURCE_ENUM.KUDU:
 						case DATA_SOURCE_ENUM.POSTGRESQL:
@@ -623,7 +623,7 @@ export default function DimensionForm({
 						case DATA_SOURCE_ENUM.SQLSERVER:
 						case DATA_SOURCE_ENUM.SQLSERVER_2017_LATER: {
 							return (
-								<FormItem label="主键" name="primaryKey">
+								<FormItem label="主键" name={[index, 'primaryKey']}>
 									<Select
 										mode="multiple"
 										showSearch
@@ -646,7 +646,7 @@ export default function DimensionForm({
 						case DATA_SOURCE_ENUM.ES6:
 						case DATA_SOURCE_ENUM.ES7: {
 							return (
-								<FormItem name="primaryKey" label="主键">
+								<FormItem name={[index, 'primaryKey']} label="主键">
 									<Input placeholder="请输入主键" />
 								</FormItem>
 							);
@@ -657,7 +657,7 @@ export default function DimensionForm({
 							return (
 								<FormItem
 									label="主键"
-									name="primaryKey"
+									name={[index, 'primaryKey']}
 									rules={[{ required: true, message: '请选择主键' }]}
 								>
 									<Input
@@ -694,7 +694,7 @@ export default function DimensionForm({
 									<div style={{ display: 'flex' }}>
 										<FormItem
 											style={{ flex: 1 }}
-											name="hbasePrimaryKey"
+											name={[index, 'hbasePrimaryKey']}
 											rules={[
 												{ required: true, message: '请输入主键' },
 												isFlink112
@@ -713,7 +713,7 @@ export default function DimensionForm({
 												<span>&nbsp; 类型：</span>
 												<FormItem
 													style={{ flex: 1 }}
-													name="hbasePrimaryKeyType"
+													name={[index, 'hbasePrimaryKeyType']}
 													rules={[
 														{
 															required: true,
@@ -734,14 +734,14 @@ export default function DimensionForm({
 					}
 				}}
 			</FormItem>
-			<FormItem name="parallelism" label="并行度">
+			<FormItem name={[index, 'parallelism']} label="并行度">
 				<InputNumber style={{ width: '100%' }} min={1} />
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) => (
 					<FormItem
 						label="缓存策略"
-						name="cache"
+						name={[index, 'cache']}
 						rules={[{ required: true, message: '请选择缓存策略' }]}
 					>
 						<Select
@@ -773,22 +773,22 @@ export default function DimensionForm({
 					</FormItem>
 				)}
 			</FormItem>
-			<FormItem noStyle dependencies={['cache']}>
+			<FormItem noStyle dependencies={[[index, 'cache']]}>
 				{({ getFieldValue }) => {
-					switch (getFieldValue('cache')) {
+					switch (getFieldValue(NAME_FIELD)[index].cache) {
 						case 'LRU':
 							return (
 								<>
 									<FormItem
 										label="缓存大小(行)"
-										name="cacheSize"
+										name={[index, 'cacheSize']}
 										rules={[{ required: true, message: '请输入缓存大小' }]}
 									>
 										<InputNumber style={{ width: '100%' }} min={0} />
 									</FormItem>
 									<FormItem
 										label="缓存超时时间"
-										name="cacheTTLMs"
+										name={[index, 'cacheTTLMs']}
 										rules={[{ required: true, message: '请输入缓存超时时间' }]}
 									>
 										<InputNumber
@@ -804,7 +804,7 @@ export default function DimensionForm({
 							return (
 								<FormItem
 									label="缓存超时时间"
-									name="cacheTTLMs"
+									name={[index, 'cacheTTLMs']}
 									rules={[{ required: true, message: '请输入缓存超时时间' }]}
 								>
 									<InputNumber
@@ -819,22 +819,30 @@ export default function DimensionForm({
 					}
 				}}
 			</FormItem>
-			<FormItem label="允许错误数据" tooltip={asyncTimeoutNumDoc} name="errorLimit">
+			<FormItem
+				label="允许错误数据"
+				tooltip={asyncTimeoutNumDoc}
+				name={[index, 'errorLimit']}
+			>
 				<InputNumber style={{ width: '100%' }} placeholder="默认为无限制" min={0} />
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					getFieldValue('type') === DATA_SOURCE_ENUM.KUDU && (
-						<FormItem label="查询容错" tooltip={queryFault} name="isFaultTolerant">
+					getFieldValue(NAME_FIELD)[index].type === DATA_SOURCE_ENUM.KUDU && (
+						<FormItem
+							label="查询容错"
+							tooltip={queryFault}
+							name={[index, 'isFaultTolerant']}
+						>
 							<Switch />
 						</FormItem>
 					)
 				}
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					isHaveAsyncPoolSize(getFieldValue('type')) && (
-						<FormItem name="asyncPoolSize" label="异步线程池">
+					isHaveAsyncPoolSize(getFieldValue(NAME_FIELD)[index].type) && (
+						<FormItem name={[index, 'asyncPoolSize']} label="异步线程池">
 							<Select>
 								{createSeries(20).map((opt) => {
 									return (
@@ -848,26 +856,23 @@ export default function DimensionForm({
 					)
 				}
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) =>
-					isHaveCustomParams(getFieldValue('type')) && (
-						<CustomParams
-							customParams={data.customParams || []}
-							onChange={handleCustomParamsChanged}
-						/>
+					isHaveCustomParams(getFieldValue(NAME_FIELD)[index].type) && (
+						<CustomParams index={index} />
 					)
 				}
 			</FormItem>
-			<FormItem noStyle dependencies={['type']}>
+			<FormItem noStyle dependencies={[[index, 'type']]}>
 				{({ getFieldValue }) => (
 					<DataPreviewModal
 						visible={visible}
-						type={getFieldValue('type')}
+						type={getFieldValue(NAME_FIELD)[index].type}
 						onCancel={() => setVisible(false)}
 						params={params}
 					/>
 				)}
 			</FormItem>
-		</Form>
+		</>
 	);
 }

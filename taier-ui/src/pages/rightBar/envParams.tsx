@@ -16,7 +16,33 @@
  * limitations under the License.
  */
 
-export default function LockPanel({ lockTarget, couldEdit }: any) {
-    const isLocked = lockTarget && lockTarget.readWriteLockVO && !lockTarget.readWriteLockVO.getLock;
-    return isLocked || (!couldEdit && typeof couldEdit == 'boolean') ? <div data-testid='test-lockPanel' className="cover-mask"></div> : null
+import molecule from '@dtinsight/molecule';
+import Editor from '@/components/editor';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
+
+export default function EnvParams({ current }: IRightBarComponentProps) {
+	const handleValueChanged = (value: string) => {
+		if (current?.tab) {
+			molecule.editor.updateTab({
+				...current!.tab!,
+				data: {
+					...current!.tab!.data,
+					taskParams: value,
+				},
+			});
+		}
+	};
+
+	return (
+		<Editor
+			sync
+			value={current?.tab?.data.taskParams || ''}
+			language="ini"
+			options={{
+				automaticLayout: true,
+				minimap: { enabled: false },
+			}}
+			onChange={handleValueChanged}
+		/>
+	);
 }

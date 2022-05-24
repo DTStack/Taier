@@ -29,6 +29,7 @@ import {
 	isHbase,
 } from './is';
 import stream from '@/api/stream';
+import { rightBarService } from '@/services';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
@@ -126,37 +127,51 @@ export default function saveTask() {
 			 */
 			if (isFlinkSQLGuide) {
 				// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
-				return validTableData(params)
-					.then((errors) => {
-						// 如果所有的结果都是 null 则表示校验全通过,否则不通过
-						if (!errors.every((tableErrors) => tableErrors.every((e) => e === null))) {
-							return Promise.reject();
-						}
-
-						const err = checkSide(side, componentVersion);
-						if (err) {
-							message.error(err);
-							return Promise.reject();
-						}
-
-						params.preSave = true;
-						// 后端区分右键编辑保存
-						params.updateSource = true;
-
-						return params;
-					})
-					.then((preParams) => {
-						return transformTabDataToParams(preParams);
-					})
-					.then((realParams) => {
-						return stream.saveTask(realParams).then((res) => {
-							if (res.code === 1) {
-								message.success('保存成功！');
-								return res;
+				const validation = () =>
+					validTableData(params)
+						.then((errors) => {
+							// 如果所有的结果都是 null 则表示校验全通过,否则不通过
+							if (
+								!errors.every((tableErrors) => tableErrors.every((e) => e === null))
+							) {
+								return Promise.reject();
 							}
-							return Promise.reject();
+
+							const err = checkSide(side, componentVersion);
+							if (err) {
+								message.error(err);
+								return Promise.reject();
+							}
+
+							params.preSave = true;
+							// 后端区分右键编辑保存
+							params.updateSource = true;
+
+							return params;
+						})
+						.then((preParams) => {
+							return transformTabDataToParams(preParams);
+						})
+						.then((realParams) => {
+							return stream.saveTask(realParams).then((res) => {
+								if (res.code === 1) {
+									message.success('保存成功！');
+									return res;
+								}
+								return Promise.reject();
+							});
 						});
-					});
+
+				const componentForm = rightBarService.getForm();
+				if (componentForm) {
+					// 如果 componentForm 存在表示当前 rightBar 处于展开状态并且存在 form 表单，需要先校验表单的值
+					return componentForm
+						.validateFields()
+						.then(() => validation())
+						.catch(() => Promise.reject());
+				}
+
+				return validation();
 			}
 
 			return stream
@@ -325,10 +340,10 @@ const validDataSource = async (data: IFlinkSourceProps, componentVersion?: strin
 /**
  * 为 Flink 的源表表单生成校验规则
  */
-const generateValidDesSource = (
+export const generateValidDesSource = (
 	data: IOfflineTaskProps['source'][number],
 	componentVersion?: string,
-): Rules => {
+) => {
 	const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 	const haveSchema =
 		isKafka(data?.type) &&

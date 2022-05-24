@@ -21,7 +21,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormInstance, RadioChangeEvent } from 'antd';
 import { Row, Col, Collapse, Radio, message } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
-import classNames from 'classnames';
 import moment from 'moment';
 import { isArray } from 'lodash';
 import api from '@/api';
@@ -30,8 +29,9 @@ import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/inte
 import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
-import HelpDoc from '../../../components/helpDoc';
-import { isTaskTab } from '@/utils/is';
+import HelpDoc from '@/components/helpDoc';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
+import type { IEditorTab } from '@dtinsight/molecule/esm/model';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;
@@ -86,36 +86,24 @@ const getDefaultScheduleConf = (value: TASK_PERIOD_ENUM) => {
 	return scheduleConf[value];
 };
 
-interface ISchedulingConfigProps extends Pick<molecule.model.IEditor, 'current'> {
-	/**
-	 * @deprecated
-	 * 是否是 workflow 任务, 目前暂不支持
-	 */
-	isWorkflowNode?: boolean;
-	/**
-	 * @deprecated
-	 * 是否是数据科学任务, 目前暂不支持
-	 */
-	isScienceTask?: boolean;
-	/**
-	 * 修改调度状态的回调函数
-	 */
-	changeScheduleConf?: (
-		values: molecule.model.IEditorTab<any>,
-		nextValue: Partial<
-			Pick<IOfflineTaskProps, 'scheduleConf' | 'scheduleStatus' | 'dependencyTasks'>
-		>,
-	) => void;
-}
-
-export default function SchedulingConfig({
-	current,
-	isWorkflowNode = false,
-	isScienceTask = false,
-	changeScheduleConf,
-}: ISchedulingConfigProps) {
+export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 	const [selfReliance, setSelfReliance] = useState<SCHEDULE_DEPENDENCY>(SCHEDULE_DEPENDENCY.NULL);
 	const form = useRef<FormInstance<IScheduleConfProps & { scheduleStatus: boolean }>>(null);
+
+	/**
+	 * 修改 tab 的值
+	 */
+	const changeScheduleConf = (currentTab: IEditorTab, value: any) => {
+		const { data } = currentTab;
+		const tab = {
+			...currentTab,
+			data: {
+				...data,
+				...value,
+			},
+		};
+		molecule.editor.updateTab(tab);
+	};
 
 	const getInitScheduleConf = () => {
 		const tabData: IOfflineTaskProps = current!.tab!.data;
@@ -273,25 +261,19 @@ export default function SchedulingConfig({
 		setSelfReliance(value);
 	};
 
-	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
-
 	useEffect(() => {
-		if (!isInValidTab) {
-			handleScheduleConf();
-		}
+		handleScheduleConf();
 	}, [selfReliance]);
 
 	useEffect(() => {
-		if (!isInValidTab) {
-			const tabData: IOfflineTaskProps = current!.tab!.data;
-			let initConf: Partial<IScheduleConfProps>;
-			try {
-				initConf = JSON.parse(tabData.scheduleConf);
-			} catch (error) {
-				initConf = {};
-			}
-			setSelfReliance(Number(initConf.selfReliance));
+		const tabData: IOfflineTaskProps = current!.tab!.data;
+		let initConf: Partial<IScheduleConfProps>;
+		try {
+			initConf = JSON.parse(tabData.scheduleConf);
+		} catch (error) {
+			initConf = {};
 		}
+		setSelfReliance(Number(initConf.selfReliance));
 	}, [current]);
 
 	const isIncrementMode = useMemo(
@@ -299,9 +281,16 @@ export default function SchedulingConfig({
 		[],
 	);
 
-	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取调度依赖</div>;
-	}
+	/**
+	 * @deprecated
+	 * 是否是 workflow 任务, 目前暂不支持
+	 */
+	const isWorkflowNode = false;
+	/**
+	 * @deprecated
+	 * 是否是数据科学任务, 目前暂不支持
+	 */
+	const isScienceTask = false;
 
 	const tabData: IOfflineTaskProps = current!.tab!.data;
 	const scheduleConf = getInitScheduleConf();
