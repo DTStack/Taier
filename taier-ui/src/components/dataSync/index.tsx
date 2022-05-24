@@ -412,6 +412,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 			title: '预览保存',
 			content: currentData && (
 				<Preview
+					isIncrementMode={isIncrementMode}
 					data={currentData}
 					dataSourceList={dataSourceList}
 					userColumns={userColumns}

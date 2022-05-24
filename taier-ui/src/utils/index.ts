@@ -583,7 +583,7 @@ export function getVertxtStyle(type: TASK_STATUS): string {
 
 	// 运行中
 	if (RUNNING_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
+		return 'whiteSpace=wrap;fillColor=rgba(63, 135, 255, 0.06);strokeColor=#3f87ff;';
 	}
 
 	// 等待提交/提交中/等待运行
