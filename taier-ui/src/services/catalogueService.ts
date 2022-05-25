@@ -92,31 +92,34 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 					? FileTypes.Folder
 					: FileTypes.File;
 
+				const id = fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`;
 				return new TreeNodeModel({
 					// prevent same id between folder and file
-					id: fileType === FileTypes.File ? catalogue.id : `${catalogue.id}-folder`,
+					id,
 					name: catalogue.name,
 					fileType,
 					icon: fileIcon(catalogue.resourceType, source),
 					isLeaf: fileType === FileTypes.File,
 					data: catalogue,
-					children: [],
+					children: resourceManagerService.get(id)?.children || [],
 				});
 			}
 
 			case CATELOGUE_TYPE.FUNCTION: {
-				const { id, type, name } = catalogue;
+				const { type, name } = catalogue;
 				const fileType = folderType.includes(type) ? FileTypes.Folder : FileTypes.File;
+
 				// Because of the same id in different levels, so we should set another uniq id for each tree node
+				const id = `${catalogue.id}-${folderType.includes(type) ? 'folder' : 'file'}`;
 				return new TreeNodeModel({
-					id: `${id}-${folderType.includes(type) ? 'folder' : 'file'}`,
+					id,
 					name,
 					location: name,
 					fileType,
 					isLeaf: fileType === FileTypes.File,
 					data: catalogue,
 					icon: fileIcon(catalogue.taskType, source),
-					children: [],
+					children: functionManagerService.get(id)?.children || [],
 				});
 			}
 
@@ -188,10 +191,15 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 
 	public getRootFolder = (source: CATELOGUE_TYPE) => {
 		const service = this.getServiceBySource(source);
-		if (source === CATELOGUE_TYPE.TASK) {
-			return service?.getState().folderTree?.data?.[0];
+		switch (source) {
+			case CATELOGUE_TYPE.TASK:
+			case CATELOGUE_TYPE.FUNCTION:
+				return service?.getState().folderTree?.data?.[0];
+			case CATELOGUE_TYPE.RESOURCE:
+				return service?.getState().folderTree?.data?.[0]?.children?.[0];
+			default:
+				return undefined;
 		}
-		return service?.getState().folderTree?.data?.[0]?.children?.[0];
 	};
 
 	public loadRootFolder = () => {

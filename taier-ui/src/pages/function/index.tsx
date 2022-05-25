@@ -19,13 +19,14 @@
 import React, { useState } from 'react';
 import type { IMenuItemProps, ITreeNodeItemProps } from '@dtinsight/molecule/esm/components';
 import { catalogueService } from '@/services';
+import { debounce } from 'lodash';
 import { ActionBar } from '@dtinsight/molecule/esm/components';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
 import type { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
-import { Modal } from 'antd';
+import { message, Modal } from 'antd';
 import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
@@ -173,6 +174,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 							  });
 						fun.then((res) => {
 							if (res.code) {
+								message.success('删除成功!');
 								const parentNode = functionManagerService.get(
 									`${treeNode!.data.parentId}-folder`,
 								);
@@ -201,6 +203,31 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				setModalShow(true);
 				break;
 			}
+			default:
+				break;
+		}
+	};
+
+	const debounceRefreshNode = debounce(() => {
+		const { folderTree } = functionManagerService.getState();
+		if (folderTree?.current) {
+			// 更新 update 目录
+			updateNodePid(folderTree.current);
+		} else {
+			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.FUNCTION);
+			if (rootFolder) {
+				updateNodePid(rootFolder);
+			}
+		}
+	}, 300);
+
+	const handleHeaderClick = (e: React.MouseEvent<Element, MouseEvent>, item: IMenuItemProps) => {
+		e.preventDefault();
+		switch (item?.id) {
+			// 刷新
+			case 'refresh':
+				debounceRefreshNode();
+				break;
 			default:
 				break;
 		}
@@ -343,7 +370,11 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 			<Header
 				title="函数管理"
 				toolbar={
-					<ActionBar data={headerToolBar} onContextMenuClick={handleHeaderContextClick} />
+					<ActionBar
+						data={headerToolBar}
+						onClick={handleHeaderClick}
+						onContextMenuClick={handleHeaderContextClick}
+					/>
 				}
 			/>
 			<Content>

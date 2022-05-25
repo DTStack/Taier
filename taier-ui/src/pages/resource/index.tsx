@@ -20,6 +20,7 @@ import { useState } from 'react';
 import { message, Modal } from 'antd';
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore/index';
+import { debounce } from 'lodash';
 import type {
 	IActionBarItemProps,
 	IMenuItemProps,
@@ -94,6 +95,31 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 		setFolderData(undefined);
 	};
 
+	const debounceRefreshNode = debounce(() => {
+		const { folderTree } = resourceManagerTree.getState();
+		if (folderTree?.current) {
+			// 更新 update 目录
+			updateNodePid(folderTree.current);
+		} else {
+			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE);
+			if (rootFolder) {
+				updateNodePid(rootFolder);
+			}
+		}
+	}, 300);
+
+	const handleHeaderClick = (e: React.MouseEvent<Element, MouseEvent>, item: IMenuItemProps) => {
+		e.preventDefault();
+		switch (item?.id) {
+			// 刷新
+			case 'refresh':
+				debounceRefreshNode();
+				break;
+			default:
+				break;
+		}
+	};
+
 	const handleHeaderContextClick = (
 		e: React.MouseEvent<Element, MouseEvent>,
 		item?: IMenuItemProps,
@@ -151,7 +177,9 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 					ajax.delOfflineRes(params).then((res) => {
 						if (res.code === 1) {
 							message.success('资源删除成功');
-							const parentNode = resourceManagerTree.get(treeNode.data.parentId)!;
+							const parentNode = resourceManagerTree.get(
+								`${treeNode.data.parentId}-folder`,
+							)!;
 							// update the parent
 							updateNodePid(parentNode);
 						}
@@ -170,7 +198,9 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 					ajax.delOfflineFolder(params).then((res) => {
 						if (res.code === 1) {
 							message.success('文件夹删除成功');
-							const parentNode = resourceManagerTree.get(treeNode.data.parentId)!;
+							const parentNode = resourceManagerTree.get(
+								`${treeNode.data.parentId}-folder`,
+							)!;
 							// update the parent
 							updateNodePid(parentNode);
 						}
@@ -264,7 +294,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	const handleAddCatalogue = (params: { nodePid: number; nodeName: string }) => {
 		return ajax.addOfflineCatalogue(params).then((res) => {
 			if (res.code === 1) {
-				const parentNode = resourceManagerTree.get(params.nodePid);
+				const parentNode = resourceManagerTree.get(`${params.nodePid}-folder`);
 				if (parentNode) {
 					updateNodePid(parentNode);
 				}
@@ -285,8 +315,8 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 			.editOfflineCatalogue({ ...params, type: 'folder' }) // 文件夹编辑，新增参数固定为folder
 			.then((res) => {
 				if (res.code === 1) {
-					const currentNode = resourceManagerTree.get(params.id);
-					const parentNode = resourceManagerTree.get(params.nodePid);
+					const currentNode = resourceManagerTree.get(`${params.id}-folder`);
+					const parentNode = resourceManagerTree.get(`${params.nodePid}-folder`);
 					// the saving position has been changed
 					if (currentNode?.data.parentId !== params.nodePid) {
 						const nextParentNode = resourceManagerTree.get(currentNode?.data.parentId);
@@ -307,7 +337,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 		return ajax.addOfflineResource(params).then((res) => {
 			if (res.code === 1) {
 				message.success('资源上传成功！');
-				const parentNode = resourceManagerTree.get(params.nodePid)!;
+				const parentNode = resourceManagerTree.get(`${params.nodePid}-folder`)!;
 				updateNodePid(parentNode);
 				return true;
 			}
@@ -333,7 +363,11 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 			<Header
 				title="资源管理"
 				toolbar={
-					<ActionBar data={headerToolBar} onContextMenuClick={handleHeaderContextClick} />
+					<ActionBar
+						data={headerToolBar}
+						onClick={handleHeaderClick}
+						onContextMenuClick={handleHeaderContextClick}
+					/>
 				}
 			/>
 			<Content>
