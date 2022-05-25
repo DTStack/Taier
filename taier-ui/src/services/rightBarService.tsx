@@ -4,7 +4,7 @@ import FlinkResultPanel from '@/pages/rightBar/flinkResult';
 import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
 import EnvParams from '@/pages/rightBar/envParams';
 import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
-import { TASK_TYPE_ENUM } from '@/constant';
+import { CREATE_MODEL_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import TaskInfo from '@/pages/rightBar/taskInfo';
 import TaskParams from '@/pages/rightBar/envParams';
 import { isTaskTab } from '@/utils/is';
@@ -17,15 +17,24 @@ import { useEffect } from 'react';
 import { singleton } from 'tsyringe';
 
 interface IRightBarService {
-	toggleWidth: (collapse?: boolean) => void;
 	/**
 	 * 根据任务类型获取相应的右侧栏
 	 * @param isGuide 是否是向导模式
 	 */
 	getRightBarByType: (type?: TASK_TYPE_ENUM, isGuide?: boolean) => RightBarKind[];
+	/**
+	 * 根据枚举值获取对应的文本内容
+	 */
 	getTextByKind: (kind: RightBarKind) => string;
+	/**
+	 * 根据枚举值获取对应的组件
+	 */
 	createContent: (kind: RightBarKind) => React.ReactNode;
+	/**
+	 * 获取 form 组件对象
+	 */
 	getForm: () => FormInstance | null;
+	setCurrent: (nextCurrent: RightBarKind | null) => void;
 }
 
 /**
@@ -33,7 +42,6 @@ interface IRightBarService {
  */
 export interface IRightBarComponentProps {
 	current: molecule.model.IEditor['current'];
-	// form: FormInstance;
 }
 
 export interface IRightbarState {
@@ -41,6 +49,10 @@ export interface IRightbarState {
 	 * rightBar 的宽度
 	 */
 	width: number;
+	/**
+	 * 当前侧边栏选中项
+	 */
+	current: RightBarKind | null;
 }
 
 export enum RightBarKind {
@@ -97,6 +109,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 		super();
 		this.state = {
 			width: RightBarService.UNACTIVE_WIDTH,
+			current: null,
 		};
 	}
 
@@ -122,23 +135,19 @@ export default class RightBarService extends Component<IRightbarState> implement
 		<this.WithForm key={Children.key}>{Children}</this.WithForm>
 	);
 
-	public getForm = () => {
-		return this.form;
+	private setWidth = (collapse: boolean) => {
+		return collapse ? RightBarService.ACTIVE_WIDTH : RightBarService.UNACTIVE_WIDTH;
 	};
 
-	public toggleWidth = (collapse?: boolean) => {
-		if (collapse !== undefined) {
-			this.setState({
-				width: collapse ? RightBarService.ACTIVE_WIDTH : RightBarService.UNACTIVE_WIDTH,
-			});
-		} else {
-			this.setState({
-				width:
-					this.state.width === RightBarService.ACTIVE_WIDTH
-						? RightBarService.UNACTIVE_WIDTH
-						: RightBarService.ACTIVE_WIDTH,
-			});
-		}
+	public setCurrent = (nextCurrent: RightBarKind | null) => {
+		this.setState({
+			current: nextCurrent,
+			width: this.setWidth(!!nextCurrent),
+		});
+	};
+
+	public getForm = () => {
+		return this.form;
 	};
 
 	public getTextByKind = (kind: RightBarKind) => {
@@ -205,7 +214,19 @@ export default class RightBarService extends Component<IRightbarState> implement
 		 */
 		const isInValidTab = !isTaskTab(current?.tab?.id);
 
-		if (isInValidTab) {
+		// 判断当前的 tab 是否支持该 kind
+		const supportBars = this.getRightBarByType(
+			current?.tab?.data?.taskType,
+			current?.tab?.data?.createModel === CREATE_MODEL_TYPE.GUIDE,
+		);
+
+		const isSupportThisKind = supportBars.includes(kind);
+		if (!isSupportThisKind) {
+			// 不支持则重置 current
+			this.setCurrent(null);
+		}
+
+		if (isInValidTab || !isSupportThisKind) {
 			return (
 				<div className={classNames('text-center', 'mt-10px')}>
 					无法获取{this.getTextByKind(kind)}

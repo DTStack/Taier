@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import { CREATE_MODEL_TYPE } from '@/constant';
 import { rightBarService } from '@/services';
 import type { IRightbarState } from '@/services/rightBarService';
-import { RightBarKind } from '@/services/rightBarService';
+import type { RightBarKind } from '@/services/rightBarService';
 import './index.scss';
 
 interface IProps {
@@ -35,26 +34,12 @@ export default connect(
 	{ editor: molecule.editor, rightBar: rightBarService },
 	({ editor, rightBar }: IProps) => {
 		const { current: propsCurrent } = editor;
-		const { width } = rightBar;
-		const [current, setCurrent] = useState<RightBarKind | ''>('');
+		const { width, current } = rightBar;
 
 		const handleClickTab = (key: RightBarKind) => {
-			const nextCurrent = current === key ? '' : key;
-			setCurrent(nextCurrent);
-			rightBarService.toggleWidth(!!nextCurrent);
+			const nextCurrent = current === key ? null : key;
+			rightBarService.setCurrent(nextCurrent);
 		};
-
-		useEffect(() => {
-			if (propsCurrent?.tab?.data) {
-				const currentTabSupportTabs = rightBarService.getRightBarByType(
-					propsCurrent?.tab?.data?.taskType,
-					propsCurrent?.tab?.data?.createModel === CREATE_MODEL_TYPE.GUIDE,
-				);
-				if (currentTabSupportTabs.find((t) => t === current)) return;
-				// current tab isn't have current rightBar, so we should back to taskInfo
-				setCurrent((c) => (c === '' ? '' : RightBarKind.TASK));
-			}
-		}, [propsCurrent]);
 
 		return (
 			<div className="dt-right-bar" style={{ width }}>
