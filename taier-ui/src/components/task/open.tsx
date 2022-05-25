@@ -84,24 +84,44 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const getCurrentTaskInfo = () => {
 		if (current?.tab) {
 			const { data } = current.tab;
-			// 数据同步任务和实时采集任务才有额外的配置需要请求
-			const EXTRA_INFO_TASK = [TASK_TYPE_ENUM.SYNC, TASK_TYPE_ENUM.DATA_ACQUISITION];
-			if (EXTRA_INFO_TASK.includes(data.taskType)) {
-				setPageLoading(true);
-				api.getOfflineTaskByID({ id: data.id })
-					.then((res) => {
-						if (res.code === 1) {
+			setPageLoading(true);
+			api.getOfflineTaskByID({ id: data.id })
+				.then((res) => {
+					if (res.code === 1) {
+						form.setFieldsValue({
+							taskDesc: res.data.taskDesc,
+						});
+
+						// 数据同步任务和实时采集任务才有额外的配置需要设置
+						const EXTRA_INFO_TASK = [
+							TASK_TYPE_ENUM.SYNC,
+							TASK_TYPE_ENUM.DATA_ACQUISITION,
+						];
+						if (EXTRA_INFO_TASK.includes(data.taskType)) {
+							// 如果发现 syncModel 字段放到旧版本字段的位置上了，则给一个提示
+							const isTruncate =
+								res.data.sourceMap?.syncModel === undefined &&
+								res.data.syncModel !== undefined;
+							form.setFields([
+								{
+									name: 'syncModel',
+									touched: false,
+									validating: false,
+									errors: [isTruncate ? '由于版本更新，需要重新设置该字段' : ''],
+									value: res.data.sourceMap?.syncModel,
+								},
+							]);
+
 							form.setFieldsValue({
 								createModel: res.data.createModel,
-								syncModel: res.data.sourceMap?.syncModel,
 								sqlText: res.data.sqlText,
 							});
 						}
-					})
-					.finally(() => {
-						setPageLoading(false);
-					});
-			}
+					}
+				})
+				.finally(() => {
+					setPageLoading(false);
+				});
 		}
 	};
 
@@ -340,7 +360,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					<FormItem
 						{...formItemLayout}
 						label="描述"
-						hasFeedback
 						name="taskDesc"
 						rules={[
 							{
