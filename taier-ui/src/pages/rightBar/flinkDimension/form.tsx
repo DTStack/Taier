@@ -557,7 +557,7 @@ export default function DimensionForm({
 								/>
 							</Table>
 							<div style={{ padding: '0 20 20' }}>
-								<div className="stream-btn column-btn" style={{ borderRadius: 5 }}>
+								<div className="column-btn">
 									<span>
 										<a onClick={() => handleColsChanged(ColOperatorKind.ADD)}>
 											添加输入

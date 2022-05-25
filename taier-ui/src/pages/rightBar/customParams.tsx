@@ -18,6 +18,7 @@
 
 import { Button, Col, Form, Input, Row } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
+import './customParams.scss';
 
 interface ICustomParamsProps {
 	index: number;
@@ -25,7 +26,7 @@ interface ICustomParamsProps {
 
 export const CustomParams = ({ index }: ICustomParamsProps) => {
 	return (
-		<Form.Item label="自定义参数">
+		<Form.Item label="自定义参数" className="custom-params">
 			<Form.List name={[index, 'customParams']}>
 				{(fields, { add, remove }) => (
 					<>

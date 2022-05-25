@@ -837,7 +837,7 @@ export default function ResultForm({
 									}}
 								/>
 							</Table>
-							<div className="stream-btn column-btn">
+							<div className="column-btn">
 								<span>
 									<a
 										onClick={() =>

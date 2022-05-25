@@ -441,7 +441,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 
 	return (
 		<molecule.component.Scrollable>
-			<div className="m-taksdetail panel-content ouput-panel">
+			<div className="panel-content">
 				<Form<IFormFieldProps>
 					{...formItemLayout}
 					form={form}
@@ -518,7 +518,8 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 									})}
 								</Collapse>
 								<Button
-									className="stream-btn"
+									size="large"
+									block
 									onClick={() =>
 										handlePanelChanged('add').then(() =>
 											add({ ...DEFAULT_INPUT_VALUE }),
