@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import Context from '@/context';
 import { Button, Input, Select, Form, Radio, Spin, Empty, Modal } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
@@ -35,7 +36,6 @@ import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
-import type { DefaultOptionType } from 'antd/lib/select';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -61,25 +61,10 @@ export interface IFormFieldProps {
 }
 
 export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProps) => {
+	const { supportJobTypes } = useContext(Context);
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [pageLoading, setPageLoading] = useState(false);
-	const [typeLoading, setTypesLoading] = useState(false);
-	const [supportTypes, setSupportTypes] = useState<DefaultOptionType[]>([]);
-
-	const getSupportTypes = () => {
-		setTypesLoading(true);
-		api.getTaskTypes({})
-			.then((res) => {
-				if (res.code === 1) {
-					const data: { key: TASK_TYPE_ENUM; value: string }[] = res.data || [];
-					setSupportTypes(data.map((d) => ({ label: d.value, value: d.key })));
-				}
-			})
-			.finally(() => {
-				setTypesLoading(false);
-			});
-	};
 
 	const getCurrentTaskInfo = () => {
 		if (current?.tab) {
@@ -247,7 +232,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 
 	useEffect(() => {
 		getCurrentTaskInfo();
-		getSupportTypes();
 	}, []);
 
 	const initialValues = useMemo(() => {
@@ -277,7 +261,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					{...formItemLayout}
 				>
 					<FormItem
-						{...formItemLayout}
 						label="任务名称"
 						name="name"
 						rules={[
@@ -298,7 +281,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 						<Input />
 					</FormItem>
 					<FormItem
-						{...formItemLayout}
 						label="任务类型"
 						name="taskType"
 						rules={[
@@ -310,21 +292,14 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					>
 						<Select<string>
 							disabled={!!record}
-							notFoundContent={
-								typeLoading ? (
-									<Spin size="small" />
-								) : (
-									<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-								)
-							}
-							options={supportTypes}
+							notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+							options={supportJobTypes.map((t) => ({ label: t.value, value: t.key }))}
 						/>
 					</FormItem>
 					<FormItem noStyle dependencies={['taskType']}>
 						{({ getFieldValue }) => renderConfig(getFieldValue('taskType'))}
 					</FormItem>
 					<FormItem
-						{...formItemLayout}
 						label="存储位置"
 						name="nodePid"
 						rules={[
@@ -338,7 +313,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
 					</FormItem>
 					<FormItem
-						{...formItemLayout}
 						label="描述"
 						hasFeedback
 						name="taskDesc"

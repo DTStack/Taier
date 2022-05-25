@@ -17,6 +17,7 @@
  */
 
 import { createContext } from 'react';
+import type { TASK_TYPE_ENUM } from '@/constant';
 
 export interface IPersonLists {
 	email: string;
@@ -26,12 +27,19 @@ export interface IPersonLists {
 	userName: string;
 }
 
+export interface ISupportJobTypes {
+	key: TASK_TYPE_ENUM;
+	value: string;
+}
+
 export interface IContext {
 	personList: IPersonLists[];
 	username?: string;
+	supportJobTypes: ISupportJobTypes[];
 }
 
 export default createContext<IContext>({
 	personList: [],
 	username: undefined,
+	supportJobTypes: [],
 });

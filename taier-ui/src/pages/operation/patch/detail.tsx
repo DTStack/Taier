@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import moment from 'moment';
 import { message, Modal, Button, Tooltip } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import type { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/interface';
 import SlidePane from '@/components/slidePane';
+import context from '@/context';
 import Api from '@/api/operation';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import {
@@ -72,13 +73,11 @@ const disabledDate = (current: moment.Moment) => {
 };
 
 export default () => {
+	const { supportJobTypes } = useContext(context);
 	const [fillId] = useState(() =>
 		Number(JSON.parse(sessionStorage.getItem('task-patch-data') || '{}').id),
 	);
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
-	const [taskTypeFilter, setTaskTypeFilter] = useState<
-		{ id: number; value: number; text: string }[]
-	>([]);
 
 	const [selectedTask, setSelectedTask] = useState<ITableDataProps | null>(null);
 	const [visibleSlidePane, setSlideVisible] = useState(false);
@@ -99,25 +98,6 @@ export default () => {
 					return next;
 				}, {} as Record<string, TASK_STATUS>);
 				setStatistics(nextStat);
-			}
-		});
-	};
-
-	const getTaskTypesX = () => {
-		Api.getTaskTypesX({}).then((res) => {
-			if (res.code === 1) {
-				const taskTypes: {
-					taskTypeCode: number;
-					taskTypeName: string;
-				}[] = res.data || [];
-				const nextTaskTypeFilter = taskTypes.map((type) => {
-					return {
-						value: type.taskTypeCode,
-						id: type.taskTypeCode,
-						text: type.taskTypeName,
-					};
-				});
-				setTaskTypeFilter(nextTaskTypeFilter);
 			}
 		});
 	};
@@ -391,7 +371,7 @@ export default () => {
 				render: (text) => {
 					return taskTypeText(text);
 				},
-				filters: taskTypeFilter,
+				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
 			},
 			{
 				title: '计划时间',
@@ -435,7 +415,7 @@ export default () => {
 				width: '180px',
 			},
 		];
-	}, [taskTypeFilter]);
+	}, [supportJobTypes]);
 
 	const convertToParams = (values: IFormFieldProps): Partial<IRequestParams> => {
 		return {
@@ -536,10 +516,6 @@ export default () => {
 	const handleRefresh = () => {
 		actionRef.current?.submit();
 	};
-
-	useEffect(() => {
-		getTaskTypesX();
-	}, []);
 
 	return (
 		<div className="dt-patch-data-detail">
