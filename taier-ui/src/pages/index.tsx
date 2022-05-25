@@ -18,10 +18,12 @@
 
 import 'reflect-metadata';
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import type { IPersonLists } from '@/context';
+import type { IPersonLists, ISupportJobTypes } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
 import { extensions } from '@/extensions';
+import api from '@/api';
+import notification from '@/components/notification';
 import molecule, { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
 import API from '@/api/operation';
@@ -50,6 +52,7 @@ import './index.scss';
 export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
+	const [supportJobTypes, setJobTypes] = useState<ISupportJobTypes[]>([]);
 	const loading = useRef(false);
 	const refs = useRef<IEditClusterRefProps>(null);
 
@@ -112,6 +115,18 @@ export default function HomePage() {
 		});
 
 		checkLoginStatus();
+
+		// 获取当前支持的任务类型
+		api.getTaskTypes({}).then((res) => {
+			if (res.code === 1) {
+				setJobTypes(res.data || []);
+			} else {
+				notification.error({
+					key: 'FailedJob',
+					message: `获取支持的类型失败，将无法创建新的任务！`,
+				});
+			}
+		});
 	}, []);
 
 	const openDrawer = (drawerId: string) => {
@@ -323,6 +338,7 @@ export default function HomePage() {
 			value={{
 				personList,
 				username,
+				supportJobTypes,
 			}}
 		>
 			<MoleculeProvider extensions={extensions} defaultLocale="Taier-zh-CN">
