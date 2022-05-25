@@ -98,8 +98,16 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	const debounceRefreshNode = debounce(() => {
 		const { folderTree } = resourceManagerTree.getState();
 		if (folderTree?.current) {
-			// 更新 update 目录
-			updateNodePid(folderTree.current);
+			if (folderTree?.current.fileType === FileTypes.File) {
+				const parentNode = resourceManagerTree.get(
+					`${folderTree?.current.data.parentId}-folder`,
+				);
+				// 更新父节点
+				updateNodePid(parentNode!);
+			} else {
+				// 更新 update 目录
+				updateNodePid(folderTree.current);
+			}
 		} else {
 			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE);
 			if (rootFolder) {

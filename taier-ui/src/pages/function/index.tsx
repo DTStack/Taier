@@ -25,6 +25,7 @@ import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import functionManagerService from '../../services/functionManagerService';
 import type { IFolderTree } from '@dtinsight/molecule/esm/model';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { FolderTree } from '@dtinsight/molecule/esm/workbench/sidebar/explore';
 import { message, Modal } from 'antd';
 import ajax from '../../api';
@@ -211,8 +212,16 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const debounceRefreshNode = debounce(() => {
 		const { folderTree } = functionManagerService.getState();
 		if (folderTree?.current) {
-			// 更新 update 目录
-			updateNodePid(folderTree.current);
+			if (folderTree?.current.fileType === FileTypes.File) {
+				const parentNode = functionManagerService.get(
+					`${folderTree.current.data.parentId}-folder`,
+				);
+				// 更新当前节点的父节点
+				updateNodePid(parentNode!);
+			} else {
+				// 更新 current 节点
+				updateNodePid(folderTree.current);
+			}
 		} else {
 			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.FUNCTION);
 			if (rootFolder) {
