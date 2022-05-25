@@ -67,7 +67,7 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const [pageLoading, setPageLoading] = useState(false);
 
 	const getCurrentTaskInfo = () => {
-		if (current?.tab) {
+		if (current?.tab?.data.id) {
 			const { data } = current.tab;
 			setPageLoading(true);
 			api.getOfflineTaskByID({ id: data.id })
