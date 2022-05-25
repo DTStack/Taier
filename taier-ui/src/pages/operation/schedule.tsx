@@ -16,23 +16,24 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { Tooltip, Dropdown, Menu, Modal, message, Button } from 'antd';
-import moment from 'moment';
+import type moment from 'moment';
 import { history } from 'umi';
 import type { ColumnsType } from 'antd/lib/table';
 import type { FilterValue } from 'antd/lib/table/interface';
+import context from '@/context';
 import { SyncOutlined, DownOutlined } from '@ant-design/icons';
 import SlidePane from '@/components/slidePane';
 import Api from '@/api/operation';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
-import { offlineTaskPeriodFilter } from '@/constant';
 import {
 	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
+	offlineTaskPeriodFilter,
 } from '@/constant';
 import { getTodayTime, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
@@ -85,10 +86,8 @@ export interface IScheduleTaskProps {
 }
 
 export default () => {
+	const { supportJobTypes } = useContext(context);
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
-	const [taskTypeFilter, setTaskType] = useState<{ id: number; value: number; text: string }[]>(
-		[],
-	);
 	const [visibleSlidePane, setSlideVisible] = useState(false);
 	const [killJobVisible, setKillJobVisible] = useState(false);
 	const [selectedTask, setSelectedTask] = useState<IScheduleTaskProps | null>(null);
@@ -107,27 +106,6 @@ export default () => {
 					return next;
 				}, {} as Record<string, TASK_STATUS>);
 				setStatistics(nextStat);
-			}
-		});
-	};
-
-	const getTaskTypesX = () => {
-		Api.getTaskTypesX({}).then((res) => {
-			if (res.code === 1) {
-				const taskTypes: {
-					taskTypeCode: number;
-					taskTypeName: string;
-				}[] = res.data;
-				const nextTaskType =
-					taskTypes &&
-					taskTypes.map((type) => {
-						return {
-							value: type.taskTypeCode,
-							id: type.taskTypeCode,
-							text: type.taskTypeName,
-						};
-					});
-				setTaskType(nextTaskType);
 			}
 		});
 	};
@@ -298,10 +276,6 @@ export default () => {
 		setSelectedTask(task);
 	};
 
-	useEffect(() => {
-		getTaskTypesX();
-	}, []);
-
 	const statusList = useMemo(() => {
 		const {
 			ALL,
@@ -398,7 +372,7 @@ export default () => {
 					return taskTypeText(text);
 				},
 				width: 100,
-				filters: taskTypeFilter,
+				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
 			},
 			{
 				title: '调度周期',
@@ -453,7 +427,7 @@ export default () => {
 				fixed: 'right',
 			},
 		];
-	}, [taskTypeFilter]);
+	}, [supportJobTypes]);
 
 	const renderStatus = (list: typeof statusList) => {
 		return list.map((item, index) => {

@@ -16,12 +16,13 @@
  * limitations under the License.
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useRef, useContext } from 'react';
 import { Checkbox, Tabs, Divider, Button, message } from 'antd';
 import { history } from 'umi';
 import type { FormInstance } from 'antd';
 import type { ColumnsType } from 'antd/lib/table/interface';
 import moment from 'moment';
+import context from '@/context';
 import SlidePane from '@/components/slidePane';
 import API from '@/api/operation';
 import api from '@/api';
@@ -58,13 +59,11 @@ interface IRequestParams {
 }
 
 export default () => {
+	const { supportJobTypes } = useContext(context);
 	const [selectedTask, setSelectedTasks] = useState<ITaskProps | null>(null);
 	const [visibleSlidePane, setVisible] = useState(false);
 	const [patchDataVisible, setPatchVisible] = useState(false);
 	const [patchTargetTask, setPatchTask] = useState<ITaskBasicProps | null>(null);
-	const [taskTypeFilter, setTaskFilter] = useState<{ id: number; value: number; text: string }[]>(
-		[],
-	);
 	const actionRef = useRef<IActionRef>(null);
 
 	const convertToParams = (formField: IFormFieldProps) => {
@@ -121,28 +120,6 @@ export default () => {
 				data: res.data.data,
 			};
 		}
-	};
-
-	// 获取任务类型
-	const getTaskTypesX = () => {
-		API.getTaskTypesX({}).then((res) => {
-			if (res.code === 1) {
-				const taskTypes: {
-					taskTypeCode: number;
-					taskTypeName: string;
-				}[] = res.data;
-				const nextTaskFilter =
-					taskTypes &&
-					taskTypes.map((type) => {
-						return {
-							value: type.taskTypeCode,
-							id: type.taskTypeCode,
-							text: type.taskTypeName,
-						};
-					});
-				setTaskFilter(nextTaskFilter);
-			}
-		});
 	};
 
 	const handleCloseSlidePane = () => {
@@ -245,10 +222,6 @@ export default () => {
 		}
 	};
 
-	useEffect(() => {
-		getTaskTypesX();
-	}, []);
-
 	const columns = useMemo<ColumnsType<ITaskProps>>(() => {
 		return [
 			{
@@ -282,7 +255,7 @@ export default () => {
 				render: (text: TASK_TYPE_ENUM) => {
 					return taskTypeText(text);
 				},
-				filters: taskTypeFilter,
+				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
 			},
 			{
 				title: '调度周期',
@@ -319,7 +292,7 @@ export default () => {
 				},
 			},
 		];
-	}, [taskTypeFilter]);
+	}, [supportJobTypes]);
 
 	return (
 		<div className="c-taskMana__wrap">
