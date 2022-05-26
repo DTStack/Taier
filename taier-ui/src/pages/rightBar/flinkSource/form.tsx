@@ -179,7 +179,7 @@ export default function SourceForm({
 						>
 							<Select>
 								{getFieldValue(NAME_FIELD)?.[index].type ===
-								DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
+									DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
 									<Option
 										value={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
 										key={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
@@ -248,12 +248,11 @@ export default function SourceForm({
 									enabled: false,
 								},
 							}}
-							placeholder={`字段 类型, 比如 id int 一行一个字段${
-								getFieldValue(NAME_FIELD)?.[index].type !==
+							placeholder={`字段 类型, 比如 id int 一行一个字段${getFieldValue(NAME_FIELD)?.[index].type !==
 								DATA_SOURCE_ENUM.KAFKA_CONFLUENT
-									? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
-									: ''
-							}`}
+								? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
+								: ''
+								}`}
 						/>
 					</FormItem>
 				)}
@@ -281,10 +280,10 @@ export default function SourceForm({
 								{isShowTimeForOffsetReset(
 									getFieldValue(NAME_FIELD)?.[index]?.type,
 								) && (
-									<Col span={12}>
-										<Radio value="timestamp">time</Radio>
-									</Col>
-								)}
+										<Col span={12}>
+											<Radio value="timestamp">time</Radio>
+										</Col>
+									)}
 								<Col span={12}>
 									<Radio value="custom">自定义参数</Radio>
 								</Col>
@@ -298,13 +297,12 @@ export default function SourceForm({
 					getFieldValue(NAME_FIELD)?.[index].offsetReset === 'timestamp' && (
 						<FormItem
 							label="选择时间"
-							style={{ textAlign: 'left' }}
 							name={[index, 'timestampOffset']}
 							rules={[{ required: true, message: '请选择时间' }]}
 						>
 							<DatePicker
 								showTime
-								placeholder="请选择起始时间"
+								placeholder="请选择时间"
 								format={'YYYY-MM-DD HH:mm:ss'}
 								style={{ width: '100%' }}
 							/>
@@ -315,20 +313,14 @@ export default function SourceForm({
 			<FormItem noStyle shouldUpdate>
 				{({ getFieldValue }) =>
 					getFieldValue(NAME_FIELD)?.[index].offsetReset === 'custom' && (
-						<Row>
-							<div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-								<label>偏移量</label>
-							</div>
-							<Col span={18} style={{ marginBottom: 20, height: 202 }}>
-								<Editor
-									style={{ minHeight: 202, height: '100%' }}
-									className="bd"
-									sync
-									placeholder="分区 偏移量，比如pt 2 一行一对值"
-									value={getFieldValue(NAME_FIELD)?.[index].offsetValue}
-								/>
-							</Col>
-						</Row>
+						<FormItem label="字段" required name={[index, "offsetValue"]}>
+							<Editor
+								style={{ minHeight: 202, height: '100%' }}
+								className="bd"
+								sync
+								placeholder="分区 偏移量，比如pt 2 一行一对值"
+							/>
+						</FormItem>
 					)
 				}
 			</FormItem>
@@ -400,7 +392,7 @@ export default function SourceForm({
 				{({ getFieldValue }) =>
 					((componentVersion !== FLINK_VERSIONS.FLINK_1_12 &&
 						getFieldValue(NAME_FIELD)?.[index].timeType ===
-							SOURCE_TIME_TYPE.EVENT_TIME) ||
+						SOURCE_TIME_TYPE.EVENT_TIME) ||
 						(componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
 							getFieldValue(NAME_FIELD)?.[index].timeTypeArr?.includes?.(
 								SOURCE_TIME_TYPE.EVENT_TIME,
@@ -439,10 +431,7 @@ export default function SourceForm({
 								<InputNumber
 									min={0}
 									style={{
-										width:
-											componentVersion === FLINK_VERSIONS.FLINK_1_12
-												? '100%'
-												: '90%',
+										width: '100%',
 										height: '32px',
 									}}
 									addonAfter={
@@ -454,7 +443,6 @@ export default function SourceForm({
 											>
 												<Select
 													className="right-select"
-													style={{ width: 80 }}
 												>
 													<Option value="SECOND">sec</Option>
 													<Option value="MINUTE">min</Option>

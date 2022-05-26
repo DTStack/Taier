@@ -20,6 +20,7 @@ import type { FormInstance } from 'antd';
 import { Button, Collapse, Form, Popconfirm } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getTimeZoneList } from './panelData';
+import moment from 'moment';
 import {
 	CODE_TYPE,
 	DATA_SOURCE_ENUM,
@@ -69,8 +70,9 @@ export const NAME_FIELD = 'panelColumn';
 
 interface IFormFieldProps {
 	[NAME_FIELD]: Partial<
-		Omit<IFlinkSourceProps, 'timeZone'> & {
+		Omit<IFlinkSourceProps, 'timeZone' | 'timestampOffset'> & {
 			timeZone?: string[];
+			timestampOffset?: moment.Moment;
 		}
 	>[];
 }
@@ -149,9 +151,9 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 
 	const handleSyncFormToTab = () => {
 		const source = form?.getFieldsValue()[NAME_FIELD];
-		// 需要额外处理 timeZone
+		// 需要额外处理部分字段
 		const nextSource = source?.map((s) => {
-			const next: Partial<IFlinkSourceProps> = { ...s, timeZone: s.timeZone?.join('/') };
+			const next: Partial<IFlinkSourceProps> = { ...s, timeZone: s.timeZone?.join('/'), timestampOffset: s.timestampOffset?.valueOf() };
 			return next;
 		});
 		// 将表单的值保存至 tab 中
@@ -264,6 +266,16 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			}
 		}
 
+		if (changeKeys.includes('offsetReset')) {
+			const nextValues = { ...values };
+			const panel = nextValues[NAME_FIELD][changeIndex];
+
+			panel.timestampOffset = undefined;
+			panel.offsetValue = '';
+			form?.setFieldsValue(nextValues);
+
+		}
+
 		handleSyncFormToTab();
 	};
 
@@ -283,7 +295,8 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			[NAME_FIELD]:
 				(currentPage?.source as IFlinkSourceProps[]).map((s) => ({
 					...s,
-					timeZone: s.timeZone.split('/'),
+					timeZone: s.timeZone?.split('/'),
+					timestampOffset: s.timestampOffset ? moment(s.timestampOffset) : undefined
 				})) || [],
 		};
 	}, []);
@@ -294,6 +307,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 				<Form<IFormFieldProps>
 					{...formItemLayout}
 					form={form}
+					labelWrap
 					onValuesChange={handleFormValuesChange}
 					initialValues={initialValues}
 				>
@@ -313,9 +327,8 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 											<Panel
 												header={
 													<div className="input-panel-title">
-														<span>{` 源表 ${index + 1} ${
-															table ? `(${table})` : ''
-														}`}</span>
+														<span>{` 源表 ${index + 1} ${table ? `(${table})` : ''
+															}`}</span>
 													</div>
 												}
 												key={field.key.toString()}

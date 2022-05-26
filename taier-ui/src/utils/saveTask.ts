@@ -7,7 +7,7 @@ import {
 	SOURCE_TIME_TYPE,
 	DATA_SOURCE_ENUM,
 } from '@/constant';
-import type { IFlinkSinkProps, IFlinkSourceProps, IOfflineTaskProps } from '@/interface';
+import type { IOfflineTaskProps } from '@/interface';
 import molecule from '@dtinsight/molecule';
 import api from '@/api';
 import { cloneDeep, isEmpty } from 'lodash';
@@ -284,13 +284,14 @@ const validTableData = async (currentPage: IOfflineTaskProps) => {
 		source: validDataSource,
 		sink: validDataOutput,
 		side: validDataSide,
-	};
+	} as const;
 	return Promise.all(
 		VALID_FIELDS.map((key) => {
 			const tableData = currentPage[key];
 			return dataValidator(
 				currentPage,
 				tableData,
+				// @ts-ignore
 				FIELDS_VALID_FUNCTION_MAPPING[key],
 				FIELDS_MAPPING[key],
 			);
@@ -326,7 +327,10 @@ export async function dataValidator<T extends any[]>(
 /**
  * 校验 Flink 的源表表单值
  */
-const validDataSource = async (data: IFlinkSourceProps, componentVersion?: string) => {
+const validDataSource = async (
+	data: IOfflineTaskProps['source'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesSource(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -342,7 +346,7 @@ const validDataSource = async (data: IFlinkSourceProps, componentVersion?: strin
  */
 export const generateValidDesSource = (
 	data: IOfflineTaskProps['source'][number],
-	componentVersion?: string,
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
 ) => {
 	const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 	const haveSchema =
@@ -380,7 +384,10 @@ export const generateValidDesSource = (
 /**
  * 校验 Flink 的结果表
  */
-const validDataOutput = async (data: IFlinkSinkProps, componentVersion?: string) => {
+const validDataOutput = async (
+	data: IOfflineTaskProps['sink'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesOutPut(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -394,7 +401,10 @@ const validDataOutput = async (data: IFlinkSinkProps, componentVersion?: string)
 /**
  * 动态生成 Flink 结果表的校验规则
  */
-const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: string): Rules => {
+const generateValidDesOutPut = (
+	data?: IOfflineTaskProps['sink'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+): Rules => {
 	const schemaRequired =
 		data?.type &&
 		[
@@ -480,7 +490,10 @@ function checkColumnsData(rule: any, value: any, callback: any, source: any) {
 /**
  * 校验 Flink 维表
  */
-const validDataSide = async (data: IOfflineTaskProps['side'], componentVersion?: string) => {
+const validDataSide = async (
+	data: IOfflineTaskProps['side'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesSide(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -496,7 +509,7 @@ const validDataSide = async (data: IOfflineTaskProps['side'], componentVersion?:
  */
 export const generateValidDesSide = (
 	data: IOfflineTaskProps['side'][number],
-	componentVersion?: string,
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
 ): Rules => {
 	const isCacheLRU = data?.cache === 'LRU';
 	const isCacheTLLMSReqiured = data?.cache === 'LRU' || data?.cache === 'ALL';

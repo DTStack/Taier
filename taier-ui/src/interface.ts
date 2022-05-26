@@ -513,6 +513,8 @@ export interface IFlinkSourceProps {
 	timeColumn: string;
 	timeType: SOURCE_TIME_TYPE;
 	timeTypeArr: SOURCE_TIME_TYPE[];
+	// 时间戳
+	timestampOffset: number;
 	timeZone: string;
 	topic: string;
 	type: DATA_SOURCE_ENUM;
