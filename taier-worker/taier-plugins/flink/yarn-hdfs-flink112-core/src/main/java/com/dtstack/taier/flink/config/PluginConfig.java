@@ -1,12 +1,12 @@
 package com.dtstack.taier.flink.config;
 
+import com.dtstack.taier.flink.constant.ConfigConstant;
 import com.dtstack.taier.pluginapi.JarFileInfo;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.flink.constant.ConfigConstant;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -71,7 +71,8 @@ public class PluginConfig {
         File pluginDir = new File(flinkxDistDir);
         if (pluginDir.exists() && pluginDir.isDirectory()){
             File[] jarFiles = pluginDir.listFiles((dir, name)
-                    -> name.toLowerCase().startsWith(ConfigConstant.FLINKX_CORE_JAR_PREFIX)
+                    -> (name.toLowerCase().startsWith(ConfigConstant.FLINKX_CORE_JAR_PREFIX)
+                    || name.toLowerCase().startsWith(ConfigConstant.CHUNJUN_CORE_JAR_PREFIX))
                     && name.toLowerCase().endsWith(".jar"));
 
             // todo: should check if jarFiles.length > 1
@@ -79,7 +80,7 @@ public class PluginConfig {
                 return jarFiles[0].getAbsolutePath();
             }
         }
-        throw new PluginDefineException("Can not find flinkx core jar in path: " + flinkxDistDir);
+        throw new PluginDefineException("Can not find chunjun core jar in path: " + flinkxDistDir);
     }
 
     /**
