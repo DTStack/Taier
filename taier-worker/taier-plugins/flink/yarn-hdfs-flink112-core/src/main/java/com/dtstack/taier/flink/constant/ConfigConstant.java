@@ -104,6 +104,7 @@ public class ConfigConstant {
      * flinkx core jar prefix
      */
     public static final String FLINKX_CORE_JAR_PREFIX = "flinkx-core";
+    public static final String CHUNJUN_CORE_JAR_PREFIX = "chunjun-core";
 
     public static final String FLINKX_PLUGIN_LOAD_MODE = "pluginLoadMode";
 
