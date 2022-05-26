@@ -13,6 +13,7 @@ import com.dtstack.taier.common.metric.stream.StreamMetricBuilder;
 import com.dtstack.taier.common.metric.stream.prometheus.CustomPrometheusMetricQuery;
 import com.dtstack.taier.common.metric.stream.prometheus.ICustomMetricQuery;
 import com.dtstack.taier.common.param.MetricResultVO;
+import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.StreamMetricSupport;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.StreamTaskMetricDTO;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class StreamJobMetricService {
@@ -102,11 +104,14 @@ public class StreamJobMetricService {
         long endTime = metricDTO.getEnd().getTime();
         long startTime = TimeUtil.getStartTime(endTime, span);
         String jobName = EScheduleJobType.DATA_ACQUISITION.getVal().equals(task.getTaskType()) ? task.getName() :  task.getName() + "_" + task.getId();
-        String jobId = jobService.getScheduleJob(task.getJobId()).getEngineJobId();
+        ScheduleJob scheduleJob = jobService.getScheduleJob(task.getJobId());
+        JSONArray chartDatas = new JSONArray();
+        if(Objects.isNull(scheduleJob)) {
+            return chartDatas;
+        }
+        String jobId = scheduleJob.getEngineJobId();
         Long dtuicTenantId = task.getTenantId();
         PrometheusMetricQuery prometheusMetricQuery = buildPrometheusMetric(dtuicTenantId, task.getComponentVersion());
-
-        JSONArray chartDatas = new JSONArray();
         for (String chartName : metricDTO.getChartNames()) {
             if (chartMetricMap.containsKey(chartName)) {
                 List<JSONObject> metricDatas = new ArrayList<>();
