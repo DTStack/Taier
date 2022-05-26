@@ -39,6 +39,13 @@ export default defineConfig({
 				languages: ['json'],
 			},
 		]);
+
+		// ignore *.worker.js hash
+		memo.output.set('filename', (pathData: any) => {
+			return pathData.chunk.name.endsWith('.worker')
+				? '[name].js'
+				: `[name].[contenthash:8].js`;
+		});
 		return memo;
 	},
 	esbuild: {},
