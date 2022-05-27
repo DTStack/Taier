@@ -25,7 +25,7 @@ import {
 	KAFKA_DATA_TYPE,
 	SOURCE_TIME_TYPE,
 } from '@/constant';
-import { isAvro, isKafka, showTimeForOffsetReset } from '@/utils/enums';
+import { isKafka, isAvro, isShowTimeForOffsetReset } from '@/utils/is';
 import {
 	Button,
 	Cascader,
@@ -91,7 +91,7 @@ interface ISourceFormFieldProps {
 	sourceId: string;
 	topic: string;
 	charset: CODE_TYPE;
-	sourceDataType?: typeof KAFKA_DATA_TYPE;
+	sourceDataType?: KAFKA_DATA_TYPE;
 	schemaInfo?: string;
 	table: string;
 	offsetReset: 'latest' | 'earliest' | 'custom' | 'timestamp';
@@ -367,11 +367,10 @@ export default function SourceForm({
 											enabled: false,
 										},
 									}}
-									placeholder={`字段 类型, 比如 id int 一行一个字段${
-										getFieldValue('type') !== DATA_SOURCE_ENUM.KAFKA_CONFLUENT
-											? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
-											: ''
-									}`}
+									placeholder={`字段 类型, 比如 id int 一行一个字段${getFieldValue('type') !== DATA_SOURCE_ENUM.KAFKA_CONFLUENT
+										? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
+										: ''
+										}`}
 									value={panelColumn.columnsText}
 									onChange={(val: string) =>
 										debounceEditorChange('columnsText', val)
@@ -404,7 +403,7 @@ export default function SourceForm({
 							<Col span={12}>
 								<Radio value="earliest">earliest</Radio>
 							</Col>
-							{showTimeForOffsetReset(panelColumn.type) && (
+							{isShowTimeForOffsetReset(panelColumn.type) && (
 								<Col span={12}>
 									<Radio value="timestamp">time</Radio>
 								</Col>

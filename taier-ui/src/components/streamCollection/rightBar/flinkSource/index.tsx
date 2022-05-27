@@ -26,7 +26,7 @@ import { Utils } from '@dtinsight/dt-utils/lib';
 import stream from '@/api/stream';
 import { cloneDeep } from 'lodash';
 import { streamTaskActions } from '../../taskFunc';
-import { isAvro, isKafka, isTaskTab } from '@/utils/enums';
+import { isTaskTab, isKafka, isAvro } from '@/utils/is';
 import { changeCustomParams } from '../customParamsUtil';
 import { parseColumnText } from '../flinkHelper';
 import SourceForm from './form';

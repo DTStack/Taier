@@ -30,27 +30,27 @@ import {
 	KAFKA_DATA_LIST,
 	KAFKA_DATA_TYPE,
 } from '@/constant';
-import { isRDB } from '@/utils';
 import {
-	haveCollection,
-	haveDataPreview,
-	haveParallelism,
-	havePrimaryKey,
-	haveTableColumn,
-	haveTableList,
-	haveTopic,
-	haveUpdateMode,
-	haveUpdateStrategy,
-	haveUpsert,
+	isRDB,
+	isHaveCollection,
+	isShowBucket,
+	isKafka,
+	isRedis,
 	isAvro,
+	isHaveTableColumn,
+	isShowSchema,
+	isHaveTopic,
+	isHaveTableList,
+	isHavePrimaryKey,
+	isSqlServer,
+	isHaveDataPreview,
 	isES,
 	isHbase,
-	isKafka,
-	isSqlServer,
-	showBucket,
-	isShowSchema,
-	isRedis,
-} from '@/utils/enums';
+	isHaveUpsert,
+	isHaveUpdateMode,
+	isHaveUpdateStrategy,
+	isHaveParallelism
+} from '@/utils/is';
 import {
 	Button,
 	Checkbox,
@@ -163,7 +163,7 @@ const isDisabledUpdateMode = (
 		return false;
 	}
 
-	return !haveUpsert(type, version);
+	return !isHaveUpsert(type, version);
 };
 
 /**
@@ -717,7 +717,7 @@ export default function ResultForm({
 				<FormItem noStyle dependencies={['type']}>
 					{({ getFieldValue }) => (
 						<>
-							{haveCollection(getFieldValue('type')) && (
+							{isHaveCollection(getFieldValue('type')) && (
 								<FormItem
 									label="Collection"
 									name="collection"
@@ -738,7 +738,7 @@ export default function ResultForm({
 									</Select>
 								</FormItem>
 							)}
-							{showBucket(getFieldValue('type')) && (
+							{isShowBucket(getFieldValue('type')) && (
 								<>
 									<FormItem
 										label="Bucket"
@@ -792,7 +792,7 @@ export default function ResultForm({
 									/>
 								</FormItem>
 							)}
-							{haveTopic(getFieldValue('type')) && (
+							{isHaveTopic(getFieldValue('type')) && (
 								<FormItem
 									label="Topic"
 									name="topic"
@@ -807,7 +807,7 @@ export default function ResultForm({
 									</Select>
 								</FormItem>
 							)}
-							{haveTableList(getFieldValue('type')) &&
+							{isHaveTableList(getFieldValue('type')) &&
 								![DATA_SOURCE_ENUM.S3, DATA_SOURCE_ENUM.CSP_S3].includes(
 									getFieldValue('type'),
 								) && (
@@ -860,7 +860,7 @@ export default function ResultForm({
 									<Input placeholder="请输入索引" />
 								</FormItem>
 							)}
-							{haveDataPreview(getFieldValue('type')) && (
+							{isHaveDataPreview(getFieldValue('type')) && (
 								<FormItem
 									wrapperCol={{
 										offset: formItemLayout.labelCol.sm.span,
@@ -893,14 +893,14 @@ export default function ResultForm({
 							{[DATA_SOURCE_ENUM.ES, DATA_SOURCE_ENUM.ES6].includes(
 								getFieldValue('type'),
 							) && (
-								<FormItem
-									label="索引类型"
-									name="esType"
-									rules={[{ required: true, message: '请输入索引类型' }]}
-								>
-									<Input placeholder="请输入索引类型" />
-								</FormItem>
-							)}
+									<FormItem
+										label="索引类型"
+										name="esType"
+										rules={[{ required: true, message: '请输入索引类型' }]}
+									>
+										<Input placeholder="请输入索引类型" />
+									</FormItem>
+								)}
 							{getFieldValue('type') === DATA_SOURCE_ENUM.HBASE && (
 								<FormItem
 									label="rowKey"
@@ -929,10 +929,10 @@ export default function ResultForm({
 												{ required: true, message: '请输入rowKey' },
 												isFlink112
 													? {
-															pattern: /^\w{1,64}$/,
-															message:
-																'只能由字母，数字和下划线组成，且不超过64个字符',
-													  }
+														pattern: /^\w{1,64}$/,
+														message:
+															'只能由字母，数字和下划线组成，且不超过64个字符',
+													}
 													: {},
 											]}
 										>
@@ -967,15 +967,15 @@ export default function ResultForm({
 							{[DATA_SOURCE_ENUM.TBDS_HBASE, DATA_SOURCE_ENUM.HBASE_HUAWEI].includes(
 								getFieldValue('type'),
 							) && (
-								<FormItem
-									label="rowKey"
-									tooltip="支持拼接规则：md5(fieldA+fieldB) + fieldC + '常量字符'"
-									name="rowKey"
-									rules={[{ required: true, message: '请输入rowKey' }]}
-								>
-									<Input placeholder="rowKey 格式：填写字段1+填写字段2 " />
-								</FormItem>
-							)}
+									<FormItem
+										label="rowKey"
+										tooltip="支持拼接规则：md5(fieldA+fieldB) + fieldC + '常量字符'"
+										name="rowKey"
+										rules={[{ required: true, message: '请输入rowKey' }]}
+									>
+										<Input placeholder="rowKey 格式：填写字段1+填写字段2 " />
+									</FormItem>
+								)}
 						</>
 					)}
 				</FormItem>
@@ -988,7 +988,7 @@ export default function ResultForm({
 				</FormItem>
 				<FormItem label="字段" required dependencies={['type']}>
 					{({ getFieldValue }) =>
-						haveTableColumn(getFieldValue('type')) ? (
+						isHaveTableColumn(getFieldValue('type')) ? (
 							<div className="column-container">
 								<Table<IFlinkSinkProps['columns'][number]>
 									rowKey="column"
@@ -1035,7 +1035,7 @@ export default function ResultForm({
 											<span
 												className={
 													text?.toLowerCase() ===
-													'Not Support'.toLowerCase()
+														'Not Support'.toLowerCase()
 														? 'has-error'
 														: ''
 												}
@@ -1158,7 +1158,7 @@ export default function ResultForm({
 									>
 										<Select style={{ width: '100%' }}>
 											{getFieldValue('type') ===
-											DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
+												DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
 												<Option
 													value={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
 													key={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
@@ -1197,7 +1197,7 @@ export default function ResultForm({
 									</FormItem>
 								</React.Fragment>
 							)}
-							{haveUpdateMode(getFieldValue('type')) && (
+							{isHaveUpdateMode(getFieldValue('type')) && (
 								<>
 									<FormItem
 										label="更新模式"
@@ -1228,7 +1228,7 @@ export default function ResultForm({
 										{({ getFieldValue: getField }) => (
 											<>
 												{getField('updateMode') === 'upsert' &&
-													haveUpdateStrategy(getFieldValue('type')) && (
+													isHaveUpdateStrategy(getFieldValue('type')) && (
 														<FormItem
 															label="更新策略"
 															name="allReplace"
@@ -1251,7 +1251,7 @@ export default function ResultForm({
 														</FormItem>
 													)}
 												{getField('updateMode') === 'upsert' &&
-													(havePrimaryKey(getFieldValue('type')) ||
+													(isHavePrimaryKey(getFieldValue('type')) ||
 														!isDisabledUpdateMode(
 															getFieldValue('type'),
 															disableUpdateMode,
@@ -1309,7 +1309,7 @@ export default function ResultForm({
 				<FormItem hidden={!showAdvancedParams} noStyle dependencies={['type']}>
 					{({ getFieldValue }) => (
 						<>
-							{haveParallelism(getFieldValue('type')) && (
+							{isHaveParallelism(getFieldValue('type')) && (
 								<FormItem name="parallelism" label="并行度">
 									<InputNumber
 										className={classNames('number-input')}
@@ -1434,7 +1434,7 @@ export default function ResultForm({
 									</FormItem>
 								</>
 							)}
-							{!haveParallelism(getFieldValue('type')) && (
+							{!isHaveParallelism(getFieldValue('type')) && (
 								<FormItem
 									label="分区类型"
 									tooltip="分区类型包括 DAY、HOUR、MINUTE三种。若分区不存在则会自动创建，自动创建的分区时间以当前任务运行的服务器时间为准"

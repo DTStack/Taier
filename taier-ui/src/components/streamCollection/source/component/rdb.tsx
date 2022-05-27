@@ -20,8 +20,8 @@ import stream from "@/api/stream";
 import { API } from '@/api/dataSource';
 import { extralConfig, intervalColumn, multipleTableTip, sourceFormat, startLocation, temporary, transferTypeFormat, writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { CAT_TYPE, COLLECT_TYPE, DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, SLOAR_CONFIG_TYPE, SYNC_TYPE } from "@/constant";
-import { isSqlServer } from "@/utils/enums";
 import { Button, Card, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Tag, Tooltip } from "antd";
+import { isSqlServer } from '@/utils/is';
 import { QuestionCircleOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import React, { useEffect, useState } from "react";
 import { streamTaskActions } from "../../taskFunc";
@@ -89,12 +89,12 @@ export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncP
 
     const getTableList = (sourceId: any, searchKey?: any) => {
         API.getOfflineTableList({
-			sourceId,
-			// schema,
-			isSys: false,
-			name: searchKey,
-			isRead: true,
-		}).then((res: any) => {
+            sourceId,
+            // schema,
+            isSys: false,
+            name: searchKey,
+            isRead: true,
+        }).then((res: any) => {
             if (res.code === 1) {
                 setTableList(res.data || [])
             }
@@ -265,7 +265,7 @@ export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncP
             distributeTable: newDistributeTable
         });
     }
-    
+
     const resetList = () => {
         setSchemaList([]);
         setPDBList([]);

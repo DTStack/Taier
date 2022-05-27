@@ -26,15 +26,15 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DATA_SOURCE_ENUM } from '@/constant';
 import stream from '@/api/stream';
 import {
-	haveCollection,
-	havePartition,
-	haveSchema,
-	haveTableColumn,
-	haveTableList,
-	haveTopic,
-	isSqlServer,
 	isTaskTab,
-} from '@/utils/enums';
+	isHaveTableColumn,
+	isHaveTopic,
+	isHavePartition,
+	isHaveSchema,
+	isHaveTableList,
+	isSqlServer,
+	isHaveCollection,
+} from '@/utils/is';
 import { streamTaskActions } from '../../taskFunc';
 import { initCustomParam } from '../customParamsUtil';
 import ResultForm from './form';
@@ -293,41 +293,41 @@ export default function FlinkResultPanel({ current }: Pick<IEditor, 'current'>) 
 
 		if (changedFields.includes('sourceId')) {
 			const value = next.sourceId;
-			if (haveCollection(sourceType)) {
+			if (isHaveCollection(sourceType)) {
 				getTableType({ sourceId: value, type: sourceType, schema: next.schema });
 			}
-			if (haveTableList(sourceType)) {
+			if (isHaveTableList(sourceType)) {
 				getTableType({ sourceId: value, type: sourceType, schema: next.schema });
-				if (haveSchema(sourceType)) {
+				if (isHaveSchema(sourceType)) {
 					getSchemaData();
 				}
 			}
-			if (haveTopic(sourceType)) {
+			if (isHaveTopic(sourceType)) {
 				getTopicType(value);
 			}
 		}
 
 		if (changedFields.includes('schema')) {
 			const value = next.schema;
-			if (haveTableList(sourceType)) {
+			if (isHaveTableList(sourceType)) {
 				getTableType({ sourceId: next.sourceId, type: sourceType, schema: value });
 			}
 		}
 
 		if (changedFields.includes('table')) {
-			if (haveTableColumn(sourceType)) {
+			if (isHaveTableColumn(sourceType)) {
 				getTableColumns(next.sourceId, next.table, next.schema);
 			}
-			if (havePartition(sourceType)) {
+			if (isHavePartition(sourceType)) {
 				loadPartitions();
 			}
 		}
 
 		if (changedFields.includes('collection')) {
-			if (haveTableColumn(sourceType)) {
+			if (isHaveTableColumn(sourceType)) {
 				getTableColumns(next.sourceId, next.collection, next.schema);
 			}
-			if (havePartition(sourceType)) {
+			if (isHavePartition(sourceType)) {
 				loadPartitions();
 			}
 		}
@@ -338,26 +338,26 @@ export default function FlinkResultPanel({ current }: Pick<IEditor, 'current'>) 
 			initCustomParam(v);
 			panelColumn.push(v);
 			getTypeOriginData(v.type);
-			if (haveCollection(v.type)) {
+			if (isHaveCollection(v.type)) {
 				getTableType({ sourceId: v.sourceId, type: v.type, schema: v.schema });
 			}
-			if (haveTableList(v.type)) {
+			if (isHaveTableList(v.type)) {
 				getTableType({ sourceId: v.sourceId, type: v.type, schema: v.schema });
 
-				if (haveSchema(v.type)) {
+				if (isHaveSchema(v.type)) {
 					getSchemaData(index, v.sourceId);
 				}
 
-				if (haveTableColumn(v.type)) {
+				if (isHaveTableColumn(v.type)) {
 					getTableColumns(v.sourceId, v.table, v?.schema);
 				}
 			}
 
-			if (haveTopic(v.type)) {
+			if (isHaveTopic(v.type)) {
 				getTopicType(v.sourceId);
 			}
 
-			if (havePartition(v.type)) {
+			if (isHavePartition(v.type)) {
 				loadPartitions(index, v.sourceId, v.table);
 			}
 		});

@@ -23,12 +23,12 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { DATA_SOURCE_ENUM } from '@/constant';
 import stream from '@/api/stream';
 import {
-	haveSchema,
-	haveTableColumn,
-	haveTableList,
-	isCacheExceptLRU,
 	isTaskTab,
-} from '@/utils/enums';
+	isHaveTableColumn,
+	isHaveSchema,
+	isHaveTableList,
+	isCacheExceptLRU,
+} from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
 import DimensionForm from './form';
@@ -188,10 +188,10 @@ export default function FlinkDimensionPanel({ current }: IFlinkDimensionProps) {
 				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
 			};
 
-			if (haveTableList(doNextVal.type)) {
+			if (isHaveTableList(doNextVal.type)) {
 				getTableType(doNextVal.type!, doNextVal.sourceId!, doNextVal.schema);
 
-				if (haveSchema(doNextVal.type)) {
+				if (isHaveSchema(doNextVal.type)) {
 					getSchemaData();
 				}
 			}
@@ -207,7 +207,7 @@ export default function FlinkDimensionPanel({ current }: IFlinkDimensionProps) {
 				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
 			};
 
-			if (haveTableList(doNextVal.type)) {
+			if (isHaveTableList(doNextVal.type)) {
 				getTableType(doNextVal.type!, doNextVal.sourceId!, doNextVal.schema);
 			}
 		}
@@ -223,7 +223,7 @@ export default function FlinkDimensionPanel({ current }: IFlinkDimensionProps) {
 				cache: isCacheExceptLRU(doNextVal.type) ? 'ALL' : 'LRU',
 			};
 
-			if (haveTableColumn(doNextVal.type)) {
+			if (isHaveTableColumn(doNextVal.type)) {
 				getTableColumns(doNextVal.sourceId!, doNextVal.table!, doNextVal.schema);
 			}
 		}

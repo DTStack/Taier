@@ -541,7 +541,7 @@ export interface IFlinkSinkProps {
 	esType?: string;
 	rowKey?: string;
 	rowKeyType?: string;
-	sinkDataType?: Valueof<typeof KAFKA_DATA_TYPE>;
+	sinkDataType?: KAFKA_DATA_TYPE;
 	schemaInfo?: string;
 	topic?: string;
 	type: DATA_SOURCE_ENUM;
