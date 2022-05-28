@@ -96,12 +96,12 @@ public class JobGraphUtil {
      * ]
      * }
      *
-     * @param applicationId
+     * @param engineTaskId
      * @param latencyMarkerInfo
      * @param computeType 流计算才需存储jobGraph
      * @return
      */
-    public static String formatJSON(String applicationId, String latencyMarkerInfo, ComputeType computeType) {
+    public static String formatJSON(String engineTaskId, String latencyMarkerInfo, ComputeType computeType) {
         if (!ComputeType.STREAM.equals(computeType)) {
             return null;
         }
@@ -109,7 +109,7 @@ public class JobGraphUtil {
             return null;
         }
         JSONObject data = new JSONObject();
-        data.put("jobId", applicationId);
+        data.put("jobId", engineTaskId);
         JSONObject markInfoJSON = JSONObject.parseObject(latencyMarkerInfo);
         if (null != markInfoJSON) {
             data.put("taskVertices", markInfoJSON.values());
