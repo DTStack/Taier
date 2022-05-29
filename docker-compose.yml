@@ -13,6 +13,7 @@ services:
       - 80:80
     environment:
       TAIER_IP: taier
+      TAIER_PORT: 8090
   taier:
     image: dtopensource/taier:1.1
     environment:
