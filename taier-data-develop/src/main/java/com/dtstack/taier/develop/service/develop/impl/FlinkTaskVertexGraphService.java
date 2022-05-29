@@ -153,8 +153,8 @@ public class FlinkTaskVertexGraphService {
                 Integer subJobSize = taskVertice.getSubJobVertices().size();
                 bytesIn += taskVertice.getInBytes().get(index) == null ? 0 : taskVertice.getInBytes().get(index);
                 bytesOut += taskVertice.getOutBytes().get(index) == null ? 0 : taskVertice.getOutBytes().get(index);
-                Long subrecordsIn = taskVertice.getSubJobVertices().get(0).getRecordsSentMap().get(index) == null ? 0L : taskVertice.getSubJobVertices().get(0).getRecordsSentMap().get(index);
-                Long subrecordsOut = taskVertice.getSubJobVertices().get(subJobSize - 1).getRecordsReceivedMap().get(index) == null ? 0L : taskVertice.getSubJobVertices().get(subJobSize - 1).getRecordsReceivedMap().get(index);
+                Long subrecordsIn = taskVertice.getSubJobVertices().get(0).getRecordsSentMap().get(index) == null ? 0L : taskVertice.getSubJobVertices().get(0).getRecordsReceivedMap().get(index);
+                Long subrecordsOut = taskVertice.getSubJobVertices().get(subJobSize - 1).getRecordsReceivedMap().get(index) == null ? 0L : taskVertice.getSubJobVertices().get(subJobSize - 1).getRecordsSentMap().get(index);
                 recordsIn += subrecordsIn;
                 recordsOut += subrecordsOut;
                 //获取单个task对不同的soucre task的延迟汇总
