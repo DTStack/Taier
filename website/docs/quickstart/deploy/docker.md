@@ -1,117 +1,143 @@
 # docker 部署
 
-## 1. 使用docker-compose快速部署
-
 :::tip
-注意：使用docker部署的时候，必须先要安装docker和docker-compose
+注意：taier的docker镜像，目前是通过目录挂载的去加载datasourcex和chunjun，以下操作默认插件包都已经下载
 :::
 
-1. 可以先去git上面拉去taier工程，或者直接在master分支下载docker-compose.yml文件，docker-compose.yml文件存放在项目的根目录下
-2. 使用终端进入到docker-compose.yml所在的目录，然后执行命令 
-```shell
-$ docker-compose up -d
-```
-3. 获取hub的上面的镜像并部署，当命令执行完成后，在浏览器上直接访问 127.0.0.1 即可
+以datasoucex为例 解压后目录结构为
+``shell
+/opt/dtstack/DTPlugin/InsightPlugin/dataSourcePlugin
+├── aws_s3
+├── clickhouse
+├── db2
+├── dmdb
+├── doris
+├── emq
+├── es
+├── es7
+├── ftp
+├── gbase
+├── greenplum6
+├── hbase
+├── hbase2
+├── hbase_gateway
+├── hdfs
+├── hive
+├── hive1
+├── hive3
+├── impala
+├── inceptor
+├── influxdb
+├── kafka
+├── kingbase8
+├── kudu
+├── kylin
+├── kylinrestful
+├── libra
+├── maxcompute
+├── mongo
+├── mysql5
+├── mysql8
+├── oceanbase
+├── opentsdb
+├── oracle
+├── phoenix
+├── phoenix4_8
+├── phoenix5
+├── postgresql
+├── presto
+├── redis
+├── restful
+├── s3
+├── socket
+├── solr
+├── spark
+├── sqlServer
+├── sqlServer2017
+├── vertica
+└── websocket
+``
 
-docker-compose.yml文件内容如下
+## 1. 仅使用taier的web和ui镜像
+仅使用taier的web和ui，确保已有外部的mysql数据源，初始化好相关taier的数据库  
+                    确保已有外部的zookeeper，可以正常连接
+
+获取taier镜像 
+```shell
+$ docker pull dtopensource/taier:1.1
+$ docker pull dtopensource/taier-ui:1.1
+```
+
+启动web镜像
+```shell
+docker run -itd -p 8090:8090 --env ZK_HOST=172.16.85.111 \
+--env ZK_PORT=2181 \
+--env DB_HOST=172.16.101.187 \
+--env DB_PORT=3306 \
+--env DB_ROOT=root  \
+--env DB_PASSWORD=123456 \
+--env DATASOURCEX_PATH=/usr/taier/datasourcex \
+-v /opt/dtstack/DTPlugin/InsightPlugin/dataSourcePlugin:/usr/taier/datasourcex \
+dtopensource/taier:1.1
+```
+
+启动ui镜像
+TAIER_IP 为启动web镜像ip
+```shell
+docker run -itd -p 80:80 --env TAIER_IP=172.16.100.38 \
+--env TAIER_PORT=8090 \
+dtopensource/taier-ui:1.1
+```
+
+当命令执行完成后，在浏览器上直接访问 127.0.0.1 即可
+
+
+:::caution
+访问页面 如果浏览器出现502，请手动确认ui容器是否和web镜像容器网络是否互通
+:::
+
+:::tip
+如果web容器和ui容器都同台服务器上，ui容器需要访问宿主讥网络 请修改防火墙策略
+``shell
+firewall-cmd --zone=public --add-port=8090/tcp --permanent  
+firewall-cmd --reload
+``
+:::
+
+## 2. 使用taier docker-compose
+获取taier最新的docker-compose文件
 ```yaml
 version: '3'
 services:
   taier-db:
-    image: dtopensource/taier-mysql:1.0
-#    ports:
-#      - 3306:3306
+    image: dtopensource/taier-mysql:1.1
     environment:
       MYSQL_DATABASE: taier
       MYSQL_ROOT_PASSWORD: 123456
   taier-zk:
     image: zookeeper:3.4.9
   taier-ui:
-    image: dtopensource/taier-ui:1.0
+    image: dtopensource/taier-ui:1.1
     ports:
       - 80:80
     environment:
       TAIER_IP: taier
+      TAIER_PORT: 8090
   taier:
-    image: dtopensource/taier:1.0
-#    ports:
-#      - 8090:8090
+    image: dtopensource/taier:1.1
     environment:
-      NODE_ZKADDRESS: taier-zk
-      MYSQL_IP: taier-db
+      ZK_HOST: taier-zk
+      ZK_PORT: 2181
+      DB_HOST: taier-db
+      DB_PORT: 3306
+      DB_ROOT: root
+      DB_PASSWORD: 123456
+      DATASOURCEX_PATH: /usr/taier/datasourcex
+    volumes:
+        - /data/datasourcex:/usr/taier/datasourcex
 ```
 
-共有4个镜像 
-* taier-db是mysql数据库镜像 
-* taier-zk是zk的镜像 
-* taier-ui是taier前端的镜像 
-* taier是taier后端的镜像
-
-## 2. 直接获取hub上面镜像部署
-如果想要使用自己mysql和zk，只需要下载taier-ui镜像和taier镜像
+进入docker-compose目录，执行
 ```shell
-// taier地址
-docker pull dtopensource/taier:1.0
-
-// taier-ui地址
-docker pull dtopensource/taier-ui:1.0
+$ docker-compose up -d
 ```
-
-可以在taier镜像中配置环境变量mysql和zk地址如下
-```shell
-MYSQL_ROOT: 数据库用户名
-MYSQL_ROOT_PASSWORD 数据库密码
-MYSQL_IP 数据库ip
-MYSQL_PORT 数据库端口
-NODE_ZKADDRESS zk的地址
-```
-参考命令：
-```shell
-docker run -itd -p 端口号:端口号 --env MYSQL_ROOT=环境变量参数 --network 网段 dtopensource/taier:1.0 /bin/bash
-```
-
-taier-ui和taier同理，但是taier-ui只需要配置taier后端的地址即可 --env TAIER_IP=
-```shell
-TAIER_IP: taier后端的地址
-```
-
-## 3. 使用Dockerfile构建镜像
-   如果想使用Dockerfile构建镜像，则需要准备一些第三方jar
-* 下载taier源码，执行脚本mvn-build.sh 编辑出taier后端所需要的jar包。
-* 下载第三方jar,chunjun和datasourceX并把这两个第三方jar打包成chunjun.tar.gz和datasourceX.tar.gz放在项目的更目录下。（chunjun和datasourceX的jar获取请参考后端快速部署）
-* 执行在项目的更目录下执行
-```shell 
-$ docker build -t tag:version . 
-```
-
-taier-ui的docker打包方式
-* 首先进入到ui的项目工程里面 
-``` shell
-$ cd taier-ui
-```
-* 执行命令 
-```shell 
-$ yarn install 
-``` 
-执行完成后继续执行 
-```shell 
-$ yarn build 
-``` 
-执行完成后，项目工程会多出来一个目录dist，说明前端打包成功。
-* 然后在ui目录下执行 
-```shell 
-$ docker build -t tag:version . 
-```
-
-启动镜像请参考步骤二
-
-
-
-
-
-
-
-
-
-
-
