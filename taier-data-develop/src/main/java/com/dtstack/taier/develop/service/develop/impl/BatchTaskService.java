@@ -58,7 +58,8 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.schedule.JobService;
+import com.dtstack.taier.develop.service.develop.savetask.DevelopAddOrUpdateTaskTemplate;
+import com.dtstack.taier.develop.service.develop.savetask.DevelopTaskAddOrUpdateTemplateFactory;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
@@ -143,9 +144,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private TenantService tenantService;
 
     @Autowired
-    private BatchTaskParamShadeService batchTaskParamShadeService;
-
-    @Autowired
     private DevelopTaskMapper developTaskMapper;
 
     @Autowired
@@ -218,10 +216,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private ScheduleActionService scheduleActionService;
-
-    @Autowired
-    private JobService jobService;
+    private DevelopTaskAddOrUpdateTemplateFactory developTaskAddOrUpdateTemplateFactory;
 
     @Autowired
     private ClusterService clusterService;
@@ -899,6 +894,16 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return taskVO;
     }
 
+    /**
+     * 新增/更新任务
+     * @param taskResourceParam
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public Task addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
+        DevelopAddOrUpdateTaskTemplate taskService = developTaskAddOrUpdateTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
+       return taskService.addOrUpdate(taskResourceParam);
+    }
     /**
      * 新增/更新任务
      * 内部使用 不对外提供
