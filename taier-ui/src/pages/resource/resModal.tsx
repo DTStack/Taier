@@ -20,11 +20,13 @@ import { Radio, Space } from 'antd';
 import { Form, Modal, Button, Input, Select, Upload } from 'antd';
 import FolderPicker from '../../components/folderPicker';
 import { CATELOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
 import { IComputeType } from '@/interface';
 import type { RcFile } from 'antd/lib/upload';
 import { resourceNameMapping } from '@/utils/enums';
 import { catalogueService } from '@/services';
+import resourceManagerTree from '@/services/resourceManagerService';
+import { FileTypes } from '@dtinsight/molecule/esm/model';
+import api from '@/api';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -106,31 +108,36 @@ export default function ResModal({
 		});
 	};
 
+	const handleFormValueChange = (changed: Partial<IFormFieldProps>) => {
+		if ('id' in changed) {
+			const node = resourceManagerTree.get(changed.id!)
+			if (node?.fileType === FileTypes.File) {
+				api.getOfflineRes({
+					resourceId: node.data.id,
+				}).then(res => {
+					if (res.code === 1) {
+						form.setFieldsValue({
+							originFileName: res.data.originFileName,
+							resourceType: res.data.resourceType,
+							computeType: res.data.computeType,
+						})
+					}
+				})
+			} else {
+				form.resetFields(['originFileName', 'resourceType', 'computeType']);
+			}
+		}
+	}
+
 	/**
 	 * @description 检查所选是否为文件夹
 	 */
 	const checkNotDir = (_: any, value: number) => {
-		let nodeType: string = 'folder';
-
-		const loop = (arr: CatalogueDataProps[]) => {
-			arr.forEach((node) => {
-				if (node.id.toString() === value.toString()) {
-					nodeType = node.type;
-				} else {
-					loop(node.children || []);
-				}
-			});
-		};
-
-		const treeData = catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE);
-		if (treeData) {
-			loop([treeData.data]);
+		const node = resourceManagerTree.get(value);
+		if (node) {
+			return Promise.resolve();
 		}
-
-		if (nodeType === 'folder') {
-			return Promise.resolve(new Error('请选择具体文件, 而非文件夹'));
-		}
-		return Promise.resolve();
+		return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
 	};
 
 	const validateFileType = (_: any, value: RcFile) => {
@@ -230,8 +237,8 @@ export default function ResModal({
 										accept={
 											getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 												? `.${resourceNameMapping(
-														getFieldValue('resourceType'),
-												  )}`
+													getFieldValue('resourceType'),
+												)}`
 												: undefined
 										}
 										beforeUpload={() => false}
@@ -380,8 +387,8 @@ export default function ResModal({
 									accept={
 										getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 											? `.${resourceNameMapping(
-													getFieldValue('resourceType'),
-											  )}`
+												getFieldValue('resourceType'),
+											)}`
 											: undefined
 									}
 									beforeUpload={() => false}
@@ -427,7 +434,7 @@ export default function ResModal({
 			onOk={handleSubmit}
 			destroyOnClose
 		>
-			<Form preserve={false} form={form} autoComplete="off" {...formItemLayout}>
+			<Form preserve={false} form={form} onValuesChange={handleFormValueChange} autoComplete="off" {...formItemLayout}>
 				{renderFormItem()}
 			</Form>
 		</Modal>

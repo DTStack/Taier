@@ -24,7 +24,7 @@ export default defineConfig({
 			],
 		},
 	],
-	chainWebpack(memo) {
+	chainWebpack(memo, { env }) {
 		memo.output.globalObject('this').set('globalObject', 'this');
 		memo.entry('sparksql.worker').add(
 			'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
@@ -39,6 +39,16 @@ export default defineConfig({
 				languages: ['json'],
 			},
 		]);
+
+		const isDev = env === 'development';
+		if (!isDev) {
+			// ignore *.worker.js hash
+			memo.output.set('filename', (pathData: any) => {
+				return pathData.chunk.name.endsWith('.worker')
+					? '[name].js'
+					: `[name].[contenthash:8].js`;
+			});
+		}
 		return memo;
 	},
 	esbuild: {},

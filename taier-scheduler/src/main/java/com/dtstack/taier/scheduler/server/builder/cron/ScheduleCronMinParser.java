@@ -30,7 +30,7 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 
 public class ScheduleCronMinParser implements IScheduleConfParser {
 
-    private static final String cronFormat = "0 ${beginMin}/${gapMin} ${beginHour}-${endHour} * * ?";
+    private static final String cronFormat = "0 0/${gapMin} ${beginHour}-${endHour} * * ?";
 
     @Override
     public String parse(ScheduleConf scheduleConf) {
@@ -60,7 +60,6 @@ public class ScheduleCronMinParser implements IScheduleConfParser {
         int gapNum = scheduleConf.getGapMin();
 
         return cronFormat.replace("${gapMin}", gapNum + "")
-                .replace("${beginMin}",beginMin+"")
                 .replace("${beginHour}", beginHour + "")
                 .replace("${endHour}", endHour + "");
     }
