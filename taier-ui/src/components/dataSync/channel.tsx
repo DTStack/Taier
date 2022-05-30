@@ -10,7 +10,7 @@ import {
 } from '../helpDoc/docs';
 import ajax from '../../api';
 import type { IChannelFormProps, ISourceMapProps, ITargetMapProps } from '@/interface';
-import { isRDB } from '@/utils';
+import { isRDB } from '@/utils/is';
 
 const FormItem = Form.Item;
 

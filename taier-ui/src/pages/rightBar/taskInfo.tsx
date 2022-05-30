@@ -20,7 +20,7 @@ import { useMemo } from 'react';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
 import classNames from 'classnames';
 import DetailInfo from '@/components/detailInfo';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import { CATELOGUE_TYPE } from '@/constant';
 
 export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {

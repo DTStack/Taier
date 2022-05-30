@@ -9,7 +9,7 @@ import type { IDataColumnsProps, ISourceMapProps, ITargetMapProps } from '@/inte
 import { isNumber, isObject, isUndefined } from 'lodash';
 import Api from '@/api';
 import ScrollText from '../scrollText';
-import { isHdfsType } from '@/utils';
+import { isHdfsType } from '@/utils/is';
 import ConstModal from './modals/constModal';
 import KeyModal from './modals/keyModal';
 import BatchModal from './modals/batchModal';

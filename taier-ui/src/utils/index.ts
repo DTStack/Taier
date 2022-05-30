@@ -17,7 +17,7 @@
  */
 
 /* eslint-disable no-bitwise */
-import { debounce, endsWith, range } from 'lodash';
+import { endsWith, range as lodashRange } from 'lodash';
 import moment from 'moment';
 import {
 	FAILED_STATUS,
@@ -31,10 +31,7 @@ import {
 	TASK_STATUS,
 	WAIT_STATUS,
 } from '@/constant';
-import { CATELOGUE_TYPE, ENGINE_SOURCE_TYPE_ENUM, MENU_TYPE_ENUM } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
-import { DATA_SOURCE_ENUM, RDB_TYPE_ARRAY, OFFSET_RESET_FORMAT } from '@/constant';
-import type { CatalogueDataProps } from '@/interface';
 import { history } from 'umi';
 import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
@@ -56,7 +53,7 @@ export function getTodayTime(date?: moment.Moment) {
 			minute: 59,
 			second: 59,
 		}),
-	];
+	] as const;
 }
 
 export function getCookie(name: string) {
@@ -73,47 +70,9 @@ export function deleteCookie(name: string, domain?: string, path: string = '/') 
 	document.cookie = `${name}=; expires=${d.toUTCString()}${cookieDomain}; path=${path}`;
 }
 
-// 请求防抖动
-export function debounceEventHander(func: any, wait?: number, options?: any) {
-	const debounced = debounce(func, wait, options);
-	return (e: any) => {
-		e.persist();
-		return debounced(e);
-	};
-}
-
 /**
- * 匹配自定义任务参数
- * @param {Array} taskCustomParams
- * @param {String} sqlText
+ * 格式化时间为 `YYYY-MM-DD HH:mm:ss`
  */
-export function matchTaskParams(taskCustomParams: any[], sqlText: string) {
-	const regx = /\$\{([.\w]+)\}/g;
-	const data: any[] = [];
-	let res = null;
-	// eslint-disable-next-line no-cond-assign
-	while ((res = regx.exec(sqlText)) !== null) {
-		const name = res[1];
-		const param: any = {
-			paramName: name,
-			paramCommand: '',
-		};
-		const sysParam = taskCustomParams.find((item) => item.paramName === name);
-		if (sysParam) {
-			param.type = 0;
-			param.paramCommand = sysParam.paramCommand;
-		} else {
-			param.type = 1;
-		}
-		// 去重
-		const exist = data.find((item) => name === item.paramName);
-		if (!exist) {
-			data.push(param);
-		}
-	}
-	return data;
-}
-
 export function formatDateTime(timestap: string | number | Date) {
 	return moment(timestap).format('YYYY-MM-DD HH:mm:ss');
 }
@@ -122,6 +81,9 @@ export function checkExist(prop: any) {
 	return prop !== undefined && prop !== null && prop !== '';
 }
 
+/**
+ * JSON 格式校验
+ */
 export function formJsonValidator(_: any, value: string) {
 	let msg = '';
 	try {
@@ -255,7 +217,11 @@ export function filterComments(rawSql: string) {
 /**
  * 字符串替换（根据索引数组）
  */
-export function replaceStrFormIndexArr(str: any, replaceStr: any, indexArr: any) {
+export function replaceStrFormIndexArr(
+	str: string,
+	replaceStr: string,
+	indexArr: FilterParser['comments'],
+) {
 	let result = '';
 	let index = 0;
 
@@ -318,7 +284,7 @@ export function splitSql(rawSqlText: string) {
 
 export function filterSql(sql: string) {
 	const arr: string[] = [];
-	let sqls = filterComments(sql);
+	let sqls: string | string[] | null = filterComments(sql);
 
 	// 如果有有效内容
 	if (sqls) {
@@ -404,54 +370,6 @@ export const convertToStr = (values: Record<string, any>, prefix = '') => {
 
 	return res;
 };
-
-/**
- * 不区分大小写的过滤 value Option
- */
-export const filterValueOption = (input: any, option: any) => {
-	return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-};
-
-/**
- * 遍历树形节点，用新节点替换老节点
- */
-export function replaceTreeNode(treeNode: any, replace: any) {
-	if (treeNode.id === parseInt(replace.id, 10) && treeNode.type === replace.type) {
-		// eslint-disable-next-line no-param-reassign
-		treeNode = Object.assign(treeNode, replace);
-		return;
-	}
-	if (treeNode.children) {
-		const { children } = treeNode;
-		for (let i = 0; i < children.length; i += 1) {
-			replaceTreeNode(children[i], replace);
-		}
-	}
-}
-
-/**
- * Get the root folder which distinguished from the source
- * @param data
- * @param source
- * @returns
- */
-export function getRootFolderViaSource(data: CatalogueDataProps[], source: CATELOGUE_TYPE) {
-	switch (source) {
-		case CATELOGUE_TYPE.TASK: {
-			return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.TASK);
-		}
-
-		case CATELOGUE_TYPE.RESOURCE: {
-			return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.RESOURCE);
-		}
-
-		case CATELOGUE_TYPE.FUNCTION: {
-			return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.FUNCTION);
-		}
-		default:
-			return undefined;
-	}
-}
 
 function isUtf8(s: string) {
 	const lastnames = new Array('ä', 'å', 'æ', 'ç', 'è', 'é');
@@ -613,94 +531,15 @@ export function getVertxtStyle(type: TASK_STATUS): string {
 	return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
 }
 
-/**
- * 是否是 Hadoop 引擎
- */
-export function isSparkEngine(engineType?: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.HADOOP.toString() === engineType?.toString();
-}
-
-/**
- * 是否是Libra引擎
- */
-export function isLibraEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.LIBRA.toString() === engineType.toString();
-}
-
-/**
- * 是否是TiDB引擎
- */
-export function isTiDBEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.TI_DB.toString() === engineType.toString();
-}
-
-/**
- * 是否是 Oracle 引擎
- */
-export function isOracleEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.ORACLE.toString() === engineType.toString();
-}
-
-/**
- * 是否是 GreenPlum 引擎
- */
-export function isGreenPlumEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.GREEN_PLUM.toString() === engineType.toString();
-}
-
-/**
- * 是否是 K8s 引擎
- */
-export function isKubernetesEngine(engineType: numOrStr) {
-	return ENGINE_SOURCE_TYPE_ENUM.KUBERNETES.toString() === engineType.toString();
-}
-
-/**
- * 是否和账户绑定
- */
-export function isBindAccount(engineType: number): boolean {
-	return [
-		ENGINE_SOURCE_TYPE_ENUM.TI_DB,
-		ENGINE_SOURCE_TYPE_ENUM.ORACLE,
-		ENGINE_SOURCE_TYPE_ENUM.GREEN_PLUM,
-		ENGINE_SOURCE_TYPE_ENUM.ADB,
-	].includes(engineType);
-}
-
-/**
- * 是否属于关系型数据源
- * @param {*} type
- */
-export function isRDB(type: any) {
-	return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1;
-}
-
-/**
- * 是否为HDFS类型
- * @param {*} type
- */
-export function isHdfsType(type: DATA_SOURCE_ENUM | undefined) {
-	return DATA_SOURCE_ENUM.HDFS === type;
-}
-
-/**
- * simply judge whether the array is equal
- * @param arr1
- * @param arr2
- * @returns arr1 === arr2
- */
-export function isEqualArr(arr1: string[], arr2: string[]): boolean {
-	const toString = JSON.stringify;
-	return toString(arr1.sort()) === toString(arr2.sort());
-}
-
 function formatJSON(str: string) {
 	const jsonObj = JSON.parse(str);
 	Object.keys(jsonObj).forEach((key) => {
 		if (typeof jsonObj[key] === 'string') {
 			try {
 				jsonObj[key] = formatJSON(jsonObj[key]);
-			} catch {}
+			} catch {
+				// do nothing
+			}
 		}
 	});
 
@@ -728,6 +567,9 @@ export function createSQLProposals(
 	return Keywords(range).concat(Snippets(range));
 }
 
+/**
+ * 复制操作
+ */
 export function copyText(text: string) {
 	if (navigator.clipboard) {
 		// clipboard api 复制
@@ -750,55 +592,8 @@ export function copyText(text: string) {
 	}
 }
 
-/** 去除不同版本的相同数据源，只保留第一个版本，并使用数据源 groupTag 来代替原来带具体版本号的 name */
-export const formatSourceTypes = (
-	sourceTypes: { name: string; value: number; groupTag: string }[],
-) => {
-	if (!sourceTypes.length) {
-		return [];
-	}
-	const result: { name: string; value: number; groupTag: string }[] = [];
-	// 因为不同版本的相同数据源是连续的，可以只一次遍历，与上一个比较即可
-	for (let i = 0; i < sourceTypes.length; i += 1) {
-		if (sourceTypes[i].groupTag !== sourceTypes?.[i - 1]?.groupTag) {
-			const temp = { ...sourceTypes[i] };
-			temp.name = sourceTypes[i].groupTag;
-			result.push(temp);
-		}
-	}
-	return result;
-};
-
-/**
- * 是否展示OffsetReset的时间
- * @param {number} type --任务类型
- */
-export function showTimeForOffsetReset(type: number) {
-	return [
-		DATA_SOURCE_ENUM.KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_2X,
-		DATA_SOURCE_ENUM.KAFKA_10,
-		DATA_SOURCE_ENUM.KAFKA_11,
-		DATA_SOURCE_ENUM.TBDS_KAFKA,
-		DATA_SOURCE_ENUM.KAFKA_HUAWEI,
-	].includes(type);
-}
-
-/**
- * 格式化时间
- * @param {number | undefined} timestamp --时间戳
- */
-export const formatOffsetResetTime = (timestamp: number | undefined): moment.Moment => {
-	const dateString = moment(timestamp).format(OFFSET_RESET_FORMAT);
-	return moment(dateString, OFFSET_RESET_FORMAT);
-};
-
 /**
  * 创建timepicker disable区间
- * @param beginDate moment.Moment
- * @param endDate moment.Moment
- * @param type string
- * @param isEnd boolean
  */
 export function disableRangeCreater(
 	beginDate: moment.Moment | null | undefined,
@@ -809,12 +604,12 @@ export function disableRangeCreater(
 	if (!beginDate || !endDate) {
 		return [];
 	}
-	beginDate = beginDate.clone();
-	endDate = endDate.clone();
-	let compareDate = isEnd ? endDate : beginDate;
-	let otherDate = isEnd ? beginDate : endDate;
-	let max;
-	let rangeValue;
+	const nextBeginDate = beginDate.clone();
+	const nextEndDate = endDate.clone();
+	const compareDate = isEnd ? nextEndDate : nextBeginDate;
+	const otherDate = isEnd ? nextBeginDate : nextEndDate;
+	let max: number;
+	let rangeValue: number;
 	switch (type) {
 		case 'hour': {
 			max = 24;
@@ -823,7 +618,7 @@ export function disableRangeCreater(
 			break;
 		}
 		case 'minute': {
-			if (otherDate.hours() != compareDate.hours()) {
+			if (otherDate.hours() !== compareDate.hours()) {
 				return [];
 			}
 			max = 60;
@@ -833,8 +628,8 @@ export function disableRangeCreater(
 		}
 		case 'second': {
 			if (
-				otherDate.hours() != compareDate.hours() ||
-				otherDate.minutes() != compareDate.minutes()
+				otherDate.hours() !== compareDate.hours() ||
+				otherDate.minutes() !== compareDate.minutes()
 			) {
 				return [];
 			}
@@ -843,11 +638,13 @@ export function disableRangeCreater(
 			rangeValue = otherDate.seconds();
 			break;
 		}
+		default:
+			break;
 	}
 	if (isEnd) {
-		return range(compareDate < otherDate ? rangeValue - 1 : rangeValue);
+		return lodashRange(compareDate < otherDate ? rangeValue! - 1 : rangeValue!);
 	}
-	return range(compareDate > otherDate ? rangeValue : rangeValue + 1, max);
+	return lodashRange(compareDate > otherDate ? rangeValue! : rangeValue! + 1, max!);
 }
 
 /**

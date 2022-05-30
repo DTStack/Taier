@@ -17,7 +17,7 @@
  */
 
 import { FLINK_VERSIONS, SOURCE_TIME_TYPE } from '@/constant';
-import { isAvro, isKafka } from '@/utils/enums';
+import { isKafka, isAvro } from '@/utils/is';
 import type { Rule } from 'antd/lib/form';
 import { checkColumnsData } from '../taskFunc';
 import type { PendingInputColumnType } from './flinkSource';

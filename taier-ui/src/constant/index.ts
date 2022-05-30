@@ -1287,14 +1287,14 @@ export const FLINK_VERSION_TYPE = [
 	{ value: FLINK_VERSIONS.FLINK_1_12, label: 'flink1.12', text: '1.12' },
 ];
 
-export const KAFKA_DATA_TYPE = {
-	TYPE_JSON: 'dt_nest',
-	TYPE_CSV: 'csv',
-	TYPE_AVRO: 'avro',
-	TYPE_COLLECT_JSON: 'json',
-	TYPE_COLLECT_TEXT: 'text',
-	TYPE_AVRO_CONFLUENT: 'avro-confluent',
-} as const;
+export enum KAFKA_DATA_TYPE {
+	TYPE_JSON = 'dt_nest',
+	TYPE_CSV = 'csv',
+	TYPE_AVRO = 'avro',
+	TYPE_COLLECT_JSON = 'json',
+	TYPE_COLLECT_TEXT = 'text',
+	TYPE_AVRO_CONFLUENT = 'avro-confluent',
+}
 
 export const KAFKA_DATA_LIST = [
 	{ text: 'json', value: KAFKA_DATA_TYPE.TYPE_JSON },
