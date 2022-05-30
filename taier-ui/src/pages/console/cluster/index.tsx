@@ -28,8 +28,6 @@ import type { ColumnsType } from 'antd/lib/table';
 import { DRAWER_MENU_ENUM } from '@/constant';
 import './index.scss';
 
-const PAGE_SIZE = 20;
-
 interface IClusterProps {
 	id: string;
 	gmtCreate: number;
@@ -43,10 +41,13 @@ export default function ClusterManage() {
 	const actionRef = useRef<IActionRef>(null);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const getResourceList = (_: any, { current }: { current: number }) => {
+	const getResourceList = (
+		_: any,
+		{ current, pageSize }: { current: number; pageSize: number },
+	) => {
 		return Api.getClusterList({
 			currentPage: current,
-			pageSize: PAGE_SIZE,
+			pageSize,
 		}).then((res) => {
 			if (res.code === 1) {
 				return {
