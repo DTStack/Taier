@@ -192,7 +192,7 @@ export default function Sketch<
 		selectedRowKeys,
 		selectedRows,
 		setSelectedKeys,
-		submit: () => getDataSource(),
+		submit: () => getDataSource({ current, pageSize }),
 		form,
 		getTableData: () => dataSource.concat(),
 	}));
