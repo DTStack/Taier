@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Col, message, Modal, Row, Space, Spin, Tooltip } from 'antd';
-import { select, selectAll, mouse } from 'd3-selection';
+import { select, mouse } from 'd3-selection';
 import { DATA_SOURCE_ENUM, HBASE_FIELD_TYPES, HDFS_FIELD_TYPES } from '@/constant';
 import Resize from '../resize';
 import { MinusOutlined, EditOutlined } from '@ant-design/icons';
@@ -1709,8 +1709,9 @@ function renderLines(
 ) {
 	const { w, h, W, padding } = canvasInfo;
 	const { source, target } = keymap;
-	const $dagL = selectAll<SVGGElement, IDataColumnsProps>('.col-dag-l');
-	const $dagR = selectAll<SVGGElement, IDataColumnsProps>('.col-dag-r');
+	const $dagL = select(container).selectAll<SVGGElement, IDataColumnsProps>('.col-dag-l');
+	const $dagR = select(container).selectAll<SVGGElement, IDataColumnsProps>('.col-dag-r');
+
 	const posArr: {
 		s: { x: number; y: number };
 		e: { x: number; y: number };
@@ -1785,7 +1786,7 @@ function bindEvents(
 ) {
 	const { w, h, W, padding } = canvasInfo;
 	const $line = select(lineContainer);
-	const $dagL = selectAll<SVGGElement, IDataColumnsProps>('.col-dag-l');
+	const $dagL = select(container).selectAll<SVGGElement, IDataColumnsProps>('.col-dag-l');
 	let isMouseDown = false;
 	let sourceKeyObj: IDataColumnsProps | undefined;
 	let targetKeyObj: IDataColumnsProps | undefined;
@@ -1825,7 +1826,7 @@ function bindEvents(
 				if (ex < threholdX) resetActiveLine(lineContainer);
 				else {
 					const tidx = Math.floor(ey / h) - 1;
-					const $dagR = selectAll('.col-dag-r');
+					const $dagR = select(container).selectAll('.col-dag-r');
 
 					$dagR.each((d: any, i: any) => {
 						if (i === tidx) {
