@@ -20,14 +20,14 @@ import React, { useMemo, useRef, useState } from 'react';
 import { debounce } from 'lodash';
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, HELP_DOC_URL } from '@/constant';
 import {
-	haveAsyncPoolSize,
-	haveCustomParams,
-	haveTableColumn,
-	isCacheExceptLRU,
-	isCacheOnlyAll,
-	isES,
+	isHaveTableColumn,
 	isShowSchema,
-} from '@/utils/enums';
+	isES,
+	isCacheOnlyAll,
+	isCacheExceptLRU,
+	isHaveAsyncPoolSize,
+	isHaveCustomParams,
+} from '@/utils/is';
 import {
 	Button,
 	Form,
@@ -440,7 +440,7 @@ export default function DimensionForm({
 			</FormItem>
 			<FormItem required label="字段" dependencies={['type']}>
 				{({ getFieldValue }) =>
-					haveTableColumn(getFieldValue('type')) ? (
+					isHaveTableColumn(getFieldValue('type')) ? (
 						<div className="column-container">
 							<Table
 								rowKey="column"
@@ -833,7 +833,7 @@ export default function DimensionForm({
 			</FormItem>
 			<FormItem noStyle dependencies={['type']}>
 				{({ getFieldValue }) =>
-					haveAsyncPoolSize(getFieldValue('type')) && (
+					isHaveAsyncPoolSize(getFieldValue('type')) && (
 						<FormItem name="asyncPoolSize" label="异步线程池">
 							<Select>
 								{createSeries(20).map((opt) => {
@@ -850,7 +850,7 @@ export default function DimensionForm({
 			</FormItem>
 			<FormItem noStyle dependencies={['type']}>
 				{({ getFieldValue }) =>
-					haveCustomParams(getFieldValue('type')) && (
+					isHaveCustomParams(getFieldValue('type')) && (
 						<CustomParams
 							customParams={data.customParams || []}
 							onChange={handleCustomParamsChanged}

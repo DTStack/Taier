@@ -10,7 +10,8 @@ import {
 	SUPPROT_SUB_LIBRARY_DB_ARRAY,
 } from '@/constant';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
-import { filterValueOption, formJsonValidator, isRDB } from '@/utils';
+import { formJsonValidator } from '@/utils';
+import { isRDB } from '@/utils/is';
 import {
 	Form,
 	Select,
@@ -1021,7 +1022,9 @@ export default function Source({
 								showSearch
 								showArrow
 								placeholder="请填写分区信息"
-								filterOption={filterValueOption}
+								filterOption={(input: any, option: any) => {
+									return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+								}}
 							>
 								{tablePartitionList.map((pt) => {
 									return (
@@ -1204,9 +1207,8 @@ export default function Source({
 						optionFilterProp="name"
 					>
 						{dataSourceList.map((src) => {
-							const title = `${src.dataName}（${
-								DATA_SOURCE_TEXT[src.dataTypeCode]
-							}）`;
+							const title = `${src.dataName}（${DATA_SOURCE_TEXT[src.dataTypeCode]
+								}）`;
 							// 暂时支持以下类型的数据源
 							const tmpSupportDataSource = [
 								DATA_SOURCE_ENUM.MYSQL,

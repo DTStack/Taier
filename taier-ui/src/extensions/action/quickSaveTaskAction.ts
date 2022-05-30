@@ -2,7 +2,7 @@ import api from '@/api';
 import { CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
 import { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { editorActionBarService } from '@/services';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import saveTask from '@/utils/saveTask';
 import molecule from '@dtinsight/molecule';
 import { Action2 } from '@dtinsight/molecule/esm/monaco/action';

@@ -20,7 +20,7 @@ import { forwardRef, useImperativeHandle, useMemo } from 'react';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import type { ColumnsType } from 'antd/lib/table';
 import Api from '../../api/console';
-import { isSparkEngine } from '@/utils';
+import { isSparkEngine } from '@/utils/is';
 
 interface IFormFieldProps {
 	name: string;

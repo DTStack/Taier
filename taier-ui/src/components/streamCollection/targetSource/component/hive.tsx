@@ -20,7 +20,7 @@ import api from "@/api";
 import stream from "@/api/stream";
 import { analyticalRules, partitionType } from "@/components/helpDoc/docs";
 import { PARTITION_TYPE, WRITE_TABLE_TYPE } from "@/constant";
-import { isMysqlTypeSource } from "@/utils/enums";
+import { isMysqlTypeSource } from "@/utils/is";
 import { Form, Input, InputNumber, Radio, Select } from "antd";
 import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
