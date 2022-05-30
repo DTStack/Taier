@@ -506,7 +506,7 @@ export interface IFlinkSourceProps {
 	parallelism: number;
 	procTime: string;
 	schemaInfo: string;
-	sourceDataType: string;
+	sourceDataType: KAFKA_DATA_TYPE;
 	sourceId: number;
 	sourceName: string;
 	table: string;

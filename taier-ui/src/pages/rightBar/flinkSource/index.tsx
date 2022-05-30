@@ -60,7 +60,7 @@ const DEFAULT_INPUT_VALUE: IFormFieldProps[typeof NAME_FIELD][number] = {
 	columnsText: undefined,
 	parallelism: 1,
 	offsetReset: 'latest',
-	sourceDataType: 'dt_nest',
+	sourceDataType: KAFKA_DATA_TYPE.TYPE_JSON,
 };
 
 /**
@@ -153,7 +153,11 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 		const source = form?.getFieldsValue()[NAME_FIELD];
 		// 需要额外处理部分字段
 		const nextSource = source?.map((s) => {
-			const next: Partial<IFlinkSourceProps> = { ...s, timeZone: s.timeZone?.join('/'), timestampOffset: s.timestampOffset?.valueOf() };
+			const next: Partial<IFlinkSourceProps> = {
+				...s,
+				timeZone: s.timeZone?.join('/'),
+				timestampOffset: s.timestampOffset?.valueOf(),
+			};
 			return next;
 		});
 		// 将表单的值保存至 tab 中
@@ -273,7 +277,6 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 			panel.timestampOffset = undefined;
 			panel.offsetValue = '';
 			form?.setFieldsValue(nextValues);
-
 		}
 
 		handleSyncFormToTab();
@@ -296,7 +299,7 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 				(currentPage?.source as IFlinkSourceProps[]).map((s) => ({
 					...s,
 					timeZone: s.timeZone?.split('/'),
-					timestampOffset: s.timestampOffset ? moment(s.timestampOffset) : undefined
+					timestampOffset: s.timestampOffset ? moment(s.timestampOffset) : undefined,
 				})) || [],
 		};
 	}, []);
@@ -327,8 +330,9 @@ export default function FlinkSourcePanel({ current }: IRightBarComponentProps) {
 											<Panel
 												header={
 													<div className="input-panel-title">
-														<span>{` 源表 ${index + 1} ${table ? `(${table})` : ''
-															}`}</span>
+														<span>{` 源表 ${index + 1} ${
+															table ? `(${table})` : ''
+														}`}</span>
 													</div>
 												}
 												key={field.key.toString()}
