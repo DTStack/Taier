@@ -22,7 +22,7 @@ import BindCommModal from '@/components/bindCommModal';
 import ResourceManageModal from '@/components/resourceManageModal';
 import Api from '@/api/console';
 import { formItemLayout } from '@/constant';
-import { isSparkEngine } from '@/utils';
+import { isSparkEngine } from '@/utils/is';
 import Resource from './resourceView';
 import BindTenant from './bindTenant';
 import type { IClusterProps } from '@/components/bindCommModal';

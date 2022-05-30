@@ -31,7 +31,7 @@ import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
 import TaskDependence from './taskDependence';
 import HelpDoc from '../../../components/helpDoc';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 
 const { Panel } = Collapse;
 const RadioGroup = Radio.Group;

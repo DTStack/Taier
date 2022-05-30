@@ -19,7 +19,8 @@
 import { kafkaTip, sqlserverTip, syncSourceType } from "@/components/helpDoc/docs";
 import { COLLECT_TYPE, DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE, RESTFUL_METHOD, RESTFUL_RESP_MODE, SYNC_TYPE } from "@/constant";
 import { IDataSourceUsedInSyncProps } from "@/interface";
-import { getFlinkDisabledSource, isKafka } from "@/utils/enums";
+import { getFlinkDisabledSource } from "@/utils/enums";
+import { isKafka } from '@/utils/is';
 import molecule from "@dtinsight/molecule";
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import { Form, Radio, Select, FormInstance, Button, message } from "antd";
@@ -157,7 +158,7 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
             case DATA_SOURCE_ENUM.SQLSERVER_2017_LATER:
             case DATA_SOURCE_ENUM.POSTGRESQL:
             case DATA_SOURCE_ENUM.GREENPLUM6:
-                return <Rdb collectionData={collectionData} sourceList={sourceList}/>
+                return <Rdb collectionData={collectionData} sourceList={sourceList} />
             case DATA_SOURCE_ENUM.BEATS:
                 return <Beats />
             case DATA_SOURCE_ENUM.TBDS_KAFKA:
@@ -423,8 +424,8 @@ const CollectionSource = (props: { readonly: any; collectionData: any; sourceLis
         if (debounceFormValuesChange) {
             debounceFormValuesChange();
         }
-        
-        const data = cloneDeep(fields || { });
+
+        const data = cloneDeep(fields || {});
         if (data.allTable) {
             data.table = -1
         }

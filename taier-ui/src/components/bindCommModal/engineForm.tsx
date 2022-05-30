@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'antd';
 import { Select, Radio, Form } from 'antd';
 import { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
-import { isOracleEngine } from '@/utils';
+import { isOracleEngine } from '@/utils/is';
 import { PROJECT_CREATE_MODEL } from '@/constant';
 import api from '../../api';
 import PreviewMetaData from '../previewMetaData';

@@ -15,19 +15,19 @@ import { message } from 'antd';
 import type { Rules, RuleType, ValidateError } from 'async-validator';
 import ValidSchema from 'async-validator';
 import {
-	havePartition,
-	havePrimaryKey,
-	haveTableColumn,
-	haveTableList,
-	haveTopic,
+	isRDB,
 	isAvro,
-	isHbase,
-	isKafka,
+	isHaveTableColumn,
+	isHaveTopic,
+	isHavePartition,
+	isHaveTableList,
+	isHavePrimaryKey,
 	isLowerES,
-	isRedis,
+	isKafka,
 	isS3,
-} from './enums';
-import { isRDB } from '.';
+	isRedis,
+	isHbase,
+} from './is';
 import stream from '@/api/stream';
 
 interface IParamsProps extends IOfflineTaskProps {
@@ -393,18 +393,20 @@ const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: strin
 	return {
 		type: [{ required: true, message: '请选择存储类型' }],
 		sourceId: [{ required: true, message: '请选择数据源' }],
-		topic: [{ required: haveTopic(data?.type), message: '请选择Topic' }],
-		table: [{ required: haveTableList(data?.type) && !isS3(data?.type), message: '请选择表' }],
+		topic: [{ required: isHaveTopic(data?.type), message: '请选择Topic' }],
+		table: [
+			{ required: isHaveTableList(data?.type) && !isS3(data?.type), message: '请选择表' },
+		],
 		tableName: [{ required: true, message: '请输入映射表名' }],
 		columns: [
 			{
-				required: haveTableColumn(data?.type),
+				required: isHaveTableColumn(data?.type),
 				message: '字段信息不能为空',
 				type: 'array' as RuleType,
 			},
 			{ validator: checkColumnsData },
 		],
-		columnsText: [{ required: !haveTableColumn(data?.type), message: '字段信息不能为空' }],
+		columnsText: [{ required: !isHaveTableColumn(data?.type), message: '字段信息不能为空' }],
 		collection: [
 			{ required: data?.type === DATA_SOURCE_ENUM.SOLR, message: '请选择Collection' },
 		],
@@ -414,7 +416,9 @@ const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: strin
 			{
 				required:
 					// @ts-ignore
-					havePartition(data?.type) && data?.isShowPartition && data?.havePartitionfields,
+					isHavePartition(data?.type) &&
+					data?.isShowPartition &&
+					data?.havePartitionfields,
 				message: '请选择分区',
 			},
 		],
@@ -428,7 +432,7 @@ const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: strin
 		updateMode: [{ required: true, message: '请选择更新模式' }],
 		primaryKey: [
 			{
-				required: data?.updateMode === 'upsert' && havePrimaryKey(data?.type),
+				required: data?.updateMode === 'upsert' && isHavePrimaryKey(data?.type),
 				message: '请输入主键',
 			},
 		],
@@ -440,7 +444,7 @@ const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: strin
 
 // 校验字段信息
 function checkColumnsData(rule: any, value: any, callback: any, source: any) {
-	if (haveTableColumn(source?.type)) {
+	if (isHaveTableColumn(source?.type)) {
 		if (isEmpty(value) || value?.some((item: any) => isEmpty(item))) {
 			const err = '请填写字段信息';
 			return callback(err);
@@ -492,17 +496,17 @@ export const generateValidDesSide = (
 	return {
 		type: [{ required: true, message: '请选择存储类型' }],
 		sourceId: [{ required: true, message: '请选择数据源' }],
-		table: [{ required: haveTableList(data?.type), message: '请选择表' }],
+		table: [{ required: isHaveTableList(data?.type), message: '请选择表' }],
 		tableName: [{ required: true, message: '请输入映射表名' }],
 		columns: [
 			{
-				required: haveTableColumn(data?.type),
+				required: isHaveTableColumn(data?.type),
 				message: '字段信息不能为空',
 				type: 'array',
 			},
 			{ validator: checkColumnsData },
 		],
-		columnsText: [{ required: !haveTableColumn(data?.type), message: '字段信息不能为空' }],
+		columnsText: [{ required: !isHaveTableColumn(data?.type), message: '字段信息不能为空' }],
 		schema: [{ required: schemaRequired, message: '请选择Schema' }],
 		// 'table-input': [{ required: isRedis, message: '请输入表名' }],
 		index: [{ required: isLowerES(data?.type), message: '请输入索引' }],

@@ -18,7 +18,7 @@
 
 import Editor from '../editor';
 import type { IEditor, IEditorTab } from '@dtinsight/molecule/esm/model';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 
 interface IEnvParams extends Pick<IEditor, 'current'> {
 	onChange?: (tab: IEditorTab, value: string) => void;

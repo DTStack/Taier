@@ -23,7 +23,7 @@ import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import { formItemLayout, PARAMS_ENUM } from '@/constant';
 import HelpDoc from '../../components/helpDoc';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import './taskParams.scss';
 
 const FormItem = Form.Item;

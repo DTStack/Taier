@@ -22,7 +22,7 @@ import { Alert, Col, Collapse, DatePicker, Input, Radio, Row, Select } from 'ant
 import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import React, { useEffect, useMemo, useState } from 'react';
 import { streamTaskActions } from '../../taskFunc';
 import LockPanel from '../lockPanel';

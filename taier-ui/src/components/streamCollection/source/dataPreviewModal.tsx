@@ -20,7 +20,7 @@ import * as React from 'react';
 import { Modal, Button, Radio } from 'antd';
 import stream from '@/api/stream';
 import TablePreview, { CollapsePreview } from './component/tablePreview';
-import { haveDataPreview, haveTopic } from '@/utils/enums';
+import { isHaveTopic, isHaveDataPreview } from '@/utils/is';
 
 const previewTypes = {
 	Latest: 'latest',
@@ -60,7 +60,7 @@ class DataPreviewModal extends React.Component<any, any> {
 		this.setState({
 			loading: true,
 		});
-		if (!haveTopic(type)) return;
+		if (!isHaveTopic(type)) return;
 		const reqParams = {
 			...params,
 			previewModel: previewType,
@@ -120,7 +120,7 @@ class DataPreviewModal extends React.Component<any, any> {
 					</Button>,
 				]}
 			>
-				{haveTopic(type) && (
+				{isHaveTopic(type) && (
 					<>
 						<Radio.Group
 							value={previewType}
@@ -141,7 +141,7 @@ class DataPreviewModal extends React.Component<any, any> {
 						/>
 					</>
 				)}
-				{haveDataPreview(type) && <TablePreview notDesc={true} data={params} type={type} />}
+				{isHaveDataPreview(type) && <TablePreview notDesc={true} data={params} type={type} />}
 			</Modal>
 		);
 	}

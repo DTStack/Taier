@@ -16,7 +16,7 @@ import {
 	SYNC_TYPE,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import { haveTableColumn, isKafka } from '@/utils/enums';
+import { isKafka, isHaveTableColumn } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import { cloneDeep, isEmpty } from 'lodash';
 
@@ -24,7 +24,7 @@ export const UnlimitedSpeed = '不限制上传速率';
 
 // 校验字段信息
 export function checkColumnsData(rule: any, value: any, callback: any, source: any) {
-	if (haveTableColumn(source?.type)) {
+	if (isHaveTableColumn(source?.type)) {
 		if (isEmpty(value) || value?.some((item: any) => isEmpty(item))) {
 			let err = '请填写字段信息';
 			return callback(err);
