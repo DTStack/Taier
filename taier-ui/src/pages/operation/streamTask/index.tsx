@@ -154,10 +154,8 @@ export default function StreamTask() {
 							if (res.data.status === TASK_STATUS.SUBMITTING) {
 								message.success('任务操作成功！');
 								actionRef.current?.submit();
-							} else {
-								if (res.data.msg) {
-									message.error(res.data.msg);
-								}
+							} else if (res.data.msg) {
+								message.error(res.data.msg);
 							}
 						}
 					});
@@ -266,7 +264,7 @@ export default function StreamTask() {
 			if (res.code === 1) {
 				shouldRequstPolling(res.data?.data);
 				return {
-					total: 1,
+					total: res.data?.totalCount,
 					data: res.data?.data,
 				};
 			}
