@@ -656,7 +656,11 @@ export default function Source({
 								showSearch
 								showArrow
 								notFoundContent={fetching ? <Spin size="small" /> : null}
-								filterOption={false}
+                                optionFilterProp="value"
+								filterOption={(input: any, option: any) =>{
+                                        return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
+								}
 							>
 								{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
 									return (
