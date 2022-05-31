@@ -138,7 +138,6 @@ export default function Target({
 	const [schemaList, setSchemaList] = useState<string[]>([]);
 	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
 	const [tablePartitionList, setPartitionList] = useState<string[]>([]);
-	const [isHaveParition, setHavePartition] = useState(false);
 
 	const getTableList = throttle((sourceId: number, schema?: string, name?: string) => {
 		setFetching(true);
@@ -184,7 +183,6 @@ export default function Target({
 				sourceId,
 				tableName: table,
 			}).then((res) => {
-				setHavePartition(!!res.data?.length);
 				setPartitionList(res.data || []);
 			});
 		}
@@ -609,7 +607,7 @@ export default function Target({
 							</FormItem>
 							{oneKeyCreateTable}
 						</FormItem>
-						{isHaveParition && (
+						{Boolean(tablePartitionList.length) && (
 							<FormItem
 								tooltip={partitionDesc}
 								name="partition"
