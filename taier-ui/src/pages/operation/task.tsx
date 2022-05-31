@@ -27,6 +27,7 @@ import SlidePane from '@/components/slidePane';
 import API from '@/api/operation';
 import api from '@/api';
 import type { IActionRef } from '@/components/sketch';
+import molecule from '@dtinsight/molecule';
 import Sketch from '@/components/sketch';
 import type { ITaskProps } from '@/interface';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
@@ -150,6 +151,18 @@ export default () => {
 			scheduleStatus: mode,
 		}).then((res) => {
 			if (res.code === 1) {
+				// 如果当前冻结或解冻的任务在 editor 中打开，则还需要去改变 editor 中的数据
+				selectedRowKeys.forEach((key) => {
+					if (molecule.editor.isOpened(key.toString())) {
+						const groupId = molecule.editor.getGroupIdByTab(key.toString());
+						const tab = molecule.editor.getTabById<any>(key.toString(), groupId!);
+						molecule.editor.updateTab({
+							id: key.toString(),
+							data: { ...tab!.data!, scheduleStatus: mode },
+						});
+					}
+				});
+
 				setSelectedKeys([]);
 				submit();
 			}

@@ -7,7 +7,7 @@ import {
 	SOURCE_TIME_TYPE,
 	DATA_SOURCE_ENUM,
 } from '@/constant';
-import type { IFlinkSinkProps, IFlinkSourceProps, IOfflineTaskProps } from '@/interface';
+import type { IOfflineTaskProps } from '@/interface';
 import molecule from '@dtinsight/molecule';
 import api from '@/api';
 import { cloneDeep, isEmpty } from 'lodash';
@@ -29,6 +29,7 @@ import {
 	isHbase,
 } from './is';
 import stream from '@/api/stream';
+import { rightBarService } from '@/services';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
@@ -126,37 +127,51 @@ export default function saveTask() {
 			 */
 			if (isFlinkSQLGuide) {
 				// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
-				return validTableData(params)
-					.then((errors) => {
-						// 如果所有的结果都是 null 则表示校验全通过,否则不通过
-						if (!errors.every((tableErrors) => tableErrors.every((e) => e === null))) {
-							return Promise.reject();
-						}
-
-						const err = checkSide(side, componentVersion);
-						if (err) {
-							message.error(err);
-							return Promise.reject();
-						}
-
-						params.preSave = true;
-						// 后端区分右键编辑保存
-						params.updateSource = true;
-
-						return params;
-					})
-					.then((preParams) => {
-						return transformTabDataToParams(preParams);
-					})
-					.then((realParams) => {
-						return stream.saveTask(realParams).then((res) => {
-							if (res.code === 1) {
-								message.success('保存成功！');
-								return res;
+				const validation = () =>
+					validTableData(params)
+						.then((errors) => {
+							// 如果所有的结果都是 null 则表示校验全通过,否则不通过
+							if (
+								!errors.every((tableErrors) => tableErrors.every((e) => e === null))
+							) {
+								return Promise.reject();
 							}
-							return Promise.reject();
+
+							const err = checkSide(side, componentVersion);
+							if (err) {
+								message.error(err);
+								return Promise.reject();
+							}
+
+							params.preSave = true;
+							// 后端区分右键编辑保存
+							params.updateSource = true;
+
+							return params;
+						})
+						.then((preParams) => {
+							return transformTabDataToParams(preParams);
+						})
+						.then((realParams) => {
+							return stream.saveTask(realParams).then((res) => {
+								if (res.code === 1) {
+									message.success('保存成功！');
+									return res;
+								}
+								return Promise.reject();
+							});
 						});
-					});
+
+				const componentForm = rightBarService.getForm();
+				if (componentForm) {
+					// 如果 componentForm 存在表示当前 rightBar 处于展开状态并且存在 form 表单，需要先校验表单的值
+					return componentForm
+						.validateFields()
+						.then(() => validation())
+						.catch(() => Promise.reject());
+				}
+
+				return validation();
 			}
 
 			return stream
@@ -269,13 +284,14 @@ const validTableData = async (currentPage: IOfflineTaskProps) => {
 		source: validDataSource,
 		sink: validDataOutput,
 		side: validDataSide,
-	};
+	} as const;
 	return Promise.all(
 		VALID_FIELDS.map((key) => {
 			const tableData = currentPage[key];
 			return dataValidator(
 				currentPage,
 				tableData,
+				// @ts-ignore
 				FIELDS_VALID_FUNCTION_MAPPING[key],
 				FIELDS_MAPPING[key],
 			);
@@ -311,7 +327,10 @@ export async function dataValidator<T extends any[]>(
 /**
  * 校验 Flink 的源表表单值
  */
-const validDataSource = async (data: IFlinkSourceProps, componentVersion?: string) => {
+const validDataSource = async (
+	data: IOfflineTaskProps['source'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesSource(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -325,10 +344,10 @@ const validDataSource = async (data: IFlinkSourceProps, componentVersion?: strin
 /**
  * 为 Flink 的源表表单生成校验规则
  */
-const generateValidDesSource = (
+export const generateValidDesSource = (
 	data: IOfflineTaskProps['source'][number],
-	componentVersion?: string,
-): Rules => {
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 	const haveSchema =
 		isKafka(data?.type) &&
@@ -365,7 +384,10 @@ const generateValidDesSource = (
 /**
  * 校验 Flink 的结果表
  */
-const validDataOutput = async (data: IFlinkSinkProps, componentVersion?: string) => {
+const validDataOutput = async (
+	data: IOfflineTaskProps['sink'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesOutPut(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -379,7 +401,10 @@ const validDataOutput = async (data: IFlinkSinkProps, componentVersion?: string)
 /**
  * 动态生成 Flink 结果表的校验规则
  */
-const generateValidDesOutPut = (data?: IFlinkSinkProps, componentVersion?: string): Rules => {
+const generateValidDesOutPut = (
+	data?: IOfflineTaskProps['sink'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+): Rules => {
 	const schemaRequired =
 		data?.type &&
 		[
@@ -465,7 +490,10 @@ function checkColumnsData(rule: any, value: any, callback: any, source: any) {
 /**
  * 校验 Flink 维表
  */
-const validDataSide = async (data: IOfflineTaskProps['side'], componentVersion?: string) => {
+const validDataSide = async (
+	data: IOfflineTaskProps['side'][number],
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
+) => {
 	const validDes = generateValidDesSide(data, componentVersion);
 	const validator = new ValidSchema(validDes);
 	const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -481,7 +509,7 @@ const validDataSide = async (data: IOfflineTaskProps['side'], componentVersion?:
  */
 export const generateValidDesSide = (
 	data: IOfflineTaskProps['side'][number],
-	componentVersion?: string,
+	componentVersion?: Valueof<typeof FLINK_VERSIONS>,
 ): Rules => {
 	const isCacheLRU = data?.cache === 'LRU';
 	const isCacheTLLMSReqiured = data?.cache === 'LRU' || data?.cache === 'ALL';

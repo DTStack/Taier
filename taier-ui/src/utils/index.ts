@@ -654,3 +654,30 @@ export function disableRangeCreater(
 export function createSeries(num: number) {
 	return Array.from(new Array(num).keys()).map((item) => item + 1);
 }
+
+/**
+ * 基于 text 解析 columns
+ * @example
+ * ```js
+ * getColumnsByColumnsText('id int') // [{field: 'id', type: 'id'}]
+ * ```
+ */
+export function getColumnsByColumnsText(text: string = '') {
+	const columns: { field: string; type: string }[] = [];
+	const tmpMap: Record<string, boolean> = {};
+	if (text) {
+		text.split('\n')
+			.filter(Boolean)
+			.forEach((v) => {
+				const asCase = /^\s*(.+)\s+(.+)\s*$/i.exec(v?.trim());
+				if (asCase && !tmpMap[asCase[1]]) {
+					tmpMap[asCase[1]] = true;
+					columns.push({
+						field: asCase[1],
+						type: asCase[2],
+					});
+				}
+			});
+	}
+	return columns;
+}

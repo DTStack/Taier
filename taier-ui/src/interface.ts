@@ -33,6 +33,7 @@ import type {
 	TASK_TYPE_ENUM,
 	DATA_SYNC_MODE,
 	UDF_TYPE_VALUES,
+	FLINK_VERSIONS,
 } from './constant';
 
 interface IUserProps {}
@@ -487,19 +488,16 @@ export interface IDataSourceUsedInSyncProps {
 export interface IFlinkDataProps {
 	source: IFlinkSourceProps[];
 	sink: IFlinkSinkProps[];
-	/**
-	 * TODO
-	 */
-	side: any[];
+	side: IFlinkSideProps[];
 	/**
 	 * @description 任务类型，目前来说 flinkSQL 暂时只有 1.12
 	 */
-	componentVersion: string;
+	componentVersion: Valueof<typeof FLINK_VERSIONS>;
 }
 
 export interface IFlinkSourceProps {
 	charset: CODE_TYPE;
-	columns: { column: string; type: string }[];
+	columns: Partial<{ type: IDataColumnsProps['type']; column: IDataColumnsProps['key'] }>[];
 	columnsText: string;
 	offset: number;
 	offsetReset: string;
@@ -508,21 +506,20 @@ export interface IFlinkSourceProps {
 	parallelism: number;
 	procTime: string;
 	schemaInfo: string;
-	sourceDataType: string;
+	sourceDataType: KAFKA_DATA_TYPE;
 	sourceId: number;
 	sourceName: string;
 	table: string;
 	timeColumn: string;
 	timeType: SOURCE_TIME_TYPE;
 	timeTypeArr: SOURCE_TIME_TYPE[];
+	// 时间戳
+	timestampOffset: number;
 	timeZone: string;
 	topic: string;
 	type: DATA_SOURCE_ENUM;
 	// 自定义参数
-	customParams: any;
-
-	// the unique key for front-end panel
-	panelKey: string;
+	customParams: { id: string; key?: string; type?: string }[];
 }
 
 export interface IFlinkSinkProps {
