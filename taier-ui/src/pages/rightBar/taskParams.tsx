@@ -17,13 +17,12 @@
  */
 
 import { useMemo } from 'react';
-import classNames from 'classnames';
 import { Collapse, Input, Form } from 'antd';
-import type { IOfflineTaskProps, ITaskVariableProps } from '@/interface';
+import type { IOfflineTaskProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import { formItemLayout, PARAMS_ENUM } from '@/constant';
 import HelpDoc from '../../components/helpDoc';
-import { isTaskTab } from '@/utils/is';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
 import './taskParams.scss';
 
 const FormItem = Form.Item;
@@ -34,15 +33,7 @@ const { Panel } = Collapse;
 // eslint-disable-next-line no-useless-escape
 const paramsRegPattern = /^\$[\{\[\(](\S+\((.*)\)|.+)[\}\]\)]$|^(?!\$)\S+$/i;
 
-interface ITaskParamsProps {
-	current?: molecule.model.IEditorGroup<any, IOfflineTaskProps> | null;
-	onChange?: (
-		currentTab: molecule.model.IEditorTab<IOfflineTaskProps>,
-		variables: ITaskVariableProps[],
-	) => void;
-}
-
-export default function TaskParams({ current, onChange }: ITaskParamsProps) {
+export default function TaskParams({ current }: IRightBarComponentProps) {
 	const [form] = Form.useForm();
 
 	const handleFormChanged = (changed: Record<string, string>, tabData: IOfflineTaskProps) => {
@@ -51,7 +42,14 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 			const target = nextTaskVariables.find((v) => v.paramName === key)!;
 			target.paramCommand = changed[key];
 		});
-		onChange?.(current!.tab!, nextTaskVariables);
+		// update the tab's values
+		molecule.editor.updateTab({
+			...current!.tab!,
+			data: {
+				...current!.tab!.data,
+				taskVariables: nextTaskVariables,
+			},
+		});
 	};
 
 	const renderNothing = (text: string) => {
@@ -68,32 +66,21 @@ export default function TaskParams({ current, onChange }: ITaskParamsProps) {
 		);
 	};
 
-	/**
-	 * 当前的 tab 是否不合法，如不合法则展示 Empty
-	 */
-	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
-
 	const systemParams = useMemo(() => {
-		if (isInValidTab) {
-			return [];
-		}
 		return (
-			current?.tab?.data?.taskVariables?.filter((p) => p.type === PARAMS_ENUM.SYSTEM) || []
+			(current?.tab?.data as IOfflineTaskProps | undefined)?.taskVariables?.filter(
+				(p) => p.type === PARAMS_ENUM.SYSTEM,
+			) || []
 		);
-	}, [current?.tab?.data?.taskVariables, isInValidTab]);
+	}, [current?.tab?.data?.taskVariables]);
 
 	const customParams = useMemo(() => {
-		if (isInValidTab) {
-			return [];
-		}
 		return (
-			current?.tab?.data?.taskVariables?.filter((p) => p.type === PARAMS_ENUM.CUSTOM) || []
+			(current?.tab?.data as IOfflineTaskProps | undefined)?.taskVariables?.filter(
+				(p) => p.type === PARAMS_ENUM.CUSTOM,
+			) || []
 		);
-	}, [current?.tab?.data?.taskVariables, isInValidTab]);
-
-	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务参数</div>;
-	}
+	}, [current?.tab?.data?.taskVariables]);
 
 	const tabData = current!.tab!.data!;
 
