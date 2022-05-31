@@ -656,8 +656,7 @@ export default function Source({
 								showArrow
 								notFoundContent={fetching ? <Spin size="small" /> : null}
                                 optionFilterProp="value"
-								filterOption={(input, option) =>{
-                                        // @ts-ignore
+								filterOption={(input: any, option: any) =>{
                                         return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                     }
 								}
