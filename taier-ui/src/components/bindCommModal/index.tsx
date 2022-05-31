@@ -348,7 +348,6 @@ export default ({
 										>
 											{({ getFieldValue }) => (
 												<EngineConfigItem
-													form={form}
 													formParentField="hadoop"
 													formItemLayout={formItemLayout}
 													checked={getFieldValue('enableHadoop')}
