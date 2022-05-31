@@ -1,7 +1,5 @@
 import stream from '@/api/stream';
-import { CREATE_MODEL_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import type { DefaultOptionType } from 'antd/lib/cascader';
-import { streamTaskActions } from '../taskFunc';
 
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
 	const names = Object.getOwnPropertyNames(dataMap);
@@ -54,16 +52,3 @@ export function getTimeZoneList() {
 		});
 	});
 }
-// 获取元数据 - 数据库列表
-export const getDataBaseList = async (createTypes: any[]) => {
-	const currentPage = streamTaskActions.getCurrentPage();
-	const { taskType, createModel }: any = currentPage || {};
-	const isGuideMode = createModel === CREATE_MODEL_TYPE.GUIDE || !createModel;
-	if (taskType === TASK_TYPE_ENUM.SPARK_SQL && isGuideMode && createTypes?.length) {
-		const res = await stream.getDBList();
-		if (res.code === 1) {
-			return res.data || [];
-		}
-	}
-	return [];
-};

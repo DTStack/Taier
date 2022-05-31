@@ -16,25 +16,13 @@
  * limitations under the License.
  */
 
-import { useMemo } from 'react';
-import type { IEditor } from '@dtinsight/molecule/esm/model';
-import classNames from 'classnames';
+import type { IRightBarComponentProps } from '@/services/rightBarService';
 import DetailInfo from '@/components/detailInfo';
-import { isTaskTab } from '@/utils/is';
 import { CATELOGUE_TYPE } from '@/constant';
 
-export default function TaskInfo({ current }: Pick<IEditor, 'current'>) {
-	/**
-	 * 当前的 tab 是否不合法，如不合法则展示 Empty
-	 */
-	const isInValidTab = useMemo(() => !isTaskTab(current?.tab?.id), [current]);
-
-	if (isInValidTab) {
-		return <div className={classNames('text-center', 'mt-10px')}>无法获取任务属性</div>;
-	}
-
+export default function TaskInfo({ current }: IRightBarComponentProps) {
 	return (
-		<div className='p-8'>
+		<div className="p-8">
 			<DetailInfo type={CATELOGUE_TYPE.TASK} data={current!.tab!.data} />
 		</div>
 	);
