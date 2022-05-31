@@ -254,8 +254,7 @@ export default function Source({
 	};
 
 	// 获取 hive 分区
-	const getHivePartions = () => {
-		const { sourceId, table } = form.getFieldsValue();
+	const getHivePartions = ({ sourceId, table } = form.getFieldsValue()) => {
 		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
 		if (!target || !table) return;
 		const sourceType = target.dataTypeCode;
@@ -267,8 +266,6 @@ export default function Source({
 			DATA_SOURCE_ENUM.HIVE1X,
 		];
 		if (ALLOW_REQUEST_HIVE.includes(sourceType)) {
-			// Reset partition
-			form.setFieldsValue({ partition: undefined });
 			API.getHivePartitions({
 				sourceId,
 				tableName: table,
@@ -325,6 +322,8 @@ export default function Source({
 
 			// 加载表字段
 			getTableColumn();
+			// 重置分区字段
+			form.setFieldsValue({ partition: undefined });
 			// 加载分区字段
 			getHivePartions();
 			// 加载增量模式字段
@@ -1023,7 +1022,11 @@ export default function Source({
 								showArrow
 								placeholder="请填写分区信息"
 								filterOption={(input: any, option: any) => {
-									return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+									return (
+										option.props.value
+											.toLowerCase()
+											.indexOf(input.toLowerCase()) >= 0
+									);
 								}}
 							>
 								{tablePartitionList.map((pt) => {
@@ -1146,6 +1149,13 @@ export default function Source({
 					schema: sourceMap.schema,
 				});
 			}
+
+			if (sourceMap.table) {
+				getHivePartions({
+					sourceId: sourceMap.sourceId,
+					table: sourceMap.table,
+				});
+			}
 		}
 	}, []);
 
@@ -1207,8 +1217,9 @@ export default function Source({
 						optionFilterProp="name"
 					>
 						{dataSourceList.map((src) => {
-							const title = `${src.dataName}（${DATA_SOURCE_TEXT[src.dataTypeCode]
-								}）`;
+							const title = `${src.dataName}（${
+								DATA_SOURCE_TEXT[src.dataTypeCode]
+							}）`;
 							// 暂时支持以下类型的数据源
 							const tmpSupportDataSource = [
 								DATA_SOURCE_ENUM.MYSQL,

@@ -138,6 +138,7 @@ export default function Target({
 	const [schemaList, setSchemaList] = useState<string[]>([]);
 	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
 	const [tablePartitionList, setPartitionList] = useState<string[]>([]);
+	const [isHaveParition, setHavePartition] = useState(false);
 
 	const getTableList = throttle((sourceId: number, schema?: string, name?: string) => {
 		setFetching(true);
@@ -183,6 +184,7 @@ export default function Target({
 				sourceId,
 				tableName: table,
 			}).then((res) => {
+				setHavePartition(!!res.data?.length);
 				setPartitionList(res.data || []);
 			});
 		}
@@ -607,27 +609,29 @@ export default function Target({
 							</FormItem>
 							{oneKeyCreateTable}
 						</FormItem>
-						<FormItem
-							tooltip={partitionDesc}
-							name="partition"
-							label="分区"
-							rules={[
-								{
-									required: true,
-									message: '目标分区为必填项！',
-								},
-							]}
-						>
-							<AutoComplete showSearch showArrow placeholder="请填写分区信息">
-								{tablePartitionList.map((pt) => {
-									return (
-										<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
-											{pt}
-										</AutoComplete.Option>
-									);
-								})}
-							</AutoComplete>
-						</FormItem>
+						{isHaveParition && (
+							<FormItem
+								tooltip={partitionDesc}
+								name="partition"
+								label="分区"
+								rules={[
+									{
+										required: true,
+										message: '目标分区为必填项！',
+									},
+								]}
+							>
+								<AutoComplete showSearch showArrow placeholder="请填写分区信息">
+									{tablePartitionList.map((pt) => {
+										return (
+											<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
+												{pt}
+											</AutoComplete.Option>
+										);
+									})}
+								</AutoComplete>
+							</FormItem>
+						)}
 						<FormItem
 							label="写入模式"
 							key="writeMode-hive"
@@ -1005,10 +1009,10 @@ export default function Target({
 			if (ALLOW_REQUEST_SCHEMA.includes(targetMap.type!)) {
 				getSchemaList(targetMap.sourceId);
 			}
-		}
 
-		if (targetMap?.partition) {
-			getHivePartitions(targetMap.sourceId, targetMap.table);
+			if (targetMap?.table) {
+				getHivePartitions(targetMap.sourceId, targetMap.table);
+			}
 		}
 	}, []);
 
