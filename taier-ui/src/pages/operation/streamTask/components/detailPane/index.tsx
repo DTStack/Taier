@@ -22,7 +22,7 @@ import type { RadioChangeEvent } from 'antd/es/radio';
 import SlidePane from '@/components/slidePane';
 import type { IStreamJobProps } from '@/interface';
 import { TaskStatus } from '@/utils/enums';
-import stream from '@/api/stream';
+import stream from '@/api';
 import RunLog from './components/runLog';
 import Failover from './components/runLog/failover';
 import CheckPoint from './components/runLog/checkPoint';

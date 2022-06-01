@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Radio } from 'antd';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { IStreamJobProps } from '@/interface';
 import { TASK_STATUS } from '@/constant';
 import Common from './common';

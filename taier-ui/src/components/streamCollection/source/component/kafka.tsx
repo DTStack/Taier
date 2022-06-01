@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
+import stream from "@/api";
 import { DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, KAFKA_DATA_TYPE } from "@/constant";
 import { DatePicker, Form, FormInstance, Radio, Select } from "antd";
 import { DownOutlined } from "@ant-design/icons"

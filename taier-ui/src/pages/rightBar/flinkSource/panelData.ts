@@ -1,4 +1,4 @@
-import stream from '@/api/stream';
+import stream from '@/api';
 import type { DefaultOptionType } from 'antd/lib/cascader';
 
 const mapToArray = (data: Partial<DefaultOptionType>, dataMap: Record<string, any>) => {
