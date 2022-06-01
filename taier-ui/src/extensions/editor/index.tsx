@@ -43,6 +43,9 @@ import { mappingTaskTypeToLanguage } from '@/utils/enums';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
+		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled
+		// TODO molecule发布新版就不用这一层根据action的状态控制是否可以点击的逻辑了
+		if (actionDisabled) return
 		switch (menuId) {
 			case ID_COLLECTIONS.TASK_RUN_ID: {
 				runTask(current);
