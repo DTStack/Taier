@@ -50,9 +50,12 @@
 		"whatwg-fetch": "^3.6.2"
 	},
 	"devDependencies": {
+		"@testing-library/jest-dom": "^5.16.4",
+		"@testing-library/react": "12",
 		"@types/base-64": "^1.0.0",
 		"@types/d3-selection": "1.1.0",
 		"@types/echarts": "^4.9.12",
+		"@types/jest": "^27.5.1",
 		"@types/lodash": "^4.14.177",
 		"@types/object-assign": "^4.0.30",
 		"@types/react": "^17.0.0",
