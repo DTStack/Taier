@@ -65,7 +65,7 @@ export default function StreamTask() {
 		CANCELED: number;
 		UNRUNNING: number;
 	}>({ ALL: 0, FAILED: 0, RUNNING: 0, CANCELED: 0, UNRUNNING: 0 });
-	const [polling, setPolling] = useState<ISketchProps<any, any>['polling']>(false);
+	const [polling, setPolling] = useState<boolean>(false);
 	const [goOnTask, setGoOnTask] = useState<Pick<IStreamJobProps, 'jobId' | 'id'> | undefined>(
 		undefined,
 	);
@@ -190,7 +190,7 @@ export default function StreamTask() {
 	 */
 	const shouldRequstPolling = (data?: IStreamJobProps[]) => {
 		if (!data) {
-			return;
+			return false;
 		}
 		const SHOULD_POLLING_STATUS = [
 			TASK_STATUS.RUNNING,
@@ -201,16 +201,8 @@ export default function StreamTask() {
 			TASK_STATUS.WAIT_COMPUTE,
 		];
 		const doPolling = data.some(({ status }) => SHOULD_POLLING_STATUS.includes(status));
-		if (doPolling) {
-			setPolling(
-				(pollingState) =>
-					pollingState || {
-						delay: 5000,
-					},
-			);
-		} else {
-			setPolling(false);
-		}
+		
+		return doPolling;
 	};
 
 	const goOnTaskSuccess = () => {
@@ -262,8 +254,12 @@ export default function StreamTask() {
 		});
 		return stream.getTaskList(reqParams).then((res) => {
 			if (res.code === 1) {
-				shouldRequstPolling(res.data?.data);
+				const isPolling = shouldRequstPolling(res.data?.data);
+				setPolling(isPolling);
 				return {
+					polling: isPolling ? {
+						delay: 5000
+					} : false,
 					total: res.data?.totalCount,
 					data: res.data?.data,
 				};
@@ -567,7 +563,6 @@ export default function StreamTask() {
 		<div className="h-full">
 			<Sketch<IStreamJobProps, IFormFieldProps>
 				actionRef={actionRef}
-				polling={polling}
 				header={[
 					{
 						name: 'input',
