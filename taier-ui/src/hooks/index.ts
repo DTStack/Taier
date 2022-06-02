@@ -48,13 +48,13 @@ export const usePagination = ({
 		pageSize?: number;
 		total?: number;
 	}) => {
-		if (c) {
+		if (c !== undefined) {
 			setCurrent(c);
 		}
-		if (p) {
+		if (p !== undefined) {
 			setPageSize(p);
 		}
-		if (t) {
+		if (t !== undefined) {
 			setTotal(t);
 		}
 	};
