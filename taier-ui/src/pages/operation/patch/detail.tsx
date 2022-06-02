@@ -468,6 +468,7 @@ export default () => {
 			if (res.code === 1) {
 				actionRef.current?.setSelectedKeys([]);
 				return {
+					polling: true,
 					total: res.data.totalCount,
 					data: res.data.data.fillDataJobVOLists || [],
 				};
@@ -550,7 +551,6 @@ export default () => {
 						</Button>
 					</Tooltip>
 				}
-				polling
 				headerTitle={renderStatus(statusList)}
 				headerTitleClassName="ope-statistics"
 				columns={columns}

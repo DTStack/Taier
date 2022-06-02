@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useLayoutEffect, useImperativeHandle, useEffect } from 'react';
+import { useRef, useState, useImperativeHandle, useEffect } from 'react';
 import type { FormInstance, FormItemProps, PaginationProps } from 'antd';
 import { Form, Pagination, Table } from 'antd';
 import {
@@ -92,6 +92,7 @@ export interface ISketchProps<T, P> {
 	 * @param pagination 当前分页数据
 	 * @param filters 当前表格过滤条件
 	 * @param sorter 当前表格排序条件
+	 * @returns polling 是否轮训查询表格数据, 默认轮训间隔 36000ms
 	 * @required
 	 */
 	request: (
@@ -99,7 +100,7 @@ export interface ISketchProps<T, P> {
 		pagination: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter?: SorterResult<any>,
-	) => Promise<{ data: T[]; total: number } | void>;
+	) => Promise<{ data: T[]; total: number; polling?: boolean | { delay?: number } } | void>;
 	/**
 	 * 条件筛选的表单值改变函数，常用于表单值的联动
 	 */
@@ -132,10 +133,6 @@ export interface ISketchProps<T, P> {
 	 * 表格的头部组件的 className
 	 */
 	headerTitleClassName?: string;
-	/**
-	 * 是否轮训查询表格数据, 默认轮训间隔 36000ms
-	 */
-	polling?: boolean | { delay?: number };
 }
 
 const SLOT_ITEM = [
@@ -167,7 +164,6 @@ export default function Sketch<
 	tableFooter,
 	headerTitle,
 	headerTitleClassName,
-	polling = false,
 	request,
 	onFormFieldChange,
 	onTableSelect,
@@ -206,6 +202,7 @@ export default function Sketch<
 		if (!silent) {
 			setLoading(true);
 		}
+		window.clearTimeout(timeout.current);
 		request(
 			form.getFieldsValue(),
 			{ current: nextCurrent, pageSize: nextPageSize },
@@ -214,7 +211,20 @@ export default function Sketch<
 		)
 			.then((res) => {
 				if (res) {
-					const { total: nextTotal, data = [] } = res;
+					const { total: nextTotal, data = [], polling } = res;
+					if (polling) {
+						const delay = (typeof polling === 'object' && polling.delay) || 36000;
+						timeout.current = window.setTimeout(() => {
+							// 轮训需要静默请求
+							getDataSource(
+								{ current: nextCurrent, pageSize: nextPageSize },
+								filters || tableInfo.current.filters || {},
+								sorter || (tableInfo.current.sorter as SorterResult<any>),
+								true,
+							);
+						}, delay);
+					}
+
 					setPagination({
 						total: nextTotal,
 						current: nextCurrent,
@@ -254,32 +264,13 @@ export default function Sketch<
 		onTableSelect?.(rowKeys, rows);
 	};
 
-	useLayoutEffect(() => {
-		getDataSource();
-	}, []);
-
 	useEffect(() => {
-		if (polling) {
-			const delay = (typeof polling === 'object' && polling.delay) || 36000;
-			timeout.current = window.setInterval(() => {
-				// 轮训需要静默请求
-				getDataSource(
-					{ current, pageSize },
-					tableInfo.current.filters,
-					tableInfo.current.sorter as SorterResult<any>,
-					true,
-				);
-			}, delay);
-		} else {
-			window.clearInterval(timeout.current);
-		}
+		getDataSource();
 
 		return () => {
-			if (timeout.current) {
-				window.clearInterval(timeout.current);
-			}
+			window.clearTimeout(timeout.current);
 		};
-	}, [polling]);
+	}, []);
 
 	const pagination: PaginationProps = {
 		total,
