@@ -1,0 +1,276 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`enums Redner Task Status 1`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-stopped"
+    />
+      自动取消
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 2`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      计算中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 3`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      数据同步
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 4`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      部署中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 5`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      失败
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 6`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      提交至引擎
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 7`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-finished"
+    />
+      成功
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 8`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-frozen"
+    />
+      冻结
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 9`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      已调度
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 10`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-frozen"
+    />
+      已停止
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 11`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      异常
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 12`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      上游失败
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 13`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-restarting"
+    />
+      重试中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 14`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-running"
+    />
+      运行中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 15`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      运行失败
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 16`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-finished"
+    />
+      设置成功
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 17`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-stopped"
+    />
+      取消
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 18`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-stopped"
+    />
+      取消中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 19`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      已提交
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 20`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-submitting"
+    />
+      提交中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 21`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      提交失败
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 22`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-running"
+    />
+      运行中
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 23`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-fail"
+    />
+      等待计算
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 24`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-waitSubmit"
+    />
+      等待运行
+  </span>
+</DocumentFragment>
+`;
+
+exports[`enums Redner Task Status 25`] = `
+<DocumentFragment>
+  <span>
+    <div
+      class="dtc-circle-default dtc-circle-waitSubmit"
+    />
+      等待提交
+  </span>
+</DocumentFragment>
+`;
