@@ -1,4 +1,3 @@
-// TODO 后续 is 相关的判断方法都放该文件下
 import {
 	DATA_SOURCE_ENUM,
 	ENGINE_SOURCE_TYPE_ENUM,
@@ -424,7 +423,7 @@ export function isAvro(type?: KAFKA_DATA_TYPE) {
 /**
  * 是否为 HDFS 类型
  */
-export function isHdfsType(type: DATA_SOURCE_ENUM | undefined) {
+export function isHdfsType(type?: DATA_SOURCE_ENUM) {
 	return DATA_SOURCE_ENUM.HDFS === type;
 }
 
