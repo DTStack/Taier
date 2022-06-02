@@ -68,6 +68,12 @@ public class ClientTemplate implements Serializable {
 
     private List<Integer> deployTypes;
 
+    /**
+     * 前端界面tips提示 key的中文提示
+     */
+    @ApiModelProperty(notes = "前端界面tips提示 名称")
+    private String keyDescribe;
+
     public Long getId() {
         return id;
     }
@@ -146,5 +152,13 @@ public class ClientTemplate implements Serializable {
     }
 
     public ClientTemplate() {
+    }
+
+    public String getKeyDescribe() {
+        return keyDescribe;
+    }
+
+    public void setKeyDescribe(String keyDescribe) {
+        this.keyDescribe = keyDescribe;
     }
 }
