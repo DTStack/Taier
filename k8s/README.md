@@ -69,13 +69,13 @@ deployment.apps/taier created
 service/taier-svc created
 configmap/taier-nginx-cm created
 configmap/nginxconf created
-deployment.apps/dmp-nginx created
+deployment.apps/nginx created
 service/nginx created
 
 # 部署成功后会看到如下信息
 $ kubectl get all -n dt-taier
 NAME                             READY   STATUS    RESTARTS   AGE
-pod/dmp-nginx-668c469657-hvhb4   1/1     Running   0          8h
+pod/nginx-668c469657-hvhb4   1/1     Running   0          8h
 pod/mysql-789db7c598-khg9m       1/1     Running   0          8h
 pod/taier-646d4c587-g2w6q        1/1     Running   0          8h
 pod/taier-web-d55bf9866-brz7h    1/1     Running   0          8h
@@ -92,13 +92,13 @@ service/zookeeper            ClusterIP   10.96.9.196     <none>        2181/TCP,
 service/zookeeper-headless   ClusterIP   None            <none>        2888/TCP,3888/TCP   8h
 
 NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/dmp-nginx   1/1     1            1           8h
+deployment.apps/nginx   1/1     1            1           8h
 deployment.apps/mysql       1/1     1            1           8h
 deployment.apps/taier       1/1     1            1           8h
 deployment.apps/taier-web   1/1     1            1           8h
 
 NAME                                   DESIRED   CURRENT   READY   AGE
-replicaset.apps/dmp-nginx-668c469657   1         1         1       8h
+replicaset.apps/nginx-668c469657   1         1         1       8h
 replicaset.apps/mysql-789db7c598       1         1         1       8h
 replicaset.apps/taier-646d4c587        1         1         1       8h
 replicaset.apps/taier-web-d55bf9866    1         1         1       8h
@@ -159,9 +159,29 @@ nginx_机器_ip dt.taier.cn
 
 
 ## 可能出现的问题
+## 1. taier 后端服务重启
 第一次部署时，可能会出现 taier 的后端服务探针失败导致容器重启，此时需要等待几分钟，查看 MySQL 容器是否初始化完成(容器启动成功, 并且数据库和表初始化完整)，待 MySQL 容器初始化完成后，删掉当前 taier 后端服务的 pod 等待重启完成。
 
+## 2. 宿主机 ping 不通 nginx CLUSTER-IP
+需要检查两个地方：
+```bash
+# 检查 Ipv4 forward
+cat /etc/sysctl.d/k8s.conf
 
+如果没有配置的话，执行以下操作
+
+cat > /etc/sysctl.d/k8s.conf << EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sysctl --system  # 生效
+
+# 检查 kube-proxy 是否正常，正常的如下，如果没有，需要启动 kube-proxy
+root@k8s-n1:~# ps -ef|grep kube-proxy
+root        7108    6968  0 5月30 ?       00:03:15 /usr/local/bin/kube-proxy --config=/var/lib/kube-proxy/config.conf --hostname-override=k8s-n1
+root     1602026 1601917  0 11:45 pts/2    00:00:00 grep --color=auto kube-prox
+```
 
 
 
