@@ -86,7 +86,7 @@ interface ILogInfoProps {
 	 */
 	downloadLog?: string;
 	subNodeDownloadLog?: string;
-	page?: any;
+	page?: { current: number; total: number };
 	onChangePage?: PaginationProps['onChange'];
 	height?: string;
 }
@@ -234,7 +234,7 @@ export default function LogInfo(props: ILogInfoProps) {
 			) : (
 				''
 			)}
-			{props.page.total > 0 && (
+			{Boolean(props.page?.total) && (
 				<Row>
 					<div
 						style={{
@@ -246,8 +246,8 @@ export default function LogInfo(props: ILogInfoProps) {
 						<span>历史运行次数：</span>
 						<Pagination
 							size="small"
-							total={props.page.total}
-							current={props.page.current}
+							total={props.page?.total}
+							current={props.page?.current}
 							pageSize={1}
 							onChange={props.onChangePage}
 						/>

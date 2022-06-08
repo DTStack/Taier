@@ -88,6 +88,7 @@ export default function LinkDiagram({
 		} else {
 			newVertex = addVertexInfo(graph, data);
 		}
+		console.log('newVertex:', newVertex);
 		graph.insertEdge(rootCell, null, '', parent, newVertex, style);
 		graph.view.refresh(newVertex);
 		return newVertex;
@@ -175,6 +176,7 @@ export default function LinkDiagram({
 		try {
 			if (graphEditor.current) {
 				const treeNodeData = flinkJson;
+				console.log('treeNodeData:', treeNodeData);
 				const { executeLayout } = graphEditor.current;
 				graph.getModel().clear();
 				const rootCell = graph.getDefaultParent();

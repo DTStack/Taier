@@ -1,0 +1,102 @@
+.vertex {
+	margin-top: -2px;
+	user-select: none;
+
+	.vertex-title {
+		display: inline-block;
+		width: 160px;
+		overflow: hidden;
+		color: #000;
+		font-weight: normal;
+		font-weight: 500;
+		font-size: 14px;
+		font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
+		line-height: 18px;
+		letter-spacing: 0;
+		white-space: nowrap;
+		text-align: center;
+		text-overflow: ellipsis;
+	}
+
+	.vertex-desc {
+		color: var(--descriptionForeground);
+		font-weight: initial;
+		font-size: 10px;
+		font-family: 'PingFang-SC-Medium', sans-serif;
+		line-height: 14px;
+		letter-spacing: 0;
+	}
+}
+
+.mxTooltip {
+	position: absolute;
+	display: block;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 10px;
+	color: var(--menu-foreground);
+	font-size: 11px;
+	font-family: 'Arial', sans-serif;
+	font-variant: tabular-nums;
+	line-height: 1.5;
+	word-wrap: break-word;
+	list-style: none;
+	background: var(--menu-background);
+	border: none;
+	border-radius: 0;
+	box-shadow: 0 2px 20px 0 var(--widget-shadow);
+	cursor: default;
+	font-feature-settings: 'tnum';
+
+	.vertex-title {
+		color: inherit;
+	}
+
+	.vertex {
+		color: var(--menu-foreground);
+	}
+}
+
+div.mxPopupMenu {
+	position: absolute;
+	background: var(--menu-background);
+	border: 0;
+	border-radius: 0;
+	box-shadow: 0 0 6px 0 var(--minimapSlider-hoverBackground);
+
+	table.mxPopupMenu {
+		margin: 4px 0;
+		border-collapse: collapse;
+
+		tr.mxPopupMenuItem {
+			color: var(--menu-foreground);
+			cursor: default;
+		}
+
+		td.mxPopupMenuItem {
+			padding: 6px 60px 6px 30px;
+			color: var(--menu-foreground);
+			font-size: 12px;
+			font-family: 'PingFangSC-Regular', sans-serif;
+			letter-spacing: 0;
+		}
+
+		td.mxPopupMenuIcon {
+			padding: 0;
+			background-color: var(--menu-background);
+		}
+
+		tr.mxPopupMenuItemHover {
+			background-color: #e6f7ff;
+			cursor: pointer;
+
+			.mxPopupMenuItem {
+				color: #2491f7;
+			}
+		}
+
+		hr {
+			border-top: solid 1px #ccc;
+		}
+	}
+}

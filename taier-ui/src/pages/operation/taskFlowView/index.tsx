@@ -16,19 +16,16 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useRef } from 'react';
-import { cloneDeep } from 'lodash';
+import { useEffect, useState } from 'react';
 import { history } from 'umi';
 import Api from '@/api';
-import type { IMxCell, IMxGraph } from './taskGraphView';
-import TaskGraphView, { mergeTreeNodes } from './taskGraphView';
-import MxFactory from '@/components/mxGraph';
 import { DRAWER_MENU_ENUM, SCHEDULE_STATUS } from '@/constant';
 import type { IUpstreamJobProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
-
-const Mx = MxFactory.create();
-const { mxEvent, mxCellHighlight: MxCellHightlight, mxPopupMenu } = Mx;
+import type { IContextMenuConfig } from '@/components/mtest/container';
+import MxGraphContainer from '@/components/mtest/container';
+import { formatDateTime, goToTaskDev } from '@/utils';
+import { taskTypeText } from '@/utils/enums';
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
@@ -46,10 +43,8 @@ interface IGetTaskChildrenParams {
 }
 
 const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProps) => {
-	const [graphData, setGraphData] = useState<IUpstreamJobProps | null>(null);
-	const [selectedTask, setSelectedTask] = useState<IUpstreamJobProps | null>(null);
+	const [graphData, setGraphData] = useState<[IUpstreamJobProps] | null>(null);
 	const [loading, setLoading] = useState(false);
-	const originData = useRef<IUpstreamJobProps | undefined>();
 
 	/**
 	 * 获取任务上下游关系
@@ -68,8 +63,29 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 			.then((res) => {
 				if (res.code === 1) {
 					const data: IUpstreamJobProps = res.data?.rootTaskNode || {};
-					setSelectedTask(data);
-					renderGraph(data);
+
+					// 不同的 directType 取不同的字段
+					const property =
+						directType === DIRECT_TYPE_ENUM.CHILD ? 'childNode' : 'parentNode';
+
+					setGraphData((graph) => {
+						if (graph) {
+							const stack = [graph[0]];
+							while (stack.length) {
+								const item = stack.pop()!;
+								if (item.taskId === data?.taskId) {
+									item[property] = data[property];
+									break;
+								}
+
+								stack.push(...(item?.[property] || []));
+							}
+
+							return [...graph];
+						}
+
+						return [data];
+					});
 				}
 			})
 			.finally(() => {
@@ -77,144 +93,111 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 			});
 	};
 
-	const renderGraph = (data: IUpstreamJobProps) => {
-		if (originData.current) {
-			mergeTreeNodes(originData.current, data);
-		} else {
-			originData.current = cloneDeep(data);
-		}
-		const nextGraphData = cloneDeep(originData.current);
-		setGraphData(nextGraphData);
-	};
-
 	const refresh = () => {
 		if (tabData) {
-			originData.current = undefined; // 清空缓存数据
 			setGraphData(null);
-			setSelectedTask(null);
 			loadTaskChidren(tabData.taskId);
 		}
 	};
 
-	const isCurrentProjectTask = () => {
-		return false;
-	};
-
-	const initContextMenu = (graph: IMxGraph) => {
-		const mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
-		mxPopupMenu.prototype.showMenu = function () {
-			const cells = this.graph.getSelectionCells();
-			if (cells.length > 0 && cells[0].vertex) {
-				// eslint-disable-next-line prefer-rest-params
-				mxPopupMenuShowMenu.apply(this, arguments);
-			} else return false;
-		};
-		// eslint-disable-next-line no-param-reassign
-		graph.popupMenuHandler.autoExpand = true;
-		// eslint-disable-next-line no-param-reassign
-		graph.popupMenuHandler.factoryMethod = function (menu: any, cell: IMxCell) {
-			if (!cell || !cell.vertex) return;
-
-			const currentNode = cell.value;
-			if (currentNode) {
-				menu.addItem('展开上游（6层）', null, () => {
-					loadTaskChidren(currentNode.taskId, DIRECT_TYPE_ENUM.FATHER, 6);
-				});
-				menu.addItem('展开下游（6层）', null, () => {
-					loadTaskChidren(currentNode.taskId, DIRECT_TYPE_ENUM.CHILD, 6);
-				});
-				menu.addItem('补数据', null, () => {
-					onPatchData?.(currentNode);
-				});
-				menu.addItem(
-					'冻结',
-					null,
-					() => onForzenTasks?.(currentNode.taskId, SCHEDULE_STATUS.FORZON),
-					null,
-					null,
-					currentNode.scheduleStatus === SCHEDULE_STATUS.NORMAL,
-				);
-
-				menu.addItem(
-					'解冻',
-					null,
-					() => onForzenTasks?.(currentNode.taskId, SCHEDULE_STATUS.NORMAL),
-					null,
-					null,
-					currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED ||
-						currentNode.scheduleStatus === SCHEDULE_STATUS.FORZON,
-				);
-				menu.addItem('查看实例', null, () => {
+	const handleContextMenu = (data: IUpstreamJobProps): IContextMenuConfig[] => {
+		return [
+			{
+				title: '展开上游（6层）',
+				callback: () => loadTaskChidren(data.taskId, DIRECT_TYPE_ENUM.FATHER, 6),
+			},
+			{
+				title: '展开下游（6层）',
+				callback: () => loadTaskChidren(data.taskId, DIRECT_TYPE_ENUM.CHILD, 6),
+			},
+			{
+				title: '补数据',
+				callback: () => onPatchData?.(data),
+			},
+			{
+				title: '冻结',
+				callback: () => onForzenTasks?.(data.taskId, SCHEDULE_STATUS.FORZON),
+				disabled: data.scheduleStatus !== SCHEDULE_STATUS.NORMAL,
+			},
+			{
+				title: '解冻',
+				callback: () => onForzenTasks?.(data.taskId, SCHEDULE_STATUS.NORMAL),
+				disabled:
+					data.scheduleStatus !== SCHEDULE_STATUS.STOPPED &&
+					data.scheduleStatus !== SCHEDULE_STATUS.FORZON,
+			},
+			{
+				title: '查看实例',
+				callback: () =>
 					history.push({
 						query: {
 							drawer: DRAWER_MENU_ENUM.SCHEDULE,
-							tName: currentNode.taskName,
+							tName: data.taskName,
 						},
-					});
-				});
-			}
-		};
+					}),
+			},
+		];
 	};
 
-	const initGraphEvent = (graph: IMxGraph) => {
-		const highlightEdges: typeof MxCellHightlight[] = [];
-		let selectedCell: IMxCell | null = null;
-		if (graph) {
-			// cell 点击事件
-			graph.addListener(mxEvent.onClick, async (sender: any, evt: any) => {
-				const cell: IMxCell = evt.getProperty('cell');
-				if (cell && cell.vertex) {
-					graph.clearSelection();
-					const data = cell.value!;
-					setSelectedTask(data);
-
-					const outEdges = graph.getOutgoingEdges(cell);
-					const inEdges = graph.getIncomingEdges(cell);
-					const edges = outEdges.concat(inEdges);
-					for (let i = 0; i < edges.length; i += 1) {
-						const highlight = new MxCellHightlight(graph, '#2491F7', 2);
-						const state = graph.view.getState(edges[i]);
-						highlight.highlight(state);
-						highlightEdges.push(highlight);
-					}
-					selectedCell = cell;
-				} else {
-					const cells = graph.getSelectionCells();
-					graph.removeSelectionCells(cells);
-				}
-			});
-
-			// eslint-disable-next-line no-param-reassign
-			graph.clearSelection = function () {
-				if (selectedCell) {
-					for (let i = 0; i < highlightEdges.length; i += 1) {
-						highlightEdges[i].hide();
-					}
-					selectedCell = null;
-				}
-			};
+	const handleRenderCell = (cell: IMxCell) => {
+		const task = cell.value;
+		if (task) {
+			const taskType = taskTypeText(task.taskType);
+			return `<div class="vertex" >
+			<span class='vertex-title'>
+				${task.taskName}
+			</span>
+			<br>
+			<span class="vertex-desc">${taskType}</span>
+			</div>`.replace(/(\r\n|\n)/g, '');
 		}
+
+		return '';
 	};
 
 	useEffect(() => {
 		if (tabData) {
 			refresh();
 		}
-	}, [tabData]);
+	}, [tabData?.taskId]);
 
 	return (
-		graphData && (
-			<TaskGraphView
-				data={selectedTask}
-				isCurrentProjectTask={isCurrentProjectTask}
-				graphData={graphData}
-				key={`task-graph-view-${graphData && graphData.taskId}`}
-				loading={loading}
-				onRefresh={refresh}
-				registerEvent={initGraphEvent}
-				registerContextMenu={initContextMenu}
-			/>
-		)
+		<MxGraphContainer<IUpstreamJobProps>
+			graphData={graphData}
+			loading={loading}
+			onRefresh={refresh}
+			onRenderCell={handleRenderCell}
+			onContextMenu={handleContextMenu}
+			onDrawVertex={(data) => {
+				if (data.scheduleStatus === SCHEDULE_STATUS.FORZON) {
+					return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
+				}
+				return 'whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;';
+			}}
+		>
+			{(data) => (
+				<>
+					<div className="graph-info">
+						<span>{data?.taskName || '-'}</span>
+						<span className="mx-2">{data?.operatorName || '-'}</span>
+						发布于
+						{data && (
+							<>
+								<span>{formatDateTime(data.gmtCreate)}</span>
+								<a
+									className="mx-2"
+									onClick={() => {
+										goToTaskDev({ id: data.taskId });
+									}}
+								>
+									查看代码
+								</a>
+							</>
+						)}
+					</div>
+				</>
+			)}
+		</MxGraphContainer>
 	);
 };
 
