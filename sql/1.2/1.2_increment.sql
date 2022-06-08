@@ -293,4 +293,27 @@ VALUES ('tips','restart-strategy.failure-rate.max-failures-per-interval','如果
 -- 订正原先的错误参数
 update console_component_config set `key` = 'restart-strategy.failure-rate.failure-rate-interval' where `key` = 'restart-strategy.failure-rate.failure-rate-intervalattempts' and component_type_code in (0);
 
+### sparkThrift/hiveServer 组件 ###
+-- 纠正错误枚举值
+update console_component_config set component_type_code = 5 where cluster_id = -2 and component_id = -117;
+
+DELETE FROM  dict WHERE `type` = 25
+                    AND dict_name in ('jdbcUrl','username','password','maxJobPoolSize','minJobPoolSize')
+                    AND dict_desc in (4, 5);
+
+drop table if exists t_rdbs_component_id;
+create temporary table t_rdbs_component_id (id int);
+insert into t_rdbs_component_id (id) values (4), (5);
+
+drop table if exists t_rdbs_component_key;
+create temporary table t_rdbs_component_key (tipKey varchar(100), tipDesc varchar(200) );
+insert into t_rdbs_component_key values ('jdbcUrl','jdbc url地址'),('username', 'jdbc连接用户名'),('password','jdbc连接密码'),
+                                        ('maxJobPoolSize','任务最大线程数'),('minJobPoolSize', '任务最小线程数');
+-- 组织成笛卡尔积插入
+INSERT INTO  dict (dict_code,dict_name,dict_value,`type`,dict_desc)
+select 'tips', t2.tipKey, t2.tipDesc, 25, t1.id from t_rdbs_component_id t1 join t_rdbs_component_key t2;
+
+drop table if exists t_rdbs_component_id;
+drop table if exists t_rdbs_component_key;
+
 COMMIT;
