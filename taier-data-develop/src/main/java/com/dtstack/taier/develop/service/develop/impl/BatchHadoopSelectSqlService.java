@@ -601,7 +601,7 @@ public class BatchHadoopSelectSqlService implements IBatchSelectSqlService {
         String log = "";
         if (needDownload) {
             try {
-                log = batchDownloadService.loadJobLog(tenantId, EScheduleJobType.SPARK_SQL.getVal(), jobId, 30000);
+                log = batchDownloadService.loadJobLog(tenantId, result.getTaskType(), jobId, 30000);
             } catch (Exception e) {
                 LOGGER.error("", e);
             }

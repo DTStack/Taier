@@ -93,7 +93,9 @@ public class MultiEngineServiceFactory {
      * @return
      */
     public IDataDownloadService getDataDownloadService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)
+            || EScheduleJobType.HIVE_SQL.getType().equals(taskType)
+            || EScheduleJobType.SYNC.getType().equals(taskType)) {
             return hadoopDataDownloadService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
