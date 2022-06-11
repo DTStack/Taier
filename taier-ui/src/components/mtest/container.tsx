@@ -13,7 +13,6 @@ const {
 	mxEvent,
 	mxPopupMenu,
 	mxEventObject: MxEventObject,
-	mxRectangle,
 } = Mx.mxInstance;
 
 export interface IContextMenuConfig {
@@ -26,7 +25,6 @@ export interface IContextMenuConfig {
 interface IMxGraphData {
 	childNode: any[];
 	parentNode?: any[];
-	isCollapsed?: boolean;
 
 	[key: string]: any;
 }
@@ -53,9 +51,17 @@ interface IContainerProps<T> {
 	 */
 	config?: { tooltips: boolean; [key: string]: any };
 	/**
+	 * relayout 的方向，MxHierarchicalLayout 的第二个参数
+	 */
+	direction?: string;
+	/**
 	 * children 会渲染底部状态栏
 	 */
 	children?: (current: T | null) => JSX.Element;
+	/**
+	 * 渲染自定义 actions
+	 */
+	onRenderActions?: () => JSX.Element;
 	/**
 	 * 点击刷新的回调函数
 	 */
@@ -97,6 +103,7 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 	vertexKey = 'taskId',
 	vertextSize,
 	config,
+	direction,
 	children,
 	onRefresh,
 	onRenderCell,
@@ -104,6 +111,7 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 	onClick,
 	onContextMenu,
 	onDoubleClick,
+	onRenderActions,
 }: IContainerProps<T>) {
 	const container = useRef<HTMLDivElement>(null);
 	const graph = useRef<IMxGraph>();
@@ -147,7 +155,7 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 			const parent = graph.current!.getDefaultParent();
 			graph.current!.getModel().beginUpdate();
 			try {
-				const layout2 = new MxHierarchicalLayout(graph.current, 'north');
+				const layout2 = new MxHierarchicalLayout(graph.current, direction || 'north');
 				layout2.disableEdgeStyle = false;
 				layout2.interRankCellSpacing = 40;
 				layout2.intraCellSpacing = 60;
@@ -281,98 +289,50 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 				const { sourceOrTarget, data } = stack.pop()!;
 				const style = onDrawVertex?.(data);
 
-				// 如果是折叠的数据(拓扑图)
-				if (data.isCollapsed) {
-					const vertex = graph.current!.insertVertex(
-						graph.current!.getDefaultParent(),
-						data[vertexKey],
-						data,
-						0,
-						0,
-						vertextSize?.width || MxFactory.VertexSize.width,
-						vertextSize?.height || MxFactory.VertexSize.height,
-						style,
+				const vertex = graph.current!.insertVertex(
+					graph.current!.getDefaultParent(),
+					data[vertexKey],
+					data,
+					0,
+					0,
+					vertextSize?.width || MxFactory.VertexSize.width,
+					vertextSize?.height || MxFactory.VertexSize.height,
+					style,
+				);
+
+				if (sourceOrTarget) {
+					// 判断 sourceOrTarget 存放的 vertex 是 source 还是 target
+					const isSource = !!sourceOrTarget.value?.childNode?.find(
+						(i: T) => i[vertexKey] === data[vertexKey],
 					);
-
-					vertex.geometry.alternateBounds = new mxRectangle(0, 0, 1000, 550);
-
-					vertex.collapsed = true;
-					data.childNode.forEach(
-						function (this: { source: IMxCell | null }, child, index) {
-							const target = graph.current!.insertVertex(
-								vertex,
-								child[vertexKey],
-								child,
-								0,
-								0,
-								vertextSize?.width || MxFactory.VertexSize.width,
-								vertextSize?.height || MxFactory.VertexSize.height,
-								style,
-							);
-
-							if (this.source) {
-								graph.current!.insertEdge(
-									vertex,
-									null,
-									null,
-									this.source,
-									target,
-									null,
-								);
-							}
-
-							this.source = target;
-						},
-						{
-							source: null,
-						},
+					graph.current!.insertEdge(
+						graph.current!.getDefaultParent(),
+						null,
+						null,
+						isSource ? sourceOrTarget : vertex,
+						isSource ? vertex : sourceOrTarget,
+						null,
 					);
 				} else {
-					const vertex = graph.current!.insertVertex(
-						graph.current!.getDefaultParent(),
-						data[vertexKey],
-						data,
-						0,
-						0,
-						vertextSize?.width || MxFactory.VertexSize.width,
-						vertextSize?.height || MxFactory.VertexSize.height,
-						style,
-					);
+					graph.current?.setSelectionCell(vertex);
+				}
 
-					if (sourceOrTarget) {
-						// 判断 sourceOrTarget 存放的 vertex 是 source 还是 target
-						const isSource = !!sourceOrTarget.value?.childNode?.find(
-							(i: T) => i[vertexKey] === data[vertexKey],
-						);
-						graph.current!.insertEdge(
-							graph.current!.getDefaultParent(),
-							null,
-							null,
-							isSource ? sourceOrTarget : vertex,
-							isSource ? vertex : sourceOrTarget,
-							null,
-						);
-					} else {
-						graph.current?.setSelectionCell(vertex);
-					}
-
-					if (data.childNode?.length) {
-						data.childNode.forEach((i: T) => {
-							stack.push({
-								sourceOrTarget: vertex,
-								data: i,
-							});
+				if (data.childNode?.length) {
+					data.childNode.forEach((i: T) => {
+						stack.push({
+							sourceOrTarget: vertex,
+							data: i,
 						});
-					}
+					});
+				}
 
-					if (data.parentNode?.length) {
-						data.parentNode.forEach((i: T) => {
-							stack.push({
-								sourceOrTarget: vertex,
-								data: i,
-							});
+				if (data.parentNode?.length) {
+					data.parentNode.forEach((i: T) => {
+						stack.push({
+							sourceOrTarget: vertex,
+							data: i,
 						});
-					}
+					});
 				}
 			}
 
@@ -435,6 +395,7 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 			</Spin>
 			<div className="graph-bottom">{children?.(current)}</div>
 			<div className="graph-toolbar">
+				{onRenderActions?.()}
 				<Tooltip placement="bottom" title="刷新">
 					<ReloadOutlined onClick={handleRefresh} />
 				</Tooltip>

@@ -1,33 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import * as ReactDOMServer from 'react-dom/server';
 import { Modal } from 'antd';
-import LinkDiagram from './linkDiagram';
 import MxGraphContainer from '@/components/mtest/container';
+import { cloneDeep } from 'lodash';
+import type { IFlinkJsonProps } from '.';
 import './common.scss';
 
-interface ISubJobVertices {
-	id: string;
-	name: string;
-	delayMapList: Record<string, number>;
-	parallelism: number;
-	recordsReceivedMap: Record<string, number>;
-	recordsSentMap: Record<string, number>;
-}
-
 interface ICommonProps {
-	flinkJson: {
-		jobVertexId: string;
-		jobVertexName: string;
-		delayMap: Record<string, string | null>;
-		parallelism: number;
-		recordsReceived: number;
-		recordsSent: number;
-		backPressureMap: Record<string, number>;
-		subJobVertices: ISubJobVertices[];
-	}[];
+	flinkJson: IFlinkJsonProps[];
 	loading: boolean;
 	refresh: () => void;
 }
+
+type ISubJobVertices = IFlinkJsonProps['subJobVertices'][number];
 
 interface ITopological {
 	id: string;
@@ -38,7 +23,7 @@ interface ITopological {
 	received: number;
 	sent: number;
 	backPressured: number;
-	isCollapsed: boolean;
+	subJobVertices?: ISubJobVertices[];
 	childNode: ITopological[];
 }
 
@@ -71,22 +56,9 @@ const getBackPressureColor = (backPressure: number, type: string) => {
 
 export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 	const [graphData, setGraphData] = useState<ITopological[] | null>(null);
-
-	const convertChildNode = (
-		children: ISubJobVertices[],
-	): Omit<ITopological, 'backPressured'>[] => {
-		return children.map((child, index) => ({
-			id: child.id,
-			title: `Operator ${index}`,
-			desc: child.name,
-			delay: Object.values(child.delayMapList)[0],
-			parallelism: child.parallelism,
-			received: Object.values(child.recordsReceivedMap)[0],
-			sent: Object.values(child.recordsSentMap)[0],
-			isCollapsed: false,
-			childNode: [],
-		}));
-	};
+	// 当前选中的 cell
+	const [selectedCell, setSelectedCell] = useState<IMxCell<ITopological> | null>(null);
+	const [visible, setVisible] = useState(false);
 
 	const handleClick = (
 		cell: IMxCell<ITopological>,
@@ -94,22 +66,26 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 		event: React.MouseEvent<HTMLElement, MouseEvent>,
 	) => {
 		if ((event.target as HTMLImageElement).nodeName === 'IMG') {
-			const collapse = !cell.collapsed;
-			graph.foldCells(collapse, false, [cell], null);
+			if (cell.value?.subJobVertices) {
+				setVisible(true);
+
+				setSelectedCell(cell);
+			}
 		}
 	};
 
-	const handleDrawVertex = (data: ITopological) => {
-		if (data.childNode.length) {
-			return 'shape=swimlane;startSize=20;';
-		}
-	};
-
-	const handleRenderCell = (cell: IMxCell<ITopological>, graph: IMxGraph) => {
+	const handleRenderCell = (cell: IMxCell<ITopological>) => {
 		if (cell.value) {
-			const { backPressured, title, desc, delay, parallelism, received, sent } = cell.value;
-			const isShowDetail = !!cell.value.childNode.length && !graph.model.isCollapsed(cell);
-			console.log('isShowDetail:', isShowDetail);
+			const {
+				backPressured,
+				title,
+				desc,
+				delay,
+				parallelism,
+				received,
+				sent,
+				subJobVertices,
+			} = cell.value;
 			const res = ReactDOMServer.renderToString(
 				<div
 					className="vertex-diagram"
@@ -117,7 +93,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 				>
 					<div className="vertex-title">
 						<div className="t_title">{title}</div>
-						{cell.value.isCollapsed && (
+						{subJobVertices?.length && (
 							<img className="cursor-pointer" src="images/expand.svg" />
 						)}
 					</div>
@@ -128,66 +104,76 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 						<div className="tcolumn" title={desc}>
 							{desc}
 						</div>
-						{!isShowDetail &&
-							[
-								{ field: 'delay', title: 'Delay', data: `${delay}ms` },
-								{ field: 'parallelism', title: 'Parallelism', data: parallelism },
-								{ field: 'received', title: 'Record Received', data: received },
-								{ field: 'sent', title: 'Record Sent', data: sent },
-								{
-									field: 'dashboard',
-									title: 'BackPressured(max)',
-									data: `${(backPressured * 100).toFixed(0)}%`,
-								},
-							].map(({ field, title: fieldTitle, data }) => (
-								<div className="t-text-col" title={fieldTitle}>
-									<span className="t-text-col-key">
-										<img
-											src={`images/${field}.svg`}
-											className="t-text-col_img"
-										/>
-										${fieldTitle}
-									</span>
-									<span className="t-text-col-value">${data}</span>
-								</div>
-							))}
+						{[
+							{ field: 'delay', title: 'Delay', data: `${delay}ms` },
+							{ field: 'parallelism', title: 'Parallelism', data: parallelism },
+							{ field: 'received', title: 'Record Received', data: received },
+							{ field: 'sent', title: 'Record Sent', data: sent },
+							{
+								field: 'dashboard',
+								title: 'BackPressured(max)',
+								data: `${(backPressured * 100).toFixed(0)}%`,
+							},
+						].map(({ field, title: fieldTitle, data }) => (
+							<div className="t-text-col" title={fieldTitle}>
+								<span className="t-text-col-key">
+									<img src={`images/${field}.svg`} className="t-text-col_img" />$
+									{fieldTitle}
+								</span>
+								<span className="t-text-col-value">{data}</span>
+							</div>
+						))}
 					</div>
 				</div>,
 			);
 			return res;
-			return `<div class='vertex-diagram'>
-				<div class='vertex-title' style='background: ${getBackPressureColor(backPressured, 'title')}'>
-					<div class='t_title'>${title}</div>
-					<img class="cursor-pointer" onclick="console.log(${cell})" src='images/expand.svg' />
-				</div>
-				<div class='vertex-content' style='background: ${getBackPressureColor(backPressured, 'content')}'>
-					<div class='tcolumn' title="${desc}">${desc}</div>
-					${[
-						{ field: 'delay', title: 'Delay', data: `${delay}ms` },
-						{ field: 'parallelism', title: 'Parallelism', data: parallelism },
-						{ field: 'received', title: 'Record Received', data: received },
-						{ field: 'sent', title: 'Record Sent', data: sent },
-						{
-							field: 'dashboard',
-							title: 'BackPressured(max)',
-							data: `${(backPressured * 100).toFixed(0)}%`,
-						},
-					]
-						.map(
-							({ field, title: fieldTitle, data }) =>
-								`<div class='t-text-col' title="${fieldTitle}">
-                                <span class='t-text-col-key'>
-                                    <img src="images/${field}.svg" class='t-text-col_img' />
-                                    ${fieldTitle}
-                                </span>
-                                <span class='t-text-col-value'>${data}</span>
-                            </div>`,
-						)
-						.join('')}
-				</div>
-			</div>`.replace(/(\r\n|\n)/g, '');
 		}
 		return '';
+	};
+
+	const convertArrToLinkedList = (arr?: ISubJobVertices[]): ITopological[] | null => {
+		let res: ITopological[] | null = null;
+		arr?.forEach(
+			function (this: { point: ITopological[] | null }, vertice, index) {
+				if (!this.point) {
+					res = [
+						{
+							id: vertice.id,
+							title: `Operator ${index}`,
+							desc: vertice.name,
+							delay: Object.values(vertice.delayMapList)[0],
+							parallelism: vertice.parallelism,
+							received: Object.values(vertice.recordsReceivedMap)[0],
+							sent: Object.values(vertice.recordsSentMap)[0],
+							// 子节点的最大反压数据从父节点获取
+							backPressured: selectedCell?.value?.backPressured || 0,
+							childNode: [],
+						},
+					];
+					this.point = res[0].childNode;
+				} else {
+					this.point[0] = {
+						id: vertice.id,
+						title: `Operator ${index}`,
+						desc: vertice.name,
+						delay: Object.values(vertice.delayMapList)[0],
+						parallelism: vertice.parallelism,
+						received: Object.values(vertice.recordsReceivedMap)[0],
+						sent: Object.values(vertice.recordsSentMap)[0],
+						backPressured: selectedCell?.value?.backPressured || 0,
+						childNode: [],
+					};
+					this.point = this.point[0].childNode;
+				}
+			},
+			{ point: res },
+		);
+
+		return res;
+	};
+
+	const handleRefreshSub = () => {
+		setSelectedCell((c) => cloneDeep(c));
 	};
 
 	useEffect(() => {
@@ -202,76 +188,69 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 						parallelism: json.parallelism,
 						received: json.recordsReceived,
 						sent: json.recordsSent,
-						isCollapsed: true,
 						backPressured: Math.max(...Object.values(json.backPressureMap)),
-						childNode: convertChildNode(json.subJobVertices).map((i) => ({
-							...i,
-							// 子节点的最大反压数据从父节点获取
-							backPressured: Math.max(...Object.values(json.backPressureMap)),
-						})),
+						subJobVertices: json.subJobVertices,
+						childNode: [],
 					};
 				}),
 			);
 		}
 	}, [flinkJson]);
 
-	console.log('graphData:', graphData);
+	const subGraphData = useMemo(() => {
+		if (selectedCell) {
+			return convertArrToLinkedList(selectedCell.value?.subJobVertices);
+		}
+		return null;
+	}, [selectedCell]);
+
+	if (!graphData) {
+		return <div>暂未生成拓扑图</div>;
+	}
+
 	return (
-		<MxGraphContainer<ITopological>
-			config={{
-				tooltips: false,
-			}}
-			vertextSize={{
-				width: 280,
-				height: 234,
-			}}
-			onClick={handleClick}
-			loading={loading}
-			graphData={graphData}
-			onRenderCell={handleRenderCell}
-			onDrawVertex={handleDrawVertex}
-		/>
+		<>
+			<MxGraphContainer<ITopological>
+				config={{
+					tooltips: false,
+				}}
+				vertextSize={{
+					width: 280,
+					height: 234,
+				}}
+				onClick={handleClick}
+				loading={loading}
+				graphData={graphData}
+				onRenderCell={handleRenderCell}
+				onRefresh={refresh}
+			/>
+			<Modal
+				visible={visible}
+				title="工作流"
+				onCancel={() => setVisible(false)}
+				footer={null}
+				zIndex={1000}
+				width={900}
+				destroyOnClose
+			>
+				<div style={{ height: 500 }}>
+					<MxGraphContainer<ITopological>
+						config={{
+							tooltips: false,
+						}}
+						vertextSize={{
+							width: 280,
+							height: 234,
+						}}
+						direction="west"
+						onClick={handleClick}
+						loading={loading}
+						graphData={subGraphData}
+						onRenderCell={handleRenderCell}
+						onRefresh={handleRefreshSub}
+					/>
+				</div>
+			</Modal>
+		</>
 	);
-	// const [visible, setVisible] = useState(false);
-	// const [subTreeData, setSubTreeData] = useState([]);
-	// // 绑定 graph id
-	// const targetKey = useRef('' + Math.random());
-
-	// const showSubVertex = (data: any) => {
-	// 	setVisible(true);
-	// 	setSubTreeData(data);
-	// };
-
-	// return (
-	// 	<>
-	// 		<LinkDiagram
-	// 			loading={loading}
-	// 			targetKey={targetKey.current}
-	// 			flinkJson={flinkJson}
-	// 			refresh={refresh}
-	// 			showSubVertex={showSubVertex}
-	// 		/>
-	// 		<Modal
-	// 			wrapClassName="modal-body-nopadding modal-body--height100"
-	// 			visible={visible}
-	// 			title="工作流"
-	// 			onCancel={() => setVisible(false)}
-	// 			footer={null}
-	// 			zIndex={1000}
-	// 			width={900}
-	// 		>
-	// 			<div id={targetKey.current} className="graph_wrapper__height">
-	// 				<LinkDiagram
-	// 					loading={loading}
-	// 					flinkJson={flinkJson}
-	// 					refresh={refresh}
-	// 					targetKey={targetKey.current}
-	// 					subTreeData={subTreeData}
-	// 					isSubVertex
-	// 					showSubVertex={showSubVertex}
-	// 				/>
-	// 			</div>
-	// 		</Modal>
-	// 	</>
-	// );
 }

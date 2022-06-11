@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Radio } from 'antd';
 import stream from '@/api';
-import { IStreamJobProps } from '@/interface';
+import type { IStreamJobProps } from '@/interface';
 import { TASK_STATUS } from '@/constant';
 import Common from './common';
 import DetailTable from './detailTable';
@@ -11,13 +11,24 @@ interface IProps {
 	data?: IStreamJobProps;
 }
 
-export interface IDataSource {
+export interface IFlinkJsonProps {
+	jobVertexId: string;
 	jobVertexName: string;
+	delayMap: Record<string, string | null>;
 	parallelism: number;
-	bytesReceived: number;
-	bytesSent: number;
 	recordsReceived: number;
 	recordsSent: number;
+	backPressureMap: Record<string, number>;
+	bytesSent: string;
+	bytesReceived: string;
+	subJobVertices: {
+		id: string;
+		name: string;
+		delayMapList: Record<string, number>;
+		parallelism: number;
+		recordsReceivedMap: Record<string, number>;
+		recordsSentMap: Record<string, number>;
+	}[];
 }
 
 enum TABS_ENUM {
@@ -38,13 +49,13 @@ const TABS = [
 
 export default function RunMsg({ data }: IProps) {
 	const [tabKey, setTabKey] = useState(TABS_ENUM.VERTEX);
-	const [flinkJson, setFlinkJson] = useState([]);
+	const [flinkJson, setFlinkJson] = useState<IFlinkJsonProps[]>([]);
 	const [loading, setLoading] = useState(false);
 	const timeClock = useRef<number | undefined>(undefined);
 
 	const getFlinkJsonData = async (isSlient?: boolean) => {
 		const { id, status } = data || {};
-		if (!id || status != TASK_STATUS.RUNNING) return;
+		if (!id || status !== TASK_STATUS.RUNNING) return;
 		if (!isSlient) {
 			setLoading(true);
 		}
@@ -57,7 +68,7 @@ export default function RunMsg({ data }: IProps) {
 			.getTaskJson({ taskId: id })
 			.then((res) => {
 				if (res.code === 1) {
-					// rollData(status);
+					rollData(status);
 					const { taskVertices } = res.data || {};
 					setFlinkJson(taskVertices || []);
 				}
@@ -68,7 +79,7 @@ export default function RunMsg({ data }: IProps) {
 	};
 
 	const rollData = (status: number) => {
-		if (status == TASK_STATUS.RUNNING) {
+		if (status === TASK_STATUS.RUNNING) {
 			timeClock.current = window.setTimeout(() => {
 				timeClock.current = undefined;
 				getFlinkJsonData(true);
