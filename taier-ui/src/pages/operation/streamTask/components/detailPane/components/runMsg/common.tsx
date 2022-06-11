@@ -4,6 +4,7 @@ import { Modal } from 'antd';
 import MxGraphContainer from '@/components/mxGraph/container';
 import { cloneDeep } from 'lodash';
 import type { IFlinkJsonProps } from '.';
+import classnames from 'classnames';
 import './common.scss';
 
 interface ICommonProps {
@@ -205,7 +206,13 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 	}, [selectedCell]);
 
 	if (!graphData) {
-		return <div>暂未生成拓扑图</div>;
+		return (
+			<div
+				className={classnames('full-w', 'flex-1', 'flex', 'items-center', 'justify-center')}
+			>
+				暂未生成拓扑图
+			</div>
+		);
 	}
 
 	return (
