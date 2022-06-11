@@ -1,7 +1,6 @@
 import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
 import { Spin, Tooltip } from 'antd';
 import type { mxCell, mxCellHighlight, mxGraph, mxPopupMenuHandler } from 'mxgraph';
-import { mxImage as MxImage } from 'mxgraph';
 import { useEffect, useRef, useState } from 'react';
 import MxFactory from '.';
 import './container.scss';
@@ -15,6 +14,7 @@ const {
 	mxEvent,
 	mxPopupMenu,
 	mxEventObject: MxEventObject,
+	mxImage: MxImage,
 } = Mx.mxInstance;
 
 export interface IContextMenuConfig {
