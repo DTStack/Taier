@@ -1,9 +1,29 @@
-/* eslint-disable func-names */
 import Mx from 'mxgraph';
+import type {
+	mxGraphExportObject,
+	mxGraphOptions,
+	mxGraph,
+	StyleMap,
+	mxCell,
+	mxRectangle,
+	mxGraphView,
+	mxPoint,
+} from 'mxgraph';
 import './index.scss';
 
+interface IMxGraph extends mxGraph {
+	scrollTileSize?: mxRectangle;
+	getPagePadding?: () => mxPoint;
+	getPageSize?: () => mxRectangle;
+	getPageLayout?: () => mxRectangle;
+}
+
+/**
+ * refer to: https://jgraph.github.io/mxgraph/docs/js-api/files/index-txt.html
+ * typings refer to: https://github.com/typed-mxgraph/typed-mxgraph#readme
+ */
 class MxFactory {
-	static config: IMxGraphConfig = {
+	static config: mxGraphOptions = {
 		mxImageBasePath: 'images',
 		mxLanguage: 'none',
 		mxLoadResources: false,
@@ -17,7 +37,7 @@ class MxFactory {
 
 	public layoutEventHandler: () => void = () => {};
 
-	public mxInstance: mxInstance;
+	public mxInstance: mxGraphExportObject;
 
 	public mxGraph: IMxGraph | null = null;
 
@@ -30,7 +50,7 @@ class MxFactory {
 	 */
 	private getDefaultVertexStyle = () => {
 		const { mxConstants, mxPerimeter } = this.mxInstance;
-		const style = [];
+		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
 		style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
 		style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
@@ -48,7 +68,7 @@ class MxFactory {
 	 */
 	private getDefaultEdgeStyle = () => {
 		const { mxConstants, mxEdgeStyle } = this.mxInstance;
-		const style = [];
+		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
 		style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
 		style[mxConstants.STYLE_STROKEWIDTH] = 1;
@@ -107,6 +127,7 @@ class MxFactory {
 		mxConstants.HANDLE_FILLCOLOR = '#ffffff';
 		mxConstants.HANDLE_STROKECOLOR = '#2491F7';
 		mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+		// @ts-ignore
 		mxConstants.STYLE_OVERFLOW = 'hidden';
 
 		return graph;
@@ -117,6 +138,10 @@ class MxFactory {
 	 */
 	createRubberBand() {
 		const { mxRubberband: MxRubberband } = this.mxInstance;
+		if (!this.mxGraph) {
+			throw new Error('Please call create before createRubberBand');
+		}
+
 		return new MxRubberband(this.mxGraph);
 	}
 
@@ -124,7 +149,7 @@ class MxFactory {
 	 * Vertex 渲染的 HTML 样式
 	 * @description Returns the textual representation for the given cell.  This implementation returns the nodename or string-representation of the user object.
 	 */
-	renderVertex<T>(handler: (cell: IMxCell<T>) => string) {
+	renderVertex(handler: (cell: mxCell) => string) {
 		if (this.mxGraph) {
 			this.mxGraph.convertValueToString = (cell) => {
 				if (cell && cell.value) {
@@ -172,7 +197,7 @@ class MxFactory {
 							this.pageFormat.width * this.pageScale,
 							this.pageFormat.height * this.pageScale,
 					  )
-					: this.scrollTileSize;
+					: this.scrollTileSize!;
 			};
 
 			/**
@@ -182,7 +207,7 @@ class MxFactory {
 			 * page count.
 			 */
 			graph.getPageLayout = function () {
-				const size = this.pageVisible ? this.getPageSize() : this.scrollTileSize;
+				const size = this.pageVisible ? this.getPageSize!() : this.scrollTileSize!;
 				const bounds = this.getGraphBounds();
 
 				if (bounds.width === 0 || bounds.height === 0) {
@@ -205,8 +230,8 @@ class MxFactory {
 
 			// Fits the number of background pages to the graph
 			graph.view.getBackgroundPageBounds = function () {
-				const layout = this.graph.getPageLayout();
-				const page = this.graph.getPageSize();
+				const layout = (this.graph as IMxGraph).getPageLayout!();
+				const page = (this.graph as IMxGraph).getPageSize!();
 
 				return new MxRectangle(
 					this.scale * (this.translate.x + layout.x * page.width),
@@ -217,8 +242,8 @@ class MxFactory {
 			};
 
 			graph.getPreferredPageSize = function () {
-				const pages = this.getPageLayout();
-				const size = this.getPageSize();
+				const pages = this.getPageLayout!();
+				const size = this.getPageSize!();
 
 				return new MxRectangle(0, 0, pages.width * size.width, pages.height * size.height);
 			};
@@ -229,29 +254,40 @@ class MxFactory {
 			 * are visible and the visible pages do not change.
 			 */
 			const graphViewValidate = graph.view.validate;
-			graph.view.validate = function () {
+			graph.view.validate = function (this: {
+				graph: IMxGraph;
+				translate: mxPoint;
+				scale: number;
+				// set in customized sizeDidChange method
+				x0: number;
+				y0: number;
+			}) {
 				if (this.graph.container != null && mxUtils.hasScrollbars(this.graph.container)) {
-					const pad = this.graph.getPagePadding();
-					const size = this.graph.getPageSize();
+					const pad = this.graph.getPagePadding!();
+					const size = this.graph.getPageSize!();
 
 					// Updating scrollbars here causes flickering in quirks and is not needed
 					// if zoom method is always used to set the current scale on the graph.
-					// var tx = this.translate.x;
-					// var ty = this.translate.y;
 					this.translate.x = pad.x / this.scale - (this.x0 || 0) * size.width;
 					this.translate.y = pad.y / this.scale - (this.y0 || 0) * size.height;
 				}
 
 				// eslint-disable-next-line prefer-rest-params
-				graphViewValidate.apply(this, arguments);
+				graphViewValidate.apply(this, arguments as any);
 			};
 
 			const graphSizeDidChange = graph.sizeDidChange;
-			graph.sizeDidChange = function () {
+			graph.sizeDidChange = function (
+				this: IMxGraph & {
+					autoTranslate: boolean;
+					// used in view.validate method
+					view: mxGraphView & { x0: number; y0: number };
+				},
+			) {
 				if (this.container != null && mxUtils.hasScrollbars(this.container)) {
-					const pages = this.getPageLayout();
-					const pad = this.getPagePadding();
-					const size = this.getPageSize();
+					const pages = this.getPageLayout!();
+					const pad = this.getPagePadding!();
+					const size = this.getPageSize!();
 
 					// Updates the minimum graph size
 					const minw = Math.ceil(
@@ -296,7 +332,7 @@ class MxFactory {
 					}
 
 					// eslint-disable-next-line prefer-rest-params
-					graphSizeDidChange.apply(this, arguments);
+					graphSizeDidChange.apply(this, arguments as any);
 				}
 			};
 		}
@@ -315,11 +351,11 @@ class MxFactory {
 			const bounds = graph.getGraphBounds();
 			const boundsWidth = Math.max(
 				bounds.width,
-				graph.scrollTileSize.width * graph.view.scale,
+				graph.scrollTileSize!.width * graph.view.scale,
 			);
 			const boundsHeight = Math.max(
 				bounds.height,
-				graph.scrollTileSize.height * graph.view.scale,
+				graph.scrollTileSize!.height * graph.view.scale,
 			);
 			graph.container.scrollTop = Math.floor(
 				Math.max(

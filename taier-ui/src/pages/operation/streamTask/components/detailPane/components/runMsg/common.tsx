@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import type { mxCell, mxGraph } from 'mxgraph';
 import * as ReactDOMServer from 'react-dom/server';
 import { Modal } from 'antd';
 import MxGraphContainer from '@/components/mxGraph/container';
@@ -58,16 +59,16 @@ const getBackPressureColor = (backPressure: number, type: string) => {
 export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 	const [graphData, setGraphData] = useState<ITopological[] | null>(null);
 	// 当前选中的 cell
-	const [selectedCell, setSelectedCell] = useState<IMxCell<ITopological> | null>(null);
+	const [selectedCell, setSelectedCell] = useState<mxCell | null>(null);
 	const [visible, setVisible] = useState(false);
 
 	const handleClick = (
-		cell: IMxCell<ITopological>,
-		graph: IMxGraph,
+		cell: mxCell,
+		graph: mxGraph,
 		event: React.MouseEvent<HTMLElement, MouseEvent>,
 	) => {
 		if ((event.target as HTMLImageElement).nodeName === 'IMG') {
-			if (cell.value?.subJobVertices) {
+			if ((cell.value as ITopological)?.subJobVertices) {
 				setVisible(true);
 
 				setSelectedCell(cell);
@@ -75,7 +76,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 		}
 	};
 
-	const handleRenderCell = (cell: IMxCell<ITopological>) => {
+	const handleRenderCell = (cell: mxCell) => {
 		if (cell.value) {
 			const {
 				backPressured,
@@ -86,7 +87,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 				received,
 				sent,
 				subJobVertices,
-			} = cell.value;
+			} = cell.value as ITopological;
 			const res = ReactDOMServer.renderToString(
 				<div
 					className="vertex-diagram"
@@ -200,7 +201,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 
 	const subGraphData = useMemo(() => {
 		if (selectedCell) {
-			return convertArrToLinkedList(selectedCell.value?.subJobVertices);
+			return convertArrToLinkedList((selectedCell.value as ITopological)?.subJobVertices);
 		}
 		return null;
 	}, [selectedCell]);

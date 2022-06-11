@@ -35,6 +35,7 @@ import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertxtStyle, goToTaskDev } from '@/utils';
 import type { IContextMenuConfig } from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
+import type { mxCell } from 'mxgraph';
 import './index.scss';
 
 interface ITaskJobFlowViewProps {
@@ -187,9 +188,9 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		handleGetTaskLog(data.jobId, 0);
 	};
 
-	const handleRenderCell = (cell: IMxCell) => {
+	const handleRenderCell = (cell: mxCell) => {
 		if (cell.vertex && cell.value) {
-			const task = cell.value as IUpstreamJobProps;
+			const task: IUpstreamJobProps = cell.value;
 			const taskType = taskTypeText(task.taskType);
 			if (task) {
 				return `<div class="vertex">

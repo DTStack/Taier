@@ -26,6 +26,7 @@ import type { IContextMenuConfig } from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
 import { formatDateTime, goToTaskDev } from '@/utils';
 import { taskTypeText } from '@/utils/enums';
+import type { mxCell } from 'mxgraph';
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
@@ -139,8 +140,8 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 		];
 	};
 
-	const handleRenderCell = (cell: IMxCell) => {
-		const task = cell.value;
+	const handleRenderCell = (cell: mxCell) => {
+		const task: IUpstreamJobProps = cell.value;
 		if (task) {
 			const taskType = taskTypeText(task.taskType);
 			return `<div class="vertex" >
