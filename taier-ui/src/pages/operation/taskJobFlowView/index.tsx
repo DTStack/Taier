@@ -33,8 +33,8 @@ import {
 import type { IUpstreamJobProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertxtStyle, goToTaskDev } from '@/utils';
-import type { IContextMenuConfig } from '@/components/mtest/container';
-import MxGraphContainer from '@/components/mtest/container';
+import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import MxGraphContainer from '@/components/mxGraph/container';
 import './index.scss';
 
 interface ITaskJobFlowViewProps {

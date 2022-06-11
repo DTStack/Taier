@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import * as ReactDOMServer from 'react-dom/server';
 import { Modal } from 'antd';
-import MxGraphContainer from '@/components/mtest/container';
+import MxGraphContainer from '@/components/mxGraph/container';
 import { cloneDeep } from 'lodash';
 import type { IFlinkJsonProps } from '.';
 import './common.scss';

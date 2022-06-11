@@ -22,8 +22,8 @@ import Api from '@/api';
 import { DRAWER_MENU_ENUM, SCHEDULE_STATUS } from '@/constant';
 import type { IUpstreamJobProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
-import type { IContextMenuConfig } from '@/components/mtest/container';
-import MxGraphContainer from '@/components/mtest/container';
+import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import MxGraphContainer from '@/components/mxGraph/container';
 import { formatDateTime, goToTaskDev } from '@/utils';
 import { taskTypeText } from '@/utils/enums';
 
