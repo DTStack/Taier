@@ -117,20 +117,6 @@ public class ComponentConfigService {
         return ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
     }
 
-    /**
-     * 加载typeName默认的控件
-     *
-     * @param typeName
-     * @return
-     */
-    public List<ComponentConfig> loadDefaultTemplate(String typeName) {
-        Dict typeNameMapping = dictMapper.getByNameValue(DictType.TYPENAME_MAPPING.type, typeName.trim(), null,null);
-        if (null == typeNameMapping) {
-            throw new RdosDefineException(ErrorCode.NOT_SUPPORT_COMPONENT);
-        }
-        return componentConfigMapper.listByComponentId(Long.parseLong(typeNameMapping.getDictValue()), true);
-    }
-
 
     public List<IComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId, boolean isConvertHadoopVersion, boolean multiVersion) {
         if (null == clusterId) {
