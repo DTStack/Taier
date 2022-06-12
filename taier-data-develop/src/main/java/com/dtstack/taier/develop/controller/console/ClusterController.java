@@ -77,7 +77,7 @@ public class ClusterController {
         return R.ok(consoleClusterService.deleteCluster(clusterId));
     }
 
-    @ApiOperation(value = "getCluster", notes = "获取集群详细信息 包含组件")
+    @ApiOperation(value = "getCluster", notes = "获取集群包含组件")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
     })

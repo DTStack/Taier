@@ -25,10 +25,12 @@ import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.develop.mapstruct.console.KerberosConfigTransfer;
 import com.dtstack.taier.develop.service.console.ConsoleComponentService;
+import com.dtstack.taier.develop.vo.console.ComponentModelVO;
 import com.dtstack.taier.develop.vo.console.KerberosConfigVO;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taier.scheduler.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.taier.scheduler.vo.ComponentVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -112,12 +114,6 @@ public class ComponentController {
     }
 
 
-    @GetMapping(value = "/getComponentVersion")
-    @ApiOperation(value = "获取对应的组件能版本信息")
-    public R<Map> getComponentVersion() {
-        return R.ok(consoleComponentService.getComponentVersion());
-    }
-
     @PostMapping(value = "/getComponentStore")
     @ApiOperation(value = "获取对应的组件能选择的存储组件类型")
     @ApiImplicitParams({
@@ -168,6 +164,23 @@ public class ComponentController {
             throw new RdosDefineException("clusterName is null");
         }
         return R.ok(consoleComponentService.refresh(clusterName));
+    }
+
+
+    @GetMapping(value = "/componentModels")
+    @ApiOperation(value = "获取能配置的组件信息")
+    public R<List<ComponentModelVO>> componentModels() {
+        return R.ok(consoleComponentService.getComponentModels());
+    }
+
+    @GetMapping(value = "/getComponentInfo")
+    @ApiOperation(value = "获取组件详细配置信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
+    })
+    public R<ComponentVO> getComponentInfo(@RequestParam("componentId") Long componentId) {
+        ComponentVO componentVO = consoleComponentService.getComponentInfo(componentId);
+        return R.ok(componentVO);
     }
 }
 

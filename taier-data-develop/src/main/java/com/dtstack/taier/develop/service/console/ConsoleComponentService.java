@@ -1,9 +1,12 @@
 package com.dtstack.taier.develop.service.console;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.DownloadType;
+import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -21,6 +24,8 @@ import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.develop.model.ClusterFactory;
 import com.dtstack.taier.develop.model.Part;
 import com.dtstack.taier.develop.model.PartCluster;
+import com.dtstack.taier.develop.model.system.config.ComponentModel;
+import com.dtstack.taier.develop.vo.console.ComponentModelVO;
 import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -1382,13 +1387,6 @@ public class ConsoleComponentService {
         }
     }
 
-    /***
-     * 获取对应的组件版本信息
-     * @return
-     */
-    public Map getComponentVersion() {
-        return scheduleDictService.getVersion();
-    }
 
     public KerberosConfig getKerberosConfig(Long clusterId, Integer componentType, String componentVersion) {
         return consoleKerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.formatMultiVersion(componentType, componentVersion));
@@ -1424,4 +1422,55 @@ public class ConsoleComponentService {
         return refreshResults;
     }
 
+    /**
+     * 获取可配置组件信息
+     * @return
+     */
+    public List<ComponentModelVO> getComponentModels() {
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.COMPONENT_MODEL);
+        if (CollectionUtils.isEmpty(dicts)) {
+            return new ArrayList<>();
+        }
+        List<ComponentModelVO> modelVOS = new ArrayList<>(dicts.size());
+        for (Dict dict : dicts) {
+            ComponentModelVO componentModelVO = new ComponentModelVO();
+            componentModelVO.setName(dict.getDictName());
+            JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
+            componentModelVO.setAllowCoexistence(componentModel.getBooleanValue(ComponentModel.ALLOW_COEXISTENCE_KEY));
+            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {
+            });
+            if (CollectionUtils.isNotEmpty(dependsOn)) {
+                List<Integer> dependsVal = dependsOn.stream().map(d -> EComponentScheduleType.valueOf(d).getType()).collect(Collectors.toList());
+                componentModelVO.setDependOn(dependsVal);
+            }
+            String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
+            if (!StringUtils.isBlank(versionDict)) {
+                List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
+                if (CollectionUtils.isNotEmpty(versions)) {
+                    componentModelVO.setVersionDictionary(scheduleDictService.groupByDependName(versions));
+                }
+            }
+            modelVOS.add(componentModelVO);
+        }
+        return modelVOS;
+    }
+
+    public ComponentVO getComponentInfo(Long componentId) {
+        Component component = componentMapper.selectById(componentId);
+        if (null == component) {
+            throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
+        }
+        ComponentVO componentVO = ComponentVO.toVO(component);
+        List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
+        componentVO.setComponentConfig(JSONObject.toJSONString(componentConfigs));
+        componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs)));
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
+        if (null != kerberosConfig) {
+            componentVO.setPrincipal(kerberosConfig.getPrincipal());
+            componentVO.setPrincipals(kerberosConfig.getPrincipals());
+            componentVO.setMergeKrb5Content(kerberosConfig.getMergeKrbContent());
+            componentVO.setKerberosFileName(kerberosConfig.getName());
+        }
+        return componentVO;
+    }
 }

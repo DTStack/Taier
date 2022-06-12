@@ -32,7 +32,7 @@ public interface DictMapper extends BaseMapper<Dict> {
 
     List<Dict> listDictByType(@Param("type") Integer type);
 
-    Dict getTypeDefault(@Param("type") Integer type);
+    List<Dict> listByDictCode(@Param("code") String code);
 
     Dict getByNameValue(@Param("type") Integer type, @Param("dictName") String dictName, @Param("dictValue") String dictValue, @Param("dependName") String dependName);
 

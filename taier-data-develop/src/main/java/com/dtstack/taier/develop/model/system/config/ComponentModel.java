@@ -26,10 +26,10 @@ public class ComponentModel {
     private static final String ERROR_MSG_TEMPLATE = "The value of '{}' {}";
 
     private static final String OWNER_KEY = "owner";
-    private static final String DEPENDS_ON_KEY = "dependsOn";
-    private static final String ALLOW_COEXISTENCE_KEY = "allowCoexistence";
+    public static final String DEPENDS_ON_KEY = "dependsOn";
+    public static final String ALLOW_COEXISTENCE_KEY = "allowCoexistence";
     private static final String NAME_TEMPLATE_KEY = "nameTemplate";
-    private static final String VERSION_DICTIONARY_KEY = "versionDictionary";
+    public static final String VERSION_DICTIONARY_KEY = "versionDictionary";
 
     private final EComponentType type;
     private final EComponentScheduleType owner;
