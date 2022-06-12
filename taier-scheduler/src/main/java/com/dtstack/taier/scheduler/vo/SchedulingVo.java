@@ -27,12 +27,12 @@ import java.util.List;
  * @date 2020-05-11
  */
 @ApiModel
-public class SchedulingVo {
+public class SchedulingVo<T extends IComponentVO> {
     private int schedulingCode;
 
     private String SchedulingName;
 
-    private List<IComponentVO> components;
+    private List<T> components;
 
     public int getSchedulingCode() {
         return schedulingCode;
@@ -50,11 +50,11 @@ public class SchedulingVo {
         SchedulingName = schedulingName;
     }
 
-    public List<IComponentVO> getComponents() {
+    public List<T> getComponents() {
         return components;
     }
 
-    public void setComponents(List<IComponentVO> components) {
+    public void setComponents(List<T> components) {
         this.components = components;
     }
 }
