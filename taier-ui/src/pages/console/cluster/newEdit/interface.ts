@@ -1,8 +1,4 @@
-import type {
-	COMPONENT_TYPE_VALUE,
-	ENGINE_SOURCE_TYPE_ENUM,
-	FLINK_DEPLOY_NAME,
-} from '@/constant';
+import type { COMPONENT_TYPE_VALUE, ENGINE_SOURCE_TYPE_ENUM, FLINK_DEPLOY_NAME } from '@/constant';
 
 export interface IComponentProps {
 	componentConfig: string;
@@ -108,12 +104,16 @@ export interface ICompTemplate {
 	value: string | string[];
 	values?: ICompTemplate[];
 	isSameKey?: boolean;
+	keyDescribe?: string;
 }
 
 export type ISaveComp = (params: Partial<IComponentProps>, type?: string) => void;
 
 export type IHandleConfirm = (action: string, comps: IConfirmComps, mulitple?: boolean) => void;
 
-export type ITestConnects = (params?: ITestConnectsParams, callBack?: (bool: boolean) => void) => void;
+export type ITestConnects = (
+	params?: ITestConnectsParams,
+	callBack?: (bool: boolean) => void,
+) => void;
 
 export type IHandleCompVersion = (typeCode: number, version: string) => void;
