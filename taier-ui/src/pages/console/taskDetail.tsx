@@ -29,7 +29,7 @@ import { JOB_STAGE_ENUM } from '@/constant';
 import type { ColumnsType } from 'antd/lib/table';
 import { SyncOutlined, CopyOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ViewDetail from '../../components/viewDetail';
-import Api from '../../api/console';
+import Api from '../../api';
 import { taskStatusText } from '@/utils/enums';
 
 const JOB_STAGE_OPTIONS = [

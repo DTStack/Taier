@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
-import { API } from '@/api/dataSource';
+import stream from "@/api";
 import { extralConfig, intervalColumn, multipleTableTip, sourceFormat, startLocation, temporary, transferTypeFormat, writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { CAT_TYPE, COLLECT_TYPE, DATA_SOURCE_ENUM, DATA_SOURCE_VERSION, SLOAR_CONFIG_TYPE, SYNC_TYPE } from "@/constant";
 import { Button, Card, Checkbox, DatePicker, Form, Input, InputNumber, Radio, Select, Tag, Tooltip } from "antd";
@@ -81,14 +80,14 @@ export default (props: { collectionData: any; sourceList: IDataSourceUsedInSyncP
         if (!sourceId) {
             return
         }
-        let res = await API.getAllSchemas({ sourceId, db });
+        let res = await stream.getAllSchemas({ sourceId, db });
         if (res && res.code == 1) {
             setSchemaList(res.data || [])
         }
     }
 
     const getTableList = (sourceId: any, searchKey?: any) => {
-        API.getOfflineTableList({
+        stream.getOfflineTableList({
             sourceId,
             // schema,
             isSys: false,

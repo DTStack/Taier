@@ -21,8 +21,7 @@ import { Empty, Form, Modal, Select, Spin } from 'antd';
 import type { FormInstance } from 'antd/lib/form/Form';
 import { formItemLayout } from '@/constant';
 import { getCookie } from '@/utils';
-import api from '@/api/console';
-import API from '@/api';
+import api from '@/api';
 import { debounce } from 'lodash';
 
 const FormItem = Form.Item;
@@ -74,7 +73,7 @@ export default function UpstreamDependentTasks({
 			return;
 		}
 		setFetching(true);
-		API.allProductGlobalSearch({
+		api.allProductGlobalSearch({
 			taskName: value,
 			selectTenantId: form.getFieldValue('tenantId'),
 			taskId: currentTaskId,

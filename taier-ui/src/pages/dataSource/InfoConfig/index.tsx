@@ -42,7 +42,7 @@ import {
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import Base64 from 'base-64';
-import { API } from '@/api/dataSource';
+import api from '@/api';
 import { HDFSCONG } from '@/constant';
 import { utf8to16 } from '@/utils';
 import { formItemLayout } from '@/constant';
@@ -197,7 +197,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 		dataType: string;
 		dataVersion: string;
 	}> => {
-		const { data } = await API.findTemplateByTypeVersion({
+		const { data } = await api.findTemplateByTypeVersion({
 			dataType: record?.dataType,
 			dataVersion: version,
 		});
@@ -205,7 +205,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 	};
 
 	const getDetail = async () => {
-		const { data } = await API.detail({
+		const { data } = await api.detail({
 			dataInfoId: record?.dataInfoId,
 		});
 		return data || {};
@@ -269,7 +269,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 	) => {
 		// eslint-disable-next-line no-param-reassign
 		kerberosFile.modifyTime = moment();
-		const res = await API.uploadCode({
+		const res = await api.uploadCode({
 			file: kerberosFile,
 			dataType: record.dataType,
 			dataVersion: version,

@@ -18,7 +18,7 @@
 
 import { Modal, Form, message, Input } from 'antd';
 import { formItemLayout } from '@/constant';
-import api from '@/api/console';
+import api from '@/api';
 import { getUserId } from '@/utils';
 
 interface IFormFieldProps {

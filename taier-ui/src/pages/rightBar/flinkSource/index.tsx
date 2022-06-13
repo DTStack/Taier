@@ -29,7 +29,7 @@ import {
 	KAFKA_DATA_TYPE,
 } from '@/constant';
 import classNames from 'classnames';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { isAvro, isKafka } from '@/utils/is';
 import { getColumnsByColumnsText } from '@/utils';
 import SourceForm from './form';

@@ -25,7 +25,7 @@ import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/compone
 import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import dataSourceService from '@/services/dataSourceService';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
 import { ID_COLLECTIONS } from '@/constant';
