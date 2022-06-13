@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { Spin } from 'antd';
 import { TASK_STATUS } from '@/constant';
 import { IStreamJobProps } from '@/interface';
-import stream from '@/api/stream';
+import stream from '@/api';
 import Editor from '@/components/editor';
 import { createLinkMark, createLog } from '@/services/taskResultService';
 import './index.scss';

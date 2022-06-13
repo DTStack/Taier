@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'antd';
-import { API } from '@/api/dataSource';
 import api from '@/api';
 import {
 	BINARY_ROW_KEY_FLAG,
@@ -145,7 +144,7 @@ export default function Source({
 		setTableListLoading(true);
 		setFetching(true);
 		if (!sourceId) return;
-		API.getOfflineTableList({
+		api.getOfflineTableList({
 			sourceId,
 			schema,
 			isSys: false,
@@ -170,7 +169,7 @@ export default function Source({
 	const getCopate = (specificParams?: ISourceFormField) => {
 		const { table, sourceId, schema } = specificParams || form.getFieldsValue();
 		const tableName = Array.isArray(table) ? table[0] : table;
-		API.getOfflineColumnForSyncopate({
+		api.getOfflineColumnForSyncopate({
 			sourceId,
 			tableName,
 			schema,
@@ -236,7 +235,7 @@ export default function Source({
 			 */
 			setLoading(false);
 			return;
-			API.getOfflineTableColumn({
+			api.getOfflineTableColumn({
 				sourceId,
 				schema: querySchema,
 				tableName,
@@ -266,7 +265,7 @@ export default function Source({
 			DATA_SOURCE_ENUM.HIVE1X,
 		];
 		if (ALLOW_REQUEST_HIVE.includes(sourceType)) {
-			API.getHivePartitions({
+			api.getHivePartitionsForDataSource({
 				sourceId,
 				tableName: table,
 			}).then((res) => {
@@ -298,7 +297,7 @@ export default function Source({
 	// 获取 schema
 	const getSchemaList = (schema?: string) => {
 		const { sourceId } = form.getFieldsValue();
-		API.getAllSchemas({
+		api.getAllSchemas({
 			sourceId,
 			schema,
 		}).then((res) => {
@@ -421,7 +420,7 @@ export default function Source({
 
 		if (!showPreview) {
 			setPreviewLoading(true);
-			API.getDataPreview({
+			api.getDataSourcePreview({
 				sourceId,
 				tableName,
 				schema,
@@ -500,16 +499,18 @@ export default function Source({
 		const { getFieldValue } = form;
 		const sourceId = getFieldValue('sourceId');
 		if (getFieldValue('fileType') === 'orc') {
-			return API.getOfflineTableColumn({
-				sourceId,
-				tableName: value,
-			}).then((res) => {
-				if (res.code === 1) {
-					// handleTableColumnChange(res.data);
-					return Promise.resolve();
-				}
-				return Promise.reject(new Error('该路径无效！'));
-			});
+			return api
+				.getOfflineTableColumn({
+					sourceId,
+					tableName: value,
+				})
+				.then((res) => {
+					if (res.code === 1) {
+						// handleTableColumnChange(res.data);
+						return Promise.resolve();
+					}
+					return Promise.reject(new Error('该路径无效！'));
+				});
 		}
 
 		return Promise.resolve();
@@ -655,11 +656,14 @@ export default function Source({
 								showSearch
 								showArrow
 								notFoundContent={fetching ? <Spin size="small" /> : null}
-                                optionFilterProp="value"
-								filterOption={(input: any, option: any) =>{
-                                        return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                    }
-								}
+								optionFilterProp="value"
+								filterOption={(input: any, option: any) => {
+									return (
+										option.children
+											.toLowerCase()
+											.indexOf(input.toLowerCase()) >= 0
+									);
+								}}
 							>
 								{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
 									return (

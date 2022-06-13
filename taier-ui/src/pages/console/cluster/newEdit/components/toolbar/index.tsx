@@ -18,7 +18,7 @@
 
 import { useMemo, useState } from 'react';
 import { Popconfirm, Button, message, Modal } from 'antd';
-import Api from '@/api/console';
+import Api from '@/api';
 import { convertToObj } from '@/utils';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import {

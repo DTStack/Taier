@@ -17,8 +17,7 @@
  */
 
 import api from "@/api";
-import stream from "@/api/stream";
-import { API } from '@/api/dataSource';
+import stream from "@/api";
 import { hiveWithAllTable } from "@/components/helpDoc/docs";
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, PARTITION_TYPE, SYNC_TYPE, WRITE_TABLE_TYPE } from "@/constant";
 import { getFlinkDisabledSource } from "@/utils/enums";
@@ -128,7 +127,7 @@ class CollectionTarget extends React.Component<any, any> {
     }
 
     getSchemaList = async (sourceId: any, schema?: string) => {
-        const res = await API.getAllSchemas({ sourceId, isSys: false, schema });
+        const res = await api.getAllSchemas({ sourceId, isSys: false, schema });
         if (res?.code === 1) {
             this.setState({
                 schemaList: res.data
@@ -136,7 +135,7 @@ class CollectionTarget extends React.Component<any, any> {
         }
     }
     getTableList = (sourceId: number, searchKey?: string) => {
-        API.getOfflineTableList({
+        api.getOfflineTableList({
             sourceId,
             isSys: false,
             name: searchKey,

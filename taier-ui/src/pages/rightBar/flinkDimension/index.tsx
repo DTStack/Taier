@@ -22,7 +22,7 @@ import { Button, Collapse, Form, Popconfirm } from 'antd';
 import classNames from 'classnames';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { DATA_SOURCE_ENUM, formItemLayout } from '@/constant';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { isHaveSchema, isHaveTableColumn, isHaveTableList, isCacheExceptLRU } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';

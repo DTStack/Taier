@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import molecule from '@dtinsight/molecule';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import { message, Spin, Steps } from 'antd';
 import { checkExist, getTenantId } from '@/utils';
 import saveTask from '@/utils/saveTask';
