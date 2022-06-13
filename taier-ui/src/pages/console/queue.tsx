@@ -19,7 +19,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { history } from 'umi';
 import { Button, Modal, message, Tooltip } from 'antd';
-import Api from '@/api/console';
+import Api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { ColumnsType } from 'antd/lib/table';

@@ -31,7 +31,7 @@ import type {
 	ITargetMapProps,
 	IDataSourceUsedInSyncProps,
 } from '@/interface';
-import { API } from '../../api/dataSource';
+import API from '../../api';
 import {
 	dataSyncExtralConfigHelp,
 	es7BulkAction,
@@ -179,7 +179,7 @@ export default function Target({
 		if (!target) return;
 		// TODO 这里获取 Hive 分区的条件有点模糊
 		if (ALLOW_REQUEST_HIVE.includes(target.dataTypeCode)) {
-			API.getHivePartitions({
+			API.getHivePartitionsForDataSource({
 				sourceId,
 				tableName: table,
 			}).then((res) => {

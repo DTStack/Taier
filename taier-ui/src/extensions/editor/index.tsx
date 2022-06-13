@@ -28,7 +28,6 @@ import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals, prettierJSONstring } from '@/utils';
 import api from '@/api';
-import apiStream from '@/api/stream';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
@@ -184,57 +183,55 @@ function emitEvent() {
 									break;
 								case TASK_TYPE_ENUM.DATA_ACQUISITION:
 								case TASK_TYPE_ENUM.SQL: {
-									apiStream
-										.convertToScriptMode({
-											id: currentTabData.id,
-											createModel: currentTabData.createModel,
-											componentVersion: currentTabData.componentVersion,
-										})
-										.then((res) => {
-											if (res.code === 1) {
-												message.success('转换成功！');
-												// update current values
-												api.getOfflineTaskByID({
-													id: currentTabData.id,
-												}).then((result) => {
-													if (result.code === 1) {
-														if (
-															currentTabData.taskType ===
-															TASK_TYPE_ENUM.DATA_ACQUISITION
-														) {
-															const nextTabData = current.tab!;
-															nextTabData!.data = result.data;
-															Reflect.deleteProperty(
-																nextTabData,
-																'renderPane',
+									api.convertToScriptMode({
+										id: currentTabData.id,
+										createModel: currentTabData.createModel,
+										componentVersion: currentTabData.componentVersion,
+									}).then((res) => {
+										if (res.code === 1) {
+											message.success('转换成功！');
+											// update current values
+											api.getOfflineTaskByID({
+												id: currentTabData.id,
+											}).then((result) => {
+												if (result.code === 1) {
+													if (
+														currentTabData.taskType ===
+														TASK_TYPE_ENUM.DATA_ACQUISITION
+													) {
+														const nextTabData = current.tab!;
+														nextTabData!.data = result.data;
+														Reflect.deleteProperty(
+															nextTabData,
+															'renderPane',
+														);
+														nextTabData.data.language =
+															mappingTaskTypeToLanguage(
+																result.data.taskType,
 															);
-															nextTabData.data.language =
-																mappingTaskTypeToLanguage(
-																	result.data.taskType,
-																);
-															nextTabData.data.value =
-																result?.data?.sqlText;
-															molecule.editor.updateTab(nextTabData);
-															return;
-														}
-
-														const nextTabData = result.data;
-														molecule.editor.updateTab({
-															id: nextTabData.id.toString(),
-															data: {
-																...currentTabData,
-																...nextTabData,
-															},
-														});
-														// update the editor's value
-														molecule.editor.editorInstance
-															.getModel()
-															?.setValue(nextTabData.sqlText);
-														editorActionBarService.performSyncTaskActions();
+														nextTabData.data.value =
+															result?.data?.sqlText;
+														molecule.editor.updateTab(nextTabData);
+														return;
 													}
-												});
-											}
-										});
+
+													const nextTabData = result.data;
+													molecule.editor.updateTab({
+														id: nextTabData.id.toString(),
+														data: {
+															...currentTabData,
+															...nextTabData,
+														},
+													});
+													// update the editor's value
+													molecule.editor.editorInstance
+														.getModel()
+														?.setValue(nextTabData.sqlText);
+													editorActionBarService.performSyncTaskActions();
+												}
+											});
+										}
+									});
 									break;
 								}
 								default:
@@ -277,7 +274,7 @@ function emitEvent() {
 			}
 			// FlinkSQL 格式化
 			case ID_COLLECTIONS.TASK_FORMAT_ID: {
-				apiStream.sqlFormat({ sql: current.tab?.data.value }).then((res) => {
+				api.sqlFormat({ sql: current.tab?.data.value }).then((res) => {
 					if (res.code === 1) {
 						molecule.editor.editorInstance.getModel()?.setValue(res.data);
 					}

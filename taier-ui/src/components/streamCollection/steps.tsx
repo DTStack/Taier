@@ -8,7 +8,7 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import { streamTaskActions } from './taskFunc';
 import { getTenantId } from '@/utils';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import { cloneDeep } from 'lodash';
 
 const Step = Steps.Step;

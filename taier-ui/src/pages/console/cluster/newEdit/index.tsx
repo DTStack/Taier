@@ -33,7 +33,7 @@ import {
 	DRAWER_MENU_ENUM,
 } from '@/constant';
 import { convertToObj } from '@/utils';
-import Api from '@/api/console';
+import Api from '@/api';
 import {
 	initialScheduling,
 	isViewMode,

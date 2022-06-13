@@ -24,7 +24,6 @@ import type { ColumnsType } from 'antd/lib/table/interface';
 import moment from 'moment';
 import context from '@/context';
 import SlidePane from '@/components/slidePane';
-import API from '@/api/operation';
 import api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import molecule from '@dtinsight/molecule';
@@ -108,7 +107,7 @@ export default () => {
 		filters: Record<string, any> = {},
 	) => {
 		const requestParams = convertToParams(params);
-		const res = await API.queryOfflineTasks({
+		const res = await api.queryOfflineTasks({
 			currentPage: current,
 			pageSize,
 			taskTypeList: filters.taskType || [],
