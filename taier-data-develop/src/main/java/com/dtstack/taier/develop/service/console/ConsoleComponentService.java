@@ -1437,12 +1437,16 @@ public class ConsoleComponentService {
             componentModelVO.setName(dict.getDictName());
             JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
             componentModelVO.setAllowCoexistence(componentModel.getBooleanValue(ComponentModel.ALLOW_COEXISTENCE_KEY));
-            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {
-            });
+            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {});
             if (CollectionUtils.isNotEmpty(dependsOn)) {
                 List<Integer> dependsVal = dependsOn.stream().map(d -> EComponentScheduleType.valueOf(d).getType()).collect(Collectors.toList());
                 componentModelVO.setDependOn(dependsVal);
             }
+            EComponentScheduleType ownerComponentScheduleType = EComponentScheduleType.valueOf(componentModel.getString(ComponentModel.OWNER_KEY));
+            componentModelVO.setOwner(ownerComponentScheduleType.getType());
+
+            EComponentType componentType = EComponentType.valueOf(dict.getDictName());
+            componentModelVO.setComponentCode(componentType.getTypeCode());
             String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
             if (!StringUtils.isBlank(versionDict)) {
                 List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
