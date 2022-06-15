@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -172,6 +171,7 @@ public class ComponentController {
     public R<List<ComponentModelVO>> componentModels() {
         return R.ok(consoleComponentService.getComponentModels());
     }
+
 
     @GetMapping(value = "/getComponentInfo")
     @ApiOperation(value = "获取组件详细配置信息")

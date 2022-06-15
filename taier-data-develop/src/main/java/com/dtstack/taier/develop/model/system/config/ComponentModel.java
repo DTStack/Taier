@@ -3,12 +3,12 @@ package com.dtstack.taier.develop.model.system.config;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.DictMapper;
-import com.dtstack.taier.common.enums.DictType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
@@ -25,7 +25,7 @@ public class ComponentModel {
     private static final String CONFIG_NAME = "componentModel";
     private static final String ERROR_MSG_TEMPLATE = "The value of '{}' {}";
 
-    private static final String OWNER_KEY = "owner";
+    public static final String OWNER_KEY = "owner";
     public static final String DEPENDS_ON_KEY = "dependsOn";
     public static final String ALLOW_COEXISTENCE_KEY = "allowCoexistence";
     private static final String NAME_TEMPLATE_KEY = "nameTemplate";
