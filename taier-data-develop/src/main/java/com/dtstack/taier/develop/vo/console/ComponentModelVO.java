@@ -21,6 +21,28 @@ public class ComponentModelVO {
     @ApiModelProperty(notes = "组件依赖前置组件")
     private List<Integer> dependOn;
 
+    @ApiModelProperty(notes = "组件所属类型")
+    private Integer owner;
+
+    @ApiModelProperty(notes = "组件所属code")
+    private Integer componentCode;
+
+    public Integer getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Integer owner) {
+        this.owner = owner;
+    }
+
+    public Integer getComponentCode() {
+        return componentCode;
+    }
+
+    public void setComponentCode(Integer componentCode) {
+        this.componentCode = componentCode;
+    }
+
     public String getName() {
         return name;
     }
