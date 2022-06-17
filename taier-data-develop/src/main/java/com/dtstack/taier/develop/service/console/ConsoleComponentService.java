@@ -11,10 +11,7 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.ComponentVersionUtil;
-import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.common.util.Xml2JsonUtil;
-import com.dtstack.taier.common.util.ZipUtil;
+import com.dtstack.taier.common.util.*;
 import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
@@ -1444,19 +1441,31 @@ public class ConsoleComponentService {
             }
             EComponentScheduleType ownerComponentScheduleType = EComponentScheduleType.valueOf(componentModel.getString(ComponentModel.OWNER_KEY));
             componentModelVO.setOwner(ownerComponentScheduleType.getType());
-
             EComponentType componentType = EComponentType.valueOf(dict.getDictName());
             componentModelVO.setComponentCode(componentType.getTypeCode());
-            String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
-            if (!StringUtils.isBlank(versionDict)) {
-                List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
-                if (CollectionUtils.isNotEmpty(versions)) {
-                    componentModelVO.setVersionDictionary(scheduleDictService.groupByDependName(versions));
-                }
-            }
+
             modelVOS.add(componentModelVO);
         }
         return modelVOS;
+    }
+
+
+    public List<Pair<String, List<Pair>>> getComponentVersion(Integer componentCode) {
+        EComponentType componentType = EComponentType.getByCode(componentCode);
+        Dict dict = scheduleDictService.getByNameAndValue(DictType.COMPONENT_MODEL.getType(), componentType.getName(), null, null);
+        if (null == dict || StringUtils.isBlank(dict.getDictValue())) {
+            throw new RdosDefineException(Strings.format("dict is not config component %s model", componentType.getName()));
+        }
+        JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
+        String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
+        if (StringUtils.isBlank(versionDict)) {
+            return new ArrayList<>();
+        }
+        List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
+        if (CollectionUtils.isEmpty(versions)) {
+            return new ArrayList<>();
+        }
+        return scheduleDictService.groupByDependName(versions);
     }
 
     public ComponentVO getComponentInfo(Long componentId) {

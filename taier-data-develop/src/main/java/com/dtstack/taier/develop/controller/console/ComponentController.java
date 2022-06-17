@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.controller.console;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.develop.mapstruct.console.KerberosConfigTransfer;
@@ -172,6 +173,12 @@ public class ComponentController {
         return R.ok(consoleComponentService.getComponentModels());
     }
 
+    @GetMapping(value = "/componentVersions")
+    @ApiOperation(value = "获取组件能选择的版本信息")
+    public R<List<Pair<String, List<Pair>>>> componentVersions(@RequestParam("componentType") Integer componentType) {
+        return R.ok(consoleComponentService.getComponentVersion(componentType));
+    }
+
 
     @GetMapping(value = "/getComponentInfo")
     @ApiOperation(value = "获取组件详细配置信息")
@@ -182,6 +189,8 @@ public class ComponentController {
         ComponentVO componentVO = consoleComponentService.getComponentInfo(componentId);
         return R.ok(componentVO);
     }
+
+
 }
 
 
