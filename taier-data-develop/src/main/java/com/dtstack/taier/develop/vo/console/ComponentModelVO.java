@@ -1,6 +1,5 @@
 package com.dtstack.taier.develop.vo.console;
 
-import com.dtstack.taier.common.util.Pair;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -14,9 +13,6 @@ public class ComponentModelVO {
 
     @ApiModelProperty(notes = "是否允许多版本")
     private boolean allowCoexistence;
-
-    @ApiModelProperty(notes = "组件可选择版本")
-    private List<Pair<String, List<Pair>>> versionDictionary;
 
     @ApiModelProperty(notes = "组件依赖前置组件")
     private List<Integer> dependOn;
@@ -57,14 +53,6 @@ public class ComponentModelVO {
 
     public void setAllowCoexistence(boolean allowCoexistence) {
         this.allowCoexistence = allowCoexistence;
-    }
-
-    public List<Pair<String, List<Pair>>> getVersionDictionary() {
-        return versionDictionary;
-    }
-
-    public void setVersionDictionary(List<Pair<String, List<Pair>>> versionDictionary) {
-        this.versionDictionary = versionDictionary;
     }
 
     public List<Integer> getDependOn() {
