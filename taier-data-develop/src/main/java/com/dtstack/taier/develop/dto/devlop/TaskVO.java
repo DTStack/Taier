@@ -2,6 +2,7 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -72,6 +73,30 @@ public class TaskVO extends Task {
      * 租户名称
      */
     private String tenantName;
+    /**
+     * 是否开启任务脏数据管理
+     */
+    private Boolean openDirtyDataManage;
+    /**
+     * 任务脏数据管理
+     */
+    private TaskDirtyDataManageVO TaskDirtyDataManageVO;
+
+    public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
+        return TaskDirtyDataManageVO;
+    }
+
+    public void setTaskDirtyDataManageVO(TaskDirtyDataManageVO taskDirtyDataManageVO) {
+        TaskDirtyDataManageVO = taskDirtyDataManageVO;
+    }
+
+    public Boolean getOpenDirtyDataManage() {
+        return openDirtyDataManage;
+    }
+
+    public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
+        this.openDirtyDataManage = openDirtyDataManage;
+    }
 
     public Boolean getSubmitted() {
         return submitted;

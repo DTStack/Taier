@@ -14,6 +14,7 @@ import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.TaskDirtyDataManageService;
 import com.dtstack.taier.develop.service.template.DefaultSetting;
 import com.dtstack.taier.develop.service.template.FlinkxJobTemplate;
 import com.dtstack.taier.develop.service.template.Restoration;
@@ -24,6 +25,7 @@ import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +54,9 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
     @Autowired
     private NameMappingBuilderFactory nameMappingBuilderFactory;
 
+    @Autowired
+    private TaskDirtyDataManageService taskDirtyDataManageService;
+
 
     @Override
     public TaskResourceParam handleParam(TaskResourceParam taskResourceParam) {
@@ -72,9 +77,24 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
 //        if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
             setSqlTextByCreateModel(taskResourceParam, taskVO);
 //        }
-//        // 判断断点续传
-//        addParam(taskResourceParam); //todo 问下安陌什么时候需要
+        addParam(taskResourceParam);
         return taskResourceParam;
+    }
+
+    /**
+     * 断点续传
+     * @param param
+     */
+    private void addParam(TaskResourceParam param) {
+        if (!EScheduleJobType.SYNC.getType().equals(param.getTaskType())
+                || Objects.isNull(param.getSettingMap())
+                || !(param.getSettingMap().containsKey("isRestore")
+                && (Boolean) param.getSettingMap().get("isRestore"))) {
+            return;
+        }
+        Map<String, Object> map = param.getTargetMap();
+        map.put("semantic", "exactly-once");
+        param.setTargetMap(map);
     }
 
     /**
@@ -259,6 +279,11 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
 
     @Override
     public void postProcessing(TaskResourceParam taskResourceParam) {
-
+        //脏数据管理
+        if (BooleanUtils.isTrue(taskResourceParam.getOpenDirtyDataManage())) {
+            taskDirtyDataManageService.addOrUpdateDirtyDataManage(taskResourceParam.getTaskDirtyDataManageVO(), taskResourceParam.getTenantId(), taskResourceParam.getId());
+        } else {
+            taskDirtyDataManageService.deleteByTaskId(taskResourceParam.getId());
+        }
     }
 }

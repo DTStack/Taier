@@ -54,6 +54,7 @@ import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.enums.develop.*;
+import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -79,6 +80,7 @@ import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
@@ -151,6 +153,8 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private BatchTaskResourceService batchTaskResourceService;
+    @Autowired
+    private TaskDirtyDataManageService taskDirtyDataManageService;
 
     @Autowired
     private BatchTaskParamService batchTaskParamService;
@@ -284,6 +288,9 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
+        TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
+        taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
+        taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
         return taskVO;
     }
 
@@ -565,7 +572,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
             JSONObject confProp = new JSONObject();
-            flinkTaskService.buildTaskDirtyDataManageDefaultArgs(confProp);
+            taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(),  confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
@@ -1378,6 +1385,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         this.updateTask(taskVO, true);
         final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
+        TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
+        if (oneByTaskId != null) {
+            TaskDirtyDataManageVO taskDirtyDataManageVO = TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId);
+            taskVO.setTaskDirtyDataManageVO(taskDirtyDataManageVO);
+            taskVO.setOpenDirtyDataManage(true);
+        }
         return taskCatalogueVO;
     }
 
@@ -1736,6 +1749,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         this.batchTaskParamService.deleteTaskParam(taskId);
         //删除发布相关的数据
         this.taskService.deleteTask(taskId, userId);
+        taskDirtyDataManageService.deleteByTaskId(taskId);
     }
 
 
