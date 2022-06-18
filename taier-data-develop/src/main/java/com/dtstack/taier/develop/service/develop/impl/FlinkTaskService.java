@@ -106,6 +106,9 @@ public class FlinkTaskService {
     private ScheduleActionService actionService;
 
     @Autowired
+    private TaskDirtyDataManageService taskDirtyDataManageService;
+
+    @Autowired
     private ClusterService clusterService;
 
     @Autowired
@@ -356,9 +359,8 @@ public class FlinkTaskService {
                 taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
                 task.setTaskParams(taskParams);
             }
-
             task.setExeArgs(String.format(JOB_NAME_ARGS_TEMPLATE, task.getName(), EncoderUtil.encoderURL(job, Charsets.UTF_8.name())));
-            buildTaskDirtyDataManageDefaultArgs(confProp);
+            taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(),  confProp);
             if (!Objects.equals(confProp.toString(), "{}")) {
                 String confPropArgs = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, EncoderUtil.encoderURL(confProp.toJSONString(), Charsets.UTF_8.name()));
                 if (StringUtils.isNotBlank(confPropArgs)) {
