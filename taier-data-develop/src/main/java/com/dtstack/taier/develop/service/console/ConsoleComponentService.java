@@ -23,7 +23,6 @@ import com.dtstack.taier.develop.model.Part;
 import com.dtstack.taier.develop.model.PartCluster;
 import com.dtstack.taier.develop.model.system.config.ComponentModel;
 import com.dtstack.taier.develop.vo.console.ComponentModelVO;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
@@ -42,7 +41,6 @@ import com.dtstack.taier.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taier.scheduler.utils.Krb5FileUtil;
 import com.dtstack.taier.scheduler.utils.XmlFileUtil;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
-import com.dtstack.taier.scheduler.vo.IComponentVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -61,8 +59,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -116,9 +112,6 @@ public class ConsoleComponentService {
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
-    private static ThreadPoolExecutor connectPool = new ThreadPoolExecutor(5, 10,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20),
-            new CustomThreadFactory("connectPool"));
 
     static {
         //hdfs core 需要合并
@@ -149,8 +142,6 @@ public class ConsoleComponentService {
         if (null == cluster) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        String clusterName = cluster.getClusterName();
-
         Component addComponent = new Component();
         BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
@@ -202,18 +193,8 @@ public class ConsoleComponentService {
                 componentType, componentConfig, isOpenKerberos, md5Key, componentTemplate, pluginName);
         componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode());
         // 此时不需要查询默认版本
-        List<IComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId, true, false);
         this.updateCache();
-        if (CollectionUtils.isNotEmpty(componentVos)) {
-            ComponentVO componentVO = (ComponentVO) componentVos.get(0);
-            componentVO.setClusterName(clusterName);
-            componentVO.setPrincipal(principal);
-            componentVO.setPrincipals(principals);
-            componentVO.setDeployType(deployType);
-            componentVO.setIsMetadata(BooleanUtils.toInteger(isMetadata));
-            return componentVO;
-        }
-        return null;
+        return ComponentVO.toVO(addComponent);
     }
 
 
@@ -1052,27 +1033,23 @@ public class ConsoleComponentService {
 
         Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
 
-        Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
-                .collect(Collectors.toMap(component -> component,
-                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c), connectPool)));
 
-        CompletableFuture<List<ComponentTestResult>> completableFuture = CompletableFuture
-                .allOf(completableFutureMap.values().toArray(new CompletableFuture[0]))
-                .thenApply((f) -> completableFutureMap.keySet().stream().map(component -> {
-                    try {
-                        return completableFutureMap.get(component).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-                    } catch (Exception e) {
-                        ComponentTestResult testResult = new ComponentTestResult();
-                        testResult.setResult(false);
-                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                        testResult.setComponentVersion(component.getVersionValue());
-                        testResult.setComponentTypeCode(component.getComponentTypeCode());
-                        return testResult;
-                    }
-                }).collect(Collectors.toList()));
+        Map<Component, ComponentTestResult> testResultMap = components.stream()
+                .collect(Collectors.toMap(component -> component,
+                        c -> {
+                            try {
+                                return CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c)).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
+                            } catch (Exception e) {
+                                ComponentTestResult testResult = new ComponentTestResult();
+                                testResult.setResult(false);
+                                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                                testResult.setComponentVersion(c.getVersionValue());
+                                testResult.setComponentTypeCode(c.getComponentTypeCode());
+                                return testResult;
+                            }
+                        }));
         try {
-            List<ComponentTestResult> componentTestResults = completableFuture.get();
-            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = componentTestResults.stream()
+            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = testResultMap.values().stream()
                     .collect(Collectors.groupingBy(ComponentTestResult::getComponentTypeCode, Collectors.collectingAndThen(Collectors.toList(), c -> c)));
             return componentCodeResultMap.keySet().stream().map(componentCode -> {
                 ComponentMultiTestResult multiTestResult = new ComponentMultiTestResult(componentCode);
