@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -21,7 +20,7 @@ import com.dtstack.taier.develop.vo.console.ClusterVO;
 import com.dtstack.taier.develop.vo.console.EngineVO;
 import com.dtstack.taier.develop.vo.console.QueueVO;
 import com.dtstack.taier.scheduler.service.ComponentService;
-import com.dtstack.taier.scheduler.vo.SchedulingVo;
+import com.dtstack.taier.scheduler.vo.ComponentVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -100,12 +99,7 @@ public class ConsoleClusterService {
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
         // 查询默认版本或者多个版本
         List<com.dtstack.taier.dao.domain.Component> components = componentMapper.listByClusterId(clusterId, null, false);
-        Map<EComponentScheduleType, List<com.dtstack.taier.dao.domain.Component>> scheduleType = new HashMap<>(4);
-        if (CollectionUtils.isNotEmpty(components)) {
-            scheduleType = components.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
-        }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(scheduleType);
-        clusterVO.setScheduling(schedulingVos);
+        clusterVO.setComponentVOS(ComponentVO.toVOS(components));
         clusterVO.setCanModifyMetadata(checkMetadata(clusterId, components));
         return clusterVO;
     }
@@ -116,20 +110,6 @@ public class ConsoleClusterService {
             return CollectionUtils.isEmpty(clusterTenants);
         }
         return true;
-    }
-
-    private List<SchedulingVo> convertComponentToScheduling(Map<EComponentScheduleType, List<com.dtstack.taier.dao.domain.Component>> scheduleType) {
-        List<SchedulingVo> schedulingVos = new ArrayList<>();
-        //为空也返回
-        for (EComponentScheduleType value : EComponentScheduleType.values()) {
-            SchedulingVo schedulingVo = new SchedulingVo();
-            schedulingVo.setSchedulingCode(value.getType());
-            schedulingVo.setSchedulingName(value.getName());
-            List<com.dtstack.taier.dao.domain.Component> componentVoList = scheduleType.getOrDefault(value, Collections.emptyList());
-            schedulingVo.setComponents(componentVoList);
-            schedulingVos.add(schedulingVo);
-        }
-        return schedulingVos;
     }
 
 

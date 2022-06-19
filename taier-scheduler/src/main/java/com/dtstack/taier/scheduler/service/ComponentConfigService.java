@@ -18,28 +18,16 @@
 
 package com.dtstack.taier.scheduler.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EFrontType;
-import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ComponentConfig;
-import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
-import com.dtstack.taier.dao.mapper.DictMapper;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taier.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taier.scheduler.utils.LocalCacheUtil;
-import com.dtstack.taier.scheduler.vo.ComponentMultiVersionVO;
-import com.dtstack.taier.scheduler.vo.ComponentVO;
-import com.dtstack.taier.scheduler.vo.IComponentVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +35,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author yuebai
@@ -64,9 +54,6 @@ public class ComponentConfigService {
 
     @Autowired
     private ComponentMapper componentMapper;
-
-    @Autowired
-    private DictMapper dictMapper;
 
     @Autowired
     private LocalCacheUtil localCacheUtil;
@@ -117,70 +104,6 @@ public class ComponentConfigService {
         return ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
     }
 
-
-    public List<IComponentVO> getComponentVoByComponent(List<Component> components, boolean isFilter, Long clusterId, boolean isConvertHadoopVersion, boolean multiVersion) {
-        if (null == clusterId) {
-            throw new RdosDefineException("集群id不能为空");
-        }
-        if (CollectionUtils.isEmpty(components)) {
-            return new ArrayList<>(0);
-        }
-        // 集群所关联的组件的配置
-        List<ComponentConfig> componentConfigs = componentConfigMapper.listByClusterId(clusterId, isFilter);
-        if (CollectionUtils.isEmpty(componentConfigs)) {
-            return new ArrayList<>(0);
-        }
-        // 组件按类型分组, 因为可能存在组件有多个版本, 此时需要兼容单版本和多版本格式问题
-        Map<Integer, IComponentVO> componentVoMap=new HashMap<>(components.size());
-        components.stream().collect(Collectors.groupingBy(Component::getComponentTypeCode, Collectors.toList()))
-                .forEach((k,v) -> componentVoMap.put(k, multiVersion ?
-                        ComponentMultiVersionVO.getInstanceWithCapacityAndType(k, v.size()) : ComponentVO.getInstance() ));
-        // 配置按照组件进行分组, 存在组件有多个版本
-        Map<Long, List<ComponentConfig>> componentIdConfigs = componentConfigs.stream().collect(Collectors.groupingBy(ComponentConfig::getComponentId));
-        List<IComponentVO> componentVoList = new ArrayList<>(components.size());
-        for (Component component : components) {
-            IComponentVO customComponent = componentVoMap.get(component.getComponentTypeCode());
-            ComponentVO componentVO = IComponentVO.getComponentVo(customComponent,component);;
-            // 当前组件的配置
-            List<ComponentConfig> configs = componentIdConfigs.get(component.getId());
-            // hdfs yarn 才将自定义参数移除 过滤返回给前端
-            boolean isHadoopControl = EComponentType.hadoopVersionComponents.contains(EComponentType.getByCode(component.getComponentTypeCode()));
-            if (isHadoopControl) {
-                // 配置按照编辑类型进行分组
-                Map<String, List<ComponentConfig>> configTypeMapping = configs.stream().collect(Collectors.groupingBy(ComponentConfig::getType));
-                //hdfs yarn 4.1 template只有自定义参数
-                componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configTypeMapping.get(EFrontType.CUSTOM_CONTROL.name()))));
-                //hdfs yarn 4.1 config为xml配置参数
-                componentVO.setComponentConfig(JSONObject.toJSONString(ComponentConfigUtils.convertComponentConfigToMap(configTypeMapping.get(EFrontType.XML.name()))));
-            } else {
-                Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(configs);
-                componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(configs)));
-                componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
-                componentVO.setDeployType(component.getDeployType());
-            }
-
-            if (isConvertHadoopVersion && isHadoopControl) {
-                //设置hadoopVersion 的key 如cdh 5.1.x
-                ComponentConfig componentConfig = componentConfigMapper.listByKey(component.getId(), ConfigConstant.HADOOP_VERSION);
-                if (null != componentConfig) {
-                    componentVO.setVersionValue(componentConfig.getValue());
-                } else if (StringUtils.isNotBlank(component.getVersionValue())) {
-                    //兼容老数据
-                    String dependName = "hadoop3".equalsIgnoreCase(component.getVersionValue()) || component.getVersionValue().startsWith("3") ? "Hadoop3" : "Hadoop2";
-                    List<Dict> hadoopVersion = dictMapper.getByDependName(DictType.HADOOP_VERSION.type, dependName);
-                    if (!CollectionUtils.isEmpty(hadoopVersion)) {
-                        componentVO.setVersionValue(hadoopVersion.get(0).getDictName());
-                    }
-                }
-            }
-            // 多版本才需要调用
-            if (customComponent.multiVersion()){
-                customComponent.addComponent(componentVO);
-            }
-        }
-        componentVoList.addAll(componentVoMap.values());
-        return componentVoList;
-    }
 
     public void updateValueComponentConfig(ComponentConfig componentConfig) {
         componentConfigMapper.updateValueById(componentConfig);
