@@ -137,12 +137,6 @@ public interface TaskMapstructTransfer {
      */
     List<BatchGetChildTasksResultVO> notDeleteTaskVOsToBatchGetChildTasksResultVOs(List<TaskGetNotDeleteVO> notDeleteTaskVOS);
 
-    /**
-     * List<BatchTaskTaskAddOrUpdateDependencyVO> -> List<Task>
-     * @param dependencyVOS
-     * @return
-     */
-    List<Task> batchTaskTaskAddOrUpdateDependencyVOsToBatchTasks(List<BatchTaskTaskAddOrUpdateDependencyVO> dependencyVOS);
     void taskToTaskVO(Task task, @MappingTarget TaskVO taskVO);
 
     TaskVO TaskResourceParamToTaskVO(TaskResourceParam taskResourceParam);
