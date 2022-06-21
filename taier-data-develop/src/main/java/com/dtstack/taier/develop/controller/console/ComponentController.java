@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.controller.console;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.develop.mapstruct.console.KerberosConfigTransfer;
@@ -39,7 +38,11 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,11 +176,6 @@ public class ComponentController {
         return R.ok(consoleComponentService.getComponentModels());
     }
 
-    @GetMapping(value = "/componentVersions")
-    @ApiOperation(value = "获取组件能选择的版本信息")
-    public R<List<Pair<String, List<Pair>>>> componentVersions(@RequestParam("componentType") Integer componentType) {
-        return R.ok(consoleComponentService.getComponentVersion(componentType));
-    }
 
 
     @GetMapping(value = "/getComponentInfo")
