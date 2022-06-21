@@ -11,8 +11,16 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.common.util.*;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.common.util.ComponentVersionUtil;
+import com.dtstack.taier.common.util.MathUtil;
+import com.dtstack.taier.common.util.Pair;
+import com.dtstack.taier.common.util.Xml2JsonUtil;
+import com.dtstack.taier.common.util.ZipUtil;
+import com.dtstack.taier.dao.domain.Cluster;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.ComponentConfig;
+import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
@@ -57,13 +65,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.taier.common.constant.CommonConstant.ZIP_SUFFIX;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.*;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KERBEROS;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KEYTAB_SUFFIX;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KRB5_CONF;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MD5_SUM_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.USER_DIR_DOWNLOAD;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.USER_DIR_UNZIP;
 
 
 @org.springframework.stereotype.Component
@@ -138,10 +160,6 @@ public class ConsoleComponentService {
 
         Component componentDTO = new Component();
         componentDTO.setComponentTypeCode(componentType.getTypeCode());
-        Cluster cluster = clusterMapper.getOne(clusterId);
-        if (null == cluster) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
-        }
         Component addComponent = new Component();
         BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
@@ -163,13 +181,7 @@ public class ConsoleComponentService {
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setDeployType(deployType);
-        if (EComponentType.HDFS == componentType) {
-            //hdfs的组件和yarn组件的版本保持强一致
-            com.dtstack.taier.dao.domain.Component yarnComponent = componentMapper.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode(), null, null);
-            if (null != yarnComponent) {
-                versionName = yarnComponent.getVersionName();
-            }
-        }
+
         addComponent.setVersionName(versionName);
 
         if (StringUtils.isNotBlank(kerberosFileName)) {
@@ -978,7 +990,12 @@ public class ConsoleComponentService {
         PartCluster cluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = cluster.create(componentType, versionName, storeType,deployType);
         List<ComponentConfig> componentConfigs = part.loadTemplate();
-        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
+        return componentConfigs.stream().map(c -> {
+            ClientTemplate clientTemplate = new ClientTemplate();
+            BeanUtils.copyProperties(c, clientTemplate);
+            return clientTemplate;
+        }).collect(Collectors.toList());
+//        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
     }
 
 
@@ -1033,23 +1050,33 @@ public class ConsoleComponentService {
 
         Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
 
-
-        Map<Component, ComponentTestResult> testResultMap = components.stream()
+        Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
                 .collect(Collectors.toMap(component -> component,
-                        c -> {
-                            try {
-                                return CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c)).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-                            } catch (Exception e) {
-                                ComponentTestResult testResult = new ComponentTestResult();
-                                testResult.setResult(false);
-                                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                                testResult.setComponentVersion(c.getVersionValue());
-                                testResult.setComponentTypeCode(c.getComponentTypeCode());
-                                return testResult;
-                            }
-                        }));
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c))));
+
+        CompletableFuture<Void> totalFuture = CompletableFuture.allOf(completableFutureMap.values().toArray(new CompletableFuture[0]));
         try {
-            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = testResultMap.values().stream()
+            totalFuture.get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
+        } catch (Exception e) {
+        }
+
+        List<ComponentTestResult> componentTestResults = completableFutureMap.keySet().stream().map(component -> {
+            ComponentTestResult testResult = new ComponentTestResult();
+            try {
+                testResult.setResult(false);
+                testResult.setErrorMsg("connect timeout");
+                return completableFutureMap.get(component).getNow(testResult);
+            } catch (Exception e) {
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setComponentVersion(component.getVersionValue());
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                return testResult;
+            }
+        }).collect(Collectors.toList());
+
+        try {
+            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = componentTestResults.stream()
                     .collect(Collectors.groupingBy(ComponentTestResult::getComponentTypeCode, Collectors.collectingAndThen(Collectors.toList(), c -> c)));
             return componentCodeResultMap.keySet().stream().map(componentCode -> {
                 ComponentMultiTestResult multiTestResult = new ComponentMultiTestResult(componentCode);
@@ -1411,7 +1438,8 @@ public class ConsoleComponentService {
             componentModelVO.setName(dict.getDictName());
             JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
             componentModelVO.setAllowCoexistence(componentModel.getBooleanValue(ComponentModel.ALLOW_COEXISTENCE_KEY));
-            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {});
+            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {
+            });
             if (CollectionUtils.isNotEmpty(dependsOn)) {
                 List<Integer> dependsVal = dependsOn.stream().map(d -> EComponentScheduleType.valueOf(d).getType()).collect(Collectors.toList());
                 componentModelVO.setDependOn(dependsVal);
@@ -1421,28 +1449,23 @@ public class ConsoleComponentService {
             EComponentType componentType = EComponentType.valueOf(dict.getDictName());
             componentModelVO.setComponentCode(componentType.getTypeCode());
 
+            //version
+            String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
+            if (!StringUtils.isBlank(versionDict)) {
+                List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
+                if (!CollectionUtils.isEmpty(versions)) {
+                    List<Pair<String, List<Pair>>> pairs = scheduleDictService.groupByDependName(versions);
+                    componentModelVO.setVersionDictionary(pairs);
+                }
+            }
+
+            //是否能配置kerberos
+            componentModelVO.setAllowKerberos(true);
+            componentModelVO.setAllowParamUpload(true);
+
             modelVOS.add(componentModelVO);
         }
         return modelVOS;
-    }
-
-
-    public List<Pair<String, List<Pair>>> getComponentVersion(Integer componentCode) {
-        EComponentType componentType = EComponentType.getByCode(componentCode);
-        Dict dict = scheduleDictService.getByNameAndValue(DictType.COMPONENT_MODEL.getType(), componentType.getName(), null, null);
-        if (null == dict || StringUtils.isBlank(dict.getDictValue())) {
-            throw new RdosDefineException(Strings.format("dict is not config component %s model", componentType.getName()));
-        }
-        JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
-        String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
-        if (StringUtils.isBlank(versionDict)) {
-            return new ArrayList<>();
-        }
-        List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
-        if (CollectionUtils.isEmpty(versions)) {
-            return new ArrayList<>();
-        }
-        return scheduleDictService.groupByDependName(versions);
     }
 
     public ComponentVO getComponentInfo(Long componentId) {
@@ -1462,5 +1485,9 @@ public class ConsoleComponentService {
             componentVO.setKerberosFileName(kerberosConfig.getName());
         }
         return componentVO;
+    }
+
+    public Component getByClusterIdAndComponentType(Long clusterId, Integer typeCode) {
+        return componentMapper.getByClusterIdAndComponentType(clusterId,typeCode,null,null);
     }
 }
