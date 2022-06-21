@@ -152,45 +152,11 @@ public enum EComponentType {
             EComponentType.HDFS,EComponentType.HIVE_SERVER
     );
 
-    /**
-     * 直接定位的插件的组件类型
-     *
-     * @param componentCode
-     * @return
-     */
-    public static String convertPluginNameByComponent(EComponentType componentCode) {
-        switch (componentCode) {
-            case SFTP:
-                return "dummy";
-        }
-        return "";
-    }
-
-
-    /**
-     * 需要拼接  调度-存储-组件 的组件类型
-     *
-     * @param componentCode
-     * @return
-     */
-    public static String convertPluginNameWithNeedVersion(EComponentType componentCode) {
-        switch (componentCode) {
-            case SPARK:
-                return "spark";
-            case FLINK:
-                return "flink";
-            case HDFS:
-                return "hadoop";
-        }
-        return "";
-    }
 
     public static List<EComponentType> notCheckComponent = Lists.newArrayList(
             EComponentType.SPARK, EComponentType.FLINK
     );
 
-    //允许一个组件 on yarn 或 其他多种模式
-    public static List<EComponentType> deployTypeComponents = Lists.newArrayList(EComponentType.FLINK);
     //允许一个组件多个版本
     public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK,EComponentType.SPARK);
     //SQL组件
@@ -201,9 +167,6 @@ public enum EComponentType {
 
     //没有控件渲染的组件
     public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
-
-    //多hadoop版本选择组件
-    public static List<EComponentType> hadoopVersionComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
 
     //metadata组件
     public static List<EComponentType> metadataComponents = Lists.newArrayList(EComponentType.HIVE_SERVER,EComponentType.SPARK_THRIFT);
