@@ -30,8 +30,8 @@ public class ComponentModelVO {
     @ApiModelProperty(notes = "是否允许kerberos")
     private boolean allowKerberos;
 
-    @ApiModelProperty(notes = "是否允许参数上传")
-    private boolean allowParamUpload;
+    @ApiModelProperty(notes = "参数上传类型: 1:zip")
+    private Integer uploadConfigType;
 
     public List<Pair<String, List<Pair>>> getVersionDictionary() {
         return versionDictionary;
@@ -49,12 +49,8 @@ public class ComponentModelVO {
         this.allowKerberos = allowKerberos;
     }
 
-    public boolean isAllowParamUpload() {
-        return allowParamUpload;
-    }
-
-    public void setAllowParamUpload(boolean allowParamUpload) {
-        this.allowParamUpload = allowParamUpload;
+    public Integer getUploadConfigType() {
+        return uploadConfigType;
     }
 
     public Integer getOwner() {
@@ -95,5 +91,10 @@ public class ComponentModelVO {
 
     public void setDependOn(List<Integer> dependOn) {
         this.dependOn = dependOn;
+    }
+
+    public void setUploadConfigType(Integer integer) {
+
+
     }
 }

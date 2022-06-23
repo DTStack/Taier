@@ -23,7 +23,6 @@ import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
-import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taier.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taier.scheduler.utils.LocalCacheUtil;
 import com.google.common.collect.Lists;
@@ -63,18 +62,17 @@ public class ComponentConfigService {
     /**
      * 保存页面展示数据
      *
-     * @param clientTemplates
      * @param componentId
      * @param clusterId
      * @param componentTypeCode
      */
     @Transactional(rollbackFor = Exception.class)
-    public void addOrUpdateComponentConfig(List<ClientTemplate> clientTemplates, Long componentId, Long clusterId, Integer componentTypeCode) {
-        if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(clientTemplates)) {
+    public void addOrUpdateComponentConfig(Long componentId, Long clusterId, Integer componentTypeCode ,List<ComponentConfig> componentConfigs) {
+        if (null == clusterId || null == componentId || null == componentTypeCode || CollectionUtils.isEmpty(componentConfigs)) {
             throw new RdosDefineException("参数不能为空");
         }
         componentConfigMapper.deleteByComponentId(componentId);
-        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
+//        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
     }
 
