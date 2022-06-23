@@ -30,6 +30,8 @@ public class ComponentModel {
     public static final String ALLOW_COEXISTENCE_KEY = "allowCoexistence";
     private static final String NAME_TEMPLATE_KEY = "nameTemplate";
     public static final String VERSION_DICTIONARY_KEY = "versionDictionary";
+    public static final String ALLOW_KERBEROS = "allowKerberos";
+    public static final String UPLOAD_CONFIG_TYPE = "uploadConfigType";
 
     private final EComponentType type;
     private final EComponentScheduleType owner;
