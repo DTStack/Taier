@@ -159,6 +159,7 @@ public enum EComponentType {
 
     //允许一个组件多个版本
     public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK,EComponentType.SPARK);
+
     //SQL组件
     public static List<EComponentType> sqlComponent = Lists.newArrayList(
             EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER

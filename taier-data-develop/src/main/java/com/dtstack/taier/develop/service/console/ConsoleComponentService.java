@@ -8,11 +8,11 @@ import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
-import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
 import com.dtstack.taier.common.util.ZipUtil;
@@ -145,29 +145,25 @@ public class ConsoleComponentService {
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent(Long clusterId, String componentConfig,
                                             List<Resource> resources, String versionName,
-                                            String kerberosFileName, String componentTemplate,
+                                            String kerberosFileName,
                                             EComponentType componentType, Integer storeType,
                                             String principals, String principal, boolean isMetadata, Boolean isDefault, Integer deployType) {
-        if (StringUtils.isBlank(componentConfig)) {
-            componentConfig = new JSONObject().toJSONString();
-        }
+
         EComponentType storeComponent = null == storeType ? null : EComponentType.getByCode(storeType);
         PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = partCluster.create(componentType, versionName, storeComponent, deployType);
         String versionValue = part.getVersionValue();
         String pluginName = part.getPluginName();
-
-
+        List<ComponentConfig> templateConfig = part.loadTemplate();
         Component componentDTO = new Component();
         componentDTO.setComponentTypeCode(componentType.getTypeCode());
         Component addComponent = new Component();
         BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
-        com.dtstack.taier.dao.domain.Component dbComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),
+        Component dbComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),
                 ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? versionValue : null, deployType);
         String dbHadoopVersion = "";
         boolean isUpdate = false;
-        boolean isOpenKerberos = isOpenKerberos(kerberosFileName, dbComponent);
         if (null != dbComponent) {
             //更新
             dbHadoopVersion = dbComponent.getVersionValue();
@@ -175,8 +171,7 @@ public class ConsoleComponentService {
             isUpdate = true;
         }
 
-        EComponentType storesComponent = this.checkStoresComponent(clusterId, storeType);
-        addComponent.setStoreType(storesComponent.getTypeCode());
+        addComponent.setStoreType(storeType);
         addComponent.setVersionValue(versionValue);
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
@@ -201,29 +196,19 @@ public class ConsoleComponentService {
         }
 
         changeMetadata(componentType.getTypeCode(), isMetadata, clusterId, addComponent.getIsMetadata());
-        List<ClientTemplate> clientTemplates = this.buildTemplate(
-                componentType, componentConfig, isOpenKerberos, md5Key, componentTemplate, pluginName);
-        componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode());
+        List<ComponentConfig> componentConfigs = this.buildTemplate(componentType, componentConfig, md5Key, pluginName, templateConfig,
+                addComponent.getClusterId(),addComponent.getId());
+        componentConfigService.addOrUpdateComponentConfig(addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode(),componentConfigs);
         // 此时不需要查询默认版本
         this.updateCache();
         return ComponentVO.toVO(addComponent);
     }
 
 
-    private List<ClientTemplate> buildTemplate(EComponentType componentType, String componentString,
-                                               boolean isOpenKerberos, String md5Key,
-                                               String clientTemplates, String pluginName) {
+    private List<ComponentConfig> buildTemplate(EComponentType componentType, String componentString, String md5Key, String pluginName,
+                                                List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
         List<ClientTemplate> templates = new ArrayList<>();
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-        if (isOpenKerberos) {
-            if (EComponentType.HDFS.equals(componentType)) {
-                componentConfigJSON.put("dfs.namenode.kerberos.principal.pattern", "*");
-            }
-
-            if (EComponentType.YARN.equals(componentType)) {
-                componentConfigJSON.put("yarn.resourcemanager.principal.pattern", "*");
-            }
-        }
         if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
             ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName);
@@ -235,15 +220,12 @@ public class ConsoleComponentService {
         }
         if (EComponentType.noControlComponents.contains(componentType)) {
             //xml配置文件也转换为组件
-            List<ClientTemplate> xmlTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
-            templates.addAll(xmlTemplates);
-            //yarn 和hdfs的自定义参数
-            templates.addAll(ComponentConfigUtils.dealXmlCustomControl(componentType, clientTemplates));
+            return componentConfigJSON.keySet().stream().map(key ->
+                    ComponentConfigUtils.buildCustomConfig(key, componentConfigJSON.getString(key), EFrontType.CUSTOM_CONTROL.name(),
+                            null, clusterId, componentId, componentType.getTypeCode())).collect(Collectors.toList());
         } else {
-            List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
-            templates.addAll(controlTemplate);
+            return ComponentConfigUtils.fillTemplateValue(componentConfigJSON, templateConfig, componentId, clusterId, componentType.getTypeCode());
         }
-        return templates;
     }
 
 
@@ -328,31 +310,6 @@ public class ConsoleComponentService {
         componentMapper.updateMetadata(clusterId, componentType, isMetadata ? 1 : 0);
         componentMapper.updateMetadata(clusterId, revertComponentType, isMetadata ? 0 : 1);
         return true;
-    }
-
-    private boolean isOpenKerberos(String kerberosFileName, Component dbComponent) {
-        boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
-        if (!isOpenKerberos && null != dbComponent) {
-            KerberosConfig componentKerberos = consoleKerberosMapper.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),
-                    ComponentVersionUtil.formatMultiVersion(dbComponent.getComponentTypeCode(), dbComponent.getVersionValue()));
-            if (componentKerberos != null) {
-                isOpenKerberos = true;
-            }
-        }
-        return isOpenKerberos;
-    }
-
-    private EComponentType checkStoresComponent(Long clusterId, Integer storeType) {
-        //默认为hdfs
-        if (null == storeType) {
-            return EComponentType.HDFS;
-        }
-        EComponentType componentType = EComponentType.getByCode(MathUtil.getIntegerVal(storeType));
-        Component storeComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), null, null);
-        if (null == storeComponent) {
-            throw new RdosDefineException(ErrorCode.PRE_COMPONENT_NOT_EXISTS.getMsg() + ":" + componentType.getName());
-        }
-        return componentType;
     }
 
     private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent) {
@@ -1435,7 +1392,6 @@ public class ConsoleComponentService {
         List<ComponentModelVO> modelVOS = new ArrayList<>(dicts.size());
         for (Dict dict : dicts) {
             ComponentModelVO componentModelVO = new ComponentModelVO();
-            componentModelVO.setName(dict.getDictName());
             JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
             componentModelVO.setAllowCoexistence(componentModel.getBooleanValue(ComponentModel.ALLOW_COEXISTENCE_KEY));
             List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {
@@ -1448,6 +1404,7 @@ public class ConsoleComponentService {
             componentModelVO.setOwner(ownerComponentScheduleType.getType());
             EComponentType componentType = EComponentType.valueOf(dict.getDictName());
             componentModelVO.setComponentCode(componentType.getTypeCode());
+            componentModelVO.setName(componentType.getName());
 
             //version
             String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
@@ -1460,8 +1417,9 @@ public class ConsoleComponentService {
             }
 
             //是否能配置kerberos
-            componentModelVO.setAllowKerberos(true);
-            componentModelVO.setAllowParamUpload(true);
+            componentModelVO.setAllowKerberos(componentModel.getBooleanValue(ComponentModel.ALLOW_KERBEROS));
+            //上传文件控件
+            componentModelVO.setUploadConfigType(componentModel.getInteger(ComponentModel.UPLOAD_CONFIG_TYPE));
 
             modelVOS.add(componentModelVO);
         }
@@ -1475,8 +1433,8 @@ public class ConsoleComponentService {
         }
         ComponentVO componentVO = ComponentVO.toVO(component);
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
-        componentVO.setComponentConfig(JSONObject.toJSONString(componentConfigs));
-        componentVO.setComponentTemplate(JSONObject.toJSONString(ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs)));
+        Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+        componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
         KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
         if (null != kerberosConfig) {
             componentVO.setPrincipal(kerberosConfig.getPrincipal());

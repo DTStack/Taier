@@ -18,6 +18,7 @@
 
 package com.dtstack.taier.develop.controller.console;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
@@ -65,13 +66,17 @@ public class UploadController {
     @PostMapping(value="/component/addOrUpdateComponent")
     public R<ComponentVO> addOrUpdateComponent(@RequestParam("resources1") List<MultipartFile> files1, @RequestParam("resources2") List<MultipartFile> files2, @RequestParam("clusterId") Long clusterId,
                                                @RequestParam(value = "componentConfig") String componentConfig, @RequestParam("versionName")@NotNull String versionName,
-                                               @RequestParam("kerberosFileName") String kerberosFileName, @RequestParam("componentTemplate") String componentTemplate,
-                                               @RequestParam("componentCode") Integer componentCode, @RequestParam("storeType")Integer storeType,
+                                               @RequestParam("kerberosFileName") String kerberosFileName,
+                                               @RequestParam("componentCode") Integer componentCode,
                                                @RequestParam("principals")String principals, @RequestParam("principal")String principal, @RequestParam(value = "isMetadata",defaultValue = "false")Boolean isMetadata,
                                                @RequestParam(value = "isDefault",defaultValue = "false") Boolean isDefault, @RequestParam(value = "deployType")Integer deployType) {
         List<Resource> resources = getResourcesFromFiles(files1);
         List<Resource> resourcesAdd = getResourcesFromFiles(files2);
         resources.addAll(resourcesAdd);
+        if (StringUtils.isBlank(componentConfig)) {
+            componentConfig = new JSONObject().toJSONString();
+        }
+        String finalComponentConfig = componentConfig;
         return new APITemplate<ComponentVO>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
@@ -99,9 +104,9 @@ public class UploadController {
                         finalVersionName = yarnComponent.getVersionName();
                     }
                 }
-                
-                return consoleComponentService.addOrUpdateComponent(clusterId, componentConfig, resources,
-                        finalVersionName, kerberosFileName, componentTemplate, componentType, storeType, principals, principal, isMetadata, isDefault, deployType);
+                //存储只能配置hdfs
+                return consoleComponentService.addOrUpdateComponent(clusterId, finalComponentConfig, resources,
+                        finalVersionName, kerberosFileName, componentType, EComponentType.HDFS.getTypeCode(), principals, principal, isMetadata, isDefault, deployType);
             }
         }.execute();
 
