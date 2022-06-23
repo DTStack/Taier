@@ -105,7 +105,7 @@ firewall-cmd --reload
 :::
 
 ## 2. 使用docker-compose
-获取taier最新的docker-compose文件
+获取Taier最新的docker-compose文件
 ```yaml
 version: '3'
 services:
