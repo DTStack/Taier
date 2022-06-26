@@ -19,7 +19,7 @@ package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.service.develop.impl.BatchComponentService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopComponentService;
 import com.dtstack.taier.develop.vo.develop.query.BatchComponentGetDatabasesVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,7 +37,7 @@ import java.util.List;
 public class DevelopComponentController {
 
     @Autowired
-    private BatchComponentService batchComponentService;
+    private DevelopComponentService batchComponentService;
 
     @PostMapping(value = "getAllDatabases")
     @ApiOperation(value = "获取所有的databases")

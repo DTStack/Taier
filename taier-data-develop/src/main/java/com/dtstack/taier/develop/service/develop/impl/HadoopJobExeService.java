@@ -38,7 +38,7 @@ public class HadoopJobExeService {
     private static final Logger LOG = LoggerFactory.getLogger(HadoopJobExeService.class);
 
     @Autowired
-    private BatchTaskParamService batchTaskParamService;
+    private DevelopTaskParamService batchTaskParamService;
 
     @Autowired
     private DsInfoService dsInfoService;

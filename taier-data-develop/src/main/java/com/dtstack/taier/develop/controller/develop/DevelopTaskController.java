@@ -27,7 +27,7 @@ import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchTaskService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
 import com.dtstack.taier.develop.vo.develop.query.*;
 import com.dtstack.taier.develop.vo.develop.result.*;
@@ -50,7 +50,7 @@ import java.util.Objects;
 public class DevelopTaskController {
 
     @Autowired
-    private BatchTaskService batchTaskService;
+    private DevelopTaskService batchTaskService;
     @Autowired
     private FlinkTaskService flinkTaskService;
 

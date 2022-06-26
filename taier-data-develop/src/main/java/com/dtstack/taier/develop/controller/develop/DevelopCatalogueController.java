@@ -22,7 +22,7 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.mapstruct.vo.BatchCatalogueMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchCatalogueService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
 import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueAddVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueGetVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueUpdateVO;
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopCatalogueController {
 
     @Autowired
-    private BatchCatalogueService batchCatalogueService;
+    private DevelopCatalogueService batchCatalogueService;
 
     @PostMapping(value = "addCatalogue")
     @ApiOperation(value = "新增目录")

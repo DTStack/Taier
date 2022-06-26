@@ -54,7 +54,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
-import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
+import static com.dtstack.taier.develop.service.develop.impl.DevelopDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
 
 @Service
 public class FlinkRuntimeLogService {

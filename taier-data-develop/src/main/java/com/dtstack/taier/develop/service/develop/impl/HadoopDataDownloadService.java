@@ -39,7 +39,6 @@ import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +78,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
-    private BatchJobService batchJobService;
+    private DevelopJobService batchJobService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -124,23 +123,17 @@ public class HadoopDataDownloadService implements IDataDownloadService {
      * @return 简单查询结果下载器
      */
     public IDownload getSimpleSelectDownLoader(Long tenantId, String sql, Integer taskType) {
-        Matcher matcher = BatchHadoopSelectSqlService.SIMPLE_QUERY_PATTERN.matcher(sql);
+        Matcher matcher = DevelopHadoopSelectSqlService.SIMPLE_QUERY_PATTERN.matcher(sql);
         if (!matcher.find()) {
             throw new RdosDefineException("该下载器仅支持简单查询结果下载");
         }
         // 查询字段集合
-        List<String> queryFieldNames = BatchHadoopSelectSqlService.getSimpleQueryFieldNames(sql, false);
+        List<String> queryFieldNames = DevelopHadoopSelectSqlService.getSimpleQueryFieldNames(sql, false);
         // 字段别名集合
-        List<String> fieldNamesShow = BatchHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
+        List<String> fieldNamesShow = DevelopHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
         String db = matcher.group("db");
         if (StringUtils.isEmpty(db)) {
-            TenantComponent tenantEngine = null ;
-            if (EScheduleJobType.HIVE_SQL.getType().equals(taskType)){
-                 tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, EScheduleJobType.SPARK_SQL.getType());
-            }else {
-                 tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
-            }
-            Preconditions.checkNotNull(tenantEngine, String.format("项目:%d 不支持该任务类型", tenantId));
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
             db = tenantEngine.getComponentIdentity();
         }
         String tableName = matcher.group("name");
@@ -166,10 +159,10 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType) || EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
             if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
                 // hiveSql查询，获取hiveServer jdbc配置
-                 jdbcInfo = Engine2DTOService.getHiveServer(tenantId);
-            }else{
+                jdbcInfo = Engine2DTOService.getHiveServer(tenantId);
+            } else {
                 // sparkSql查询，获取sparkThrift jdbc配置
-                 jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
+                jdbcInfo = Engine2DTOService.getSparkThrift(tenantId);
             }
             try {
                 return new HiveSelectDownload(hadoop, jdbcInfo, queryFieldNames, fieldNamesShow, permissionStyle, tenantId,

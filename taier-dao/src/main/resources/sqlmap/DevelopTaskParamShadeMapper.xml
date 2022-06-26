@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskParamShadeDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskParamShadeMapper">
 
     <sql id="select_content_fragment">
       id,task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted

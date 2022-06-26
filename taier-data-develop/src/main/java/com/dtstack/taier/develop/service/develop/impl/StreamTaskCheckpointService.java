@@ -56,7 +56,7 @@ public class StreamTaskCheckpointService {
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private BatchTaskService taskService;
+    private DevelopTaskService taskService;
 
     /**
      * 获取任务的checkpoint可选时间范围
