@@ -21,7 +21,7 @@ import moment from 'moment';
 import { history } from 'umi';
 import type { FormInstance } from 'antd';
 import { message, Checkbox, Modal } from 'antd';
-import Api from '@/api/operation';
+import Api from '@/api';
 import { getCookie } from '@/utils';
 import type { ColumnsType } from 'antd/lib/table';
 import Sketch from '@/components/sketch';

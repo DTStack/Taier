@@ -25,7 +25,7 @@ import type { FilterValue } from 'antd/lib/table/interface';
 import context from '@/context';
 import { SyncOutlined, DownOutlined } from '@ant-design/icons';
 import SlidePane from '@/components/slidePane';
-import Api from '@/api/operation';
+import Api from '@/api';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import {

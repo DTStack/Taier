@@ -21,7 +21,7 @@ import { Menu, message, Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRef } from 'react';
 import { debounce } from 'lodash';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import classNames from 'classnames';
 import type { IDataSourceType } from './add';

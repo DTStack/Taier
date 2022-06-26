@@ -31,7 +31,7 @@ import type {
 	ITargetMapProps,
 	IDataSourceUsedInSyncProps,
 } from '@/interface';
-import { API } from '../../api/dataSource';
+import API from '../../api';
 import {
 	dataSyncExtralConfigHelp,
 	es7BulkAction,
@@ -179,7 +179,7 @@ export default function Target({
 		if (!target) return;
 		// TODO 这里获取 Hive 分区的条件有点模糊
 		if (ALLOW_REQUEST_HIVE.includes(target.dataTypeCode)) {
-			API.getHivePartitions({
+			API.getHivePartitionsForDataSource({
 				sourceId,
 				tableName: table,
 			}).then((res) => {
@@ -607,27 +607,29 @@ export default function Target({
 							</FormItem>
 							{oneKeyCreateTable}
 						</FormItem>
-						<FormItem
-							tooltip={partitionDesc}
-							name="partition"
-							label="分区"
-							rules={[
-								{
-									required: true,
-									message: '目标分区为必填项！',
-								},
-							]}
-						>
-							<AutoComplete showSearch showArrow placeholder="请填写分区信息">
-								{tablePartitionList.map((pt) => {
-									return (
-										<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
-											{pt}
-										</AutoComplete.Option>
-									);
-								})}
-							</AutoComplete>
-						</FormItem>
+						{Boolean(tablePartitionList.length) && (
+							<FormItem
+								tooltip={partitionDesc}
+								name="partition"
+								label="分区"
+								rules={[
+									{
+										required: true,
+										message: '目标分区为必填项！',
+									},
+								]}
+							>
+								<AutoComplete showSearch showArrow placeholder="请填写分区信息">
+									{tablePartitionList.map((pt) => {
+										return (
+											<AutoComplete.Option key={`rdb-${pt}`} value={pt}>
+												{pt}
+											</AutoComplete.Option>
+										);
+									})}
+								</AutoComplete>
+							</FormItem>
+						)}
 						<FormItem
 							label="写入模式"
 							key="writeMode-hive"
@@ -1005,10 +1007,10 @@ export default function Target({
 			if (ALLOW_REQUEST_SCHEMA.includes(targetMap.type!)) {
 				getSchemaList(targetMap.sourceId);
 			}
-		}
 
-		if (targetMap?.partition) {
-			getHivePartitions(targetMap.sourceId, targetMap.table);
+			if (targetMap?.table) {
+				getHivePartitions(targetMap.sourceId, targetMap.table);
+			}
 		}
 	}, []);
 

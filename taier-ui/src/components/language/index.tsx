@@ -17,7 +17,8 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import { isTaskTab, taskTypeText } from '@/utils/enums';
+import { taskTypeText } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import { connect } from '@dtinsight/molecule/esm/react';
 
 const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {

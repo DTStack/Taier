@@ -11,6 +11,7 @@ import {
 	TASK_TYPE_ENUM,
 	DATA_SOURCE_ENUM,
 } from '@/constant';
+import stream from '@/api';
 import { Utils } from '@dtinsight/dt-utils/lib';
 import { Alert, Radio, Tooltip, Row, Col } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
@@ -21,7 +22,6 @@ import AlarmBaseGraph from './baseGraph';
 import DataDelay from './dataDelay';
 import MetricSelect from './metricSelect';
 import './index.scss';
-import stream from '@/api/stream';
 
 const Api = {
 	checkSourceStatus: (params: any) => Promise.resolve({ code: 1, data: null }),

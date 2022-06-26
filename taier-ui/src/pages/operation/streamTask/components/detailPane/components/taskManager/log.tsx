@@ -5,7 +5,7 @@ import { TASK_STATUS } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
 import { isEmpty } from 'lodash';
 import { IStreamJobProps } from '@/interface';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { ITaskList } from './list';
 import './log.scss';
 

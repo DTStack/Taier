@@ -17,23 +17,17 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import type { FormInstance } from 'antd';
 import { Select, Radio, Form } from 'antd';
 import { ENGINE_SOURCE_TYPE_ENUM } from '@/constant';
-import { isOracleEngine } from '@/utils';
+import { isOracleEngine } from '@/utils/is';
 import { PROJECT_CREATE_MODEL } from '@/constant';
 import api from '../../api';
-import PreviewMetaData from '../previewMetaData';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
 interface IConfigItemProps {
-	/**
-	 * 表单实例由父组件传入
-	 */
-	form: FormInstance;
 	engineType: ENGINE_SOURCE_TYPE_ENUM;
 	formParentField?: string;
 	/**
@@ -60,7 +54,6 @@ interface IConfigItemProps {
  */
 export default ({
 	engineType,
-	form,
 	formParentField,
 	formItemLayout,
 	checked,
@@ -69,7 +62,6 @@ export default ({
 	hadoopName = 'Hive2.x',
 }: IConfigItemProps) => {
 	const [targetDb, setTargetDb] = useState<string[]>([]);
-	const [visible, setVisible] = useState(false);
 
 	const getRetainDBList = () => {
 		api.getRetainDBList({ clusterId, componentTypeCode: metaComponent }).then((res) => {
@@ -210,14 +202,6 @@ export default ({
 					) : null
 				}
 			</FormItem>
-			<PreviewMetaData
-				visible={visible}
-				dbName={form?.getFieldValue(`${parentField}.database`)}
-				engineType={engineType}
-				onCancel={() => {
-					setVisible(false);
-				}}
-			/>
 		</>
 	);
 };

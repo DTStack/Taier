@@ -1,7 +1,7 @@
 import { CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { editorActionBarService } from '@/services';
-import { isTaskTab } from '@/utils/enums';
+import { isTaskTab } from '@/utils/is';
 import { runTask } from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
 import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';

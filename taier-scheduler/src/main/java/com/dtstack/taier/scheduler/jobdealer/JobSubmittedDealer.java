@@ -97,7 +97,7 @@ public class JobSubmittedDealer implements Runnable {
                     JobResult jobResult = jobClient.getJobResult();
                     String appId = jobResult.getData(JobResult.JOB_ID_KEY);
                     JSONObject jobExtraInfo = jobResult.getExtraInfoJson();
-                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(appId, jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
+                    jobExtraInfo.put(JobResultConstant.JOB_GRAPH,JobGraphUtil.formatJSON(jobClient.getEngineTaskId(), jobExtraInfo.getString(JobResultConstant.JOB_GRAPH), jobClient.getComputeType()));
                     scheduleJobService.updateJobSubmitSuccess(jobClient.getJobId(), jobClient.getEngineTaskId(), appId);
                     scheduleJobExpandService.updateExtraInfoAndLog(jobClient.getJobId(),jobExtraInfo.toJSONString(),jobClient.getJobResult().getJsonStr(),null);
                     jobDealer.updateCache(jobClient, EJobCacheStage.SUBMITTED.getStage());
