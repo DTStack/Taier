@@ -15,7 +15,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.dao.mapper.TaskDirtyDataManageDao;
+import com.dtstack.taier.dao.mapper.TaskDirtyDataManageMapper;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
@@ -36,7 +36,7 @@ import java.util.Objects;
  * @Author: zhichen
  * @Date: 2022/06/14/2:52 PM
  */
-public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageDao, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
+public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
 
     private static final Logger logger = LoggerFactory.getLogger(TaskDirtyDataManageService.class);
 

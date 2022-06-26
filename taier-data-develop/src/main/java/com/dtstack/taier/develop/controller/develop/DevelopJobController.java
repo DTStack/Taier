@@ -22,7 +22,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.BatchJobMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchJobService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopJobService;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchJobStartSqlVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchJobStartSyncVO;
@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopJobController {
 
     @Autowired
-    private BatchJobService batchJobService;
+    private DevelopJobService batchJobService;
 
 
     @ApiOperation(value = "运行同步任务")
@@ -92,7 +92,7 @@ public class DevelopJobController {
         return new APITemplate<BatchExecuteResultVO>() {
             @Override
             protected BatchExecuteResultVO process() throws RdosDefineException {
-                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd());
+                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getIsEnd());
                 return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
             }
         }.execute();

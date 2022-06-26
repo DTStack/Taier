@@ -42,7 +42,7 @@ import com.dtstack.taier.develop.enums.develop.RDBMSSourceType;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TableLocationType;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.service.develop.impl.BatchTaskParamService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.Asserts;
 import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
@@ -158,7 +158,7 @@ public class DatasourceService {
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
-    private BatchTaskParamService batchTaskParamService;
+    private DevelopTaskParamService batchTaskParamService;
 
     @Autowired
     private ClusterService clusterService;

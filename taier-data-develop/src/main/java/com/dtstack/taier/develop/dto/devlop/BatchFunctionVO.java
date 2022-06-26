@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchFunction;
+import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +29,11 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2018/1/4
  */
-public class BatchFunctionVO extends BatchFunction {
+public class BatchFunctionVO extends DevelopFunction {
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchFunction.class);
+    private static final Logger logger = LoggerFactory.getLogger(DevelopFunction.class);
 
-    public static BatchFunctionVO toVO(BatchFunction origin) {
+    public static BatchFunctionVO toVO(DevelopFunction origin) {
         BatchFunctionVO vo = new BatchFunctionVO();
         try {
             BeanUtils.copyProperties(origin, vo);

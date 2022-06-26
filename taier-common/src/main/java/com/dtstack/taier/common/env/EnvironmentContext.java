@@ -235,9 +235,6 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${temp.path:#{systemProperties['user.dir']}/temp}")
     private String tempDir;
 
-    @Value("${explain.enable:true}")
-    private Boolean explainEnable;
-
     @Value("${datasource.plugin.path:}")
     private String dataSourcePluginPath;
 
@@ -538,10 +535,6 @@ public class EnvironmentContext implements InitializingBean {
 
     public String getTempDir() {
         return tempDir;
-    }
-
-    public Boolean getExplainEnable() {
-        return explainEnable;
     }
 
     public String getDataSourcePluginPath() {

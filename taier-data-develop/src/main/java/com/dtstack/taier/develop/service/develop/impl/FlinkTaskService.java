@@ -112,7 +112,7 @@ public class FlinkTaskService {
     private ClusterService clusterService;
 
     @Autowired
-    private BatchFunctionService batchFunctionService;
+    private DevelopFunctionService batchFunctionService;
 
     @Autowired
     private JobService jobService;

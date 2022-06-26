@@ -22,14 +22,14 @@ import com.dtstack.taier.common.annotation.FileUpload;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.BatchCatalogueMapstructTransfer;
-import com.dtstack.taier.develop.mapstruct.vo.BatchResourceMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchResourceService;
 import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchCatalogueResultVO;
+import com.dtstack.taier.develop.mapstruct.vo.BatchCatalogueMapstructTransfer;
+import com.dtstack.taier.develop.mapstruct.vo.BatchResourceMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopResourceService;
 import com.dtstack.taier.develop.vo.develop.query.BatchResourceAddVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchResourceBaseVO;
+import com.dtstack.taier.develop.vo.develop.result.BatchCatalogueResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,7 +46,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class DevelopResourceController {
 
     @Autowired
-    private BatchResourceService batchResourceService;
+    private DevelopResourceService batchResourceService;
 
     @ApiOperation(value = "添加资源")
     @PostMapping(value = "addResource")

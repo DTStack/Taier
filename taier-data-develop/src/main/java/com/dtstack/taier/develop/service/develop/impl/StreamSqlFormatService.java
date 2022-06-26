@@ -28,7 +28,7 @@ public class StreamSqlFormatService {
     private static final String ADD_FILE_RENAME_FORMAT = "ADD FILE WITH %s RENAME %s;";
 
     @Autowired
-    private BatchResourceService batchResourceService;
+    private DevelopResourceService batchResourceService;
 
     /**
      * 获取sql中包含的方法名称
