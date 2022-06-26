@@ -37,7 +37,7 @@ import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IComponentService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.service.develop.impl.BatchCatalogueService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeToEScheduleJobMapping;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
@@ -85,7 +85,7 @@ public class TenantService {
     private ComponentService componentService;
 
     @Autowired
-    private BatchCatalogueService batchCatalogueService;
+    private DevelopCatalogueService batchCatalogueService;
 
     @Autowired
     private DevelopTenantComponentService developTenantComponentService;

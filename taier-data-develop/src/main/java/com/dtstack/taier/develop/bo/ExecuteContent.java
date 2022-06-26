@@ -62,11 +62,6 @@ public class ExecuteContent {
     private Boolean isRootUser;
 
     /**
-     * 是否检查语法
-     */
-    private boolean checkSyntax;
-
-    /**
      * ?
      */
     private String preJobId;
@@ -153,11 +148,6 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setCheckSyntax(boolean checkSyntax) {
-        this.checkSyntax = checkSyntax;
-        return this;
-    }
-
     public ExecuteContent setPreJobId(String preJobId) {
         this.preJobId = preJobId;
         return this;
@@ -214,10 +204,6 @@ public class ExecuteContent {
 
     public Boolean getRootUser() {
         return isRootUser;
-    }
-
-    public boolean isCheckSyntax() {
-        return checkSyntax;
     }
 
     public String getPreJobId() {

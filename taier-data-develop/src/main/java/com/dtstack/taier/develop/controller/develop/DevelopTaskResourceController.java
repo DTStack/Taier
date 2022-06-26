@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchTaskResourceService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceGetResourcesVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchResourceResultVO;
 import io.swagger.annotations.Api;
@@ -40,7 +40,7 @@ import java.util.List;
 public class DevelopTaskResourceController {
 
     @Autowired
-    private BatchTaskResourceService resourceService;
+    private DevelopTaskResourceService resourceService;
 
     @PostMapping(value = "getResources")
     @ApiOperation("获得 资源-任务 列表")

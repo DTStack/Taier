@@ -42,9 +42,9 @@ public class StreamJobMetricService {
     private JobService jobService;
 
     @Autowired
-    private BatchTaskService taskService;
+    private DevelopTaskService taskService;
     @Autowired
-    private BatchServerLogService serverLogService;
+    private DevelopServerLogService serverLogService;
 
     @Autowired
     private StreamMetricSupportService streamMetricSupportService;

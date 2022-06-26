@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class JobParamReplace {
 
     @Autowired
-    private BatchSysParamService batchSysParamService;
+    private DevelopSysParamService batchSysParamService;
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
 

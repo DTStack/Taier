@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.BatchFunction;
+import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchFunctionAddVO;
@@ -33,12 +33,12 @@ public interface FunctionMapstructTransfer {
 
 
     /**
-     * BatchFunctionAddVO  ->  BatchFunction
+     * BatchFunctionAddVO  ->  DevelopFunction
      *
      * @param vo
      * @return
      */
-    BatchFunction newFunctionAddVoToFunctionVo(BatchFunctionAddVO vo);
+    DevelopFunction newFunctionAddVoToFunctionVo(BatchFunctionAddVO vo);
 
 
     /**

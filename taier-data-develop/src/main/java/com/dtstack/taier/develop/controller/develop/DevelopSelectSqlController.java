@@ -22,7 +22,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.BatchSqlMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchSelectSqlService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
 import com.dtstack.taier.develop.vo.develop.query.BatchSelectSqlVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchExecuteDataResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchExecuteRunLogResultVO;
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopSelectSqlController {
 
     @Autowired
-    private BatchSelectSqlService batchSelectSqlService;
+    private DevelopSelectSqlService batchSelectSqlService;
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")

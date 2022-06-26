@@ -160,8 +160,9 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     ONLY_EXECUTE_CREATE_TABLE_SQL(606, "","只允许执行 'create table ....' sql 格式"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
 
-    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
+    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置"),
 
+    TASK_NOT_CONFIG_DB(801, "task not config run db", "任务未配置运行时所在DB");
 
     private final int code;
     private final String enMsg;

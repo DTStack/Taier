@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.FunctionMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchFunctionService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchFunctionAddVO;
@@ -47,7 +47,7 @@ import java.util.List;
 public class DevelopFunctionController {
 
     @Autowired
-    private BatchFunctionService batchFunctionService;
+    private DevelopFunctionService batchFunctionService;
 
     @PostMapping(value = "getFunction")
     @ApiOperation(value = "获取函数")

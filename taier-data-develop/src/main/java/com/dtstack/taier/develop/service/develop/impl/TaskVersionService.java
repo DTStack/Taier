@@ -22,7 +22,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
-import com.dtstack.taier.dao.mapper.DevelopTaskVersionDao;
+import com.dtstack.taier.dao.mapper.DevelopTaskVersionMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ import java.util.List;
 public class TaskVersionService {
 
     @Autowired
-    private DevelopTaskVersionDao developTaskVersionDao;
+    private DevelopTaskVersionMapper developTaskVersionDao;
 
     /**
      * 根据taskId 查询记录

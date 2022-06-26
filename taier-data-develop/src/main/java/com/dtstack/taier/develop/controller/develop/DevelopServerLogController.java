@@ -22,7 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.BatchServerLogMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopServerLogService;
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchServerGetLogByAppIdVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchServerGetLogByAppTypeVO;
@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopServerLogController {
 
     @Autowired
-    private BatchServerLogService batchServerLogService;
+    private DevelopServerLogService batchServerLogService;
 
     @PostMapping(value = "getLogsByJobId")
     @ApiOperation("根据jobId获取日志")

@@ -45,12 +45,15 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
  */
 @Component
 public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
+
     public static Logger LOGGER = LoggerFactory.getLogger(DevelopAddOrUpdateSyncTask.class);
 
     @Autowired
     private DaReaderBuilderFactory daReaderBuilderFactory;
+
     @Autowired
     private DaWriterBuilderFactory daWriterBuilderFactory;
+
     @Autowired
     private NameMappingBuilderFactory nameMappingBuilderFactory;
 
@@ -59,7 +62,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
 
 
     @Override
-    public TaskResourceParam handleParam(TaskResourceParam taskResourceParam) {
+    public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
         // 校验任务信息,主资源不能为空
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (taskResourceParam.getUpdateSource()) {
@@ -278,7 +281,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
     }
 
     @Override
-    public void postProcessing(TaskResourceParam taskResourceParam) {
+    public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
         //脏数据管理
         if (BooleanUtils.isTrue(taskResourceParam.getOpenDirtyDataManage())) {
             taskDirtyDataManageService.addOrUpdateDirtyDataManage(taskResourceParam.getTaskDirtyDataManageVO(), taskResourceParam.getTenantId(), taskResourceParam.getId());

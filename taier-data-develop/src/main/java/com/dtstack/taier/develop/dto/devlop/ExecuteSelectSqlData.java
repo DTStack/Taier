@@ -21,7 +21,7 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.dtstack.taier.dao.domain.BatchSelectSql;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.develop.service.develop.IBatchSelectSqlService;
+import com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService;
 
 public class ExecuteSelectSqlData {
 
@@ -43,13 +43,13 @@ public class ExecuteSelectSqlData {
     /**
      * sql执行Service
      */
-    private IBatchSelectSqlService IBatchSelectSqlService;
+    private IDevelopSelectSqlService IDevelopSelectSqlService;
 
-    public ExecuteSelectSqlData(BatchSelectSql batchHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IBatchSelectSqlService IBatchSelectSqlService) {
+    public ExecuteSelectSqlData(BatchSelectSql batchHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
         this.batchHiveSelectSql = batchHiveSelectSql;
         this.task = task;
         this.taskType = taskType;
-        this.IBatchSelectSqlService = IBatchSelectSqlService;
+        this.IDevelopSelectSqlService = IDevelopSelectSqlService;
     }
 
     public BatchSelectSql getBatchHiveSelectSql() {
@@ -76,11 +76,11 @@ public class ExecuteSelectSqlData {
         this.taskType = taskType;
     }
 
-    public com.dtstack.taier.develop.service.develop.IBatchSelectSqlService getIBatchSelectSqlService() {
-        return IBatchSelectSqlService;
+    public com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService getIBatchSelectSqlService() {
+        return IDevelopSelectSqlService;
     }
 
-    public void setIBatchSelectSqlService(com.dtstack.taier.develop.service.develop.IBatchSelectSqlService IBatchSelectSqlService) {
-        this.IBatchSelectSqlService = IBatchSelectSqlService;
+    public void setIBatchSelectSqlService(com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
+        this.IDevelopSelectSqlService = IDevelopSelectSqlService;
     }
 }
