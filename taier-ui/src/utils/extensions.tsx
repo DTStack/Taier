@@ -34,7 +34,7 @@ import { executeService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
 import Result from '@/components/task/result';
 import { filterSql } from '.';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { transformTabDataToParams } from './saveTask';
 

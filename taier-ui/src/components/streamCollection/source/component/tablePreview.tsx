@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import stream from '@/api/stream';
+import stream from '@/api';
 import { Collapse, Input, Row, Spin, Table } from 'antd';
 import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
 import React from 'react';

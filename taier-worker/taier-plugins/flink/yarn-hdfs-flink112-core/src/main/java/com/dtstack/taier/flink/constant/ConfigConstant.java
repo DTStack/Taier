@@ -66,7 +66,7 @@ public class ConfigConstant {
     public static final String CHILD_FIRST_LOADER_PATTERNS_DEFAULT = "org.apache.flink.table.planner.plan.QueryOperationConverter;org.apache.flink.streaming.api.graph.StreamGraph;org.apache.flink.streaming.api.functions.async.RichAsyncFunction;org.apache.flink.runtime.execution.librarycache.FlinkUserCodeClassLoaders;org.apache.flink.table.planner.plan.nodes.common.CommonLookupJoin;org.apache.flink.table.planner.plan.nodes.common.CommonPhysicalTableSourceScan";
 
     // prefix name of class that should be loaded by DtClassloader
-    public static final String PARENT_FIRST_LOADER_PATTERNS_DEFAULT = "com.fasterxml.jackson.;com.dtstack.flinkx.util.FactoryHelper;org.codehaus.";
+    public static final String PARENT_FIRST_LOADER_PATTERNS_DEFAULT = "com.fasterxml.jackson.;com.dtstack.flinkx.util.FactoryHelper;org.codehaus.;com.dtstack.chunjun.util.FactoryHelper";
 
     public static final String KEY_PROMGATEWAY_JOBNAME = "metrics.reporter.promgateway.jobName";
 

@@ -37,7 +37,7 @@ import { range } from 'lodash';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import { DRAWER_MENU_ENUM, formItemLayout } from '@/constant';
-import Api from '@/api/operation';
+import Api from '@/api';
 import { DIRECT_TYPE_ENUM, ITaskProps } from '@/interface';
 import { taskTypeText } from '@/utils/enums';
 import type { ColumnsType } from 'antd/lib/table';

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import molecule from '@dtinsight/molecule';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import { message, Spin, Steps } from 'antd';
 import { checkExist, getTenantId } from '@/utils';
 import saveTask from '@/utils/saveTask';
@@ -327,7 +327,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 	const getDataSourceList = () => {
 		setLoading(true);
-		API.queryByTenantId({ tenantId: getTenantId() })
+		return API.queryByTenantId({ tenantId: getTenantId() })
 			.then((res) => {
 				if (res.code === 1) {
 					setDataSourceList(res.data || []);
@@ -339,9 +339,12 @@ function DataSync({ current }: molecule.model.IEditor) {
 	};
 
 	useEffect(() => {
-		getJobData();
-		getDataSourceList();
-	}, [current]);
+		// Should first to get the datasource list
+		// as there are lots of requests should get sourceType via sourceId and to check whether could request
+		getDataSourceList().then(() => {
+			getJobData();
+		});
+	}, [current?.activeTab]);
 
 	// 是否是增量模式
 	const isIncrementMode = useMemo(() => {

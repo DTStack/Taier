@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
+import stream from "@/api";
 import { fieldDelimiter, intervalTime, restfulDecode, restfulFields, restfulParam, strategy, writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { NEST_KEYS, RESTFUL_METHOD, RESTFUL_PROPTOCOL, RESTFUL_RESP_MODE, RESTFUL_STRATEGY } from "@/constant";
 import { Button, Card, Checkbox, Form, Input, InputNumber, message, Radio, Select, Table } from "antd";

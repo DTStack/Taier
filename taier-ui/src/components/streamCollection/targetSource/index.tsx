@@ -17,11 +17,11 @@
  */
 
 import api from "@/api";
-import stream from "@/api/stream";
-import { API } from '@/api/dataSource';
+import stream from "@/api";
 import { hiveWithAllTable } from "@/components/helpDoc/docs";
 import { DATA_SOURCE_ENUM, DATA_SOURCE_TEXT, formItemLayout, PARTITION_TYPE, SYNC_TYPE, WRITE_TABLE_TYPE } from "@/constant";
-import { getFlinkDisabledSource, isHive, isKafka, isMysqlTypeSource } from "@/utils/enums";
+import { getFlinkDisabledSource } from "@/utils/enums";
+import { isKafka, isMysqlTypeSource, isHive } from '@/utils/is';
 import molecule from "@dtinsight/molecule";
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import { Button, Form, FormInstance, Radio, Select } from "antd";
@@ -127,7 +127,7 @@ class CollectionTarget extends React.Component<any, any> {
     }
 
     getSchemaList = async (sourceId: any, schema?: string) => {
-        const res = await API.getAllSchemas({ sourceId, isSys: false, schema });
+        const res = await api.getAllSchemas({ sourceId, isSys: false, schema });
         if (res?.code === 1) {
             this.setState({
                 schemaList: res.data
@@ -135,10 +135,10 @@ class CollectionTarget extends React.Component<any, any> {
         }
     }
     getTableList = (sourceId: number, searchKey?: string) => {
-        API.getOfflineTableList({
+        api.getOfflineTableList({
             sourceId,
             isSys: false,
-			name: searchKey,
+            name: searchKey,
         }).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
@@ -226,7 +226,7 @@ class CollectionTarget extends React.Component<any, any> {
         if (!value) {
             streamTaskActions.updateTargetMap({ type: undefined, sourceId: value }, true);
             setTimeout(() => {
-                this.formRef.current?.setFieldsValue(this.props.collectionData?.targetMap)   
+                this.formRef.current?.setFieldsValue(this.props.collectionData?.targetMap)
             });
             return;
         }
@@ -237,7 +237,7 @@ class CollectionTarget extends React.Component<any, any> {
          */
         streamTaskActions.updateTargetMap({ ...initialFields, sourceId: value }, true);
         setTimeout(() => {
-            this.formRef.current?.setFieldsValue(initialFields)   
+            this.formRef.current?.setFieldsValue(initialFields)
         }, 0);
     }
 
@@ -263,10 +263,10 @@ class CollectionTarget extends React.Component<any, any> {
             case DATA_SOURCE_ENUM.KAFKA_10:
             case DATA_SOURCE_ENUM.KAFKA_11:
             case DATA_SOURCE_ENUM.KAFKA_HUAWEI: {
-                return <Kafka collectionData={collectionData}/>
+                return <Kafka collectionData={collectionData} />
             }
             case DATA_SOURCE_ENUM.HDFS: {
-                return <Hdfs collectionData={collectionData}/>
+                return <Hdfs collectionData={collectionData} />
             }
             case DATA_SOURCE_ENUM.HIVE: {
                 return <Hive collectionData={collectionData} />
@@ -340,11 +340,11 @@ class CollectionTarget extends React.Component<any, any> {
             this.onFormValuesChange();
         }
     }
-    mapPropsToFields () {
+    mapPropsToFields() {
         const { collectionData } = this.props;
         const targetMap = collectionData.targetMap;
         if (!targetMap) return {};
-        
+
         const initMaxFileSize = targetMap?.maxFileSize || targetMap.bufferSize;
         let values = {};
         Object.entries(targetMap).forEach(([key, value]) => {

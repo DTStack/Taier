@@ -64,7 +64,12 @@ import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author yuebai
@@ -454,7 +459,12 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
         if (CollectionUtils.isEmpty(components)) {
             return null;
         }
-        Optional<Component> componentOptional = components.stream().filter(c -> c.getVersionValue().equals(componentVersion)).findFirst();
+        Optional<Component> componentOptional;
+        if (StringUtils.isBlank(componentVersion)) {
+            componentOptional = components.stream().filter(Component::getIsDefault).findFirst();
+        } else {
+            componentOptional = components.stream().filter(c -> c.getVersionValue().equals(componentVersion)).findFirst();
+        }
         if (!componentOptional.isPresent()) {
             return null;
         }

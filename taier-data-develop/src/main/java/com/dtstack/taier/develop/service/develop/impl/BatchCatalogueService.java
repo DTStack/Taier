@@ -410,14 +410,13 @@ public class BatchCatalogueService {
      * 删除目录
      */
     public void deleteCatalogue(BatchCatalogue catalogueInput) {
-
         BatchCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
+        if (Objects.isNull(catalogue) || catalogue.getIsDeleted() == 1) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+        }
 
         catalogueOneNotUpdate(catalogue);
 
-        if (catalogue == null || catalogue.getIsDeleted() == 1) {
-            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
-        }
 
         //判断文件夹下任务
         List<Task> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());

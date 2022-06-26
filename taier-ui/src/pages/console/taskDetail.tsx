@@ -29,10 +29,8 @@ import { JOB_STAGE_ENUM } from '@/constant';
 import type { ColumnsType } from 'antd/lib/table';
 import { SyncOutlined, CopyOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ViewDetail from '../../components/viewDetail';
-import Api from '../../api/console';
+import Api from '../../api';
 import { taskStatusText } from '@/utils/enums';
-
-const PAGE_SIZE = 15;
 
 const JOB_STAGE_OPTIONS = [
 	{
@@ -92,14 +90,16 @@ export default () => {
 		values: IFormFieldProps,
 		{
 			current,
+			pageSize,
 		}: {
 			current: number;
+			pageSize: number;
 		},
 	) => {
 		const { node, jobResource } = history.location.query || {};
 		return Api.getViewDetail({
 			nodeAddress: node as string,
-			pageSize: PAGE_SIZE,
+			pageSize,
 			currentPage: current,
 			stage: values.radioValue,
 			jobResource: jobResource as string,
@@ -365,7 +365,6 @@ export default () => {
 				}
 				tableProps={{
 					rowKey: 'jobId',
-					scroll: { x: 1800 },
 				}}
 				tableFooter={
 					<Dropdown.Button

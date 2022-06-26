@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 import { useEffect, useMemo, useState } from 'react';
-import Api from '../../../api/console';
+import Api from '../../../api';
 import { findKey } from 'lodash';
 import type {
 	ICapacityProps,

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
+import stream from "@/api";
 import { writeDataSequence, writePartitionKey } from "@/components/helpDoc/docs";
 import { DATA_SOURCE_ENUM, SYNC_TYPE } from "@/constant";
 import { Form, Radio, RadioChangeEvent, Select } from "antd"

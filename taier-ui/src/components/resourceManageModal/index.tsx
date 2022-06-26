@@ -18,10 +18,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { Modal, Select, message, Form } from 'antd';
-import Api from '../../api/console';
 import { formItemLayout } from '@/constant';
 import type { IClusterProps } from '../bindCommModal';
-import api from '@/api/console';
+import api from '@/api';
 import './index.scss';
 
 const { Option } = Select;
@@ -66,7 +65,7 @@ export default ({
 	const getServiceParam = () => {
 		form.validateFields().then((values) => {
 			setLoading(true);
-			Api.switchQueue({
+			api.switchQueue({
 				queueName: queueList.find((q) => q.queueId === values.queueId)!.queueName,
 				tenantId,
 				clusterId,
