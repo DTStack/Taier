@@ -41,7 +41,6 @@ import type { IWorkbench } from '@dtinsight/molecule/esm/model';
 import { Display, Pane, SplitPane } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
-import { useState } from 'react';
 import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
 
 const mainBenchClassName = prefixClaName('mainBench');
@@ -69,11 +68,6 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		splitPanePos,
 		horizontalSplitPanePos,
 	} = props;
-	const [rightBarSize, setRightBarSize] = useState(30);
-
-	const handleClickTab = (key?: string) => {
-		setRightBarSize(key ? 480 : 30);
-	};
 
 	const handleSideBarChanged = (sizes: number[]) => {
 		if (sidebar.hidden) {
@@ -170,7 +164,7 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 							<PanelView />
 						</SplitPane>
 					</SplitPane>
-					<RightBar width={rightBarSize} onTabClick={handleClickTab} />
+					<RightBar />
 				</div>
 			</div>
 			<Display visible={!statusBar.hidden}>

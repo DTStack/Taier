@@ -16,12 +16,11 @@
  * limitations under the License.
  */
 
-import api from "@/api";
-import stream from "@/api/stream";
+import stream from "@/api";
 import { dirtySource, jobSpeedLimit, recordDirtyStream, writerChannel } from "@/components/helpDoc/docs";
 import { DATA_SOURCE_ENUM, FLINK_VERSIONS, formItemLayout } from "@/constant";
 import { IDataSourceUsedInSyncProps } from "@/interface";
-import { isKafka } from "@/utils/enums";
+import { isKafka } from "@/utils/is";
 import molecule from "@dtinsight/molecule";
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import { AutoComplete, Button, Checkbox, Form, FormInstance, FormProps, Input, Select } from "antd";

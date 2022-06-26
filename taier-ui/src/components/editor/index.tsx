@@ -55,6 +55,7 @@ export default function Editor({
 }: IEditorProps) {
 	const container = useRef<HTMLDivElement>(null);
 	const monacoEditor = useRef<monaco.editor.IStandaloneCodeEditor>();
+	const placeholderDOM = useRef<HTMLPreElement>(null);
 
 	const initMonaco = () => {
 		if (container.current) {
@@ -188,9 +189,9 @@ export default function Editor({
 
 	const handleShowPlaceholder = (val?: string) => {
 		if (!val) {
-			document.querySelector<HTMLDivElement>('.dt-placeholder')!.style.display = 'initial';
+			placeholderDOM.current!.style.display = 'initial';
 		} else {
-			document.querySelector<HTMLDivElement>('.dt-placeholder')!.style.display = 'none';
+			placeholderDOM.current!.style.display = 'none';
 		}
 	};
 
@@ -253,7 +254,11 @@ export default function Editor({
 			}}
 			ref={container}
 		>
-			<pre className="dt-placeholder" style={{ fontSize: options?.fontSize || 12 }}>
+			<pre
+				ref={placeholderDOM}
+				className="dt-placeholder"
+				style={{ fontSize: options?.fontSize || 12 }}
+			>
 				{placeholder}
 			</pre>
 		</div>

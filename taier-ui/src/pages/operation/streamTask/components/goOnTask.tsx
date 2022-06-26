@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import moment from 'moment';
 import { Modal, Radio, Select, Alert, Input, Form, Space, Table, Tooltip, message } from 'antd';
 import { CHECK_TYPE_VALUE, formItemLayout } from '@/constant';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { SearchOutlined } from '@ant-design/icons';
 import { IStreamJobProps } from '@/interface';
 

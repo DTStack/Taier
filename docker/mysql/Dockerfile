@@ -9,8 +9,7 @@ ENV AUTO_RUN_DIR /docker-entrypoint-initdb.d
 
 #### 执行sql ####
 # 定义要执行的sql文件名
-ENV CREATE_SQL_FILE sql/create.sql
-ENV INSERT_SQL_FILE sql/insert.sql
+ENV CREATE_SQL_FILE sql/init.sql
 
 # 配置mysql
 ENV MYSQL_DATABASE=taier

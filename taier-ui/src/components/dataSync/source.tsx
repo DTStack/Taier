@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { FormInstance } from 'antd';
-import { API } from '@/api/dataSource';
 import api from '@/api';
 import {
 	BINARY_ROW_KEY_FLAG,
@@ -10,7 +9,8 @@ import {
 	SUPPROT_SUB_LIBRARY_DB_ARRAY,
 } from '@/constant';
 import type { IDataSourceUsedInSyncProps } from '@/interface';
-import { filterValueOption, formJsonValidator, isRDB } from '@/utils';
+import { formJsonValidator } from '@/utils';
+import { isRDB } from '@/utils/is';
 import {
 	Form,
 	Select,
@@ -144,7 +144,7 @@ export default function Source({
 		setTableListLoading(true);
 		setFetching(true);
 		if (!sourceId) return;
-		API.getOfflineTableList({
+		api.getOfflineTableList({
 			sourceId,
 			schema,
 			isSys: false,
@@ -169,7 +169,7 @@ export default function Source({
 	const getCopate = (specificParams?: ISourceFormField) => {
 		const { table, sourceId, schema } = specificParams || form.getFieldsValue();
 		const tableName = Array.isArray(table) ? table[0] : table;
-		API.getOfflineColumnForSyncopate({
+		api.getOfflineColumnForSyncopate({
 			sourceId,
 			tableName,
 			schema,
@@ -235,7 +235,7 @@ export default function Source({
 			 */
 			setLoading(false);
 			return;
-			API.getOfflineTableColumn({
+			api.getOfflineTableColumn({
 				sourceId,
 				schema: querySchema,
 				tableName,
@@ -253,8 +253,7 @@ export default function Source({
 	};
 
 	// 获取 hive 分区
-	const getHivePartions = () => {
-		const { sourceId, table } = form.getFieldsValue();
+	const getHivePartions = ({ sourceId, table } = form.getFieldsValue()) => {
 		const target = dataSourceList.find((l) => l.dataInfoId === sourceId);
 		if (!target || !table) return;
 		const sourceType = target.dataTypeCode;
@@ -266,9 +265,7 @@ export default function Source({
 			DATA_SOURCE_ENUM.HIVE1X,
 		];
 		if (ALLOW_REQUEST_HIVE.includes(sourceType)) {
-			// Reset partition
-			form.setFieldsValue({ partition: undefined });
-			API.getHivePartitions({
+			api.getHivePartitionsForDataSource({
 				sourceId,
 				tableName: table,
 			}).then((res) => {
@@ -300,7 +297,7 @@ export default function Source({
 	// 获取 schema
 	const getSchemaList = (schema?: string) => {
 		const { sourceId } = form.getFieldsValue();
-		API.getAllSchemas({
+		api.getAllSchemas({
 			sourceId,
 			schema,
 		}).then((res) => {
@@ -324,6 +321,8 @@ export default function Source({
 
 			// 加载表字段
 			getTableColumn();
+			// 重置分区字段
+			form.setFieldsValue({ partition: undefined });
 			// 加载分区字段
 			getHivePartions();
 			// 加载增量模式字段
@@ -421,7 +420,7 @@ export default function Source({
 
 		if (!showPreview) {
 			setPreviewLoading(true);
-			API.getDataPreview({
+			api.getDataSourcePreview({
 				sourceId,
 				tableName,
 				schema,
@@ -500,16 +499,18 @@ export default function Source({
 		const { getFieldValue } = form;
 		const sourceId = getFieldValue('sourceId');
 		if (getFieldValue('fileType') === 'orc') {
-			return API.getOfflineTableColumn({
-				sourceId,
-				tableName: value,
-			}).then((res) => {
-				if (res.code === 1) {
-					// handleTableColumnChange(res.data);
-					return Promise.resolve();
-				}
-				return Promise.reject(new Error('该路径无效！'));
-			});
+			return api
+				.getOfflineTableColumn({
+					sourceId,
+					tableName: value,
+				})
+				.then((res) => {
+					if (res.code === 1) {
+						// handleTableColumnChange(res.data);
+						return Promise.resolve();
+					}
+					return Promise.reject(new Error('该路径无效！'));
+				});
 		}
 
 		return Promise.resolve();
@@ -655,7 +656,14 @@ export default function Source({
 								showSearch
 								showArrow
 								notFoundContent={fetching ? <Spin size="small" /> : null}
-								filterOption={false}
+								optionFilterProp="value"
+								filterOption={(input: any, option: any) => {
+									return (
+										option.children
+											.toLowerCase()
+											.indexOf(input.toLowerCase()) >= 0
+									);
+								}}
 							>
 								{(tableList[f.getFieldValue('sourceId')] || []).map((table) => {
 									return (
@@ -1021,7 +1029,13 @@ export default function Source({
 								showSearch
 								showArrow
 								placeholder="请填写分区信息"
-								filterOption={filterValueOption}
+								filterOption={(input: any, option: any) => {
+									return (
+										option.props.value
+											.toLowerCase()
+											.indexOf(input.toLowerCase()) >= 0
+									);
+								}}
 							>
 								{tablePartitionList.map((pt) => {
 									return (
@@ -1141,6 +1155,13 @@ export default function Source({
 					sourceId: sourceMap.sourceId,
 					table: sourceMap.table as string,
 					schema: sourceMap.schema,
+				});
+			}
+
+			if (sourceMap.table) {
+				getHivePartions({
+					sourceId: sourceMap.sourceId,
+					table: sourceMap.table,
 				});
 			}
 		}

@@ -27,7 +27,7 @@ import LogInfo from './taskLog';
 import MxFactory from '@/components/mxGraph';
 import { taskStatusText } from '@/utils/enums';
 
-import Api from '@/api/operation';
+import Api from '@/api';
 import JobGraphView, { mergeTreeNodes } from './jobGraphView';
 import {
 	TASK_TYPE_ENUM,

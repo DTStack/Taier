@@ -23,7 +23,7 @@ import { SyncOutlined } from '@ant-design/icons';
 import type { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/interface';
 import SlidePane from '@/components/slidePane';
 import context from '@/context';
-import Api from '@/api/operation';
+import Api from '@/api';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import {
 	TASK_STATUS_FILTERS,
@@ -468,6 +468,7 @@ export default () => {
 			if (res.code === 1) {
 				actionRef.current?.setSelectedKeys([]);
 				return {
+					polling: true,
 					total: res.data.totalCount,
 					data: res.data.data.fillDataJobVOLists || [],
 				};
@@ -550,7 +551,6 @@ export default () => {
 						</Button>
 					</Tooltip>
 				}
-				polling
 				headerTitle={renderStatus(statusList)}
 				headerTitleClassName="ope-statistics"
 				columns={columns}

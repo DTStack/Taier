@@ -21,14 +21,12 @@ import { history } from 'umi';
 import { Button, message, Space, Divider, Modal } from 'antd';
 import moment from 'moment';
 import AddEngineModal from '@/components/addEngineModal';
-import Api from '@/api/console';
+import Api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { ColumnsType } from 'antd/lib/table';
 import { DRAWER_MENU_ENUM } from '@/constant';
 import './index.scss';
-
-const PAGE_SIZE = 20;
 
 interface IClusterProps {
 	id: string;
@@ -43,10 +41,13 @@ export default function ClusterManage() {
 	const actionRef = useRef<IActionRef>(null);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const getResourceList = (_: any, { current }: { current: number }) => {
+	const getResourceList = (
+		_: any,
+		{ current, pageSize }: { current: number; pageSize: number },
+	) => {
 		return Api.getClusterList({
 			currentPage: current,
-			pageSize: PAGE_SIZE,
+			pageSize,
 		}).then((res) => {
 			if (res.code === 1) {
 				return {

@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.develop.service.develop.impl.BatchDownloadService;
-import com.dtstack.taier.develop.service.develop.impl.FlinkDownloadLogService;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.vo.develop.query.BatchDownloadJobLogVO;
 import io.swagger.annotations.Api;
@@ -25,9 +24,6 @@ public class DevelopDownloadController {
 
     @Autowired
     private BatchDownloadService batchDownloadService;
-
-    @Autowired
-    private FlinkDownloadLogService flinkDownloadLogService;
 
     @GetMapping(value = "downloadJobLog")
     @ApiOperation("下载job日志")

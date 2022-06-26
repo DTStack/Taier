@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-import stream from "@/api/stream";
-import { API } from '@/api/dataSource';
+import stream from "@/api";
 import { writeDataSequence, writeDocForADB } from "@/components/helpDoc/docs";
 import { Form, Input, Radio, Select, Table } from "antd";
 import React, { useEffect, useState } from "react";
@@ -36,7 +35,7 @@ export default (props: { collectionData: any; }) => {
 
     const getSchemaList = async (sourceId: any, schema?: string) => {
         setSchemaList([]);
-        const res = await API.getAllSchemas({ sourceId, isSys: false, schema });
+        const res = await stream.getAllSchemas({ sourceId, isSys: false, schema });
         if (res?.code === 1) {
             setSchemaList(res.data || [])
         }
