@@ -36,6 +36,7 @@ import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
 import api from '@/api';
+import resourceManagerTree from '@/services/resourceManagerService';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -57,6 +58,9 @@ export interface IFormFieldProps {
 	syncModel?: DATA_SYNC_MODE;
 	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
 	sqlText?: string;
+	resourceIdList?: string;
+	mainClass?: string;
+	exeArgs?: string;
 	componentVersion: string;
 }
 
@@ -69,20 +73,18 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 	const getCurrentTaskInfo = () => {
 		if (current?.tab?.data.id) {
 			const { data } = current.tab;
-			setPageLoading(true);
-			api.getOfflineTaskByID({ id: data.id })
-				.then((res) => {
-					if (res.code === 1) {
-						form.setFieldsValue({
-							taskDesc: res.data.taskDesc,
-						});
 
-						// 数据同步任务和实时采集任务才有额外的配置需要设置
-						const EXTRA_INFO_TASK = [
-							TASK_TYPE_ENUM.SYNC,
-							TASK_TYPE_ENUM.DATA_ACQUISITION,
-						];
-						if (EXTRA_INFO_TASK.includes(data.taskType)) {
+			// 数据同步任务和实时采集任务才有额外的配置需要设置
+			const EXTRA_INFO_TASK = [TASK_TYPE_ENUM.SYNC, TASK_TYPE_ENUM.DATA_ACQUISITION];
+			if (EXTRA_INFO_TASK.includes(data.taskType)) {
+				setPageLoading(true);
+				api.getOfflineTaskByID({ id: data.id })
+					.then((res) => {
+						if (res.code === 1) {
+							form.setFieldsValue({
+								taskDesc: res.data.taskDesc,
+							});
+
 							// 如果发现 syncModel 字段放到旧版本字段的位置上了，则给一个提示
 							const isTruncate =
 								res.data.sourceMap?.syncModel === undefined &&
@@ -102,11 +104,11 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 								sqlText: res.data.sqlText,
 							});
 						}
-					}
-				})
-				.finally(() => {
-					setPageLoading(false);
-				});
+					})
+					.finally(() => {
+						setPageLoading(false);
+					});
+			}
 		}
 	};
 
@@ -152,6 +154,30 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 
 			return Promise.reject(new Error('当前同步任务不支持增量模式！'));
 		}
+		return Promise.resolve();
+	};
+
+	const checkNotDir = (_: any, value: number) => {
+		const resouceTreeData = resourceManagerTree.getState().folderTree?.data?.[0]?.data;
+		if (!resouceTreeData) return Promise.resolve();
+		let nodeType: any;
+
+		const loop = (arr: any) => {
+			arr.forEach((node: any) => {
+				if (node.id === value) {
+					nodeType = node.type;
+				} else {
+					loop(node.children || []);
+				}
+			});
+		};
+
+		loop([resouceTreeData]);
+
+		if (nodeType === 'folder') {
+			return Promise.reject(new Error('请选择具体文件, 而非文件夹'));
+		}
+
 		return Promise.resolve();
 	};
 
@@ -213,6 +239,51 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 					</FormItem>
 				);
 			}
+			case TASK_TYPE_ENUM.FLINK: {
+				return (
+					<>
+						<FormItem
+							label="资源"
+							name="resourceIdList"
+							rules={[
+								{
+									required: true,
+									message: '请选择关联资源',
+								},
+								{
+									validator: checkNotDir,
+								},
+							]}
+						>
+							<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+						</FormItem>
+						<FormItem
+							label="mainClass"
+							name="mainClass"
+							rules={[
+								{
+									required: true,
+									message: '请选择 mainClass',
+								},
+							]}
+						>
+							<Input placeholder="请输入 mainClass" />
+						</FormItem>
+						<FormItem label="命令行参数" name="exeArgs">
+							<Input placeholder="请输入命令行参数" />
+						</FormItem>
+						<FormItem label="引擎版本" name="componentVersion">
+							<Select onChange={confirmFlink}>
+								{FLINK_VERSION_TYPE.map(({ value, label }) => (
+									<Option key={value} value={value}>
+										{label}
+									</Option>
+								))}
+							</Select>
+						</FormItem>
+					</>
+				);
+			}
 			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				return (
 					<React.Fragment>
@@ -263,6 +334,10 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: OpenProp
 				nodePid: data.nodePid?.toString().split('-')[0],
 				taskDesc: data.taskDesc,
 				componentVersion: data.componentVersion || FLINK_VERSIONS.FLINK_1_12,
+				// 以下为 flink 属性
+				mainClass: data.mainClass,
+				exeArgs: data.exeArgs,
+				resourceIdList: data.resourceIdList,
 			};
 		}
 		return undefined;
