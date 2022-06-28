@@ -22,9 +22,9 @@ sidebar_label: Flink
 | 参数项                    | 默认值                                   | 说明                                                  | 是否必填 |
 | ------------------------- | ---------------------------------------- | ----------------------------------------------------- | -------- |
 | clusterMode               | perjob、session                          | 任务执行模式：perjob, session                         | 是       |
-| flinkJarPath              | /data/insight_plugin/flink110_lib        | flink lib path                                        | 是       |
-| remoteFlinkJarPath        | /data/insight_plugin/flink110_lib        | flink lib远程路径                                     | 是       |
-| flinkPluginRoot           | /data/insight_plugin                     | flinkx plugins父级本地目录            | 是       |
+| flinkJarPath              | /data/insight_plugin/flink110_lib        | flink lib path(taier本地目录）                                   | 是       |
+| remoteFlinkJarPath        | /data/insight_plugin/flink110_lib        | flink lib 远程路径                                     | 是       |
+| flinkPluginRoot           | /data/insight_plugin                     | flinkx plugins父级本地目录(taier本地目录）           | 是       |
 | remotePluginRootDir       | /data/insight_plugin                     | flinkx plugins父级远程目录            | 是       |
 | pluginLoadMode            | shipfile                                 | 插件加载类型                                          | 否       |
 | monitorAcceptedApp        | false                                    | 是否监控yarn accepted状态任务                         | 否       |
@@ -81,7 +81,7 @@ Flink在自定义参数中添加Flink官方参数来调整任务提交参数信�
 
 ### 文件结构
 :::tip
-FlinkJarPath为Flink jar
+FlinkJarPath为Flink jar 需要配置`taier部署机器`上的centos路径
 :::
 
 如 flinkJarPath 配置为/opt/dtstack/flink110_lib  
@@ -97,7 +97,7 @@ FlinkJarPath为Flink jar
 ```
 
 :::tip 
-FlinkPluginRoot配置的是chunjun的插件包目录
+FlinkPluginRoot配置的是chunjun的插件包目录 需要配置`taier部署机器`上的centos路径
 :::   
 
 如 flinkPluginRoot 配置为 /data/insight_plugin1.12/chunjun-dist   
