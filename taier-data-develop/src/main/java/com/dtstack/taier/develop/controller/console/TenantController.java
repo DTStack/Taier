@@ -19,7 +19,6 @@
 package com.dtstack.taier.develop.controller.console;
 
 import com.dtstack.taier.common.constant.Cookies;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
@@ -30,18 +29,21 @@ import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
-import com.dtstack.taier.develop.vo.console.ComponentBindDBVO;
 import com.dtstack.taier.develop.vo.console.ComponentBindTenantVO;
 import com.dtstack.taier.develop.vo.console.TenantVO;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import io.swagger.annotations.Api;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/tenant")
@@ -74,21 +76,13 @@ public class TenantController {
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
-        if (CollectionUtils.isNotEmpty(vo.getBindDBList())){
-            for (ComponentBindDBVO bindDBVO : vo.getBindDBList()) {
-                if (Objects.isNull(bindDBVO.getComponentCode())) {
-                    throw new RdosDefineException(String.format(ErrorCode.META_COMPONENT_NOT_EXISTS.getMsg(), EComponentType.SPARK_THRIFT.getName()));
-                }
-            }
-        }
-        tenantService.bindingTenant(vo.getTenantId(), vo.getClusterId(), vo.getQueueId(), cluster.getClusterName(), vo.getBindDBList());
+        tenantService.bindingTenant(vo.getTenantId(), vo.getClusterId(), vo.getQueueName());
         return R.empty();
     }
 
     @PostMapping(value = "/bindingQueue")
-    public R<Void> bindingQueue(@RequestParam("queueName") String queueName,@RequestParam("clusterId") Long clusterId,
-                             @RequestParam("tenantId") Long tenantId) {
-        tenantService.bindingQueue(queueName, clusterId,tenantId);
+    public R<Void> bindingQueue(@RequestParam("queueName") String queueName, @RequestParam("clusterId") Long clusterId, @RequestParam("tenantId") Long tenantId) {
+        tenantService.updateTenantQueue(tenantId, clusterId, queueName);
         return R.empty();
     }
 
@@ -99,19 +93,20 @@ public class TenantController {
     }
 
     @PostMapping(value = "/addTenant")
-    public R<Void> addTenant(@RequestParam("tenantName") String tenantName,@RequestParam("tenantIdentity") String tenantIdentity, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
-        if(StringUtils.isBlank(tenantName)){
+    public R<Void> addTenant(@RequestParam("tenantName") String tenantName, @RequestParam("tenantIdentity") String tenantIdentity, @CookieValue(Cookies.USER_ID) Long userId) throws Exception {
+        if (StringUtils.isBlank(tenantName)) {
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
-        if(StringUtils.isBlank(tenantIdentity)){
+        if (StringUtils.isBlank(tenantIdentity)) {
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
-        if (!RegexUtils.tenantName(tenantIdentity)) throw new RdosDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
+        if (!RegexUtils.tenantName(tenantIdentity))
+            throw new RdosDefineException(ErrorCode.TENANT_NAME_VERIFICATION_ERROR);
         Tenant tenant = tenantService.findByName(tenantName.trim());
-        if(null != tenant){
+        if (null != tenant) {
             throw new RdosDefineException("tenant has exist");
         }
-        tenantService.addTenant(tenantName,userId,tenantIdentity);
+        tenantService.addTenant(tenantName, userId, tenantIdentity);
         return R.empty();
     }
 

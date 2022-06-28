@@ -93,8 +93,7 @@ public class ComponentModelVO {
         this.dependOn = dependOn;
     }
 
-    public void setUploadConfigType(Integer integer) {
-
-
+    public void setUploadConfigType(Integer uploadConfigType) {
+        this.uploadConfigType = uploadConfigType;
     }
 }

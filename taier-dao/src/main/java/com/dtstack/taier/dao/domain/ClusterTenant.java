@@ -7,7 +7,7 @@ public class ClusterTenant extends BaseEntity {
 
     private Long tenantId;
 
-    private Long queueId;
+    private String queueName;
 
     private Long clusterId;
 
@@ -37,12 +37,12 @@ public class ClusterTenant extends BaseEntity {
         this.tenantId = tenantId;
     }
 
-    public Long getQueueId() {
-        return queueId;
+    public String getQueueName() {
+        return queueName;
     }
 
-    public void setQueueId(Long queueId) {
-        this.queueId = queueId;
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }
 

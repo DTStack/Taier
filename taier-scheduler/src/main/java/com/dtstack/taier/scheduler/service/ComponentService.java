@@ -41,7 +41,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MERGE_KRB5_CONTENT_KEY;
 
@@ -219,10 +225,6 @@ public class ComponentService {
         return components;
     }
 
-    public Component getMetadataComponent(Long clusterId){
-        return componentMapper.getMetadataComponent(clusterId);
-    }
-
     public List<Component> listComponentsByComponentType(Long tenantId, Integer componentType) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentMapper.listByClusterId(clusterId,componentType,false);
@@ -249,11 +251,6 @@ public class ComponentService {
             throw new RdosDefineException("Cluster does not exist");
         }
         return "confPath" + File.separator + one.getClusterName();
-    }
-
-    public Integer getMetaComponentByClusterId(Long clusterId) {
-        com.dtstack.taier.dao.domain.Component metadataComponent = getMetadataComponent(clusterId);
-        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
     }
 
     public String buildHdfsTypeName(Long tenantId,Long clusterId) {
