@@ -23,7 +23,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
 import './taskInfo.scss';
 
-export function TaskInfo(props: { task: IUpstreamJobProps }) {
+export function TaskInfo(props: { task: IUpstreamJobProps | null }) {
 	const { task } = props;
 	return (
 		<div className="ant-table bd task-detail">
@@ -31,11 +31,11 @@ export function TaskInfo(props: { task: IUpstreamJobProps }) {
 				<tbody className="ant-table-tbody">
 					<tr>
 						<td>任务名称：</td>
-						<td>{task.taskName || '-'}</td>
+						<td>{task?.taskName || '-'}</td>
 						<td>实例ID：</td>
 						<td>
-							{task.jobId || '-'}
-							{task.jobId && (
+							{task?.jobId || '-'}
+							{task?.jobId && (
 								<CopyToClipboard
 									text={task.jobId}
 									onCopy={() => message.success('复制成功')}
@@ -49,19 +49,19 @@ export function TaskInfo(props: { task: IUpstreamJobProps }) {
 					</tr>
 					<tr>
 						<td>任务类型：</td>
-						<td>{taskTypeText(task.taskType)}</td>
+						<td>{taskTypeText(task?.taskType)}</td>
 						<td>状态：</td>
 						<td>
-							<TaskStatus value={task.status} />
+							<TaskStatus value={task?.status} />
 						</td>
 					</tr>
 					<tr>
 						<td>调度周期：</td>
 						<td>
-							<TaskTimeType value={task.taskPeriodId} />
+							<TaskTimeType value={task?.taskPeriodId} />
 						</td>
 						<td>计划时间：</td>
-						<td>{task.cycTime}</td>
+						<td>{task?.cycTime}</td>
 					</tr>
 				</tbody>
 			</table>

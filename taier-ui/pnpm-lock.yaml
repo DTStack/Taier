@@ -7,6 +7,7 @@ specifiers:
   '@handsontable/react': ^11.1.0
   '@testing-library/jest-dom': ^5.16.4
   '@testing-library/react': '12'
+  '@typed-mxgraph/typed-mxgraph': ^1.0.6
   '@types/base-64': ^1.0.0
   '@types/d3-selection': 1.1.0
   '@types/echarts': ^4.9.12
@@ -89,6 +90,7 @@ dependencies:
 devDependencies:
   '@testing-library/jest-dom': 5.16.4
   '@testing-library/react': 12.1.5_react-dom@17.0.2+react@17.0.2
+  '@typed-mxgraph/typed-mxgraph': 1.0.6
   '@types/base-64': 1.0.0
   '@types/d3-selection': 1.1.0
   '@types/echarts': 4.9.14
@@ -2215,6 +2217,10 @@ packages:
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
     engines: {node: '>= 6'}
+    dev: true
+
+  /@typed-mxgraph/typed-mxgraph/1.0.6:
+    resolution: {integrity: sha512-5Ed6+AIiJrD1ucXQ4D5plEcIQGWrSXh9E+fb1MrwkieZIqgISs0GsZzgKM+WB3VionTfxCY4Y8YT3uh39n0YmA==}
     dev: true
 
   /@types/antlr4/4.7.0:
