@@ -28,7 +28,7 @@ import {
 	isRedis,
 	isHbase,
 } from './is';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { rightBarService } from '@/services';
 
 interface IParamsProps extends IOfflineTaskProps {

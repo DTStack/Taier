@@ -19,7 +19,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { cloneDeep } from 'lodash';
 import { history } from 'umi';
-import Api from '@/api/operation';
+import Api from '@/api';
 import type { IMxCell, IMxGraph } from './taskGraphView';
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView';
 import MxFactory from '@/components/mxGraph';

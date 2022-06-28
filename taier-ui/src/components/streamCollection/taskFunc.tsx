@@ -148,14 +148,6 @@ export const streamTaskActions = {
 			};
 		});
 	},
-	getDataSource() {
-		api.getOfflineDataSource({ pageSize: 500, currentPage: 1, name: '', groupTags: [] }).then(
-			(res: any) => {
-				const data = res?.data?.data || [];
-				this.setCurrentPageValue('dataSourceList', data);
-			},
-		);
-	},
 	initCurrentPage() {
 		const page = cloneDeep(this.getCurrentPage());
 		this.setCurrentPage({ ...page, ...this.initState });

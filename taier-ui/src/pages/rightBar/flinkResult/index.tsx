@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import molecule from '@dtinsight/molecule';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { DATA_SOURCE_ENUM, formItemLayout, KAFKA_DATA_TYPE } from '@/constant';
-import stream from '@/api/stream';
+import stream from '@/api';
 import {
 	isHaveCollection,
 	isHavePartition,

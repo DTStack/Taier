@@ -20,7 +20,7 @@ import * as React from 'react';
 import { message, Modal } from 'antd';
 import Editor from '@/components/editor';
 import { debounce } from 'lodash';
-import Api from '@/api/console';
+import Api from '@/api';
 import './index.scss';
 
 const editorStyle: any = { height: '100%' };

@@ -26,7 +26,6 @@ import api from '@/api';
 import notification from '@/components/notification';
 import molecule, { MoleculeProvider } from '@dtinsight/molecule';
 import Workbench from './workbench';
-import API from '@/api/operation';
 import Task from '@/pages/operation/task';
 import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';
@@ -108,7 +107,7 @@ export default function HomePage() {
 	};
 
 	useEffect(() => {
-		API.getPersonInCharge().then((res) => {
+		api.getPersonInCharge().then((res) => {
 			if (res.code === 1) {
 				setPersonList(res.data ?? []);
 			}

@@ -14,7 +14,6 @@ import ConstModal from './modals/constModal';
 import KeyModal from './modals/keyModal';
 import BatchModal from './modals/batchModal';
 import { Utils } from '@dtinsight/dt-utils/lib';
-import { API } from '@/api/dataSource';
 import './keymap.scss';
 
 export const OPERATOR_TYPE = {
@@ -1379,13 +1378,13 @@ export default function KeyMap({
 
 		setLoading(true);
 		Promise.all([
-			API.getOfflineTableColumn({
+			Api.getOfflineTableColumn({
 				sourceId: sourceMap.sourceId,
 				schema: sourceSchema,
 				tableName: Array.isArray(sourceTable) ? sourceTable[0] : sourceTable,
 				isIncludePart: sourcePart,
 			}),
-			API.getOfflineTableColumn({
+			Api.getOfflineTableColumn({
 				sourceId: targetMap.sourceId,
 				schema: targetSchema,
 				tableName: targetTable,
