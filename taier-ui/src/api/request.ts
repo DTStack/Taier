@@ -23,6 +23,7 @@ export default {
 	TEST_CONNECT: `${BASE_URI}/component/testConnect`, // 测试单个组件连通性
 	TEST_CONNECTS: `${BASE_URI}/component/testConnects`, // 测试所有组件连通性
 	SAVE_COMPONENT: `${BASE_URI}/upload/component/addOrUpdateComponent`, // 保存集群配置的组件信息
+	GET_NODEADDRESS_SELECT: `${BASE_URI}/console/nodeAddress`, // 获取节点下拉
 	CLOSE_KERBEROS: `${BASE_URI}/component/closeKerberos`, // 删除 Kerberos
 	GET_VERSION: `${BASE_URI}/component/getComponentVersion`, // 获取支持的组件版本信息
 	ADD_CLUSTER: `${BASE_URI}/cluster/addCluster`, // 新增集群
