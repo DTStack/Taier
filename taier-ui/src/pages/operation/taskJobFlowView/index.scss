@@ -1,9 +1,44 @@
-.c-jobflow__modal {
-	.ant-modal-content {
-		height: 100%;
+.mxBasicColor {
+	position: relative;
+	top: 2px;
+	display: inline-block;
+	width: 36px;
+	height: 14px;
+	margin-right: 10px;
+	border-radius: 0;
+}
 
-		> .ant-modal-body {
-			height: calc(100% - 48px);
-		}
-	}
+.mxYellow {
+	@extend .mxBasicColor;
+
+	background: #fffbe6;
+	border: 1px solid #fdb313;
+}
+
+.mxBlue {
+	@extend .mxBasicColor;
+
+	background: rgba(63, 135, 255, 0.06);
+	border: 1px solid #3f87ff;
+}
+
+.mxGreen {
+	@extend .mxBasicColor;
+
+	background: rgba(18, 188, 106, 0.06);
+	border: 1px solid #12bc6a;
+}
+
+.mxRed {
+	@extend .mxBasicColor;
+
+	background: #fff1f0;
+	border: 1px solid #fe615c;
+}
+
+.mxGray {
+	@extend .mxBasicColor;
+
+	background: #e6e9f2;
+	border: 1px solid #5b6da6;
 }

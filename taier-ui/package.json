@@ -52,6 +52,7 @@
 	"devDependencies": {
 		"@testing-library/jest-dom": "^5.16.4",
 		"@testing-library/react": "12",
+		"@typed-mxgraph/typed-mxgraph": "^1.0.6",
 		"@types/base-64": "^1.0.0",
 		"@types/d3-selection": "1.1.0",
 		"@types/echarts": "^4.9.12",

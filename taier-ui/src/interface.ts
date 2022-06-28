@@ -138,6 +138,7 @@ export interface IUpstreamJobProps {
 	 * 操作人名称
 	 */
 	operatorName: string;
+	taskGmtCreate: number;
 	status: TASK_STATUS;
 	parentNode: IUpstreamJobProps[];
 	childNode: IUpstreamJobProps[];
