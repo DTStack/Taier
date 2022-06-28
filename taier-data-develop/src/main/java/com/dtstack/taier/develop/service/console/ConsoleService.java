@@ -26,11 +26,23 @@ import com.dtstack.taier.common.enums.OperatorType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
-import com.dtstack.taier.dao.domain.*;
-import com.dtstack.taier.dao.mapper.*;
+import com.dtstack.taier.dao.domain.Cluster;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.KerberosConfig;
+import com.dtstack.taier.dao.domain.ScheduleEngineJobCache;
+import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleJobOperatorRecord;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.mapper.ClusterMapper;
+import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
+import com.dtstack.taier.dao.mapper.ScheduleEngineJobCacheMapper;
+import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
+import com.dtstack.taier.dao.mapper.ScheduleJobOperatorRecordMapper;
+import com.dtstack.taier.dao.mapper.TenantMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
-import com.dtstack.taier.develop.service.schedule.JobService;
+import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
+import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -42,9 +54,6 @@ import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
 import com.dtstack.taier.scheduler.service.ComponentService;
-import com.dtstack.taier.develop.vo.console.ConsoleJobInfoVO;
-import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
-import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.zookeeper.ZkService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -56,7 +65,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -421,12 +435,8 @@ public class ConsoleService {
         stopJobList(jobResource, nodeAddress, stage, jobIdList, ForceCancelFlag.NO.getFlag());
     }
 
-    public ClusterResource clusterResources(String clusterName) {
-        if (StringUtils.isEmpty(clusterName)) {
-            return new ClusterResource();
-        }
-
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
+    public ClusterResource clusterResources(Long clusterId) {
+        Cluster cluster = clusterMapper.getOne(clusterId);
         if (cluster == null) {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }

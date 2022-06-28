@@ -21,9 +21,6 @@ package com.dtstack.taier.yarn;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
-import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.base.util.HadoopConfTool;
 import com.dtstack.taier.base.util.KerberosUtils;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -33,17 +30,16 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
+import com.dtstack.taier.pluginapi.pojo.ClusterResource;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
-import com.dtstack.taier.pluginapi.util.MD5Util;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.yarn.constrant.ConfigConstrant;
 import com.dtstack.taier.yarn.util.HadoopConf;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -52,11 +48,7 @@ import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -77,20 +69,21 @@ public class DtYarnClient extends AbstractClient {
     public void init(Properties prop) throws Exception {
         String configStr = PublicUtil.objToString(prop);
         config = PublicUtil.jsonStrToObject(configStr, Config.class);
-        configuration =  this.initYarnConf(config.getYarnConf());
+        configuration = this.initYarnConf(config.getYarnConf());
     }
-    private YarnConfiguration initYarnConf(Map<String, Object> conf){
-        if(null == conf){
+
+    private YarnConfiguration initYarnConf(Map<String, Object> conf) {
+        if (null == conf) {
             return null;
         }
 
         YarnConfiguration configuration = new YarnConfiguration();
 
-        conf.keySet().forEach(key ->{
+        conf.keySet().forEach(key -> {
             Object value = conf.get(key);
-            if (value instanceof String){
+            if (value instanceof String) {
                 configuration.set(key, (String) value);
-            } else if (value instanceof Boolean){
+            } else if (value instanceof Boolean) {
                 configuration.setBoolean(key, (boolean) value);
             }
         });
@@ -121,6 +114,7 @@ public class DtYarnClient extends AbstractClient {
 
     /**
      * 测试联通性 yarn需要返回集群队列信息
+     *
      * @param pluginInfo
      * @return
      */
@@ -130,8 +124,8 @@ public class DtYarnClient extends AbstractClient {
         testResult.setResult(false);
         try {
             Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            Configuration configuration =  this.initYarnConf(allConfig.getYarnConf());
-            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig),configuration);
+            Configuration configuration = this.initYarnConf(allConfig.getYarnConf());
+            return KerberosUtils.login(allConfig, () -> testYarnConnect(testResult, allConfig), configuration);
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
@@ -143,22 +137,10 @@ public class DtYarnClient extends AbstractClient {
         try {
             HadoopConf hadoopConf = new HadoopConf();
             hadoopConf.initYarnConf(allConfig.getYarnConf());
-            YarnClient testYarnClient = YarnClient.createYarnClient();
-            testYarnClient.init(hadoopConf.getYarnConfiguration());
-            testYarnClient.start();
-
-            List<NodeReport> nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
-            int totalMemory = 0;
-            int totalCores = 0;
-            for (NodeReport rep : nodes) {
-                totalMemory += rep.getCapability().getMemory();
-                totalCores += rep.getCapability().getVirtualCores();
+            try (YarnClient testYarnClient = YarnClient.createYarnClient()) {
+                testYarnClient.init(hadoopConf.getYarnConfiguration());
+                testYarnClient.start();
             }
-
-            boolean isFullPath = hadoopConf.getYarnConfiguration().getBoolean(ConfigConstrant.IS_FULL_PATH_KEY, false);
-            String rootQueueName = isFullPath? getRootQueueName(testYarnClient) : "";
-            List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(rootQueueName, testYarnClient.getRootQueueInfos(), isFullPath);
-            testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
         } catch (Exception e) {
             LOG.error("test yarn connect error", e);
             throw new PluginDefineException(e);
@@ -167,50 +149,6 @@ public class DtYarnClient extends AbstractClient {
         return testResult;
     }
 
-    private String getRootQueueName(YarnClient yarnClient) throws Exception {
-        String webAddress = getYarnWebAddress(yarnClient);
-        String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
-        String schedulerInfoMsg = getDataFromYarnRest(yarnClient.getConfig(), schedulerUrl);
-        JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
-
-        String rootQueueName = "root";
-        JSONObject schedulerJson = schedulerInfo.getJSONObject("scheduler");
-        if (schedulerJson.containsKey("schedulerInfo")) {
-            JSONObject schedulerInfoJson = schedulerJson.getJSONObject("schedulerInfo");
-            String schedulerType = schedulerInfoJson.getString("type");
-            if (StringUtils.equalsIgnoreCase(schedulerType, ConfigConstrant.CAPACITYSCHEDULER_TPYE)) {
-                rootQueueName = schedulerInfoJson.getString("queueName");
-            }
-            if (StringUtils.equalsIgnoreCase(schedulerType, ConfigConstrant.FAIRSCHEDULER_TPYE)) {
-                JSONObject rootQueueJson = schedulerInfoJson.getJSONObject("rootQueue");
-                rootQueueName = rootQueueJson == null ? rootQueueName : rootQueueJson.getString("queueName");
-            }
-        }
-        return rootQueueName;
-    }
-
-    private List<ComponentTestResult.QueueDescription> getQueueDescription(String parentPath, List<QueueInfo> queueInfos, boolean isFullPath) {
-        List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>(queueInfos.size());
-        parentPath = StringUtils.isBlank(parentPath) ? "" : parentPath + ".";
-        for (QueueInfo queueInfo : queueInfos) {
-            String queuePath = queueInfo.getQueueName().startsWith(parentPath) ? queueInfo.getQueueName() : parentPath + queueInfo.getQueueName();
-            ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
-            queueDescription.setQueueName(queueInfo.getQueueName());
-            if (isFullPath) {
-                queueDescription.setQueueName(queuePath);
-            }
-            queueDescription.setCapacity(String.valueOf(queueInfo.getCapacity()));
-            queueDescription.setMaximumCapacity(String.valueOf(queueInfo.getMaximumCapacity()));
-            queueDescription.setQueueState(queueInfo.getQueueState().name());
-            queueDescription.setQueuePath(queuePath);
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                List<ComponentTestResult.QueueDescription> childQueues = getQueueDescription(queuePath, queueInfo.getChildQueues(), isFullPath);
-                queueDescription.setChildQueues(childQueues);
-            }
-            descriptions.add(queueDescription);
-        }
-        return descriptions;
-    }
 
 
     @Override
@@ -259,7 +197,7 @@ public class DtYarnClient extends AbstractClient {
                     String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
                     String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
                     JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
-                    if(schedulerInfo.containsKey("scheduler")){
+                    if (schedulerInfo.containsKey("scheduler")) {
                         clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("scheduler").getJSONObject("schedulerInfo"));
                     }
                     clusterResource.setQueues(getQueueResource(resourceClient));
@@ -344,7 +282,7 @@ public class DtYarnClient extends AbstractClient {
         }
 
         for (Object ob : queueInfos.getJSONArray("queue")) {
-            JSONObject queueInfo = (JSONObject)ob;
+            JSONObject queueInfo = (JSONObject) ob;
             String queueName = queueInfo.getString("queueName");
             parentName = StringUtils.isBlank(parentName) ? "" : parentName + ".";
             String queueNewName = parentName + queueName;
@@ -402,7 +340,7 @@ public class DtYarnClient extends AbstractClient {
         } else {
             JSONArray users = queueUsers.getJSONArray("user");
             for (Object user : users) {
-                JSONObject userJSONObject = (JSONObject)user;
+                JSONObject userJSONObject = (JSONObject) user;
                 userJSONObject.put("maxResource", userJSONObject.getJSONObject("userResourceLimit"));
                 userJSONObject.put("maxAMResource", userJSONObject.getJSONObject("userResourceLimit"));
             }
