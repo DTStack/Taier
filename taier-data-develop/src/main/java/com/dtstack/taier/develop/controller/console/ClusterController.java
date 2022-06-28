@@ -32,7 +32,11 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -100,16 +104,6 @@ public class ClusterController {
     @GetMapping(value = "/getClusterEngine")
     public R<ClusterEngineVO> getClusterEngine(@RequestParam("clusterId") Long clusterId) {
         return R.ok(consoleClusterService.getClusterEngine(clusterId));
-    }
-
-
-    @ApiOperation(value = "getMetaComponent", notes = "获取单个集群meta属性的组件标识")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long")
-    })
-    @GetMapping(value = "/getMetaComponent")
-    public R<Integer> getMetaComponent(@RequestParam("clusterId") Long clusterId) {
-        return R.ok(consoleClusterService.getMetaComponentByClusterId(clusterId));
     }
 
 }

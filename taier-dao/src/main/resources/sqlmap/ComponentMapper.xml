@@ -130,28 +130,6 @@
           AND cc.is_deleted = 0
     </select>
 
-    <select id="getMetadataComponent" resultType="com.dtstack.taier.dao.domain.Component">
-        SELECT c.id,
-               c.cluster_id,
-               c.component_name,
-               c.component_type_code,
-               c.gmt_create,
-               c.gmt_modified,
-               c.is_deleted,
-               c.version_value,
-               c.upload_file_name,
-               c.kerberos_file_name,
-               c.is_metadata,
-               c.deploy_type,
-               c.store_type
-        FROM console_component c
-                 LEFT JOIN console_cluster ccl ON ccl.id = c.cluster_id
-        WHERE c.is_metadata = 1
-          and ccl.id = #{clusterId}
-          and c.is_default = 1
-          and c.is_deleted = 0 LIMIT 1
-    </select>
-
     <update id="updateDefault">
         update console_component set is_default = #{isDefault}
         where cluster_id = #{clusterId} and is_deleted = 0 and component_type_code = #{componentType}

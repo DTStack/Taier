@@ -24,7 +24,6 @@ import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -165,22 +164,13 @@ public class ComponentConfigUtils {
     private static void parseRadioLinkage(Map<String, List<ComponentConfig>> dependencyMapping, Map<String, Object> configMaps, ComponentConfig componentConfig, Map<String, Object> deepToBuildConfigMap) {
         //radio 联动 需要将设置radio选择的值 并根据radio的指选择values中对于的key value
         configMaps.put(componentConfig.getKey(), componentConfig.getValue());
-        //radio联动的值
-        Map<String, Map> radioLinkageValues = (Map) deepToBuildConfigMap.get(componentConfig.getKey());
         //radio联动的控件
         List<ComponentConfig> radioLinkageComponentConfigValue = dependencyMapping.get(componentConfig.getKey());
         if (!CollectionUtils.isEmpty(radioLinkageComponentConfigValue)) {
-            Optional<ComponentConfig> first = radioLinkageComponentConfigValue
+            radioLinkageComponentConfigValue
                     .stream()
-                    .filter(r -> r.getValue().equalsIgnoreCase(componentConfig.getValue()))
-                    .findFirst();
-            if (first.isPresent()) {
-                //根据选择的控件 选择对应的值 没有选择的值不能设置 否则前端测试联通性判断会出现key不一致
-                Map map = radioLinkageValues.get(first.get().getKey());
-                if (MapUtils.isNotEmpty(map)) {
-                    configMaps.putAll(map);
-                }
-            }
+                    .filter(r -> StringUtils.isNotBlank(r.getDependencyValue()) && r.getDependencyValue().equalsIgnoreCase(componentConfig.getValue()))
+                    .findFirst().ifPresent(config -> configMaps.put(config.getKey(), config.getValue()));
         }
     }
 
@@ -342,8 +332,8 @@ public class ComponentConfigUtils {
         return configs;
     }
 
-    public static ClientTemplate buildOthers(String key, String value) {
-        return buildCustom(key, value, EFrontType.OTHER.name());
+    public static ComponentConfig buildOthers(String key, String value, Long componentId, Long clusterId, Integer componentCode) {
+        return buildCustomConfig(key, value, EFrontType.OTHER.name(), null, componentId, clusterId, componentCode);
     }
 
     public static ClientTemplate buildCustom(String key, Object value, String type) {
@@ -423,7 +413,7 @@ public class ComponentConfigUtils {
                     //多余自定义参数
                     List<ComponentConfig> customKey = deployConfig.keySet().stream().map(key ->
                             buildCustomConfig(key, deployConfig.getString(key), EFrontType.CUSTOM_CONTROL.name(),
-                                    deployKey, clusterId, componentId, componentCode)).collect(Collectors.toList());
+                                    deployKey, componentId,clusterId, componentCode)).collect(Collectors.toList());
                     //设置自定义参数值
                     saveConfig.addAll(customKey);
 
@@ -438,7 +428,7 @@ public class ComponentConfigUtils {
                 configJson.remove(componentConfig.getKey());
             }).collect(Collectors.toList());
 
-            if (!templateConfigs.isEmpty()) {
+            if (!configJson.isEmpty()) {
                 //多余自定义参数
                 List<ComponentConfig> customKey = configJson.keySet().stream().map(key ->
                         buildCustomConfig(key, configJson.getString(key), EFrontType.CUSTOM_CONTROL.name(),

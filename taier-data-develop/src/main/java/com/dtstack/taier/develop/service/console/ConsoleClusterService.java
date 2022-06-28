@@ -10,22 +10,24 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
-import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.develop.vo.console.ClusterEngineVO;
 import com.dtstack.taier.develop.vo.console.ClusterVO;
 import com.dtstack.taier.develop.vo.console.EngineVO;
-import com.dtstack.taier.develop.vo.console.QueueVO;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.DEFAULT_CLUSTER_ID;
@@ -44,9 +46,6 @@ public class ConsoleClusterService {
 
     @Autowired
     private ComponentService componentService;
-
-    @Autowired
-    private ConsoleQueueMapper consoleQueueMapper;
 
     public Long addCluster(String clusterName) {
         if (clusterMapper.getByClusterName(clusterName) != null) {
@@ -130,16 +129,11 @@ public class ConsoleClusterService {
                     Collectors.mapping(c -> EComponentType.getEngineTypeByComponent(EComponentType.getByCode(c.getComponentTypeCode()), c.getDeployType()), Collectors.toSet())));
         }
 
-        List<com.dtstack.taier.dao.domain.Queue> queues = consoleQueueMapper.listByClusterWithLeaf(clusterId);
 
-        Map<Long, List<com.dtstack.taier.dao.domain.Queue>> engineQueueMapping = queues
-                .stream()
-                .collect(Collectors.groupingBy(Queue::getClusterId));
-
-        return fillEngineQueueInfo(clusterEngineMapping, engineQueueMapping, cluster);
+        return fillEngineInfo(clusterEngineMapping, cluster);
     }
 
-    private ClusterEngineVO fillEngineQueueInfo(Map<Long, Set<MultiEngineType>> clusterEngineMapping, Map<Long, List<Queue>> engineQueueMapping, Cluster cluster) {
+    private ClusterEngineVO fillEngineInfo(Map<Long, Set<MultiEngineType>> clusterEngineMapping, Cluster cluster) {
         ClusterEngineVO vo = ClusterEngineVO.toVO(cluster);
         Set<MultiEngineType> engineList = clusterEngineMapping.get(vo.getClusterId());
         if (CollectionUtils.isNotEmpty(engineList)) {
@@ -149,9 +143,6 @@ public class ConsoleClusterService {
                 engineVO.setEngineType(multiEngineType.getType());
                 engineVO.setEngineName(multiEngineType.getName());
                 engineVO.setClusterId(cluster.getId());
-                if (MultiEngineType.HADOOP.equals(multiEngineType)) {
-                    engineVO.setQueues(QueueVO.toVOs(engineQueueMapping.get(cluster.getId())));
-                }
                 engineVOS.add(engineVO);
             }
             engineVOS.sort(Comparator.comparingInt(EngineVO::getEngineType));
@@ -160,7 +151,4 @@ public class ConsoleClusterService {
         return vo;
     }
 
-    public Integer getMetaComponentByClusterId(Long clusterId) {
-        return componentService.getMetaComponentByClusterId(clusterId);
-    }
 }

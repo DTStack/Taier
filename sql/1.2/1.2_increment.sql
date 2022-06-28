@@ -316,4 +316,26 @@ select 'tips', t2.tipKey, t2.tipDesc, 25, t1.id from t_rdbs_component_id t1 join
 drop table if exists t_rdbs_component_id;
 drop table if exists t_rdbs_component_key;
 
+update console_component_config set component_type_code = 6 where component_id = -101;
+
+UPDATE console_component_config SET value = 'perjob' WHERE component_id = -108;
+
+DELETE FROM console_component_config WHERE component_id = -117;
+
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', null, null, null, null, now(), now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'username', '', null, null, null, null, now(), now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'PASSWORD', 0, 'password', '', null, null, null, null, now(), now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'queue', '', null, null, null, null, now(), now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', null, null, null, null, now(), now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', null, null, null, null, now(), now(), 0);
+
+
+
+alter table console_cluster_tenant add  queue_name  varchar(32) comment '队列名称';
+update console_cluster_tenant
+inner join console_queue on queue_id = console_queue.id
+set console_cluster_tenant.queue_name = console_queue.queue_name;
+
+alter table console_cluster_tenant drop column queue_id;
+
 COMMIT;

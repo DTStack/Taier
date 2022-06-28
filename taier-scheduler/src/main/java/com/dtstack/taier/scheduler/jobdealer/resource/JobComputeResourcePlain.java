@@ -22,7 +22,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.Cluster;
-import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.pluginapi.JobClient;
@@ -88,9 +87,9 @@ public class JobComputeResourcePlain {
         //%s_default
         String groupName = clusterName + SPLIT + RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
 
-        Queue queue = clusterService.getQueue(jobClient.getTenantId(), clusterId);
+        String queue = clusterTenantMapper.getQueueNameByTenantId(jobClient.getTenantId());
         if (null != queue) {
-            groupName = clusterName + SPLIT + queue.getQueueName();
+            groupName = clusterName + SPLIT + queue;
         }
         jobClient.setGroupName(groupName);
     }

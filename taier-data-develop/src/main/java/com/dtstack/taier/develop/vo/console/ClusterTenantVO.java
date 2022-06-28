@@ -27,13 +27,7 @@ public class ClusterTenantVO {
 
     private String tenantName;
 
-    private String queue;
-
-    private Long queueId;
-
-    private String maxCapacity;
-
-    private String minCapacity;
+    private String queueName;
 
     public Long getTenantId() {
         return tenantId;
@@ -51,36 +45,12 @@ public class ClusterTenantVO {
         this.tenantName = tenantName;
     }
 
-    public String getQueue() {
-        return queue;
+    public String getQueueName() {
+        return queueName;
     }
 
-    public void setQueue(String queue) {
-        this.queue = queue;
-    }
-
-    public Long getQueueId() {
-        return queueId;
-    }
-
-    public void setQueueId(Long queueId) {
-        this.queueId = queueId;
-    }
-
-    public String getMaxCapacity() {
-        return maxCapacity;
-    }
-
-    public void setMaxCapacity(String maxCapacity) {
-        this.maxCapacity = maxCapacity;
-    }
-
-    public String getMinCapacity() {
-        return minCapacity;
-    }
-
-    public void setMinCapacity(String minCapacity) {
-        this.minCapacity = minCapacity;
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }
 
