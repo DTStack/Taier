@@ -40,7 +40,6 @@ interface IEnginesProps {
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
-	queues: { queueId: number; queueName: string }[];
 }
 
 interface IFormFieldProps {
@@ -199,17 +198,11 @@ export default () => {
 						activeKey={activeKey}
 						onChange={handleChangeEngine}
 						className="dt-resource-tabs"
+						destroyInactiveTabPane
 					>
 						{isSparkEngine(form.getFieldValue('engineId')) ? (
 							<TabPane tab="资源全景" key="showResource">
-								<Resource
-									clusterName={
-										clusterList.find(
-											(cluster) =>
-												cluster.id === form.getFieldValue('clusterId'),
-										)?.clusterName
-									}
-								/>
+								<Resource clusterId={form.getFieldValue('clusterId')} />
 							</TabPane>
 						) : null}
 						<TabPane tab="租户绑定" key="bindTenant">
@@ -235,10 +228,9 @@ export default () => {
 				title={`资源管理 (${tenantInfo?.tenantName ?? ''})`}
 				visible={manageModalVisible}
 				isBindTenant={false}
-				clusterList={clusterList}
 				clusterId={form.getFieldValue('clusterId')}
 				tenantId={tenantInfo?.tenantId}
-				queueId={tenantInfo?.queueId}
+				queueName={tenantInfo?.queueName}
 				onCancel={() => {
 					setManageModalVisible(false);
 					setTenantInfo(undefined);
