@@ -148,10 +148,10 @@ export default {
 	addCluster(params: { clusterName: string }) {
 		return http.post(req.ADD_CLUSTER, params); // 新增集群
 	},
-	getClusterInfo(params: { clusterId: number }) {
+	getClusterInfo(params: { clusterId: number | string }) {
 		return http.get(req.GET_CLUSTER_INFO, params);
 	},
-	uploadResource(params: { fileName: any; componentType: number }) {
+	uploadResource(params: { fileName: any; componentType: any }) {
 		return http.postAsFormData(req.UPLOAD_RESOURCE, params);
 	},
 	deleteComponent(params: { componentId: number }) {
@@ -160,16 +160,11 @@ export default {
 	deleteCluster(params: { clusterId: number }) {
 		return http.post(req.DELETE_CLUSTER, params);
 	},
-	testConnect(params: {
-		clusterName: string;
-		componentType: number;
-		versionName: string;
-		deployType: number | string;
-	}) {
+	testConnect(params: { clusterId: number; componentType: number; versionName: string }) {
 		return http.post(req.TEST_CONNECT, params);
 	},
-	testConnects(params: { clusterName: string }) {
-		return http.post(req.TEST_CONNECTS, params);
+	testConnects<T>(params: { clusterId: number }) {
+		return http.post<T>(req.TEST_CONNECTS, params);
 	},
 	closeKerberos(params: { componentId: number }) {
 		return http.post(req.CLOSE_KERBEROS, params);
@@ -197,7 +192,7 @@ export default {
 		return http.post(req.GET_COMPONENTSTORE, params);
 	},
 	// 上传kerberos文件
-	uploadKerberos(params: { kerberosFile: any; clusterId: string; componentCode: number }) {
+	uploadKerberos(params: any) {
 		return http.postAsFormData(req.UPLOAD_KERBEROS, params);
 	},
 	// 更新krb5.conf文件
@@ -236,8 +231,8 @@ export default {
 	getClusterResources(params: any) {
 		return http.post(req.GET_CLUSTER_RESOURCES, params);
 	},
-	getLoadTemplate(params: any) {
-		return http.post(req.GET_LOADTEMPLATE, params);
+	getLoadTemplate<T>(params: any) {
+		return http.post<T>(req.GET_LOADTEMPLATE, params);
 	},
 	getAllCluster(params?: any) {
 		return http.get(req.GET_ALL_CLUSTER, params);
@@ -510,5 +505,11 @@ export default {
 	},
 	allProductGlobalSearch(params: any) {
 		return http.post(req.ALL_PRODUCT_GLOBAL_SEARCH, params);
+	},
+	getComponentModels() {
+		return http.get(req.GET_COMPONENT_MODELS, {});
+	},
+	getComponentInfo(params: any) {
+		return http.get(req.GET_COMPONENT_INFO, params);
 	},
 };
