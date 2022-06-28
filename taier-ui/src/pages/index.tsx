@@ -17,7 +17,7 @@
  */
 
 import 'reflect-metadata';
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import type { IPersonLists, ISupportJobTypes } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
@@ -32,7 +32,7 @@ import Schedule from '@/pages/operation/schedule';
 import Patch from '@/pages/operation/patch';
 import Layout from '@/layout';
 import { updateDrawer } from '@/components/customDrawer';
-import { Breadcrumb, Button } from 'antd';
+import { Breadcrumb } from 'antd';
 import PatchDetail from './operation/patch/detail';
 import Login from './login';
 import CustomDrawer from '@/components/customDrawer';
@@ -41,10 +41,8 @@ import QueueManage from './console/queue';
 import TaskDetail from './console/taskDetail';
 import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
-import EditCluster from './console/cluster/newEdit';
-import type { IEditClusterRefProps } from './console/cluster/newEdit/interface';
+import ClusterDetail from './console/cluster/nextDetail';
 import { getCookie } from '@/utils';
-import { isViewMode } from './console/cluster/newEdit/help';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 
@@ -52,8 +50,6 @@ export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
 	const [supportJobTypes, setJobTypes] = useState<ISupportJobTypes[]>([]);
-	const loading = useRef(false);
-	const refs = useRef<IEditClusterRefProps>(null);
 
 	const checkLoginStatus = () => {
 		const usernameInCookie = getCookie('username');
@@ -61,49 +57,6 @@ export default function HomePage() {
 		if (usernameInCookie) {
 			setUsername(usernameInCookie);
 		}
-	};
-
-	const handleTestConnects = async () => {
-		refs.current?.testConnects(undefined, (bool: boolean) => {
-			loading.current = bool;
-			updateDrawer({
-				id: 'root',
-				extra: renderClusterExtra(),
-				update: true,
-			});
-		});
-	};
-
-	const renderClusterExtra = () => {
-		const { mode = 'view' } = history.location.query || {};
-		return isViewMode(mode as string) ? (
-			<Button
-				type="primary"
-				onClick={() => {
-					history.push({
-						query: {
-							...history.location.query,
-							mode: 'edit',
-						},
-					});
-				}}
-			>
-				编辑
-			</Button>
-		) : (
-			<>
-				<Button
-					loading={loading.current}
-					style={{ marginRight: 12 }}
-					onClick={handleTestConnects}
-				>
-					测试所有组件连通性
-				</Button>
-				<Button type="primary" onClick={() => refs.current?.handleComplete()}>
-					完成
-				</Button>
-			</>
-		);
 	};
 
 	useEffect(() => {
@@ -267,7 +220,6 @@ export default function HomePage() {
 				updateDrawer({
 					id: 'root',
 					visible: true,
-					extra: renderClusterExtra(),
 					title: (
 						<Breadcrumb>
 							<Breadcrumb.Item>
@@ -289,7 +241,7 @@ export default function HomePage() {
 					renderContent: () => {
 						return (
 							<Layout>
-								<EditCluster ref={refs} />
+								<ClusterDetail />
 							</Layout>
 						);
 					},
