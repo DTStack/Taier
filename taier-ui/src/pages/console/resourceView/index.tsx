@@ -33,10 +33,10 @@ import { SCHEDULE_TYPE } from '@/constant';
 import './index.scss';
 
 export default ({
-	clusterName,
+	clusterId,
 	onGetQueueList,
 }: {
-	clusterName?: string;
+	clusterId?: number;
 	onGetQueueList?: (queueList: IQueueProps[]) => void;
 }) => {
 	const [nodeLists, setNodeLists] = useState<INodeProps[]>([]);
@@ -54,7 +54,7 @@ export default ({
 
 	const getClusterResources = () => {
 		Api.getClusterResources({
-			clusterName,
+			clusterId,
 		}).then((res) => {
 			if (res.code === 1) {
 				const data = res.data as IClusterResourceProps;
@@ -102,7 +102,7 @@ export default ({
 
 	useEffect(() => {
 		getClusterResources();
-	}, [clusterName]);
+	}, [clusterId]);
 
 	const queueColumns = useMemo(() => {
 		switch (scheduleType) {
