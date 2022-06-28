@@ -237,6 +237,7 @@ export enum TASK_TYPE_ENUM {
 	 * 工作流
 	 */
 	WORK_FLOW = 10,
+	FLINK = 11,
 }
 
 /**
