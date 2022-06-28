@@ -146,4 +146,6 @@ export default {
 	CREATE_DDL_TABLE: `${BASE_URI}/dataSource/addDs/ddlCreateTable`, // 创建 ddl 的表
 	BATCH_STOP_JOBS_BY_DATE: `${BASE_URI}/scheduleJob/stopJobByCondition`, // 按照业务日期杀任务
 	ALL_PRODUCT_GLOBAL_SEARCH: `${BASE_URI}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
+	GET_COMPONENT_MODELS: `${BASE_URI}/component/componentModels`, // 获取能配置的组件信息
+	GET_COMPONENT_INFO: `${BASE_URI}/component/getComponentInfo`, // 获取组件配置信息
 };
