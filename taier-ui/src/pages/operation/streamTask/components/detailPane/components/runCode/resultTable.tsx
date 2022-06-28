@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Table } from 'antd';
-import stream from '@/api/stream';
+import stream from '@/api';
+
 interface IProps {
 	taskId?: number;
 }

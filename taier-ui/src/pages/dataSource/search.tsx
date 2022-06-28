@@ -18,7 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { Form, Checkbox, Select, Tooltip, Input } from 'antd';
-import { API } from '@/api/dataSource';
+import API from '@/api';
 import { SearchOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import './search.scss';
 

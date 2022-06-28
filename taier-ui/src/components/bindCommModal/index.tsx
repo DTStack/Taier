@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from 'react';
 import { Modal, Select, Input, Checkbox, Form } from 'antd';
-import api from '@/api/console';
+import api from '@/api';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import {

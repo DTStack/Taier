@@ -16,10 +16,14 @@ A: https://github.com/DTStack/DatasourceX/releases/download/v4.3.0/datasourceX.z
 A: 优先选择厂商，大版本相近的 区分厂商和版本是为了后续添加不同hadoop版本适配参数，目前版本无影响。如果没有对应的 选择apache hadoop即可
 
 ### Q: flink sql 支持吗
-A: 目前不支持，下个版本会考虑支持
+A: 支持，使用问题可以提issue
 
 ### Q: 集群配置测试连通性失败，提示can not found client
 A: 确认Taier目录下 是否有pluginLibs目录
+
+
+### Q: 集群绑定租户失败，提示client exception
+A: 确认Taier配置文件datasource.plugin.path 对应配置路径是否有datasourcex文件目录
 
 ### Q: 添加数据源失败
 A: 确认Taier目录下application.properties datasource.plugin.path是否配置正确
