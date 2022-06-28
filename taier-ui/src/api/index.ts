@@ -3,6 +3,10 @@ import req from './request';
 import { TASK_TYPE_ENUM } from '@/constant';
 
 export default {
+	// 获取节点下拉
+	getNodeAddressSelect(params?: any) {
+		return http.post(req.GET_NODEADDRESS_SELECT, params);
+	},
 	// 获取类型数据源
 	getTypeOriginData(params: any) {
 		return http.post(req.GET_TYPE_ORIGIN_DATA, params);
