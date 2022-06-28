@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Divider, Form, message, Modal, Select, Tooltip } from 'antd';
 import api from '@/api';
-import { API } from '@/api/dataSource';
 import {
 	DATA_SOURCE_ENUM_OBJ,
 	DATA_SOURCE_TEXT,
@@ -54,7 +53,7 @@ export default function ImportTemplate({ taskId, onSuccess }: IImportTemplatePro
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
 
 	const getDataSourceList = () => {
-		API.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
+		api.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
 			if (res.code === 1) {
 				setDataSourceList(res.data || []);
 			}

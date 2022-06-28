@@ -17,7 +17,6 @@
  */
 
 import api from "@/api";
-import stream from "@/api/stream";
 import { analyticalRules, partitionType } from "@/components/helpDoc/docs";
 import { PARTITION_TYPE, WRITE_TABLE_TYPE } from "@/constant";
 import { isMysqlTypeSource } from "@/utils/is";
@@ -40,7 +39,7 @@ export default (props: { collectionData: any; }) => {
 
     const getTableList = (sourceId: number, searchKey?: string) => {
         setTableList([])
-        stream.getStreamTablelist({
+        api.getStreamTablelist({
             sourceId,
             isSys: false,
             searchKey

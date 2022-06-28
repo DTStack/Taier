@@ -33,7 +33,7 @@ import {
 	DATA_SOURCE_ENUM,
 	FLINK_VERSION_TYPE_FILTER,
 } from '@/constant';
-import stream from '@/api/stream';
+import stream from '@/api';
 import { TaskStatus, taskTypeText } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
 import DetailPane from './components/detailPane';

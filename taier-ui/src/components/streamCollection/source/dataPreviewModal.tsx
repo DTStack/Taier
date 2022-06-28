@@ -18,7 +18,7 @@
 
 import * as React from 'react';
 import { Modal, Button, Radio } from 'antd';
-import stream from '@/api/stream';
+import stream from '@/api';
 import TablePreview, { CollapsePreview } from './component/tablePreview';
 import { isHaveTopic, isHaveDataPreview } from '@/utils/is';
 

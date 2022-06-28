@@ -51,6 +51,20 @@ const sidebars = {
             collapsed: false,
             items: [
                 'functions/multi-cluster',
+                {
+                    type: 'category',
+                    collapsed: false,
+                    label: '组件配置',
+                    items: [
+                        'functions/component/sftp',
+                        'functions/component/yarn',
+                        'functions/component/hdfs',
+                        'functions/component/flink',
+                        'functions/component/spark',
+                        'functions/component/hive',
+                        'functions/component/spark-thrift',
+                    ],
+                 },
                 'functions/datasource',
                 {
                     type: 'category',

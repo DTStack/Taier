@@ -21,7 +21,7 @@ import { history } from 'umi';
 import { Button, message, Space, Divider, Modal } from 'antd';
 import moment from 'moment';
 import AddEngineModal from '@/components/addEngineModal';
-import Api from '@/api/console';
+import Api from '@/api';
 import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { ColumnsType } from 'antd/lib/table';

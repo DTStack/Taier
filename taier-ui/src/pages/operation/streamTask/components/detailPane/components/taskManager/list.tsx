@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Table, Breadcrumb } from 'antd';
 import { IStreamJobProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
-import stream from '@/api/stream';
+import stream from '@/api';
 
 interface IProps {
 	data: IStreamJobProps | undefined;

@@ -20,7 +20,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { Form, Select, Button, Tabs, Spin, message } from 'antd';
 import BindCommModal from '@/components/bindCommModal';
 import ResourceManageModal from '@/components/resourceManageModal';
-import Api from '@/api/console';
+import Api from '@/api';
 import { formItemLayout } from '@/constant';
 import { isSparkEngine } from '@/utils/is';
 import Resource from './resourceView';

@@ -130,6 +130,7 @@ export default function FormConfig({ comp, view, itemLayout }: IProps) {
 							<span className="c-formConfig__label">{temp.key}</span>
 						</Tooltip>
 					}
+					tooltip={temp.keyDescribe}
 					key={temp.key}
 					required={temp.required}
 					{...layout}
