@@ -24,8 +24,8 @@ import { history } from 'umi';
 import { extensions } from '@/extensions';
 import api from '@/api';
 import notification from '@/components/notification';
-import molecule, { MoleculeProvider } from '@dtinsight/molecule';
-import Workbench from './workbench';
+import molecule, { create } from '@dtinsight/molecule';
+import { Workbench } from './workbench';
 import Task from '@/pages/operation/task';
 import StreamTask from '@/pages/operation/streamTask';
 import Schedule from '@/pages/operation/schedule';
@@ -45,6 +45,18 @@ import ClusterDetail from './console/cluster/nextDetail';
 import { getCookie } from '@/utils';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
+
+const moInstance = create({
+	extensions,
+	defaultLocale: 'Taier-zh-CN',
+});
+
+moInstance.onBeforeInit(() => {
+	molecule.builtin.inactiveModule('builtInOutputPanel');
+	molecule.builtin.inactiveModule('FOLDER_PANEL_CONTEXT_MENU');
+});
+
+const MoleculeProvider = () => moInstance.render(<Workbench />);
 
 export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
@@ -292,9 +304,7 @@ export default function HomePage() {
 				supportJobTypes,
 			}}
 		>
-			<MoleculeProvider extensions={extensions} defaultLocale="Taier-zh-CN">
-				<Workbench />
-			</MoleculeProvider>
+			<MoleculeProvider />
 			<Login />
 			<CustomDrawer id="root" renderContent={() => null} />
 		</Context.Provider>
