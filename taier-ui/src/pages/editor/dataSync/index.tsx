@@ -327,7 +327,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 
 	const getDataSourceList = () => {
 		setLoading(true);
-		return API.queryByTenantId({ tenantId: getTenantId() })
+		return API.queryByTenantId<IDataSourceUsedInSyncProps[]>({ tenantId: getTenantId() })
 			.then((res) => {
 				if (res.code === 1) {
 					setDataSourceList(res.data || []);

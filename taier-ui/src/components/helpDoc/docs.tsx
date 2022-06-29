@@ -19,9 +19,27 @@
 import React from 'react';
 import { HELP_DOC_URL } from '@/constant';
 
-export const targetColText =
-'别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
+export const dirtyMaxRecord = <span>脏数据达到最大值时，任务自动失败</span>;
 
+export const dirtyFailRecord = <span>当脏数据处理失败次数超过设定值时，任务失败</span>;
+
+export const dirtySaveType = <span>仅当保存到数据库时，可展示脏数据分析内容</span>;
+
+export const logPrintTimes = (
+	<span>
+		设定脏数据在日志中输出间隔，设置为0时不打印；若开启脏数据保存，则脏数据直接保存至指定库，不再输出至日志
+	</span>
+);
+
+export const recordDirtyTable = (
+	<div>
+		<div>脏数据表会写入选择的MySQL库中，表名默认系统分配"dirty_任务名称"</div>
+		<div>同时，支持写入自定义表，用户自定义表名，数据写入时进行新建。</div>
+	</div>
+);
+
+export const targetColText =
+	'别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
 
 export const delayTabWarning = <p>kafka中堆积的未被消费的数据量（条数）</p>;
 
