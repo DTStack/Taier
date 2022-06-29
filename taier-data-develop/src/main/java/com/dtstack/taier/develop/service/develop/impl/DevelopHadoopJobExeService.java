@@ -94,7 +94,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
 
             String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
             String taskExeArgs = String.format(JOB_ARGS_TEMPLATE, name, job);
-            actionParam.put("taskSourceId",task.getId());
+            actionParam.put("taskSourceId", task.getId());
             actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
             actionParam.put("name", name);
             actionParam.put("computeType", task.getComputeType());
@@ -144,25 +144,22 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
 
     /**
      * 真正运行SQL任务的逻辑
+     *
      * @param userId
      * @param tenantId
-     * @param uniqueKey
      * @param taskId
      * @param sql
      * @param task
-     * @param isEnd
      * @param jobId
      * @return
      * @throws Exception
      */
     @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
-                                               Task task, Boolean isEnd, String jobId) throws Exception {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId)
-                    .setIsdirtyDataTable(false).setSessionKey(uniqueKey).setEnd(isEnd);
+            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId);
             return batchSqlExeService.executeSql(content);
         }
         throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));
@@ -170,6 +167,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
 
     /**
      * 构建 exeArgs、sqlText、taskParams
+     *
      * @param actionParam
      * @param tenantId
      * @param task
@@ -181,10 +179,10 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         String sql = task.getSqlText() == null ? "" : task.getSqlText();
         String taskParams = task.getTaskParams();
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
-            || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+                || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
             batchTaskParamService.checkParams(sql, taskParamsToReplace);
             // 构建运行的SQL
-            sql =batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
+            sql = batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
         } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));

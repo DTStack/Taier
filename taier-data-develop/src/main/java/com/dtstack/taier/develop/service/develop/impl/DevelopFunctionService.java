@@ -24,15 +24,13 @@ import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
-import com.dtstack.taier.common.enums.FuncType;
-import com.dtstack.taier.common.enums.FunctionType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.BatchFunctionResource;
 import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
@@ -57,7 +55,6 @@ import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -82,7 +79,6 @@ public class DevelopFunctionService {
 
     @Autowired
     private DevelopTaskService batchTaskService;
-
 
     @Autowired
     private StreamSqlFormatService streamSqlFormatService;
@@ -167,11 +163,10 @@ public class DevelopFunctionService {
         // id小于0走新增逻辑
         if (Objects.isNull(batchFunction.getId()) || batchFunction.getId() < 1) {
             //名称重复校验
-            batchTaskService.checkName(batchFunction.getName(), CatalogueType.CUSTOM_FUNCTION.name(), null, 1, 0L);
+            batchTaskService.checkName(batchFunction.getName(), CatalogueType.FUNCTION_MANAGER.name(), null, 1, 0L);
             batchFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
 
-        batchFunction.setType(FuncType.CUSTOM.getType());
         addOrUpdate(batchFunction, userId);
         addOrUpdateFunctionResource(batchFunction, resourceId);
         // 添加类目关系
@@ -182,9 +177,6 @@ public class DevelopFunctionService {
         taskCatalogueVO.setLevel(null);
         taskCatalogueVO.setChildren(null);
         taskCatalogueVO.setParentId(batchFunction.getNodePid());
-
-        String username = userService.getUserName(batchFunction.getCreateUserId());
-        taskCatalogueVO.setCreateUser(username);
         return taskCatalogueVO;
     }
 
@@ -273,9 +265,6 @@ public class DevelopFunctionService {
         if (Objects.isNull(bf)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
-        if (FuncType.SYSTEM.getType().equals(bf.getType())) {
-            throw new RdosDefineException(ErrorCode.SYSTEM_FUNCTION_CAN_NOT_MODIFY);
-        }
         bf = new DevelopFunction();
         bf.setId(functionId);
         bf.setNodePid(nodePid);
@@ -295,10 +284,6 @@ public class DevelopFunctionService {
         if (Objects.isNull(batchFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
-        if (FuncType.SYSTEM.getType().equals(batchFunction.getType())) {
-            throw new RdosDefineException(ErrorCode.SYSTEM_FUNCTION_CAN_NOT_MODIFY);
-        }
-
         batchFunctionResourceService.deleteByFunctionId(functionId);
         batchFunction = new DevelopFunction();
         batchFunction.setId(functionId);
@@ -333,23 +318,6 @@ public class DevelopFunctionService {
         return developFunctionDao.listTenantFunction(tenantId, functionType, taskType);
     }
 
-
-    /**
-     * 处理并返回 sql 自定义函数的 SQL
-     *
-     * @param sql
-     * @param tenantId
-     * @return
-     */
-    public List<String> buildContainFunctions(String sql, Long tenantId, Integer taskType) {
-        String buildContainFunction = buildContainFunction(sql, tenantId, taskType);
-        if (StringUtils.isNotBlank(buildContainFunction)) {
-            return Arrays.asList(buildContainFunction.split(";"));
-        }
-        return Lists.newArrayList();
-    }
-
-
     /**
      * 判断sql是否包含自定义函数
      *
@@ -367,7 +335,7 @@ public class DevelopFunctionService {
             return StringUtils.EMPTY;
         }
         // 获取此项目下的自定义函数名称
-        List<DevelopFunction> tenantCustomFunctions = listTenantFunction(tenantId, FunctionType.USER.getType(), taskType);
+        List<DevelopFunction> tenantCustomFunctions = listTenantFunction(tenantId, null, taskType);
         if (CollectionUtils.isEmpty(tenantCustomFunctions)) {
             return StringUtils.EMPTY;
         }
