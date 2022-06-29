@@ -195,6 +195,31 @@ public class BatchTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "是否更新数据源")
     private Boolean updateSource = true;
 
+    @ApiModelProperty(value = "是否开启脏数据")
+    private Boolean openDirtyDataManage;
+
+    /**
+     * 任务脏数据管理
+     */
+    @ApiModelProperty(value = "脏数据")
+    private TaskDirtyDataManageVO taskDirtyDataManageVO;
+
+    public Boolean getOpenDirtyDataManage() {
+        return openDirtyDataManage;
+    }
+
+    public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
+        this.openDirtyDataManage = openDirtyDataManage;
+    }
+
+    public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
+        return taskDirtyDataManageVO;
+    }
+
+    public void setTaskDirtyDataManageVO(TaskDirtyDataManageVO taskDirtyDataManageVO) {
+        this.taskDirtyDataManageVO = taskDirtyDataManageVO;
+    }
+
     public Boolean getUpdateSource() {
         return updateSource;
     }

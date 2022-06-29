@@ -121,7 +121,7 @@ public class DevelopTaskController {
             @Override
             protected TaskCatalogueResultVO process() {
                 TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-                return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(batchTaskService.addOrUpdateTask(taskResourceParam));
+                return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(batchTaskService.addOrUpdateTaskNew(taskResourceParam));
             }
         }.execute();
     }
