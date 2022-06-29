@@ -167,10 +167,6 @@ function init() {
 
 // 初始化右键菜单
 function initContextMenu() {
-	// remove folderTree default contextMenu
-	molecule.folderTree.setState({
-		folderTree: { ...molecule.folderTree.getState().folderTree, folderPanelContextMenu: [] },
-	});
 	molecule.folderTree.onRightClick((treeNode, menu) => {
 		if (!treeNode.isLeaf) {
 			// remove rename action
