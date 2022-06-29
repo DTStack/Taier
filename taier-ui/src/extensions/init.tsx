@@ -279,9 +279,6 @@ function initFunctionManager() {
  * 初始化 Pane 界面
  */
 function initializePane() {
-	const { PANEL_OUTPUT } = molecule.builtin.getConstants();
-
-	molecule.panel.remove(PANEL_OUTPUT!);
 	molecule.panel.add({
 		id: ID_COLLECTIONS.OUTPUT_LOG_ID,
 		name: '日志',
