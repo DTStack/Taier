@@ -343,21 +343,18 @@ public class DevelopJobService {
 
     /**
      * 运行SQL任务
+     *
      * @param userId
      * @param tenantId
      * @param taskId
-     * @param uniqueKey
      * @param sql
      * @param taskVariables
-     * @param isEnd         是否是当前session最后一条sql
      * @return
      */
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String uniqueKey, String sql, List<Map> taskVariables, Boolean isEnd) {
-        User user = userService.getById(userId);
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, List<Map> taskVariables) {
         ExecuteResultVO result = new ExecuteResultVO();
         try {
-            final Task task = batchTaskService.getOneWithError(taskId);
-
+            Task task = batchTaskService.getOneWithError(taskId);
             result.setTaskType(task.getTaskType());
             //真正运行的SQL是页面传入的SQL
             task.setSqlText(sql);
@@ -368,13 +365,14 @@ public class DevelopJobService {
             List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
 
+            // 转换参数
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
 
             IDevelopJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
-            result = batchJobService.startSqlImmediately(userId, tenantId, uniqueKey, taskId, sql, task, isEnd, jobId);
+            result = batchJobService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));

@@ -19,7 +19,6 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.common.annotation.Forbidden;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.MultiEngineType;
@@ -101,7 +100,7 @@ public class DevelopSqlExeService {
      * @return
      */
     public String processSqlText(Long tenantId, Integer taskType, String sqlText) {
-        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
+        TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
         ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(taskType);
         // 处理自定义函数
         String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
@@ -310,7 +309,7 @@ public class DevelopSqlExeService {
      * @return
      */
     private ParseResult parseSql(ExecuteContent executeContent) {
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
+        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(), executeContent.getTaskType());
         executeContent.setDatabase(tenantEngine.getComponentIdentity());
 
         SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);

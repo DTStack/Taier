@@ -166,7 +166,7 @@ public class DevelopTaskController {
         return new APITemplate<Long>() {
             @Override
             protected Long process() {
-                return batchTaskService.deleteTask(detailVO.getTaskId(), detailVO.getTenantId(), detailVO.getUserId(), detailVO.getSqlText());
+                return batchTaskService.deleteTask(detailVO.getTaskId(), detailVO.getUserId(), detailVO.getSqlText());
             }
         }.execute();
     }
@@ -249,7 +249,6 @@ public class DevelopTaskController {
             }
         }.execute();
     }
-
 
     @PostMapping(value = "getSupportJobTypes")
     @ApiOperation("根据支持的引擎类型返回")

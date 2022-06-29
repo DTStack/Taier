@@ -133,7 +133,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
         List<String> fieldNamesShow = DevelopHadoopSelectSqlService.getSimpleQueryFieldNames(sql, true);
         String db = matcher.group("db");
         if (StringUtils.isEmpty(db)) {
-            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, taskType);
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
             db = tenantEngine.getComponentIdentity();
         }
         String tableName = matcher.group("name");

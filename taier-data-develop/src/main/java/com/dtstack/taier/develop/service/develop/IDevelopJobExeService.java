@@ -37,17 +37,13 @@ public interface IDevelopJobExeService {
      * 直接调用sql执行
      * @param userId
      * @param tenantId
-     * @param uniqueKey
      * @param taskId
      * @param sql
      * @param task
-     * @param isEnd
      * @return
      * @throws Exception
      */
-    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String uniqueKey, Long taskId, String sql,
-                                        Task task, Boolean isEnd, String jobId) throws Exception;
-
+    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task,  String jobId) throws Exception;
 
     /**
      * 组装参数 提交调度
@@ -62,9 +58,8 @@ public interface IDevelopJobExeService {
 
     /**
      * 执行数据前的准备工作
-     * eg:
-     * 创建分区
-     * 拼接engine执行的参数
+     * 拼接调度执行的参数
+     *
      * @param task
      * @param tenantId
      * @param isRoot

@@ -59,7 +59,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -151,27 +150,6 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
         } catch (Exception e) {
             throw new RdosDefineException("任务执行sql失败", e);
         }
-    }
-
-    /**
-     * 获取查询sql对应的id和拼接参数之后的sql
-     * @param tenantId
-     * @param parseResult
-     * @param tenantId
-     * @param userId
-     * @param database
-     * @param isCreateAs
-     * @param taskId
-     * @return
-     */
-    public BuildSqlVO getSqlIdAndSql(Long tenantId, ParseResult parseResult, Long userId, String database, Boolean isCreateAs, Long taskId, Integer taskType) {
-        BuildSqlVO buildSqlVO = buildSql(parseResult, tenantId, userId, database, isCreateAs, taskId);
-        String jobId = UUID.randomUUID().toString();
-        // 记录job
-        batchSelectSqlService.addSelectSql(jobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
-                buildSqlVO.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
-        buildSqlVO.setJobId(jobId);
-        return buildSqlVO;
     }
 
     /**
@@ -459,7 +437,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())) {
                 return true;
             }
-            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, result.getTaskType());
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, result.getTaskType());
             List<Object> data = hadoopDataDownloadService.queryDataFromTempTable(tenantId, selectSql.getTempTableName(), tenantEngine.getComponentIdentity());
             result.setSqlText(selectSql.getSqlText());
             result.setResult(data);
@@ -664,7 +642,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
                 && EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
             if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()
                     || selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
-                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(tenantId, result.getTaskType());
+                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, result.getTaskType());
                 List<Object> data = hadoopDataDownloadService.queryDataFromHiveServerTempTable(tenantId, selectSql.getTempTableName(),tenantEngine.getComponentIdentity());
                 result.setResult(data);
             }
