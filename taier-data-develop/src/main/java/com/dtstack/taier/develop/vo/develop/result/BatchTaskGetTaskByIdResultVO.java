@@ -20,6 +20,7 @@ package com.dtstack.taier.develop.vo.develop.result;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -234,8 +235,33 @@ public class BatchTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "是否提交过")
     private Boolean submitted;
 
+    @ApiModelProperty(value = "是否开启脏数据")
+    private Boolean openDirtyDataManage;
+
+    /**
+     * 任务脏数据管理
+     */
+    @ApiModelProperty(value = "脏数据")
+    private TaskDirtyDataManageVO TaskDirtyDataManageVO;
+
     public Boolean getSubmitted() {
         return submitted;
+    }
+
+    public Boolean getOpenDirtyDataManage() {
+        return openDirtyDataManage;
+    }
+
+    public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
+        this.openDirtyDataManage = openDirtyDataManage;
+    }
+
+    public com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
+        return TaskDirtyDataManageVO;
+    }
+
+    public void setTaskDirtyDataManageVO(com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO taskDirtyDataManageVO) {
+        TaskDirtyDataManageVO = taskDirtyDataManageVO;
     }
 
     public void setSubmitted(Boolean submitted) {

@@ -18,6 +18,7 @@ import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.mapper.TaskDirtyDataManageDao;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
+import com.dtstack.taier.develop.enums.develop.TaskDirtyOutPutTypeEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
@@ -27,7 +28,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +39,7 @@ import java.util.Objects;
  * @Author: zhichen
  * @Date: 2022/06/14/2:52 PM
  */
+@Service
 public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageDao, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
 
     private static final Logger logger = LoggerFactory.getLogger(TaskDirtyDataManageService.class);
@@ -74,10 +78,15 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageD
      */
     public void addOrUpdateDirtyDataManage(TaskDirtyDataManageVO vo, Long tenantId, Long taskId) {
         // 先删除原有的脏数据管理
-       TaskDirtyDataManage taskDirtyDataManage = TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageVOToTaskDirtyDataManage(vo);
+        TaskDirtyDataManage taskDirtyDataManage = TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageVOToTaskDirtyDataManage(vo);
         deleteByTaskId(taskId);
         taskDirtyDataManage.setTaskId(taskId);
         taskDirtyDataManage.setTenantId(tenantId);
+        taskDirtyDataManage.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        taskDirtyDataManage.setGmtModified(new Timestamp(System.currentTimeMillis()));
+        if(Objects.equals(TaskDirtyOutPutTypeEnum.LOG.getValue(),taskDirtyDataManage.getOutputType())){
+            taskDirtyDataManage.setLinkInfo("{}");
+        }
         taskDirtyDataIService.save(taskDirtyDataManage);
     }
 
