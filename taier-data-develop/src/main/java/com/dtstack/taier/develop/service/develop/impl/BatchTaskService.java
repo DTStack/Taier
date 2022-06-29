@@ -907,7 +907,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public Task addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
+    public TaskVO addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
         DevelopAddOrUpdateTaskTemplate taskService = developTaskAddOrUpdateTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
        return taskService.addOrUpdate(taskResourceParam);
     }
