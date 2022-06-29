@@ -21,42 +21,13 @@ package com.dtstack.taier.develop.vo.develop.query;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
-@ApiModel("任务信息")
-public class BatchTaskDeleteTaskVO extends DtInsightAuthParam {
+@ApiModel("租户组件任务配置信息查询")
+@Data
+public class DevelopTenantComponentSelectVO extends DtInsightAuthParam {
 
-    @ApiModelProperty(value = "任务 ID", example = "1", required = true)
-    private Long taskId;
+    @ApiModelProperty(value = "租户Id", example = "1", hidden = true)
+    private Long tenantId;
 
-    @ApiModelProperty(value = "用户 ID", hidden = true)
-    private Long userId;
-
-    @ApiModelProperty(value = "sql", example = "show tables;")
-    private String sqlText;
-
-    public Long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
-    @Override
-    public Long getUserId() {
-        return userId;
-    }
-
-    @Override
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getSqlText() {
-        return sqlText;
-    }
-
-    public void setSqlText(String sqlText) {
-        this.sqlText = sqlText;
-    }
 }

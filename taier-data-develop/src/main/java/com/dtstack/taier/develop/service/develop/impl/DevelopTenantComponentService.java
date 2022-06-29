@@ -20,22 +20,28 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTenantComponentMapper;
+import com.dtstack.taier.develop.service.console.ClusterTenantService;
+import com.dtstack.taier.develop.service.develop.IComponentService;
+import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTenantComponentResultVO;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.net.ntp.TimeStamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-/**
- * 项目关联引擎相关
- * Date: 2019/6/3
- * Company: www.dtstack.com
- * @author xuchao
- */
 
 @Service
 public class DevelopTenantComponentService {
@@ -43,11 +49,23 @@ public class DevelopTenantComponentService {
     @Autowired
     private DevelopTenantComponentMapper developTenantComponentDao;
 
+    @Autowired
+    private DevelopTaskService developTaskService;
+
+    @Autowired
+    private MultiEngineServiceFactory multiEngineServiceFactory;
+
+    @Autowired
+    private ClusterTenantService clusterTenantService;
+
     /**
      * 根据 tenantId、taskType 查询组件信息
      *
+     * @param tenantId
+     * @param taskType
+     * @return
      */
-    public TenantComponent getByTenantAndEngineType(Long tenantId, Integer taskType) {
+    public TenantComponent getByTenantAndTaskType(Long tenantId, Integer taskType) {
         TenantComponent tenantComponent = developTenantComponentDao.selectOne(Wrappers.lambdaQuery(TenantComponent.class)
                 .eq(TenantComponent::getTenantId, tenantId)
                 .eq(TenantComponent::getTaskType, taskType)
@@ -58,10 +76,73 @@ public class DevelopTenantComponentService {
         return tenantComponent;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public int insert(TenantComponent tenantComponent) {
-        tenantComponent.setIsDeleted(Deleted.NORMAL.getStatus());
-        return developTenantComponentDao.insert(tenantComponent);
+    /**
+     * 获取当前租户配置的任务组件运行信息
+     *
+     * @param tenantId
+     * @return
+     */
+    public List<DevelopTenantComponentResultVO> selectTenantComponentList(Long tenantId) {
+        List<BatchTaskGetSupportJobTypesResultVO> supportJobTypes = developTaskService.getSupportJobTypes(tenantId);
+        if (CollectionUtils.isEmpty(supportJobTypes)) {
+            return Lists.newArrayList();
+        }
+        Map<Integer, TenantComponent> tenantComponentMap = developTenantComponentDao.selectList(Wrappers.lambdaQuery(TenantComponent.class)
+                        .eq(TenantComponent::getTenantId, tenantId)
+                        .eq(TenantComponent::getIsDeleted, Deleted.NORMAL.getStatus()))
+                .stream()
+                .collect(Collectors.toMap(TenantComponent::getTaskType, Function.identity(), (key1, key2) -> key2));
+
+        return supportJobTypes.stream().map(supportJobTypeInfo -> {
+            DevelopTenantComponentResultVO resultVO = new DevelopTenantComponentResultVO();
+            resultVO.setTaskType(supportJobTypeInfo.getKey());
+            resultVO.setTaskTypeName(supportJobTypeInfo.getValue());
+            resultVO.setSchema(tenantComponentMap.getOrDefault(supportJobTypeInfo.getKey(), new TenantComponent()).getComponentIdentity());
+            return resultVO;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 保存组件运行schema信息
+     *
+     * @param tenantId
+     * @param taskType
+     * @param schema
+     */
+    public void saveTenantComponentInfo(Long tenantId, Integer taskType, String schema) {
+        TenantComponent tenantComponent = developTenantComponentDao.selectOne(Wrappers.lambdaQuery(TenantComponent.class)
+                .eq(TenantComponent::getTenantId, tenantId)
+                .eq(TenantComponent::getTaskType, taskType));
+
+        if (Objects.isNull(tenantComponent)) {
+            tenantComponent = new TenantComponent();
+            tenantComponent.setTenantId(tenantId);
+            tenantComponent.setTaskType(taskType);
+            tenantComponent.setComponentIdentity(schema);
+            developTenantComponentDao.insert(tenantComponent);
+        } else {
+            developTenantComponentDao.update(null, Wrappers.lambdaUpdate(TenantComponent.class)
+                    .set(TenantComponent::getComponentIdentity, schema)
+                    .set(TenantComponent::getGmtModified, new TimeStamp(System.currentTimeMillis()))
+                    .eq(TenantComponent::getId, tenantComponent.getId()));
+        }
+    }
+
+    /**
+     * 获取当前任务对应组件数据源中的shema列表
+     *
+     * @param tenantId
+     * @param taskType
+     * @return
+     */
+    public List<String> getAllSchemaByTenantAndTaskType(Long tenantId, Integer taskType) {
+        EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(taskType);
+        Long clusterId = clusterTenantService.getClusterIdByTenantId(tenantId);
+        if (Objects.isNull(clusterId)) {
+            throw new RdosDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
+        }
+        IComponentService componentService = multiEngineServiceFactory.getComponentService(taskType);
+        return componentService.getAllDataBases(clusterId, scheduleJobType.getComponentType(), "");
     }
 
 }

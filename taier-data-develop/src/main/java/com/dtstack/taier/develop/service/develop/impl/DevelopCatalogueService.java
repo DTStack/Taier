@@ -24,7 +24,6 @@ import com.dtstack.taier.common.enums.CatalogueLevel;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DictType;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -40,14 +39,9 @@ import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
-import com.dtstack.taier.scheduler.vo.ComponentVO;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,7 +54,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,25 +85,9 @@ public class DevelopCatalogueService {
 
     private static final Long DEFAULT_NODE_PID = 0L;
 
-    private static final String PARAM_COMMAND = "yyyyMMdd-1";
-
-    private static final String PARAM_NAME = "bdp.system.bizdate";
-
-    private static final String TYPE4SYSTEM = "0";
-
     private static Integer SUB_AMOUNTS_LIMIT = 2000;
 
     private final static String FILE_TYPE_FOLDER = "folder";
-
-    /**
-     * 前端是根据type 区分函数目录下的类型的，所以以下皆是 函数管理下的目录
-     */
-    private static List<String> FUNCTION_CATALOGUE_TYPE = Lists.newArrayList(CatalogueType.SYSTEM_FUNCTION.getType(), CatalogueType.CUSTOM_FUNCTION.getType(), CatalogueType.PROCEDURE_FUNCTION.getType());
-
-    /**
-     * 如果没有选择对接引擎 就要默认初始化下列目录
-     */
-    private static Set<String> NO_ENGINE_CATALOGUE = Sets.newHashSet(CatalogueType.TASK_DEVELOP.getType(), CatalogueType.RESOURCE_MANAGER.getType(), CatalogueType.FUNCTION_MANAGER.getType());
 
     /**
      * 新增 and 修改目录
@@ -190,18 +167,11 @@ public class DevelopCatalogueService {
      * 绑定租户时，初始化目录信息
      * @param tenantId
      * @param userId
-     * @param componentVOS 根据控制台配置的组件信息，初始化相应的目录
      */
     @Transactional(rollbackFor = Exception.class)
-    public void initCatalogue(Long tenantId, Long userId, List<ComponentVO> componentVOS) {
+    public void initCatalogue(Long tenantId, Long userId) {
         //离线各模块的 0 级目录，任务管理、函数管理、资源管理
         List<Dict> zeroBatchCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
-        List<Integer> componentTypes = componentVOS.stream().map(ComponentVO::getComponentTypeCode).collect(Collectors.toList());
-        //根据控制台配置的组件信息，获取需要初始化的 1 级目录，任务开发、SparkSQL、资源管理 等
-        List<Dict> oneBatchCatalogueDictList = this.initCatalogueDictLevelByEngineType(componentTypes);
-
-        Map<String, Set<String>> oneCatalogueValueAndNameMapping = oneBatchCatalogueDictList.stream()
-                .collect(Collectors.groupingBy(Dict::getDictValue, Collectors.mapping(Dict::getDictDesc, Collectors.toSet())));
         for (Dict zeroDict : zeroBatchCatalogueDictList) {
             //初始化 0 级目录
             BatchCatalogue zeroBatchCatalogue = new BatchCatalogue();
@@ -212,81 +182,8 @@ public class DevelopCatalogueService {
             zeroBatchCatalogue.setTenantId(tenantId);
             zeroBatchCatalogue.setCreateUserId(userId);
             zeroBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-            zeroBatchCatalogue = addOrUpdate(zeroBatchCatalogue);
-            if (CollectionUtils.isNotEmpty(oneCatalogueValueAndNameMapping.get(zeroDict.getDictValue()))) {
-                for (String oneCatalogueName : oneCatalogueValueAndNameMapping.get(zeroDict.getDictValue())) {
-                    //初始化 1 级目录
-                    BatchCatalogue oneBatchCatalogue = new BatchCatalogue();
-                    oneBatchCatalogue.setNodeName(oneCatalogueName);
-                    oneBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
-                    oneBatchCatalogue.setNodePid(zeroBatchCatalogue.getId());
-                    oneBatchCatalogue.setTenantId(tenantId);
-                    oneBatchCatalogue.setCreateUserId(userId);
-                    oneBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-                    addOrUpdate(oneBatchCatalogue);
-                    this.initEngineCatalogue(tenantId, userId, oneCatalogueName, oneBatchCatalogue);
-                }
-            }
+            addOrUpdate(zeroBatchCatalogue);
         }
-    }
-
-    /**
-     * 根据控制台配置的组件信息，获取需要初始化的 1 级目录，任务开发、SparkSQL、资源管理 等
-     * @param componentType
-     * @return
-     */
-    private List<Dict> initCatalogueDictLevelByEngineType(List<Integer> componentType) {
-        List<Dict> dictByType = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE_L1);
-        //根据组件类型初始化对应的函数管理目录
-        if (CollectionUtils.isNotEmpty(componentType)) {
-            //如果没有选择SparkThrift组件，则不初始化目录
-            if (!componentType.contains(EComponentType.SPARK_THRIFT.getTypeCode())) {
-                dictByType = dictByType.stream()
-                        .filter(dict -> !dict.getDictDesc().equals(EngineCatalogueType.SPARK.getDesc()))
-                        .collect(Collectors.toList());
-            }
-            return dictByType;
-        } else {
-            return dictByType.stream().filter(dict -> NO_ENGINE_CATALOGUE.contains(dict.getDictName())).collect(Collectors.toList());
-        }
-    }
-
-
-    /**
-     *  初始化函数相关的二级菜单，系统函数目录 和 自定义函数目录
-     * @param tenantId
-     * @param userId
-     * @param name
-     * @param oneBatchCatalogue
-     */
-    private void initEngineCatalogue(Long tenantId, Long userId, String name, BatchCatalogue oneBatchCatalogue) {
-        //一级菜单初始化的时候  函数管理的一级菜单为引擎 原有的一级菜单 系统函数 自定义函数 挂在引擎下 作为二级菜单
-        if (isNeedFunction(name)) {
-            //离线需要初始化的函数目录
-            List<Dict> batchFunctionDictList = dictService.listByDictType(DictType.DATA_DEVELOP_FUNCTION);
-            if (CollectionUtils.isNotEmpty(batchFunctionDictList)) {
-                for (Dict functionDict : batchFunctionDictList) {
-                    //需要 系统函数、自定义函数 挂在当前目录下
-                    BatchCatalogue twoBatchCatalogue = new BatchCatalogue();
-                    twoBatchCatalogue.setNodeName(functionDict.getDictDesc());
-                    twoBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
-                    twoBatchCatalogue.setNodePid(oneBatchCatalogue.getId());
-                    twoBatchCatalogue.setTenantId(tenantId);
-                    twoBatchCatalogue.setCreateUserId(userId);
-                    twoBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-                    addOrUpdate(twoBatchCatalogue);
-                }
-            }
-        }
-    }
-
-    /**
-     * 校验是否初始化Spark SQL函数
-     * @param name
-     * @return
-     */
-    private boolean isNeedFunction(String name) {
-        return EngineCatalogueType.SPARK.getDesc().equalsIgnoreCase(name) || EngineCatalogueType.FLINK.getDesc().equalsIgnoreCase(name);
     }
 
     /**
@@ -314,9 +211,9 @@ public class DevelopCatalogueService {
         }
     }
 
-
     /**
      * 条件查询目录
+     *
      * @param isGetFile
      * @param nodePid
      * @param catalogueType
@@ -355,13 +252,14 @@ public class DevelopCatalogueService {
     }
 
     /**
-     * 更新目录（移动和重命
+     * 更新目录（移动和重命名)
+     *
+     * @param catalogueInput
      */
     public void updateCatalogue(BatchCatalogueVO catalogueInput) {
-
         BatchCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         catalogueOneNotUpdate(catalogue);
-        if (catalogue == null || catalogue.getIsDeleted() == 1) {
+        if (catalogue.getIsDeleted() == 1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
 
@@ -396,9 +294,10 @@ public class DevelopCatalogueService {
 
     }
 
-
     /**
      * 删除目录
+     *
+     * @param catalogueInput
      */
     public void deleteCatalogue(BatchCatalogue catalogueInput) {
         BatchCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
@@ -407,7 +306,6 @@ public class DevelopCatalogueService {
         }
 
         catalogueOneNotUpdate(catalogue);
-
 
         //判断文件夹下任务
         List<Task> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
@@ -431,12 +329,11 @@ public class DevelopCatalogueService {
         developCatalogueMapper.deleteById(catalogue.getId());
     }
 
-
     /**
      * 一级目录不允许修改
      *
      * @param catalogue
-     * @author jiangbo
+     * @author
      */
     private void catalogueOneNotUpdate(BatchCatalogue catalogue) {
         if (catalogue.getCatalogueType().equals(RdosBatchCatalogueTypeEnum.TENANT.getType())) {
@@ -450,13 +347,12 @@ public class DevelopCatalogueService {
         }
     }
 
-
     /**
      * 判断目录级别是否超出限制
      *
      * @param nodePid 父目录id
      * @return
-     * @author toutian
+     * @author
      */
     private int isOverLevelLimit(long nodePid) {
         BatchCatalogue parentCatalogue = developCatalogueMapper.selectById(nodePid);
@@ -533,14 +429,13 @@ public class DevelopCatalogueService {
      * @param isGetFile
      * @param userId
      * @return
-     * @author jiangbo、toutian
+     * @author
      */
     private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long userId, Long tenantId) {
         BatchCatalogue currentCatalogue = developCatalogueMapper.selectById(currentCatalogueVO.getId());
-        if (currentCatalogue == null) {
+        if (Objects.isNull(currentCatalogue)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
-
         currentCatalogueVO.setTenantId(currentCatalogue.getTenantId());
         currentCatalogueVO.setName(currentCatalogue.getNodeName());
         currentCatalogueVO.setLevel(currentCatalogue.getLevel());
@@ -551,8 +446,6 @@ public class DevelopCatalogueService {
         if (isGetFile) {
             //目录下的文件信息
             List<CatalogueVO> catalogueChildFileList = Lists.newArrayList();
-            //用户id 和 名称映射
-            Map<Long, String> userIdAndNameMap = Maps.newHashMap();
 
             //任务目录
             if (CatalogueType.TASK_DEVELOP.getType().equals(currentCatalogueVO.getCatalogueType())) {
@@ -566,11 +459,10 @@ public class DevelopCatalogueService {
                         childCatalogueTask.setType("file");
                         childCatalogueTask.setLevel(currentCatalogueVO.getLevel() + 1);
                         childCatalogueTask.setParentId(currentCatalogueVO.getId());
-                        childCatalogueTask.setCreateUser(getUserNameInMemory(userIdAndNameMap, task.getCreateUserId()));
                         catalogueChildFileList.add(childCatalogueTask);
                     }
                 }
-            } else if (FUNCTION_CATALOGUE_TYPE.contains(currentCatalogueVO.getCatalogueType())) {
+            } else if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 //处理函数目录
                 List<DevelopFunction> functionList = batchFunctionService.listByNodePidAndTenantId(currentCatalogueVO.getTenantId(), currentCatalogueVO.getId());
                 if (CollectionUtils.isNotEmpty(functionList)) {
@@ -580,7 +472,6 @@ public class DevelopCatalogueService {
                         BeanUtils.copyProperties(function, child);
                         child.setLevel(currentCatalogueVO.getLevel() + 1);
                         child.setType("file");
-                        child.setCreateUser(getUserNameInMemory(userIdAndNameMap, function.getCreateUserId()));
                         child.setParentId(function.getNodePid());
                         catalogueChildFileList.add(child);
                     }
@@ -597,7 +488,6 @@ public class DevelopCatalogueService {
                         childResource.setType("file");
                         childResource.setLevel(currentCatalogueVO.getLevel() + 1);
                         childResource.setParentId(currentCatalogueVO.getId());
-                        childResource.setCreateUser(getUserNameInMemory(userIdAndNameMap, resource.getCreateUserId()));
                         catalogueChildFileList.add(childResource);
                     }
                 }
@@ -606,17 +496,16 @@ public class DevelopCatalogueService {
         }
 
         //获取目录下的子目录
-        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByType(currentCatalogueVO.getId(), currentCatalogueVO.getCatalogueType(), currentCatalogue.getTenantId());
+        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByNodePid(currentCatalogueVO.getId());
         childCatalogues.sort(Comparator.comparing(BatchCatalogue::getNodeName));
         List<CatalogueVO> children = new ArrayList<>();
         for (BatchCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
             cv.setType(FILE_TYPE_FOLDER);
-            this.changeSQLFunctionCatalogueType(catalogue, cv, currentCatalogueVO);
             children.add(cv);
         }
 
-        if (currentCatalogueVO.getChildren() == null) {
+        if (Objects.isNull(currentCatalogueVO.getChildren())) {
             currentCatalogueVO.setChildren(children);
         } else {
             currentCatalogueVO.getChildren().addAll(0, children);
@@ -625,110 +514,18 @@ public class DevelopCatalogueService {
         return currentCatalogueVO;
     }
 
-
-    /**
-     * 如果是libraSQL 或者是sparkSQl下的function  需要替换child 的catalogueType
-     * @param catalogue
-     * @param cv
-     * @param currentCatalogueVO
-     */
-    private void changeSQLFunctionCatalogueType(BatchCatalogue catalogue, CatalogueVO cv, CatalogueVO currentCatalogueVO) {
-        cv.setCatalogueType(currentCatalogueVO.getCatalogueType());
-        //如果是libraSQL 或者是sparkSQl下的function  需要替换child 的catalogueType
-        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType()) || CatalogueType.FLINKSQL_FUNCTION.getType().equals(currentCatalogueVO.getCatalogueType())) {
-            if ("自定义函数".equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.CUSTOM_FUNCTION.getType());
-            }
-            if ("系统函数".equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.SYSTEM_FUNCTION.getType());
-            }
-            if ("存储过程".equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.PROCEDURE_FUNCTION.getType());
-            }
-        }
-        if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
-            if (EngineCatalogueType.SPARK.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.SPARKSQL_FUNCTION.getType());
-            }
-            if (EngineCatalogueType.FLINK.getDesc().equals(catalogue.getNodeName())) {
-                cv.setCatalogueType(CatalogueType.FLINKSQL_FUNCTION.getType());
-            }
-        }
-
-    }
-
-    /**
-     * 设置用户名称
-     * @param names
-     * @param userId
-     * @return
-     */
-    private String getUserNameInMemory(Map<Long, String> names, Long userId) {
-        if (names.containsKey(userId)) {
-            return names.get(userId);
-        } else {
-            String name = userService.getUserName(userId);
-            names.put(userId, name);
-            return name;
-        }
-    }
-
     /**
      * 根据目录类型，获取目录的子目录信息
+     *
      * @param catalogueId
-     * @param catalogueType
-     * @param tenantId
-     * @param tenantId
      * @return
      */
-    private List<BatchCatalogue> getChildCataloguesByType(Long catalogueId, String catalogueType, Long tenantId) {
+    private List<BatchCatalogue> getChildCataloguesByNodePid(Long catalogueId) {
         List<BatchCatalogue> childCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, tenantId)
                 .eq(BatchCatalogue::getNodePid, catalogueId)
                 .orderByDesc(BatchCatalogue::getGmtCreate));
-        this.replaceSystemFunction(catalogueId, catalogueType, childCatalogues);
         return childCatalogues;
     }
-
-
-    /**
-     * 根据目录类型查询对应的函数根目录
-     * @param catalogueId
-     * @param catalogueType
-     * @param childCatalogues
-     */
-    private void replaceSystemFunction(Long catalogueId, String catalogueType, List<BatchCatalogue> childCatalogues) {
-        if (CatalogueType.SPARKSQL_FUNCTION.getType().equals(catalogueType)) {
-            replaceSystemFunction(catalogueId, catalogueType, childCatalogues, "系统函数");
-        } else if (CatalogueType.FLINKSQL_FUNCTION.getType().equals(catalogueType)) {
-            replaceSystemFunction(catalogueId, catalogueType, childCatalogues, "Flink系统函数");
-        }
-    }
-
-
-    private void replaceSystemFunction(Long catalogueId, String catalogueType, List<BatchCatalogue> childCatalogues, String catalogName) {
-        BatchCatalogue one = developCatalogueMapper.selectById(catalogueId);
-        EngineCatalogueType systemEngineType = EngineCatalogueType.getByeName(one == null ? null : one.getNodeName());
-        //需要将系统函数替换对应 引擎的函数模板
-        BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getNodePid, systemEngineType.getType())
-                .eq(BatchCatalogue::getLevel, 1)
-                .eq(BatchCatalogue::getNodeName, catalogName)
-                .eq(BatchCatalogue::getTenantId, -1)
-                .last("limit 1"));
-        if (systemFuncCatalogue == null) {
-            return;
-        }
-
-        for (BatchCatalogue childCatalogue : childCatalogues) {
-            if ("系统函数".equals(childCatalogue.getNodeName())) {
-                childCatalogue.setNodePid(systemFuncCatalogue.getNodePid());
-                childCatalogue.setId(systemFuncCatalogue.getId());
-            }
-        }
-    }
-
-
 
     /**
      * 判断是否可以移动到当前目录
@@ -744,11 +541,11 @@ public class DevelopCatalogueService {
 
     /**
      * 根据 目录Id 查询目录信息
-     * @param nodePid
+     * @param nodeId
      * @return
      */
-    public BatchCatalogue getOne(Long nodePid) {
-        return developCatalogueMapper.selectById(nodePid);
+    public BatchCatalogue getOne(Long nodeId) {
+        return developCatalogueMapper.selectById(nodeId);
     }
 
     /**

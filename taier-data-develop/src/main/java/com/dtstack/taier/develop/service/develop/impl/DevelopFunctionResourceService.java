@@ -82,12 +82,4 @@ public class DevelopFunctionResourceService {
         return developFunctionResourceDao.listByResourceId(resourceId);
     }
 
-    /**
-     * 根据resource_Id  获取列表
-     * @param resource_Id
-     * @return
-     */
-    public List<BatchFunctionResource> listByFunctionResourceId(Long resource_Id) {
-        return developFunctionResourceDao.listByFunctionResourceId(resource_Id);
-    }
 }

@@ -89,8 +89,7 @@ public class DevelopSparkHiveSqlExeService {
      */
     protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, TenantComponent tenantEngine, EScheduleJobType eScheduleJobType) {
         try {
-            if (SqlType.getShowType().contains(parseResult.getSqlType())
-                    && !parseResult.getStandardSql().matches(INSERT_REGEX)) {
+            if (SqlType.getShowType().contains(parseResult.getSqlType())) {
                 List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
                 batchSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
@@ -132,18 +131,6 @@ public class DevelopSparkHiveSqlExeService {
             }
         }
         return sqlBuild.toString();
-    }
-
-    /**
-     * 执行create语句
-     *
-     * @param parseResult
-     * @param tenantId
-     * @param db
-     * @param eScheduleJobType
-     */
-    protected void executeCreateTableSql(ParseResult parseResult, Long tenantId, String db, EScheduleJobType eScheduleJobType) {
-        jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, db, parseResult.getStandardSql());
     }
 
     /**
@@ -201,6 +188,8 @@ public class DevelopSparkHiveSqlExeService {
         String preJobId = executeContent.getPreJobId();
         String currDb = executeContent.getParseResult().getCurrentDb();
         ParseResult parseResult = executeContent.getParseResult();
+
+        // 校验是否含有自定义函数
         boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null, scheduleJobType.getType());
 
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
@@ -211,28 +200,16 @@ public class DevelopSparkHiveSqlExeService {
             }
         }
 
-        //DataSourceType dataSourceType = scheduleJobType == EScheduleJobType.SPARK_SQL ? DataSourceType.SPARKTHRIFT2_1 : null;
-        if (SqlType.CREATE_AS.equals(parseResult.getSqlType())) {
-            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), true, taskId, scheduleJobType.getType(), preJobId);
-            result.setJobId(jobId);
-            result.setContinue(false);
-            return result;
-        } else if (SqlType.INSERT.equals(parseResult.getSqlType())
+        if (SqlType.INSERT.equals(parseResult.getSqlType())
                 || SqlType.INSERT_OVERWRITE.equals(parseResult.getSqlType())
                 || SqlType.QUERY.equals(parseResult.getSqlType())
+                || SqlType.CREATE_AS.equals(parseResult.getSqlType())
                 || useSelfFunction) {
             String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
         } else {
-            if (!executeContent.isExecuteSqlLater()) {
-                TenantComponent tenantEngine = developTenantComponentService.getByTenantAndEngineType(executeContent.getTenantId(), executeContent.getTaskType());
-                if (SqlType.CREATE.equals(parseResult.getSqlType())
-                        || SqlType.CREATE_LIKE.equals(parseResult.getSqlType())) {
-                    executeCreateTableSql(parseResult, tenantId, tenantEngine.getComponentIdentity().toLowerCase(), scheduleJobType);
-                } else {
-                    this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, scheduleJobType);
-                }
-            }
+            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(), executeContent.getTaskType());
+            this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, scheduleJobType);
         }
         result.setContinue(true);
         return result;
