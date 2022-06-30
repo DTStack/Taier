@@ -169,14 +169,14 @@ export default () => {
 			>
 				<FormItem label="集群" name="clusterId">
 					<Select
-						style={{ width: 264 }}
+						style={{ width: 200 }}
 						placeholder="请选择集群"
 						options={clusterOptions}
 					/>
 				</FormItem>
 				<FormItem label="引擎" name="engineId">
 					<Select
-						style={{ width: 264 }}
+						style={{ width: 200 }}
 						placeholder="请选择引擎"
 						options={engineOptions}
 					/>

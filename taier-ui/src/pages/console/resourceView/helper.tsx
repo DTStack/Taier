@@ -19,9 +19,8 @@
 import { useMemo } from 'react';
 import { cloneDeep } from 'lodash';
 import Chart from '@/components/chart';
-import Table from 'antd/lib/table';
 import type { SCHEDULE_TYPE } from '@/constant';
-import type { ColumnsType, TableProps } from 'antd/lib/table';
+import type { ColumnsType } from 'antd/lib/table';
 import { useCurrentTheme } from '@/components/customHooks';
 
 export interface ResouceProps {
@@ -244,7 +243,7 @@ export const NODE_COLUMNS: ColumnsType<INodeProps> = [
 	},
 ];
 
-export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users']> = [
+export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users'][number]> = [
 	{
 		title: 'Username',
 		dataIndex: 'username',
@@ -306,23 +305,6 @@ export const RESOURCE_DETAIL_COLUMNS: ColumnsType<ICapacityProps['users']> = [
 		},
 	},
 ];
-
-/**
- * Table with title
- */
-export const RenderTable = ({
-	title,
-	desc = '',
-	...tableProps
-}: { title: React.ReactNode; desc?: string } & Omit<TableProps<any>, 'title'>) => (
-	<div className="c-resourceView__table__container">
-		<p>
-			{title}
-			{desc && `（${desc}）`}
-		</p>
-		<Table style={{ marginTop: '10px' }} pagination={false} {...tableProps} />
-	</div>
-);
 
 /**
  * The Resource Card
