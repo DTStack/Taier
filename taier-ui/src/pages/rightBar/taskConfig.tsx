@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { FormContext } from '@/services/rightBarService';
-import { Checkbox, Form, InputNumber, Select } from 'antd';
+import { Checkbox, Form, Input, InputNumber, Select } from 'antd';
 import { Collapse } from 'antd';
 import molecule from '@dtinsight/molecule';
 import { DATA_SOURCE_ENUM, DIRTY_DATA_SAVE, formItemLayout } from '@/constant';
@@ -9,7 +9,6 @@ import {
 	dirtyFailRecord,
 	dirtySaveType,
 	logPrintTimes,
-	recordDirtyTable,
 } from '@/components/helpDoc/docs';
 import LifeCycleSelect from '@/components/lifeCycleSelect';
 import api from '@/api';
@@ -24,7 +23,9 @@ interface IFormFieldProps {
 	maxRows?: number;
 	maxCollectFailedRows?: number;
 	outputType?: DIRTY_DATA_SAVE;
-	sourceId?: number;
+	linkInfo?: {
+		sourceId: number;
+	};
 	tableName?: string;
 	lifeCycle?: any;
 	logPrintInterval?: number;
@@ -34,25 +35,8 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 	const { form } = useContext(FormContext) as { form?: FormInstance<IFormFieldProps> };
 
 	const [dataSourceList, setDataSourceList] = useState<{ label: string; value: number }[]>([]);
-	const [tableList, setTableList] = useState<string[]>([]);
 
-	const getTableList = (sourceId: number) => {
-		api.getOfflineTableList({
-			sourceId,
-			isSys: false,
-			isRead: false,
-		}).then((res) => {
-			if (res.code === 1) {
-				setTableList(res.data || []);
-			}
-		});
-	};
-
-	const handleFormValuesChange = (changedValues: Partial<IFormFieldProps>) => {
-		if ('sourceId' in changedValues) {
-			getTableList(changedValues.sourceId!);
-		}
-
+	const handleFormValuesChange = () => {
 		setTimeout(() => {
 			const { openDirtyDataManage, ...restValues } = form?.getFieldsValue() || {};
 
@@ -61,8 +45,8 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 				data: {
 					...current!.tab!.data,
 					openDirtyDataManage,
-					dataSyncTaskDirtyDataManageVO: {
-						...current!.tab!.data!.dataSyncTaskDirtyDataManageVO,
+					taskDirtyDataManageVO: {
+						...current!.tab!.data!.taskDirtyDataManageVO,
 						...restValues,
 					},
 				},
@@ -92,18 +76,18 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 				maxRows,
 				maxCollectFailedRows,
 				outputType,
-				sourceId,
+				linkInfo,
 				tableName,
 				lifeCycle,
 				logPrintInterval,
-			} = (current.tab.data.dataSyncTaskDirtyDataManageVO || {}) as IFormFieldProps;
+			} = (current.tab.data.taskDirtyDataManageVO || {}) as IFormFieldProps;
 
 			return {
 				openDirtyDataManage: current.tab.data.openDirtyDataManage,
 				maxRows,
 				maxCollectFailedRows,
 				outputType,
-				sourceId,
+				linkInfo,
 				tableName,
 				lifeCycle,
 				logPrintInterval,
@@ -184,7 +168,7 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 													<>
 														<Form.Item
 															label="脏数据写入库"
-															name="sourceId"
+															name={['linkInfo', 'sourceId']}
 															rules={[
 																{
 																	required: true,
@@ -209,17 +193,9 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 														<Form.Item
 															label="脏数据写入表"
 															name="tableName"
-															tooltip={recordDirtyTable}
+															initialValue="flinkx_dirty_data"
 														>
-															<Select
-																placeholder="请选择脏数据写入的MySQL表，为空则系统自动创建"
-																allowClear
-																showSearch
-																options={tableList.map((o) => ({
-																	label: o,
-																	value: o,
-																}))}
-															/>
+															<Input disabled />
 														</Form.Item>
 														<Form.Item
 															label="脏数据生命周期"

@@ -212,12 +212,14 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	// 是否支持脏数据记录
 	openDirtyDataManage?: boolean;
 	// 脏数据管理字段收集
-	dataSyncTaskDirtyDataManageVO?: {
+	taskDirtyDataManageVO?: {
 		id: number;
 		maxRows?: number;
 		maxCollectFailedRows?: number;
 		outputType?: DIRTY_DATA_SAVE;
-		sourceId?: number;
+		linkInfo?: {
+			sourceId: number;
+		};
 		tableName?: string;
 		lifeCycle?: any;
 		logPrintInterval?: number;

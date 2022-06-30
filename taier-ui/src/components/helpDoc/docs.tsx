@@ -31,13 +31,6 @@ export const logPrintTimes = (
 	</span>
 );
 
-export const recordDirtyTable = (
-	<div>
-		<div>脏数据表会写入选择的MySQL库中，表名默认系统分配"dirty_任务名称"</div>
-		<div>同时，支持写入自定义表，用户自定义表名，数据写入时进行新建。</div>
-	</div>
-);
-
 export const targetColText =
 	'别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
 
