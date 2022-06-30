@@ -24,13 +24,30 @@
 			}
 		}
 	}
+}
 
-	.c-resourceView__table__container {
-		p {
-			margin-top: 20px;
-			margin-bottom: 12px;
-			font-weight: 600;
-			font-size: 14px;
-		}
+.c-resourceView__table__container {
+	.resourceView__table__title {
+		color: #333;
+		font-size: 14px;
+		font-weight: 600;
+	}
+
+	.resourceView__table__desc {
+		color: var(--descriptionForeground);
+		font-size: 12px;
+	}
+
+	p {
+		margin: 12px 0;
+	}
+
+	.resourceView__table-border {
+		border: 1px solid var(--tree-indentGuidesStroke);
+		border-bottom: 0;
+	}
+
+	.resourceView__subTable .ant-table {
+		border-left: 1px solid var(--tree-indentGuidesStroke);
 	}
 }
