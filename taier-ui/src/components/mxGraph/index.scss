@@ -79,6 +79,11 @@ div.mxPopupMenu {
 			font-size: 12px;
 			font-family: 'PingFangSC-Regular', sans-serif;
 			letter-spacing: 0;
+
+			&.mxDisabled {
+				color: var(--disabledForeground);
+				cursor: not-allowed;
+			}
 		}
 
 		td.mxPopupMenuIcon {

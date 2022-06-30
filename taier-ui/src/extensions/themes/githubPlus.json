@@ -1,0 +1,17 @@
+{
+    "id": "GitHub Plus",
+    "colors": {
+        "list.focusBackground": "#E4E6F1",
+        "list.inactiveSelectionBackground": "#E4E6F1",
+        "tree.indentGuidesStroke": "#eeeeee",
+        "minimapSlider.activeBackground": "#00000099",
+        "minimapSlider.background": "#64646480",
+        "minimapSlider.hoverBackground": "#64646480",
+        "scrollbarSlider.background": "#64646466",
+        "scrollbarSlider.hoverBackground": "#646464b3",
+        "scrollbarSlider.activeBackground": "#00000099",
+        "activityBar.inactiveForeground": "#ffffff66",
+        "disabledForeground": "#ddd",
+        "menu.selectionBackground": "#54a3ff"
+    }
+}
