@@ -316,6 +316,10 @@ export default {
 		// 获取Hive分区
 		return http.post(req.CHECK_HIVE_PARTITIONS, params);
 	},
+	selectRunLog<T>(params: any) {
+		// 非数据同步接口获取日志
+		return http.post<T>(req.SELECT_SQL_LOG, params);
+	},
 	/**
 	 * - 查询数据同步任务，SQL 执行结果
 	 * - 需要补充增量同步
@@ -329,6 +333,14 @@ export default {
 				? req.SELECT_DATA_SYNC_RESULT
 				: req.SELECT_SQL_RESULT_DATA;
 		return http.post(url, params);
+	},
+	selectExecResultDataSync(params: any) {
+		// 数据同步接口获取结果表
+		return http.post(req.SELECT_DATA_SYNC_RESULT, params);
+	},
+	selectStatus(params: any) {
+		// 非数据同步接口轮训状态
+		return http.post(req.SELECT_SQL_STATUS, params);
 	},
 	forzenTask(params: any) {
 		return http.post(req.FROZEN_TASK, params);

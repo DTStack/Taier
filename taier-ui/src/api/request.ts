@@ -51,6 +51,8 @@ export default {
 	EXEC_DATA_SYNC_IMMEDIATELY: `${BASE_URI}/batchJob/startSyncImmediately`, // 立即执行数据同步
 	STOP_DATA_SYNC_IMMEDIATELY: `${BASE_URI}/batchJob/stopSyncJob`, // 停止执行数据同步
 	SELECT_DATA_SYNC_RESULT: `${BASE_URI}/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
+	SELECT_SQL_LOG: `${BASE_URI}/batchSelectSql/selectRunLog`, // 轮询调度查询sql状态
+	SELECT_SQL_STATUS: `${BASE_URI}/batchSelectSql/selectStatus`, // 轮询调度查询sql状态
 	GET_INCREMENT_COLUMNS: `${BASE_URI}/task/getIncreColumn`, // 获取增量字段
 	CHECK_SYNC_MODE: `${BASE_URI}/task/canSetIncreConf`, // 检测是否满足增量转换条件
 	CHECK_HIVE_PARTITIONS: `${BASE_URI}/batchDataSource/getHivePartitions`, // 获取 hive 表分区值
