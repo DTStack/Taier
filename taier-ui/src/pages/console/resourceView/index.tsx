@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { Table, Progress } from 'antd';
 import Api from '../../../api';
 import { findKey } from 'lodash';
 import type {
@@ -27,8 +28,8 @@ import type {
 	IQueueProps,
 	IResourceMetrics,
 } from './helper';
-import { NODE_COLUMNS, RenderTable, ResourceCard, RESOURCE_DETAIL_COLUMNS } from './helper';
-import type { ColumnsType } from 'antd/lib/table';
+import { NODE_COLUMNS, ResourceCard, RESOURCE_DETAIL_COLUMNS } from './helper';
+import type { ColumnsType, TableProps } from 'antd/lib/table';
 import { SCHEDULE_TYPE } from '@/constant';
 import './index.scss';
 
@@ -50,7 +51,6 @@ export default ({
 	});
 	const [scheduleType, setScheduleType] = useState<SCHEDULE_TYPE>(SCHEDULE_TYPE.Capacity);
 	const [queueLists, setQueueLists] = useState<IQueueProps[]>([]);
-	const [target, setTarget] = useState<ICapacityProps | undefined>(undefined);
 
 	const getClusterResources = () => {
 		Api.getClusterResources({
@@ -91,13 +91,17 @@ export default ({
 		});
 	};
 
-	const handleShowDetailt = (record: ICapacityProps) => {
-		setTarget((current) => {
-			if (current?.queueName && current.queueName === record.queueName) {
-				return undefined;
-			}
-			return record;
-		});
+	const renderSubTable = (record: ICapacityProps) => {
+		return (
+			<Table
+				size="middle"
+				className="resourceView__subTable"
+				rowKey="username"
+				columns={RESOURCE_DETAIL_COLUMNS}
+				dataSource={record.users}
+				pagination={false}
+			/>
+		);
 	};
 
 	useEffect(() => {
@@ -115,8 +119,15 @@ export default ({
 					{
 						title: '已使用容量',
 						dataIndex: 'usedCapacity',
-						render(text) {
-							return `${text}%`;
+						render(text: number) {
+							return (
+								<Progress
+									style={{ paddingRight: 20 }}
+									percent={text}
+									strokeColor="rgb(57, 227, 169)"
+									size="small"
+								/>
+							);
 						},
 					},
 					{
@@ -132,22 +143,6 @@ export default ({
 						render(text) {
 							return `${text}%`;
 						},
-					},
-					{
-						title: '查看',
-						dataIndex: 'action',
-						render: (_, record) => {
-							return (
-								<a
-									onClick={() => {
-										handleShowDetailt(record);
-									}}
-								>
-									资源详情
-								</a>
-							);
-						},
-						width: 150,
 					},
 				] as ColumnsType<ICapacityProps>;
 			case SCHEDULE_TYPE.Fair:
@@ -250,21 +245,35 @@ export default ({
 			<RenderTable
 				columns={queueColumns}
 				dataSource={queueLists}
+				expandable={{
+					expandedRowRender: renderSubTable,
+				}}
 				rowKey="queueName"
-				title={`各资源队列资源使用（调度方式：${findKey(
-					SCHEDULE_TYPE,
-					(val) => val === scheduleType,
-				)}）`}
+				title={`各资源队列资源使用`}
+				desc={`调度方式：${findKey(SCHEDULE_TYPE, (val) => val === scheduleType)}`}
 			/>
-			{target ? (
-				<RenderTable
-					columns={RESOURCE_DETAIL_COLUMNS}
-					dataSource={target.users}
-					title="资源详情"
-					rowKey="username"
-					desc={target.queueName}
-				/>
-			) : null}
 		</>
 	);
 };
+
+/**
+ * Table with title
+ */
+export const RenderTable = ({
+	title,
+	desc = '',
+	...tableProps
+}: { title: React.ReactNode; desc?: string } & Omit<TableProps<any>, 'title'>) => (
+	<div className="c-resourceView__table__container">
+		<p>
+			<span className="resourceView__table__title">{title}</span>
+			{desc && <span className="resourceView__table__desc">{`（${desc}）`}</span>}
+		</p>
+		<Table
+			pagination={false}
+			className="resourceView__table-border"
+			size="middle"
+			{...tableProps}
+		/>
+	</div>
+);
