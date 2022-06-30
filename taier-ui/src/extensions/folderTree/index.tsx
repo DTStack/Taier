@@ -21,8 +21,8 @@ import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/m
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
-import type { IFormFieldProps } from '@/components/task/open';
-import Open from '@/components/task/open';
+import type { IFormFieldProps } from '@/components/task/create';
+import Open from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
 import DataSync from '@/components/dataSync';
 import { fileIcon, getParentNode } from '@/utils/extensions';
