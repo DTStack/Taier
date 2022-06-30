@@ -147,7 +147,8 @@
 		"tree.tableColumnsBorder": "#CCCCCC20",
 		"walkThrough.embeddedEditorBackground": "#2e3440",
 		"welcomePage.buttonHoverBackground": "#404754",
-		"workbenchBackground": "#232730"
+		"workbenchBackground": "#232730",
+		"disabledForeground": "#CCCCCC80"
 	},
 	"tokenColors": [
 		{
