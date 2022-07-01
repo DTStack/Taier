@@ -176,6 +176,7 @@ class TaskRenderService {
 				switch (key) {
 					case TASK_TYPE_ENUM.FLINK: {
 						return {
+							...record,
 							nodePid: `${record.nodePid}-folder`,
 						};
 					}
