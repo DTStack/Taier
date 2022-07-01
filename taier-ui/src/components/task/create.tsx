@@ -21,8 +21,8 @@ import Context from '@/context';
 import { Button, Input, Select, Form, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import FolderPicker from '../folderPicker';
-import type { DATA_SYNC_MODE, CREATE_MODEL_TYPE, TASK_TYPE_ENUM } from '@/constant';
-import { CATELOGUE_TYPE, FLINK_VERSIONS } from '@/constant';
+import type { DATA_SYNC_MODE, CREATE_MODEL_TYPE, TASK_TYPE_ENUM, FLINK_VERSIONS } from '@/constant';
+import { CATELOGUE_TYPE } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import api from '@/api';
@@ -65,10 +65,6 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: ICreateP
 			api.getOfflineTaskByID({ id: record.id })
 				.then((res) => {
 					if (res.code === 1) {
-						form.setFieldsValue({
-							taskDesc: res.data.taskDesc,
-						});
-
 						// 如果发现 syncModel 字段放到旧版本字段的位置上了，则给一个提示
 						const isTruncate =
 							res.data.sourceMap?.syncModel === undefined &&
@@ -83,18 +79,25 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: ICreateP
 							},
 						]);
 
+						// 设置所有类型都需要的字段
 						form.setFieldsValue({
 							name: res.data.name,
-							createModel: res.data.createModel,
+							taskDesc: res.data.taskDesc,
 							sqlText: res.data.sqlText,
-							componentVersion:
-								res.data.componentVersion || FLINK_VERSIONS.FLINK_1_12,
 							taskType: res.data.taskType,
-							// 以下为 flink 属性
-							mainClass: res.data.mainClass,
-							exeArgs: res.data.exeArgs,
-							resourceIdList: res.data.resourceIdList,
 						});
+
+						// 获取当前类型在新建的时候所需要的字段
+						const formFields = taskRenderService.createFormField.find(
+							(i) => i.taskType === res.data.taskType,
+						);
+						if (formFields) {
+							formFields.formField.forEach((field) => {
+								form.setFieldsValue({
+									[field]: res.data[field],
+								});
+							});
+						}
 					}
 				})
 				.finally(() => {

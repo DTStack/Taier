@@ -1,0 +1,31 @@
+[
+    {
+        "taskType": 2,
+        "formField": [
+            "createModel",
+            "syncModel"
+        ]
+    },
+    {
+        "taskType": 5,
+        "formField": [
+            "componentVersion"
+        ]
+    },
+    {
+        "taskType": 11,
+        "formField": [
+            "resourceIdList",
+            "mainClass",
+            "exeArgs",
+            "componentVersion"
+        ]
+    },
+    {
+        "taskType": 6,
+        "formField": [
+            "createModel",
+            "componentVersion"
+        ]
+    }
+]

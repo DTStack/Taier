@@ -12,10 +12,16 @@ import type { StoreValue } from 'antd/lib/form/interface';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
 
+interface ICreateFormProps {
+	disabled?: boolean;
+	validator?: (rule: RuleObject, value: StoreValue) => Promise<void | any> | void;
+	onChange?: (value: string) => void;
+}
+
 /**
  * 配置模式物料
  */
-export const CreateModel = ({ disabled }: { disabled: boolean }) => (
+const CreateModel = ({ disabled }: ICreateFormProps) => (
 	<Form.Item
 		label="配置模式"
 		name="createModel"
@@ -38,11 +44,7 @@ export const CreateModel = ({ disabled }: { disabled: boolean }) => (
 /**
  * 同步模式物料
  */
-export const SyncModel = ({
-	validator,
-}: {
-	validator?: (rule: RuleObject, value: StoreValue) => Promise<void | any> | void;
-}) => (
+const SyncModel = ({ validator }: ICreateFormProps) => (
 	<Form.Item
 		label="同步模式"
 		name="syncModel"
@@ -68,7 +70,7 @@ export const SyncModel = ({
 /**
  * 引擎版本物料
  */
-export const ComponentVersion = ({ onChange }: { onChange?: (value: string) => void }) => (
+const ComponentVersion = ({ onChange }: ICreateFormProps) => (
 	<Form.Item label="引擎版本" name="componentVersion" initialValue={FLINK_VERSIONS.FLINK_1_12}>
 		<Select onChange={onChange}>
 			{FLINK_VERSION_TYPE.map(({ value, label }) => (
@@ -83,7 +85,7 @@ export const ComponentVersion = ({ onChange }: { onChange?: (value: string) => v
 /**
  * 资源下拉菜单物料
  */
-export const Resource = () => (
+const Resource = () => (
 	<Form.Item
 		label="资源"
 		name="resourceIdList"
@@ -127,7 +129,7 @@ export const Resource = () => (
 /**
  * mainClass 物料
  */
-export const MainClass = () => (
+const MainClass = () => (
 	<Form.Item
 		label="mainClass"
 		name="mainClass"
@@ -145,8 +147,17 @@ export const MainClass = () => (
 /**
  * 命令行参数物料
  */
-export const ExeArgs = () => (
+const ExeArgs = () => (
 	<Form.Item label="命令行参数" name="exeArgs">
 		<Input placeholder="请输入命令行参数" />
 	</Form.Item>
 );
+
+export default {
+	createModel: CreateModel,
+	syncModel: SyncModel,
+	componentVersion: ComponentVersion,
+	resourceIdList: Resource,
+	mainClass: MainClass,
+	exeArgs: ExeArgs,
+};
