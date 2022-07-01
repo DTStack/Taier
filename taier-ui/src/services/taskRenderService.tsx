@@ -6,7 +6,13 @@ import scaffolds from '@/components/scaffolds/create';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
-import { DataCollectionIcon, FlinkSQLIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import {
+	DataCollectionIcon,
+	FlinkIcon,
+	FlinkSQLIcon,
+	HiveSQLIcon,
+	SparkSQLIcon,
+} from '@/components/icon';
 import type molecule from '@dtinsight/molecule';
 import type { IOfflineTaskProps } from '@/interface';
 import { RightBarKind } from '@/interface';
@@ -144,6 +150,8 @@ class TaskRenderService {
 				return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
 			case TASK_TYPE_ENUM.DATA_ACQUISITION:
 				return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
+			case TASK_TYPE_ENUM.FLINK:
+				return <FlinkIcon />;
 			default:
 				return 'file';
 		}

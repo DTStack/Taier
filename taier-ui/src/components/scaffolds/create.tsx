@@ -47,7 +47,7 @@ const CreateModel = ({ disabled }: ICreateFormProps) => (
 const SyncModel = ({ validator }: ICreateFormProps) => (
 	<Form.Item
 		label="同步模式"
-		name="syncModel"
+		name={['sourceMap', 'syncModel']}
 		tooltip={syncModeHelp}
 		rules={[
 			{
@@ -88,7 +88,7 @@ const ComponentVersion = ({ onChange }: ICreateFormProps) => (
 const Resource = () => (
 	<Form.Item
 		label="资源"
-		name="resourceIdList"
+		name={['resourceIdList', 0]}
 		rules={[
 			{
 				required: true,

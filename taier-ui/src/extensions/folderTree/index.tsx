@@ -51,19 +51,15 @@ function getComputeType(type: TASK_TYPE_ENUM): number {
  */
 function openCreateTab(id?: string) {
 	const onSubmit = (values: IFormFieldProps) => {
-		const { syncModel, resourceIdList, ...restValues } = values;
+		const { resourceIdList, ...restValues } = values;
 		return new Promise<boolean>((resolve) => {
 			const params: Record<string, any> = {
 				...restValues,
-				resourceIdList: resourceIdList ? [resourceIdList] : [],
+				resourceIdList,
 				computeType: getComputeType(values.taskType),
 				parentId: values.nodePid,
 			};
 
-			// syncModel 需要被放置到 sourceMap 中
-			if (syncModel !== undefined) {
-				params.sourceMap = { syncModel };
-			}
 			api.addOfflineTask(params)
 				.then((res) => {
 					if (res.code === 1) {

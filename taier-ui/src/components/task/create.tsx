@@ -44,10 +44,12 @@ export interface IFormFieldProps {
 	taskType: TASK_TYPE_ENUM;
 	nodePid: number;
 	taskDesc: string;
-	syncModel?: DATA_SYNC_MODE;
+	sourceMap?: {
+		syncModel: DATA_SYNC_MODE;
+	};
 	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
 	sqlText?: string;
-	resourceIdList?: string;
+	resourceIdList?: [string];
 	mainClass?: string;
 	exeArgs?: string;
 	componentVersion: Valueof<typeof FLINK_VERSIONS>;
@@ -91,11 +93,21 @@ export default connect(molecule.editor, ({ onSubmit, record, current }: ICreateP
 						const formFields = taskRenderService.createFormField.find(
 							(i) => i.taskType === res.data.taskType,
 						);
+
 						if (formFields) {
 							formFields.formField.forEach((field) => {
-								form.setFieldsValue({
-									[field]: res.data[field],
-								});
+								// 特殊处理
+								if (field === 'syncModel') {
+									form.setFieldsValue({
+										sourceMap: {
+											syncModel: res.data.sourceMap?.syncModel,
+										},
+									});
+								} else {
+									form.setFieldsValue({
+										[field]: res.data[field],
+									});
+								}
 							});
 						}
 					}
