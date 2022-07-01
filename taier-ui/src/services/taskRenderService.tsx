@@ -1,38 +1,19 @@
 import 'reflect-metadata';
-import React from 'react';
 import { singleton } from 'tsyringe';
 import { DATA_SYNC_MODE } from '@/constant';
 import { Modal } from 'antd';
-import scaffolds from '@/components/createFormSlot';
+import scaffolds from '@/components/scaffolds/create';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
 import { DataCollectionIcon, FlinkSQLIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
 import type molecule from '@dtinsight/molecule';
 import type { IOfflineTaskProps } from '@/interface';
+import { RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { breadcrumbService } from '.';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
-
-interface ITaskRenderService {
-	createFormField: ICreateFormField[];
-	/**
-	 * 根据任务类型获取创建任务所需要的 UI 界面
-	 */
-	renderCreateForm: (key: TASK_TYPE_ENUM) => React.ReactNode;
-	/**
-	 * 根据任务类型获取不同的目录树中的图标
-	 */
-	renderTaskIcon: (key: TASK_TYPE_ENUM) => string | JSX.Element;
-	/**
-	 * 根据任务类型获取不同的 tabData，用以渲染不同的编辑器内容
-	 */
-	renderTabOnEditor: (
-		key: TASK_TYPE_ENUM,
-		record: IOfflineTaskProps,
-	) => Promise<molecule.model.IEditorTab>;
-}
 
 interface ICreateFormField {
 	taskType: TASK_TYPE_ENUM;
@@ -53,9 +34,28 @@ interface ICreateFormField {
 	formField: (keyof typeof scaffolds)[];
 }
 
+interface IRightBarField {
+	taskType: TASK_TYPE_ENUM;
+	/**
+	 * 渲染方式条件，其中 barItemCondition.barItem 为当条件成立时渲染的侧边栏
+	 */
+	barItemCondition?: { key: keyof IOfflineTaskProps; value: any; barItem: RightBarKind[] };
+	/**
+	 * 默认渲染方式，若存在 barItemCondition 则该值为条件判断为假值时的侧边栏
+	 */
+	barItem: RightBarKind[];
+}
+
 @singleton()
-class TaskRenderService implements ITaskRenderService {
+class TaskRenderService {
+	/**
+	 * 不同任务在新建任务的表单值域
+	 */
 	public createFormField: ICreateFormField[] = [];
+	/**
+	 * 不同任务在侧边栏的定义
+	 */
+	public rightBarField: IRightBarField[] = [];
 
 	constructor() {
 		fetch('./layout/create.json', { method: 'GET' })
@@ -63,8 +63,17 @@ class TaskRenderService implements ITaskRenderService {
 			.then((res) => {
 				this.createFormField = res;
 			});
+
+		fetch('./layout/rightBar.json', { method: 'GET' })
+			.then<IRightBarField[]>((res) => res.json())
+			.then((res) => {
+				this.rightBarField = res;
+			});
 	}
 
+	/**
+	 * 根据任务类型获取创建任务所需要的 UI 界面
+	 */
 	public renderCreateForm = (
 		key: TASK_TYPE_ENUM,
 		record?: Record<string, any>,
@@ -120,6 +129,9 @@ class TaskRenderService implements ITaskRenderService {
 		);
 	};
 
+	/**
+	 * 根据任务类型获取不同的目录树中的图标
+	 */
 	public renderTaskIcon = (key: TASK_TYPE_ENUM) => {
 		switch (key) {
 			case TASK_TYPE_ENUM.SPARK_SQL:
@@ -137,6 +149,9 @@ class TaskRenderService implements ITaskRenderService {
 		}
 	};
 
+	/**
+	 * 根据任务类型获取不同的 tabData，用以渲染不同的编辑器内容
+	 */
 	public renderTabOnEditor = async (
 		key: TASK_TYPE_ENUM,
 		record: IOfflineTaskProps,
@@ -195,6 +210,28 @@ class TaskRenderService implements ITaskRenderService {
 		}
 
 		return tabData;
+	};
+
+	/**
+	 * 根据任务类型定义侧边栏
+	 */
+	public renderRightBar = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps): RightBarKind[] => {
+		const rightBarField = this.rightBarField.find((i) => i.taskType === key);
+
+		if (rightBarField) {
+			const isConditionTrue = rightBarField.barItemCondition
+				? record[rightBarField.barItemCondition.key] ===
+				  rightBarField.barItemCondition.value
+				: false;
+
+			if (isConditionTrue) {
+				return rightBarField.barItemCondition!.barItem;
+			}
+
+			return rightBarField.barItem;
+		}
+
+		return [RightBarKind.TASK];
 	};
 }
 

@@ -153,6 +153,9 @@ const ExeArgs = () => (
 	</Form.Item>
 );
 
+/**
+ * key 值为服务端字段名，value 为组件名
+ */
 export default {
 	createModel: CreateModel,
 	syncModel: SyncModel,
