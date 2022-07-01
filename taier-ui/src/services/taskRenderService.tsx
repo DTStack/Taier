@@ -1,22 +1,55 @@
 import 'reflect-metadata';
+import React from 'react';
 import { singleton } from 'tsyringe';
 import { DATA_SYNC_MODE } from '@/constant';
 import { Modal } from 'antd';
 import scaffolds from '@/components/createFormSlot';
 import api from '@/api';
-import type { TASK_TYPE_ENUM } from '@/constant';
+import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
+import { DataCollectionIcon, FlinkSQLIcon, HiveSQLIcon, SparkSQLIcon } from '@/components/icon';
+import type molecule from '@dtinsight/molecule';
+import type { IOfflineTaskProps } from '@/interface';
+import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import { breadcrumbService } from '.';
+import { prettierJSONstring } from '@/utils';
+import notification from '@/components/notification';
 
 interface ITaskRenderService {
 	createFormField: ICreateFormField[];
 	/**
-	 * 根据 key 值获取创建任务所需要的 UI 界面
+	 * 根据任务类型获取创建任务所需要的 UI 界面
 	 */
 	renderCreateForm: (key: TASK_TYPE_ENUM) => React.ReactNode;
+	/**
+	 * 根据任务类型获取不同的目录树中的图标
+	 */
+	renderTaskIcon: (key: TASK_TYPE_ENUM) => string | JSX.Element;
+	/**
+	 * 根据任务类型获取不同的 tabData，用以渲染不同的编辑器内容
+	 */
+	renderTabOnEditor: (
+		key: TASK_TYPE_ENUM,
+		record: IOfflineTaskProps,
+	) => Promise<molecule.model.IEditorTab>;
 }
 
 interface ICreateFormField {
 	taskType: TASK_TYPE_ENUM;
+	/**
+	 * 渲染方式条件，仅当 renderKind 为 customize 时生效
+	 */
+	renderCondition?: {
+		key: keyof IOfflineTaskProps;
+		value: any;
+	};
+	/**
+	 * 当前任务在编辑器中的渲染方式，分为 editor 和 customize
+	 */
+	renderKind: string;
+	/**
+	 * 定义当前任务在新建的时候支持的字段
+	 */
 	formField: (keyof typeof scaffolds)[];
 }
 
@@ -85,6 +118,83 @@ class TaskRenderService implements ITaskRenderService {
 				})}
 			</>
 		);
+	};
+
+	public renderTaskIcon = (key: TASK_TYPE_ENUM) => {
+		switch (key) {
+			case TASK_TYPE_ENUM.SPARK_SQL:
+				return <SparkSQLIcon style={{ color: '#519aba' }} />;
+			case TASK_TYPE_ENUM.SYNC:
+				return 'sync';
+			case TASK_TYPE_ENUM.HIVE_SQL:
+				return <HiveSQLIcon style={{ color: '#4291f0' }} />;
+			case TASK_TYPE_ENUM.SQL:
+				return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
+			case TASK_TYPE_ENUM.DATA_ACQUISITION:
+				return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
+			default:
+				return 'file';
+		}
+	};
+
+	public renderTabOnEditor = async (
+		key: TASK_TYPE_ENUM,
+		record: IOfflineTaskProps,
+		props: Record<string, any> = {},
+	): Promise<molecule.model.IEditorTab> => {
+		const fields = this.createFormField.find((i) => i.taskType === key);
+		const renderKind = fields?.renderKind || 'editor';
+
+		const tabData: molecule.model.IEditorTab = {
+			id: record.id.toString(),
+			name: record.name,
+			data: (() => {
+				// 针对不同任务，data 中的值不一样
+				switch (key) {
+					case TASK_TYPE_ENUM.FLINK: {
+						return {
+							nodePid: `${record.nodePid}-folder`,
+						};
+					}
+					case TASK_TYPE_ENUM.DATA_ACQUISITION:
+					case TASK_TYPE_ENUM.SYNC:
+						return {
+							...record,
+							value: prettierJSONstring(record.sqlText),
+						};
+					default:
+						return {
+							...record,
+							value: record.sqlText,
+						};
+				}
+			})(),
+			icon: this.renderTaskIcon(record.taskType),
+			breadcrumb: breadcrumbService.getBreadcrumb(record.id),
+		};
+
+		// 判断自定义渲染组件的渲染条件是否生效
+		const isWork = fields?.renderCondition
+			? record[fields.renderCondition.key] === fields.renderCondition.value
+			: true;
+
+		// 如果是 editor 渲染，则需要声明 editor 的语言
+		if (renderKind === 'editor' || !isWork) {
+			tabData.data!.language = mappingTaskTypeToLanguage(record.taskType);
+		} else {
+			try {
+				// 自定义渲染需要声明 renderPane 组件
+				const Component = (await import(`@/pages/editor/${renderKind}`)).default;
+				tabData.renderPane = () => <Component key={tabData.id} {...props} />;
+			} catch (err) {
+				notification.error({
+					key: 'ModuleNotFound',
+					message: `${renderKind} 无法加载，请确认 pages/editor 目录下是否存在该模块`,
+				});
+			}
+		}
+
+		return tabData;
 	};
 }
 

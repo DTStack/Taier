@@ -1,6 +1,16 @@
 [
     {
+        "taskType": 0,
+        "renderKind": "editor",
+        "formField": []
+    },
+    {
         "taskType": 2,
+        "renderCondition": {
+            "key": "createModel",
+            "value": 0
+        },
+        "renderKind": "dataSync",
         "formField": [
             "createModel",
             "syncModel"
@@ -8,12 +18,19 @@
     },
     {
         "taskType": 5,
+        "renderKind": "editor",
         "formField": [
             "componentVersion"
         ]
     },
     {
+        "taskType": 7,
+        "renderKind": "editor",
+        "formField": []
+    },
+    {
         "taskType": 11,
+        "renderKind": "flink",
         "formField": [
             "resourceIdList",
             "mainClass",
@@ -23,6 +40,11 @@
     },
     {
         "taskType": 6,
+        "renderCondition": {
+            "key": "createModel",
+            "value": 0
+        },
+        "renderKind": "streamCollection",
         "formField": [
             "createModel",
             "componentVersion"

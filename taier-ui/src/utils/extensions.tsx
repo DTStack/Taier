@@ -18,14 +18,7 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
-import {
-	FlinkSQLIcon,
-	SyntaxIcon,
-	HiveSQLIcon,
-	SparkSQLIcon,
-	ResourceIcon,
-	DataCollectionIcon,
-} from '@/components/icon';
+import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';
 import { ID_COLLECTIONS } from '@/constant';
 import { CATELOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
@@ -37,6 +30,7 @@ import { filterSql } from '.';
 import stream from '@/api';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import { transformTabDataToParams } from './saveTask';
+import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 根据不同任务渲染不同的图标
@@ -47,20 +41,7 @@ export function fileIcon(
 ): string | JSX.Element {
 	switch (source) {
 		case CATELOGUE_TYPE.TASK: {
-			switch (type) {
-				case TASK_TYPE_ENUM.SPARK_SQL:
-					return <SparkSQLIcon style={{ color: '#519aba' }} />;
-				case TASK_TYPE_ENUM.SYNC:
-					return 'sync';
-				case TASK_TYPE_ENUM.HIVE_SQL:
-					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
-				case TASK_TYPE_ENUM.SQL:
-					return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
-				case TASK_TYPE_ENUM.DATA_ACQUISITION:
-					return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
-				default:
-					return 'file';
-			}
+			return taskRenderService.renderTaskIcon(type as TASK_TYPE_ENUM);
 		}
 		case CATELOGUE_TYPE.RESOURCE: {
 			return <ResourceIcon style={{ color: '#0065f6' }} />;

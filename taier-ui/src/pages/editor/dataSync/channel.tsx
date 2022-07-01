@@ -7,8 +7,8 @@ import {
 	jobSpeedLimit,
 	S3Concurrence,
 	transTableConcurrence,
-} from '../helpDoc/docs';
-import ajax from '../../api';
+} from '../../../components/helpDoc/docs';
+import ajax from '../../../api';
 import type { IChannelFormProps, ISourceMapProps, ITargetMapProps } from '@/interface';
 import { isRDB } from '@/utils/is';
 

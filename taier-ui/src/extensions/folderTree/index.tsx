@@ -24,18 +24,15 @@ import molecule from '@dtinsight/molecule/esm';
 import type { IFormFieldProps } from '@/components/task/create';
 import Open from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
-import DataSync from '@/components/dataSync';
-import { fileIcon, getParentNode } from '@/utils/extensions';
+import { getParentNode } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { CATELOGUE_TYPE, TASK_TYPE_ENUM, CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
+import { CATELOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
 import type { IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import StreamCollection from '@/components/streamCollection';
 import { breadcrumbService, catalogueService, editorActionBarService } from '@/services';
-import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
+import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
@@ -319,58 +316,12 @@ export function openTaskInTab(
 	api.getOfflineTaskByID({ id: fileId }).then((res) => {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
 		if (success) {
-			switch (data.taskType) {
-				case TASK_TYPE_ENUM.HIVE_SQL:
-				case TASK_TYPE_ENUM.SPARK_SQL: {
-					const tabData = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							// set sqlText into value so that molecule-editor could read from this
-							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.SYNC: {
-					// open in molecule
-					const tabData: molecule.model.IEditorTab = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							value: prettierJSONstring(data.sqlText),
-							language: mappingTaskTypeToLanguage(data.taskType),
-							taskDesc: data.taskDesc,
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-
-					// 向导模式渲染数据同步任务，脚本模式渲染编辑器
-					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
-						tabData.renderPane = () => {
-							return <DataSync key={fileId} />;
-						};
-						// 向导模式不需要设置编辑器语言
-						Reflect.deleteProperty(tabData.data!, 'language');
-					}
-
-					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.FLINK: {
-					const handleSubmit = ({ resourceIdList, ...restValues }: IFormFieldProps) => {
+			taskRenderService
+				.renderTabOnEditor(data.taskType, data, {
+					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
 						return new Promise<boolean>((resolve) => {
 							const params = {
-								id: res.data.id,
+								id: data.id,
 								computeType: res.data.computeType,
 								updateSource: false,
 								preSave: false,
@@ -392,69 +343,11 @@ export function openTaskInTab(
 									resolve(false);
 								});
 						});
-					};
-
-					// open in molecule
-					const tabData: molecule.model.IEditorTab = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							id: res.data.id,
-							name: res.data.name,
-							taskType: res.data.taskType,
-							nodePid: `${res.data.nodePid}-folder`,
-							taskDesc: res.data.taskDesc,
-							mainClass: res.data.mainClass,
-							exeArgs: res.data.exeArgs,
-							resourceIdList: res.data.resourceList?.[0].id,
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-						renderPane: () => <Open onSubmit={handleSubmit} />,
-					};
+					},
+				})
+				.then((tabData) => {
 					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.DATA_ACQUISITION: {
-					const tabData: molecule.model.IEditorTab = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							value: prettierJSONstring(data.sqlText),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
-						tabData.renderPane = () => <StreamCollection key={fileId} />;
-					} else {
-						tabData.data!.language = mappingTaskTypeToLanguage(data.taskType);
-					}
-					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.SQL: {
-					const tabData = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							// set sqlText into value so that molecule-editor could read from this
-							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-					molecule.editor.open(tabData);
-					break;
-				}
-				default:
-					break;
-			}
+				});
 		}
 	});
 
