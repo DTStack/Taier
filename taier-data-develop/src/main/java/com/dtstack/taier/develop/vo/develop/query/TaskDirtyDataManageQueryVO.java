@@ -12,7 +12,6 @@ import java.util.List;
  * @Author ：zhichen
  * @Date ：Created in 10:50 2021/9/11
  */
-@Data
 public class TaskDirtyDataManageQueryVO extends DtInsightAuthParam {
 
     @NotNull(message = "sourceId not null")
@@ -36,4 +35,60 @@ public class TaskDirtyDataManageQueryVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "页面大小", example = "20")
     private int pageSize = 20;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public List<String> getSourceTableList() {
+        return sourceTableList;
+    }
+
+    public void setSourceTableList(List<String> sourceTableList) {
+        this.sourceTableList = sourceTableList;
+    }
+
+    public Long getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Long startDate) {
+        this.startDate = startDate;
+    }
+
+    public Long getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Long endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
 }
