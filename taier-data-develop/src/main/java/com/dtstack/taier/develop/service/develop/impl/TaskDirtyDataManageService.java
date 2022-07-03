@@ -39,6 +39,7 @@ import java.util.Objects;
  * @Author: zhichen
  * @Date: 2022/06/14/2:52 PM
  */
+@Service
 public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageMapper, TaskDirtyDataManage> implements TaskDirtyDataManageIService<TaskDirtyDataManage>{
 
     private static final Logger logger = LoggerFactory.getLogger(TaskDirtyDataManageService.class);

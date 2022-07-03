@@ -38,16 +38,16 @@ import javax.annotation.Resource;
 @Component
 public class MultiEngineServiceFactory {
 
-    @Resource(name = "batchSparkSqlExeService")
+    @Resource(name = "developSparkSqlExeService")
     private ISqlExeService batchSparkSqlExeService;
 
-    @Resource(name = "batchHadoopJobExeService")
+    @Resource(name = "developHadoopJobExeService")
     private IDevelopJobExeService batchHadoopJobExeService;
 
-    @Resource(name = "batchHiveSqlExeService")
+    @Resource(name = "developHiveSqlExeService")
     private DevelopHiveSqlExeService batchHiveSqlExeService;
 
-    @Resource(name = "batchHadoopSelectSqlService")
+    @Resource(name = "developHadoopSelectSqlService")
     private IDevelopSelectSqlService batchHadoopSelectSqlService;
 
     @Resource(name = "hadoopDataDownloadService")
