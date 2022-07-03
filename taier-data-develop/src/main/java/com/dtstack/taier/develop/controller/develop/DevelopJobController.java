@@ -92,7 +92,7 @@ public class DevelopJobController {
         return new APITemplate<BatchExecuteResultVO>() {
             @Override
             protected BatchExecuteResultVO process() throws RdosDefineException {
-                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getIsEnd());
+                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getSql(), vo.getTaskVariables());
                 return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
             }
         }.execute();
