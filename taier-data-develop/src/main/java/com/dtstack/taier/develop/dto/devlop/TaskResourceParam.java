@@ -119,14 +119,14 @@ public class TaskResourceParam extends Task {
     /**
      * 任务脏数据管理
      */
-    private TaskDirtyDataManageVO TaskDirtyDataManageVO;
+    private TaskDirtyDataManageVO taskDirtyDataManageVO;
 
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
-        return TaskDirtyDataManageVO;
+        return taskDirtyDataManageVO;
     }
 
     public void setTaskDirtyDataManageVO(TaskDirtyDataManageVO taskDirtyDataManageVO) {
-        TaskDirtyDataManageVO = taskDirtyDataManageVO;
+        this.taskDirtyDataManageVO = taskDirtyDataManageVO;
     }
 
     public Boolean getOpenDirtyDataManage() {
