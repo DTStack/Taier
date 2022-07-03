@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.service.develop;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-
 import com.dtstack.taier.develop.service.develop.impl.DevelopHiveSqlExeService;
 import org.springframework.stereotype.Component;
 
@@ -69,7 +68,9 @@ public class MultiEngineServiceFactory {
     }
 
     public IDevelopJobExeService getBatchJobExeService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)
+                || EScheduleJobType.SYNC.getType().equals(taskType)
+                || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             return batchHadoopJobExeService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
@@ -102,18 +103,19 @@ public class MultiEngineServiceFactory {
     }
 
     /**
-     * 根据组件类型类型获取组件操作
+     * 根据组件类型获取组件操作
      *
-     * @param typeCode
+     * @param componentTypeCode
      * @return
      */
-    public IComponentService getComponentService(Integer typeCode){
-        if (EComponentType.SPARK_THRIFT.getTypeCode().equals(typeCode)) {
+    public IComponentService getComponentService(Integer componentTypeCode){
+        EComponentType componentType = EComponentType.getByCode(componentTypeCode);
+        if (EComponentType.SPARK_THRIFT == componentType) {
             return componentSparkThriftService;
-        }else if (EComponentType.HIVE_SERVER.getTypeCode().equals(typeCode)){
+        }else if (EComponentType.HIVE_SERVER == componentType){
             return componentHiveServerService;
         }
-        throw new RdosDefineException(String.format("not support component type %d now", typeCode));
+        throw new RdosDefineException(String.format("not support component by type %d now", componentType));
     }
 
 }
