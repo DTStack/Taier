@@ -155,7 +155,6 @@ public class DevelopResourceService {
         catalogueVO.setResourceType(resourceType);
 
         String username = userService.getUserName(catalogue.getCreateUserId());
-        catalogueVO.setCreateUser(username);
 
         return catalogueVO;
     }

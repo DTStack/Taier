@@ -33,29 +33,14 @@ public class BatchJobStartSqlVO extends DtInsightAuthParam {
     @ApiModelProperty(hidden = true)
     private Long tenantId;
 
-    @ApiModelProperty(hidden = true)
-    private String dtToken;
-
-    @ApiModelProperty(hidden = true)
-    private Boolean isRoot;
-
     @ApiModelProperty(value = "任务Id", example = "1", required = true)
     private Long taskId;
-
-    @ApiModelProperty(value = "唯一标识", example = "标识", required = true)
-    private String uniqueKey;
 
     @ApiModelProperty(value = "sql语句", example = "show tables;", required = true)
     private String sql;
 
     @ApiModelProperty(value = "任务前置执行语句", required = true)
     private List<Map> taskVariables;
-
-    @ApiModelProperty(value = "是否是DDL语句", example = "false", required = true)
-    private Integer isCheckDDL;
-
-    @ApiModelProperty(value = "是否终止", example = "false", required = true)
-    private Boolean isEnd;
 
     @ApiModelProperty(value = "任务参数", example = "1", required = true)
     private String taskParams;
@@ -80,36 +65,12 @@ public class BatchJobStartSqlVO extends DtInsightAuthParam {
         this.tenantId = tenantId;
     }
 
-    public String getDtToken() {
-        return dtToken;
-    }
-
-    public void setDtToken(String dtToken) {
-        this.dtToken = dtToken;
-    }
-
-    public Boolean getIsRoot() {
-        return isRoot;
-    }
-
-    public void setIsRoot(Boolean root) {
-        isRoot = root;
-    }
-
     public Long getTaskId() {
         return taskId;
     }
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public String getUniqueKey() {
-        return uniqueKey;
-    }
-
-    public void setUniqueKey(String uniqueKey) {
-        this.uniqueKey = uniqueKey;
     }
 
     public String getSql() {
@@ -126,22 +87,6 @@ public class BatchJobStartSqlVO extends DtInsightAuthParam {
 
     public void setTaskVariables(List<Map> taskVariables) {
         this.taskVariables = taskVariables;
-    }
-
-    public Integer getIsCheckDDL() {
-        return isCheckDDL;
-    }
-
-    public void setIsCheckDDL(Integer isCheckDDL) {
-        this.isCheckDDL = isCheckDDL;
-    }
-
-    public Boolean getIsEnd() {
-        return isEnd;
-    }
-
-    public void setIsEnd(Boolean end) {
-        isEnd = end;
     }
 
     public String getTaskParams() {

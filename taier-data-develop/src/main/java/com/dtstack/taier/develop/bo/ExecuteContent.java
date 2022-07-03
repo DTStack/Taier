@@ -23,10 +23,6 @@ import com.dtstack.taier.develop.sql.ParseResult;
 
 import java.util.List;
 
-/**
- * @author jiangbo
- * @date 2019/6/15
- */
 public class ExecuteContent {
 
     private Long tenantId;
@@ -40,9 +36,9 @@ public class ExecuteContent {
      */
     private List<String> sqlList;
 
-    private List<ParseResult> parseResultList;
-
     private ParseResult parseResult;
+
+    private List<ParseResult> parseResultList;
 
     /**
      * 任务id
@@ -54,69 +50,19 @@ public class ExecuteContent {
      */
     private Integer taskType;
 
-    private boolean isdirtyDataTable;
-
-    /**
-     * 是否为root用户
-     */
-    private Boolean isRootUser;
-
-    /**
-     * ?
-     */
     private String preJobId;
 
-    private boolean isExecuteSqlLater;
-
-    private String sessionKey;
-
-    private String dtToken;
-
-    private Boolean isEnd;
-
-//    public ExecuteContent setParseResultList(List<ParseResult> parseResultList) {
-//        this.parseResultList = parseResultList;
-//        return this;
-//    }
+    private String database;
 
     public ExecuteContent setSqlList(List<String> sqlList) {
         this.sqlList = sqlList;
         return this;
     }
 
-
-    private String database;
-
-    public ExecuteContent setEnd(Boolean end) {
-        isEnd = end;
-        return this;
-    }
-
-    public ExecuteContent setDtToken(String dtToken) {
-        this.dtToken = dtToken;
-        return this;
-    }
-
-    public ExecuteContent setSessionKey(String sessionKey) {
-        this.sessionKey = sessionKey;
-        return this;
-    }
-
-    public ExecuteContent setExecuteSqlLater(boolean executeSqlLater) {
-        isExecuteSqlLater = executeSqlLater;
-        return this;
-    }
-
-
     public ExecuteContent setSql(String sql) {
         this.sql = sql;
         return this;
     }
-
-//    public ExecuteContent setParseResult(ParseResult parseResult) {
-//        this.parseResult = parseResult;
-//        return this;
-//    }
 
     public ExecuteContent setTenantId(Long tenantId) {
         this.tenantId = tenantId;
@@ -138,25 +84,15 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setIsdirtyDataTable(boolean isdirtyDataTable) {
-        this.isdirtyDataTable = isdirtyDataTable;
-        return this;
-    }
-
-    public ExecuteContent setRootUser(Boolean rootUser) {
-        isRootUser = rootUser;
-        return this;
-    }
-
     public ExecuteContent setPreJobId(String preJobId) {
         this.preJobId = preJobId;
         return this;
     }
 
-	public ExecuteContent setDatabase(String database) {
-		this.database = database;
-		return this;
-	}
+    public ExecuteContent setDatabase(String database) {
+        this.database = database;
+        return this;
+    }
 
     public Long getTenantId() {
         return tenantId;
@@ -198,32 +134,8 @@ public class ExecuteContent {
         return taskType;
     }
 
-    public boolean isIsdirtyDataTable() {
-        return isdirtyDataTable;
-    }
-
-    public Boolean getRootUser() {
-        return isRootUser;
-    }
-
     public String getPreJobId() {
         return preJobId;
-    }
-
-    public boolean isExecuteSqlLater() {
-        return isExecuteSqlLater;
-    }
-
-    public String getSessionKey() {
-        return sessionKey;
-    }
-
-    public String getDtToken() {
-        return dtToken;
-    }
-
-    public Boolean getEnd() {
-        return isEnd;
     }
 
     public String getDatabase() {
