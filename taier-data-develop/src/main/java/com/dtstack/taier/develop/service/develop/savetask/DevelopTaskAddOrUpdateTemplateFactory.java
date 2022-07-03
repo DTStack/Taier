@@ -28,7 +28,7 @@ public class DevelopTaskAddOrUpdateTemplateFactory {
         for (DevelopAddOrUpdateTaskTemplate task : developAddOrUpdateTaskTemplates) {
             TASK_MAP.put(task.getEScheduleJobType().getType(),task);
         }
-        TASK_MAP.put(EScheduleJobType.DATA_ACQUISITION.getType(), task);
+        TASK_MAP.put(EScheduleJobType.DATA_ACQUISITION.getType(), TASK_MAP.get(EScheduleJobType.SYNC.getType()));
         logger.info("init DbBuilderFactory success...");
     }
 
