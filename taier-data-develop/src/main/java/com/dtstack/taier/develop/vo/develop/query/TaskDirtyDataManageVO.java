@@ -9,7 +9,6 @@ import lombok.Data;
  * @author zhiChen
  * @date 2021/9/16 15:59
  */
-@Data
 public class TaskDirtyDataManageVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "id")
@@ -32,4 +31,60 @@ public class TaskDirtyDataManageVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "失败条数")
     private Integer maxCollectFailedRows;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getOutputType() {
+        return outputType;
+    }
+
+    public void setOutputType(String outputType) {
+        this.outputType = outputType;
+    }
+
+    public Integer getLogPrintInterval() {
+        return logPrintInterval;
+    }
+
+    public void setLogPrintInterval(Integer logPrintInterval) {
+        this.logPrintInterval = logPrintInterval;
+    }
+
+    public JSONObject getLinkInfo() {
+        return linkInfo;
+    }
+
+    public void setLinkInfo(JSONObject linkInfo) {
+        this.linkInfo = linkInfo;
+    }
+
+    public Integer getMaxRows() {
+        return maxRows;
+    }
+
+    public void setMaxRows(Integer maxRows) {
+        this.maxRows = maxRows;
+    }
+
+    public Integer getMaxCollectFailedRows() {
+        return maxCollectFailedRows;
+    }
+
+    public void setMaxCollectFailedRows(Integer maxCollectFailedRows) {
+        this.maxCollectFailedRows = maxCollectFailedRows;
+    }
 }

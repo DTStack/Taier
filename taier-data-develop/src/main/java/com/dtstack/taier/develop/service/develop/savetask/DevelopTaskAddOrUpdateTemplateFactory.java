@@ -1,5 +1,6 @@
 package com.dtstack.taier.develop.service.develop.savetask;
 
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.service.template.bulider.db.DbBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class DevelopTaskAddOrUpdateTemplateFactory {
         for (DevelopAddOrUpdateTaskTemplate task : developAddOrUpdateTaskTemplates) {
             TASK_MAP.put(task.getEScheduleJobType().getType(),task);
         }
+        TASK_MAP.put(EScheduleJobType.DATA_ACQUISITION.getType(), task);
         logger.info("init DbBuilderFactory success...");
     }
 
