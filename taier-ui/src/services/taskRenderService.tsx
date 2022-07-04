@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { singleton } from 'tsyringe';
 import { DATA_SYNC_MODE } from '@/constant';
 import { Modal } from 'antd';
-import scaffolds from '@/components/scaffolds/create';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
@@ -13,13 +12,15 @@ import {
 	HiveSQLIcon,
 	SparkSQLIcon,
 } from '@/components/icon';
-import type molecule from '@dtinsight/molecule';
-import type { IOfflineTaskProps } from '@/interface';
+import scaffolds from '@/components/scaffolds/create';
+import editorActionsScaffolds from '@/components/scaffolds/editorActions';
 import { RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import { breadcrumbService } from '.';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
+import type molecule from '@dtinsight/molecule';
+import { breadcrumbService } from '.';
+import type { IOfflineTaskProps } from '@/interface';
 
 interface ICreateFormField {
 	taskType: TASK_TYPE_ENUM;
@@ -52,6 +53,19 @@ interface IRightBarField {
 	barItem: RightBarKind[];
 }
 
+interface IEditorActionField {
+	taskType: TASK_TYPE_ENUM;
+	/**
+	 * 渲染方式条件
+	 */
+	actionsCondition?: {
+		key: keyof IOfflineTaskProps;
+		value: any;
+		actions: (keyof typeof editorActionsScaffolds)[];
+	};
+	actions: (keyof typeof editorActionsScaffolds)[];
+}
+
 @singleton()
 class TaskRenderService {
 	/**
@@ -62,6 +76,10 @@ class TaskRenderService {
 	 * 不同任务在侧边栏的定义
 	 */
 	public rightBarField: IRightBarField[] = [];
+	/**
+	 * 不同任务在编辑器 actions 的定义
+	 */
+	public editorActionField: IEditorActionField[] = [];
 
 	constructor() {
 		fetch('./layout/create.json', { method: 'GET' })
@@ -74,6 +92,12 @@ class TaskRenderService {
 			.then<IRightBarField[]>((res) => res.json())
 			.then((res) => {
 				this.rightBarField = res;
+			});
+
+		fetch('./layout/editorActions.json', { method: 'GET' })
+			.then<IEditorActionField[]>((res) => res.json())
+			.then((res) => {
+				this.editorActionField = res;
 			});
 	}
 
@@ -234,13 +258,37 @@ class TaskRenderService {
 				: false;
 
 			if (isConditionTrue) {
-				return rightBarField.barItemCondition!.barItem;
+				return rightBarField.barItemCondition?.barItem || [];
 			}
 
-			return rightBarField.barItem;
+			return rightBarField.barItem || [];
 		}
 
 		return [RightBarKind.TASK];
+	};
+
+	/**
+	 * 根据任务类型渲染编辑器 actions
+	 */
+	public renderEditorActions = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps) => {
+		const actionsField = this.editorActionField.find((i) => i.taskType === key);
+		if (actionsField) {
+			const isConditionTrue = actionsField.actionsCondition
+				? record[actionsField.actionsCondition.key] === actionsField.actionsCondition.value
+				: false;
+
+			if (isConditionTrue) {
+				return (
+					actionsField.actionsCondition?.actions.map(
+						(action) => editorActionsScaffolds[action],
+					) || []
+				);
+			}
+
+			return actionsField.actions.map((action) => editorActionsScaffolds[action]) || [];
+		}
+
+		return [];
 	};
 }
 
