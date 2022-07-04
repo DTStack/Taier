@@ -44,6 +44,8 @@ export function taskTypeText(type?: TASK_TYPE_ENUM) {
 			return 'SparkSQL';
 		case TASK_TYPE_ENUM.DATA_ACQUISITION:
 			return '实时采集';
+		case TASK_TYPE_ENUM.FLINK:
+			return 'Flink';
 		default:
 			return '未知';
 	}
