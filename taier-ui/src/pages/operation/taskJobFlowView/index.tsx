@@ -19,7 +19,6 @@
 import { useEffect, useState } from 'react';
 import { ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Modal, message, Row, Col } from 'antd';
-import { TaskInfo } from './taskInfo';
 import LogInfo from './taskLog';
 import { taskStatusText, taskTypeText } from '@/utils/enums';
 import Api from '@/api';
@@ -33,8 +32,9 @@ import {
 import type { IUpstreamJobProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertxtStyle, goToTaskDev } from '@/utils';
-import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import { DetailInfoModal } from '@/components/detailInfo';
 import MxGraphContainer from '@/components/mxGraph/container';
+import type { IContextMenuConfig } from '@/components/mxGraph/container';
 import type { mxCell } from 'mxgraph';
 import './index.scss';
 
@@ -49,10 +49,10 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 	// 任务属性
 	const [taskAttribute, setAttribute] = useState<{
 		visible: boolean;
-		job: null | IUpstreamJobProps;
+		job: undefined | IUpstreamJobProps;
 	}>({
 		visible: false,
-		job: null,
+		job: undefined,
 	});
 	// 任务日志
 	const [taskLogInfo, setTaskLog] = useState<{
@@ -346,15 +346,14 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 					</>
 				)}
 			</MxGraphContainer>
-			<Modal
+			<DetailInfoModal
 				title="查看属性"
-				width="60%"
 				visible={taskAttribute.visible}
-				onCancel={() => setAttribute({ visible: false, job: null })}
-				footer={null}
-			>
-				<TaskInfo task={taskAttribute.job} />
-			</Modal>
+				onCancel={() => setAttribute({ visible: false, job: undefined })}
+				loading={false}
+				type="taskJob"
+				data={taskAttribute.job}
+			/>
 			<Modal
 				key={taskJob && taskJob.jobId}
 				width={800}

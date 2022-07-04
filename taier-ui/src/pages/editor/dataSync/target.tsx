@@ -31,7 +31,7 @@ import type {
 	ITargetMapProps,
 	IDataSourceUsedInSyncProps,
 } from '@/interface';
-import API from '../../api';
+import API from '../../../api';
 import {
 	dataSyncExtralConfigHelp,
 	es7BulkAction,
@@ -39,7 +39,7 @@ import {
 	indexTypeDoc,
 	partitionDesc,
 	splitCharacter,
-} from '../helpDoc/docs';
+} from '../../../components/helpDoc/docs';
 import { ALLOW_CREATE_TABLE_IN_SOURCE, ALLOW_CREATE_TABLE_IN_TARGET, noWhiteSpace } from './help';
 
 const FormItem = Form.Item;
