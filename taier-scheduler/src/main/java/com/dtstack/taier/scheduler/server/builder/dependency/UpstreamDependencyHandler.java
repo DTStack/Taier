@@ -7,6 +7,7 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.pluginapi.util.DateUtil;
 import com.dtstack.taier.scheduler.enums.RelyRule;
 import com.dtstack.taier.scheduler.enums.RelyType;
+import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
@@ -75,8 +76,19 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
      */
     public String getJobKey(ScheduleTaskShade scheduleTaskShade, Date currentDate) throws Exception {
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
+
+        ScheduleConf scheduleConf = corn.getScheduleConf();
+        Date beginDate = scheduleConf.getBeginDate();
+        Date endDate = scheduleConf.getEndDate();
+
         // 上一个周期
         Date lastDate = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
+
+        // 该任务不在调度周期内，返回空字符串
+        if (beginDate.before(lastDate) || endDate.after(lastDate)) {
+            return "";
+        }
+
         String lastDateStr = DateUtil.getDate(corn.isMatch(currentDate) ? currentDate : corn.last(currentDate), DateUtil.STANDARD_DATETIME_FORMAT);
 
         if (StringUtils.isBlank(lastDateStr)) {
