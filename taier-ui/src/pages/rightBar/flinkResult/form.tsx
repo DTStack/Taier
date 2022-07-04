@@ -75,7 +75,7 @@ import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } f
 import Editor from '@/components/editor';
 import { NAME_FIELD } from '.';
 import { FormContext } from '@/services/rightBarService';
-import DataPreviewModal from '@/components/streamCollection/source/dataPreviewModal';
+import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
 
 const FormItem = Form.Item;
 const { Option } = Select;

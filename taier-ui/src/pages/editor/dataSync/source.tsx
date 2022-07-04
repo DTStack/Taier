@@ -37,8 +37,8 @@ import {
 	partitionDesc,
 	selectKey,
 	splitCharacter,
-} from '../helpDoc/docs';
-import TableCell from '../tableCell';
+} from '../../../components/helpDoc/docs';
+import TableCell from '../../../components/tableCell';
 import type { ColumnsType } from 'antd/lib/table';
 import type { ISourceFormField, IDataColumnsProps, ISourceMapProps } from '@/interface';
 

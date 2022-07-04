@@ -19,11 +19,11 @@
 import classNames from 'classnames';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
-import { CREATE_MODEL_TYPE } from '@/constant';
 import { rightBarService } from '@/services';
 import type { IRightbarState } from '@/services/rightBarService';
-import type { RightBarKind } from '@/services/rightBarService';
+import type { RightBarKind } from '@/interface';
 import './index.scss';
+import taskRenderService from '@/services/taskRenderService';
 
 interface IProps {
 	editor: molecule.model.IEditor;
@@ -47,11 +47,8 @@ export default connect(
 					{current && rightBarService.createContent(current)}
 				</div>
 				<div className="dt-right-bar-title">
-					{rightBarService
-						.getRightBarByType(
-							propsCurrent?.tab?.data?.taskType,
-							propsCurrent?.tab?.data?.createModel === CREATE_MODEL_TYPE.GUIDE,
-						)
+					{taskRenderService
+						.renderRightBar(propsCurrent?.tab?.data?.taskType, propsCurrent?.tab?.data)
 						.map((key) => (
 							<div
 								className={classNames(

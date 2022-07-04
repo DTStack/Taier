@@ -1,0 +1,20 @@
+.taier__create__container {
+	background: var(--sideBarSectionHeader-background);
+	padding: 16px;
+	height: 100%;
+
+	.taier__create__wrapper {
+		background: var(--editor-background);
+		width: 100%;
+		height: 100%;
+		overflow-y: auto;
+		box-shadow: 0 2px 8px 0 var(--minimapSlider-hoverBackground);
+	}
+
+	.taier__create__form {
+		background: var(--editor-background);
+		max-width: 600px;
+		margin: 0 auto auto;
+		padding-top: 32px;
+	}
+}
