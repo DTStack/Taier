@@ -50,7 +50,7 @@ public class DevelopSelectSqlService {
     public static final Logger LOGGER = LoggerFactory.getLogger(DevelopSelectSqlService.class);
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
     private DevelopHiveSelectSqlMapper developHiveSelectSqlDao;
@@ -81,7 +81,7 @@ public class DevelopSelectSqlService {
                                       Integer type,
                                       String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectData(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectData(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -104,7 +104,7 @@ public class DevelopSelectSqlService {
                                         Integer type,
                                         String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectStatus(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectStatus(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -127,7 +127,7 @@ public class DevelopSelectSqlService {
                                         Integer type,
                                         String sqlId) throws Exception {
         ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectRunLog(selectSqlData.getBatchTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
+        return selectSqlData.getIBatchSelectSqlService().selectRunLog(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
     }
 
     /**
@@ -141,15 +141,15 @@ public class DevelopSelectSqlService {
      * @return
      */
     private ExecuteSelectSqlData beforeGetResult(String jobId, Long taskId, Long tenantId, Integer type, String sqlId){
-        DevelopSelectSql batchHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
-        Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
+        DevelopSelectSql developHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
+        Preconditions.checkNotNull(developHiveSelectSql, "不存在该临时查询");
         if (StringUtils.isNotEmpty(sqlId)){
-            batchHiveSelectSql.setFatherJobId(jobId);
-            batchHiveSelectSql.setJobId(sqlId);
+            developHiveSelectSql.setFatherJobId(jobId);
+            developHiveSelectSql.setJobId(sqlId);
         }
-        IDevelopSelectSqlService selectSqlService = multiEngineServiceFactory.getBatchSelectSqlService(batchHiveSelectSql.getTaskType());
-        Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", batchHiveSelectSql.getTaskType()));
-        Task task = batchTaskService.getOneWithError(taskId);;
+        IDevelopSelectSqlService selectSqlService = multiEngineServiceFactory.getDevelopSelectSqlService(developHiveSelectSql.getTaskType());
+        Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", developHiveSelectSql.getTaskType()));
+        Task task = developTaskService.getOneWithError(taskId);;
         Integer taskType = null;
         if (Objects.nonNull(task)) {
             taskType = task.getTaskType();
@@ -157,7 +157,7 @@ public class DevelopSelectSqlService {
         if (Objects.isNull(taskType)) {
             throw new DtCenterDefException("任务类型为空");
         }
-        return new ExecuteSelectSqlData(batchHiveSelectSql, task, taskType, selectSqlService);
+        return new ExecuteSelectSqlData(developHiveSelectSql, task, taskType, selectSqlService);
     }
 
 
