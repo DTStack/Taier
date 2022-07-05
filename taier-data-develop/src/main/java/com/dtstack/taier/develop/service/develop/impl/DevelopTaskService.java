@@ -46,6 +46,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
+import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -56,6 +57,7 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchDataSource;
+import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
 import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.Component;
@@ -328,6 +330,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
+        List<BatchResource> resources = batchTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        taskVO.setResourceList(resources);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
         taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
@@ -812,11 +816,24 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
             taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
             return (TaskVO) updateTask(taskVO, false);
-        }
+        }  else if (EScheduleJobType.MR.getVal().equals(taskResourceParam.getTaskType())) {
+        taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
+        updateTask(taskVO, false);
+        dependencyResourceDeal(taskResourceParam, taskVO);
+        return taskVO;
+    }
         if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
             return addOrUpdateSyncTask(taskResourceParam);
         }
         return null;
+    }
+
+    private void dependencyResourceDeal(TaskResourceParam taskResourceParam, TaskVO taskVO) {
+        if (CollectionUtils.isEmpty(taskResourceParam.getResourceIdList())) {
+            return;
+        }
+        batchTaskResourceService.save(taskVO, taskResourceParam.getResourceIdList(), ResourceRefType.MAIN_RES.getType());
+
     }
 
     /**
@@ -2020,6 +2037,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             if (componentList.contains(EComponentType.FLINK.getTypeCode())) {
                 supportType.add(EScheduleJobType.SYNC);
                 supportType.add(EScheduleJobType.SQL);
+                supportType.add(EScheduleJobType.MR);
                 supportType.add(EScheduleJobType.DATA_ACQUISITION);
             }
 
