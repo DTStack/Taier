@@ -3,6 +3,10 @@ import req from './request';
 import { TASK_TYPE_ENUM } from '@/constant';
 
 export default {
+	// 获取节点下拉
+	getNodeAddressSelect(params?: any) {
+		return http.post(req.GET_NODEADDRESS_SELECT, params);
+	},
 	// 获取类型数据源
 	getTypeOriginData(params: any) {
 		return http.post(req.GET_TYPE_ORIGIN_DATA, params);
@@ -148,10 +152,10 @@ export default {
 	addCluster(params: { clusterName: string }) {
 		return http.post(req.ADD_CLUSTER, params); // 新增集群
 	},
-	getClusterInfo(params: { clusterId: number }) {
+	getClusterInfo(params: { clusterId: number | string }) {
 		return http.get(req.GET_CLUSTER_INFO, params);
 	},
-	uploadResource(params: { fileName: any; componentType: number }) {
+	uploadResource(params: { fileName: any; componentType: any }) {
 		return http.postAsFormData(req.UPLOAD_RESOURCE, params);
 	},
 	deleteComponent(params: { componentId: number }) {
@@ -160,16 +164,11 @@ export default {
 	deleteCluster(params: { clusterId: number }) {
 		return http.post(req.DELETE_CLUSTER, params);
 	},
-	testConnect(params: {
-		clusterName: string;
-		componentType: number;
-		versionName: string;
-		deployType: number | string;
-	}) {
+	testConnect(params: { clusterId: number; componentType: number; versionName: string }) {
 		return http.post(req.TEST_CONNECT, params);
 	},
-	testConnects(params: { clusterName: string }) {
-		return http.post(req.TEST_CONNECTS, params);
+	testConnects<T>(params: { clusterId: number }) {
+		return http.post<T>(req.TEST_CONNECTS, params);
 	},
 	closeKerberos(params: { componentId: number }) {
 		return http.post(req.CLOSE_KERBEROS, params);
@@ -197,7 +196,7 @@ export default {
 		return http.post(req.GET_COMPONENTSTORE, params);
 	},
 	// 上传kerberos文件
-	uploadKerberos(params: { kerberosFile: any; clusterId: string; componentCode: number }) {
+	uploadKerberos(params: any) {
 		return http.postAsFormData(req.UPLOAD_KERBEROS, params);
 	},
 	// 更新krb5.conf文件
@@ -236,8 +235,8 @@ export default {
 	getClusterResources(params: any) {
 		return http.post(req.GET_CLUSTER_RESOURCES, params);
 	},
-	getLoadTemplate(params: any) {
-		return http.post(req.GET_LOADTEMPLATE, params);
+	getLoadTemplate<T>(params: any) {
+		return http.post<T>(req.GET_LOADTEMPLATE, params);
 	},
 	getAllCluster(params?: any) {
 		return http.get(req.GET_ALL_CLUSTER, params);
@@ -312,6 +311,10 @@ export default {
 		// 获取Hive分区
 		return http.post(req.CHECK_HIVE_PARTITIONS, params);
 	},
+	selectRunLog<T>(params: any) {
+		// 非数据同步接口获取日志
+		return http.post<T>(req.SELECT_SQL_LOG, params);
+	},
 	/**
 	 * - 查询数据同步任务，SQL 执行结果
 	 * - 需要补充增量同步
@@ -325,6 +328,14 @@ export default {
 				? req.SELECT_DATA_SYNC_RESULT
 				: req.SELECT_SQL_RESULT_DATA;
 		return http.post(url, params);
+	},
+	selectExecResultDataSync(params: any) {
+		// 数据同步接口获取结果表
+		return http.post(req.SELECT_DATA_SYNC_RESULT, params);
+	},
+	selectStatus(params: any) {
+		// 非数据同步接口轮训状态
+		return http.post(req.SELECT_SQL_STATUS, params);
 	},
 	forzenTask(params: any) {
 		return http.post(req.FROZEN_TASK, params);
@@ -510,5 +521,11 @@ export default {
 	},
 	allProductGlobalSearch(params: any) {
 		return http.post(req.ALL_PRODUCT_GLOBAL_SEARCH, params);
+	},
+	getComponentModels() {
+		return http.get(req.GET_COMPONENT_MODELS, {});
+	},
+	getComponentInfo(params: any) {
+		return http.get(req.GET_COMPONENT_INFO, params);
 	},
 };

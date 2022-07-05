@@ -1,14 +1,14 @@
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
-import type { IDataSource } from './index';
+import type { IFlinkJsonProps } from './index';
 
 interface IProps {
 	loading: boolean;
-	tableData: IDataSource[];
+	tableData: IFlinkJsonProps[];
 }
 
 export default function DetailTable({ loading, tableData }: IProps) {
-	const columns: ColumnsType<IDataSource> = [
+	const columns: ColumnsType<IFlinkJsonProps> = [
 		{
 			title: 'Name',
 			dataIndex: 'jobVertexName',
@@ -22,12 +22,12 @@ export default function DetailTable({ loading, tableData }: IProps) {
 		{
 			title: 'Bytes received',
 			dataIndex: 'bytesReceived',
-			sorter: (a, b) => a.bytesReceived - b.bytesReceived,
+			sorter: (a, b) => Number(a.bytesReceived) - Number(b.bytesReceived),
 		},
 		{
 			title: 'Bytes sent',
 			dataIndex: 'bytesSent',
-			sorter: (a, b) => a.bytesSent - b.bytesSent,
+			sorter: (a, b) => Number(a.bytesSent) - Number(b.bytesSent),
 		},
 		{
 			title: 'Record Received',
@@ -42,7 +42,7 @@ export default function DetailTable({ loading, tableData }: IProps) {
 	];
 
 	return (
-		<Table<IDataSource>
+		<Table<IFlinkJsonProps>
 			rowKey="jobVertexId"
 			style={{ margin: '0 20px' }}
 			loading={loading}

@@ -19,28 +19,30 @@
 package com.dtstack.taier.develop.controller.console;
 
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.develop.mapstruct.console.KerberosConfigTransfer;
 import com.dtstack.taier.develop.service.console.ConsoleComponentService;
+import com.dtstack.taier.develop.vo.console.ComponentModelVO;
 import com.dtstack.taier.develop.vo.console.KerberosConfigVO;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
-import com.dtstack.taier.scheduler.impl.pojo.ComponentMultiTestResult;
+import com.dtstack.taier.scheduler.vo.ComponentVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -88,16 +90,12 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "long", example = "-1L"),
             @ApiImplicitParam(name = "versionName", value = "组件版本名称", required = true, dataType = "string"),
-            @ApiImplicitParam(name = "deployType", value = "deploy类型", required = true, dataType = "int"),
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "storeType", value = "存储组件code", required = true, dataType = "int"),
     })
     public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterId") Long clusterId,
-                                                @RequestParam("versionName") String versionName, @RequestParam("storeType") Integer storeType,
-                                                @RequestParam("deployType") Integer deployType) {
+                                                @RequestParam("versionName") String versionName) {
         EComponentType type = EComponentType.getByCode(componentType);
-        EComponentType storeComponentType = storeType == null ? null : EComponentType.getByCode(storeType);
-        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, storeComponentType, deployType));
+        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, EComponentType.HDFS, null));
     }
 
 
@@ -111,12 +109,6 @@ public class ComponentController {
         return R.empty();
     }
 
-
-    @GetMapping(value = "/getComponentVersion")
-    @ApiOperation(value = "获取对应的组件能版本信息")
-    public R<Map> getComponentVersion() {
-        return R.ok(consoleComponentService.getComponentVersion());
-    }
 
     @PostMapping(value = "/getComponentStore")
     @ApiOperation(value = "获取对应的组件能选择的存储组件类型")
@@ -139,36 +131,39 @@ public class ComponentController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
     })
-    public R<List<ComponentMultiTestResult>> testConnects(@RequestParam("clusterName") String clusterName) {
-        if (StringUtils.isBlank(clusterName)) {
-            throw new RdosDefineException("clusterName is null");
-        }
-        return R.ok(consoleComponentService.testConnects(clusterName));
+    public R<List<ComponentTestResult>> testConnects(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(consoleComponentService.testConnects(clusterId));
     }
 
     @PostMapping(value = "/testConnect")
     @ApiOperation(value = "测试单个组件连通性")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
-            @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "clusterId", value = "集群id", required = true, dataType = "String"),
             @ApiImplicitParam(name = "versionName", value = "组件版本", required = true, dataType = "String"),
     })
-    public R<ComponentTestResult> testConnect(@RequestParam("clusterName") String clusterName, @RequestParam("componentType") Integer componentType, @RequestParam("versionName") String versionName) {
-        return R.ok(consoleComponentService.testConnect(clusterName, componentType, versionName));
+    public R<ComponentTestResult> testConnect(@RequestParam("clusterId") Long clusterId, @RequestParam("componentType") Integer componentType, @RequestParam("versionName") String versionName) {
+        return R.ok(consoleComponentService.testConnect(clusterId, componentType, versionName));
+    }
+
+    @GetMapping(value = "/componentModels")
+    @ApiOperation(value = "获取能配置的组件信息")
+    public R<List<ComponentModelVO>> componentModels() {
+        return R.ok(consoleComponentService.getComponentModels());
     }
 
 
-    @PostMapping(value = "/refresh")
-    @ApiOperation(value = "刷新组件信息")
+    @GetMapping(value = "/getComponentInfo")
+    @ApiOperation(value = "获取组件详细配置信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterName", value = "集群名称", required = true, dataType = "String")
+            @ApiImplicitParam(name = "componentId", value = "组件id", required = true, dataType = "long")
     })
-    public R<List<ComponentTestResult>> refresh(@RequestParam("clusterName") String clusterName) {
-        if (StringUtils.isBlank(clusterName)) {
-            throw new RdosDefineException("clusterName is null");
-        }
-        return R.ok(consoleComponentService.refresh(clusterName));
+    public R<ComponentVO> getComponentInfo(@RequestParam("componentId") Long componentId) {
+        ComponentVO componentVO = consoleComponentService.getComponentInfo(componentId);
+        return R.ok(componentVO);
     }
+
+
 }
 
 

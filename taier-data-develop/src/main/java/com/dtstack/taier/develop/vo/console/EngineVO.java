@@ -9,8 +9,6 @@ import java.util.List;
 @ApiModel
 public class EngineVO  extends BaseEntity {
 
-    private List<QueueVO> queues;
-
     private List<ComponentVO> components;
 
     private Long clusterId;
@@ -50,14 +48,6 @@ public class EngineVO  extends BaseEntity {
 
     public void setComponents(List<ComponentVO> components) {
         this.components = components;
-    }
-
-    public List<QueueVO> getQueues() {
-        return queues;
-    }
-
-    public void setQueues(List<QueueVO> queues) {
-        this.queues = queues;
     }
 }
 

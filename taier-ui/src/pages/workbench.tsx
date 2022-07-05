@@ -15,9 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// 这是一个自动生成的文件，减少不必要的修改除了格式化以外
 import 'reflect-metadata';
+import React from 'react';
 import { container } from 'tsyringe';
+
 import {
 	classNames,
 	getFontInMac,
@@ -25,6 +27,7 @@ import {
 	getBEMModifier,
 	getBEMElement,
 } from '@dtinsight/molecule/esm/common/className';
+
 import { EditorView } from '@dtinsight/molecule/esm/workbench/editor';
 import { SidebarView } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { MenuBarView } from '@dtinsight/molecule/esm/workbench/menuBar';
@@ -33,15 +36,18 @@ import { StatusBarView } from '@dtinsight/molecule/esm/workbench/statusBar';
 import { PanelView } from '@dtinsight/molecule/esm/workbench/panel';
 import { ID_APP } from '@dtinsight/molecule/esm/common/id';
 import { APP_PREFIX } from '@dtinsight/molecule/esm/common/const';
+
 import { connect } from '@dtinsight/molecule/esm/react';
-import type { ILayoutController } from '@dtinsight/molecule/esm/controller/layout';
-import { LayoutController } from '@dtinsight/molecule/esm/controller/layout';
-import type { ILayout } from '@dtinsight/molecule/esm/model/workbench/layout';
-import type { IWorkbench } from '@dtinsight/molecule/esm/model';
-import { Display, Pane, SplitPane } from '@dtinsight/molecule/esm/components';
+
+import { ILayoutController, LayoutController } from '@dtinsight/molecule/esm/controller/layout';
+import { ILayout, MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
+
+import { IWorkbench } from '@dtinsight/molecule/esm/model';
+import SplitPane from '@dtinsight/molecule/esm/components/split/SplitPane';
+import { Pane } from '@dtinsight/molecule/esm/components/split';
+import { Display } from '@dtinsight/molecule/esm/components';
 import molecule from '@dtinsight/molecule';
 import RightBar from './rightBar';
-import { MenuBarMode } from '@dtinsight/molecule/esm/model/workbench/layout';
 
 const mainBenchClassName = prefixClaName('mainBench');
 const workbenchClassName = prefixClaName('workbench');
@@ -56,7 +62,7 @@ const displayActivityBarClassName = getBEMElement(workbenchClassName, 'display-a
 
 const layoutController = container.resolve(LayoutController);
 
-function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
+export function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 	const {
 		activityBar,
 		menuBar,
@@ -69,40 +75,6 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		horizontalSplitPanePos,
 	} = props;
 
-	const handleSideBarChanged = (sizes: number[]) => {
-		if (sidebar.hidden) {
-			const clientSize = sizes[1];
-			const sidebarSize = splitPanePos[0];
-			if (typeof sidebarSize === 'string') {
-				// the sideBar size is still a default value
-				const numbSize = parseInt(sidebarSize, 10);
-				onPaneSizeChange?.([numbSize, clientSize - numbSize]);
-			} else {
-				onPaneSizeChange?.([sidebarSize, clientSize - sidebarSize]);
-			}
-		} else {
-			onPaneSizeChange?.(sizes);
-		}
-	};
-
-	const handleEditorChanged = (sizes: number[]) => {
-		if (panel.hidden) {
-			// get the non-zero size means current client size
-			const clientSize = sizes.find((s) => s)!;
-			const panelSize = horizontalSplitPanePos[1];
-			if (typeof panelSize === 'string') {
-				// the editor size is still a default value
-				const editorPercent = parseInt(horizontalSplitPanePos[0] as string, 10) / 100;
-				const numbericSize = clientSize * editorPercent;
-				onHorizontalPaneSizeChange?.([numbericSize, clientSize - numbericSize]);
-			} else {
-				onHorizontalPaneSizeChange?.([clientSize - panelSize, panelSize]);
-			}
-		} else {
-			onHorizontalPaneSizeChange?.(sizes);
-		}
-	};
-
 	const getSizes = () => {
 		if (panel.hidden) {
 			return ['100%', 0];
@@ -110,7 +82,7 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 		if (panel.panelMaximized) {
 			return [0, '100%'];
 		}
-		return horizontalSplitPanePos.concat();
+		return horizontalSplitPanePos;
 	};
 
 	const isMenuBarVertical = !menuBar.hidden && menuBar.mode === MenuBarMode.vertical;
@@ -144,19 +116,19 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 					<SplitPane
 						sizes={sidebar.hidden ? [0, '100%'] : splitPanePos}
 						split="vertical"
-						allowResize={[false, true]}
-						onChange={handleSideBarChanged}
-						onResizeStrategy={() => ['keep', 'pave']}
+						showSashes={!sidebar.hidden}
+						allowResize={[false]}
+						onChange={onPaneSizeChange!}
 					>
 						<Pane minSize={170} maxSize="80%">
 							<SidebarView />
 						</Pane>
 						<SplitPane
 							sizes={getSizes()}
-							allowResize={[false, true]}
+							showSashes={!panel.hidden && !panel.panelMaximized}
+							allowResize={[true, false]}
 							split="horizontal"
-							onChange={handleEditorChanged}
-							onResizeStrategy={() => ['pave', 'keep']}
+							onChange={onHorizontalPaneSizeChange!}
 						>
 							<Pane minSize="10%" maxSize="80%">
 								<EditorView />
@@ -174,4 +146,4 @@ function WorkbenchView(props: IWorkbench & ILayout & ILayoutController) {
 	);
 }
 
-export default connect(molecule.layout, WorkbenchView, layoutController);
+export const Workbench = connect(molecule.layout, WorkbenchView, layoutController);

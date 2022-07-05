@@ -21,23 +21,23 @@ package com.dtstack.taier.scheduler.service;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.mapper.ComponentConfigMapper;
 import com.dtstack.taier.dao.mapper.DictMapper;
-import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author yuebai
@@ -54,25 +54,7 @@ public class ScheduleDictService {
     private DictMapper dictMapper;
 
     @Autowired
-    private EnvironmentContext environmentContext;
-
-    @Autowired
     private ComponentConfigMapper componentConfigMapper;
-
-    /**
-     * 获取hadoop 和 flink spark组件的版本(有版本选择的才会在这获取)
-     *
-     * @return
-     */
-    public Map<String, List<ClientTemplate>> getVersion() {
-        Map<String, List<ClientTemplate>> versions = new HashMap<>(8);
-        versions.put("hadoopVersion", getHadoopVersion());
-        versions.put(EComponentType.FLINK.getName(), getNormalVersion(DictType.FLINK_VERSION.type));
-        versions.put(EComponentType.SPARK_THRIFT.getName(), getNormalVersion(DictType.SPARK_THRIFT_VERSION.type));
-        versions.put(EComponentType.SPARK.getName(), getNormalVersion(DictType.SPARK_VERSION.type));
-        versions.put(EComponentType.HIVE_SERVER.getName(), getNormalVersion(DictType.HIVE_VERSION.type));
-        return versions;
-    }
 
 
     /**
@@ -95,52 +77,37 @@ public class ScheduleDictService {
         return componentConfigMapper.listByComponentId(Long.parseLong(extraConfig.getDictValue()), false);
     }
 
-    public Dict getTypeDefaultValue(Integer type) {
-        return dictMapper.getTypeDefault(type);
-    }
-
     public Dict getByNameAndValue(Integer dictType, String dictName, String dictValue, String dependName) {
         return dictMapper.getByNameValue(dictType, dictName, dictValue, dependName);
     }
 
-    private List<ClientTemplate> getNormalVersion(Integer type) {
-        List<Dict> normalVersionDict = dictMapper.listDictByType(type);
-        if (CollectionUtils.isEmpty(normalVersionDict)) {
-            return new ArrayList<>(0);
-        }
 
-        return normalVersionDict
-                .stream()
-                .map(s -> {
-                    ClientTemplate clientTemplate = new ClientTemplate(s.getDictName(), s.getDictValue());
-                    if (DictType.FLINK_VERSION.type.equals(s.getType()) && StringUtils.isNotBlank(s.getDependName())) {
-                        List<Integer> collect = Stream.of(s.getDependName().split(",")).mapToInt(Integer::parseInt)
-                                .boxed().collect(Collectors.toList());
-                        clientTemplate.setDeployTypes(collect);
-                    }
-                    return clientTemplate;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<ClientTemplate> getHadoopVersion() {
-        List<Dict> dicts = dictMapper.listDictByType(DictType.HADOOP_VERSION.type);
+    public List<Pair<String, List<Pair>>> groupByDependName(List<Dict> dicts) {
         Map<String, List<Dict>> versions = dicts
                 .stream()
                 .collect(Collectors.groupingBy(Dict::getDependName));
-        List<ClientTemplate> clientTemplates = new ArrayList<>(versions.size());
-        for (String dependName : versions.keySet()) {
-            List<Dict> keyDicts = versions.get(dependName);
-            keyDicts = keyDicts.stream().sorted(Comparator.comparing(Dict::getSort)).collect(Collectors.toList());
-            List<ClientTemplate> templates = keyDicts.stream().map(s -> new ClientTemplate(s.getDictName(), s.getDictValue()))
+        List<Pair<String, List<Pair>>> groupPairs = new ArrayList<>(versions.size());
+
+        if (versions.size() == 1 && versions.containsKey(StringUtils.EMPTY)) {
+            //平铺
+            List<Dict> keyDicts = versions.get(StringUtils.EMPTY);
+            List templates = keyDicts.stream().map(s -> new Pair(s.getDictName(), null))
                     .collect(Collectors.toList());
-            ClientTemplate vendorFolder = new ClientTemplate();
-            vendorFolder.setKey(dependName);
-            vendorFolder.setValues(templates);
-            clientTemplates.add(vendorFolder);
+            groupPairs = templates;
+        } else {
+            //嵌套
+            for (String dependName : versions.keySet()) {
+                List<Dict> keyDicts = versions.get(dependName);
+                keyDicts = keyDicts.stream().sorted(Comparator.comparing(Dict::getSort)).collect(Collectors.toList());
+                List<Pair> templates = keyDicts.stream().map(s -> new Pair(s.getDictName(), null))
+                        .collect(Collectors.toList());
+
+                Pair<String, List<Pair>> vendorFolder = new Pair<>(dependName, templates);
+                groupPairs.add(vendorFolder);
+            }
         }
-        clientTemplates.sort(Comparator.comparing(ClientTemplate::getKey));
-        return clientTemplates;
+        groupPairs.sort(Comparator.comparing(Pair::getKey));
+        return groupPairs;
     }
 
     public String convertVersionNameToValue(String componentVersion, Integer taskType) {
@@ -161,6 +128,10 @@ public class ScheduleDictService {
 
     public List<Dict> listByDictType(DictType dictType) {
         return dictMapper.listDictByType(dictType.type);
+    }
+
+    public List<Dict> listByDictCode(String code) {
+        return dictMapper.listByDictCode(code);
     }
 
 }

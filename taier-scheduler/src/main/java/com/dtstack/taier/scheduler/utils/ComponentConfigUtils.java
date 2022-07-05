@@ -20,17 +20,21 @@ package com.dtstack.taier.scheduler.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EFrontType;
+import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.ComponentConfig;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -43,37 +47,7 @@ public class ComponentConfigUtils {
     public final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
-    private static Predicate<ClientTemplate> isAuth = c -> (c.getKey().equalsIgnoreCase("password") || c.getKey().equalsIgnoreCase("rsaPath"))
-            && "auth".equalsIgnoreCase(c.getDependencyKey());
 
-
-
-    /**
-     * 将数据库数据转换为前端展示的树结构
-     *
-     * @param componentConfigs
-     * @return
-     */
-    public static List<ClientTemplate> buildDBDataToClientTemplate(List<ComponentConfig> componentConfigs) {
-        if (CollectionUtils.isEmpty(componentConfigs)) {
-            return new ArrayList<>(0);
-        }
-        Map<String, List<ComponentConfig>> dependencyMapping = componentConfigs
-                .stream()
-                .filter(c -> StringUtils.isNotBlank(c.getDependencyKey()))
-                .collect(Collectors.groupingBy(ComponentConfig::getDependencyKey));
-        List<ClientTemplate> reduceTemplate = new ArrayList<>();
-        List<ComponentConfig> emptyDependencyValue = componentConfigs
-                .stream()
-                .filter(c -> StringUtils.isBlank(c.getDependencyKey()))
-                .collect(Collectors.toList());
-        for (ComponentConfig componentConfig : emptyDependencyValue) {
-            ClientTemplate clientTemplate = componentConfigToTemplate(componentConfig);
-            deepToBuildClientTemplate(dependencyMapping, dependencyMapping.size(), clientTemplate, clientTemplate.getKey());
-            reduceTemplate.add(clientTemplate);
-        }
-        return sortByKey(reduceTemplate);
-    }
 
 
     /**
@@ -106,6 +80,7 @@ public class ComponentConfigUtils {
 
     /**
      * 将数据库数据转换为key-value形式 供插件使用
+     *
      * @param configs
      * @return
      */
@@ -142,12 +117,12 @@ public class ComponentConfigUtils {
 //                        "session":"",
 //                        "typeName":"yarn2-hdfs2-spark210"
 //                    }
-                    if(DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey())){
+                    if (DEPLOY_MODE.equalsIgnoreCase(componentConfig.getKey())) {
                         //只设置对应的值
                         JSONArray deployValues = JSONArray.parseArray(componentConfig.getValue());
                         for (Object deployValue : deployValues) {
                             Map deployValueMap = new HashMap<>();
-                            deployValueMap.put(deployValue,((Map<?, ?>) specialDeepConfig).get(deployValue));
+                            deployValueMap.put(deployValue, ((Map<?, ?>) specialDeepConfig).get(deployValue));
                             configMaps.putAll(deployValueMap);
                         }
                     }
@@ -169,7 +144,7 @@ public class ComponentConfigUtils {
                 if (!CollectionUtils.isEmpty(deepToBuildConfigMap)) {
                     if (EFrontType.RADIO_LINKAGE.name().equalsIgnoreCase(componentConfig.getType())) {
                         parseRadioLinkage(dependencyMapping, configMaps, componentConfig, deepToBuildConfigMap);
-                    } else if (EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())){
+                    } else if (EFrontType.SELECT.name().equalsIgnoreCase(componentConfig.getType())) {
                         configMaps.put(componentConfig.getKey(), componentConfig.getValue());
                     } else {
                         configMaps.putAll(deepToBuildConfigMap);
@@ -189,22 +164,13 @@ public class ComponentConfigUtils {
     private static void parseRadioLinkage(Map<String, List<ComponentConfig>> dependencyMapping, Map<String, Object> configMaps, ComponentConfig componentConfig, Map<String, Object> deepToBuildConfigMap) {
         //radio 联动 需要将设置radio选择的值 并根据radio的指选择values中对于的key value
         configMaps.put(componentConfig.getKey(), componentConfig.getValue());
-        //radio联动的值
-        Map<String, Map> radioLinkageValues = (Map) deepToBuildConfigMap.get(componentConfig.getKey());
         //radio联动的控件
         List<ComponentConfig> radioLinkageComponentConfigValue = dependencyMapping.get(componentConfig.getKey());
         if (!CollectionUtils.isEmpty(radioLinkageComponentConfigValue)) {
-            Optional<ComponentConfig> first = radioLinkageComponentConfigValue
+            radioLinkageComponentConfigValue
                     .stream()
-                    .filter(r -> r.getValue().equalsIgnoreCase(componentConfig.getValue()))
-                    .findFirst();
-            if (first.isPresent()) {
-                //根据选择的控件 选择对应的值 没有选择的值不能设置 否则前端测试联通性判断会出现key不一致
-                Map map = radioLinkageValues.get(first.get().getKey());
-                if (MapUtils.isNotEmpty(map)) {
-                    configMaps.putAll(map);
-                }
-            }
+                    .filter(r -> StringUtils.isNotBlank(r.getDependencyValue()) && r.getDependencyValue().equalsIgnoreCase(componentConfig.getValue()))
+                    .findFirst().ifPresent(config -> configMaps.put(config.getKey(), config.getValue()));
         }
     }
 
@@ -305,48 +271,6 @@ public class ComponentConfigUtils {
     }
 
 
-    /**
-     * 将数据库console_component的component_template调整为完全的树结构
-     *
-     * @param clientTemplates
-     * @return
-     */
-    @Deprecated
-    public static List<ClientTemplate> convertOldClientTemplateToTree(List<ClientTemplate> clientTemplates) {
-        if (CollectionUtils.isEmpty(clientTemplates)) {
-            return new ArrayList<>(0);
-        }
-        //子key
-        Map<String, List<ClientTemplate>> dependMapping = clientTemplates
-                .stream()
-                .filter(c -> StringUtils.isNotBlank(c.getDependencyKey()))
-                .collect(Collectors.groupingBy(ClientTemplate::getDependencyKey));
-        List<ClientTemplate> reduceTemplate = new ArrayList<>();
-        for (ClientTemplate clientTemplate : clientTemplates) {
-            if (StringUtils.isBlank(clientTemplate.getDependencyKey())) {
-                reduceTemplate.add(clientTemplate);
-            }
-        }
-        for (ClientTemplate clientTemplate : reduceTemplate) {
-            List<ClientTemplate> sonTemplate = dependMapping.get(clientTemplate.getKey());
-            if (CollectionUtils.isEmpty(sonTemplate)) {
-                continue;
-            }
-            for (ClientTemplate template : sonTemplate) {
-                if (null != template) {
-                    List<ClientTemplate> values = clientTemplate.getValues();
-                    if (null == values) {
-                        clientTemplate.setValues(new ArrayList<>());
-                    } else {
-                        clientTemplate.getValues().removeIf(s -> s.getKey().equalsIgnoreCase(template.getKey()));
-                    }
-                    clientTemplate.getValues().add(template);
-                }
-            }
-        }
-        return reduceTemplate;
-    }
-
     public static ComponentConfig convertClientTemplateToConfig(ClientTemplate clientTemplate) {
         ComponentConfig componentConfig = new ComponentConfig();
         BeanUtils.copyProperties(clientTemplate, componentConfig);
@@ -408,30 +332,29 @@ public class ComponentConfigUtils {
         return configs;
     }
 
-
-    public static void fillClientTemplate(ClientTemplate clientTemplate, JSONObject config) {
-        String value = config.getString(clientTemplate.getKey());
-        if (StringUtils.isNotBlank(value)) {
-            if(!isAuth.test(clientTemplate)){
-                clientTemplate.setValue(value);
-            }
-            if (!CollectionUtils.isEmpty(clientTemplate.getValues())) {
-                for (ClientTemplate clientTemplateValue : clientTemplate.getValues()) {
-                    fillClientTemplate(clientTemplateValue, config);
-                }
-            }
-        }
-    }
-
-    public static ClientTemplate buildOthers(String key, String value) {
-        return buildCustom(key, value, EFrontType.OTHER.name());
+    public static ComponentConfig buildOthers(String key, String value, Long componentId, Long clusterId, Integer componentCode) {
+        return buildCustomConfig(key, value, EFrontType.OTHER.name(), null, componentId, clusterId, componentCode);
     }
 
     public static ClientTemplate buildCustom(String key, Object value, String type) {
-        ClientTemplate componentConfig = new ClientTemplate();
+        ClientTemplate clientTemplate = new ClientTemplate();
+        clientTemplate.setType(type);
+        clientTemplate.setKey(key);
+        clientTemplate.setValue(value);
+        return clientTemplate;
+    }
+
+    public static ComponentConfig buildCustomConfig(String key, String value, String type,String dependencyKey,
+                                                   Long componentId,Long clusterId,Integer componentCode) {
+        ComponentConfig componentConfig = new ComponentConfig();
         componentConfig.setType(type);
         componentConfig.setKey(key);
         componentConfig.setValue(value);
+        componentConfig.setDependencyKey(dependencyKey);
+        componentConfig.setRequired(BooleanUtils.toInteger(false));
+        componentConfig.setComponentId(componentId);
+        componentConfig.setClusterId(clusterId);
+        componentConfig.setComponentTypeCode(componentCode);
         return componentConfig;
     }
 
@@ -452,29 +375,68 @@ public class ComponentConfigUtils {
         return clientTemplates;
     }
 
+    public static List<ComponentConfig> fillTemplateValue(JSONObject configJson, List<ComponentConfig> templateConfigs, Long componentId, Long clusterId, Integer componentCode) {
+        List<ComponentConfig> saveConfig = new ArrayList<>(configJson.size());
+        if (configJson.containsKey(DEPLOY_MODE)) {
+            //flink spark
+            JSONArray deployMode = configJson.getJSONArray(DEPLOY_MODE);
+            Map<String, List<ComponentConfig>> dependencyMapping = templateConfigs
+                    .stream()
+                    .filter(c -> c.getDependencyKey() != null)
+                    .collect(Collectors.groupingBy(ComponentConfig::getDependencyKey));
 
-    /**
-     * 处理hdfs 和yarn的自定义参数
-     *
-     * @param componentType
-     * @param componentTemplate
-     * @return
-     */
-    public static List<ClientTemplate> dealXmlCustomControl(EComponentType componentType, String componentTemplate) {
-        List<ClientTemplate> extraClient = new ArrayList<>(0);
-        if (StringUtils.isBlank(componentTemplate)) {
-            return extraClient;
-        }
-        if (EComponentType.HDFS.getTypeCode().equals(componentType.getTypeCode()) || EComponentType.YARN.getTypeCode().equals(componentType.getTypeCode())) {
-            JSONArray keyValues = JSONObject.parseArray(componentTemplate);
-            for (int i = 0; i < keyValues.size(); i++) {
-                ClientTemplate clientTemplate = ComponentConfigUtils.buildCustom(
-                        keyValues.getJSONObject(i).getString("key"),
-                        keyValues.getJSONObject(i).getString("value"),
-                        EFrontType.CUSTOM_CONTROL.name());
-                extraClient.add(clientTemplate);
+            List<ComponentConfig> componentConfigs = dependencyMapping.get(Strings.EMPTY);
+            componentConfigs.forEach(deploy -> {
+                if (deploy.getKey().equals(DEPLOY_MODE)) {
+                    deploy.setValue(deployMode.toJSONString());
+                }
+            });
+
+            //设置deployMode值
+            saveConfig.addAll(componentConfigs);
+
+            for (int i = 0; i < deployMode.size(); i++) {
+                JSONObject deployConfig = configJson.getJSONObject(deployMode.getString(i).trim());
+                String deployKey = DEPLOY_MODE + dependencySeparator + deployMode.getString(i).trim();
+                List<ComponentConfig> deployTemplateConfig = dependencyMapping.get(deployKey);
+                deployTemplateConfig = deployTemplateConfig.stream().peek(componentConfig -> {
+                    componentConfig.setValue(deployConfig.getString(componentConfig.getKey()));
+                    componentConfig.setComponentId(componentId);
+                    componentConfig.setClusterId(clusterId);
+                    deployConfig.remove(componentConfig.getKey());
+                }).collect(Collectors.toList());
+
+                //设置模版值
+                saveConfig.addAll(deployTemplateConfig);
+
+                if (!deployConfig.isEmpty()) {
+                    //多余自定义参数
+                    List<ComponentConfig> customKey = deployConfig.keySet().stream().map(key ->
+                            buildCustomConfig(key, deployConfig.getString(key), EFrontType.CUSTOM_CONTROL.name(),
+                                    deployKey, componentId,clusterId, componentCode)).collect(Collectors.toList());
+                    //设置自定义参数值
+                    saveConfig.addAll(customKey);
+
+                }
+            }
+        } else {
+            //平铺的组件配置
+            saveConfig = templateConfigs.stream().peek(componentConfig -> {
+                componentConfig.setValue(configJson.getString(componentConfig.getKey()));
+                componentConfig.setComponentId(componentId);
+                componentConfig.setClusterId(clusterId);
+                configJson.remove(componentConfig.getKey());
+            }).collect(Collectors.toList());
+
+            if (!configJson.isEmpty()) {
+                //多余自定义参数
+                List<ComponentConfig> customKey = configJson.keySet().stream().map(key ->
+                        buildCustomConfig(key, configJson.getString(key), EFrontType.CUSTOM_CONTROL.name(),
+                                null, clusterId, componentId, componentCode)).collect(Collectors.toList());
+                //设置自定义参数值
+                saveConfig.addAll(customKey);
             }
         }
-        return extraClient;
+        return saveConfig;
     }
 }

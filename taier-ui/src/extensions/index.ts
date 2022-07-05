@@ -27,10 +27,12 @@ import MenuExtension from './menu';
 import DTStackTheme from './dtstackTheme';
 import { LocaleExtension } from './i18n';
 import ActionExtension from './action';
+import ColorThemeExtensions from './themes';
 
 export const extensions: IExtension[] = [
 	LocaleExtension,
 	DTStackTheme,
+	new ColorThemeExtensions(),
 	new ActionExtension(),
 	new InitializeExtension(),
 	new PanelExtension(),

@@ -23,6 +23,7 @@ export default {
 	TEST_CONNECT: `${BASE_URI}/component/testConnect`, // 测试单个组件连通性
 	TEST_CONNECTS: `${BASE_URI}/component/testConnects`, // 测试所有组件连通性
 	SAVE_COMPONENT: `${BASE_URI}/upload/component/addOrUpdateComponent`, // 保存集群配置的组件信息
+	GET_NODEADDRESS_SELECT: `${BASE_URI}/console/nodeAddress`, // 获取节点下拉
 	CLOSE_KERBEROS: `${BASE_URI}/component/closeKerberos`, // 删除 Kerberos
 	GET_VERSION: `${BASE_URI}/component/getComponentVersion`, // 获取支持的组件版本信息
 	ADD_CLUSTER: `${BASE_URI}/cluster/addCluster`, // 新增集群
@@ -50,6 +51,8 @@ export default {
 	EXEC_DATA_SYNC_IMMEDIATELY: `${BASE_URI}/batchJob/startSyncImmediately`, // 立即执行数据同步
 	STOP_DATA_SYNC_IMMEDIATELY: `${BASE_URI}/batchJob/stopSyncJob`, // 停止执行数据同步
 	SELECT_DATA_SYNC_RESULT: `${BASE_URI}/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
+	SELECT_SQL_LOG: `${BASE_URI}/batchSelectSql/selectRunLog`, // 轮询调度查询sql状态
+	SELECT_SQL_STATUS: `${BASE_URI}/batchSelectSql/selectStatus`, // 轮询调度查询sql状态
 	GET_INCREMENT_COLUMNS: `${BASE_URI}/task/getIncreColumn`, // 获取增量字段
 	CHECK_SYNC_MODE: `${BASE_URI}/task/canSetIncreConf`, // 检测是否满足增量转换条件
 	CHECK_HIVE_PARTITIONS: `${BASE_URI}/batchDataSource/getHivePartitions`, // 获取 hive 表分区值
@@ -146,4 +149,6 @@ export default {
 	CREATE_DDL_TABLE: `${BASE_URI}/dataSource/addDs/ddlCreateTable`, // 创建 ddl 的表
 	BATCH_STOP_JOBS_BY_DATE: `${BASE_URI}/scheduleJob/stopJobByCondition`, // 按照业务日期杀任务
 	ALL_PRODUCT_GLOBAL_SEARCH: `${BASE_URI}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
+	GET_COMPONENT_MODELS: `${BASE_URI}/component/componentModels`, // 获取能配置的组件信息
+	GET_COMPONENT_INFO: `${BASE_URI}/component/getComponentInfo`, // 获取组件配置信息
 };

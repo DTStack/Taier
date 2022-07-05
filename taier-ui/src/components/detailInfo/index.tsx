@@ -1,14 +1,15 @@
-import { Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
+import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import moment from 'moment';
 import { CATELOGUE_TYPE } from '@/constant';
-import type { IFunctionProps, IOfflineTaskProps } from '@/interface';
+import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/interface';
 import { formatDateTime } from '@/utils';
-import { taskTypeText } from '@/utils/enums';
-import { CopyOutlined } from '@ant-design/icons';
+import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
+import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
 import './index.scss';
 
 interface IDetailInfoProps {
-	type: CATELOGUE_TYPE;
+	type: CATELOGUE_TYPE | 'dataSource' | 'taskJob';
 	data: Record<string, any>;
 }
 
@@ -86,25 +87,17 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 						{resourceData.resourceName}
 					</Descriptions.Item>
 					<Descriptions.Item label="资源描述" span={12}>
-						{resourceData.resourceDesc}
+						{resourceData.resourceDesc || '-'}
 					</Descriptions.Item>
-					<Descriptions.Item
-						label={
-							<>
-								存储路径
-								<CopyToClipboard
-									text={resourceData.url}
-									onCopy={() => message.success('复制成功！')}
-								>
-									<Tooltip title="复制">
-										<CopyOutlined />
-									</Tooltip>
-								</CopyToClipboard>
-							</>
-						}
-						span={12}
-					>
-						<code>{resourceData.url}</code>
+					<Descriptions.Item label="存储路径" span={12}>
+						<CopyToClipboard
+							text={resourceData.url}
+							onCopy={() => message.success('复制成功！')}
+						>
+							<Tooltip title="点击复制">
+								<code className="cursor-pointer">{resourceData.url}</code>
+							</Tooltip>
+						</CopyToClipboard>
 					</Descriptions.Item>
 					<Descriptions.Item label="创建" span={12}>
 						{resourceData.createUser.userName} 于
@@ -112,6 +105,67 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 					</Descriptions.Item>
 					<Descriptions.Item label="修改时间" span={12}>
 						{formatDateTime(resourceData.gmtModified)}
+					</Descriptions.Item>
+				</Descriptions>
+			);
+		}
+		case 'dataSource': {
+			const dataSourceData = data as IDataSourceProps;
+			return (
+				<Descriptions className="dt-taskinfo" bordered size="small">
+					<Descriptions.Item label="名称" span={12}>
+						{dataSourceData.dataName}
+					</Descriptions.Item>
+					<Descriptions.Item label="类型" span={12}>
+						{dataSourceData.dataType}
+						{dataSourceData.dataVersion || ''}
+					</Descriptions.Item>
+					<Descriptions.Item label="描述" span={12}>
+						{dataSourceData.dataDesc || '--'}
+					</Descriptions.Item>
+					<Descriptions.Item label="连接信息" span={12}>
+						<LinkInfoCell sourceData={dataSourceData} />
+					</Descriptions.Item>
+					<Descriptions.Item label="连接状态" span={12}>
+						{dataSourceData.status === 0 ? (
+							<Badge status="error" text="连接失败" />
+						) : (
+							<Badge status="success" text="正常" />
+						)}
+					</Descriptions.Item>
+					<Descriptions.Item label="修改时间" span={12}>
+						{moment(dataSourceData.gmtModified).format('YYYY-MM-DD hh:mm:ss')}
+					</Descriptions.Item>
+				</Descriptions>
+			);
+		}
+		case 'taskJob': {
+			return (
+				<Descriptions className="dt-taskinfo" bordered size="small">
+					<Descriptions.Item label="任务名称：" span={12}>
+						{data.taskName || '-'}
+					</Descriptions.Item>
+					<Descriptions.Item label="实例ID" span={12}>
+						<CopyToClipboard
+							text={data.jobId || '-'}
+							onCopy={() => message.success('复制成功')}
+						>
+							<Tooltip title="点击复制">
+								<span className="cursor-pointer">{data.jobId || '-'}</span>
+							</Tooltip>
+						</CopyToClipboard>
+					</Descriptions.Item>
+					<Descriptions.Item label="任务类型" span={12}>
+						{taskTypeText(data.taskType)}
+					</Descriptions.Item>
+					<Descriptions.Item label="状态" span={12}>
+						<TaskStatus value={data.status} />
+					</Descriptions.Item>
+					<Descriptions.Item label="调度周期" span={12}>
+						<TaskTimeType value={data.taskPeriodId} />
+					</Descriptions.Item>
+					<Descriptions.Item label="计划时间" span={12}>
+						{data.cycTime}
 					</Descriptions.Item>
 				</Descriptions>
 			);
