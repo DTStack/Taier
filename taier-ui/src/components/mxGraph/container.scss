@@ -1,0 +1,62 @@
+.graph-editor {
+	position: relative;
+	height: 100%;
+	background-color: var(--editor-background);
+
+	.task-graph {
+		height: 100%;
+	}
+
+	.ant-spin-container {
+		height: 100%;
+	}
+
+	.graph-bottom {
+		position: absolute;
+		bottom: 0;
+		z-index: 999;
+		border-radius: 0;
+		width: 100%;
+	}
+
+	.graph-toolbar {
+		position: absolute;
+		top: 20px;
+		right: 14px;
+		z-index: 901;
+		height: 18px;
+		text-align: center;
+		border-radius: 0;
+
+		img,
+		.anticon {
+			float: left;
+			width: 18px;
+			height: 16px;
+			margin-right: 12px;
+			color: var(--editor-foreground);
+			line-height: 16px;
+			cursor: pointer;
+		}
+	}
+
+	.graph-info {
+		width: 100%;
+		height: 35px;
+		padding: 0 20px;
+		color: var(--sideBar-foreground);
+		font-size: 12px;
+		font-family: 'PingFangSC-Regular', sans-serif;
+		line-height: 35px;
+		letter-spacing: 0;
+		background-color: var(--sideBar-background);
+		border-bottom: 1px solid var(--panel-border);
+	}
+
+	.graph-status {
+		@extend .graph-info;
+
+		background-color: var(--editor-background);
+		border-bottom: 0;
+	}
+}

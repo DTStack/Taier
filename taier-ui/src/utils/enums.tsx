@@ -28,7 +28,7 @@ import {
 	TASK_TYPE_ENUM,
 } from '@/constant';
 
-export function taskTypeText(type: TASK_TYPE_ENUM) {
+export function taskTypeText(type?: TASK_TYPE_ENUM) {
 	switch (type) {
 		case TASK_TYPE_ENUM.SYNC:
 			return '数据同步';
@@ -44,12 +44,14 @@ export function taskTypeText(type: TASK_TYPE_ENUM) {
 			return 'SparkSQL';
 		case TASK_TYPE_ENUM.DATA_ACQUISITION:
 			return '实时采集';
+		case TASK_TYPE_ENUM.FLINK:
+			return 'Flink';
 		default:
 			return '未知';
 	}
 }
 
-export function taskStatusText(type: TASK_STATUS) {
+export function taskStatusText(type?: TASK_STATUS) {
 	switch (type) {
 		case TASK_STATUS.WAIT_SUBMIT:
 			return '等待提交';
@@ -213,7 +215,7 @@ export function linkMapping(key?: string) {
 	}
 }
 
-export function TaskTimeType(props: { value: TASK_PERIOD_ENUM }) {
+export function TaskTimeType(props: { value?: TASK_PERIOD_ENUM }) {
 	const { value } = props;
 	switch (value) {
 		case TASK_PERIOD_ENUM.MINUTE:
@@ -231,7 +233,7 @@ export function TaskTimeType(props: { value: TASK_PERIOD_ENUM }) {
 	}
 }
 
-export function TaskStatus(props: { value: TASK_STATUS }) {
+export function TaskStatus(props: { value?: TASK_STATUS }) {
 	const { value } = props;
 	switch (value) {
 		case TASK_STATUS.RUNNING:

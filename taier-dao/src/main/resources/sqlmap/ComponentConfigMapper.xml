@@ -5,6 +5,12 @@
     <sql id="select_content_fragment">
         id,cluster_id,component_id,component_type_code,type,required,`key`,`value`,`values`,dependencyKey,dependencyValue,`desc`,gmt_create,gmt_modified,is_deleted
     </sql>
+    <sql id="select_content_fragment_with_dict">
+        ccc.id,ccc.cluster_id,ccc.component_id,ccc.component_type_code,ccc.type,ccc.required,ccc.`key`,ccc.`value`,ccc.`values`,ccc.dependencyKey,ccc.dependencyValue,ccc.`desc`,ccc.gmt_create,ccc.gmt_modified,ccc.is_deleted,dict.dict_value as keyDescribe
+    </sql>
+    <sql id="query_tip_left_join_dict">
+        left join dict on ccc.`key` = dict.dict_name and (ccc.component_type_code = dict.dict_desc) and dict.type = 25
+    </sql>
 
     <insert id="insertBatch">
         insert into
@@ -39,21 +45,23 @@
 
     <select id="listByComponentId" resultType="com.dtstack.taier.dao.domain.ComponentConfig">
         select
-        <include refid="select_content_fragment"/>
-        from console_component_config
-        where component_id = #{componentId} and is_deleted = 0
+        <include refid="select_content_fragment_with_dict"/>
+        from console_component_config ccc
+          <include refid="query_tip_left_join_dict"/>
+        where ccc.component_id = #{componentId} and ccc.is_deleted = 0
         <if test="true == isFilter">
-            and `type` != 'OTHER'
+            and ccc.`type` != 'OTHER'
         </if>
     </select>
 
     <select id="listByClusterId" resultType="com.dtstack.taier.dao.domain.ComponentConfig">
         select
-        <include refid="select_content_fragment"/>
-        from console_component_config
-        where cluster_id = #{clusterId} and is_deleted = 0
+        <include refid="select_content_fragment_with_dict"/>
+        from console_component_config ccc
+         <include refid="query_tip_left_join_dict"/>
+        where ccc.cluster_id = #{clusterId} and ccc.is_deleted = 0
         <if test="true == isFilter">
-            and `type` != 'OTHER'
+            and ccc.`type` != 'OTHER'
         </if>
     </select>
 

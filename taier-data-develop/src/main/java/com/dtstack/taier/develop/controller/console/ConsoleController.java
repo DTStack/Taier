@@ -21,9 +21,8 @@ package com.dtstack.taier.develop.controller.console;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.service.console.ConsoleService;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
-import com.dtstack.taier.scheduler.service.ComponentConfigService;
 import com.dtstack.taier.develop.vo.console.ConsoleJobVO;
+import com.dtstack.taier.pluginapi.pojo.ClusterResource;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -46,9 +45,6 @@ public class ConsoleController {
 
     @Autowired
     private ConsoleService consoleService;
-
-    @Autowired
-    private ComponentConfigService componentConfigService;
 
     @PostMapping(value = "/nodeAddress")
     public R<List<String>> nodeAddress() {
@@ -128,7 +124,7 @@ public class ConsoleController {
     }
 
     @PostMapping(value="/clusterResources")
-    public R<ClusterResource> clusterResources(@RequestParam("clusterName") String clusterName) {
-        return R.ok(consoleService.clusterResources(clusterName));
+    public R<ClusterResource> clusterResources(@RequestParam("clusterId") Long clusterId) {
+        return R.ok(consoleService.clusterResources(clusterId));
     }
 }

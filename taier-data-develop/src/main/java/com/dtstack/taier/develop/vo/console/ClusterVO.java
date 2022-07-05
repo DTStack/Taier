@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.vo.console;
 
 import com.dtstack.taier.dao.domain.Cluster;
-import com.dtstack.taier.scheduler.vo.SchedulingVo;
+import com.dtstack.taier.scheduler.vo.ComponentVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class ClusterVO extends Cluster {
      * 组件类型
      */
     @ApiModelProperty(notes = "组件类型")
-    private List<SchedulingVo> scheduling;
+    private List<ComponentVO> componentVOS;
 
     private boolean canModifyMetadata = true;
 
@@ -53,12 +53,12 @@ public class ClusterVO extends Cluster {
         this.canModifyMetadata = canModifyMetadata;
     }
 
-    public List<SchedulingVo> getScheduling() {
-        return scheduling;
+    public List<ComponentVO> getComponentVOS() {
+        return componentVOS;
     }
 
-    public void setScheduling(List<SchedulingVo> scheduling) {
-        this.scheduling = scheduling;
+    public void setComponentVOS(List<ComponentVO> componentVOS) {
+        this.componentVOS = componentVOS;
     }
 
     public static ClusterVO toVO(Cluster cluster) {

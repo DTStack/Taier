@@ -9,15 +9,13 @@ import java.util.List;
 
 public interface ClusterTenantMapper extends BaseMapper<ClusterTenant> {
 
-    Integer updateQueueId(@Param("tenantId") Long tenantId, @Param("clusterId") Long clusterId, @Param("queueId") Long queueId);
+    Integer updateQueueName(@Param("tenantId") Long tenantId, @Param("clusterId") Long clusterId, @Param("queueName") String queueName);
 
     Integer generalCount(@Param("clusterId") Long clusterId, @Param("tenantName") String tenantName);
 
     List<ClusterTenant> generalQuery(@Param("query") PageQuery<Object> query, @Param("clusterId") Long clusterId, @Param("tenantName") String tenantName);
 
-    List<Long> listTenantIdByQueueIds(@Param("queueIds") List<Long> queueIds);
-
-    Long getQueueIdByTenantId(@Param("tenantId") Long tenantId);
+    String getQueueNameByTenantId(@Param("tenantId") Long tenantId);
 
     List<ClusterTenant> listByClusterId(@Param("clusterId") Long clusterId);
 

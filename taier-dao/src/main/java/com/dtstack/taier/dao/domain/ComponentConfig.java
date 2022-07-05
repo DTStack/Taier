@@ -38,7 +38,7 @@ public class ComponentConfig extends BaseEntity {
     private String dependencyValue;
     private Integer required;
     private String desc;
-
+    private String keyDescribe;
 
     public Long getClusterId() {
         return clusterId;
@@ -126,5 +126,13 @@ public class ComponentConfig extends BaseEntity {
 
     public void setRequired(Integer required) {
         this.required = required;
+    }
+
+    public String getKeyDescribe() {
+        return keyDescribe;
+    }
+
+    public void setKeyDescribe(String keyDescribe) {
+        this.keyDescribe = keyDescribe;
     }
 }

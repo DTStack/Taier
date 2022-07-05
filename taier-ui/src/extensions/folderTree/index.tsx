@@ -21,21 +21,18 @@ import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/m
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
-import type { IFormFieldProps } from '@/components/task/open';
-import Open from '@/components/task/open';
+import type { IFormFieldProps } from '@/components/task/create';
+import Open from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
-import DataSync from '@/components/dataSync';
-import { fileIcon, getParentNode } from '@/utils/extensions';
+import { getParentNode } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { CATELOGUE_TYPE, TASK_TYPE_ENUM, CREATE_MODEL_TYPE, ID_COLLECTIONS } from '@/constant';
+import { CATELOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
 import type { IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import StreamCollection from '@/components/streamCollection';
 import { breadcrumbService, catalogueService, editorActionBarService } from '@/services';
-import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
+import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
@@ -54,18 +51,15 @@ function getComputeType(type: TASK_TYPE_ENUM): number {
  */
 function openCreateTab(id?: string) {
 	const onSubmit = (values: IFormFieldProps) => {
-		const { syncModel } = values;
+		const { resourceIdList, ...restValues } = values;
 		return new Promise<boolean>((resolve) => {
 			const params: Record<string, any> = {
-				...values,
+				...restValues,
+				resourceIdList,
 				computeType: getComputeType(values.taskType),
 				parentId: values.nodePid,
 			};
 
-			// syncModel 需要被放置到 sourceMap 中
-			if (syncModel !== undefined) {
-				params.sourceMap = { syncModel };
-			}
 			api.addOfflineTask(params)
 				.then((res) => {
 					if (res.code === 1) {
@@ -166,10 +160,6 @@ function init() {
 
 // 初始化右键菜单
 function initContextMenu() {
-	// remove folderTree default contextMenu
-	molecule.folderTree.setState({
-		folderTree: { ...molecule.folderTree.getState().folderTree, folderPanelContextMenu: [] },
-	});
 	molecule.folderTree.onRightClick((treeNode, menu) => {
 		if (!treeNode.isLeaf) {
 			// remove rename action
@@ -260,6 +250,45 @@ function editTreeNodeName() {
 	});
 }
 
+const afterSubmit = (params: Record<string, any>, parentId: number, tabId: string) => {
+	// 等待更新的文件夹目录
+	const pendingUpdateFolderId = new Set([
+		// 当前节点变更之前所在的文件夹
+		parentId,
+		// 当前节点变更后所在的文件夹
+		params.nodePid,
+	]);
+
+	Promise.all(
+		Array.from(pendingUpdateFolderId).map((id) => {
+			const folderNode = molecule.folderTree.get(`${id}-folder`);
+			if (folderNode) {
+				return catalogueService.loadTreeNode(
+					{
+						id: folderNode.data?.id,
+						catalogueType: folderNode.data?.catalogueType,
+					},
+					CATELOGUE_TYPE.TASK,
+				);
+			}
+			return Promise.resolve();
+		}),
+	).then(() => {
+		const isOpened = molecule.editor.isOpened(params.id.toString());
+		if (isOpened) {
+			molecule.editor.updateTab({
+				id: params.id.toString(),
+				name: params.name as string,
+				breadcrumb: breadcrumbService.getBreadcrumb(params.id),
+			});
+		}
+
+		// 关闭当前编辑的 tab
+		const groupId = molecule.editor.getGroupIdByTab(tabId)!;
+		molecule.editor.closeTab(tabId, groupId);
+	});
+};
+
 export function openTaskInTab(
 	taskId: UniqueId,
 	file?: Pick<IFolderTreeNodeProps, 'id' | 'location'> | null,
@@ -283,92 +312,38 @@ export function openTaskInTab(
 	api.getOfflineTaskByID({ id: fileId }).then((res) => {
 		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
 		if (success) {
-			switch (data.taskType) {
-				case TASK_TYPE_ENUM.HIVE_SQL:
-				case TASK_TYPE_ENUM.SPARK_SQL: {
-					const tabData = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							// set sqlText into value so that molecule-editor could read from this
-							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
+			taskRenderService
+				.renderTabOnEditor(data.taskType, data, {
+					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
+						return new Promise<boolean>((resolve) => {
+							const params = {
+								id: data.id,
+								computeType: res.data.computeType,
+								updateSource: false,
+								preSave: false,
+								resourceIdList: resourceIdList ? [resourceIdList] : [],
+								...restValues,
+							};
+							api.addOfflineTask(params)
+								.then((result) => {
+									if (result.code === 1) {
+										message.success('编辑成功');
+										afterSubmit(
+											params,
+											result.data.parentId,
+											fileId.toString(),
+										);
+									}
+								})
+								.finally(() => {
+									resolve(false);
+								});
+						});
+					},
+				})
+				.then((tabData) => {
 					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.SYNC: {
-					// open in molecule
-					const tabData: molecule.model.IEditorTab = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							value: prettierJSONstring(data.sqlText),
-							language: mappingTaskTypeToLanguage(data.taskType),
-							taskDesc: data.taskDesc,
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-
-					// 向导模式渲染数据同步任务，脚本模式渲染编辑器
-					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
-						tabData.renderPane = () => {
-							return <DataSync key={fileId} />;
-						};
-						// 向导模式不需要设置编辑器语言
-						Reflect.deleteProperty(tabData.data!, 'language');
-					}
-
-					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.DATA_ACQUISITION: {
-					const tabData: molecule.model.IEditorTab = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							value: prettierJSONstring(data.sqlText),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
-						tabData.renderPane = () => <StreamCollection key={fileId} />;
-					} else {
-						tabData.data!.language = mappingTaskTypeToLanguage(data.taskType);
-					}
-					molecule.editor.open(tabData);
-					break;
-				}
-
-				case TASK_TYPE_ENUM.SQL: {
-					const tabData = {
-						id: fileId.toString(),
-						name: data.name,
-						data: {
-							...data,
-							// set sqlText into value so that molecule-editor could read from this
-							value: data.sqlText,
-							language: mappingTaskTypeToLanguage(data.taskType),
-						},
-						icon: fileIcon(data.taskType, CATELOGUE_TYPE.TASK),
-						breadcrumb: breadcrumbService.getBreadcrumb(fileId),
-					};
-					molecule.editor.open(tabData);
-					break;
-				}
-				default:
-					break;
-			}
+				});
 		}
 	});
 
@@ -437,45 +412,6 @@ function contextMenu() {
 					? `${ID_COLLECTIONS.EDIT_TASK_PREFIX}_${new Date().getTime()}`
 					: `${ID_COLLECTIONS.EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
-				const afterSubmit = (params: Record<string, string | number>) => {
-					// 等待更新的文件夹目录
-					const pendingUpdateFolderId = new Set([
-						// 当前节点变更之前所在的文件夹
-						treeNode!.data.parentId,
-						// 当前节点变更后所在的文件夹
-						params.nodePid,
-					]);
-
-					Promise.all(
-						Array.from(pendingUpdateFolderId).map((id) => {
-							const folderNode = molecule.folderTree.get(`${id}-folder`);
-							if (folderNode) {
-								return catalogueService.loadTreeNode(
-									{
-										id: folderNode.data?.id,
-										catalogueType: folderNode.data?.catalogueType,
-									},
-									CATELOGUE_TYPE.TASK,
-								);
-							}
-							return Promise.resolve();
-						}),
-					).then(() => {
-						const isOpened = molecule.editor.isOpened(params.id.toString());
-						if (isOpened) {
-							molecule.editor.updateTab({
-								id: params.id.toString(),
-								name: params.name as string,
-								breadcrumb: breadcrumbService.getBreadcrumb(params.id),
-							});
-						}
-
-						// 关闭当前编辑的 tab
-						const groupId = molecule.editor.getGroupIdByTab(tabId)!;
-						molecule.editor.closeTab(tabId, groupId);
-					});
-				};
-
 				const onSubmit = (values: any) => {
 					return new Promise<boolean>((resolve) => {
 						const params = {
@@ -490,7 +426,7 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									afterSubmit(params);
+									afterSubmit(params, treeNode!.data.parentId, tabId);
 								}
 							})
 							.finally(() => {
@@ -510,7 +446,7 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									afterSubmit(params);
+									afterSubmit(params, treeNode!.data.parentId, tabId);
 								}
 							})
 							.finally(() => {
