@@ -68,6 +68,12 @@ public enum EScheduleJobType {
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH),
+
+    /**
+     * Flink
+     */
+    MR(11, "Flink", 0, 11, EComponentType.FLINK, EComputeType.STREAM),
+
     ;
 
     private Integer type;

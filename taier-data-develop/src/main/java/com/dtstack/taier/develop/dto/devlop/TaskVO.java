@@ -1,6 +1,7 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.dao.domain.BatchResource;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 
@@ -81,6 +82,15 @@ public class TaskVO extends Task {
      * 任务脏数据管理
      */
     private TaskDirtyDataManageVO TaskDirtyDataManageVO;
+
+    private List<BatchResource> resourceList;
+
+    public List<BatchResource> getResourceList() {
+        return resourceList;
+    }
+    public void setResourceList(List<BatchResource> resourceList) {
+        this.resourceList = resourceList;
+    }
 
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return TaskDirtyDataManageVO;
