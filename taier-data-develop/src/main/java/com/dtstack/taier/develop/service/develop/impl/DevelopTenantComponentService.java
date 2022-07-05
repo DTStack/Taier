@@ -28,7 +28,7 @@ import com.dtstack.taier.dao.mapper.DevelopTenantComponentMapper;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.develop.service.develop.IComponentService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTenantComponentResultVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -83,7 +83,7 @@ public class DevelopTenantComponentService {
      * @return
      */
     public List<DevelopTenantComponentResultVO> selectTenantComponentList(Long tenantId) {
-        List<BatchTaskGetSupportJobTypesResultVO> supportJobTypes = developTaskService.getSupportJobTypes(tenantId);
+        List<DevelopTaskGetSupportJobTypesResultVO> supportJobTypes = developTaskService.getSupportJobTypes(tenantId);
         if (CollectionUtils.isEmpty(supportJobTypes)) {
             return Lists.newArrayList();
         }

@@ -158,7 +158,7 @@ public class DatasourceService {
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
-    private DevelopTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
     private ClusterService clusterService;
@@ -1246,7 +1246,7 @@ public class DatasourceService {
             sql.put("parser", parserXml);
             sql.put("createModel", TaskCreateModelType.GUIDE.getType());
 
-            this.batchTaskParamService.checkParams(this.batchTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
+            this.developTaskParamService.checkParams(this.developTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
             return sql.toJSONString();
         } catch (final Exception e) {
             LOGGER.error("", e);

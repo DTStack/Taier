@@ -24,13 +24,13 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.mapstruct.vo.BatchCatalogueMapstructTransfer;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopCatalogueMapstructTransfer;
 import com.dtstack.taier.develop.mapstruct.vo.DevelopResourceMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.DevelopResourceService;
 import com.dtstack.taier.develop.vo.develop.query.DevelopResourceAddVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopResourceBaseVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchCatalogueResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopCatalogueResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourceByIdResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +51,12 @@ public class DevelopResourceController {
     @ApiOperation(value = "添加资源")
     @PostMapping(value = "addResource")
     @FileUpload
-    public R<BatchCatalogueResultVO> addResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
-        return new APITemplate<BatchCatalogueResultVO>() {
+    public R<DevelopCatalogueResultVO> addResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
+        return new APITemplate<DevelopCatalogueResultVO>() {
             @Override
-            protected BatchCatalogueResultVO process() throws RdosDefineException {
+            protected DevelopCatalogueResultVO process() throws RdosDefineException {
                 CatalogueVO catalogue = DevelopResourceService.addResource(DevelopResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(DevelopResourceAddVO));
-                return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
+                return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
     }
@@ -77,12 +77,12 @@ public class DevelopResourceController {
 
     @ApiOperation(value = "获取资源详情", response = DevelopResourceVO.class)
     @PostMapping(value = "getResourceById")
-    public R<BatchGetResourceByIdResultVO> getResourceById(@RequestBody DevelopResourceBaseVO DevelopResourceBaseVO) {
-        return new APITemplate<BatchGetResourceByIdResultVO>() {
+    public R<DevelopGetResourceByIdResultVO> getResourceById(@RequestBody DevelopResourceBaseVO DevelopResourceBaseVO) {
+        return new APITemplate<DevelopGetResourceByIdResultVO>() {
             @Override
-            protected BatchGetResourceByIdResultVO process() throws RdosDefineException {
+            protected DevelopGetResourceByIdResultVO process() throws RdosDefineException {
                 DevelopResourceVO resourceById = DevelopResourceService.getResourceById(DevelopResourceBaseVO.getResourceId());
-                return DevelopResourceMapstructTransfer.INSTANCE.DevelopResourceVOToBatchGetResourceByIdResultVO(resourceById);
+                return DevelopResourceMapstructTransfer.INSTANCE.DevelopResourceVOToDevelopGetResourceByIdResultVO(resourceById);
             }
         }.execute();
     }

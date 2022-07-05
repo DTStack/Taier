@@ -42,11 +42,11 @@ import java.util.stream.Collectors;
  * @author xuchao
  */
 
-@Component("batchJobParamReplace")
+@Component("developJobParamReplace")
 public class JobParamReplace {
 
     @Autowired
-    private DevelopSysParamService batchSysParamService;
+    private DevelopSysParamService developSysParamService;
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
 
@@ -110,7 +110,7 @@ public class JobParamReplace {
      * @param cycTime
      * @return
      */
-    public List<String> batchParamReplace(List<String> sqlList,List paramList, String cycTime){
+    public List<String> developParamReplace(List<String> sqlList,List paramList, String cycTime){
         return sqlList.stream().map(t-> paramReplace(t,paramList,cycTime)).collect(Collectors.toList());
 
     }
@@ -120,7 +120,7 @@ public class JobParamReplace {
 
         String command = null;
         if (type == EParamType.SYS_TYPE.getType()) {
-            DevelopSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(paramName);
+            DevelopSysParameter sysParameter = developSysParamService.getBatchSysParamByName(paramName);
             command = sysParameter.getParamCommand();
 
             // 特殊处理 bdp.system.currenttime

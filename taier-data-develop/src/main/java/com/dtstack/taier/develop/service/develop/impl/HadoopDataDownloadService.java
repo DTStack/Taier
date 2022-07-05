@@ -78,7 +78,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
     private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
-    private DevelopJobService batchJobService;
+    private DevelopJobService developJobService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
@@ -231,7 +231,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
             syncDownload.setLogInfo(syncLog.toString());
             return syncDownload;
         }
-        String applicationId = batchJobService.getApplicationId(jobId);
+        String applicationId = developJobService.getApplicationId(jobId);
         if (StringUtils.isBlank(applicationId)) {
             return null;
         }
@@ -254,7 +254,7 @@ public class HadoopDataDownloadService implements IDataDownloadService {
 
     @Override
     public IDownload typeLogDownloader(Long tenantId, String jobId, Integer limitNum, String logType) {
-        String applicationId = batchJobService.getApplicationId(jobId);
+        String applicationId = developJobService.getApplicationId(jobId);
 
         if (StringUtils.isBlank(applicationId)) {
             throw new RdosDefineException("任务尚未执行完成或提交失败，请稍后再试");

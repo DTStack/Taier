@@ -63,10 +63,10 @@ public class DevelopSparkHiveSqlExeService {
     private IJdbcService jdbcServiceImpl;
 
     @Autowired
-    private DevelopSqlExeService batchSqlExeService;
+    private DevelopSqlExeService developSqlExeService;
 
     @Autowired
-    protected DevelopHadoopSelectSqlService batchHadoopSelectSqlService;
+    protected DevelopHadoopSelectSqlService developHadoopSelectSqlService;
 
     @Autowired
     protected DevelopTenantComponentService developTenantComponentService;
@@ -75,7 +75,7 @@ public class DevelopSparkHiveSqlExeService {
     protected DevelopSelectSqlService selectSqlService;
 
     @Autowired
-    protected DevelopFunctionService batchFunctionService;
+    protected DevelopFunctionService developFunctionService;
 
     /**
      * 直连jdbc执行sql
@@ -91,7 +91,7 @@ public class DevelopSparkHiveSqlExeService {
         try {
             if (SqlType.getShowType().contains(parseResult.getSqlType())) {
                 List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
-                batchSqlExeService.dealResultDoubleList(executeResult);
+                developSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
             } else {
                 jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
@@ -110,7 +110,7 @@ public class DevelopSparkHiveSqlExeService {
      * @return
      */
     protected String processSql(String sqlText, String database) {
-        sqlText = batchSqlExeService.removeComment(sqlText);
+        sqlText = developSqlExeService.removeComment(sqlText);
         if (!sqlText.endsWith(";")) {
             sqlText = sqlText + ";";
         }
@@ -190,7 +190,7 @@ public class DevelopSparkHiveSqlExeService {
         ParseResult parseResult = executeContent.getParseResult();
 
         // 校验是否含有自定义函数
-        boolean useSelfFunction = batchFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null, scheduleJobType.getType());
+        boolean useSelfFunction = developFunctionService.validContainSelfFunction(executeContent.getSql(), tenantId, null, scheduleJobType.getType());
 
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         if (Objects.nonNull(parseResult) && Objects.nonNull(parseResult.getStandardSql()) && isSimpleQuery(parseResult.getStandardSql()) && !useSelfFunction) {
@@ -205,7 +205,7 @@ public class DevelopSparkHiveSqlExeService {
                 || SqlType.QUERY.equals(parseResult.getSqlType())
                 || SqlType.CREATE_AS.equals(parseResult.getSqlType())
                 || useSelfFunction) {
-            String jobId = batchHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), taskId, scheduleJobType.getType(), preJobId);
+            String jobId = developHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
         } else {
             TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(), executeContent.getTaskType());
@@ -240,7 +240,7 @@ public class DevelopSparkHiveSqlExeService {
         } else {
             try {
                 List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, scheduleJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
-                batchSqlExeService.dealResultDoubleList(executeResult);
+                developSqlExeService.dealResultDoubleList(executeResult);
                 result.setStatus(TaskStatus.FINISHED.getStatus());
                 result.setResult(executeResult);
             } catch (Exception e) {

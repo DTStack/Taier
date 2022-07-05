@@ -136,14 +136,14 @@ public class DevelopTaskResourceService {
         return taskResources;
     }
 
-    public DevelopTaskResource addOrUpdate(DevelopTaskResource batchTaskResource) {
-        if (batchTaskResource.getId() > 0) {
-            developTaskResourceDao.updateById(batchTaskResource);
+    public DevelopTaskResource addOrUpdate(DevelopTaskResource developTaskResource) {
+        if (developTaskResource.getId() > 0) {
+            developTaskResourceDao.updateById(developTaskResource);
         } else {
-            batchTaskResource.setIsDeleted(Deleted.NORMAL.getStatus());
-            developTaskResourceDao.insert(batchTaskResource);
+            developTaskResource.setIsDeleted(Deleted.NORMAL.getStatus());
+            developTaskResourceDao.insert(developTaskResource);
         }
-        return batchTaskResource;
+        return developTaskResource;
     }
 
     /**
