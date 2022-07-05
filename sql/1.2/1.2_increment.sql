@@ -316,6 +316,8 @@ select 'tips', t2.tipKey, t2.tipDesc, 25, t1.id from t_rdbs_component_id t1 join
 drop table if exists t_rdbs_component_id;
 drop table if exists t_rdbs_component_key;
 
+
+-- console model
 update console_component_config set component_type_code = 6 where component_id = -101;
 
 UPDATE console_component_config SET value = 'perjob' WHERE component_id = -108;
@@ -328,6 +330,25 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'queue', '', null, null, null, null, now(), now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', null, null, null, null, now(), now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', null, null, null, null, now(), now(), 0);
+
+
+DELETE FROM console_component_config WHERE component_id = -101;
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'host', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, '', 1, 'password', '1', null, 'auth', '1', null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'username', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'PASSWORD', 1, 'password', '', null, 'auth$password', '', null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'port', '22', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'path', '/data/sftp', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, '', 1, 'rsaPath', '2', null, 'auth', '2', null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'input', 1, 'rsaPath', '', null, 'auth$rsaPath', '', null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'fileTimeout', '300000', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'isUsePool', 'true', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'maxIdle', '16', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'maxTotal', '16', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'maxWaitMillis', '3600000', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'minIdle', '16', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'timeout', '10000', null, null, null, null, now(),now(), 0);
 
 
 

@@ -106,6 +106,9 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.log.delay:5}")
     private long jobLogDelay;
 
+    @Value("${job.log.pool:2}")
+    private Integer jobLogPool;
+
     @Value("${job.compute.resource.plain:EngineTypeClusterQueueComputeType}")
     private String computeResourcePlain;
 
@@ -550,5 +553,9 @@ public class EnvironmentContext implements InitializingBean {
 
     public String getPluginPath() {
         return pluginPath;
+    }
+
+    public int getLogPoolSize() {
+        return jobLogPool;
     }
 }
