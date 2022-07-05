@@ -21,9 +21,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
-import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -74,6 +72,10 @@ public class DevelopSqlExeService {
 
     /**
      * 执行SQL
+     *
+     * @param executeContent
+     * @return
+     * @throws Exception
      */
     public ExecuteResultVO executeSql(final ExecuteContent executeContent) throws Exception {
         ExecuteResultVO result = new ExecuteResultVO();
@@ -81,13 +83,14 @@ public class DevelopSqlExeService {
         this.prepareExecuteContent(executeContent);
         result.setSqlText(executeContent.getSql());
 
-        final ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
+        ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
+
         final ExecuteResultVO engineExecuteResult = sqlExeService.executeSql(executeContent);
         if (!engineExecuteResult.getContinue()) {
             return engineExecuteResult;
         }
-        PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
 
+        PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
         return result;
     }
 
@@ -255,15 +258,17 @@ public class DevelopSqlExeService {
      * @param executeContent
      */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
-        Task one = developTaskService.getOneWithError(executeContent.getTaskId());
-        String taskParam = one.getTaskParams();
+        developTaskService.getOneWithError(executeContent.getTaskId());
+
+        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(),
+                executeContent.getTaskType());
+        executeContent.setDatabase(tenantEngine.getComponentIdentity());
 
         String sql = executeContent.getSql();
 
-        //TODO cache lazy table 暂时不解析血缘，不知道这种类型的sql如何处理
-        if (StringUtils.isNotBlank(sql) && (sql.toLowerCase().trim().startsWith("set")
-                || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())) {
-            //set sql 不解析
+        //set sql / cache lazy table 暂时不解析血缘
+        if (StringUtils.isNotBlank(sql)
+                && (sql.toLowerCase().trim().startsWith("set") || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())) {
             ParseResult parseResult = new ParseResult();
             parseResult.setParseSuccess(true);
             parseResult.setOriginSql(executeContent.getSql());
@@ -280,16 +285,13 @@ public class DevelopSqlExeService {
 
         //批量解析sql
         List<ParseResult> parseResultList = Lists.newLinkedList();
-
         if (CollectionUtils.isNotEmpty(executeContent.getSqlList())) {
-            String finalTaskParam = taskParam;
             executeContent.getSqlList().forEach(x -> {
                 if (!x.trim().startsWith("set")) {
                     executeContent.setSql(x);
                     ParseResult batchParseResult = this.parseSql(executeContent);
                     parseResultList.add(batchParseResult);
                 } else {
-                    //set sql 不解析
                     ParseResult batchParseResult = new ParseResult();
                     batchParseResult.setParseSuccess(true);
                     batchParseResult.setOriginSql(x);
@@ -309,19 +311,13 @@ public class DevelopSqlExeService {
      * @return
      */
     private ParseResult parseSql(ExecuteContent executeContent) {
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(), executeContent.getTaskType());
-        executeContent.setDatabase(tenantEngine.getComponentIdentity());
-
         SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);
         ParseResult parseResult = null;
         try {
-            parseResult = sqlParser.parseSql(executeContent.getSql(), tenantEngine.getComponentIdentity(), new HashMap<>());
+            parseResult = sqlParser.parseSql(executeContent.getSql(), executeContent.getDatabase(), new HashMap<>());
         } catch (final Exception e) {
             LOGGER.error("解析sql异常，sql：{}", executeContent.getSql(), e);
             parseResult = new ParseResult();
-            if (MultiEngineType.HADOOP.getType() == executeContent.getTaskType()) {
-                parseResult.setParseSuccess(false);
-            }
             parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
             parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
         }

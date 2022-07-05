@@ -21,7 +21,6 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.sql.ParseResult;
@@ -46,8 +45,6 @@ import java.util.regex.Pattern;
 public class DevelopSparkHiveSqlExeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevelopSparkHiveSqlExeService.class);
-
-    private static final String INSERT_REGEX = "(?i)insert\\s+.*";
 
     private static final String ONLY_FROM = "(?i)\\s+from\\s+";
 
@@ -84,17 +81,17 @@ public class DevelopSparkHiveSqlExeService {
      * @param tenantId
      * @param parseResult
      * @param result
-     * @param tenantEngine
+     * @param database
      * @param eScheduleJobType
      */
-    protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, TenantComponent tenantEngine, EScheduleJobType eScheduleJobType) {
+    protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, String database, EScheduleJobType eScheduleJobType) {
         try {
             if (SqlType.getShowType().contains(parseResult.getSqlType())) {
-                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, database, parseResult.getStandardSql());
                 developSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
             } else {
-                jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, tenantEngine.getComponentIdentity(), parseResult.getStandardSql());
+                jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, database, parseResult.getStandardSql());
             }
         } catch (Exception e) {
             LOGGER.error("exeHiveSqlDirect error {}", executeContent.getSql(), e);
@@ -178,8 +175,7 @@ public class DevelopSparkHiveSqlExeService {
      * @return
      */
     protected ExecuteResultVO executeSql(ExecuteContent executeContent, EScheduleJobType scheduleJobType) {
-        // 判断血缘解析结果，防止空指针
-        if (null == executeContent.getParseResult()) {
+        if (Objects.isNull(executeContent.getParseResult())) {
             throw new RdosDefineException("SQL解析异常，结果为空");
         }
         Long tenantId = executeContent.getTenantId();
@@ -208,20 +204,18 @@ public class DevelopSparkHiveSqlExeService {
             String jobId = developHadoopSelectSqlService.runSqlByTask(tenantId, parseResult, userId, currDb.toLowerCase(), taskId, scheduleJobType.getType(), preJobId);
             result.setJobId(jobId);
         } else {
-            TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(), executeContent.getTaskType());
-            this.exeSqlDirect(executeContent, tenantId, parseResult, result, tenantEngine, scheduleJobType);
+            this.exeSqlDirect(executeContent, tenantId, parseResult, result, executeContent.getDatabase(), scheduleJobType);
         }
         result.setContinue(true);
         return result;
     }
 
     /**
-     * 简单查询结果
+     * 简单查询
      *
      * @param tenantId
      * @param parseResult
      * @param currentDb
-     * @param tenantId
      * @param userId
      * @param scheduleJobType
      * @return
@@ -244,9 +238,9 @@ public class DevelopSparkHiveSqlExeService {
                 result.setStatus(TaskStatus.FINISHED.getStatus());
                 result.setResult(executeResult);
             } catch (Exception e) {
-                LOGGER.error("", e);
+                LOGGER.error(e.getMessage(), e);
                 result.setStatus(TaskStatus.FAILED.getStatus());
-                result.setMsg(e.getMessage());
+                result.setMsg(Objects.isNull(e.getCause()) ? e.getMessage() : e.getCause().getMessage());
             }
             result.setContinue(false);
         }

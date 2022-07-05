@@ -162,7 +162,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
 
     TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置"),
 
-    TASK_NOT_CONFIG_DB(801, "task not config run db", "任务未配置运行时所在DB");
+    TASK_NOT_CONFIG_DB(801, "task not config run db", "任务未配置运行时所在schema，请前往租户设置任务执行schema");
 
     private final int code;
     private final String enMsg;

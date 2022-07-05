@@ -159,7 +159,12 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId);
+            content.setTenantId(tenantId)
+                    .setUserId(userId)
+                    .setSql(sql)
+                    .setTaskId(taskId)
+                    .setTaskType(task.getTaskType())
+                    .setPreJobId(jobId);
             return developSqlExeService.executeSql(content);
         }
         throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));

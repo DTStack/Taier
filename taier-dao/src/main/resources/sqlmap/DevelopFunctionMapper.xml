@@ -84,16 +84,11 @@
         FROM develop_function
         WHERE is_deleted = 0
         <if test="functionType != null">
-            AND type = #{functionType}
+            AND `type` = #{functionType}
         </if>
-        <choose>
-            <when test="tenantId != null">
-                AND tenant_Id in (#{tenantId}, -1)
-            </when>
-            <otherwise>
-                AND tenant_Id = -1
-            </otherwise>
-        </choose>
+        <if test="tenantId != null">
+            AND tenant_Id = #{tenantId}
+        </if>
         <if test="taskType !=null">
             AND task_type = #{taskType}
         </if>
