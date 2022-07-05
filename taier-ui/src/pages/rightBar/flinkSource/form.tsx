@@ -51,7 +51,7 @@ import type { DefaultOptionType } from 'antd/lib/cascader';
 import { FormContext } from '@/services/rightBarService';
 import { generateValidDesSource } from '@/utils/saveTask';
 import { CustomParams } from '../customParams';
-import DataPreviewModal from '../../../components/streamCollection/source/dataPreviewModal';
+import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
 
 const FormItem = Form.Item;
 const { Option } = Select;

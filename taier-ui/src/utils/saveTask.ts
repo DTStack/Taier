@@ -33,7 +33,7 @@ import { rightBarService } from '@/services';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
-	preSave?: true;
+	preSave?: boolean;
 	// 接口要求的标记位
 	updateSource?: boolean;
 	/**
@@ -67,24 +67,10 @@ export const transformTabDataToParams = (data: IOfflineTaskProps) => {
 export default function saveTask() {
 	const currentTask = molecule.editor.getState().current?.tab;
 	if (!currentTask) return Promise.reject();
-	const data = currentTask.data as IOfflineTaskProps;
+	const data = currentTask.data as IParamsProps;
+
 	const { taskType } = data;
 	switch (taskType) {
-		case TASK_TYPE_ENUM.SPARK_SQL:
-		case TASK_TYPE_ENUM.HIVE_SQL: {
-			const params: IParamsProps = cloneDeep(data);
-			// 修改task配置时接口要求的标记位
-			params.preSave = true;
-			params.sqlText = params.value || '';
-
-			return api.saveOfflineJobData(params).then((res) => {
-				if (res.code === 1) {
-					message.success('保存成功！');
-					return res;
-				}
-				return Promise.reject();
-			});
-		}
 		case TASK_TYPE_ENUM.SYNC: {
 			const params: IParamsProps = cloneDeep(data);
 			const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
@@ -174,10 +160,11 @@ export default function saveTask() {
 				return validation();
 			}
 
+			const { value, ...restParams } = params;
 			return stream
 				.saveTask({
-					...params,
-					sqlText: params.value,
+					...restParams,
+					sqlText: value,
 					preSave: true,
 					// 后端区分右键编辑保存
 					updateSource: true,
@@ -239,9 +226,27 @@ export default function saveTask() {
 				return Promise.reject();
 			});
 		}
+		case TASK_TYPE_ENUM.SPARK_SQL:
+		case TASK_TYPE_ENUM.HIVE_SQL:
+		default: {
+			// 默认保存，通过把 editor 中的值给到 sqlText 进行保存
+			const { value, ...restData } = data;
 
-		default:
-			return Promise.reject();
+			return api
+				.saveOfflineJobData({
+					...restData,
+					sqlText: value || '',
+					// 修改task配置时接口要求的标记位
+					preSave: true,
+				})
+				.then((res) => {
+					if (res.code === 1) {
+						message.success('保存成功！');
+						return res;
+					}
+					return Promise.reject();
+				});
+		}
 	}
 }
 
@@ -440,9 +445,10 @@ const generateValidDesOutPut = (
 		partitionfields: [
 			{
 				required:
-					// @ts-ignore
 					isHavePartition(data?.type) &&
+					// @ts-ignore
 					data?.isShowPartition &&
+					// @ts-ignore
 					data?.havePartitionfields,
 				message: '请选择分区',
 			},
