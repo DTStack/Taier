@@ -20,7 +20,6 @@ import molecule from '@dtinsight/molecule';
 import {
 	CONSOLE,
 	OPERATIONS,
-	TENANT_MENU,
 	ID_COLLECTIONS,
 	DRAWER_MENU_ENUM,
 	RESOURCE_ACTIONS,
@@ -47,6 +46,7 @@ import { Logo } from '@/components/icon';
 import Language from '@/components/language';
 import ReactDOM from 'react-dom';
 import AddTenantModal from '@/components/addTenantModal';
+import SchemaModal from '@/pages/account/schemaModal';
 
 function loadStyles(url: string) {
 	const link = document.createElement('link');
@@ -359,7 +359,7 @@ function initLogin() {
 						onClick: () => showLoginModal(),
 					},
 					{
-						id: TENANT_MENU.ADD_TENANT,
+						id: ID_COLLECTIONS.ADD_TENANT,
 						name: '新增租户',
 						icon: 'person-add',
 						onClick: () => {
@@ -368,6 +368,18 @@ function initLogin() {
 							node.id = 'add-tenant-modal';
 							root.appendChild(node);
 							ReactDOM.render(<AddTenantModal />, node);
+						},
+					},
+					{
+						id: ID_COLLECTIONS.ADD_SCHEMA,
+						name: '配置 Schema',
+						icon: 'combine',
+						onClick: () => {
+							const root = document.getElementById('molecule')!;
+							const node = document.createElement('div');
+							node.id = 'add-tenant-modal';
+							root.appendChild(node);
+							ReactDOM.render(<SchemaModal />, node);
 						},
 					},
 					{

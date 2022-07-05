@@ -528,4 +528,13 @@ export default {
 	getComponentInfo(params: any) {
 		return http.get(req.GET_COMPONENT_INFO, params);
 	},
+	getComponentSchemaConfig<T>(params: any) {
+		return http.post<T>(req.GET_TENANT_COMPONENT_LIST, params);
+	},
+	saveComponentSchemaConfig(params: any) {
+		return http.post(req.SAVE_TENANT_COMPONENT_INFO, params);
+	},
+	getSchemaListByComponent<T>(params: any) {
+		return http.post<T>(req.GET_SCHEMA_LIST_BY_COMPONENT, params);
+	},
 };
