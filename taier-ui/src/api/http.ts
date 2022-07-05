@@ -26,10 +26,10 @@ const controller = new AbortController();
 const { signal } = controller;
 
 class Http {
-	get(url: any, params: any, config: Record<string, any> = {}) {
+	get<T = any>(url: any, params: any, config: Record<string, any> = {}) {
 		// GET请求
 		const newUrl = params ? this.build(url, params) : url;
-		return this.request(newUrl, {
+		return this.request<T>(newUrl, {
 			method: 'GET',
 			...config,
 		});

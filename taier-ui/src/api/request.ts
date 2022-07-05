@@ -151,4 +151,7 @@ export default {
 	ALL_PRODUCT_GLOBAL_SEARCH: `${BASE_URI}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
 	GET_COMPONENT_MODELS: `${BASE_URI}/component/componentModels`, // 获取能配置的组件信息
 	GET_COMPONENT_INFO: `${BASE_URI}/component/getComponentInfo`, // 获取组件配置信息
+	GET_TENANT_COMPONENT_LIST: `${BASE_URI}/tenantComponent/selectTenantComponentList`, // 获取当前租户配置的任务组件运行信息
+	SAVE_TENANT_COMPONENT_INFO: `${BASE_URI}/tenantComponent/saveTenantComponentInfo`, // 保存组件运行schema信息
+	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
 };
