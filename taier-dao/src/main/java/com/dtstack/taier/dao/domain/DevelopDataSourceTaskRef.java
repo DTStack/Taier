@@ -22,7 +22,7 @@ package com.dtstack.taier.dao.domain;
 /**
  * @author: toutian
  */
-public class BatchDataSourceTaskRef extends TenantEntity {
+public class DevelopDataSourceTaskRef extends TenantEntity {
 
     private Long dataSourceId;
 

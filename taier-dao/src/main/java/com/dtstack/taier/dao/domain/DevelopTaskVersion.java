@@ -22,7 +22,7 @@ package com.dtstack.taier.dao.domain;
 /**
  * @author : toutian
  */
-public class BatchTaskVersion extends TenantEntity {
+public class DevelopTaskVersion extends TenantEntity {
 
     private Long taskId;
 

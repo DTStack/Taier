@@ -34,11 +34,11 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.common.util.TaskParamsUtils;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
 import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
@@ -159,7 +159,7 @@ public class DevelopServerLogService {
 
         if (Objects.nonNull(job.getVersionId())) {
             // 需要获取执行任务时候版本对应的sql
-            BatchTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
+            DevelopTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
             if (Objects.nonNull(taskVersion)) {
                 if (StringUtils.isEmpty(taskVersion.getOriginSql())){
                     String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText()) ? "{}" : taskVersion.getSqlText();
@@ -175,7 +175,7 @@ public class DevelopServerLogService {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
             // 处理sql注释，先把注释base64编码，再处理非注释的自定义参数
             String sql = SqlFormatUtil.dealAnnotationBefore(scheduleTaskShade.getSqlText());
-            final List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
+            final List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             sql = this.jobParamReplace.paramReplace(sql, taskParamsToReplace, job.getCycTime());
             sql = SqlFormatUtil.dealAnnotationAfter(sql);
             info.put("sql", sql);
@@ -195,7 +195,7 @@ public class DevelopServerLogService {
             DataFilter.passwordFilter(jobJson);
 
             String jobStr = jobJson.toJSONString();
-            final List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
+            final List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             jobStr = this.jobParamReplace.paramReplace(jobStr, taskParamsToReplace, job.getCycTime());
             info.put("sql", JsonUtils.formatJSON(jobStr));
             if (Objects.nonNull(job.getExecEndTime()) && Objects.nonNull(job.getExecStartTime())) {

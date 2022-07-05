@@ -27,7 +27,7 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
@@ -273,7 +273,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @throws Exception
      */
     @Override
-    public ExecuteResultVO selectData(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
+    public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
         String jobId = selectSql.getJobId();
         ExecuteResultVO result = new ExecuteResultVO(jobId);
         if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
@@ -315,7 +315,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @return
      * @throws Exception
      */
-    public ExecuteResultVO selectRunLog(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
+    public ExecuteResultVO selectRunLog(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
         String jobId = selectSql.getJobId();
         ExecuteResultVO result = new ExecuteResultVO(jobId);
         // 是否需要脱敏，非admin用户并且是sparkSql needMask才会为true ps:hiveSql不支持脱敏
@@ -359,7 +359,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @return
      */
     @Override
-    public ExecuteResultVO selectStatus(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) {
+    public ExecuteResultVO selectStatus(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) {
         ExecuteResultVO executeResultVO = new ExecuteResultVO(selectSql.getJobId());
         executeResultVO.setStatus(getExecuteSqlStatus(selectSql));
         return executeResultVO;
@@ -371,7 +371,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @param selectSql
      * @return
      */
-    public Integer getExecuteSqlStatus(BatchSelectSql selectSql){
+    public Integer getExecuteSqlStatus(DevelopSelectSql selectSql){
         Integer status = TaskStatus.UNSUBMIT.getStatus();
         if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
             return TaskStatus.FINISHED.getStatus();
@@ -401,7 +401,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @return
      * @throws Exception
      */
-    private boolean buildLogsWithCheckTaskStatus(BatchSelectSql selectSql, Long tenantId, ExecuteResultVO result, String jobId, ActionJobEntityVO engineEntity, Integer status) {
+    private boolean buildLogsWithCheckTaskStatus(DevelopSelectSql selectSql, Long tenantId, ExecuteResultVO result, String jobId, ActionJobEntityVO engineEntity, Integer status) {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
             List<TempJobType> values = Arrays.asList(TempJobType.values());
             List<Integer> types = values.stream().map(TempJobType::getType).collect(Collectors.toList());
@@ -431,7 +431,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @return
      * @throws Exception
      */
-    private boolean buildDataWithCheckTaskStatus(BatchSelectSql selectSql, Long tenantId, ExecuteResultVO result, Integer status) throws Exception {
+    private boolean buildDataWithCheckTaskStatus(DevelopSelectSql selectSql, Long tenantId, ExecuteResultVO result, Integer status) throws Exception {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
             if (TempJobType.INSERT.getType().equals(selectSql.getIsSelectSql())
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())) {
@@ -635,7 +635,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @throws Exception
      */
     private void buildHiveSqlData(ExecuteResultVO result, Integer status, String jobId, Integer taskType, ActionJobEntityVO engineEntity,
-                                  BatchSelectSql selectSql, Long tenantId) throws Exception {
+                                  DevelopSelectSql selectSql, Long tenantId) throws Exception {
         // HIVE SQL 没有日志统一处理 hive 逻辑，不管成功或者失败都走表查询
         if ((TaskStatus.FINISHED.getStatus().equals(status)
                 || TaskStatus.FAILED.getStatus().equals(status))

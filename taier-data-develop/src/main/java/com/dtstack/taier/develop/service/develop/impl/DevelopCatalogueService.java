@@ -27,8 +27,8 @@ import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchCatalogue;
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
@@ -63,7 +63,7 @@ public class DevelopCatalogueService {
     private DevelopCatalogueMapper developCatalogueMapper;
 
     @Autowired
-    private DevelopResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     @Autowired
     private DevelopFunctionService batchFunctionService;
@@ -94,7 +94,7 @@ public class DevelopCatalogueService {
      * @param catalogue
      * @return
      */
-    public CatalogueVO addCatalogue(BatchCatalogue catalogue) {
+    public CatalogueVO addCatalogue(DevelopCatalogue catalogue) {
         if (Objects.isNull(catalogue)) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NOT_EMPTY);
         }
@@ -106,10 +106,10 @@ public class DevelopCatalogueService {
         if (catalogue.getNodeName().contains(" ")) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NAME_CANNOT_CONTAIN_SPACES);
         }
-        BatchCatalogue dbCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, catalogue.getTenantId())
-                .eq(BatchCatalogue::getNodePid, catalogue.getNodePid())
-                .eq(BatchCatalogue::getNodeName, catalogue.getNodeName())
+        DevelopCatalogue dbCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getTenantId, catalogue.getTenantId())
+                .eq(DevelopCatalogue::getNodePid, catalogue.getNodePid())
+                .eq(DevelopCatalogue::getNodeName, catalogue.getNodeName())
                 .last("limit 1"));
         if (dbCatalogue != null) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_EXISTS);
@@ -117,9 +117,9 @@ public class DevelopCatalogueService {
 
         // 校验当前父级直接一层的子目录或者任务的个数总数不可超过SUB_AMOUNTS_LIMIT(2000)
         Integer subAmountsByNodePid = developCatalogueMapper.selectCount(
-                Wrappers.lambdaQuery(BatchCatalogue.class)
-                        .eq(BatchCatalogue::getNodePid, catalogue.getNodePid())
-                        .eq(BatchCatalogue::getTenantId, catalogue.getTenantId()));
+                Wrappers.lambdaQuery(DevelopCatalogue.class)
+                        .eq(DevelopCatalogue::getNodePid, catalogue.getNodePid())
+                        .eq(DevelopCatalogue::getTenantId, catalogue.getTenantId()));
         if (subAmountsByNodePid >= SUB_AMOUNTS_LIMIT) {
             throw new RdosDefineException(ErrorCode.SUBDIRECTORY_OR_FILE_AMOUNT_RESTRICTIONS);
         }
@@ -152,10 +152,10 @@ public class DevelopCatalogueService {
      * @param batchCatalogue
      * @return
      */
-    private BatchCatalogue addOrUpdate(BatchCatalogue batchCatalogue) {
+    private DevelopCatalogue addOrUpdate(DevelopCatalogue batchCatalogue) {
         if (batchCatalogue.getId() != null && batchCatalogue.getId() > 0) {
-            LambdaUpdateWrapper<BatchCatalogue> batchCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-            batchCatalogueLambdaUpdateWrapper.eq(BatchCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(BatchCatalogue::getId,batchCatalogue.getId());
+            LambdaUpdateWrapper<DevelopCatalogue> batchCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            batchCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId,batchCatalogue.getId());
             developCatalogueMapper.update(batchCatalogue,batchCatalogueLambdaUpdateWrapper);
         } else {
             developCatalogueMapper.insert(batchCatalogue);
@@ -174,7 +174,7 @@ public class DevelopCatalogueService {
         List<Dict> zeroBatchCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
         for (Dict zeroDict : zeroBatchCatalogueDictList) {
             //初始化 0 级目录
-            BatchCatalogue zeroBatchCatalogue = new BatchCatalogue();
+            DevelopCatalogue zeroBatchCatalogue = new DevelopCatalogue();
             zeroBatchCatalogue.setNodeName(zeroDict.getDictDesc());
             zeroBatchCatalogue.setNodePid(DEFAULT_NODE_PID);
             zeroBatchCatalogue.setOrderVal(zeroDict.getSort());
@@ -204,7 +204,7 @@ public class DevelopCatalogueService {
      * @return 父节点列表
      */
     private void getGrandCatalogueId(Long currentId, List<Long> ids) {
-        BatchCatalogue catalogue = developCatalogueMapper.selectById(currentId);
+        DevelopCatalogue catalogue = developCatalogueMapper.selectById(currentId);
         if (catalogue != null && catalogue.getLevel() >= 1) {
             ids.add(catalogue.getNodePid());
             getGrandCatalogueId(catalogue.getNodePid(), ids);
@@ -257,7 +257,7 @@ public class DevelopCatalogueService {
      * @param catalogueInput
      */
     public void updateCatalogue(BatchCatalogueVO catalogueInput) {
-        BatchCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
+        DevelopCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         catalogueOneNotUpdate(catalogue);
         if (catalogue.getIsDeleted() == 1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
@@ -266,7 +266,7 @@ public class DevelopCatalogueService {
         if (canNotMoveCatalogue(catalogueInput.getId(), catalogueInput.getNodePid())) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_MOVE_CATALOGUE);
         }
-        BatchCatalogue updateCatalogue = new BatchCatalogue();
+        DevelopCatalogue updateCatalogue = new DevelopCatalogue();
         updateCatalogue.setId(catalogueInput.getId());
         //重命名
         if (catalogueInput.getNodeName() != null) {
@@ -281,10 +281,10 @@ public class DevelopCatalogueService {
             updateCatalogue.setNodePid(catalogue.getNodePid());
         }
         //判断移动的目录下 有没有相同名称的文件夹
-        BatchCatalogue byLevelAndPIdAndTenantIdAndName = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, catalogue.getTenantId())
-                .eq(BatchCatalogue::getNodeName, updateCatalogue.getNodeName())
-                .eq(BatchCatalogue::getNodePid, updateCatalogue.getNodePid())
+        DevelopCatalogue byLevelAndPIdAndTenantIdAndName = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getTenantId, catalogue.getTenantId())
+                .eq(DevelopCatalogue::getNodeName, updateCatalogue.getNodeName())
+                .eq(DevelopCatalogue::getNodePid, updateCatalogue.getNodePid())
                 .last("limit 1"));
         if (byLevelAndPIdAndTenantIdAndName != null && (!byLevelAndPIdAndTenantIdAndName.getId().equals(catalogue.getId()))) {
             throw new RdosDefineException(ErrorCode.FILE_NAME_REPETITION);
@@ -299,8 +299,8 @@ public class DevelopCatalogueService {
      *
      * @param catalogueInput
      */
-    public void deleteCatalogue(BatchCatalogue catalogueInput) {
-        BatchCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
+    public void deleteCatalogue(DevelopCatalogue catalogueInput) {
+        DevelopCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         if (Objects.isNull(catalogue) || catalogue.getIsDeleted() == 1) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
@@ -309,17 +309,17 @@ public class DevelopCatalogueService {
 
         //判断文件夹下任务
         List<Task> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
-        List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
+        List<DevelopResource> resourceList = DevelopResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
         //判断文件夹下子目录
-        List<BatchCatalogue> batchCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, catalogueInput.getTenantId())
-                .eq(BatchCatalogue::getNodePid, catalogue.getId())
-                .orderByDesc(BatchCatalogue::getGmtCreate));
+        List<DevelopCatalogue> batchCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getTenantId, catalogueInput.getTenantId())
+                .eq(DevelopCatalogue::getNodePid, catalogue.getId())
+                .orderByDesc(DevelopCatalogue::getGmtCreate));
         if (CollectionUtils.isNotEmpty(batchCatalogues)) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
@@ -335,7 +335,7 @@ public class DevelopCatalogueService {
      * @param catalogue
      * @author
      */
-    private void catalogueOneNotUpdate(BatchCatalogue catalogue) {
+    private void catalogueOneNotUpdate(DevelopCatalogue catalogue) {
         if (catalogue.getCatalogueType().equals(RdosBatchCatalogueTypeEnum.TENANT.getType())) {
             if (catalogue.getLevel() == 0) {
                 throw new RdosDefineException(ErrorCode.PERMISSION_LIMIT);
@@ -355,7 +355,7 @@ public class DevelopCatalogueService {
      * @author
      */
     private int isOverLevelLimit(long nodePid) {
-        BatchCatalogue parentCatalogue = developCatalogueMapper.selectById(nodePid);
+        DevelopCatalogue parentCatalogue = developCatalogueMapper.selectById(nodePid);
         return parentCatalogue.getLevel();
     }
 
@@ -367,10 +367,10 @@ public class DevelopCatalogueService {
      */
     public List<CatalogueVO> getCatalogueOne(Long tenantId) {
         //查询 0 级目录
-        List<BatchCatalogue> zeroCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, tenantId)
-                .eq(BatchCatalogue::getLevel, 0)
-                .orderByAsc(BatchCatalogue::getOrderVal));
+        List<DevelopCatalogue> zeroCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getTenantId, tenantId)
+                .eq(DevelopCatalogue::getLevel, 0)
+                .orderByAsc(DevelopCatalogue::getOrderVal));
         //从字典表中查询出初始化的 0 级目录
         List<Dict> zeroCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
         //从字典表中查询出初始化的 1 级目录
@@ -382,30 +382,30 @@ public class DevelopCatalogueService {
         Map<String, String> oneCatalogueType = oneCatalogueDictList.stream().collect(Collectors.toMap(Dict::getDictDesc, Dict::getDictName, (key1, key2) -> key1));
 
         List<CatalogueVO> zeroCatalogueVOList = new ArrayList<>(zeroCatalogues.size());
-        for (BatchCatalogue zeroCatalogue : zeroCatalogues) {
+        for (DevelopCatalogue zeroCatalogue : zeroCatalogues) {
             CatalogueVO zeroCatalogueVO = CatalogueVO.toVO(zeroCatalogue);
             zeroCatalogueVO.setCatalogueType(zeroCatalogueType.get(zeroCatalogue.getNodeName()));
             zeroCatalogueVO.setType(FILE_TYPE_FOLDER);
             zeroCatalogueVOList.add(zeroCatalogueVO);
 
             //查询一级目录下的子目录
-            List<BatchCatalogue> oneChildCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
-                    .eq(BatchCatalogue::getTenantId, tenantId)
-                    .eq(BatchCatalogue::getNodePid, zeroCatalogue.getId())
-                    .orderByDesc(BatchCatalogue::getGmtCreate));
+            List<DevelopCatalogue> oneChildCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                    .eq(DevelopCatalogue::getTenantId, tenantId)
+                    .eq(DevelopCatalogue::getNodePid, zeroCatalogue.getId())
+                    .orderByDesc(DevelopCatalogue::getGmtCreate));
             if (FUNCTION_MANAGER_NAME.equals(zeroCatalogue.getNodeName())) {
                 //如果是函数目录，默认添加上系统函数目录
-                BatchCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                        .eq(BatchCatalogue::getNodePid, EngineCatalogueType.SPARK.getType())
-                        .eq(BatchCatalogue::getLevel, 1)
-                        .eq(BatchCatalogue::getTenantId, -1)
+                DevelopCatalogue systemFuncCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                        .eq(DevelopCatalogue::getNodePid, EngineCatalogueType.SPARK.getType())
+                        .eq(DevelopCatalogue::getLevel, 1)
+                        .eq(DevelopCatalogue::getTenantId, -1)
                         .last("limit 1"));
                 if (systemFuncCatalogue != null) {
                     oneChildCatalogues.add(systemFuncCatalogue);
                 }
             }
             List<CatalogueVO> oneChildCatalogueVOList = new ArrayList<>(oneChildCatalogues.size());
-            for (BatchCatalogue oneChildCatalogue : oneChildCatalogues) {
+            for (DevelopCatalogue oneChildCatalogue : oneChildCatalogues) {
                 CatalogueVO oneChildCatalogueVO = CatalogueVO.toVO(oneChildCatalogue);
                 if (EngineCatalogueType.SPARK.getDesc().equals(oneChildCatalogueVO.getName())) {
                     // spark  函数管理 不是目录
@@ -432,7 +432,7 @@ public class DevelopCatalogueService {
      * @author
      */
     private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long userId, Long tenantId) {
-        BatchCatalogue currentCatalogue = developCatalogueMapper.selectById(currentCatalogueVO.getId());
+        DevelopCatalogue currentCatalogue = developCatalogueMapper.selectById(currentCatalogueVO.getId());
         if (Objects.isNull(currentCatalogue)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
         }
@@ -478,10 +478,10 @@ public class DevelopCatalogueService {
                 }
             } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 //处理资源目录
-                List<BatchResource> resourceList = batchResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
-                resourceList.sort(Comparator.comparing(BatchResource::getResourceName));
+                List<DevelopResource> resourceList = DevelopResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
+                resourceList.sort(Comparator.comparing(DevelopResource::getResourceName));
                 if (CollectionUtils.isNotEmpty(resourceList)) {
-                    for (BatchResource resource : resourceList) {
+                    for (DevelopResource resource : resourceList) {
                         CatalogueVO childResource = new CatalogueVO();
                         BeanUtils.copyProperties(resource, childResource);
                         childResource.setName(resource.getResourceName());
@@ -496,10 +496,10 @@ public class DevelopCatalogueService {
         }
 
         //获取目录下的子目录
-        List<BatchCatalogue> childCatalogues = this.getChildCataloguesByNodePid(currentCatalogueVO.getId());
-        childCatalogues.sort(Comparator.comparing(BatchCatalogue::getNodeName));
+        List<DevelopCatalogue> childCatalogues = this.getChildCataloguesByNodePid(currentCatalogueVO.getId());
+        childCatalogues.sort(Comparator.comparing(DevelopCatalogue::getNodeName));
         List<CatalogueVO> children = new ArrayList<>();
-        for (BatchCatalogue catalogue : childCatalogues) {
+        for (DevelopCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
             cv.setType(FILE_TYPE_FOLDER);
             children.add(cv);
@@ -520,10 +520,10 @@ public class DevelopCatalogueService {
      * @param catalogueId
      * @return
      */
-    private List<BatchCatalogue> getChildCataloguesByNodePid(Long catalogueId) {
-        List<BatchCatalogue> childCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getNodePid, catalogueId)
-                .orderByDesc(BatchCatalogue::getGmtCreate));
+    private List<DevelopCatalogue> getChildCataloguesByNodePid(Long catalogueId) {
+        List<DevelopCatalogue> childCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getNodePid, catalogueId)
+                .orderByDesc(DevelopCatalogue::getGmtCreate));
         return childCatalogues;
     }
 
@@ -544,7 +544,7 @@ public class DevelopCatalogueService {
      * @param nodeId
      * @return
      */
-    public BatchCatalogue getOne(Long nodeId) {
+    public DevelopCatalogue getOne(Long nodeId) {
         return developCatalogueMapper.selectById(nodeId);
     }
 
@@ -556,11 +556,11 @@ public class DevelopCatalogueService {
      * @param name     名称
      * @return
      */
-    public BatchCatalogue getByPidAndName(Long tenantId, Long nodePid, String name) {
-        return developCatalogueMapper.selectOne(Wrappers.lambdaQuery(BatchCatalogue.class)
-                .eq(BatchCatalogue::getTenantId, tenantId)
-                .eq(BatchCatalogue::getNodePid, nodePid)
-                .eq(BatchCatalogue::getNodeName, name)
+    public DevelopCatalogue getByPidAndName(Long tenantId, Long nodePid, String name) {
+        return developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                .eq(DevelopCatalogue::getTenantId, tenantId)
+                .eq(DevelopCatalogue::getNodePid, nodePid)
+                .eq(DevelopCatalogue::getNodeName, name)
                 .last("limit 1"));
     }
 

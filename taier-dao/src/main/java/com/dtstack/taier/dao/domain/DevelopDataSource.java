@@ -23,7 +23,7 @@ package com.dtstack.taier.dao.domain;
  * author: toutian
  * create: 2017/5/10
  */
-public class BatchDataSource extends TenantEntity {
+public class DevelopDataSource extends TenantEntity {
 
     /**
      * '数据源名称'

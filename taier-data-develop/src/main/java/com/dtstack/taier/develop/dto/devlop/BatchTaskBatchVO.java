@@ -18,9 +18,9 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.parser.ScheduleCron;
 import com.dtstack.taier.develop.parser.ScheduleFactory;
@@ -205,11 +205,11 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
 
     private List<ScheduleTaskVO> subTaskVOS;
 
-    private List<BatchResource> resourceList;
+    private List<DevelopResource> resourceList;
 
-    private List<BatchResource> refResourceList;
+    private List<DevelopResource> refResourceList;
 
-    private List<BatchTaskVersionDetailDTO> taskVersions;
+    private List<DevelopTaskVersionDetailDTO> taskVersions;
 
 
     public void setVersion(Integer version) {
@@ -325,11 +325,11 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         return this;
     }
 
-    public List<BatchResource> getResourceList() {
+    public List<DevelopResource> getResourceList() {
         return resourceList;
     }
 
-    public void setResourceList(List<BatchResource> resourceList) {
+    public void setResourceList(List<DevelopResource> resourceList) {
         this.resourceList = resourceList;
     }
 
@@ -353,11 +353,11 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.cron = cron;
     }
 
-    public List<BatchTaskVersionDetailDTO> getTaskVersions() {
+    public List<DevelopTaskVersionDetailDTO> getTaskVersions() {
         return taskVersions;
     }
 
-    public void setTaskVersions(List<BatchTaskVersionDetailDTO> taskVersions) {
+    public void setTaskVersions(List<DevelopTaskVersionDetailDTO> taskVersions) {
         this.taskVersions = taskVersions;
     }
 
@@ -441,11 +441,11 @@ public class BatchTaskBatchVO extends ScheduleTaskVO {
         this.relatedTasks = relatedTasks;
     }
 
-    public List<BatchResource> getRefResourceList() {
+    public List<DevelopResource> getRefResourceList() {
         return refResourceList;
     }
 
-    public void setRefResourceList(List<BatchResource> refResourceList) {
+    public void setRefResourceList(List<DevelopResource> refResourceList) {
         this.refResourceList = refResourceList;
     }
 

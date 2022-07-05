@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.develop.sql.utils.SqlFormatUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
@@ -28,7 +28,7 @@ public class StreamSqlFormatService {
     private static final String ADD_FILE_RENAME_FORMAT = "ADD FILE WITH %s RENAME %s;";
 
     @Autowired
-    private DevelopResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     /**
      * 获取sql中包含的方法名称
@@ -55,7 +55,7 @@ public class StreamSqlFormatService {
 
 
     public String generateAddJarSQL(Long resourceId, String mainClass) {
-        BatchResource resource = batchResourceService.getResource(resourceId);
+        DevelopResource resource = DevelopResourceService.getResource(resourceId);
         if (resource == null || StringUtils.isBlank(resource.getUrl())) {
             throw new DtCenterDefException("任务资源地址为空");
         }

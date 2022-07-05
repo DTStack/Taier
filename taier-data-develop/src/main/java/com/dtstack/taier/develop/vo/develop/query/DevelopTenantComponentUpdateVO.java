@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @ApiModel("租户组件任务配置信息查询")
-@Data
 public class DevelopTenantComponentUpdateVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "租户Id", example = "1", hidden = true)
@@ -35,5 +34,31 @@ public class DevelopTenantComponentUpdateVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "任务所执行的shema信息", example = "schema", required = true)
     private String schema;
+
+    @Override
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    @Override
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
 
 }

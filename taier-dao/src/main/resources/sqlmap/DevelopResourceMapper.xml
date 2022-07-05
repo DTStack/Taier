@@ -45,7 +45,7 @@
         </set>
     </sql>
 
-    <select id="getOne" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="getOne" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource
@@ -61,7 +61,7 @@
     </select>
 
 
-    <select id="listByIds" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="listByIds" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource
@@ -71,14 +71,14 @@
         </foreach>
     </select>
 
-    <select id="listByPidAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="listByPidAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource
         WHERE tenant_id = #{tenantId} and node_pid = #{nodePid} AND is_deleted = 0
     </select>
 
-    <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="listByTenantId" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource
@@ -91,21 +91,21 @@
         WHERE id = #{id}
     </update>
 
-    <select id="listByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="listByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource
         WHERE tenant_id = #{tenantId} and resource_name = #{resourceName} AND is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchResource" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_resource
           (tenant_id,node_pid,url,resource_type,resource_name,origin_file_name,resource_desc,gmt_create,gmt_modified,create_user_id,modify_user_id,is_deleted,compute_type)
         VALUES
           (#{tenantId},#{nodePid},#{url},#{resourceType},#{resourceName},#{originFileName},#{resourceDesc}, now(), now(),#{createUserId},#{modifyUserId}, 0, #{computeType})
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchResource">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.DevelopResource">
         UPDATE
         develop_resource
         <include refid="update_fragment"/>
@@ -113,7 +113,7 @@
         id = #{id} AND is_deleted = 0
     </update>
 
-    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.BatchResource">
+    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.DevelopResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_resource

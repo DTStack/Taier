@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.dao.domain.BatchSysParameter;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.mapper.DevelopSysParamMapper;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +41,9 @@ public class DevelopSysParamService {
     @Autowired
     private DevelopSysParamMapper developSysParamDao;
 
-    private Map<String, BatchSysParameter> cache = null;
+    private Map<String, DevelopSysParameter> cache = null;
 
-    public Collection<BatchSysParameter> listSystemParam(){
+    public Collection<DevelopSysParameter> listSystemParam(){
         if (cache == null){
             loadSystemParam();
         }
@@ -52,13 +52,13 @@ public class DevelopSysParamService {
 
     public void loadSystemParam(){
         cache = Maps.newHashMap();
-        List<BatchSysParameter> sysParamList = developSysParamDao.listAll();
-        for(BatchSysParameter tmp : sysParamList){
+        List<DevelopSysParameter> sysParamList = developSysParamDao.listAll();
+        for(DevelopSysParameter tmp : sysParamList){
             cache.put(tmp.getParamName(), tmp);
         }
     }
 
-    public BatchSysParameter getBatchSysParamByName(String name){
+    public DevelopSysParameter getBatchSysParamByName(String name){
 
         if(cache == null){
             loadSystemParam();

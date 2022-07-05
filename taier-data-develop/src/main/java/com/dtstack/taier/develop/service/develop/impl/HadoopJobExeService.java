@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -82,7 +82,7 @@ public class HadoopJobExeService {
 
         //todo checkSyncJobParams为什么要异常hadoopConfig
         if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-            List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
+            List<DevelopTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
             batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParam);
         }
         actionParam.put("job", job);

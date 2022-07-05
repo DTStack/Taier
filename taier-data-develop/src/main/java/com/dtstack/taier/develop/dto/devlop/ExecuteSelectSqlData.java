@@ -19,7 +19,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService;
 
@@ -28,7 +28,7 @@ public class ExecuteSelectSqlData {
     /**
      * 查询sql信息
      */
-    private BatchSelectSql batchHiveSelectSql;
+    private DevelopSelectSql batchHiveSelectSql;
 
     /**
      * 任务信息
@@ -45,18 +45,18 @@ public class ExecuteSelectSqlData {
      */
     private IDevelopSelectSqlService IDevelopSelectSqlService;
 
-    public ExecuteSelectSqlData(BatchSelectSql batchHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
+    public ExecuteSelectSqlData(DevelopSelectSql batchHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
         this.batchHiveSelectSql = batchHiveSelectSql;
         this.task = task;
         this.taskType = taskType;
         this.IDevelopSelectSqlService = IDevelopSelectSqlService;
     }
 
-    public BatchSelectSql getBatchHiveSelectSql() {
+    public DevelopSelectSql getBatchHiveSelectSql() {
         return batchHiveSelectSql;
     }
 
-    public void setBatchHiveSelectSql(BatchSelectSql batchHiveSelectSql) {
+    public void setBatchHiveSelectSql(DevelopSelectSql batchHiveSelectSql) {
         this.batchHiveSelectSql = batchHiveSelectSql;
     }
 

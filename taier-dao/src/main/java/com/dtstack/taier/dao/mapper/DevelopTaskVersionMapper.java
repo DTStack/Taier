@@ -19,9 +19,8 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.BatchTaskVersion;
 import com.dtstack.taier.dao.domain.TaskVersion;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,20 +29,20 @@ import java.util.List;
 
 public interface DevelopTaskVersionMapper extends BaseMapper<TaskVersion> {
 
-    List<BatchTaskVersionDetailDTO> listByTaskId(@Param("taskId") Long taskId, @Param("pageQuery") PageQuery pageQuery);
+    List<DevelopTaskVersionDetailDTO> listByTaskId(@Param("taskId") Long taskId, @Param("pageQuery") PageQuery pageQuery);
 
-    BatchTaskVersionDetailDTO getByVersionId(@Param("versionId") Long versionId);
+    DevelopTaskVersionDetailDTO getByVersionId(@Param("versionId") Long versionId);
 
-    List<BatchTaskVersionDetailDTO> getByVersionIds(@Param("versionIds") List<Integer> versionId);
+    List<DevelopTaskVersionDetailDTO> getByVersionIds(@Param("versionIds") List<Integer> versionId);
 
-    List<BatchTaskVersionDetailDTO> getByTaskIds(@Param("taskIds") List<Long> taskIds);
+    List<DevelopTaskVersionDetailDTO> getByTaskIds(@Param("taskIds") List<Long> taskIds);
 
-    List<BatchTaskVersionDetailDTO> getWithoutSqlByTaskIds(@Param("taskIds") List<Long> taskIds);
+    List<DevelopTaskVersionDetailDTO> getWithoutSqlByTaskIds(@Param("taskIds") List<Long> taskIds);
 
-    List<BatchTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(@Param("taskIds") List<Long> taskIds);
+    List<DevelopTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(@Param("taskIds") List<Long> taskIds);
 
     Integer getMaxVersionId(@Param("taskId") Long taskId);
 
-    BatchTaskVersionDetailDTO getBytaskIdAndVersionId(@Param("taskId") Long taskId, @Param("versionId") Long versionId);
+    DevelopTaskVersionDetailDTO getBytaskIdAndVersionId(@Param("taskId") Long taskId, @Param("versionId") Long versionId);
 
 }

@@ -19,7 +19,7 @@
 package com.dtstack.taier.dao.dto;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.dao.domain.BatchTaskVersion;
+import com.dtstack.taier.dao.domain.DevelopTaskVersion;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * date: 2022/1/24 3:09 下午
  * author: zhaiyue
  */
-public class BatchTaskVersionDetailDTO extends BatchTaskVersion {
+public class DevelopTaskVersionDetailDTO extends DevelopTaskVersion {
 
     private String userName;
 
