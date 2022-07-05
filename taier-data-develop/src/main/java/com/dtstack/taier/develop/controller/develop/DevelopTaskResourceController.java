@@ -22,7 +22,7 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceGetResourcesVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceGetResourcesVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopResourceResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +44,7 @@ public class DevelopTaskResourceController {
 
     @PostMapping(value = "getResources")
     @ApiOperation("获得 资源-任务 列表")
-    public R<List<DevelopResourceResultVO>> getResources(@RequestBody BatchTaskResourceGetResourcesVO vo) {
+    public R<List<DevelopResourceResultVO>> getResources(@RequestBody DevelopTaskResourceGetResourcesVO vo) {
         return new APITemplate<List<DevelopResourceResultVO> >() {
             @Override
             protected List<DevelopResourceResultVO> process() {

@@ -33,7 +33,7 @@ import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionMapper;
-import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.enums.develop.FlinkUDFType;
 import com.dtstack.taier.develop.service.user.UserService;
@@ -66,10 +66,10 @@ import java.util.stream.Collectors;
 public class DevelopFunctionService {
     
     @Autowired
-    private DevelopFunctionMapper developFunctionDao;
+    private DevelopFunctionMapper developFunctionMapper;
 
     @Autowired
-    private DevelopFunctionResourceService batchFunctionResourceService;
+    private DevelopFunctionResourceService developFunctionResourceService;
 
     @Autowired
     private UserService userService;
@@ -78,7 +78,7 @@ public class DevelopFunctionService {
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
     private StreamSqlFormatService streamSqlFormatService;
@@ -112,16 +112,16 @@ public class DevelopFunctionService {
      */
     @PostConstruct
     public void init() {
-        Map<String, DevelopFunction> batchFunctionMap = systemFunctions.getIfPresent(SYSTEM_FUNCTIONS);
-        if (batchFunctionMap == null || batchFunctionMap.size() == 0) {
-            List<DevelopFunction> listSystemFunction = developFunctionDao.listSystemFunction(null);
-            batchFunctionMap = Maps.newConcurrentMap();
+        Map<String, DevelopFunction> developFunctionMap = systemFunctions.getIfPresent(SYSTEM_FUNCTIONS);
+        if (developFunctionMap == null || developFunctionMap.size() == 0) {
+            List<DevelopFunction> listSystemFunction = developFunctionMapper.listSystemFunction(null);
+            developFunctionMap = Maps.newConcurrentMap();
             for (DevelopFunction systemFunction : listSystemFunction) {
-                batchFunctionMap.put(systemFunction.getName(), systemFunction);
+                developFunctionMap.put(systemFunction.getName(), systemFunction);
             }
-            systemFunctions.put(SYSTEM_FUNCTIONS, batchFunctionMap);
+            systemFunctions.put(SYSTEM_FUNCTIONS, developFunctionMap);
         }
-        systemFunctions.put(SYSTEM_FUNCTIONS, batchFunctionMap);
+        systemFunctions.put(SYSTEM_FUNCTIONS, developFunctionMap);
     }
 
 
@@ -130,21 +130,21 @@ public class DevelopFunctionService {
      * @param functionId
      * @return
      */
-    public BatchFunctionVO getFunction(Long functionId) {
-        DevelopFunction batchFunction = developFunctionDao.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
+    public DevelopFunctionVO getFunction(Long functionId) {
+        DevelopFunction developFunction = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
                 .eq(DevelopFunction::getId,functionId)
                 .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
-        if (Objects.isNull(batchFunction)) {
-            return new BatchFunctionVO();
+        if (Objects.isNull(developFunction)) {
+            return new DevelopFunctionVO();
         }
-        BatchFunctionVO vo = BatchFunctionVO.toVO(batchFunction);
+        DevelopFunctionVO vo = DevelopFunctionVO.toVO(developFunction);
         //如果函数有资源，则设置函数的资源
-        DevelopFunctionResource resourceFunctionByFunctionId = batchFunctionResourceService.getResourceFunctionByFunctionId(batchFunction.getId());
+        DevelopFunctionResource resourceFunctionByFunctionId = developFunctionResourceService.getResourceFunctionByFunctionId(developFunction.getId());
         if (Objects.nonNull(resourceFunctionByFunctionId)){
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
         }
-        vo.setCreateUser(userService.getById(batchFunction.getCreateUserId()));
-        vo.setModifyUser(userService.getById(batchFunction.getModifyUserId()));
+        vo.setCreateUser(userService.getById(developFunction.getCreateUserId()));
+        vo.setModifyUser(userService.getById(developFunction.getModifyUserId()));
         return vo;
     }
 
@@ -153,30 +153,30 @@ public class DevelopFunctionService {
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addOrUpdateFunction(DevelopFunction batchFunction, Long resourceId, Long tenantId, Long userId) {
-        if (!PublicUtil.matcher(batchFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
+    public TaskCatalogueVO addOrUpdateFunction(DevelopFunction developFunction, Long resourceId, Long tenantId, Long userId) {
+        if (!PublicUtil.matcher(developFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
         AssertUtils.notNull(resourceId, "新增函数必须添加资源");
-        checkResourceType(resourceId, batchFunction.getTaskType());
+        checkResourceType(resourceId, developFunction.getTaskType());
 
         // id小于0走新增逻辑
-        if (Objects.isNull(batchFunction.getId()) || batchFunction.getId() < 1) {
+        if (Objects.isNull(developFunction.getId()) || developFunction.getId() < 1) {
             //名称重复校验
-            batchTaskService.checkName(batchFunction.getName(), CatalogueType.FUNCTION_MANAGER.name(), null, 1, 0L);
-            batchFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
+            developTaskService.checkName(developFunction.getName(), CatalogueType.FUNCTION_MANAGER.name(), null, 1, 0L);
+            developFunction.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
         }
 
-        addOrUpdate(batchFunction, userId);
-        addOrUpdateFunctionResource(batchFunction, resourceId);
+        addOrUpdate(developFunction, userId);
+        addOrUpdateFunctionResource(developFunction, resourceId);
         // 添加类目关系
         TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO();
-        taskCatalogueVO.setId(batchFunction.getId());
-        taskCatalogueVO.setName(batchFunction.getName());
+        taskCatalogueVO.setId(developFunction.getId());
+        taskCatalogueVO.setName(developFunction.getName());
         taskCatalogueVO.setType("file");
         taskCatalogueVO.setLevel(null);
         taskCatalogueVO.setChildren(null);
-        taskCatalogueVO.setParentId(batchFunction.getNodePid());
+        taskCatalogueVO.setParentId(developFunction.getNodePid());
         return taskCatalogueVO;
     }
 
@@ -195,10 +195,10 @@ public class DevelopFunctionService {
         if (Objects.isNull(resourceFunctionByFunctionId)) {
             developFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
             developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunctionResourceService.insert(developFunctionResource);
+            developFunctionResourceService.insert(developFunctionResource);
         }else {
             developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunctionResourceService.updateByFunctionId(developFunctionResource);
+            developFunctionResourceService.updateByFunctionId(developFunctionResource);
         }
     }
 
@@ -208,7 +208,7 @@ public class DevelopFunctionService {
      * @return
      */
     private DevelopFunctionResource getResourceFunctionByFunctionId(Long functionId) {
-        return batchFunctionResourceService.getResourceFunctionByFunctionId(functionId);
+        return developFunctionResourceService.getResourceFunctionByFunctionId(functionId);
     }
 
 
@@ -233,23 +233,23 @@ public class DevelopFunctionService {
     /**
      * 新增、更新 函数信息
      *
-     * @param batchFunction 函数信息
+     * @param developFunction 函数信息
      * @param userId        用户ID
      * @return
      */
-    private DevelopFunction addOrUpdate(DevelopFunction batchFunction, Long userId) {
-        if (batchFunction.getId() > 0) {
-            batchFunction.setModifyUserId(userId);
-            batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            developFunctionDao.updateById(batchFunction);
+    private DevelopFunction addOrUpdate(DevelopFunction developFunction, Long userId) {
+        if (developFunction.getId() > 0) {
+            developFunction.setModifyUserId(userId);
+            developFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            developFunctionMapper.updateById(developFunction);
         } else {
-            batchFunction.setCreateUserId(userId);
-            batchFunction.setModifyUserId(userId);
-            batchFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunction.setIsDeleted(Deleted.NORMAL.getStatus());
-            developFunctionDao.insert(batchFunction);
+            developFunction.setCreateUserId(userId);
+            developFunction.setModifyUserId(userId);
+            developFunction.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            developFunction.setIsDeleted(Deleted.NORMAL.getStatus());
+            developFunctionMapper.insert(developFunction);
         }
-        return batchFunction;
+        return developFunction;
     }
 
     /**
@@ -259,7 +259,7 @@ public class DevelopFunctionService {
      * @param nodePid
      */
     public void moveFunction(Long userId, Long functionId, Long nodePid) {
-        DevelopFunction bf = developFunctionDao.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
+        DevelopFunction bf = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
                 .eq(DevelopFunction::getId,functionId)
                 .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
         if (Objects.isNull(bf)) {
@@ -278,17 +278,17 @@ public class DevelopFunctionService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteFunction(Long userId, Long functionId) {
-        DevelopFunction batchFunction = developFunctionDao.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
+        DevelopFunction developFunction = developFunctionMapper.selectOne(Wrappers.lambdaQuery(DevelopFunction.class)
                 .eq(DevelopFunction::getId,functionId)
                 .eq(DevelopFunction::getIsDeleted,Deleted.NORMAL.getStatus()));
-        if (Objects.isNull(batchFunction)) {
+        if (Objects.isNull(developFunction)) {
             throw new RdosDefineException(ErrorCode.FUNCTION_CAN_NOT_FIND);
         }
-        batchFunctionResourceService.deleteByFunctionId(functionId);
-        batchFunction = new DevelopFunction();
-        batchFunction.setId(functionId);
-        batchFunction.setIsDeleted(Deleted.DELETED.getStatus());
-        addOrUpdate(batchFunction, userId);
+        developFunctionResourceService.deleteByFunctionId(functionId);
+        developFunction = new DevelopFunction();
+        developFunction.setId(functionId);
+        developFunction.setIsDeleted(Deleted.DELETED.getStatus());
+        addOrUpdate(developFunction, userId);
     }
 
 
@@ -299,8 +299,8 @@ public class DevelopFunctionService {
      * @return
      */
     public List<String> getAllFunctionName(Long tenantId, Integer taskType) {
-        List<String> nameList = developFunctionDao.listNameByTenantId(tenantId, taskType);
-        List<DevelopFunction> systemFunction = developFunctionDao.listSystemFunction(taskType);
+        List<String> nameList = developFunctionMapper.listNameByTenantId(tenantId, taskType);
+        List<DevelopFunction> systemFunction = developFunctionMapper.listSystemFunction(taskType);
         List<String> systemNames = systemFunction.stream().map(DevelopFunction::getName).collect(Collectors.toList());
         systemNames.addAll(nameList);
         return systemNames;
@@ -315,7 +315,7 @@ public class DevelopFunctionService {
      * @return
      */
     public List<DevelopFunction> listTenantFunction(Long tenantId, Integer functionType, Integer taskType) {
-        return developFunctionDao.listTenantFunction(tenantId, functionType, taskType);
+        return developFunctionMapper.listTenantFunction(tenantId, functionType, taskType);
     }
 
     /**
@@ -344,7 +344,7 @@ public class DevelopFunctionService {
         for (String sqlFunctionName : sqlFunctionNames) {
             // 如果sql中的函数存在于此项目下
             if (customFunctionNames.contains(sqlFunctionName)) {
-                DevelopFunction byNameAndTenantId = developFunctionDao.getByNameAndTenantId(tenantId, sqlFunctionName);
+                DevelopFunction byNameAndTenantId = developFunctionMapper.getByNameAndTenantId(tenantId, sqlFunctionName);
                 sb.append(createTempUDF(byNameAndTenantId));
             }
         }
@@ -355,14 +355,14 @@ public class DevelopFunctionService {
     /**
      * 创建临时函数
      *
-     * @param batchFunction
+     * @param developFunction
      * @return
      */
-    private String createTempUDF(DevelopFunction batchFunction) {
-        String funcName = batchFunction.getName();
-        String className = batchFunction.getClassName();
+    private String createTempUDF(DevelopFunction developFunction) {
+        String funcName = developFunction.getName();
+        String className = developFunction.getClassName();
         // 获取资源路径
-        String resourceURL = DevelopResourceService.getResourceURLByFunctionId(batchFunction.getId());
+        String resourceURL = DevelopResourceService.getResourceURLByFunctionId(developFunction.getId());
         if (StringUtils.isNotBlank(resourceURL)) {
             return String.format(CREATE_TEMP_FUNCTION, funcName, className, resourceURL);
         } else {
@@ -377,14 +377,14 @@ public class DevelopFunctionService {
      * @return
      */
     public List<DevelopFunction> listByNodePidAndTenantId(Long tenantId, Long nodePid){
-        return developFunctionDao.listByNodePidAndTenantId(tenantId, nodePid);
+        return developFunctionMapper.listByNodePidAndTenantId(tenantId, nodePid);
     }
 
     public List<DevelopFunction> getFlinkFunctions(Set<String> funcNameSet, Long tenantId) {
         if (CollectionUtils.isEmpty(funcNameSet)) {
             return Lists.newArrayList();
         }
-        List<DevelopFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId, EScheduleJobType.SQL.getType());
+        List<DevelopFunction> streamFunctionList = developFunctionMapper.listTenantByFunction(tenantId, EScheduleJobType.SQL.getType());
         return streamFunctionList.stream().filter(f-> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
     }
 
@@ -404,7 +404,7 @@ public class DevelopFunctionService {
         List<String> result = Lists.newArrayList();
         List<Long> resourceIds = new ArrayList<>();
         for (DevelopFunction function : functionList) {
-            DevelopFunctionResource developFunctionResource = batchFunctionResourceService.getResourceFunctionByFunctionId(function.getId());
+            DevelopFunctionResource developFunctionResource = developFunctionResourceService.getResourceFunctionByFunctionId(function.getId());
             AssertUtils.notNull(developFunctionResource, "函数资源为null");
             resourceIds.add(developFunctionResource.getResourceId());
         }
@@ -429,8 +429,8 @@ public class DevelopFunctionService {
         if (!isFilterSys) {
             return funcSet;
         }
-        List<DevelopFunction> batchFunctions = developFunctionDao.listSystemFunction(EScheduleJobType.SQL.getType());
-        List<String> sysFuncNames = batchFunctions.stream().map(DevelopFunction::getName).collect(Collectors.toList());
+        List<DevelopFunction> developFunctions = developFunctionMapper.listSystemFunction(EScheduleJobType.SQL.getType());
+        List<String> sysFuncNames = developFunctions.stream().map(DevelopFunction::getName).collect(Collectors.toList());
 
         //FIXME 区分大小写
         for (String sysFuncName :  sysFuncNames) {
@@ -489,7 +489,7 @@ public class DevelopFunctionService {
      * @return
      */
     public List<DevelopFunction> listByNameAndTenantId(Long tenantId, String name, Integer type){
-        return developFunctionDao.listByNameAndTenantId(tenantId, name, type);
+        return developFunctionMapper.listByNameAndTenantId(tenantId, name, type);
     }
 
 }

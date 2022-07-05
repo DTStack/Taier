@@ -40,13 +40,13 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
-import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
 import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
-import com.dtstack.taier.develop.vo.develop.result.BatchServerLogByAppLogTypeResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopServerLogByAppLogTypeResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -82,23 +82,23 @@ public class DevelopServerLogService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevelopServerLogService.class);
 
-    @Resource(name = "batchJobParamReplace")
+    @Resource(name = "developJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired
-    private DevelopTaskParamShadeService batchTaskParamShadeService;
+    private DevelopTaskParamShadeService developTaskParamShadeService;
 
     @Autowired
-    private DevelopDownloadService batchDownloadService;
+    private DevelopDownloadService developDownloadService;
 
     @Autowired
-    private DevelopTaskVersionService batchTaskVersionService;
+    private DevelopTaskVersionService developTaskVersionService;
 
     @Autowired
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
     private TaskService taskService;
@@ -121,7 +121,7 @@ public class DevelopServerLogService {
     private static final int NANOS_LENGTH = 19;
 
 
-    public BatchServerLogVO getLogsByJobId(String jobId, Integer pageInfo) {
+    public DevelopServerLogVO getLogsByJobId(String jobId, Integer pageInfo) {
 
         if (StringUtils.isBlank(jobId)) {
             return null;
@@ -140,7 +140,7 @@ public class DevelopServerLogService {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
         }
 
-        final BatchServerLogVO batchServerLogVO = new BatchServerLogVO();
+        final DevelopServerLogVO developServerLogVO = new DevelopServerLogVO();
 
         //日志从engine获取
         final JSONObject logsBody = new JSONObject(2);
@@ -159,7 +159,7 @@ public class DevelopServerLogService {
 
         if (Objects.nonNull(job.getVersionId())) {
             // 需要获取执行任务时候版本对应的sql
-            DevelopTaskVersionDetailDTO taskVersion = this.batchTaskVersionService.getByVersionId((long) job.getVersionId());
+            DevelopTaskVersionDetailDTO taskVersion = this.developTaskVersionService.getByVersionId((long) job.getVersionId());
             if (Objects.nonNull(taskVersion)) {
                 if (StringUtils.isEmpty(taskVersion.getOriginSql())){
                     String jsonSql = StringUtils.isEmpty(taskVersion.getSqlText()) ? "{}" : taskVersion.getSqlText();
@@ -175,7 +175,7 @@ public class DevelopServerLogService {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(scheduleTaskShade.getTaskType())) {
             // 处理sql注释，先把注释base64编码，再处理非注释的自定义参数
             String sql = SqlFormatUtil.dealAnnotationBefore(scheduleTaskShade.getSqlText());
-            final List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
+            final List<DevelopTaskParamShade> taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             sql = this.jobParamReplace.paramReplace(sql, taskParamsToReplace, job.getCycTime());
             sql = SqlFormatUtil.dealAnnotationAfter(sql);
             info.put("sql", sql);
@@ -195,7 +195,7 @@ public class DevelopServerLogService {
             DataFilter.passwordFilter(jobJson);
 
             String jobStr = jobJson.toJSONString();
-            final List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
+            final List<DevelopTaskParamShade> taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(scheduleTaskShade.getId());
             jobStr = this.jobParamReplace.paramReplace(jobStr, taskParamsToReplace, job.getCycTime());
             info.put("sql", JsonUtils.formatJSON(jobStr));
             if (Objects.nonNull(job.getExecEndTime()) && Objects.nonNull(job.getExecStartTime())) {
@@ -226,22 +226,22 @@ public class DevelopServerLogService {
         }
 
         // 增加重试日志
-        final String retryLog = this.buildRetryLog(jobId, pageInfo, batchServerLogVO);
+        final String retryLog = this.buildRetryLog(jobId, pageInfo, developServerLogVO);
         this.formatForLogInfo(info, job.getType(),scheduleTaskShade.getTaskType(), retryLog, null,
-                null, null, batchServerLogVO, tenantId,jobId);
+                null, null, developServerLogVO, tenantId,jobId);
 
         if (!scheduleTaskShade.getTaskType().equals(EScheduleJobType.SYNC.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.VIRTUAL.getVal())
                 && !scheduleTaskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())
                 && TaskStatus.getStoppedStatus().contains(job.getStatus())) {
-            batchServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType()));
+            developServerLogVO.setDownloadLog(String.format(DOWNLOAD_LOG, jobId, scheduleTaskShade.getTaskType()));
         }
 
-        batchServerLogVO.setName(scheduleTaskShade.getName());
-        batchServerLogVO.setComputeType(scheduleTaskShade.getComputeType());
-        batchServerLogVO.setTaskType(scheduleTaskShade.getTaskType());
+        developServerLogVO.setName(scheduleTaskShade.getName());
+        developServerLogVO.setComputeType(scheduleTaskShade.getComputeType());
+        developServerLogVO.setTaskType(scheduleTaskShade.getTaskType());
 
-        return batchServerLogVO;
+        return developServerLogVO;
     }
 
 
@@ -285,10 +285,10 @@ public class DevelopServerLogService {
      *
      * @param jobId
      * @param pageInfo         第几次的重试日志 如果传入0  默认是最新的  -1 展示所有的（为了兼容内部调用）
-     * @param batchServerLogVO
+     * @param developServerLogVO
      * @return
      */
-    private String buildRetryLog(final String jobId, Integer pageInfo, final BatchServerLogVO batchServerLogVO) {
+    private String buildRetryLog(final String jobId, Integer pageInfo, final DevelopServerLogVO developServerLogVO) {
         final Map<String, Object> retryParamsMap = Maps.newHashMap();
         retryParamsMap.put("jobId", jobId);
         retryParamsMap.put("computeType", ComputeType.BATCH.getType());
@@ -297,7 +297,7 @@ public class DevelopServerLogService {
         if (CollectionUtils.isEmpty(actionRetryLogVOs)) {
             return "";
         }
-        batchServerLogVO.setPageSize(actionRetryLogVOs.size());
+        developServerLogVO.setPageSize(actionRetryLogVOs.size());
         if(Objects.isNull(pageInfo)){
             pageInfo = 0;
         }
@@ -488,13 +488,13 @@ public class DevelopServerLogService {
         return millisSecond;
     }
 
-    public BatchServerLogVO.SyncJobInfo parseExecLog(final String perf, final Long execTime) {
+    public DevelopServerLogVO.SyncJobInfo parseExecLog(final String perf, final Long execTime) {
         if (Strings.isNullOrEmpty(perf)) {
-            return new BatchServerLogVO.SyncJobInfo();
+            return new DevelopServerLogVO.SyncJobInfo();
         }
 
         final String[] arr = perf.split("\\n");
-        final BatchServerLogVO.SyncJobInfo syncJobInfo = new BatchServerLogVO.SyncJobInfo();
+        final DevelopServerLogVO.SyncJobInfo syncJobInfo = new DevelopServerLogVO.SyncJobInfo();
         Integer readNum = 0;
         Integer errorNum = 0;
         Integer writeNum = 0;
@@ -529,7 +529,7 @@ public class DevelopServerLogService {
     }
 
     private void formatForLogInfo(final JSONObject jobInfo, final Integer jobType, final Integer taskType, final String retryLog, final Timestamp startTime,
-                                  final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long tenantId, final String jobId) {
+                                  final Timestamp endTime, final Long execTime, final DevelopServerLogVO developServerLogVO, final Long tenantId, final String jobId) {
         if (!taskType.equals(EScheduleJobType.SYNC.getVal())) {
             if (jobInfo.containsKey("engineLogErr")) {
                 // 有这个字段表示日志没有获取到，目前engine端只对flink任务做了这种处理，这里先提前加上
@@ -539,15 +539,15 @@ public class DevelopServerLogService {
                 jobInfo.put("msg_info", msgInfo + "\n" + retryLog);
             }
 
-            batchServerLogVO.setLogInfo(jobInfo.toJSONString());
+            developServerLogVO.setLogInfo(jobInfo.toJSONString());
             return;
         }
 
-        this.formatForSyncLogInfo(jobInfo, jobType,retryLog, startTime, endTime, execTime, batchServerLogVO, tenantId,jobId);
+        this.formatForSyncLogInfo(jobInfo, jobType,retryLog, startTime, endTime, execTime, developServerLogVO, tenantId,jobId);
     }
 
     private void formatForSyncLogInfo(final JSONObject jobInfo, final Integer jobType, final String retryLog, final Timestamp startTime,
-                                      final Timestamp endTime, final Long execTime, final BatchServerLogVO batchServerLogVO, final Long tenantId, final String jobId) {
+                                      final Timestamp endTime, final Long execTime, final DevelopServerLogVO developServerLogVO, final Long tenantId, final String jobId) {
 
         try {
             final Map<String, Object> sqlInfoMap = (Map<String, Object>) DevelopServerLogService.objectMapper.readValue(jobInfo.getString("sql"), Object.class);
@@ -603,14 +603,14 @@ public class DevelopServerLogService {
             logInfoJson.put("all-exceptions", allExceptions);
             logInfoJson.put("status", jobInfoMap.get("status"));
 
-            batchServerLogVO.setLogInfo(logInfoJson.toString());
+            developServerLogVO.setLogInfo(logInfoJson.toString());
 
             //解析出数据同步的信息
-            final BatchServerLogVO.SyncJobInfo syncJobInfo = this.parseExecLog(perfLogInfo, execTime);
-            batchServerLogVO.setSyncJobInfo(syncJobInfo);
+            final DevelopServerLogVO.SyncJobInfo syncJobInfo = this.parseExecLog(perfLogInfo, execTime);
+            developServerLogVO.setSyncJobInfo(syncJobInfo);
         } catch (final Exception e) {
             LOGGER.error("logInfo 解析失败", e);
-            batchServerLogVO.setLogInfo(jobInfo.toString());
+            developServerLogVO.setLogInfo(jobInfo.toString());
         }
     }
 
@@ -625,9 +625,9 @@ public class DevelopServerLogService {
         if (job.getTaskId() == null || job.getTaskId() == -1){
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
-        Task batchTaskById = batchTaskService.getBatchTaskById(job.getTaskId());
+        Task developTaskById = developTaskService.getDevelopTaskById(job.getTaskId());
         //prometheus的配置信息 从控制台获取
-        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,batchTaskById.getTaskParams(),ComputeType.BATCH);
+        final Pair<String, String> prometheusHostAndPort = this.getPrometheusHostAndPort(tenantId,developTaskById.getTaskParams(),ComputeType.BATCH);
         if (prometheusHostAndPort == null){
             return "promethues配置为空";
         }
@@ -724,7 +724,7 @@ public class DevelopServerLogService {
         }
         final JSONObject result = new JSONObject(YarnAppLogType.values().length);
         for (final YarnAppLogType type : YarnAppLogType.values()) {
-            final String msg = this.batchDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
+            final String msg = this.developDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
                     type.name().toUpperCase(), taskType);
             final JSONObject typeLog = new JSONObject(2);
             typeLog.put("msg", msg);
@@ -735,7 +735,7 @@ public class DevelopServerLogService {
         return result;
     }
 
-    public BatchServerLogByAppLogTypeResultVO getLogsByAppLogType(Long tenantId, Integer taskType, String jobId, String logType) {
+    public DevelopServerLogByAppLogTypeResultVO getLogsByAppLogType(Long tenantId, Integer taskType, String jobId, String logType) {
         if (EScheduleJobType.SYNC.getVal().equals(taskType)
                 || EScheduleJobType.VIRTUAL.getVal().equals(taskType)
                 || EScheduleJobType.WORK_FLOW.getVal().equals(taskType)) {
@@ -746,9 +746,9 @@ public class DevelopServerLogService {
             throw new RdosDefineException("not support the logType:" + logType);
         }
 
-        final String msg = this.batchDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
+        final String msg = this.developDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
                 logType.toUpperCase(), taskType);
-        BatchServerLogByAppLogTypeResultVO resultVO = new BatchServerLogByAppLogTypeResultVO();
+        DevelopServerLogByAppLogTypeResultVO resultVO = new DevelopServerLogByAppLogTypeResultVO();
         resultVO.setMsg(msg);
         resultVO.setDownload(String.format(DevelopServerLogService.DOWNLOAD_TYPE_LOG, jobId, logType));
 

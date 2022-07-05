@@ -33,11 +33,10 @@ import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
-import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
-import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,16 +65,13 @@ public class DevelopCatalogueService {
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private DevelopFunctionService batchFunctionService;
+    private DevelopFunctionService developFunctionService;
 
     @Autowired
     private ScheduleDictService dictService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    public DevelopTaskService batchTaskService;
+    public DevelopTaskService developTaskService;
 
     @Autowired
     private ClusterTenantService clusterTenantService;
@@ -149,18 +145,18 @@ public class DevelopCatalogueService {
 
     /**
      * 新增 and 修改目录
-     * @param batchCatalogue
+     * @param developCatalogue
      * @return
      */
-    private DevelopCatalogue addOrUpdate(DevelopCatalogue batchCatalogue) {
-        if (batchCatalogue.getId() != null && batchCatalogue.getId() > 0) {
-            LambdaUpdateWrapper<DevelopCatalogue> batchCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-            batchCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId,batchCatalogue.getId());
-            developCatalogueMapper.update(batchCatalogue,batchCatalogueLambdaUpdateWrapper);
+    private DevelopCatalogue addOrUpdate(DevelopCatalogue developCatalogue) {
+        if (developCatalogue.getId() != null && developCatalogue.getId() > 0) {
+            LambdaUpdateWrapper<DevelopCatalogue> developCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            developCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId,developCatalogue.getId());
+            developCatalogueMapper.update(developCatalogue,developCatalogueLambdaUpdateWrapper);
         } else {
-            developCatalogueMapper.insert(batchCatalogue);
+            developCatalogueMapper.insert(developCatalogue);
         }
-        return batchCatalogue;
+        return developCatalogue;
     }
 
     /**
@@ -170,19 +166,19 @@ public class DevelopCatalogueService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void initCatalogue(Long tenantId, Long userId) {
-        //离线各模块的 0 级目录，任务管理、函数管理、资源管理
-        List<Dict> zeroBatchCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
-        for (Dict zeroDict : zeroBatchCatalogueDictList) {
+        //各模块的 0 级目录，任务管理、函数管理、资源管理
+        List<Dict> zeroCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
+        for (Dict zeroDict : zeroCatalogueDictList) {
             //初始化 0 级目录
-            DevelopCatalogue zeroBatchCatalogue = new DevelopCatalogue();
-            zeroBatchCatalogue.setNodeName(zeroDict.getDictDesc());
-            zeroBatchCatalogue.setNodePid(DEFAULT_NODE_PID);
-            zeroBatchCatalogue.setOrderVal(zeroDict.getSort());
-            zeroBatchCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
-            zeroBatchCatalogue.setTenantId(tenantId);
-            zeroBatchCatalogue.setCreateUserId(userId);
-            zeroBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
-            addOrUpdate(zeroBatchCatalogue);
+            DevelopCatalogue zeroCatalogue = new DevelopCatalogue();
+            zeroCatalogue.setNodeName(zeroDict.getDictDesc());
+            zeroCatalogue.setNodePid(DEFAULT_NODE_PID);
+            zeroCatalogue.setOrderVal(zeroDict.getSort());
+            zeroCatalogue.setLevel(CatalogueLevel.ONE.getLevel());
+            zeroCatalogue.setTenantId(tenantId);
+            zeroCatalogue.setCreateUserId(userId);
+            zeroCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
+            addOrUpdate(zeroCatalogue);
         }
     }
 
@@ -256,7 +252,7 @@ public class DevelopCatalogueService {
      *
      * @param catalogueInput
      */
-    public void updateCatalogue(BatchCatalogueVO catalogueInput) {
+    public void updateCatalogue(DevelopCatalogueVO catalogueInput) {
         DevelopCatalogue catalogue = developCatalogueMapper.selectById(catalogueInput.getId());
         catalogueOneNotUpdate(catalogue);
         if (catalogue.getIsDeleted() == 1) {
@@ -308,7 +304,7 @@ public class DevelopCatalogueService {
         catalogueOneNotUpdate(catalogue);
 
         //判断文件夹下任务
-        List<Task> taskList = batchTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
+        List<Task> taskList = developTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
         List<DevelopResource> resourceList = DevelopResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
@@ -316,11 +312,11 @@ public class DevelopCatalogueService {
         }
 
         //判断文件夹下子目录
-        List<DevelopCatalogue> batchCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
+        List<DevelopCatalogue> developCatalogues = developCatalogueMapper.selectList(Wrappers.lambdaQuery(DevelopCatalogue.class)
                 .eq(DevelopCatalogue::getTenantId, catalogueInput.getTenantId())
                 .eq(DevelopCatalogue::getNodePid, catalogue.getId())
                 .orderByDesc(DevelopCatalogue::getGmtCreate));
-        if (CollectionUtils.isNotEmpty(batchCatalogues)) {
+        if (CollectionUtils.isNotEmpty(developCatalogues)) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
         }
 
@@ -449,7 +445,7 @@ public class DevelopCatalogueService {
 
             //任务目录
             if (CatalogueType.TASK_DEVELOP.getType().equals(currentCatalogueVO.getCatalogueType())) {
-                List<Task> taskList = batchTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
+                List<Task> taskList = developTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
                 taskList.sort(Comparator.comparing(Task::getName));
                 if (CollectionUtils.isNotEmpty(taskList)) {
                     //遍历目录下的所有任务
@@ -464,7 +460,7 @@ public class DevelopCatalogueService {
                 }
             } else if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 //处理函数目录
-                List<DevelopFunction> functionList = batchFunctionService.listByNodePidAndTenantId(currentCatalogueVO.getTenantId(), currentCatalogueVO.getId());
+                List<DevelopFunction> functionList = developFunctionService.listByNodePidAndTenantId(currentCatalogueVO.getTenantId(), currentCatalogueVO.getId());
                 if (CollectionUtils.isNotEmpty(functionList)) {
                     functionList.sort(Comparator.comparing(DevelopFunction::getName));
                     for (DevelopFunction function : functionList) {

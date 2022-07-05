@@ -22,8 +22,8 @@ import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopResourceAddVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetResourcesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourceByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourcesResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -43,19 +43,19 @@ public interface DevelopResourceMapstructTransfer {
 
 
     /**
-     * DevelopResourceVO --> BatchGetResourceByIdResultVO
+     * DevelopResourceVO --> DevelopGetResourceByIdResultVO
      *
      * @param DevelopResourceVO
      * @return
      */
-    BatchGetResourceByIdResultVO DevelopResourceVOToBatchGetResourceByIdResultVO(DevelopResourceVO DevelopResourceVO);
+    DevelopGetResourceByIdResultVO DevelopResourceVOToDevelopGetResourceByIdResultVO(DevelopResourceVO DevelopResourceVO);
 
     /**
-     * DevelopResource --> BatchGetResourcesResultVO
+     * DevelopResource --> DevelopGetResourcesResultVO
      *
      * @param DevelopResource
      * @return
      */
-    BatchGetResourcesResultVO DevelopResourceToBatchGetResourcesResultVO(DevelopResource DevelopResource);
+    DevelopGetResourcesResultVO DevelopResourceToDevelopGetResourcesResultVO(DevelopResource DevelopResource);
 
 }

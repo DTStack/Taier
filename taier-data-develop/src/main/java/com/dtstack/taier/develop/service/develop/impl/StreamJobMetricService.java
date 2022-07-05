@@ -94,7 +94,7 @@ public class StreamJobMetricService {
             throw new RdosDefineException("chartName不能为空");
         }
 
-        Task task = taskService.getBatchTaskById(metricDTO.getTaskId());
+        Task task = taskService.getDevelopTaskById(metricDTO.getTaskId());
 
         TimespanVO formatTimespan = formatTimespan(metricDTO.getTimespan());
         if (!formatTimespan.getCorrect()) {

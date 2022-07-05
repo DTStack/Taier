@@ -27,15 +27,18 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.dao.domain.*;
-import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
+import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.develop.IDevelopJobExeService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -71,19 +74,19 @@ public class DevelopJobService {
     private static final String DOWNLOAD_URL = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
-    private DevelopServerLogService batchServerLogService;
+    private DevelopServerLogService developServerLogService;
 
     @Autowired
-    private DevelopTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private DevelopSelectSqlService batchSelectSqlService;
+    private DevelopSelectSqlService developSelectSqlService;
 
     @Autowired
     private TenantService tenantService;
@@ -92,7 +95,7 @@ public class DevelopJobService {
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
     @Autowired
-    private DevelopTaskParamShadeService batchTaskParamShadeService;
+    private DevelopTaskParamShadeService developTaskParamShadeService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -111,9 +114,9 @@ public class DevelopJobService {
     public String getExtraInfo(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
         //任务参数若为null，则表示是提交任务，否则就是临时运行任务
         if(taskParamsToReplace == null){
-            taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(task.getId());
+            taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(task.getId());
         }
-        IDevelopJobExeService jobExecuteService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
+        IDevelopJobExeService jobExecuteService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
 
         //构建任务运行完整信息
         Map<String, Object> actionParam = Maps.newHashMap();
@@ -160,21 +163,21 @@ public class DevelopJobService {
      *
      * @return
      */
-    public BatchStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId) {
-        BatchStartSyncResultVO batchStartSyncResultVO = new BatchStartSyncResultVO();
-        batchStartSyncResultVO.setMsg(null);
-        batchStartSyncResultVO.setJobId(null);
-        batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
+    public DevelopStartSyncResultVO startSyncImmediately(Long taskId, Long userId, Boolean isRoot, Long tenantId) {
+        DevelopStartSyncResultVO developStartSyncResultVO = new DevelopStartSyncResultVO();
+        developStartSyncResultVO.setMsg(null);
+        developStartSyncResultVO.setJobId(null);
+        developStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
 
-        Task task = batchTaskService.getOneWithError(taskId);
+        Task task = developTaskService.getOneWithError(taskId);
 
         if (!task.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
 
         try {
-            IDevelopJobExeService batchJobExeService = this.multiEngineServiceFactory.getBatchJobExeService(EScheduleJobType.SYNC.getType());
-            Map<String, Object> actionParam = batchJobExeService.readyForSyncImmediatelyJob(task, tenantId, isRoot);
+            IDevelopJobExeService developJobExeService = this.multiEngineServiceFactory.getDevelopJobExeService(EScheduleJobType.SYNC.getType());
+            Map<String, Object> actionParam = developJobExeService.readyForSyncImmediatelyJob(task, tenantId, isRoot);
             String extraInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
@@ -182,35 +185,35 @@ public class DevelopJobService {
             scheduleTaskShade.setTaskId(task.getId());
             scheduleTaskShade.setScheduleConf(task.getScheduleConf());
             scheduleTaskShade.setComponentVersion(task.getComponentVersion());
-            paramTaskAction.setBatchTask(scheduleTaskShade);
-            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
+            paramTaskAction.setTask(scheduleTaskShade);
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
             String jobId = paramActionExt.getJobId();
             actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
-            batchSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), task.getTenantId(),
+            developSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), task.getTenantId(),
                     job, userId, EScheduleJobType.SPARK_SQL.getType());
 
-            batchStartSyncResultVO.setMsg(String.format("任务提交成功,名称为: %s", name));
-            batchStartSyncResultVO.setJobId(jobId);
-            batchStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
+            developStartSyncResultVO.setMsg(String.format("任务提交成功,名称为: %s", name));
+            developStartSyncResultVO.setJobId(jobId);
+            developStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
         } catch (Exception e) {
             LOGGER.warn("startSyncImmediately-->", e);
-            batchStartSyncResultVO.setMsg(e.getMessage());
-            batchStartSyncResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
+            developStartSyncResultVO.setMsg(e.getMessage());
+            developStartSyncResultVO.setStatus(TaskStatus.SUBMITFAILD.getStatus());
         }
-        return batchStartSyncResultVO;
+        return developStartSyncResultVO;
     }
 
     /**
      * 获取同步任务运行状态
      */
-    public BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId) {
+    public DevelopGetSyncTaskStatusInnerResultVO getSyncTaskStatus(Long tenantId, String jobId) {
         return this.getSyncTaskStatusInner(tenantId, jobId, 0);
     }
 
-    private BatchGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, int retryTimes) {
-        final BatchGetSyncTaskStatusInnerResultVO resultVO = new BatchGetSyncTaskStatusInnerResultVO();
+    private DevelopGetSyncTaskStatusInnerResultVO getSyncTaskStatusInner(final Long tenantId, final String jobId, int retryTimes) {
+        final DevelopGetSyncTaskStatusInnerResultVO resultVO = new DevelopGetSyncTaskStatusInnerResultVO();
         resultVO.setMsg(null);
         resultVO.setStatus(TaskStatus.RUNNING.getStatus());
 
@@ -273,7 +276,7 @@ public class DevelopJobService {
                     engineJobId = engineEntities.get(0).getEngineJobId();
                 }
                 final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis(): job.getExecStartTime().getTime();
-                final String perf = StringUtils.isBlank(engineJobId) ? null : this.batchServerLogService.formatPerfLogInfo(engineJobId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
+                final String perf = StringUtils.isBlank(engineJobId) ? null : this.developServerLogService.formatPerfLogInfo(engineJobId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
                 if (StringUtils.isNotBlank(perf)) {
                     logBuild.append(perf.replace("\n", "  "));
                 }
@@ -304,10 +307,10 @@ public class DevelopJobService {
                         logBuild.append("\n");
                     }
 
-                    final DevelopSelectSql batchHiveSelectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, 0);
-                    if (batchHiveSelectSql != null) {
+                    final DevelopSelectSql developHiveSelectSql = this.developSelectSqlService.getByJobId(jobId, tenantId, 0);
+                    if (developHiveSelectSql != null) {
                         logBuild.append("====================任务信息====================\n");
-                        final String sqlLog=batchHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")","$1**$3");
+                        final String sqlLog=developHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")","$1**$3");
                         logBuild.append(JsonUtils.formatJSON(sqlLog));
                         logBuild.append("\n");
                     }
@@ -354,25 +357,25 @@ public class DevelopJobService {
     public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, List<Map> taskVariables) {
         ExecuteResultVO result = new ExecuteResultVO();
         try {
-            Task task = batchTaskService.getOneWithError(taskId);
+            Task task = developTaskService.getOneWithError(taskId);
             result.setTaskType(task.getTaskType());
             //真正运行的SQL是页面传入的SQL
             task.setSqlText(sql);
 
             //将SQL中的 系统参数和自定义参数 转换为DTO对象
-            List<BatchParamDTO> batchParamDTOS = this.batchTaskParamService.paramResolver(taskVariables);
-            List<DevelopTaskParam> params = this.batchTaskParamService.convertParam(batchParamDTOS);
-            List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
+            List<DevelopParamDTO> developParamDTOS = this.developTaskParamService.paramResolver(taskVariables);
+            List<DevelopTaskParam> params = this.developTaskParamService.convertParam(developParamDTOS);
+            List<DevelopTaskParamShade> taskParamsToReplace = this.developTaskParamService.convertShade(params);
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
 
             // 转换参数
-            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getBatchTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());
 
-            IDevelopJobExeService batchJobService = this.multiEngineServiceFactory.getBatchJobExeService(task.getTaskType());
-            result = batchJobService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
+            IDevelopJobExeService developJobService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
+            result = developJobService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));
@@ -389,7 +392,7 @@ public class DevelopJobService {
      */
     public void stopSqlImmediately(String jobId, Long tenantId) {
         if (StringUtils.isNotBlank(jobId)) {
-            this.batchSelectSqlService.stopSelectJob(jobId, tenantId);
+            this.developSelectSqlService.stopSelectJob(jobId, tenantId);
         }
     }
 
@@ -426,7 +429,7 @@ public class DevelopJobService {
         }
         extraInfo = jsonObject.toJSONString();
         scheduleTaskShade.setExtraInfo(extraInfo);
-        paramTaskAction.setBatchTask(scheduleTaskShade);
+        paramTaskAction.setTask(scheduleTaskShade);
         return paramTaskAction;
     }
 
