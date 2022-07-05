@@ -57,14 +57,13 @@ public class DevelopTenantComponentController {
 
     @PostMapping(value = "saveTenantComponentInfo")
     @ApiOperation(value = "保存组件运行schema信息")
-    public R<Void> getByTenantAndTaskType(@RequestBody DevelopTenantComponentUpdateVO updateVO) {
+    public R<Void> saveTenantComponentInfo(@RequestBody DevelopTenantComponentUpdateVO updateVO) {
         return new APITemplate<Void>() {
             @Override
             protected void checkParams() {
                 Preconditions.checkNotNull(updateVO.getTaskType(), "parameters of taskType not be null.");
                 Preconditions.checkNotNull(updateVO.getSchema(), "parameters of schema not be null.");
             }
-
             @Override
             protected Void process() {
                 developTenantComponentService.saveTenantComponentInfo(updateVO.getTenantId(), updateVO.getTaskType(), updateVO.getSchema());
@@ -74,14 +73,13 @@ public class DevelopTenantComponentController {
     }
 
     @PostMapping(value = "getByTenantAndTaskType")
-    @ApiOperation(value = "保存组件运行schema信息")
+    @ApiOperation(value = "获取任务类型可配置的shema")
     public R<List<String>> getByTenantAndTaskType(@RequestBody DevelopTenantComponentSchemaSelectVO selectVO) {
         return new APITemplate<List<String>>() {
             @Override
             protected void checkParams() {
                 Preconditions.checkNotNull(selectVO.getTaskType(), "parameters of taskType not be null.");
             }
-
             @Override
             protected List<String> process() {
                 return developTenantComponentService.getAllSchemaByTenantAndTaskType(selectVO.getTenantId(), selectVO.getTaskType());
