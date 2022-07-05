@@ -259,38 +259,16 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const handleRightClick = (treeNode: ITreeNodeItemProps) => {
 		// 区分是系统函数的文件还是自定义函数的文件
 		if (treeNode.data.type === 'file') {
-			const { parentId } = treeNode.data;
-			const parentNode = functionManagerService.get(`${parentId}-folder`);
-			if (parentNode?.data.catalogueType === MENU_TYPE_ENUM.SYSFUC) {
-				// 系统函数文件没有右键菜单
-				return [];
-			}
-
 			return [FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE];
 		}
 
-		if (treeNode.data.type === 'folder') {
-			// 判断当前文件夹是否属于系统函数或者 SparkSQL 根目录
-			const SHOULD_NOT_HAVE_CONTEXT_MENU = [
-				MENU_TYPE_ENUM.SYSFUC,
-				MENU_TYPE_ENUM.SPARKFUNC,
-				MENU_TYPE_ENUM.FLINKFUNC,
-			];
-			if (SHOULD_NOT_HAVE_CONTEXT_MENU.includes(treeNode.data.catalogueType)) {
-				return [];
-			}
-
-			const baseContextMenu = [
-				FUNCTOIN_ACTIONS.CREATE_FUNCTION,
-				FUNCTOIN_ACTIONS.CREATE_FOLDER,
-			];
-			// root folder can't edit and remove
-			if (treeNode.data.level === 1) {
-				return baseContextMenu;
-			}
-
-			return baseContextMenu.concat([FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE]);
+		const baseContextMenu = [FUNCTOIN_ACTIONS.CREATE_FUNCTION, FUNCTOIN_ACTIONS.CREATE_FOLDER];
+		// root folder can't edit and remove
+		if (treeNode.data.level === 1) {
+			return baseContextMenu;
 		}
+
+		return baseContextMenu.concat([FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE]);
 	};
 
 	// 添加文件夹
