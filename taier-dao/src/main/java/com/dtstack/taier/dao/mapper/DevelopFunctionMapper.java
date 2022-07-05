@@ -22,11 +22,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.dto.DevelopFunctionDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-
+@Mapper
 public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
 
     /**

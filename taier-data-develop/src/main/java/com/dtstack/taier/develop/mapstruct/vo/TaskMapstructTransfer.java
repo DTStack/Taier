@@ -24,8 +24,8 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.develop.dto.devlop.*;
-import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopScheduleTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
 import com.dtstack.taier.develop.vo.develop.result.*;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import org.mapstruct.Mapper;
@@ -42,26 +42,26 @@ public interface TaskMapstructTransfer {
 
     /**
      * TaskResourceParamVO -> TaskResourceParam
-     * @param batchTaskResourceParamVO
+     * @param DevelopTaskResourceParamVO
      * @return
      */
-    TaskResourceParam TaskResourceParamVOToTaskResourceParam(BatchTaskResourceParamVO batchTaskResourceParamVO);
+    TaskResourceParam TaskResourceParamVOToTaskResourceParam(DevelopTaskResourceParamVO DevelopTaskResourceParamVO);
     Task taskVOTOTask(TaskVO taskVO, @MappingTarget Task task);
 
     /**
-     * Task -> BatchTaskResultVO
+     * Task -> DevelopTaskResultVO
      * @param task
      * @return
      */
-    BatchTaskResultVO BatchTaskToResultVO(Task task);
+    DevelopTaskResultVO DevelopTaskToResultVO(Task task);
 
 
     /**
-     * BatchScheduleTaskVO -> ScheduleTaskVO
-     * @param BatchScheduleTaskVO
+     * DevelopScheduleTaskVO -> ScheduleTaskVO
+     * @param DevelopScheduleTaskVO
      * @return
      */
-    ScheduleTaskVO BatchScheduleTaskVToScheduleTaskVO(BatchScheduleTaskVO BatchScheduleTaskVO);
+    ScheduleTaskVO DevelopScheduleTaskVToScheduleTaskVO(DevelopScheduleTaskVO DevelopScheduleTaskVO);
 
 
     /**
@@ -81,27 +81,27 @@ public interface TaskMapstructTransfer {
 
 
     /**
-     * List<BatchTaskVersionDetail>  -> List<BatchTaskVersionDetailResultVO>
-     * @param batchTaskVersionDetailList
+     * List<DevelopTaskVersionDetail>  -> List<DevelopTaskVersionDetailResultVO>
+     * @param DevelopTaskVersionDetailList
      * @return
      */
-    List<BatchTaskVersionDetailResultVO> BatchTaskVersionDetailListToResultVOList(List<DevelopTaskVersionDetailDTO> batchTaskVersionDetailList);
+    List<DevelopTaskVersionDetailResultVO> DevelopTaskVersionDetailListToResultVOList(List<DevelopTaskVersionDetailDTO> DevelopTaskVersionDetailList);
 
 
     /**
-     * BatchTaskVersionDetail -> BatchTaskVersionDetailResultVO
-     * @param batchTaskVersionDetail
+     * DevelopTaskVersionDetail -> DevelopTaskVersionDetailResultVO
+     * @param DevelopTaskVersionDetail
      * @return
      */
-    BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(DevelopTaskVersionDetailDTO batchTaskVersionDetail);
+    DevelopTaskVersionDetailResultVO DevelopTaskVersionDetailToResultVO(DevelopTaskVersionDetailDTO DevelopTaskVersionDetail);
 
 
     /**
-     * ollection<BatchSysParameter>  -> Collection<BatchSysParameterResultVO>
+     * ollection<DevelopSysParameter>  -> Collection<DevelopSysParameterResultVO>
      * @param developSysParameterCollection
      * @return
      */
-    Collection<BatchSysParameterResultVO> BatchSysParameterCollectionToBatchSysParameterResultVOCollection(Collection<DevelopSysParameter> developSysParameterCollection);
+    Collection<DevelopSysParameterResultVO> DevelopSysParameterCollectionToDevelopSysParameterResultVOCollection(Collection<DevelopSysParameter> developSysParameterCollection);
 
     /**
      * List<DevelopResource>  -> List<DevelopResourceResultVO>
@@ -112,28 +112,27 @@ public interface TaskMapstructTransfer {
 
 
     /**
-     * BatchTaskBatchVO -> BatchTaskGetTaskByIdResultVO
-     * @param batchTaskBatchVO
+     * DevelopTaskDevelopVO -> DevelopTaskGetTaskByIdResultVO
      * @return
      */
-    BatchTaskGetTaskByIdResultVO BatchTaskBatchVOToBatchTaskGetTaskByIdResultVO(BatchTaskBatchVO batchTaskBatchVO);
+    DevelopTaskGetTaskByIdResultVO DevelopTaskDevelopVOToDevelopTaskGetTaskByIdResultVO(DevelopTaskDevelopVO developTaskDevelopVO);
 
     /**
-     * TaskCheckResultVO -> BatchTaskPublishTaskResultVO
+     * TaskCheckResultVO -> DevelopTaskPublishTaskResultVO
      * @param taskCheckResultVO
      * @return
      */
-    BatchTaskPublishTaskResultVO TaskCheckResultVOToBatchTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
+    DevelopTaskPublishTaskResultVO TaskCheckResultVOToDevelopTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
 
 
-    BatchUserResultVO dtpToResultVO(UserDTO value);
+    DevelopUserResultVO dtpToResultVO(UserDTO value);
 
     /**
-     * List<TaskGetNotDeleteVO> -> List<BatchPreDeleteTaskResultVO>
+     * List<TaskGetNotDeleteVO> -> List<DevelopPreDeleteTaskResultVO>
      * @param notDeleteTaskVOS
      * @return
      */
-    List<BatchGetChildTasksResultVO> notDeleteTaskVOsToBatchGetChildTasksResultVOs(List<TaskGetNotDeleteVO> notDeleteTaskVOS);
+    List<DevelopGetChildTasksResultVO> notDeleteTaskVOsToDevelopGetChildTasksResultVOs(List<TaskGetNotDeleteVO> notDeleteTaskVOS);
 
     void taskToTaskVO(Task task, @MappingTarget TaskVO taskVO);
 
@@ -141,7 +140,7 @@ public interface TaskMapstructTransfer {
 
     TaskCatalogueResultVO TaskVOToResultVO(TaskVO addOrUpdateTask);
 
-    TaskVO BatchScheduleTaskVToTaskVO(BatchScheduleTaskVO batchScheduleTaskVO);
+    TaskVO DevelopScheduleTaskVToTaskVO(DevelopScheduleTaskVO DevelopScheduleTaskVO);
 
-    BatchTaskGetTaskByIdResultVO TaskVOToBatchTaskGetTaskByIdResultVO(TaskVO taskById);
+    DevelopTaskGetTaskByIdResultVO TaskVOToDevelopTaskGetTaskByIdResultVO(TaskVO taskById);
 }

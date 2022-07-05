@@ -20,7 +20,9 @@ package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.TenantComponent;
+import org.apache.ibatis.annotations.Mapper;
 
+@Mapper
 public interface DevelopTenantComponentMapper extends BaseMapper<TenantComponent> {
 
 

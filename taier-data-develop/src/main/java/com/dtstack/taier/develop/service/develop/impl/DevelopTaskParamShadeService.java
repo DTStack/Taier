@@ -48,7 +48,7 @@ public class DevelopTaskParamShadeService {
     private DevelopTaskParamShadeMapper developTaskParamShadeDao;
 
     @Autowired
-    private DevelopSysParamService batchSysParamService;
+    private DevelopSysParamService developSysParamService;
 
     public void addOrUpdate(DevelopTaskParamShade developTaskParamShade) {
         if (StringUtils.isBlank(developTaskParamShade.getParamCommand())) {
@@ -83,7 +83,7 @@ public class DevelopTaskParamShadeService {
             }
 
             // 将 command 属性设置为系统表的 command
-            DevelopSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
+            DevelopSysParameter sysParameter = developSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParamShades;
