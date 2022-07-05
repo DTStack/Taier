@@ -6,7 +6,7 @@
       id,param_name,param_command,is_deleted
     </sql>
 
-    <select id="listAll" resultType="com.dtstack.taier.dao.domain.BatchSysParameter">
+    <select id="listAll" resultType="com.dtstack.taier.dao.domain.DevelopSysParameter">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_sys_parameter

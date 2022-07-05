@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.develop;
 
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 
 import java.util.List;
@@ -54,7 +54,7 @@ public interface IDevelopJobExeService {
      * @param tenantId
      * @throws Exception
      */
-    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<BatchTaskParamShade> taskParamsToReplace) throws Exception;
+    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception;
 
     /**
      * 执行数据前的准备工作

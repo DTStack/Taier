@@ -31,7 +31,7 @@ import java.sql.Timestamp;
  * @author sishu.yss
  */
 @TableName("develop_task_resource_shade")
-public class BatchTaskResourceShade {
+public class DevelopTaskResourceShade {
 
     @TableField("task_id")
     private Long taskId;

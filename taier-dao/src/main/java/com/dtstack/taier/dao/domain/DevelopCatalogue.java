@@ -23,7 +23,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 @TableName("develop_catalogue")
-public class BatchCatalogue  extends TenantEntity{
+public class DevelopCatalogue extends TenantEntity{
 
     /**
      * 文件夹名
@@ -50,7 +50,7 @@ public class BatchCatalogue  extends TenantEntity{
     private Integer catalogueType;
 
     @TableField(exist=false)
-    BatchCatalogue parentCatalogue;
+    DevelopCatalogue parentCatalogue;
 
     public String getNodeName() {
         return nodeName;
@@ -100,11 +100,11 @@ public class BatchCatalogue  extends TenantEntity{
         this.catalogueType = catalogueType;
     }
 
-    public BatchCatalogue getParentCatalogue() {
+    public DevelopCatalogue getParentCatalogue() {
         return parentCatalogue;
     }
 
-    public void setParentCatalogue(BatchCatalogue parentCatalogue) {
+    public void setParentCatalogue(DevelopCatalogue parentCatalogue) {
         this.parentCatalogue = parentCatalogue;
     }
 

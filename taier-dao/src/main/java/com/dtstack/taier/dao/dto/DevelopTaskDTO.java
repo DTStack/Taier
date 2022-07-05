@@ -24,7 +24,7 @@ import com.dtstack.taier.dao.domain.Task;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class BatchTaskDTO extends Task {
+public class DevelopTaskDTO extends Task {
     private Timestamp startGmtModified;
     private Timestamp endGmtModified;
     private String fuzzName;

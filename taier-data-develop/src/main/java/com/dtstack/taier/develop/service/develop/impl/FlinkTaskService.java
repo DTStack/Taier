@@ -14,6 +14,7 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
 import com.dtstack.taier.common.util.JobClientUtil;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
@@ -129,6 +130,9 @@ public class FlinkTaskService {
     @Autowired
     private ScheduleJobService scheduleJobService;
 
+    @Autowired
+    private DevelopResourceService developResourceService;
+
     /**
      * 将前端接收的结果表维表转化
      */
@@ -243,10 +247,17 @@ public class FlinkTaskService {
         StringBuilder sql = new StringBuilder();
         //将资源数据拼接到sql
         sql.append(generateAddJarSQL(task));
-        if (TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
-            sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
-            sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
-            sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
+        EScheduleJobType eJobType = EScheduleJobType.getByTaskType(task.getTaskType());
+        switch (Objects.requireNonNull(eJobType)) {
+            case SQL:
+                if (TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
+                    sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
+                    sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
+                    sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
+                }
+            case MR:
+                sql.append(generateAddJarSQL(task));
+                break;
         }
         //用户填写的sql
         sql.append(task.getSqlText());
@@ -268,6 +279,22 @@ public class FlinkTaskService {
         addJarSqlList.forEach(sql -> sb.append(sql).append(";"));
         return sb.toString();
     }
+
+
+//    private String generateAddFlinkJar(Task task) {
+//        if (task.getTaskType() == EScheduleJobType.MR.getVal().intValue()) {
+//            List<DevelopResource> resourceList = developResourceService.getResource(task.getId());
+//            if (CollectionUtils.isEmpty(resourceList)) {
+//                return "";
+//            }
+//            // MR任务关联主资源只能有一个
+//            DevelopResource resourceDTO = resourceList.stream().filter(resource -> TaskResourceTypeEnum.NormalResource.getType().equals(resource.getIsAdditionResource())).findFirst().orElse(null);
+//            if (Objects.nonNull(resourceDTO)) {
+//                addJarAndFile.append(streamSqlFormatService.generateAddJarSql(resourceDTO.getId(), streamTask.getMainClass()));
+//            }
+//            return addJarAndFile.toString();
+//        }
+//    }
 
 
     /**
@@ -350,9 +377,6 @@ public class FlinkTaskService {
             JSONObject confProp = new JSONObject();
             String job = JSONObject.parseObject(task.getSqlText()).getString("job");
             dataSourceService.setJobDataSourceInfo(job, task.getTenantId(), task.getCreateModel());
-//        if (TaskCreateModelType.GUIDE.getType().equals(streamTask.getCreateModel())) {
-//            job = setJobDataSourceInfo(job);
-//        }
             boolean isRestore = isRestore(job);
             if (isRestore) {
                 buildSyncTaskExecArgs(task.getTenantId(), taskParams, confProp);
@@ -402,7 +426,7 @@ public class FlinkTaskService {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
         //生成最终拼接的sql
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.SQL.getType())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.SQL.getType()) || Objects.equals(task.getTaskType(), EScheduleJobType.MR.getType())) {
             String sql = generateSqlToScheduler(task).toString();
             task.setSqlText(sql);
         }

@@ -27,33 +27,26 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.sql.Timestamp;
 
-/**
- * Reason:
- * Date: 2017/6/7
- * Company: www.dtstack.com
- *
- * @ahthor xuchao
- */
-@TableName("develop_task_param_shade")
-public class BatchTaskParamShade{
+@TableName("develop_function_resource")
+public class DevelopFunctionResource {
 
-    @TableField("task_id")
-    private Long taskId;
+    @TableField("function_id")
+    private Long functionId;
 
-    @TableField("type")
-    private Integer type;
-
-    @TableField("param_name")
-    private String paramName;
-
-    @TableField("param_command")
-    private String paramCommand;
+    @TableField("resource_id")
+    private Long resourceId;
 
     @TableId(value="id", type= IdType.AUTO)
     private Long id = 0L;
 
     @TableField("is_deleted")
     private Integer isDeleted = 0;
+
+    /**
+     * 租户Id
+     */
+    @TableField("tenant_id")
+    private Long tenantId;
 
     /**
      * 实体创建时间
@@ -72,37 +65,20 @@ public class BatchTaskParamShade{
     )
     private Timestamp gmtModified;
 
-
-    public Long getTaskId() {
-        return taskId;
+    public Long getFunctionId() {
+        return functionId;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setFunctionId(Long functionId) {
+        this.functionId = functionId;
     }
 
-    public Integer getType() {
-        return type;
+    public Long getResourceId() {
+        return resourceId;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public String getParamName() {
-        return paramName;
-    }
-
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
-    }
-
-    public String getParamCommand() {
-        return paramCommand;
-    }
-
-    public void setParamCommand(String paramCommand) {
-        this.paramCommand = paramCommand;
+    public void setResourceId(Long resourceId) {
+        this.resourceId = resourceId;
     }
 
     public Long getId() {
@@ -119,6 +95,14 @@ public class BatchTaskParamShade{
 
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
     }
 
     public Timestamp getGmtCreate() {

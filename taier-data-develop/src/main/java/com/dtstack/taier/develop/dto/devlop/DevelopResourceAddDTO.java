@@ -22,7 +22,7 @@ package com.dtstack.taier.develop.dto.devlop;
 /**
  * 资源新增DTO
  */
-public class BatchResourceAddDTO {
+public class DevelopResourceAddDTO {
 
     /**
      * 资源名称

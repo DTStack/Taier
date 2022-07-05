@@ -18,12 +18,12 @@
 
 package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.domain.BatchSysParameter;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
 
 import java.util.List;
 
 public interface DevelopSysParamMapper {
 
-    List<BatchSysParameter> listAll();
+    List<DevelopSysParameter> listAll();
 
 }

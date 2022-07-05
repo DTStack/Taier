@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.TaskVersion;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskVersionMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class DevelopTaskVersionService {
      * @param pageQuery
      * @return
      */
-    public List<BatchTaskVersionDetailDTO> listByTaskId(Long taskId, PageQuery pageQuery) {
+    public List<DevelopTaskVersionDetailDTO> listByTaskId(Long taskId, PageQuery pageQuery) {
         return developTaskVersionDao.listByTaskId(taskId, pageQuery);
     }
 
@@ -59,7 +59,7 @@ public class DevelopTaskVersionService {
      * @param versionId
      * @return
      */
-    public BatchTaskVersionDetailDTO getByVersionId(Long versionId){
+    public DevelopTaskVersionDetailDTO getByVersionId(Long versionId){
         return developTaskVersionDao.getByVersionId(versionId);
     }
 
@@ -68,7 +68,7 @@ public class DevelopTaskVersionService {
      * @param versionId
      * @return
      */
-    public List<BatchTaskVersionDetailDTO> getByVersionIds(List<Integer> versionId){
+    public List<DevelopTaskVersionDetailDTO> getByVersionIds(List<Integer> versionId){
         return developTaskVersionDao.getByVersionIds(versionId);
     }
 
@@ -77,7 +77,7 @@ public class DevelopTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetailDTO> getByTaskIds(List<Long> taskIds){
+    public List<DevelopTaskVersionDetailDTO> getByTaskIds(List<Long> taskIds){
         return developTaskVersionDao.getByTaskIds(taskIds);
     }
 
@@ -86,7 +86,7 @@ public class DevelopTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetailDTO> getWithoutSqlByTaskIds(List<Long> taskIds){
+    public List<DevelopTaskVersionDetailDTO> getWithoutSqlByTaskIds(List<Long> taskIds){
         return developTaskVersionDao.getWithoutSqlByTaskIds(taskIds);
     }
 
@@ -95,7 +95,7 @@ public class DevelopTaskVersionService {
      * @param taskIds
      * @return
      */
-    public List<BatchTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(List<Long> taskIds){
+    public List<DevelopTaskVersionDetailDTO> getLatestTaskVersionByTaskIds(List<Long> taskIds){
         return developTaskVersionDao.getLatestTaskVersionByTaskIds(taskIds);
     }
 
@@ -114,7 +114,7 @@ public class DevelopTaskVersionService {
      * @param versionId
      * @return
      */
-    public BatchTaskVersionDetailDTO getBytaskIdAndVersionId(Long taskId, Long versionId){
+    public DevelopTaskVersionDetailDTO getBytaskIdAndVersionId(Long taskId, Long versionId){
         return developTaskVersionDao.getBytaskIdAndVersionId(taskId, versionId);
     }
 

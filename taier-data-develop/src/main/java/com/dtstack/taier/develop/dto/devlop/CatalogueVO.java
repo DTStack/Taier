@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class CatalogueVO {
 
-    public static CatalogueVO toVO(BatchCatalogue catalogue) {
+    public static CatalogueVO toVO(DevelopCatalogue catalogue) {
         CatalogueVO vo = new CatalogueVO();
         vo.setName(catalogue.getNodeName());
         vo.setLevel(catalogue.getLevel());

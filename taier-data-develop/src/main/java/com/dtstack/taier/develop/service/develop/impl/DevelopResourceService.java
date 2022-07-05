@@ -29,13 +29,13 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.sftp.SFTPHandler;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.BatchCatalogue;
-import com.dtstack.taier.dao.domain.BatchFunctionResource;
-import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchTaskResource;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
+import com.dtstack.taier.dao.domain.DevelopFunctionResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
+import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import com.dtstack.taier.dao.mapper.DevelopResourceMapper;
-import com.dtstack.taier.develop.dto.devlop.BatchResourceAddDTO;
-import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
+import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
@@ -64,11 +64,11 @@ public class DevelopResourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DevelopResourceService.class);
 
     @Autowired
-    private DevelopResourceMapper developResourceDao;
-    
+    private DevelopResourceMapper developResourceMapper;
+
     @Autowired
     private DevelopFunctionResourceService batchFunctionResourceService;
-    
+
     @Autowired
     private DevelopCatalogueService batchCatalogueService;
 
@@ -84,70 +84,71 @@ public class DevelopResourceService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-   public static final String TAIER_RESOURCE = "/taier/resource";
+    public static final String TAIER_RESOURCE = "/taier/resource";
+
     /**
      * 添加资源
      */
-    public CatalogueVO addResource(BatchResourceAddDTO batchResourceAddDTO) {
-        Long tenantId = batchResourceAddDTO.getTenantId();
-        Long userId = batchResourceAddDTO.getUserId();
+    public CatalogueVO addResource(DevelopResourceAddDTO DevelopResourceAddDTO) {
+        Long tenantId = DevelopResourceAddDTO.getTenantId();
+        Long userId = DevelopResourceAddDTO.getUserId();
 
         String resourceName;
         Long resourceId = null;
-        BatchResource resourceDB = null;
+        DevelopResource resourceDB = null;
         Integer resourceType = null;
-        if (batchResourceAddDTO.getId() != null && batchResourceAddDTO.getId() != 0L) {
-            resourceId = batchResourceAddDTO.getId();
-            resourceDB = this.developResourceDao.getOne(resourceId);
+        if (DevelopResourceAddDTO.getId() != null && DevelopResourceAddDTO.getId() != 0L) {
+            resourceId = DevelopResourceAddDTO.getId();
+            resourceDB = this.developResourceMapper.getOne(resourceId);
             resourceName = resourceDB.getResourceName();
             resourceType = resourceDB.getResourceType();
         } else {
-            if (StringUtils.isEmpty(batchResourceAddDTO.getResourceName())) {
+            if (StringUtils.isEmpty(DevelopResourceAddDTO.getResourceName())) {
                 throw new RdosDefineException("需要设置参数 resourceName.", ErrorCode.INVALID_PARAMETERS);
             }
-            resourceName = batchResourceAddDTO.getResourceName();
-            resourceType =  batchResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : batchResourceAddDTO.getResourceType();
+            resourceName = DevelopResourceAddDTO.getResourceName();
+            resourceType = DevelopResourceAddDTO.getResourceType() == null ? ResourceType.OTHER.getType() : DevelopResourceAddDTO.getResourceType();
         }
 
-      String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
-              uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
-              uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+        String remotePath = EComputeType.STREAM.getType() != DevelopResourceAddDTO.getComputeType() ?
+                uploadHDFSFileWithResource(tenantId, resourceName, DevelopResourceAddDTO.getOriginalFilename(), DevelopResourceAddDTO.getTmpPath()) :
+                uploadToSftp(tenantId, resourceName, DevelopResourceAddDTO.getOriginalFilename(), DevelopResourceAddDTO.getTmpPath());
 
-        BatchResource batchResource = null;
+        DevelopResource DevelopResource = null;
         //重新上传资源
         if (Objects.nonNull(resourceId)) {
-            batchResource = resourceDB;
-            if (Deleted.DELETED.getStatus().equals(batchResource.getIsDeleted())) {
+            DevelopResource = resourceDB;
+            if (Deleted.DELETED.getStatus().equals(DevelopResource.getIsDeleted())) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
-            batchResource.setResourceDesc(batchResourceAddDTO.getResourceDesc());
-            batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
-            batchResource.setUrl(remotePath);
+            DevelopResource.setResourceDesc(DevelopResourceAddDTO.getResourceDesc());
+            DevelopResource.setOriginFileName(DevelopResourceAddDTO.getOriginalFilename());
+            DevelopResource.setUrl(remotePath);
         } else {
             //判断是否已经存在相同的资源了
             batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
 
-            batchResourceAddDTO.setUrl(remotePath);
-            batchResourceAddDTO.setCreateUserId(userId);
-            batchResource = PublicUtil.objectToObject(batchResourceAddDTO, BatchResource.class);
-            if (Objects.isNull(batchResource)){
+            DevelopResourceAddDTO.setUrl(remotePath);
+            DevelopResourceAddDTO.setCreateUserId(userId);
+            DevelopResource = PublicUtil.objectToObject(DevelopResourceAddDTO, com.dtstack.taier.dao.domain.DevelopResource.class);
+            if (Objects.isNull(DevelopResource)) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
-            batchResource.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
+            DevelopResource.setOriginFileName(DevelopResourceAddDTO.getOriginalFilename());
         }
 
         //resourceType 设置默认值
         resourceType = resourceType != null ? resourceType : ResourceType.OTHER.getType();
 
-        batchResource.setResourceType(resourceType);
-        batchResource.setComputeType(batchResourceAddDTO.getComputeType());
-        batchResource.setModifyUserId(userId);
-        addOrUpdate(batchResource);
+        DevelopResource.setResourceType(resourceType);
+        DevelopResource.setComputeType(DevelopResourceAddDTO.getComputeType());
+        DevelopResource.setModifyUserId(userId);
+        addOrUpdate(DevelopResource);
 
-        BatchCatalogue catalogue = batchCatalogueService.getOne(batchResource.getNodePid());
+        DevelopCatalogue catalogue = batchCatalogueService.getOne(DevelopResource.getNodePid());
         CatalogueVO catalogueVO = new CatalogueVO();
-        catalogueVO.setId(batchResource.getId());
-        catalogueVO.setName(batchResource.getResourceName());
+        catalogueVO.setId(DevelopResource.getId());
+        catalogueVO.setName(DevelopResource.getResourceName());
         catalogueVO.setType("file");
         catalogueVO.setLevel(catalogue.getLevel() + 1);
         catalogueVO.setChildren(null);
@@ -161,50 +162,51 @@ public class DevelopResourceService {
 
     /**
      * 新增或修改
-     * @param batchResource
+     *
+     * @param DevelopResource
      * @return
      */
-    private void addOrUpdate(BatchResource batchResource) {
-        if (batchResource.getId() != null && batchResource.getId() > 0) {
-            developResourceDao.update(batchResource);
+    private void addOrUpdate(DevelopResource DevelopResource) {
+        if (DevelopResource.getId() != null && DevelopResource.getId() > 0) {
+            developResourceMapper.update(DevelopResource);
             return;
         }
-        developResourceDao.insert(batchResource);
+        developResourceMapper.insert(DevelopResource);
     }
 
     /**
      * 删除资源
      */
     public Long deleteResource(Long tenantId, Long resourceId) {
-        List<BatchTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
+        List<DevelopTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
         if (!CollectionUtils.isEmpty(taskResources)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
-        List<BatchFunctionResource> functionResources = batchFunctionResourceService.listByResourceId(resourceId);
+        List<DevelopFunctionResource> functionResources = batchFunctionResourceService.listByResourceId(resourceId);
         if (!CollectionUtils.isEmpty(functionResources)) {
-        	throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
+            throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
         //删除资源在hdfs的实际存储文件
-        BatchResource resource = getResource(resourceId);
+        DevelopResource resource = getResource(resourceId);
         try {
-            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),resource.getUrl());
+            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), resource.getUrl());
         } catch (Exception e) {
             LOGGER.error("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId, e);
         }
 
         //删除资源记录
-        developResourceDao.deleteById(resourceId);
+        developResourceMapper.deleteById(resourceId);
         return resourceId;
     }
 
     /**
      * 获取资源详情
      */
-    public BatchResourceVO getResourceById(long resourceId) {
-        BatchResource batchResource = this.getResource(resourceId);
-        if (Objects.nonNull(batchResource)) {
-            BatchResourceVO vo = BatchResourceVO.toVO(batchResource);
-            vo.setCreateUser(userService.getById(batchResource.getCreateUserId()));
+    public DevelopResourceVO getResourceById(long resourceId) {
+        DevelopResource DevelopResource = this.getResource(resourceId);
+        if (Objects.nonNull(DevelopResource)) {
+            DevelopResourceVO vo = DevelopResourceVO.toVO(DevelopResource);
+            vo.setCreateUser(userService.getById(DevelopResource.getCreateUserId()));
             //是否是该项目成员
             return vo;
         }
@@ -212,7 +214,8 @@ public class DevelopResourceService {
     }
 
     /**
-     * 获取离线上传的资源到HDFS上的路径
+     * 获取上传的资源到HDFS上的路径
+     *
      * @param tenantId
      * @param fileName
      * @return
@@ -224,49 +227,52 @@ public class DevelopResourceService {
 
     /**
      * 根据资源ids 查询资源列表
+     *
      * @param resourceIdList
      * @return
      */
-    public List<BatchResource> getResourceList(List<Long> resourceIdList) {
-        return developResourceDao.listByIds(resourceIdList);
+    public List<DevelopResource> getResourceList(List<Long> resourceIdList) {
+        return developResourceMapper.listByIds(resourceIdList);
     }
 
     /**
      * 根据资源id获取资源信息
+     *
      * @param resourceId
      * @return
      */
-    public BatchResource getResource(long resourceId) {
-        return developResourceDao.getOne(resourceId);
+    public DevelopResource getResource(long resourceId) {
+        return developResourceMapper.getOne(resourceId);
     }
 
     /**
      * 替换资源
      */
-    public void replaceResource(BatchResourceAddDTO batchResourceAddDTO) {
-        Long tenantId = batchResourceAddDTO.getTenantId();
-        Long resourceId = batchResourceAddDTO.getId();
+    public void replaceResource(DevelopResourceAddDTO DevelopResourceAddDTO) {
+        Long tenantId = DevelopResourceAddDTO.getTenantId();
+        Long resourceId = DevelopResourceAddDTO.getId();
 
-        BatchResource resourceDb = developResourceDao.getOne(resourceId);
+        DevelopResource resourceDb = developResourceMapper.getOne(resourceId);
         if (Objects.isNull(resourceDb)) {
             throw new RdosDefineException("替换字段不存在");
         }
 
         String resourceName = resourceDb.getResourceName();
 
-        String remotePath = EComputeType.STREAM.getType() != batchResourceAddDTO.getComputeType() ?
-                uploadHDFSFileWithResource(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath()):
-                uploadToSftp(tenantId, resourceName, batchResourceAddDTO.getOriginalFilename(), batchResourceAddDTO.getTmpPath());
+        String remotePath = EComputeType.STREAM.getType() != DevelopResourceAddDTO.getComputeType() ?
+                uploadHDFSFileWithResource(tenantId, resourceName, DevelopResourceAddDTO.getOriginalFilename(), DevelopResourceAddDTO.getTmpPath()) :
+                uploadToSftp(tenantId, resourceName, DevelopResourceAddDTO.getOriginalFilename(), DevelopResourceAddDTO.getTmpPath());
 
         resourceDb.setUrl(remotePath);
-        resourceDb.setOriginFileName(batchResourceAddDTO.getOriginalFilename());
-        resourceDb.setResourceDesc(batchResourceAddDTO.getResourceDesc());
+        resourceDb.setOriginFileName(DevelopResourceAddDTO.getOriginalFilename());
+        resourceDb.setResourceDesc(DevelopResourceAddDTO.getResourceDesc());
         resourceDb.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-        developResourceDao.update(resourceDb);
+        developResourceMapper.update(resourceDb);
     }
 
     /**
      * 上次资源文件到hdsf上
+     *
      * @param tenantId
      * @param resourceName
      * @param originalFilename
@@ -282,7 +288,7 @@ public class DevelopResourceService {
         String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {
-            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId),tmpPath, hdfsPath);
+            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), tmpPath, hdfsPath);
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {
@@ -323,7 +329,7 @@ public class DevelopResourceService {
     }
 
     private File renameTmpFileName(long tenantId, String originalFileName, String tmpFilePath) {
-        String finalFileName = tenantId  + "_" + originalFileName;
+        String finalFileName = tenantId + "_" + originalFileName;
         File file = new File(tmpFilePath);
         File renameFile = new File(file.getParent() + File.separator + finalFileName);
         boolean checkRename = file.renameTo(renameFile);
@@ -335,21 +341,23 @@ public class DevelopResourceService {
 
     /**
      * 由functionId获取对应的resource
+     *
      * @param functionId
      * @return
      */
     public String getResourceURLByFunctionId(Long functionId) {
-        return developResourceDao.getResourceURLByFunctionId(functionId);
+        return developResourceMapper.getResourceURLByFunctionId(functionId);
     }
 
     /**
      * 根据 租户、目录Id 查询资源列表
+     *
      * @param tenantId
      * @param nodePid
      * @return
      */
-    public List<BatchResource> listByPidAndTenantId(Long tenantId, Long nodePid) {
-        return developResourceDao.listByPidAndTenantId(tenantId, nodePid);
+    public List<DevelopResource> listByPidAndTenantId(Long tenantId, Long nodePid) {
+        return developResourceMapper.listByPidAndTenantId(tenantId, nodePid);
     }
 
     /**
@@ -359,8 +367,8 @@ public class DevelopResourceService {
      * @param resourceName 资源名称
      * @return
      */
-    public List<BatchResource> listByNameAndTenantId(Long tenantId, String resourceName) {
-        return developResourceDao.listByNameAndTenantId(tenantId, resourceName);
+    public List<DevelopResource> listByNameAndTenantId(Long tenantId, String resourceName) {
+        return developResourceMapper.listByNameAndTenantId(tenantId, resourceName);
     }
 
 }

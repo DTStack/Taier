@@ -21,7 +21,7 @@ package com.dtstack.taier.dao.dto;
 
 import java.sql.Timestamp;
 
-public class BatchResourceDTO {
+public class DevelopResourceDTO {
 
     private Long tenantId;
 

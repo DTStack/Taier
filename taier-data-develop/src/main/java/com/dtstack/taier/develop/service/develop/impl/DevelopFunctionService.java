@@ -28,8 +28,8 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.BatchFunctionResource;
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopFunctionResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionMapper;
@@ -75,7 +75,7 @@ public class DevelopFunctionService {
     private UserService userService;
 
     @Autowired
-    private DevelopResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     @Autowired
     private DevelopTaskService batchTaskService;
@@ -139,7 +139,7 @@ public class DevelopFunctionService {
         }
         BatchFunctionVO vo = BatchFunctionVO.toVO(batchFunction);
         //如果函数有资源，则设置函数的资源
-        BatchFunctionResource resourceFunctionByFunctionId = batchFunctionResourceService.getResourceFunctionByFunctionId(batchFunction.getId());
+        DevelopFunctionResource resourceFunctionByFunctionId = batchFunctionResourceService.getResourceFunctionByFunctionId(batchFunction.getId());
         if (Objects.nonNull(resourceFunctionByFunctionId)){
             vo.setResources(resourceFunctionByFunctionId.getResourceId());
         }
@@ -187,18 +187,18 @@ public class DevelopFunctionService {
      * @param resourceId
      */
     private void addOrUpdateFunctionResource(DevelopFunction function, Long resourceId) {
-        BatchFunctionResource batchFunctionResource = new BatchFunctionResource();
-        batchFunctionResource.setFunctionId(function.getId());
-        batchFunctionResource.setTenantId(function.getTenantId());
-        batchFunctionResource.setResourceId(resourceId);
-        BatchFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
+        DevelopFunctionResource developFunctionResource = new DevelopFunctionResource();
+        developFunctionResource.setFunctionId(function.getId());
+        developFunctionResource.setTenantId(function.getTenantId());
+        developFunctionResource.setResourceId(resourceId);
+        DevelopFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
         if (Objects.isNull(resourceFunctionByFunctionId)) {
-            batchFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunctionResourceService.insert(batchFunctionResource);
+            developFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
+            developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            batchFunctionResourceService.insert(developFunctionResource);
         }else {
-            batchFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-            batchFunctionResourceService.updateByFunctionId(batchFunctionResource);
+            developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            batchFunctionResourceService.updateByFunctionId(developFunctionResource);
         }
     }
 
@@ -207,7 +207,7 @@ public class DevelopFunctionService {
      * @param functionId
      * @return
      */
-    private BatchFunctionResource getResourceFunctionByFunctionId(Long functionId) {
+    private DevelopFunctionResource getResourceFunctionByFunctionId(Long functionId) {
         return batchFunctionResourceService.getResourceFunctionByFunctionId(functionId);
     }
 
@@ -217,7 +217,7 @@ public class DevelopFunctionService {
      * @param resourceId
      */
     private void checkResourceType(Long resourceId, Integer taskType) {
-        BatchResource resource = batchResourceService.getResource(resourceId);
+        DevelopResource resource = DevelopResourceService.getResource(resourceId);
         if (Objects.isNull(resource)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
         }
@@ -362,7 +362,7 @@ public class DevelopFunctionService {
         String funcName = batchFunction.getName();
         String className = batchFunction.getClassName();
         // 获取资源路径
-        String resourceURL = batchResourceService.getResourceURLByFunctionId(batchFunction.getId());
+        String resourceURL = DevelopResourceService.getResourceURLByFunctionId(batchFunction.getId());
         if (StringUtils.isNotBlank(resourceURL)) {
             return String.format(CREATE_TEMP_FUNCTION, funcName, className, resourceURL);
         } else {
@@ -404,9 +404,9 @@ public class DevelopFunctionService {
         List<String> result = Lists.newArrayList();
         List<Long> resourceIds = new ArrayList<>();
         for (DevelopFunction function : functionList) {
-            BatchFunctionResource batchFunctionResource = batchFunctionResourceService.getResourceFunctionByFunctionId(function.getId());
-            AssertUtils.notNull(batchFunctionResource, "函数资源为null");
-            resourceIds.add(batchFunctionResource.getResourceId());
+            DevelopFunctionResource developFunctionResource = batchFunctionResourceService.getResourceFunctionByFunctionId(function.getId());
+            AssertUtils.notNull(developFunctionResource, "函数资源为null");
+            resourceIds.add(developFunctionResource.getResourceId());
         }
         //add jar
         resourceIds.forEach(resourceId -> result.add(streamSqlFormatService.generateAddJarSQL(resourceId, null)));

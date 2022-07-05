@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.User;
 import org.springframework.beans.BeanUtils;
 
@@ -27,10 +27,10 @@ import org.springframework.beans.BeanUtils;
  * author: toutian
  * create: 2018/1/4
  */
-public class BatchResourceVO extends BatchResource {
+public class DevelopResourceVO extends DevelopResource {
 
-    public static BatchResourceVO toVO(BatchResource origin) {
-        BatchResourceVO vo = new BatchResourceVO();
+    public static DevelopResourceVO toVO(DevelopResource origin) {
+        DevelopResourceVO vo = new DevelopResourceVO();
         try {
             BeanUtils.copyProperties(origin, vo);
         } catch (Exception e) {

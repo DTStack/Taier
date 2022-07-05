@@ -19,19 +19,19 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.BatchTaskResource;
+import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface DevelopTaskResourceMapper extends BaseMapper<BatchTaskResource> {
+public interface DevelopTaskResourceMapper extends BaseMapper<DevelopTaskResource> {
 
     /**
      * @param taskId
      * @param resourceType  资源类型 -- ResourceRefType
      * @return
      */
-    List<BatchTaskResource> listByTaskId(@Param("taskId") Long taskId, @Param("resourceType") Integer resourceType);
+    List<DevelopTaskResource> listByTaskId(@Param("taskId") Long taskId, @Param("resourceType") Integer resourceType);
 
     /**
      * 根据 任务Id、资源Id 查询管理关系
@@ -40,7 +40,7 @@ public interface DevelopTaskResourceMapper extends BaseMapper<BatchTaskResource>
      * @param resourceType
      * @return
      */
-    BatchTaskResource getByTaskIdAndResourceId(@Param("taskId") Long taskId, @Param("resourceId") Long resourceId, @Param("resourceType") Integer resourceType);
+    DevelopTaskResource getByTaskIdAndResourceId(@Param("taskId") Long taskId, @Param("resourceId") Long resourceId, @Param("resourceType") Integer resourceType);
 
     /**
      * 根据 任务Id、资源类型 查询
@@ -55,7 +55,7 @@ public interface DevelopTaskResourceMapper extends BaseMapper<BatchTaskResource>
      * @param resourceId
      * @return
      */
-    List<BatchTaskResource> listByResourceId(@Param("resourceId") Long resourceId);
+    List<DevelopTaskResource> listByResourceId(@Param("resourceId") Long resourceId);
 
     /**
      * 根据 租户Id 删除

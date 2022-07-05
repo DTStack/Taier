@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -141,7 +141,7 @@ public class DevelopSelectSqlService {
      * @return
      */
     private ExecuteSelectSqlData beforeGetResult(String jobId, Long taskId, Long tenantId, Integer type, String sqlId){
-        BatchSelectSql batchHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
+        DevelopSelectSql batchHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
         Preconditions.checkNotNull(batchHiveSelectSql, "不存在该临时查询");
         if (StringUtils.isNotEmpty(sqlId)){
             batchHiveSelectSql.setFatherJobId(jobId);
@@ -161,8 +161,8 @@ public class DevelopSelectSqlService {
     }
 
 
-    public BatchSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
-        BatchSelectSql selectSql = developHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
+    public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
+        DevelopSelectSql selectSql = developHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
         if (selectSql == null){
             throw new RdosDefineException("select job not exists");
         }
@@ -186,7 +186,7 @@ public class DevelopSelectSqlService {
 
     @Transactional(rollbackFor = Exception.class)
     public void addSelectSql(String jobId, String tempTable, Integer isSelectSql, Long tenantId, String sql, Long userId, String parsedColumns, Integer taskType){
-        BatchSelectSql hiveSelectSql = new BatchSelectSql();
+        DevelopSelectSql hiveSelectSql = new DevelopSelectSql();
         hiveSelectSql.setJobId(jobId);
         hiveSelectSql.setTempTableName(tempTable);
         hiveSelectSql.setTenantId(tenantId);

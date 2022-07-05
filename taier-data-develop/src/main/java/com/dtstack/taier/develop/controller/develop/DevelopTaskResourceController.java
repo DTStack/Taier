@@ -23,7 +23,7 @@ import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceGetResourcesVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchResourceResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopResourceResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +44,11 @@ public class DevelopTaskResourceController {
 
     @PostMapping(value = "getResources")
     @ApiOperation("获得 资源-任务 列表")
-    public R<List<BatchResourceResultVO>> getResources(@RequestBody BatchTaskResourceGetResourcesVO vo) {
-        return new APITemplate<List<BatchResourceResultVO> >() {
+    public R<List<DevelopResourceResultVO>> getResources(@RequestBody BatchTaskResourceGetResourcesVO vo) {
+        return new APITemplate<List<DevelopResourceResultVO> >() {
             @Override
-            protected List<BatchResourceResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchResourceListToBatchResourceResultVOList(resourceService.getResources(vo.getTaskId(), vo.getType()));
+            protected List<DevelopResourceResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopResourceListToDevelopResourceResultVOList(resourceService.getResources(vo.getTaskId(), vo.getType()));
             }
         }.execute();
     }

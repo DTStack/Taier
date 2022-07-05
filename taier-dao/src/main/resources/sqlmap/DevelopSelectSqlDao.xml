@@ -7,7 +7,7 @@
     </sql>
 
 
-    <select id="getByJobId"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
+    <select id="getByJobId"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql
@@ -40,7 +40,7 @@
         and tenant_id = #{tenantId} and is_deleted = 0
     </update>
 
-    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
+    <select id="listSelectTypeByGmtModified"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql
@@ -66,7 +66,7 @@
         AND is_deleted = 0;
     </update>
 
-    <select id="listBySqlType"  resultType="com.dtstack.taier.dao.domain.BatchSelectSql">
+    <select id="listBySqlType"  resultType="com.dtstack.taier.dao.domain.DevelopSelectSql">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_hive_select_sql

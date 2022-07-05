@@ -21,9 +21,9 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchResource;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.BatchTaskResource;
+import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -47,16 +47,16 @@ public class DevelopTaskResourceService {
     private DevelopTaskResourceMapper developTaskResourceDao;
 
     @Autowired
-    private DevelopResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     /**
      * 根据资源id，获取可用的 资源-任务 关系记录
      */
-    public List<BatchTaskResource> getUseableResources(Long resourceId) {
+    public List<DevelopTaskResource> getUseableResources(Long resourceId) {
         return developTaskResourceDao.listByResourceId(resourceId);
     }
 
-    public List<BatchTaskResource> getTaskResources(Long taskId, Integer type) {
+    public List<DevelopTaskResource> getTaskResources(Long taskId, Integer type) {
         return developTaskResourceDao.listByTaskId(taskId, type);
     }
 
@@ -66,13 +66,13 @@ public class DevelopTaskResourceService {
      * @param taskId    任务id
      * @return
      */
-    public List<BatchResource> getResources(Long taskId, Integer type) {
+    public List<DevelopResource> getResources(Long taskId, Integer type) {
         List<Long> taskResourceIds = this.getResourceIdList(taskId, type);
         if (CollectionUtils.isEmpty(taskResourceIds)) {
             return Collections.EMPTY_LIST;
         }
 
-        return batchResourceService.getResourceList(taskResourceIds);
+        return DevelopResourceService.getResourceList(taskResourceIds);
     }
 
     public void deleteByTenantId(Long tenantId) {
@@ -80,7 +80,7 @@ public class DevelopTaskResourceService {
     }
 
     public List<Long> getResourceIdList(long taskId, Integer type) {
-        List<BatchTaskResource> resourceList = developTaskResourceDao.listByTaskId(taskId, type);
+        List<DevelopTaskResource> resourceList = developTaskResourceDao.listByTaskId(taskId, type);
         List<Long> resultIdList = Lists.newArrayList();
         if (resourceList == null) {
             return resultIdList;
@@ -105,23 +105,23 @@ public class DevelopTaskResourceService {
         developTaskResourceDao.deleteByTaskId(taskId, null);
     }
 
-    public List<BatchTaskResource> save(Task task, List<Long> resourceIds, Integer refType) {
+    public List<DevelopTaskResource> save(Task task, List<Long> resourceIds, Integer refType) {
 
-        List<BatchTaskResource> taskResources = new ArrayList<>(resourceIds.size());
+        List<DevelopTaskResource> taskResources = new ArrayList<>(resourceIds.size());
 
         for (Long resourceId : resourceIds) {
 
             //检查资源是否存在
-            if (batchResourceService.getResource(resourceId) == null) {
-                logger.warn("can't find resource from BatchResource table by id:{}", resourceId);
+            if (DevelopResourceService.getResource(resourceId) == null) {
+                logger.warn("can't find resource from DevelopResource table by id:{}", resourceId);
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_RESOURCE);
             }
 
             //存储
-            BatchTaskResource resource = developTaskResourceDao.getByTaskIdAndResourceId(task.getId(), resourceId, refType);
+            DevelopTaskResource resource = developTaskResourceDao.getByTaskIdAndResourceId(task.getId(), resourceId, refType);
 
             if (resource == null) {
-                resource = new BatchTaskResource();
+                resource = new DevelopTaskResource();
             }
 
             resource.setTaskId(task.getId());
@@ -136,7 +136,7 @@ public class DevelopTaskResourceService {
         return taskResources;
     }
 
-    public BatchTaskResource addOrUpdate(BatchTaskResource batchTaskResource) {
+    public DevelopTaskResource addOrUpdate(DevelopTaskResource batchTaskResource) {
         if (batchTaskResource.getId() > 0) {
             developTaskResourceDao.updateById(batchTaskResource);
         } else {

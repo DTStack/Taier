@@ -35,14 +35,14 @@
         </set>
     </sql>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskParamShade" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopTaskParamShade" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_task_param_shade
           (task_id,type,param_name,param_command,gmt_create,gmt_modified,is_deleted)
         VALUES
           (#{taskId},#{type},#{paramName},#{paramCommand},#{gmtCreate},#{gmtModified},#{isDeleted})
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskParamShade">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.DevelopTaskParamShade">
         UPDATE
         develop_task_param_shade
         <include refid="update_fragment"/>

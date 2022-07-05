@@ -20,7 +20,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.dao.domain.BatchFunctionResource;
+import com.dtstack.taier.dao.domain.DevelopFunctionResource;
 import com.dtstack.taier.dao.mapper.DevelopFunctionResourceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,22 +36,22 @@ public class DevelopFunctionResourceService {
     /**
      * 新增记录
      *
-     * @param batchFunctionResource
+     * @param developFunctionResource
      */
-    public void insert(BatchFunctionResource batchFunctionResource) {
-        batchFunctionResource.setIsDeleted(Deleted.NORMAL.getStatus());
-        developFunctionResourceDao.insert(batchFunctionResource);
+    public void insert(DevelopFunctionResource developFunctionResource) {
+        developFunctionResource.setIsDeleted(Deleted.NORMAL.getStatus());
+        developFunctionResourceDao.insert(developFunctionResource);
     }
 
     /**
      * 根据functionId 更新记录
      *
-     * @param batchFunctionResource
+     * @param developFunctionResource
      */
-    public void updateByFunctionId(BatchFunctionResource batchFunctionResource) {
-        developFunctionResourceDao.update(batchFunctionResource,Wrappers.lambdaUpdate(BatchFunctionResource.class)
-                                    .eq(BatchFunctionResource::getFunctionId,batchFunctionResource.getFunctionId())
-                                    .eq(BatchFunctionResource::getIsDeleted,Deleted.NORMAL.getStatus()));
+    public void updateByFunctionId(DevelopFunctionResource developFunctionResource) {
+        developFunctionResourceDao.update(developFunctionResource,Wrappers.lambdaUpdate(DevelopFunctionResource.class)
+                                    .eq(DevelopFunctionResource::getFunctionId, developFunctionResource.getFunctionId())
+                                    .eq(DevelopFunctionResource::getIsDeleted,Deleted.NORMAL.getStatus()));
     }
 
     /**
@@ -60,7 +60,7 @@ public class DevelopFunctionResourceService {
      * @param functionId
      * @return
      */
-    public BatchFunctionResource getResourceFunctionByFunctionId(Long functionId) {
+    public DevelopFunctionResource getResourceFunctionByFunctionId(Long functionId) {
         return developFunctionResourceDao.getResourceFunctionByFunctionId(functionId);
     }
 
@@ -78,7 +78,7 @@ public class DevelopFunctionResourceService {
      * @param resourceId
      * @return
      */
-    public  List<BatchFunctionResource> listByResourceId(Long resourceId) {
+    public  List<DevelopFunctionResource> listByResourceId(Long resourceId) {
         return developFunctionResourceDao.listByResourceId(resourceId);
     }
 

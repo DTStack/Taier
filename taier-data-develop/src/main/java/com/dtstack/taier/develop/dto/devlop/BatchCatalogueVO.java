@@ -18,9 +18,9 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
 
-public class BatchCatalogueVO extends BatchCatalogue {
+public class BatchCatalogueVO extends DevelopCatalogue {
 
     /**
      * 文件类型  如果是目录 是 folder  如果不是目录 就是file

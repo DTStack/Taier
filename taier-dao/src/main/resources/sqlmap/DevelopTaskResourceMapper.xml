@@ -35,7 +35,7 @@
         </set>
     </sql>
 
-    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.BatchTaskResource">
+    <select id="listByTaskId" resultType="com.dtstack.taier.dao.domain.DevelopTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_task_resource
@@ -48,7 +48,7 @@
         and is_deleted = 0
     </select>
 
-    <select id="getByTaskIdAndResourceId" resultType="com.dtstack.taier.dao.domain.BatchTaskResource">
+    <select id="getByTaskIdAndResourceId" resultType="com.dtstack.taier.dao.domain.DevelopTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_task_resource
@@ -66,21 +66,21 @@
     </delete>
 
 
-    <select id="listByResourceId" resultType="com.dtstack.taier.dao.domain.BatchTaskResource">
+    <select id="listByResourceId" resultType="com.dtstack.taier.dao.domain.DevelopTaskResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_task_resource
         WHERE resource_id = #{resourceId} and is_deleted = 0
     </select>
 
-    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.BatchTaskResource" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.dtstack.taier.dao.domain.DevelopTaskResource" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO develop_task_resource
           (task_id,resource_id,resource_type,tenant_id,gmt_create,gmt_modified,is_deleted)
         VALUES
           (#{taskId},#{resourceId},#{resourceType},#{tenantId},now(),now(),0)
     </insert>
 
-    <update id="update" parameterType="com.dtstack.taier.dao.domain.BatchTaskResource">
+    <update id="update" parameterType="com.dtstack.taier.dao.domain.DevelopTaskResource">
         UPDATE
         develop_task_resource
         <include refid="update_fragment"/>

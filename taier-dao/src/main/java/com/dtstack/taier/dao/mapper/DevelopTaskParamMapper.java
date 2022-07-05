@@ -19,8 +19,8 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
 
-public interface DevelopTaskParamMapper extends BaseMapper<BatchTaskParam> {
+public interface DevelopTaskParamMapper extends BaseMapper<DevelopTaskParam> {
 
 }

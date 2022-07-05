@@ -28,9 +28,9 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamMapper;
 import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
@@ -87,9 +87,9 @@ public class DevelopTaskParamService {
         //校验任务参数不能为空参数
         if (CollectionUtils.isNotEmpty(parameterSet)) {
             for (Object paramObj : parameterSet) {
-                BatchTaskParam batchTaskParam = PublicUtil.objectToObject(paramObj, BatchTaskParam.class);
-                if(batchTaskParam != null){
-                    if (StringUtils.isBlank(batchTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(batchTaskParam.getParamCommand())) {
+                DevelopTaskParam developTaskParam = PublicUtil.objectToObject(paramObj, DevelopTaskParam.class);
+                if(developTaskParam != null){
+                    if (StringUtils.isBlank(developTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(developTaskParam.getParamCommand())) {
                         throw new RdosDefineException("自定义参数赋值不能为空");
                     }
                 }
@@ -217,43 +217,43 @@ public class DevelopTaskParamService {
         return parameters;
     }
 
-    public List<BatchTaskParam> saveTaskParams(final Long taskId, final List<BatchParamDTO> batchParamDTOS) {
-        this.developTaskParamDao.delete(Wrappers.lambdaQuery(BatchTaskParam.class).eq(BatchTaskParam::getTaskId,taskId));
-        final List<BatchTaskParam> batchTaskParams = this.buildBatchTaskParams(taskId, batchParamDTOS);
-        return batchTaskParams;
+    public List<DevelopTaskParam> saveTaskParams(final Long taskId, final List<BatchParamDTO> batchParamDTOS) {
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
+        final List<DevelopTaskParam> developTaskParams = this.buildBatchTaskParams(taskId, batchParamDTOS);
+        return developTaskParams;
     }
 
-    public BatchTaskParam addOrUpdate(final BatchTaskParam batchTaskParam) {
-        if (batchTaskParam.getId() > 0) {
-            batchTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            this.developTaskParamDao.updateById(batchTaskParam);
+    public DevelopTaskParam addOrUpdate(final DevelopTaskParam developTaskParam) {
+        if (developTaskParam.getId() > 0) {
+            developTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            this.developTaskParamDao.updateById(developTaskParam);
         } else {
-            batchTaskParam.setIsDeleted(Deleted.NORMAL.getStatus());
-            batchTaskParam.setGmtCreate(new Timestamp(System.currentTimeMillis()));
-            batchTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
-            this.developTaskParamDao.insert(batchTaskParam);
+            developTaskParam.setIsDeleted(Deleted.NORMAL.getStatus());
+            developTaskParam.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+            developTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
+            this.developTaskParamDao.insert(developTaskParam);
         }
-        return batchTaskParam;
+        return developTaskParam;
     }
 
     public void deleteTaskParam(long taskId) {
-        this.developTaskParamDao.delete(Wrappers.lambdaQuery(BatchTaskParam.class).eq(BatchTaskParam::getTaskId,taskId));
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
     }
 
-    public List<BatchTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
+    public List<DevelopTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
 
-        final List<BatchTaskParam> saves = new ArrayList<>(batchParamDTOS.size());
+        final List<DevelopTaskParam> saves = new ArrayList<>(batchParamDTOS.size());
 
         for (final BatchParamDTO tmp : batchParamDTOS) {
             if (StringUtils.isBlank(tmp.getParamCommand())) {
                 throw new RdosDefineException("自定义参数赋值不能为空");
             }
-            BatchTaskParam batchTaskParam = new BatchTaskParam();
-            batchTaskParam.setTaskId(taskId);
-            batchTaskParam.setType(tmp.getType());
-            batchTaskParam.setParamName(tmp.getParamName());
-            batchTaskParam.setParamCommand(tmp.getParamCommand());
-            saves.add(this.addOrUpdate(batchTaskParam));
+            DevelopTaskParam developTaskParam = new DevelopTaskParam();
+            developTaskParam.setTaskId(taskId);
+            developTaskParam.setType(tmp.getType());
+            developTaskParam.setParamName(tmp.getParamName());
+            developTaskParam.setParamCommand(tmp.getParamCommand());
+            saves.add(this.addOrUpdate(developTaskParam));
         }
 
         return saves;
@@ -265,11 +265,11 @@ public class DevelopTaskParamService {
      * @return
      * @throws Exception
      */
-    public List<BatchTaskParamShade> convertShade(final List<BatchTaskParam> params) throws Exception {
-        final List<BatchTaskParamShade> shades = Lists.newArrayList();
+    public List<DevelopTaskParamShade> convertShade(final List<DevelopTaskParam> params) throws Exception {
+        final List<DevelopTaskParamShade> shades = Lists.newArrayList();
         if (params != null) {
-            for (final BatchTaskParam param : params) {
-                shades.add(PublicUtil.objectToObject(param, BatchTaskParamShade.class));
+            for (final DevelopTaskParam param : params) {
+                shades.add(PublicUtil.objectToObject(param, DevelopTaskParamShade.class));
             }
         }
         return shades;
@@ -281,27 +281,27 @@ public class DevelopTaskParamService {
      * @return
      * @throws Exception
      */
-    public List<BatchTaskParam> convertParam(final List<BatchParamDTO> paramDTOs) {
-        final List<BatchTaskParam> params = Lists.newArrayList();
+    public List<DevelopTaskParam> convertParam(final List<BatchParamDTO> paramDTOs) {
+        final List<DevelopTaskParam> params = Lists.newArrayList();
         if (paramDTOs != null) {
             for (BatchParamDTO paramDTO : paramDTOs) {
-                params.add(PublicUtil.objectToObject(paramDTO, BatchTaskParam.class));
+                params.add(PublicUtil.objectToObject(paramDTO, DevelopTaskParam.class));
             }
         }
         return params;
     }
 
-    public List<BatchTaskParam> getTaskParam(final long taskId) {
-        List<BatchTaskParam> taskParams = developTaskParamDao.selectList(Wrappers.lambdaQuery(BatchTaskParam.class)
-                                .eq(BatchTaskParam::getTaskId,taskId)
-                                .eq(BatchTaskParam::getIsDeleted,Deleted.NORMAL.getStatus()));
+    public List<DevelopTaskParam> getTaskParam(final long taskId) {
+        List<DevelopTaskParam> taskParams = developTaskParamDao.selectList(Wrappers.lambdaQuery(DevelopTaskParam.class)
+                                .eq(DevelopTaskParam::getTaskId,taskId)
+                                .eq(DevelopTaskParam::getIsDeleted,Deleted.NORMAL.getStatus()));
         // 特殊处理 TaskParam 系统参数
-        for (BatchTaskParam taskParamShade : taskParams) {
+        for (DevelopTaskParam taskParamShade : taskParams) {
             if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {
                 continue;
             }
             // 将 command 属性设置为系统表的 command
-            BatchSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
+            DevelopSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParams;

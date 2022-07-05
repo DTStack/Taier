@@ -22,7 +22,7 @@ package com.dtstack.taier.dao.domain;
 /**
  * @author sanyue
  */
-public class BatchTaskTemplate extends BaseEntity {
+public class DevelopTaskTemplate extends BaseEntity {
 
     /**
      * 任务类型：EJobType
