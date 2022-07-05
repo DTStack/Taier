@@ -26,7 +26,13 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
+import com.dtstack.taier.dao.domain.ScheduleJob;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -36,9 +42,6 @@ import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -117,12 +120,10 @@ public class DevelopJobService {
             taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(task.getId());
         }
         IDevelopJobExeService jobExecuteService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
-
         //构建任务运行完整信息
         Map<String, Object> actionParam = Maps.newHashMap();
         //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
         jobExecuteService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task, taskParamsToReplace);
-
         actionParam.put("taskId", task.getId());
         actionParam.put("taskType", EScheduleJobType.getByTaskType(task.getTaskType()).getEngineJobType());
         actionParam.put("name", task.getName());
@@ -131,17 +132,7 @@ public class DevelopJobService {
         actionParam.put("isFailRetry", false);
         actionParam.put("maxRetryNum", 0);
         actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
-
-        User user;
-        if (Objects.isNull(userId)) {
-            user = userService.getById(task.getCreateUserId());
-        } else {
-            user = userService.getById(userId);
-        }
-        if (Objects.isNull(user)) {
-            throw new RdosDefineException(String.format("当前用户已被移除，userId：%d", userId == null ? task.getCreateUserId() : userId));
-        }
-        actionParam.put("userId", user.getId());
+        actionParam.put("userId", userId);
         // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
         JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
         if (scheduleConf.containsKey("isFailRetry")) {
@@ -168,13 +159,10 @@ public class DevelopJobService {
         developStartSyncResultVO.setMsg(null);
         developStartSyncResultVO.setJobId(null);
         developStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
-
         Task task = developTaskService.getOneWithError(taskId);
-
-        if (!task.getTaskType().equals(EScheduleJobType.SYNC.getVal())) {
+        if (!EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
-
         try {
             IDevelopJobExeService developJobExeService = this.multiEngineServiceFactory.getDevelopJobExeService(EScheduleJobType.SYNC.getType());
             Map<String, Object> actionParam = developJobExeService.readyForSyncImmediatelyJob(task, tenantId, isRoot);
@@ -192,8 +180,7 @@ public class DevelopJobService {
             String name = MathUtil.getString(actionParam.get("name"));
             String job = MathUtil.getString(actionParam.get("job"));
             developSelectSqlService.addSelectSql(jobId, name, TempJobType.SYNC_TASK.getType(), task.getTenantId(),
-                    job, userId, EScheduleJobType.SPARK_SQL.getType());
-
+                    job, userId, EScheduleJobType.SYNC.getType());
             developStartSyncResultVO.setMsg(String.format("任务提交成功,名称为: %s", name));
             developStartSyncResultVO.setJobId(jobId);
             developStartSyncResultVO.setStatus(TaskStatus.SUBMITTING.getStatus());
@@ -359,7 +346,6 @@ public class DevelopJobService {
         try {
             Task task = developTaskService.getOneWithError(taskId);
             result.setTaskType(task.getTaskType());
-            //真正运行的SQL是页面传入的SQL
             task.setSqlText(sql);
 
             //将SQL中的 系统参数和自定义参数 转换为DTO对象

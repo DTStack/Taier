@@ -33,11 +33,11 @@ import java.util.Objects;
 public abstract class DevelopAddOrUpdateTaskTemplate {
 
     protected final static String SQL_NOTE_TEMPLATE =
-            "name %s \n " +
-                    "type %s \n " +
-                    "author %s \n " +
-                    "create time %s \n " +
-                    "desc %s \n ";
+                    "-- name %s \n" +
+                    "-- type %s \n" +
+                    "-- author %s \n" +
+                    "-- create time %s \n" +
+                    "-- desc %s \n";
 
     protected static final String DEFAULT_SCHEDULE_CONF = "{" +
             "\"selfReliance\":0, " +
@@ -95,6 +95,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
      */
     public TaskVO updateTaskInfo(TaskResourceParam taskResourceParam){
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
+        taskVO.setModifyUserId(taskResourceParam.getUserId());
         if (StringUtils.isBlank(taskVO.getName())) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
@@ -156,6 +157,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
         task.setMainClass(Objects.isNull(task.getMainClass()) ? "" : task.getMainClass());
         task.setTaskDesc(Objects.isNull(task.getTaskDesc()) ? "" : task.getTaskDesc());
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
+        task.setCreateUserId(task.getModifyUserId());
         developTaskService.save(task);
     }
 

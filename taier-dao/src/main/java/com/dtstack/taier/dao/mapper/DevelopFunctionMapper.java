@@ -52,7 +52,8 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
      * @param taskType
      * @return
      */
-    List<DevelopFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType, @Param("taskType") Integer taskType);
+    List<DevelopFunction> listTenantFunction(@Param("tenantId") Long tenantId, @Param("functionType") Integer functionType,
+                                             @Param("taskType") Integer taskType);
 
     /**
      * 根据 租户 查询
