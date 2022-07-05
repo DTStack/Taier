@@ -23,17 +23,11 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.service.develop.impl.DevelopHiveSqlExeService;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 
 /**
  * 根据对应的引擎类型获取执行实现
- * Date: 2019/5/13
- * Company: www.dtstack.com
- *
- * @author xuchao
  */
-
 @Component
 public class MultiEngineServiceFactory {
 
@@ -110,7 +104,8 @@ public class MultiEngineServiceFactory {
      */
     public IComponentService getComponentService(Integer componentTypeCode){
         EComponentType componentType = EComponentType.getByCode(componentTypeCode);
-        if (EComponentType.SPARK_THRIFT == componentType) {
+        if (EComponentType.SPARK_THRIFT == componentType
+            || EComponentType.SPARK == componentType) {
             return componentSparkThriftService;
         }else if (EComponentType.HIVE_SERVER == componentType){
             return componentHiveServerService;

@@ -28,9 +28,9 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
+import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.DevelopFunctionResource;
 import com.dtstack.taier.dao.domain.DevelopResource;
-import com.dtstack.taier.dao.domain.DevelopFunction;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopFunctionMapper;
 import com.dtstack.taier.develop.dto.devlop.DevelopFunctionVO;
@@ -41,25 +41,19 @@ import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,38 +86,11 @@ public class DevelopFunctionService {
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     /**
-     * 系统函数缓存
-     */
-    private Cache<String, Map<String, DevelopFunction>> systemFunctions = CacheBuilder.newBuilder().expireAfterWrite(30 * (long)60, TimeUnit.SECONDS).maximumSize(10).build();
-
-
-    private static String SYSTEM_FUNCTIONS = "systemFunctions";
-
-    /**
      * 创建临时函数
      */
     private static final String CREATE_TEMP_FUNCTION = "create temporary function %s as '%s' using jar '%s';";
 
     private static String CUSTOM_FUNCTION_TEMPLATE = "CREATE %s FUNCTION %s WITH %s";
-
-
-    /**
-     * 启动服务时，就初始化系统函数到缓存中
-     */
-    @PostConstruct
-    public void init() {
-        Map<String, DevelopFunction> developFunctionMap = systemFunctions.getIfPresent(SYSTEM_FUNCTIONS);
-        if (developFunctionMap == null || developFunctionMap.size() == 0) {
-            List<DevelopFunction> listSystemFunction = developFunctionMapper.listSystemFunction(null);
-            developFunctionMap = Maps.newConcurrentMap();
-            for (DevelopFunction systemFunction : listSystemFunction) {
-                developFunctionMap.put(systemFunction.getName(), systemFunction);
-            }
-            systemFunctions.put(SYSTEM_FUNCTIONS, developFunctionMap);
-        }
-        systemFunctions.put(SYSTEM_FUNCTIONS, developFunctionMap);
-    }
-
 
     /**
      * 根据id获取函数
@@ -153,7 +120,7 @@ public class DevelopFunctionService {
      * 添加函数
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskCatalogueVO addOrUpdateFunction(DevelopFunction developFunction, Long resourceId, Long tenantId, Long userId) {
+    public TaskCatalogueVO addOrUpdateFunction(DevelopFunction developFunction, Long resourceId, Long userId) {
         if (!PublicUtil.matcher(developFunction.getName(), PatternConstant.FUNCTION_PATTERN)) {
             throw new RdosDefineException("注意名称只允许存在字母、数字、下划线、横线，hive函数不支持大写字母", ErrorCode.NAME_FORMAT_ERROR);
         }
@@ -192,12 +159,11 @@ public class DevelopFunctionService {
         developFunctionResource.setTenantId(function.getTenantId());
         developFunctionResource.setResourceId(resourceId);
         DevelopFunctionResource resourceFunctionByFunctionId = getResourceFunctionByFunctionId(function.getId());
+        developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
         if (Objects.isNull(resourceFunctionByFunctionId)) {
             developFunctionResource.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-            developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             developFunctionResourceService.insert(developFunctionResource);
         }else {
-            developFunctionResource.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             developFunctionResourceService.updateByFunctionId(developFunctionResource);
         }
     }
@@ -478,18 +444,6 @@ public class DevelopFunctionService {
             }
         }
         return false;
-    }
-
-    /**
-     * 根据 租户、名称、类型 查询
-     *
-     * @param tenantId 租户ID
-     * @param name     名称
-     * @param type     类型
-     * @return
-     */
-    public List<DevelopFunction> listByNameAndTenantId(Long tenantId, String name, Integer type){
-        return developFunctionMapper.listByNameAndTenantId(tenantId, name, type);
     }
 
 }

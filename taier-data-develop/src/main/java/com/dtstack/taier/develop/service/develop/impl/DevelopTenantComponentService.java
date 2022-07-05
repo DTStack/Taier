@@ -31,14 +31,16 @@ import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTenantComponentResultVO;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.net.ntp.TimeStamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,6 +61,13 @@ public class DevelopTenantComponentService {
     private ClusterTenantService clusterTenantService;
 
     /**
+     * 支持的任务类型
+     */
+    private static final Set<Integer> SUPPORT_TASK = Sets.newHashSet(
+            EScheduleJobType.SPARK_SQL.getType(), EScheduleJobType.HIVE_SQL.getType()
+    );
+
+    /**
      * 根据 tenantId、taskType 查询组件信息
      *
      * @param tenantId
@@ -70,7 +79,7 @@ public class DevelopTenantComponentService {
                 .eq(TenantComponent::getTenantId, tenantId)
                 .eq(TenantComponent::getTaskType, taskType)
                 .eq(TenantComponent::getIsDeleted, Deleted.NORMAL.getStatus()));
-        if (Objects.nonNull(tenantComponent)) {
+        if (Objects.isNull(tenantComponent)) {
             throw new RdosDefineException(ErrorCode.TASK_NOT_CONFIG_DB);
         }
         return tenantComponent;
@@ -93,7 +102,9 @@ public class DevelopTenantComponentService {
                 .stream()
                 .collect(Collectors.toMap(TenantComponent::getTaskType, Function.identity(), (key1, key2) -> key2));
 
-        return supportJobTypes.stream().map(supportJobTypeInfo -> {
+        return supportJobTypes.stream()
+                .filter(jobTypesResultVO -> SUPPORT_TASK.contains(jobTypesResultVO.getKey()))
+                .map(supportJobTypeInfo -> {
             DevelopTenantComponentResultVO resultVO = new DevelopTenantComponentResultVO();
             resultVO.setTaskType(supportJobTypeInfo.getKey());
             resultVO.setTaskTypeName(supportJobTypeInfo.getValue());
@@ -123,7 +134,7 @@ public class DevelopTenantComponentService {
         } else {
             developTenantComponentDao.update(null, Wrappers.lambdaUpdate(TenantComponent.class)
                     .set(TenantComponent::getComponentIdentity, schema)
-                    .set(TenantComponent::getGmtModified, new TimeStamp(System.currentTimeMillis()))
+                    .set(TenantComponent::getGmtModified, LocalDateTime.now())
                     .eq(TenantComponent::getId, tenantComponent.getId()));
         }
     }
@@ -141,7 +152,7 @@ public class DevelopTenantComponentService {
         if (Objects.isNull(clusterId)) {
             throw new RdosDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
         }
-        IComponentService componentService = multiEngineServiceFactory.getComponentService(taskType);
+        IComponentService componentService = multiEngineServiceFactory.getComponentService(scheduleJobType.getComponentType().getTypeCode());
         return componentService.getAllDataBases(clusterId, scheduleJobType.getComponentType(), "");
     }
 
