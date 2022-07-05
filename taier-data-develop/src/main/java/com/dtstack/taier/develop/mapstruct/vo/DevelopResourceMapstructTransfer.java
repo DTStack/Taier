@@ -18,44 +18,44 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.develop.dto.devlop.BatchResourceAddDTO;
-import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchResourceAddVO;
+import com.dtstack.taier.dao.domain.DevelopResource;
+import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
+import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopResourceAddVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchGetResourcesResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface BatchResourceMapstructTransfer {
+public interface DevelopResourceMapstructTransfer {
 
-    BatchResourceMapstructTransfer INSTANCE = Mappers.getMapper(BatchResourceMapstructTransfer.class);
+    DevelopResourceMapstructTransfer INSTANCE = Mappers.getMapper(DevelopResourceMapstructTransfer.class);
 
 
     /**
-     * BatchResourceAddVO --> BatchResourceAddDTO
+     * DevelopResourceAddVO --> DevelopResourceAddDTO
      *
-     * @param batchResourceAddVO
-     * @return batchResourceAddDTO
+     * @param DevelopResourceAddVO
+     * @return DevelopResourceAddDTO
      */
-    BatchResourceAddDTO resourceVOToResourceAddDTO(BatchResourceAddVO batchResourceAddVO);
+    DevelopResourceAddDTO resourceVOToResourceAddDTO(DevelopResourceAddVO DevelopResourceAddVO);
 
 
     /**
-     * BatchResourceVO --> BatchGetResourceByIdResultVO
+     * DevelopResourceVO --> BatchGetResourceByIdResultVO
      *
-     * @param batchResourceVO
+     * @param DevelopResourceVO
      * @return
      */
-    BatchGetResourceByIdResultVO batchResourceVOToBatchGetResourceByIdResultVO(BatchResourceVO batchResourceVO);
+    BatchGetResourceByIdResultVO DevelopResourceVOToBatchGetResourceByIdResultVO(DevelopResourceVO DevelopResourceVO);
 
     /**
-     * BatchResource --> BatchGetResourcesResultVO
+     * DevelopResource --> BatchGetResourcesResultVO
      *
-     * @param batchResource
+     * @param DevelopResource
      * @return
      */
-    BatchGetResourcesResultVO batchResourceToBatchGetResourcesResultVO(BatchResource batchResource);
+    BatchGetResourcesResultVO DevelopResourceToBatchGetResourcesResultVO(DevelopResource DevelopResource);
 
 }

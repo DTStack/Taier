@@ -29,7 +29,6 @@ import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTableListVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDataSourceTableLocationVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDatasourceTableCreateSQLVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchDatasourceTableCreateVO;
-import com.dtstack.taier.develop.vo.develop.query.KafkaTopicGetVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -56,7 +55,7 @@ import java.util.Set;
 @Api(tags = {"数据源中心-新增数据源"})
 @RestController
 @RequestMapping(value ="/dataSource/addDs")
-public class AddDatasourceController {
+public class DatasourceAddController {
 
     private final String RESOURCE = "resource";
 

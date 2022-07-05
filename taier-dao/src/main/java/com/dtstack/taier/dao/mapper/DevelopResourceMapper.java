@@ -18,14 +18,16 @@
 
 package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.dto.BatchResourceDTO;
+import com.dtstack.taier.dao.domain.DevelopResource;
+import com.dtstack.taier.dao.dto.DevelopResourceDTO;
 import com.dtstack.taier.dao.pager.PageQuery;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 
+@Mapper
 public interface DevelopResourceMapper {
 
     /**
@@ -33,7 +35,7 @@ public interface DevelopResourceMapper {
      * @param id
      * @return
      */
-    BatchResource getOne(@Param("id") Long id);
+    DevelopResource getOne(@Param("id") Long id);
 
     /**
      * 根据函数找出资源文件地址
@@ -49,7 +51,7 @@ public interface DevelopResourceMapper {
      * @param ids
      * @return
      */
-    List<BatchResource> listByIds(@Param("ids") List<Long> ids);
+    List<DevelopResource> listByIds(@Param("ids") List<Long> ids);
 
     /**
      * 根据 租户、目录Id 获取资源列表
@@ -57,14 +59,14 @@ public interface DevelopResourceMapper {
      * @param nodePid
      * @return
      */
-    List<BatchResource> listByPidAndTenantId(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
+    List<DevelopResource> listByPidAndTenantId(@Param("tenantId") Long tenantId, @Param("nodePid") Long nodePid);
 
     /**
      * 根据 租户 查询资源列表
      * @param tenantId
      * @return
      */
-    List<BatchResource> listByTenantId(@Param("tenantId") Long tenantId);
+    List<DevelopResource> listByTenantId(@Param("tenantId") Long tenantId);
 
     /**
      * 根据 id 删除数据
@@ -79,34 +81,34 @@ public interface DevelopResourceMapper {
      * @param resourceName
      * @return
      */
-    List<BatchResource> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("resourceName") String resourceName);
+    List<DevelopResource> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("resourceName") String resourceName);
 
     /**
      * 插入数据
-     * @param batchResource
+     * @param DevelopResource
      * @return
      */
-    Integer insert(BatchResource batchResource);
+    Integer insert(DevelopResource DevelopResource);
 
     /**
      * 更新数据
-     * @param batchResource
+     * @param DevelopResource
      * @return
      */
-    Integer update(BatchResource batchResource);
+    Integer update(DevelopResource DevelopResource);
 
     /**
      * 通用查询
      * @param query
      * @return
      */
-    List<BatchResource> generalQuery(PageQuery<BatchResourceDTO> query);
+    List<DevelopResource> generalQuery(PageQuery<DevelopResourceDTO> query);
 
     /**
      * 通用查询统计
      * @param model
      * @return
      */
-    Integer generalCount(@Param("model") BatchResourceDTO model);
+    Integer generalCount(@Param("model") DevelopResourceDTO model);
 
 }

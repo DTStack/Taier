@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.dao.domain;
 
-
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -28,31 +27,32 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.sql.Timestamp;
 
 /**
- * @author sishu.yss
+ * Reason:
+ * Date: 2017/6/7
+ * Company: www.dtstack.com
+ *
+ * @author xuchao
  */
-@TableName("develop_task_resource")
-public class BatchTaskResource{
+@TableName("develop_task_param")
+public class DevelopTaskParam extends BaseEntity {
 
     @TableField("task_id")
     private Long taskId;
 
-    @TableField("resource_id")
-    private Long resourceId;
+    @TableField("type")
+    private Integer type;
 
-    @TableField("resource_type")
-    private int resourceType;
+    @TableField("param_name")
+    private String paramName;
+
+    @TableField("param_command")
+    private String paramCommand;
 
     @TableId(value="id", type= IdType.AUTO)
     private Long id = 0L;
 
     @TableField("is_deleted")
     private Integer isDeleted = 0;
-
-    /**
-     * 租户Id
-     */
-    @TableField("tenant_id")
-    private Long tenantId;
 
     /**
      * 实体创建时间
@@ -71,7 +71,6 @@ public class BatchTaskResource{
     )
     private Timestamp gmtModified;
 
-
     public Long getTaskId() {
         return taskId;
     }
@@ -80,58 +79,66 @@ public class BatchTaskResource{
         this.taskId = taskId;
     }
 
-    public Long getResourceId() {
-        return resourceId;
+    public Integer getType() {
+        return type;
     }
 
-    public void setResourceId(Long resourceId) {
-        this.resourceId = resourceId;
+    public void setType(Integer type) {
+        this.type = type;
     }
 
-    public int getResourceType() {
-        return resourceType;
+    public String getParamName() {
+        return paramName;
     }
 
-    public void setResourceType(int resourceType) {
-        this.resourceType = resourceType;
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
     }
 
+    public String getParamCommand() {
+        return paramCommand;
+    }
+
+    public void setParamCommand(String paramCommand) {
+        this.paramCommand = paramCommand;
+    }
+
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
 
+    @Override
     public Integer getIsDeleted() {
         return isDeleted;
     }
 
+    @Override
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
     }
 
-    public Long getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(Long tenantId) {
-        this.tenantId = tenantId;
-    }
-
+    @Override
     public Timestamp getGmtCreate() {
         return gmtCreate;
     }
 
+    @Override
     public void setGmtCreate(Timestamp gmtCreate) {
         this.gmtCreate = gmtCreate;
     }
 
+    @Override
     public Timestamp getGmtModified() {
         return gmtModified;
     }
 
+    @Override
     public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
     }

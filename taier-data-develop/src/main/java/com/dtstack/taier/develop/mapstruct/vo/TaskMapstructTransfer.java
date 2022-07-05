@@ -18,16 +18,14 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
+import com.dtstack.taier.dao.domain.DevelopResource;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.develop.dto.devlop.*;
 import com.dtstack.taier.develop.vo.develop.query.BatchScheduleTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchTaskResourceParamVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchTaskTaskAddOrUpdateDependencyVO;
 import com.dtstack.taier.develop.vo.develop.result.*;
 import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import org.mapstruct.Mapper;
@@ -87,7 +85,7 @@ public interface TaskMapstructTransfer {
      * @param batchTaskVersionDetailList
      * @return
      */
-    List<BatchTaskVersionDetailResultVO> BatchTaskVersionDetailListToResultVOList(List<BatchTaskVersionDetailDTO> batchTaskVersionDetailList);
+    List<BatchTaskVersionDetailResultVO> BatchTaskVersionDetailListToResultVOList(List<DevelopTaskVersionDetailDTO> batchTaskVersionDetailList);
 
 
     /**
@@ -95,22 +93,22 @@ public interface TaskMapstructTransfer {
      * @param batchTaskVersionDetail
      * @return
      */
-    BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(BatchTaskVersionDetailDTO batchTaskVersionDetail);
+    BatchTaskVersionDetailResultVO BatchTaskVersionDetailToResultVO(DevelopTaskVersionDetailDTO batchTaskVersionDetail);
 
 
     /**
      * ollection<BatchSysParameter>  -> Collection<BatchSysParameterResultVO>
-     * @param batchSysParameterCollection
+     * @param developSysParameterCollection
      * @return
      */
-    Collection<BatchSysParameterResultVO> BatchSysParameterCollectionToBatchSysParameterResultVOCollection(Collection<BatchSysParameter> batchSysParameterCollection);
+    Collection<BatchSysParameterResultVO> BatchSysParameterCollectionToBatchSysParameterResultVOCollection(Collection<DevelopSysParameter> developSysParameterCollection);
 
     /**
-     * List<BatchResource>  -> List<BatchResourceResultVO>
-     * @param batchResourceList
+     * List<DevelopResource>  -> List<DevelopResourceResultVO>
+     * @param DevelopResourceList
      * @return
      */
-    List<BatchResourceResultVO> BatchResourceListToBatchResourceResultVOList(List<BatchResource> batchResourceList);
+    List<DevelopResourceResultVO> DevelopResourceListToDevelopResourceResultVOList(List<DevelopResource> DevelopResourceList);
 
 
     /**

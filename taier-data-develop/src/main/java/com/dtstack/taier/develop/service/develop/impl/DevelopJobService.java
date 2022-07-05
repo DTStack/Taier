@@ -108,7 +108,7 @@ public class DevelopJobService {
      * @return info信息
      * @throws Exception
      */
-    public String getExtraInfo(Task task, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public String getExtraInfo(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
         //任务参数若为null，则表示是提交任务，否则就是临时运行任务
         if(taskParamsToReplace == null){
             taskParamsToReplace = this.batchTaskParamShadeService.getTaskParam(task.getId());
@@ -304,7 +304,7 @@ public class DevelopJobService {
                         logBuild.append("\n");
                     }
 
-                    final BatchSelectSql batchHiveSelectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, 0);
+                    final DevelopSelectSql batchHiveSelectSql = this.batchSelectSqlService.getByJobId(jobId, tenantId, 0);
                     if (batchHiveSelectSql != null) {
                         logBuild.append("====================任务信息====================\n");
                         final String sqlLog=batchHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")","$1**$3");
@@ -361,8 +361,8 @@ public class DevelopJobService {
 
             //将SQL中的 系统参数和自定义参数 转换为DTO对象
             List<BatchParamDTO> batchParamDTOS = this.batchTaskParamService.paramResolver(taskVariables);
-            List<BatchTaskParam> params = this.batchTaskParamService.convertParam(batchParamDTOS);
-            List<BatchTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
+            List<DevelopTaskParam> params = this.batchTaskParamService.convertParam(batchParamDTOS);
+            List<DevelopTaskParamShade> taskParamsToReplace = this.batchTaskParamService.convertShade(params);
             ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
 
             // 转换参数
@@ -408,7 +408,7 @@ public class DevelopJobService {
      * @return
      * @throws Exception
      */
-    private ParamTaskAction getParamTaskAction(Task task, Long userId, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    private ParamTaskAction getParamTaskAction(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
         ParamTaskAction paramTaskAction = new ParamTaskAction();
 
         //将 Task 对象转换为调度的 ScheduleTaskShade 对象

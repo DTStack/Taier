@@ -73,7 +73,7 @@ public class DevelopTenantComponentController {
         }.execute();
     }
 
-    @PostMapping(value = "saveTenantComponentInfo")
+    @PostMapping(value = "getByTenantAndTaskType")
     @ApiOperation(value = "保存组件运行schema信息")
     public R<List<String>> getByTenantAndTaskType(@RequestBody DevelopTenantComponentSchemaSelectVO selectVO) {
         return new APITemplate<List<String>>() {

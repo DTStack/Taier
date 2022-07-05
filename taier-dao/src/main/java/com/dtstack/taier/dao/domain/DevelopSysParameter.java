@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
  * date: 2022/1/24 2:58 下午
  * author: zhaiyue
  */
-public class BatchSysParameter {
+public class DevelopSysParameter {
 
     private long id;
 

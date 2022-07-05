@@ -22,8 +22,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamShadeMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,40 +50,40 @@ public class DevelopTaskParamShadeService {
     @Autowired
     private DevelopSysParamService batchSysParamService;
 
-    public void addOrUpdate(BatchTaskParamShade batchTaskParamShade) {
-        if (StringUtils.isBlank(batchTaskParamShade.getParamCommand())) {
+    public void addOrUpdate(DevelopTaskParamShade developTaskParamShade) {
+        if (StringUtils.isBlank(developTaskParamShade.getParamCommand())) {
             throw new RdosDefineException("自定义参数赋值不能为空");
         }
-        BatchTaskParamShade dbTaskParam = developTaskParamShadeDao.selectOne(Wrappers.lambdaQuery(BatchTaskParamShade.class)
-                                    .eq(BatchTaskParamShade::getTaskId,batchTaskParamShade.getTaskId())
-                                    .eq(BatchTaskParamShade::getType,batchTaskParamShade.getType())
-                                    .eq(BatchTaskParamShade::getParamName, batchTaskParamShade.getParamName())
-                                    .eq(BatchTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus())
+        DevelopTaskParamShade dbTaskParam = developTaskParamShadeDao.selectOne(Wrappers.lambdaQuery(DevelopTaskParamShade.class)
+                                    .eq(DevelopTaskParamShade::getTaskId, developTaskParamShade.getTaskId())
+                                    .eq(DevelopTaskParamShade::getType, developTaskParamShade.getType())
+                                    .eq(DevelopTaskParamShade::getParamName, developTaskParamShade.getParamName())
+                                    .eq(DevelopTaskParamShade::getIsDeleted, Deleted.NORMAL.getStatus())
                                     .last("limit 1"));
         if (Objects.nonNull(dbTaskParam)) {
-            dbTaskParam.setParamCommand(batchTaskParamShade.getParamCommand());
+            dbTaskParam.setParamCommand(developTaskParamShade.getParamCommand());
             dbTaskParam.setGmtModified(new Timestamp(System.currentTimeMillis()));
             developTaskParamShadeDao.updateById(dbTaskParam);
         } else {
-            batchTaskParamShade.setIsDeleted(Deleted.NORMAL.getStatus());
-            developTaskParamShadeDao.insert(batchTaskParamShade);
+            developTaskParamShade.setIsDeleted(Deleted.NORMAL.getStatus());
+            developTaskParamShadeDao.insert(developTaskParamShade);
         }
     }
 
-    public List<BatchTaskParamShade> getTaskParam(long taskId) {
+    public List<DevelopTaskParamShade> getTaskParam(long taskId) {
 
-        List<BatchTaskParamShade> taskParamShades = developTaskParamShadeDao.selectList(Wrappers.lambdaQuery(BatchTaskParamShade.class)
-                                    .eq(BatchTaskParamShade::getTaskId,taskId)
-                                    .eq(BatchTaskParamShade::getIsDeleted,Deleted.NORMAL.getStatus()));
+        List<DevelopTaskParamShade> taskParamShades = developTaskParamShadeDao.selectList(Wrappers.lambdaQuery(DevelopTaskParamShade.class)
+                                    .eq(DevelopTaskParamShade::getTaskId,taskId)
+                                    .eq(DevelopTaskParamShade::getIsDeleted,Deleted.NORMAL.getStatus()));
 
         // 特殊处理 TaskParam 系统参数
-        for (BatchTaskParamShade taskParamShade : taskParamShades) {
+        for (DevelopTaskParamShade taskParamShade : taskParamShades) {
             if (EParamType.SYS_TYPE.getType() != taskParamShade.getType()) {
                 continue;
             }
 
             // 将 command 属性设置为系统表的 command
-            BatchSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
+            DevelopSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParamShades;

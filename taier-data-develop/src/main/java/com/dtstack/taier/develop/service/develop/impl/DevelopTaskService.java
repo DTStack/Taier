@@ -55,11 +55,11 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.BatchCatalogue;
-import com.dtstack.taier.dao.domain.BatchDataSource;
-import com.dtstack.taier.dao.domain.BatchResource;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
+import com.dtstack.taier.dao.domain.DevelopDataSource;
+import com.dtstack.taier.dao.domain.DevelopResource;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
 import com.dtstack.taier.dao.domain.Dict;
@@ -69,7 +69,7 @@ import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.domain.User;
-import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
+import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
@@ -223,7 +223,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopSysParamService batchSysParamService;
 
     @Autowired
-    private DevelopResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     @Autowired
     private DevelopFunctionService batchFunctionService;
@@ -328,9 +328,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
-        List<BatchTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
+        List<DevelopTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
-        List<BatchResource> resources = batchTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        List<DevelopResource> resources = batchTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
         taskVO.setResourceList(resources);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
@@ -375,10 +375,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {
-        final List<BatchTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
+        final List<DevelopTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
         final List<Map> mapParams = new ArrayList<>();
         if (taskParams != null) {
-            for (final BatchTaskParam taskParam : taskParams) {
+            for (final DevelopTaskParam taskParam : taskParams) {
                 final Map map = new HashMap();
                 map.put("type", taskParam.getType());
                 map.put("paramName", taskParam.getParamName());
@@ -390,10 +390,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     private void setTaskVariables(final ScheduleTaskVO taskVO, final Long taskId) {
-        final List<BatchTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
+        final List<DevelopTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
         final List<Map> mapParams = new ArrayList<>();
         if (taskParams != null) {
-            for (final BatchTaskParam taskParam : taskParams) {
+            for (final DevelopTaskParam taskParam : taskParams) {
                 final Map map = new HashMap();
                 map.put("type", taskParam.getType());
                 map.put("paramName", taskParam.getParamName());
@@ -610,7 +610,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         // 跨项目的时候 需要依赖 task的project
 
         final Map<String, Object> actionParam = new HashMap<>(10);
-        List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
+        List<DevelopTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
 
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
@@ -758,7 +758,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return taskVersion;
     }
 
-    public List<BatchTaskVersionDetailDTO> getTaskVersionRecord(Long taskId, Integer pageSize, Integer pageNo) {
+    public List<DevelopTaskVersionDetailDTO> getTaskVersionRecord(Long taskId, Integer pageSize, Integer pageNo) {
         if (pageNo == null) {
             pageNo = 0;
         }
@@ -766,15 +766,15 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             pageSize = 10;
         }
         PageQuery pageQuery = new PageQuery(pageNo, pageSize, "gmt_create", Sort.DESC.name());
-        List<BatchTaskVersionDetailDTO> res = taskVersionService.listByTaskId(taskId, pageQuery);
-        for (BatchTaskVersionDetailDTO detail : res) {
+        List<DevelopTaskVersionDetailDTO> res = taskVersionService.listByTaskId(taskId, pageQuery);
+        for (DevelopTaskVersionDetailDTO detail : res) {
             detail.setUserName(userService.getUserName(detail.getCreateUserId()));
         }
         return res;
     }
 
-    public BatchTaskVersionDetailDTO taskVersionScheduleConf(Long versionId) {
-        BatchTaskVersionDetailDTO taskVersion = taskVersionService.getByVersionId(versionId);
+    public DevelopTaskVersionDetailDTO taskVersionScheduleConf(Long versionId) {
+        DevelopTaskVersionDetailDTO taskVersion = taskVersionService.getByVersionId(versionId);
         if (taskVersion == null) {
             return null;
         }
@@ -1567,7 +1567,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     /**
      * 数据开发-获取所有系统参数
      */
-    public Collection<BatchSysParameter> getSysParams() {
+    public Collection<DevelopSysParameter> getSysParams() {
         return this.batchSysParamService.listSystemParam();
     }
 
@@ -1586,7 +1586,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return;
         }
         if (!isFile.equals(IS_FILE)) {
-            BatchCatalogue batchCatalogue = batchCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
+            DevelopCatalogue batchCatalogue = batchCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
             if (batchCatalogue != null) {
                 throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
             }
@@ -1598,7 +1598,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                         .eq(Task::getTenantId, tenantId)
                         .last("limit 1"));
             } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
-                obj = batchResourceService.listByNameAndTenantId(tenantId, name);
+                obj = DevelopResourceService.listByNameAndTenantId(tenantId, name);
             } else {
                 throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
             }
@@ -1845,7 +1845,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      * @throws Exception
      */
-    private List<JSONObject> getTableColumnIncludePart(BatchDataSource source, String tableName, Boolean part, String schema) {
+    private List<JSONObject> getTableColumnIncludePart(DevelopDataSource source, String tableName, Boolean part, String schema) {
         try {
             if (source == null) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
@@ -1887,7 +1887,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return 返回该数据源的完整kerberos配置
      */
     public Map<String, Object> fillKerberosConfig(Long sourceId) {
-        BatchDataSource source = dataSourceService.getOne(sourceId);
+        DevelopDataSource source = dataSourceService.getOne(sourceId);
         Long tenantId = tenantService.getDtTenantId(source.getTenantId());
         JSONObject dataJson = JSON.parseObject(source.getDataJson());
         JSONObject kerberosConfig = dataJson.getJSONObject(KERBEROS_CONFIG);
@@ -2077,12 +2077,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } else {
             throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
         }
-        BatchDataSource batchDataSource = dataSourceService.getOne(sourceId);
-        List<JSONObject> allColumn = getTableColumnIncludePart(batchDataSource, tableName, false, schema);
+        DevelopDataSource developDataSource = dataSourceService.getOne(sourceId);
+        List<JSONObject> allColumn = getTableColumnIncludePart(developDataSource, tableName, false, schema);
         for (JSONObject col : allColumn) {
-            if (ColumnType.isIncreType(col.getString("type")) || DataSourceType.Oracle.getVal().equals(batchDataSource.getType())) {
+            if (ColumnType.isIncreType(col.getString("type")) || DataSourceType.Oracle.getVal().equals(developDataSource.getType())) {
                 increColumn.add(col);
-            } else if (DataSourceType.SQLServer.getVal().equals(batchDataSource.getType())
+            } else if (DataSourceType.SQLServer.getVal().equals(developDataSource.getType())
                     && ColumnType.NVARCHAR.equals(ColumnType.fromString(col.getString("key")))) {
                 increColumn.add(col);
             }

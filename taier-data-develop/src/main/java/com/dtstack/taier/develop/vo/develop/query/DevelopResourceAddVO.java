@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel("添加资源信息")
-public class BatchResourceAddVO extends DtInsightAuthParam {
+public class DevelopResourceAddVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "资源名称")
     private String resourceName;

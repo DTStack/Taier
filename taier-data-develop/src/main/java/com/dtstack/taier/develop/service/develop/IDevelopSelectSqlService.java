@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.service.develop;
 
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
@@ -41,7 +41,7 @@ public interface IDevelopSelectSqlService {
      * @return
      * @throws Exception
      */
-    ExecuteResultVO selectData(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;
+    ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;
 
     /**
      * 根据jobId 获取任务执行状态
@@ -54,7 +54,7 @@ public interface IDevelopSelectSqlService {
      * @param taskType
      * @return
      */
-    ExecuteResultVO selectStatus(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType);
+    ExecuteResultVO selectStatus(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType);
 
     /**
      * 根据jobId 获取任务执行日志
@@ -68,7 +68,7 @@ public interface IDevelopSelectSqlService {
      * @return
      * @throws Exception
      */
-    ExecuteResultVO selectRunLog(Task task, BatchSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;;
+    ExecuteResultVO selectRunLog(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception;;
 
     ActionJobEntityVO getTaskStatus(String jobId);
 }

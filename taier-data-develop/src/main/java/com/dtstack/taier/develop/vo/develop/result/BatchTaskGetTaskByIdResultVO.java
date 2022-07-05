@@ -194,10 +194,10 @@ public class BatchTaskGetTaskByIdResultVO {
     private String componentVersion;
 
     @ApiModelProperty(value = "")
-    private List<BatchResourceResultVO> resourceList;
+    private List<DevelopResourceResultVO> resourceList;
 
     @ApiModelProperty(value = "")
-    private List<BatchResourceResultVO> refResourceList;
+    private List<DevelopResourceResultVO> refResourceList;
 
     @ApiModelProperty(value = "任务版本信息")
     private List<BatchTaskVersionDetailResultVO> taskVersions;
@@ -740,19 +740,19 @@ public class BatchTaskGetTaskByIdResultVO {
         this.componentVersion = componentVersion;
     }
 
-    public List<BatchResourceResultVO> getResourceList() {
+    public List<DevelopResourceResultVO> getResourceList() {
         return resourceList;
     }
 
-    public void setResourceList(List<BatchResourceResultVO> resourceList) {
+    public void setResourceList(List<DevelopResourceResultVO> resourceList) {
         this.resourceList = resourceList;
     }
 
-    public List<BatchResourceResultVO> getRefResourceList() {
+    public List<DevelopResourceResultVO> getRefResourceList() {
         return refResourceList;
     }
 
-    public void setRefResourceList(List<BatchResourceResultVO> refResourceList) {
+    public void setRefResourceList(List<DevelopResourceResultVO> refResourceList) {
         this.refResourceList = refResourceList;
     }
 

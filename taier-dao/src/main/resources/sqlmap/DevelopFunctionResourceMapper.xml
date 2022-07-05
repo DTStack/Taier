@@ -28,14 +28,14 @@
     </sql>
 
 
-    <select id="listByFunctionId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
+    <select id="listByFunctionId" resultType="com.dtstack.taier.dao.domain.DevelopFunctionResource">
         SELECT resource_id AS resource_id,
         <include refid="select_content_fragment"/>
         FROM develop_function_resource
         WHERE function_id = #{functionId} AND is_deleted = 0
     </select>
 
-    <select id="listByFunctionResourceId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
+    <select id="listByFunctionResourceId" resultType="com.dtstack.taier.dao.domain.DevelopFunctionResource">
         SELECT resource_id AS resource_id,
         <include refid="select_content_fragment"/>
         FROM develop_function_resource
@@ -47,14 +47,14 @@
         WHERE function_id = #{functionId}
     </update>
 
-    <select id="listByResourceId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
+    <select id="listByResourceId" resultType="com.dtstack.taier.dao.domain.DevelopFunctionResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function_resource
         WHERE resource_id = #{resourceId} and is_deleted = 0
     </select>
 
-    <select id="getResourceFunctionByFunctionId" resultType="com.dtstack.taier.dao.domain.BatchFunctionResource">
+    <select id="getResourceFunctionByFunctionId" resultType="com.dtstack.taier.dao.domain.DevelopFunctionResource">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function_resource

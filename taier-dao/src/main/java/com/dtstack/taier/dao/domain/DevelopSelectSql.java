@@ -24,7 +24,7 @@ import com.google.common.base.Charsets;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class BatchSelectSql extends TenantEntity {
+public class DevelopSelectSql extends TenantEntity {
 
     /**
      * 高级运行时，复杂查询所在的批量提交到engine的job的jobId

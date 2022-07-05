@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
 import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.vo.develop.query.BatchCatalogueAddVO;
@@ -37,7 +37,7 @@ public interface BatchCatalogueMapstructTransfer {
      * @param vo
      * @return
      */
-    BatchCatalogue newCatalogueAddVoToCatalogueVo(BatchCatalogueAddVO vo);
+    DevelopCatalogue newCatalogueAddVoToCatalogueVo(BatchCatalogueAddVO vo);
 
     /**
      * IdeCatalogueUpdateVO ->BatchCatalogueVO

@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.dao.mapper;
 
-import com.dtstack.taier.dao.domain.BatchSelectSql;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -32,26 +32,26 @@ public interface DevelopHiveSelectSqlMapper {
      * @param isDeleted
      * @return
      */
-    BatchSelectSql getByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("isDeleted") Integer isDeleted);
+    DevelopSelectSql getByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId, @Param("isDeleted") Integer isDeleted);
 
     /**
      * 插入 sql执行记录
      * @param selectSql
      * @return
      */
-    Integer insert(BatchSelectSql selectSql);
+    Integer insert(DevelopSelectSql selectSql);
 
     Integer updateGmtModify(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
     Integer deleteByJobId(@Param("jobId") String jobId, @Param("tenantId") Long tenantId);
 
-    List<BatchSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
+    List<DevelopSelectSql> listSelectTypeByGmtModified(@Param("timeDiff")Integer timeDiff);
 
     Integer deleteByIds(@Param("list") List<Long> list);
 
     Integer deleteByJobIds(@Param("list") List<String> list);
 
-    List<BatchSelectSql> listBySqlType(@Param("type") Integer type);
+    List<DevelopSelectSql> listBySqlType(@Param("type") Integer type);
 
     Integer deleteByTenantId(@Param("tenantId") Long tenantId);
 }

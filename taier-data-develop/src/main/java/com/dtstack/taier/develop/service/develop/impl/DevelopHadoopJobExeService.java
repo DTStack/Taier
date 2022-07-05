@@ -23,8 +23,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -80,7 +80,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         Map<String, Object> actionParam = Maps.newHashMap();
         try {
             String taskParams = task.getTaskParams();
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
+            List<DevelopTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
 
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
@@ -175,7 +175,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
      * @throws Exception
      */
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<BatchTaskParamShade> taskParamsToReplace) throws Exception {
+    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
         String sql = task.getSqlText() == null ? "" : task.getSqlText();
         String taskParams = task.getTaskParams();
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
