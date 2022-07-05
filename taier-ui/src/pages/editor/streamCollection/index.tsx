@@ -25,6 +25,10 @@ import type { IEditor } from '@dtinsight/molecule/esm/model';
 import saveTask from '@/utils/saveTask';
 import { Modal } from 'antd';
 import CollectionGuid from './steps';
+// TODO 把数据集成的样式和数据同步的样式统一出来
+import '../dataSync/index.scss';
+import '../dataSync/keymap.scss';
+import '../dataSync/preview.scss';
 import './index.scss';
 
 const confirm = Modal.confirm;

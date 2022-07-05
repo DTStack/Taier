@@ -626,3 +626,34 @@ export enum IComputeType {
 	STFP = 0,
 	HDFS = 1,
 }
+
+export enum RightBarKind {
+	/**
+	 * 任务属性
+	 */
+	TASK = 'task',
+	/**
+	 * 调度依赖
+	 */
+	DEPENDENCY = 'dependency',
+	/**
+	 * 任务参数
+	 */
+	TASK_PARAMS = 'task_params',
+	/**
+	 * 环境参数
+	 */
+	ENV_PARAMS = 'env_params',
+	/**
+	 * 源表
+	 */
+	FLINKSQL_SOURCE = 'flinksql_source',
+	/**
+	 * 结果表
+	 */
+	FLINKSQL_RESULT = 'flinksql_result',
+	/**
+	 * 维表
+	 */
+	FLINKSQL_DIMENSION = 'flinksql_dimension',
+}
