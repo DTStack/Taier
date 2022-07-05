@@ -49,9 +49,6 @@ public class BatchCatalogueResultVO {
     @ApiModelProperty(value = "目录类型", example = "SystemFunction")
     private String catalogueType;
 
-    @ApiModelProperty(value = "创建用户", example = "test")
-    private String createUser;
-
     @ApiModelProperty(value = "节点值", example = "1")
     private Integer orderVal;
 
@@ -132,14 +129,6 @@ public class BatchCatalogueResultVO {
 
     public void setCatalogueType(String catalogueType) {
         this.catalogueType = catalogueType;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
     }
 
     public Integer getOrderVal() {
