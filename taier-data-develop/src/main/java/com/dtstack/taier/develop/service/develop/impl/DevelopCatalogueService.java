@@ -28,8 +28,8 @@ import com.dtstack.taier.common.enums.EngineCatalogueType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopFunction;
+import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
@@ -37,7 +37,6 @@ import com.dtstack.taier.develop.dto.devlop.BatchCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
-import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,6 +53,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,9 +70,6 @@ public class DevelopCatalogueService {
 
     @Autowired
     private ScheduleDictService dictService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     public DevelopTaskService batchTaskService;
@@ -153,11 +150,13 @@ public class DevelopCatalogueService {
      * @return
      */
     private DevelopCatalogue addOrUpdate(DevelopCatalogue batchCatalogue) {
+        batchCatalogue.setGmtModified(new Timestamp(System.currentTimeMillis()));
         if (batchCatalogue.getId() != null && batchCatalogue.getId() > 0) {
             LambdaUpdateWrapper<DevelopCatalogue> batchCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
             batchCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId,batchCatalogue.getId());
             developCatalogueMapper.update(batchCatalogue,batchCatalogueLambdaUpdateWrapper);
         } else {
+            batchCatalogue.setGmtCreate(new Timestamp(System.currentTimeMillis()));
             developCatalogueMapper.insert(batchCatalogue);
         }
         return batchCatalogue;
@@ -170,9 +169,11 @@ public class DevelopCatalogueService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void initCatalogue(Long tenantId, Long userId) {
-        //离线各模块的 0 级目录，任务管理、函数管理、资源管理
-        List<Dict> zeroBatchCatalogueDictList = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
-        for (Dict zeroDict : zeroBatchCatalogueDictList) {
+        List<Dict> catalogueLevel1List = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE);
+        List<Dict> catalogueLevel2List = dictService.listByDictType(DictType.DATA_DEVELOP_CATALOGUE_L1);
+        Map<String, Set<String>> oneCatalogueValueAndNameMapping = catalogueLevel2List.stream()
+                .collect(Collectors.groupingBy(Dict::getDictValue, Collectors.mapping(Dict::getDictDesc, Collectors.toSet())));
+        for (Dict zeroDict : catalogueLevel1List) {
             //初始化 0 级目录
             DevelopCatalogue zeroBatchCatalogue = new DevelopCatalogue();
             zeroBatchCatalogue.setNodeName(zeroDict.getDictDesc());
@@ -183,6 +184,19 @@ public class DevelopCatalogueService {
             zeroBatchCatalogue.setCreateUserId(userId);
             zeroBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
             addOrUpdate(zeroBatchCatalogue);
+            if (CollectionUtils.isNotEmpty(oneCatalogueValueAndNameMapping.get(zeroDict.getDictValue()))) {
+                for (String oneCatalogueName : oneCatalogueValueAndNameMapping.get(zeroDict.getDictValue())) {
+                    //初始化 1 级目录
+                    DevelopCatalogue oneBatchCatalogue = new DevelopCatalogue();
+                    oneBatchCatalogue.setNodeName(oneCatalogueName);
+                    oneBatchCatalogue.setLevel(CatalogueLevel.SECOND.getLevel());
+                    oneBatchCatalogue.setNodePid(zeroBatchCatalogue.getId());
+                    oneBatchCatalogue.setTenantId(tenantId);
+                    oneBatchCatalogue.setCreateUserId(userId);
+                    oneBatchCatalogue.setCatalogueType(RdosBatchCatalogueTypeEnum.NORAML.getType());
+                    addOrUpdate(oneBatchCatalogue);
+                }
+            }
         }
     }
 

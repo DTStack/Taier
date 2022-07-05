@@ -1,5 +1,6 @@
 package com.dtstack.taier.develop.vo.develop.result;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -7,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @date ：2022/06/29 23:15
  * @description：
  */
+@ApiModel(value = "任务信息")
 public class DevelopTenantComponentResultVO {
 
     @ApiModelProperty(value = "任务类型", example = "0")

@@ -30,12 +30,8 @@ import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
-import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
-import com.dtstack.taier.scheduler.service.ComponentService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +90,7 @@ public class TenantService {
             //hadoop
             updateTenantQueue(tenantId, clusterId, queueName);
         }
-        initDataDevelop(clusterId, tenantId, tenant.getCreateUserId());
+        initDataDevelop(tenantId, tenant.getCreateUserId());
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -109,6 +105,8 @@ public class TenantService {
         ClusterTenant et = new ClusterTenant();
         et.setTenantId(tenantId);
         et.setClusterId(clusterId);
+        et.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        et.setGmtModified(new Timestamp(System.currentTimeMillis()));
         clusterTenantMapper.insert(et);
     }
 
@@ -159,12 +157,13 @@ public class TenantService {
         tenant.setCreateUserId(createUserId);
         tenant.setTenantIdentity(tenantIdentity);
         tenant.setGmtCreate(Timestamp.from(Instant.now()));
+        tenant.setGmtModified(Timestamp.from(Instant.now()));
         tenantMapper.insert(tenant);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void initDataDevelop(Long clusterId, Long tenantId, Long userId) {
+    public void initDataDevelop(Long tenantId, Long userId) {
         //初始化目录
         batchCatalogueService.initCatalogue(tenantId, userId);
     }
