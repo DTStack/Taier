@@ -19,7 +19,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Select, message, Form } from 'antd';
 import { formItemLayout } from '@/constant';
-import type { IClusterProps } from '../bindCommModal';
 import api from '@/api';
 import './index.scss';
 
@@ -34,39 +33,42 @@ interface IResourceManageModalProps {
 	/**
 	 * 资源队列默认值
 	 */
-	queueId?: number;
+	queueName?: string;
 	clusterId: number;
 	tenantId?: number;
-	clusterList: IClusterProps[];
 	onCancel?: () => void;
 	onOk?: () => void;
-}
-
-interface IQueueListProps {
-	queueId: number;
-	queueName: string;
 }
 
 export default ({
 	title,
 	visible,
-	queueId,
+	queueName,
 	clusterId,
 	tenantId,
 	isBindTenant = false,
-	// queueList = [],
 	onCancel,
 	onOk,
 }: IResourceManageModalProps) => {
 	const [form] = Form.useForm();
 	const [isLoading, setLoading] = useState(false);
-	const [queueList, setQueueList] = useState<IQueueListProps[]>([]);
+	const [queueList, setQueueList] = useState<string[]>([]);
+
+	const getQueueList = () => {
+		api.getClusterResources({
+			clusterId,
+		}).then((res) => {
+			if (res.code === 1) {
+				setQueueList(res.data.queues?.map((i: any) => i.queueName) || []);
+			}
+		});
+	};
 
 	const getServiceParam = () => {
 		form.validateFields().then((values) => {
 			setLoading(true);
 			api.switchQueue({
-				queueName: queueList.find((q) => q.queueId === values.queueId)!.queueName,
+				queueName: values.queueName,
 				tenantId,
 				clusterId,
 			})
@@ -80,17 +82,6 @@ export default ({
 					setLoading(false);
 				});
 		});
-	};
-
-	const getQueueList = async (value: number) => {
-		const res = await api.getEnginesByCluster({ clusterId: value });
-		if (res.code) {
-			const engines = res.data.engines || [];
-			const hadoopEngine = engines.find((e: any) => e.engineName === 'Hadoop');
-			if (hadoopEngine) {
-				setQueueList(hadoopEngine.queues || []);
-			}
-		}
 	};
 
 	const handleCancel = () => {
@@ -110,7 +101,7 @@ export default ({
 
 	useEffect(() => {
 		if (visible) {
-			getQueueList(clusterId);
+			getQueueList();
 		}
 	}, [visible]);
 
@@ -130,20 +121,20 @@ export default ({
 					label="资源队列"
 					tooltip="指Yarn上分配的资源队列，若下拉列表中无全部队列，请前往“多集群管理”页面的具体集群中刷新集群"
 					{...formItemLayout}
-					name="queueId"
+					name="queueName"
 					rules={[
 						{
 							required: true,
 							message: '资源队列不可为空！',
 						},
 					]}
-					initialValue={queueId || undefined}
+					initialValue={queueName || undefined}
 				>
 					<Select allowClear placeholder="请选择资源队列">
 						{queueList.map((item) => {
 							return (
-								<Option key={item.queueId} value={item.queueId}>
-									{item.queueName}
+								<Option key={item} value={item}>
+									{item}
 								</Option>
 							);
 						})}

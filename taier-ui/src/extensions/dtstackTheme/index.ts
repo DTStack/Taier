@@ -14,7 +14,7 @@ MyTheme.contributes.themes = packageThemes.map((theme, index) => {
 });
 
 // 声明当前主题的唯一 id
-MyTheme.id = 'MyTheme';
+(MyTheme as any).id = 'MyTheme';
 
 // 导出 package.json 的内容供 Molecule 使用
 export default JSON.parse(JSON.stringify(MyTheme));

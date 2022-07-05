@@ -81,6 +81,7 @@ export default class InitializeExtension implements IExtension {
 		initExplorer();
 		initDataSource();
 		initLanguage();
+		initExpandCollapse();
 	}
 	dispose(): void {
 		throw new Error('Method not implemented.');
@@ -88,35 +89,40 @@ export default class InitializeExtension implements IExtension {
 }
 
 /**
+ * 设置默认展开的左侧目录树项
+ */
+function initExpandCollapse() {
+	const { SAMPLE_FOLDER_PANEL_ID, EDITOR_PANEL_ID } = molecule.builtin.getConstants();
+	molecule.explorer.setExpandedPanels([EDITOR_PANEL_ID!, SAMPLE_FOLDER_PANEL_ID!]);
+}
+
+/**
  * 初始化主题
  */
 function initializeColorTheme() {
 	const defaultThemeId = localStorage.getItem(ID_COLLECTIONS.COLOR_THEME_ID);
-	const defaultTheme =
-		defaultThemeId &&
-		(molecule.colorTheme.getThemeById(defaultThemeId) as unknown as
-			| molecule.model.IColorTheme
-			| undefined);
+	const defaultTheme = defaultThemeId && molecule.colorTheme.getThemeById(defaultThemeId);
 	if (defaultTheme) {
 		molecule.colorTheme.setTheme(defaultTheme.id);
-		if (molecule.colorTheme.getColorThemeMode() === 'dark') {
-			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
-			document.documentElement.setAttribute('data-prefers-color', 'dark');
-		}
 	} else {
 		// 默认加载 DtStack 主题色
 		molecule.colorTheme.setTheme('DTStack Theme');
-		loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
-		document.documentElement.setAttribute('data-prefers-color', 'dark');
 	}
+
+	const currentThemeMode = molecule.colorTheme.getColorThemeMode();
+	if (currentThemeMode === ColorThemeMode.dark) {
+		loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
+	}
+	document.documentElement.setAttribute('data-prefers-color', currentThemeMode);
+
 	molecule.colorTheme.onChange((_, nextTheme, themeMode) => {
 		localStorage.setItem(ID_COLLECTIONS.COLOR_THEME_ID, nextTheme.id);
+		document.documentElement.setAttribute('data-prefers-color', themeMode);
+
 		if (themeMode === ColorThemeMode.dark) {
 			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
-			document.documentElement.setAttribute('data-prefers-color', 'dark');
 		} else {
 			removeStyles();
-			document.documentElement.setAttribute('data-prefers-color', 'light');
 		}
 	});
 }
@@ -279,9 +285,6 @@ function initFunctionManager() {
  * 初始化 Pane 界面
  */
 function initializePane() {
-	const { PANEL_OUTPUT } = molecule.builtin.getConstants();
-
-	molecule.panel.remove(PANEL_OUTPUT!);
 	molecule.panel.add({
 		id: ID_COLLECTIONS.OUTPUT_LOG_ID,
 		name: '日志',

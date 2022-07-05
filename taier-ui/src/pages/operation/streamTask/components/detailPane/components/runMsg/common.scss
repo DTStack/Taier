@@ -1,0 +1,67 @@
+.vertex-diagram {
+	background: #ffffff;
+	width: 280px;
+	user-select: none;
+
+	.vertex-title {
+		width: 100%;
+		display: grid;
+		grid-template-columns: auto 32px;
+		align-items: center;
+		height: 36px;
+		line-height: 36px;
+		border-radius: 4px 4px 0 0;
+		color: #ffffff;
+		padding: 0 0 0 12px;
+
+		.t_title {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			float: left;
+		}
+	}
+
+	.vertex-content {
+		padding-right: 36px;
+		font-size: 12px;
+		font-family: PingFangSC-Regular, PingFang SC;
+		font-weight: 400;
+		color: rgba(102, 102, 102, 1);
+		height: 198px;
+
+		.tcolumn {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			padding: 12px 15px 0 15px;
+			margin-bottom: 8px;
+			text-align: left;
+		}
+
+		.t-text-col {
+			height: 30px;
+			line-height: 30px;
+
+			.t-text-col-key {
+				float: left;
+				text-indent: 12px;
+
+				.t-text-col_img {
+					width: 12px;
+					height: 12px;
+					margin: -2px 8px 0 0;
+				}
+			}
+
+			.t-text-col-value {
+				float: right;
+				font-family: PingFangSC-Medium, PingFang SC;
+				font-weight: 500;
+				color: rgba(51, 51, 51, 1);
+			}
+		}
+	}
+}

@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.mapstruct.console;
 
 
 import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
 import com.dtstack.taier.develop.vo.console.TenantVO;
@@ -41,8 +40,5 @@ public interface TenantTransfer {
 
     List<TenantVO> toVOs(List<Tenant> tenants);
 
-    @Mapping(source = "queue.maxCapacity", target = "maxCapacity", defaultExpression = "java(NumberUtils.toDouble(queue.getMaxCapacity(),0) * 100 + \"%\")")
-    @Mapping(source = "queue.capacity", target = "minCapacity", defaultExpression = "java(NumberUtils.toDouble(queue.getCapacity(),0) * 100 + \"%\")")
-    @Mapping(source = "queue.queueName", target = "queue")
-    ClusterTenantVO toClusterTenantVO(ClusterTenant clusterTenant, Queue queue);
+    ClusterTenantVO toClusterTenantVO(ClusterTenant clusterTenant);
 }

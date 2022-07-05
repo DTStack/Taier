@@ -247,7 +247,8 @@ public class SyncOperatorPipeline extends IPipeline.AbstractPipeline {
                 String location = "";
                 if (DataSourceType.hadoopDirtyDataSource.contains(sourceType)) {
                     Cluster cluster = clusterService.getCluster(tenantId);
-                    Component metadataComponent = componentService.getMetadataComponent(cluster.getId());
+//                    Component metadataComponent = componentService.getMetadataComponent(cluster.getId());c
+                    Component metadataComponent = null;
                     EComponentType metadataComponentType = EComponentType.getByCode(null == metadataComponent ? EComponentType.SPARK_THRIFT.getTypeCode() : metadataComponent.getComponentTypeCode());
                     JSONObject pluginInfo = clusterService.getConfigByKey(tenantId, metadataComponentType.getConfName(), null);
                     String typeName = getHiveTypeName(DataSourceType.getSourceType(sourceType));

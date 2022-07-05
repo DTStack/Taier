@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.service.console;
 
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
@@ -28,24 +27,26 @@ import com.dtstack.taier.dao.domain.ClusterTenant;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.Queue;
 import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.ClusterTenant;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
-import com.dtstack.taier.dao.mapper.ConsoleQueueMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.dto.devlop.ComponentBindDBDTO;
-import com.dtstack.taier.develop.mapstruct.console.ClusterTransfer;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
-import com.dtstack.taier.develop.vo.console.ComponentBindDBVO;
-import com.dtstack.taier.scheduler.impl.pojo.ComponentMultiTestResult;
-import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
+import com.dtstack.taier.scheduler.vo.ComponentVO;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -78,9 +76,6 @@ public class TenantService {
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private ConsoleQueueMapper consoleQueueMapper;
-
-    @Autowired
     private ComponentService componentService;
 
     @Autowired
@@ -95,12 +90,6 @@ public class TenantService {
     @Autowired
     private MultiEngineServiceFactory multiEngineServiceFactory;
 
-    @Autowired
-    private ConsoleComponentService consoleComponentService;
-
-    @Autowired
-    private ClusterService clusterService;
-
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
                                                        int pageSize,
@@ -113,37 +102,19 @@ public class TenantService {
         }
         List<ClusterTenant> clusterTenants = clusterTenantMapper.generalQuery(query, clusterId, tenantName);
 
-        List<ClusterTenantVO> clusterTenantVOS = fillQueue(clusterTenants);
-        return new PageResult(clusterTenantVOS,count,query);
+        List<ClusterTenantVO> clusterTenantVOS = clusterTenants.stream().map(TenantTransfer.INSTANCE::toClusterTenantVO).collect(Collectors.toList());
+        return new PageResult(clusterTenantVOS, count, query);
     }
-
-    private List<ClusterTenantVO> fillQueue(List<ClusterTenant> clusterTenants) {
-        List<Long> queueIds = clusterTenants.stream()
-                .map(ClusterTenant::getQueueId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        Map<Long, Queue> queueMap = consoleQueueMapper.listByIds(queueIds)
-                .stream()
-                .collect(Collectors.toMap(Queue::getId, q -> q));
-
-        return clusterTenants.stream().map(clusterTenant -> {
-            Queue queue = queueMap.getOrDefault(clusterTenant.getQueueId(), new Queue());
-            return TenantTransfer.INSTANCE.toClusterTenantVO(clusterTenant, queue);
-        }).collect(Collectors.toList());
-    }
-
 
     @Transactional(rollbackFor = Exception.class)
     public void bindingTenant(Long tenantId, Long clusterId,
-                              Long queueId, String clusterName,
-                              List<ComponentBindDBVO> bindDBDTOList) throws Exception {
+                              String queueName) throws Exception {
         Tenant tenant = getTenant(tenantId);
         checkTenantBindStatus(tenantId);
-        checkClusterCanUse(clusterName);
         addClusterTenant(tenant.getId(), clusterId);
-        if (queueId != null) {
+        if (StringUtils.isNotBlank(queueName)) {
             //hadoop
-            updateTenantQueue(tenantId, clusterId, queueId);
+            updateTenantQueue(tenantId, clusterId, queueName);
         }
         List<ComponentBindDBDTO> bindDTOList = ClusterTransfer.INSTANCE.bindDBtoDTOList(bindDBDTOList);
         initDataDevelop(clusterId, tenantId, tenant.getCreateUserId());
@@ -153,25 +124,6 @@ public class TenantService {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         if (null != clusterId) {
             throw new RdosDefineException("The tenant has been bound");
-        }
-    }
-
-
-    public void checkClusterCanUse(String clusterName) throws Exception {
-        List<ComponentMultiTestResult> testConnectionVO = consoleComponentService.testConnects(clusterName);
-        boolean canUse = true;
-        StringBuilder msg = new StringBuilder();
-        msg.append("此集群不可用,测试连通性为通过：\n");
-        for (ComponentMultiTestResult testResult : testConnectionVO) {
-            EComponentType componentType = EComponentType.getByCode(testResult.getComponentTypeCode());
-            if (!EComponentType.notCheckComponent.contains(componentType) && !testResult.getResult()) {
-                canUse = false;
-                msg.append("组件:").append(componentType.getName()).append(" ").append(JSON.toJSONString(testResult.getErrorMsg())).append("\n");
-            }
-        }
-
-        if (!canUse) {
-            throw new RdosDefineException(msg.toString());
         }
     }
 
@@ -207,38 +159,11 @@ public class TenantService {
         return getTenant(id);
     }
 
-    public void updateTenantQueue(Long tenantId, Long clusterId, Long queueId) {
-        Integer childCount = consoleQueueMapper.countByParentQueueId(queueId);
-        if (childCount != 0) {
-            throw new RdosDefineException("The selected queue has sub-queues, and the correct sub-queues are selected", ErrorCode.DATA_NOT_FIND);
-        }
-
-        LOGGER.info("switch queue, tenantId:{} queueId:{} clusterId:{}", tenantId, queueId, clusterId);
-        int result = clusterTenantMapper.updateQueueId(tenantId, clusterId, queueId);
+    public void updateTenantQueue(Long tenantId, Long clusterId, String queueName) {
+        LOGGER.info("switch queue, tenantId:{} queueName:{} clusterId:{}", tenantId, queueName, clusterId);
+        int result = clusterTenantMapper.updateQueueName(tenantId, clusterId, queueName);
         if (result == 0) {
             throw new RdosDefineException("The update engine queue failed");
-        }
-    }
-
-    /**
-     * 绑定/切换队列
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void bindingQueue(String queueName,Long clusterId,
-                             Long tenantId) {
-        List<Queue> queues = consoleQueueMapper.listByClusterId(clusterId);
-        Optional<Queue> queueOptional = queues.stream().filter(queue -> queue.getQueueName().equals(queueName)).findFirst();
-        if (!queueOptional.isPresent()) {
-            throw new RdosDefineException("Queue does not exist", ErrorCode.DATA_NOT_FIND);
-        }
-        Queue queue = queueOptional.get();
-        Long queueId = queue.getId();
-        try {
-            LOGGER.info("switch queue, tenantId:{} queueId:{} queueName:{} clusterId:{}", tenantId, queueId, queue.getQueueName(), queue.getClusterId());
-            updateTenantQueue(tenantId, queue.getClusterId(), queueId);
-        } catch (Exception e) {
-            LOGGER.error("", e);
-            throw new RdosDefineException("Failed to switch queue");
         }
     }
 
@@ -251,7 +176,7 @@ public class TenantService {
     }
 
 
-    public void addTenant(String tenantName, Long createUserId,String tenantIdentity) {
+    public void addTenant(String tenantName, Long createUserId, String tenantIdentity) {
         Tenant tenant = new Tenant();
         tenant.setTenantName(tenantName);
         tenant.setCreateUserId(createUserId);

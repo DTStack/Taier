@@ -28,14 +28,12 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +46,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -93,24 +90,6 @@ public class ComponentService {
         pluginInfo.put(EComponentType.SFTP.getConfName(), sftpMap);
         pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig, clusterId);
         return pluginInfo;
-    }
-
-    public String buildUploadTypeName(Long clusterId) {
-        Component component = getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
-        if (null == component || StringUtils.isBlank(component.getVersionName())) {
-            return "hdfs2";
-        }
-        String versionName = component.getVersionName();
-        List<Dict> dicts = scheduleDictService.listByDictType(DictType.HDFS_TYPE_NAME);
-        Optional<Dict> dbTypeNames = dicts.stream().filter(dict -> dict.getDictName().equals(versionName.trim())).findFirst();
-        if (dbTypeNames.isPresent()) {
-            return dbTypeNames.get().getDictValue();
-        }
-        String hadoopVersion = component.getVersionValue();
-        if(StringUtils.isBlank(hadoopVersion)){
-            return "hdfs2";
-        }
-        return EComponentType.HDFS.name().toLowerCase() + hadoopVersion.charAt(0);
     }
 
 
@@ -246,10 +225,6 @@ public class ComponentService {
         return components;
     }
 
-    public Component getMetadataComponent(Long clusterId){
-        return componentMapper.getMetadataComponent(clusterId);
-    }
-
     public List<Component> listComponentsByComponentType(Long tenantId, Integer componentType) {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         return componentMapper.listByClusterId(clusterId,componentType,false);
@@ -276,11 +251,6 @@ public class ComponentService {
             throw new RdosDefineException("Cluster does not exist");
         }
         return "confPath" + File.separator + one.getClusterName();
-    }
-
-    public Integer getMetaComponentByClusterId(Long clusterId) {
-        com.dtstack.taier.dao.domain.Component metadataComponent = getMetadataComponent(clusterId);
-        return Objects.isNull(metadataComponent) ? null : metadataComponent.getComponentTypeCode();
     }
 
     public String buildHdfsTypeName(Long tenantId,Long clusterId) {

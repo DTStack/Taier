@@ -1,0 +1,251 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { useContext, useEffect, useMemo, useState } from 'react';
+import Context from '@/context';
+import { Button, Input, Select, Form, Spin, Empty } from 'antd';
+import molecule from '@dtinsight/molecule/esm';
+import FolderPicker from '../folderPicker';
+import type { DATA_SYNC_MODE, CREATE_MODEL_TYPE, TASK_TYPE_ENUM, FLINK_VERSIONS } from '@/constant';
+import { CATELOGUE_TYPE } from '@/constant';
+import type { CatalogueDataProps } from '@/interface';
+import { connect } from '@dtinsight/molecule/esm/react';
+import api from '@/api';
+import taskRenderService from '@/services/taskRenderService';
+import './create.scss';
+
+const FormItem = Form.Item;
+
+interface ICreateProps extends molecule.model.IEditor {
+	onSubmit?: (values: IFormFieldProps) => Promise<boolean>;
+	/**
+	 * Only in editing
+	 */
+	record?: CatalogueDataProps;
+}
+
+export interface IFormFieldProps {
+	name: string;
+	taskType: TASK_TYPE_ENUM;
+	nodePid: number;
+	taskDesc: string;
+	sourceMap?: {
+		syncModel: DATA_SYNC_MODE;
+	};
+	createModel?: Valueof<typeof CREATE_MODEL_TYPE>;
+	sqlText?: string;
+	resourceIdList?: [string];
+	mainClass?: string;
+	exeArgs?: string;
+	componentVersion: Valueof<typeof FLINK_VERSIONS>;
+}
+
+export default connect(molecule.editor, ({ onSubmit, record, current }: ICreateProps) => {
+	const { supportJobTypes } = useContext(Context);
+	const [form] = Form.useForm<IFormFieldProps>();
+	const [loading, setLoading] = useState(false);
+	const [pageLoading, setPageLoading] = useState(false);
+
+	const getCurrentTaskInfo = () => {
+		if (record) {
+			setPageLoading(true);
+			api.getOfflineTaskByID({ id: record.id })
+				.then((res) => {
+					if (res.code === 1) {
+						// 如果发现 syncModel 字段放到旧版本字段的位置上了，则给一个提示
+						const isTruncate =
+							res.data.sourceMap?.syncModel === undefined &&
+							res.data.syncModel !== undefined;
+						form.setFields([
+							{
+								name: 'syncModel',
+								touched: false,
+								validating: false,
+								errors: [isTruncate ? '由于版本更新，需要重新设置该字段' : ''],
+								value: res.data.sourceMap?.syncModel,
+							},
+						]);
+
+						// 设置所有类型都需要的字段
+						form.setFieldsValue({
+							name: res.data.name,
+							taskDesc: res.data.taskDesc,
+							sqlText: res.data.sqlText,
+							taskType: res.data.taskType,
+						});
+
+						// 获取当前类型在新建的时候所需要的字段
+						const formFields = taskRenderService.createFormField.find(
+							(i) => i.taskType === res.data.taskType,
+						);
+
+						if (formFields) {
+							formFields.formField.forEach((field) => {
+								// 特殊处理
+								if (field === 'syncModel') {
+									form.setFieldsValue({
+										sourceMap: {
+											syncModel: res.data.sourceMap?.syncModel,
+										},
+									});
+								} else {
+									form.setFieldsValue({
+										[field]: res.data[field],
+									});
+								}
+							});
+						}
+					}
+				})
+				.finally(() => {
+					setPageLoading(false);
+				});
+		}
+	};
+
+	const handleSubmit = (values: IFormFieldProps) => {
+		setLoading(true);
+		onSubmit?.({ ...values }).then((success) => {
+			setLoading(success);
+		});
+	};
+
+	const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
+		if (current?.tab) {
+			const { id } = current.tab;
+			// Insert form values into tab for preventing losting the values when switch tabs
+			molecule.editor.updateTab({
+				id,
+				data: values,
+			});
+		}
+	};
+
+	useEffect(() => {
+		getCurrentTaskInfo();
+	}, []);
+
+	const initialValues = useMemo(() => {
+		if (current?.tab) {
+			const { data } = current.tab;
+			return {
+				nodePid: data.nodePid?.toString().split('-')[0],
+			};
+		}
+		return undefined;
+	}, []);
+
+	return (
+		<div className="taier__create__container">
+			<div className="taier__create__wrapper">
+				<Spin spinning={pageLoading}>
+					<Form<IFormFieldProps>
+						form={form}
+						onFinish={handleSubmit}
+						onValuesChange={handleValuesChanged}
+						initialValues={initialValues}
+						autoComplete="off"
+						className="taier__create__form"
+						layout="vertical"
+					>
+						<FormItem
+							label="任务名称"
+							name="name"
+							rules={[
+								{
+									required: true,
+									message: `任务名称不可为空！`,
+								},
+								{
+									max: 128,
+									message: `任务名称不得超过128个字符！`,
+								},
+								{
+									pattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/,
+									message: `任务名称只能由字母、数字、中文、下划线组成!`,
+								},
+							]}
+						>
+							<Input placeholder="请输入任务名称" />
+						</FormItem>
+						<FormItem
+							label="任务类型"
+							name="taskType"
+							rules={[
+								{
+									required: true,
+									message: `请选择任务类型`,
+								},
+							]}
+						>
+							<Select<string>
+								placeholder="请选择任务类型"
+								disabled={!!record}
+								notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+								options={supportJobTypes.map((t) => ({
+									label: t.value,
+									value: t.key,
+								}))}
+							/>
+						</FormItem>
+						<FormItem noStyle dependencies={['taskType']}>
+							{(currentForm) =>
+								taskRenderService.renderCreateForm(
+									currentForm.getFieldValue('taskType'),
+									record,
+									currentForm,
+								)
+							}
+						</FormItem>
+						<FormItem
+							label="存储位置"
+							name="nodePid"
+							rules={[
+								{
+									required: true,
+									message: '存储位置必选！',
+								},
+							]}
+							initialValue={molecule.folderTree.getState().folderTree?.data?.[0].id}
+						>
+							<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
+						</FormItem>
+						<FormItem
+							label="描述"
+							name="taskDesc"
+							rules={[
+								{
+									max: 200,
+									message: '描述请控制在200个字符以内！',
+								},
+							]}
+						>
+							<Input.TextArea placeholder="请输入描述" disabled={false} rows={4} />
+						</FormItem>
+						<FormItem name="sqlText" hidden />
+						<FormItem>
+							<Button type="primary" htmlType="submit" loading={loading}>
+								确认
+							</Button>
+						</FormItem>
+					</Form>
+				</Spin>
+			</div>
+		</div>
+	);
+});

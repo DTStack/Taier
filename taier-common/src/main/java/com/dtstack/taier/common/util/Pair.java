@@ -1,56 +1,96 @@
 package com.dtstack.taier.common.util;
 
-/**
- * SLOGAN:让现在编程未来
- *
- * @author <a href="mailto:linfeng@dtstack.com">林丰</a> 2019/10/24.
- * @description 键值对
- */
+public class Pair<K, V> {
+    /** Key. */
+    private final K key;
+    /** Value. */
+    private final V value;
 
-public class Pair<L, R> implements java.io.Serializable {
-    private static final long serialVersionUID = 3295957496904951095L;
     /**
-     * 左值（键）
+     * Create an entry representing a mapping from the specified key to the
+     * specified value.
+     *
+     * @param k Key (first element of the pair).
+     * @param v Value (second element of the pair).
      */
-    private L leftValue;
+    public Pair(K k, V v) {
+        key = k;
+        value = v;
+    }
+
     /**
-     * 右值（值）
+     * Create an entry representing the same mapping as the specified entry.
+     *
+     * @param entry Entry to copy.
      */
-    private R rightValue;
-
-    public L leftValue() {
-        return this.leftValue;
+    public Pair(Pair<? extends K, ? extends V> entry) {
+        this(entry.getKey(), entry.getValue());
     }
 
-    public R rightValue() {
-        return this.rightValue;
+    /**
+     * Get the key.
+     *
+     * @return the key (first element of the pair).
+     */
+    public K getKey() {
+        return key;
     }
 
-    static public <L, R> Pair<L, R> of(L lValue, R rValue) {
-        return new Pair<>(lValue, rValue);
+    /**
+     * Get the value.
+     *
+     * @return the value (second element of the pair).
+     */
+    public V getValue() {
+        return value;
     }
 
-    public L getLeftValue() {
-        return leftValue;
+
+
+    /**
+     * Compare the specified object with this entry for equality.
+     *
+     * @param o Object.
+     * @return {@code true} if the given object is also a map entry and
+     * the two entries represent the same mapping.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof org.apache.commons.math3.util.Pair)) {
+            return false;
+        } else {
+            Pair<?, ?> oP = (Pair<?, ?>) o;
+            return (key == null ?
+                    oP.key == null :
+                    key.equals(oP.key)) &&
+                    (value == null ?
+                            oP.value == null :
+                            value.equals(oP.value));
+        }
     }
 
-    public void setLeftValue(L leftValue) {
-        this.leftValue = leftValue;
+    /**
+     * Compute a hash code.
+     *
+     * @return the hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = key == null ? 0 : key.hashCode();
+
+        final int h = value == null ? 0 : value.hashCode();
+        result = 37 * result + h ^ (h >>> 16);
+
+        return result;
     }
 
-    public R getRightValue() {
-        return rightValue;
+    @Override
+    public String toString() {
+        return "[" + getKey() + ", " + getValue() + "]";
     }
 
-    public void setRightValue(R rightValue) {
-        this.rightValue = rightValue;
-    }
 
-    public Pair(L leftValue, R rightValue) {
-        this.leftValue = leftValue;
-        this.rightValue = rightValue;
-    }
-
-    public Pair() {
-    }
 }
