@@ -46,7 +46,7 @@ import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import Editor from '@/components/editor';
 import { asyncTimeoutNumDoc, queryFault, targetColText } from '@/components/helpDoc/docs';
 import { CustomParams } from '../customParams';
-import DataPreviewModal from '../../../components/streamCollection/source/dataPreviewModal';
+import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSideProps } from '@/interface';
 import { createSeries } from '@/utils';
 import { NAME_FIELD } from '.';
