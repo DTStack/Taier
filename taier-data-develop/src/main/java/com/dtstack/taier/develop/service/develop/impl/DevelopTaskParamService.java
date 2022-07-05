@@ -32,7 +32,7 @@ import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamMapper;
-import com.dtstack.taier.develop.dto.devlop.BatchParamDTO;
+import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -57,10 +57,10 @@ public class DevelopTaskParamService {
     private DevelopTaskParamMapper developTaskParamDao;
 
     @Autowired
-    private DevelopSysParamService batchSysParamService;
+    private DevelopSysParamService developSysParamService;
 
     @Autowired
-    private DevelopSqlExeService batchSqlExeService;
+    private DevelopSqlExeService developSqlExeService;
 
     private static final String PARAM_REGEX = "\\$\\{.*?\\}";
 
@@ -72,7 +72,7 @@ public class DevelopTaskParamService {
     private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
 
     public void addOrUpdateTaskParam(final List<Map> taskVariables ,Long id) {
-        final List<BatchParamDTO> parameterSet = this.paramResolver(taskVariables);
+        final List<DevelopParamDTO> parameterSet = this.paramResolver(taskVariables);
 
         //存储
         this.saveTaskParams(id, parameterSet);
@@ -102,7 +102,7 @@ public class DevelopTaskParamService {
         }
 
         //校验任务参数时，先清除sql中的注释
-        String sqlWithoutComments = this.batchSqlExeService.removeComment(jobStr);
+        String sqlWithoutComments = this.developSqlExeService.removeComment(jobStr);
         if (StringUtils.isNotEmpty(sqlWithoutComments)) {
             sqlWithoutComments = sqlWithoutComments.replaceAll("\\s*", "");
         }
@@ -202,24 +202,24 @@ public class DevelopTaskParamService {
      * @param taskVariables
      * @return
      */
-    public List<BatchParamDTO> paramResolver(List<Map> taskVariables) {
+    public List<DevelopParamDTO> paramResolver(List<Map> taskVariables) {
         if (CollectionUtils.isEmpty(taskVariables)) {
             return Collections.emptyList();
         }
 
-        List<BatchParamDTO> parameters = new ArrayList<>(taskVariables.size());
+        List<DevelopParamDTO> parameters = new ArrayList<>(taskVariables.size());
         for (Map<String, Object> var : taskVariables) {
-            BatchParamDTO batchParamDTO = new BatchParamDTO(MathUtil.getIntegerVal(var.get("type")),
+            DevelopParamDTO developParamDTO = new DevelopParamDTO(MathUtil.getIntegerVal(var.get("type")),
                     MathUtil.getString(var.get("paramName")), MathUtil.getString(var.get("paramCommand")));
-            parameters.add(batchParamDTO);
+            parameters.add(developParamDTO);
         }
 
         return parameters;
     }
 
-    public List<DevelopTaskParam> saveTaskParams(final Long taskId, final List<BatchParamDTO> batchParamDTOS) {
+    public List<DevelopTaskParam> saveTaskParams(final Long taskId, final List<DevelopParamDTO> developParamDTOS) {
         this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
-        final List<DevelopTaskParam> developTaskParams = this.buildBatchTaskParams(taskId, batchParamDTOS);
+        final List<DevelopTaskParam> developTaskParams = this.buildBatchTaskParams(taskId, developParamDTOS);
         return developTaskParams;
     }
 
@@ -240,11 +240,11 @@ public class DevelopTaskParamService {
         this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
     }
 
-    public List<DevelopTaskParam> buildBatchTaskParams(final long taskId, final List<BatchParamDTO> batchParamDTOS) {
+    public List<DevelopTaskParam> buildBatchTaskParams(final long taskId, final List<DevelopParamDTO> developParamDTOS) {
 
-        final List<DevelopTaskParam> saves = new ArrayList<>(batchParamDTOS.size());
+        final List<DevelopTaskParam> saves = new ArrayList<>(developParamDTOS.size());
 
-        for (final BatchParamDTO tmp : batchParamDTOS) {
+        for (final DevelopParamDTO tmp : developParamDTOS) {
             if (StringUtils.isBlank(tmp.getParamCommand())) {
                 throw new RdosDefineException("自定义参数赋值不能为空");
             }
@@ -281,10 +281,10 @@ public class DevelopTaskParamService {
      * @return
      * @throws Exception
      */
-    public List<DevelopTaskParam> convertParam(final List<BatchParamDTO> paramDTOs) {
+    public List<DevelopTaskParam> convertParam(final List<DevelopParamDTO> paramDTOs) {
         final List<DevelopTaskParam> params = Lists.newArrayList();
         if (paramDTOs != null) {
-            for (BatchParamDTO paramDTO : paramDTOs) {
+            for (DevelopParamDTO paramDTO : paramDTOs) {
                 params.add(PublicUtil.objectToObject(paramDTO, DevelopTaskParam.class));
             }
         }
@@ -301,7 +301,7 @@ public class DevelopTaskParamService {
                 continue;
             }
             // 将 command 属性设置为系统表的 command
-            DevelopSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
+            DevelopSysParameter sysParameter = developSysParamService.getBatchSysParamByName(taskParamShade.getParamName());
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParams;

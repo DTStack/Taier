@@ -28,7 +28,7 @@ public class ExecuteSelectSqlData {
     /**
      * 查询sql信息
      */
-    private DevelopSelectSql batchHiveSelectSql;
+    private DevelopSelectSql developHiveSelectSql;
 
     /**
      * 任务信息
@@ -45,26 +45,26 @@ public class ExecuteSelectSqlData {
      */
     private IDevelopSelectSqlService IDevelopSelectSqlService;
 
-    public ExecuteSelectSqlData(DevelopSelectSql batchHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
-        this.batchHiveSelectSql = batchHiveSelectSql;
+    public ExecuteSelectSqlData(DevelopSelectSql developHiveSelectSql, Task task, Integer taskType, com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService IDevelopSelectSqlService) {
+        this.developHiveSelectSql = developHiveSelectSql;
         this.task = task;
         this.taskType = taskType;
         this.IDevelopSelectSqlService = IDevelopSelectSqlService;
     }
 
     public DevelopSelectSql getBatchHiveSelectSql() {
-        return batchHiveSelectSql;
+        return developHiveSelectSql;
     }
 
-    public void setBatchHiveSelectSql(DevelopSelectSql batchHiveSelectSql) {
-        this.batchHiveSelectSql = batchHiveSelectSql;
+    public void setBatchHiveSelectSql(DevelopSelectSql developHiveSelectSql) {
+        this.developHiveSelectSql = developHiveSelectSql;
     }
 
-    public Task getBatchTask() {
+    public Task getTask() {
         return task;
     }
 
-    public void setBatchTask(Task task) {
+    public void setTask(Task task) {
         this.task = task;
     }
 

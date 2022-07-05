@@ -79,19 +79,19 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
     private HadoopDataDownloadService hadoopDataDownloadService;
 
     @Autowired
-    private DevelopDownloadService batchDownloadService;
+    private DevelopDownloadService developDownloadService;
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
     private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
-    private DevelopSelectSqlService batchSelectSqlService;
+    private DevelopSelectSqlService developSelectSqlService;
 
     @Autowired
-    private DevelopFunctionService batchFunctionService;
+    private DevelopFunctionService developFunctionService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -144,7 +144,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             sendSqlTask(tenantId, buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
 
             // 记录job
-            batchSelectSqlService.addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
+            developSelectSqlService.addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
                     parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
             return preJobId;
         } catch (Exception e) {
@@ -163,7 +163,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      */
     public String buildCustomFunctionAndDbSql(String originSql, Long tenantId, String database, Boolean addCustomFunction, Integer taskType) {
         if (BooleanUtils.isTrue(addCustomFunction)) {
-            String functionSql = batchFunctionService.buildContainFunction(originSql, tenantId, taskType);
+            String functionSql = developFunctionService.buildContainFunction(originSql, tenantId, taskType);
             if (StringUtils.isNotBlank(functionSql)) {
                 return String.format(USER_DB_TEMP_FUNCTION, database, functionSql, originSql);
             }
@@ -182,7 +182,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      */
     public String buildSelectSqlCustomFunction(String originSql, Long tenantId, String database, String tempTable, Integer taskType) {
         // 判断是否是自定义函数
-        String createFunction = batchFunctionService.buildContainFunction(originSql, tenantId, taskType);
+        String createFunction = developFunctionService.buildContainFunction(originSql, tenantId, taskType);
         if (StringUtils.isNotBlank(createFunction)) {
             return String.format(CREATE_FUNCTION_TEMP_TABLE, database, createFunction, tempTable, originSql);
         }
@@ -200,7 +200,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @return
      */
     public BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Boolean isCreateAs, Long taskId) {
-        Task task = batchTaskService.getBatchTaskById(taskId);
+        Task task = developTaskService.getDevelopTaskById(taskId);
 
         String originSql = parseResult.getStandardSql();
         // 生成临时表名
@@ -299,7 +299,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
                 return result;
             }
             // update time
-            batchSelectSqlService.updateGmtModify(jobId, tenantId);
+            developSelectSqlService.updateGmtModify(jobId, tenantId);
         }
         return result;
     }
@@ -344,7 +344,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             }
         }
         // update time
-        batchSelectSqlService.updateGmtModify(jobId, tenantId);
+        developSelectSqlService.updateGmtModify(jobId, tenantId);
         return result;
     }
 
@@ -577,7 +577,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
         String log = "";
         if (needDownload) {
             try {
-                log = batchDownloadService.loadJobLog(tenantId, result.getTaskType(), jobId, 30000);
+                log = developDownloadService.loadJobLog(tenantId, result.getTaskType(), jobId, 30000);
             } catch (Exception e) {
                 LOGGER.error("", e);
             }

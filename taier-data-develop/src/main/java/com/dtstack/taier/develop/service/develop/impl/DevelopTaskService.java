@@ -112,9 +112,9 @@ import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
@@ -180,7 +180,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
-    @Resource(name = "batchJobParamReplace")
+    @Resource(name = "developJobParamReplace")
     private JobParamReplace jobParamReplace;
 
     @Autowired
@@ -193,22 +193,22 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private TaskTemplateService taskTemplateService;
 
     @Autowired
-    private DevelopTaskResourceService batchTaskResourceService;
+    private DevelopTaskResourceService developTaskResourceService;
 
     @Autowired
     private TaskDirtyDataManageService taskDirtyDataManageService;
 
     @Autowired
-    private DevelopTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
-    private DevelopTaskTaskService batchTaskTaskService;
+    private DevelopTaskTaskService developTaskTaskService;
 
     @Autowired
     private DatasourceService dataSourceService;
 
     @Autowired
-    private DevelopCatalogueService batchCatalogueService;
+    private DevelopCatalogueService developCatalogueService;
 
     @Autowired
     private UserService userService;
@@ -220,22 +220,22 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private TaskVersionService taskVersionService;
 
     @Autowired
-    private DevelopSysParamService batchSysParamService;
+    private DevelopSysParamService developSysParamService;
 
     @Autowired
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private DevelopFunctionService batchFunctionService;
+    private DevelopFunctionService developFunctionService;
 
     @Autowired
     private ScheduleDictService dictService;
 
     @Autowired
-    private DevelopSqlExeService batchSqlExeService;
+    private DevelopSqlExeService developSqlExeService;
 
     @Autowired
-    private DevelopTaskResourceShadeService batchTaskResourceShadeService;
+    private DevelopTaskResourceShadeService developTaskResourceShadeService;
 
     @Autowired
     private HadoopJobExeService hadoopJobExeService;
@@ -330,7 +330,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<DevelopTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
-        List<DevelopResource> resources = batchTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        List<DevelopResource> resources = developTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
         taskVO.setResourceList(resources);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
@@ -345,7 +345,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     private List<TaskVO> buildDependTaskList(Long taskId) {
-        List<DevelopTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(taskId);
+        List<DevelopTaskTask> taskTasks = developTaskTaskService.getAllParentTask(taskId);
         List<Long> parentTaskIds = taskTasks.stream()
                 .map(DevelopTaskTask::getParentTaskId)
                 .collect(Collectors.toList());
@@ -375,7 +375,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {
-        final List<DevelopTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
+        final List<DevelopTaskParam> taskParams = this.developTaskParamService.getTaskParam(taskId);
         final List<Map> mapParams = new ArrayList<>();
         if (taskParams != null) {
             for (final DevelopTaskParam taskParam : taskParams) {
@@ -390,7 +390,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     private void setTaskVariables(final ScheduleTaskVO taskVO, final Long taskId) {
-        final List<DevelopTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
+        final List<DevelopTaskParam> taskParams = this.developTaskParamService.getTaskParam(taskId);
         final List<Map> mapParams = new ArrayList<>();
         if (taskParams != null) {
             for (final DevelopTaskParam taskParam : taskParams) {
@@ -430,7 +430,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return parentTaskId;
         }
 
-        List<DevelopTaskTask> taskTasks = batchTaskTaskService.getAllParentTask(parentTaskId);
+        List<DevelopTaskTask> taskTasks = developTaskTaskService.getAllParentTask(parentTaskId);
         if (CollectionUtils.isEmpty(taskTasks)) {
             return 0L;
         }
@@ -582,7 +582,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 scheduleConf.put("periodType", ESchedulePeriodType.DAY.getVal());
                 scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
             }
-            paramTaskAction.setBatchTask(scheduleTasks);
+            paramTaskAction.setTask(scheduleTasks);
         } else if (EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType()) {
             JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
             scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
@@ -590,7 +590,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
         scheduleTasks.setExtraInfo(extroInfo);
         savaTaskDTO.setScheduleTaskShade(scheduleTasks);
-        List<DevelopTaskTask> allParentTask = batchTaskTaskService.getAllParentTask(taskId);
+        List<DevelopTaskTask> allParentTask = developTaskTaskService.getAllParentTask(taskId);
         savaTaskDTO.setParentTaskIdList(allParentTask.stream().map(DevelopTaskTask::getParentTaskId).collect(Collectors.toList()));
         this.taskService.saveTask(savaTaskDTO);
     }
@@ -610,7 +610,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         // 跨项目的时候 需要依赖 task的project
 
         final Map<String, Object> actionParam = new HashMap<>(10);
-        List<DevelopTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
+        List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
 
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
@@ -619,7 +619,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
-            String newSqlText = batchSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
+            String newSqlText = developSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
             actionParam.put("sqlText", newSqlText);
         } else {
             actionParam.put("sqlText", task.getSqlText());
@@ -832,7 +832,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (CollectionUtils.isEmpty(taskResourceParam.getResourceIdList())) {
             return;
         }
-        batchTaskResourceService.save(taskVO, taskResourceParam.getResourceIdList(), ResourceRefType.MAIN_RES.getType());
+        developTaskResourceService.save(taskVO, taskResourceParam.getResourceIdList(), ResourceRefType.MAIN_RES.getType());
 
     }
 
@@ -901,7 +901,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
-            batchTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
+            developTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
             updateTask(taskVO);
         } else {
             if (task != null) {
@@ -910,11 +910,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             addTask(taskVO);
         }
         if (BooleanUtils.isTrue(taskParam)) {
-            batchTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
+            developTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
         }
 
         // 添加任务依赖关系
-        batchTaskTaskService.addOrUpdateTaskTask(taskVO.getId(), taskVO.getDependencyTasks());
+        developTaskTaskService.addOrUpdateTaskTask(taskVO.getId(), taskVO.getDependencyTasks());
 
         if (!taskVO.getUpdateSource()) {
             return taskVO;
@@ -1013,7 +1013,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                     throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
                 }
                 if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-                    batchTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
+                    developTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
                 }
                 task.setSqlText(sqlText);
             } else {
@@ -1266,7 +1266,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             JSONObject sql = new JSONObject();
             if (TaskCreateModelType.TEMPLATE.getType().equals(param.getCreateModel())) {
                 sql.put("job", param.getSqlText());
-                this.batchTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
+                this.developTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
             } else if ((param.isPreSave() || param.getId() == 0) && TaskCreateModelType.GUIDE.getType().equals(param.getCreateModel())) {
                 if (param.getId() != 0) {
                     String sqlText = this.dataSourceService.getSyncSql(param, false);
@@ -1349,7 +1349,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * 判断任务是否可以配置增量标识
      */
     public boolean canSetIncreConf(Long taskId) {
-        final Task task = this.getBatchTaskById(taskId);
+        final Task task = this.getDevelopTaskById(taskId);
         if (task == null) {
             throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
         }
@@ -1459,7 +1459,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * 数据开发-删除任务
      *
      * @param taskId   任务id
-     * @param tenantId 项目id
      * @param userId   用户id
      * @return
      * @author toutian
@@ -1486,14 +1485,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         if (task.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
-            final List<Task> batchTasks = this.getFlowWorkSubTasks(taskId);
+            final List<Task> developTasks = this.getFlowWorkSubTasks(taskId);
             //删除所有子任务相关
-            batchTasks.forEach(task1 -> this.deleteTaskInfos(task1.getId(), userId));
+            developTasks.forEach(task1 -> this.deleteTaskInfos(task1.getId(), userId));
         }
 
         //删除工作流中的子任务同时删除被依赖的关系
         if (task.getFlowId() > 0) {
-            this.batchTaskTaskService.deleteTaskTaskByParentId(task.getId());
+            this.developTaskTaskService.deleteTaskTaskByParentId(task.getId());
         }
 
         //删除任务
@@ -1510,19 +1509,19 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 .set(Task::getGmtModified, Timestamp.valueOf(LocalDateTime.now()))
                 .update();
         //删除任务的依赖关系
-        this.batchTaskTaskService.deleteTaskTaskByTaskId(taskId);
+        this.developTaskTaskService.deleteTaskTaskByTaskId(taskId);
         //删除关联的函数资源
-        this.batchTaskResourceService.deleteTaskResource(taskId);
-        this.batchTaskResourceShadeService.deleteByTaskId(taskId);
+        this.developTaskResourceService.deleteTaskResource(taskId);
+        this.developTaskResourceShadeService.deleteByTaskId(taskId);
         //删除关联的参数表信息
-        this.batchTaskParamService.deleteTaskParam(taskId);
+        this.developTaskParamService.deleteTaskParam(taskId);
         //删除发布相关的数据
         this.taskService.deleteTask(taskId, userId);
         taskDirtyDataManageService.deleteByTaskId(taskId);
     }
 
 
-    public Task getBatchTaskById(final long taskId) {
+    public Task getDevelopTaskById(final long taskId) {
         return this.developTaskMapper.selectById(taskId);
     }
 
@@ -1568,7 +1567,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * 数据开发-获取所有系统参数
      */
     public Collection<DevelopSysParameter> getSysParams() {
-        return this.batchSysParamService.listSystemParam();
+        return this.developSysParamService.listSystemParam();
     }
 
 
@@ -1586,8 +1585,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return;
         }
         if (!isFile.equals(IS_FILE)) {
-            DevelopCatalogue batchCatalogue = batchCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
-            if (batchCatalogue != null) {
+            DevelopCatalogue developCatalogue = developCatalogueService.getByPidAndName(tenantId, pid.longValue(), name);
+            if (developCatalogue != null) {
                 throw new RdosDefineException("文件夹已存在", ErrorCode.NAME_ALREADY_EXIST);
             }
         } else {
@@ -1629,8 +1628,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskLambdaQueryWrapper.eq(Task::getIsDeleted, Deleted.NORMAL.getStatus());
         taskLambdaQueryWrapper.eq(Task::getFlowId, taskId);
         taskLambdaQueryWrapper.last("limit 1000");
-        List<Task> batchTasks = this.developTaskMapper.selectList(taskLambdaQueryWrapper);
-        return batchTasks;
+        List<Task> developTasks = this.developTaskMapper.selectList(taskLambdaQueryWrapper);
+        return developTasks;
     }
 
     public Task getByName(String name, Long tenantId) {
@@ -1733,11 +1732,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param taskType
      * @return
      */
-    public List<BatchTaskGetComponentVersionResultVO> getComponentVersionByTaskType(Long tenantId, Integer taskType) {
+    public List<DevelopTaskGetComponentVersionResultVO> getComponentVersionByTaskType(Long tenantId, Integer taskType) {
         List<Component> components = componentService.getComponentVersionByEngineType(tenantId, taskType);
-        List<BatchTaskGetComponentVersionResultVO> componentVersionResultVOS = Lists.newArrayList();
+        List<DevelopTaskGetComponentVersionResultVO> componentVersionResultVOS = Lists.newArrayList();
         for (Component component : components) {
-            BatchTaskGetComponentVersionResultVO resultVO = new BatchTaskGetComponentVersionResultVO();
+            DevelopTaskGetComponentVersionResultVO resultVO = new DevelopTaskGetComponentVersionResultVO();
             resultVO.setComponentVersion(component.getVersionValue());
             resultVO.setDefault(component.getIsDefault());
             componentVersionResultVOS.add(resultVO);
@@ -1751,7 +1750,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      *
      * @return
      */
-    private Comparator<BatchTaskGetComponentVersionResultVO> sortComponentVersion() {
+    private Comparator<DevelopTaskGetComponentVersionResultVO> sortComponentVersion() {
         return (o1, o2) -> {
             String[] version1 = o1.getComponentVersion().split("\\.");
             String[] version2 = o2.getComponentVersion().split("\\.");
@@ -1945,11 +1944,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param searchVO
      * @return
      */
-    public List<BatchAllProductGlobalReturnVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
+    public List<DevelopAllProductGlobalReturnVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
         Task task = getOneWithError(searchVO.getTaskId());
 
         // 过滤掉已经依赖的任务
-        List<DevelopTaskTask> taskTasks = this.batchTaskTaskService.getAllParentTask(searchVO.getTaskId());
+        List<DevelopTaskTask> taskTasks = this.developTaskTaskService.getAllParentTask(searchVO.getTaskId());
         List<Long> excludeIds = new ArrayList<>(taskTasks.size());
         excludeIds.add(searchVO.getTaskId());
         taskTasks.forEach(taskTask -> excludeIds.add(taskTask.getTaskId()));
@@ -1958,9 +1957,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         List<ScheduleTaskShade> filterTask = scheduleTaskShadeList.stream().filter(scheduleTask -> !excludeIds.contains(scheduleTask.getTaskId())).collect(Collectors.toList());
         Map<Long, Tenant> tenantMap = tenantService.listAllTenant().stream().collect(Collectors.toMap(Tenant::getId, g -> (g)));
 
-        List<BatchAllProductGlobalReturnVO> voList = Lists.newArrayList();
+        List<DevelopAllProductGlobalReturnVO> voList = Lists.newArrayList();
         for (ScheduleTaskShade scheduleTaskShade : filterTask) {
-            BatchAllProductGlobalReturnVO vo = new BatchAllProductGlobalReturnVO();
+            DevelopAllProductGlobalReturnVO vo = new DevelopAllProductGlobalReturnVO();
             vo.setTaskId(scheduleTaskShade.getTaskId());
             vo.setTaskName(scheduleTaskShade.getName());
 
@@ -2009,9 +2008,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      *
      * @return
      */
-    public List<BatchTaskGetSupportJobTypesResultVO> getSupportJobTypes(Long tenantId) {
+    public List<DevelopTaskGetSupportJobTypesResultVO> getSupportJobTypes(Long tenantId) {
 
-        List<BatchTaskGetSupportJobTypesResultVO> resultSupportTypes = Lists.newArrayList();
+        List<DevelopTaskGetSupportJobTypesResultVO> resultSupportTypes = Lists.newArrayList();
         List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if (CollectionUtils.isEmpty(engineSupportVOS)) {
             throw new DtCenterDefException("该租户 console 未配置任何 集群");
@@ -2019,7 +2018,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
         List<EScheduleJobType> eScheduleJobTypes = convertComponentTypeToJobType(tenantSupportMultiEngine);
         if (CollectionUtils.isNotEmpty(eScheduleJobTypes)) {
-            eScheduleJobTypes.forEach(scheduleJobType -> resultSupportTypes.add(new BatchTaskGetSupportJobTypesResultVO(scheduleJobType.getType(), scheduleJobType.getName())));
+            eScheduleJobTypes.forEach(scheduleJobType -> resultSupportTypes.add(new DevelopTaskGetSupportJobTypesResultVO(scheduleJobType.getType(), scheduleJobType.getName())));
             return resultSupportTypes;
         } else {
             return new ArrayList<>();

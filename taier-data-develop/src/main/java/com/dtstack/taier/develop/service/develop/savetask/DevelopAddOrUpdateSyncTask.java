@@ -70,7 +70,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
             taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
             taskVO.setSettingStr(taskResourceParam.getSettingMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSettingMap()));
         } else {
-            Task task = batchTaskService.getOne(taskVO.getId());
+            Task task = developTaskService.getOne(taskVO.getId());
             taskVO.setSourceStr(task.getSourceStr());
             taskVO.setTargetStr(task.getTargetStr());
             taskVO.setSettingStr(task.getSettingStr());
@@ -126,7 +126,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
                     throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
                 }
                 if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-                    batchTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
+                    developTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
                 }
                 task.setSqlText(sqlText);
             } else {

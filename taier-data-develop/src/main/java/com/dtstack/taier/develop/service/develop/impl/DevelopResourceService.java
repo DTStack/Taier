@@ -67,16 +67,16 @@ public class DevelopResourceService {
     private DevelopResourceMapper developResourceMapper;
 
     @Autowired
-    private DevelopFunctionResourceService batchFunctionResourceService;
+    private DevelopFunctionResourceService developFunctionResourceService;
 
     @Autowired
-    private DevelopCatalogueService batchCatalogueService;
+    private DevelopCatalogueService developCatalogueService;
 
     @Autowired
-    private DevelopTaskResourceService batchTaskResourceService;
+    private DevelopTaskResourceService developTaskResourceService;
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     @Autowired
     private UserService userService;
@@ -126,7 +126,7 @@ public class DevelopResourceService {
             DevelopResource.setUrl(remotePath);
         } else {
             //判断是否已经存在相同的资源了
-            batchTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
+            developTaskService.checkName(resourceName, CatalogueType.RESOURCE_MANAGER.name(), null, 1, tenantId);
 
             DevelopResourceAddDTO.setUrl(remotePath);
             DevelopResourceAddDTO.setCreateUserId(userId);
@@ -145,7 +145,7 @@ public class DevelopResourceService {
         DevelopResource.setModifyUserId(userId);
         addOrUpdate(DevelopResource);
 
-        DevelopCatalogue catalogue = batchCatalogueService.getOne(DevelopResource.getNodePid());
+        DevelopCatalogue catalogue = developCatalogueService.getOne(DevelopResource.getNodePid());
         CatalogueVO catalogueVO = new CatalogueVO();
         catalogueVO.setId(DevelopResource.getId());
         catalogueVO.setName(DevelopResource.getResourceName());
@@ -178,11 +178,11 @@ public class DevelopResourceService {
      * 删除资源
      */
     public Long deleteResource(Long tenantId, Long resourceId) {
-        List<DevelopTaskResource> taskResources = this.batchTaskResourceService.getUseableResources(resourceId);
+        List<DevelopTaskResource> taskResources = this.developTaskResourceService.getUseableResources(resourceId);
         if (!CollectionUtils.isEmpty(taskResources)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }
-        List<DevelopFunctionResource> functionResources = batchFunctionResourceService.listByResourceId(resourceId);
+        List<DevelopFunctionResource> functionResources = developFunctionResourceService.listByResourceId(resourceId);
         if (!CollectionUtils.isEmpty(functionResources)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_DELETE_RESOURCE);
         }

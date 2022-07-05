@@ -62,7 +62,7 @@ public class TenantService {
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private DevelopCatalogueService batchCatalogueService;
+    private DevelopCatalogueService developCatalogueService;
 
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
@@ -165,6 +165,6 @@ public class TenantService {
     @Transactional(rollbackFor = Exception.class)
     public void initDataDevelop(Long tenantId, Long userId) {
         //初始化目录
-        batchCatalogueService.initCatalogue(tenantId, userId);
+        developCatalogueService.initCatalogue(tenantId, userId);
     }
 }

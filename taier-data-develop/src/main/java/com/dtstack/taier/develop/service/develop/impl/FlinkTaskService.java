@@ -113,7 +113,7 @@ public class FlinkTaskService {
     private ClusterService clusterService;
 
     @Autowired
-    private DevelopFunctionService batchFunctionService;
+    private DevelopFunctionService developFunctionService;
 
     @Autowired
     private JobService jobService;
@@ -273,8 +273,8 @@ public class FlinkTaskService {
      */
     private String generateAddJarSQL(Task task) {
         //sql 任务需要解析出关联的资源(eg:自定义function)
-        Set<String> funcSet = batchFunctionService.getFuncSet(task, true);
-        List<String> addJarSqlList = batchFunctionService.generateFuncSql(funcSet, task.getTenantId());
+        Set<String> funcSet = developFunctionService.getFuncSet(task, true);
+        List<String> addJarSqlList = developFunctionService.generateFuncSql(funcSet, task.getTenantId());
         StringBuilder sb = new StringBuilder();
         addJarSqlList.forEach(sql -> sb.append(sql).append(";"));
         return sb.toString();
