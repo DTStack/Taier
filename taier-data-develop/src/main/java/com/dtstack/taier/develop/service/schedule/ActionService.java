@@ -68,7 +68,7 @@ public class ActionService {
     private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
 
     @Autowired
-    private DevelopServerLogService batchServerLogService;
+    private DevelopServerLogService developServerLogService;
 
     /**
      * 重跑实例
@@ -210,7 +210,7 @@ public class ActionService {
             if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
                 String syncLog = null;
                 try {
-                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
+                    syncLog = developServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
                             Optional.ofNullable(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             Optional.ofNullable(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             scheduleJob.getTenantId());

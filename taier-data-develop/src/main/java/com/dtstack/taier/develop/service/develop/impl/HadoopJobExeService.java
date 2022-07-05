@@ -38,7 +38,7 @@ public class HadoopJobExeService {
     private static final Logger LOG = LoggerFactory.getLogger(HadoopJobExeService.class);
 
     @Autowired
-    private DevelopTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
     private DsInfoService dsInfoService;
@@ -82,8 +82,8 @@ public class HadoopJobExeService {
 
         //todo checkSyncJobParams为什么要异常hadoopConfig
         if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-            List<DevelopTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
-            batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParam);
+            List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
+            developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParam);
         }
         actionParam.put("job", job);
         //设置写数据源的具体类型

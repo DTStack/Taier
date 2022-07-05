@@ -50,40 +50,40 @@ import java.util.Objects;
 public class DevelopTaskController {
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
     @Autowired
     private FlinkTaskService flinkTaskService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
-    public R<BatchTaskGetTaskByIdResultVO> getTaskById(@RequestBody BatchScheduleTaskVO batchScheduleTaskVO) {
-        return new APITemplate<BatchTaskGetTaskByIdResultVO>() {
+    public R<DevelopTaskGetTaskByIdResultVO> getTaskById(@RequestBody DevelopScheduleTaskVO developScheduleTaskVO) {
+        return new APITemplate<DevelopTaskGetTaskByIdResultVO>() {
             @Override
-            protected BatchTaskGetTaskByIdResultVO process() {
-                TaskVO taskById = batchTaskService.getTaskById(TaskMapstructTransfer.INSTANCE.BatchScheduleTaskVToTaskVO(batchScheduleTaskVO));
-                return TaskMapstructTransfer.INSTANCE.TaskVOToBatchTaskGetTaskByIdResultVO(taskById);
+            protected DevelopTaskGetTaskByIdResultVO process() {
+                TaskVO taskById = developTaskService.getTaskById(TaskMapstructTransfer.INSTANCE.DevelopScheduleTaskVToTaskVO(developScheduleTaskVO));
+                return TaskMapstructTransfer.INSTANCE.TaskVOToDevelopTaskGetTaskByIdResultVO(taskById);
             }
         }.execute();
     }
 
     @PostMapping(value = "checkIsLoop")
     @ApiOperation("检查task与依赖的task是否有构成有向环")
-    public R<BatchTaskResultVO> checkIsLoop(@RequestBody BatchTaskCheckIsLoopVO infoVO) {
-        return new APITemplate<BatchTaskResultVO>() {
+    public R<DevelopTaskResultVO> checkIsLoop(@RequestBody DevelopTaskCheckIsLoopVO infoVO) {
+        return new APITemplate<DevelopTaskResultVO>() {
             @Override
-            protected BatchTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(batchTaskService.checkIsLoop(infoVO.getTaskId(), infoVO.getDependencyTaskId()));
+            protected DevelopTaskResultVO process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopTaskToResultVO(developTaskService.checkIsLoop(infoVO.getTaskId(), infoVO.getDependencyTaskId()));
             }
         }.execute();
     }
 
     @PostMapping(value = "publishTask")
     @ApiOperation("任务发布")
-    public R<BatchTaskPublishTaskResultVO> publishTask(@RequestBody BatchTaskPublishTaskVO detailVO) {
-        return new APITemplate<BatchTaskPublishTaskResultVO>() {
+    public R<DevelopTaskPublishTaskResultVO> publishTask(@RequestBody DevelopTaskPublishTaskVO detailVO) {
+        return new APITemplate<DevelopTaskPublishTaskResultVO>() {
             @Override
-            protected BatchTaskPublishTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToBatchTaskPublishTaskResultVO(batchTaskService.publishTask(detailVO.getId(),
+            protected DevelopTaskPublishTaskResultVO process() {
+                return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToDevelopTaskPublishTaskResultVO(developTaskService.publishTask(detailVO.getId(),
                         detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getComponentVersion()));
             }
         }.execute();
@@ -91,11 +91,11 @@ public class DevelopTaskController {
 
     @PostMapping(value = "getTaskVersionRecord")
     @ApiOperation("获取任务版本")
-    public R<List<BatchTaskVersionDetailResultVO>> getTaskVersionRecord(@RequestBody BatchTaskGetTaskVersionRecordVO detailVO) {
-        return new APITemplate<List<BatchTaskVersionDetailResultVO>>() {
+    public R<List<DevelopTaskVersionDetailResultVO>> getTaskVersionRecord(@RequestBody DevelopTaskGetTaskVersionRecordVO detailVO) {
+        return new APITemplate<List<DevelopTaskVersionDetailResultVO>>() {
             @Override
-            protected List<BatchTaskVersionDetailResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskVersionDetailListToResultVOList(batchTaskService.getTaskVersionRecord(
+            protected List<DevelopTaskVersionDetailResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopTaskVersionDetailListToResultVOList(developTaskService.getTaskVersionRecord(
                         detailVO.getTaskId(),
                         detailVO.getPageSize(), detailVO.getPageNo()));
             }
@@ -104,11 +104,11 @@ public class DevelopTaskController {
 
     @PostMapping(value = "taskVersionScheduleConf")
     @ApiOperation("获取任务版本列表")
-    public R<BatchTaskVersionDetailResultVO> taskVersionScheduleConf(@RequestBody BatchTaskTaskVersionScheduleConfVO detailVO) {
-        return new APITemplate<BatchTaskVersionDetailResultVO>() {
+    public R<DevelopTaskVersionDetailResultVO> taskVersionScheduleConf(@RequestBody DevelopTaskTaskVersionScheduleConfVO detailVO) {
+        return new APITemplate<DevelopTaskVersionDetailResultVO>() {
             @Override
-            protected BatchTaskVersionDetailResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskVersionDetailToResultVO(batchTaskService.taskVersionScheduleConf(
+            protected DevelopTaskVersionDetailResultVO process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopTaskVersionDetailToResultVO(developTaskService.taskVersionScheduleConf(
                         detailVO.getVersionId()));
             }
         }.execute();
@@ -116,79 +116,79 @@ public class DevelopTaskController {
 
     @PostMapping(value = "addOrUpdateTask")
     @ApiOperation("数据开发-新建/更新 任务")
-    public R<TaskCatalogueResultVO> addOrUpdateTask(@RequestBody BatchTaskResourceParamVO paramVO) {
+    public R<TaskCatalogueResultVO> addOrUpdateTask(@RequestBody DevelopTaskResourceParamVO paramVO) {
         return new APITemplate<TaskCatalogueResultVO>() {
             @Override
             protected TaskCatalogueResultVO process() {
                 TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-                return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(batchTaskService.addOrUpdateTaskNew(taskResourceParam));
+                return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(developTaskService.addOrUpdateTaskNew(taskResourceParam));
             }
         }.execute();
     }
 
     @PostMapping(value = "canSetIncreConf")
     @ApiOperation(value = "判断任务是否可以配置增量标识")
-    public R<Boolean> canSetIncreConf(@RequestBody BatchScheduleTaskVO vo) {
+    public R<Boolean> canSetIncreConf(@RequestBody DevelopScheduleTaskVO vo) {
         return new APITemplate<Boolean>() {
             @Override
             protected Boolean process() {
-                return batchTaskService.canSetIncreConf(vo.getId());
+                return developTaskService.canSetIncreConf(vo.getId());
             }
         }.execute();
     }
 
     @PostMapping(value = "guideToTemplate")
     @ApiOperation("向导模式转模版")
-    public R<TaskCatalogueResultVO> guideToTemplate(@RequestBody BatchTaskResourceParamVO paramVO) {
+    public R<TaskCatalogueResultVO> guideToTemplate(@RequestBody DevelopTaskResourceParamVO paramVO) {
         return new APITemplate<TaskCatalogueResultVO>() {
             @Override
             protected TaskCatalogueResultVO process() {
                 TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
-                return TaskMapstructTransfer.INSTANCE.TaskCatalogueVOToResultVO(batchTaskService.guideToTemplate(taskResourceParam));
+                return TaskMapstructTransfer.INSTANCE.TaskCatalogueVOToResultVO(developTaskService.guideToTemplate(taskResourceParam));
             }
         }.execute();
     }
 
     @PostMapping(value = "getChildTasks")
     @ApiOperation("获取子任务")
-    public R<List<BatchGetChildTasksResultVO>> getChildTasks(@RequestBody BatchTaskGetChildTasksVO tasksVO) {
-        return new APITemplate<List<BatchGetChildTasksResultVO>>() {
+    public R<List<DevelopGetChildTasksResultVO>> getChildTasks(@RequestBody DevelopTaskGetChildTasksVO tasksVO) {
+        return new APITemplate<List<DevelopGetChildTasksResultVO>>() {
             @Override
-            protected List<BatchGetChildTasksResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.notDeleteTaskVOsToBatchGetChildTasksResultVOs(batchTaskService.getChildTasks(tasksVO.getTaskId()));
+            protected List<DevelopGetChildTasksResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.notDeleteTaskVOsToDevelopGetChildTasksResultVOs(developTaskService.getChildTasks(tasksVO.getTaskId()));
             }
         }.execute();
     }
 
     @PostMapping(value = "deleteTask")
     @ApiOperation("删除任务")
-    public R<Long> deleteTask(@RequestBody BatchTaskDeleteTaskVO detailVO) {
+    public R<Long> deleteTask(@RequestBody DevelopTaskDeleteTaskVO detailVO) {
         return new APITemplate<Long>() {
             @Override
             protected Long process() {
-                return batchTaskService.deleteTask(detailVO.getTaskId(), detailVO.getUserId(), detailVO.getSqlText());
+                return developTaskService.deleteTask(detailVO.getTaskId(), detailVO.getUserId(), detailVO.getSqlText());
             }
         }.execute();
     }
 
     @PostMapping(value = "getSysParams")
     @ApiOperation("获取所有系统参数")
-    public R<Collection<BatchSysParameterResultVO>> getSysParams() {
-        return new APITemplate<Collection<BatchSysParameterResultVO>>() {
+    public R<Collection<DevelopSysParameterResultVO>> getSysParams() {
+        return new APITemplate<Collection<DevelopSysParameterResultVO>>() {
             @Override
-            protected Collection<BatchSysParameterResultVO> process() {
-                return TaskMapstructTransfer.INSTANCE.BatchSysParameterCollectionToBatchSysParameterResultVOCollection(batchTaskService.getSysParams());
+            protected Collection<DevelopSysParameterResultVO> process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopSysParameterCollectionToDevelopSysParameterResultVOCollection(developTaskService.getSysParams());
             }
         }.execute();
     }
 
     @PostMapping(value = "checkName")
     @ApiOperation("新增离线任务/脚本/资源/自定义脚本，校验名称")
-    public R<Void> checkName(@RequestBody BatchTaskCheckNameVO detailVO) {
+    public R<Void> checkName(@RequestBody DevelopTaskCheckNameVO detailVO) {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
-                batchTaskService.checkName(detailVO.getName(), detailVO.getType(), detailVO.getPid(), detailVO.getIsFile(), detailVO.getTenantId());
+                developTaskService.checkName(detailVO.getName(), detailVO.getType(), detailVO.getPid(), detailVO.getIsFile(), detailVO.getTenantId());
                 return null;
             }
         }.execute();
@@ -196,40 +196,40 @@ public class DevelopTaskController {
 
     @PostMapping(value = "getByName")
     @ApiOperation("根据名称查询任务")
-    public R<BatchTaskResultVO> getByName(@RequestBody BatchTaskGetByNameVO detailVO) {
-        return new APITemplate<BatchTaskResultVO>() {
+    public R<DevelopTaskResultVO> getByName(@RequestBody DevelopTaskGetByNameVO detailVO) {
+        return new APITemplate<DevelopTaskResultVO>() {
             @Override
-            protected BatchTaskResultVO process() {
-                return TaskMapstructTransfer.INSTANCE.BatchTaskToResultVO(batchTaskService.getByName(detailVO.getName(), detailVO.getTenantId()));
+            protected DevelopTaskResultVO process() {
+                return TaskMapstructTransfer.INSTANCE.DevelopTaskToResultVO(developTaskService.getByName(detailVO.getName(), detailVO.getTenantId()));
             }
         }.execute();
     }
 
     @PostMapping(value = "getComponentVersionByTaskType")
     @ApiOperation("获取组件版本号")
-    public R<List<BatchTaskGetComponentVersionResultVO>> getComponentVersionByTaskType(@RequestBody BatchTaskGetComponentVersionVO getComponentVersionVO) {
-        return new APITemplate<List<BatchTaskGetComponentVersionResultVO>>() {
+    public R<List<DevelopTaskGetComponentVersionResultVO>> getComponentVersionByTaskType(@RequestBody DevelopTaskGetComponentVersionVO getComponentVersionVO) {
+        return new APITemplate<List<DevelopTaskGetComponentVersionResultVO>>() {
             @Override
-            protected List<BatchTaskGetComponentVersionResultVO> process() {
-                return batchTaskService.getComponentVersionByTaskType(getComponentVersionVO.getTenantId(), getComponentVersionVO.getTaskType());
+            protected List<DevelopTaskGetComponentVersionResultVO> process() {
+                return developTaskService.getComponentVersionByTaskType(getComponentVersionVO.getTenantId(), getComponentVersionVO.getTaskType());
             }
         }.execute();
     }
 
     @PostMapping(value = "allProductGlobalSearch")
     @ApiOperation("所有产品的已提交任务查询")
-    public R<List<BatchAllProductGlobalReturnVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
-        return new APITemplate<List<BatchAllProductGlobalReturnVO>>() {
+    public R<List<DevelopAllProductGlobalReturnVO>> allProductGlobalSearch(@RequestBody AllProductGlobalSearchVO allProductGlobalSearchVO) {
+        return new APITemplate<List<DevelopAllProductGlobalReturnVO>>() {
             @Override
-            protected List<BatchAllProductGlobalReturnVO> process() {
-                return batchTaskService.allProductGlobalSearch(allProductGlobalSearchVO);
+            protected List<DevelopAllProductGlobalReturnVO> process() {
+                return developTaskService.allProductGlobalSearch(allProductGlobalSearchVO);
             }
         }.execute();
     }
 
     @PostMapping(value = "frozenTask")
     @ApiOperation("所有产品的已提交任务查询")
-    public R<Boolean> frozenTask(@RequestBody BatchFrozenTaskVO vo) {
+    public R<Boolean> frozenTask(@RequestBody DevelopFrozenTaskVO vo) {
         return new APITemplate<Boolean>() {
             @Override
             protected void checkParams() throws IllegalArgumentException {
@@ -244,7 +244,7 @@ public class DevelopTaskController {
 
             @Override
             protected Boolean process() {
-                batchTaskService.frozenTask(vo.getTaskIds(), vo.getScheduleStatus(), vo.getUserId());
+                developTaskService.frozenTask(vo.getTaskIds(), vo.getScheduleStatus(), vo.getUserId());
                 return true;
             }
         }.execute();
@@ -252,22 +252,22 @@ public class DevelopTaskController {
 
     @PostMapping(value = "getSupportJobTypes")
     @ApiOperation("根据支持的引擎类型返回")
-    public R<List<BatchTaskGetSupportJobTypesResultVO>> getSupportJobTypes(@RequestBody(required = false) BatchTaskGetSupportJobTypesVO detailVO) {
-        return new APITemplate<List<BatchTaskGetSupportJobTypesResultVO>>() {
+    public R<List<DevelopTaskGetSupportJobTypesResultVO>> getSupportJobTypes(@RequestBody(required = false) DevelopTaskGetSupportJobTypesVO detailVO) {
+        return new APITemplate<List<DevelopTaskGetSupportJobTypesResultVO>>() {
             @Override
-            protected List<BatchTaskGetSupportJobTypesResultVO>  process() {
-                return batchTaskService.getSupportJobTypes(detailVO.getTenantId());
+            protected List<DevelopTaskGetSupportJobTypesResultVO>  process() {
+                return developTaskService.getSupportJobTypes(detailVO.getTenantId());
             }
         }.execute();
     }
 
     @PostMapping(value = "getIncreColumn")
     @ApiOperation(value = "获取可以作为增量标识的字段")
-    public R<List<JSONObject>> getIncreColumn(@RequestBody(required = false) BatchDataSourceIncreColumnVO vo) {
+    public R<List<JSONObject>> getIncreColumn(@RequestBody(required = false) DevelopDataSourceIncreColumnVO vo) {
         return new APITemplate<List<JSONObject>>() {
             @Override
             protected List<JSONObject> process() {
-                return batchTaskService.getIncreColumn(vo.getSourceId(), vo.getTableName(), vo.getSchema());
+                return developTaskService.getIncreColumn(vo.getSourceId(), vo.getTableName(), vo.getSchema());
             }
         }.execute();
     }

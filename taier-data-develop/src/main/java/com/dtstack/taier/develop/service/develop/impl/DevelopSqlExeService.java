@@ -66,7 +66,7 @@ public class DevelopSqlExeService {
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     @Autowired
-    private DevelopTaskService batchTaskService;
+    private DevelopTaskService developTaskService;
 
     public static final Pattern CACHE_LAZY_SQL_PATTEN = Pattern.compile("(?i)cache\\s+(lazy\\s+)?table.*");
 
@@ -255,7 +255,7 @@ public class DevelopSqlExeService {
      * @param executeContent
      */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
-        Task one = batchTaskService.getOneWithError(executeContent.getTaskId());
+        Task one = developTaskService.getOneWithError(executeContent.getTaskId());
         String taskParam = one.getTaskParams();
 
         String sql = executeContent.getSql();

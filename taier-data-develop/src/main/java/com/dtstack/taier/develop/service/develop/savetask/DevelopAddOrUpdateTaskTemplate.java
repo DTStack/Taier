@@ -50,13 +50,13 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
             "\"maxRetryNum\":\"3\"" +
             "}";
     @Autowired
-    public DevelopTaskService batchTaskService;
+    public DevelopTaskService developTaskService;
 
     @Autowired
     public DevelopTaskMapper developTaskMapper;
 
     @Autowired
-    public DevelopTaskParamService batchTaskParamService;
+    public DevelopTaskParamService developTaskParamService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -100,7 +100,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
         }
         taskVO.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
 
-        Task task = batchTaskService.getOne(Wrappers.lambdaQuery(Task.class)
+        Task task = developTaskService.getOne(Wrappers.lambdaQuery(Task.class)
                 .eq(Task::getName, taskVO.getName())
                 .eq(Task::getTenantId, taskVO.getTenantId()));
 
@@ -111,7 +111,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
                     && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
             }
-            batchTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
+            developTaskParamService.checkParams(taskVO.getSqlText(), taskVO.getTaskVariables());
             updateTask(taskVO);
 
         } else {
@@ -125,7 +125,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
     }
 
     private void updateTask(TaskVO taskVO) {
-        Task specialTask = batchTaskService.getOne(taskVO.getId());
+        Task specialTask = developTaskService.getOne(taskVO.getId());
         if (specialTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
@@ -134,16 +134,9 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
                 FlinkVersion.getVersion(taskVO.getComponentVersion()),
                 taskVO.getTaskParams(), taskVO.getTaskType());
         taskVO.setTaskParams(convertParams);
-//        //由于密码脱敏，脚本模式保存时密码变成"******"，进行按照原储存信息进行还原，依据是url+username todo 问月白要不要脱敏
-//        if (Objects.nonNull(specialTask.getCreateModel())
-//                && CREATE_MODEL_TEMPLATE == specialTask.getCreateModel()
-//                && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
-//            String sqlText = TaskUtils.resumeTemplatePwd(TaskDTO.getSqlText(), specialTask);
-//            TaskDTO.setSqlText(sqlText);
-//        }
         Task specialTask1 = new Task();
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
-        batchTaskService.updateById(specialTask1);
+        developTaskService.updateById(specialTask1);
     }
 
     /**
@@ -163,7 +156,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
         task.setMainClass(Objects.isNull(task.getMainClass()) ? "" : task.getMainClass());
         task.setTaskDesc(Objects.isNull(task.getTaskDesc()) ? "" : task.getTaskDesc());
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
-        batchTaskService.save(task);
+        developTaskService.save(task);
     }
 
     /**

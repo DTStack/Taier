@@ -63,10 +63,10 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
     private DatasourceService datasourceService;
 
     @Autowired
-    private DevelopTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
-    private DevelopSqlExeService batchSqlExeService;
+    private DevelopSqlExeService developSqlExeService;
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
@@ -80,7 +80,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         Map<String, Object> actionParam = Maps.newHashMap();
         try {
             String taskParams = task.getTaskParams();
-            List<DevelopTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
+            List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
 
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
@@ -90,7 +90,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
             job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 
-            batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
+            developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
 
             String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
             String taskExeArgs = String.format(JOB_ARGS_TEMPLATE, name, job);
@@ -160,7 +160,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
                 || EScheduleJobType.HIVE_SQL.getVal().equals(task.getTaskType())) {
             ExecuteContent content = new ExecuteContent();
             content.setTenantId(tenantId).setUserId(userId).setSql(sql).setTaskId(taskId).setTaskType(task.getTaskType()).setPreJobId(jobId);
-            return batchSqlExeService.executeSql(content);
+            return developSqlExeService.executeSql(content);
         }
         throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));
     }
@@ -180,9 +180,9 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         String taskParams = task.getTaskParams();
         if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
                 || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
-            batchTaskParamService.checkParams(sql, taskParamsToReplace);
+            developTaskParamService.checkParams(sql, taskParamsToReplace);
             // 构建运行的SQL
-            sql = batchSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
+            sql = developSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
         } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
@@ -192,7 +192,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
             job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 
-            batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
+            developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
             actionParam.put("job", job);
         }
         actionParam.put("sqlText", sql);
