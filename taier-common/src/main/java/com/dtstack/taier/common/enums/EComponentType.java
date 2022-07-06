@@ -35,7 +35,10 @@ public enum EComponentType {
     YARN(3, "YARN", "yarnConf"),
     SPARK_THRIFT(4, "SparkThrift", "hiveConf"),
     HIVE_SERVER(5, "HiveServer", "hiveServerConf"),
-    SFTP(6, "SFTP", "sftpConf");
+    SFTP(6, "SFTP", "sftpConf"),
+    OCEAN_BASE(7, "OceanBase", "oceanBaseConf"),
+
+    ;
 
     private Integer typeCode;
 
@@ -49,20 +52,21 @@ public enum EComponentType {
         this.confName = confName;
     }
 
-    private static final Map<Integer,EComponentType> COMPONENT_TYPE_CODE_MAP=new ConcurrentHashMap<>(16);
-    private static final Map<String ,EComponentType> COMPONENT_TYPE_NAME_MAP=new ConcurrentHashMap<>(16);
-    private static final Map<String ,EComponentType> COMPONENT_TYPE_CONF_NAME_MAP=new ConcurrentHashMap<>(16);
+    private static final Map<Integer, EComponentType> COMPONENT_TYPE_CODE_MAP = new ConcurrentHashMap<>(16);
+    private static final Map<String, EComponentType> COMPONENT_TYPE_NAME_MAP = new ConcurrentHashMap<>(16);
+    private static final Map<String, EComponentType> COMPONENT_TYPE_CONF_NAME_MAP = new ConcurrentHashMap<>(16);
+
     static {
         for (EComponentType componentType : EComponentType.values()) {
-            COMPONENT_TYPE_CODE_MAP.put(componentType.getTypeCode(),componentType);
-            COMPONENT_TYPE_NAME_MAP.put(componentType.getName(),componentType);
-            COMPONENT_TYPE_CONF_NAME_MAP.put(componentType.getConfName(),componentType);
+            COMPONENT_TYPE_CODE_MAP.put(componentType.getTypeCode(), componentType);
+            COMPONENT_TYPE_NAME_MAP.put(componentType.getName(), componentType);
+            COMPONENT_TYPE_CONF_NAME_MAP.put(componentType.getConfName(), componentType);
         }
     }
 
     public static EComponentType getByCode(int code) {
         EComponentType componentType = COMPONENT_TYPE_CODE_MAP.get(code);
-        if (Objects.nonNull(componentType)){
+        if (Objects.nonNull(componentType)) {
             return componentType;
         }
 
@@ -71,7 +75,7 @@ public enum EComponentType {
 
     public static EComponentType getByName(String name) {
         EComponentType componentType = COMPONENT_TYPE_NAME_MAP.get(name);
-        if (Objects.nonNull(componentType)){
+        if (Objects.nonNull(componentType)) {
             return componentType;
         }
 
@@ -80,7 +84,7 @@ public enum EComponentType {
 
     public static EComponentType getByConfName(String confName) {
         EComponentType componentType = COMPONENT_TYPE_CONF_NAME_MAP.get(confName);
-        if (Objects.nonNull(componentType)){
+        if (Objects.nonNull(componentType)) {
             return componentType;
         }
 
@@ -136,10 +140,10 @@ public enum EComponentType {
     private static List<EComponentType> HadoopComponents = Lists.newArrayList(
             EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER,
-             EComponentType.YARN
+            EComponentType.YARN
     );
 
-    public static MultiEngineType getEngineTypeByComponent(EComponentType componentType,Integer deployType) {
+    public static MultiEngineType getEngineTypeByComponent(EComponentType componentType, Integer deployType) {
         if (HadoopComponents.contains(componentType)) {
             return MultiEngineType.HADOOP;
         }
@@ -149,29 +153,14 @@ public enum EComponentType {
     // 需要添加TypeName的组件
     public static List<EComponentType> typeComponentVersion = Lists.newArrayList(
             EComponentType.FLINK, EComponentType.SPARK,
-            EComponentType.HDFS,EComponentType.HIVE_SERVER
-    );
-
-
-    public static List<EComponentType> notCheckComponent = Lists.newArrayList(
-            EComponentType.SPARK, EComponentType.FLINK
+            EComponentType.HDFS, EComponentType.HIVE_SERVER
     );
 
     //允许一个组件多个版本
-    public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK,EComponentType.SPARK);
-
-    //SQL组件
-    public static List<EComponentType> sqlComponent = Lists.newArrayList(
-            EComponentType.SPARK_THRIFT, EComponentType.HIVE_SERVER
-    );
-
+    public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK, EComponentType.SPARK);
 
     //没有控件渲染的组件
-    public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN,EComponentType.HDFS);
-
-    //metadata组件
-    public static List<EComponentType> metadataComponents = Lists.newArrayList(EComponentType.HIVE_SERVER,EComponentType.SPARK_THRIFT);
-
+    public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
 
 }
 

@@ -23,7 +23,6 @@ import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
-import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.develop.model.ClusterFactory;
@@ -96,9 +95,6 @@ public class ConsoleComponentService {
 
     @Autowired
     private ClusterMapper clusterMapper;
-
-    @Autowired
-    private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
     private EnvironmentContext env;
@@ -190,26 +186,22 @@ public class ConsoleComponentService {
             componentMapper.insert(addComponent);
         }
 
-        changeMetadata(componentType.getTypeCode(), isMetadata, clusterId, addComponent.getIsMetadata());
         List<ComponentConfig> componentConfigs = buildConfigs(componentType, componentConfig, md5Key, pluginName, templateConfig,
                 addComponent.getId(), addComponent.getClusterId());
         componentConfigService.addOrUpdateComponentConfig(addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode(), componentConfigs);
-        // 此时不需要查询默认版本
         this.updateCache();
         return ComponentVO.toVO(addComponent);
     }
 
 
     private List<ComponentConfig> buildConfigs(EComponentType componentType, String componentString, String md5Key, String pluginName,
-                                                List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
+                                               List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
         List<ComponentConfig> configs = new ArrayList<>();
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-        if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            configs.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName,componentId,clusterId,componentType.getTypeCode()));
-        }
+        configs.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName, componentId, clusterId, componentType.getTypeCode()));
         if (!StringUtils.isBlank(md5Key)) {
-            configs.add(ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key,componentId,clusterId,componentType.getTypeCode()));
+            configs.add(ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key, componentId, clusterId, componentType.getTypeCode()));
         }
         if (EComponentType.noControlComponents.contains(componentType)) {
             //xml配置文件也转换为组件
@@ -281,29 +273,6 @@ public class ConsoleComponentService {
         return componentMapper.updateDefault(clusterId, componentType.getTypeCode(), !isDefault);
     }
 
-    public boolean changeMetadata(Integer componentType, boolean isMetadata, Long clusterId, Integer oldMetadata) {
-        if (!EComponentType.metadataComponents.contains(EComponentType.getByCode(componentType))) {
-            return false;
-        }
-        Integer revertComponentType = EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) ? EComponentType.SPARK_THRIFT.getTypeCode() : EComponentType.HIVE_SERVER.getTypeCode();
-        List<Component> components = componentMapper.listByClusterId(clusterId, revertComponentType, false);
-        Component revertComponent = CollectionUtils.isEmpty(components) ? null : components.get(0);
-        if (null == revertComponent) {
-            //单个组件默认勾选
-            componentMapper.updateMetadata(clusterId, componentType, 1);
-            return true;
-        }
-        if (null != oldMetadata && !BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
-            //如果集群已经绑定过租户 不允许修改
-            if (CollectionUtils.isNotEmpty(clusterTenantMapper.listByClusterId(clusterId))) {
-                throw new RdosDefineException(ErrorCode.CHANGE_META_NOT_PERMIT_WHEN_BIND_CLUSTER);
-            }
-        }
-        LOGGER.info("change metadata clusterId {} component {} to {} ", clusterId, componentType, isMetadata);
-        componentMapper.updateMetadata(clusterId, componentType, isMetadata ? 1 : 0);
-        componentMapper.updateMetadata(clusterId, revertComponentType, isMetadata ? 0 : 1);
-        return true;
-    }
 
     private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent) {
         //上传资源依赖sftp组件
@@ -969,13 +938,6 @@ public class ConsoleComponentService {
         if (null == testComponent) {
             throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
         }
-        if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-            ComponentTestResult componentTestResult = new ComponentTestResult();
-            componentTestResult.setComponentTypeCode(componentType);
-            componentTestResult.setResult(true);
-            componentTestResult.setVersionName(testComponent.getVersionName());
-            return componentTestResult;
-        }
         Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
         return testComponentWithResult(cluster, sftpMap, testComponent);
     }
@@ -1131,18 +1093,12 @@ public class ConsoleComponentService {
                                            Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-                componentTestResult.setResult(true);
-                return componentTestResult;
-            }
-
-            String typeName = null;
+            JSONObject config = JSONObject.parseObject(componentConfig);
+            String typeName = config.getString(TYPE_NAME_KEY);
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = componentService.buildHdfsTypeName(null, clusterId);
-            } else {
-                typeName = convertComponentTypeToClient(clusterId, componentType, versionName, storeType, deployType);
             }
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
             pluginInfo.put(TYPE_NAME_KEY, typeName);
             componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
             if (null == componentTestResult) {
