@@ -19,5 +19,6 @@ taier-worker/taier-plugins/schedules/yarn2,\
 taier-worker/taier-plugins/schedules/yarn3,\
 taier-worker/taier-plugins/rdbs/hive,\
 taier-worker/taier-plugins/rdbs/hive2,\
-taier-worker/taier-plugins/rdbs/hive3 \
+taier-worker/taier-plugins/rdbs/hive3,\
+taier-worker/taier-plugins/rdbs/oceanBase \
 -am
