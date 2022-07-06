@@ -286,8 +286,6 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         if ((endDate.after(triggerRange.getLeft()) && endDate.before(triggerRange.getRight())) || endDate.after(triggerRange.getRight())) {
             DateTime dateTime = new DateTime(triggerRange.getRight());
             return compareAndReplaceMinuteAndHour(dateTime, endHour, endMin, false).toDate();
-
-
         }
 
         throw new RdosDefineException("task:" + taskId + " out of time range");
