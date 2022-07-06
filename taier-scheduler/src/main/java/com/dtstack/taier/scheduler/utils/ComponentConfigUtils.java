@@ -403,6 +403,7 @@ public class ComponentConfigUtils {
                     componentConfig.setValue(deployConfig.getString(componentConfig.getKey()));
                     componentConfig.setComponentId(componentId);
                     componentConfig.setClusterId(clusterId);
+                    componentConfig.setComponentTypeCode(componentCode);
                     deployConfig.remove(componentConfig.getKey());
                 }).collect(Collectors.toList());
 
@@ -425,6 +426,7 @@ public class ComponentConfigUtils {
                 componentConfig.setValue(configJson.getString(componentConfig.getKey()));
                 componentConfig.setComponentId(componentId);
                 componentConfig.setClusterId(clusterId);
+                componentConfig.setComponentTypeCode(componentCode);
                 configJson.remove(componentConfig.getKey());
             }).collect(Collectors.toList());
 

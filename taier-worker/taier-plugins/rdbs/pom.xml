@@ -18,6 +18,7 @@
         <module>hive</module>
         <module>hive2</module>
         <module>hive3</module>
+        <module>oceanBase</module>
     </modules>
 
     <dependencies>

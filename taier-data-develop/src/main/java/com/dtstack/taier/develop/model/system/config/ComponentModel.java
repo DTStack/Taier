@@ -106,7 +106,7 @@ public class ComponentModel {
 
     private List<Dict> loadVersions(JSONObject valueObj, DictMapper mapper) {
         String name = valueObj.getString(VERSION_DICTIONARY_KEY);
-        if (name == null) {
+        if (StringUtils.isBlank(name)) {
             return Collections.emptyList();
         }
 

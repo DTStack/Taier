@@ -351,6 +351,24 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'timeout', '10000', null, null, null, null, now(),now(), 0);
 
 
+-- oceanBase
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
+                              is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('component_model', 'Ocean_Base',
+        '{"owner": "COMPUTE", "dependsOn": [], "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": "","nameTemplate":"oceanBase"}',
+        null, 12, 0, 'STRING', '', 0, now(), now(), 0);
+
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
+                              is_default, gmt_create, gmt_modified, is_deleted)
+VALUES ('typename_mapping', 'oceanBase', '-118', null, 6, 0, 'LONG', '', 0, now(),now(), 0);
+
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 1, 'jdbcUrl', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'username', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'PASSWORD', 0, 'password', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'maxJobPoolSize', '', null, null, null, null, now(),now(), 0);
+INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', null, null, null, null, now(),now(), 0);
+
+
 
 alter table console_cluster_tenant add  queue_name  varchar(32) comment '队列名称';
 update console_cluster_tenant

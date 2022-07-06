@@ -9,7 +9,6 @@ import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Cluster;
-import com.dtstack.taier.dao.domain.ClusterTenant;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
@@ -99,16 +98,7 @@ public class ConsoleClusterService {
         // 查询默认版本或者多个版本
         List<com.dtstack.taier.dao.domain.Component> components = componentMapper.listByClusterId(clusterId, null, false);
         clusterVO.setComponentVOS(ComponentVO.toVOS(components));
-        clusterVO.setCanModifyMetadata(checkMetadata(clusterId, components));
         return clusterVO;
-    }
-
-    private boolean checkMetadata(Long clusterId, List<com.dtstack.taier.dao.domain.Component> components) {
-        if (components.stream().anyMatch(c -> EComponentType.metadataComponents.contains(EComponentType.getByCode(c.getComponentTypeCode())))) {
-            List<ClusterTenant> clusterTenants = clusterTenantMapper.listByClusterId(clusterId);
-            return CollectionUtils.isEmpty(clusterTenants);
-        }
-        return true;
     }
 
 

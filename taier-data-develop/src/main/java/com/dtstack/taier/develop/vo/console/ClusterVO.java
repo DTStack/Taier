@@ -42,17 +42,6 @@ public class ClusterVO extends Cluster {
     @ApiModelProperty(notes = "组件类型")
     private List<ComponentVO> componentVOS;
 
-    private boolean canModifyMetadata = true;
-
-    @ApiModelProperty(notes = "是否能修改metadata组件")
-    public boolean isCanModifyMetadata() {
-        return canModifyMetadata;
-    }
-
-    public void setCanModifyMetadata(boolean canModifyMetadata) {
-        this.canModifyMetadata = canModifyMetadata;
-    }
-
     public List<ComponentVO> getComponentVOS() {
         return componentVOS;
     }
