@@ -4,6 +4,7 @@
         "list.focusBackground": "#E4E6F1",
         "list.inactiveSelectionBackground": "#E4E6F1",
         "tree.indentGuidesStroke": "#eeeeee",
+		"editorError.foreground": "#c24038",
         "minimapSlider.activeBackground": "#00000099",
         "minimapSlider.background": "#64646480",
         "minimapSlider.hoverBackground": "#64646480",

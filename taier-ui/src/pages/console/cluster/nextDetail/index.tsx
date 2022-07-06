@@ -12,6 +12,7 @@ import type { RcFile } from 'antd/lib/upload';
 import type { ILayoutData, ITemplateData } from './detail';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import type { ITreeNodeProps, ComponentKindType } from './sideBar';
+import notification from '@/components/notification';
 import './index.scss';
 
 const { Content, Footer } = Layout;
@@ -279,6 +280,21 @@ export default function ClusterDetail() {
 				}
 			}
 
+			const names = nextLayoutData.map((i) =>
+				Array.isArray(i.name) ? i.name.join('.') : i.name,
+			);
+
+			if (names.length !== Array.from(new Set(names)).length) {
+				notification.error({
+					key: 'Duplicate_template',
+					message: `检测到 ${
+						componentsData.find((i) => i.componentCode.toString() === code.toString())
+							?.name || '未知组件'
+					}${
+						versionName || ''
+					} 组件的 template 接口返回的数据中存在重复项，造成当前组件渲染问题`,
+				});
+			}
 			setTemplate(nextLayoutData);
 		} else {
 			setTemplate([]);
