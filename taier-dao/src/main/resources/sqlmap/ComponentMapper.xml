@@ -4,7 +4,7 @@
 
     <sql id="select_content_fragment">
         id,cluster_id,component_name,component_type_code,gmt_create,gmt_modified,is_deleted,version_value,upload_file_name,
-        kerberos_file_name,store_type,is_metadata,is_default,deploy_type,version_name
+        kerberos_file_name,store_type,is_default,deploy_type,version_name
     </sql>
 
     <sql id="update_fragment">
@@ -47,17 +47,10 @@
         </if>
     </select>
 
-    <update id="updateMetadata">
-        update console_component
-        set is_metadata = #{isMetadata}
-        where cluster_id = #{clusterId}
-          and component_type_code = #{type}
-    </update>
-
     <select id="getByClusterIdAndComponentType" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT
         c.id,c.cluster_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type,c.version_name
+        c.version_value,c.upload_file_name,c.kerberos_file_name,c.deploy_type,c.store_type,c.version_name
         FROM
         console_component c
         WHERE
@@ -79,7 +72,7 @@
     <select id="getByVersionName" resultType="com.dtstack.taier.dao.domain.Component">
         SELECT
         c.id,c.cluster_id,c.component_name,c.component_type_code,c.gmt_create,c.gmt_modified,c.is_deleted,
-        c.version_value,c.upload_file_name,c.kerberos_file_name,c.is_metadata,c.deploy_type,c.store_type,
+        c.version_value,c.upload_file_name,c.kerberos_file_name,c.deploy_type,c.store_type,
         c.version_name
         FROM
         console_component c
