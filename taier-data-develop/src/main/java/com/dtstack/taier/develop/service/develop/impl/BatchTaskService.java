@@ -24,9 +24,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.dtcenter.loader.client.ClientCache;
@@ -46,11 +44,9 @@ import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.ESubmitStatus;
 import com.dtstack.taier.common.enums.FuncType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
-import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -58,9 +54,7 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.util.DataFilter;
-import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.BatchCatalogue;
 import com.dtstack.taier.dao.domain.BatchDataSource;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
@@ -73,9 +67,7 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
-import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.Sort;
@@ -91,12 +83,10 @@ import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.SyncModel;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.enums.develop.TaskOperateType;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
@@ -114,7 +104,6 @@ import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.TaskUtils;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
-import com.dtstack.taier.develop.utils.develop.sync.job.SyncJobCheck;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.BatchTaskGetComponentVersionResultVO;
@@ -127,9 +116,7 @@ import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
-import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -148,7 +135,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -158,7 +144,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -191,9 +176,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private BatchTaskParamShadeService batchTaskParamShadeService;
 
     @Autowired
     private DevelopTaskMapper developTaskMapper;
@@ -268,12 +250,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private ScheduleActionService scheduleActionService;
-
-    @Autowired
-    private JobService jobService;
-
-    @Autowired
     private ClusterService clusterService;
 
     private static final String KEY = "key";
@@ -305,9 +281,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
     public static final String HADOOP_CONFIG = "hadoopConfig";
-
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*([0-9a-zA-Z-_]+)\\s*\\(");
-
 
     @PostConstruct
     public void init() {
@@ -393,20 +366,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setTaskVariables(mapParams);
     }
 
-    private void setTaskVariables(final ScheduleTaskVO taskVO, final Long taskId) {
-        final List<BatchTaskParam> taskParams = this.batchTaskParamService.getTaskParam(taskId);
-        final List<Map> mapParams = new ArrayList<>();
-        if (taskParams != null) {
-            for (final BatchTaskParam taskParam : taskParams) {
-                final Map map = new HashMap();
-                map.put("type", taskParam.getType());
-                map.put("paramName", taskParam.getParamName());
-                map.put("paramCommand", taskParam.getParamCommand());
-                mapParams.add(map);
-            }
-        }
-        taskVO.setTaskVariables(mapParams);
-    }
 
     /**
      * 数据开发-检查task与依赖的task是否有构成有向环
@@ -447,22 +406,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return 0L;
     }
 
-
-    /**
-     * 判断是否成环
-     *
-     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
-     * @return
-     */
-    public void checkIsLoopByList(Map<Long, List<Long>> nodeMap) {
-        if (MapUtils.isEmpty(nodeMap)) {
-            return;
-        }
-        for (Map.Entry<Long, List<Long>> entry : nodeMap.entrySet()) {
-            mapDfs(entry.getKey(), new HashSet(), nodeMap);
-        }
-    }
-
     /**
      * 图深度遍历
      *
@@ -482,23 +425,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         node.add(taskId);
         for (Long j : nodeMap.get(taskId)) {
             mapDfs(j, node, nodeMap);
-        }
-    }
-
-
-    public void buildUserDTOInfo(final Map<Long, User> userMap, final ScheduleTaskVO vo) {
-        if (Objects.nonNull(vo.getCreateUserId())) {
-            User createUser = userMap.get(vo.getCreateUserId());
-            UserDTO dto = new UserDTO();
-            BeanUtils.copyProperties(createUser, dto);
-            vo.setCreateUser(dto);
-            if (vo.getCreateUserId().equals(vo.getModifyUserId())) {
-                vo.setModifyUser(dto);
-            } else {
-                UserDTO modifyDto = new UserDTO();
-                BeanUtils.copyProperties(userMap.getOrDefault(vo.getModifyUserId(), new User()), modifyDto);
-                vo.setModifyUser(modifyDto);
-            }
         }
     }
 
@@ -657,12 +583,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return extroInfo;
     }
 
-    private boolean isRestore(String job) {
-        JSONObject jobJson = JSONObject.parseObject(job);
-        Object isRestore = JSONPath.eval(jobJson, "$.job.setting.restore.isRestore");
-        return BooleanUtils.toBoolean(String.valueOf(null == isRestore ? "true" : isRestore));
-    }
-
     /**
      * 构建一个要发布到engine的任务DTO {@link ScheduleTaskShadeDTO}
      *
@@ -688,20 +608,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
         return scheduleTaskShadeDTO;
-    }
-
-
-    /**
-     * 保存一条任务记录并更新任务状态
-     *
-     * @param task            任务信息
-     * @param tenantId        租户id
-     * @param userId          用户id
-     * @param taskOperateType 任务操作类型 @{@link TaskOperateType}
-     * @param submitStatus    发布状态 {@link ESubmitStatus}
-     */
-    private void saveRecordAndUpdateSubmitStatus(Task task, Long tenantId, Long userId, Integer taskOperateType, Integer submitStatus) {
-        this.updateSubmitStatus(tenantId, task.getId(), submitStatus);
     }
 
     /**
@@ -778,79 +684,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVersion.setGmtModified(new Timestamp(System.currentTimeMillis()));
         taskVersionService.insert(taskVersion);
         return taskVersion;
-    }
-
-    /**
-     * 检查要发布的任务并保存版本信息
-     *
-     * @param task        任务信息
-     * @param tenantId    项目id
-     * @param userId      用户id
-     * @param publishDesc 发布描述
-     * @param isRoot      是否是管理员
-     * @param ignoreCheck 是否忽略检查
-     * @return 检查结果
-     */
-    private TaskCheckResultVO checkTaskAndSaveVersion(Task task, Long tenantId, Long userId, String publishDesc, Boolean isRoot, Boolean ignoreCheck) {
-        TaskCheckResultVO checkVo = new TaskCheckResultVO();
-        checkVo.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-        checkTaskCanSubmit(task);
-
-        task.setSubmitStatus(ESubmitStatus.SUBMIT.getStatus());
-        task.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
-
-        final TaskVersion version = new TaskVersion();
-        version.setCreateUserId(userId);
-
-        String versionSqlText = StringUtils.EMPTY;
-
-        if (EScheduleJobType.SPARK_SQL.getVal().intValue() == task.getTaskType().intValue()) {
-            // 语法检测
-            List<BatchTaskParam> taskParamsToReplace = batchTaskParamService.getTaskParam(task.getId());
-            versionSqlText = this.jobParamReplace.paramReplace(task.getSqlText(), taskParamsToReplace, this.sdf.format(new Date()));
-        } else if (EScheduleJobType.SYNC.getVal().intValue() == task.getTaskType().intValue()
-                || EScheduleJobType.DATA_ACQUISITION.getVal().intValue() == task.getTaskType().intValue()) {
-            if (StringUtils.isNotEmpty(task.getSqlText())) {
-                final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
-
-                Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
-                JSONObject job = jsonTask.getJSONObject("job");
-                if (Objects.isNull(job)) {
-                    throw new RdosDefineException(String.format("数据同步任务：%s 未配置", task.getName()));
-                }
-                // 检测job格式
-                SyncJobCheck.checkJobFormat(job.toJSONString(), createModelType);
-                versionSqlText = jsonTask.getString("job");
-            }
-        }
-
-        version.setSqlText(versionSqlText);
-        version.setOriginSql(task.getSqlText());
-        version.setTenantId(task.getTenantId());
-        version.setTaskId(task.getId());
-        //任务的版本号
-        version.setVersion(task.getVersion());
-        version.setTaskParams(task.getTaskParams());
-        version.setScheduleConf(task.getScheduleConf());
-        version.setScheduleStatus(task.getScheduleStatus());
-        version.setGmtModified(task.getGmtModified());
-
-        String dependencyTaskIds = StringUtils.EMPTY;
-        final List<BatchTaskTask> taskTasks = this.batchTaskTaskService.getAllParentTask(task.getId());
-        if (CollectionUtils.isNotEmpty(taskTasks)) {
-            List<Map<String, Object>> parentTasks = taskTasks.stream().map(taskTask -> {
-                Map<String, Object> map = Maps.newHashMap();
-                map.put("parentTaskId", taskTask.getParentTaskId());
-                return map;
-            }).collect(Collectors.toList());
-            dependencyTaskIds = JSON.toJSONString(parentTasks);
-        }
-        version.setDependencyTaskIds(dependencyTaskIds);
-        version.setPublishDesc(null == publishDesc ? "" : publishDesc);
-        // 插入一条记录信息
-        taskVersionService.insert(version);
-        task.setVersion(version.getId().intValue());
-        return checkVo;
     }
 
 
@@ -1309,72 +1142,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
     }
 
-    /**
-     * 任务保存之前的一些参数校验并返回engineType
-     *
-     * @param param
-     * @return
-     */
-    private void checkBeforeUpdateTask(TaskResourceParam param) {
-        if (EScheduleJobType.SYNC.getVal().equals(param.getTaskType())) {
-            operateSyncTask(param);
-            return;
-        }
-        if (CollectionUtils.isNotEmpty(param.getResourceIdList())) {
-            throw new RdosDefineException("该任务不能添加资源.", ErrorCode.INVALID_PARAMETERS);
-        }
-    }
-
-    /**
-     * 处理数据同步任务
-     *
-     * @param param
-     * @return
-     */
-    private void operateSyncTask(TaskResourceParam param) {
-        Map<String, Object> sourceMap = param.getSourceMap();
-        Map<String, Object> settingMap = param.getSettingMap();
-        //下面代码 是为了 拿到断点续传在字段列表的第几位
-        if (sourceMap != null && settingMap != null) {
-            Object column = sourceMap.get("column");
-            Integer restoreColumnIndex = 0;
-            if (column != null) {
-                JSONArray colums = JSONArray.parseArray(JSONObject.toJSONString(sourceMap.get("column")));
-                for (int i = 0; i < colums.size(); i++) {
-                    if (Objects.equals(colums.getJSONObject(i).getString("key"), settingMap.get("restoreColumnName"))) {
-                        restoreColumnIndex = i;
-                        break;
-                    }
-                }
-            }
-            settingMap.put("restoreColumnIndex", restoreColumnIndex);
-            param.setSettingMap(settingMap);
-        }
-        LOGGER.info("addOrUpdateTask with createModel {}", param.getCreateModel());
-
-        if (param.getEditBaseInfo()) {
-            // 右键编辑 处理增量标识
-            operateIncreCol(param);
-        } else {
-            JSONObject sql = new JSONObject();
-            if (TaskCreateModelType.TEMPLATE.getType().equals(param.getCreateModel())) {
-                sql.put("job", param.getSqlText());
-                this.batchTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
-            } else if ((param.isPreSave() || param.getId() == 0) && TaskCreateModelType.GUIDE.getType().equals(param.getCreateModel()) ) {
-                if (param.getId() != 0) {
-                    String sqlText = this.dataSourceService.getSyncSql(param, false);
-                    sql = JSON.parseObject(sqlText);
-                }
-            }
-            sql.put("createModel", param.getCreateModel());
-            sql.put("syncModel", param.getSyncModel());
-            param.setSqlText(sql.toJSONString());
-        }
-        if (param.getSqlText() != null) {
-            this.checkIncreSyncTask(param);
-        }
-    }
-
 
     /**
      * 处理增量标识  主要处理两部分 1 处理增量标识字段  2.处理调度依赖
@@ -1464,23 +1231,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return true;
     }
 
-    /**
-     * 检查增量同步任务配置
-     *
-     * @param param
-     */
-    private void checkIncreSyncTask(final TaskResourceParam param) {
-        final JSONObject taskJson = JSON.parseObject(param.getSqlText());
-        if (!taskJson.containsKey("syncModel") || SyncModel.NO_INCRE_COL.getModel() == taskJson.getInteger("syncModel")) {
-            return;
-        }
-
-        if (param.getFlowId() != 0) {
-            throw new RdosDefineException("增量同步任务不能在工作流中运行", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        this.checkSyncJobContent(taskJson.getJSONObject("job"), true);
-    }
 
     public void checkSyncJobContent(final JSONObject jobJson, final boolean checkIncreCol) {
         if (jobJson == null) {
@@ -1542,174 +1292,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return sb.toString();
     }
 
-
-    /**
-     * 解析子任务依赖关系
-     *
-     * @param sqlText
-     * @return key-taskId, value-parentIdList
-     */
-    public Map<Long, List<Long>> parseTaskRelationsFromSqlText(final String sqlText) {
-        if (StringUtils.isNotBlank(sqlText)) {
-            final JSONArray array = JSON.parseArray(sqlText);
-            final Map<Long, List<Long>> relations = Maps.newHashMap();
-            for (int i = 0; i < array.size(); i++) {
-                final JSONObject object = array.getJSONObject(i);
-                final JSONObject source = object.getJSONObject("source");
-                final JSONObject target = object.getJSONObject("target");
-                if (source != null && target != null) {
-                    final long parentId = source.getJSONObject("data").getLong("id");
-                    final long targetId = target.getJSONObject("data").getLong("id");
-                    if (relations.containsKey(targetId)) {
-                        relations.get(targetId).add(parentId);
-                    } else {
-                        relations.put(targetId, Lists.newArrayList(parentId));
-                    }
-                } else if (object.getJSONObject("data") != null) {
-                    if (!relations.containsKey(object.getJSONObject("data").getLong("id"))) {
-                        relations.put(object.getJSONObject("data").getLong("id"), Lists.newArrayList());
-                    }
-                }
-            }
-            return relations;
-        } else {
-            throw new RdosDefineException("该工作流不存在子任务");
-        }
-    }
-
-    /**
-     * 向导模式下的需要json格式化
-     *
-     * @param createModel
-     * @param obj
-     */
-    private String formatSqlText(Integer createModel, JSONObject obj) {
-        if (obj == null) {
-            return "";
-        }
-        if (obj.get("job") != null && CREATE_MODEL_GUIDE == createModel) {
-            return JSON.toJSONString(JSONObject.parseObject(DataFilter.passwordFilter(obj.get("job").toString())), SerializerFeature.PrettyFormat);
-        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE == createModel) {
-            return String.valueOf(obj.get("job"));
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * 向导模式下的数据同步需要json格式化
-     *
-     * @param taskVO
-     * @param obj
-     */
-    private void formatSqlText(final ScheduleTaskVO taskVO, final JSONObject obj) {
-        taskVO.setCreateModel(obj.get("createModel") == null ? CREATE_MODEL_GUIDE : Integer.parseInt(String.valueOf(obj.get("createModel"))));
-        if (obj.get("job") != null && CREATE_MODEL_GUIDE == taskVO.getCreateModel()) {
-            final Map<String, String> map;
-            final String sqlText;
-            try {
-                map = (Map<String, String>) objectMapper.readValue(String.valueOf(obj.get("job")), Object.class);
-                sqlText = JsonUtils.formatJSON(map);
-            } catch (final IOException e) {
-                throw new RdosDefineException("sqlText的json格式化失败", e);
-            }
-            taskVO.setSqlText(sqlText);
-        } else if (obj.get("job") != null && CREATE_MODEL_TEMPLATE == taskVO.getCreateModel()) {
-            taskVO.setSqlText(String.valueOf(obj.get("job")));
-        } else {
-            taskVO.setSqlText("");
-        }
-
-        if (obj.get("syncModel") != null) {
-            taskVO.setSyncModel(obj.getInteger("syncModel"));
-            if (taskVO.getSyncModel() == SyncModel.HAS_INCRE_COL.getModel()) {
-                final Object increCol = JSONPath.eval(obj.getJSONObject("parser"), "$.sourceMap.increColumn");
-                if (increCol != null) {
-                    taskVO.setIncreColumn(increCol.toString());
-                }
-            }
-        }
-    }
-
-    /**
-     * 更新任务主资源
-     *
-     * @param taskResourceMap
-     * @return
-     */
-    @Transactional
-    public void updateTaskResource(final Map<String, Object> taskResourceMap) {
-
-        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
-        Preconditions.checkState(taskResourceMap.containsKey("resources"), "need param of resources");
-        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
-        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
-
-        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
-        final List<Object> oriResourceList = (List<Object>) taskResourceMap.get("resources");
-
-        final Task task = this.developTaskMapper.selectById(id);
-        Preconditions.checkNotNull(task, "can not find task by id " + id);
-
-        //删除旧的资源
-        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.MAIN_RES.getType());
-
-        //添加新的资源
-        if (CollectionUtils.isNotEmpty(oriResourceList)) {
-            List<Long> resourceIdList = Lists.newArrayList();
-            oriResourceList.forEach(tmpId -> resourceIdList.add(MathUtil.getLongVal(tmpId)));
-            batchTaskResourceService.save(task, resourceIdList, ResourceRefType.MAIN_RES.getType());
-        }
-
-    }
-
-    /**
-     * 更新任务引用资源
-     *
-     * @param taskResourceMap
-     * @return
-     */
-    @Transactional
-    public void updateTaskRefResource(final Map<String, Object> taskResourceMap) {
-
-        Preconditions.checkState(taskResourceMap.containsKey("id"), "need param of id");
-        Preconditions.checkState(taskResourceMap.containsKey("tenantId"), "need param of tenantId");
-        Preconditions.checkState(taskResourceMap.containsKey("createUserId"), "need param of createUserId");
-
-        final Long id = MathUtil.getLongVal(taskResourceMap.get("id"));
-        final List<Object> refResourceList = (List<Object>) taskResourceMap.get("refResource");
-
-        final Task task = getOneWithError(id);
-
-        //删除旧的资源
-        batchTaskResourceService.deleteByTaskId(task.getId(), ResourceRefType.DEPENDENCY_RES.getType());
-
-        //添加新的关联资源
-        if (CollectionUtils.isNotEmpty(refResourceList)) {
-            final List<Long> refResourceIdList = Lists.newArrayList();
-            refResourceList.forEach(tmpId -> refResourceIdList.add(MathUtil.getLongVal(tmpId)));
-            this.batchTaskResourceService.save(task, refResourceIdList, ResourceRefType.DEPENDENCY_RES.getType());
-        }
-    }
-
-    /**
-     * 获取任务的默认参数
-     *
-     * @param tenantId 租户ID
-     * @param taskType 任务类型
-     * @return
-     */
-    private String getDefaultTaskParam(Long tenantId, Integer taskType) {
-        EScheduleJobType eScheduleJobType = EScheduleJobType.getByTaskType(taskType);
-        List<Component> componentList = componentService.listComponentsByComponentType(tenantId, eScheduleJobType.getComponentType().getTypeCode());
-        if (CollectionUtils.isEmpty(componentList)) {
-            return Strings.EMPTY_STRING;
-        }
-        // todo 后续多版本再进行扩展
-        String version = componentList.get(0).getVersionName();
-        TaskTemplate taskParamTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, version);
-        return Objects.isNull(taskParamTemplate) ? Strings.EMPTY_STRING : taskParamTemplate.getContent();
-    }
 
     /**
      * 数据开发-删除任务
@@ -1915,11 +1497,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 .eq(Task::getTenantId, tenantId));
     }
 
-    private Integer updateSubmitStatus(final Long tenantId, final Long taskId, final Integer submitStatus) {
-        LambdaUpdateWrapper<Task> lambdaUpdateWrapper = Wrappers.lambdaUpdate(Task.class).eq(Task::getId, taskId).eq(Task::getTenantId, tenantId).set(Task::getSubmitStatus, submitStatus);
-        return this.developTaskMapper.update(null, lambdaUpdateWrapper);
-    }
-
     /**
      * 根据ID查询信息
      * 如果不存在，则抛异常
@@ -2083,294 +1660,6 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return developTaskMapper.catalogueListBatchTaskByNodePid(tenantId, nodePid);
     }
 
-
-    private JSONObject checkTrace(final JSONObject jsonObject) {
-        final JSONObject keymap = jsonObject.getJSONObject("keymap");
-        final JSONArray source = keymap.getJSONArray("source");
-        final JSONArray target = keymap.getJSONArray("target");
-        final JSONObject sourceMap = jsonObject.getJSONObject("sourceMap");
-        final Integer fromId = (Integer) sourceMap.get("sourceId");
-        final JSONObject targetMap = jsonObject.getJSONObject("targetMap");
-        final Integer toId = (Integer) targetMap.get("sourceId");
-        final JSONObject sourceType = sourceMap.getJSONObject("type");
-        final List<String> sourceTables = this.getTables(sourceType);
-        final JSONObject targetType = targetMap.getJSONObject("type");
-        final List<String> targetTables = this.getTables(targetType);
-        final BatchDataSource fromDs = dataSourceService.getOne(fromId.longValue());
-        final BatchDataSource toDs = dataSourceService.getOne(toId.longValue());
-
-        int fromSourceType = DataSourceType.getSourceType(fromDs.getType()).getVal();
-        int toSourceType = DataSourceType.getSourceType(toDs.getType()).getVal();
-        if (DataSourceType.HBASE.getVal() == fromSourceType || DataSourceType.HBASE.getVal() == toSourceType) {
-            return jsonObject;
-        }
-
-        // 处理分库分表的信息
-        this.addSourceList(sourceMap);
-
-        if (CollectionUtils.isNotEmpty(sourceTables)) {
-            getMetaDataColumns(sourceMap, sourceTables, fromDs);
-        }
-
-        if (CollectionUtils.isNotEmpty(targetTables)) {
-            getMetaDataColumns(targetMap, targetTables, toDs);
-        }
-        //因为下面要对keyMap中target中的字段类型进行更新 所以遍历一次目标map 拿出字段和类型的映射
-        Map<String, String> newTargetColumnTypeMap = targetMap.getJSONArray(COLUMN)
-                .stream().map(column -> (JSONObject) column)
-                .collect(Collectors.toMap(column -> column.getString(KEY), column -> column.getString(TYPE)));
-
-
-        final Collection<BatchSysParameter> sysParams = this.getSysParams();
-
-        final JSONArray newSource = new JSONArray();
-        final JSONArray newTarget = new JSONArray();
-        for (int i = 0; i < source.size(); ++i) {
-            boolean srcTag = true;
-            final JSONArray srcColumns = sourceMap.getJSONArray("column");
-            if (CollectionUtils.isNotEmpty(sourceTables)) {
-                int j = 0;
-                final String srcColName;
-                String colValue = "";
-                if (!(source.get(i) instanceof JSONObject)) {
-                    srcColName = source.getString(i);
-                } else {
-                    //source 可能含有系统变量
-                    srcColName = source.getJSONObject(i).getString("key");
-                    colValue = source.getJSONObject(i).getString("value");
-                }
-
-                //srcColumns 源表中的字段
-                for (; j < srcColumns.size(); ++j) {
-                    final JSONObject srcColumn = srcColumns.getJSONObject(j);
-                    if (srcColumn.getString("key").equals(srcColName)) {
-                        break;
-                    }
-                }
-                boolean isSysParam = false;
-                for (final BatchSysParameter sysParam : sysParams) {
-                    if (sysParam.strIsSysParam(colValue)) {
-                        isSysParam = true;
-                        break;
-                    }
-                }
-                // 没有系统变量 还需要判断是否有自定义变量
-                if (!isSysParam) {
-                    isSysParam = StringUtils.isNotBlank(colValue);
-                }
-                //兼容系统变量
-                if (isSysParam) {
-                    boolean hasThisKey = false;
-                    for (int k = 0; k < srcColumns.size(); ++k) {
-                        final JSONObject srcColumn = srcColumns.getJSONObject(k);
-                        if (srcColumn.getString("key").equals(srcColName)) {
-                            hasThisKey = true;
-                            break;
-                        }
-
-                    }
-                    if (!hasThisKey) {
-                        //创建出系统变量colume
-                        final JSONObject jsonColumn = new JSONObject();
-                        jsonColumn.put("key", srcColName);
-                        jsonColumn.put("value", colValue);
-                        jsonColumn.put("type", source.getJSONObject(i).getString("type"));
-                        jsonColumn.put("format", source.getJSONObject(i).getString("format"));
-                        srcColumns.add(jsonColumn);
-                    }
-                }
-                if (j == srcColumns.size() && !isSysParam) {
-                    srcTag = false;
-                }
-            }
-
-            boolean destTag = true;
-            final JSONArray destColumns = targetMap.getJSONArray("column");
-            if (CollectionUtils.isNotEmpty(targetTables)) {
-                int k = 0;
-                final String destColName;
-                if (!(target.get(i) instanceof JSONObject)) {
-                    destColName = target.getString(i);
-                } else {
-                    destColName = target.getJSONObject(i).getString("key");
-                    //更新dest表中字段类型
-                    final String newType = newTargetColumnTypeMap.get(destColName);
-                    if (StringUtils.isNotEmpty(newType)) {
-                        target.getJSONObject(i).put("type", newType);
-                    }
-                }
-                for (; k < destColumns.size(); ++k) {
-                    final JSONObject destColumn = destColumns.getJSONObject(k);
-                    if (destColumn.getString("key").equals(destColName)) {
-                        break;
-                    }
-                }
-
-                if (k == destColumns.size()) {
-                    destTag = false;
-                }
-            }
-
-            if (srcTag && destTag) {
-                newSource.add(source.get(i));
-                newTarget.add(target.get(i));
-            }
-        }
-
-        keymap.put("source", newSource);
-        keymap.put("target", newTarget);
-
-        return jsonObject;
-    }
-
-
-    private List<String> getTables(final Map<String, Object> map) {
-        final List<String> tables = new ArrayList<>();
-        if (map.get("table") instanceof String) {
-            tables.add(map.get("table").toString());
-        } else {
-            final List<String> tableList = (List<String>) map.get("table");
-            if (CollectionUtils.isNotEmpty(tableList)) {
-                tables.addAll((List<String>) map.get("table"));
-            }
-        }
-
-        return tables;
-    }
-
-    private void addSourceList(final JSONObject sourceMap) {
-        if (sourceMap.containsKey("sourceList")) {
-            return;
-        }
-
-        if (!DataSourceType.MySQL.getVal().equals(sourceMap.getJSONObject("type").getInteger("type"))) {
-            return;
-        }
-
-        final JSONArray sourceList = new JSONArray();
-        final JSONObject source = new JSONObject();
-        source.put("sourceId", sourceMap.get("sourceId"));
-        source.put("name", sourceMap.getString("name"));
-        source.put("type", sourceMap.getJSONObject("type").getInteger("type"));
-        source.put("tables", Arrays.asList(sourceMap.getJSONObject("type").getString("table")));
-        sourceList.add(source);
-
-        sourceMap.put("sourceList", sourceList);
-    }
-
-    /**
-     * 刷新sourceMap中的字段信息
-     * 这个方法做了3个事情
-     * 1.拿到sourceMap的中的原字段信息
-     * 2.拿到对应表的 元数据最新字段信息
-     * 3.和原字段信息进行匹配，
-     * 如果原字段中的某个字段 不在最新字段中 那就忽略大小写再匹配一次，如果能匹配到就用原字段信息
-     * 原因是 Hive执行alter语句增加字段会把源信息所有字段变小写  导致前端映射关系丢失 这里做一下处理
-     *
-     * @param sourceMap
-     * @param sourceTables
-     * @param fromDs
-     */
-    private void getMetaDataColumns(JSONObject sourceMap, List<String> sourceTables, BatchDataSource fromDs) {
-        JSONArray srcColumns = new JSONArray();
-        List<JSONObject> custColumns = new ArrayList<>();
-        List<String> allOldColumnsName = new ArrayList<>();
-        Map<String, String> newNameToOldName = new HashMap<>();
-        //对原有的字段进行处理 处理方式看方法注释
-        getAllTypeColumnsMap(sourceMap, custColumns, allOldColumnsName, newNameToOldName);
-        //获取原有字段
-        JSONArray sourceColumns = sourceMap.getJSONArray(COLUMN);
-        try {
-            //获取一下schema
-            String schema = sourceMap.getString("schema");
-            List<JSONObject> tableColumns = getTableColumnIncludePart(fromDs, sourceTables.get(0), true, schema);
-            for (JSONObject tableColumn : tableColumns) {
-                String columnName = tableColumn.getString(KEY);
-                //获取前端需要的真正的字段名称
-                columnName = getRealColumnName(allOldColumnsName, newNameToOldName, columnName);
-
-                String columnType = tableColumn.getString(TYPE);
-                JSONObject jsonColumn = new JSONObject();
-                jsonColumn.put(KEY, columnName);
-                jsonColumn.put(TYPE, columnType);
-                if (StringUtils.isNotEmpty(tableColumn.getString("isPart"))) {
-                    jsonColumn.put("isPart", tableColumn.get("isPart"));
-                }
-
-                if (!(sourceColumns.get(0) instanceof String)) {
-                    //这个是兼容原来的desc table 出来的结果 因为desc出来的不仅仅是字段名
-                    for (int i = 0; i < sourceColumns.size(); i++) {
-                        final JSONObject item = sourceColumns.getJSONObject(i);
-                        if (item.get(KEY).equals(columnName) && item.containsKey("format")) {
-                            jsonColumn.put("format", item.getString("format"));
-                            break;
-                        }
-                    }
-                }
-                srcColumns.add(jsonColumn);
-            }
-        } catch (Exception ignore) {
-            LOGGER.error("数据同步获取表字段异常 : {}", ignore.getMessage(), ignore);
-            srcColumns = sourceColumns;
-        }
-        if (CollectionUtils.isNotEmpty(custColumns)) {
-            srcColumns.addAll(custColumns);
-        }
-        sourceMap.put(COLUMN, srcColumns);
-    }
-
-    /**
-     * 拿到真实的字段名
-     * 判断 如果
-     *
-     * @param allOldColumnsName 原有的所有字段的字段名
-     * @param newNameToOldName  key是原有字段名的小写  value是原有字段名
-     * @param columnName        元数据字段名
-     * @return
-     */
-    private String getRealColumnName(List<String> allOldColumnsName, Map<String, String> newNameToOldName, String columnName) {
-        if (allOldColumnsName.contains(columnName)) {
-            //认为字段名没有改动 直接返回
-            return columnName;
-        }
-
-        String oldColumnName = newNameToOldName.get(columnName);
-        if (StringUtils.isBlank(oldColumnName)) {
-            //认为字段名没有从大写变小写
-            return columnName;
-        }
-        //字段名大写变小写了 所以返回原有字段名 保证前端映射无问题
-        return oldColumnName;
-    }
-
-    /**
-     * 这个方法 是对老数据中的字段做一下处理 会出来3个集合
-     *
-     * @param sourceMap         源信息
-     * @param custColumns       用户自定义字段
-     * @param allOldColumnsName 老字段名称集合
-     * @param newNameToOldName  新字段名称和老字段名字对应集合  key：字段名小写  value 原字段名 用处hive增加字段 字段名全小写导致对应关系丢失
-     */
-    private void getAllTypeColumnsMap(JSONObject sourceMap, List<JSONObject> custColumns, List<String> allOldColumnsName, Map<String, String> newNameToOldName) {
-        JSONArray sourceColumns = sourceMap.getJSONArray(COLUMN);
-        if (sourceColumns == null) {
-            return;
-        }
-        for (int i = 0; i < sourceColumns.size(); ++i) {
-            JSONObject column = sourceColumns.getJSONObject(i);
-            if (column.containsKey("value")) {
-                custColumns.add(column);
-                continue;
-            }
-            String key = column.getString(KEY);
-            if (StringUtils.isBlank(key)) {
-                continue;
-            }
-            allOldColumnsName.add(key);
-            newNameToOldName.put(key.toLowerCase(), key);
-        }
-
-    }
 
     /**
      * 查询表所属字段 可以选择是否需要分区字段
