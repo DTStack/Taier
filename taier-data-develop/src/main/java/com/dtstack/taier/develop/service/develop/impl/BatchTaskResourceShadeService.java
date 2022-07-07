@@ -21,16 +21,12 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.exception.RdosDefineException;
-import com.dtstack.taier.dao.domain.BatchTaskResource;
 import com.dtstack.taier.dao.domain.BatchTaskResourceShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskResourceShadeDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Reason:
@@ -47,21 +43,6 @@ public class BatchTaskResourceShadeService {
     @Autowired
     private DevelopTaskResourceShadeDao developTaskResourceShadeDao;
 
-    public void clearDataByTaskId(Long taskId) {
-        developTaskResourceShadeDao.delete(Wrappers.lambdaQuery(BatchTaskResourceShade.class)
-                                        .eq(BatchTaskResourceShade::getTaskId,taskId));
-        logger.info(String.format("clear taskResource success  taskId = %s",taskId));
-    }
-
-    public void saveTaskResource(List<BatchTaskResource> taskResourceList) {
-        for (BatchTaskResource resource : taskResourceList) {
-            BatchTaskResourceShade shade = new BatchTaskResourceShade();
-            BeanUtils.copyProperties(resource, shade);
-            //把taskResourceShade的id置为null 防止误更新
-            shade.setId(null);
-            addOrUpdate(shade);
-        }
-    }
 
     public void addOrUpdate(BatchTaskResourceShade batchTaskResourceShade) {
         if (batchTaskResourceShade.getId()!= null && batchTaskResourceShade.getId()>0) {
