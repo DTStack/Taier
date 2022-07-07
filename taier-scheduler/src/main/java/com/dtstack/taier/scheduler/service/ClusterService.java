@@ -34,6 +34,7 @@ import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.server.pluginInfo.ComponentPluginInfoStrategy;
+import com.dtstack.taier.scheduler.server.pluginInfo.DefaultPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.FlinkPluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.HivePluginInfoStrategy;
 import com.dtstack.taier.scheduler.server.pluginInfo.KerberosPluginInfo;
@@ -51,9 +52,7 @@ import java.util.Optional;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.CLUSTER;
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.DEFAULT_CLUSTER_ID;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.IS_METADATA;
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.QUEUE;
-import static java.lang.String.format;
 
 @Service
 public class ClusterService {
@@ -91,7 +90,7 @@ public class ClusterService {
         KerberosPluginInfo kerberosPluginInfo = new KerberosPluginInfo(pluginInfoStrategy, consoleKerberosMapper, componentMapper);
         JSONObject pluginJson = kerberosPluginInfo.configSecurity(clusterConfigJson, clusterId, deployMode);
         String queueName = clusterTenantMapper.getQueueNameByTenantId(tenantId);
-        pluginJson.put(QUEUE,queueName);
+        pluginJson.put(QUEUE, queueName);
         return pluginJson;
     }
 
@@ -104,7 +103,7 @@ public class ClusterService {
             case HIVE_SERVER:
                 return new HivePluginInfoStrategy();
             default:
-                throw new RdosDefineException(format("The plugin info strategy is not support [%s] component", componentType));
+                return new DefaultPluginInfoStrategy(componentType);
         }
     }
 
@@ -149,7 +148,7 @@ public class ClusterService {
             return null;
         }
         JSONObject configObj = componentService.getComponentByClusterId(clusterId, component.getComponentTypeCode(), false, JSONObject.class, componentVersion);
-        if(null == configObj){
+        if (null == configObj) {
             return null;
         }
         if (StringUtils.isNotBlank(component.getKerberosFileName())) {
@@ -158,7 +157,7 @@ public class ClusterService {
                     ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? StringUtils.isNotBlank(componentVersion) ? componentVersion :
                             componentMapper.getDefaultComponentVersionByClusterAndComponentType(clusterId, componentType.getTypeCode()) : null);
             // 添加组件的kerberos配置信息 应用层使用
-            configObj.put(ConfigConstant.KERBEROS_CONFIG,kerberosConfig);
+            configObj.put(ConfigConstant.KERBEROS_CONFIG, kerberosConfig);
             //填充sftp配置项
             Map sftpMap = componentService.getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
             if (MapUtils.isNotEmpty(sftpMap)) {
@@ -168,13 +167,12 @@ public class ClusterService {
         //返回版本
         configObj.put(ConfigConstant.VERSION, component.getVersionValue());
         configObj.put(ConfigConstant.VERSION_NAME, component.getVersionName());
-        configObj.put(IS_METADATA, component.getIsMetadata());
         return configObj;
     }
 
-    public <T> T getComponentByTenantId(Long tenantId, Integer componentType, boolean isFilter, Class<T> clazz,String componentVersion) {
+    public <T> T getComponentByTenantId(Long tenantId, Integer componentType, boolean isFilter, Class<T> clazz, String componentVersion) {
         Long clusterId = Optional.ofNullable(clusterTenantMapper.getClusterIdByTenantId(tenantId)).orElse(DEFAULT_CLUSTER_ID);
-        return componentService.getComponentByClusterId(clusterId,componentType,isFilter,clazz,componentVersion,null);
+        return componentService.getComponentByClusterId(clusterId, componentType, isFilter, clazz, componentVersion, null);
     }
 
 
@@ -182,8 +180,8 @@ public class ClusterService {
         return false;
     }
 
-    public Long getClusterIdByTenantId(Long tenantId){
-       return clusterTenantMapper.getClusterIdByTenantId(tenantId);
+    public Long getClusterIdByTenantId(Long tenantId) {
+        return clusterTenantMapper.getClusterIdByTenantId(tenantId);
     }
 
 }

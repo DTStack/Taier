@@ -46,10 +46,6 @@ public class Component extends BaseEntity {
      */
     private Boolean isDefault;
 
-
-
-    private Integer isMetadata;
-
     private Integer deployType;
 
     private String versionName;
@@ -68,14 +64,6 @@ public class Component extends BaseEntity {
 
     public void setDeployType(Integer deployType) {
         this.deployType = deployType;
-    }
-
-    public Integer getIsMetadata() {
-        return isMetadata;
-    }
-
-    public void setIsMetadata(Integer isMetadata) {
-        this.isMetadata = isMetadata;
     }
 
     public Integer getStoreType() {
