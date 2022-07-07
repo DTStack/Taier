@@ -19,6 +19,7 @@
 package com.dtstack.taier.common.enums;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.pluginapi.enums.EJobType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,30 +34,34 @@ public enum EScheduleJobType {
     /**
      * SparkSQL
      */
-    SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK, EComputeType.BATCH),
+    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * Spark
      */
-    SPARK(1, "Spark", 1, 2, EComponentType.SPARK, EComputeType.BATCH),
+    SPARK(1, "Spark", EJobType.SQL.getType(), 2, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * 数据同步
      */
-    SYNC(2, "数据同步", 2, 3, EComponentType.FLINK, EComputeType.BATCH),
+    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH),
+
+
     /**
-     * Shell
+     * shell
      */
     SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
 
     /**
      * FlinkSQL
      */
-    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM),
 
-    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK, EComputeType.STREAM),
+    DATA_ACQUISITION(6, "实时采集", EJobType.SQL.getType(), 4,EComponentType.FLINK, EComputeType.STREAM),
 
-    HIVE_SQL(7, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
+    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
+
+    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4,EComponentType.OCEAN_BASE, EComputeType.BATCH),
     /**
      * 工作流
      */
