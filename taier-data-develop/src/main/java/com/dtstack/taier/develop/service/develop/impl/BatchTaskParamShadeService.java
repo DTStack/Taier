@@ -23,11 +23,9 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
 import com.dtstack.taier.dao.domain.BatchTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamShadeDao;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,13 +50,6 @@ public class BatchTaskParamShadeService {
     @Autowired
     private BatchSysParamService batchSysParamService;
 
-    public void saveTaskParam(List<BatchTaskParam> paramList) {
-        for (BatchTaskParam batchTaskParam : paramList) {
-            BatchTaskParamShade paramShade = new BatchTaskParamShade();
-            BeanUtils.copyProperties(batchTaskParam, paramShade);
-            addOrUpdate(paramShade);
-        }
-    }
 
     public void addOrUpdate(BatchTaskParamShade batchTaskParamShade) {
         if (StringUtils.isBlank(batchTaskParamShade.getParamCommand())) {
