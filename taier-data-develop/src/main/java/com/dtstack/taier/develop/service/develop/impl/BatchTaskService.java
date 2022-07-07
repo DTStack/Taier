@@ -19,7 +19,11 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -33,7 +37,21 @@ import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.constant.PatternConstant;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.CatalogueType;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.DependencyType;
+import com.dtstack.taier.common.enums.DictType;
+import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EComputeType;
+import com.dtstack.taier.common.enums.EDeployType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.enums.ESubmitStatus;
+import com.dtstack.taier.common.enums.FuncType;
+import com.dtstack.taier.common.enums.MultiEngineType;
+import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
+import com.dtstack.taier.common.enums.ResourceRefType;
+import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -43,7 +61,19 @@ import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.BatchDataSource;
+import com.dtstack.taier.dao.domain.BatchSysParameter;
+import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.BatchTaskTask;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TaskTemplate;
+import com.dtstack.taier.dao.domain.TaskVersion;
+import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO;
 import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -52,8 +82,16 @@ import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
-import com.dtstack.taier.develop.dto.devlop.*;
-import com.dtstack.taier.develop.enums.develop.*;
+import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
+import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
+import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taier.develop.dto.devlop.TaskVO;
+import com.dtstack.taier.develop.enums.develop.FlinkVersion;
+import com.dtstack.taier.develop.enums.develop.SourceDTOType;
+import com.dtstack.taier.develop.enums.develop.SyncModel;
+import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taier.develop.enums.develop.TaskOperateType;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -115,7 +153,19 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -276,7 +326,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskVO getTaskById(TaskVO taskVO) {
         Task task = getOne(taskVO.getId());
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
-        if (EScheduleJobType.SQL.getType().equals(task.getTaskType())) {
+        if (EScheduleJobType.FLINK_SQL.getType().equals(task.getTaskType())) {
             taskVO.setSource(flinkTaskService.dealWithSourceName(task.getSourceStr()));
             taskVO.setSink(flinkTaskService.dealWithSourceName(task.getTargetStr()));
             taskVO.setSide(flinkTaskService.dealWithSourceName(task.getSideStr()));
@@ -853,20 +903,21 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
         taskResourceParam.setModifyUserId(taskResourceParam.getUserId());
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())
-                || EScheduleJobType.HIVE_SQL.getVal().equals(taskVO.getTaskType())) {
-            return (TaskVO) updateTask(taskVO, true);
-        } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType())) {
-            if(TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
-                flinkTaskService.convertTableStr(taskResourceParam, taskVO);
-            }
-            taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
-            return (TaskVO) updateTask(taskVO, false);
+        EScheduleJobType taskType = EScheduleJobType.getByTaskType(taskVO.getTaskType());
+        switch (taskType) {
+            case FLINK_SQL:
+                if (TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
+                    flinkTaskService.convertTableStr(taskResourceParam, taskVO);
+                }
+                taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(),
+                        taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
+                return (TaskVO) updateTask(taskVO, false);
+            case SYNC:
+            case DATA_ACQUISITION:
+                return addOrUpdateSyncTask(taskResourceParam);
+            default:
+                return (TaskVO) updateTask(taskVO, true);
         }
-        if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
-            return addOrUpdateSyncTask(taskResourceParam);
-        }
-        return null;
     }
 
     /**
@@ -951,7 +1002,12 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private void addTask(TaskVO taskVO) {
         taskVO.setJobId(actionService.generateUniqueSign());
         taskVO.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
+
+        if (StringUtils.isBlank(taskVO.getTaskParams())) {
+            TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion());
+            String content = taskTemplate == null ? "" : taskTemplate.getContent();
+            taskVO.setTaskParams(content);
+        }
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? BatchTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
@@ -1358,7 +1414,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskVO taskVO = new TaskVO();
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
         taskVO.setCreateModel(TaskCreateModelType.TEMPLATE.getType());
-        if (taskVO.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
+        if (taskVO.getTaskType().equals(EScheduleJobType.FLINK_SQL.getVal())) {
             taskVO.setSqlText(flinkTaskService.generateCreateFlinkSql(task));
         }else{
             JSONObject sqlJson = null;
@@ -2501,7 +2557,7 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         List<BatchTaskGetSupportJobTypesResultVO> resultSupportTypes = Lists.newArrayList();
         List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if (CollectionUtils.isEmpty(engineSupportVOS)) {
-            throw new DtCenterDefException("该租户 console 未配置任何 集群");
+            throw new DtCenterDefException("该租户对应集群未配置任何组件");
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
         List<EScheduleJobType> eScheduleJobTypes = convertComponentTypeToJobType(tenantSupportMultiEngine);
@@ -2519,22 +2575,11 @@ public class BatchTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     private List<EScheduleJobType> convertComponentTypeToJobType(List<Integer> component) {
-        List<EScheduleJobType> supportType = new ArrayList<>();
         if (!CollectionUtils.isEmpty(component)) {
-            if (component.contains(EComponentType.FLINK.getTypeCode())) {
-                supportType.add(EScheduleJobType.SYNC);
-                supportType.add(EScheduleJobType.SQL);
-                supportType.add(EScheduleJobType.DATA_ACQUISITION);
-            }
-
-            if (component.contains(EComponentType.SPARK.getTypeCode())) {
-                supportType.add(EScheduleJobType.SPARK_SQL);
-            }
-            if (component.contains(EComponentType.HIVE_SERVER.getTypeCode())) {
-                supportType.add(EScheduleJobType.HIVE_SQL);
-            }
+            return Arrays.stream(EScheduleJobType.values()).filter(eScheduleJobType ->
+                    eScheduleJobType.getComponentType() == null || component.contains(eScheduleJobType.getComponentType().getTypeCode())).collect(Collectors.toList());
         }
-        return supportType;
+        return new ArrayList<>();
     }
 
 

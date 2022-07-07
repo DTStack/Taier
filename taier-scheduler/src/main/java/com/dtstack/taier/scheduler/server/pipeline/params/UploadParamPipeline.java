@@ -19,15 +19,12 @@
 package com.dtstack.taier.scheduler.server.pipeline.params;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
 import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
-import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,15 +77,15 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
         @SuppressWarnings("unchecked")
         List<ScheduleTaskParamShade> taskParamShades = (List) pipelineParam.get(taskParamsToReplaceKey);
 
-        String uploadPath = this.uploadSqlTextToHdfs((String)actionParam.get("sqlText"), taskShade.getTaskType(),
+        /*String uploadPath = this.uploadSqlTextToHdfs((String)actionParam.get("sqlText"), taskShade.getTaskType(),
                 taskShade.getName(), taskShade.getTenantId(), taskParamShades, scheduleJob.getCycTime(),
                 fileUploadPath, pluginInfo, workerOperator, scheduleJob.getJobId());
 
-        pipelineParam.put(pipelineKey, uploadPath);
+        pipelineParam.put(pipelineKey, uploadPath);*/
     }
 
 
-    private String uploadSqlTextToHdfs(String content, Integer taskType, String taskName, Long tenantId,
+    /*private String uploadSqlTextToHdfs(String content, Integer taskType, String taskName, Long tenantId,
                                        List<ScheduleTaskParamShade> taskParamShades, String cycTime, String fileUploadPath,
                                        JSONObject pluginInfo, WorkerOperator workerOperator, String jobId) throws RdosDefineException {
         String fileName = null;
@@ -116,5 +113,5 @@ public class UploadParamPipeline extends IPipeline.AbstractPipeline {
             LOGGER.error("Update task to HDFS failure: ERROR {}", jobId, e);
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());
         }
-    }
+    }*/
 }

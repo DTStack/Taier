@@ -52,7 +52,12 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * company: www.dtstack.com
@@ -320,7 +325,7 @@ public class JobSubmitDealer implements Runnable {
                 // 提交任务
                 jobResult = workerOperator.submitJob(jobClient);
 
-                if (EScheduleJobType.SQL.getType().equals(jobClient.getTaskType())) {
+                if (EScheduleJobType.FLINK_SQL.getType().equals(jobClient.getTaskType())) {
                     saveArchiveFsDir(jobClient,jobResult);
                 }
                 if (LOGGER.isDebugEnabled()) {
