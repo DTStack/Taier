@@ -28,8 +28,6 @@ public interface ComponentMapper extends BaseMapper<Component> {
 
     List<Component> listByClusterId(@Param("clusterId") Long clusterId,@Param("type") Integer typeCode, @Param("isDefault") boolean isDefault);
 
-    Integer updateMetadata(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("isMetadata") Integer isMetadata);
-
     Component getByClusterIdAndComponentType(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("componentVersion")String componentVersion,@Param("deployType") Integer deployType);
 
     Component getByVersionName(@Param("clusterId") Long clusterId, @Param("type") Integer type,@Param("versionName")String versionName,@Param("deployType") Integer deployType);
