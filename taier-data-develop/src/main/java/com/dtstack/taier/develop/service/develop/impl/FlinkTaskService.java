@@ -8,7 +8,11 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.AssertUtils;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -67,7 +71,16 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 
@@ -400,7 +413,7 @@ public class FlinkTaskService {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
         //生成最终拼接的sql
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.SQL.getType())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.FLINK_SQL.getType())) {
             String sql = generateSqlToScheduler(task).toString();
             task.setSqlText(sql);
         }
@@ -438,7 +451,7 @@ public class FlinkTaskService {
                 params.add(String.format("%s=%s", param.substring(0, special).trim(), param.substring(special + 1).trim()));
             }
         }
-        if (StringUtils.isNotEmpty(sourceParam) && Objects.equals(taskType, EScheduleJobType.SQL.getType())) {
+        if (StringUtils.isNotEmpty(sourceParam) && Objects.equals(taskType, EScheduleJobType.FLINK_SQL.getType())) {
             //为时间特征为eventTime的的任务添加参数
             JSONArray array = JSON.parseArray(sourceParam);
             boolean timeCharacteristic = true;
@@ -687,7 +700,7 @@ public class FlinkTaskService {
 
     public Task getTaskSqlText(Long taskId) {
         Task task = developTaskMapper.selectById(taskId);
-        if (EScheduleJobType.SQL.getVal().equals(task.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
+        if (EScheduleJobType.FLINK_SQL.getVal().equals(task.getTaskType()) && TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
 
             String source = generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE);
             source = sqlFormat(source);

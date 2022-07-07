@@ -77,6 +77,9 @@ public abstract class AbstractJobScanningScheduler implements Scheduler, Initial
      */
     private void scanningJob () {
         try {
+            if (!env.isOpenJobSchedule()) {
+                return;
+            }
             String nodeAddress = zkService.getLocalAddress();
             // 1. 获得节点信息
             if (StringUtils.isBlank(nodeAddress)) {

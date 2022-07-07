@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.constant.PatternConstant;
 import com.dtstack.taier.common.enums.CatalogueType;
@@ -239,7 +238,7 @@ public class BatchFunctionService {
         }
         //任务类型是flinkSql ,函数饮用的资源必须是上传sftp
         if (ComputeType.STREAM.getType().equals(resource.getComputeType())) {
-            AssertUtils.isTrue(EScheduleJobType.SQL.getType().equals(taskType), "sparkSQL 任务只能引用上传到hdfs的资源");
+            AssertUtils.isTrue(EScheduleJobType.FLINK_SQL.getType().equals(taskType), "sparkSQL 任务只能引用上传到hdfs的资源");
         }
         if (ComputeType.BATCH.getType().equals(resource.getComputeType())) {
             AssertUtils.isTrue(EScheduleJobType.SPARK_SQL.getType().equals(taskType), "flinkSQL 任务只能引用上传到sftp的资源");
@@ -424,7 +423,7 @@ public class BatchFunctionService {
         if (CollectionUtils.isEmpty(funcNameSet)) {
             return Lists.newArrayList();
         }
-        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId, EScheduleJobType.SQL.getType());
+        List<BatchFunction> streamFunctionList = developFunctionDao.listTenantByFunction(tenantId, EScheduleJobType.FLINK_SQL.getType());
         return streamFunctionList.stream().filter(f-> funcNameSet.contains(f.getName().toUpperCase())).collect(Collectors.toList());
     }
 
@@ -469,7 +468,7 @@ public class BatchFunctionService {
         if (!isFilterSys) {
             return funcSet;
         }
-        List<BatchFunction> batchFunctions = developFunctionDao.listSystemFunction(EScheduleJobType.SQL.getType());
+        List<BatchFunction> batchFunctions = developFunctionDao.listSystemFunction(EScheduleJobType.FLINK_SQL.getType());
         List<String> sysFuncNames = batchFunctions.stream().map(BatchFunction::getName).collect(Collectors.toList());
 
         //FIXME 区分大小写
