@@ -109,8 +109,8 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        LOGGER.info("Initializing " + this.getClass().getName());
         SystemPropertyUtil.setHadoopUserName(environmentContext.getHadoopUserName());
+        LOGGER.info("Initializing {}, HADOOP_USER_NAME is {}", this.getClass().getName(), environmentContext.getHadoopUserName());
 
         executors.execute(jobSubmittedDealer);
 
