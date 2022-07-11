@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.savetask;
+package com.dtstack.taier.develop.service.develop.task;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -44,9 +44,9 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
+public class DevelopSyncTask extends DevelopTaskTemplate {
 
-    public static Logger LOGGER = LoggerFactory.getLogger(DevelopAddOrUpdateSyncTask.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(DevelopSyncTask.class);
 
     @Autowired
     private DaReaderBuilderFactory daReaderBuilderFactory;
@@ -75,17 +75,14 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
             taskVO.setTargetStr(task.getTargetStr());
             taskVO.setSettingStr(task.getSettingStr());
         }
-//        //todo 检查密码回填操作
-//        this.checkFillPassword(taskResourceParam);
-//        if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
-            setSqlTextByCreateModel(taskResourceParam, taskVO);
-//        }
+        setSqlTextByCreateModel(taskResourceParam, taskVO);
         addParam(taskResourceParam);
         return taskResourceParam;
     }
 
     /**
      * 断点续传
+     *
      * @param param
      */
     private void addParam(TaskResourceParam param) {
@@ -147,24 +144,26 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
             throw new RdosDefineException("createModel incorrect parameter", ErrorCode.INVALID_PARAMETERS);
         }
     }
-    private static void dealWithTaskParam(TaskResourceParam task){
-        if(task.getSettingMap() != null){
+
+    private static void dealWithTaskParam(TaskResourceParam task) {
+        if (task.getSettingMap() != null) {
             if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
                 //实时任务参数处理
-                task.getSettingMap().put("isStream",true);
-                task.getSettingMap().put("isRestore",true);
+                task.getSettingMap().put("isStream", true);
+                task.getSettingMap().put("isRestore", true);
             } else if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                 //离线任务参数处理
-                task.getSettingMap().put("isStream",false);
+                task.getSettingMap().put("isStream", false);
                 //离线任务FTP源处理，开启断点续传时必须指定恢复字段
                 Integer type = Integer.parseInt(String.valueOf(task.getSourceMap().get("type")));
-                if( Objects.equals(task.getSettingMap().get("isRestore") ,true) && Objects.equals(DataSourceType.FTP.getVal(),type)){
-                    task.getSettingMap().put("restoreColumnName","");
+                if (Objects.equals(task.getSettingMap().get("isRestore"), true) && Objects.equals(DataSourceType.FTP.getVal(), type)) {
+                    task.getSettingMap().put("restoreColumnName", "");
                 }
             }
         }
 
     }
+
     /**
      * 获取sqlText
      *
@@ -208,7 +207,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
 
             //转脚本模式直接返回
             if (CREATE_MODEL_TEMPLATE == param.getCreateModel()) {
-                String jobText = getJobText( reader, writer,setting, nameMappingJson, restoration, param);
+                String jobText = getJobText(reader, writer, setting, nameMappingJson, restoration, param);
                 return jobText;
             }
 
@@ -275,6 +274,7 @@ public class DevelopAddOrUpdateSyncTask extends DevelopAddOrUpdateTaskTemplate {
         };
         return flinkxJobTemplate.toJobJsonString(param);
     }
+
     @Override
     public EScheduleJobType getEScheduleJobType() {
         return EScheduleJobType.SYNC;

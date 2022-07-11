@@ -6,9 +6,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.AssertUtils;
-import com.dtstack.taier.common.enums.*;
+import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -28,6 +31,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
+import com.dtstack.taier.develop.flink.sql.GuideTableParamsUtil;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
@@ -68,7 +72,16 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 
@@ -131,84 +144,18 @@ public class FlinkTaskService {
     private ScheduleJobService scheduleJobService;
 
     @Autowired
-    private DevelopResourceService developResourceService;
+    private DevelopTaskResourceService developTaskResourceService;
 
-    /**
-     * 将前端接收的结果表维表转化
-     */
-    public void convertTableStr(TaskResourceParam taskResourceParam, TaskVO taskVO) {
-        taskVO.setSourceStr(taskResourceParam.getSource() != null ? JSON.toJSONString(deal(taskResourceParam.getSource(), taskResourceParam.getComponentVersion())) : null);
-        taskVO.setTargetStr(taskResourceParam.getSink() != null ? JSON.toJSONString(deal(taskResourceParam.getSink(), taskResourceParam.getComponentVersion())) : null);
-        taskVO.setSideStr(taskResourceParam.getSide() != null ? JSON.toJSONString(deal(taskResourceParam.getSide(), taskResourceParam.getComponentVersion())) : null);
+    @Autowired
+    private StreamSqlFormatService streamSqlFormatService;
+
+    public void convertTableStr(TaskResourceParam taskResourceParam) {
+        taskResourceParam.setSourceStr(taskResourceParam.getSource() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSource(), taskResourceParam.getComponentVersion())) : null);
+        taskResourceParam.setTargetStr(taskResourceParam.getSink() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSink(), taskResourceParam.getComponentVersion())) : null);
+        taskResourceParam.setSideStr(taskResourceParam.getSide() != null ? JSON.toJSONString(GuideTableParamsUtil.deal(taskResourceParam.getSide(), taskResourceParam.getComponentVersion())) : null);
     }
 
-    private List<JSONObject> deal(List<JSONObject> source, String componentVersion) {
-        for (JSONObject obj : source) {
-            //只有mysql oracle类型采用键值模式填写
-            Integer type = obj.getInteger("type");
-            if (DataSourceType.MySQL.getVal().equals(type)) {
-                convertField(obj);
-            } else {
-                String columnsText = obj.getString("columnsText");
-                obj.put("columns", parseColumnsFromText(columnsText, type, componentVersion));
-            }
-        }
-        return source;
-    }
 
-    private void convertField(JSONObject sourceMeta) {
-        if (!sourceMeta.containsKey("columns")) {
-            return;
-        }
-        JSONArray columns = sourceMeta.getJSONArray("columns");
-        if (Objects.isNull(columns) || columns.size() <= 0) {
-            return;
-        }
-        JSONArray formatColumns = new JSONArray();
-        for (int i = 0; i < columns.size(); i++) {
-            JSONObject columnJson = columns.getJSONObject(i);
-            String type = columnJson.getString("type");
-            columnJson.put("type", StringUtils.replace(type, " ", ""));
-            formatColumns.add(columnJson);
-        }
-        sourceMeta.put("columns", formatColumns);
-    }
-
-    private List<JSONObject> parseColumnsFromText(String columnsText, Integer dataSourceType, String componentVersion) {
-        List<JSONObject> list = Lists.newArrayList();
-        List<String> check = Lists.newArrayList();
-        if (StringUtils.isBlank(columnsText)) {
-            return list;
-        }
-        String[] columns = columnsText.split("\n");
-        for (String column : columns) {
-            if (StringUtils.isNotBlank(column)) {
-                if (FlinkVersion.FLINK_112.getType().equals(componentVersion) && DataSourceType.HBASE.getVal().equals(dataSourceType)) {
-                    // 1. flink 1.12 2. 数据源为 hbase
-                    JSONObject obj = new JSONObject();
-                    obj.put("column", column);
-                    list.add(obj);
-                } else {
-                    //根据空格分隔字段名和类型
-                    String[] s = column.trim().split("\\s+", 2);
-                    if (s.length == 2) {
-                        if (check.contains(s[0].trim())) {
-                            throw new DtCenterDefException(String.format("field name:[%s] fill in the repeat", column));
-                        } else {
-                            check.add(s[0].trim());
-                        }
-                        JSONObject obj = new JSONObject();
-                        obj.put("column", s[0].trim());
-                        obj.put("type", s[1].trim());
-                        list.add(obj);
-                    } else {
-                        throw new DtCenterDefException(String.format("field information:[%s] fill in the wrong", column));
-                    }
-                }
-            }
-        }
-        return list;
-    }
 
     private String generateCreateFlinkSql(String sourceParams, String componentVersion, TableType type) {
         StringBuilder createSql = new StringBuilder();
@@ -256,7 +203,7 @@ public class FlinkTaskService {
                     sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
                 }
             case MR:
-                sql.append(generateAddJarSQL(task));
+                sql.append(generateAddFlinkJar(task));
                 break;
         }
         //用户填写的sql
@@ -281,25 +228,20 @@ public class FlinkTaskService {
     }
 
 
-//    private String generateAddFlinkJar(Task task) {
-//        if (task.getTaskType() == EScheduleJobType.MR.getVal().intValue()) {
-//            List<DevelopResource> resourceList = developResourceService.getResource(task.getId());
-//            if (CollectionUtils.isEmpty(resourceList)) {
-//                return "";
-//            }
-//            // MR任务关联主资源只能有一个
-//            DevelopResource resourceDTO = resourceList.stream().filter(resource -> TaskResourceTypeEnum.NormalResource.getType().equals(resource.getIsAdditionResource())).findFirst().orElse(null);
-//            if (Objects.nonNull(resourceDTO)) {
-//                addJarAndFile.append(streamSqlFormatService.generateAddJarSql(resourceDTO.getId(), streamTask.getMainClass()));
-//            }
-//            return addJarAndFile.toString();
-//        }
-//    }
-
-
-    /**
-     * ----------------------------------------------------------
-     */
+    private String generateAddFlinkJar(Task task) {
+        if (task.getTaskType() == EScheduleJobType.MR.getVal().intValue()) {
+            List<DevelopResource> developResourceList = developTaskResourceService.getResources(task.getId(), task.getTaskType());
+            if (CollectionUtils.isEmpty(developResourceList)) {
+                return "";
+            }
+            // MR任务关联主资源只能有一个
+            DevelopResource developResource = developResourceList.get(0);
+            if (Objects.nonNull(developResource)) {
+                return streamSqlFormatService.generateAddJarSQL(developResource.getId(), task.getMainClass());
+            }
+        }
+        return "";
+    }
 
 
     /**
@@ -340,6 +282,7 @@ public class FlinkTaskService {
             return null;
         }
     }
+
     private boolean isRestore(String job) {
         JSONObject jobJson = JSONObject.parseObject(job);
         Object isRestore = JSONPath.eval(jobJson, "$.job.setting.restore.isRestore");
@@ -384,7 +327,7 @@ public class FlinkTaskService {
                 task.setTaskParams(taskParams);
             }
             task.setExeArgs(String.format(JOB_NAME_ARGS_TEMPLATE, task.getName(), EncoderUtil.encoderURL(job, Charsets.UTF_8.name())));
-            taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(),  confProp);
+            taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
             if (!Objects.equals(confProp.toString(), "{}")) {
                 String confPropArgs = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, EncoderUtil.encoderURL(confProp.toJSONString(), Charsets.UTF_8.name()));
                 if (StringUtils.isNotBlank(confPropArgs)) {
@@ -445,8 +388,8 @@ public class FlinkTaskService {
         // 补充其他的字段
         actionParam.put("type", EScheduleType.NORMAL_SCHEDULE.getType());
         actionParam.put("tenantId", task.getTenantId());
-        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(),task.getTaskType()));
-        actionParam.put("name",getJobName( task.getName(),task.getJobId()));
+        actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(), task.getTaskType()));
+        actionParam.put("name", getJobName(task.getName(), task.getJobId()));
         actionParam.put("deployMode", EDeployMode.PERJOB.getType());
 
         if (!Strings.isNullOrEmpty(externalPath)) {
@@ -455,7 +398,7 @@ public class FlinkTaskService {
         return JsonUtils.objectToObject(actionParam, ParamActionExt.class);
     }
 
-    private String formatTaskParams(String taskParams, String sourceParam, String componentVersion,Integer taskType) {
+    private String formatTaskParams(String taskParams, String sourceParam, String componentVersion, Integer taskType) {
         List<String> params = new ArrayList<>();
         String[] tempParams = taskParams.split("\r|\n");
         for (String param : tempParams) {
@@ -543,9 +486,9 @@ public class FlinkTaskService {
      * @param taskId
      * @return
      */
-    public Boolean stopStreamTask(Long taskId,Integer isForce) {
+    public Boolean stopStreamTask(Long taskId, Integer isForce) {
         Task task = developTaskMapper.selectById(taskId);
-        return actionService.stop(Collections.singletonList(task.getJobId()),isForce);
+        return actionService.stop(Collections.singletonList(task.getJobId()), isForce);
     }
 
     /**
@@ -559,8 +502,8 @@ public class FlinkTaskService {
 
 
     public CheckResultVO grammarCheck(TaskResourceParam taskResourceParam) {
+        convertTableStr(taskResourceParam);
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        convertTableStr(taskResourceParam, taskVO);
         CheckResult data = grammarCheck(taskVO);
         if (data == null) {
             throw new DtCenterDefException("engine service exception");
