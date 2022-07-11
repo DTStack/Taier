@@ -67,7 +67,7 @@ public class DevelopFunctionController {
         return new APITemplate<DevelopFunctionAddResultVO>() {
             @Override
             protected DevelopFunctionAddResultVO process() {
-                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceId(), vo.getTenantId(), vo.getUserId());
+                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceId(), vo.getUserId());
                 return FunctionMapstructTransfer.INSTANCE.newTaskCatalogueVoToFunctionAddResultVo(result);
             }
         }.execute();
