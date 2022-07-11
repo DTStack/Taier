@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class DevelopCatalogueService {
-    
+
     @Autowired
     private DevelopCatalogueMapper developCatalogueMapper;
 
@@ -144,7 +144,7 @@ public class DevelopCatalogueService {
 
 
     private void getTree(CatalogueVO root, List<Long> grandCatalogueIds, Long tenantId, String catalogueType) {
-        if(StringUtils.isBlank(root.getCatalogueType())) {
+        if (StringUtils.isBlank(root.getCatalogueType())) {
             root.setCatalogueType(catalogueType);
         }
 
@@ -211,6 +211,7 @@ public class DevelopCatalogueService {
 
     /**
      * 新增 and 修改目录
+     *
      * @param catalogue
      * @return
      */
@@ -269,6 +270,7 @@ public class DevelopCatalogueService {
 
     /**
      * 新增 and 修改目录
+     *
      * @param developCatalogue
      * @return
      */
@@ -276,8 +278,8 @@ public class DevelopCatalogueService {
         developCatalogue.setGmtModified(new Timestamp(System.currentTimeMillis()));
         if (developCatalogue.getId() != null && developCatalogue.getId() > 0) {
             LambdaUpdateWrapper<DevelopCatalogue> developCatalogueLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-            developCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted,Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId,developCatalogue.getId());
-            developCatalogueMapper.update(developCatalogue,developCatalogueLambdaUpdateWrapper);
+            developCatalogueLambdaUpdateWrapper.eq(DevelopCatalogue::getIsDeleted, Deleted.NORMAL.getStatus()).eq(DevelopCatalogue::getId, developCatalogue.getId());
+            developCatalogueMapper.update(developCatalogue, developCatalogueLambdaUpdateWrapper);
         } else {
             developCatalogue.setGmtCreate(new Timestamp(System.currentTimeMillis()));
             developCatalogueMapper.insert(developCatalogue);
@@ -287,6 +289,7 @@ public class DevelopCatalogueService {
 
     /**
      * 绑定租户时，初始化目录信息
+     *
      * @param tenantId
      * @param userId
      */
@@ -325,6 +328,7 @@ public class DevelopCatalogueService {
 
     /**
      * 根据当前节点递归查询所有父节点列表，包含当前节点
+     *
      * @param currentId
      * @param ids
      * @return
@@ -336,6 +340,7 @@ public class DevelopCatalogueService {
 
     /**
      * 根据当前节点递归查询所有父节点列表
+     *
      * @param currentId
      * @param ids
      * @return 父节点列表
@@ -413,7 +418,7 @@ public class DevelopCatalogueService {
             int parentLevel = this.isOverLevelLimit(catalogueInput.getNodePid());
             updateCatalogue.setLevel(parentLevel + 1);
             updateCatalogue.setNodePid(catalogueInput.getNodePid());
-        }else {
+        } else {
             updateCatalogue.setNodePid(catalogue.getNodePid());
         }
         //判断移动的目录下 有没有相同名称的文件夹
@@ -561,9 +566,8 @@ public class DevelopCatalogueService {
     /**
      * 获得当前节点的子节点信息，包括子孙文件夹和子孙文件
      *
-     * @param tenantId   租户id
+     * @param tenantId  租户id
      * @param isGetFile
-     * @param userId
      * @return
      * @author
      */
@@ -665,6 +669,7 @@ public class DevelopCatalogueService {
 
     /**
      * 判断是否可以移动到当前目录
+     *
      * @param catalogueId
      * @param catalogueNodePid
      * @return
@@ -677,6 +682,7 @@ public class DevelopCatalogueService {
 
     /**
      * 根据 目录Id 查询目录信息
+     *
      * @param nodeId
      * @return
      */
