@@ -37,7 +37,7 @@ public enum HiveVersion {
     /**
      * hive3
      */
-    HIVE_3x("3.x");
+    HIVE_3x("3.x-apache");
 
     private String version;
 
