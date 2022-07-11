@@ -253,7 +253,7 @@ public class FlinkRuntimeLogService {
      */
     private String getEntityPre(String responseEntity) {
         if (StringUtils.isBlank(responseEntity)) {
-            logger.warn("获取网页信息最终空{}");
+            logger.warn("获取网页信息为空");
             return StringUtils.EMPTY;
         }
         Document document = Jsoup.parse(responseEntity);

@@ -62,7 +62,7 @@ public class DevelopCatalogueController {
         return new APITemplate<DevelopCatalogueResultVO>() {
             @Override
             protected DevelopCatalogueResultVO process() {
-                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getUserId(), vo.getTenantId());
+                CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getTenantId());
                 return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
