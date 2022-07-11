@@ -34,10 +34,8 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taier.common.constant.PatternConstant;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.DependencyType;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
@@ -53,14 +51,13 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
-import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.common.util.PublicUtil;
+import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -68,9 +65,7 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
-import com.dtstack.taier.dao.dto.UserDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.Sort;
@@ -91,8 +86,8 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.develop.savetask.DevelopAddOrUpdateTaskTemplate;
-import com.dtstack.taier.develop.service.develop.savetask.DevelopTaskAddOrUpdateTemplateFactory;
+import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplate;
+import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplateFactory;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
@@ -107,7 +102,6 @@ import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
-import com.dtstack.taier.develop.utils.TaskUtils;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -123,7 +117,6 @@ import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
-import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -141,7 +134,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -160,8 +152,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_GUIDE;
@@ -179,9 +169,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public static Logger LOGGER = LoggerFactory.getLogger(DevelopTaskService.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
-
-    @Resource(name = "developJobParamReplace")
-    private JobParamReplace jobParamReplace;
 
     @Autowired
     private TenantService tenantService;
@@ -226,9 +213,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private DevelopFunctionService developFunctionService;
-
-    @Autowired
     private ScheduleDictService dictService;
 
     @Autowired
@@ -262,16 +246,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private DevelopTaskAddOrUpdateTemplateFactory developTaskAddOrUpdateTemplateFactory;
+    private DevelopTaskTemplateFactory developTaskTemplateFactory;
 
     @Autowired
     private ClusterService clusterService;
-
-    private static final String KEY = "key";
-
-    private static final String TYPE = "type";
-
-    private static final String COLUMN = "column";
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -287,18 +265,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     private static Map<Integer, List<Pair<String, String>>> jobSupportTypeMap = Maps.newHashMap();
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer IS_FILE = 1;
 
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
     public static final String HADOOP_CONFIG = "hadoopConfig";
-
-    private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\s*([0-9a-zA-Z-_]+)\\s*\\(");
-
 
     @PostConstruct
     public void init() {
@@ -389,21 +360,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskVO.setTaskVariables(mapParams);
     }
 
-    private void setTaskVariables(final ScheduleTaskVO taskVO, final Long taskId) {
-        final List<DevelopTaskParam> taskParams = this.developTaskParamService.getTaskParam(taskId);
-        final List<Map> mapParams = new ArrayList<>();
-        if (taskParams != null) {
-            for (final DevelopTaskParam taskParam : taskParams) {
-                final Map map = new HashMap();
-                map.put("type", taskParam.getType());
-                map.put("paramName", taskParam.getParamName());
-                map.put("paramCommand", taskParam.getParamCommand());
-                mapParams.add(map);
-            }
-        }
-        taskVO.setTaskVariables(mapParams);
-    }
-
     /**
      * 数据开发-检查task与依赖的task是否有构成有向环
      *
@@ -478,23 +434,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         node.add(taskId);
         for (Long j : nodeMap.get(taskId)) {
             mapDfs(j, node, nodeMap);
-        }
-    }
-
-
-    public void buildUserDTOInfo(final Map<Long, User> userMap, final ScheduleTaskVO vo) {
-        if (Objects.nonNull(vo.getCreateUserId())) {
-            User createUser = userMap.get(vo.getCreateUserId());
-            UserDTO dto = new UserDTO();
-            BeanUtils.copyProperties(createUser, dto);
-            vo.setCreateUser(dto);
-            if (vo.getCreateUserId().equals(vo.getModifyUserId())) {
-                vo.setModifyUser(dto);
-            } else {
-                UserDTO modifyDto = new UserDTO();
-                BeanUtils.copyProperties(userMap.getOrDefault(vo.getModifyUserId(), new User()), modifyDto);
-                vo.setModifyUser(modifyDto);
-            }
         }
     }
 
@@ -798,75 +737,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
-     * 保存或者修改任务
-     *
-     * @param taskResourceParam
-     * @return
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
-        taskResourceParam.setModifyUserId(taskResourceParam.getUserId());
-        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(taskVO.getTaskType())
-                || EScheduleJobType.HIVE_SQL.getVal().equals(taskVO.getTaskType())) {
-            return (TaskVO) updateTask(taskVO, true);
-        } else if (EScheduleJobType.SQL.getVal().equals(taskResourceParam.getTaskType())) {
-            if (TaskCreateModelType.GUIDE.getType().equals(taskResourceParam.getCreateModel())) {
-                flinkTaskService.convertTableStr(taskResourceParam, taskVO);
-            }
-            taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
-            return (TaskVO) updateTask(taskVO, false);
-        }  else if (EScheduleJobType.MR.getVal().equals(taskResourceParam.getTaskType())) {
-        taskVO.setTaskParams(taskVO.getTaskParams() == null ? taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskVO.getTaskType(), taskVO.getComponentVersion()).getContent() : taskVO.getTaskParams());
-        updateTask(taskVO, false);
-        dependencyResourceDeal(taskResourceParam, taskVO);
-        return taskVO;
-    }
-        if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
-            return addOrUpdateSyncTask(taskResourceParam);
-        }
-        return null;
-    }
-
-    private void dependencyResourceDeal(TaskResourceParam taskResourceParam, TaskVO taskVO) {
-        if (CollectionUtils.isEmpty(taskResourceParam.getResourceIdList())) {
-            return;
-        }
-        developTaskResourceService.save(taskVO, taskResourceParam.getResourceIdList(), ResourceRefType.MAIN_RES.getType());
-
-    }
-
-    /**
-     * 添加或者修改 数据同步、实时采集 任务
-     *
-     * @param taskResourceParam
-     * @return
-     */
-    public TaskVO addOrUpdateSyncTask(TaskResourceParam taskResourceParam) {
-        // 校验任务信息,主资源不能为空
-        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
-        if (taskResourceParam.getUpdateSource()) {
-            taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
-            taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
-            taskVO.setSettingStr(taskResourceParam.getSettingMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSettingMap()));
-        } else {
-            Task task = getOne(taskVO.getId());
-            taskVO.setSourceStr(task.getSourceStr());
-            taskVO.setTargetStr(task.getTargetStr());
-            taskVO.setSettingStr(task.getSettingStr());
-        }
-        //检查密码回填操作
-        this.checkFillPassword(taskResourceParam);
-        if (EScheduleJobType.SYNC.getType().equals(taskVO.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getType().equals(taskVO.getTaskType())) {
-            setSqlTextByCreateModel(taskResourceParam, taskVO);
-        }
-        // 判断断点续传
-        addParam(taskResourceParam);
-        taskVO = (TaskVO) updateTask(taskVO, true);
-        return taskVO;
-    }
-
-    /**
      * 新增/更新任务
      *
      * @param taskResourceParam
@@ -874,7 +744,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
-        DevelopAddOrUpdateTaskTemplate taskService = developTaskAddOrUpdateTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
+        DevelopTaskTemplate taskService = developTaskTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
         return taskService.addOrUpdate(taskResourceParam);
     }
 
@@ -973,67 +843,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 FlinkVersion.getVersion(taskVO.getComponentVersion()),
                 taskVO.getTaskParams(), taskVO.getTaskType());
         taskVO.setTaskParams(convertParams);
-
-        //由于密码脱敏，脚本模式保存时密码变成"******"，进行按照原储存信息进行还原，依据是url+username
-        if (Objects.nonNull(specialTask.getCreateModel())
-                && CREATE_MODEL_TEMPLATE == specialTask.getCreateModel()
-                && Objects.equals(specialTask.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
-            String sqlText = TaskUtils.resumeTemplatePwd(taskVO.getSqlText(), specialTask);
-            taskVO.setSqlText(sqlText);
-        }
         Task specialTask1 = new Task();
-
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
         developTaskMapper.updateById(specialTask1);
-    }
-
-    /**
-     * 任务根据操作模式生成sqlText
-     *
-     * @param taskResourceParam
-     * @param task
-     */
-    private void setSqlTextByCreateModel(TaskResourceParam taskResourceParam, Task task) {
-        if (taskResourceParam.getSourceMap() != null && DataSourceType.Polardb_For_MySQL.getVal().equals(MapUtils.getInteger(taskResourceParam.getSourceMap(), "type"))) {
-            taskResourceParam.getSourceMap().put("type", DataSourceType.MySQL.getVal());
-        }
-        String sqlText = taskResourceParam.getSqlText();
-        Integer createModel = taskResourceParam.getCreateModel();
-        if (CREATE_MODEL_TEMPLATE == createModel) {
-            if (StringUtils.isNotBlank(sqlText)) {
-                try {
-                    JSONObject sqlJSON = JSON.parseObject(sqlText);
-                    if (!sqlJSON.containsKey(createModel)) {
-                        JSONObject sql = new JSONObject(2);
-                        sql.put("job", sqlText);
-                        sql.put("createModel", CREATE_MODEL_TEMPLATE);
-                        sqlText = sql.toJSONString();
-                    }
-                } catch (Exception e) {
-                    throw new RdosDefineException("Job是不是JSON格式,异常: " + e.getMessage());
-                }
-                if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-                    developTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
-                }
-                task.setSqlText(sqlText);
-            } else {
-                JSONObject sql = new JSONObject(2);
-                sql.put("job", sqlText);
-                sql.put("createModel", CREATE_MODEL_TEMPLATE);
-                task.setSqlText(sql.toJSONString());
-            }
-
-        } else if (CREATE_MODEL_GUIDE == createModel) {
-            String daSqlText;
-            if (taskResourceParam.isPreSave()) {
-                // todo 要优化写法
-                TaskUtils.dealWithTaskParam(taskResourceParam);
-                daSqlText = getDASqlText(taskResourceParam);
-                task.setSqlText(daSqlText);
-            }
-        } else {
-            throw new RdosDefineException("createModel incorrect parameter", ErrorCode.INVALID_PARAMETERS);
-        }
     }
 
 
@@ -1167,148 +979,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
-     * 密码回填检查方法
-     **/
-    private void checkFillPassword(final TaskResourceParam param) {
-        // 单独对同步任务中密码进行补全处理 将未变更的 ****** 填充为原密码信息 --2019/10/25 茂茂--
-        if (param.getId() != null && param.getId() > 0 && (EScheduleJobType.SYNC.getVal().equals(param.getTaskType()) || EScheduleJobType.DATA_ACQUISITION.getVal().equals(param.getTaskType()))) {
-            final String context = param.getSqlText();
-            if (null == context) {
-                return;
-            }
-            //1、检查上送字段是否存在需要处理的密码，不存在直接跳过
-            final Pattern pattern = Pattern.compile(PatternConstant.PASSWORD_FIELD_REGEX, Pattern.CASE_INSENSITIVE);
-            final Matcher matcher = pattern.matcher(context);
-            if (matcher.find()) {
-                LOGGER.info("当前上送信息存在隐藏密码字段，准备执行旧密码回填操作");
-                //2、查询旧数据信息，保存成结构数据，待数据解析补充
-                final Task task = this.developTaskMapper.selectById(param.getId());
-                if (Objects.nonNull(task)) {
-                    final String sqlText = task.getSqlText();
-                    if (StringUtils.isNotEmpty(sqlText)) {
-                        final JSONObject oldData = JSON.parseObject(sqlText);
-                        //3、处理新上送的数据，替换未变更的密码信息
-                        final JSONObject newData = JSON.parseObject(context);
-                        //值并行处理 -- 固定接口直接写死job的值处理密码问题
-                        this.fillPassword(newData, oldData.getJSONObject("job"));
-                        param.setSqlText(newData.toJSONString());
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 填充密文密码信息
-     */
-    private void fillPassword(final Object newData, final Object oldData) {
-        if (null == newData || null == oldData) {
-            return;
-        }
-        if (newData instanceof JSONObject && oldData instanceof JSONObject) {
-            final Set<Map.Entry<String, Object>> entrySet = ((JSONObject) newData).entrySet();
-            for (final Map.Entry<String, Object> entry : entrySet) {
-                final String key = entry.getKey();
-                final Object value = entry.getValue();
-                final Object oldValue = ((JSONObject) oldData).get(key);
-                if (StringUtils.isBlank(key) || null == value || null == oldValue) {
-                    continue;
-                }
-                if (DataFilter.PASSWORD_KEYS.contains(key.toLowerCase())
-                        && "******".equals(value)) {
-                    entry.setValue(oldValue);
-                } else {
-                    this.fillPassword(value, oldValue);
-                }
-            }
-        } else if (newData instanceof JSONArray && oldData instanceof JSONArray) {
-            final JSONArray newArr = (JSONArray) newData;
-            final JSONArray oldArr = (JSONArray) oldData;
-            for (int i = 0; i < newArr.size(); i++) {
-                if (oldArr.size() > i) {
-                    this.fillPassword(newArr.get(i), oldArr.get(i));
-                }
-            }
-        }
-    }
-
-    /**
-     * 处理数据同步任务
-     *
-     * @param param
-     * @return
-     */
-    private void operateSyncTask(TaskResourceParam param) {
-        Map<String, Object> sourceMap = param.getSourceMap();
-        Map<String, Object> settingMap = param.getSettingMap();
-        //下面代码 是为了 拿到断点续传在字段列表的第几位
-        if (sourceMap != null && settingMap != null) {
-            Object column = sourceMap.get("column");
-            Integer restoreColumnIndex = 0;
-            if (column != null) {
-                JSONArray colums = JSONArray.parseArray(JSONObject.toJSONString(sourceMap.get("column")));
-                for (int i = 0; i < colums.size(); i++) {
-                    if (Objects.equals(colums.getJSONObject(i).getString("key"), settingMap.get("restoreColumnName"))) {
-                        restoreColumnIndex = i;
-                        break;
-                    }
-                }
-            }
-            settingMap.put("restoreColumnIndex", restoreColumnIndex);
-            param.setSettingMap(settingMap);
-        }
-        LOGGER.info("addOrUpdateTask with createModel {}", param.getCreateModel());
-
-        if (param.getEditBaseInfo()) {
-            // 右键编辑 处理增量标识
-            operateIncreCol(param);
-        } else {
-            JSONObject sql = new JSONObject();
-            if (TaskCreateModelType.TEMPLATE.getType().equals(param.getCreateModel())) {
-                sql.put("job", param.getSqlText());
-                this.developTaskParamService.checkParams(sql.toJSONString(), param.getTaskVariables());
-            } else if ((param.isPreSave() || param.getId() == 0) && TaskCreateModelType.GUIDE.getType().equals(param.getCreateModel())) {
-                if (param.getId() != 0) {
-                    String sqlText = this.dataSourceService.getSyncSql(param, false);
-                    sql = JSON.parseObject(sqlText);
-                }
-            }
-            sql.put("createModel", param.getCreateModel());
-            sql.put("syncModel", param.getSyncModel());
-            param.setSqlText(sql.toJSONString());
-        }
-        if (param.getSqlText() != null) {
-            this.checkIncreSyncTask(param);
-        }
-    }
-
-
-    /**
-     * 处理增量标识  主要处理两部分 1 处理增量标识字段  2.处理调度依赖
-     *
-     * @param param
-     */
-    private void operateIncreCol(TaskResourceParam param) {
-        final Task task = this.developTaskMapper.selectById(param.getId());
-        if (StringUtils.isNotEmpty(task.getSqlText())) {
-            final JSONObject json = JSON.parseObject(task.getSqlText());
-            json.put("syncModel", param.getSyncModel());
-            //处理增量标示
-            operateIncreamColumn(json, param.getSyncModel());
-            param.setSqlText(json.toJSONString());
-        }
-
-        JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
-        Integer selfReliance = scheduleConf.getInteger("selfReliance");
-        if (param.getSyncModel() == SyncModel.HAS_INCRE_COL.getModel() &&
-                !DependencyType.SELF_DEPENDENCY_SUCCESS.getType().equals(selfReliance)
-                && !DependencyType.SELF_DEPENDENCY_END.getType().equals(selfReliance)) {
-            scheduleConf.put("selfReliance", DependencyType.SELF_DEPENDENCY_END.getType());
-            param.setScheduleConf(scheduleConf.toJSONString());
-        }
-    }
-
-    /**
      * 向导模式转模版
      *
      * @param param
@@ -1375,24 +1045,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         return true;
-    }
-
-    /**
-     * 检查增量同步任务配置
-     *
-     * @param param
-     */
-    private void checkIncreSyncTask(final TaskResourceParam param) {
-        final JSONObject taskJson = JSON.parseObject(param.getSqlText());
-        if (!taskJson.containsKey("syncModel") || SyncModel.NO_INCRE_COL.getModel() == taskJson.getInteger("syncModel")) {
-            return;
-        }
-
-        if (param.getFlowId() != 0) {
-            throw new RdosDefineException("增量同步任务不能在工作流中运行", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        this.checkSyncJobContent(taskJson.getJSONObject("job"), true);
     }
 
     public void checkSyncJobContent(final JSONObject jobJson, final boolean checkIncreCol) {
@@ -1635,6 +1287,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     public Task getByName(String name, Long tenantId) {
         return this.developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
                 .eq(Task::getName, name)
+                .eq(Task::getTenantId, tenantId));
+    }
+
+    public List<Task> getByLikeName(String name, Long tenantId) {
+        return this.developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class)
+                .like(Task::getName, name)
                 .eq(Task::getTenantId, tenantId));
     }
 

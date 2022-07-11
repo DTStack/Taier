@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.savetask;
+package com.dtstack.taier.develop.service.develop.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @Date: 2022/05/29/4:55 PM
  */
 @Component
-public abstract class DevelopAddOrUpdateTaskTemplate {
+public abstract class DevelopTaskTemplate {
 
     protected final static String SQL_NOTE_TEMPLATE =
             "name %s \n " +
@@ -66,7 +66,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
 
     public abstract TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam);
 
-    public abstract void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) ;
+    public abstract void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO);
 
     public abstract EScheduleJobType getEScheduleJobType();
 
@@ -93,7 +93,7 @@ public abstract class DevelopAddOrUpdateTaskTemplate {
      * @param taskResourceParam
      * @return
      */
-    public TaskVO updateTaskInfo(TaskResourceParam taskResourceParam){
+    public TaskVO updateTaskInfo(TaskResourceParam taskResourceParam) {
         TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (StringUtils.isBlank(taskVO.getName())) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);

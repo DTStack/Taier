@@ -79,8 +79,6 @@ public class DevelopFunction {
     @TableField("udf_type")
     private Integer udfType;
 
-
-
     /**
      * 0：自定义函数  1：系统函数  2：存储过程
      */
@@ -105,7 +103,7 @@ public class DevelopFunction {
     @TableField("sql_text")
     private String sqlText;
 
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id = 0L;
 
     @TableField("is_deleted")

@@ -25,6 +25,7 @@ import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
+import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
@@ -33,8 +34,8 @@ import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopCatalogueMapper;
-import com.dtstack.taier.develop.dto.devlop.DevelopCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopCatalogueVO;
 import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
@@ -63,7 +64,7 @@ public class DevelopCatalogueService {
     private DevelopCatalogueMapper developCatalogueMapper;
 
     @Autowired
-    private DevelopResourceService DevelopResourceService;
+    private DevelopResourceService developResourceService;
 
     @Autowired
     private DevelopFunctionService developFunctionService;
@@ -85,6 +86,128 @@ public class DevelopCatalogueService {
     private static Integer SUB_AMOUNTS_LIMIT = 2000;
 
     private final static String FILE_TYPE_FOLDER = "folder";
+
+
+    /**
+     * 获取任务或资源的上级目录，用于前端搜索定位
+     *
+     * @return
+     */
+    public CatalogueVO getLocation(Long tenantId, String catalogueType, Long id, String name) {
+        // 获取当前资源的父级类目id，一直到根目录为止
+        List<Long> grandCatalogueIds = new ArrayList<>();
+        if (CatalogueType.TASK_DEVELOP.getType().equals(catalogueType)) {
+            grandCatalogueIds = grandCatalogueTaskIds(tenantId, id, name);
+        } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(catalogueType)) {
+            grandCatalogueIds = grandCatalogueResourceIds(id);
+        }
+
+        //获取根目录
+        DevelopCatalogue rootCatalogue = getRootCatalogueByType(tenantId, catalogueType);
+
+        CatalogueVO root = CatalogueVO.toVO(rootCatalogue);
+        root.setType("folder");
+        getTree(root, grandCatalogueIds, tenantId, catalogueType);
+        return root;
+    }
+
+
+    /**
+     * 获取任务和资源的根目录
+     *
+     * @param tenantId
+     * @param catalogueType
+     * @return
+     */
+    private DevelopCatalogue getRootCatalogueByType(Long tenantId, String catalogueType) {
+        DevelopCatalogue rootCatalogue = null;
+        if (CatalogueType.TASK_DEVELOP.getType().equals(catalogueType)) {
+            //获取任务管理的根目录
+            rootCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                    .eq(DevelopCatalogue::getTenantId, tenantId)
+                    .eq(DevelopCatalogue::getNodePid, 0)
+                    .eq(DevelopCatalogue::getNodeName, "任务管理")
+                    .last("limit 1"));
+        } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(catalogueType)) {
+            //获取资源管理的根目录
+            rootCatalogue = developCatalogueMapper.selectOne(Wrappers.lambdaQuery(DevelopCatalogue.class)
+                    .eq(DevelopCatalogue::getTenantId, tenantId)
+                    .eq(DevelopCatalogue::getNodePid, 0)
+                    .eq(DevelopCatalogue::getNodeName, "资源管理")
+                    .last("limit 1"));
+        }
+        if (rootCatalogue == null) {
+            throw new DtCenterDefException("根目录找不到");
+        }
+        return rootCatalogue;
+    }
+
+
+    private void getTree(CatalogueVO root, List<Long> grandCatalogueIds, Long tenantId, String catalogueType) {
+        if(StringUtils.isBlank(root.getCatalogueType())) {
+            root.setCatalogueType(catalogueType);
+        }
+
+        if (grandCatalogueIds.contains(root.getId())) {
+            if (CollectionUtils.isEmpty(root.getChildren()) && "".equals(root.getType())) {
+                getChildNode(root, true, tenantId);
+            }
+        } else {
+            getChildNode(root, false, tenantId);
+        }
+
+        if (CollectionUtils.isNotEmpty(root.getChildren())) {
+            for (CatalogueVO vo : root.getChildren()) {
+                if ("".equals(vo.getType())) {
+                    getTree(vo, grandCatalogueIds, tenantId, catalogueType);
+                }
+            }
+        }
+    }
+
+    /**
+     * 通过任务ID，获取当前任务的父级类目id，一直到根目录为止
+     *
+     * @param tenantId
+     * @param taskId
+     * @param name
+     * @return
+     */
+    private List<Long> grandCatalogueTaskIds(Long tenantId, Long taskId, String name) {
+        List<Long> grandCatalogueIds = new ArrayList<>();
+        if (taskId != null) {
+            Task task = developTaskService.getOne(taskId);
+            if (task != null) {
+                getGrandCatalogueIds(task.getNodePid(), grandCatalogueIds);
+            }
+        } else if (StringUtils.isNotEmpty(name)) {
+            List<Task> tasks = developTaskService.getByLikeName(name, tenantId);
+            if (CollectionUtils.isNotEmpty(tasks)) {
+                for (Task task : tasks) {
+                    getGrandCatalogueIds(task.getNodePid(), grandCatalogueIds);
+                }
+            }
+        }
+        return grandCatalogueIds;
+    }
+
+
+    /**
+     * 通过资源ID，获取当前资源的父级类目id，一直到根目录为止
+     *
+     * @param resourceId
+     * @return
+     */
+    private List<Long> grandCatalogueResourceIds(Long resourceId) {
+        List<Long> grandCatalogueIds = new ArrayList<>();
+        if (resourceId != null) {
+            DevelopResource developResource = developResourceService.getResource(resourceId);
+            if (developResource != null) {
+                getGrandCatalogueIds(developResource.getNodePid(), grandCatalogueIds);
+            }
+        }
+        return grandCatalogueIds;
+    }
 
     /**
      * 新增 and 修改目录
@@ -231,11 +354,10 @@ public class DevelopCatalogueService {
      * @param isGetFile
      * @param nodePid
      * @param catalogueType
-     * @param userId
      * @param tenantId
      * @return
      */
-    public CatalogueVO getCatalogue(Boolean isGetFile, Long nodePid, String catalogueType, Long userId, Long tenantId) {
+    public CatalogueVO getCatalogue(Boolean isGetFile, Long nodePid, String catalogueType, Long tenantId) {
         beforeGetCatalogue(tenantId);
         CatalogueVO rootCatalogue = new CatalogueVO();
         //0表示根目录
@@ -245,7 +367,7 @@ public class DevelopCatalogueService {
         } else {
             rootCatalogue.setId(nodePid);
             rootCatalogue.setCatalogueType(catalogueType);
-            rootCatalogue = getChildNode(rootCatalogue, isGetFile, userId, tenantId);
+            rootCatalogue = getChildNode(rootCatalogue, isGetFile, tenantId);
         }
         return rootCatalogue;
     }
@@ -323,7 +445,7 @@ public class DevelopCatalogueService {
 
         //判断文件夹下任务
         List<Task> taskList = developTaskService.listBatchTaskByNodePid(catalogueInput.getTenantId(), catalogue.getId());
-        List<DevelopResource> resourceList = DevelopResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
+        List<DevelopResource> resourceList = developResourceService.listByPidAndTenantId(catalogueInput.getTenantId(), catalogue.getId());
 
         if (taskList.size() > 0 || resourceList.size() > 0) {
             throw new RdosDefineException(ErrorCode.CATALOGUE_NO_EMPTY);
@@ -445,7 +567,7 @@ public class DevelopCatalogueService {
      * @return
      * @author
      */
-    private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long userId, Long tenantId) {
+    private CatalogueVO getChildNode(CatalogueVO currentCatalogueVO, Boolean isGetFile, Long tenantId) {
         DevelopCatalogue currentCatalogue = developCatalogueMapper.selectById(currentCatalogueVO.getId());
         if (Objects.isNull(currentCatalogue)) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
@@ -492,7 +614,7 @@ public class DevelopCatalogueService {
                 }
             } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 //处理资源目录
-                List<DevelopResource> resourceList = DevelopResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
+                List<DevelopResource> resourceList = developResourceService.listByPidAndTenantId(tenantId, currentCatalogueVO.getId());
                 resourceList.sort(Comparator.comparing(DevelopResource::getResourceName));
                 if (CollectionUtils.isNotEmpty(resourceList)) {
                     for (DevelopResource resource : resourceList) {
