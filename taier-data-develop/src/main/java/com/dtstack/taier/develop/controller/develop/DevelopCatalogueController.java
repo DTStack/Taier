@@ -22,8 +22,8 @@ import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.mapstruct.vo.DevelopCatalogueMapstructTransfer;
-import com.dtstack.taier.develop.mapstruct.vo.DevelopCatalogueMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
+import com.dtstack.taier.develop.vo.develop.query.CatalogueLocationVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopCatalogueAddVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopCatalogueGetVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopCatalogueUpdateVO;
@@ -63,6 +63,18 @@ public class DevelopCatalogueController {
             @Override
             protected DevelopCatalogueResultVO process() {
                 CatalogueVO catalogue = batchCatalogueService.getCatalogue(vo.getIsGetFile(), vo.getNodePid(), vo.getCatalogueType(), vo.getTenantId());
+                return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "getLocation")
+    @ApiOperation(value = "获取目录")
+    public R<DevelopCatalogueResultVO> getLocation(@RequestBody CatalogueLocationVO vo) {
+        return new APITemplate<DevelopCatalogueResultVO>() {
+            @Override
+            protected DevelopCatalogueResultVO process() {
+                CatalogueVO catalogue = batchCatalogueService.getLocation(vo.getTenantId(), vo.getCatalogueType(), vo.getId(), vo.getName());
                 return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
