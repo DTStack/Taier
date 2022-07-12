@@ -48,3 +48,7 @@ sidebar_label: 实时采集
 :::caution
 实时采集 依赖控制台 Flink组件 运行实时采集前请确保对应组件配置正确
 :::
+
+## 更多信息
+
+更多关于实时采集的最新动态，请关注[纯钧](https://dtstack.github.io/chunjun-web/)开源网址。
