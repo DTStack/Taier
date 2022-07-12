@@ -36,10 +36,8 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.enums.EDeployType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.MultiEngineType;
@@ -59,7 +57,6 @@ import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
-import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
@@ -70,9 +67,6 @@ import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.Sort;
-import com.dtstack.taier.develop.common.template.Reader;
-import com.dtstack.taier.develop.common.template.Setting;
-import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
@@ -80,7 +74,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
-import com.dtstack.taier.develop.enums.develop.SyncModel;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
@@ -92,17 +85,7 @@ import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplateFactory
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
-import com.dtstack.taier.develop.service.template.DefaultSetting;
-import com.dtstack.taier.develop.service.template.FlinkxJobTemplate;
-import com.dtstack.taier.develop.service.template.Restoration;
-import com.dtstack.taier.develop.service.template.bulider.nameMapping.NameMappingBuilder;
-import com.dtstack.taier.develop.service.template.bulider.nameMapping.NameMappingBuilderFactory;
-import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder;
-import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilderFactory;
-import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
-import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -110,6 +93,7 @@ import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
@@ -126,7 +110,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -134,7 +117,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -154,9 +136,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_GUIDE;
-import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_TEMPLATE;
 
 
 /**
@@ -226,15 +205,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private HadoopJobExeService hadoopJobExeService;
 
     @Autowired
-    private DaReaderBuilderFactory daReaderBuilderFactory;
-
-    @Autowired
-    private NameMappingBuilderFactory nameMappingBuilderFactory;
-
-    @Autowired
-    private DaWriterBuilderFactory daWriterBuilderFactory;
-
-    @Autowired
     private EnvironmentContext environmentContext;
 
     @Autowired
@@ -264,21 +234,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     private static final String KERBEROS_FILE_TIMESTAMP = "kerberosFileTimestamp";
 
-    private static Map<Integer, List<Pair<String, String>>> jobSupportTypeMap = Maps.newHashMap();
-
     private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer IS_FILE = 1;
 
     public static final String HADOOP_CONFIG = "hadoopConfig";
-
-    @PostConstruct
-    public void init() {
-        //初始化可以支持的任务类型
-        final List<Dict> yarn = dictService.listByDictType(DictType.DATA_DEVELOP_SUPPORT_TASK_TYPE);
-        final List<Pair<String, String>> yarnSupportType = yarn.stream().map(dict -> Pair.of(dict.getDictValue(), dict.getDictDesc())).collect(Collectors.toList());
-        jobSupportTypeMap.put(EDeployType.YARN.getType(), yarnSupportType);
-    }
 
     /**
      * 按id查询任务详情
@@ -400,27 +360,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return 0L;
     }
 
-    /**
-     * 图深度遍历
-     *
-     * @param taskId  任务ID
-     * @param set     已经遍历过的节点
-     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
-     */
-    private void mapDfs(Long taskId, HashSet<Long> set, Map<Long, List<Long>> nodeMap) {
-        HashSet<Long> node = new HashSet<>(set);
-        // 判断该节点是否以及存在，如果存在，则证明成环了
-        if (set.contains(taskId)) {
-            Task task = developTaskMapper.selectById(taskId);
-            if (Objects.nonNull(task)) {
-                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
-            }
-        }
-        node.add(taskId);
-        for (Long j : nodeMap.get(taskId)) {
-            mapDfs(j, node, nodeMap);
-        }
-    }
 
     /**
      * 根据任务状态
@@ -438,7 +377,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             LOGGER.error("从Engine查询任务状态异常,{}", e.getMessage(), e);
             throw new RdosDefineException(String.format("从Engine查询任务状态异常,Caused by: %s", e.getMessage()), e);
         }
-        return taskStatus == null || TaskStatusCheckUtil.CAN_RUN_STATUS.contains(taskStatus);
+        return taskStatus == null || TaskStatus.CAN_RUN_STATUS.contains(taskStatus);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -839,133 +778,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
 
-    /**
-     * 获取sqlText
-     *
-     * @param param
-     * @return
-     */
-    public String getDASqlText(TaskResourceParam param) {
-        try {
-            //格式化入参(前端会在sourceMap传入很多无效参数，需要格式化入参获取真正需要的参数)
-            int sourceType = Integer.parseInt(String.valueOf(param.getSourceMap().get("type")));
-            DataSourceType dataSourceType = DataSourceType.getSourceType(sourceType);
-            DaReaderBuilder daReaderBuilder = daReaderBuilderFactory.getDaReaderBuilder(dataSourceType);
-            if (daReaderBuilder == null) {
-                throw new RdosDefineException(ErrorCode.SOURCE_CAN_NOT_AS_INPUT);
-            }
-            //来源集合
-            Map<String, Object> sourceMap = daReaderBuilder.getParserSourceMap(param.getSourceMap());
-            param.setSourceMap(sourceMap);
-            //前端入参 需要保存
-            Map<String, Object> sourceParamMap = new HashMap<>(sourceMap);
-            Reader reader = daReaderBuilder.daReaderBuild(param);
-
-            //目标集合
-            Map<String, Object> targetMap = param.getTargetMap();
-            //流控、错误集合
-            Map<String, Object> settingMap = param.getSettingMap();
-            Writer writer = null;
-            Setting setting = null;
-            Restoration restoration = null;
-            JSONObject nameMappingJson = null;
-            Integer targetType = Integer.parseInt(String.valueOf(targetMap.get("type")));
-            DataSourceType targetDataSourceType = DataSourceType.getSourceType(targetType);
-            DaWriterBuilder daWriterBuilder = daWriterBuilderFactory.getDaWriterBuilder(targetDataSourceType);
-            writer = daWriterBuilder.daWriterBuild(param);
-            setting = PublicUtil.objectToObject(settingMap, DefaultSetting.class);
-
-            NameMappingBuilder mysqlNameMappingBuilder = nameMappingBuilderFactory.getDaReaderBuilder(dataSourceType);
-            if (mysqlNameMappingBuilder != null) {
-                nameMappingJson = mysqlNameMappingBuilder.daReaderBuild(param);
-            }
-
-            //转脚本模式直接返回
-            if (CREATE_MODEL_TEMPLATE == param.getCreateModel()) {
-                String jobText = getJobText(putDefaultEmptyValueForReader(sourceType, reader),
-                        putDefaultEmptyValueForWriter(targetType, writer), putDefaultEmptyValueForSetting(setting), nameMappingJson, restoration, param);
-                return jobText;
-            }
-
-            //获得数据同步job.xml的配置
-            String jobXml = getJobText(reader, writer, setting, nameMappingJson, restoration, param);
-            String parserXml = getParserText(sourceParamMap, targetMap, settingMap);
-
-            JSONObject sql = new JSONObject(3);
-            sql.put("job", jobXml);
-            sql.put("parser", parserXml);
-            sql.put("createModel", CREATE_MODEL_GUIDE);
-            return sql.toJSONString();
-        } catch (Exception e) {
-            LOGGER.error("解析任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
-            throw new RdosDefineException("解析任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION, e);
-        }
-    }
-
-    private String getParserText(final Map<String, Object> sourceParamMap,
-                                 final Map<String, Object> targetMap,
-                                 final Map<String, Object> settingMap) {
-        JSONObject parser = new JSONObject(4);
-        parser.put("sourceMap", sourceParamMap);
-        parser.put("targetMap", getTargetMap(targetMap));
-        parser.put("setting", settingMap);
-        return parser.toJSONString();
-    }
-
     public Map<String, Object> getTargetMap(Map<String, Object> targetMap) {
         Map<String, Object> map = new HashMap<>(4);
         map.put("type", targetMap.get("type"));
         map.put("sourceId", targetMap.get("sourceId"));
         map.put("name", targetMap.get("name"));
         return map;
-    }
-
-    private Setting putDefaultEmptyValueForSetting(Setting setting) {
-        DefaultSetting defaultSetting = (DefaultSetting) setting;
-        defaultSetting.setSpeed(-1.0d);
-        return defaultSetting;
-    }
-
-    private Reader putDefaultEmptyValueForReader(Integer sourceType, Reader reader) {
-        return reader;
-    }
-
-    private Writer putDefaultEmptyValueForWriter(int sourceType, Writer writer) {
-        return writer;
-    }
-
-    /**
-     * @author toutian
-     */
-    private String getJobText(final Reader reader,
-                              final Writer writer, final Setting setting, final JSONObject nameMapping, final Restoration restoration, final TaskResourceParam param) {
-        FlinkxJobTemplate flinkxJobTemplate = new FlinkxJobTemplate() {
-            @Override
-            public Setting newSetting() {
-                return setting;
-            }
-
-            @Override
-            public JSONObject nameMapping() {
-                return nameMapping;
-            }
-
-            @Override
-            public Restoration restoration() {
-                return restoration;
-            }
-
-            @Override
-            public Reader newReader() {
-                return reader;
-            }
-
-            @Override
-            public Writer newWrite() {
-                return writer;
-            }
-        };
-        return flinkxJobTemplate.toJobJsonString(param);
     }
 
     /**
@@ -1102,8 +920,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     /**
      * 数据开发-删除任务
      *
-     * @param taskId   任务id
-     * @param userId   用户id
+     * @param taskId 任务id
+     * @param userId 用户id
      * @return
      * @author toutian
      */
@@ -1314,30 +1132,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return developTaskMapper.selectById(taskId);
     }
 
-
-    /**
-     * 操作增量标示  根据选择 删除或新增
-     *
-     * @param sqlText   任务的内容
-     * @param isIncream
-     */
-    private void operateIncreamColumn(JSONObject sqlText, Integer isIncream) {
-        if (sqlText.containsKey("job")) {
-            //获取前端展示的任务内容 忽略额外信息
-            JSONObject taskText = sqlText.getJSONObject("job");
-            //获取嵌套内容
-            JSONObject jobInfo = taskText.getJSONObject("job");
-            JSONObject readerParameter = jobInfo.getJSONArray("content").getJSONObject(0).getJSONObject("reader").getJSONObject("parameter");
-            if (SyncModel.NO_INCRE_COL.getModel() == isIncream) {
-                if (readerParameter.containsKey("increColumn")) {
-                    readerParameter.remove("increColumn");
-                }
-            }
-            taskText.put("job", jobInfo);
-            sqlText.put("job", taskText);
-        }
-    }
-
     /**
      * 根据dependencyTaskIds解析依赖的任务
      *
@@ -1450,41 +1244,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return developTaskMapper.catalogueListBatchTaskByNodePid(tenantId, nodePid);
     }
 
-    private List<String> getTables(final Map<String, Object> map) {
-        final List<String> tables = new ArrayList<>();
-        if (map.get("table") instanceof String) {
-            tables.add(map.get("table").toString());
-        } else {
-            final List<String> tableList = (List<String>) map.get("table");
-            if (CollectionUtils.isNotEmpty(tableList)) {
-                tables.addAll((List<String>) map.get("table"));
-            }
-        }
-
-        return tables;
-    }
-
-    private void addSourceList(final JSONObject sourceMap) {
-        if (sourceMap.containsKey("sourceList")) {
-            return;
-        }
-
-        if (!DataSourceType.MySQL.getVal().equals(sourceMap.getJSONObject("type").getInteger("type"))) {
-            return;
-        }
-
-        final JSONArray sourceList = new JSONArray();
-        final JSONObject source = new JSONObject();
-        source.put("sourceId", sourceMap.get("sourceId"));
-        source.put("name", sourceMap.getString("name"));
-        source.put("type", sourceMap.getJSONObject("type").getInteger("type"));
-        source.put("tables", Arrays.asList(sourceMap.getJSONObject("type").getString("table")));
-        sourceList.add(source);
-
-        sourceMap.put("sourceList", sourceList);
-    }
-
-
     /**
      * 查询表所属字段 可以选择是否需要分区字段
      *
@@ -1595,8 +1354,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     public List<DevelopAllProductGlobalReturnVO> allProductGlobalSearch(AllProductGlobalSearchVO searchVO) {
-        Task task = getOneWithError(searchVO.getTaskId());
-
         // 过滤掉已经依赖的任务
         List<DevelopTaskTask> taskTasks = this.developTaskTaskService.getAllParentTask(searchVO.getTaskId());
         List<Long> excludeIds = new ArrayList<>(taskTasks.size());
@@ -1640,18 +1397,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         taskService.frozenTask(taskIds, scheduleStatus);
     }
 
-    private void addParam(TaskResourceParam param) {
-        if (!EScheduleJobType.SYNC.getType().equals(param.getTaskType())
-                || Objects.isNull(param.getSettingMap())
-                || !(param.getSettingMap().containsKey("isRestore")
-                && (Boolean) param.getSettingMap().get("isRestore"))) {
-            return;
-        }
-        Map<String, Object> map = param.getTargetMap();
-        map.put("semantic", "exactly-once");
-        param.setTargetMap(map);
-    }
-
 
     /**
      * 根据支持的引擎类型返回
@@ -1659,48 +1404,17 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     public List<DevelopTaskGetSupportJobTypesResultVO> getSupportJobTypes(Long tenantId) {
-
-        List<DevelopTaskGetSupportJobTypesResultVO> resultSupportTypes = Lists.newArrayList();
         List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if (CollectionUtils.isEmpty(engineSupportVOS)) {
             throw new DtCenterDefException("该租户对应集群未配置任何组件");
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
-        List<EScheduleJobType> eScheduleJobTypes = convertComponentTypeToJobType(tenantSupportMultiEngine);
-        if (CollectionUtils.isNotEmpty(eScheduleJobTypes)) {
-            eScheduleJobTypes.forEach(scheduleJobType -> resultSupportTypes.add(new DevelopTaskGetSupportJobTypesResultVO(scheduleJobType.getType(), scheduleJobType.getName())));
-            return resultSupportTypes;
-        } else {
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * 根据console端配置配置组件 转换为对应支持job类型
-     *
-     * @return
-     */
-    private List<EScheduleJobType> convertComponentTypeToJobType(List<Integer> componentList) {
-        List<EScheduleJobType> supportType = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(componentList)) {
-            if (componentList.contains(EComponentType.FLINK.getTypeCode())) {
-                supportType.add(EScheduleJobType.SYNC);
-                supportType.add(EScheduleJobType.FLINK_SQL);
-                supportType.add(EScheduleJobType.MR);
-                supportType.add(EScheduleJobType.DATA_ACQUISITION);
-            }
-
-            if (componentList.contains(EComponentType.SPARK.getTypeCode())
-                    && componentList.contains(EComponentType.SPARK_THRIFT.getTypeCode())) {
-                supportType.add(EScheduleJobType.SPARK_SQL);
-            }
-
-            if (componentList.contains(EComponentType.HIVE_SERVER.getTypeCode())) {
-                supportType.add(EScheduleJobType.HIVE_SQL);
-            }
-
-        }
-        return new ArrayList<>();
+        List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
+                .filter(a -> (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
+                .collect(Collectors.toList());
+        return eScheduleJobTypes.stream()
+                .map(j -> new DevelopTaskGetSupportJobTypesResultVO(j.getType(), j.getName(), j.getComputeType().getType()))
+                .collect(Collectors.toList());
     }
 
     /**

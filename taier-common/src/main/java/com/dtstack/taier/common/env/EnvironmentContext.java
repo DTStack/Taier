@@ -229,6 +229,9 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.graph.task.limit.size:50}")
     private Integer jobGraphTaskLimitSize;
 
+    @Value("${select.limit:50}")
+    private Integer selectLimit;
+
     @Value("${create.table.type:parquet}")
     private String createTableType;
 
@@ -550,5 +553,9 @@ public class EnvironmentContext implements InitializingBean {
 
     public int getLogPoolSize() {
         return jobLogPool;
+    }
+
+    public Integer getSelectLimit() {
+        return selectLimit;
     }
 }

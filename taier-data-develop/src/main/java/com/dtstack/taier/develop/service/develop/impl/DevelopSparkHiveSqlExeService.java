@@ -23,11 +23,10 @@ import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.service.develop.IJdbcService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlType;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
-import com.dtstack.taier.develop.utils.develop.service.IJdbcService;
-import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -86,13 +85,13 @@ public class DevelopSparkHiveSqlExeService {
      */
     protected void exeSqlDirect(ExecuteContent executeContent, Long tenantId, ParseResult parseResult, ExecuteResultVO<List<Object>> result, String database, EScheduleJobType eScheduleJobType) {
         try {
-            if (SqlType.getShowType().contains(parseResult.getSqlType())) {
-                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, database, parseResult.getStandardSql());
+      /*      if (SqlType.getShowType().contains(parseResult.getSqlType())) {
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, eScheduleJobType, database, parseResult.getStandardSql(),null);
                 developSqlExeService.dealResultDoubleList(executeResult);
                 result.setResult(executeResult);
             } else {
                 jdbcServiceImpl.executeQueryWithoutResult(tenantId, null, eScheduleJobType, database, parseResult.getStandardSql());
-            }
+            }*/
         } catch (Exception e) {
             LOGGER.error("exeHiveSqlDirect error {}", executeContent.getSql(), e);
             throw e;
@@ -232,8 +231,8 @@ public class DevelopSparkHiveSqlExeService {
             result.setJobId(jobId);
             result.setContinue(false);
         } else {
-            try {
-                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, scheduleJobType, currentDb.toLowerCase(), parseResult.getStandardSql());
+       /*     try {
+                List<List<Object>> executeResult = jdbcServiceImpl.executeQuery(tenantId, null, scheduleJobType, currentDb.toLowerCase(), parseResult.getStandardSql(),null);
                 developSqlExeService.dealResultDoubleList(executeResult);
                 result.setStatus(TaskStatus.FINISHED.getStatus());
                 result.setResult(executeResult);
@@ -241,7 +240,7 @@ public class DevelopSparkHiveSqlExeService {
                 LOGGER.error(e.getMessage(), e);
                 result.setStatus(TaskStatus.FAILED.getStatus());
                 result.setMsg(Objects.isNull(e.getCause()) ? e.getMessage() : e.getCause().getMessage());
-            }
+            }*/
             result.setContinue(false);
         }
         return result;

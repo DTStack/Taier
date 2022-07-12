@@ -18,11 +18,11 @@
 
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.service.develop.impl.DevelopHiveSqlExeService;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.Resource;
 
 /**
@@ -45,12 +45,6 @@ public class MultiEngineServiceFactory {
 
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
-
-    @Resource(name = "componentSparkThriftService")
-    private IComponentService componentSparkThriftService;
-
-    @Resource(name = "componentHiveServerService")
-    private IComponentService componentHiveServerService;
 
     public ISqlExeService getSqlExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
@@ -96,21 +90,5 @@ public class MultiEngineServiceFactory {
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
 
-    /**
-     * 根据组件类型获取组件操作
-     *
-     * @param componentTypeCode
-     * @return
-     */
-    public IComponentService getComponentService(Integer componentTypeCode){
-        EComponentType componentType = EComponentType.getByCode(componentTypeCode);
-        if (EComponentType.SPARK_THRIFT == componentType
-            || EComponentType.SPARK == componentType) {
-            return componentSparkThriftService;
-        }else if (EComponentType.HIVE_SERVER == componentType){
-            return componentHiveServerService;
-        }
-        throw new RdosDefineException(String.format("not support component by type %d now", componentType));
-    }
 
 }

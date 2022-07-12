@@ -13,6 +13,17 @@ public class DevelopTaskGetSupportJobTypesResultVO {
     @ApiModelProperty(value = "任务描述", example = "SparkSQL")
     private String value;
 
+    @ApiModelProperty(value = "任务类型", example = "0：stream 1:batch")
+    private Integer computeType;
+
+    public Integer getComputeType() {
+        return computeType;
+    }
+
+    public void setComputeType(Integer computeType) {
+        this.computeType = computeType;
+    }
+
     public Integer getKey() {
         return key;
     }
@@ -29,11 +40,11 @@ public class DevelopTaskGetSupportJobTypesResultVO {
         this.value = value;
     }
 
-    public DevelopTaskGetSupportJobTypesResultVO(Integer key, String value) {
+    public DevelopTaskGetSupportJobTypesResultVO(Integer key, String value, Integer computeType) {
         this.key = key;
         this.value = value;
+        this.computeType = computeType;
     }
-
     public DevelopTaskGetSupportJobTypesResultVO() {
     }
 }
