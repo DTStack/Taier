@@ -371,6 +371,8 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 			return TASK_LANGUAGE.HIVESQL;
 		case TASK_TYPE_ENUM.SQL:
 			return TASK_LANGUAGE.FLINKSQL;
+		case TASK_TYPE_ENUM.OCEANBASE:
+			return TASK_LANGUAGE.SQL;
 		default:
 			return TASK_LANGUAGE.JSON;
 	}

@@ -17,16 +17,23 @@
  */
 
 import molecule from '@dtinsight/molecule';
-import { taskTypeText } from '@/utils/enums';
 import { isTaskTab } from '@/utils/is';
 import { connect } from '@dtinsight/molecule/esm/react';
+import { useContext } from 'react';
+import context from '@/context';
 
 const Language = connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+	const { supportJobTypes } = useContext(context);
+
 	if (!current) return null;
 
 	const renderLanguage = () => {
 		const dataType = current.tab?.data?.taskType;
-		return isTaskTab(current.tab?.id) && taskTypeText(dataType);
+		return (
+			(isTaskTab(current.tab?.id) &&
+				supportJobTypes.find((t) => t.key === dataType)?.value) ||
+			'未知'
+		);
 	};
 
 	// 渲染是否是增量
