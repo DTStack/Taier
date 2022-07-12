@@ -154,4 +154,5 @@ export default {
 	GET_TENANT_COMPONENT_LIST: `${BASE_URI}/tenantComponent/selectTenantComponentList`, // 获取当前租户配置的任务组件运行信息
 	SAVE_TENANT_COMPONENT_INFO: `${BASE_URI}/tenantComponent/saveTenantComponentInfo`, // 保存组件运行schema信息
 	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
+	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
 };
