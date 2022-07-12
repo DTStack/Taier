@@ -20,30 +20,18 @@ package com.dtstack.taier.develop.service.console;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.TenantMapper;
 import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.dao.pager.Sort;
-import com.dtstack.taier.develop.dto.devlop.ComponentBindDBDTO;
 import com.dtstack.taier.develop.mapstruct.console.TenantTransfer;
-import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.develop.IComponentService;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.service.develop.impl.BatchCatalogueService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
-import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeToEScheduleJobMapping;
+import com.dtstack.taier.develop.service.develop.impl.DevelopCatalogueService;
 import com.dtstack.taier.develop.vo.console.ClusterTenantVO;
-import com.dtstack.taier.scheduler.service.ComponentService;
-import com.dtstack.taier.scheduler.vo.ComponentVO;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +53,7 @@ import java.util.stream.Collectors;
 @Service
 public class TenantService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TenantService.class);
 
     @Autowired
     private TenantMapper tenantMapper;
@@ -74,19 +62,7 @@ public class TenantService {
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private ComponentService componentService;
-
-    @Autowired
-    private BatchCatalogueService batchCatalogueService;
-
-    @Autowired
-    private DevelopTenantComponentService developTenantComponentService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
+    private DevelopCatalogueService developCatalogueService;
 
     public PageResult<List<ClusterTenantVO>> pageQuery(Long clusterId,
                                                        String tenantName,
@@ -114,6 +90,7 @@ public class TenantService {
             //hadoop
             updateTenantQueue(tenantId, clusterId, queueName);
         }
+        initDataDevelop(tenantId, tenant.getCreateUserId());
     }
 
     private void checkTenantBindStatus(Long tenantId) {
@@ -128,6 +105,8 @@ public class TenantService {
         ClusterTenant et = new ClusterTenant();
         et.setTenantId(tenantId);
         et.setClusterId(clusterId);
+        et.setGmtCreate(new Timestamp(System.currentTimeMillis()));
+        et.setGmtModified(new Timestamp(System.currentTimeMillis()));
         clusterTenantMapper.insert(et);
     }
 
@@ -178,43 +157,14 @@ public class TenantService {
         tenant.setCreateUserId(createUserId);
         tenant.setTenantIdentity(tenantIdentity);
         tenant.setGmtCreate(Timestamp.from(Instant.now()));
+        tenant.setGmtModified(Timestamp.from(Instant.now()));
         tenantMapper.insert(tenant);
     }
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void initDataDevelop(Long clusterId, Long tenantId, Long userId, String tenantName, String tenantDesc, List<ComponentBindDBDTO> bindDBDTOList) throws Exception {
+    public void initDataDevelop(Long tenantId, Long userId) {
         //初始化目录
-        List<Component> components = componentService.listAllComponents(clusterId);
-
-        List<ComponentVO> componentVOS = ComponentVO.toVOS(components);
-        batchCatalogueService.initCatalogue(tenantId, userId, componentVOS);
-
-        // 初始化数据源相关的信息
-        IComponentService componentService = null;
-        for (ComponentBindDBDTO componentBindDBDTO : bindDBDTOList) {
-            EComponentType eComponentType = EComponentType.getByCode(componentBindDBDTO.getComponentCode());
-            String componentIdentity = tenantName;
-
-            // db相关的操作
-            if (BooleanUtils.isTrue(componentBindDBDTO.getCreateFlag())) {
-                componentService = multiEngineServiceFactory.getComponentService(eComponentType.getTypeCode());
-                componentService.createDatabase(clusterId, eComponentType, componentIdentity, tenantDesc);
-            } else {
-                componentIdentity = componentBindDBDTO.getDbName();
-            }
-
-            // 初始化数据源
-            datasourceService.initDefaultSource(clusterId, eComponentType, tenantId, componentIdentity, tenantDesc, userId);
-
-            // 初始化租户引擎关系
-            TenantComponent tenantEngine = new TenantComponent();
-            tenantEngine.setTaskType(ComponentTypeToEScheduleJobMapping.getEScheduleTypeByComponentCode(eComponentType.getTypeCode()).getType());
-            tenantEngine.setTenantId(tenantId);
-            tenantEngine.setComponentIdentity(componentIdentity);
-            tenantEngine.setCreateUserId(userId);
-            tenantEngine.setStatus(0);
-            developTenantComponentService.insert(tenantEngine);
-        }
+        developCatalogueService.initCatalogue(tenantId, userId);
     }
 }

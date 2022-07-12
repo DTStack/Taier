@@ -54,7 +54,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
-import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
+import static com.dtstack.taier.develop.service.develop.impl.DevelopDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
 
 @Service
 public class FlinkRuntimeLogService {
@@ -253,7 +253,7 @@ public class FlinkRuntimeLogService {
      */
     private String getEntityPre(String responseEntity) {
         if (StringUtils.isBlank(responseEntity)) {
-            logger.warn("获取网页信息最终空{}");
+            logger.warn("获取网页信息为空");
             return StringUtils.EMPTY;
         }
         Document document = Jsoup.parse(responseEntity);

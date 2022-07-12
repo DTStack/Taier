@@ -35,14 +35,4 @@ public interface IComponentService {
      */
     List<String> getAllDataBases(Long clusterId, EComponentType eComponentType, String schema);
 
-    /**
-     * 创建对应的DB
-     *
-     * @param clusterId      集群ID
-     * @param eComponentType 组件类型
-     * @param dbName         db名称
-     * @param comment        db备注
-     */
-    void createDatabase(Long clusterId, EComponentType eComponentType, String dbName, String comment);
-
 }

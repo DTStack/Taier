@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.develop.dto.devlop.DataSourceVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchDataSourceResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopDataSourceResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -31,20 +31,20 @@ public interface DataSourceMapstructTransfer {
 
 
     /**
-     * DataSourceVO  ->  BatchDataSourceResultVO
+     * DataSourceVO  ->  DevelopDataSourceResultVO
      *
      * @param vo
      * @return
      */
-    BatchDataSourceResultVO newDataSourceVoToDataSourceResultVo(DataSourceVO vo);
+    DevelopDataSourceResultVO newDataSourceVoToDataSourceResultVo(DataSourceVO vo);
 
     /**
-     * List<DataSourceVO>  ->  List<BatchDataSourceResultVO>
+     * List<DataSourceVO>  ->  List<DevelopDataSourceResultVO>
      *
      * @param list
      * @return
      */
-    List<BatchDataSourceResultVO> newListDataSourceVoToDataSourceResultVo(List<DataSourceVO> list);
+    List<DevelopDataSourceResultVO> newListDataSourceVoToDataSourceResultVo(List<DataSourceVO> list);
 
 
 }

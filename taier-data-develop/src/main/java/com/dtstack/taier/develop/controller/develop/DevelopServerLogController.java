@@ -21,14 +21,14 @@ package com.dtstack.taier.develop.controller.develop;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.BatchServerLogMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
-import com.dtstack.taier.develop.dto.devlop.BatchServerLogVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchServerGetLogByAppIdVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchServerGetLogByAppTypeVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchServerGetLogByJobIdVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchServerLogByAppLogTypeResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchServerLogResultVO;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopServerLogMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopServerLogService;
+import com.dtstack.taier.develop.dto.devlop.DevelopServerLogVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopServerGetLogByAppIdVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopServerGetLogByAppTypeVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopServerGetLogByJobIdVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopServerLogByAppLogTypeResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopServerLogResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,23 +43,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopServerLogController {
 
     @Autowired
-    private BatchServerLogService batchServerLogService;
+    private DevelopServerLogService batchServerLogService;
 
     @PostMapping(value = "getLogsByJobId")
     @ApiOperation("根据jobId获取日志")
-    public R<BatchServerLogResultVO> getLogsByJobId(@RequestBody BatchServerGetLogByJobIdVO vo) {
-        return new APITemplate<BatchServerLogResultVO>() {
+    public R<DevelopServerLogResultVO> getLogsByJobId(@RequestBody DevelopServerGetLogByJobIdVO vo) {
+        return new APITemplate<DevelopServerLogResultVO>() {
             @Override
-            protected BatchServerLogResultVO process() {
-                BatchServerLogVO logsByJobId = batchServerLogService.getLogsByJobId(vo.getJobId(), vo.getPageInfo());
-                return BatchServerLogMapstructTransfer.INSTANCE.batchServerLogVOToBatchServerLogResultVO(logsByJobId);
+            protected DevelopServerLogResultVO process() {
+                DevelopServerLogVO logsByJobId = batchServerLogService.getLogsByJobId(vo.getJobId(), vo.getPageInfo());
+                return DevelopServerLogMapstructTransfer.INSTANCE.batchServerLogVOToDevelopServerLogResultVO(logsByJobId);
             }
         }.execute();
     }
 
     @PostMapping(value = "getLogsByAppId")
     @ApiOperation("根据appId获取日志")
-    public R<JSONObject> getLogsByAppId(@RequestBody BatchServerGetLogByAppIdVO vo) {
+    public R<JSONObject> getLogsByAppId(@RequestBody DevelopServerGetLogByAppIdVO vo) {
         return new APITemplate<JSONObject>() {
             @Override
             protected JSONObject process() {
@@ -70,10 +70,10 @@ public class DevelopServerLogController {
 
     @PostMapping(value = "getLogsByAppLogType")
     @ApiOperation("根据类型获取日志")
-    public R<BatchServerLogByAppLogTypeResultVO> getLogsByAppLogType(@RequestBody BatchServerGetLogByAppTypeVO vo) {
-        return new APITemplate<BatchServerLogByAppLogTypeResultVO>() {
+    public R<DevelopServerLogByAppLogTypeResultVO> getLogsByAppLogType(@RequestBody DevelopServerGetLogByAppTypeVO vo) {
+        return new APITemplate<DevelopServerLogByAppLogTypeResultVO>() {
             @Override
-            protected BatchServerLogByAppLogTypeResultVO process() {
+            protected DevelopServerLogByAppLogTypeResultVO process() {
                 return batchServerLogService.getLogsByAppLogType(vo.getTenantId(), vo.getTaskType(), vo.getJobId(), vo.getLogType());
             }
         }.execute();
