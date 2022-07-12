@@ -34,6 +34,7 @@ import type {
 	DATA_SYNC_MODE,
 	UDF_TYPE_VALUES,
 	FLINK_VERSIONS,
+	DIRTY_DATA_SAVE,
 } from './constant';
 
 interface IUserProps {}
@@ -208,6 +209,21 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	tenantId: string | null;
 	tenantName: string | null;
 	userId: number;
+	// 是否支持脏数据记录
+	openDirtyDataManage?: boolean;
+	// 脏数据管理字段收集
+	taskDirtyDataManageVO?: {
+		id: number;
+		maxRows?: number;
+		maxCollectFailedRows?: number;
+		outputType?: DIRTY_DATA_SAVE;
+		linkInfo?: {
+			sourceId: number;
+		};
+		tableName?: string;
+		lifeCycle?: any;
+		logPrintInterval?: number;
+	};
 }
 
 /**
@@ -644,6 +660,10 @@ export enum RightBarKind {
 	 * 环境参数
 	 */
 	ENV_PARAMS = 'env_params',
+	/**
+	 * 任务设置
+	 */
+	TASK_CONFIG = 'task_config',
 	/**
 	 * 源表
 	 */
