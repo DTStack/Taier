@@ -36,7 +36,7 @@ import {
 	offlineTaskPeriodFilter,
 } from '@/constant';
 import { getTodayTime, goToTaskDev, removePopUpMenu } from '@/utils';
-import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
+import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
 import './schedule.scss';
@@ -369,7 +369,7 @@ export default () => {
 				dataIndex: 'taskType',
 				key: 'taskType',
 				render: (text: TASK_TYPE_ENUM) => {
-					return taskTypeText(text);
+					return supportJobTypes.find((t) => t.key === text)?.value || '未知';
 				},
 				width: 100,
 				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),

@@ -638,9 +638,12 @@ export interface IResourceList {
 	isAdditionResource: number;
 }
 
+/**
+ * 当前任务所属计算环境，区分实时任务和离线任务
+ */
 export enum IComputeType {
-	STFP = 0,
-	HDFS = 1,
+	STREAM = 0,
+	BATCH = 1,
 }
 
 export enum RightBarKind {

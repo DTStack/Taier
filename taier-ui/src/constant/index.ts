@@ -241,6 +241,7 @@ export enum TASK_TYPE_ENUM {
 	 */
 	DATA_ACQUISITION = 6,
 	HIVE_SQL = 7,
+	OCEANBASE = 8,
 	/**
 	 * 工作流
 	 */
