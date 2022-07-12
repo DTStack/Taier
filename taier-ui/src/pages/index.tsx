@@ -43,6 +43,7 @@ import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/nextDetail';
 import { getCookie } from '@/utils';
+import taskRenderService from '@/services/taskRenderService';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 
@@ -84,6 +85,7 @@ export default function HomePage() {
 		api.getTaskTypes({}).then((res) => {
 			if (res.code === 1) {
 				setJobTypes(res.data || []);
+				taskRenderService.supportTaskList = res.data || [];
 			} else {
 				notification.error({
 					key: 'FailedJob',
