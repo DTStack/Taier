@@ -24,6 +24,7 @@ import com.dtstack.dtcenter.loader.dto.source.Hive1SourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.Hive3SourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.HiveSourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.dtcenter.loader.dto.source.OceanBaseSourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.SparkSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.engine.JdbcInfo;
@@ -31,7 +32,6 @@ import com.dtstack.taier.common.engine.JdbcUrlPropertiesValue;
 import com.dtstack.taier.common.engine.KerberosConfig;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.HiveVersion;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -236,6 +236,35 @@ public enum Engine2DTOService {
                     .build();
             return sourceDTO;
         }
+    },
+
+    /**
+     * oceanBean版本
+     */
+    OceanBean(DataSourceType.OceanBase.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JdbcInfo jdbcInfo, Long tenantId, Long userId, String dbName) {
+            ISourceDTO sourceDTO = OceanBaseSourceDTO.builder()
+                    .sourceType(DataSourceType.OceanBase.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .poolConfig(buildPoolConfig())
+                    .build();
+            return sourceDTO;
+        }
+
+        @Override
+        public ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName) {
+            ISourceDTO sourceDTO = OceanBaseSourceDTO.builder()
+                    .sourceType(DataSourceType.OceanBase.getVal())
+                    .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), dbName))
+                    .username(jdbcInfo.getUsername())
+                    .password(jdbcInfo.getPassword())
+                    .poolConfig(buildPoolConfig())
+                    .build();
+            return sourceDTO;
+        }
     };
 
 
@@ -270,20 +299,6 @@ public enum Engine2DTOService {
 
     protected abstract ISourceDTO getSourceDTOByClusterId(JdbcInfo jdbcInfo, Long clusterId, String dbName);
 
-    /**
-     * 根据tenantId、userId、tableType、dbName获取对应的sourceDTO，供外部调用
-     *
-     * @param tenantId  租户id
-     * @param userId    用户id
-     * @param tableType 表类型 {@link DataSourceType}
-     * @return 对应的sourceDTO
-     */
-    public static ISourceDTO get(Long tenantId, Long userId, ETableType tableType, String dbName) {
-        JdbcInfo jdbcInfo = getJdbcInfo(tenantId, userId, tableType);
-        DataSourceType dataSourceType = tableTypeTransitionDataSourceType(tableType, jdbcInfo.getVersion(), tenantId);
-        Engine2DTOService engine2DTOEnum = getSourceDTOType(dataSourceType.getVal());
-        return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, userId, dbName);
-    }
 
     /**
      * 根据tenantId、userId、tableType、dbName获取对应的sourceDTO，供外部调用
@@ -328,28 +343,6 @@ public enum Engine2DTOService {
         return engine2DTOEnum.getSourceDTO(jdbcInfo, tenantId, userId, dbName);
     }
 
-    /**
-     * 获取引擎对应的jdbcInfo
-     *
-     * @param tenantId   租户id
-     * @param userId     用户id
-     * @param eTableType 表类型
-     * @return 数据源连接信息
-     */
-    public static JdbcInfo getJdbcInfo(Long tenantId, Long userId, ETableType eTableType) {
-        JdbcInfo jdbcInfo = null;
-        if (tenantId != null) {
-            if (ETableType.HIVE.equals(eTableType)) {
-                EScheduleJobType eScheduleJobType = getJobTypeByHadoopMetaType(tenantId);
-                jdbcInfo = getJdbcInfo(tenantId, userId, eScheduleJobType);
-            }
-        }
-        if (jdbcInfo == null) {
-            throw new DtCenterDefException("can't get jdbc conf from console");
-        }
-        JdbcUrlPropertiesValue.setNullPropertiesToDefaultValue(jdbcInfo);
-        return jdbcInfo;
-    }
 
 
     /**
@@ -366,6 +359,8 @@ public enum Engine2DTOService {
             jdbcInfo = getSparkThrift(tenantId);
         } else if (EScheduleJobType.HIVE_SQL.equals(eScheduleJobType)) {
             jdbcInfo = getHiveServer(tenantId);
+        } else if (EScheduleJobType.OCEANBASE_SQL.equals(eScheduleJobType)) {
+            jdbcInfo = getPluginInfo(tenantId, EComponentType.OCEAN_BASE);
         }
         if (jdbcInfo == null) {
             throw new DtCenterDefException("can't get jdbc conf from console");
@@ -384,7 +379,7 @@ public enum Engine2DTOService {
     public static JdbcInfo getJdbcInfoByClusterId(Long clusterId, EComponentType eComponentType) {
         JdbcInfo jdbcInfo = null;
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)
-            || EComponentType.SPARK.equals(eComponentType)) {
+                || EComponentType.SPARK.equals(eComponentType)) {
             jdbcInfo = getSparkThriftByClusterId(clusterId);
         } else if ((EComponentType.HIVE_SERVER.equals(eComponentType))) {
             jdbcInfo = getHiveServerByClusterId(clusterId);
@@ -473,23 +468,6 @@ public enum Engine2DTOService {
     }
 
     /**
-     * tableType 转化为datasourceType
-     *
-     * @param eTableType
-     * @param version    小版本信息
-     * @param tenantId
-     * @return
-     */
-    public static DataSourceType tableTypeTransitionDataSourceType(ETableType eTableType, String version, Long tenantId) {
-        if (ETableType.HIVE.equals(eTableType)) {
-            EScheduleJobType eScheduleJobType = getJobTypeByHadoopMetaType(tenantId);
-            return jobTypeTransitionDataSourceType(eScheduleJobType, version);
-        } else {
-            throw new RdosDefineException("tableType not transition dataSourceType");
-        }
-    }
-
-    /**
      * jobType 转化为 对应的dataSourceType
      * 如果没有对应的数据源类型 抛出异常
      *
@@ -506,6 +484,8 @@ public enum Engine2DTOService {
             } else {
                 return DataSourceType.HIVE;
             }
+        } else if (EScheduleJobType.OCEANBASE_SQL.equals(eScheduleJobType)) {
+            return DataSourceType.OceanBase;
         } else {
             throw new RdosDefineException("jobType not transition dataSourceType");
         }
@@ -519,13 +499,13 @@ public enum Engine2DTOService {
      */
     public static DataSourceType componentTypeToDataSourceType(EComponentType eComponentType, String version) {
         if (EComponentType.SPARK_THRIFT.equals(eComponentType)
-            || EComponentType.SPARK.equals(eComponentType)) {
+                || EComponentType.SPARK.equals(eComponentType)) {
             return DataSourceType.SparkThrift2_1;
         } else if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
-            if (HiveVersion.HIVE_1x.equals(version)){
+            if (HiveVersion.HIVE_1x.equals(version)) {
                 return DataSourceType.HIVE1X;
             }
-            if (HiveVersion.HIVE_3x.equals(version)){
+            if (HiveVersion.HIVE_3x.equals(version)) {
                 return DataSourceType.HIVE3X;
             }
             return DataSourceType.HIVE;
@@ -534,27 +514,6 @@ public enum Engine2DTOService {
         }
     }
 
-    /**
-     * 根据当前租户绑定集群的元数据方式 获取 对应的 JobType
-     *
-     * @param tenantId
-     * @return
-     */
-    public static EScheduleJobType getJobTypeByHadoopMetaType(Long tenantId) {
-        Integer metaComponent = null;
-        //META
-        if (null == metaComponent) {
-            throw new RdosDefineException("not find 'Hadoop' meta DataSource!");
-        }
-        EComponentType componentType = EComponentType.getByCode(metaComponent);
-        switch (componentType) {
-            case SPARK_THRIFT:
-                return EScheduleJobType.SPARK_SQL;
-            default:
-                throw new RdosDefineException("not support meta DataSource!");
-        }
-
-    }
 
     /**
      * 获取 SFTP 信息
