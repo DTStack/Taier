@@ -22,6 +22,7 @@
         "barItem": [
             "task",
             "dependency",
+            "task_config",
             "task_params",
             "env_params"
         ]
@@ -30,6 +31,7 @@
         "taskType": 6,
         "barItem": [
             "task",
+            "task_config",
             "env_params"
         ]
     },
