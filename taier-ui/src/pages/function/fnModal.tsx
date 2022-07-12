@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { Radio } from 'antd';
 import { Modal, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -30,7 +30,7 @@ import {
 } from '@/constant';
 import type { IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { taskTypeText } from '@/utils/enums';
+import context from '@/context';
 
 const FormItem = Form.Item;
 
@@ -63,6 +63,7 @@ export default function FnModal({
 	onAddFunction,
 	onEditFunction,
 }: IFnModalProps) {
+	const { supportJobTypes } = useContext(context);
 	const [form] = Form.useForm<IFormFieldProps>();
 
 	const handleSubmit = () => {
@@ -172,7 +173,7 @@ export default function FnModal({
 						disabled={isEdit}
 						getPopupContainer={() => document.getElementById('molecule')!}
 						options={TASK_TYPE_OPTIONS.map((o) => ({
-							label: taskTypeText(o),
+							label: supportJobTypes.find((t) => t.key === o)?.value || '未知',
 							value: o,
 						}))}
 					/>

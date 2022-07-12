@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskVersionDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopTaskVersionMapper">
 
     <sql id="select_content_fragment">
       id,tenant_id,task_id,origin_sql,sql_text,publish_desc,create_user_id,version,task_params,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
@@ -10,7 +10,7 @@
         id,tenant_id,task_id,publish_desc,create_user_id,version,schedule_conf,schedule_status,dependency_task_ids,gmt_create,gmt_modified,is_deleted
     </sql>
 
-    <select id="listByTaskId" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="listByTaskId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
        select
        rb.id as id, rb.task_id as taskId,rb.origin_sql as originSql,rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
        rb.task_params as taskParams
@@ -21,7 +21,7 @@
 
 
 
-    <select id="getByVersionId" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getByVersionId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         select
         rb.id as id, rb.task_id as taskId, rb.origin_sql as originSql, rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
         rb.task_params as taskParams, rb.schedule_conf as scheduleConf, rb.schedule_status as scheduleStatus, rb.dependency_task_ids as dependencyTaskIds
@@ -29,7 +29,7 @@
         where rb.id=#{versionId} and rb.is_deleted=0
     </select>
 
-    <select id="getBytaskIdAndVersionId" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getBytaskIdAndVersionId" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         select
         rb.id as id, rb.task_id as taskId, rb.origin_sql as originSql, rb.sql_text as sqlText,rb.publish_desc as publishDesc,rb.create_user_id as createUserId,rb.version,rb.gmt_create as gmtCreate,rb.gmt_modified as gmtModified,
         rb.task_params as taskParams, rb.schedule_conf as scheduleConf, rb.schedule_status as scheduleStatus, rb.dependency_task_ids as dependencyTaskIds
@@ -38,7 +38,7 @@
         order by rb.id desc limit 1
     </select>
 
-    <select id="getByVersionIds" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getByVersionIds" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         select
         <include refid="simple_select_content_fragment"/>
         from develop_task_version rb
@@ -49,7 +49,7 @@
     </select>
 
 
-    <select id="getByTaskIds" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getByTaskIds" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         select
         <include refid="simple_select_content_fragment"/>
         from develop_task_version rb
@@ -58,7 +58,7 @@
             #{id}
         </foreach>
     </select>
-    <select id="getWithoutSqlByTaskIds" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getWithoutSqlByTaskIds" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         select
         id,tenant_id,task_id
         from develop_task_version rb
@@ -68,7 +68,7 @@
         </foreach>
     </select>
 
-    <select id="getLatestTaskVersionByTaskIds" resultType="com.dtstack.taier.dao.dto.BatchTaskVersionDetailDTO">
+    <select id="getLatestTaskVersionByTaskIds" resultType="com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO">
         SELECT
         rb.id,rb.tenant_id,rb.task_id,rb.origin_sql,rb.sql_text,rb.publish_desc,rb.create_user_id,rb.version,rb.task_params,rb.schedule_conf,rb.schedule_status,rb.dependency_task_ids,rb.gmt_create,rb.gmt_modified,rb.is_deleted
         FROM

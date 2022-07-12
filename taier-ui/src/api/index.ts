@@ -467,8 +467,8 @@ export default {
 	getAllSchemas(params: any) {
 		return http.post(req.GET_ALL_SCHEMAS, params);
 	},
-	queryByTenantId(params: any) {
-		return http.get(req.QUREY_BY_TENANT_ID, params);
+	queryByTenantId<T>(params: any) {
+		return http.get<T>(req.QUREY_BY_TENANT_ID, params);
 	},
 	dataSourcepage(params: any) {
 		return http.post(req.GET_DATA_SOURCE_PAGE, params);

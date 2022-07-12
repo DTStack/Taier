@@ -41,9 +41,9 @@ import taskRenderService from '@/services/taskRenderService';
  */
 function getComputeType(type: TASK_TYPE_ENUM): number {
 	if (type === TASK_TYPE_ENUM.DATA_ACQUISITION || type === TASK_TYPE_ENUM.SQL) {
-		return IComputeType.STFP;
+		return IComputeType.STREAM;
 	}
-	return IComputeType.HDFS;
+	return IComputeType.BATCH;
 }
 
 /**

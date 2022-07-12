@@ -18,6 +18,7 @@
 
 import { createContext } from 'react';
 import type { TASK_TYPE_ENUM } from '@/constant';
+import type { IComputeType } from '@/interface';
 
 export interface IPersonLists {
 	email: string;
@@ -30,6 +31,7 @@ export interface IPersonLists {
 export interface ISupportJobTypes {
 	key: TASK_TYPE_ENUM;
 	value: string;
+	computeType: IComputeType;
 }
 
 export interface IContext {

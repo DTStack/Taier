@@ -18,12 +18,12 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.BatchFunction;
-import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
+import com.dtstack.taier.dao.domain.DevelopFunction;
+import com.dtstack.taier.develop.dto.devlop.DevelopFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionAddVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchFunctionAddResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchFunctionQueryResultVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionAddVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopFunctionAddResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopFunctionQueryResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -33,28 +33,28 @@ public interface FunctionMapstructTransfer {
 
 
     /**
-     * BatchFunctionAddVO  ->  BatchFunction
+     * DevelopFunctionAddVO  ->  DevelopFunction
      *
      * @param vo
      * @return
      */
-    BatchFunction newFunctionAddVoToFunctionVo(BatchFunctionAddVO vo);
+    DevelopFunction newFunctionAddVoToFunctionVo(DevelopFunctionAddVO vo);
 
 
     /**
-     * com.dtstack.batch.vo.BatchFunctionVO  ->  BatchFunctionQueryResultVO
+     * com.dtstack.batch.vo.DevelopFunctionVO  ->  DevelopFunctionQueryResultVO
      *
      * @param vo
      * @return
      */
-    BatchFunctionQueryResultVO newFunctionToFunctionResultVo(BatchFunctionVO vo);
+    DevelopFunctionQueryResultVO newFunctionToFunctionResultVo(DevelopFunctionVO vo);
 
     /**
-     * TaskCatalogueVO  ->  BatchFunctionAddResultVO
+     * TaskCatalogueVO  ->  DevelopFunctionAddResultVO
      *
      * @param vo
      * @return
      */
-    BatchFunctionAddResultVO newTaskCatalogueVoToFunctionAddResultVo(TaskCatalogueVO vo);
+    DevelopFunctionAddResultVO newTaskCatalogueVoToFunctionAddResultVo(TaskCatalogueVO vo);
 
 }

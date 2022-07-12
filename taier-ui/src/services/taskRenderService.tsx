@@ -10,6 +10,7 @@ import {
 	FlinkIcon,
 	FlinkSQLIcon,
 	HiveSQLIcon,
+	OceanBaseIcon,
 	SparkSQLIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
@@ -18,6 +19,7 @@ import { RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
+import type { ISupportJobTypes } from '@/context';
 import type molecule from '@dtinsight/molecule';
 import { breadcrumbService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
@@ -80,6 +82,10 @@ class TaskRenderService {
 	 * 不同任务在编辑器 actions 的定义
 	 */
 	public editorActionField: IEditorActionField[] = [];
+	/**
+	 * 当前支持的全部任务列表
+	 */
+	public supportTaskList: ISupportJobTypes[] = [];
 
 	constructor() {
 		fetch('./layout/create.json', { method: 'GET' })
@@ -176,6 +182,8 @@ class TaskRenderService {
 				return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
 			case TASK_TYPE_ENUM.FLINK:
 				return <FlinkIcon />;
+			case TASK_TYPE_ENUM.OCEANBASE:
+				return <OceanBaseIcon />;
 			default:
 				return 'file';
 		}

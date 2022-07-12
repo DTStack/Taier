@@ -37,9 +37,4 @@ public class ComponentHiveServerService implements IComponentService {
         return iJdbcService.getAllDataBases(clusterId, eComponentType, schema);
     }
 
-    @Override
-    public void createDatabase(Long clusterId, EComponentType eComponentType, String dbName, String comment) {
-        iJdbcService.createDatabase(clusterId, eComponentType, dbName, comment);
-    }
-
 }
