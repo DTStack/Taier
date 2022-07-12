@@ -30,6 +30,7 @@ import { createSQLProposals, prettierJSONstring } from '@/utils';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import { executeService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
@@ -39,12 +40,13 @@ import saveTask from '@/utils/saveTask';
 import { editorActionBarService } from '@/services';
 import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import taskRenderService from '@/services/taskRenderService';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
-		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled
+		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled;
 		// TODO molecule发布新版就不用这一层根据action的状态控制是否可以点击的逻辑了
-		if (actionDisabled) return
+		if (actionDisabled) return;
 		switch (menuId) {
 			case ID_COLLECTIONS.TASK_RUN_ID: {
 				runTask(current);
@@ -108,29 +110,27 @@ function emitEvent() {
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
 				if (currentTabData) {
-					switch (currentTabData.taskType) {
-						case TASK_TYPE_ENUM.SPARK_SQL:
-						case TASK_TYPE_ENUM.HIVE_SQL:
-						case TASK_TYPE_ENUM.SYNC:
-							history.push({
-								query: {
-									drawer: DRAWER_MENU_ENUM.TASK,
-									tname: currentTabData.name,
-								},
-							});
-							break;
-						case TASK_TYPE_ENUM.DATA_ACQUISITION:
-						case TASK_TYPE_ENUM.SQL:
-							history.push({
-								query: {
-									drawer: DRAWER_MENU_ENUM.STREAM_TASK,
-									tname: currentTabData.name,
-								},
-							});
-							break;
+					const computerType = taskRenderService.supportTaskList.find(
+						(t) => t.key === currentTabData.taskType,
+					)?.computeType;
 
-						default:
-							return null;
+					if (computerType !== undefined) {
+						const targetDrawer =
+							computerType === IComputeType.STREAM
+								? DRAWER_MENU_ENUM.STREAM_TASK
+								: DRAWER_MENU_ENUM.TASK;
+
+						history.push({
+							query: {
+								drawer: targetDrawer,
+								tname: currentTabData.name,
+							},
+						});
+					} else {
+						notification.error({
+							key: 'WITHOUT_SUPPORT_TASK',
+							message: `当前不支持的任务类型，请查看是否支持任务类型为 ${currentTabData.taskType} 的任务`,
+						});
 					}
 				}
 				break;

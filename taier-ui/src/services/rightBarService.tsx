@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { singleton } from 'tsyringe';
 import { RightBarKind } from '@/interface';
 import taskRenderService from './taskRenderService';
+import TaskConfig from '@/pages/rightBar/taskConfig';
 
 interface IRightBarService {
 	/**
@@ -123,6 +124,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return '调度依赖';
 			case RightBarKind.TASK_PARAMS:
 				return '任务参数';
+			case RightBarKind.TASK_CONFIG:
+				return '任务配置';
 			case RightBarKind.ENV_PARAMS:
 				return '环境参数';
 			case RightBarKind.FLINKSQL_SOURCE:
@@ -172,6 +175,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return <TaskParams current={current} />;
 			case RightBarKind.ENV_PARAMS:
 				return <EnvParams current={current} />;
+			case RightBarKind.TASK_CONFIG:
+				return this.withForm(<TaskConfig key="config" current={current} />);
 			case RightBarKind.FLINKSQL_SOURCE:
 				return this.withForm(<FlinkSourcePanel key="source" current={current} />);
 			case RightBarKind.FLINKSQL_RESULT:

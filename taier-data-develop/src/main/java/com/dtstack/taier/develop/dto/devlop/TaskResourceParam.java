@@ -20,6 +20,7 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,30 @@ public class TaskResourceParam extends Task {
      * 是否更新数据源
      */
     private Boolean updateSource = true;
+    /**
+     * 是否开启任务脏数据管理
+     */
+    private Boolean openDirtyDataManage;
+    /**
+     * 任务脏数据管理
+     */
+    private TaskDirtyDataManageVO taskDirtyDataManageVO;
 
+    public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
+        return taskDirtyDataManageVO;
+    }
+
+    public void setTaskDirtyDataManageVO(TaskDirtyDataManageVO taskDirtyDataManageVO) {
+        this.taskDirtyDataManageVO = taskDirtyDataManageVO;
+    }
+
+    public Boolean getOpenDirtyDataManage() {
+        return openDirtyDataManage;
+    }
+
+    public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
+        this.openDirtyDataManage = openDirtyDataManage;
+    }
     public Long getParentId() {
         return parentId;
     }

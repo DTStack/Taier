@@ -22,15 +22,15 @@ import com.dtstack.taier.common.annotation.FileUpload;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.BatchCatalogueMapstructTransfer;
-import com.dtstack.taier.develop.mapstruct.vo.BatchResourceMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchResourceService;
-import com.dtstack.taier.develop.dto.devlop.BatchResourceVO;
+import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchCatalogueResultVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchResourceAddVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchResourceBaseVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetResourceByIdResultVO;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopCatalogueMapstructTransfer;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopResourceMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopResourceService;
+import com.dtstack.taier.develop.vo.develop.query.DevelopResourceAddVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopResourceBaseVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopCatalogueResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourceByIdResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,21 +42,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Api(value = "资源管理", tags = {"资源管理"})
 @RestController
-@RequestMapping(value = "/batchResource")
+@RequestMapping(value = "/resource")
 public class DevelopResourceController {
 
     @Autowired
-    private BatchResourceService batchResourceService;
+    private DevelopResourceService DevelopResourceService;
 
     @ApiOperation(value = "添加资源")
     @PostMapping(value = "addResource")
     @FileUpload
-    public R<BatchCatalogueResultVO> addResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
-        return new APITemplate<BatchCatalogueResultVO>() {
+    public R<DevelopCatalogueResultVO> addResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
+        return new APITemplate<DevelopCatalogueResultVO>() {
             @Override
-            protected BatchCatalogueResultVO process() throws RdosDefineException {
-                CatalogueVO catalogue = batchResourceService.addResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
-                return BatchCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
+            protected DevelopCatalogueResultVO process() throws RdosDefineException {
+                CatalogueVO catalogue = DevelopResourceService.addResource(DevelopResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(DevelopResourceAddVO));
+                return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
             }
         }.execute();
     }
@@ -64,36 +64,36 @@ public class DevelopResourceController {
     @ApiOperation(value = "替换资源")
     @PostMapping(value = "replaceResource")
     @FileUpload
-    public R<Void> replaceResource(BatchResourceAddVO batchResourceAddVO, MultipartFile file) {
+    public R<Void> replaceResource(DevelopResourceAddVO DevelopResourceAddVO, MultipartFile file) {
         return new APITemplate<Void>() {
             @Override
             protected Void process() throws RdosDefineException {
-                batchResourceService.replaceResource(BatchResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(batchResourceAddVO));
+                DevelopResourceService.replaceResource(DevelopResourceMapstructTransfer.INSTANCE.resourceVOToResourceAddDTO(DevelopResourceAddVO));
                 return null;
             }
         }.execute();
     }
 
 
-    @ApiOperation(value = "获取资源详情", response = BatchResourceVO.class)
+    @ApiOperation(value = "获取资源详情", response = DevelopResourceVO.class)
     @PostMapping(value = "getResourceById")
-    public R<BatchGetResourceByIdResultVO> getResourceById(@RequestBody BatchResourceBaseVO batchResourceBaseVO) {
-        return new APITemplate<BatchGetResourceByIdResultVO>() {
+    public R<DevelopGetResourceByIdResultVO> getResourceById(@RequestBody DevelopResourceBaseVO DevelopResourceBaseVO) {
+        return new APITemplate<DevelopGetResourceByIdResultVO>() {
             @Override
-            protected BatchGetResourceByIdResultVO process() throws RdosDefineException {
-                BatchResourceVO resourceById = batchResourceService.getResourceById(batchResourceBaseVO.getResourceId());
-                return BatchResourceMapstructTransfer.INSTANCE.batchResourceVOToBatchGetResourceByIdResultVO(resourceById);
+            protected DevelopGetResourceByIdResultVO process() throws RdosDefineException {
+                DevelopResourceVO resourceById = DevelopResourceService.getResourceById(DevelopResourceBaseVO.getResourceId());
+                return DevelopResourceMapstructTransfer.INSTANCE.DevelopResourceVOToDevelopGetResourceByIdResultVO(resourceById);
             }
         }.execute();
     }
 
     @ApiOperation(value = "删除资源")
     @PostMapping(value = "deleteResource")
-    public R<Long> deleteResource(@RequestBody(required = false) BatchResourceBaseVO batchResourceBaseVO) {
+    public R<Long> deleteResource(@RequestBody(required = false) DevelopResourceBaseVO DevelopResourceBaseVO) {
         return new APITemplate<Long>() {
             @Override
             protected Long process() throws RdosDefineException {
-                return batchResourceService.deleteResource(batchResourceBaseVO.getTenantId(), batchResourceBaseVO.getResourceId());
+                return DevelopResourceService.deleteResource(DevelopResourceBaseVO.getTenantId(), DevelopResourceBaseVO.getResourceId());
             }
         }.execute();
     }

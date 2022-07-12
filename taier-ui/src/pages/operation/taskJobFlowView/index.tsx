@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Modal, message, Row, Col } from 'antd';
 import LogInfo from './taskLog';
-import { taskStatusText, taskTypeText } from '@/utils/enums';
+import { taskStatusText } from '@/utils/enums';
 import Api from '@/api';
 import {
 	TASK_STATUS,
@@ -30,6 +30,7 @@ import {
 	RUN_FAILED_STATUS,
 } from '@/constant';
 import type { IUpstreamJobProps } from '@/interface';
+import context from '@/context';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertxtStyle, goToTaskDev } from '@/utils';
 import { DetailInfoModal } from '@/components/detailInfo';
@@ -44,6 +45,7 @@ interface ITaskJobFlowViewProps {
 }
 
 export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewProps) {
+	const { supportJobTypes } = useContext(context);
 	const [graphData, setGraphData] = useState<[IUpstreamJobProps] | null>(null);
 	const [loading, setLoading] = useState(false);
 	// 任务属性
@@ -191,7 +193,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 	const handleRenderCell = (cell: mxCell) => {
 		if (cell.vertex && cell.value) {
 			const task: IUpstreamJobProps = cell.value;
-			const taskType = taskTypeText(task.taskType);
+			const taskType = supportJobTypes.find((t) => t.key === task.taskType)?.value || '未知';
 			if (task) {
 				return `<div class="vertex">
                 <span class="vertex-title">

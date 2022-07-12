@@ -21,12 +21,12 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.BatchSqlMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchSelectSqlService;
-import com.dtstack.taier.develop.vo.develop.query.BatchSelectSqlVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchExecuteDataResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchExecuteRunLogResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchExecuteStatusResultVO;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopSqlMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
+import com.dtstack.taier.develop.vo.develop.query.DevelopSelectSqlVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteDataResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteRunLogResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteStatusResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,16 +41,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopSelectSqlController {
 
     @Autowired
-    private BatchSelectSqlService batchSelectSqlService;
+    private DevelopSelectSqlService batchSelectSqlService;
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")
-    public R<BatchExecuteDataResultVO> selectData(@RequestBody BatchSelectSqlVO sqlVO) {
-        return new APITemplate<BatchExecuteDataResultVO>() {
+    public R<DevelopExecuteDataResultVO> selectData(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<DevelopExecuteDataResultVO>() {
             @Override
-            protected BatchExecuteDataResultVO process() {
+            protected DevelopExecuteDataResultVO process() {
                 try {
-                    return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteDataResultVO(batchSelectSqlService.selectData(sqlVO.getJobId(),
+                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteDataResultVO(batchSelectSqlService.selectData(sqlVO.getJobId(),
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
@@ -61,12 +61,12 @@ public class DevelopSelectSqlController {
 
     @PostMapping(value = "selectStatus")
     @ApiOperation("获取执行状态")
-    public R<BatchExecuteStatusResultVO> selectStatus(@RequestBody BatchSelectSqlVO sqlVO) {
-        return new APITemplate<BatchExecuteStatusResultVO>() {
+    public R<DevelopExecuteStatusResultVO> selectStatus(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<DevelopExecuteStatusResultVO>() {
             @Override
-            protected BatchExecuteStatusResultVO process() {
+            protected DevelopExecuteStatusResultVO process() {
                 try {
-                    return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteStatusResultVO(batchSelectSqlService.selectStatus(sqlVO.getJobId(),
+                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteStatusResultVO(batchSelectSqlService.selectStatus(sqlVO.getJobId(),
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
@@ -77,12 +77,12 @@ public class DevelopSelectSqlController {
 
     @PostMapping(value = "selectRunLog")
     @ApiOperation("获取执行日志")
-    public R<BatchExecuteRunLogResultVO> selectRunLog(@RequestBody BatchSelectSqlVO sqlVO) {
-        return new APITemplate<BatchExecuteRunLogResultVO>() {
+    public R<DevelopExecuteRunLogResultVO> selectRunLog(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<DevelopExecuteRunLogResultVO>() {
             @Override
-            protected BatchExecuteRunLogResultVO process() {
+            protected DevelopExecuteRunLogResultVO process() {
                 try {
-                    return BatchSqlMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteRunLogResultVO(batchSelectSqlService.selectRunLog(sqlVO.getJobId(),
+                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteRunLogResultVO(batchSelectSqlService.selectRunLog(sqlVO.getJobId(),
                             sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
