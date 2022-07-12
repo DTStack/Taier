@@ -196,7 +196,7 @@ public class FlinkTaskService {
         sql.append(generateAddJarSQL(task));
         EScheduleJobType eJobType = EScheduleJobType.getByTaskType(task.getTaskType());
         switch (Objects.requireNonNull(eJobType)) {
-            case SQL:
+            case FLINK_SQL:
                 if (TaskCreateModelType.GUIDE.getType().equals(task.getCreateModel())) {
                     sql.append(generateCreateFlinkSql(task.getSourceStr(), task.getComponentVersion(), TableType.SOURCE));
                     sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
@@ -369,7 +369,7 @@ public class FlinkTaskService {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
         //生成最终拼接的sql
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.SQL.getType()) || Objects.equals(task.getTaskType(), EScheduleJobType.MR.getType())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.FLINK_SQL.getType()) || Objects.equals(task.getTaskType(), EScheduleJobType.MR.getType())) {
             String sql = generateSqlToScheduler(task).toString();
             task.setSqlText(sql);
         }
