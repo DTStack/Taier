@@ -63,6 +63,7 @@ import com.dtstack.taier.dao.domain.Dict;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
+import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
@@ -1684,7 +1685,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (CollectionUtils.isNotEmpty(componentList)) {
             if (componentList.contains(EComponentType.FLINK.getTypeCode())) {
                 supportType.add(EScheduleJobType.SYNC);
-                supportType.add(EScheduleJobType.SQL);
+                supportType.add(EScheduleJobType.FLINK_SQL);
                 supportType.add(EScheduleJobType.MR);
                 supportType.add(EScheduleJobType.DATA_ACQUISITION);
             }
