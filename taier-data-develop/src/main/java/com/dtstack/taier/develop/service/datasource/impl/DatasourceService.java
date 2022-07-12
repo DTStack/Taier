@@ -2138,29 +2138,6 @@ public class DatasourceService {
         }
     }
 
-    public void initDefaultSource(Long clusterId, EComponentType eComponentType,
-                                  Long tenantId, String dataSourceName,
-                                  String dataSourceDesc, Long userId) {
-
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfoByClusterId(clusterId, eComponentType);
-        JSONObject dataJson = buildDataSourceDataJson(clusterId, eComponentType, jdbcInfo, dataSourceName);
-
-        DataSourceVO dataSourceVO = new DataSourceVO();
-        dataSourceVO.setDataDesc(org.apache.commons.lang3.StringUtils.isNotEmpty(dataSourceDesc) ? dataSourceDesc : "");
-        dataSourceVO.setDataJson(dataJson);
-        dataSourceVO.setCreateUserId(userId);
-        dataSourceVO.setActive(1);
-        dataSourceVO.setDataName(String.format("%s_%s", dataSourceName, eComponentType.getName().toUpperCase(Locale.ROOT)));
-        dataSourceVO.setTenantId(tenantId);
-        DataSourceTypeEnum datasourceTypeEnum = getDatasourceTypeByComponent(eComponentType, jdbcInfo);
-        dataSourceVO.setDataType(datasourceTypeEnum.getDataType());
-        dataSourceVO.setIsMeta(1);
-        if (Objects.nonNull(datasourceTypeEnum.getDataVersion())){
-            dataSourceVO.setDataVersion(jdbcInfo.getVersionName());
-        }
-        addOrUpdate(dataSourceVO, userId);
-    }
-
     public DataSourceTypeEnum getDatasourceTypeByComponent(EComponentType eComponentType, JdbcInfo jdbcInfo){
         if (EComponentType.SPARK_THRIFT == eComponentType){
             return DataSourceTypeEnum.SparkThrift2_1;

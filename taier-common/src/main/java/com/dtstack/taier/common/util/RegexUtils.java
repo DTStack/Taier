@@ -2,7 +2,7 @@ package com.dtstack.taier.common.util;
 
 import java.util.regex.Pattern;
 
-import static com.dtstack.taier.common.constant.PatternConstant.*;
+import static com.dtstack.taier.common.constant.PatternConstant.TENANT_NAME_REGEX;
 
 /**
  * 正则表达式校验工具
@@ -13,12 +13,15 @@ import static com.dtstack.taier.common.constant.PatternConstant.*;
  */
 public class RegexUtils {
 
+    private static final Pattern simpleQuery = Pattern.compile("(?i)select\\s+.*");
+
     /**
      * 校验租户名称
+     *
      * @param input 要检查的字符串
      *              string to check
      * @return TRUE: 校验通过, FALSE: 校验不通过
-     *         TRUE: verification passed, FALSE: verification failed
+     * TRUE: verification passed, FALSE: verification failed
      */
     public static boolean tenantName(String input) {
         return matches(input, TENANT_NAME_REGEX);
@@ -27,15 +30,21 @@ public class RegexUtils {
     /**
      * 正则表达式公共方法
      * regular expression public methods
+     *
      * @param input 要检查的字符串
      *              string to check
      * @param regex 正则表达式
      *              regular expression
      * @return TRUE: 校验通过, FALSE: 校验不通过
-     *         TRUE: verification passed, FALSE: verification failed
+     * TRUE: verification passed, FALSE: verification failed
      */
     private static boolean matches(String input, String regex) {
         return Pattern.matches(regex, input);
+    }
+
+
+    public static boolean isQuery(String sql) {
+        return simpleQuery.matcher(sql).find();
     }
 
 }

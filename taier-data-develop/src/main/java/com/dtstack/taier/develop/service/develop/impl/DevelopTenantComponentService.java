@@ -26,7 +26,6 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.dao.mapper.DevelopTenantComponentMapper;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
-import com.dtstack.taier.develop.service.develop.IComponentService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTenantComponentResultVO;
@@ -152,8 +151,9 @@ public class DevelopTenantComponentService {
         if (Objects.isNull(clusterId)) {
             throw new RdosDefineException(ErrorCode.CLUSTER_NOT_CONFIG);
         }
-        IComponentService componentService = multiEngineServiceFactory.getComponentService(scheduleJobType.getComponentType().getTypeCode());
-        return componentService.getAllDataBases(clusterId, scheduleJobType.getComponentType(), "");
+        return null;
+//        IComponentService componentService = multiEngineServiceFactory.getComponentService(scheduleJobType.getComponentType().getTypeCode());
+//        return componentService.getAllDataBases(clusterId, scheduleJobType.getComponentType(), "");
     }
 
 }

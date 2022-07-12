@@ -41,7 +41,6 @@ import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.EncoderUtil;
 import com.dtstack.taier.develop.utils.JsonUtils;
-import com.dtstack.taier.develop.utils.TaskStatusCheckUtil;
 import com.dtstack.taier.develop.vo.develop.query.CheckResultVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskStatusSearchVO;
@@ -355,7 +354,7 @@ public class FlinkTaskService {
         Integer status = scheduleJob.getStatus();
         if (status != null) {
             //续跑或重跑
-            if (!TaskStatusCheckUtil.CAN_RESET_STATUS.contains(status)) {
+            if (!TaskStatus.STOP_STATUS.contains(status)) {
                 throw new RdosDefineException("(任务状态不匹配)");
             }
             boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());

@@ -37,9 +37,10 @@ import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.develop.IDevelopJobExeService;
+import com.dtstack.taier.develop.service.develop.ITaskService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.service.develop.TaskContext;
 import com.dtstack.taier.develop.service.schedule.JobService;
-import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
@@ -86,9 +87,6 @@ public class DevelopJobService {
     private DevelopTaskParamService developTaskParamService;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private DevelopSelectSqlService developSelectSqlService;
 
     @Autowired
@@ -106,8 +104,12 @@ public class DevelopJobService {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private TaskContext taskContext;
+
     /**
      * 构建运行任务的完整命令(包含真正执行的SQL内容)
+     *
      * @param task
      * @param userId
      * @param taskParamsToReplace SQL中需要匹配和替换的 系统参数与自定义参数
@@ -116,7 +118,7 @@ public class DevelopJobService {
      */
     public String getExtraInfo(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
         //任务参数若为null，则表示是提交任务，否则就是临时运行任务
-        if(taskParamsToReplace == null){
+        if (taskParamsToReplace == null) {
             taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(task.getId());
         }
         IDevelopJobExeService jobExecuteService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
@@ -174,7 +176,7 @@ public class DevelopJobService {
             scheduleTaskShade.setScheduleConf(task.getScheduleConf());
             scheduleTaskShade.setComponentVersion(task.getComponentVersion());
             paramTaskAction.setTask(scheduleTaskShade);
-            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(),paramTaskAction.getJobId(),paramTaskAction.getFlowJobId());
+            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             String jobId = paramActionExt.getJobId();
             actionService.start(paramActionExt);
             String name = MathUtil.getString(actionParam.get("name"));
@@ -224,7 +226,7 @@ public class DevelopJobService {
             ActionLogVO actionLogVO = actionService.log(jobId);
             String engineLogStr = actionLogVO.getEngineLog();
             String logInfoStr = actionLogVO.getLogInfo();
-            if(StringUtils.isNotBlank(engineLogStr)){
+            if (StringUtils.isNotBlank(engineLogStr)) {
                 //移除increConf 信息
                 try {
                     JSONObject engineLogJson = JSON.parseObject(engineLogStr);
@@ -262,8 +264,8 @@ public class DevelopJobService {
                 if (CollectionUtils.isNotEmpty(engineEntities)) {
                     engineJobId = engineEntities.get(0).getEngineJobId();
                 }
-                final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis(): job.getExecStartTime().getTime();
-                final String perf = StringUtils.isBlank(engineJobId) ? null : this.developServerLogService.formatPerfLogInfo(engineJobId,jobId, startTime, System.currentTimeMillis(), tenantById.getId());
+                final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis() : job.getExecStartTime().getTime();
+                final String perf = StringUtils.isBlank(engineJobId) ? null : this.developServerLogService.formatPerfLogInfo(engineJobId, jobId, startTime, System.currentTimeMillis(), tenantById.getId());
                 if (StringUtils.isNotBlank(perf)) {
                     logBuild.append(perf.replace("\n", "  "));
                 }
@@ -297,7 +299,7 @@ public class DevelopJobService {
                     final DevelopSelectSql developHiveSelectSql = this.developSelectSqlService.getByJobId(jobId, tenantId, 0);
                     if (developHiveSelectSql != null) {
                         logBuild.append("====================任务信息====================\n");
-                        final String sqlLog=developHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")","$1**$3");
+                        final String sqlLog = developHiveSelectSql.getCorrectSqlText().replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")", "$1**$3");
                         logBuild.append(JsonUtils.formatJSON(sqlLog));
                         logBuild.append("\n");
                     }
@@ -352,16 +354,16 @@ public class DevelopJobService {
             List<DevelopParamDTO> developParamDTOS = this.developTaskParamService.paramResolver(taskVariables);
             List<DevelopTaskParam> params = this.developTaskParamService.convertParam(developParamDTOS);
             List<DevelopTaskParamShade> taskParamsToReplace = this.developTaskParamService.convertShade(params);
-            ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
+            /*ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
 
             // 转换参数
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
-            task.setTaskParams(paramActionExt.getTaskParams());
-
-            IDevelopJobExeService developJobService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
-            result = developJobService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
+            task.setTaskParams(paramActionExt.getTaskParams());*/
+            String jobId = actionService.generateUniqueSign();
+            ITaskService taskService = taskContext.get(task.getTaskType());
+            result = taskService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));
@@ -389,11 +391,13 @@ public class DevelopJobService {
         }
         return "";
     }
+
     /**
      * 初始化engine paramActionExt 入参
+     *
      * @param task
      * @param userId
-     * @param taskParamsToReplace  需要替换的 系统参数和自定义参数
+     * @param taskParamsToReplace 需要替换的 系统参数和自定义参数
      * @return
      * @throws Exception
      */
