@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Api(value = "目录管理", tags = {"目录管理"})
 @RestController
 @RequestMapping(value = "/batchCatalogue")
@@ -76,6 +78,17 @@ public class DevelopCatalogueController {
             protected DevelopCatalogueResultVO process() {
                 CatalogueVO catalogue = batchCatalogueService.getLocation(vo.getTenantId(), vo.getCatalogueType(), vo.getId(), vo.getName());
                 return DevelopCatalogueMapstructTransfer.INSTANCE.newCatalogueVoToCatalogueResultVo(catalogue);
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "getCatalogueIds")
+    @ApiOperation(value = "获取目录父级ID")
+    public R<List<Long>> getCatalogueIds(@RequestBody CatalogueLocationVO vo) {
+        return new APITemplate<List<Long>>() {
+            @Override
+            protected List<Long> process() {
+                return batchCatalogueService.grandCatalogueIds(vo.getTenantId(), vo.getCatalogueType(), vo.getId(), vo.getName());
             }
         }.execute();
     }

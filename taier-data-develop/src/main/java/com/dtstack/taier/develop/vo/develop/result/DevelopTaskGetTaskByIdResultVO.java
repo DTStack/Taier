@@ -194,7 +194,7 @@ public class DevelopTaskGetTaskByIdResultVO {
     private String componentVersion;
 
     @ApiModelProperty(value = "")
-    private List<DevelopResourceResultVO> resourceList;
+    private List<Long> resourceIdList;
 
     @ApiModelProperty(value = "")
     private List<DevelopResourceResultVO> refResourceList;
@@ -739,15 +739,6 @@ public class DevelopTaskGetTaskByIdResultVO {
     public void setComponentVersion(String componentVersion) {
         this.componentVersion = componentVersion;
     }
-
-    public List<DevelopResourceResultVO> getResourceList() {
-        return resourceList;
-    }
-
-    public void setResourceList(List<DevelopResourceResultVO> resourceList) {
-        this.resourceList = resourceList;
-    }
-
     public List<DevelopResourceResultVO> getRefResourceList() {
         return refResourceList;
     }
@@ -803,4 +794,13 @@ public class DevelopTaskGetTaskByIdResultVO {
     public void setDependencyTasks(List<DevelopScheduleTaskResultVO> dependencyTasks) {
         this.dependencyTasks = dependencyTasks;
     }
+
+    public List<Long> getResourceIdList() {
+        return resourceIdList;
+    }
+
+    public void setResourceIdList(List<Long> resourceIdList) {
+        this.resourceIdList = resourceIdList;
+    }
+
 }

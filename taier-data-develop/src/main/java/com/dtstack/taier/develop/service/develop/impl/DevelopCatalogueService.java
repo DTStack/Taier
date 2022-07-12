@@ -95,13 +95,7 @@ public class DevelopCatalogueService {
      */
     public CatalogueVO getLocation(Long tenantId, String catalogueType, Long id, String name) {
         // 获取当前资源的父级类目id，一直到根目录为止
-        List<Long> grandCatalogueIds = new ArrayList<>();
-        if (CatalogueType.TASK_DEVELOP.getType().equals(catalogueType)) {
-            grandCatalogueIds = grandCatalogueTaskIds(tenantId, id, name);
-        } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(catalogueType)) {
-            grandCatalogueIds = grandCatalogueResourceIds(id);
-        }
-
+        List<Long> grandCatalogueIds = grandCatalogueIds(tenantId, catalogueType, id, name);
         //获取根目录
         DevelopCatalogue rootCatalogue = getRootCatalogueByType(tenantId, catalogueType);
 
@@ -109,6 +103,19 @@ public class DevelopCatalogueService {
         root.setType("folder");
         getTree(root, grandCatalogueIds, tenantId, catalogueType);
         return root;
+    }
+
+    public List<Long> grandCatalogueIds(Long tenantId, String catalogueType, Long id, String name) {
+        // 获取当前资源的父级类目id，一直到根目录为止
+        List<Long> grandCatalogueIds = new ArrayList<>();
+        if (CatalogueType.TASK_DEVELOP.getType().equals(catalogueType)) {
+            grandCatalogueIds = grandCatalogueTaskIds(tenantId, id, name);
+        } else if (CatalogueType.RESOURCE_MANAGER.getType().equals(catalogueType)) {
+            grandCatalogueIds = grandCatalogueResourceIds(id);
+        }else {
+            throw new DtCenterDefException("不支持其他");
+        }
+        return grandCatalogueIds;
     }
 
 
@@ -149,7 +156,7 @@ public class DevelopCatalogueService {
         }
 
         if (grandCatalogueIds.contains(root.getId())) {
-            if (CollectionUtils.isEmpty(root.getChildren()) && "".equals(root.getType())) {
+            if (CollectionUtils.isEmpty(root.getChildren()) && "folder".equals(root.getType())) {
                 getChildNode(root, true, tenantId);
             }
         } else {
@@ -158,7 +165,7 @@ public class DevelopCatalogueService {
 
         if (CollectionUtils.isNotEmpty(root.getChildren())) {
             for (CatalogueVO vo : root.getChildren()) {
-                if ("".equals(vo.getType())) {
+                if ("folder".equals(vo.getType())) {
                     getTree(vo, grandCatalogueIds, tenantId, catalogueType);
                 }
             }
@@ -198,7 +205,7 @@ public class DevelopCatalogueService {
      * @param resourceId
      * @return
      */
-    private List<Long> grandCatalogueResourceIds(Long resourceId) {
+    public List<Long> grandCatalogueResourceIds(Long resourceId) {
         List<Long> grandCatalogueIds = new ArrayList<>();
         if (resourceId != null) {
             DevelopResource developResource = developResourceService.getResource(resourceId);

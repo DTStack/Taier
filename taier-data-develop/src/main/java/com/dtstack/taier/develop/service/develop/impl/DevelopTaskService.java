@@ -55,7 +55,6 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
@@ -302,8 +301,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<DevelopTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
         taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
-        List<DevelopResource> resources = developTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
-        taskVO.setResourceList(resources);
+        List<Long> resourceIds = developTaskResourceService.getResourceIdList(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        taskVO.setResourceIdList(resourceIds);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
         taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
