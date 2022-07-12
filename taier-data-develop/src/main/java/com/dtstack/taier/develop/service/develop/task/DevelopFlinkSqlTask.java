@@ -37,7 +37,7 @@ public class DevelopFlinkSqlTask extends DevelopTaskTemplate {
 
     @Override
     public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.SQL;
+        return EScheduleJobType.FLINK_SQL;
     }
 
 
