@@ -1,10 +1,12 @@
+import { useContext } from 'react';
 import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import moment from 'moment';
+import context from '@/context';
 import { CATELOGUE_TYPE } from '@/constant';
 import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/interface';
 import { formatDateTime } from '@/utils';
-import { TaskStatus, TaskTimeType, taskTypeText } from '@/utils/enums';
+import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
 import './index.scss';
 
@@ -14,6 +16,8 @@ interface IDetailInfoProps {
 }
 
 export default function DetailInfo({ type, data }: IDetailInfoProps) {
+	const { supportJobTypes } = useContext(context);
+
 	switch (type) {
 		case CATELOGUE_TYPE.TASK: {
 			const labelPrefix = '任务';
@@ -24,7 +28,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 						{tab.name}
 					</Descriptions.Item>
 					<Descriptions.Item label={`${labelPrefix}类型：`} span={12}>
-						{taskTypeText(tab.taskType)}
+						{supportJobTypes.find((t) => t.key === tab.taskType)?.value || '未知'}
 					</Descriptions.Item>
 					{tab?.componentVersion && (
 						<Descriptions.Item label="引擎版本：" span={12}>
@@ -156,7 +160,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 						</CopyToClipboard>
 					</Descriptions.Item>
 					<Descriptions.Item label="任务类型" span={12}>
-						{taskTypeText(data.taskType)}
+						{supportJobTypes.find((t) => t.key === data.taskType)?.value || '未知'}
 					</Descriptions.Item>
 					<Descriptions.Item label="状态" span={12}>
 						<TaskStatus value={data.status} />

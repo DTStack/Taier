@@ -75,5 +75,15 @@
             "SAVE_TASK",
             "OPERATOR_TASK"
         ]
+    },
+    {
+        "taskType": 8,
+        "actions": [
+            "SAVE_TASK",
+            "RUN_TASK",
+            "STOP_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
     }
 ]

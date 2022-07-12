@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { history } from 'umi';
 import Api from '@/api';
 import { DRAWER_MENU_ENUM, SCHEDULE_STATUS } from '@/constant';
@@ -25,8 +25,8 @@ import { DIRECT_TYPE_ENUM } from '@/interface';
 import type { IContextMenuConfig } from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
 import { formatDateTime, goToTaskDev } from '@/utils';
-import { taskTypeText } from '@/utils/enums';
 import type { mxCell } from 'mxgraph';
+import context from '@/context';
 
 interface ITaskFlowViewProps {
 	tabData: ITaskProps | null;
@@ -44,6 +44,7 @@ interface IGetTaskChildrenParams {
 }
 
 const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProps) => {
+	const { supportJobTypes } = useContext(context);
 	const [graphData, setGraphData] = useState<[IUpstreamJobProps] | null>(null);
 	const [loading, setLoading] = useState(false);
 
@@ -143,7 +144,7 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 	const handleRenderCell = (cell: mxCell) => {
 		const task: IUpstreamJobProps = cell.value;
 		if (task) {
-			const taskType = taskTypeText(task.taskType);
+			const taskType = supportJobTypes.find((t) => t.key === task.taskType)?.value || '未知';
 			return `<div class="vertex" >
 			<span class='vertex-title'>
 				${task.taskName}

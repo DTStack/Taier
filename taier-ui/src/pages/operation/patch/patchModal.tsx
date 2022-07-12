@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 import {
 	Modal,
 	Row,
@@ -38,10 +38,11 @@ import { QuestionCircleOutlined } from '@ant-design/icons';
 import type { SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import { DRAWER_MENU_ENUM, formItemLayout } from '@/constant';
 import Api from '@/api';
-import { DIRECT_TYPE_ENUM, ITaskProps } from '@/interface';
-import { taskTypeText } from '@/utils/enums';
+import type { ITaskProps } from '@/interface';
+import { DIRECT_TYPE_ENUM } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import type { TableRowSelection } from 'antd/lib/table/interface';
+import context from '@/context';
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -126,6 +127,7 @@ const updateTreeNode = (treeNode: ITaskNodeProps[], needUpdateNode: ITaskNodePro
 };
 
 export default ({ visible, task, handCancel }: IPatchDataProps) => {
+	const { supportJobTypes } = useContext(context);
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [loading, setLoading] = useState(false);
 	const [confirmLoading, setConfirmLoading] = useState(false);
@@ -370,7 +372,7 @@ export default ({ visible, task, handCancel }: IPatchDataProps) => {
 			title: '任务类型',
 			dataIndex: 'taskType',
 			key: 'taskType',
-			render: (text) => taskTypeText(text),
+			render: (text) => supportJobTypes.find((t) => t.key === text)?.value || '未知',
 		},
 		{
 			title: '所属租户',
