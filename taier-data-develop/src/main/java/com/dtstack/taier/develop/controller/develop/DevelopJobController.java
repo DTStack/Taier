@@ -21,15 +21,15 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.BatchJobMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchJobService;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchJobStartSqlVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchJobStartSyncVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchJobSyncTaskVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchExecuteResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchGetSyncTaskStatusInnerResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchStartSyncResultVO;
+import com.dtstack.taier.develop.mapstruct.vo.DevelopJobMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopJobService;
+import com.dtstack.taier.develop.vo.develop.query.DevelopJobStartSqlVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopJobStartSyncVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopJobSyncTaskVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,17 +44,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopJobController {
 
     @Autowired
-    private BatchJobService batchJobService;
+    private DevelopJobService batchJobService;
 
 
     @ApiOperation(value = "运行同步任务")
     @PostMapping(value = "startSyncImmediately")
-    public R<BatchStartSyncResultVO> startSyncImmediately(@RequestBody BatchJobStartSyncVO vo) {
+    public R<DevelopStartSyncResultVO> startSyncImmediately(@RequestBody DevelopJobStartSyncVO vo) {
 
-        return new APITemplate<BatchStartSyncResultVO>() {
+        return new APITemplate<DevelopStartSyncResultVO>() {
 
             @Override
-            protected BatchStartSyncResultVO process() throws RdosDefineException {
+            protected DevelopStartSyncResultVO process() throws RdosDefineException {
                 return batchJobService.startSyncImmediately(vo.getTaskId(), vo.getUserId(), vo.getIsRoot(), vo.getTenantId());
             }
         }.execute();
@@ -62,11 +62,11 @@ public class DevelopJobController {
 
     @ApiOperation(value = "获取同步任务运行状态")
     @PostMapping(value = "getSyncTaskStatus")
-    public R<BatchGetSyncTaskStatusInnerResultVO> getSyncTaskStatus(@RequestBody BatchJobSyncTaskVO vo) {
+    public R<DevelopGetSyncTaskStatusInnerResultVO> getSyncTaskStatus(@RequestBody DevelopJobSyncTaskVO vo) {
 
-        return new APITemplate<BatchGetSyncTaskStatusInnerResultVO>() {
+        return new APITemplate<DevelopGetSyncTaskStatusInnerResultVO>() {
             @Override
-            protected BatchGetSyncTaskStatusInnerResultVO process() throws RdosDefineException {
+            protected DevelopGetSyncTaskStatusInnerResultVO process() throws RdosDefineException {
                 return batchJobService.getSyncTaskStatus(vo.getTenantId(), vo.getJobId());
             }
         }.execute();
@@ -74,7 +74,7 @@ public class DevelopJobController {
 
     @ApiOperation(value = "停止同步任务")
     @PostMapping(value = "stopSyncJob")
-    public R<Void> stopSyncJob(@RequestBody BatchJobSyncTaskVO vo) {
+    public R<Void> stopSyncJob(@RequestBody DevelopJobSyncTaskVO vo) {
 
         return new APITemplate<Void>() {
             @Override
@@ -87,13 +87,13 @@ public class DevelopJobController {
 
     @ApiOperation(value = "运行sql")
     @PostMapping(value = "startSqlImmediately")
-    public R<BatchExecuteResultVO> startSqlImmediately(@RequestBody BatchJobStartSqlVO vo) {
+    public R<DevelopExecuteResultVO> startSqlImmediately(@RequestBody DevelopJobStartSqlVO vo) {
 
-        return new APITemplate<BatchExecuteResultVO>() {
+        return new APITemplate<DevelopExecuteResultVO>() {
             @Override
-            protected BatchExecuteResultVO process() throws RdosDefineException {
-                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getUniqueKey(), vo.getSql(), vo.getTaskVariables(), vo.getDtToken(), vo.getIsCheckDDL(), vo.getIsRoot(), vo.getIsEnd());
-                return BatchJobMapstructTransfer.INSTANCE.executeResultVOToBatchExecuteResultVO(executeResultVO);
+            protected DevelopExecuteResultVO process() throws RdosDefineException {
+                ExecuteResultVO executeResultVO = batchJobService.startSqlImmediately(vo.getUserId(), vo.getTenantId(), vo.getTaskId(), vo.getSql(), vo.getTaskVariables());
+                return DevelopJobMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteResultVO(executeResultVO);
             }
         }.execute();
     }
@@ -101,7 +101,7 @@ public class DevelopJobController {
 
     @ApiOperation(value = "停止通过sql任务执行的sql查询语句")
     @PostMapping(value = "stopSqlImmediately")
-    public R<Void> stopSqlImmediately(@RequestBody BatchJobSyncTaskVO vo) {
+    public R<Void> stopSqlImmediately(@RequestBody DevelopJobSyncTaskVO vo) {
 
         return new APITemplate<Void>() {
             @Override

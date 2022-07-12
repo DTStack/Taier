@@ -19,14 +19,13 @@
 package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.dtstack.taier.dao.domain.BatchCatalogue;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author toutian
  */
-public interface DevelopCatalogueMapper extends BaseMapper<BatchCatalogue> {
+@Mapper
+public interface DevelopCatalogueMapper extends BaseMapper<DevelopCatalogue> {
 
 }

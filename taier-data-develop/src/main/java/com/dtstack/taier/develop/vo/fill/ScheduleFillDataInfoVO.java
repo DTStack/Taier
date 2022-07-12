@@ -22,8 +22,8 @@ public class ScheduleFillDataInfoVO {
      * 必填
      */
     @NotNull(message = "fillDataType is not null")
-    @Min(value = 0,message = " Supplement data type: 0 Batch supplement data 1 Project supplement data")
-    @Max(value = 1,message = " Supplement data type: 0 Batch supplement data 1 Project supplement data")
+    @Min(value = 0,message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
+    @Max(value = 1,message = " Supplement data type: 0 Develop supplement data 1 Project supplement data")
     @ApiModelProperty(value = "补数据类型： 0 批量补数据fillDataType = 0时，taskIds字段有效" ,required = true)
     private Integer fillDataType;
 

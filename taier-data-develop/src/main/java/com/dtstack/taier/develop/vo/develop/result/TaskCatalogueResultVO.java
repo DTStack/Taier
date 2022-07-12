@@ -36,13 +36,13 @@ public class TaskCatalogueResultVO{
     private List<? extends CatalogueResultVO> catalogues;
 
     @ApiModelProperty(value = "任务信息")
-    private List<BatchTaskResultVO> tasks;
+    private List<DevelopTaskResultVO> tasks;
 
     @ApiModelProperty(value = "任务类别")
     private Integer taskType;
 
     @ApiModelProperty(value = "依赖任务")
-    private List<BatchTaskResultVO> dependencyTasks;
+    private List<DevelopTaskResultVO> dependencyTasks;
 
     @ApiModelProperty(value = "列表信息")
     private List<List<Object>>  lists;
@@ -75,7 +75,7 @@ public class TaskCatalogueResultVO{
     private Integer orderVal;
 
     @ApiModelProperty(value = "子目录列表")
-    private List<BatchCatalogueResultVO> children;
+    private List<DevelopCatalogueResultVO> children;
 
     @ApiModelProperty(value = "版本", example = "1")
     private Integer version;
@@ -113,11 +113,11 @@ public class TaskCatalogueResultVO{
         this.catalogues = catalogues;
     }
 
-    public List<BatchTaskResultVO> getTasks() {
+    public List<DevelopTaskResultVO> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<BatchTaskResultVO> tasks) {
+    public void setTasks(List<DevelopTaskResultVO> tasks) {
         this.tasks = tasks;
     }
 
@@ -129,11 +129,11 @@ public class TaskCatalogueResultVO{
         this.taskType = taskType;
     }
 
-    public List<BatchTaskResultVO> getDependencyTasks() {
+    public List<DevelopTaskResultVO> getDependencyTasks() {
         return dependencyTasks;
     }
 
-    public void setDependencyTasks(List<BatchTaskResultVO> dependencyTasks) {
+    public void setDependencyTasks(List<DevelopTaskResultVO> dependencyTasks) {
         this.dependencyTasks = dependencyTasks;
     }
 
@@ -217,11 +217,11 @@ public class TaskCatalogueResultVO{
         this.orderVal = orderVal;
     }
 
-    public List<BatchCatalogueResultVO> getChildren() {
+    public List<DevelopCatalogueResultVO> getChildren() {
         return children;
     }
 
-    public void setChildren(List<BatchCatalogueResultVO> children) {
+    public void setChildren(List<DevelopCatalogueResultVO> children) {
         this.children = children;
     }
 

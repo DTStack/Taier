@@ -51,12 +51,12 @@ public enum TaskDirtyDataManageParamEnum {
     /**
      * 表
      */
-    TABLE("flinkx.dirty-data.jdbc.table", null),
+    TABLE("flinkx.dirty-data.jdbc.table", "flinkx_dirty_data"),
 
     /**
      * 脏数据建表 sql
      */
-    CREATE_TABLE_SQL("CREATE TABLE IF NOT EXISTS %s (  job_id        VARCHAR(32)                               NOT NULL COMMENT 'Flink Job Id',\n" +
+    CREATE_TABLE_SQL("CREATE TABLE IF NOT EXISTS flinkx_dirty_data (  job_id        VARCHAR(32)                               NOT NULL COMMENT 'Flink Job Id',\n" +
             "    job_name      VARCHAR(255)                              NOT NULL COMMENT 'Flink Job Name',\n" +
             "    operator_name VARCHAR(255)                              NOT NULL COMMENT '出现异常数据的算子名，包含表名',\n" +
             "    dirty_data    TEXT                                      NOT NULL COMMENT '脏数据的异常数据',\n" +
@@ -64,9 +64,9 @@ public enum TaskDirtyDataManageParamEnum {
             "    field_name    VARCHAR(255) COMMENT '脏数据中异常字段名',\n" +
             "    create_time   TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) NOT NULL ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '脏数据出现的时间点'\n" +
             ")  COMMENT '存储脏数据';\n" +
-            "CREATE INDEX idx_job_id ON %s (job_id);\n" +
-            "CREATE INDEX idx_operator_name ON %s (operator_name);\n" +
-            "CREATE INDEX idx_create_time ON %s (create_time);", null);
+            "CREATE INDEX idx_job_id ON flinkx_dirty_data (job_id);\n" +
+            "CREATE INDEX idx_operator_name ON flinkx_dirty_data (operator_name);\n" +
+            "CREATE INDEX idx_create_time ON flinkx_dirty_data (create_time);", null);
 
     private final String param;
     private final String defaultValue;

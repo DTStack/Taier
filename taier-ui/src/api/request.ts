@@ -60,17 +60,17 @@ export default {
 	ADD_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/addCatalogue`, // 添加目录
 	DEL_OFFLINE_FOLDER: `${BASE_URI}/batchCatalogue/deleteCatalogue`, // 删除目录
 	EDIT_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/updateCatalogue`, // 更新目录
-	ADD_OFFLINE_RESOURCE: `${BASE_URI}/batchResource/addResource`, // 添加资源
-	REPLACE_OFFLINE_RESOURCE: `${BASE_URI}/batchResource/replaceResource`, // 替换资源
+	ADD_OFFLINE_RESOURCE: `${BASE_URI}/resource/addResource`, // 添加资源
+	REPLACE_OFFLINE_RESOURCE: `${BASE_URI}/resource/replaceResource`, // 替换资源
 	ADD_OFFLINE_TASK: `${BASE_URI}/task/addOrUpdateTask`, // 添加任务
 	SAVE_OFFLINE_JOBDATA: `${BASE_URI}/task/addOrUpdateTask`, // 更新任务
 	ADD_OFFLINE_FUNCTION: `${BASE_URI}/batchFunction/addOrUpdateFunction`, // 添加函数
 	GET_TABLE_INFO_BY_DATASOURCE: `${BASE_URI}/batchDataSource/getTableInfoByDataSource`, // 从目标表位置获取表格信息
 	DEL_OFFLINE_TASK: `${BASE_URI}/task/deleteTask`, // 删除任务
-	DEL_OFFLINE_RES: `${BASE_URI}/batchResource/deleteResource`, // 删除资源
+	DEL_OFFLINE_RES: `${BASE_URI}/resource/deleteResource`, // 删除资源
 	DEL_OFFLINE_FN: `${BASE_URI}/batchFunction/deleteFunction`, // 删除函数
 	GET_FN_DETAIL: `${BASE_URI}/batchFunction/getFunction`, // 获取函数详情
-	GET_RES_DETAIL: `${BASE_URI}/batchResource/getResourceById`, // 获取资源详情
+	GET_RES_DETAIL: `${BASE_URI}/resource/getResourceById`, // 获取资源详情
 	GET_HBASE_COLUMN_FAMILY: `${BASE_URI}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
 	QUERY_TASKS: `${BASE_URI}/scheduleTaskShade/queryTasks`, // 获取离线任务管理列表
 	GET_TASK_CHILDREN: `${BASE_URI}/scheduleTaskTaskShade/displayOffSpring`, // 获取任务子节点

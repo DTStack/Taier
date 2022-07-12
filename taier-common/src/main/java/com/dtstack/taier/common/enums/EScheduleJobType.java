@@ -57,8 +57,14 @@ public enum EScheduleJobType {
      */
     FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM),
 
+    /**
+     * 实时采集
+     */
     DATA_ACQUISITION(6, "实时采集", EJobType.SQL.getType(), 4,EComponentType.FLINK, EComputeType.STREAM),
 
+    /**
+     * HiveSQL
+     */
     HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
 
     OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4,EComponentType.OCEAN_BASE, EComputeType.BATCH),
@@ -66,6 +72,12 @@ public enum EScheduleJobType {
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH),
+
+    /**
+     * Flink
+     */
+    MR(11, "Flink", 0, 11, EComponentType.FLINK, EComputeType.STREAM),
+
     ;
 
     private Integer type;

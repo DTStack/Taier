@@ -16,13 +16,14 @@
  * limitations under the License.
  */
 
-import { Input, Select } from 'antd';
+import { InputNumber, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import './index.scss';
 
+const { Option } = Select;
+
 interface ILifeCycleSelectProps {
 	width: number | string;
-	inputWidth?: number | string;
 	value?: number;
 	onChange?: (value: number) => void;
 }
@@ -30,56 +31,68 @@ interface ILifeCycleSelectProps {
 const DEFAULT_DAYS = [3, 7, 30, 90, 365];
 
 const OPTIONS = DEFAULT_DAYS.map((day) => ({
+	renderLable: '天',
 	label: `${day}天`,
 	value: day,
-})).concat({ label: '自定义', value: -1 });
+})).concat({ renderLable: '自定义', label: '自定义', value: -1 });
 
-export default function LifeCycleSelect({
-	width,
-	inputWidth,
-	value,
-	onChange,
-}: ILifeCycleSelectProps) {
+export default function LifeCycleSelect({ width, value, onChange }: ILifeCycleSelectProps) {
 	const [selectValue, setSelectValue] = useState(-1);
+	const [readOnly, setReadOnly] = useState(true);
+	const [open, setOpen] = useState(false);
 
-	const handleSelect = (eventValue: number) => {
-		setSelectValue(eventValue);
-		if (eventValue !== -1) {
-			onChange?.(eventValue);
+	const handleClick = () => {
+		if (readOnly) {
+			setOpen(true);
 		}
 	};
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { value: eventValue } = e.target;
-		onChange?.(Number(eventValue));
+	const handleChange = (v: number) => {
+		setSelectValue(v);
+		if (v === -1) {
+			setReadOnly(false);
+		} else {
+			onChange?.(v);
+			setReadOnly(true);
+		}
 	};
 
 	useEffect(() => {
-		if (value !== undefined && DEFAULT_DAYS.includes(value)) {
+		const isCustomize = value !== undefined && DEFAULT_DAYS.includes(value);
+		if (isCustomize) {
 			setSelectValue(value);
 		}
+
+		setReadOnly(isCustomize);
 	}, []);
 
 	return (
 		<>
-			<Select<number>
-				value={selectValue}
+			<InputNumber
 				style={{ width: width || 200 }}
-				placeholder="请选择存储生命周期"
-				onSelect={handleSelect}
-				options={OPTIONS}
+				placeholder="请输入生命周期"
+				value={value}
+				readOnly={readOnly}
+				onClick={handleClick}
+				min={0}
+				onChange={onChange}
+				addonAfter={
+					<Select
+						style={{ width: 100 }}
+						value={selectValue}
+						open={open}
+						optionLabelProp="label"
+						onChange={handleChange}
+						onDropdownVisibleChange={setOpen}
+					>
+						{OPTIONS.map((option) => (
+							<Option value={option.value} label={option.renderLable}>
+								{option.label}
+							</Option>
+						))}
+					</Select>
+				}
 			/>
-			{selectValue === -1 ? (
-				<Input
-					className="dt-life-input"
-					value={value}
-					style={{ width: inputWidth || 220, marginLeft: 5 }}
-					min={0}
-					addonAfter="天"
-					placeholder="请输入生命周期"
-					onChange={handleInputChange}
-				/>
-			) : null}
 		</>
 	);
 }

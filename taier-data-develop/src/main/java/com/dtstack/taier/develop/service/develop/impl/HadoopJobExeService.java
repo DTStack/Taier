@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
@@ -38,7 +38,7 @@ public class HadoopJobExeService {
     private static final Logger LOG = LoggerFactory.getLogger(HadoopJobExeService.class);
 
     @Autowired
-    private BatchTaskParamService batchTaskParamService;
+    private DevelopTaskParamService developTaskParamService;
 
     @Autowired
     private DsInfoService dsInfoService;
@@ -82,8 +82,8 @@ public class HadoopJobExeService {
 
         //todo checkSyncJobParams为什么要异常hadoopConfig
         if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())) {
-            List<BatchTaskParam> taskParam = batchTaskParamService.getTaskParam(task.getId());
-            batchTaskParamService.checkParams(batchTaskParamService.checkSyncJobParams(job), taskParam);
+            List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
+            developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParam);
         }
         actionParam.put("job", job);
         //设置写数据源的具体类型

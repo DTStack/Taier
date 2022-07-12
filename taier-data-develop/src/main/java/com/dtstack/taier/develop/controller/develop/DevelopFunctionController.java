@@ -21,16 +21,16 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
 import com.dtstack.taier.develop.mapstruct.vo.FunctionMapstructTransfer;
-import com.dtstack.taier.develop.service.develop.impl.BatchFunctionService;
-import com.dtstack.taier.develop.dto.devlop.BatchFunctionVO;
+import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
+import com.dtstack.taier.develop.dto.devlop.DevelopFunctionVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionAddVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionBaseVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionDeleteVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionMoveVO;
-import com.dtstack.taier.develop.vo.develop.query.BatchFunctionNameVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchFunctionAddResultVO;
-import com.dtstack.taier.develop.vo.develop.result.BatchFunctionQueryResultVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionAddVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionBaseVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionDeleteVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionMoveVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFunctionNameVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopFunctionAddResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopFunctionQueryResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +47,15 @@ import java.util.List;
 public class DevelopFunctionController {
 
     @Autowired
-    private BatchFunctionService batchFunctionService;
+    private DevelopFunctionService batchFunctionService;
 
     @PostMapping(value = "getFunction")
     @ApiOperation(value = "获取函数")
-    public R<BatchFunctionQueryResultVO> getFunction(@RequestBody BatchFunctionBaseVO vo) {
-        return new APITemplate<BatchFunctionQueryResultVO>() {
+    public R<DevelopFunctionQueryResultVO> getFunction(@RequestBody DevelopFunctionBaseVO vo) {
+        return new APITemplate<DevelopFunctionQueryResultVO>() {
             @Override
-            protected BatchFunctionQueryResultVO process() {
-                BatchFunctionVO function = batchFunctionService.getFunction(vo.getFunctionId());
+            protected DevelopFunctionQueryResultVO process() {
+                DevelopFunctionVO function = batchFunctionService.getFunction(vo.getFunctionId());
                 return FunctionMapstructTransfer.INSTANCE.newFunctionToFunctionResultVo(function);
             }
         }.execute();
@@ -63,11 +63,11 @@ public class DevelopFunctionController {
 
     @PostMapping(value = "addOrUpdateFunction")
     @ApiOperation(value = "添加函数 or 修改函数")
-    public R<BatchFunctionAddResultVO> addOrUpdateFunction(@RequestBody BatchFunctionAddVO vo) {
-        return new APITemplate<BatchFunctionAddResultVO>() {
+    public R<DevelopFunctionAddResultVO> addOrUpdateFunction(@RequestBody DevelopFunctionAddVO vo) {
+        return new APITemplate<DevelopFunctionAddResultVO>() {
             @Override
-            protected BatchFunctionAddResultVO process() {
-                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceId(), vo.getTenantId(), vo.getUserId());
+            protected DevelopFunctionAddResultVO process() {
+                TaskCatalogueVO result = batchFunctionService.addOrUpdateFunction(FunctionMapstructTransfer.INSTANCE.newFunctionAddVoToFunctionVo(vo), vo.getResourceId(), vo.getUserId());
                 return FunctionMapstructTransfer.INSTANCE.newTaskCatalogueVoToFunctionAddResultVo(result);
             }
         }.execute();
@@ -75,7 +75,7 @@ public class DevelopFunctionController {
 
     @PostMapping(value = "moveFunction")
     @ApiOperation(value = "移动函数")
-    public R<Void> moveFunction(@RequestBody BatchFunctionMoveVO vo) {
+    public R<Void> moveFunction(@RequestBody DevelopFunctionMoveVO vo) {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
@@ -87,7 +87,7 @@ public class DevelopFunctionController {
 
     @PostMapping(value = "deleteFunction")
     @ApiOperation(value = "删除函数")
-    public R<Void> deleteFunction(@RequestBody BatchFunctionDeleteVO vo) {
+    public R<Void> deleteFunction(@RequestBody DevelopFunctionDeleteVO vo) {
         return new APITemplate<Void>() {
             @Override
             protected Void process() {
@@ -99,7 +99,7 @@ public class DevelopFunctionController {
 
     @PostMapping(value = "getAllFunctionName")
     @ApiOperation(value = "获取所有函数名")
-    public R<List<String>> getAllFunctionName(@RequestBody BatchFunctionNameVO vo) {
+    public R<List<String>> getAllFunctionName(@RequestBody DevelopFunctionNameVO vo) {
         return new APITemplate<List<String>>() {
             @Override
             protected List<String> process() {

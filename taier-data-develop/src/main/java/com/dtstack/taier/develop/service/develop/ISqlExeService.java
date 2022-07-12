@@ -20,7 +20,6 @@ package com.dtstack.taier.develop.service.develop;
 
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.dto.devlop.ExecuteSqlParseVO;
 
 /**
  * Reason:
@@ -34,14 +33,6 @@ public interface ISqlExeService {
      * 执行sql,插件内部逻辑，需要根据sql类型做处理
      */
     ExecuteResultVO executeSql(ExecuteContent content) throws Exception;
-
-    /**
-     * 批量执行sparkSql；解决高级运行不允许sparkSql直连spark ThirftServer问题
-     * @param content
-     */
-    ExecuteSqlParseVO batchExecuteSql(ExecuteContent content) throws Exception;
-
-    void checkSingleSqlSyntax(Long tenantId, String sql, String db, String taskParam);
 
     /**
      * sql 语句整理

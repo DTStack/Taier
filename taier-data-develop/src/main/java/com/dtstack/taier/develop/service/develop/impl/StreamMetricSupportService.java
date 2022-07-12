@@ -2,7 +2,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.StreamMetricSupport;
-import com.dtstack.taier.dao.mapper.StreamMetricSupportDao;
+import com.dtstack.taier.dao.mapper.StreamMetricSupportMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.Objects;
 public class StreamMetricSupportService {
 
     @Autowired
-    private StreamMetricSupportDao streamMetricSupportDao;
+    private StreamMetricSupportMapper streamMetricSupportDao;
 
     /**
      * 根据任务类型获取支持的 metric 指标的Key

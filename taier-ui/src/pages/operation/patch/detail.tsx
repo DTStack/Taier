@@ -24,7 +24,7 @@ import type { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/inte
 import SlidePane from '@/components/slidePane';
 import context from '@/context';
 import Api from '@/api';
-import { TaskStatus, taskTypeText } from '@/utils/enums';
+import { TaskStatus } from '@/utils/enums';
 import {
 	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
@@ -369,7 +369,7 @@ export default () => {
 				key: 'taskType',
 				width: '100px',
 				render: (text) => {
-					return taskTypeText(text);
+					return supportJobTypes.find((t) => t.key === text)?.value || '未知';
 				},
 				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
 			},
