@@ -180,51 +180,70 @@ export default function saveTask() {
 		case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 			const params: IParamsProps = cloneDeep(data);
 			const { sourceMap, targetMap = {}, createModel } = params;
-			/**
-			 * 当目标数据源为Hive时，必须勾选Json平铺
-			 */
-			const haveJson =
-				isKafka(sourceMap?.type) ||
-				sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
-				sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
-			if (targetMap?.type === DATA_SOURCE_ENUM.HIVE && !sourceMap.pavingData && !haveJson) {
-				message.error('请勾选嵌套Json平铺后重试');
-				return Promise.reject();
-			}
 
-			params.preSave = true;
-			// 后端区分右键编辑保存
-			params.updateSource = true;
-			params.sqlText = params.value || '';
+			const componentForm = rightBarService.getForm();
 
-			if (createModel === CREATE_MODEL_TYPE.GUIDE) {
-				const { distributeTable } = sourceMap;
+			const validation = () => {
 				/**
-				 * [ {name:'table', table: []} ] => {'table':[]}
+				 * 当目标数据源为Hive时，必须勾选Json平铺
 				 */
-				if (distributeTable && distributeTable.length) {
-					const newDistributeTable: any = {};
-					distributeTable.forEach((table: any) => {
-						newDistributeTable[table.name] = table.tables || [];
-					});
-					params.sourceMap = {
-						...sourceMap,
-						distributeTable: newDistributeTable,
-					};
+				const haveJson =
+					isKafka(sourceMap?.type) ||
+					sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
+					sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
+				if (
+					targetMap?.type === DATA_SOURCE_ENUM.HIVE &&
+					!sourceMap.pavingData &&
+					!haveJson
+				) {
+					message.error('请勾选嵌套Json平铺后重试');
+					return Promise.reject();
 				}
 
-				Reflect.deleteProperty(params, 'sourceParams');
-				Reflect.deleteProperty(params, 'sinkParams');
-				Reflect.deleteProperty(params, 'sideParams');
+				params.preSave = true;
+				// 后端区分右键编辑保存
+				params.updateSource = true;
+				params.sqlText = params.value || '';
+
+				if (createModel === CREATE_MODEL_TYPE.GUIDE) {
+					const { distributeTable } = sourceMap;
+					/**
+					 * [ {name:'table', table: []} ] => {'table':[]}
+					 */
+					if (distributeTable && distributeTable.length) {
+						const newDistributeTable: any = {};
+						distributeTable.forEach((table: any) => {
+							newDistributeTable[table.name] = table.tables || [];
+						});
+						params.sourceMap = {
+							...sourceMap,
+							distributeTable: newDistributeTable,
+						};
+					}
+
+					Reflect.deleteProperty(params, 'sourceParams');
+					Reflect.deleteProperty(params, 'sinkParams');
+					Reflect.deleteProperty(params, 'sideParams');
+				}
+
+				console.log('params:',params)
+				return stream.saveTask(params).then((res) => {
+					if (res.code === 1) {
+						message.success('保存成功！');
+						return res;
+					}
+					return Promise.reject();
+				});
+			};
+
+			if (componentForm) {
+				return componentForm
+					.validateFields()
+					.then(validation)
+					.catch(() => Promise.reject());
 			}
 
-			return stream.saveTask(params).then((res) => {
-				if (res.code === 1) {
-					message.success('保存成功！');
-					return res;
-				}
-				return Promise.reject();
-			});
+			return validation();
 		}
 		case TASK_TYPE_ENUM.SPARK_SQL:
 		case TASK_TYPE_ENUM.HIVE_SQL:
