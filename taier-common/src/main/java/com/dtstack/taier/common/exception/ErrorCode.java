@@ -106,7 +106,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     CHANGE_META_NOT_PERMIT_WHEN_BIND_CLUSTER(224, "cluster has bind tenant can not change metadata component", "集群已经绑定过租户,不允许修改"),
     PRE_COMPONENT_NOT_EXISTS(225, "pre Component does not exist", "前置组件不存在"),
     META_COMPONENT_NOT_EXISTS(226, "%s component does not exist or not is metadata component", "当前集群未添加%s组件或未设置该组件为元数据获取方式"),
-    CLUSTER_NOT_CONFIG(227, "please config cluster", "请先配置集群并进行绑定"),
+    CLUSTER_NOT_CONFIG(227, "please config cluster", "请先配置集群并和租户进行绑定"),
     META_COMPONENT_NOT_CONFIG(228, "please config hadoop engine meta component", "当前Hadoop集群未添加SparkThrift或HiveServer 组件为元数据获取方式"),
 
     TEMPLATE_TASK_CONTENT_NOT_NULL(249, "Template task content can not be null","模板任务的内容不能为空"),
@@ -160,8 +160,9 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     ONLY_EXECUTE_CREATE_TABLE_SQL(606, "","只允许执行 'create table ....' sql 格式"),
     SQLPARSE_ERROR(652, "sql parse error", "sql解析失败"),
 
-    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置");
+    TASK_PARAM_CONTENT_NOT_NULL(700, "task params content can not be null","任务中存在未赋值的系统参数或自定义参数,请检查任务参数配置"),
 
+    TASK_NOT_CONFIG_DB(801, "task not config run db", "任务未配置运行时所在schema，请前往租户设置任务执行schema");
 
     private final int code;
     private final String enMsg;

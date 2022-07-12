@@ -23,18 +23,9 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
-/**
- * 项目引擎类型关联表
- * Date: 2019/6/1
- * Company: www.dtstack.com
- * @author xuchao
- */
 @TableName("develop_tenant_component")
 public class TenantComponent {
 
@@ -54,12 +45,6 @@ public class TenantComponent {
      */
     @TableField("task_type")
     private Integer taskType;
-
-    /**
-     * 状态
-     */
-    @TableField("status")
-    private Integer status;
 
     /**
      * 组件标识
@@ -110,14 +95,6 @@ public class TenantComponent {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public String getComponentIdentity() {

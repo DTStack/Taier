@@ -153,6 +153,15 @@ public class ScheduleActionService {
         }
     }
 
+    /**
+     * 参数替换
+     *
+     * @param task
+     * @param jobId
+     * @param flowJobId
+     * @return
+     * @throws Exception
+     */
     public ParamActionExt paramActionExt(ScheduleTaskShade task, String jobId, String flowJobId) throws Exception {
         if (StringUtils.isBlank(jobId)) {
             jobId = this.generateUniqueSign();
@@ -160,10 +169,9 @@ public class ScheduleActionService {
         LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(task), jobId, flowJobId);
         ScheduleJob scheduleJob = buildScheduleJob(task, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(task, scheduleJob, JSONObject.parseObject(task.getExtraInfo()));
-        if (paramActionExt == null) {
+        if (Objects.isNull(paramActionExt)) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
-
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskId(task.getTaskId());
         paramActionExt.setComponentVersion(task.getComponentVersion());

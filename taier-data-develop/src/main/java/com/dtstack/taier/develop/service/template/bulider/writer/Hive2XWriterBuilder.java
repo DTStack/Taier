@@ -41,7 +41,7 @@ import java.util.Objects;
 import static com.dtstack.taier.common.util.DataSourceUtils.PASSWORD;
 import static com.dtstack.taier.common.util.DataSourceUtils.USERNAME;
 import static com.dtstack.taier.develop.service.datasource.impl.DatasourceService.HDFS_DEFAULTFS;
-import static com.dtstack.taier.develop.service.develop.impl.BatchTaskService.HADOOP_CONFIG;
+import static com.dtstack.taier.develop.service.develop.impl.DevelopTaskService.HADOOP_CONFIG;
 import static com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder.JDBC_URL;
 import static com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder.RDBMS_DA_TYPE;
 

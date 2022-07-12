@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.taier.dao.mapper.DevelopFunctionDao">
+<mapper namespace="com.dtstack.taier.dao.mapper.DevelopFunctionMapper">
 
     <sql id="select_content_fragment">
         id,name,class_name,purpose,command_formate,param_desc,node_pid,tenant_id,create_user_id,modify_user_id,udf_type,type,gmt_create,gmt_modified,is_deleted,task_type,sql_text
@@ -61,14 +61,14 @@
     </sql>
 
 
-    <select id="listByNodePidAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="listByNodePidAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
         WHERE tenant_id = #{tenantId} and node_pid = #{nodePid} and is_deleted = 0
     </select>
 
-    <select id="listSystemFunction" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="listSystemFunction" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
@@ -78,29 +78,24 @@
         </if>
     </select>
 
-    <select id="listTenantFunction" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="listTenantFunction" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
         WHERE is_deleted = 0
         <if test="functionType != null">
-            AND type = #{functionType}
+            AND `type` = #{functionType}
         </if>
-        <choose>
-            <when test="tenantId != null">
-                AND tenant_Id in (#{tenantId}, -1)
-            </when>
-            <otherwise>
-                AND tenant_Id = -1
-            </otherwise>
-        </choose>
+        <if test="tenantId != null">
+            AND tenant_Id = #{tenantId}
+        </if>
         <if test="taskType !=null">
             AND task_type = #{taskType}
         </if>
     </select>
 
 
-    <select id="listTenantByFunction" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="listTenantByFunction" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
@@ -111,14 +106,14 @@
 
     </select>
 
-    <select id="listByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="listByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
         WHERE name = #{name} and tenant_id = #{tenantId} and type = #{type} and is_deleted = 0
     </select>
 
-    <select id="getByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="getByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
@@ -135,7 +130,7 @@
         </if>
     </select>
 
-    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.BatchFunction">
+    <select id="generalQuery" parameterType="com.dtstack.taier.dao.pager.PageQuery" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function

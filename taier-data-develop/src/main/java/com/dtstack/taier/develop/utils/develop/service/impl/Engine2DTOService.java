@@ -383,7 +383,8 @@ public enum Engine2DTOService {
      */
     public static JdbcInfo getJdbcInfoByClusterId(Long clusterId, EComponentType eComponentType) {
         JdbcInfo jdbcInfo = null;
-        if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
+        if (EComponentType.SPARK_THRIFT.equals(eComponentType)
+            || EComponentType.SPARK.equals(eComponentType)) {
             jdbcInfo = getSparkThriftByClusterId(clusterId);
         } else if ((EComponentType.HIVE_SERVER.equals(eComponentType))) {
             jdbcInfo = getHiveServerByClusterId(clusterId);
@@ -517,9 +518,16 @@ public enum Engine2DTOService {
      * @return
      */
     public static DataSourceType componentTypeToDataSourceType(EComponentType eComponentType, String version) {
-        if (EComponentType.SPARK_THRIFT.equals(eComponentType)) {
+        if (EComponentType.SPARK_THRIFT.equals(eComponentType)
+            || EComponentType.SPARK.equals(eComponentType)) {
             return DataSourceType.SparkThrift2_1;
         } else if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
+            if (HiveVersion.HIVE_1x.equals(version)){
+                return DataSourceType.HIVE1X;
+            }
+            if (HiveVersion.HIVE_3x.equals(version)){
+                return DataSourceType.HIVE3X;
+            }
             return DataSourceType.HIVE;
         } else {
             throw new RdosDefineException("eComponentType not transition dataSourceType");

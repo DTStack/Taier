@@ -21,34 +21,27 @@ package com.dtstack.taier.develop.service.develop;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
-
-import com.dtstack.taier.develop.service.develop.impl.BatchHiveSqlExeService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopHiveSqlExeService;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 
 /**
  * 根据对应的引擎类型获取执行实现
- * Date: 2019/5/13
- * Company: www.dtstack.com
- *
- * @author xuchao
  */
-
 @Component
 public class MultiEngineServiceFactory {
 
-    @Resource(name = "batchSparkSqlExeService")
-    private ISqlExeService batchSparkSqlExeService;
+    @Resource(name = "developSparkSqlExeService")
+    private ISqlExeService developSparkSqlExeService;
 
-    @Resource(name = "batchHadoopJobExeService")
-    private IBatchJobExeService batchHadoopJobExeService;
+    @Resource(name = "developHadoopJobExeService")
+    private IDevelopJobExeService developHadoopJobExeService;
 
-    @Resource(name = "batchHiveSqlExeService")
-    private BatchHiveSqlExeService batchHiveSqlExeService;
+    @Resource(name = "developHiveSqlExeService")
+    private DevelopHiveSqlExeService developHiveSqlExeService;
 
-    @Resource(name = "batchHadoopSelectSqlService")
-    private IBatchSelectSqlService batchHadoopSelectSqlService;
+    @Resource(name = "developHadoopSelectSqlService")
+    private IDevelopSelectSqlService developHadoopSelectSqlService;
 
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
@@ -61,16 +54,18 @@ public class MultiEngineServiceFactory {
 
     public ISqlExeService getSqlExeService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getVal().equals(taskType)) {
-            return batchSparkSqlExeService;
+            return developSparkSqlExeService;
         }else if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
-            return batchHiveSqlExeService;
+            return developHiveSqlExeService;
         }
         throw new RdosDefineException(String.format("not support task type %d now", taskType));
     }
 
-    public IBatchJobExeService getBatchJobExeService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.SYNC.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
-            return batchHadoopJobExeService;
+    public IDevelopJobExeService getDevelopJobExeService(Integer taskType) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)
+                || EScheduleJobType.SYNC.getType().equals(taskType)
+                || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
+            return developHadoopJobExeService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
@@ -80,9 +75,9 @@ public class MultiEngineServiceFactory {
      * @param taskType
      * @return
      */
-    public IBatchSelectSqlService getBatchSelectSqlService(Integer taskType) {
+    public IDevelopSelectSqlService getDevelopSelectSqlService(Integer taskType) {
         if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
-            return batchHadoopSelectSqlService;
+            return developHadoopSelectSqlService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
@@ -102,18 +97,20 @@ public class MultiEngineServiceFactory {
     }
 
     /**
-     * 根据组件类型类型获取组件操作
+     * 根据组件类型获取组件操作
      *
-     * @param typeCode
+     * @param componentTypeCode
      * @return
      */
-    public IComponentService getComponentService(Integer typeCode){
-        if (EComponentType.SPARK_THRIFT.getTypeCode().equals(typeCode)) {
+    public IComponentService getComponentService(Integer componentTypeCode){
+        EComponentType componentType = EComponentType.getByCode(componentTypeCode);
+        if (EComponentType.SPARK_THRIFT == componentType
+            || EComponentType.SPARK == componentType) {
             return componentSparkThriftService;
-        }else if (EComponentType.HIVE_SERVER.getTypeCode().equals(typeCode)){
+        }else if (EComponentType.HIVE_SERVER == componentType){
             return componentHiveServerService;
         }
-        throw new RdosDefineException(String.format("not support component type %d now", typeCode));
+        throw new RdosDefineException(String.format("not support component by type %d now", componentType));
     }
 
 }
