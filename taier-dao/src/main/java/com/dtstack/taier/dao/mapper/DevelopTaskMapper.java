@@ -20,21 +20,11 @@ package com.dtstack.taier.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.BatchTaskDTO;
-import com.dtstack.taier.dao.pager.PageQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.List;
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2017/5/4
- */
 @Mapper
 public interface DevelopTaskMapper extends BaseMapper<Task> {
 

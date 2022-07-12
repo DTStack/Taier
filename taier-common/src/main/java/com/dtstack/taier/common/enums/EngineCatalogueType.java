@@ -18,10 +18,7 @@
 
 package com.dtstack.taier.common.enums;
 
-/**
- * @author yuebai
- * @date 2019-06-04
- */
+
 public enum EngineCatalogueType {
     /**
      *
