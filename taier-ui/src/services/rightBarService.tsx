@@ -5,7 +5,7 @@ import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
 import EnvParams from '@/pages/rightBar/envParams';
 import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
 import TaskInfo from '@/pages/rightBar/taskInfo';
-import TaskParams from '@/pages/rightBar/envParams';
+import TaskParams from '@/pages/rightBar/taskParams';
 import { isTaskTab } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import { Component } from '@dtinsight/molecule/esm/react';
@@ -147,10 +147,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 		const isInValidTab = !isTaskTab(current?.tab?.id);
 
 		// 判断当前的 tab 是否支持该 kind
-		const supportBars = taskRenderService.renderRightBar(
-			current?.tab?.data?.taskType,
-			current?.tab?.data,
-		);
+		const supportBars = taskRenderService.renderRightBar();
 
 		const isSupportThisKind = supportBars.includes(kind);
 		if (!isSupportThisKind) {

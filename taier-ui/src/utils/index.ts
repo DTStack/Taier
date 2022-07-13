@@ -33,10 +33,10 @@ import {
 } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
 import { history } from 'umi';
-import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
 import type { languages } from '@dtinsight/molecule/esm/monaco';
 import { Keywords, Snippets } from './competion';
+import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -450,7 +450,7 @@ export const utf8to16 = (str: string) => {
 export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
 	const { id } = record ?? {};
 	// Open task in tab
-	openTaskInTab(id, { id });
+	taskRenderService.openTask({ id: id.toString() });
 	// Clear history query
 	history.push({
 		query: {},
@@ -568,6 +568,13 @@ export function createSQLProposals(
 }
 
 /**
+ * 获取 13 位的随机 id
+ */
+export function randomId() {
+	return Date.now() + Math.round(Math.random() * 1000);
+}
+
+/**
  * 复制操作
  */
 export function copyText(text: string) {
@@ -680,4 +687,13 @@ export function getColumnsByColumnsText(text: string = '') {
 			});
 	}
 	return columns;
+}
+
+/**
+ * Get code character by keyCode
+ * @notice This is unreliable
+ */
+export function renderCharacterByCode(keyCode: number) {
+	const unicodeCharacter = String.fromCharCode(keyCode);
+	if (unicodeCharacter === '\b') return '⌫';
 }

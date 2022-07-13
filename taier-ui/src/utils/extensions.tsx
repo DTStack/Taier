@@ -29,8 +29,8 @@ import Result from '@/components/task/result';
 import { filterSql } from '.';
 import stream from '@/api';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import { transformTabDataToParams } from './saveTask';
 import taskRenderService from '@/services/taskRenderService';
+import taskSaveService from '@/services/taskSaveService';
 
 /**
  * 根据不同任务渲染不同的图标
@@ -171,7 +171,7 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 	taskResultService.clearLogs(logId);
 	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
 
-	const params = transformTabDataToParams(currentTabData);
+	const params = taskSaveService.transformTabDataToParams(currentTabData);
 
 	let isSuccess = false;
 	stream
