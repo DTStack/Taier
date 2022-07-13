@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.impl.task;
+package com.dtstack.taier.develop.service.develop.impl.runner;
 
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.OceanBaseSourceDTO;
@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2022/7/12
  */
 @Component
-public class DevelopOceanBaseSQLTaskService extends DevelopJdbcTaskRunner {
+public class DevelopOceanBaseSQLTaskRunner extends DevelopJdbcTaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {
