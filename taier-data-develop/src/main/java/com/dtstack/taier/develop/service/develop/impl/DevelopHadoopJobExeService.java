@@ -163,8 +163,8 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
                     .setUserId(userId)
                     .setSql(sql)
                     .setTaskId(taskId)
-                    .setTaskType(task.getTaskType())
-                    .setPreJobId(jobId);
+                    .setTaskType(task.getTaskType());
+//                    .setPreJobId(jobId);
             return developSqlExeService.executeSql(content);
         }
         throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));

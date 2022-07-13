@@ -1,7 +1,10 @@
 package com.dtstack.taier.develop.service.develop;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.develop.service.develop.saver.DefaultTaskSaver;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -12,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class TaskConfiguration implements ApplicationContextAware {
+    @Autowired
+    private DefaultTaskSaver defaultTaskSaver;
 
     private ConcurrentHashMap<EScheduleJobType, ITaskRunner> taskRunners = new ConcurrentHashMap(EScheduleJobType.values().length);
     private ConcurrentHashMap<EScheduleJobType, ITaskSaver> taskSavers = new ConcurrentHashMap(EScheduleJobType.values().length);
@@ -27,7 +32,7 @@ public class TaskConfiguration implements ApplicationContextAware {
 
     public ITaskSaver getSave(Integer taskType) {
         EScheduleJobType jobType = EScheduleJobType.getByTaskType(taskType);
-        return taskSavers.get(jobType);
+        return taskSavers.getOrDefault(jobType, defaultTaskSaver);
     }
 
     @Override
@@ -35,17 +40,22 @@ public class TaskConfiguration implements ApplicationContextAware {
         Map<String, ITaskRunner> beansOfRunner = applicationContext.getBeansOfType(ITaskRunner.class);
         beansOfRunner.forEach((t, service) -> {
             List<EScheduleJobType> support = service.support();
-            for (EScheduleJobType eScheduleJobType : support) {
-                taskRunners.put(eScheduleJobType, service);
+            if (CollectionUtils.isNotEmpty(support)) {
+                for (EScheduleJobType eScheduleJobType : support) {
+                    taskRunners.put(eScheduleJobType, service);
+                }
             }
         });
 
         Map<String, ITaskSaver> beansOfSaver = applicationContext.getBeansOfType(ITaskSaver.class);
         beansOfSaver.forEach((t, service) -> {
             List<EScheduleJobType> support = service.support();
-            for (EScheduleJobType eScheduleJobType : support) {
-                taskSavers.put(eScheduleJobType, service);
+            if (CollectionUtils.isNotEmpty(support)) {
+                for (EScheduleJobType eScheduleJobType : support) {
+                    taskSavers.put(eScheduleJobType, service);
+                }
             }
+
         });
 
     }

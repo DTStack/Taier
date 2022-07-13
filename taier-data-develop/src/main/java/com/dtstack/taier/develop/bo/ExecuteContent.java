@@ -50,7 +50,7 @@ public class ExecuteContent {
      */
     private Integer taskType;
 
-    private String preJobId;
+    private String jobId;
 
     private String database;
 
@@ -84,8 +84,8 @@ public class ExecuteContent {
         return this;
     }
 
-    public ExecuteContent setPreJobId(String preJobId) {
-        this.preJobId = preJobId;
+    public ExecuteContent setJobId(String jobId) {
+        this.jobId = jobId;
         return this;
     }
 
@@ -130,12 +130,12 @@ public class ExecuteContent {
         return taskId;
     }
 
-    public Integer getTaskType() {
-        return taskType;
+    public String getJobId() {
+        return jobId;
     }
 
-    public String getPreJobId() {
-        return preJobId;
+    public Integer getTaskType() {
+        return taskType;
     }
 
     public String getDatabase() {
