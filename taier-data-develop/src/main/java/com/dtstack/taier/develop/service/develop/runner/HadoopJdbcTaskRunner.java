@@ -1,8 +1,11 @@
 package com.dtstack.taier.develop.service.develop.runner;
 
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
+import com.dtstack.taier.common.enums.TempJobType;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
@@ -10,6 +13,7 @@ import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopHadoopSelectSqlService;
+import com.dtstack.taier.develop.service.develop.impl.HadoopDataDownloadService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.SqlType;
@@ -17,6 +21,9 @@ import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taier.develop.sql.utils.SqlRegexUtil;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
+import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.pluginapi.enums.TaskStatus;
+import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,10 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -41,6 +50,10 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     public static final Pattern CACHE_LAZY_SQL_PATTEN = Pattern.compile("(?i)cache\\s+(lazy\\s+)?table.*");
 
+    private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>((\\*|[a-zA-Z0-9_,\\s]*)\\s+|\\*))from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
+
+    public static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
+
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     @Autowired
@@ -48,6 +61,9 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     @Autowired
     private DevelopHadoopSelectSqlService developHadoopSelectSqlService;
+
+    @Autowired
+    private HadoopDataDownloadService hadoopDataDownloadService;
 
     @Override
     public abstract List<EScheduleJobType> support();
@@ -176,8 +192,63 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
-        return null;
+        String jobId = selectSql.getJobId();
+        ExecuteResultVO result = new ExecuteResultVO(jobId);
+        if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
+            result.setResult(queryData(tenantId, selectSql.getSqlText(), taskType));
+            result.setSqlText(selectSql.getSqlText());
+        } else {
+            List<ActionJobEntityVO> entitys = actionService.entitys(Collections.singletonList(selectSql.getJobId()));
+            if (entitys == null) {
+                return result;
+            }
+            Integer status = TaskStatus.getShowStatus(entitys.get(0).getStatus());
+            result.setStatus(status);
+        }
+        return result;
     }
+
+    private List<Object> queryData(Long tenantId, String sql, Integer taskType) throws Exception {
+        List<Object> queryResult = Lists.newArrayList();
+        IDownload resultDownload = hadoopDataDownloadService.getSimpleSelectDownLoader(tenantId, sql, taskType);
+        Integer num = getMaxQueryNum(sql, tenantId, taskType);
+        int readCounter = 0;
+        // 第一行插入传字段信息
+        queryResult.add(resultDownload.getMetaInfo());
+        while (!resultDownload.reachedEnd()) {
+            if (readCounter >= num) {
+                break;
+            }
+            queryResult.add(resultDownload.readNext());
+            readCounter++;
+        }
+        return queryResult;
+    }
+
+    /**
+     * 从简单查询sql中获取最大条数
+     *
+     * @param sql      简单查询sql
+     * @param tenantId 租户id
+     * @return 最大条数
+     */
+    public Integer getMaxQueryNum(String sql, Long tenantId, Integer taskType) {
+        Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(sql);
+        if (!matcher.find()) {
+            throw new RdosDefineException("该sql不符合简单查询!");
+        }
+        String limitStr = matcher.group("num");
+        Integer num = null;
+        if (StringUtils.isNotEmpty(limitStr)) {
+            num = Integer.parseInt(limitStr);
+        }
+        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EScheduleJobType.getByTaskType(taskType));
+        if (Objects.isNull(num) || num > jdbcInfo.getMaxRows()) {
+            num = jdbcInfo.getMaxRows();
+        }
+        return num;
+    }
+
 
     @Override
     public ExecuteResultVO selectStatus(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) {

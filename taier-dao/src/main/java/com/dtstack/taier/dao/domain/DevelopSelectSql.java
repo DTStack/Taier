@@ -26,10 +26,6 @@ import java.net.URLDecoder;
 
 public class DevelopSelectSql extends TenantEntity {
 
-    /**
-     * 高级运行时，复杂查询所在的批量提交到engine的job的jobId
-     */
-    private String fatherJobId;
 
     /**
      * 实例id
@@ -87,14 +83,6 @@ public class DevelopSelectSql extends TenantEntity {
             sql = getSqlText();
         }
         return sql;
-    }
-
-    public String getFatherJobId() {
-        return fatherJobId;
-    }
-
-    public void setFatherJobId(String fatherJobId) {
-        this.fatherJobId = fatherJobId;
     }
 
     public String getJobId() {

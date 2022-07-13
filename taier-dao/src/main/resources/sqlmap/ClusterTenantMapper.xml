@@ -52,7 +52,7 @@
     </select>
 
 
-    <select id="getQueueNameByTenantId" resultType="java.lang.Long">
+    <select id="getQueueNameByTenantId" resultType="java.lang.String">
         select queue_name
         from console_cluster_tenant
         where is_deleted = 0

@@ -184,6 +184,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
     /**
      * 解析sql
+     *
      * @param parseResult
      * @param tenantId
      * @param userId
@@ -246,15 +247,16 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
         return TempJobType.SELECT;
     }
 
-	private String formatSql(TempJobType jobType, String database, String tempTable, String originSql) {
-		if (TempJobType.INSERT.equals(jobType) && !originSql.contains(String.format(USE_DB, database,StringUtils.EMPTY))) {
-			return String.format("use %s;%s", database, originSql);
-		}
-		return String.format(CREATE_TEMP_WITH_TABLE, database, tempTable, originSql);
-	}
+    private String formatSql(TempJobType jobType, String database, String tempTable, String originSql) {
+        if (TempJobType.INSERT.equals(jobType) && !originSql.contains(String.format(USE_DB, database, StringUtils.EMPTY))) {
+            return String.format("use %s;%s", database, originSql);
+        }
+        return String.format(CREATE_TEMP_WITH_TABLE, database, tempTable, originSql);
+    }
 
     /**
      * 从临时表查询数据
+     *
      * @param task
      * @param selectSql
      * @param tenantId
@@ -274,12 +276,8 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             result.setSqlText(selectSql.getSqlText());
         } else {
             ActionJobEntityVO engineEntity = null;
-            //高级运行的临时表记录和发送到engine的jobId不是同一条记录
-            if (StringUtils.isNotEmpty(selectSql.getFatherJobId())){
-                engineEntity = getTaskStatus(selectSql.getFatherJobId());
-            }else {
-                engineEntity = getTaskStatus(jobId);
-            }
+            engineEntity = getTaskStatus(jobId);
+
             if (engineEntity == null) {
                 return result;
             }
@@ -287,8 +285,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             result.setStatus(status);
             if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
                 buildHiveSqlData(result, status, jobId, taskType, engineEntity, selectSql, tenantId);
-            } else
-            if (buildDataWithCheckTaskStatus(selectSql, tenantId, result, status)) {
+            } else if (buildDataWithCheckTaskStatus(selectSql, tenantId, result, status)) {
                 return result;
             }
             // update time
@@ -299,6 +296,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
     /**
      * 获取sql运行日志
+     *
      * @param task
      * @param selectSql
      * @param tenantId
@@ -318,11 +316,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
         ActionJobEntityVO engineEntity = null;
         //高级运行的临时表记录和发送到engine的jobId不是同一条记录
-        if (StringUtils.isNotEmpty(selectSql.getFatherJobId())) {
-            engineEntity = getTaskStatus(selectSql.getFatherJobId());
-        } else {
             engineEntity = getTaskStatus(jobId);
-        }
         if (engineEntity == null) {
             return result;
         }
@@ -331,8 +325,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
         if (EScheduleJobType.HIVE_SQL.getVal().equals(taskType)) {
             buildHiveSqlRunLog(result, status, jobId, taskType, engineEntity, tenantId);
         } else {
-            if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,
-                    StringUtils.isNotEmpty(selectSql.getFatherJobId()) ? selectSql.getFatherJobId() : jobId, engineEntity, status)) {
+            if (buildLogsWithCheckTaskStatus(selectSql, tenantId, result,jobId, engineEntity, status)) {
                 return result;
             }
         }
@@ -343,6 +336,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
     /**
      * 获取sql 执行结果
+     *
      * @param task
      * @param selectSql
      * @param tenantId
@@ -364,18 +358,14 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * @param selectSql
      * @return
      */
-    public Integer getExecuteSqlStatus(DevelopSelectSql selectSql){
+    public Integer getExecuteSqlStatus(DevelopSelectSql selectSql) {
         Integer status = TaskStatus.UNSUBMIT.getStatus();
         if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
             return TaskStatus.FINISHED.getStatus();
         }
         ActionJobEntityVO engineEntity = null;
-        //高级运行的临时表记录和发送到engine的jobId不是同一条记录
-        if (StringUtils.isNotEmpty(selectSql.getFatherJobId())) {
-            engineEntity = getTaskStatus(selectSql.getFatherJobId());
-        } else {
-            engineEntity = getTaskStatus(selectSql.getJobId());
-        }
+        engineEntity = getTaskStatus(selectSql.getJobId());
+
         if (Objects.isNull(engineEntity)) {
             return status;
         }
@@ -398,9 +388,9 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
         if (TaskStatus.FINISHED.getStatus().equals(status)) {
             List<TempJobType> values = Arrays.asList(TempJobType.values());
             List<Integer> types = values.stream().map(TempJobType::getType).collect(Collectors.toList());
-            if (types.contains(selectSql.getIsSelectSql()) && StringUtils.isEmpty(selectSql.getFatherJobId())) {
+            if (types.contains(selectSql.getIsSelectSql())) {
                 buildLog(engineEntity.getLogInfo(), engineEntity.getEngineLog(), tenantId, jobId, true, result);
-                result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(),tenantId));
+                result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(), tenantId));
             }
             if (TempJobType.INSERT.getType().equals(selectSql.getIsSelectSql())
                     || TempJobType.CREATE_AS.getType().equals(selectSql.getIsSelectSql())
@@ -409,7 +399,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             }
         } else if (TaskStatus.FAILED.getStatus().equals(status)) {
             buildLog(engineEntity.getLogInfo(), engineEntity.getEngineLog(), tenantId, jobId, true, result);
-            result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(),tenantId));
+            result.setDownload(String.format(DOWNLOAD_LOG, jobId, EScheduleJobType.SPARK_SQL.getVal(), tenantId));
         }
         return false;
     }
@@ -482,7 +472,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
      * 查询表数据 - 简单查询
      *
      * @param tenantId 租户id
-     * @param sql 查询sql
+     * @param sql      查询sql
      * @param taskType 任务类型
      * @return 查询数据
      * @throws Exception
@@ -507,7 +497,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
     /**
      * 从简单查询sql中获取最大条数
      *
-     * @param sql 简单查询sql
+     * @param sql      简单查询sql
      * @param tenantId 租户id
      * @return 最大条数
      */
@@ -559,10 +549,11 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
     /**
      * 生成日志，优先取hdfs前30000个字节，如果hdfs日志获取失败，则取engine日志
+     *
      * @param logInfo
      * @param engineLog
-     * @param tenantId 租户ID
-     * @param jobId jobId
+     * @param tenantId     租户ID
+     * @param jobId        jobId
      * @param needDownload 是否需要去hdfs下载日志
      * @return 日志
      */
@@ -587,7 +578,8 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
 
     /**
      * 获取engine日志
-     * @param logInfo logInfo
+     *
+     * @param logInfo   logInfo
      * @param engineLog engineLog
      * @return engine日志
      */
@@ -636,12 +628,11 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
             if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()
                     || selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
                 TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, result.getTaskType());
-                List<Object> data = hadoopDataDownloadService.queryDataFromHiveServerTempTable(tenantId, selectSql.getTempTableName(),tenantEngine.getComponentIdentity());
+                List<Object> data = hadoopDataDownloadService.queryDataFromHiveServerTempTable(tenantId, selectSql.getTempTableName(), tenantEngine.getComponentIdentity());
                 result.setResult(data);
             }
         }
     }
-
 
 
     /**
