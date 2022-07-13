@@ -13,7 +13,7 @@ public class DefaultPluginInfoStrategy implements ComponentPluginInfoStrategy {
 
     @Override
     public JSONObject convertPluginInfo(JSONObject clusterConfigJson, Long clusterId, Integer deployMode) {
-        return clusterConfigJson;
+        return clusterConfigJson.getJSONObject(componentType.getConfName());
     }
 
     @Override
