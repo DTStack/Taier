@@ -11,12 +11,15 @@ import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.service.ClusterService;
+import com.dtstack.taier.scheduler.service.ComponentService;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,13 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     private EnvironmentContext environmentContext;
 
     @Autowired
-    private ClusterService clusterService;
+    protected ClusterService clusterService;
+
+    @Autowired
+    protected ComponentService componentService;
+
+    @Autowired
+    private DevelopTenantComponentService developTenantComponentService;
 
     @Override
     public abstract List<EScheduleJobType> support();
@@ -45,7 +54,6 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         result.setContinue(false);
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
         ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType());
-        //taske
         if (RegexUtils.isQuery(sql)) {
             List<List<Object>> executeResult = jdbcService.executeQuery(sourceDTO, Lists.newArrayList(sql), task.getTaskParams(), environmentContext.getSelectLimit());
             result.setResult(executeResult);
@@ -53,6 +61,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
             jdbcService.executeQueryWithoutResult(sourceDTO, sql);
         }
         result.setStatus(TaskStatus.FINISHED.getStatus());
+        result.setSqlText(sql);
         return result;
     }
 
@@ -72,7 +81,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public IDownload runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
+    public ExecuteResultVO runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
         return null;
     }
 
@@ -123,4 +132,10 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         return componentConfig.toJavaObject(JdbcInfo.class);
     }
 
+    @Override
+    public String getCurrentDb(Long tenantId, Integer taskType) {
+        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId,
+                taskType);
+        return tenantEngine == null ? "" : tenantEngine.getComponentIdentity();
+    }
 }

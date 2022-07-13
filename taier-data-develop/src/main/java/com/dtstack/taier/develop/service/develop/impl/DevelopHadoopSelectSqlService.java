@@ -42,9 +42,7 @@ import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
-import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -97,12 +95,7 @@ public class DevelopHadoopSelectSqlService implements IDevelopSelectSqlService {
     private ScheduleActionService actionService;
 
     @Autowired
-    private ScheduleJobService scheduleJobService;
-
-    @Autowired
     private JobExpandService jobExpandService;
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String CREATE_TEMP_TABLE = "use %s; create table %s stored as orc as select * from (%s)temp";
 

@@ -20,6 +20,7 @@
 package com.dtstack.taier.develop.sql.utils;
 
 import com.dtstack.taier.develop.sql.TableOperateEnum;
+import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -212,14 +213,14 @@ public class SqlRegexUtil {
     }
 
     public static boolean isDataBaseOperate(String sql) {
-        return sql.matches(DROP_DATABASE)||sql.matches(CREATE_DATABASE);
+        return sql.matches(DROP_DATABASE) || sql.matches(CREATE_DATABASE);
     }
 
     public static boolean isDropSql(String sql) {
         return sql.matches(DROP_REGEX);
     }
 
-    public static boolean isRefreshSql(String sql){
+    public static boolean isRefreshSql(String sql) {
         return sql.matches(REFRESH_REGEX);
     }
 
@@ -414,12 +415,12 @@ public class SqlRegexUtil {
     }
 
 
-    public static boolean notCheckSql(String sql){
-        if(StringUtils.isBlank(sql)){
+    public static boolean notCheckSql(String sql) {
+        if (StringUtils.isBlank(sql)) {
             return true;
         }
         Matcher matcher = notCheckPattern.matcher(sql);
-        if(matcher.find()){
+        if (matcher.find()) {
             return true;
         }
         return false;
@@ -427,18 +428,66 @@ public class SqlRegexUtil {
 
     /**
      * 是否是desc
+     *
      * @param sql
      * @return
      */
-    public static boolean isDescSql(String sql){
-        if(StringUtils.isBlank(sql)){
+    public static boolean isDescSql(String sql) {
+        if (StringUtils.isBlank(sql)) {
             return true;
         }
         Matcher matcher = descSqlPattern.matcher(sql);
-        if(matcher.find()){
+        if (matcher.find()) {
             return true;
         }
         return false;
     }
 
+
+    private static final String ONLY_FROM = "(?i)\\s+from\\s+";
+
+    private static final Pattern FROM_PATTERN = Pattern.compile(ONLY_FROM);
+
+    private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>((\\*|[a-zA-Z0-9_,\\s]*)\\s+|\\*))from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
+
+    private static final String SIMPLE_QUERY_REGEX_ONLY = "(?i)select\\s+.*";
+
+    private static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
+
+    /**
+     * 判断是否简单查询
+     *
+     * @param sql
+     * @return
+     */
+    public static boolean isSimpleQuery(String sql) {
+        sql = com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil.formatSql(sql);
+        sql = SqlFormatUtil.getStandardSql(sql);
+        Matcher matcher = FROM_PATTERN.matcher(sql);
+        int fromCount = 0;
+        while (matcher.find()) {
+            fromCount++;
+        }
+        Matcher matcherSimple = SIMPLE_QUERY_PATTERN.matcher(sql);
+        if ((matcherSimple.matches() && fromCount == 1) || (sql.matches(SIMPLE_QUERY_REGEX_ONLY) && fromCount == 0)) {
+            //形如select DISTINCT id,t_int FROM chellner;的sql会被识别为简单查询
+            String cols = null;
+            try {
+                cols = matcherSimple.group("cols");
+            } catch (IllegalStateException e) {
+
+            }
+            if (org.apache.commons.lang.StringUtils.isNotEmpty(cols)) {
+                String[] split = cols.split(",");
+                for (int i = 0; i < split.length; i++) {
+                    String col = split[i].toUpperCase();
+                    if (col.startsWith("DISTINCT ")) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

@@ -5,7 +5,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +16,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * SparkSql 实现
+ * HiveSql 实现
  *
  * @author ：zhaiyue
  * @date ：2022/06/26 00:11
  * @description：
  */
 @Service
-public class SparkSqlTaskSaver extends AbstractTaskSaver {
+public class DefaultTaskSaver extends AbstractTaskSaver {
 
     @Autowired
     private UserService userService;
@@ -88,7 +87,7 @@ public class SparkSqlTaskSaver extends AbstractTaskSaver {
 
     @Override
     public List<EScheduleJobType> support() {
-        return Lists.newArrayList(EScheduleJobType.SPARK_SQL);
+        return null;
     }
 
 }

@@ -7,6 +7,7 @@ import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
@@ -147,9 +148,11 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     private void addTask(TaskVO task) {
         task.setJobId(actionService.generateUniqueSign());
         task.setGmtCreate(Timestamp.valueOf(LocalDateTime.now()));
-        task.setTaskParams(StringUtils.isBlank(task.getTaskParams()) ?
-                taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), task.getTaskType(), task.getComponentVersion()).getContent()
-                : task.getTaskParams());
+        if (StringUtils.isBlank(task.getTaskParams())) {
+            TaskTemplate taskTemplate = taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), task.getTaskType(), task.getComponentVersion());
+            String content = taskTemplate == null ? "" : taskTemplate.getContent();
+            task.setTaskParams(content);
+        }
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setScheduleConf(task.getScheduleConf());
         task.setVersion(Objects.isNull(task.getVersion()) ? 0 : task.getVersion());

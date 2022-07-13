@@ -78,7 +78,7 @@ public interface ITaskRunner {
      * @param limitNum
      * @return
      */
-    IDownload runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum);
+    ExecuteResultVO runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum);
 
     /**
      * 完整日志下载
@@ -106,4 +106,14 @@ public interface ITaskRunner {
      * @return
      */
     ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType);
+
+
+    /**
+     * 获取当前租户绑定的db
+     *
+     * @param tenantId
+     * @param taskType
+     * @return
+     */
+    String getCurrentDb(Long tenantId, Integer taskType);
 }

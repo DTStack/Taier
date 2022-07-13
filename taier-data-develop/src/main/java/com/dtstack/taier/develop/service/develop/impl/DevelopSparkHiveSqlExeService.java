@@ -180,7 +180,7 @@ public class DevelopSparkHiveSqlExeService {
         Long tenantId = executeContent.getTenantId();
         Long userId = executeContent.getUserId();
         Long taskId = executeContent.getTaskId();
-        String preJobId = executeContent.getPreJobId();
+        String preJobId = "";
         String currDb = executeContent.getParseResult().getCurrentDb();
         ParseResult parseResult = executeContent.getParseResult();
 
