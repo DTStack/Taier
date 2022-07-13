@@ -37,13 +37,12 @@ public class SparkSqlTaskRunner extends HadoopJdbcTaskRunner {
                 .sourceType(DataSourceType.SparkThrift2_1.getVal())
                 .username(jdbcInfo.getUsername())
                 .password(jdbcInfo.getPassword())
+                .schema(dbName)
                 .kerberosConfig(jdbcInfo.getKerberosConfig())
                 .defaultFS(config.getString("fs.defaultFS"))
                 .config(config.toJSONString())
                 .build();
     }
-
-
 
 
 }
