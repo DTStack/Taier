@@ -1,9 +1,10 @@
 package com.dtstack.taier.develop.utils.develop.sync.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
+import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import org.apache.commons.lang.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

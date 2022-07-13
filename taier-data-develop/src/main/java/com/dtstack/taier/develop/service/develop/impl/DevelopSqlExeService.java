@@ -20,21 +20,16 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.util.PublicUtil;
+import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ISqlExeService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.sql.ParseResult;
-import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +38,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -259,70 +253,11 @@ public class DevelopSqlExeService {
      */
     private void prepareExecuteContent(final ExecuteContent executeContent) {
         developTaskService.getOneWithError(executeContent.getTaskId());
-
         TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(executeContent.getTenantId(),
                 executeContent.getTaskType());
         executeContent.setDatabase(tenantEngine.getComponentIdentity());
-
-        String sql = executeContent.getSql();
-
-        //set sql / cache lazy table 暂时不解析血缘
-        if (StringUtils.isNotBlank(sql)
-                && (sql.toLowerCase().trim().startsWith("set") || CACHE_LAZY_SQL_PATTEN.matcher(sql).matches())) {
-            ParseResult parseResult = new ParseResult();
-            parseResult.setParseSuccess(true);
-            parseResult.setOriginSql(executeContent.getSql());
-            parseResult.setStandardSql(executeContent.getSql());
-            executeContent.setParseResult(parseResult);
-            return;
-        }
-
-        //单条sql解析
-        if (StringUtils.isNotBlank(executeContent.getSql())) {
-            ParseResult parseResult = this.parseSql(executeContent);
-            executeContent.setParseResult(parseResult);
-        }
-
-        //批量解析sql
-        List<ParseResult> parseResultList = Lists.newLinkedList();
-        if (CollectionUtils.isNotEmpty(executeContent.getSqlList())) {
-            executeContent.getSqlList().forEach(x -> {
-                if (!x.trim().startsWith("set")) {
-                    executeContent.setSql(x);
-                    ParseResult batchParseResult = this.parseSql(executeContent);
-                    parseResultList.add(batchParseResult);
-                } else {
-                    ParseResult batchParseResult = new ParseResult();
-                    batchParseResult.setParseSuccess(true);
-                    batchParseResult.setOriginSql(x);
-                    batchParseResult.setStandardSql(x);
-                    parseResultList.add(batchParseResult);
-                }
-            });
-            executeContent.setParseResultList(parseResultList);
-        }
     }
 
-
-    /**
-     * 解析sql
-     *
-     * @param executeContent
-     * @return
-     */
-    private ParseResult parseSql(ExecuteContent executeContent) {
-        SqlParserImpl sqlParser = parserFactory.getSqlParser(ETableType.HIVE);
-        ParseResult parseResult = null;
-        try {
-            parseResult = sqlParser.parseSql(executeContent.getSql(), executeContent.getDatabase(), new HashMap<>());
-        } catch (final Exception e) {
-            LOGGER.error("解析sql异常，sql：{}", executeContent.getSql(), e);
-            parseResult = new ParseResult();
-            parseResult.setFailedMsg(ExceptionUtils.getStackTrace(e));
-            parseResult.setStandardSql(SqlFormatUtil.getStandardSql(executeContent.getSql()));
-        }
-        return parseResult;
-    }
 
     /**
      * 处理spark sql自定义函数

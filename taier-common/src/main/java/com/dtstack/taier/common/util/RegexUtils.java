@@ -13,8 +13,6 @@ import static com.dtstack.taier.common.constant.PatternConstant.TENANT_NAME_REGE
  */
 public class RegexUtils {
 
-    private static final Pattern simpleQuery = Pattern.compile("(?i)select\\s+.*");
-
     /**
      * 校验租户名称
      *
@@ -42,9 +40,11 @@ public class RegexUtils {
         return Pattern.matches(regex, input);
     }
 
-
     public static boolean isQuery(String sql) {
-        return simpleQuery.matcher(sql).find();
+        return SqlRegexUtil.isShowSql(sql)
+                || SqlRegexUtil.isExplainSql(sql)
+                || SqlRegexUtil.isSelect(sql)
+                || SqlRegexUtil.isDescSql(sql);
     }
 
 }

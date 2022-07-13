@@ -16,15 +16,17 @@
  * limitations under the License.
  */
 
-package com.dtstack.taier.develop.utils.develop.common.util;
+package com.dtstack.taier.common.util;
 
-import com.dtstack.taier.common.util.Base64Util;
-import com.dtstack.taier.common.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
