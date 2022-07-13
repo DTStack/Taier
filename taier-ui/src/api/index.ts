@@ -303,10 +303,6 @@ export default {
 		// 获取增量字段
 		return http.post(req.GET_INCREMENT_COLUMNS, params);
 	},
-	checkSyncMode(params: any) {
-		// 检测是否满足增量数据同步
-		return http.post(req.CHECK_SYNC_MODE, params);
-	},
 	getHivePartitions(params: any) {
 		// 获取Hive分区
 		return http.post(req.CHECK_HIVE_PARTITIONS, params);
@@ -360,6 +356,9 @@ export default {
 	},
 	saveOfflineJobData(params: any) {
 		return http.post(req.SAVE_OFFLINE_JOBDATA, params);
+	},
+	editTask(params: any) {
+		return http.post(req.EDIT_TASK, params);
 	},
 	addOfflineFunction(params: any) {
 		return http.post(req.ADD_OFFLINE_FUNCTION, params);

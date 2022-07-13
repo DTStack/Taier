@@ -7,14 +7,11 @@ import {
 } from '@/constant';
 import { Form, Input, Radio, Select } from 'antd';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
-import type { RuleObject } from 'antd/lib/form';
-import type { StoreValue } from 'antd/lib/form/interface';
 import FolderPicker from '../folderPicker';
 import resourceManagerTree from '@/services/resourceManagerService';
 
 interface ICreateFormProps {
 	disabled?: boolean;
-	validator?: (rule: RuleObject, value: StoreValue) => Promise<void | any> | void;
 	onChange?: (value: string) => void;
 }
 
@@ -44,7 +41,7 @@ const CreateModel = ({ disabled }: ICreateFormProps) => (
 /**
  * 同步模式物料
  */
-const SyncModel = ({ validator }: ICreateFormProps) => (
+const SyncModel = ({ disabled }: ICreateFormProps) => (
 	<Form.Item
 		label="同步模式"
 		name={['sourceMap', 'syncModel']}
@@ -54,13 +51,10 @@ const SyncModel = ({ validator }: ICreateFormProps) => (
 				required: true,
 				message: '请选择配置模式',
 			},
-			{
-				validator,
-			},
 		]}
 		initialValue={DATA_SYNC_MODE.NORMAL}
 	>
-		<Radio.Group>
+		<Radio.Group disabled={disabled}>
 			<Radio value={DATA_SYNC_MODE.NORMAL}>无增量标识</Radio>
 			<Radio value={DATA_SYNC_MODE.INCREMENT}>有增量标识</Radio>
 		</Radio.Group>

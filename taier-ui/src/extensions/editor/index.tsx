@@ -36,11 +36,11 @@ import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import saveTask from '@/utils/saveTask';
 import { editorActionBarService } from '@/services';
 import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import taskRenderService from '@/services/taskRenderService';
+import taskSaveService from '@/services/taskSaveService';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -66,7 +66,7 @@ function emitEvent() {
 				break;
 			}
 			case ID_COLLECTIONS.TASK_SAVE_ID: {
-				saveTask()
+				taskSaveService.save()
 					.then((res) => res?.data?.id)
 					.then((id) => {
 						if (id !== undefined) {
@@ -155,31 +155,31 @@ function emitEvent() {
 						onOk() {
 							switch (currentTabData.taskType) {
 								case TASK_TYPE_ENUM.SYNC:
-									api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
-										(res) => {
-											if (res.code === 1) {
-												message.success('转换成功！');
-												api.getOfflineTaskByID({
-													id: currentTabData.id,
-												}).then((result) => {
-													if (result.code === 1) {
-														molecule.editor.updateTab({
-															id: result.data.id.toString(),
-															data: {
-																...currentTabData,
-																...result.data,
-																language: 'json',
-																value: prettierJSONstring(
-																	result.data.sqlText,
-																),
-															},
-															renderPane: undefined,
-														});
-													}
-												});
-											}
-										},
-									);
+									api.convertDataSyncToScriptMode({
+										id: currentTabData.id,
+									}).then((res) => {
+										if (res.code === 1) {
+											message.success('转换成功！');
+											api.getOfflineTaskByID({
+												id: currentTabData.id,
+											}).then((result) => {
+												if (result.code === 1) {
+													molecule.editor.updateTab({
+														id: result.data.id.toString(),
+														data: {
+															...currentTabData,
+															...result.data,
+															language: 'json',
+															value: prettierJSONstring(
+																result.data.sqlText,
+															),
+														},
+														renderPane: undefined,
+													});
+												}
+											});
+										}
+									});
 									break;
 								case TASK_TYPE_ENUM.DATA_ACQUISITION:
 								case TASK_TYPE_ENUM.SQL: {
