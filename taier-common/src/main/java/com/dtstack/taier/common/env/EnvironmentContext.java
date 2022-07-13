@@ -109,9 +109,6 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.log.pool:2}")
     private Integer jobLogPool;
 
-    @Value("${job.compute.resource.plain:EngineTypeClusterQueueComputeType}")
-    private String computeResourcePlain;
-
     @Value("${job.submit.concurrent:1}")
     private int jobSubmitConcurrent;
 
@@ -371,9 +368,6 @@ public class EnvironmentContext implements InitializingBean {
         return jobLogDelay;
     }
 
-    public String getComputeResourcePlain() {
-        return computeResourcePlain;
-    }
 
     public int getJobSubmitConcurrent() {
         return jobSubmitConcurrent;
