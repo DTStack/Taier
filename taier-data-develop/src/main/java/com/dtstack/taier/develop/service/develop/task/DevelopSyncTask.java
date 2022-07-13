@@ -24,6 +24,7 @@ import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilder
 import com.dtstack.taier.develop.service.template.bulider.reader.DaReaderBuilderFactory;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilder;
 import com.dtstack.taier.develop.service.template.bulider.writer.DaWriterBuilderFactory;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,7 +46,7 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopSyncTask extends DevelopTaskTemplate {
+public class DevelopSyncTask extends DevelopAbstractTaskSaver {
 
     public static Logger LOGGER = LoggerFactory.getLogger(DevelopSyncTask.class);
 
@@ -275,10 +277,6 @@ public class DevelopSyncTask extends DevelopTaskTemplate {
         return flinkxJobTemplate.toJobJsonString(param);
     }
 
-    @Override
-    public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.SYNC;
-    }
 
     @Override
     public void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO) {
@@ -288,5 +286,10 @@ public class DevelopSyncTask extends DevelopTaskTemplate {
         } else {
             taskDirtyDataManageService.deleteByTaskId(taskResourceParam.getId());
         }
+    }
+
+    @Override
+    public List<EScheduleJobType> support() {
+        return Lists.newArrayList(EScheduleJobType.SYNC);
     }
 }

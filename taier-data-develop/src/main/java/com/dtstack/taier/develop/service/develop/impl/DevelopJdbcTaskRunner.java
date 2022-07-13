@@ -13,7 +13,7 @@ import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
-import com.dtstack.taier.develop.service.develop.ITaskService;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.service.ClusterService;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
-public abstract class DevelopJdbcTaskService implements ITaskService {
+public abstract class DevelopJdbcTaskRunner implements ITaskRunner {
 
     @Autowired
     private IJdbcService jdbcService;

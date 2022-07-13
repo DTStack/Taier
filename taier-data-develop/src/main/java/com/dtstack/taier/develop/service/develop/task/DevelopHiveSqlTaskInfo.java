@@ -5,6 +5,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.user.UserService;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -22,7 +24,7 @@ import java.util.Objects;
  * @description：
  */
 @Service
-public class DevelopHiveSqlTaskInfo extends DevelopTaskTemplate {
+public class DevelopHiveSqlTaskInfo extends DevelopAbstractTaskSaver {
 
     @Autowired
     private UserService userService;
@@ -55,11 +57,6 @@ public class DevelopHiveSqlTaskInfo extends DevelopTaskTemplate {
         developTaskTaskService.addOrUpdateTaskTask(task.getId(), task.getDependencyTasks());
     }
 
-    @Override
-    public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.HIVE_SQL;
-    }
-
     /**
      * 创建任务
      *
@@ -87,6 +84,11 @@ public class DevelopHiveSqlTaskInfo extends DevelopTaskTemplate {
             return;
         }
         taskParam.setScheduleConf(DEFAULT_SCHEDULE_CONF);
+    }
+
+    @Override
+    public List<EScheduleJobType> support() {
+        return Lists.newArrayList(EScheduleJobType.HIVE_SQL);
     }
 
 }

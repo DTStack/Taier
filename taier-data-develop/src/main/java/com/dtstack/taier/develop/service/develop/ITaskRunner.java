@@ -11,7 +11,7 @@ import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import java.util.List;
 import java.util.Map;
 
-public interface ITaskService {
+public interface ITaskRunner {
 
     List<EScheduleJobType> support();
 
