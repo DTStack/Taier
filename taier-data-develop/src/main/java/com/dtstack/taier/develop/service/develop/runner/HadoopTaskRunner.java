@@ -43,7 +43,7 @@ public abstract class HadoopTaskRunner extends JdbcTaskRunner {
     }
 
     @Override
-    public IDownload runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
+    public ExecuteResultVO runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
         return null;
     }
 
