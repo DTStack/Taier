@@ -420,6 +420,9 @@ function initLogin() {
 			sortIndex: 0,
 			id: 'login',
 			name: usename || '未登录',
+			onClick: () => {
+				!usename && showLoginModal();
+			}
 		},
 		molecule.model.Float.left,
 	);
