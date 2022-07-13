@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.common.enums;
 
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -29,14 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public enum EComponentType {
 
-    FLINK(0, "Flink", "flinkConf"),
-    SPARK(1, "Spark", "sparkConf"),
-    HDFS(2, "HDFS", "hadoopConf"),
-    YARN(3, "YARN", "yarnConf"),
-    SPARK_THRIFT(4, "SparkThrift", "hiveConf"),
-    HIVE_SERVER(5, "HiveServer", "hiveServerConf"),
-    SFTP(6, "SFTP", "sftpConf"),
-    OCEAN_BASE(7, "OceanBase", "oceanBaseConf"),
+    FLINK(0, "Flink", "flinkConf",EComponentScheduleType.COMPUTE),
+    SPARK(1, "Spark", "sparkConf",EComponentScheduleType.COMPUTE),
+    HDFS(2, "HDFS", "hadoopConf",EComponentScheduleType.STORAGE),
+    YARN(3, "YARN", "yarnConf",EComponentScheduleType.RESOURCE),
+    SPARK_THRIFT(4, "SparkThrift", "hiveConf",EComponentScheduleType.COMPUTE),
+    HIVE_SERVER(5, "HiveServer", "hiveServerConf",EComponentScheduleType.COMPUTE),
+    SFTP(6, "SFTP", "sftpConf",EComponentScheduleType.COMMON),
+    OCEAN_BASE(7, "OceanBase", "oceanBaseConf",EComponentScheduleType.COMPUTE),
 
     ;
 
@@ -46,10 +45,14 @@ public enum EComponentType {
 
     private String confName;
 
-    EComponentType(int typeCode, String name, String confName) {
+    private EComponentScheduleType componentScheduleType;
+
+
+    EComponentType(int typeCode, String name, String confName,EComponentScheduleType componentScheduleType) {
         this.typeCode = typeCode;
         this.name = name;
         this.confName = confName;
+        this.componentScheduleType = componentScheduleType;
     }
 
     private static final Map<Integer, EComponentType> COMPONENT_TYPE_CODE_MAP = new ConcurrentHashMap<>(16);
@@ -104,37 +107,9 @@ public enum EComponentType {
     }
 
 
-    // 资源调度组件
-    private static List<EComponentType> ResourceScheduling = Lists.newArrayList(EComponentType.YARN);
-
-    // 存储组件
-    private static List<EComponentType> StorageScheduling = Lists.newArrayList(EComponentType.HDFS);
-
-    // 计算组件
-    private static List<EComponentType> ComputeScheduling = Lists.newArrayList(
-            EComponentType.SPARK, EComponentType.SPARK_THRIFT,
-            EComponentType.FLINK, EComponentType.HIVE_SERVER
-    );
-
-    private static List<EComponentType> CommonScheduling = Lists.newArrayList(EComponentType.SFTP);
-
-    public static EComponentScheduleType getScheduleTypeByComponent(Integer componentCode) {
-        EComponentType code = getByCode(componentCode);
-        if (ComputeScheduling.contains(code)) {
-            return EComponentScheduleType.COMPUTE;
-        }
-        if (ResourceScheduling.contains(code)) {
-            return EComponentScheduleType.RESOURCE;
-        }
-        if (StorageScheduling.contains(code)) {
-            return EComponentScheduleType.STORAGE;
-        }
-        if (CommonScheduling.contains(code)) {
-            return EComponentScheduleType.COMMON;
-        }
-        throw new RdosDefineException("不支持的组件");
+    public EComponentScheduleType getComponentScheduleType() {
+        return componentScheduleType;
     }
-
 
     // hadoop引擎组件
     private static List<EComponentType> HadoopComponents = Lists.newArrayList(
