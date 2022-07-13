@@ -20,12 +20,10 @@ package com.dtstack.taier.scheduler.jobdealer.resource;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
-import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.Cluster;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.scheduler.service.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,33 +42,20 @@ public class JobComputeResourcePlain {
     private CommonResource commonResource;
 
     @Autowired
-    private EnvironmentContext environmentContext;
-
-    @Autowired
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
     private ClusterMapper clusterMapper;
 
-    @Autowired
-    private ClusterService clusterService;
-
 
     public String getJobResource(JobClient jobClient) {
         this.buildJobClientGroupName(jobClient);
         ComputeResourceType computeResourceType = commonResource.newInstance(jobClient);
-
-        String plainType = environmentContext.getComputeResourcePlain();
-        String jobResource = null;
         EScheduleJobType scheduleJobType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
-        if (ComputeResourcePlain.EngineTypeClusterQueue.name().equalsIgnoreCase(plainType)) {
-            jobResource = scheduleJobType.name().toLowerCase() + SPLIT + jobClient.getGroupName();
-        } else {
-            jobResource = scheduleJobType.name().toLowerCase() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
-        }
-
+        String jobResource = scheduleJobType.name().toLowerCase() + SPLIT + jobClient.getGroupName() + SPLIT + jobClient.getComputeType().name().toLowerCase();
         String type = EScheduleType.TEMP_JOB.getType().equals(jobClient.getType()) ? jobClient.getType() + "" : "";
-        return jobResource + SPLIT + computeResourceType.name() + type;
+        String resourceType = null == computeResourceType ? "" : computeResourceType.name();
+        return jobResource + SPLIT + resourceType + type;
     }
 
 

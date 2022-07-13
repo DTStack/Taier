@@ -44,6 +44,7 @@ public class HiveSQLTaskRunner extends HadoopJdbcTaskRunner {
                 .sourceType(componentTypeToDataSourceType(componentVersion).getVal())
                 .username(jdbcInfo.getUsername())
                 .password(jdbcInfo.getPassword())
+                .schema(dbName)
                 .kerberosConfig(jdbcInfo.getKerberosConfig())
                 .defaultFS(config.getString("fs.defaultFS"))
                 .config(config.toJSONString())
