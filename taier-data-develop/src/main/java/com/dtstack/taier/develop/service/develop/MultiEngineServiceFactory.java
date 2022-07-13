@@ -40,9 +40,6 @@ public class MultiEngineServiceFactory {
     @Resource(name = "developHiveSqlExeService")
     private DevelopHiveSqlExeService developHiveSqlExeService;
 
-    @Resource(name = "developHadoopSelectSqlService")
-    private IDevelopSelectSqlService developHadoopSelectSqlService;
-
     @Resource(name = "hadoopDataDownloadService")
     private IDataDownloadService hadoopDataDownloadService;
 
@@ -60,18 +57,6 @@ public class MultiEngineServiceFactory {
                 || EScheduleJobType.SYNC.getType().equals(taskType)
                 || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             return developHadoopJobExeService;
-        }
-        throw new RdosDefineException(String.format("not support engine type %d now", taskType));
-    }
-
-    /**
-     * 根据任务类型获取sql查询Service
-     * @param taskType
-     * @return
-     */
-    public IDevelopSelectSqlService getDevelopSelectSqlService(Integer taskType) {
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
-            return developHadoopSelectSqlService;
         }
         throw new RdosDefineException(String.format("not support engine type %d now", taskType));
     }
