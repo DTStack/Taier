@@ -5,17 +5,20 @@ import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @Author: qianyi
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopFlinkSqlTask extends DevelopTaskTemplate {
+public class DevelopFlinkSqlTask extends DevelopAbstractTaskSaver {
     @Autowired
     private FlinkTaskService flinkTaskService;
 
@@ -36,9 +39,7 @@ public class DevelopFlinkSqlTask extends DevelopTaskTemplate {
 
 
     @Override
-    public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.FLINK_SQL;
+    public List<EScheduleJobType> support() {
+        return Lists.newArrayList(EScheduleJobType.FLINK_SQL);
     }
-
-
 }

@@ -6,18 +6,21 @@ import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskResourceService;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @Author: zhichen
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopFlinkTask extends DevelopTaskTemplate {
+public class DevelopFlinkTask extends DevelopAbstractTaskSaver {
 
     @Autowired
     private DevelopTaskResourceService developTaskResourceService;
@@ -39,13 +42,9 @@ public class DevelopFlinkTask extends DevelopTaskTemplate {
         developTaskResourceService.save(taskVO, taskResourceParam.getResourceIdList(), ResourceRefType.MAIN_RES.getType());
     }
 
-
-
-
     @Override
-    public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.MR;
+    public List<EScheduleJobType> support() {
+        return Lists.newArrayList(EScheduleJobType.MR);
     }
-
 
 }

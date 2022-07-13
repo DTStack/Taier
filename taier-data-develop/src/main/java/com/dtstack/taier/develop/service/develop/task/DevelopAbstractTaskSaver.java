@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.service.develop.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
 import com.dtstack.taier.common.enums.ESubmitStatus;
 import com.dtstack.taier.common.enums.TaskTemplateType;
@@ -13,6 +12,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @Date: 2022/05/29/4:55 PM
  */
 @Component
-public abstract class DevelopTaskTemplate {
+public abstract class DevelopAbstractTaskSaver implements ITaskSaver {
 
     protected final static String SQL_NOTE_TEMPLATE =
                     "-- name %s \n" +
@@ -68,7 +68,6 @@ public abstract class DevelopTaskTemplate {
 
     public abstract void afterProcessing(TaskResourceParam taskResourceParam, TaskVO taskVO);
 
-    public abstract EScheduleJobType getEScheduleJobType();
 
     /**
      * 任务编辑添加入口
