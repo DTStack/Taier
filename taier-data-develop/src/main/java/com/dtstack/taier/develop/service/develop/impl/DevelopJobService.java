@@ -361,6 +361,8 @@ public class DevelopJobService {
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());*/
+            //fmt sql
+            //jobRea
             String jobId = actionService.generateUniqueSign();
             ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
             result = taskRunner.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);

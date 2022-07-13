@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.impl;
+package com.dtstack.taier.develop.service.develop.runner;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
-public abstract class DevelopJdbcTaskRunner implements ITaskRunner {
+public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Autowired
     private IJdbcService jdbcService;
@@ -45,6 +45,7 @@ public abstract class DevelopJdbcTaskRunner implements ITaskRunner {
         result.setContinue(false);
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
         ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType());
+        //taske
         if (RegexUtils.isQuery(sql)) {
             List<List<Object>> executeResult = jdbcService.executeQuery(sourceDTO, Lists.newArrayList(sql), task.getTaskParams(), environmentContext.getSelectLimit());
             result.setResult(executeResult);

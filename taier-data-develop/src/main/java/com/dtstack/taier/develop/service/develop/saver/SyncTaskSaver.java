@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.task;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -46,9 +46,9 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopSyncTask extends DevelopAbstractTaskSaver {
+public class SyncTaskSaver extends AbstractTaskSaver {
 
-    public static Logger LOGGER = LoggerFactory.getLogger(DevelopSyncTask.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(SyncTaskSaver.class);
 
     @Autowired
     private DaReaderBuilderFactory daReaderBuilderFactory;

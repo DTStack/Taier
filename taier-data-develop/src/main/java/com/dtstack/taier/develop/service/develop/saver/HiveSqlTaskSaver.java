@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.task;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -24,7 +24,7 @@ import java.util.Objects;
  * @description：
  */
 @Service
-public class DevelopHiveSqlTaskInfo extends DevelopAbstractTaskSaver {
+public class HiveSqlTaskSaver extends AbstractTaskSaver {
 
     @Autowired
     private UserService userService;
