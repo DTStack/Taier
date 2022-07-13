@@ -249,27 +249,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return num;
     }
 
-
-    @Override
-    public ExecuteResultVO selectStatus(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) {
-        return null;
-    }
-
-    @Override
-    public ExecuteResultVO runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
-        return null;
-    }
-
-    @Override
-    public IDownload logDownLoad(Long tenantId, String jobId, Integer limitNum, String logType) {
-        return null;
-    }
-
-    @Override
-    public List<String> getAllSchema(Long tenantId, Integer taskType) {
-        return null;
-    }
-
     @Override
     public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType);
 
