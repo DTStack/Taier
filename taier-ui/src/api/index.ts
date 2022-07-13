@@ -265,8 +265,8 @@ export default {
 	convertDataSyncToScriptMode(params: any) {
 		return http.post(req.CONVERT_SYNC_T0_SCRIPT_MODE, params);
 	},
-	getOfflineTaskByID(params: any) {
-		return http.post(req.GET_TASK, params);
+	getOfflineTaskByID<T = any>(params: any) {
+		return http.post<T>(req.GET_TASK, params);
 	},
 	getCustomParams(params?: any) {
 		return http.post(req.GET_CUSTOM_TASK_PARAMS, params);
@@ -536,5 +536,8 @@ export default {
 	},
 	getSchemaListByComponent<T>(params: any) {
 		return http.post<T>(req.GET_SCHEMA_LIST_BY_COMPONENT, params);
+	},
+	getResourceLocation<T = any>(params: any) {
+		return http.post<T>(req.GET_RESOUCE_LOCATION, params);
 	},
 };

@@ -16,17 +16,18 @@
  * limitations under the License.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { omit } from 'lodash';
 import type { CustomTreeSelectProps } from './customTreeSelect';
 import CustomTreeSelect from './customTreeSelect';
-import { CATELOGUE_TYPE } from '@/constant';
-import { MENU_TYPE_ENUM } from '@/constant';
+import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
 import molecule from '@dtinsight/molecule';
 import resourceManagerTree from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
 import type { TreeSelectProps } from 'antd/lib/tree-select';
 import { catalogueService } from '@/services';
+import api from '@/api';
+import { getTenantId } from '@/utils';
 
 interface FolderPickerProps extends CustomTreeSelectProps {
 	dataType: CATELOGUE_TYPE;
@@ -34,6 +35,8 @@ interface FolderPickerProps extends CustomTreeSelectProps {
 
 export default function FolderPicker(props: FolderPickerProps) {
 	const [flag, rerender] = useState(false);
+	const [loading, setLoading] = useState(false);
+
 	const loadDataAsync: TreeSelectProps['loadData'] = async (treeNode) => {
 		const currentData = treeNode.props.dataRef;
 		if (!currentData.children?.length) {
@@ -65,9 +68,56 @@ export default function FolderPicker(props: FolderPickerProps) {
 		}
 	}, [props.dataType, flag]);
 
+	useEffect(() => {
+		switch (props.dataType) {
+			case CATELOGUE_TYPE.TASK:
+				break;
+			case CATELOGUE_TYPE.RESOURCE: {
+				if (props.value !== undefined && !resourceManagerTree.get(props.value)) {
+					setLoading(true);
+					api.getResourceLocation<number[]>({
+						tenantId: getTenantId(),
+						catalogueType: MENU_TYPE_ENUM.RESOURCE,
+						id: props.value,
+					}).then((res) => {
+						if (res.code === 1) {
+							const idCollection = res.data.reverse();
+							Promise.all([
+								...idCollection.map((id) => {
+									if (
+										!resourceManagerTree.get(`${id}-folder`)?.children?.length
+									) {
+										return catalogueService.loadTreeNode(
+											{
+												id,
+												catalogueType: MENU_TYPE_ENUM.RESOURCE,
+											},
+											CATELOGUE_TYPE.RESOURCE,
+										);
+									}
+
+									return Promise.resolve();
+								}),
+							]).finally(() => {
+								setLoading(false);
+								rerender((f) => !f);
+							});
+						}
+					});
+				}
+				break;
+			}
+			case CATELOGUE_TYPE.FUNCTION:
+				break;
+			default:
+				break;
+		}
+	}, [props.value]);
+
 	return (
 		<>
 			<CustomTreeSelect
+				loading={loading}
 				{...omit(props, ['treeData', 'loadData'])}
 				dataType={props.dataType}
 				showFile={props.showFile}
