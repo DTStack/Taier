@@ -49,9 +49,9 @@ import type { IDataSourceUsedInSyncProps } from '@/interface';
 import { NAME_FIELD } from '.';
 import type { DefaultOptionType } from 'antd/lib/cascader';
 import { FormContext } from '@/services/rightBarService';
-import { generateValidDesSource } from '@/utils/saveTask';
 import { CustomParams } from '../customParams';
 import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
+import taskSaveService from '@/services/taskSaveService';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -101,7 +101,7 @@ export default function SourceForm({
 		setParams(nextParam);
 	};
 
-	const validDes = generateValidDesSource(
+	const validDes = taskSaveService.generateValidDesSource(
 		form?.getFieldValue(NAME_FIELD)?.[index],
 		componentVersion,
 	);
@@ -179,7 +179,7 @@ export default function SourceForm({
 						>
 							<Select>
 								{getFieldValue(NAME_FIELD)?.[index].type ===
-									DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
+								DATA_SOURCE_ENUM.KAFKA_CONFLUENT ? (
 									<Option
 										value={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
 										key={KAFKA_DATA_TYPE.TYPE_AVRO_CONFLUENT}
@@ -248,11 +248,12 @@ export default function SourceForm({
 									enabled: false,
 								},
 							}}
-							placeholder={`字段 类型, 比如 id int 一行一个字段${getFieldValue(NAME_FIELD)?.[index].type !==
+							placeholder={`字段 类型, 比如 id int 一行一个字段${
+								getFieldValue(NAME_FIELD)?.[index].type !==
 								DATA_SOURCE_ENUM.KAFKA_CONFLUENT
-								? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
-								: ''
-								}`}
+									? '\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'
+									: ''
+							}`}
 						/>
 					</FormItem>
 				)}
@@ -280,10 +281,10 @@ export default function SourceForm({
 								{isShowTimeForOffsetReset(
 									getFieldValue(NAME_FIELD)?.[index]?.type,
 								) && (
-										<Col span={12}>
-											<Radio value="timestamp">time</Radio>
-										</Col>
-									)}
+									<Col span={12}>
+										<Radio value="timestamp">time</Radio>
+									</Col>
+								)}
 								<Col span={12}>
 									<Radio value="custom">自定义参数</Radio>
 								</Col>
@@ -313,7 +314,7 @@ export default function SourceForm({
 			<FormItem noStyle shouldUpdate>
 				{({ getFieldValue }) =>
 					getFieldValue(NAME_FIELD)?.[index].offsetReset === 'custom' && (
-						<FormItem label="字段" required name={[index, "offsetValue"]}>
+						<FormItem label="字段" required name={[index, 'offsetValue']}>
 							<Editor
 								style={{ minHeight: 202, height: '100%' }}
 								className="bd"
@@ -392,7 +393,7 @@ export default function SourceForm({
 				{({ getFieldValue }) =>
 					((componentVersion !== FLINK_VERSIONS.FLINK_1_12 &&
 						getFieldValue(NAME_FIELD)?.[index].timeType ===
-						SOURCE_TIME_TYPE.EVENT_TIME) ||
+							SOURCE_TIME_TYPE.EVENT_TIME) ||
 						(componentVersion === FLINK_VERSIONS.FLINK_1_12 &&
 							getFieldValue(NAME_FIELD)?.[index].timeTypeArr?.includes?.(
 								SOURCE_TIME_TYPE.EVENT_TIME,
@@ -441,9 +442,7 @@ export default function SourceForm({
 												noStyle
 												initialValue="SECOND"
 											>
-												<Select
-													className="right-select"
-												>
+												<Select className="right-select">
 													<Option value="SECOND">sec</Option>
 													<Option value="MINUTE">min</Option>
 													<Option value="HOUR">hour</Option>

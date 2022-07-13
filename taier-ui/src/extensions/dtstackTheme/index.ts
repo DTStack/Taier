@@ -9,7 +9,7 @@ const packageThemes = MyTheme.contributes?.themes || [];
 
 MyTheme.contributes.themes = packageThemes.map((theme, index) => {
 	// 为每个 theme 添加 id
-	const nextTheme = { id: theme.label, ...theme, ...themes[index] };
+	const nextTheme = { ...theme, ...themes[index] };
 	return nextTheme;
 });
 

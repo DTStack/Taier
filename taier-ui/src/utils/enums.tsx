@@ -46,6 +46,8 @@ export function taskTypeText(type?: TASK_TYPE_ENUM) {
 			return '实时采集';
 		case TASK_TYPE_ENUM.FLINK:
 			return 'Flink';
+		case TASK_TYPE_ENUM.WORK_FLOW:
+			return '工作流';
 		default:
 			return '未知';
 	}

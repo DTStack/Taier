@@ -12,6 +12,7 @@ export default defineConfig({
 	nodeModulesTransform: {
 		type: 'none',
 	},
+	dynamicImportSyntax: {},
 	routes: [
 		{
 			path: '/',
