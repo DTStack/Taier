@@ -25,6 +25,7 @@ import { checkExist } from '@/utils';
 import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
+import notification from '@/components/notification';
 
 export enum EXECUTE_EVENT {
 	onStartRun = 'onStartRun',
@@ -41,7 +42,7 @@ interface ITaskExecResultProps {
 	 * @deprecated 目前不支持下载功能
 	 */
 	download: null | string;
-	isContinue: boolean;
+	continue: boolean;
 	/**
 	 * 需要轮训的接口才有 jobId
 	 */
@@ -177,14 +178,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		if (checkExist(currentTabData.taskType)) {
 			return API.stopSQLImmediately({
 				taskId: currentTabData.id,
-				jobId,
-			}).then(() => Promise.resolve());
-		}
-
-		// 脚本执行
-		if (checkExist(currentTabData.type)) {
-			return API.stopScript({
-				scriptId: currentTabData.id,
 				jobId,
 			}).then(() => Promise.resolve());
 		}
@@ -335,57 +328,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				});
 		}
 
-		// 脚本执行
-		if (checkExist(task.type)) {
-			params.scriptId = task.id;
-			return API.execScript<ITaskExecResultProps>(params)
-				.then((res) => this.succCall(res, currentTabId, task))
-				.then((res) => {
-					if (res) {
-						const isContinue = this.judgeIfContinueExec(sqls, index);
-						if (isContinue) {
-							// 继续执行之前判断是否停止
-							if (this.stopSign.get(currentTabId)) {
-								this.stopSign.set(currentTabId, false);
-								taskResultService.appendLogs(
-									currentTabId.toString(),
-									createLog(`用户主动取消请求！`, 'error'),
-								);
-							} else {
-								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-							}
-						}
-					}
-				});
-		}
-
-		// 组件执行
-		if (checkExist((task as any).componentType)) {
-			params.componentId = task.id;
-			params.componentType = (task as any).componentType;
-			return API.execComponent<ITaskExecResultProps>(params)
-				.then((res) => this.succCall(res, currentTabId, task))
-				.then((res) => {
-					if (res) {
-						const isContinue = this.judgeIfContinueExec(sqls, index);
-						if (isContinue) {
-							// 继续执行之前判断是否停止
-							if (this.stopSign.get(currentTabId)) {
-								this.stopSign.set(currentTabId, false);
-								taskResultService.appendLogs(
-									currentTabId.toString(),
-									createLog(`用户主动取消请求！`, 'error'),
-								);
-							} else {
-								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-							}
-						}
-					}
-				});
-		}
-
 		return Promise.resolve();
 	};
 
@@ -443,7 +385,14 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}
 
 			// 如果存在 jobId，则需要轮训根据 jobId 继续获取后续结果
-			if (res.data?.jobId) {
+			if (res.data?.continue) {
+				if (!res.data.jobId) {
+					notification.error({
+						key: 'CONTINUE_WITHOUT_JOBID',
+						message: '当前任务执行需要轮训获取结果，但是未找到 jobId，轮训失败',
+					});
+					return false;
+				}
 				this.runningSql.set(currentTabId, res.data.jobId);
 				return this.selectData(res.data.jobId, currentTabId, task);
 			}
