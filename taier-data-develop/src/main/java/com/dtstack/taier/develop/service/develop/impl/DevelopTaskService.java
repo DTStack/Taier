@@ -80,8 +80,8 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplate;
-import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplateFactory;
+import com.dtstack.taier.develop.service.develop.ITaskSaver;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
@@ -101,7 +101,6 @@ import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
-import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -193,9 +192,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private ScheduleDictService dictService;
-
-    @Autowired
     private DevelopSqlExeService developSqlExeService;
 
     @Autowired
@@ -217,10 +213,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private DevelopTaskTemplateFactory developTaskTemplateFactory;
+    private ClusterService clusterService;
 
     @Autowired
-    private ClusterService clusterService;
+    private TaskConfiguration taskConfiguration;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -668,8 +664,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
-        DevelopTaskTemplate taskService = developTaskTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
-        return taskService.addOrUpdate(taskResourceParam);
+        ITaskSaver taskSaver = taskConfiguration.getSave(taskResourceParam.getTaskType());
+        return taskSaver.addOrUpdate(taskResourceParam);
     }
 
     /**
@@ -1410,7 +1406,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
         List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
-                .filter(a -> (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
+                .filter(a -> a.getComponentType() == null ||
+                        (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
                 .collect(Collectors.toList());
         return eScheduleJobTypes.stream()
                 .map(j -> new DevelopTaskGetSupportJobTypesResultVO(j.getType(), j.getName(), j.getComputeType().getType()))
