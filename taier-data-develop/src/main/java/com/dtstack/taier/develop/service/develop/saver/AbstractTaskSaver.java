@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.task;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.EScheduleStatus;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @Date: 2022/05/29/4:55 PM
  */
 @Component
-public abstract class DevelopAbstractTaskSaver implements ITaskSaver {
+public abstract class AbstractTaskSaver implements ITaskSaver {
 
     protected final static String SQL_NOTE_TEMPLATE =
                     "-- name %s \n" +

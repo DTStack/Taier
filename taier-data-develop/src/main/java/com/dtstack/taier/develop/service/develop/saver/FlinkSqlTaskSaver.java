@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.task;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TaskTemplateType;
@@ -18,11 +18,11 @@ import java.util.List;
  * @Date: 2022/05/29/5:14 PM
  */
 @Component
-public class DevelopFlinkSqlTask extends DevelopAbstractTaskSaver {
+public class FlinkSqlTaskSaver extends AbstractTaskSaver {
     @Autowired
     private FlinkTaskService flinkTaskService;
 
-    public static Logger LOGGER = LoggerFactory.getLogger(DevelopFlinkSqlTask.class);
+    public static Logger LOGGER = LoggerFactory.getLogger(FlinkSqlTaskSaver.class);
 
 
     @Override

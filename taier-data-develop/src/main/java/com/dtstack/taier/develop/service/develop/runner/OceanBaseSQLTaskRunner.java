@@ -1,11 +1,10 @@
-package com.dtstack.taier.develop.service.develop.impl.runner;
+package com.dtstack.taier.develop.service.develop.runner;
 
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.OceanBaseSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.develop.service.develop.impl.DevelopJdbcTaskRunner;
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ import java.util.List;
  * @date 2022/7/12
  */
 @Component
-public class DevelopOceanBaseSQLTaskRunner extends DevelopJdbcTaskRunner {
+public class OceanBaseSQLTaskRunner extends JdbcTaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {
