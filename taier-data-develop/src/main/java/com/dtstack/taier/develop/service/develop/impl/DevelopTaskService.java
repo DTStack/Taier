@@ -22,7 +22,6 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -87,7 +86,6 @@ import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
-import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
@@ -820,65 +818,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
-     * 判断任务是否可以配置增量标识
-     */
-    public boolean canSetIncreConf(Long taskId) {
-        final Task task = this.getDevelopTaskById(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
-        }
-
-        if (!EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
-            return false;
-        }
-
-        // 增量同步任务不能在工作流中运行
-        if (task.getFlowId() != 0) {
-            return false;
-        }
-
-        if (StringUtils.isEmpty(task.getSqlText())) {
-            throw new RdosDefineException("同步任务未配置数据源");
-        }
-
-        try {
-            final JSONObject json = JSON.parseObject(task.getSqlText());
-            this.checkSyncJobContent(json.getJSONObject("job"), false);
-        } catch (final RdosDefineException e) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public void checkSyncJobContent(final JSONObject jobJson, final boolean checkIncreCol) {
-        if (jobJson == null) {
-            return;
-        }
-
-        String readerPlugin = JSONPath.eval(jobJson, "$.job.content[0].reader.name").toString();
-        String writerPlugin = JSONPath.eval(jobJson, "$.job.content[0].writer.name").toString();
-
-        if (!PluginName.RDB_READER.contains(readerPlugin)) {
-            throw new RdosDefineException("增量同步任务只支持从关系型数据库读取", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!PluginName.HDFS_W.equals(writerPlugin)) {
-            throw new RdosDefineException("增量同步任务只支持写入hive和hdfs", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!checkIncreCol) {
-            return;
-        }
-
-        String increColumn = (String) JSONPath.eval(jobJson, "$.job.content[0].reader.parameter.increColumn");
-        if (StringUtils.isEmpty(increColumn)) {
-            throw new RdosDefineException("增量同步任务必须配置增量字段", ErrorCode.INVALID_PARAMETERS);
-        }
-    }
-
-    /**
      * 创建任务
      *
      * @param task
@@ -1449,6 +1388,39 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         return increColumn;
+    }
+
+    /**
+     * 修改任务部分信息
+     *
+     * @param taskId
+     * @param taskName
+     * @param catalogueId
+     * @param desc
+     * @param tenantId
+     */
+    public void editTask(Long taskId, String taskName, Long catalogueId, String desc, Long tenantId, String componentVersion) {
+        getOneWithError(taskId);
+        developCatalogueService.getOneWithError(catalogueId);
+
+        Task taskInfo = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                .eq(Task::getName, taskName)
+                .eq(Task::getTenantId, tenantId));
+
+        if (Objects.isNull(taskInfo)) {
+            Task updateInfo = new Task();
+            updateInfo.setId(taskId);
+            updateInfo.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            updateInfo.setName(taskName);
+            updateInfo.setNodePid(catalogueId);
+            updateInfo.setTaskDesc(desc);
+            updateInfo.setComponentVersion(componentVersion);
+            developTaskMapper.updateById(updateInfo);
+            return;
+        }
+        if (taskId.equals(taskInfo.getId())) {
+            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+        }
     }
 
 }
