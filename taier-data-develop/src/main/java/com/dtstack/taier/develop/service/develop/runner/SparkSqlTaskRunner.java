@@ -8,6 +8,7 @@ import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.google.common.collect.Lists;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -15,8 +16,8 @@ import java.util.List;
  * @author yuebai
  * @date 2022/7/13
  */
-@org.springframework.stereotype.Component
-public class SparkSQLTaskRunner extends HadoopJdbcTaskRunner {
+@Component
+public class SparkSqlTaskRunner extends HadoopJdbcTaskRunner {
 
     @Override
     public List<EScheduleJobType> support() {
@@ -25,7 +26,7 @@ public class SparkSQLTaskRunner extends HadoopJdbcTaskRunner {
 
     @Override
     public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType) {
-        JdbcInfo jdbcInfo = getJdbcInCluster(tenantId, EScheduleJobType.SPARK_SQL.getComponentType(), "");
+        JdbcInfo jdbcInfo = getJdbcInCluster(tenantId, EComponentType.SPARK_THRIFT, "");
         JSONObject hdfsConfig = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
         return getSparkSource(jdbcInfo, getCurrentDb(tenantId, taskType), hdfsConfig);
     }

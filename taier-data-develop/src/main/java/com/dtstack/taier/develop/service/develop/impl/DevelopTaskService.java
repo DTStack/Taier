@@ -1405,6 +1405,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         Task taskInfo = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
                 .eq(Task::getName, taskName)
+                .eq(Task::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(Task::getTenantId, tenantId));
 
         if (Objects.isNull(taskInfo)) {

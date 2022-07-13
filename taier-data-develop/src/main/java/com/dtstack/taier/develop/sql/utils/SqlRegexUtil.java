@@ -20,7 +20,6 @@
 package com.dtstack.taier.develop.sql.utils;
 
 import com.dtstack.taier.develop.sql.TableOperateEnum;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -461,7 +460,7 @@ public class SqlRegexUtil {
      * @return
      */
     public static boolean isSimpleQuery(String sql) {
-        sql = com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil.formatSql(sql);
+        sql = SqlFormatUtil.formatSql(sql);
         sql = SqlFormatUtil.getStandardSql(sql);
         Matcher matcher = FROM_PATTERN.matcher(sql);
         int fromCount = 0;
