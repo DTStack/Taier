@@ -44,7 +44,7 @@ public class FlinkTaskSaver extends AbstractTaskSaver {
 
     @Override
     public List<EScheduleJobType> support() {
-        return Lists.newArrayList(EScheduleJobType.MR);
+        return Lists.newArrayList(EScheduleJobType.FLINK_MR);
     }
 
 }

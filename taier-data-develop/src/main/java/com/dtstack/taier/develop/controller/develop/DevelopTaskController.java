@@ -28,9 +28,33 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
-import com.dtstack.taier.develop.service.develop.impl.FlinkTaskService;
-import com.dtstack.taier.develop.vo.develop.query.*;
-import com.dtstack.taier.develop.vo.develop.result.*;
+import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopDataSourceIncreColumnVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopFrozenTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopScheduleTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskCheckIsLoopVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskCheckNameVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskDeleteTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskEditVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetByNameVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetChildTasksVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetComponentVersionVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetSupportJobTypesVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetTaskVersionRecordVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskPublishTaskVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskTaskVersionScheduleConfVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskVersionDetailResultVO;
+import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
+import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,8 +75,6 @@ public class DevelopTaskController {
 
     @Autowired
     private DevelopTaskService developTaskService;
-    @Autowired
-    private FlinkTaskService flinkTaskService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
@@ -122,17 +144,6 @@ public class DevelopTaskController {
             protected TaskCatalogueResultVO process() {
                 TaskResourceParam taskResourceParam = TaskMapstructTransfer.INSTANCE.TaskResourceParamVOToTaskResourceParam(paramVO);
                 return TaskMapstructTransfer.INSTANCE.TaskVOToResultVO(developTaskService.addOrUpdateTaskNew(taskResourceParam));
-            }
-        }.execute();
-    }
-
-    @PostMapping(value = "canSetIncreConf")
-    @ApiOperation(value = "判断任务是否可以配置增量标识")
-    public R<Boolean> canSetIncreConf(@RequestBody DevelopScheduleTaskVO vo) {
-        return new APITemplate<Boolean>() {
-            @Override
-            protected Boolean process() {
-                return developTaskService.canSetIncreConf(vo.getId());
             }
         }.execute();
     }
@@ -268,6 +279,26 @@ public class DevelopTaskController {
             @Override
             protected List<JSONObject> process() {
                 return developTaskService.getIncreColumn(vo.getSourceId(), vo.getTableName(), vo.getSchema());
+            }
+        }.execute();
+    }
+
+    @PostMapping(value = "editTask")
+    @ApiOperation(value = "编辑任务")
+    public R<Void> editTask(@RequestBody DevelopTaskEditVO vo) {
+        return new APITemplate<Void>() {
+            @Override
+            protected void checkParams() throws IllegalArgumentException {
+                Preconditions.checkNotNull(vo.getTaskId(), "parameters of taskId not be null.");
+                Preconditions.checkNotNull(vo.getName(), "parameters of name not be null.");
+                Preconditions.checkNotNull(vo.getCatalogueId(), "parameters of catalogueId not be null.");
+            }
+
+            @Override
+            protected Void process() {
+                developTaskService.editTask(vo.getTaskId(), vo.getName(), vo.getCatalogueId(), vo.getDesc(),
+                        vo.getTenantId(), vo.getComponentVersion());
+                return null;
             }
         }.execute();
     }
