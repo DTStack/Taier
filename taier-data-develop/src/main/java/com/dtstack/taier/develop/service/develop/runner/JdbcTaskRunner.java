@@ -5,6 +5,7 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.RegexUtils;
@@ -20,10 +21,14 @@ import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
+import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +48,9 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Autowired
     private DevelopTenantComponentService developTenantComponentService;
+
+    @Autowired
+    protected ScheduleActionService actionService;
 
     @Override
     public abstract List<EScheduleJobType> support();
@@ -77,8 +85,22 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public ExecuteResultVO selectStatus(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) {
-        return null;
+        ExecuteResultVO executeResultVO = new ExecuteResultVO(selectSql.getJobId());
+        executeResultVO.setStatus(getSchedulerStatus(selectSql));
+        return executeResultVO;
     }
+
+    private Integer getSchedulerStatus(DevelopSelectSql selectSql) {
+        if (selectSql.getIsSelectSql() == TempJobType.SIMPLE_SELECT.getType()) {
+            return TaskStatus.FINISHED.getStatus();
+        }
+        List<ActionJobEntityVO> entitys = actionService.entitys(Collections.singletonList(selectSql.getJobId()));
+        if (CollectionUtils.isEmpty(entitys)) {
+            return TaskStatus.NOTFOUND.getStatus();
+        }
+        return TaskStatus.getShowStatus(entitys.get(0).getStatus());
+    }
+
 
     @Override
     public ExecuteResultVO runLogShow(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
@@ -134,8 +156,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public String getCurrentDb(Long tenantId, Integer taskType) {
-        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId,
-                taskType);
+        TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
         return tenantEngine == null ? "" : tenantEngine.getComponentIdentity();
     }
 }
