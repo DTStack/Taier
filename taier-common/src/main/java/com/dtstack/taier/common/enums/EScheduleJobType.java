@@ -39,7 +39,7 @@ public enum EScheduleJobType {
     /**
      * Spark
      */
-    SPARK(1, "Spark", EJobType.SQL.getType(), 2, EComponentType.SPARK, EComputeType.BATCH),
+//    SPARK(1, "Spark", EJobType.SQL.getType(), 2, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * 数据同步
@@ -50,7 +50,7 @@ public enum EScheduleJobType {
     /**
      * shell
      */
-    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
+//    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
 
     /**
      * FlinkSQL
@@ -60,14 +60,18 @@ public enum EScheduleJobType {
     /**
      * 实时采集
      */
-    DATA_ACQUISITION(6, "实时采集", EJobType.SQL.getType(), 4,EComponentType.FLINK, EComputeType.STREAM),
+    DATA_ACQUISITION(6, "实时采集", EJobType.SQL.getType(), 4, EComponentType.FLINK, EComputeType.STREAM),
 
     /**
      * HiveSQL
      */
-    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
+    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, EComponentType.HIVE_SERVER, EComputeType.BATCH),
 
-    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4,EComponentType.OCEAN_BASE, EComputeType.BATCH),
+    /**
+     * OceanBaseSQL
+     */
+    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN_BASE, EComputeType.BATCH),
+
     /**
      * 工作流
      */
@@ -76,7 +80,7 @@ public enum EScheduleJobType {
     /**
      * Flink
      */
-    MR(11, "Flink", 0, 11, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_MR(11, "Flink", 0, 11, EComponentType.FLINK, EComputeType.STREAM),
 
     ;
 
@@ -106,12 +110,13 @@ public enum EScheduleJobType {
 
     public static final List<Integer> STREAM_JOB_TYPES = new ArrayList<>();
     public static final List<Integer> BATCH_JOB_TYPES = new ArrayList<>();
+
     static {
         for (EScheduleJobType value : EScheduleJobType.values()) {
-            if (EComputeType.STREAM == value.getComputeType()){
+            if (EComputeType.STREAM == value.getComputeType()) {
                 STREAM_JOB_TYPES.add(value.getValue());
             }
-            if (EComputeType.BATCH == value.getComputeType()){
+            if (EComputeType.BATCH == value.getComputeType()) {
                 BATCH_JOB_TYPES.add(value.getValue());
             }
         }

@@ -64,7 +64,7 @@ public class CommonResource {
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         switch (taskType) {
             case SPARK_SQL:
-            case SPARK:
+//            case SPARK:
             case HIVE_SQL:
                 return ComputeResourceType.Yarn;
             case SYNC:
