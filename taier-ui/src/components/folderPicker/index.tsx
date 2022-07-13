@@ -73,7 +73,11 @@ export default function FolderPicker(props: FolderPickerProps) {
 			case CATELOGUE_TYPE.TASK:
 				break;
 			case CATELOGUE_TYPE.RESOURCE: {
-				if (props.value !== undefined && !resourceManagerTree.get(props.value)) {
+				if (
+					props.value !== undefined &&
+					props.value !== null &&
+					!resourceManagerTree.get(`${props.value}-folder`)
+				) {
 					setLoading(true);
 					api.getResourceLocation<number[]>({
 						tenantId: getTenantId(),

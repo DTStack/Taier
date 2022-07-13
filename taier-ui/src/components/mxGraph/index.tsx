@@ -85,10 +85,19 @@ class MxFactory {
 	 * 初始化 mxgraph 实例
 	 */
 	create(containerDom: HTMLElement, config?: Record<string, any>) {
-		const { mxGraphView, mxText, mxGraph: MxGraph, mxEvent, mxConstants } = this.mxInstance;
+		const {
+			mxGraphView,
+			mxText,
+			mxGraph: MxGraph,
+			mxEvent,
+			mxConstants,
+			mxGraphHandler,
+		} = this.mxInstance;
+
 		mxGraphView.prototype.optimizeVmlReflows = false;
 		// to avoid calling getBBox
 		mxText.prototype.ignoreStringSize = true;
+		mxGraphHandler.prototype.guidesEnabled = true;
 		// Disable context menu
 		mxEvent.disableContextMenu(containerDom);
 		const graph = new MxGraph(containerDom);
@@ -99,7 +108,6 @@ class MxFactory {
 		graph.setPanning(true);
 		// 允许鼠标移动画布
 		graph.panningHandler.useLeftButtonForPanning = true;
-		graph.setConnectable(true);
 		graph.setTooltips(config?.tooltips ?? true);
 		graph.view.setScale(1);
 		// Enables HTML labels
@@ -107,7 +115,7 @@ class MxFactory {
 
 		graph.setAllowDanglingEdges(false);
 		// 禁止连接
-		graph.setConnectable(false);
+		graph.setConnectable(config?.connectable ?? false);
 		// 禁止Edge对象移动
 		graph.isCellsMovable = function () {
 			const cell = graph.getSelectionCell();

@@ -11,6 +11,19 @@
 		height: 100%;
 	}
 
+	.graph-widgets {
+		background: var(--editor-background);
+		border: 1px solid var(--panel-border);
+		max-height: 517px;
+		left: 20px;
+		overflow: auto;
+		position: absolute;
+		text-align: center;
+		top: 20px;
+		width: 150px;
+		z-index: 3;
+	}
+
 	.graph-bottom {
 		position: absolute;
 		bottom: 0;
@@ -30,10 +43,8 @@
 
 		img,
 		.anticon {
-			float: left;
 			width: 18px;
 			height: 16px;
-			margin-right: 12px;
 			color: var(--editor-foreground);
 			line-height: 16px;
 			cursor: pointer;

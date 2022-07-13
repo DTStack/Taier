@@ -1,8 +1,19 @@
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { ReloadOutlined, ZoomInOutlined, ZoomOutOutlined } from '@ant-design/icons';
-import { Spin, Tooltip } from 'antd';
-import type { mxCell, mxCellHighlight, mxGraph, mxPopupMenuHandler } from 'mxgraph';
-import { useEffect, useRef, useState } from 'react';
+import { Space, Spin, Tooltip } from 'antd';
 import MxFactory from '.';
+import type {
+	mxGraph,
+	mxCell,
+	mxCellHighlight,
+	mxEventSource,
+	mxPopupMenuHandler,
+	mxCellState,
+	mxKeyHandler,
+	mxEventObject,
+} from 'mxgraph';
+import type { Ref, ForwardedRef } from 'react';
+import { renderCharacterByCode } from '@/utils';
 import './container.scss';
 
 const Mx = new MxFactory();
@@ -15,13 +26,42 @@ const {
 	mxPopupMenu,
 	mxEventObject: MxEventObject,
 	mxImage: MxImage,
+	mxUtils,
+	mxDragSource,
+	mxGraph: MxGraph,
+	mxShape: MxShape,
+	mxConnectionConstraint: MxConnectionConstraint,
+	mxPoint: MxPoint,
+	mxPolyline: MxPolyline,
+	mxConstraintHandler: MxConstraintHandler,
+	mxKeyHandler: MxKeyHandler,
+	mxClient,
 } = Mx.mxInstance;
 
+// 可拖拽组件的 class 名称前缀
+export const WIDGETS_PREFIX = 'taier__widgets';
+
 export interface IContextMenuConfig {
+	/**
+	 * 如果发现 contextMenu 和 keydown 的 id 有一致的，则调用 keydown 的回调函数
+	 */
+	id?: string;
 	title: string;
 	callback?: () => void;
 	children?: IContextMenuConfig[];
 	disabled?: boolean;
+}
+
+type StartsWithbindString<T> = T extends `bind${string}` ? T : never;
+
+export interface IKeyDownConfig {
+	id: string;
+	method: StartsWithbindString<keyof mxKeyHandler>;
+	/**
+	 * @reference: https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
+	 */
+	keyCode: number;
+	func: () => void;
 }
 
 interface IMxGraphData {
@@ -31,7 +71,11 @@ interface IMxGraphData {
 	[key: string]: any;
 }
 
-interface IContainerProps<T> {
+export interface IContainerProps<T> {
+	/**
+	 * 是否开启拖拽，开启后每一个图形的四周会有拖拽点
+	 */
+	enableDrag?: boolean;
 	/**
 	 * 加载中状态
 	 */
@@ -51,7 +95,7 @@ interface IContainerProps<T> {
 	/**
 	 * 配置项目
 	 */
-	config?: { tooltips: boolean; [key: string]: any };
+	config?: { tooltips: boolean; connectable?: boolean; [key: string]: any };
 	/**
 	 * relayout 的方向，MxHierarchicalLayout 的第二个参数
 	 */
@@ -63,11 +107,26 @@ interface IContainerProps<T> {
 	/**
 	 * 渲染自定义 actions
 	 */
-	onRenderActions?: () => JSX.Element;
+	onRenderActions?: (graph?: mxGraph) => JSX.Element;
 	/**
 	 * 点击刷新的回调函数
 	 */
 	onRefresh?: (graph: mxGraph) => void;
+	/**
+	 * 渲染 widgets 的组件
+	 */
+	onRenderWidgets?: () => JSX.Element;
+	onDropWidgets?: (
+		node: HTMLElement,
+		graph: mxGraph,
+		target: mxCell,
+		x: number,
+		y: number,
+	) => void;
+	/**
+	 * 获取拖拽中的预览节点
+	 */
+	onGetPreview?: (node: HTMLElement) => HTMLElement;
 	/**
 	 * 渲染 cell 的内容，返回 string 类型
 	 */
@@ -87,11 +146,51 @@ interface IContainerProps<T> {
 	/**
 	 * 右键菜单的回调函数
 	 */
-	onContextMenu?: (data: T) => IContextMenuConfig[] | Promise<IContextMenuConfig[]>;
+	onContextMenu?: (
+		data: T,
+		cell: mxCell,
+		graph: mxGraph,
+	) => IContextMenuConfig[] | Promise<IContextMenuConfig[]>;
+	/**
+	 * edge 的右键菜单回调函数
+	 */
+	onEdgeContextMenu?: (
+		data: T,
+		cell: mxCell,
+		graph: mxGraph,
+	) => IContextMenuConfig[] | Promise<IContextMenuConfig[]>;
 	/**
 	 * Vertex 的双击回调事件
 	 */
 	onDoubleClick?: (data: T) => void;
+	/**
+	 * KeyDown 事件
+	 */
+	onKeyDown?: () => IKeyDownConfig[];
+	/**
+	 * 当节点改变的回调事件
+	 */
+	onCellsChanged?: (cell: mxCell) => void;
+	/**
+	 * 布局改变回调事件，包括滚动，改变 scale 等
+	 */
+	onContainerChanged?: (geometry: IGeometryPosition) => void;
+}
+
+export interface IContainerRef<T> {
+	insertCell: (data: T, x: number, y: number) => void;
+	updateCell: (cellId: string, data: Partial<T>) => void;
+	removeCell: (cellId: string) => void;
+	getSelectedCell: () => mxCell | null;
+	getCells: () => mxCell[];
+	setCells: (cells: mxCell[]) => void;
+	setView: (geometry: IGeometryPosition) => void;
+}
+
+export interface IGeometryPosition {
+	scrollTop: number;
+	scrollLeft: number;
+	scale: number;
 }
 
 enum ZoomKind {
@@ -99,22 +198,33 @@ enum ZoomKind {
 	Out,
 }
 
-export default function MxGraphContainer<T extends IMxGraphData>({
-	loading,
-	graphData,
-	vertexKey = 'taskId',
-	vertextSize,
-	config,
-	direction,
-	children,
-	onRefresh,
-	onRenderCell,
-	onDrawVertex,
-	onClick,
-	onContextMenu,
-	onDoubleClick,
-	onRenderActions,
-}: IContainerProps<T>) {
+function MxGraphContainer<T extends IMxGraphData>(
+	{
+		enableDrag,
+		loading,
+		graphData,
+		vertexKey = 'taskId',
+		vertextSize,
+		config,
+		direction,
+		children,
+		onRefresh,
+		onRenderCell,
+		onDrawVertex,
+		onClick,
+		onContextMenu,
+		onEdgeContextMenu,
+		onDoubleClick,
+		onRenderWidgets,
+		onGetPreview,
+		onDropWidgets,
+		onRenderActions,
+		onKeyDown,
+		onCellsChanged,
+		onContainerChanged,
+	}: IContainerProps<T>,
+	ref: Ref<IContainerRef<T>>,
+) {
 	const container = useRef<HTMLDivElement>(null);
 	const graph = useRef<mxGraph>();
 	const graphView = useRef<
@@ -125,7 +235,103 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 				dy: number;
 		  }
 	>(undefined);
+	const keybindingsRef = useRef<IKeyDownConfig[]>([]);
 	const [current, setCurrent] = useState<null | T>(null);
+
+	useImperativeHandle(ref, () => ({
+		/**
+		 * 在某一位置插入节点
+		 */
+		insertCell: (data, x, y) => {
+			if (graph.current) {
+				const width = vertextSize?.width || MxFactory.VertexSize.width;
+				const height = vertextSize?.height || MxFactory.VertexSize.height;
+				const style = onDrawVertex?.(data);
+
+				graph.current.insertVertex(
+					graph.current.getDefaultParent(),
+					data[vertexKey],
+					data,
+					x,
+					y,
+					width,
+					height,
+					style,
+				);
+
+				const parent = graph.current.getDefaultParent();
+				const vertices = graph.current.getChildVertices(parent);
+				if (vertices.length === 1) {
+					graph.current.center(true, true, 0.55, 0.4);
+				}
+			}
+		},
+		/**
+		 * 更新某一节点
+		 */
+		updateCell: (cellId, data) => {
+			if (graph.current) {
+				const cell = graph.current.getModel().getCell(cellId);
+				if (cell) {
+					cell.setValue({ ...cell.value, ...data });
+					onCellsChanged?.(cell);
+					graph.current.view.refresh();
+				}
+			}
+		},
+		/**
+		 * 删除某一节点及其附带的 edge
+		 */
+		removeCell: (cellId) => {
+			if (graph.current) {
+				const cell = graph.current.getModel().getCell(cellId);
+				if (cell) {
+					graph.current.removeCells([cell], true);
+				}
+			}
+		},
+		/**
+		 * 获取当前选中的 cell
+		 */
+		getSelectedCell: () => {
+			if (graph.current) {
+				return graph.current.getSelectionCell();
+			}
+
+			return null;
+		},
+		/**
+		 * 获取当前 mxGraph 的全部 cells
+		 */
+		getCells: () => {
+			const cells =
+				graph.current?.getModel().getChildCells(graph.current.getDefaultParent()) || [];
+			return cells;
+		},
+		/**
+		 * 在 graph 中插入 cells
+		 */
+		setCells: (cells) => {
+			graph.current?.addCells(cells);
+		},
+		/**
+		 * 设置布局
+		 */
+		setView: (geometry) => {
+			if (graph.current) {
+				graph.current.view.setScale(geometry.scale);
+
+				if (graph.current.container) {
+					setTimeout(() => {
+						graph.current?.container.scrollTo({
+							top: geometry.scrollTop,
+							left: geometry.scrollLeft,
+						});
+					}, 0);
+				}
+			}
+		},
+	}));
 
 	const handleRefresh = () => {
 		onRefresh?.(graph.current!);
@@ -174,29 +380,211 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 		Mx.initContainerScroll();
 	};
 
+	const initWidgesDraggable = () => {
+		const nodes = document.querySelectorAll<HTMLElement>(`*[class*="${WIDGETS_PREFIX}"]`);
+		nodes.forEach((node) => {
+			const dragElt =
+				onGetPreview?.(node) ||
+				(() => {
+					const dom = document.createElement('div');
+					dom.innerHTML = `<span class="preview-title">新节点</span>`;
+					return dom;
+				})();
+
+			const width = vertextSize?.width || MxFactory.VertexSize.width;
+			const height = vertextSize?.height || MxFactory.VertexSize.height;
+
+			dragElt.style.width = `${width}px`;
+			dragElt.style.height = `${height}px`;
+
+			const draggabledEle = mxUtils.makeDraggable(
+				node,
+				// @ts-ignore
+				(evt: MouseEvent) => {
+					const x = mxEvent.getClientX(evt);
+					const y = mxEvent.getClientY(evt);
+
+					const elt = document.elementFromPoint(x, y);
+					if (!elt) return null;
+					if (mxUtils.isAncestorNode(graph.current!.container, elt)) {
+						return graph.current;
+					}
+					return null;
+				},
+				(g: mxGraph, _: mxEventSource, target: mxCell, x: number, y: number) => {
+					if (g.canImportCell(target)) {
+						onDropWidgets?.(node, g, target, x, y);
+					}
+				},
+				dragElt,
+				undefined,
+				undefined,
+				graph.current!.autoScroll,
+				true,
+			);
+
+			draggabledEle.createPreviewElement = function () {
+				// ctx._currentSourceType = type;
+				return dragElt;
+			};
+			draggabledEle.isGuidesEnabled = () => {
+				return graph.current!.graphHandler.guidesEnabled;
+			};
+			draggabledEle.createDragElement = mxDragSource.prototype.createDragElement;
+		});
+	};
+
+	const initKeyDownEvent = () => {
+		if (onKeyDown) {
+			const keyHandler = new MxKeyHandler(graph.current!);
+			// @ts-ignore
+			keyHandler.getFunction = function (evt: any) {
+				if (evt !== null && !mxEvent.isAltDown(evt)) {
+					if (this.isControlDown(evt) || (mxClient.IS_MAC && evt.metaKey)) {
+						if (mxEvent.isShiftDown(evt)) {
+							return this.controlShiftKeys[evt.keyCode];
+						}
+
+						return this.controlKeys[evt.keyCode];
+					}
+
+					if (mxEvent.isShiftDown(evt)) {
+						return this.shiftKeys[evt.keyCode];
+					}
+
+					return this.normalKeys[evt.keyCode];
+				}
+
+				return null;
+			};
+
+			const keyBindings = onKeyDown();
+			keybindingsRef.current = keyBindings;
+
+			keyBindings.forEach(({ method, keyCode, func }) => {
+				keyHandler[method](keyCode, () => {
+					if (graph.current?.isEnabled()) {
+						func();
+					}
+				});
+			});
+		}
+	};
+
+	const initConnectionConstraints = () => {
+		if (enableDrag) {
+			// Replaces the port image
+			MxConstraintHandler.prototype.pointImage = new MxImage('images/points.gif', 5, 5);
+			// Constraint highlight color
+			MxConstraintHandler.prototype.highlightColor = '#2491F7';
+			// Overridden to define per-shape connection points
+			MxGraph.prototype.getAllConnectionConstraints = function (terminal: mxCellState) {
+				if (terminal?.shape) {
+					if (terminal.shape.stencil) {
+						return terminal.shape.stencil.constraints;
+					}
+
+					if (terminal.shape.constraints) {
+						return terminal.shape.constraints;
+					}
+				}
+				return [];
+			};
+
+			// Defines the default constraints for all shapes
+			MxShape.prototype.constraints = [
+				new MxConnectionConstraint(new MxPoint(0.5, 0), true),
+				new MxConnectionConstraint(new MxPoint(0, 0.5), true),
+				new MxConnectionConstraint(new MxPoint(1, 0.5), true),
+				new MxConnectionConstraint(new MxPoint(0.5, 1), true),
+			];
+			// Edges have no connection points
+			MxPolyline.prototype.constraints = [];
+			// Disables floating connections (only connections via ports allowed)
+			graph.current!.connectionHandler.isConnectableCell = () => false;
+
+			graph.current!.isValidConnection = function (source: mxCell, target: mxCell) {
+				// Only connectable between vertexs
+				if (!source.vertex || !target.vertex) return false;
+
+				// Can't have infinite edges
+				const edges = this.getEdgesBetween(source, target);
+				if (edges.length > 0) return false;
+
+				// Can't connect self with self
+				let isLoop = false;
+				this.traverse(target, true, (vertex: mxCell) => {
+					if (source.id === vertex.id) {
+						isLoop = true;
+						return false;
+					}
+				});
+				if (isLoop) return false;
+
+				return true;
+			};
+		}
+	};
+
 	const initEvent = () => {
 		const highlightEdges: mxCellHighlight[] = [];
+
+		// 添加 cells 事件，包括 vertexs 和 edges
+		graph.current?.addListener(mxEvent.ADD_CELLS, (_, evt: mxEventObject) => {
+			const cell: mxCell = evt.getProperty('cell');
+			onCellsChanged?.(cell);
+		});
+		// 删除 cell 事件
+		graph.current?.addListener(mxEvent.REMOVE_CELLS, (_, evt: mxEventObject) => {
+			const cell: mxCell = evt.getProperty('cell');
+			onCellsChanged?.(cell);
+		});
+
+		// 移动 cell 事件
+		graph.current?.addListener(mxEvent.MOVE_END, (_, evt: mxEventObject) => {
+			const cell: mxCell = evt.getProperty('cell');
+			onCellsChanged?.(cell);
+		});
+
+		// container 滚动事件
+		container.current?.addEventListener('scroll', () => {
+			onContainerChanged?.({
+				scrollTop: container.current!.scrollTop,
+				scrollLeft: container.current!.scrollLeft,
+				scale: graph.current?.getView().getScale() || -1,
+			});
+		});
+
 		// Click 事件
 		graph.current?.addListener(mxEvent.CLICK, (_, evt) => {
 			const cell: mxCell = evt.getProperty('cell');
 			setCurrent(cell?.value || null);
 			highlightEdges.forEach((e) => e.destroy());
 
-			if (cell && cell.vertex) {
-				// highlight cells and edges
-				const outEdges = graph.current?.getOutgoingEdges(cell) || [];
-				// @ts-ignore
-				// TODO: the parent param is optional
-				const inEdges = graph.current?.getIncomingEdges(cell) || [];
-				const edges = outEdges.concat(inEdges);
-				for (let i = 0; i < edges.length; i += 1) {
+			if (cell) {
+				if (cell.vertex) {
+					// highlight cells and edges
+					const outEdges = graph.current?.getOutgoingEdges(cell) || [];
+					const inEdges =
+						graph.current?.getIncomingEdges(cell, graph.current.getDefaultParent()) ||
+						[];
+					const edges = outEdges.concat(inEdges);
+					for (let i = 0; i < edges.length; i += 1) {
+						const highlight = new MxCellHighlight(graph.current!, '#2491F7', 2);
+						const state = graph.current!.view.getState(edges[i]);
+						highlight.highlight(state);
+						highlightEdges.push(highlight);
+					}
+
+					// vertex will call onClick function
+					onClick?.(cell, graph.current!, evt.getProperty('event'));
+				} else {
+					// only highlight current edge
 					const highlight = new MxCellHighlight(graph.current!, '#2491F7', 2);
-					const state = graph.current!.view.getState(edges[i]);
+					const state = graph.current!.view.getState(cell);
 					highlight.highlight(state);
 					highlightEdges.push(highlight);
 				}
-
-				onClick?.(cell, graph.current!, evt.getProperty('event'));
 			} else {
 				const cells = graph.current!.getSelectionCells();
 				graph.current?.removeSelectionCells(cells);
@@ -212,10 +600,9 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 
 		// ContextMenu 事件
 		const mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
-		// Only vertex could show contextMenu
 		mxPopupMenu.prototype.showMenu = function (this: { graph: mxGraph }) {
 			const cells = this.graph.getSelectionCells() || [];
-			if (cells.length > 0 && cells[0].vertex) {
+			if (cells.length > 0) {
 				// eslint-disable-next-line prefer-rest-params
 				mxPopupMenuShowMenu.apply(this, arguments as any);
 			} else return false;
@@ -261,32 +648,58 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 			menu: mxPopupMenuHandler,
 			cell: mxCell,
 		) => {
-			if (!cell || !cell.vertex) return;
+			if (!cell) return;
 
-			await Promise.resolve(onContextMenu?.(cell.value!)).then((payloads) => {
-				payloads?.forEach(({ title, disabled, children: subMenu, callback }) => {
-					const parent = menu.addItem(
-						title,
-						undefined,
-						callback,
-						undefined,
-						undefined,
-						!disabled,
-					);
-					// 暂时先支持两层菜单
-					if (subMenu?.length) {
-						subMenu.forEach((child) => {
-							menu.addItem(
-								child.title,
-								undefined,
-								child.callback,
-								parent,
-								undefined,
-								!child.disabled,
-							);
-						});
-					}
-				});
+			const contextMenus = cell.vertex
+				? await onContextMenu?.(cell.value!, cell, graph.current!)
+				: await onEdgeContextMenu?.(cell.value!, cell, graph.current!);
+
+			contextMenus?.forEach(({ id, title, disabled, children: subMenu, callback }) => {
+				// 如果发现当前菜单项在快捷键里存在相同 id 的注册事件
+				const target =
+					!!keybindingsRef.current.length &&
+					!!id &&
+					keybindingsRef.current.find((k) => k.id === id);
+
+				const parent = menu.addItem(
+					target
+						? `${title}(${(() => {
+								switch (target.method) {
+									case 'bindControlKey':
+										return mxClient.IS_MAC ? '⌘' : 'Meta';
+									case 'bindKey':
+									default:
+										return '';
+								}
+						  })()} ${renderCharacterByCode(target.keyCode)})`
+						: title,
+					undefined,
+					() => {
+						if (target) {
+							target.func();
+							return;
+						}
+
+						callback?.();
+					},
+					undefined,
+					undefined,
+					!disabled,
+				);
+
+				// 暂时先支持两层菜单
+				if (subMenu?.length) {
+					subMenu.forEach((child) => {
+						menu.addItem(
+							child.title,
+							undefined,
+							child.callback,
+							parent,
+							undefined,
+							!child.disabled,
+						);
+					});
+				}
 			});
 		};
 	};
@@ -398,6 +811,12 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 		};
 	}, [graphData]);
 
+	useEffect(() => {
+		initConnectionConstraints();
+		initWidgesDraggable();
+		initKeyDownEvent();
+	}, []);
+
 	return (
 		<div className="graph-editor">
 			<Spin tip="Loading..." size="large" spinning={loading} wrapperClassName="task-graph">
@@ -408,22 +827,34 @@ export default function MxGraphContainer<T extends IMxGraphData>({
 						width: '100%',
 						height: '100%',
 					}}
+					tabIndex={-1}
 					ref={container}
 				/>
 			</Spin>
+			{onRenderWidgets && (
+				<div className="graph-widgets" onContextMenu={(e) => e.preventDefault()}>
+					{onRenderWidgets?.()}
+				</div>
+			)}
 			<div className="graph-bottom">{children?.(current)}</div>
 			<div className="graph-toolbar">
-				{onRenderActions?.()}
-				<Tooltip placement="bottom" title="刷新">
-					<ReloadOutlined onClick={handleRefresh} />
-				</Tooltip>
-				<Tooltip placement="bottom" title="放大">
-					<ZoomInOutlined onClick={() => handleLayoutZoom(ZoomKind.In)} />
-				</Tooltip>
-				<Tooltip placement="bottom" title="缩小">
-					<ZoomOutOutlined onClick={() => handleLayoutZoom(ZoomKind.Out)} />
-				</Tooltip>
+				<Space size={12}>
+					{onRenderActions?.(graph.current)}
+					<Tooltip placement="bottom" title="刷新">
+						<ReloadOutlined onClick={handleRefresh} />
+					</Tooltip>
+					<Tooltip placement="bottom" title="放大">
+						<ZoomInOutlined onClick={() => handleLayoutZoom(ZoomKind.In)} />
+					</Tooltip>
+					<Tooltip placement="bottom" title="缩小">
+						<ZoomOutOutlined onClick={() => handleLayoutZoom(ZoomKind.Out)} />
+					</Tooltip>
+				</Space>
 			</div>
 		</div>
 	);
 }
+
+export default forwardRef(MxGraphContainer) as <T extends IMxGraphData>(
+	props: IContainerProps<T> & { ref?: ForwardedRef<IContainerRef<T>> },
+) => JSX.Element;

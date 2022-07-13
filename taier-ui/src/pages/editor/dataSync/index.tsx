@@ -5,7 +5,7 @@ import { connect } from '@dtinsight/molecule/esm/react';
 import API from '@/api';
 import { message, Spin, Steps } from 'antd';
 import { checkExist, getTenantId } from '@/utils';
-import saveTask from '@/utils/saveTask';
+import taskSaveService from '@/services/taskSaveService';
 import type {
 	IDataSourceUsedInSyncProps,
 	ISyncDataProps,
@@ -295,7 +295,8 @@ function DataSync({ current }: molecule.model.IEditor) {
 	};
 
 	const handleSaveTab = () => {
-		saveTask()
+		taskSaveService
+			.save()
 			.then((res) => res?.data?.id)
 			.then((id) => {
 				if (id !== undefined) {
