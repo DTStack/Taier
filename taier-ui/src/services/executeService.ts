@@ -18,7 +18,7 @@
 
 import { Component } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultService } from './taskResultService';
-import taskResultService, { createLinkMark, createLog, createTitle } from './taskResultService';
+import taskResultService, { createLog, createTitle } from './taskResultService';
 import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
@@ -437,15 +437,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		if (res.data?.result) {
 			taskResultService.setResult(jobId || currentTabId.toString(), res.data.result);
 		}
-		if (res.data && res.data.download) {
-			taskResultService.appendLogs(
-				currentTabId.toString(),
-				`完整日志下载地址：${createLinkMark({
-					href: res.data.download,
-					download: '',
-				})}\n`,
-			);
-		}
 	};
 
 	private outputStatus = (currentTabId: number, status: TASK_STATUS, extText?: string) => {
@@ -466,15 +457,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	private abnormal = (currentTabId: number, data: ITaskExecResultProps) => {
 		if (data.status) {
 			this.outputStatus(currentTabId, data.status);
-		}
-		if (data.download) {
-			taskResultService.appendLogs(
-				currentTabId.toString(),
-				`完整日志下载地址：${createLinkMark({
-					href: data.download,
-					download: '',
-				})}\n`,
-			);
 		}
 	};
 
@@ -530,7 +512,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				);
 				return false;
 			}
-			const { code, data, retryLog } = res;
+			const { code, retryLog } = res;
 			if (code) {
 				this.showMsg(currentTabId, res);
 			}
@@ -538,15 +520,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				taskResultService.appendLogs(
 					currentTabId.toString(),
 					createLog(`请求异常！`, 'error'),
-				);
-			}
-			if (data && data.download) {
-				taskResultService.appendLogs(
-					currentTabId.toString(),
-					`完整日志下载地址：${createLinkMark({
-						href: res.data.download,
-						download: '',
-					})}\n`,
 				);
 			}
 			if (retryLog && num && num <= 3) {
