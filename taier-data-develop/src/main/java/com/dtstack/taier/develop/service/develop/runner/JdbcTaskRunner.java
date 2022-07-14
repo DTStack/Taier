@@ -5,7 +5,6 @@ import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.RegexUtils;
@@ -104,9 +103,6 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     }
 
     private Integer getSchedulerStatus(DevelopSelectSql selectSql) {
-        if (selectSql.getIsSelectSql() == TempJobType.SELECT.getType()) {
-            return TaskStatus.FINISHED.getStatus();
-        }
         ScheduleJob scheduleJob = jobService.getScheduleJob(selectSql.getJobId());
         if (Objects.isNull(scheduleJob)) {
             return TaskStatus.NOTFOUND.getStatus();
