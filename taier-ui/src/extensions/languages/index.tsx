@@ -125,9 +125,11 @@ function registerWorkers() {
 				case TASK_LANGUAGE.JSON: {
 					return './json.worker.js';
 				}
-				case TASK_LANGUAGE.SQL:
-				default: {
+				case TASK_LANGUAGE.SQL: {
 					return './sql.worker.js';
+				}
+				default: {
+					return './editor.worker.js';
 				}
 			}
 		},

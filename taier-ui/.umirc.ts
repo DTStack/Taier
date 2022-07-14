@@ -30,6 +30,9 @@ export default defineConfig({
 		memo.entry('sparksql.worker').add(
 			'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
 		);
+		memo.entry('sql.worker').add(
+			'monaco-sql-languages/out/esm/sql/sql.worker.js',
+		);
 		memo.entry('hivesql.worker').add('monaco-sql-languages/out/esm/hivesql/hivesql.worker.js');
 		memo.entry('mysql.worker').add('monaco-sql-languages/out/esm/mysql/mysql.worker.js');
 		memo.entry('flinksql.worker').add(
