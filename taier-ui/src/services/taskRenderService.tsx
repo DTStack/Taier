@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { singleton } from 'tsyringe';
+import { lazy, Suspense } from 'react';
 import { message, Modal } from 'antd';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
@@ -185,11 +186,11 @@ class TaskRenderService {
 	/**
 	 * 根据任务类型获取不同的 tabData，用以渲染不同的编辑器内容
 	 */
-	public renderTabOnEditor = async (
+	public renderTabOnEditor = (
 		key: TASK_TYPE_ENUM,
 		record: { id: number | string; name: string; taskType: TASK_TYPE_ENUM; [key: string]: any },
 		props: Record<string, any> = {},
-	): Promise<molecule.model.IEditorTab> => {
+	): molecule.model.IEditorTab => {
 		const fields = this.createFormField.find((i) => i.taskType === key);
 		const renderKind = fields?.renderKind || 'editor';
 
@@ -235,8 +236,12 @@ class TaskRenderService {
 		} else {
 			try {
 				// 自定义渲染需要声明 renderPane 组件
-				const Component = (await import(`@/pages/editor/${renderKind}`)).default;
-				tabData.renderPane = () => <Component key={tabData.id} {...props} />;
+				const Component = lazy(() => import(`@/pages/editor/${renderKind}`));
+				tabData.renderPane = (data) => (
+					<Suspense key={data.id} fallback={<div>loading...</div>}>
+						<Component key={data.id} {...props} />
+					</Suspense>
+				);
 			} catch (err) {
 				notification.error({
 					key: 'ModuleNotFound',
@@ -345,7 +350,7 @@ class TaskRenderService {
 		if (!config.create) {
 			const res = await api.getOfflineTaskByID<IOfflineTaskProps>({ id: record.id });
 			if (res.code === 1) {
-				this.renderTabOnEditor(res.data.taskType, res.data, {
+				const tabData = this.renderTabOnEditor(res.data.taskType, res.data, {
 					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
 						return new Promise<boolean>((resolve) => {
 							const params = {
@@ -372,14 +377,11 @@ class TaskRenderService {
 								});
 						});
 					},
-				})
-					.then((tabData) => {
-						molecule.folderTree.setActive(tabData.id);
-						molecule.editor.open(tabData);
-					})
-					.finally(() => {
-						molecule.explorer.forceUpdate();
-					});
+				});
+
+				molecule.folderTree.setActive(tabData.id);
+				molecule.editor.open(tabData);
+				molecule.explorer.forceUpdate();
 			}
 		} else {
 			if (record.taskType === undefined) {
@@ -398,14 +400,14 @@ class TaskRenderService {
 				return;
 			}
 
-			this.renderTabOnEditor(record.taskType, record as Required<typeof record>)
-				.then((tabData) => {
-					molecule.folderTree.setActive(tabData.id);
-					molecule.editor.open(tabData);
-				})
-				.finally(() => {
-					molecule.explorer.forceUpdate();
-				});
+			const tabData = this.renderTabOnEditor(
+				record.taskType,
+				record as Required<typeof record>,
+			);
+
+			molecule.folderTree.setActive(tabData.id);
+			molecule.editor.open(tabData);
+			molecule.explorer.forceUpdate();
 		}
 	};
 }
