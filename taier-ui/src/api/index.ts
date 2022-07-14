@@ -299,9 +299,9 @@ export default {
 		// 停止执行SQL
 		return http.post(req.STOP_DATA_SYNC_IMMEDIATELY, params);
 	},
-	getIncrementColumns(params: any) {
+	getIncrementColumns(params: any, config?: any) {
 		// 获取增量字段
-		return http.post(req.GET_INCREMENT_COLUMNS, params);
+		return http.post(req.GET_INCREMENT_COLUMNS, params, config);
 	},
 	getHivePartitions(params: any) {
 		// 获取Hive分区
@@ -448,23 +448,23 @@ export default {
 	getTaskJobWorkflowNodes(params: any) {
 		return http.post(req.GET_TASK_JOB_WORKFLOW_NODES, params);
 	},
-	getOfflineTableList(params: any) {
-		return http.post(req.TABLE_LIST, params);
+	getOfflineTableList(params: any, config?: any) {
+		return http.post(req.TABLE_LIST, params, config);
 	},
-	getOfflineTableColumn(params: any) {
-		return http.post(req.GET_TABLE_COLUMN, params);
+	getOfflineTableColumn(params: any, config?: any) {
+		return http.post(req.GET_TABLE_COLUMN, params, config);
 	},
-	getOfflineColumnForSyncopate(params: any) {
-		return http.post(req.GET_COLUMN_FOR_SYNCOPATE, params);
+	getOfflineColumnForSyncopate(params: any, config?: any) {
+		return http.post(req.GET_COLUMN_FOR_SYNCOPATE, params, config);
 	},
-	getHivePartitionsForDataSource(params: any) {
-		return http.post(req.GET_HIVE_PARTITIONS, params);
+	getHivePartitionsForDataSource(params: any, config?: any) {
+		return http.post(req.GET_HIVE_PARTITIONS, params, config);
 	},
 	getDataSourcePreview(params: any) {
 		return http.post(req.GET_DATA_SOURCE_PREVIEW, params);
 	},
-	getAllSchemas(params: any) {
-		return http.post(req.GET_ALL_SCHEMAS, params);
+	getAllSchemas(params: any, config?: any) {
+		return http.post(req.GET_ALL_SCHEMAS, params, config);
 	},
 	queryByTenantId<T>(params: any) {
 		return http.get<T>(req.QUREY_BY_TENANT_ID, params);
