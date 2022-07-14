@@ -18,44 +18,22 @@
 
 package com.dtstack.taier.common.enums;
 
-/**
- * @author jiangbo
- * @date 2018/6/27 15:36
- */
 public enum TempJobType {
 
     /**
      *
      */
     SELECT(1),
+
+    /**
+     * 数据同步任务
+     */
+    SYNC_TASK(2),
+
     /**
      *
      */
-    INSERT(0),
-    /**
-     *
-     */
-    CREATE_AS(2),
-    /**
-     *
-     */
-    SIMPLE_SELECT(3),
-    /**
-     *
-     */
-    PYTHON_SHELL(4),
-    /**
-     *
-     */
-    SYNC_TASK(5),
-    /**
-     *
-     */
-    CARBON_SQL(6),
-    /**
-     *
-     */
-    CREATE(7);
+    OTHER(3);
 
     private Integer type;
 

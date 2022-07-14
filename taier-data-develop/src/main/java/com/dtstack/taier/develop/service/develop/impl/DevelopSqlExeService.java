@@ -20,12 +20,9 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.service.develop.ISqlExeService;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -64,29 +61,6 @@ public class DevelopSqlExeService {
 
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 
-    /**
-     * 执行SQL
-     *
-     * @param executeContent
-     * @return
-     * @throws Exception
-     */
-    public ExecuteResultVO executeSql(final ExecuteContent executeContent) throws Exception {
-        ExecuteResultVO result = new ExecuteResultVO();
-        // 前置操作
-        this.prepareExecuteContent(executeContent);
-        result.setSqlText(executeContent.getSql());
-
-        ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(executeContent.getTaskType());
-
-        final ExecuteResultVO engineExecuteResult = sqlExeService.executeSql(executeContent);
-        if (!engineExecuteResult.getContinue()) {
-            return engineExecuteResult;
-        }
-
-        PublicUtil.copyPropertiesIgnoreNull(engineExecuteResult, result);
-        return result;
-    }
 
     /**
      * 处理自定义函数 和 构建真正运行的SQL
@@ -98,12 +72,13 @@ public class DevelopSqlExeService {
      */
     public String processSqlText(Long tenantId, Integer taskType, String sqlText) {
         TenantComponent tenantEngine = this.developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
-        ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(taskType);
+//        ISqlExeService sqlExeService = this.multiEngineServiceFactory.getSqlExeService(taskType);
         // 处理自定义函数
         String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
 
         // 构建真正运行的SQL，去掉注释，加上use db 同时格式化SQL
-        return sqlExeService.process(sqlPlus, tenantEngine.getComponentIdentity());
+//        return sqlExeService.process(sqlPlus, tenantEngine.getComponentIdentity());
+        return sqlText;
     }
 
 
