@@ -26,6 +26,7 @@ import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
 import notification from '@/components/notification';
+import md5 from 'md5';
 
 export enum EXECUTE_EVENT {
 	onStartRun = 'onStartRun',
@@ -286,7 +287,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		rawParams: Record<string, any>,
 		sqls: string[],
 		index: number,
-	) => {
+	): Promise<void> => {
 		const params = { ...rawParams };
 		params.sql = `${sqls[index]}`;
 		params.isEnd = sqls.length === index + 1;
@@ -318,8 +319,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 								);
 							} else {
 								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-								return;
+								return this.exec(currentTabId, task, params, sqls, index + 1);
 							}
 						}
 					}
@@ -425,17 +425,16 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	/**
 	 * 根据不同的状态输出不同的信息，并进行后续的日志输出以及是否进行 download
 	 */
-	private getDataOver = (
-		currentTabId: number,
-		res: IResponseBodyProps<ITaskExecResultProps>,
-		jobId?: string,
-	) => {
+	private getDataOver = (currentTabId: number, res: IResponseBodyProps<ITaskExecResultProps>) => {
 		if (res.data) {
 			this.outputStatus(currentTabId, res.data.status);
 		}
 
 		if (res.data?.result) {
-			taskResultService.setResult(jobId || currentTabId.toString(), res.data.result);
+			taskResultService.setResult(
+				`${currentTabId.toString()}-${md5(res.data.sqlText)}`,
+				res.data.result,
+			);
 		}
 		if (res.data && res.data.download) {
 			taskResultService.appendLogs(
@@ -604,7 +603,11 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 								currentTabId.toString(),
 								createLog('获取结果成功', 'info'),
 							);
-							taskResultService.setResult(jobId.toString(), res.data.result);
+							taskResultService.setResult(
+								// 数据同步任务不存在 sqltext
+								`${currentTabId.toString()}-${md5('sync')}`,
+								res.data.result,
+							);
 						}
 					}
 				})
@@ -649,7 +652,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 					switch (res.data.status) {
 						case TASK_STATUS.FINISHED: {
 							// 成功
-							this.getDataOver(currentTabId, res, jobId);
+							this.getDataOver(currentTabId, res);
 							return true;
 						}
 						case TASK_STATUS.RUN_FAILED: {
