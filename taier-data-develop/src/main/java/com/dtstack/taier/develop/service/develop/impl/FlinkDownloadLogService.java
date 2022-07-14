@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 
-import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.IDownloader;
 import com.dtstack.dtcenter.loader.utils.AssertUtils;
 import com.dtstack.taier.common.enums.EComponentType;
@@ -10,7 +9,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.develop.dto.devlop.DownloadLogVO;
 import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,9 @@ public class FlinkDownloadLogService {
     @Autowired
     private ScheduleJobMapper scheduleJobMapper;
 
+    @Autowired
+    private ClusterService clusterService;
+
 
     /**
      * 根据 UIC 租户 ID 和 yarn 上任务 ID 下载任务日志
@@ -43,8 +45,10 @@ public class FlinkDownloadLogService {
         if (StringUtils.isBlank(applicationId)) {
             throw new DtCenterDefException("applicationId 不能为空,可能任务尚未完成或提交失败,请检查运行日志");
         }
-        final Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-        final JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId, EComponentType.YARN);
+        Map yarnConf = clusterService.getComponentByTenantId(tenantId, EComponentType.YARN.getTypeCode(), false,
+                Map.class, null);
+        Map hadoopConf = clusterService.getComponentByTenantId(tenantId, EComponentType.HDFS.getTypeCode(), false,
+                Map.class, null);
         return new LogPluginDownload(applicationId, hadoopConf, yarnConf, null, limitNum).getHdfsLogDownloader();
 
 
