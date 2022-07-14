@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.metric.batch.IMetric;
@@ -42,8 +43,10 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.develop.common.convert.BinaryConversion;
 import com.dtstack.taier.develop.dto.devlop.DevelopServerLogVO;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.dto.devlop.SyncStatusLogInfoVO;
 import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopServerLogByAppLogTypeResultVO;
@@ -108,6 +111,12 @@ public class DevelopServerLogService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private TaskConfiguration taskConfiguration;
+
+    @Autowired
+    private EnvironmentContext environmentContext;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -724,9 +733,9 @@ public class DevelopServerLogService {
         }
         final JSONObject result = new JSONObject(YarnAppLogType.values().length);
         for (final YarnAppLogType type : YarnAppLogType.values()) {
-            final String msg = this.developDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
-                    type.name().toUpperCase(), taskType);
-            final JSONObject typeLog = new JSONObject(2);
+            ExecuteResultVO executeResultVO = taskConfiguration.get(taskType).runLog(jobId, taskType, tenantId, environmentContext.getLogsLimitNum());
+            String msg = executeResultVO.getMsg();
+            JSONObject typeLog = new JSONObject(2);
             typeLog.put("msg", msg);
             typeLog.put("download", String.format(DevelopServerLogService.DOWNLOAD_TYPE_LOG, jobId, type.name().toUpperCase()));
             result.put(type.name(), typeLog);
@@ -745,11 +754,9 @@ public class DevelopServerLogService {
         if (YarnAppLogType.getType(logType) == null) {
             throw new RdosDefineException("not support the logType:" + logType);
         }
-
-        final String msg = this.developDownloadService.downloadAppTypeLog(tenantId, jobId, 100,
-                logType.toUpperCase(), taskType);
+        ExecuteResultVO executeResultVO = taskConfiguration.get(taskType).runLog(jobId, taskType, tenantId, environmentContext.getLogsLimitNum());
         DevelopServerLogByAppLogTypeResultVO resultVO = new DevelopServerLogByAppLogTypeResultVO();
-        resultVO.setMsg(msg);
+        resultVO.setMsg(executeResultVO.getMsg());
         resultVO.setDownload(String.format(DevelopServerLogService.DOWNLOAD_TYPE_LOG, jobId, logType));
 
         return resultVO;

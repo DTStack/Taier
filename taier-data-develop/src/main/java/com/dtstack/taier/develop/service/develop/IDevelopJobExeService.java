@@ -18,9 +18,8 @@
 
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.dao.domain.Task;
 
 import java.util.List;
 import java.util.Map;
@@ -32,18 +31,6 @@ import java.util.Map;
  * @author xuchao
  */
 public interface IDevelopJobExeService {
-
-    /**
-     * 直接调用sql执行
-     * @param userId
-     * @param tenantId
-     * @param taskId
-     * @param sql
-     * @param task
-     * @return
-     * @throws Exception
-     */
-    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task,  String jobId) throws Exception;
 
     /**
      * 组装参数 提交调度

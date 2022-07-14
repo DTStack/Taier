@@ -101,7 +101,7 @@ public class DevelopSelectSqlController {
                     Preconditions.checkNotNull(selectSql, "不存在该临时查询");
                     ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
                     Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
-                    return taskRunner.runLogShow(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), null);
+                    return taskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
                 }

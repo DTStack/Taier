@@ -40,6 +40,13 @@ public class RegexUtils {
         return Pattern.matches(regex, input);
     }
 
+    /**
+     * 判断是否是否是查询语句
+     * show tables 、explain 语句、select 语句、desc formatted 语句
+     *
+     * @param sql
+     * @return
+     */
     public static boolean isQuery(String sql) {
         return SqlRegexUtil.isShowSql(sql)
                 || SqlRegexUtil.isExplainSql(sql)

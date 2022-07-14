@@ -18,10 +18,16 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
+import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
+import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +51,11 @@ public class DevelopSelectSqlService {
 
     @Autowired
     private ScheduleActionService actionService;
+
+    @Autowired
+    private TaskConfiguration taskConfiguration;
+
+    private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
 
 
     public DevelopSelectSql getSelectSql(Long tenantId, String s, Integer o) {
@@ -85,11 +96,48 @@ public class DevelopSelectSqlService {
         hiveSelectSql.setUserId(userId);
         hiveSelectSql.setParsedColumns(parsedColumns);
         hiveSelectSql.setTaskType(taskType);
-
         developHiveSelectSqlDao.insert(hiveSelectSql);
     }
 
-    public int updateGmtModify(String jobId, Long tenantId){
-        return developHiveSelectSqlDao.updateGmtModify(jobId, tenantId);
+    /**
+     * 使用任务的方式运行sql
+     *
+     * @param tenantId
+     * @param parseResult
+     * @param userId
+     * @param database
+     * @param taskId
+     * @param taskType
+     * @param preJobId
+     * @return
+     */
+    public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database,
+                               Long taskId, Integer taskType, String preJobId) {
+        ITaskRunner iTaskRunner = taskConfiguration.get(taskType);
+        try {
+            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, tenantId, userId, database, taskId);
+            // 发送sql任务
+            sendSqlTask(tenantId, buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
+            // 记录job
+            addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
+                    parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
+            return preJobId;
+        } catch (Exception e) {
+            throw new RdosDefineException("任务执行sql失败", e);
+        }
     }
+
+    public String sendSqlTask(Long tenantId, String sql, String taskParams, String jobId, Long taskId, Integer taskType) {
+        ParamActionExt paramActionExt = new ParamActionExt();
+        paramActionExt.setTaskType(taskType);
+        paramActionExt.setSqlText(sql);
+        paramActionExt.setComputeType(EComputeType.BATCH.getType());
+        paramActionExt.setJobId(jobId);
+        paramActionExt.setName(String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
+        paramActionExt.setTaskParams(taskParams);
+        paramActionExt.setTenantId(tenantId);
+        actionService.start(paramActionExt);
+        return jobId;
+    }
+
 }
