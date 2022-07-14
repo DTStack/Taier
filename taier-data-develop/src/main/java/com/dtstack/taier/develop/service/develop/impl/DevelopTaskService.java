@@ -181,9 +181,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private TaskService taskService;
 
     @Autowired
-    private TaskVersionService taskVersionService;
-
-    @Autowired
     private DevelopSysParamService developSysParamService;
 
     @Autowired
@@ -254,8 +251,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
-        List<DevelopTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
-        taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
         List<DevelopResource> resources = developTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
         taskVO.setResourceList(resources);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
@@ -402,14 +397,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
 
-        // 检查任务是否可以发布并记录版本信息
-        TaskCheckResultVO<TaskVersion> resultVO = checkTaskAndSaveVersion(task, userId, publishDesc);
-        if (!PublishTaskStatusEnum.NOMAL.getType().equals(resultVO.getErrorSign())) {
-            return resultVO;
-        }
         try {
             // 构建要发布的任务列表
-            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task, resultVO.getData());
+            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task);
 
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
@@ -515,7 +505,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param task 要发布的任务集合
      * @return 调度任务DTO
      */
-    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, TaskVersion taskVersion) {
+    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
@@ -525,8 +515,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         scheduleTaskShadeDTO.setTaskId(task.getId());
         scheduleTaskShadeDTO.setTenantId(scheduleTaskShadeDTO.getTenantId());
-
-        scheduleTaskShadeDTO.setVersionId(Math.toIntExact(taskVersion.getId()));
         if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())
                 && StringUtils.isNotEmpty(task.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(task.getScheduleConf());
@@ -537,121 +525,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
         return scheduleTaskShadeDTO;
-    }
-
-    /**
-     * 检查要发布的任务并保存版本信息
-     *
-     * @param task        任务信息
-     * @param userId      用户id
-     * @param publishDesc 发布描述
-     * @return 检查结果
-     */
-    private TaskCheckResultVO checkTaskAndSaveVersion(Task task, Long userId, String publishDesc) {
-        TaskCheckResultVO checkVo = new TaskCheckResultVO();
-        checkVo.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-        TaskVersion taskVersion;
-        if (StringUtils.isBlank(task.getSqlText())) {
-            throw new RdosDefineException(task.getName() + "任务配置信息为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
-        }
-        checkTaskCanSubmit(task);
-        taskVersion = saveTaskVersion(task, userId, publishDesc, true);
-        checkVo.setData(taskVersion);
-        return checkVo;
-    }
-
-    /**
-     * 保存任务版本信息
-     *
-     * @param task
-     * @param userId
-     * @param publishDesc
-     */
-    private TaskVersion saveTaskVersion(Task task, Long userId, String publishDesc, Boolean isCheckFormat) {
-        TaskVersion taskVersion = new TaskVersion();
-        taskVersion.setCreateUserId(userId);
-        if (StringUtils.isNotBlank(task.getSqlText())) {
-            if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())
-                    || EScheduleJobType.DATA_ACQUISITION.getType().equals(task.getTaskType())) {
-                final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
-                Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
-                JSONObject job = jsonTask.getJSONObject("job");
-                if (Objects.isNull(job)) {
-                    throw new RdosDefineException(String.format("%s：%s 未配置", EScheduleJobType.getByTaskType(task.getTaskType()).name(), task.getName()));
-                }
-                // 检测job格式
-                if (BooleanUtils.isTrue(isCheckFormat)) {
-                    DaJobCheck.checkJobFormat(job.toJSONString(), createModelType);
-                }
-                taskVersion.setSqlText(jsonTask.toJSONString());
-            } else {
-                taskVersion.setSqlText(task.getSqlText());
-            }
-            taskVersion.setOriginSql(task.getSqlText());
-        } else {
-            taskVersion.setSqlText(StringUtils.EMPTY);
-            taskVersion.setOriginSql(StringUtils.EMPTY);
-        }
-        taskVersion.setTaskId(task.getId());
-        taskVersion.setVersion(task.getVersion());
-        taskVersion.setTaskParams(task.getTaskParams());
-        taskVersion.setPublishDesc(publishDesc);
-        taskVersion.setExeArgs(task.getExeArgs());
-        taskVersion.setSourceStr(task.getSourceStr());
-        taskVersion.setTargetStr(task.getTargetStr());
-        taskVersion.setSettingStr(task.getSettingStr());
-        taskVersion.setCreateUserId(task.getModifyUserId());
-        taskVersion.setTaskDesc(task.getTaskDesc());
-        taskVersion.setCreateModel(task.getCreateModel());
-        taskVersion.setComponentVersion(task.getComponentVersion());
-        taskVersion.setScheduleConf(task.getScheduleConf());
-        taskVersion.setPeriodType(task.getPeriodType());
-        taskVersion.setScheduleStatus(task.getScheduleStatus());
-        taskVersion.setTenantId(task.getTenantId());
-        taskVersion.setDependencyTaskIds(StringUtils.EMPTY);
-        taskVersion.setGmtCreate(new Timestamp(System.currentTimeMillis()));
-        taskVersion.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        taskVersionService.insert(taskVersion);
-        return taskVersion;
-    }
-
-    public List<DevelopTaskVersionDetailDTO> getTaskVersionRecord(Long taskId, Integer pageSize, Integer pageNo) {
-        if (pageNo == null) {
-            pageNo = 0;
-        }
-        if (pageSize == null) {
-            pageSize = 10;
-        }
-        PageQuery pageQuery = new PageQuery(pageNo, pageSize, "gmt_create", Sort.DESC.name());
-        List<DevelopTaskVersionDetailDTO> res = taskVersionService.listByTaskId(taskId, pageQuery);
-        for (DevelopTaskVersionDetailDTO detail : res) {
-            detail.setUserName(userService.getUserName(detail.getCreateUserId()));
-        }
-        return res;
-    }
-
-    public DevelopTaskVersionDetailDTO taskVersionScheduleConf(Long versionId) {
-        DevelopTaskVersionDetailDTO taskVersion = taskVersionService.getByVersionId(versionId);
-        if (taskVersion == null) {
-            return null;
-        }
-        taskVersion.setUserName(userService.getUserName(taskVersion.getCreateUserId()));
-        if (StringUtils.isNotBlank(taskVersion.getDependencyTaskIds())) {
-            List<Map<String, Object>> dependencyTasks = getDependencyTasks(taskVersion.getDependencyTaskIds());
-            JSONObject taskParams = new JSONObject();
-            int i = 1;
-            for (Map<String, Object> dependencyTask : dependencyTasks) {
-                ScheduleTaskShade taskShade = taskService.findTaskByTaskId(MathUtil.getLongVal(dependencyTask.get("parentTaskId")));
-                if (taskShade != null) {
-                    JSONObject taskParam = new JSONObject();
-                    taskParam.put("taskName", taskShade.getName());
-                    taskParam.put("tenantName", tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
-                    taskParams.put("task" + i++, taskParam);
-                }
-            }
-            taskVersion.setDependencyTasks(taskParams);
-        }
-        return taskVersion;
     }
 
     /**

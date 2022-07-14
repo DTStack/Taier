@@ -6,12 +6,10 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.taier.common.constant.CommonConstant;
-import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.TempJobType;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
@@ -31,7 +29,6 @@ import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import com.dtstack.taier.develop.sql.utils.SqlRegexUtil;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.RetryUtil;
 import com.google.common.collect.Lists;
@@ -47,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -59,10 +55,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     public static final Logger LOGGER = LoggerFactory.getLogger(HadoopJdbcTaskRunner.class);
 
     public static final Pattern CACHE_LAZY_SQL_PATTEN = Pattern.compile("(?i)cache\\s+(lazy\\s+)?table.*");
-
-    private static final String SIMPLE_QUERY_REGEX = "(?i)select\\s+(?<cols>((\\*|[a-zA-Z0-9_,\\s]*)\\s+|\\*))from\\s+(((?<db>[0-9a-z_]+)\\.)*(?<name>[0-9a-z_]+))(\\s+limit\\s+(?<num>\\d+))*\\s*";
-
-    public static final Pattern SIMPLE_QUERY_PATTERN = Pattern.compile(SIMPLE_QUERY_REGEX);
 
     private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
@@ -239,30 +231,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return queryResult;
     }
 
-    /**
-     * 从简单查询sql中获取最大条数
-     *
-     * @param sql      简单查询sql
-     * @param tenantId 租户id
-     * @return 最大条数
-     */
-    public Integer getMaxQueryNum(String sql, Long tenantId, Integer taskType) {
-        Matcher matcher = SIMPLE_QUERY_PATTERN.matcher(sql);
-        if (!matcher.find()) {
-            throw new RdosDefineException("该sql不符合简单查询!");
-        }
-        String limitStr = matcher.group("num");
-        Integer num = null;
-        if (StringUtils.isNotEmpty(limitStr)) {
-            num = Integer.parseInt(limitStr);
-        }
-        JdbcInfo jdbcInfo = Engine2DTOService.getJdbcInfo(tenantId, null, EScheduleJobType.getByTaskType(taskType));
-        if (Objects.isNull(num) || num > jdbcInfo.getMaxRows()) {
-            num = jdbcInfo.getMaxRows();
-        }
-        return num;
-    }
-
     @Override
     public ExecuteResultVO runLog(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
         ExecuteResultVO resultVO = new ExecuteResultVO();
@@ -335,8 +303,10 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         IDownload iDownload = null;
         try {
             iDownload = RetryUtil.executeWithRetry(() -> {
-                Map<String, Object> hadoopConf = Engine2DTOService.getHdfs(tenantId);
-                JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId, EComponentType.YARN);
+                Map yarnConf = clusterService.getComponentByTenantId(tenantId, EComponentType.YARN.getTypeCode(), false,
+                        Map.class, null);
+                Map hadoopConf = clusterService.getComponentByTenantId(tenantId, EComponentType.HDFS.getTypeCode(), false,
+                        Map.class, null);
                 final LogPluginDownload downloader = new LogPluginDownload(scheduleJob.getApplicationId(), yarnConf, hadoopConf,
                         scheduleJob.getSubmitUserName(), limitNum);
                 return downloader;

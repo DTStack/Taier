@@ -27,12 +27,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 变量替换
@@ -49,8 +46,6 @@ public class JobParamReplace {
     private DevelopSysParamService developSysParamService;
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
-
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private final static String VAR_FORMAT = "${%s}";
 
@@ -92,28 +87,6 @@ public class JobParamReplace {
         return sql;
     }
 
-    /**
-     * 转化对应字符串中的自定义参数和系统参数
-     *
-     * @param sql
-     * @param paramList
-     * @return
-     */
-    public String paramReplace(String sql, List paramList){
-        return paramReplace(sql, paramList, sdf.format(new Date()));
-    }
-
-    /**
-     * 批量替换参数
-     * @param sqlList
-     * @param paramList
-     * @param cycTime
-     * @return
-     */
-    public List<String> developParamReplace(List<String> sqlList,List paramList, String cycTime){
-        return sqlList.stream().map(t-> paramReplace(t,paramList,cycTime)).collect(Collectors.toList());
-
-    }
 
 
     public String convertParam(Integer type,String paramName,String paramCommand,String cycTime) {
