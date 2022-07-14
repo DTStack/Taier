@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.develop.dto.devlop.CheckPointTimeRangeResultDTO;
 import com.dtstack.taier.develop.dto.devlop.EngineJobCheckpoint;
@@ -15,7 +13,7 @@ import com.dtstack.taier.develop.dto.devlop.StreamTaskCheckpointVO;
 import com.dtstack.taier.develop.utils.DataSizeUtil;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.ParamsCheck;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,20 +46,18 @@ public class StreamTaskCheckpointService {
 
     private static final String DURATION = "duration";
 
-    private static final String END_TO_END_DURATION = "lastCheckpointDuration";
-
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
 
     @Autowired
     private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
-    private DevelopTaskService taskService;
+    private ClusterService clusterService;
 
     /**
      * 获取任务的checkpoint可选时间范围
      *
-     * @param  id
+     * @param id
      * @return
      */
     public CheckPointTimeRangeResultDTO getCheckpointTimeRange(String jobId) {
@@ -211,12 +207,8 @@ public class StreamTaskCheckpointService {
      */
     public String getSavepointPath(Long tenantId) {
         Long clusterIdByTenantId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
-        JSONObject flinkConf = Engine2DTOService.getComponentConfigByClusterId(clusterIdByTenantId, EComponentType.FLINK);
-
-        if (flinkConf != null) {
-            if (flinkConf == null || !flinkConf.containsKey(KEY_SAVEPOINT)) {
-                return null;
-            }
+        JSONObject flinkConf = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
+        if (flinkConf != null && flinkConf.containsKey(KEY_SAVEPOINT)) {
             String savepointPath = flinkConf.getString(KEY_SAVEPOINT);
             logger.info("savepoint path:{}", savepointPath);
 
