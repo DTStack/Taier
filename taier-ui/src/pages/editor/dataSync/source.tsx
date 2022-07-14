@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormInstance } from 'antd';
 import api from '@/api';
 import {
@@ -137,6 +137,8 @@ export default function Source({
 		dataSource: [],
 	});
 
+	const abortController = useRef(new AbortController());
+
 	/**
 	 * 获取表名
 	 */
@@ -144,13 +146,18 @@ export default function Source({
 		setTableListLoading(true);
 		setFetching(true);
 		if (!sourceId) return;
-		api.getOfflineTableList({
-			sourceId,
-			schema,
-			isSys: false,
-			name: str,
-			isRead: true,
-		})
+		api.getOfflineTableList(
+			{
+				sourceId,
+				schema,
+				isSys: false,
+				name: str,
+				isRead: true,
+			},
+			{
+				signal: abortController.current.signal,
+			},
+		)
 			.then((res) => {
 				if (res && res.code === 1) {
 					setTableList((l) => ({ ...l, [sourceId]: res.data || [] }));
@@ -169,11 +176,16 @@ export default function Source({
 	const getCopate = (specificParams?: ISourceFormField) => {
 		const { table, sourceId, schema } = specificParams || form.getFieldsValue();
 		const tableName = Array.isArray(table) ? table[0] : table;
-		api.getOfflineColumnForSyncopate({
-			sourceId,
-			tableName,
-			schema,
-		}).then((res) => {
+		api.getOfflineColumnForSyncopate(
+			{
+				sourceId,
+				tableName,
+				schema,
+			},
+			{
+				signal: abortController.current.signal,
+			},
+		).then((res) => {
 			if (res.code === 1) {
 				setCopateList(res.data || []);
 			}
@@ -265,10 +277,15 @@ export default function Source({
 			DATA_SOURCE_ENUM.HIVE1X,
 		];
 		if (ALLOW_REQUEST_HIVE.includes(sourceType)) {
-			api.getHivePartitionsForDataSource({
-				sourceId,
-				tableName: table,
-			}).then((res) => {
+			api.getHivePartitionsForDataSource(
+				{
+					sourceId,
+					tableName: table,
+				},
+				{
+					signal: abortController.current.signal,
+				},
+			).then((res) => {
 				setTablePartitionList(res.data || []);
 			});
 		}
@@ -287,7 +304,9 @@ export default function Source({
 			tableName: table,
 			schema,
 		};
-		const res = await api.getIncrementColumns(params);
+		const res = await api.getIncrementColumns(params, {
+			signal: abortController.current.signal,
+		});
 
 		if (res.code === 1) {
 			setIncrementCols(res.data || []);
@@ -1165,6 +1184,10 @@ export default function Source({
 				});
 			}
 		}
+
+		return () => {
+			abortController.current.abort();
+		};
 	}, []);
 
 	// 非增量模式
