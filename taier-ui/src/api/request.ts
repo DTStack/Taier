@@ -54,7 +54,6 @@ export default {
 	SELECT_SQL_LOG: `${BASE_URI}/batchSelectSql/selectRunLog`, // 轮询调度查询sql状态
 	SELECT_SQL_STATUS: `${BASE_URI}/batchSelectSql/selectStatus`, // 轮询调度查询sql状态
 	GET_INCREMENT_COLUMNS: `${BASE_URI}/task/getIncreColumn`, // 获取增量字段
-	CHECK_SYNC_MODE: `${BASE_URI}/task/canSetIncreConf`, // 检测是否满足增量转换条件
 	CHECK_HIVE_PARTITIONS: `${BASE_URI}/batchDataSource/getHivePartitions`, // 获取 hive 表分区值
 	GET_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/getCatalogue`, // 获取目录结构
 	ADD_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/addCatalogue`, // 添加目录
@@ -63,6 +62,7 @@ export default {
 	ADD_OFFLINE_RESOURCE: `${BASE_URI}/resource/addResource`, // 添加资源
 	REPLACE_OFFLINE_RESOURCE: `${BASE_URI}/resource/replaceResource`, // 替换资源
 	ADD_OFFLINE_TASK: `${BASE_URI}/task/addOrUpdateTask`, // 添加任务
+	EDIT_TASK: `${BASE_URI}/task/editTask`, // 更新任务中不涉及内容的部分
 	SAVE_OFFLINE_JOBDATA: `${BASE_URI}/task/addOrUpdateTask`, // 更新任务
 	ADD_OFFLINE_FUNCTION: `${BASE_URI}/batchFunction/addOrUpdateFunction`, // 添加函数
 	GET_TABLE_INFO_BY_DATASOURCE: `${BASE_URI}/batchDataSource/getTableInfoByDataSource`, // 从目标表位置获取表格信息
@@ -154,4 +154,5 @@ export default {
 	GET_TENANT_COMPONENT_LIST: `${BASE_URI}/tenantComponent/selectTenantComponentList`, // 获取当前租户配置的任务组件运行信息
 	SAVE_TENANT_COMPONENT_INFO: `${BASE_URI}/tenantComponent/saveTenantComponentInfo`, // 保存组件运行schema信息
 	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
+	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
 };

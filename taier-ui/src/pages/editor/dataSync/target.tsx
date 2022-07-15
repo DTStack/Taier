@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FormInstance } from 'antd';
 import {
 	Spin,
@@ -139,17 +139,24 @@ export default function Target({
 	const [editorInfo, setEditorInfo] = useState({ textSql: '', sync: false });
 	const [tablePartitionList, setPartitionList] = useState<string[]>([]);
 
+	const abortController = useRef(new AbortController());
+
 	const getTableList = throttle((sourceId: number, schema?: string, name?: string) => {
 		setFetching(true);
 		setTableListLoading(true);
 		setTableList([]);
-		API.getOfflineTableList({
-			sourceId,
-			isSys: false,
-			schema,
-			name,
-			isRead: false,
-		})
+		API.getOfflineTableList(
+			{
+				sourceId,
+				isSys: false,
+				schema,
+				name,
+				isRead: false,
+			},
+			{
+				signal: abortController.current.signal,
+			},
+		)
 			.then((res) => {
 				if (res.code === 1) {
 					setTableList(res.data || []);
@@ -162,9 +169,14 @@ export default function Target({
 	}, 500);
 
 	const getSchemaList = (sourceId: number) => {
-		API.getAllSchemas({
-			sourceId,
-		}).then((res) => {
+		API.getAllSchemas(
+			{
+				sourceId,
+			},
+			{
+				signal: abortController.current.signal,
+			},
+		).then((res) => {
 			if (res.code === 1) {
 				setSchemaList(res.data || []);
 			}
@@ -179,10 +191,15 @@ export default function Target({
 		if (!target) return;
 		// TODO 这里获取 Hive 分区的条件有点模糊
 		if (ALLOW_REQUEST_HIVE.includes(target.dataTypeCode)) {
-			API.getHivePartitionsForDataSource({
-				sourceId,
-				tableName: table,
-			}).then((res) => {
+			API.getHivePartitionsForDataSource(
+				{
+					sourceId,
+					tableName: table,
+				},
+				{
+					signal: abortController.current.signal,
+				},
+			).then((res) => {
 				setPartitionList(res.data || []);
 			});
 		}
@@ -1012,6 +1029,10 @@ export default function Target({
 				getHivePartitions(targetMap.sourceId, targetMap.table);
 			}
 		}
+
+		return () => {
+			abortController.current.abort();
+		};
 	}, []);
 
 	const initialValue = useMemo<IFormFieldProps>(() => {

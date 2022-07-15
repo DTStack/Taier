@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 
@@ -83,14 +82,20 @@ public class TaskVO extends Task {
      */
     private TaskDirtyDataManageVO TaskDirtyDataManageVO;
 
-    private List<DevelopResource> resourceList;
+    /**
+     * flink 依赖的资源ID
+     */
+    private List<Long> resourceIdList;
 
-    public List<DevelopResource> getResourceList() {
-        return resourceList;
+    public List<Long> getResourceIdList() {
+        return resourceIdList;
     }
-    public void setResourceList(List<DevelopResource> resourceList) {
-        this.resourceList = resourceList;
+
+    public void setResourceIdList(List<Long> resourceIdList) {
+        this.resourceIdList = resourceIdList;
     }
+
+
 
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return TaskDirtyDataManageVO;

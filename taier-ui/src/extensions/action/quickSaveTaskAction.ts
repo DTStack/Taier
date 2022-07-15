@@ -4,11 +4,11 @@ import api from '@/api';
 import { ID_COLLECTIONS } from '@/constant';
 import taskRenderService from '@/services/taskRenderService';
 import { isTaskTab } from '@/utils/is';
-import saveTask from '@/utils/saveTask';
 import molecule from '@dtinsight/molecule';
 import { Action2 } from '@dtinsight/molecule/esm/monaco/action';
 import { KeybindingWeight } from '@dtinsight/molecule/esm/monaco/common';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import taskSaveService from '@/services/taskSaveService';
 
 export default class QuickSaveTaskAction extends Action2 {
 	static readonly ID = 'SaveTask';
@@ -43,7 +43,7 @@ export default class QuickSaveTaskAction extends Action2 {
 				currentTabData,
 			);
 			if (taskToolbar.find((t) => t.id === ID_COLLECTIONS.TASK_SAVE_ID)) {
-				saveTask()
+				taskSaveService.save()
 					.then((res) => res?.data?.id)
 					.then((id) => {
 						if (id !== undefined) {

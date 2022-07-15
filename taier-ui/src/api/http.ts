@@ -20,10 +20,7 @@ import 'whatwg-fetch';
 import { message } from 'antd';
 import ProgressBar from '@/components/progressBar';
 import notification from '@/components/notification';
-import { IResponseBodyProps } from '@/interface';
-
-const controller = new AbortController();
-const { signal } = controller;
+import type { IResponseBodyProps } from '@/interface';
 
 class Http {
 	get<T = any>(url: any, params: any, config: Record<string, any> = {}) {
@@ -68,7 +65,7 @@ class Http {
 
 	request<T = any>(url: string, options: RequestInit) {
 		ProgressBar.show();
-		return fetch(url, { ...options, credentials: 'same-origin', signal })
+		return fetch(url, { ...options, credentials: 'same-origin' })
 			.then((response) => {
 				setTimeout(() => {
 					ProgressBar.hide();
