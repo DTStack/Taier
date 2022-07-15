@@ -181,6 +181,7 @@ export default function KeyMap({
 		source: [],
 		target: [],
 	});
+	const abortController = useRef(new AbortController());
 	// step 容器
 	const $canvas = useRef<SVGSVGElement>(null);
 	// 拖动的线
@@ -1378,18 +1379,28 @@ export default function KeyMap({
 
 		setLoading(true);
 		Promise.all([
-			Api.getOfflineTableColumn({
-				sourceId: sourceMap.sourceId,
-				schema: sourceSchema,
-				tableName: Array.isArray(sourceTable) ? sourceTable[0] : sourceTable,
-				isIncludePart: sourcePart,
-			}),
-			Api.getOfflineTableColumn({
-				sourceId: targetMap.sourceId,
-				schema: targetSchema,
-				tableName: targetTable,
-				isIncludePart: targetPart,
-			}),
+			Api.getOfflineTableColumn(
+				{
+					sourceId: sourceMap.sourceId,
+					schema: sourceSchema,
+					tableName: Array.isArray(sourceTable) ? sourceTable[0] : sourceTable,
+					isIncludePart: sourcePart,
+				},
+				{
+					signal: abortController.current.signal,
+				},
+			),
+			Api.getOfflineTableColumn(
+				{
+					sourceId: targetMap.sourceId,
+					schema: targetSchema,
+					tableName: targetTable,
+					isIncludePart: targetPart,
+				},
+				{
+					signal: abortController.current.signal,
+				},
+			),
 		])
 			.then((results) => {
 				if (results.every((res) => res.code === 1)) {
@@ -1423,6 +1434,10 @@ export default function KeyMap({
 
 	useEffect(() => {
 		getTableCols();
+
+		return () => {
+			abortController.current.abort();
+		};
 	}, []);
 
 	useEffect(() => {

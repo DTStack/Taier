@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { singleton } from 'tsyringe';
-import { DATA_SYNC_MODE } from '@/constant';
-import { Modal } from 'antd';
+import { lazy, Suspense } from 'react';
+import { message, Modal } from 'antd';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
@@ -12,6 +12,8 @@ import {
 	HiveSQLIcon,
 	OceanBaseIcon,
 	SparkSQLIcon,
+	VirtualIcon,
+	WorkflowIcon,
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
@@ -20,9 +22,11 @@ import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
 import type { ISupportJobTypes } from '@/context';
-import type molecule from '@dtinsight/molecule';
-import { breadcrumbService } from '.';
+import molecule from '@dtinsight/molecule';
+import { breadcrumbService, editorActionBarService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
+import type { IFormFieldProps } from '@/components/task/create';
+import { isTaskTab } from '@/utils/is';
 
 interface ICreateFormField {
 	taskType: TASK_TYPE_ENUM;
@@ -128,20 +132,6 @@ class TaskRenderService {
 						<Compoennt
 							key={f}
 							disabled={!!record}
-							validator={async (_, value) => {
-								if (record && value === DATA_SYNC_MODE.INCREMENT) {
-									// 当编辑同步任务，且改变同步模式为增量模式时，需要检测任务是否满足增量同步的条件
-									const res = await api.checkSyncMode({ id: record.id });
-									if (res.code === 1) {
-										return res.data ? Promise.resolve() : Promise.reject();
-									}
-
-									return Promise.reject(
-										new Error('当前同步任务不支持增量模式！'),
-									);
-								}
-								return Promise.resolve();
-							}}
 							onChange={() => {
 								Modal.confirm({
 									title: '正在切换引擎版本',
@@ -184,6 +174,10 @@ class TaskRenderService {
 				return <FlinkIcon />;
 			case TASK_TYPE_ENUM.OCEANBASE:
 				return <OceanBaseIcon />;
+			case TASK_TYPE_ENUM.VIRTUAL:
+				return <VirtualIcon />;
+			case TASK_TYPE_ENUM.WORK_FLOW:
+				return <WorkflowIcon style={{ color: '#2491F7' }} />;
 			default:
 				return 'file';
 		}
@@ -192,17 +186,19 @@ class TaskRenderService {
 	/**
 	 * 根据任务类型获取不同的 tabData，用以渲染不同的编辑器内容
 	 */
-	public renderTabOnEditor = async (
+	public renderTabOnEditor = (
 		key: TASK_TYPE_ENUM,
-		record: IOfflineTaskProps,
+		record: { id: number | string; name: string; taskType: TASK_TYPE_ENUM; [key: string]: any },
 		props: Record<string, any> = {},
-	): Promise<molecule.model.IEditorTab> => {
+	): molecule.model.IEditorTab => {
 		const fields = this.createFormField.find((i) => i.taskType === key);
 		const renderKind = fields?.renderKind || 'editor';
 
+		const isWorkflow = !!record.flowId;
+
 		const tabData: molecule.model.IEditorTab = {
 			id: record.id.toString(),
-			name: record.name,
+			name: isWorkflow ? `${record.flowName}/${record.name}` : record.name,
 			data: (() => {
 				// 针对不同任务，data 中的值不一样
 				switch (key) {
@@ -240,8 +236,12 @@ class TaskRenderService {
 		} else {
 			try {
 				// 自定义渲染需要声明 renderPane 组件
-				const Component = (await import(`@/pages/editor/${renderKind}`)).default;
-				tabData.renderPane = () => <Component key={tabData.id} {...props} />;
+				const Component = lazy(() => import(`@/pages/editor/${renderKind}`));
+				tabData.renderPane = (data) => (
+					<Suspense key={data.id} fallback={<div>loading...</div>}>
+						<Component key={data.id} {...props} />
+					</Suspense>
+				);
 			} catch (err) {
 				notification.error({
 					key: 'ModuleNotFound',
@@ -256,8 +256,19 @@ class TaskRenderService {
 	/**
 	 * 根据任务类型定义侧边栏
 	 */
-	public renderRightBar = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps): RightBarKind[] => {
-		const rightBarField = this.rightBarField.find((i) => i.taskType === key);
+	public renderRightBar = (): RightBarKind[] => {
+		const { current } = molecule.editor.getState();
+		/**
+		 * 当前的 tab 是否不合法，如不合法则展示 Empty
+		 */
+		const isInValidTab = !isTaskTab(current?.tab?.id);
+		if (isInValidTab) {
+			return [RightBarKind.TASK];
+		}
+
+		const record = current?.tab?.data as IOfflineTaskProps;
+
+		const rightBarField = this.rightBarField.find((i) => i.taskType === record.taskType);
 
 		if (rightBarField) {
 			const isConditionTrue = rightBarField.barItemCondition
@@ -297,6 +308,107 @@ class TaskRenderService {
 		}
 
 		return [];
+	};
+
+	/**
+	 * 根据 id 在编辑器区域打开任务 tab
+	 */
+	public openTask = async (
+		record: {
+			id: string | number;
+			taskType?: TASK_TYPE_ENUM;
+			name?: string;
+			[key: string]: any;
+		},
+		config: {
+			/**
+			 * 标记是否需要进行接口的请求, true 表示是新建的任务不需要向服务端做接口请求
+			 */
+			create: boolean;
+			/**
+			 * 主要用于 flink 任务打开的回调函数
+			 */
+			onAfterSubmit?: (
+				params: Record<string, any>,
+				parentId: number,
+				currentTaskId: string,
+			) => void;
+		} = {
+			create: false,
+		},
+	) => {
+		// prevent open same task in editor
+		if (molecule.editor.isOpened(record.id.toString())) {
+			const groupId = molecule.editor.getGroupIdByTab(record.id.toString())!;
+			molecule.editor.setActive(groupId, record.id.toString());
+			window.setTimeout(() => {
+				editorActionBarService.performSyncTaskActions();
+			}, 0);
+			return;
+		}
+
+		if (!config.create) {
+			const res = await api.getOfflineTaskByID<IOfflineTaskProps>({ id: record.id });
+			if (res.code === 1) {
+				const tabData = this.renderTabOnEditor(res.data.taskType, res.data, {
+					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
+						return new Promise<boolean>((resolve) => {
+							const params = {
+								id: res.data.id,
+								computeType: res.data.computeType,
+								updateSource: false,
+								preSave: false,
+								resourceIdList: resourceIdList ? [resourceIdList] : [],
+								...restValues,
+							};
+							api.addOfflineTask(params)
+								.then((result) => {
+									if (result.code === 1) {
+										message.success('编辑成功');
+										config.onAfterSubmit?.(
+											params,
+											result.data.parentId,
+											record.id.toString(),
+										);
+									}
+								})
+								.finally(() => {
+									resolve(false);
+								});
+						});
+					},
+				});
+
+				molecule.folderTree.setActive(tabData.id);
+				molecule.editor.open(tabData);
+				molecule.explorer.forceUpdate();
+			}
+		} else {
+			if (record.taskType === undefined) {
+				notification.error({
+					key: 'OPNE_TASK_ERROR',
+					message: `无法打开一个未知任务类型的任务，当前任务的任务类型为 ${record.taskType}`,
+				});
+				return;
+			}
+
+			if (record.name === undefined) {
+				notification.error({
+					key: 'OPNE_TASK_ERROR',
+					message: `无法打开一个未知任务名称任务`,
+				});
+				return;
+			}
+
+			const tabData = this.renderTabOnEditor(
+				record.taskType,
+				record as Required<typeof record>,
+			);
+
+			molecule.folderTree.setActive(tabData.id);
+			molecule.editor.open(tabData);
+			molecule.explorer.forceUpdate();
+		}
 	};
 }
 
