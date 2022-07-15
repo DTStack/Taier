@@ -201,7 +201,7 @@ public class FlinkTaskService {
                     sql.append(generateCreateFlinkSql(task.getTargetStr(), task.getComponentVersion(), TableType.SINK));
                     sql.append(generateCreateFlinkSql(task.getSideStr(), task.getComponentVersion(), TableType.SIDE));
                 }
-            case MR:
+            case FLINK_MR:
                 sql.append(generateAddFlinkJar(task));
                 break;
         }
@@ -228,7 +228,7 @@ public class FlinkTaskService {
 
 
     private String generateAddFlinkJar(Task task) {
-        if (task.getTaskType() == EScheduleJobType.MR.getVal().intValue()) {
+        if (task.getTaskType() == EScheduleJobType.FLINK_MR.getVal().intValue()) {
             List<DevelopResource> developResourceList = developTaskResourceService.getResources(task.getId(), task.getTaskType());
             if (CollectionUtils.isEmpty(developResourceList)) {
                 return "";
@@ -368,7 +368,7 @@ public class FlinkTaskService {
         // 构造savepoint参数
         String taskParams = task.getTaskParams();
         //生成最终拼接的sql
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.FLINK_SQL.getType()) || Objects.equals(task.getTaskType(), EScheduleJobType.MR.getType())) {
+        if (Objects.equals(task.getTaskType(), EScheduleJobType.FLINK_SQL.getType()) || Objects.equals(task.getTaskType(), EScheduleJobType.FLINK_MR.getType())) {
             String sql = generateSqlToScheduler(task).toString();
             task.setSqlText(sql);
         }

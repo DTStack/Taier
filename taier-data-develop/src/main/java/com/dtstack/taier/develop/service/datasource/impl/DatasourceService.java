@@ -27,6 +27,7 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.PublicUtil;
+import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.dao.domain.DsFormField;
@@ -45,10 +46,7 @@ import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.Asserts;
-import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
 import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.HiveWriterFormat;
@@ -86,6 +84,7 @@ import com.dtstack.taier.develop.utils.develop.sync.template.RedisWriter;
 import com.dtstack.taier.develop.utils.develop.sync.util.ADBForPGUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.CreateTableSqlParseUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.OracleSqlFormatUtil;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -129,7 +128,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.dtstack.taier.develop.utils.develop.common.HadoopConfTool.KEY_JAVA_SECURITY_KRB5_CONF;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.JAVA_SECURITY_KRB5_CONF;
 
 /**
  * 有关数据源中心
@@ -1031,14 +1030,15 @@ public class DatasourceService {
     public void setDefaultHadoopSftpConfig(JSONObject json, Long tenantId, Map<String, Object> map) {
         JSONObject kerberosConfig = json.getJSONObject(KERBEROS_CONFIG);
         String remoteDir = "";
-        Map<String, Object> hdfs = Engine2DTOService.getHdfs(tenantId);
+
+        JSONObject hdfs = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
         if (Objects.nonNull(hdfs.get(KERBEROS_CONFIG))) {
             kerberosConfig = JSON.parseObject(JSON.toJSONString(hdfs.get(KERBEROS_CONFIG)));
             remoteDir = kerberosConfig.getString("remotePath");
         }
         if (MapUtils.isNotEmpty(kerberosConfig)) {
             Map<String, String> sftpMap = getSftpMap(tenantId);
-            Map<String, Object> conf = HadoopConf.getConfiguration(tenantId);
+            JSONObject conf = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
             //flinkx参数
             conf.putAll(kerberosConfig);
             conf.put("sftpConf", sftpMap);
@@ -1109,8 +1109,8 @@ public class DatasourceService {
                 conf.put("java.security.krb5.conf", getFileName(krb5Conf));
             }
             // 开启kerberos认证需要的参数
-            conf.put(com.dtstack.taier.develop.utils.develop.common.HadoopConfTool.IS_HADOOP_AUTHORIZATION, "true");
-            conf.put(com.dtstack.taier.develop.utils.develop.common.HadoopConfTool.HADOOP_AUTH_TYPE, "kerberos");
+            conf.put(IS_HADOOP_AUTHORIZATION, "true");
+            conf.put(HADOOP_AUTH_TYPE, "kerberos");
         }
     }
 
@@ -1169,8 +1169,8 @@ public class DatasourceService {
         if(null == tenantId){
             return null;
         }
-        Map<String, Object> hdfs = Engine2DTOService.getHdfs(tenantId);
-        return JSONObject.toJSONString(hdfs);
+        JSONObject configByKey = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
+        return configByKey == null ? null : configByKey.toJSONString();
     }
 
 
@@ -1735,9 +1735,9 @@ public class DatasourceService {
             conf.put("remoteDir", remoteDir);
             map.put(confKey, conf);
 
-            String krb5Conf = conf.getOrDefault(KEY_JAVA_SECURITY_KRB5_CONF, "").toString();
+            String krb5Conf = conf.getOrDefault(JAVA_SECURITY_KRB5_CONF, "").toString();
             if (StringUtils.isNotEmpty(krb5Conf)) {
-                conf.put(KEY_JAVA_SECURITY_KRB5_CONF, getFileName(krb5Conf));
+                conf.put(JAVA_SECURITY_KRB5_CONF, getFileName(krb5Conf));
             }
             // 开启kerberos认证需要的参数
             conf.put(IS_HADOOP_AUTHORIZATION, "true");
@@ -2168,15 +2168,16 @@ public class DatasourceService {
         }
         jdbcUrl = String.format(jdbcUrl, dataSourceName);
         dataJson.put("jdbcUrl", jdbcUrl);
-        String defaultFs = HadoopConf.getDefaultFsByClusterId(clusterId);
-
+        JSONObject hdfsConf = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
+        String defaultFs = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
         if (StringUtils.isNotBlank(defaultFs)) {
             dataJson.put("defaultFS", defaultFs);
         } else {
             throw new RdosDefineException("默认数据源的defaultFs未找到");
         }
 
-        JSONObject hdpConfig = createHadoopConfigObject(clusterId);
+        JSONObject hdpConfig = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
+
         if (!hdpConfig.isEmpty()) {
             dataJson.put("hadoopConfig", hdpConfig.toJSONString());
         }
@@ -2194,11 +2195,6 @@ public class DatasourceService {
         return dataJson;
     }
 
-    private JSONObject createHadoopConfigObject(Long clusterId) {
-        Map<String, Object> config = HadoopConf.getConfigurationByClusterId(clusterId);
-        return new JSONObject(config);
-    }
-
     public JSONObject buildHiveServerDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
         String jdbcUrl = jdbcInfo.getJdbcUrl();
         JSONObject dataJson = new JSONObject();
@@ -2210,7 +2206,8 @@ public class DatasourceService {
         }
         jdbcUrl = String.format(jdbcUrl, dataSourceName);
         dataJson.put("jdbcUrl", jdbcUrl);
-        String defaultFs = HadoopConf.getDefaultFsByClusterId(clusterId);
+        JSONObject hdfsConf = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
+        String defaultFs = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
 
         if (StringUtils.isNotBlank(defaultFs)) {
             dataJson.put("defaultFS", defaultFs);
@@ -2218,7 +2215,7 @@ public class DatasourceService {
             throw new RdosDefineException("默认数据源的defaultFs未找到");
         }
 
-        JSONObject hdpConfig = createHadoopConfigObject(clusterId);
+        JSONObject hdpConfig = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
         if (!hdpConfig.isEmpty()) {
             dataJson.put("hadoopConfig", hdpConfig.toJSONString());
         }
@@ -2927,7 +2924,6 @@ public class DatasourceService {
      * 
      * @param sourceId
      * @param sql
-     * @param targetSchema
      * @return
      */
     private String dealOracleCreateSql(Long sourceId, String sql) {

@@ -698,6 +698,20 @@ public class DevelopCatalogueService {
     }
 
     /**
+     * 根据 目录Id 查询目录信息
+     *
+     * @param nodeId
+     * @return
+     */
+    public DevelopCatalogue getOneWithError(Long nodeId) {
+        DevelopCatalogue catalogue = getOne(nodeId);
+        if (Objects.isNull(catalogue)) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_CATALOGUE);
+        }
+        return catalogue;
+    }
+
+    /**
      * 根据名称和父目录Id查询
      *
      * @param tenantId 租户ID

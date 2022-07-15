@@ -21,11 +21,11 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
-import com.dtstack.taier.develop.service.develop.IDataDownloadService;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobExpandService;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,83 +58,21 @@ public class DevelopDownloadService {
     public static final Integer DEFAULT_LOG_PREVIEW_BYTES = 16383;
 
     @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
     private JobExpandService jobExpandService;
 
-    /**
-     * 按行数获取job的log
-     *
-     * @param tenantId
-     * @param taskType      除数据同步和虚节点都可以导出jobLog
-     * @param jobId
-     * @param byteNum
-     * @return
-     * @throws Exception
-     */
-    public String loadJobLog(Long tenantId, Integer taskType, String jobId, Integer byteNum) {
-        LOGGER.info("获取job日志下载器-->jobId:{}", jobId);
-        IDownload downloader = buildIDownLoad(jobId, taskType, tenantId, byteNum == null ? DEFAULT_LOG_PREVIEW_BYTES : byteNum);
-        LOGGER.info("获取job日志下载器完成-->jobId:{}", jobId);
-        if (Objects.isNull(downloader)) {
-            LOGGER.error("-----日志文件导出失败-----");
-            return "";
-        }
-        StringBuilder result = new StringBuilder();
-        while (!downloader.reachedEnd()) {
-            Object row = downloader.readNext();
-            result.append(row);
-        }
-        return result.toString();
-    }
-
-    private IDownload buildIDownLoad(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
-        if (StringUtils.isBlank(jobId)) {
-            throw new RdosDefineException("engineJobId 不能为空");
-        }
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(taskType);
-        Preconditions.checkNotNull(dataDownloadService, String.format("not support engineType %d", taskType));
-        return dataDownloadService.buildIDownLoad(jobId, taskType, tenantId, limitNum);
-    }
-
-    public String downloadAppTypeLog(Long tenantId, String jobId, Integer limitNum, String logType, Integer taskType) {
-        IDataDownloadService dataDownloadService = multiEngineServiceFactory.getDataDownloadService(taskType);
-        IDownload downloader = dataDownloadService.typeLogDownloader(tenantId, jobId, limitNum == null ? Integer.MAX_VALUE : limitNum, logType);
-        if (Objects.isNull(downloader)) {
-            LOGGER.error("-----日志文件导出失败-----");
-            return "-----日志文件不存在-----";
-        }
-        StringBuilder result = new StringBuilder();
-        while (!downloader.reachedEnd()) {
-            Object row = downloader.readNext();
-            result.append(row);
-        }
-        return result.toString();
-    }
-
-    /**
-     * 返回下载jobLog的downloader
-     *
-     * @param jobId
-     * @param taskType      除数据同步、虚节点和工作流都可以导出jobLog
-     * @param dtuicTenantId
-     * @return
-     * @throws Exception
-     */
-    public IDownload downloadJobLog(String jobId, Integer taskType, Long dtuicTenantId) {
-        return buildIDownLoad(jobId, taskType, dtuicTenantId, Integer.MAX_VALUE);
-    }
+    @Autowired
+    private TaskConfiguration taskConfiguration;
 
     /**
      * 文件下载处理
      *
      * @param response
-     * @param iDownload
      * @param downloadType
      * @param jobId
      */
-    public void handleDownload(HttpServletResponse response, IDownload iDownload, DownloadType downloadType, String jobId) {
+    public void handleDownload(HttpServletResponse response, DownloadType downloadType, String jobId,
+                               Long tenantId, Integer taskType) {
+        ITaskRunner taskRunner = taskConfiguration.get(taskType);
         String downFileName = getDownloadFileName(downloadType);
         try {
             downFileName = URLEncoder.encode(downFileName, "UTF8");
@@ -145,9 +83,18 @@ public class DevelopDownloadService {
         response.setHeader("Content-Disposition", String.format("attachment;filename=%s", downFileName));
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Cache-Control", "no-cache");
+
+        IDownload iDownload = taskRunner.logDownLoad(tenantId, jobId, Integer.MAX_VALUE);
         try {
             if (iDownload == null) {
-                writeFileWithEngineLog(response, jobId);
+                try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    String log = taskRunner.scheduleRunLog(jobId);
+                    if (StringUtils.isNotBlank(log)) {
+                        bos.write(log.getBytes());
+                    }
+                }catch (Exception e) {
+                    LOGGER.error("下载engineLog异常，{}", e);
+                }
             } else {
                 if (iDownload instanceof SyncDownload) {
                     writeFileWithSyncLog(response, iDownload);
@@ -255,7 +202,7 @@ public class DevelopDownloadService {
         } else {
             throw new RdosDefineException("未知的文件下载类型");
         }
-        return String.format("dtstack_ide_%s%s", UUID.randomUUID().toString(), downFileNameSuf);
+        return String.format("taier_%s%s", UUID.randomUUID(), downFileNameSuf);
     }
 
 }
