@@ -52,6 +52,9 @@ public class DevelopSelectSqlVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "是否需要结果 默认是false", example = "false", required = true)
     private Boolean needResult = false;
 
+    @ApiModelProperty(value = "展示大小")
+    private Integer limitNum;
+
     public Boolean getIsRoot() {
         return isRoot;
     }
@@ -126,5 +129,13 @@ public class DevelopSelectSqlVO extends DtInsightAuthParam {
 
     public void setNeedResult(Boolean needResult) {
         this.needResult = needResult;
+    }
+
+    public Integer getLimitNum() {
+        return limitNum;
+    }
+
+    public void setLimitNum(Integer limitNum) {
+        this.limitNum = limitNum;
     }
 }

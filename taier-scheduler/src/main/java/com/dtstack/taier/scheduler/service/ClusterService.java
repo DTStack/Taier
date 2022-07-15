@@ -117,7 +117,7 @@ public class ClusterService {
         List<Component> components = componentService.listAllComponents(clusterId);
         for (Component component : components) {
             EComponentType componentType = EComponentType.getByCode(component.getComponentTypeCode());
-            if (!EComponentScheduleType.COMPUTE.equals(EComponentType.getScheduleTypeByComponent(component.getComponentTypeCode()))) {
+            if (!EComponentScheduleType.COMPUTE.equals(EComponentType.getByCode(component.getComponentTypeCode()).getComponentScheduleType())) {
                 JSONObject componentConfig = componentService.getComponentByClusterId(clusterId, componentType.getTypeCode(), false, JSONObject.class, null);
                 config.put(componentType.getConfName(), componentConfig);
             } else if (componentType.equals(computeComponentType)) {

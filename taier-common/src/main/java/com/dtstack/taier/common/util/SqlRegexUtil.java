@@ -17,7 +17,7 @@
  */
 
 
-package com.dtstack.taier.develop.utils.develop.common.util;
+package com.dtstack.taier.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -79,6 +79,8 @@ public class SqlRegexUtil {
     public static final String DICTIONARY = "(?i)create\\s+(temp\\s+)?table\\s+.*(\\s+DICTIONARY)\\s*.*";
 
     public static final String EXPLAIN = "(?i)explain\\s+.*";
+
+    private static final String SELECT = "(?i)select\\s+.*";
 
     public static final String COLLATE = "(?i)(?<collates>(COLLATE\\s+([a-zA-Z0-9_\\.\"]+)\\s*))";
 
@@ -240,6 +242,14 @@ public class SqlRegexUtil {
 
     public static boolean isShowSql(String sql) {
         return sql.matches(SHOW_REGEX);
+    }
+
+    public static boolean isExplainSql(String sql) {
+        return sql.matches(EXPLAIN);
+    }
+
+    public static boolean isSelect(String sql) {
+        return sql.matches(SELECT);
     }
 
     public static boolean isDataBaseOperate(String sql) {

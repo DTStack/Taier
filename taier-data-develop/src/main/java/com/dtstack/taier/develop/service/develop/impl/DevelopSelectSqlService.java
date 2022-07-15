@@ -18,19 +18,17 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.dto.devlop.ExecuteSelectSqlData;
-import com.dtstack.taier.develop.service.develop.IDevelopSelectSqlService;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
+import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
+import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.Objects;
 
 /**
  * 执行选中的sql或者脚本
@@ -50,119 +47,23 @@ public class DevelopSelectSqlService {
     public static final Logger LOGGER = LoggerFactory.getLogger(DevelopSelectSqlService.class);
 
     @Autowired
-    private DevelopTaskService developTaskService;
-
-    @Autowired
     private DevelopHiveSelectSqlMapper developHiveSelectSqlDao;
 
     @Autowired
     private ScheduleActionService actionService;
 
     @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
+    private TaskConfiguration taskConfiguration;
 
-    /**
-     * 查询sql运行结果
-     * @param jobId
-     * @param taskId
-     * @param tenantId
-     * @param userId
-     * @param isRoot
-     * @param type
-     * @param sqlId
-     * @return
-     * @throws Exception
-     */
-    public ExecuteResultVO selectData(String jobId,
-                                      Long taskId,
-                                      Long tenantId,
-                                      Long userId,
-                                      Boolean isRoot,
-                                      Integer type,
-                                      String sqlId) throws Exception {
-        ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectData(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
+    private static final String TASK_NAME_PREFIX = "run_%s_task_%s";
+
+
+    public DevelopSelectSql getSelectSql(Long tenantId, String s, Integer o) {
+        return developHiveSelectSqlDao.getByJobId(s, tenantId, o);
     }
-
-    /**
-     * 查询sql运行状态
-     * @param jobId
-     * @param taskId
-     * @param tenantId
-     * @param userId
-     * @param isRoot
-     * @param type
-     * @param sqlId
-     * @return
-     * @throws Exception
-     */
-    public ExecuteResultVO selectStatus(String jobId,
-                                        Long taskId,
-                                        Long tenantId,
-                                        Long userId,
-                                        Boolean isRoot,
-                                        Integer type,
-                                        String sqlId) throws Exception {
-        ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectStatus(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
-    }
-
-    /**
-     * 查询sql运行日志
-     * @param jobId
-     * @param taskId
-     * @param tenantId
-     * @param userId
-     * @param isRoot
-     * @param type
-     * @param sqlId
-     * @return
-     * @throws Exception
-     */
-    public ExecuteResultVO selectRunLog(String jobId,
-                                        Long taskId,
-                                        Long tenantId,
-                                        Long userId,
-                                        Boolean isRoot,
-                                        Integer type,
-                                        String sqlId) throws Exception {
-        ExecuteSelectSqlData selectSqlData = beforeGetResult(jobId, taskId, tenantId, type, sqlId);
-        return selectSqlData.getIBatchSelectSqlService().selectRunLog(selectSqlData.getTask(), selectSqlData.getBatchHiveSelectSql(), tenantId, userId, isRoot, selectSqlData.getTaskType());
-    }
-
-    /**
-     * sql查询前置处理
-     *
-     * @param jobId
-     * @param taskId
-     * @param tenantId
-     * @param type
-     * @param sqlId
-     * @return
-     */
-    private ExecuteSelectSqlData beforeGetResult(String jobId, Long taskId, Long tenantId, Integer type, String sqlId){
-        DevelopSelectSql developHiveSelectSql = developHiveSelectSqlDao.getByJobId(StringUtils.isNotEmpty(sqlId) ? sqlId : jobId, tenantId, null);
-        Preconditions.checkNotNull(developHiveSelectSql, "不存在该临时查询");
-        if (StringUtils.isNotEmpty(sqlId)){
-            developHiveSelectSql.setFatherJobId(jobId);
-            developHiveSelectSql.setJobId(sqlId);
-        }
-        IDevelopSelectSqlService selectSqlService = multiEngineServiceFactory.getDevelopSelectSqlService(developHiveSelectSql.getTaskType());
-        Preconditions.checkNotNull(selectSqlService, String.format("不支持此任务类型 %d", developHiveSelectSql.getTaskType()));
-        Task task = developTaskService.getOneWithError(taskId);;
-        Integer taskType = null;
-        if (Objects.nonNull(task)) {
-            taskType = task.getTaskType();
-        }
-        if (Objects.isNull(taskType)) {
-            throw new DtCenterDefException("任务类型为空");
-        }
-        return new ExecuteSelectSqlData(developHiveSelectSql, task, taskType, selectSqlService);
-    }
-
 
     public DevelopSelectSql getByJobId(String jobId, Long tenantId, Integer isDeleted){
-        DevelopSelectSql selectSql = developHiveSelectSqlDao.getByJobId(jobId,tenantId, isDeleted);
+        DevelopSelectSql selectSql = getSelectSql(tenantId, jobId, isDeleted);
         if (selectSql == null){
             throw new RdosDefineException("select job not exists");
         }
@@ -195,11 +96,48 @@ public class DevelopSelectSqlService {
         hiveSelectSql.setUserId(userId);
         hiveSelectSql.setParsedColumns(parsedColumns);
         hiveSelectSql.setTaskType(taskType);
-
         developHiveSelectSqlDao.insert(hiveSelectSql);
     }
 
-    public int updateGmtModify(String jobId, Long tenantId){
-        return developHiveSelectSqlDao.updateGmtModify(jobId, tenantId);
+    /**
+     * 使用任务的方式运行sql
+     *
+     * @param tenantId
+     * @param parseResult
+     * @param userId
+     * @param database
+     * @param taskId
+     * @param taskType
+     * @param preJobId
+     * @return
+     */
+    public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database,
+                               Long taskId, Integer taskType, String preJobId) {
+        ITaskRunner iTaskRunner = taskConfiguration.get(taskType);
+        try {
+            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, tenantId, userId, database, taskId);
+            // 发送sql任务
+            sendSqlTask(tenantId, buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
+            // 记录job
+            addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
+                    parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
+            return preJobId;
+        } catch (Exception e) {
+            throw new RdosDefineException("任务执行sql失败", e);
+        }
     }
+
+    public String sendSqlTask(Long tenantId, String sql, String taskParams, String jobId, Long taskId, Integer taskType) {
+        ParamActionExt paramActionExt = new ParamActionExt();
+        paramActionExt.setTaskType(taskType);
+        paramActionExt.setSqlText(sql);
+        paramActionExt.setComputeType(EComputeType.BATCH.getType());
+        paramActionExt.setJobId(jobId);
+        paramActionExt.setName(String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
+        paramActionExt.setTaskParams(taskParams);
+        paramActionExt.setTenantId(tenantId);
+        actionService.start(paramActionExt);
+        return jobId;
+    }
+
 }

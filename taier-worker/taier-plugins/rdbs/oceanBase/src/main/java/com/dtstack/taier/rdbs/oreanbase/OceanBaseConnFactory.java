@@ -20,7 +20,6 @@ package com.dtstack.taier.rdbs.oreanbase;
 
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
-import com.dtstack.taier.rdbs.common.constant.ConfigConstant;
 import com.dtstack.taier.rdbs.common.executor.AbstractConnFactory;
 
 import java.io.IOException;
@@ -46,14 +45,9 @@ public class OceanBaseConnFactory extends AbstractConnFactory {
     @Override
     public Connection getConnByTaskParams(String taskParams, String jobName)
             throws ClassNotFoundException, SQLException, IOException {
-        Properties properties = new Properties();
         Connection connection;
         try {
-            if (getUsername() != null) {
-                properties.setProperty(ConfigConstant.USERNAME, getUsername());
-                properties.setProperty(ConfigConstant.PASSWORD, getPassword());
-            }
-            connection = DriverManager.getConnection(jdbcUrl, properties);
+            connection = DriverManager.getConnection(jdbcUrl, getUsername(), getPassword());
         } catch (Exception e) {
             throw new PluginDefineException(e);
         }

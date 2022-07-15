@@ -37,9 +37,9 @@ import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.develop.IDevelopJobExeService;
-import com.dtstack.taier.develop.service.develop.ITaskService;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.service.develop.TaskContext;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
@@ -105,7 +105,7 @@ public class DevelopJobService {
     private JobService jobService;
 
     @Autowired
-    private TaskContext taskContext;
+    private TaskConfiguration taskConfiguration;
 
     /**
      * 构建运行任务的完整命令(包含真正执行的SQL内容)
@@ -361,9 +361,11 @@ public class DevelopJobService {
             sql = paramActionExt.getSqlText();
             String jobId = paramActionExt.getJobId();
             task.setTaskParams(paramActionExt.getTaskParams());*/
+            //fmt sql
+            //jobRea
             String jobId = actionService.generateUniqueSign();
-            ITaskService taskService = taskContext.get(task.getTaskType());
-            result = taskService.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
+            ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
+            result = taskRunner.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));

@@ -18,8 +18,10 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -34,13 +36,13 @@ import com.dtstack.taier.dao.domain.DevelopFunctionResource;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopTaskResource;
 import com.dtstack.taier.dao.mapper.DevelopResourceMapper;
+import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
-import com.dtstack.taier.develop.dto.devlop.CatalogueVO;
 import com.dtstack.taier.develop.service.user.UserService;
-import com.dtstack.taier.develop.utils.develop.common.HadoopConf;
 import com.dtstack.taier.develop.utils.develop.common.HdfsOperator;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +85,9 @@ public class DevelopResourceService {
 
     @Autowired
     private EnvironmentContext environmentContext;
+
+    @Autowired
+    private ClusterService clusterService;
 
     public static final String TAIER_RESOURCE = "/taier/resource";
 
@@ -189,7 +194,8 @@ public class DevelopResourceService {
         //删除资源在hdfs的实际存储文件
         DevelopResource resource = getResource(resourceId);
         try {
-            HdfsOperator.checkAndDele(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), resource.getUrl());
+            JSONObject hdfsConf = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
+            HdfsOperator.checkAndDele(hdfsConf, hdfsConf.getJSONObject(ConfigConstant.KERBEROS_CONFIG), resource.getUrl());
         } catch (Exception e) {
             LOGGER.error("tenantId:{}  resourceId:{} fail delete resource from HDFS", tenantId, resourceId, e);
         }
@@ -221,7 +227,8 @@ public class DevelopResourceService {
      * @return
      */
     private String getBatchHdfsPath(Long tenantId, String fileName) {
-        String hdfsURI = HadoopConf.getDefaultFs(tenantId);
+        JSONObject hdfsConf = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
+        String hdfsURI = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
         return String.format("%s%s%s", hdfsURI, environmentContext.getHdfsBatchPath(), fileName);
     }
 
@@ -288,7 +295,8 @@ public class DevelopResourceService {
         String hdfsPath = this.getBatchHdfsPath(tenantId, hdfsFileName);
 
         try {
-            HdfsOperator.uploadLocalFileToHdfs(HadoopConf.getConfiguration(tenantId), HadoopConf.getHadoopKerberosConf(tenantId), tmpPath, hdfsPath);
+            JSONObject hdfsConf = clusterService.getConfigByKey(tenantId,EComponentType.HDFS.getConfName(), null);
+            HdfsOperator.uploadLocalFileToHdfs(hdfsConf, hdfsConf.getJSONObject(ConfigConstant.KERBEROS_CONFIG), tmpPath, hdfsPath);
         } catch (Exception e) {
             throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION, e);
         } finally {
@@ -301,8 +309,8 @@ public class DevelopResourceService {
     }
 
     private String uploadToSftp(Long tenantId, String resourceName, String oriFileName, String tmpFilePath) {
-        Map<String, String> sftpConf = Engine2DTOService.getSftp(tenantId);
-        String path = sftpConf.get("path");
+        JSONObject sftpConf = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
+        String path = sftpConf.getString("path");
         if (StringUtils.isBlank(path)) {
             throw new DtCenterDefException("sftp路径配置错误");
         }
@@ -315,7 +323,7 @@ public class DevelopResourceService {
                 .toString();
         SFTPHandler instance = null;
         try {
-            instance = SFTPHandler.getInstance(sftpConf);
+            instance = SFTPHandler.getInstance(PublicUtil.objectToObject(sftpConf, Map.class));
             boolean success = instance.upload(remotePath, localFile.getPath());
             AssertUtils.isTrue(success, "上传sftp异常");
         } catch (Exception e) {

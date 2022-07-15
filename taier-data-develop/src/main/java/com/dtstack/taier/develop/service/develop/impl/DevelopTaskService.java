@@ -22,7 +22,6 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -79,14 +78,13 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.parser.ESchedulePeriodType;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
-import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplate;
-import com.dtstack.taier.develop.service.develop.task.DevelopTaskTemplateFactory;
+import com.dtstack.taier.develop.service.develop.ITaskSaver;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.template.DaJobCheck;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
-import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
@@ -100,7 +98,6 @@ import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
-import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -183,16 +180,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private TaskService taskService;
 
     @Autowired
-    private TaskVersionService taskVersionService;
-
-    @Autowired
     private DevelopSysParamService developSysParamService;
 
     @Autowired
     private DevelopResourceService DevelopResourceService;
-
-    @Autowired
-    private ScheduleDictService dictService;
 
     @Autowired
     private DevelopSqlExeService developSqlExeService;
@@ -216,10 +207,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private FlinkTaskService flinkTaskService;
 
     @Autowired
-    private DevelopTaskTemplateFactory developTaskTemplateFactory;
+    private ClusterService clusterService;
 
     @Autowired
-    private ClusterService clusterService;
+    private TaskConfiguration taskConfiguration;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -259,10 +250,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
-        List<DevelopTaskVersionDetailDTO> byTaskIds = taskVersionService.getByTaskIds(Collections.singletonList(taskVO.getId()));
-        taskVO.setSubmitted(CollectionUtils.isNotEmpty(byTaskIds));
-        List<Long> resourceIds = developTaskResourceService.getResourceIdList(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
-        taskVO.setResourceIdList(resourceIds);
+        List<DevelopResource> resources = developTaskResourceService.getResources(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
+        taskVO.setResourceList(resources);
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
         taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
@@ -407,14 +396,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
 
-        // 检查任务是否可以发布并记录版本信息
-        TaskCheckResultVO<TaskVersion> resultVO = checkTaskAndSaveVersion(task, userId, publishDesc);
-        if (!PublishTaskStatusEnum.NOMAL.getType().equals(resultVO.getErrorSign())) {
-            return resultVO;
-        }
         try {
             // 构建要发布的任务列表
-            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task, resultVO.getData());
+            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task);
 
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
@@ -520,7 +504,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param task 要发布的任务集合
      * @return 调度任务DTO
      */
-    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, TaskVersion taskVersion) {
+    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
@@ -530,8 +514,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
         scheduleTaskShadeDTO.setTaskId(task.getId());
         scheduleTaskShadeDTO.setTenantId(scheduleTaskShadeDTO.getTenantId());
-
-        scheduleTaskShadeDTO.setVersionId(Math.toIntExact(taskVersion.getId()));
         if (Objects.equals(task.getTaskType(), EScheduleJobType.SYNC.getVal())
                 && StringUtils.isNotEmpty(task.getScheduleConf())) {
             JSONObject scheduleConfig = JSONObject.parseObject(task.getScheduleConf());
@@ -545,121 +527,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
-     * 检查要发布的任务并保存版本信息
-     *
-     * @param task        任务信息
-     * @param userId      用户id
-     * @param publishDesc 发布描述
-     * @return 检查结果
-     */
-    private TaskCheckResultVO checkTaskAndSaveVersion(Task task, Long userId, String publishDesc) {
-        TaskCheckResultVO checkVo = new TaskCheckResultVO();
-        checkVo.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-        TaskVersion taskVersion;
-        if (StringUtils.isBlank(task.getSqlText())) {
-            throw new RdosDefineException(task.getName() + "任务配置信息为空", ErrorCode.TASK_CAN_NOT_SUBMIT);
-        }
-        checkTaskCanSubmit(task);
-        taskVersion = saveTaskVersion(task, userId, publishDesc, true);
-        checkVo.setData(taskVersion);
-        return checkVo;
-    }
-
-    /**
-     * 保存任务版本信息
-     *
-     * @param task
-     * @param userId
-     * @param publishDesc
-     */
-    private TaskVersion saveTaskVersion(Task task, Long userId, String publishDesc, Boolean isCheckFormat) {
-        TaskVersion taskVersion = new TaskVersion();
-        taskVersion.setCreateUserId(userId);
-        if (StringUtils.isNotBlank(task.getSqlText())) {
-            if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())
-                    || EScheduleJobType.DATA_ACQUISITION.getType().equals(task.getTaskType())) {
-                final JSONObject jsonTask = JSON.parseObject(task.getSqlText());
-                Integer createModelType = Integer.valueOf(jsonTask.getString("createModel"));
-                JSONObject job = jsonTask.getJSONObject("job");
-                if (Objects.isNull(job)) {
-                    throw new RdosDefineException(String.format("%s：%s 未配置", EScheduleJobType.getByTaskType(task.getTaskType()).name(), task.getName()));
-                }
-                // 检测job格式
-                if (BooleanUtils.isTrue(isCheckFormat)) {
-                    DaJobCheck.checkJobFormat(job.toJSONString(), createModelType);
-                }
-                taskVersion.setSqlText(jsonTask.toJSONString());
-            } else {
-                taskVersion.setSqlText(task.getSqlText());
-            }
-            taskVersion.setOriginSql(task.getSqlText());
-        } else {
-            taskVersion.setSqlText(StringUtils.EMPTY);
-            taskVersion.setOriginSql(StringUtils.EMPTY);
-        }
-        taskVersion.setTaskId(task.getId());
-        taskVersion.setVersion(task.getVersion());
-        taskVersion.setTaskParams(task.getTaskParams());
-        taskVersion.setPublishDesc(publishDesc);
-        taskVersion.setExeArgs(task.getExeArgs());
-        taskVersion.setSourceStr(task.getSourceStr());
-        taskVersion.setTargetStr(task.getTargetStr());
-        taskVersion.setSettingStr(task.getSettingStr());
-        taskVersion.setCreateUserId(task.getModifyUserId());
-        taskVersion.setTaskDesc(task.getTaskDesc());
-        taskVersion.setCreateModel(task.getCreateModel());
-        taskVersion.setComponentVersion(task.getComponentVersion());
-        taskVersion.setScheduleConf(task.getScheduleConf());
-        taskVersion.setPeriodType(task.getPeriodType());
-        taskVersion.setScheduleStatus(task.getScheduleStatus());
-        taskVersion.setTenantId(task.getTenantId());
-        taskVersion.setDependencyTaskIds(StringUtils.EMPTY);
-        taskVersion.setGmtCreate(new Timestamp(System.currentTimeMillis()));
-        taskVersion.setGmtModified(new Timestamp(System.currentTimeMillis()));
-        taskVersionService.insert(taskVersion);
-        return taskVersion;
-    }
-
-    public List<DevelopTaskVersionDetailDTO> getTaskVersionRecord(Long taskId, Integer pageSize, Integer pageNo) {
-        if (pageNo == null) {
-            pageNo = 0;
-        }
-        if (pageSize == null) {
-            pageSize = 10;
-        }
-        PageQuery pageQuery = new PageQuery(pageNo, pageSize, "gmt_create", Sort.DESC.name());
-        List<DevelopTaskVersionDetailDTO> res = taskVersionService.listByTaskId(taskId, pageQuery);
-        for (DevelopTaskVersionDetailDTO detail : res) {
-            detail.setUserName(userService.getUserName(detail.getCreateUserId()));
-        }
-        return res;
-    }
-
-    public DevelopTaskVersionDetailDTO taskVersionScheduleConf(Long versionId) {
-        DevelopTaskVersionDetailDTO taskVersion = taskVersionService.getByVersionId(versionId);
-        if (taskVersion == null) {
-            return null;
-        }
-        taskVersion.setUserName(userService.getUserName(taskVersion.getCreateUserId()));
-        if (StringUtils.isNotBlank(taskVersion.getDependencyTaskIds())) {
-            List<Map<String, Object>> dependencyTasks = getDependencyTasks(taskVersion.getDependencyTaskIds());
-            JSONObject taskParams = new JSONObject();
-            int i = 1;
-            for (Map<String, Object> dependencyTask : dependencyTasks) {
-                ScheduleTaskShade taskShade = taskService.findTaskByTaskId(MathUtil.getLongVal(dependencyTask.get("parentTaskId")));
-                if (taskShade != null) {
-                    JSONObject taskParam = new JSONObject();
-                    taskParam.put("taskName", taskShade.getName());
-                    taskParam.put("tenantName", tenantService.getTenantById(taskShade.getTenantId()).getTenantName());
-                    taskParams.put("task" + i++, taskParam);
-                }
-            }
-            taskVersion.setDependencyTasks(taskParams);
-        }
-        return taskVersion;
-    }
-
-    /**
      * 新增/更新任务
      *
      * @param taskResourceParam
@@ -667,8 +534,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     @Transactional(rollbackFor = Exception.class)
     public TaskVO addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
-        DevelopTaskTemplate taskService = developTaskTemplateFactory.getTaskImpl(taskResourceParam.getTaskType());
-        return taskService.addOrUpdate(taskResourceParam);
+        ITaskSaver taskSaver = taskConfiguration.getSave(taskResourceParam.getTaskType());
+        return taskSaver.addOrUpdate(taskResourceParam);
     }
 
     /**
@@ -820,65 +687,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setOpenDirtyDataManage(true);
         }
         return taskCatalogueVO;
-    }
-
-    /**
-     * 判断任务是否可以配置增量标识
-     */
-    public boolean canSetIncreConf(Long taskId) {
-        final Task task = this.getDevelopTaskById(taskId);
-        if (task == null) {
-            throw new RdosDefineException(ErrorCode.DATA_NOT_FIND);
-        }
-
-        if (!EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
-            return false;
-        }
-
-        // 增量同步任务不能在工作流中运行
-        if (task.getFlowId() != 0) {
-            return false;
-        }
-
-        if (StringUtils.isEmpty(task.getSqlText())) {
-            throw new RdosDefineException("同步任务未配置数据源");
-        }
-
-        try {
-            final JSONObject json = JSON.parseObject(task.getSqlText());
-            this.checkSyncJobContent(json.getJSONObject("job"), false);
-        } catch (final RdosDefineException e) {
-            return false;
-        }
-
-        return true;
-    }
-
-
-    public void checkSyncJobContent(final JSONObject jobJson, final boolean checkIncreCol) {
-        if (jobJson == null) {
-            return;
-        }
-
-        String readerPlugin = JSONPath.eval(jobJson, "$.job.content[0].reader.name").toString();
-        String writerPlugin = JSONPath.eval(jobJson, "$.job.content[0].writer.name").toString();
-
-        if (!PluginName.RDB_READER.contains(readerPlugin)) {
-            throw new RdosDefineException("增量同步任务只支持从关系型数据库读取", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!PluginName.HDFS_W.equals(writerPlugin)) {
-            throw new RdosDefineException("增量同步任务只支持写入hive和hdfs", ErrorCode.INVALID_PARAMETERS);
-        }
-
-        if (!checkIncreCol) {
-            return;
-        }
-
-        String increColumn = (String) JSONPath.eval(jobJson, "$.job.content[0].reader.parameter.increColumn");
-        if (StringUtils.isEmpty(increColumn)) {
-            throw new RdosDefineException("增量同步任务必须配置增量字段", ErrorCode.INVALID_PARAMETERS);
-        }
     }
 
     /**
@@ -1409,7 +1217,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
         List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
-                .filter(a -> (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
+                .filter(a -> a.getComponentType() == null ||
+                        (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
                 .collect(Collectors.toList());
         return eScheduleJobTypes.stream()
                 .map(j -> new DevelopTaskGetSupportJobTypesResultVO(j.getType(), j.getName(), j.getComputeType().getType()))
@@ -1451,6 +1260,40 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
 
         return increColumn;
+    }
+
+    /**
+     * 修改任务部分信息
+     *
+     * @param taskId
+     * @param taskName
+     * @param catalogueId
+     * @param desc
+     * @param tenantId
+     */
+    public void editTask(Long taskId, String taskName, Long catalogueId, String desc, Long tenantId, String componentVersion) {
+        getOneWithError(taskId);
+        developCatalogueService.getOneWithError(catalogueId);
+
+        Task taskInfo = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                .eq(Task::getName, taskName)
+                .eq(Task::getIsDeleted, Deleted.NORMAL.getStatus())
+                .eq(Task::getTenantId, tenantId));
+
+        if (Objects.isNull(taskInfo)) {
+            Task updateInfo = new Task();
+            updateInfo.setId(taskId);
+            updateInfo.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+            updateInfo.setName(taskName);
+            updateInfo.setNodePid(catalogueId);
+            updateInfo.setTaskDesc(desc);
+            updateInfo.setComponentVersion(componentVersion);
+            developTaskMapper.updateById(updateInfo);
+            return;
+        }
+        if (taskId.equals(taskInfo.getId())) {
+            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+        }
     }
 
 }

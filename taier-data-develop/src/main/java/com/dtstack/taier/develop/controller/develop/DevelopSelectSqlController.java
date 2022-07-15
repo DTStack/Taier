@@ -21,12 +21,15 @@ package com.dtstack.taier.develop.controller.develop;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
-import com.dtstack.taier.develop.mapstruct.vo.DevelopSqlMapstructTransfer;
+import com.dtstack.taier.dao.domain.DevelopSelectSql;
+import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.service.develop.ITaskRunner;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.vo.develop.query.DevelopSelectSqlVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteDataResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteRunLogResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteStatusResultVO;
+import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,17 +44,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class DevelopSelectSqlController {
 
     @Autowired
-    private DevelopSelectSqlService batchSelectSqlService;
+    private TaskConfiguration taskConfiguration;
+
+    @Autowired
+    private DevelopSelectSqlService developSelectSqlService;
+
+    @Autowired
+    private DevelopTaskService developTaskService;
 
     @PostMapping(value = "selectData")
     @ApiOperation("获取执行结果")
-    public R<DevelopExecuteDataResultVO> selectData(@RequestBody DevelopSelectSqlVO sqlVO) {
-        return new APITemplate<DevelopExecuteDataResultVO>() {
+    public R<ExecuteResultVO> selectData(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<ExecuteResultVO>() {
             @Override
-            protected DevelopExecuteDataResultVO process() {
+            protected ExecuteResultVO process() {
                 try {
-                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteDataResultVO(batchSelectSqlService.selectData(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
+                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), null);
+                    Preconditions.checkNotNull(selectSql, "不存在该临时查询");
+                    ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
+                    Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
+                    return taskRunner.selectData(task, selectSql, task.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), selectSql.getTaskType());
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
                 }
@@ -61,13 +73,16 @@ public class DevelopSelectSqlController {
 
     @PostMapping(value = "selectStatus")
     @ApiOperation("获取执行状态")
-    public R<DevelopExecuteStatusResultVO> selectStatus(@RequestBody DevelopSelectSqlVO sqlVO) {
-        return new APITemplate<DevelopExecuteStatusResultVO>() {
+    public R<ExecuteResultVO> selectStatus(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<ExecuteResultVO>() {
             @Override
-            protected DevelopExecuteStatusResultVO process() {
+            protected ExecuteResultVO process() {
                 try {
-                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteStatusResultVO(batchSelectSqlService.selectStatus(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
+                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), null);
+                    Preconditions.checkNotNull(selectSql, "不存在该临时查询");
+                    ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
+                    Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
+                    return taskRunner.selectStatus(task, selectSql, task.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), selectSql.getTaskType());
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
                 }
@@ -77,13 +92,16 @@ public class DevelopSelectSqlController {
 
     @PostMapping(value = "selectRunLog")
     @ApiOperation("获取执行日志")
-    public R<DevelopExecuteRunLogResultVO> selectRunLog(@RequestBody DevelopSelectSqlVO sqlVO) {
-        return new APITemplate<DevelopExecuteRunLogResultVO>() {
+    public R<ExecuteResultVO> selectRunLog(@RequestBody DevelopSelectSqlVO sqlVO) {
+        return new APITemplate<ExecuteResultVO>() {
             @Override
-            protected DevelopExecuteRunLogResultVO process() {
+            protected ExecuteResultVO process() {
                 try {
-                    return DevelopSqlMapstructTransfer.INSTANCE.executeResultVOToDevelopExecuteRunLogResultVO(batchSelectSqlService.selectRunLog(sqlVO.getJobId(),
-                            sqlVO.getTaskId(), sqlVO.getTenantId(), sqlVO.getUserId(), sqlVO.getIsRoot(), sqlVO.getType(), sqlVO.getSqlId()));
+                    DevelopSelectSql selectSql = developSelectSqlService.getByJobId(sqlVO.getJobId(), sqlVO.getTenantId(), null);
+                    Preconditions.checkNotNull(selectSql, "不存在该临时查询");
+                    ITaskRunner taskRunner = taskConfiguration.get(selectSql.getTaskType());
+                    Task task = developTaskService.getOneWithError(sqlVO.getTaskId());
+                    return taskRunner.runLog(selectSql.getJobId(), task.getTaskType(), task.getTenantId(), sqlVO.getLimitNum());
                 } catch (Exception e) {
                     throw new RdosDefineException(e.getMessage());
                 }
