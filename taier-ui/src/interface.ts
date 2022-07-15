@@ -171,7 +171,7 @@ export interface IResourceProps {
 /**
  * 所有任务类型
  */
-export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
+export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps, IWorkflowProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -181,6 +181,7 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	modifyUser: IUserProps | null;
 	modifyUserId: number;
 	name: string;
+	computeType: IComputeType;
 	nodePName: string;
 	nodePid: number;
 	ownerUserId: number;
@@ -234,6 +235,11 @@ export interface ISyncDataProps {
 	sourceMap: ISourceMapProps;
 	targetMap?: ITargetMapProps;
 	taskId: number;
+}
+
+export interface IWorkflowProps {
+	flowId: number;
+	flowName?: string;
 }
 
 /**

@@ -18,13 +18,13 @@
 
 import { Row, Col, Table, Form } from 'antd';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { openTaskInTab } from '@/extensions/folderTree';
 import { useMemo, useState } from 'react';
 import type { IOfflineTaskProps, ITaskVOProps } from '@/interface';
 import type { ColumnsType } from 'antd/lib/table';
 import { getCookie } from '@/utils';
 import type { ITaskSearchResultProps } from './upstreamDependentTasks';
 import UpstreamDependentTasks from './upstreamDependentTasks';
+import taskRenderService from '@/services/taskRenderService';
 
 interface ITaskDependenceProps {
 	tabData: IOfflineTaskProps;
@@ -42,10 +42,7 @@ export default function TaskDependence({
 	const [currentTenantName] = useState(getCookie('tenant_name'));
 
 	const goEdit = (task: ITaskVOProps) => {
-		openTaskInTab(task.id, {
-			id: task.id,
-			location: task.name,
-		});
+		taskRenderService.openTask({ id: task.id.toString() });
 	};
 
 	const getSpanBottom = () => {

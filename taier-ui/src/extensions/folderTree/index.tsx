@@ -17,22 +17,22 @@
  */
 
 import { message, Modal } from 'antd';
-import type { IExtension, IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
+import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { FileTypes, TreeNodeModel } from '@dtinsight/molecule/esm/model';
 import { localize } from '@dtinsight/molecule/esm/i18n/localize';
 import molecule from '@dtinsight/molecule/esm';
 import type { IFormFieldProps } from '@/components/task/create';
-import Open from '@/components/task/create';
+import Create from '@/components/task/create';
 import EditFolder from '@/components/task/editFolder';
 import { getParentNode } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { CATELOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
-import type { IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import { breadcrumbService, catalogueService, editorActionBarService } from '@/services';
+import { breadcrumbService, catalogueService } from '@/services';
 import notification from '@/components/notification';
 import taskRenderService from '@/services/taskRenderService';
+import viewStoreService from '@/services/viewStoreService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
@@ -75,7 +75,7 @@ function openCreateTab(id?: string) {
 								.loadTreeNode(parentNode.data, CATELOGUE_TYPE.TASK)
 								.then(() => {
 									// open this brand-new task
-									openTaskInTab(data.id);
+									taskRenderService.openTask({ id: data.id });
 								});
 						}
 					}
@@ -109,7 +109,7 @@ function openCreateTab(id?: string) {
 			nodePid: id || folderTree.data?.[0].id,
 		},
 		renderPane: () => {
-			return <Open key={tabId} onSubmit={onSubmit} />;
+			return <Create key={tabId} onSubmit={onSubmit} />;
 		},
 	};
 
@@ -289,71 +289,17 @@ const afterSubmit = (params: Record<string, any>, parentId: number, tabId: strin
 	});
 };
 
-export function openTaskInTab(
-	taskId: UniqueId,
-	file?: Pick<IFolderTreeNodeProps, 'id' | 'location'> | null,
-) {
-	if (!file) {
-		// 通过id打开任务
-		// eslint-disable-next-line no-param-reassign
-		file = molecule.folderTree.get(taskId);
-		if (!file) return message.error('此任务不存在');
-	}
-	if (molecule.editor.isOpened(taskId.toString())) {
-		const groupId = molecule.editor.getGroupIdByTab(taskId.toString())!;
-		molecule.editor.setActive(groupId, taskId.toString());
-		window.setTimeout(() => {
-			editorActionBarService.performSyncTaskActions();
-		}, 0);
-		return;
-	}
-
-	const { id: fileId } = file;
-	api.getOfflineTaskByID({ id: fileId }).then((res) => {
-		const { success, data } = res as { success: boolean; data: IOfflineTaskProps };
-		if (success) {
-			taskRenderService
-				.renderTabOnEditor(data.taskType, data, {
-					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
-						return new Promise<boolean>((resolve) => {
-							const params = {
-								id: data.id,
-								computeType: res.data.computeType,
-								updateSource: false,
-								preSave: false,
-								resourceIdList: resourceIdList ? [resourceIdList] : [],
-								...restValues,
-							};
-							api.addOfflineTask(params)
-								.then((result) => {
-									if (result.code === 1) {
-										message.success('编辑成功');
-										afterSubmit(
-											params,
-											result.data.parentId,
-											fileId.toString(),
-										);
-									}
-								})
-								.finally(() => {
-									resolve(false);
-								});
-						});
-					},
-				})
-				.then((tabData) => {
-					molecule.editor.open(tabData);
-				});
-		}
-	});
-
-	molecule.explorer.forceUpdate();
-}
-
 function onSelectFile() {
 	molecule.folderTree.onSelectFile((file) => {
 		molecule.folderTree.setActive(file.id);
-		openTaskInTab(file.id, file);
+		viewStoreService.clearStorage(file.id.toString());
+		taskRenderService.openTask(
+			{ id: file.id },
+			{
+				create: false,
+				onAfterSubmit: afterSubmit,
+			},
+		);
 	});
 }
 
@@ -412,17 +358,16 @@ function contextMenu() {
 					? `${ID_COLLECTIONS.EDIT_TASK_PREFIX}_${new Date().getTime()}`
 					: `${ID_COLLECTIONS.EDIT_FOLDER_PREFIX}_${new Date().getTime()}`;
 
-				const onSubmit = (values: any) => {
+				const onSubmit = (values: IFormFieldProps) => {
 					return new Promise<boolean>((resolve) => {
 						const params = {
-							id: treeNode!.data.id,
-							computeType: getComputeType(values.taskType),
-							version: 0,
-							...values,
-							updateSource: false,
-							preSave: false,
+							taskId: treeNode!.data.id,
+							name: values.name,
+							catalogueId: values.nodePid,
+							desc: values.taskDesc,
+							componentVersion: values.componentVersion,
 						};
-						api.addOfflineTask(params)
+						api.editTask(params)
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
@@ -491,7 +436,11 @@ function contextMenu() {
 						return (
 							<>
 								{isFile ? (
-									<Open key={tabId} record={treeNode!.data} onSubmit={onSubmit} />
+									<Create
+										key={tabId}
+										record={treeNode!.data}
+										onSubmit={onSubmit}
+									/>
 								) : (
 									<EditFolder
 										tabId={tabId}

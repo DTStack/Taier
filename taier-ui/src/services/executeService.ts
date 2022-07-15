@@ -18,13 +18,15 @@
 
 import { Component } from '@dtinsight/molecule/esm/react';
 import type { ITaskResultService } from './taskResultService';
-import taskResultService, { createLinkMark, createLog, createTitle } from './taskResultService';
+import taskResultService, { createLog, createTitle } from './taskResultService';
 import type { CatalogueDataProps, IOfflineTaskProps, IResponseBodyProps } from '@/interface';
 import API from '@/api';
 import { checkExist } from '@/utils';
 import { TASK_STATUS_FILTERS, TASK_STATUS, TASK_TYPE_ENUM } from '@/constant';
 import moment from 'moment';
 import { singleton } from 'tsyringe';
+import notification from '@/components/notification';
+import md5 from 'md5';
 
 export enum EXECUTE_EVENT {
 	onStartRun = 'onStartRun',
@@ -41,7 +43,7 @@ interface ITaskExecResultProps {
 	 * @deprecated 目前不支持下载功能
 	 */
 	download: null | string;
-	isContinue: boolean;
+	continue: boolean;
 	/**
 	 * 需要轮训的接口才有 jobId
 	 */
@@ -181,14 +183,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}).then(() => Promise.resolve());
 		}
 
-		// 脚本执行
-		if (checkExist(currentTabData.type)) {
-			return API.stopScript({
-				scriptId: currentTabData.id,
-				jobId,
-			}).then(() => Promise.resolve());
-		}
-
 		return Promise.resolve();
 	};
 
@@ -293,7 +287,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 		rawParams: Record<string, any>,
 		sqls: string[],
 		index: number,
-	) => {
+	): Promise<void> => {
 		const params = { ...rawParams };
 		params.sql = `${sqls[index]}`;
 		params.isEnd = sqls.length === index + 1;
@@ -325,64 +319,12 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 								);
 							} else {
 								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-								return;
+								return this.exec(currentTabId, task, params, sqls, index + 1);
 							}
 						}
 					}
 
 					this.emit(EXECUTE_EVENT.onEndRun, currentTabId);
-				});
-		}
-
-		// 脚本执行
-		if (checkExist(task.type)) {
-			params.scriptId = task.id;
-			return API.execScript<ITaskExecResultProps>(params)
-				.then((res) => this.succCall(res, currentTabId, task))
-				.then((res) => {
-					if (res) {
-						const isContinue = this.judgeIfContinueExec(sqls, index);
-						if (isContinue) {
-							// 继续执行之前判断是否停止
-							if (this.stopSign.get(currentTabId)) {
-								this.stopSign.set(currentTabId, false);
-								taskResultService.appendLogs(
-									currentTabId.toString(),
-									createLog(`用户主动取消请求！`, 'error'),
-								);
-							} else {
-								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-							}
-						}
-					}
-				});
-		}
-
-		// 组件执行
-		if (checkExist((task as any).componentType)) {
-			params.componentId = task.id;
-			params.componentType = (task as any).componentType;
-			return API.execComponent<ITaskExecResultProps>(params)
-				.then((res) => this.succCall(res, currentTabId, task))
-				.then((res) => {
-					if (res) {
-						const isContinue = this.judgeIfContinueExec(sqls, index);
-						if (isContinue) {
-							// 继续执行之前判断是否停止
-							if (this.stopSign.get(currentTabId)) {
-								this.stopSign.set(currentTabId, false);
-								taskResultService.appendLogs(
-									currentTabId.toString(),
-									createLog(`用户主动取消请求！`, 'error'),
-								);
-							} else {
-								// 继续执行下一条 sql
-								this.exec(currentTabId, task, params, sqls, index + 1);
-							}
-						}
-					}
 				});
 		}
 
@@ -443,7 +385,14 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 			}
 
 			// 如果存在 jobId，则需要轮训根据 jobId 继续获取后续结果
-			if (res.data?.jobId) {
+			if (res.data?.continue) {
+				if (!res.data.jobId) {
+					notification.error({
+						key: 'CONTINUE_WITHOUT_JOBID',
+						message: '当前任务执行需要轮训获取结果，但是未找到 jobId，轮训失败',
+					});
+					return false;
+				}
 				this.runningSql.set(currentTabId, res.data.jobId);
 				return this.selectData(res.data.jobId, currentTabId, task);
 			}
@@ -476,25 +425,15 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	/**
 	 * 根据不同的状态输出不同的信息，并进行后续的日志输出以及是否进行 download
 	 */
-	private getDataOver = (
-		currentTabId: number,
-		res: IResponseBodyProps<ITaskExecResultProps>,
-		jobId?: string,
-	) => {
+	private getDataOver = (currentTabId: number, res: IResponseBodyProps<ITaskExecResultProps>) => {
 		if (res.data) {
 			this.outputStatus(currentTabId, res.data.status);
 		}
 
 		if (res.data?.result) {
-			taskResultService.setResult(jobId || currentTabId.toString(), res.data.result);
-		}
-		if (res.data && res.data.download) {
-			taskResultService.appendLogs(
-				currentTabId.toString(),
-				`完整日志下载地址：${createLinkMark({
-					href: res.data.download,
-					download: '',
-				})}\n`,
+			taskResultService.setResult(
+				`${currentTabId.toString()}-${md5(res.data.sqlText)}`,
+				res.data.result,
 			);
 		}
 	};
@@ -517,15 +456,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 	private abnormal = (currentTabId: number, data: ITaskExecResultProps) => {
 		if (data.status) {
 			this.outputStatus(currentTabId, data.status);
-		}
-		if (data.download) {
-			taskResultService.appendLogs(
-				currentTabId.toString(),
-				`完整日志下载地址：${createLinkMark({
-					href: data.download,
-					download: '',
-				})}\n`,
-			);
 		}
 	};
 
@@ -581,7 +511,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				);
 				return false;
 			}
-			const { code, data, retryLog } = res;
+			const { code, retryLog } = res;
 			if (code) {
 				this.showMsg(currentTabId, res);
 			}
@@ -589,15 +519,6 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 				taskResultService.appendLogs(
 					currentTabId.toString(),
 					createLog(`请求异常！`, 'error'),
-				);
-			}
-			if (data && data.download) {
-				taskResultService.appendLogs(
-					currentTabId.toString(),
-					`完整日志下载地址：${createLinkMark({
-						href: res.data.download,
-						download: '',
-					})}\n`,
 				);
 			}
 			if (retryLog && num && num <= 3) {
@@ -655,7 +576,11 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 								currentTabId.toString(),
 								createLog('获取结果成功', 'info'),
 							);
-							taskResultService.setResult(jobId.toString(), res.data.result);
+							taskResultService.setResult(
+								// 数据同步任务不存在 sqltext
+								`${currentTabId.toString()}-${md5('sync')}`,
+								res.data.result,
+							);
 						}
 					}
 				})
@@ -700,7 +625,7 @@ export default class ExecuteService extends Component<IExecuteStates> implements
 					switch (res.data.status) {
 						case TASK_STATUS.FINISHED: {
 							// 成功
-							this.getDataOver(currentTabId, res, jobId);
+							this.getDataOver(currentTabId, res);
 							return true;
 						}
 						case TASK_STATUS.RUN_FAILED: {

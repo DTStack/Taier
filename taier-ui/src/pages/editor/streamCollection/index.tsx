@@ -22,9 +22,9 @@ import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
 import type { IEditor } from '@dtinsight/molecule/esm/model';
-import saveTask from '@/utils/saveTask';
 import { Modal } from 'antd';
 import CollectionGuid from './steps';
+import taskSaveService from '@/services/taskSaveService';
 // TODO 把数据集成的样式和数据同步的样式统一出来
 import '../dataSync/index.scss';
 import '../dataSync/keymap.scss';
@@ -56,7 +56,7 @@ class StreamCollection extends React.Component<IEditor & typeof propType, Istate
 
 	static propTypes = propType;
 
-	saveTask = saveTask;
+	saveTask = taskSaveService.save;
 
 	render() {
 		const currentTabData = this.props.current?.tab?.data;
