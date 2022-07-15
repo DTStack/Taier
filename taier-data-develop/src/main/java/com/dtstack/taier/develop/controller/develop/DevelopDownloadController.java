@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.controller.develop;
 
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.develop.service.develop.impl.DevelopDownloadService;
-import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.vo.develop.query.DevelopDownloadJobLogVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,8 +23,8 @@ public class DevelopDownloadController {
     @GetMapping(value = "downloadJobLog")
     @ApiOperation("下载job日志")
     public void downloadJobLog(DevelopDownloadJobLogVO vo, HttpServletResponse response) {
-        IDownload iDownload = developDownloadService.downloadJobLog(vo.getJobId(), vo.getTaskType(), vo.getTenantId());
-        developDownloadService.handleDownload(response, iDownload, DownloadType.DEVELOP_LOG, vo.getJobId());
+        developDownloadService.handleDownload(response, DownloadType.DEVELOP_LOG, vo.getJobId(),
+                vo.getTenantId(), vo.getTaskType());
     }
 
 }

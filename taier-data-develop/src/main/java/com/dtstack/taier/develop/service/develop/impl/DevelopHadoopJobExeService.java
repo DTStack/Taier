@@ -26,8 +26,6 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.IDevelopJobExeService;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
@@ -141,35 +139,6 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         }
     }
 
-
-    /**
-     * 真正运行SQL任务的逻辑
-     *
-     * @param userId
-     * @param tenantId
-     * @param taskId
-     * @param sql
-     * @param task
-     * @param jobId
-     * @return
-     * @throws Exception
-     */
-    @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception {
-        if (EScheduleJobType.SPARK_SQL.getVal().equals(task.getTaskType())
-                || EScheduleJobType.HIVE_SQL.getVal().equals(task.getTaskType())) {
-            ExecuteContent content = new ExecuteContent();
-            content.setTenantId(tenantId)
-                    .setUserId(userId)
-                    .setSql(sql)
-                    .setTaskId(taskId)
-                    .setTaskType(task.getTaskType())
-                    .setPreJobId(jobId);
-            return developSqlExeService.executeSql(content);
-        }
-        throw new RdosDefineException(String.format("不支持%s类型的任务直接运行", EScheduleJobType.getByTaskType(task.getTaskType()).getName()));
-    }
-
     /**
      * 构建 exeArgs、sqlText、taskParams
      *
@@ -191,9 +160,7 @@ public class DevelopHadoopJobExeService implements IDevelopJobExeService {
         } else if (EScheduleJobType.SYNC.getVal().equals(task.getTaskType())) {
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
             taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
-
             String job = syncJob.getString("job");
-
             // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
             job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 

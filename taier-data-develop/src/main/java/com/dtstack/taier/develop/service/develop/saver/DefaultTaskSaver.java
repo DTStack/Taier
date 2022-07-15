@@ -1,4 +1,4 @@
-package com.dtstack.taier.develop.service.develop.task;
+package com.dtstack.taier.develop.service.develop.saver;
 
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
@@ -12,17 +12,18 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Objects;
 
 /**
- * SparkSql 实现
+ * HiveSql 实现
  *
  * @author ：zhaiyue
  * @date ：2022/06/26 00:11
  * @description：
  */
 @Service
-public class DevelopSparkSqlTaskInfo extends DevelopTaskTemplate {
+public class DefaultTaskSaver extends AbstractTaskSaver {
 
     @Autowired
     private UserService userService;
@@ -55,11 +56,6 @@ public class DevelopSparkSqlTaskInfo extends DevelopTaskTemplate {
         developTaskTaskService.addOrUpdateTaskTask(task.getId(), task.getDependencyTasks());
     }
 
-    @Override
-    public EScheduleJobType getEScheduleJobType() {
-        return EScheduleJobType.SPARK_SQL;
-    }
-
     /**
      * 创建任务
      *
@@ -87,6 +83,11 @@ public class DevelopSparkSqlTaskInfo extends DevelopTaskTemplate {
             return;
         }
         taskParam.setScheduleConf(DEFAULT_SCHEDULE_CONF);
+    }
+
+    @Override
+    public List<EScheduleJobType> support() {
+        return null;
     }
 
 }

@@ -82,11 +82,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     // 数据源是否是默认数据源
     private static final Long IS_META = 1L;
-
-    private static String KERBEROS_CONFIG = "kerberosConfig";
     private static final String DECIMAL_COLUMN = "%s(%s,%s)";
-
-    private static String KERBEROS_DIR = "kerberosDir";
     private static final String SHOW_ORACLE_BINLOG_SQL = "SELECT * FROM (SELECT FIRST_CHANGE#,FIRST_TIME FROM v$log UNION SELECT FIRST_CHANGE#,FIRST_TIME FROM v$archived_log)tmp ORDER BY tmp.FIRST_TIME desc";
     private static final String SHOW_BINLOG_SQL = "show binary logs";
     private static final Integer LIMIT_COUNT = 100;

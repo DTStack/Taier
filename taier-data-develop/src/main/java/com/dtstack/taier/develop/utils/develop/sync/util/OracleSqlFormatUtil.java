@@ -19,7 +19,7 @@
 package com.dtstack.taier.develop.utils.develop.sync.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.develop.utils.develop.common.util.SqlFormatUtil;
+import com.dtstack.taier.common.util.SqlFormatUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
