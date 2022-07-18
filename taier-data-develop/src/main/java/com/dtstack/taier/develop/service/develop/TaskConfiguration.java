@@ -57,6 +57,6 @@ public class TaskConfiguration implements ApplicationContextAware {
             }
 
         });
-
+        taskSavers.put(EScheduleJobType.DATA_ACQUISITION, taskSavers.get(EScheduleJobType.SYNC));
     }
 }
