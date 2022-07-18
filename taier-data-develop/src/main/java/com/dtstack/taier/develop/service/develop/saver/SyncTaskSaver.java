@@ -13,7 +13,6 @@ import com.dtstack.taier.develop.common.template.Setting;
 import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
-import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.impl.TaskDirtyDataManageService;
 import com.dtstack.taier.develop.service.template.DefaultSetting;
 import com.dtstack.taier.develop.service.template.FlinkxJobTemplate;
@@ -42,6 +41,7 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
 import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_TEMPLATE;
 
 /**
+ * 实时采集和数据同步任务共用
  * @Author: zhichen
  * @Date: 2022/05/29/5:14 PM
  */
@@ -58,27 +58,28 @@ public class SyncTaskSaver extends AbstractTaskSaver {
 
     @Autowired
     private NameMappingBuilderFactory nameMappingBuilderFactory;
-
+    @Autowired
+    private DefaultTaskSaver defaultTaskSaver ;
     @Autowired
     private TaskDirtyDataManageService taskDirtyDataManageService;
 
 
     @Override
     public TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam) {
-        // 校验任务信息,主资源不能为空
-        TaskVO taskVO = TaskMapstructTransfer.INSTANCE.TaskResourceParamToTaskVO(taskResourceParam);
         if (taskResourceParam.getUpdateSource()) {
-            taskVO.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
-            taskVO.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
-            taskVO.setSettingStr(taskResourceParam.getSettingMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSettingMap()));
+            taskResourceParam.setSourceStr(taskResourceParam.getSourceMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSourceMap()));
+            taskResourceParam.setTargetStr(taskResourceParam.getTargetMap() == null ? "" : JSON.toJSONString(taskResourceParam.getTargetMap()));
+            taskResourceParam.setSettingStr(taskResourceParam.getSettingMap() == null ? "" : JSON.toJSONString(taskResourceParam.getSettingMap()));
         } else {
-            Task task = developTaskService.getOne(taskVO.getId());
-            taskVO.setSourceStr(task.getSourceStr());
-            taskVO.setTargetStr(task.getTargetStr());
-            taskVO.setSettingStr(task.getSettingStr());
+            Task task = developTaskService.getOne(taskResourceParam.getId());
+            taskResourceParam.setSourceStr(task.getSourceStr());
+            taskResourceParam.setTargetStr(task.getTargetStr());
+            taskResourceParam.setSettingStr(task.getSettingStr());
         }
-        setSqlTextByCreateModel(taskResourceParam, taskVO);
+        setSqlTextByCreateModel(taskResourceParam);
         addParam(taskResourceParam);
+        taskResourceParam.setSqlText(StringUtils.isNotBlank(taskResourceParam.getSqlText()) ? taskResourceParam.getSqlText() : "{}");
+        defaultTaskSaver.beforeProcessing(taskResourceParam);
         return taskResourceParam;
     }
 
@@ -103,9 +104,8 @@ public class SyncTaskSaver extends AbstractTaskSaver {
      * 任务根据操作模式生成sqlText
      *
      * @param taskResourceParam
-     * @param task
      */
-    private void setSqlTextByCreateModel(TaskResourceParam taskResourceParam, Task task) {
+    private void setSqlTextByCreateModel(TaskResourceParam taskResourceParam) {
         if (taskResourceParam.getSourceMap() != null && DataSourceType.Polardb_For_MySQL.getVal().equals(MapUtils.getInteger(taskResourceParam.getSourceMap(), "type"))) {
             taskResourceParam.getSourceMap().put("type", DataSourceType.MySQL.getVal());
         }
@@ -127,12 +127,12 @@ public class SyncTaskSaver extends AbstractTaskSaver {
                 if (Objects.equals(taskResourceParam.getTaskType(), EScheduleJobType.SYNC.getVal())) {
                     developTaskParamService.checkParams(sqlText, taskResourceParam.getTaskVariables());
                 }
-                task.setSqlText(sqlText);
+                taskResourceParam.setSqlText(sqlText);
             } else {
                 JSONObject sql = new JSONObject(2);
                 sql.put("job", sqlText);
                 sql.put("createModel", CREATE_MODEL_TEMPLATE);
-                task.setSqlText(sql.toJSONString());
+                taskResourceParam.setSqlText(sql.toJSONString());
             }
 
         } else if (CREATE_MODEL_GUIDE == createModel) {
@@ -140,7 +140,7 @@ public class SyncTaskSaver extends AbstractTaskSaver {
             if (taskResourceParam.isPreSave()) {
                 dealWithTaskParam(taskResourceParam);
                 daSqlText = getDASqlText(taskResourceParam);
-                task.setSqlText(daSqlText);
+                taskResourceParam.setSqlText(daSqlText);
             }
         } else {
             throw new RdosDefineException("createModel incorrect parameter", ErrorCode.INVALID_PARAMETERS);
