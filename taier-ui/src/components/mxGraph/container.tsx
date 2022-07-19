@@ -38,8 +38,11 @@ const {
 	mxClient,
 } = Mx.mxInstance;
 
-// 可拖拽组件的 class 名称前缀
+/**
+ * MxGraphContainer 会为所有带该 class 名称前缀的 dom 元素注册拖拽事件
+ */
 export const WIDGETS_PREFIX = 'taier__widgets';
+const draggableEle = Symbol('draggable');
 
 export interface IContextMenuConfig {
 	/**
@@ -383,6 +386,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 	const initWidgesDraggable = () => {
 		const nodes = document.querySelectorAll<HTMLElement>(`*[class*="${WIDGETS_PREFIX}"]`);
 		nodes.forEach((node) => {
+			if (Object.hasOwnProperty(draggableEle)) return;
 			const dragElt =
 				onGetPreview?.(node) ||
 				(() => {
@@ -431,6 +435,13 @@ function MxGraphContainer<T extends IMxGraphData>(
 				return graph.current!.graphHandler.guidesEnabled;
 			};
 			draggabledEle.createDragElement = mxDragSource.prototype.createDragElement;
+
+			// insert a flag into element
+			Object.defineProperty(node, draggableEle, {
+				value: true,
+				writable: false,
+				enumerable: false,
+			});
 		});
 	};
 
@@ -544,15 +555,6 @@ function MxGraphContainer<T extends IMxGraphData>(
 		graph.current?.addListener(mxEvent.MOVE_END, (_, evt: mxEventObject) => {
 			const cell: mxCell = evt.getProperty('cell');
 			onCellsChanged?.(cell);
-		});
-
-		// container 滚动事件
-		container.current?.addEventListener('scroll', () => {
-			onContainerChanged?.({
-				scrollTop: container.current!.scrollTop,
-				scrollLeft: container.current!.scrollLeft,
-				scale: graph.current?.getView().getScale() || -1,
-			});
 		});
 
 		// Click 事件
@@ -803,8 +805,12 @@ function MxGraphContainer<T extends IMxGraphData>(
 
 	useEffect(() => {
 		initGraph();
-		initEvent();
 		initData();
+		initEvent();
+
+		initConnectionConstraints();
+		initWidgesDraggable();
+		initKeyDownEvent();
 
 		return () => {
 			Mx.dispose();
@@ -812,9 +818,19 @@ function MxGraphContainer<T extends IMxGraphData>(
 	}, [graphData]);
 
 	useEffect(() => {
-		initConnectionConstraints();
-		initWidgesDraggable();
-		initKeyDownEvent();
+		function scrollEvent() {
+			onContainerChanged?.({
+				scrollTop: container.current!.scrollTop,
+				scrollLeft: container.current!.scrollLeft,
+				scale: graph.current?.getView().getScale() || -1,
+			});
+		}
+
+		// container 滚动事件
+		container.current?.addEventListener('scroll', scrollEvent);
+		return () => {
+			container.current?.removeEventListener('scroll', scrollEvent);
+		};
 	}, []);
 
 	return (

@@ -85,5 +85,13 @@
             "SUBMIT_TASK",
             "OPERATOR_TASK"
         ]
+    },
+    {
+        "taskType": 10,
+        "actions": [
+            "SAVE_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
     }
 ]
