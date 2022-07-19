@@ -2,320 +2,159 @@
 -- console component config add tip
 -- ----------------------------
 BEGIN;
-## spark 组件 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.submit.deployMode' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.submit.deployMode','spark driver的jvm扩展参数',25,'主要','1');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'sparkPythonExtLibPath' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','sparkPythonExtLibPath','远程存储系统上pyspark.zip和py4j-0.10.7-src.zip的路径
-注：pyspark.zip和py4j-0.10.7-src.zip在$SPARK_HOME/python/lib路径下获取',25,'主要','1');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'sparkSqlProxyPath' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','sparkSqlProxyPath','远程存储系统上spark-sql-proxy.jar路径
-注：spark-sql-proxy.jar是用来执行spark sql的jar包',25,'主要','1');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.yarn.maxAppAttempts' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.yarn.maxAppAttempts','spark driver最大尝试次数, 默认为yarn上yarn.resourcemanager.am.max-attempts配置的值
-注：如果spark.yarn.maxAppAttempts配置的大于yarn.resourcemanager.am.max-attempts则无效',25,'主要','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'sparkYarnArchive' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','sparkYarnArchive','远程存储系统上spark jars的路径',25,'主要','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'yarnAccepterTaskNumber' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','yarnAccepterTaskNumber','允许yarn上同时存在状态为accepter的任务数量，当达到这个值后会禁止任务提交',25,'主要','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.speculation' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.speculation','spark任务推测行为',25,'主要','1' );
-
-## 资源 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.executor.cores' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.executor.cores','每个executor可以使用的cpu核数',25,'资源','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.executor.memory' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.executor.memory','每个executor可以使用的内存量',25,'资源','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.executor.instances' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.executor.instances','executor实例数',25,'资源','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.cores.max' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.cores.max',' standalone模式下任务最大能申请的cpu核数',25,'资源','1' );
-
-## 网络 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.network.timeout' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.network.timeout','spark中所有网络交互的最大超时时间',25,'网络','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.rpc.askTimeout' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.rpc.askTimeout','RPC 请求操作在超时之前等待的持续时间',25,'网络','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.executor.heartbeatInterval' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.executor.heartbeatInterval','driver和executor之间心跳时间间隔',25,'网络','1' );
-
-## 事件日志 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.eventLog.compress' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.eventLog.compress','是否对spark事件日志进行压缩',25,'事件日志','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.eventLog.dir' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.eventLog.dir','spark事件日志存放路径',25,'事件日志','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.eventLog.enabled' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.eventLog.enabled','是否记录 spark 事件日志',25,'事件日志','1' );
-
-## JVM ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.driver.extraJavaOptions' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.driver.extraJavaOptions','spark driver的jvm扩展参数',25,'JVM','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.executor.extraJavaOptions' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.executor.extraJavaOptions','spark executor的jvm扩展参数',25,'JVM','1' );
-
-## 环境变量 ##
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON','driver中用于执行pyspark任务的python二进制可执行文件路径',25,'环境变量','1' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'spark.yarn.appMasterEnv.PYSPARK_PYTHON' AND dict_desc = '1';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','spark.yarn.appMasterEnv.PYSPARK_PYTHON','用于执行pyspark任务的python二进制可执行文件路径',25,'环境变量','1' );
-
-## flink 组件 ##
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'jobmanager.memory.process.size' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','jobmanager.memory.process.size','JobManager 总内存(master)',25,'公共参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'taskmanager.memory.process.size' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','taskmanager.memory.process.size','TaskManager 总内存(slaves)',25,'公共参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'taskmanager.numberOfTaskSlots' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','taskmanager.numberOfTaskSlots','单个 TaskManager 可以运行的并行算子或用户函数实例的数量。',25,'公共参数','0' );
-
-## 高可用 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'high-availability' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','high-availability','flink ha类型',25,'高可用','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'high-availability.zookeeper.quorum' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','high-availability.zookeeper.quorum','zookeeper地址，当ha选择是zookeeper时必填',25,'高可用','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'high-availability.zookeeper.path.root' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','high-availability.zookeeper.path.root','ha节点路径',25,'高可用','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'high-availability.storageDir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','high-availability.storageDir','ha元数据存储路径',25,'高可用','0' );
-
-## metric监控 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'prometheusHost' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','prometheusHost','prometheus地址，平台端使用',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'prometheusPort' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','prometheusPort','prometheus，平台端使用',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.class' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.class','用来推送指标类',25,'metric监控','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.host' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.host','promgateway地址',25,'metric监控','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.port' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.port','promgateway端口',25,'metric监控','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.deleteOnShutdown' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.deleteOnShutdown','任务结束后是否删除指标',25,'metric监控','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.jobName' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.jobName','指标任务名',25,'metric监控','0');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'metrics.reporter.promgateway.randomJobNameSuffix'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','metrics.reporter.promgateway.randomJobNameSuffix','是否在任务名上添加随机值',25,'metric监控','0' );
-
-## 容错和checkpointing ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'state.backend'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','state.backend','状态后端',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'state.backend.incremental'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','state.backend.incremental','是否开启增量',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'state.checkpoints.dir'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','state.checkpoints.dir','checkpoint路径地址',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'state.checkpoints.num-retained'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','state.checkpoints.num-retained','checkpoint保存个数',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'state.savepoints.dir'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','state.savepoints.dir','savepoint路径',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'checkpoint.retain.time' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','checkpoint.retain.time','检查点保留时间',25,'容错和checkpointing','0' );
-
-## 高级 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'classloader.resolve-order' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','classloader.resolve-order','类加载模式',25,'高级','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'jobmanager.archive.fs.dir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','jobmanager.archive.fs.dir','任务结束后任务信息存储路径',25,'高级','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'akka.ask.timeout' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','akka.ask.timeout','akka通讯超时时间',25,'高级','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'akka.tcp.timeout' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','akka.tcp.timeout','tcp 连接的超时时间',25,'高级','0' );
-
-## JVM参数 ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'env.java.opts' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','env.java.opts','jvm参数',25,'JVM参数','0' );
-
-## Yarn ##
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'yarn.application-attempt-failures-validity-interval' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','yarn.application-attempt-failures-validity-interval','以毫秒为单位的时间窗口，它定义了重新启动 AM 时应用程序尝试失败的次数。不在此窗口范围内的故障不予考虑。将此值设置为 -1 以便全局计数。',25,'Yarn','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'yarn.application-attempts' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','yarn.application-attempts','ApplicationMaster 重新启动的次数。默认情况下，该值将设置为 1。如果启用了高可用性，则默认值为 2。重启次数也受 YARN 限制（通过 yarn.resourcemanager.am.max-attempts 配置）。注意整个 Flink 集群会重启，YARN Client 会失去连接。',25,'Yarn','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'pluginLoadMode' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','pluginLoadMode','插件加载类型',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'classloader.dtstack-cache' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','classloader.dtstack-cache','是否缓存classloader',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'sessionStartAuto' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','sessionStartAuto','是否允许engine启动flink session',25,'数栈平台参数','0' );
-
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'checkSubmitJobGraphInterval' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','checkSubmitJobGraphInterval','session check间隔（60 * 10s）',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'flinkLibDir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','flinkLibDir','session check间隔（60 * 10s）',25,'数栈平台参数','0');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'flinkxDistDir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','flinkxDistDir','flinkx plugins父级本地目录',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'remoteFlinkLibDir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','remoteFlinkLibDir','flink lib 远程路径',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'remoteFlinkxDistDir' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','remoteFlinkxDistDir','flinkx plugins父级远程目录',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'flinkSessionName' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','flinkSessionName','yarn session名称',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'monitorAcceptedApp' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','monitorAcceptedApp','是否监控yarn accepted状态任务',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'yarnAccepterTaskNumber' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','yarnAccepterTaskNumber','允许yarn accepter任务数量，达到这个值后不允许任务提交',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'slotmanager.number-of-slots.max' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','slotmanager.number-of-slots.max','flink session允许的最大slot数',25,'公共参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'sessionRetryNum' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','sessionRetryNum','session重试次数，达到后会放缓重试的频率',25,'数栈平台参数','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'restart-strategy'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc )
-VALUES ('tips','restart-strategy','none, off, disable:无重启策略。Fixed -delay, Fixed -delay:固定延迟重启策略。更多细节可以在这里找到。Failure -rate:故障率重启策略。更多细节可以在这里找到。如果检查点被禁用，默认值为none。如果检查点启用，默认值是fixed-delay with Integer。MAX_VALUE重启尝试和''1 s''延迟。',25,'容错和checkpointing','0');
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'restart-strategy.failure-rate.delay'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc )
-VALUES ('tips','restart-strategy.failure-rate.delay','如果restart-strategy设置为根据失败率重试，则两次连续重启尝试之间的延迟。可以用“1分钟”、“20秒”来表示',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'clusterMode' AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','clusterMode','任务执行模式：perjob,session',25,'数栈平台参数','0');
-
--- 删掉原先的错误参数
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'restart-strategy.failure-rate.failure-rate-interval'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','restart-strategy.failure-rate.failure-rate-interval','如果重启策略设置为故障率，测量故障率的时间间隔。可以用“1分钟”、“20秒”来表示。',25,'容错和checkpointing','0' );
-
-DELETE FROM dict WHERE `type` = 25 AND dict_name = 'restart-strategy.failure-rate.max-failures-per-interval'  AND dict_desc = '0';
-INSERT INTO dict (dict_code,dict_name,dict_value,`type`,depend_name,dict_desc)
-VALUES ('tips','restart-strategy.failure-rate.max-failures-per-interval','如果restart-strategy设置为根据失败率重试，在给定的时间间隔内，任务失败前的最大重启次数。',25,'容错和checkpointing','0' );
-
--- 订正原先的错误参数
-update console_component_config set `key` = 'restart-strategy.failure-rate.failure-rate-interval' where `key` = 'restart-strategy.failure-rate.failure-rate-intervalattempts' and component_type_code in (0);
-
-### sparkThrift/hiveServer 组件 ###
--- 纠正错误枚举值
-update console_component_config set component_type_code = 5 where cluster_id = -2 and component_id = -117;
-
-DELETE FROM  dict WHERE `type` = 25
-                    AND dict_name in ('jdbcUrl','username','password','maxJobPoolSize','minJobPoolSize')
-                    AND dict_desc in (4, 5);
-
-drop table if exists t_rdbs_component_id;
-create temporary table t_rdbs_component_id (id int);
-insert into t_rdbs_component_id (id) values (4), (5);
-
-drop table if exists t_rdbs_component_key;
-create temporary table t_rdbs_component_key (tipKey varchar(100), tipDesc varchar(200) );
-insert into t_rdbs_component_key values ('jdbcUrl','jdbc url地址'),('username', 'jdbc连接用户名'),('password','jdbc连接密码'),
-                                        ('maxJobPoolSize','任务最大线程数'),('minJobPoolSize', '任务最小线程数');
--- 组织成笛卡尔积插入
-INSERT INTO  dict (dict_code,dict_name,dict_value,`type`,dict_desc)
-select 'tips', t2.tipKey, t2.tipDesc, 25, t1.id from t_rdbs_component_id t1 join t_rdbs_component_key t2;
-
-drop table if exists t_rdbs_component_id;
-drop table if exists t_rdbs_component_key;
-
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('spark_version', '2.1', '210', null, 2, 1, 'INTEGER', '', 1, '2021-03-02 14:15:23', '2021-03-02 14:15:23', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('spark_thrift_version', '1.x', '1.x', null, 3, 1, 'STRING', '', 0, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('spark_thrift_version', '2.x', '2.x', null, 3, 2, 'STRING', '', 1, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_config', 'HDP 3.1.x', '-200', '', 5, 0, 'LONG', 'SPARK', 0, '2021-02-05 11:53:21', '2021-02-05 11:53:21', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn3-hdfs3-spark210', '-108', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn2-hdfs2-spark210', '-108', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn3-hdfs3-flink110', '-109', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'dummy', '-101', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn2-hdfs2-flink110', '-109', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'hive', '-117', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'hive2', '-117', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'hive3', '-117', null, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'Apache Hadoop 2.x', '2.7.6', null, 0, 1, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'Apache Hadoop 3.x', '3.0.0', null, 0, 2, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'HDP 2.6.x', '2.7.3', null, 0, 1, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'HDP 3.x', '3.1.1', null, 0, 2, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'CDH 5.x', '2.3.0', null, 0, 1, 'STRING', 'CDH', 0, '2021-12-28 10:19:00', '2021-12-28 10:19:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'CDH 6.0.x', '3.0.0', null, 0, 11, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'CDH 6.1.x', '3.0.0', null, 0, 12, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'CDH 6.2.x', '3.0.0', null, 0, 13, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'CDP 7.x', '3.1.1', null, 0, 15, 'STRING', 'CDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'TDH 5.2.x', '2.7.0', null, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'TDH 7.x', '2.7.0', null, 0, 2, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hadoop_version', 'TDH 6.x', '2.7.0', null, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 11:44:02', '2021-12-28 11:44:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'HDFS', '{"owner": "STORAGE", "dependsOn": ["RESOURCE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "1", "versionDictionary": "HADOOP_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'FLINK', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": true, "uploadConfigType": "0", "versionDictionary": "FLINK_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'SPARK', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": true, "uploadConfigType": "0", "versionDictionary": "SPARK_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-28 16:54:54', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'SPARK_THRIFT', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": "SPARK_THRIFT_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'HIVE_SERVER', '{"owner": "COMPUTE", "dependsOn": ["RESOURCE", "STORAGE"], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": "HIVE_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'SFTP', '{"owner": "COMMON", "dependsOn": [], "nameTemplate": "dummy", "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'YARN', '{"owner": "RESOURCE", "dependsOn": [], "allowKerberos": "true", "allowCoexistence": false, "uploadConfigType": "1", "versionDictionary": "HADOOP_VERSION"}', null, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.x', '{"1.x": "hive"}', null, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '2.x', '{"2.x": "hive2"}', null, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '3.x-apache', '{"3.x-apache": "hive3"}', null, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '3.x-cdp', '{"3.x-cdp": "hive3"}', null, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.x', '{"1.x": "hive"}', null, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '2.x', '{"2.x": "hive2"}', null, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('SPARK_SQL', 'SPARK_SQL', '0', 'SparkSQL', 30, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('SYNC', '数据同步', '2', '数据同步', 30, 5, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('VIRTUAL', '虚节点', '-1', '虚节点', 30, 11, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('ResourceManager', 'ResourceManager', '3', '资源管理', 31, 3, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('SparkSQLFunction', 'SparkSQLFunction', '4', 'SparkSQL', 31, 4, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('TableQuery', 'TableQuery', '5', '表查询', 31, 5, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('TaskDevelop', 'TaskDevelop', '1', '任务开发', 31, 1, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('ResourceManager', 'ResourceManager', '3', '资源管理', 32, 3, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('TaskManager', 'TaskManager', '1', '任务管理', 32, 1, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('CustomFunction', 'CustomFunction', '6', '自定义函数', 33, 4, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('SystemFunction', 'SystemFunction', '6', '系统函数', 33, 2, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12', '112', null, 1, 2, 'INTEGER', '', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'Apache Hadoop 2.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:01:55', '2021-12-28 11:01:55', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'Apache Hadoop 3.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:03:45', '2021-12-28 11:03:45', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'HDP 3.0.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:23', '2021-12-28 11:04:23', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'CDH 6.0.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.8": "yarn3-hdfs3-flink180"}, {"1.10": "yarn3-hdfs3-flink110"}, {"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:40', '2021-12-28 11:04:40', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'CDH 6.1.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:55', '2021-12-28 11:04:55', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'CDH 6.2.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "TONY": "yarn3-hdfs3-tony", "FLINK": [{"1.8": "yarn3-hdfs3-flink180"}, {"1.10": "yarn3-hdfs3-flink110"}, {"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4(CDH 6.2)": "yarn3-hdfs3-spark240cdh620"}], "LEARNING": "yarn3-hdfs3-learning", "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:05:06', '2021-12-28 11:05:06', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'HDP 2.6.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:06:38', '2021-12-28 11:06:38', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'CDH 5.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:07:19', '2021-12-28 11:07:19', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'HDP 3.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:43:05', '2021-12-28 11:43:05', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'TDH 5.2.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:33', '2021-12-28 11:44:33', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'TDH 6.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:43', '2021-12-28 11:44:43', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'TDH 7.x', '{"HDFS": {"HDFS": "yarn2-hdfs2-hadoop2", "FLINK": [{"1.12": "yarn2-hdfs2-flink112"}], "SPARK": [{"2.1": "yarn2-hdfs2-spark210", "2.4": "yarn2-hdfs2-spark240"}], "DT_SCRIPT": "yarn2-hdfs2-dtscript"}, "YARN": "yarn2"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', 'CDP 7.x', '{"HDFS": {"HDFS": "yarn3-hdfs3-hadoop3", "FLINK": [{"1.12": "yarn3-hdfs3-flink112"}], "SPARK": [{"2.1": "yarn3-hdfs3-spark210", "2.4": "yarn3-hdfs3-spark240"}], "DT_SCRIPT": "yarn3-hdfs3-dtscript"}, "YARN": "yarn3"}', null, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn2-hdfs2-flink112', '-115', null, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'yarn3-hdfs3-flink112', '-115', null, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hive_version', '1.x', '1.x', null, 4, 1, 'STRING', '', 0, '2022-05-03 22:20:53', '2022-05-03 22:20:53', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hive_version', '2.x', '2.x', null, 4, 2, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hive_version', '3.x-apache', '3.x-apache', null, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('hive_version', '3.x-cdp', '3.x-cdp', null, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:55', '2022-05-03 22:20:55', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, '2022-05-03 22:21:10', '2022-07-05 14:54:37', 1);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.submit.deployMode', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'sparkPythonExtLibPath', '远程存储系统上pyspark.zip和py4j-0.10.7-src.zip的路径
+注：pyspark.zip和py4j-0.10.7-src.zip在$SPARK_HOME/python/lib路径下获取', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'sparkSqlProxyPath', '远程存储系统上spark-sql-proxy.jar路径
+注：spark-sql-proxy.jar是用来执行spark sql的jar包', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.yarn.maxAppAttempts', 'spark driver最大尝试次数, 默认为yarn上yarn.resourcemanager.am.max-attempts配置的值
+注：如果spark.yarn.maxAppAttempts配置的大于yarn.resourcemanager.am.max-attempts则无效', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'sparkYarnArchive', '远程存储系统上spark jars的路径', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'yarnAccepterTaskNumber', '允许yarn上同时存在状态为accepter的任务数量，当达到这个值后会禁止任务提交', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.speculation', 'spark任务推测行为', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.executor.cores', '每个executor可以使用的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.executor.memory', '每个executor可以使用的内存量', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.executor.instances', 'executor实例数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.cores.max', ' standalone模式下任务最大能申请的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.network.timeout', 'spark中所有网络交互的最大超时时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.rpc.askTimeout', 'RPC 请求操作在超时之前等待的持续时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.executor.heartbeatInterval', 'driver和executor之间心跳时间间隔', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.eventLog.compress', '是否对spark事件日志进行压缩', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.eventLog.dir', 'spark事件日志存放路径', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.eventLog.enabled', '是否记录 spark 事件日志', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.driver.extraJavaOptions', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.executor.extraJavaOptions', 'spark executor的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'driver中用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'jobmanager.memory.process.size', 'JobManager 总内存(master)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'taskmanager.memory.process.size', 'TaskManager 总内存(slaves)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'taskmanager.numberOfTaskSlots', '单个 TaskManager 可以运行的并行算子或用户函数实例的数量。', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'high-availability', 'flink ha类型', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'high-availability.zookeeper.quorum', 'zookeeper地址，当ha选择是zookeeper时必填', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'high-availability.zookeeper.path.root', 'ha节点路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'high-availability.storageDir', 'ha元数据存储路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'prometheusHost', 'prometheus地址，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'prometheusPort', 'prometheus，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.class', '用来推送指标类', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.host', 'promgateway地址', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.port', 'promgateway端口', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.deleteOnShutdown', '任务结束后是否删除指标', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.jobName', '指标任务名', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'metrics.reporter.promgateway.randomJobNameSuffix', '是否在任务名上添加随机值', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'state.backend', '状态后端', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'state.backend.incremental', '是否开启增量', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'state.checkpoints.dir', 'checkpoint路径地址', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'state.checkpoints.num-retained', 'checkpoint保存个数', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'state.savepoints.dir', 'savepoint路径', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'checkpoint.retain.time', '检查点保留时间', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'classloader.resolve-order', '类加载模式', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'jobmanager.archive.fs.dir', '任务结束后任务信息存储路径', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'akka.ask.timeout', 'akka通讯超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'akka.tcp.timeout', 'tcp 连接的超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'env.java.opts', 'jvm参数', '0', 25, 0, 'STRING', 'JVM参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'yarn.application-attempt-failures-validity-interval', '以毫秒为单位的时间窗口，它定义了重新启动 AM 时应用程序尝试失败的次数。不在此窗口范围内的故障不予考虑。将此值设置为 -1 以便全局计数。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'yarn.application-attempts', 'ApplicationMaster 重新启动的次数。默认情况下，该值将设置为 1。如果启用了高可用性，则默认值为 2。重启次数也受 YARN 限制（通过 yarn.resourcemanager.am.max-attempts 配置）。注意整个 Flink 集群会重启，YARN Client 会失去连接。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'pluginLoadMode', '插件加载类型', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'classloader.dtstack-cache', '是否缓存classloader', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'sessionStartAuto', '是否允许engine启动flink session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'checkSubmitJobGraphInterval', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'flinkLibDir', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'flinkxDistDir', 'flinkx plugins父级本地目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'remoteFlinkLibDir', 'flink lib 远程路径', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'remoteFlinkxDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'flinkSessionName', 'yarn session名称', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'monitorAcceptedApp', '是否监控yarn accepted状态任务', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'yarnAccepterTaskNumber', '允许yarn accepter任务数量，达到这个值后不允许任务提交', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'slotmanager.number-of-slots.max', 'flink session允许的最大slot数', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'sessionRetryNum', 'session重试次数，达到后会放缓重试的频率', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'restart-strategy', 'none, off, disable:无重启策略。Fixed -delay, Fixed -delay:固定延迟重启策略。更多细节可以在这里找到。Failure -rate:故障率重启策略。更多细节可以在这里找到。如果检查点被禁用，默认值为none。如果检查点启用，默认值是fixed-delay with Integer。MAX_VALUE重启尝试和''1 s''延迟。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'restart-strategy.failure-rate.delay', '如果restart-strategy设置为根据失败率重试，则两次连续重启尝试之间的延迟。可以用“1分钟”、“20秒”来表示', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'clusterMode', '任务执行模式：perjob,session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'restart-strategy.failure-rate.failure-rate-interval', '如果重启策略设置为故障率，测量故障率的时间间隔。可以用“1分钟”、“20秒”来表示。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'restart-strategy.failure-rate.max-failures-per-interval', '如果restart-strategy设置为根据失败率重试，在给定的时间间隔内，任务失败前的最大重启次数。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'jdbcUrl', 'jdbc url地址', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'jdbcUrl', 'jdbc url地址', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'username', 'jdbc连接用户名', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'username', 'jdbc连接用户名', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'password', 'jdbc连接密码', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'password', 'jdbc连接密码', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'maxJobPoolSize', '任务最大线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'maxJobPoolSize', '任务最大线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'minJobPoolSize', '任务最小线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('tips', 'minJobPoolSize', '任务最小线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('FunctionManager', 'FunctionManager', '4', '函数管理', 31, 2, 'STRING', '', 1, '2022-07-05 14:56:43', '2022-07-05 14:56:43', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('FunctionManager', 'FunctionManager', '4', '函数管理', 32, 4, 'STRING', '', 1, '2022-07-05 15:11:21', '2022-07-05 15:11:21', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'OCEAN_BASE', '{"owner": "COMPUTE", "dependsOn": [], "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": "","nameTemplate":"oceanBase"}', null, 12, 0, 'STRING', '', 0, '2022-07-06 17:17:03', '2022-07-06 17:17:03', 0);
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'oceanBase', '-118', null, 6, 0, 'LONG', '', 0, '2022-07-06 19:32:06', '2022-07-06 19:32:06', 0);
 
 -- console model
 update console_component_config set component_type_code = 6 where component_id = -101;
@@ -350,24 +189,13 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'minIdle', '16', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'timeout', '10000', null, null, null, null, now(),now(), 0);
 
-
--- oceanBase
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
-                              is_default, gmt_create, gmt_modified, is_deleted)
-VALUES ('component_model', 'Ocean_Base',
-        '{"owner": "COMPUTE", "dependsOn": [], "allowKerberos": "false", "allowCoexistence": false, "uploadConfigType": "0", "versionDictionary": "","nameTemplate":"oceanBase"}',
-        null, 12, 0, 'STRING', '', 0, now(), now(), 0);
-
-INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name,
-                              is_default, gmt_create, gmt_modified, is_deleted)
-VALUES ('typename_mapping', 'oceanBase', '-118', null, 6, 0, 'LONG', '', 0, now(),now(), 0);
-
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 1, 'jdbcUrl', '', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'username', '', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'PASSWORD', 0, 'password', '', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'maxJobPoolSize', '', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', null, null, null, null, now(),now(), 0);
 
+UPDATE  console_component_config SET component_type_code =  6 WHERE component_id = -101;
 
 
 alter table console_cluster_tenant add  queue_name  varchar(32) comment '队列名称';
@@ -377,7 +205,7 @@ set console_cluster_tenant.queue_name = console_queue.queue_name;
 
 alter table console_cluster_tenant drop column queue_id;
 
-COMMIT;
+
 CREATE TABLE `task_dirty_data_manage`
 (
     `id`                      int(11) NOT NULL AUTO_INCREMENT,
@@ -400,3 +228,6 @@ parallelism.default=1
 taskmanager.numberOfTaskSlots=1
 jobmanager.memory.process.size=1g
 taskmanager.memory.process.size=2g',now(),now(), 0);
+
+
+COMMIT;
