@@ -5,7 +5,6 @@ import com.dtstack.dtcenter.loader.client.ClientCache;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.dto.source.KafkaSourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-
 import com.dtstack.taier.common.enums.KafkaTimeFeature;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.MapUtil;
@@ -14,7 +13,6 @@ import com.dtstack.taier.develop.flink.sql.core.SqlConstant;
 import com.dtstack.taier.develop.flink.sql.core.SqlParamUtil;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
 import com.dtstack.taier.develop.flink.sql.source.param.OffsetModeEnum;
-import lombok.Data;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,7 +32,6 @@ import static com.dtstack.taier.develop.enums.develop.FlinkVersion.FLINK_112;
  * @author ：qianyi
  * company: www.dtstack.com
  */
-@Data
 public class KafkaSourceTable extends AbstractSourceTable {
 
     private static final String NEW_LINE = "\n";

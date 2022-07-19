@@ -1,14 +1,12 @@
 package com.dtstack.taier.develop.vo.develop.result;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * @author zhiChen
  * @date 2021/1/7 20:13
  * @see TaskCheckpointTransfer
  */
-@Data
 public class GetCheckpointListResultVO {
 
     @ApiModelProperty(value = "间隔符", example = "_")
