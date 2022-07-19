@@ -1,9 +1,5 @@
 package com.dtstack.taier.dao.domain;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
 /**
  * metric 指标及含义
  *
@@ -11,8 +7,6 @@ import lombok.experimental.SuperBuilder;
  * date：Created in 上午11:35 2021/4/16
  * company: www.dtstack.com
  */
-@NoArgsConstructor
-@SuperBuilder
 public class StreamMetricSupport extends BaseEntity {
 
     // 指标中文名称

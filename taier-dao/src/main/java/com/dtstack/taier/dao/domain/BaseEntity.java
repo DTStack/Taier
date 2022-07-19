@@ -19,22 +19,17 @@
 package com.dtstack.taier.dao.domain;
 
 
-
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-@NoArgsConstructor
-@SuperBuilder
+
 public class BaseEntity implements Serializable {
-    @Builder.Default
-    @TableId(value="id", type= IdType.AUTO)
+
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id = 0L;
 
     @TableField(
@@ -42,9 +37,10 @@ public class BaseEntity implements Serializable {
             fill = FieldFill.INSERT
     )
     private Timestamp gmtCreate;
-    @TableField(fill = FieldFill.INSERT_UPDATE, update = "now()",value = "gmt_modified")
+
+    @TableField(fill = FieldFill.INSERT_UPDATE, update = "now()", value = "gmt_modified")
     private Timestamp gmtModified;
-    @Builder.Default
+
     private Integer isDeleted = 0;
 
     public Long getId() {

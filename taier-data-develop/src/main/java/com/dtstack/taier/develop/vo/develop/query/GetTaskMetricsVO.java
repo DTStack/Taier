@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.vo.develop.query;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
  * @date 2021/1/7 19:44
  * @see
  */
-@Data
 public class GetTaskMetricsVO {
 
     @ApiModelProperty(value = "任务ID", example = "111", required = true)

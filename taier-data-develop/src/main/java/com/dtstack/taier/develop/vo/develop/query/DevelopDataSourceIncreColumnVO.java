@@ -4,7 +4,6 @@ package com.dtstack.taier.develop.vo.develop.query;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 
 @ApiModel("数据同步-表存储信息")

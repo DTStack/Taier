@@ -2,14 +2,10 @@ package com.dtstack.taier.dao.domain;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
  * @author zhichen
  */
-@NoArgsConstructor
-@SuperBuilder
 @TableName("task_dirty_data_manage")
 public class TaskDirtyDataManage extends BaseEntity {
 
