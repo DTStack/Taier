@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.vo.develop.query;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * @author zhiChen

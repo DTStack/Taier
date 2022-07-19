@@ -1,6 +1,5 @@
 package com.dtstack.taier.develop.dto.devlop;
 
-import lombok.Data;
 
 import java.sql.Timestamp;
 import java.util.List;

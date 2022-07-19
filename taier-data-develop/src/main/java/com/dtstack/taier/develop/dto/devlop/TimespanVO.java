@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * 时间跨度格式化结果
@@ -10,7 +9,6 @@ import lombok.Data;
  * date：Created in 上午11:50 2021/4/19
  * company: www.dtstack.com
  */
-@Data
 public class TimespanVO {
 
     @ApiModelProperty(value = "格式是否正确", example = "true")

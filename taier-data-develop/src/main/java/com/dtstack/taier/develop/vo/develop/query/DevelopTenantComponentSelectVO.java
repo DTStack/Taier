@@ -21,10 +21,8 @@ package com.dtstack.taier.develop.vo.develop.query;
 import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 @ApiModel("租户组件任务配置信息查询")
-@Data
 public class DevelopTenantComponentSelectVO extends DtInsightAuthParam {
 
     @ApiModelProperty(value = "租户Id", example = "1", hidden = true)
