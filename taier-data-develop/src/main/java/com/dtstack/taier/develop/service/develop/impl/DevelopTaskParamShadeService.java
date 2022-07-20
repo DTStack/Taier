@@ -78,7 +78,7 @@ public class DevelopTaskParamShadeService {
 
         // 特殊处理 TaskParam 系统参数
         for (DevelopTaskParamShade taskParamShade : taskParamShades) {
-            if (EParamType.SYS_TYPE.getType() != taskParamShade.getType()) {
+            if (!Objects.equals(EParamType.SYS_TYPE.getType(), taskParamShade.getType())) {
                 continue;
             }
 
