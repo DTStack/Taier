@@ -33,17 +33,23 @@ import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.mapper.DevelopTaskParamMapper;
 import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
+import com.dtstack.taier.develop.utils.develop.common.SqlUtils;
 import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +66,7 @@ public class DevelopTaskParamService {
     private DevelopSysParamService developSysParamService;
 
     @Autowired
-    private DevelopSqlExeService developSqlExeService;
+    private JobParamReplace jobParamReplace;
 
     private static final String PARAM_REGEX = "\\$\\{.*?\\}";
 
@@ -71,10 +77,8 @@ public class DevelopTaskParamService {
      */
     private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
 
-    public void addOrUpdateTaskParam(final List<Map> taskVariables ,Long id) {
-        final List<DevelopParamDTO> parameterSet = this.paramResolver(taskVariables);
-
-        //存储
+    public void addOrUpdateTaskParam(final List<Map<String, Object>> taskVariables ,Long id) {
+        List<DevelopParamDTO> parameterSet = this.paramResolver(taskVariables);
         this.saveTaskParams(id, parameterSet);
     }
 
@@ -102,7 +106,7 @@ public class DevelopTaskParamService {
         }
 
         //校验任务参数时，先清除sql中的注释
-        String sqlWithoutComments = this.developSqlExeService.removeComment(jobStr);
+        String sqlWithoutComments = SqlUtils.removeComment(jobStr);
         if (StringUtils.isNotEmpty(sqlWithoutComments)) {
             sqlWithoutComments = sqlWithoutComments.replaceAll("\\s*", "");
         }
@@ -202,7 +206,7 @@ public class DevelopTaskParamService {
      * @param taskVariables
      * @return
      */
-    public List<DevelopParamDTO> paramResolver(List<Map> taskVariables) {
+    public List<DevelopParamDTO> paramResolver(List<Map<String, Object>> taskVariables) {
         if (CollectionUtils.isEmpty(taskVariables)) {
             return Collections.emptyList();
         }
@@ -265,7 +269,7 @@ public class DevelopTaskParamService {
      * @return
      * @throws Exception
      */
-    public List<DevelopTaskParamShade> convertShade(final List<DevelopTaskParam> params) throws Exception {
+    public List<DevelopTaskParamShade> convertShade(final List<DevelopTaskParam> params) {
         final List<DevelopTaskParamShade> shades = Lists.newArrayList();
         if (params != null) {
             for (final DevelopTaskParam param : params) {
@@ -305,6 +309,17 @@ public class DevelopTaskParamService {
             taskParamShade.setParamCommand(sysParameter.getParamCommand());
         }
         return taskParams;
+    }
+
+    /**
+     *
+     *
+     * @param sql
+     * @param taskVariables
+     * @return
+     */
+    public String replaceSqlParams (String sql, List<Map> taskVariables) {
+        return jobParamReplace.paramReplace(sql, taskVariables, DateTime.now().toString("yyyyMMddHHmmss"));
     }
 
 }

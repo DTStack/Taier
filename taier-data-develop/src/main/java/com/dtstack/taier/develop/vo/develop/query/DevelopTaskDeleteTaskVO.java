@@ -31,9 +31,6 @@ public class DevelopTaskDeleteTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "用户 ID", hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "sql", example = "show tables;")
-    private String sqlText;
-
     public Long getTaskId() {
         return taskId;
     }
@@ -52,11 +49,4 @@ public class DevelopTaskDeleteTaskVO extends DtInsightAuthParam {
         this.userId = userId;
     }
 
-    public String getSqlText() {
-        return sqlText;
-    }
-
-    public void setSqlText(String sqlText) {
-        this.sqlText = sqlText;
-    }
 }

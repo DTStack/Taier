@@ -16,6 +16,6 @@ public interface ITaskSaver {
 
     TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
 
-    String processPublishSqlText(Long tenantId, Integer taskType, String sqlText);
+    String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText);
 
 }

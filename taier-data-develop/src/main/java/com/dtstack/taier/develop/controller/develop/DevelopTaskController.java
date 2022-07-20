@@ -103,7 +103,7 @@ public class DevelopTaskController {
             @Override
             protected DevelopTaskPublishTaskResultVO process() {
                 return TaskMapstructTransfer.INSTANCE.TaskCheckResultVOToDevelopTaskPublishTaskResultVO(developTaskService.publishTask(detailVO.getId(),
-                        detailVO.getUserId(), detailVO.getPublishDesc(), detailVO.getComponentVersion()));
+                        detailVO.getUserId()));
             }
         }.execute();
     }
@@ -150,7 +150,7 @@ public class DevelopTaskController {
         return new APITemplate<Long>() {
             @Override
             protected Long process() {
-                return developTaskService.deleteTask(detailVO.getTaskId(), detailVO.getUserId(), detailVO.getSqlText());
+                return developTaskService.deleteTask(detailVO.getTaskId(), detailVO.getUserId());
             }
         }.execute();
     }

@@ -22,6 +22,7 @@ package com.dtstack.taier.develop.bo;
 import com.dtstack.taier.develop.sql.ParseResult;
 
 import java.util.List;
+import java.util.Map;
 
 public class ExecuteContent {
 
@@ -53,6 +54,11 @@ public class ExecuteContent {
     private String jobId;
 
     private String database;
+
+    /**
+     * 参数列表
+     */
+    private List<Map<String, Object>> variableList;
 
     public ExecuteContent setSqlList(List<String> sqlList) {
         this.sqlList = sqlList;
@@ -140,5 +146,13 @@ public class ExecuteContent {
 
     public String getDatabase() {
         return database;
+    }
+
+    public List<Map<String, Object>> getVariableList() {
+        return variableList;
+    }
+
+    public void setVariableList(List<Map<String, Object>> variableList) {
+        this.variableList = variableList;
     }
 }
