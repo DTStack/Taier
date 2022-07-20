@@ -15,4 +15,7 @@ public interface ITaskSaver {
     List<EScheduleJobType> support();
 
     TaskVO addOrUpdate(TaskResourceParam taskResourceParam);
+
+    String processPublishSqlText(Long tenantId, Integer taskType, String sqlText);
+
 }

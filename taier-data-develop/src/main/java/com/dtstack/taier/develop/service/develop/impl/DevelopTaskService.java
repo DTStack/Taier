@@ -52,7 +52,6 @@ import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.dao.domain.Component;
 import com.dtstack.taier.dao.domain.DevelopCatalogue;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
@@ -60,12 +59,8 @@ import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.domain.TaskTemplate;
-import com.dtstack.taier.dao.domain.TaskVersion;
 import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
-import com.dtstack.taier.dao.pager.PageQuery;
-import com.dtstack.taier.dao.pager.Sort;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
 import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
@@ -83,7 +78,6 @@ import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
-import com.dtstack.taier.develop.service.template.DaJobCheck;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
@@ -92,7 +86,6 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturn
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
-import com.dtstack.taier.pluginapi.util.MathUtil;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
@@ -122,7 +115,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -454,22 +446,19 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private String getExtraInfo(Task task, Long userId) throws Exception {
         String extroInfo = "";
         Long taskId = task.getId();
-        // 跨项目的时候 需要依赖 task的project
-
-        final Map<String, Object> actionParam = new HashMap<>(10);
+        Map<String, Object> actionParam = new HashMap<>();
         List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
+
+        ITaskSaver taskSaver = taskConfiguration.getSave(task.getTaskType());
 
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
             JSONObject confProp = new JSONObject();
             taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
-        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())
-                || EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
-            String newSqlText = developSqlExeService.processSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
-            actionParam.put("sqlText", newSqlText);
         } else {
-            actionParam.put("sqlText", task.getSqlText());
+            String sqlText = taskSaver.processPublishSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
+            actionParam.put("sqlText", sqlText);
         }
         actionParam.put("taskId", taskId);
         actionParam.put("taskType", task.getTaskType());
@@ -534,7 +523,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public TaskVO addOrUpdateTaskNew(TaskResourceParam taskResourceParam) {
+    public TaskVO addOrUpdateTask(TaskResourceParam taskResourceParam) {
         ITaskSaver taskSaver = taskConfiguration.getSave(taskResourceParam.getTaskType());
         return taskSaver.addOrUpdate(taskResourceParam);
     }

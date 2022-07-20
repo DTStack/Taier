@@ -87,6 +87,11 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         return taskVO;
     }
 
+    @Override
+    public String processPublishSqlText(Long tenantId, Integer taskType, String sqlText) {
+        return sqlText;
+    }
+
     /**
      * 处理任务信息
      *
