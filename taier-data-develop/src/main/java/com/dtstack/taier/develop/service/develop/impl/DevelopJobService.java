@@ -381,13 +381,6 @@ public class DevelopJobService {
         }
     }
 
-    public String getApplicationId(String jobId) {
-        List<ActionJobEntityVO> engineEntities = actionService.entitys(Lists.newArrayList(jobId));
-        if (CollectionUtils.isNotEmpty(engineEntities)) {
-            return engineEntities.get(0).getApplicationId();
-        }
-        return "";
-    }
 
     /**
      * 初始化engine paramActionExt 入参
