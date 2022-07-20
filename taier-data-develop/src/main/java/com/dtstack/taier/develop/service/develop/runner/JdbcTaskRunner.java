@@ -128,7 +128,8 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public List<String> getAllSchema(Long tenantId, Integer taskType) {
-        return null;
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, null, taskType);
+        return jdbcService.getAllDataBases(sourceDTO);
     }
 
     @Override
@@ -177,4 +178,8 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         return null;
     }
 
+    @Override
+    public Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot) {
+        return null;
+    }
 }

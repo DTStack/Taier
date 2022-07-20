@@ -143,4 +143,15 @@ public interface ITaskRunner {
      */
     BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Long taskId);
 
+
+    /**
+     * 执行数据前的准备工作
+     * 拼接调度执行的参数
+     *
+     * @param task
+     * @param tenantId
+     * @param isRoot
+     * @return
+     */
+    Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot);
 }
