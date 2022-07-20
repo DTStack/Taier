@@ -23,8 +23,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.bo.ExecuteContent;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
-import com.dtstack.taier.develop.sql.parse.SqlParserFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,7 +34,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service
 public class DevelopSqlExeService {
@@ -47,17 +44,10 @@ public class DevelopSqlExeService {
     private DevelopTenantComponentService developTenantComponentService;
 
     @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
     private DevelopFunctionService batchFunctionService;
-
-    private SqlParserFactory parserFactory = SqlParserFactory.getInstance();
 
     @Autowired
     private DevelopTaskService developTaskService;
-
-    public static final Pattern CACHE_LAZY_SQL_PATTEN = Pattern.compile("(?i)cache\\s+(lazy\\s+)?table.*");
 
     private static final String CREATE_TEMP_FUNCTION_SQL = "%s %s";
 

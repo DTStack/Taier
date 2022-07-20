@@ -36,9 +36,7 @@ import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
-import com.dtstack.taier.develop.service.develop.IDevelopJobExeService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
-import com.dtstack.taier.develop.service.develop.MultiEngineServiceFactory;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
@@ -93,9 +91,6 @@ public class DevelopJobService {
     private TenantService tenantService;
 
     @Autowired
-    private MultiEngineServiceFactory multiEngineServiceFactory;
-
-    @Autowired
     private DevelopTaskParamShadeService developTaskParamShadeService;
 
     @Autowired
@@ -121,11 +116,11 @@ public class DevelopJobService {
         if (taskParamsToReplace == null) {
             taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(task.getId());
         }
-        IDevelopJobExeService jobExecuteService = this.multiEngineServiceFactory.getDevelopJobExeService(task.getTaskType());
+        ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
         //构建任务运行完整信息
         Map<String, Object> actionParam = Maps.newHashMap();
         //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
-        jobExecuteService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task, taskParamsToReplace);
+        taskRunner.readyForTaskStartTrigger(actionParam, task.getTenantId(), task, taskParamsToReplace);
         actionParam.put("taskId", task.getId());
         actionParam.put("taskType", EScheduleJobType.getByTaskType(task.getTaskType()).getEngineJobType());
         actionParam.put("name", task.getName());
@@ -166,8 +161,8 @@ public class DevelopJobService {
             throw new RdosDefineException("只支持同步任务直接运行");
         }
         try {
-            IDevelopJobExeService developJobExeService = this.multiEngineServiceFactory.getDevelopJobExeService(EScheduleJobType.SYNC.getType());
-            Map<String, Object> actionParam = developJobExeService.readyForSyncImmediatelyJob(task, tenantId, isRoot);
+            ITaskRunner taskRunner = taskConfiguration.get(EScheduleJobType.SYNC.getType());
+            Map<String, Object> actionParam = taskRunner.readyForSyncImmediatelyJob(task, tenantId, isRoot);
             String extraInfo = JSON.toJSONString(actionParam);
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             ScheduleTaskShade scheduleTaskShade = JSON.parseObject(extraInfo, ScheduleTaskShade.class);
