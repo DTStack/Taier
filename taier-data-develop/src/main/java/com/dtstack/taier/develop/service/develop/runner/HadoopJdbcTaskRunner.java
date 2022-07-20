@@ -21,6 +21,8 @@ import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopSqlExeService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.HiveSelectDownload;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
@@ -63,6 +65,12 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     @Autowired
     private DevelopSelectSqlService developSelectSqlService;
+
+    @Autowired
+    protected DevelopTaskParamService developTaskParamService;
+
+    @Autowired
+    protected DevelopSqlExeService developSqlExeService;
 
     private static final String USE_DB = "use %s; %s ;";
 
@@ -196,7 +204,13 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     @Override
     public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-
+        String sql = task.getSqlText() == null ? "" : task.getSqlText();
+        String taskParams = task.getTaskParams();
+        developTaskParamService.checkParams(sql, taskParamsToReplace);
+        // 构建运行的SQL
+        sql = developSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
+        actionParam.put("sqlText", sql);
+        actionParam.put("taskParams", taskParams);
     }
 
     @Override
@@ -284,7 +298,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return logBuild.toString();
     }
 
-    private  boolean isJSON(String str) {
+    private boolean isJSON(String str) {
         try {
             JSON.parse(str);
             return true;
@@ -388,4 +402,8 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType);
 
 
+    @Override
+    public Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot) {
+        return null;
+    }
 }

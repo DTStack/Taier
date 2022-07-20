@@ -60,7 +60,7 @@ public enum EScheduleJobType {
     /**
      * 实时采集
      */
-    DATA_ACQUISITION(6, "实时采集", EJobType.SQL.getType(), 4, EComponentType.FLINK, EComputeType.STREAM),
+    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM),
 
     /**
      * HiveSQL
@@ -80,7 +80,7 @@ public enum EScheduleJobType {
     /**
      * Flink
      */
-    FLINK_MR(11, "Flink", 0, 11, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM),
 
     ;
 
@@ -135,10 +135,7 @@ public enum EScheduleJobType {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {
             if (eJobType.type == type) {
-                if (eJobType.getValue() != -1) {
-                    return eJobType;
-                }
-                break;
+                return eJobType;
             }
         }
         throw new RdosDefineException("不支持的任务类型");
