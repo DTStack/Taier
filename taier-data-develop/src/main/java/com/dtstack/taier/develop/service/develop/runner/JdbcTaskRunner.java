@@ -68,9 +68,8 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     public abstract List<EScheduleJobType> support();
 
     @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariableList) {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
-        result.setJobId(jobId);
         result.setContinue(false);
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
         ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType());

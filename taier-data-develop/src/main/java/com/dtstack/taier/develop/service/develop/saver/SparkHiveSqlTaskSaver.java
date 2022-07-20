@@ -4,14 +4,13 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.TenantComponent;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopSqlExeService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
+import com.dtstack.taier.develop.utils.develop.common.SqlUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 /**
@@ -29,11 +28,9 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
     @Autowired
     private DevelopFunctionService developFunctionService;
 
-    @Autowired
-    private DevelopSqlExeService developSqlExeService;
 
     @Override
-    public String processPublishSqlText(Long tenantId, Integer taskType, String sqlText) {
+    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
         TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
         String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
         return processSql(sqlPlus, tenantEngine.getComponentIdentity());
@@ -71,7 +68,7 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
      * @return
      */
     protected String processSql(String sqlText, String database) {
-        sqlText = developSqlExeService.removeComment(sqlText);
+        sqlText = SqlUtils.removeComment(sqlText);
         if (!sqlText.endsWith(";")) {
             sqlText = sqlText + ";";
         }

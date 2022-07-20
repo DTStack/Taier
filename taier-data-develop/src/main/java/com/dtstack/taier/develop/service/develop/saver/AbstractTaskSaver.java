@@ -40,7 +40,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
                     "-- create time %s \n" +
                     "-- desc %s \n";
 
-    protected static final String DEFAULT_SCHEDULE_CONF = "{" +
+    public static final String DEFAULT_SCHEDULE_CONF = "{" +
             "\"selfReliance\":0, " +
             "\"min\":0," +
             "\"hour\":0," +
@@ -50,6 +50,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             "\"isFailRetry\":true," +
             "\"maxRetryNum\":\"3\"" +
             "}";
+
     @Autowired
     public DevelopTaskService developTaskService;
 
@@ -76,6 +77,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
      * @param taskResourceParam
      * @return
      */
+    @Override
     public TaskVO addOrUpdate(TaskResourceParam taskResourceParam) {
 
         beforeProcessing(taskResourceParam);
@@ -88,7 +90,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
     }
 
     @Override
-    public String processPublishSqlText(Long tenantId, Integer taskType, String sqlText) {
+    public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
         return sqlText;
     }
 

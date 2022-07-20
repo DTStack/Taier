@@ -19,7 +19,6 @@
 package com.dtstack.taier.develop.vo.develop.query;
 
 import com.dtstack.taier.common.param.DtInsightAuthParam;
-import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -32,25 +31,8 @@ public class DevelopTaskPublishTaskVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "用户 ID", hidden = true)
     private Long userId;
 
-    @ApiModelProperty(value = "发布备注", example = "test", required = true)
-    private String publishDesc;
-
     @ApiModelProperty(value = "是否root用户", hidden = true)
     private Boolean isRoot;
-
-    @ApiModelProperty(value = "忽略检查", example = "true", required = true)
-    private Boolean ignoreCheck;
-
-    @ApiModelProperty(value = "flink版本", example = "1.12", required = true)
-    private String componentVersion;
-
-    public String getComponentVersion() {
-        return componentVersion;
-    }
-
-    public void setComponentVersion(String componentVersion) {
-        this.componentVersion = componentVersion;
-    }
 
     public Long getId() {
         return id;
@@ -70,27 +52,11 @@ public class DevelopTaskPublishTaskVO extends DtInsightAuthParam {
         this.userId = userId;
     }
 
-    public String getPublishDesc() {
-        return publishDesc;
-    }
-
-    public void setPublishDesc(String publishDesc) {
-        this.publishDesc = publishDesc;
-    }
-
     public Boolean getIsRoot() {
         return isRoot;
     }
 
     public void setIsRoot(Boolean root) {
         isRoot = root;
-    }
-
-    public Boolean getIgnoreCheck() {
-        return ignoreCheck;
-    }
-
-    public void setIgnoreCheck(Boolean ignoreCheck) {
-        this.ignoreCheck = ignoreCheck;
     }
 }

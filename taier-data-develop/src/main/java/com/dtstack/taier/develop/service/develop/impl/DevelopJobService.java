@@ -27,13 +27,10 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
-import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.Tenant;
-import com.dtstack.taier.develop.dto.devlop.DevelopParamDTO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
@@ -51,12 +48,10 @@ import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -101,50 +96,6 @@ public class DevelopJobService {
 
     @Autowired
     private TaskConfiguration taskConfiguration;
-
-    /**
-     * 构建运行任务的完整命令(包含真正执行的SQL内容)
-     *
-     * @param task
-     * @param userId
-     * @param taskParamsToReplace SQL中需要匹配和替换的 系统参数与自定义参数
-     * @return info信息
-     * @throws Exception
-     */
-    public String getExtraInfo(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-        //任务参数若为null，则表示是提交任务，否则就是临时运行任务
-        if (taskParamsToReplace == null) {
-            taskParamsToReplace = this.developTaskParamShadeService.getTaskParam(task.getId());
-        }
-        ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
-        //构建任务运行完整信息
-        Map<String, Object> actionParam = Maps.newHashMap();
-        //构建 sqlText、taskParams，如果是数据同步任务，则根据id替换数据源
-        taskRunner.readyForTaskStartTrigger(actionParam, task.getTenantId(), task, taskParamsToReplace);
-        actionParam.put("taskId", task.getId());
-        actionParam.put("taskType", EScheduleJobType.getByTaskType(task.getTaskType()).getEngineJobType());
-        actionParam.put("name", task.getName());
-        actionParam.put("computeType", task.getComputeType());
-        actionParam.put("tenantId", task.getTenantId());
-        actionParam.put("isFailRetry", false);
-        actionParam.put("maxRetryNum", 0);
-        actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
-        actionParam.put("userId", userId);
-        // 出错重试配置,兼容之前的任务，没有这个参数则默认重试
-        JSONObject scheduleConf = JSON.parseObject(task.getScheduleConf());
-        if (scheduleConf.containsKey("isFailRetry")) {
-            actionParam.put("isFailRetry", scheduleConf.getBooleanValue("isFailRetry"));
-            if (scheduleConf.getBooleanValue("isFailRetry")) {
-                int maxRetryNum = scheduleConf.getIntValue("maxRetryNum") == 0 ? 3 : scheduleConf.getIntValue("maxRetryNum");
-                actionParam.put("maxRetryNum", maxRetryNum);
-            } else {
-                actionParam.put("maxRetryNum", 0);
-            }
-        }
-        String extraInfo = objMapper.writeValueAsString(actionParam);
-        extraInfo = extraInfo.replaceAll("\r\n", System.getProperty("line.separator"));
-        return extraInfo;
-    }
 
     /**
      * 运行同步任务
@@ -338,29 +289,15 @@ public class DevelopJobService {
      * @param taskVariables
      * @return
      */
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, List<Map> taskVariables) {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, List<Map<String, Object>> taskVariables) {
         ExecuteResultVO result = new ExecuteResultVO();
         try {
             Task task = developTaskService.getOneWithError(taskId);
-            result.setTaskType(task.getTaskType());
             task.setSqlText(sql);
-
-            //将SQL中的 系统参数和自定义参数 转换为DTO对象
-            List<DevelopParamDTO> developParamDTOS = this.developTaskParamService.paramResolver(taskVariables);
-            List<DevelopTaskParam> params = this.developTaskParamService.convertParam(developParamDTOS);
-            List<DevelopTaskParamShade> taskParamsToReplace = this.developTaskParamService.convertShade(params);
-            /*ParamTaskAction paramTaskAction = getParamTaskAction(task, userId, taskParamsToReplace);
-
-            // 转换参数
-            ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
-            sql = paramActionExt.getSqlText();
-            String jobId = paramActionExt.getJobId();
-            task.setTaskParams(paramActionExt.getTaskParams());*/
-            //fmt sql
-            //jobRea
-            String jobId = actionService.generateUniqueSign();
             ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
-            result = taskRunner.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
+
+            result.setTaskType(task.getTaskType());
+            result = taskRunner.startSqlImmediately(userId, tenantId, sql, task, taskVariables);
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));
@@ -371,7 +308,6 @@ public class DevelopJobService {
         return result;
     }
 
-
     /**
      * 停止通过sql任务执行的sql查询语句
      */
@@ -379,38 +315,6 @@ public class DevelopJobService {
         if (StringUtils.isNotBlank(jobId)) {
             this.developSelectSqlService.stopSelectJob(jobId, tenantId);
         }
-    }
-
-
-    /**
-     * 初始化engine paramActionExt 入参
-     *
-     * @param task
-     * @param userId
-     * @param taskParamsToReplace 需要替换的 系统参数和自定义参数
-     * @return
-     * @throws Exception
-     */
-    private ParamTaskAction getParamTaskAction(Task task, Long userId, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-        ParamTaskAction paramTaskAction = new ParamTaskAction();
-
-        //将 Task 对象转换为调度的 ScheduleTaskShade 对象
-        ScheduleTaskShade scheduleTaskShade = new ScheduleTaskShade();
-        BeanUtils.copyProperties(task, scheduleTaskShade);
-        scheduleTaskShade.setTaskId(task.getId());
-        scheduleTaskShade.setTaskType(task.getTaskType());
-
-        //构建运行任务的完整命令(包含真正执行的SQL内容)
-        String extraInfo = getExtraInfo(task, userId, taskParamsToReplace);
-
-        JSONObject jsonObject = JSON.parseObject(extraInfo);
-        if (jsonObject.containsKey("sqlText")) {
-            jsonObject.put("sqlText", task.getSqlText());
-        }
-        extraInfo = jsonObject.toJSONString();
-        scheduleTaskShade.setExtraInfo(extraInfo);
-        paramTaskAction.setTask(scheduleTaskShade);
-        return paramTaskAction;
     }
 
 }
