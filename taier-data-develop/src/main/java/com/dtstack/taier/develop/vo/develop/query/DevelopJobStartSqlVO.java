@@ -39,10 +39,10 @@ public class DevelopJobStartSqlVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "sql语句", example = "show tables;", required = true)
     private String sql;
 
-    @ApiModelProperty(value = "任务前置执行语句", required = true)
-    private List<Map> taskVariables;
+    @ApiModelProperty(value = "任务自定义参数", required = true)
+    private List<Map<String, Object>> taskVariables;
 
-    @ApiModelProperty(value = "任务参数", example = "1", required = true)
+    @ApiModelProperty(value = "任务环境参数", example = "1", required = true)
     private String taskParams;
 
     @Override
@@ -81,11 +81,11 @@ public class DevelopJobStartSqlVO extends DtInsightAuthParam {
         this.sql = sql;
     }
 
-    public List<Map> getTaskVariables() {
+    public List<Map<String, Object>> getTaskVariables() {
         return taskVariables;
     }
 
-    public void setTaskVariables(List<Map> taskVariables) {
+    public void setTaskVariables(List<Map<String, Object>> taskVariables) {
         this.taskVariables = taskVariables;
     }
 

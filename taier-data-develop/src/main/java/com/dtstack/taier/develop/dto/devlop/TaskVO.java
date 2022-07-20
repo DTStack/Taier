@@ -60,7 +60,7 @@ public class TaskVO extends Task {
     /**
      * 离线的参数替换字段
      */
-    private List<Map> taskVariables;
+    private List<Map<String, Object>> taskVariables;
 
     private Long parentId;
 
@@ -73,10 +73,12 @@ public class TaskVO extends Task {
      * 租户名称
      */
     private String tenantName;
+
     /**
      * 是否开启任务脏数据管理
      */
     private Boolean openDirtyDataManage;
+
     /**
      * 任务脏数据管理
      */
@@ -94,8 +96,6 @@ public class TaskVO extends Task {
     public void setResourceIdList(List<Long> resourceIdList) {
         this.resourceIdList = resourceIdList;
     }
-
-
 
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return TaskDirtyDataManageVO;
@@ -193,11 +193,11 @@ public class TaskVO extends Task {
         this.syncContent = syncContent;
     }
 
-    public List<Map> getTaskVariables() {
+    public List<Map<String, Object>> getTaskVariables() {
         return taskVariables;
     }
 
-    public void setTaskVariables(List<Map> taskVariables) {
+    public void setTaskVariables(List<Map<String, Object>> taskVariables) {
         this.taskVariables = taskVariables;
     }
 

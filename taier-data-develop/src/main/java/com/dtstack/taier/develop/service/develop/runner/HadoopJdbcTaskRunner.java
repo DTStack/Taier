@@ -19,11 +19,13 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
+import com.dtstack.taier.develop.service.develop.ITaskSaver;
+import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
-import com.dtstack.taier.develop.service.develop.impl.DevelopSqlExeService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.HiveSelectDownload;
+import com.dtstack.taier.develop.service.develop.impl.JobParamReplace;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.sql.SqlParserImpl;
 import com.dtstack.taier.develop.sql.SqlType;
@@ -38,6 +40,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +73,10 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     protected DevelopTaskParamService developTaskParamService;
 
     @Autowired
-    protected DevelopSqlExeService developSqlExeService;
+    private TaskConfiguration taskConfiguration;
+
+    @Autowired
+    private JobParamReplace jobParamReplace;
 
     private static final String USE_DB = "use %s; %s ;";
 
@@ -86,33 +92,33 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     public abstract List<EScheduleJobType> support();
 
     @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariableList) {
         ExecuteContent content = new ExecuteContent();
         content.setTenantId(tenantId)
                 .setUserId(userId)
                 .setSql(sql)
-                .setTaskId(taskId)
+                .setTaskId(task.getId())
                 .setTaskType(task.getTaskType())
-                .setJobId(jobId);
+                .setVariableList(taskVariableList);
         // 前置操作
         prepareExecuteContent(content);
         if (divertTask(content)) {
             //直连jdbc
-            return super.startSqlImmediately(userId, tenantId, taskId, sql, task, jobId);
+            return super.startSqlImmediately(userId, tenantId, sql, task, taskVariableList);
         } else {
             //异步执行
-            return startRunInScheduler(userId, tenantId, taskId, jobId, content);
+            return startRunInScheduler(userId, tenantId, task.getId(), content);
         }
     }
 
-    public ExecuteResultVO startRunInScheduler(Long userId, Long tenantId, Long taskId, String jobId, ExecuteContent content) {
+    public ExecuteResultVO startRunInScheduler(Long userId, Long tenantId, Long taskId, ExecuteContent content) {
         ParseResult parseResult = content.getParseResult();
         String database = content.getDatabase();
+        String jobId = actionService.generateUniqueSign();
         developSelectSqlService.runSqlByTask(tenantId, parseResult, userId, database, taskId, content.getTaskType(), jobId);
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         result.setJobId(jobId);
         result.setContinue(true);
-        result.setJobId(jobId);
         return result;
     }
 
@@ -141,8 +147,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     private void prepareExecuteContent(final ExecuteContent executeContent) {
         executeContent.setDatabase(getCurrentDb(executeContent.getTenantId(), executeContent.getTaskType()));
-
-        String sql = executeContent.getSql();
+        String sql =  jobParamReplace.paramReplace(executeContent.getSql(), executeContent.getVariableList(), DateTime.now().toString("yyyyMMddHHmmss"));
 
         //set sql / cache lazy table 暂时不解析血缘
         if (StringUtils.isNotBlank(sql)
@@ -207,8 +212,10 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         String sql = task.getSqlText() == null ? "" : task.getSqlText();
         String taskParams = task.getTaskParams();
         developTaskParamService.checkParams(sql, taskParamsToReplace);
+
+        ITaskSaver taskSaver = taskConfiguration.getSave(task.getTaskType());
         // 构建运行的SQL
-        sql = developSqlExeService.processSqlText(tenantId, task.getTaskType(), sql);
+        sql = taskSaver.processScheduleRunSqlText(tenantId, task.getTaskType(), sql);
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
     }

@@ -177,7 +177,6 @@ public class DevelopFunctionService {
         return developFunctionResourceService.getResourceFunctionByFunctionId(functionId);
     }
 
-
     /**
      * 校验资源是否存在
      * @param resourceId
@@ -220,6 +219,7 @@ public class DevelopFunctionService {
 
     /**
      * 移动函数
+     *
      * @param userId
      * @param functionId
      * @param nodePid
@@ -239,6 +239,7 @@ public class DevelopFunctionService {
 
     /**
      * 删除函数
+     *
      * @param userId
      * @param functionId
      */
@@ -257,7 +258,6 @@ public class DevelopFunctionService {
         addOrUpdate(developFunction, userId);
     }
 
-
     /**
      * 获取任务类型的所有函数
      * @param tenantId
@@ -275,6 +275,7 @@ public class DevelopFunctionService {
 
     /**
      * 根据 租户、函数类型、引擎类型 获取函数列表
+     *
      * @param tenantId
      * @param functionType
      * @param taskType

@@ -76,6 +76,7 @@ import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
@@ -127,11 +128,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
-/**
- * company: www.dtstack.com
- * author: toutian
- * create: 2017/5/4
- */
 @Service
 public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
@@ -179,9 +175,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopResourceService DevelopResourceService;
 
     @Autowired
-    private DevelopSqlExeService developSqlExeService;
-
-    @Autowired
     private DevelopTaskResourceShadeService developTaskResourceShadeService;
 
     @Autowired
@@ -216,8 +209,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * Kerberos 文件上传的时间戳
      */
     private static final String KERBEROS_FILE_TIMESTAMP = "kerberosFileTimestamp";
-
-    private static final String DEFAULT_SCHEDULE_CONF = "{\"selfReliance\":0, \"min\":0,\"hour\":0,\"periodType\":\"2\",\"beginDate\":\"2001-01-01\",\"endDate\":\"2121-01-01\",\"isFailRetry\":true,\"maxRetryNum\":\"3\"}";
 
     private static final Integer IS_FILE = 1;
 
@@ -273,8 +264,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 map(ScheduleTaskShade::getTenantId)
                 .collect(Collectors.toList());
         Map<Long, Tenant> tenantMap = tenantService.getTenants(tenantIds)
-                .stream()
-                .collect(Collectors.toMap(Tenant::getId, Function.identity()));
+                .stream().collect(Collectors.toMap(Tenant::getId, Function.identity()));
 
         return parentTaskShades.stream().map(pt -> {
             TaskVO taskInfo = new TaskVO();
@@ -288,11 +278,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     private void setTaskVariables(TaskVO taskVO, final Long taskId) {
-        final List<DevelopTaskParam> taskParams = this.developTaskParamService.getTaskParam(taskId);
-        final List<Map> mapParams = new ArrayList<>();
+        List<DevelopTaskParam> taskParams = this.developTaskParamService.getTaskParam(taskId);
+        List<Map<String, Object>> mapParams = new ArrayList<>();
         if (taskParams != null) {
-            for (final DevelopTaskParam taskParam : taskParams) {
-                final Map map = new HashMap();
+            for (DevelopTaskParam taskParam : taskParams) {
+                Map<String, Object> map = new HashMap();
                 map.put("type", taskParam.getType());
                 map.put("paramName", taskParam.getParamName());
                 map.put("paramCommand", taskParam.getParamCommand());
@@ -309,9 +299,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     public Task checkIsLoop(Long taskId,
                             Long dependencyTaskId) {
-
         HashSet<Long> node = Sets.newHashSet(taskId);
-
         Long loopTaskId = isHasLoop(dependencyTaskId, node);
         if (loopTaskId == 0L) {
             return null;
@@ -362,37 +350,28 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TaskCheckResultVO publishTask(Long id, Long userId, String publishDesc, String componentVersion) {
+    public TaskCheckResultVO publishTask(Long id, Long userId) {
         Task task = getOne(id);
-        if (StringUtils.isNotBlank(componentVersion) && !StringUtils.equals(componentVersion, task.getComponentVersion())) {
-            throw new RdosDefineException("flink版本更新，请重新确认并保存后再提交");
-        }
         if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getVal())) {
             if (!checkTaskCanRunByStatus(task)) {
                 throw new RdosDefineException("任务状态未提交发布");
             }
         }
-
-        return publishTaskInfo(task, userId, publishDesc);
-
+        return publishTaskInfo(task, userId);
     }
-
 
     /**
      * 批量发布任务至engine
      *
      * @param userId      用户id
-     * @param publishDesc 发布描述
      * @return 发布结果
      */
-    public TaskCheckResultVO publishTaskInfo(Task task, Long userId, String publishDesc) {
+    public TaskCheckResultVO publishTaskInfo(Task task, Long userId) {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
-
         try {
             // 构建要发布的任务列表
             ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task);
-
             // 提交任务参数信息并保存任务记录和更新任务状态
             sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
         } catch (Exception e) {
@@ -411,11 +390,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (task == null) {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
-        String extroInfo = getExtraInfo(task, userId);
+        String extraInfo = getExtraInfo(task, userId);
         if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getValue())) {
             ParamTaskAction paramTaskAction = new ParamTaskAction();
             paramTaskAction.setIsRestart(0);
-            scheduleTasks.setExtraInfo(extroInfo);
+            scheduleTasks.setExtraInfo(extraInfo);
             if (!scheduleTasks.getScheduleConf().contains("periodType")) {
                 JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
                 scheduleConf.put("periodType", ESchedulePeriodType.DAY.getVal());
@@ -427,7 +406,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
         }
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
-        scheduleTasks.setExtraInfo(extroInfo);
+        scheduleTasks.setExtraInfo(extraInfo);
         savaTaskDTO.setScheduleTaskShade(scheduleTasks);
         List<DevelopTaskTask> allParentTask = developTaskTaskService.getAllParentTask(taskId);
         savaTaskDTO.setParentTaskIdList(allParentTask.stream().map(DevelopTaskTask::getParentTaskId).collect(Collectors.toList()));
@@ -436,7 +415,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
 
     /**
-     * 初始化engine info接口extroInfo信息
+     * 初始化engine info接口extraInfo信息
      *
      * @param task
      * @param userId
@@ -444,20 +423,18 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @throws Exception
      */
     private String getExtraInfo(Task task, Long userId) throws Exception {
-        String extroInfo = "";
+        String extraInfo = "";
         Long taskId = task.getId();
         Map<String, Object> actionParam = new HashMap<>();
         List<DevelopTaskParam> taskParam = developTaskParamService.getTaskParam(task.getId());
-
         ITaskSaver taskSaver = taskConfiguration.getSave(task.getTaskType());
-
         if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             hadoopJobExeService.readyForTaskStartTrigger(actionParam, task.getTenantId(), task);
             JSONObject confProp = new JSONObject();
             taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
             actionParam.put("confProp", JSON.toJSONString(confProp));
         } else {
-            String sqlText = taskSaver.processPublishSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
+            String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
             actionParam.put("sqlText", sqlText);
         }
         actionParam.put("taskId", taskId);
@@ -483,9 +460,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 actionParam.put("maxRetryNum", 0);
             }
         }
-        extroInfo = objMapper.writeValueAsString(actionParam);
-        extroInfo = extroInfo.replaceAll("\r\n", System.getProperty("line.separator"));
-        return extroInfo;
+        extraInfo = objMapper.writeValueAsString(actionParam);
+        extraInfo = extraInfo.replaceAll("\r\n", System.getProperty("line.separator"));
+        return extraInfo;
     }
 
     /**
@@ -588,7 +565,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         taskVO.setTenantId(taskVO.getTenantId());
         taskVO.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
-        taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? DevelopTaskService.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
+        taskVO.setScheduleConf(StringUtils.isBlank(taskVO.getScheduleConf()) ? AbstractTaskSaver.DEFAULT_SCHEDULE_CONF : taskVO.getScheduleConf());
         taskVO.setVersion(Objects.isNull(taskVO.getVersion()) ? 0 : taskVO.getVersion());
         taskVO.setSqlText(createAnnotationText(taskVO));
         taskVO.setMainClass(Objects.isNull(taskVO.getMainClass()) ? "" : taskVO.getMainClass());
@@ -649,7 +626,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @return
      * @throws Exception
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public TaskCatalogueVO guideToTemplate(final TaskResourceParam param) {
         final Task task = this.developTaskMapper.selectById(param.getId());
         TaskVO taskVO = new TaskVO();
@@ -669,7 +646,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setSqlText(sqlJson.toJSONString());
         }
         this.updateTask(taskVO, true);
-        final TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
+        TaskCatalogueVO taskCatalogueVO = new TaskCatalogueVO(param, taskVO.getNodePid());
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         if (oneByTaskId != null) {
             TaskDirtyDataManageVO taskDirtyDataManageVO = TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId);
@@ -713,17 +690,15 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         return sb.toString();
     }
 
-
     /**
-     * 数据开发-删除任务
+     * 删除任务
      *
      * @param taskId 任务id
      * @param userId 用户id
      * @return
-     * @author toutian
      */
     @Transactional
-    public Long deleteTask(Long taskId, Long userId, String sqlText) {
+    public Long deleteTask(Long taskId, Long userId) {
 
         final Task task = this.developTaskMapper.selectById(taskId);
         if (task == null) {

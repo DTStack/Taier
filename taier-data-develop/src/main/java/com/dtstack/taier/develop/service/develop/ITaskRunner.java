@@ -19,7 +19,6 @@ public interface ITaskRunner {
 
     Logger LOGGER = LoggerFactory.getLogger(ITaskRunner.class);
 
-
     List<EScheduleJobType> support();
 
     /**
@@ -27,13 +26,13 @@ public interface ITaskRunner {
      *
      * @param userId
      * @param tenantId
-     * @param taskId
      * @param sql
      * @param task
+     * @param taskVariables
      * @return
      * @throws Exception
      */
-    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception;
+    ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariables) throws Exception;
 
     /**
      * 提交至调度

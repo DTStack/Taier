@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.service.develop.runner;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
@@ -17,7 +16,6 @@ import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.job.SourceType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -53,7 +51,7 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, Long taskId, String sql, Task task, String jobId) throws Exception {
+    public ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariables) throws Exception {
         return null;
     }
 
@@ -149,10 +147,6 @@ public class SyncTaskRunner implements ITaskRunner {
             actionParam.put("maxRetryNum", 0);
             actionParam.put("job", job);
             actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
-            DataSourceType writerDataSourceType = getSyncJobWriterDataSourceType(job);
-            if (Objects.nonNull(writerDataSourceType)) {
-                actionParam.put("dataSourceType", writerDataSourceType.getVal());
-            }
             if (Objects.nonNull(taskExeArgs)) {
                 actionParam.put("exeArgs", taskExeArgs);
             }
@@ -188,24 +182,4 @@ public class SyncTaskRunner implements ITaskRunner {
         return sb.toString();
     }
 
-    /**
-     * 获取数据同步写入插件的数据源类型
-     * 注意：目前只调整Inceptor类型，其他数据源类型没有出现问题，不进行变动
-     *
-     * @param jobStr
-     * @return
-     */
-    public DataSourceType getSyncJobWriterDataSourceType(String jobStr) {
-        JSONObject job = JSONObject.parseObject(jobStr);
-        JSONObject jobContent = job.getJSONObject("job");
-        JSONObject content = jobContent.getJSONArray("content").getJSONObject(0);
-        JSONObject writer = content.getJSONObject("writer");
-        String writerName = writer.getString("name");
-        switch (writerName) {
-            case PluginName.INCEPTOR_W:
-                return DataSourceType.INCEPTOR;
-            default:
-                return null;
-        }
-    }
 }
