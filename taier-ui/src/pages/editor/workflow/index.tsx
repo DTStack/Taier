@@ -524,7 +524,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 				)}
 				onContextMenu={handleContextMenu}
 				onEdgeContextMenu={handleEdgeContextMenu}
-				onDrawVertex={() => 'whiteSxpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;'}
+				onDrawVertex={() => 'whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;'}
 				onRenderWidgets={() => {
 					return (
 						<>
