@@ -38,8 +38,11 @@ const {
 	mxClient,
 } = Mx.mxInstance;
 
-// 可拖拽组件的 class 名称前缀
+/**
+ * MxGraphContainer 会为所有带该 class 名称前缀的 dom 元素注册拖拽事件
+ */
 export const WIDGETS_PREFIX = 'taier__widgets';
+const draggableEleSymbol = Symbol('draggable');
 
 export interface IContextMenuConfig {
 	/**
@@ -52,11 +55,11 @@ export interface IContextMenuConfig {
 	disabled?: boolean;
 }
 
-type StartsWithbindString<T> = T extends `bind${string}` ? T : never;
+type StartsWithBindString<T> = T extends `bind${string}` ? T : never;
 
 export interface IKeyDownConfig {
 	id: string;
-	method: StartsWithbindString<keyof mxKeyHandler>;
+	method: StartsWithBindString<keyof mxKeyHandler>;
 	/**
 	 * @reference: https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
 	 */
@@ -91,13 +94,13 @@ export interface IContainerProps<T> {
 	/**
 	 * Vertex 尺寸，默认宽度 210， 默认高度 50,
 	 */
-	vertextSize?: { width?: number; height?: number };
+	vertexSize?: { width?: number; height?: number };
 	/**
 	 * 配置项目
 	 */
 	config?: { tooltips: boolean; connectable?: boolean; [key: string]: any };
 	/**
-	 * relayout 的方向，MxHierarchicalLayout 的第二个参数
+	 * re-layout 的方向，MxHierarchicalLayout 的第二个参数
 	 */
 	direction?: string;
 	/**
@@ -204,7 +207,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 		loading,
 		graphData,
 		vertexKey = 'taskId',
-		vertextSize,
+		vertexSize,
 		config,
 		direction,
 		children,
@@ -244,8 +247,8 @@ function MxGraphContainer<T extends IMxGraphData>(
 		 */
 		insertCell: (data, x, y) => {
 			if (graph.current) {
-				const width = vertextSize?.width || MxFactory.VertexSize.width;
-				const height = vertextSize?.height || MxFactory.VertexSize.height;
+				const width = vertexSize?.width || MxFactory.VertexSize.width;
+				const height = vertexSize?.height || MxFactory.VertexSize.height;
 				const style = onDrawVertex?.(data);
 
 				graph.current.insertVertex(
@@ -380,9 +383,10 @@ function MxGraphContainer<T extends IMxGraphData>(
 		Mx.initContainerScroll();
 	};
 
-	const initWidgesDraggable = () => {
+	const initWidgetDraggable = () => {
 		const nodes = document.querySelectorAll<HTMLElement>(`*[class*="${WIDGETS_PREFIX}"]`);
 		nodes.forEach((node) => {
+			if (Object.hasOwnProperty(draggableEleSymbol)) return;
 			const dragElt =
 				onGetPreview?.(node) ||
 				(() => {
@@ -391,13 +395,13 @@ function MxGraphContainer<T extends IMxGraphData>(
 					return dom;
 				})();
 
-			const width = vertextSize?.width || MxFactory.VertexSize.width;
-			const height = vertextSize?.height || MxFactory.VertexSize.height;
+			const width = vertexSize?.width || MxFactory.VertexSize.width;
+			const height = vertexSize?.height || MxFactory.VertexSize.height;
 
 			dragElt.style.width = `${width}px`;
 			dragElt.style.height = `${height}px`;
 
-			const draggabledEle = mxUtils.makeDraggable(
+			const draggableEle = mxUtils.makeDraggable(
 				node,
 				// @ts-ignore
 				(evt: MouseEvent) => {
@@ -423,14 +427,21 @@ function MxGraphContainer<T extends IMxGraphData>(
 				true,
 			);
 
-			draggabledEle.createPreviewElement = function () {
+			draggableEle.createPreviewElement = function () {
 				// ctx._currentSourceType = type;
 				return dragElt;
 			};
-			draggabledEle.isGuidesEnabled = () => {
+			draggableEle.isGuidesEnabled = () => {
 				return graph.current!.graphHandler.guidesEnabled;
 			};
-			draggabledEle.createDragElement = mxDragSource.prototype.createDragElement;
+			draggableEle.createDragElement = mxDragSource.prototype.createDragElement;
+
+			// insert a flag into element
+			Object.defineProperty(node, draggableEleSymbol, {
+				value: true,
+				writable: false,
+				enumerable: false,
+			});
 		});
 	};
 
@@ -504,7 +515,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 			graph.current!.connectionHandler.isConnectableCell = () => false;
 
 			graph.current!.isValidConnection = function (source: mxCell, target: mxCell) {
-				// Only connectable between vertexs
+				// Only connectable between vertexes
 				if (!source.vertex || !target.vertex) return false;
 
 				// Can't have infinite edges
@@ -529,7 +540,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 	const initEvent = () => {
 		const highlightEdges: mxCellHighlight[] = [];
 
-		// 添加 cells 事件，包括 vertexs 和 edges
+		// 添加 cells 事件，包括 vertexes 和 edges
 		graph.current?.addListener(mxEvent.ADD_CELLS, (_, evt: mxEventObject) => {
 			const cell: mxCell = evt.getProperty('cell');
 			onCellsChanged?.(cell);
@@ -544,15 +555,6 @@ function MxGraphContainer<T extends IMxGraphData>(
 		graph.current?.addListener(mxEvent.MOVE_END, (_, evt: mxEventObject) => {
 			const cell: mxCell = evt.getProperty('cell');
 			onCellsChanged?.(cell);
-		});
-
-		// container 滚动事件
-		container.current?.addEventListener('scroll', () => {
-			onContainerChanged?.({
-				scrollTop: container.current!.scrollTop,
-				scrollLeft: container.current!.scrollLeft,
-				scale: graph.current?.getView().getScale() || -1,
-			});
 		});
 
 		// Click 事件
@@ -726,8 +728,8 @@ function MxGraphContainer<T extends IMxGraphData>(
 					data,
 					0,
 					0,
-					vertextSize?.width || MxFactory.VertexSize.width,
-					vertextSize?.height || MxFactory.VertexSize.height,
+					vertexSize?.width || MxFactory.VertexSize.width,
+					vertexSize?.height || MxFactory.VertexSize.height,
 					style,
 				);
 
@@ -803,8 +805,12 @@ function MxGraphContainer<T extends IMxGraphData>(
 
 	useEffect(() => {
 		initGraph();
-		initEvent();
 		initData();
+		initEvent();
+
+		initConnectionConstraints();
+		initWidgetDraggable();
+		initKeyDownEvent();
 
 		return () => {
 			Mx.dispose();
@@ -812,9 +818,19 @@ function MxGraphContainer<T extends IMxGraphData>(
 	}, [graphData]);
 
 	useEffect(() => {
-		initConnectionConstraints();
-		initWidgesDraggable();
-		initKeyDownEvent();
+		function scrollEvent() {
+			onContainerChanged?.({
+				scrollTop: container.current!.scrollTop,
+				scrollLeft: container.current!.scrollLeft,
+				scale: graph.current?.getView().getScale() || -1,
+			});
+		}
+
+		// container 滚动事件
+		container.current?.addEventListener('scroll', scrollEvent);
+		return () => {
+			container.current?.removeEventListener('scroll', scrollEvent);
+		};
 	}, []);
 
 	return (

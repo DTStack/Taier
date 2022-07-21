@@ -1,6 +1,5 @@
 import { message } from 'antd';
 import { KeyMod, KeyCode } from 'monaco-editor';
-import api from '@/api';
 import { ID_COLLECTIONS } from '@/constant';
 import taskRenderService from '@/services/taskRenderService';
 import { isTaskTab } from '@/utils/is';
@@ -43,26 +42,11 @@ export default class QuickSaveTaskAction extends Action2 {
 				currentTabData,
 			);
 			if (taskToolbar.find((t) => t.id === ID_COLLECTIONS.TASK_SAVE_ID)) {
-				taskSaveService.save()
-					.then((res) => res?.data?.id)
-					.then((id) => {
-						if (id !== undefined) {
-							api.getOfflineTaskByID({ id }).then((res) => {
-								const { code } = res;
-								if (code === 1) {
-									molecule.editor.updateTab({
-										id: current.tab!.id,
-										status: undefined,
-									});
-								}
-							});
-						}
-					})
-					.catch((err: Error | undefined) => {
-						if (err) {
-							message.error(err.message);
-						}
-					});
+				taskSaveService.save().catch((err: Error | undefined) => {
+					if (err) {
+						message.error(err.message);
+					}
+				});
 			}
 		}
 	}

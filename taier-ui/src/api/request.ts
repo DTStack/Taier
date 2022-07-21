@@ -155,4 +155,5 @@ export default {
 	SAVE_TENANT_COMPONENT_INFO: `${BASE_URI}/tenantComponent/saveTenantComponentInfo`, // 保存组件运行schema信息
 	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
 	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
+	VALIDATE_REPEAT_TASK_NAME: `${BASE_URI}/task/checkTaskNameRepeat`, // 校验当前任务名称是否重名
 };

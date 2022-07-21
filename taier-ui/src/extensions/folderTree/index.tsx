@@ -250,15 +250,23 @@ function editTreeNodeName() {
 	});
 }
 
-const afterSubmit = (params: Record<string, any>, parentId: number, tabId: string) => {
+const onAfterSubmit = (props: {
+	beforeParentId: number;
+	afterParentId: number;
+	taskId: number;
+	nextName: string;
+	editTabId: string;
+}) => {
+	const { beforeParentId, afterParentId, taskId, nextName, editTabId } = props;
 	// 等待更新的文件夹目录
 	const pendingUpdateFolderId = new Set([
 		// 当前节点变更之前所在的文件夹
-		parentId,
+		beforeParentId,
 		// 当前节点变更后所在的文件夹
-		params.nodePid,
+		afterParentId,
 	]);
 
+	// 1. Update these two folders' children
 	Promise.all(
 		Array.from(pendingUpdateFolderId).map((id) => {
 			const folderNode = molecule.folderTree.get(`${id}-folder`);
@@ -273,33 +281,28 @@ const afterSubmit = (params: Record<string, any>, parentId: number, tabId: strin
 			}
 			return Promise.resolve();
 		}),
-	).then(() => {
-		const isOpened = molecule.editor.isOpened(params.id.toString());
-		if (isOpened) {
-			molecule.editor.updateTab({
-				id: params.id.toString(),
-				name: params.name as string,
-				breadcrumb: breadcrumbService.getBreadcrumb(params.id),
-			});
-		}
+	);
 
-		// 关闭当前编辑的 tab
-		const groupId = molecule.editor.getGroupIdByTab(tabId)!;
-		molecule.editor.closeTab(tabId, groupId);
-	});
+	// 2. Ensure update the opened tab
+	const isOpened = molecule.editor.isOpened(taskId.toString());
+	if (isOpened) {
+		molecule.editor.updateTab({
+			id: taskId.toString(),
+			name: nextName,
+			breadcrumb: breadcrumbService.getBreadcrumb(taskId),
+		});
+	}
+
+	// 3. Close edit tab
+	const groupId = molecule.editor.getGroupIdByTab(editTabId)!;
+	molecule.editor.closeTab(editTabId, groupId);
 };
 
 function onSelectFile() {
 	molecule.folderTree.onSelectFile((file) => {
 		molecule.folderTree.setActive(file.id);
 		viewStoreService.clearStorage(file.id.toString());
-		taskRenderService.openTask(
-			{ id: file.id },
-			{
-				create: false,
-				onAfterSubmit: afterSubmit,
-			},
-		);
+		taskRenderService.openTask({ id: file.id }, { create: false });
 	});
 }
 
@@ -371,7 +374,13 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									afterSubmit(params, treeNode!.data.parentId, tabId);
+									onAfterSubmit({
+										beforeParentId: treeNode!.data.parentId,
+										afterParentId: params.catalogueId,
+										taskId: params.taskId,
+										nextName: params.name,
+										editTabId: tabId,
+									});
 								}
 							})
 							.finally(() => {
@@ -391,7 +400,13 @@ function contextMenu() {
 							.then((res) => {
 								if (res.code === 1) {
 									message.success('编辑成功');
-									afterSubmit(params, treeNode!.data.parentId, tabId);
+									onAfterSubmit({
+										beforeParentId: treeNode!.data.parentId,
+										afterParentId: params.nodePid,
+										nextName: params.nodeName,
+										taskId: params.id,
+										editTabId: tabId,
+									});
 								}
 							})
 							.finally(() => {

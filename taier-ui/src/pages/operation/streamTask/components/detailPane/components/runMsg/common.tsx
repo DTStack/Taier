@@ -222,7 +222,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 				config={{
 					tooltips: false,
 				}}
-				vertextSize={{
+				vertexSize={{
 					width: 280,
 					height: 234,
 				}}
@@ -246,7 +246,7 @@ export default function Common({ flinkJson, loading, refresh }: ICommonProps) {
 						config={{
 							tooltips: false,
 						}}
-						vertextSize={{
+						vertexSize={{
 							width: 280,
 							height: 234,
 						}}
