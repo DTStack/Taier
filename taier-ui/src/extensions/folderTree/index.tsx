@@ -32,7 +32,6 @@ import { IComputeType } from '@/interface';
 import { breadcrumbService, catalogueService } from '@/services';
 import notification from '@/components/notification';
 import taskRenderService from '@/services/taskRenderService';
-import viewStoreService from '@/services/viewStoreService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0
@@ -301,7 +300,6 @@ const onAfterSubmit = (props: {
 function onSelectFile() {
 	molecule.folderTree.onSelectFile((file) => {
 		molecule.folderTree.setActive(file.id);
-		viewStoreService.clearStorage(file.id.toString());
 		taskRenderService.openTask({ id: file.id }, { create: false });
 	});
 }
