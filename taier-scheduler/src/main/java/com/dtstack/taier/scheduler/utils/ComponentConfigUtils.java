@@ -30,7 +30,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,35 +46,6 @@ public class ComponentConfigUtils {
     public final static String DEPLOY_MODE = "deploymode";
     private final static String dependencySeparator = "$";
     private static Predicate<String> isOtherControl = s -> "typeName".equalsIgnoreCase(s) || "md5Key".equalsIgnoreCase(s);
-
-
-
-    /**
-     * 解析config成clientTemplate树结构
-     *
-     * @param dependencyMapping
-     * @param maxDeep
-     * @param clientTemplate
-     * @param dependencyKey
-     */
-    private static void deepToBuildClientTemplate(Map<String, List<ComponentConfig>> dependencyMapping, Integer maxDeep, ClientTemplate clientTemplate, String dependencyKey) {
-        if (maxDeep <= 0) {
-            return;
-        }
-        List<ComponentConfig> dependValueConfig = dependencyMapping.get(dependencyKey);
-        if (!CollectionUtils.isEmpty(dependValueConfig)) {
-            maxDeep = --maxDeep;
-            List<ClientTemplate> valuesTemplate = new ArrayList<>();
-            for (ComponentConfig componentConfig : dependValueConfig) {
-                ClientTemplate componentClientTemplate = componentConfigToTemplate(componentConfig);
-                componentClientTemplate.setRequired(BooleanUtils.toBoolean(componentConfig.getRequired()));
-                deepToBuildClientTemplate(dependencyMapping, maxDeep, componentClientTemplate, dependencyKey + dependencySeparator + componentClientTemplate.getKey());
-                valuesTemplate.add(componentClientTemplate);
-            }
-            clientTemplate.setValues(valuesTemplate);
-        }
-
-    }
 
 
     /**
@@ -314,34 +284,9 @@ public class ComponentConfigUtils {
         return clientTemplate;
     }
 
-    /**
-     * 将yarn hdfs 等xml配置信息转换为clientTemplate
-     *
-     * @param componentConfigString
-     * @return
-     */
-    public static List<ClientTemplate> convertXMLConfigToComponentConfig(String componentConfigString) {
-        if (StringUtils.isBlank(componentConfigString)) {
-            return new ArrayList<>(0);
-        }
-        JSONObject componentConfigObj = JSONObject.parseObject(componentConfigString);
-        List<ClientTemplate> configs = new ArrayList<>(componentConfigObj.size());
-        for (String key : componentConfigObj.keySet()) {
-            configs.add(buildCustom(key, componentConfigObj.get(key), EFrontType.XML.name()));
-        }
-        return configs;
-    }
 
     public static ComponentConfig buildOthers(String key, String value, Long componentId, Long clusterId, Integer componentCode) {
         return buildCustomConfig(key, value, EFrontType.OTHER.name(), null, componentId, clusterId, componentCode);
-    }
-
-    public static ClientTemplate buildCustom(String key, Object value, String type) {
-        ClientTemplate clientTemplate = new ClientTemplate();
-        clientTemplate.setType(type);
-        clientTemplate.setKey(key);
-        clientTemplate.setValue(value);
-        return clientTemplate;
     }
 
     public static ComponentConfig buildCustomConfig(String key, String value, String type,String dependencyKey,
@@ -358,22 +303,6 @@ public class ComponentConfigUtils {
         return componentConfig;
     }
 
-    /**
-     * 根据key值来排序
-     *
-     * @param clientTemplates
-     * @return
-     */
-    public static List<ClientTemplate> sortByKey(List<ClientTemplate> clientTemplates) {
-        if (CollectionUtils.isEmpty(clientTemplates)) {
-            return clientTemplates;
-        }
-        clientTemplates.sort(Comparator.nullsFirst(Comparator.comparing(ClientTemplate::getKey, Comparator.nullsFirst(String.CASE_INSENSITIVE_ORDER))));
-        for (ClientTemplate clientTemplate : clientTemplates) {
-            ComponentConfigUtils.sortByKey(clientTemplate.getValues());
-        }
-        return clientTemplates;
-    }
 
     public static List<ComponentConfig> fillTemplateValue(JSONObject configJson, List<ComponentConfig> templateConfigs, Long componentId, Long clusterId, Integer componentCode) {
         List<ComponentConfig> saveConfig = new ArrayList<>(configJson.size());
@@ -390,6 +319,9 @@ public class ComponentConfigUtils {
                 if (deploy.getKey().equals(DEPLOY_MODE)) {
                     deploy.setValue(deployMode.toJSONString());
                 }
+                deploy.setClusterId(clusterId);
+                deploy.setComponentId(componentId);
+                deploy.setComponentTypeCode(componentCode);
             });
 
             //设置deployMode值
@@ -406,6 +338,17 @@ public class ComponentConfigUtils {
                     componentConfig.setComponentTypeCode(componentCode);
                     deployConfig.remove(componentConfig.getKey());
                 }).collect(Collectors.toList());
+
+                //设置group
+                List<ComponentConfig> deployConfigMode = dependencyMapping.get(DEPLOY_MODE);
+                for (ComponentConfig componentConfig : deployConfigMode) {
+                    if (deployMode.getString(i).trim().equals(componentConfig.getKey())) {
+                        componentConfig.setComponentId(componentId);
+                        componentConfig.setClusterId(clusterId);
+                        componentConfig.setComponentTypeCode(componentCode);
+                        deployTemplateConfig.add(componentConfig);
+                    }
+                }
 
                 //设置模版值
                 saveConfig.addAll(deployTemplateConfig);
