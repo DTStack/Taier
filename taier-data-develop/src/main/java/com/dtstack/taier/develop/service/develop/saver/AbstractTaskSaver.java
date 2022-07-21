@@ -6,6 +6,7 @@ import com.dtstack.taier.common.enums.ESubmitStatus;
 import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskTemplate;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
@@ -34,7 +35,7 @@ import java.util.Objects;
 public abstract class AbstractTaskSaver implements ITaskSaver {
 
     protected final static String SQL_NOTE_TEMPLATE =
-                    "-- name %s \n" +
+            "-- name %s \n" +
                     "-- type %s \n" +
                     "-- author %s \n" +
                     "-- create time %s \n" +
@@ -91,7 +92,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     @Override
     public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
-        return sqlText;
+        return SqlFormatUtil.formatSql(sqlText);
     }
 
     /**

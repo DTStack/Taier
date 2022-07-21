@@ -72,7 +72,6 @@ public class ComponentConfigService {
             throw new RdosDefineException("参数不能为空");
         }
         componentConfigMapper.deleteByComponentId(componentId);
-//        List<ComponentConfig> componentConfigs = ComponentConfigUtils.saveTreeToList(clientTemplates, clusterId, componentId, null, null, componentTypeCode);
         batchSaveComponentConfig(componentConfigs);
     }
 
