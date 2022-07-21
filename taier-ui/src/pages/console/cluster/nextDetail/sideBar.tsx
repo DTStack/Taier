@@ -66,7 +66,7 @@ export interface ITreeNodeProps {
 /**
  * 组件类型
  */
-const ComponentScheduleKind = {
+export const ComponentScheduleKind = {
 	/**
 	 * 公共组件
 	 */

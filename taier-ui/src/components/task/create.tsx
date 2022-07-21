@@ -146,7 +146,7 @@ const Create = connect(
 		const handleValuesChanged = (_: Partial<IFormFieldProps>, values: IFormFieldProps) => {
 			if (current?.tab) {
 				const { id } = current.tab;
-				// Insert form values into tab for preventing losting the values when switch tabs
+				// Insert form values into tab for preventing losing the values when switch tabs
 				molecule.editor.updateTab({
 					id,
 					data: { ...current.tab.data, ...values },
@@ -162,8 +162,10 @@ const Create = connect(
 		const initialValues = useMemo(() => {
 			if (current?.tab) {
 				const { data } = current.tab;
+				const { nodePid, ...restData } = data;
 				return {
 					nodePid: data.nodePid?.toString().split('-')[0],
+					...restData,
 				};
 			}
 			return undefined;
