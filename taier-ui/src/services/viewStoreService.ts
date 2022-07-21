@@ -1,8 +1,14 @@
+import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
 import 'reflect-metadata';
 import { singleton } from 'tsyringe';
 
+enum ViewStorageEventKind {
+	onStorageChange = 'onStorageChange',
+}
+
+// 负责整个应用的视图的持久化
 @singleton()
-class ViewStoreService {
+class ViewStoreService extends GlobalEvent {
 	private viewStorage = new Map<string, any>();
 
 	public setViewStorage = <T>(tabId: string, value: T) => {
@@ -24,6 +30,14 @@ class ViewStoreService {
 
 		return this.viewStorage.delete(tabId);
 	};
+
+	public emiStorageChange(tabId: string) {
+		this.emit(ViewStorageEventKind.onStorageChange, tabId);
+	}
+
+	public onStorageChange(callback: (tabId: string) => void) {
+		this.subscribe(ViewStorageEventKind.onStorageChange, callback);
+	}
 }
 
 export default new ViewStoreService();

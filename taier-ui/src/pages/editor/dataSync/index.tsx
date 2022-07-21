@@ -295,17 +295,7 @@ function DataSync({ current }: molecule.model.IEditor) {
 	};
 
 	const handleSaveTab = () => {
-		taskSaveService
-			.save()
-			.then((res) => res?.data?.id)
-			.then((id) => {
-				if (id !== undefined) {
-					molecule.editor.updateTab({
-						id: current!.tab!.id,
-						status: undefined,
-					});
-				}
-			});
+		taskSaveService.save();
 	};
 
 	// 获取当前任务的数据

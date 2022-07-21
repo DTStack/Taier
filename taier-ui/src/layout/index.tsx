@@ -17,7 +17,12 @@
  */
 
 import zhCN from 'antd/lib/locale/zh_CN';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, message } from 'antd';
+
+message.config({
+	top: 20,
+	duration: 2,
+});
 
 export default function Layout(props: React.PropsWithChildren<React.ReactNode>) {
 	return <ConfigProvider locale={zhCN}>{props.children}</ConfigProvider>;

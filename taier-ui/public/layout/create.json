@@ -49,5 +49,15 @@
             "createModel",
             "componentVersion"
         ]
+    },
+    {
+        "taskType": 10,
+        "renderKind": "workflow",
+        "formField": []
+    },
+    {
+        "taskType": -1,
+        "renderKind": "virtual",
+        "formField": []
     }
 ]

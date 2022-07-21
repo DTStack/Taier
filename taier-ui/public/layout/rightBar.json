@@ -61,5 +61,12 @@
             "task_params",
             "env_params"
         ]
+    },
+    {
+        "taskType": 10,
+        "barItem": [
+            "task",
+            "dependency"
+        ]
     }
 ]
