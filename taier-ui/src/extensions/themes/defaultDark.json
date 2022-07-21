@@ -1,0 +1,7 @@
+{
+    "id": "Default Dark+",
+    "colors": {
+        "editorError.foreground": "#F14C4C",
+        "notifications.background": "#252526"
+    }
+}
