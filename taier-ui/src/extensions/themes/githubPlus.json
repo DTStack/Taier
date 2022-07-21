@@ -1,6 +1,8 @@
 {
     "id": "GitHub Plus",
     "colors": {
+        "inputValidation.errorBorder": "#BE1100",
+		"inputValidation.errorBackground": "#F2DEDE",
         "list.focusBackground": "#E4E6F1",
         "list.inactiveSelectionBackground": "#E4E6F1",
         "tree.indentGuidesStroke": "#eeeeee",
