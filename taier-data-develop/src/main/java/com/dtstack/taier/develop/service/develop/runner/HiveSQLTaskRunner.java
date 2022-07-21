@@ -27,7 +27,7 @@ public class HiveSQLTaskRunner extends HadoopJdbcTaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType) {
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema) {
         List<Component> components = componentService.getComponentVersionByEngineType(tenantId, taskType);
         String componentVersion = "";
         if (CollectionUtils.isNotEmpty(components)) {
@@ -35,7 +35,11 @@ public class HiveSQLTaskRunner extends HadoopJdbcTaskRunner {
         }
         JdbcInfo jdbcInfo = getJdbcInCluster(tenantId, EScheduleJobType.HIVE_SQL.getComponentType(), componentVersion);
         JSONObject hdfsConfig = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
-        return getHiveSource(jdbcInfo, getCurrentDb(tenantId, taskType), hdfsConfig, componentVersion);
+        String currentDb = "";
+        if (useSchema) {
+            currentDb = getCurrentDb(tenantId, taskType);
+        }
+        return getHiveSource(jdbcInfo, currentDb, hdfsConfig, componentVersion);
     }
 
     public ISourceDTO getHiveSource(JdbcInfo jdbcInfo, String dbName, JSONObject config, String componentVersion) {

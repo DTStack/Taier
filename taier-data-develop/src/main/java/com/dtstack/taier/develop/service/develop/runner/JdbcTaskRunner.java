@@ -72,7 +72,7 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         result.setContinue(false);
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(task.getTaskType());
-        ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType());
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, userId, taskType.getType(), true);
         if (RegexUtils.isQuery(sql)) {
             List<List<Object>> executeResult = jdbcService.executeQuery(sourceDTO, Lists.newArrayList(sql), task.getTaskParams(), environmentContext.getSelectLimit());
             result.setResult(executeResult);
@@ -127,12 +127,12 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
 
     @Override
     public List<String> getAllSchema(Long tenantId, Integer taskType) {
-        ISourceDTO sourceDTO = getSourceDTO(tenantId, null, taskType);
+        ISourceDTO sourceDTO = getSourceDTO(tenantId, null, taskType, false);
         return jdbcService.getAllDataBases(sourceDTO);
     }
 
     @Override
-    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType);
+    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema);
 
 
     /**

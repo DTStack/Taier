@@ -25,10 +25,14 @@ public class SparkSqlTaskRunner extends HadoopJdbcTaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType) {
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema) {
         JdbcInfo jdbcInfo = getJdbcInCluster(tenantId, EComponentType.SPARK_THRIFT, "");
         JSONObject hdfsConfig = clusterService.getConfigByKey(tenantId, EComponentType.HDFS.getConfName(), null);
-        return getSparkSource(jdbcInfo, getCurrentDb(tenantId, taskType), hdfsConfig);
+        String currentDb = "";
+        if (useSchema) {
+            currentDb = getCurrentDb(tenantId, taskType);
+        }
+        return getSparkSource(jdbcInfo, currentDb, hdfsConfig);
     }
 
     public ISourceDTO getSparkSource(JdbcInfo jdbcInfo, String dbName, JSONObject config) {

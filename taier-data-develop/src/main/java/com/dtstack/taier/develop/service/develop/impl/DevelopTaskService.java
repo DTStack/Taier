@@ -1182,8 +1182,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         }
         List<Integer> tenantSupportMultiEngine = engineSupportVOS.stream().map(Component::getComponentTypeCode).collect(Collectors.toList());
         List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
-                .filter(a -> a.getComponentType() == null ||
-                        (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode()) || a.getComponentType().getTypeCode() <= 0))
+                .filter(a -> a.getComponentType() == null || (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode())))
                 .collect(Collectors.toList());
         return eScheduleJobTypes.stream()
                 .map(j -> new DevelopTaskGetSupportJobTypesResultVO(j.getType(), j.getName(), j.getComputeType().getType()))
