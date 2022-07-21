@@ -23,9 +23,12 @@ public class OceanBaseSQLTaskRunner extends JdbcTaskRunner {
     }
 
     @Override
-    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType) {
-        String currentDb = getCurrentDb(tenantId, taskType);
+    public ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema) {
+        String currentDb = "";
         JdbcInfo jdbcInfo = getJdbcInCluster(tenantId, EScheduleJobType.OCEANBASE_SQL.getComponentType(), null);
+        if (useSchema) {
+            currentDb = getCurrentDb(tenantId, taskType);
+        }
         return OceanBaseSourceDTO.builder()
                 .sourceType(DataSourceType.OceanBase.getVal())
                 .url(buildUrlWithDb(jdbcInfo.getJdbcUrl(), currentDb))
