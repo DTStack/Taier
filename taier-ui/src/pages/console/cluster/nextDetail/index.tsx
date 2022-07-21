@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useContext } from 'react';
 import { history } from 'umi';
 import { Layout, Empty, message, Form } from 'antd';
 import api from '@/api';
@@ -6,8 +6,9 @@ import req from '@/api/request';
 import Detail from './detail';
 import { FILE_TYPE } from '@/constant';
 import context from '@/context/cluster';
+import layoutContext, { SupportJobActionKind } from '@/context';
 import Toolbar from './toolbar';
-import SideBar from './sideBar';
+import SideBar, { ComponentScheduleKind } from './sideBar';
 import type { RcFile } from 'antd/lib/upload';
 import type { ILayoutData, ITemplateData } from './detail';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
@@ -90,6 +91,7 @@ function getTargetPath(tree: any[], targetKey: string) {
 }
 
 export default function ClusterDetail() {
+	const { dispatch } = useContext(layoutContext);
 	const [form] = Form.useForm();
 	const container = useRef<HTMLElement>(null);
 	// 左侧组件树的全部信息
@@ -463,6 +465,16 @@ export default function ClusterDetail() {
 
 				// 只更新当前节点
 				getClusterDetail(res.data.id);
+
+				// 当前更新的节点所属组件
+				const currentComponentOwner = componentsData.find(
+					(component) => component.componentCode === currentComponent.componentTypeCode,
+				)?.owner;
+
+				// 如果是计算组件的变更，会引起当前应用支持的任务类型的变动
+				if (currentComponentOwner === ComponentScheduleKind.Compute) {
+					dispatch({ type: SupportJobActionKind.REQUEST });
+				}
 			}
 		} finally {
 			setDetailLoading(false);

@@ -18,12 +18,12 @@
 
 import 'reflect-metadata';
 import { useState, useEffect, useLayoutEffect } from 'react';
-import type { IPersonLists, ISupportJobTypes } from '@/context';
+import { SupportJobActionKind } from '@/context';
+import type { IPersonLists } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
 import { extensions } from '@/extensions';
 import api from '@/api';
-import notification from '@/components/notification';
 import molecule, { create } from '@dtinsight/molecule';
 import { Workbench } from './workbench';
 import Task from '@/pages/operation/task';
@@ -43,7 +43,7 @@ import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/nextDetail';
 import { getCookie } from '@/utils';
-import taskRenderService from '@/services/taskRenderService';
+import { useSupportJobType } from '@/hooks';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 
@@ -62,7 +62,7 @@ const MoleculeProvider = () => moInstance.render(<Workbench />);
 export default function HomePage() {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
-	const [supportJobTypes, setJobTypes] = useState<ISupportJobTypes[]>([]);
+	const [supportJobTypes, dispatch] = useSupportJobType();
 
 	const checkLoginStatus = () => {
 		const usernameInCookie = getCookie('username');
@@ -80,19 +80,7 @@ export default function HomePage() {
 		});
 
 		checkLoginStatus();
-
-		// 获取当前支持的任务类型
-		api.getTaskTypes({}).then((res) => {
-			if (res.code === 1) {
-				setJobTypes(res.data || []);
-				taskRenderService.supportTaskList = res.data || [];
-			} else {
-				notification.error({
-					key: 'FailedJob',
-					message: `获取支持的类型失败，将无法创建新的任务！`,
-				});
-			}
-		});
+		dispatch({ type: SupportJobActionKind.REQUEST });
 	}, []);
 
 	const openDrawer = (drawerId: string) => {
@@ -304,6 +292,7 @@ export default function HomePage() {
 				personList,
 				username,
 				supportJobTypes,
+				dispatch,
 			}}
 		>
 			<MoleculeProvider />
