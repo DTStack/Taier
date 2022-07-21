@@ -64,6 +64,8 @@
 		"focusBorder": "#3e4452",
 		"gitDecoration.ignoredResourceForeground": "#636b78",
 		"input.background": "#1d1f23",
+		"inputValidation.errorBorder": "#BE1100",
+		"inputValidation.errorBackground": "#5A1D1D",
 		"list.activeSelectionBackground": "#2c313a",
 		"list.activeSelectionForeground": "#d7dae0",
 		"list.focusBackground": "#323842",

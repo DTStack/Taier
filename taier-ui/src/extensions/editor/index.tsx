@@ -41,6 +41,10 @@ import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import taskRenderService from '@/services/taskRenderService';
 import taskSaveService from '@/services/taskSaveService';
+import viewStoreService from '@/services/viewStoreService';
+import type { mxCell } from 'mxgraph';
+import type { IGeometryPosition } from '@/components/mxGraph/container';
+import { isEditing } from '@/pages/editor/workflow';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
@@ -66,26 +70,11 @@ function emitEvent() {
 				break;
 			}
 			case ID_COLLECTIONS.TASK_SAVE_ID: {
-				taskSaveService.save()
-					.then((res) => res?.data?.id)
-					.then((id) => {
-						if (id !== undefined) {
-							api.getOfflineTaskByID({ id }).then((res) => {
-								const { code } = res;
-								if (code === 1) {
-									molecule.editor.updateTab({
-										id: current.tab!.id,
-										status: undefined,
-									});
-								}
-							});
-						}
-					})
-					.catch((err: Error | undefined) => {
-						if (err) {
-							message.error(err.message);
-						}
-					});
+				taskSaveService.save().catch((err: Error | undefined) => {
+					if (err) {
+						message.error(err.message);
+					}
+				});
 				break;
 			}
 			case ID_COLLECTIONS.TASK_SUBMIT_ID: {
@@ -406,6 +395,71 @@ export default class EditorExtension implements IExtension {
 					message: `${tab.name} 任务执行完成!`,
 				});
 			}
+		});
+
+		// 当前任务保存回调
+		taskSaveService.onSaveTask(({ id }) => {
+			api.getOfflineTaskByID<IOfflineTaskProps>({ id }).then((res) => {
+				if (res.code === 1) {
+					const task = res.data;
+					const currentTab: molecule.model.IEditorTab<IOfflineTaskProps> =
+						molecule.editor.getState().current!.tab!;
+
+					// 更新当前 tab 的状态为已保存
+					molecule.editor.updateTab({
+						id: currentTab.id,
+						status: undefined,
+					});
+
+					// 若是工作流的节点任务
+					if (task.flowId) {
+						// 1. 更新 viewStorage 里的 cell 数据
+						const viewStorage = viewStoreService.getViewStorage<{
+							cells: mxCell[];
+							geometry: IGeometryPosition;
+						}>(task.flowId.toString());
+
+						const targetCell = viewStorage.cells.find(
+							(cell) => cell.value?.id === currentTab.data!.id,
+						);
+
+						if (targetCell) {
+							targetCell.setValue({
+								...targetCell.value,
+								...task,
+								[isEditing]: false,
+							});
+
+							viewStoreService.setViewStorage(task.flowId.toString(), {
+								...viewStorage,
+							});
+						}
+
+						// 通常来说，保存行为是一个前端向服务端同步的单向操作，但是工作流的保存行为存在需要服务端返回值同步到前端数据的操作
+						// 2. 更新 editor.tab 中的数据
+						molecule.editor.updateTab({
+							id: currentTab.id,
+							data: { ...currentTab.data!, ...task },
+						});
+
+						// 3. 更新工作流的 tab 的状态
+						const workflowId = task.flowId.toString();
+						const workflowTabGroup = molecule.editor.getGroupIdByTab(workflowId);
+						if (!workflowTabGroup) return;
+						const workflowTab = molecule.editor.getTabById(
+							workflowId,
+							workflowTabGroup,
+						);
+						if (!workflowTab) return;
+						if (workflowTab.status !== 'edited') {
+							molecule.editor.updateTab({
+								id: workflowTab.id,
+								status: 'edited',
+							});
+						}
+					}
+				}
+			});
 		});
 	}
 }

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { singleton } from 'tsyringe';
 import { lazy, Suspense } from 'react';
-import { message, Modal } from 'antd';
+import { Modal } from 'antd';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { FormInstance } from 'antd';
@@ -25,7 +25,6 @@ import type { ISupportJobTypes } from '@/context';
 import molecule from '@dtinsight/molecule';
 import { breadcrumbService, editorActionBarService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
-import type { IFormFieldProps } from '@/components/task/create';
 import { isTaskTab } from '@/utils/is';
 
 interface ICreateFormField {
@@ -189,7 +188,6 @@ class TaskRenderService {
 	public renderTabOnEditor = (
 		key: TASK_TYPE_ENUM,
 		record: { id: number | string; name: string; taskType: TASK_TYPE_ENUM; [key: string]: any },
-		props: Record<string, any> = {},
 	): molecule.model.IEditorTab => {
 		const fields = this.createFormField.find((i) => i.taskType === key);
 		const renderKind = fields?.renderKind || 'editor';
@@ -203,10 +201,7 @@ class TaskRenderService {
 				// 针对不同任务，data 中的值不一样
 				switch (key) {
 					case TASK_TYPE_ENUM.FLINK: {
-						return {
-							...record,
-							nodePid: `${record.nodePid}-folder`,
-						};
+						return { ...record };
 					}
 					case TASK_TYPE_ENUM.DATA_ACQUISITION:
 					case TASK_TYPE_ENUM.SYNC:
@@ -239,7 +234,7 @@ class TaskRenderService {
 				const Component = lazy(() => import(`@/pages/editor/${renderKind}`));
 				tabData.renderPane = (data) => (
 					<Suspense key={data.id} fallback={<div>loading...</div>}>
-						<Component key={data.id} {...props} />
+						<Component />
 					</Suspense>
 				);
 			} catch (err) {
@@ -325,14 +320,6 @@ class TaskRenderService {
 			 * 标记是否需要进行接口的请求, true 表示是新建的任务不需要向服务端做接口请求
 			 */
 			create: boolean;
-			/**
-			 * 主要用于 flink 任务打开的回调函数
-			 */
-			onAfterSubmit?: (
-				params: Record<string, any>,
-				parentId: number,
-				currentTaskId: string,
-			) => void;
 		} = {
 			create: false,
 		},
@@ -350,34 +337,7 @@ class TaskRenderService {
 		if (!config.create) {
 			const res = await api.getOfflineTaskByID<IOfflineTaskProps>({ id: record.id });
 			if (res.code === 1) {
-				const tabData = this.renderTabOnEditor(res.data.taskType, res.data, {
-					onSubmit: ({ resourceIdList, ...restValues }: IFormFieldProps) => {
-						return new Promise<boolean>((resolve) => {
-							const params = {
-								id: res.data.id,
-								computeType: res.data.computeType,
-								updateSource: false,
-								preSave: false,
-								resourceIdList: resourceIdList ? [resourceIdList] : [],
-								...restValues,
-							};
-							api.addOfflineTask(params)
-								.then((result) => {
-									if (result.code === 1) {
-										message.success('编辑成功');
-										config.onAfterSubmit?.(
-											params,
-											result.data.parentId,
-											record.id.toString(),
-										);
-									}
-								})
-								.finally(() => {
-									resolve(false);
-								});
-						});
-					},
-				});
+				const tabData = this.renderTabOnEditor(res.data.taskType, res.data);
 
 				molecule.folderTree.setActive(tabData.id);
 				molecule.editor.open(tabData);
