@@ -65,7 +65,6 @@ interface IClusterDetailProps {
 		 */
 		componentConfig?: string;
 		clusterId?: number;
-		versionValue?: string;
 		uploadFileName?: string;
 		deployType?: string;
 		kerberosFileName?: string;
@@ -107,6 +106,8 @@ export default function ClusterDetail() {
 	// Kerberos 文件上传后支持配置
 	const [principals, setPrincipals] = useState<string[]>([]);
 	const [detailLoading, setDetailLoading] = useState(false);
+	// 已请求过详情的组件，防止重复请求
+	const requestedList = useRef(new Set<number>());
 
 	/**
 	 * 基于 key 获取对应的已保存或未保存的信息
@@ -178,17 +179,23 @@ export default function ClusterDetail() {
 	 * 获取当前集群某一组件的具体详情
 	 */
 	const getDetailValue = async (target: IClusterDetailProps['componentVOS'][number]) => {
-		const res = await api.getComponentInfo({ componentId: target.id });
-		if (res.code) {
-			setCurrent((current) => {
-				if (current) {
-					Object.assign(target, res.data);
-					return { ...current };
-				}
-				return null;
-			});
-			return res.data;
+		if (!requestedList.current.has(target.id!)) {
+			const res = await api.getComponentInfo({ componentId: target.id });
+			if (res.code === 1) {
+				setCurrent((current) => {
+					if (current) {
+						Object.assign(target, res.data);
+						return { ...current };
+					}
+					return null;
+				});
+
+				requestedList.current.add(target.id!);
+				return res.data;
+			}
 		}
+
+		return target;
 	};
 
 	/**
@@ -304,21 +311,23 @@ export default function ClusterDetail() {
 	const handleSidebarSelect = async (key: string) => {
 		const target = findComponentVOS(key);
 		setDetailLoading(true);
-		// 如果是已经保存过的组件信息，则获取组件信息详情
-		if (typeof target?.id === 'number') {
-			const detailVal = await getDetailValue(target);
+		try {
+			// 如果是已经保存过的组件信息，则获取组件信息详情
+			if (typeof target?.id === 'number') {
+				const detailVal = await getDetailValue(target);
 
-			// 根据组件详细信息加载当前组件的界面信息
-			if (detailVal) {
-				await loadTemplate(detailVal.componentTypeCode, detailVal.versionName);
+				// 根据组件详细信息加载当前组件的界面信息
+				if (detailVal) {
+					await loadTemplate(detailVal.componentTypeCode, detailVal.versionName);
+				}
+			} else {
+				const [major] = key.split('-');
+				await loadTemplate(major, target?.versionName);
 			}
-		} else {
-			const [major] = key.split('-');
-			await loadTemplate(major, target?.versionName);
+		} finally {
+			setDetailLoading(false);
+			setSelectKey(key);
 		}
-
-		setDetailLoading(false);
-		setSelectKey(key);
 	};
 
 	const handleAddComponent = (keys: string[]) => {
@@ -357,8 +366,6 @@ export default function ClusterDetail() {
 					clusterId: nextCurrent.clusterId!,
 					componentName: target.name,
 					componentTypeCode: target.componentCode,
-					// 当前组件版本
-					versionValue: versionName,
 					versionName,
 				});
 			}
@@ -555,7 +562,11 @@ export default function ClusterDetail() {
 
 		const target = findComponentVOS(selectedKey);
 		if (target) {
-			target.componentConfig = JSON.stringify(form.getFieldsValue());
+			const { versionName, ...restComponentConfig } = form.getFieldsValue();
+			target.componentConfig = JSON.stringify(restComponentConfig);
+			target.versionName = Array.isArray(versionName)
+				? versionName[versionName.length - 1]
+				: versionName;
 			setCurrent({ ...currentCluster! });
 		}
 	};

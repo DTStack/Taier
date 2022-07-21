@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
 import { singleton } from 'tsyringe';
 import molecule from '@dtinsight/molecule';
-import type { IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import type { Rules, RuleType, ValidateError } from 'async-validator';
 import ValidSchema from 'async-validator';
 import {
@@ -33,6 +33,11 @@ import {
 	isS3,
 } from '@/utils/is';
 import { checkColumnsData } from '@/pages/editor/streamCollection/taskFunc';
+import viewStoreService from './viewStoreService';
+import type { IOfflineTaskProps } from '@/interface';
+import type { mxCell } from 'mxgraph';
+import type { IGeometryPosition } from '@/components/mxGraph/container';
+import { isEditing } from '@/pages/editor/workflow';
 
 interface IParamsProps extends IOfflineTaskProps {
 	// 接口要求的标记位
@@ -45,7 +50,7 @@ interface IParamsProps extends IOfflineTaskProps {
 	value?: string;
 }
 
-enum SaveEventKind {
+export enum SaveEventKind {
 	onSaveTask = 'onsave',
 }
 
@@ -362,7 +367,10 @@ class TaskSaveService extends GlobalEvent {
 		return params;
 	}
 
-	save() {
+	/**
+	 * 保存当前 tab
+	 */
+	public async save() {
 		const currentTask = molecule.editor.getState().current?.tab;
 		if (!currentTask) return Promise.reject();
 		const data = currentTask.data as IParamsProps;
@@ -393,14 +401,28 @@ class TaskSaveService extends GlobalEvent {
 				params.preSave = true;
 				params.sqlText = params.value || '';
 
-				return api.saveOfflineJobData(params).then((res) => {
-					if (res.code === 1) {
-						message.success('保存成功！');
-						this.emit(SaveEventKind.onSaveTask, res.data);
-						return res;
+				// 工作流中的数据同步保存
+				if (params.flowId) {
+					// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
+					if (params.id?.toString().startsWith('workflow__')) {
+						Reflect.deleteProperty(params, 'id');
 					}
-					return Promise.reject();
-				});
+
+					params.computeType = IComputeType.BATCH;
+					// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
+					params.nodePid =
+						params.nodePid || molecule.folderTree.get(data.flowId)?.data.parentId;
+				}
+
+				const res = await api.saveOfflineJobData(params);
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+
+				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.SQL: {
 				const params: IParamsProps = cloneDeep(data);
@@ -411,72 +433,56 @@ class TaskSaveService extends GlobalEvent {
 				 * 如果是向导模式，校验源表和结果表和维表
 				 */
 				if (isFlinkSQLGuide) {
-					// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
-					const validation = () =>
-						this.validTableData(params)
-							.then((errors) => {
-								// 如果所有的结果都是 null 则表示校验全通过,否则不通过
-								if (
-									!errors.every((tableErrors) =>
-										tableErrors.every((e) => e === null),
-									)
-								) {
-									return Promise.reject();
-								}
-
-								const err = this.checkSide(side, componentVersion);
-								if (err) {
-									message.error(err);
-									return Promise.reject();
-								}
-
-								params.preSave = true;
-								// 后端区分右键编辑保存
-								params.updateSource = true;
-
-								return params;
-							})
-							.then((preParams) => this.transformTabDataToParams(preParams))
-							.then((realParams) => {
-								return api.saveTask(realParams).then((res) => {
-									if (res.code === 1) {
-										message.success('保存成功！');
-										this.emit(SaveEventKind.onSaveTask, res.data);
-										return res;
-									}
-									return Promise.reject();
-								});
-							});
-
 					const componentForm = rightBarService.getForm();
 					if (componentForm) {
 						// 如果 componentForm 存在表示当前 rightBar 处于展开状态并且存在 form 表单，需要先校验表单的值
-						return componentForm
-							.validateFields()
-							.then(() => validation())
-							.catch(() => Promise.reject());
+						await componentForm.validateFields();
 					}
 
-					return validation();
+					// errors 的二维数组，第一维区分源表结果表维表，第二维区分具体表中的某一个源
+					const errors = await this.validTableData(params);
+
+					// 如果所有的结果都是 null 则表示校验全通过,否则不通过
+					if (!errors.every((tableErrors) => tableErrors.every((e) => e === null))) {
+						return Promise.reject();
+					}
+
+					const err = this.checkSide(side, componentVersion);
+					if (err) {
+						message.error(err);
+						return Promise.reject();
+					}
+
+					params.preSave = true;
+					// 后端区分右键编辑保存
+					params.updateSource = true;
+
+					const realParams = this.transformTabDataToParams(params);
+					const res = await api.saveTask(realParams);
+
+					if (res.code === 1) {
+						message.success('保存成功！');
+						this.emit(SaveEventKind.onSaveTask, res.data);
+						return res;
+					}
+					return Promise.reject();
 				}
 
 				const { value, ...restParams } = params;
-				return api
-					.saveTask({
-						...restParams,
-						sqlText: value,
-						preSave: true,
-						// 后端区分右键编辑保存
-						updateSource: true,
-					})
-					.then((res) => {
-						if (res.code === 1) {
-							message.success('保存成功！');
-							this.emit(SaveEventKind.onSaveTask, res.data);
-							return res;
-						}
-						return Promise.reject();
-					});
+				const res = await api.saveTask({
+					...restParams,
+					sqlText: value,
+					preSave: true,
+					// 后端区分右键编辑保存
+					updateSource: true,
+				});
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.DATA_ACQUISITION: {
 				const params: IParamsProps = cloneDeep(data);
@@ -484,67 +490,170 @@ class TaskSaveService extends GlobalEvent {
 
 				const componentForm = rightBarService.getForm();
 
-				const validation = () => {
-					/**
-					 * 当目标数据源为Hive时，必须勾选Json平铺
-					 */
-					const haveJson =
-						isKafka(sourceMap?.type) ||
-						sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
-						sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
-					if (
-						targetMap?.type === DATA_SOURCE_ENUM.HIVE &&
-						!sourceMap.pavingData &&
-						!haveJson
-					) {
-						message.error('请勾选嵌套Json平铺后重试');
-						return Promise.reject();
-					}
-
-					params.preSave = true;
-					// 后端区分右键编辑保存
-					params.updateSource = true;
-					params.sqlText = params.value || '';
-
-					if (createModel === CREATE_MODEL_TYPE.GUIDE) {
-						const { distributeTable } = sourceMap;
-						/**
-						 * [ {name:'table', table: []} ] => {'table':[]}
-						 */
-						if (distributeTable && distributeTable.length) {
-							const newDistributeTable: any = {};
-							distributeTable.forEach((table: any) => {
-								newDistributeTable[table.name] = table.tables || [];
-							});
-							params.sourceMap = {
-								...sourceMap,
-								distributeTable: newDistributeTable,
-							};
-						}
-
-						Reflect.deleteProperty(params, 'sourceParams');
-						Reflect.deleteProperty(params, 'sinkParams');
-						Reflect.deleteProperty(params, 'sideParams');
-					}
-
-					return api.saveTask(params).then((res) => {
-						if (res.code === 1) {
-							message.success('保存成功！');
-							this.emit(SaveEventKind.onSaveTask, res.data);
-							return res;
-						}
-						return Promise.reject();
-					});
-				};
-
 				if (componentForm) {
-					return componentForm
-						.validateFields()
-						.then(validation)
-						.catch(() => Promise.reject());
+					await componentForm.validateFields();
 				}
 
-				return validation();
+				/**
+				 * 当目标数据源为Hive时，必须勾选Json平铺
+				 */
+				const haveJson =
+					isKafka(sourceMap?.type) ||
+					sourceMap?.type === DATA_SOURCE_ENUM.EMQ ||
+					sourceMap?.type === DATA_SOURCE_ENUM.SOCKET;
+				if (
+					targetMap?.type === DATA_SOURCE_ENUM.HIVE &&
+					!sourceMap.pavingData &&
+					!haveJson
+				) {
+					message.error('请勾选嵌套Json平铺后重试');
+					return Promise.reject();
+				}
+
+				params.preSave = true;
+				// 后端区分右键编辑保存
+				params.updateSource = true;
+				params.sqlText = params.value || '';
+
+				if (createModel === CREATE_MODEL_TYPE.GUIDE) {
+					const { distributeTable } = sourceMap;
+					/**
+					 * [ {name:'table', table: []} ] => {'table':[]}
+					 */
+					if (distributeTable && distributeTable.length) {
+						const newDistributeTable: any = {};
+						distributeTable.forEach((table: any) => {
+							newDistributeTable[table.name] = table.tables || [];
+						});
+						params.sourceMap = {
+							...sourceMap,
+							distributeTable: newDistributeTable,
+						};
+					}
+
+					Reflect.deleteProperty(params, 'sourceParams');
+					Reflect.deleteProperty(params, 'sinkParams');
+					Reflect.deleteProperty(params, 'sideParams');
+				}
+
+				const res = await api.saveTask(params);
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+				return Promise.reject();
+			}
+			case TASK_TYPE_ENUM.VIRTUAL: {
+				const { id, name, nodePid, taskDesc, flowId } = data;
+
+				const params: Record<string, number | string> = {
+					id,
+					name,
+					computeType: IComputeType.BATCH,
+					nodePid,
+					taskType,
+					taskDesc,
+				};
+
+				// 是工作流，需要额外传 flowId 和 nodePid
+				if (flowId) {
+					// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
+					if (params.id?.toString().startsWith('workflow__')) {
+						Reflect.deleteProperty(params, 'id');
+					}
+
+					params.flowId = flowId;
+					// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
+					params.nodePid =
+						params.nodePid || molecule.folderTree.get(data.flowId)?.data.parentId;
+				}
+
+				const res = await api.addOfflineTask(params);
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+
+				return Promise.reject();
+			}
+
+			case TASK_TYPE_ENUM.WORK_FLOW: {
+				const { cells } = viewStoreService.getViewStorage<{
+					cells: mxCell[];
+					geometry: IGeometryPosition;
+				}>(data.id.toString());
+
+				const unsavedCell = cells.filter((cell) => cell.vertex && cell.value[isEditing]);
+
+				if (unsavedCell.length) {
+					const results = await Promise.all([
+						...unsavedCell.map((cell) => this.saveTab(cell.value, { verbose: false })),
+					]);
+
+					if (results.some((res) => res.code !== 1)) {
+						results
+							.filter((res) => res.code !== 1)
+							.forEach((errorRes) => {
+								message.error(errorRes.message);
+							});
+						return Promise.reject();
+					}
+				}
+
+				const nodeMap = cells.reduce((pre, cur, _, thisArr) => {
+					// 存在 vertex 并且该 vertex 是某条 edge 的 target
+					if (cur.vertex) {
+						const edge = thisArr.find(
+							(cell) => cell.edge && cell.target.value.id === cur.value.id,
+						);
+						if (edge) {
+							return { ...pre, [edge.target.value.id]: [edge.source.value.id] };
+						}
+
+						return { ...pre, [cur.value.id]: [] };
+					}
+
+					return pre;
+				}, {} as Record<number, number[]>);
+
+				const res = await api.addOfflineTask({ ...data, nodeMap });
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+
+				return Promise.reject();
+			}
+			case TASK_TYPE_ENUM.FLINK: {
+				const { id, name, mainClass, componentVersion, exeArgs, nodePid, resourceIdList } =
+					data;
+
+				const res = await api.addOfflineTask({
+					id,
+					name,
+					resourceIdList,
+					mainClass,
+					exeArgs,
+					componentVersion,
+					nodePid,
+					taskType,
+					updateSource: false,
+					preSave: false,
+				});
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+
+				return Promise.reject();
 			}
 			case TASK_TYPE_ENUM.SPARK_SQL:
 			case TASK_TYPE_ENUM.HIVE_SQL:
@@ -552,23 +661,85 @@ class TaskSaveService extends GlobalEvent {
 				// 默认保存，通过把 editor 中的值给到 sqlText 进行保存
 				const { value, ...restData } = data;
 
-				return api
-					.saveOfflineJobData({
-						...restData,
-						sqlText: value || '',
-						// 修改task配置时接口要求的标记位
-						preSave: true,
-					})
-					.then((res) => {
-						if (res.code === 1) {
-							message.success('保存成功！');
-							this.emit(SaveEventKind.onSaveTask, res.data);
-							return res;
-						}
-						return Promise.reject();
-					});
+				// 是工作流，需要额外传 flowId 和 nodePid
+				if (restData.flowId) {
+					// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
+					if (restData.id?.toString().startsWith('workflow__')) {
+						Reflect.deleteProperty(restData, 'id');
+					}
+
+					restData.computeType = IComputeType.BATCH;
+					// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
+					restData.nodePid =
+						restData.nodePid || molecule.folderTree.get(restData.flowId)?.data.parentId;
+				}
+
+				const res = await api.saveOfflineJobData({
+					...restData,
+					sqlText: value || '',
+					// 修改task配置时接口要求的标记位
+					preSave: true,
+				});
+
+				if (res.code === 1) {
+					message.success('保存成功！');
+					this.emit(SaveEventKind.onSaveTask, res.data);
+					return res;
+				}
+				return Promise.reject();
 			}
 		}
+	}
+
+	/**
+	 * 保存指定 tab 的方法, 如果保存当前 tab，请使用 `taskSaveService.save()`
+	 * @params `verbose` 是否输出 message
+	 */
+	public async saveTab(params: IOfflineTaskProps, config = { verbose: true }) {
+		const res = await api.addOfflineTask(params);
+
+		if (res.code === 1) {
+			if (config.verbose) {
+				message.success('保存成功！');
+			}
+
+			const { data, code } = await api.getOfflineTaskByID<IOfflineTaskProps>({
+				id: params.id,
+			});
+
+			// 1. 更新目标 tab 中的内容
+			const isOpen = molecule.editor.isOpened(params.id.toString());
+			if (isOpen) {
+				if (code === 1) {
+					molecule.editor.updateTab({
+						id: params.id.toString(),
+						data,
+						status: undefined,
+					});
+				}
+			}
+
+			// 2. 更新 cell 中的内容
+			if (data.flowId) {
+				const { cells } = viewStoreService.getViewStorage<{ cells: mxCell[] }>(
+					data.flowId.toString(),
+				);
+
+				const targetCell = cells.find((i) => i.value.id === data.id);
+				if (targetCell) {
+					targetCell.setValue({
+						...targetCell.value,
+						...data,
+						[isEditing]: false,
+					});
+
+					// 更新 cell 后触发工作流 tab 的视图更新
+					viewStoreService.emiStorageChange(data.flowId.toString());
+				}
+			}
+		}
+
+		return res;
 	}
 
 	/**
