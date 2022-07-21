@@ -362,7 +362,8 @@ export default class EditorExtension implements IExtension {
 		emitEvent();
 		registerCompletion();
 
-		molecule.editor.onOpenTab(() => {
+		molecule.editor.onOpenTab((tab) => {
+			viewStoreService.clearStorage(tab.id.toString());
 			// Should delay to performSyncTaskActions
 			// because when onOpenTab called, the current tab was not changed
 			window.setTimeout(() => {
