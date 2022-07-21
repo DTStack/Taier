@@ -240,9 +240,9 @@ export default function Detail({
 				{!isEmptySider && (
 					<Sider collapsed={collapsed} className="detail-sider">
 						<div className="detail-sider-container">
+							{versionFormItem}
 							{configFormItem}
 							{kerberosFormItem}
-							{versionFormItem}
 						</div>
 						<Button
 							className="cluster-component-collapse"

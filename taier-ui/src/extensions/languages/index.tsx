@@ -157,5 +157,11 @@ export class ExtendsSparkSQL implements IExtension {
 				molecule.problems.remove(Number(tabId));
 			}
 		});
+
+		molecule.editor.onCloseAll(() => {
+			molecule.problems.setState({
+				data: [],
+			});
+		});
 	}
 }
