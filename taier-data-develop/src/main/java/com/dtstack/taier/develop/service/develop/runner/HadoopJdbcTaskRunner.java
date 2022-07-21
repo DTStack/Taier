@@ -147,7 +147,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     private void prepareExecuteContent(final ExecuteContent executeContent) {
         executeContent.setDatabase(getCurrentDb(executeContent.getTenantId(), executeContent.getTaskType()));
-        String sql =  jobParamReplace.paramReplace(executeContent.getSql(), executeContent.getVariableList(), DateTime.now().toString("yyyyMMddHHmmss"));
+        String sql = jobParamReplace.paramReplace(executeContent.getSql(), executeContent.getVariableList(), DateTime.now().toString("yyyyMMddHHmmss"));
 
         //set sql / cache lazy table 暂时不解析血缘
         if (StringUtils.isNotBlank(sql)
@@ -237,7 +237,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     private List<Object> queryData(Long tenantId, String tableName, Integer taskType) throws Exception {
         List<Object> queryResult = Lists.newArrayList();
-        IDownload resultDownload = new HiveSelectDownload(getSourceDTO(tenantId, null, taskType), tableName);
+        IDownload resultDownload = new HiveSelectDownload(getSourceDTO(tenantId, null, taskType, true), tableName);
         Integer num = environmentContext.getSelectLimit();
         int readCounter = 0;
         // 第一行插入传字段信息
@@ -406,7 +406,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     }
 
     @Override
-    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType);
+    public abstract ISourceDTO getSourceDTO(Long tenantId, Long userId, Integer taskType, boolean useSchema);
 
 
     @Override
