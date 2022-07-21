@@ -539,4 +539,7 @@ export default {
 	getResourceLocation<T = any>(params: any) {
 		return http.post<T>(req.GET_RESOUCE_LOCATION, params);
 	},
+	validateRepeatTaskName<T = any>(params: any) {
+		return http.post<T>(req.VALIDATE_REPEAT_TASK_NAME, params);
+	},
 };

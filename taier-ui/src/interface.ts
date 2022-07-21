@@ -69,6 +69,7 @@ export interface CatalogueDataProps {
 	children: CatalogueDataProps[] | null;
 	catalogueType: MENU_TYPE_ENUM;
 	parentId: number;
+	taskDesc?: string;
 }
 
 // 运维中心-任务类型，@todo 应该是 Job
@@ -171,7 +172,11 @@ export interface IResourceProps {
 /**
  * 所有任务类型
  */
-export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps, IWorkflowProps {
+export interface IOfflineTaskProps
+	extends ISyncDataProps,
+		IFlinkSQLProps,
+		IWorkflowProps,
+		IFlinkProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -228,6 +233,15 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps, IWor
 }
 
 /**
+ * Flink 任务类型
+ */
+interface IFlinkProps {
+	mainClass?: string;
+	exeArgs?: string;
+	resourceIdList?: number[];
+}
+
+/**
  * 数据同步任务类型
  */
 export interface ISyncDataProps {
@@ -239,7 +253,7 @@ export interface ISyncDataProps {
 
 export interface IWorkflowProps {
 	flowId: number;
-	flowName?: string;
+	flowName: string;
 }
 
 /**
@@ -508,7 +522,7 @@ export interface IDataSourceUsedInSyncProps {
 /**
  * flinkSQL 任务的属性
  */
-export interface IFlinkDataProps {
+export interface IFlinkSQLProps {
 	source: IFlinkSourceProps[];
 	sink: IFlinkSinkProps[];
 	side: IFlinkSideProps[];

@@ -304,21 +304,23 @@ export default function ClusterDetail() {
 	const handleSidebarSelect = async (key: string) => {
 		const target = findComponentVOS(key);
 		setDetailLoading(true);
-		// 如果是已经保存过的组件信息，则获取组件信息详情
-		if (typeof target?.id === 'number') {
-			const detailVal = await getDetailValue(target);
+		try {
+			// 如果是已经保存过的组件信息，则获取组件信息详情
+			if (typeof target?.id === 'number') {
+				const detailVal = await getDetailValue(target);
 
-			// 根据组件详细信息加载当前组件的界面信息
-			if (detailVal) {
-				await loadTemplate(detailVal.componentTypeCode, detailVal.versionName);
+				// 根据组件详细信息加载当前组件的界面信息
+				if (detailVal) {
+					await loadTemplate(detailVal.componentTypeCode, detailVal.versionName);
+				}
+			} else {
+				const [major] = key.split('-');
+				await loadTemplate(major, target?.versionName);
 			}
-		} else {
-			const [major] = key.split('-');
-			await loadTemplate(major, target?.versionName);
+		} finally {
+			setDetailLoading(false);
+			setSelectKey(key);
 		}
-
-		setDetailLoading(false);
-		setSelectKey(key);
 	};
 
 	const handleAddComponent = (keys: string[]) => {
