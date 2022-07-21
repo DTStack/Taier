@@ -192,37 +192,32 @@ export default () => {
 				绑定新租户
 			</Button>
 			<Spin spinning={tabLoading}>
-				{form.getFieldValue('engineId') ? (
-					<Tabs
-						animated={false}
-						activeKey={activeKey}
-						onChange={handleChangeEngine}
-						className="dt-resource-tabs"
-						destroyInactiveTabPane
-					>
-						{isSparkEngine(form.getFieldValue('engineId')) ? (
-							<TabPane tab="资源全景" key="showResource">
-								<Resource clusterId={form.getFieldValue('clusterId')} />
-							</TabPane>
-						) : null}
-						<TabPane tab="租户绑定" key="bindTenant">
-							<BindTenant
-								ref={bindTenantRef}
-								clusterId={form.getFieldValue('clusterId')}
-								clusterName={
-									clusterOptions.find(
-										(cluster) =>
-											cluster.value === form.getFieldValue('clusterId'),
-									)?.label
-								}
-								engineType={form.getFieldValue('engineId')}
-								onClick={handleResourceManage}
-							/>
+				<Tabs
+					animated={false}
+					activeKey={activeKey}
+					onChange={handleChangeEngine}
+					className="dt-resource-tabs"
+					destroyInactiveTabPane
+				>
+					{isSparkEngine(form.getFieldValue('engineId')) ? (
+						<TabPane tab="资源全景" key="showResource">
+							<Resource clusterId={form.getFieldValue('clusterId')} />
 						</TabPane>
-					</Tabs>
-				) : (
-					<span>无法获取资源全景，请检查是否选择引擎，或该集群下无引擎</span>
-				)}
+					) : null}
+					<TabPane tab="租户绑定" key="bindTenant">
+						<BindTenant
+							ref={bindTenantRef}
+							clusterId={form.getFieldValue('clusterId')}
+							clusterName={
+								clusterOptions.find(
+									(cluster) => cluster.value === form.getFieldValue('clusterId'),
+								)?.label
+							}
+							engineType={form.getFieldValue('engineId')}
+							onClick={handleResourceManage}
+						/>
+					</TabPane>
+				</Tabs>
 			</Spin>
 			<ResourceManageModal
 				title={`资源管理 (${tenantInfo?.tenantName ?? ''})`}
