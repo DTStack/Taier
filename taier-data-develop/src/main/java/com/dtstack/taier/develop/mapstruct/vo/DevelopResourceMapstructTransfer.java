@@ -18,12 +18,10 @@
 
 package com.dtstack.taier.develop.mapstruct.vo;
 
-import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceAddDTO;
 import com.dtstack.taier.develop.dto.devlop.DevelopResourceVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopResourceAddVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourceByIdResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopGetResourcesResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -50,12 +48,5 @@ public interface DevelopResourceMapstructTransfer {
      */
     DevelopGetResourceByIdResultVO DevelopResourceVOToDevelopGetResourceByIdResultVO(DevelopResourceVO DevelopResourceVO);
 
-    /**
-     * DevelopResource --> DevelopGetResourcesResultVO
-     *
-     * @param DevelopResource
-     * @return
-     */
-    DevelopGetResourcesResultVO DevelopResourceToDevelopGetResourcesResultVO(DevelopResource DevelopResource);
 
 }

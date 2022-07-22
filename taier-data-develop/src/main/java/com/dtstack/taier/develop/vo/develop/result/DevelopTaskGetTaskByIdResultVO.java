@@ -199,9 +199,6 @@ public class DevelopTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "")
     private List<DevelopResourceResultVO> refResourceList;
 
-    @ApiModelProperty(value = "任务版本信息")
-    private List<DevelopTaskVersionDetailResultVO> taskVersions;
-
     @ApiModelProperty(value = "task 版本")
     private Integer version;
 
@@ -745,14 +742,6 @@ public class DevelopTaskGetTaskByIdResultVO {
 
     public void setRefResourceList(List<DevelopResourceResultVO> refResourceList) {
         this.refResourceList = refResourceList;
-    }
-
-    public List<DevelopTaskVersionDetailResultVO> getTaskVersions() {
-        return taskVersions;
-    }
-
-    public void setTaskVersions(List<DevelopTaskVersionDetailResultVO> taskVersions) {
-        this.taskVersions = taskVersions;
     }
 
     public Integer getVersion() {
