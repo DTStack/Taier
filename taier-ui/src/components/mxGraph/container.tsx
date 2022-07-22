@@ -487,7 +487,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 			// Replaces the port image
 			MxConstraintHandler.prototype.pointImage = new MxImage('images/points.gif', 5, 5);
 			// Constraint highlight color
-			MxConstraintHandler.prototype.highlightColor = '#2491F7';
+			MxConstraintHandler.prototype.highlightColor = 'var(--list-focusOutline)';
 			// Overridden to define per-shape connection points
 			MxGraph.prototype.getAllConnectionConstraints = function (terminal: mxCellState) {
 				if (terminal?.shape) {
@@ -572,7 +572,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 						[];
 					const edges = outEdges.concat(inEdges);
 					for (let i = 0; i < edges.length; i += 1) {
-						const highlight = new MxCellHighlight(graph.current!, '#2491F7', 2);
+						const highlight = new MxCellHighlight(graph.current!, 'var(--list-focusOutline)', 2);
 						const state = graph.current!.view.getState(edges[i]);
 						highlight.highlight(state);
 						highlightEdges.push(highlight);
@@ -582,7 +582,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 					onClick?.(cell, graph.current!, evt.getProperty('event'));
 				} else {
 					// only highlight current edge
-					const highlight = new MxCellHighlight(graph.current!, '#2491F7', 2);
+					const highlight = new MxCellHighlight(graph.current!, 'var(--list-focusOutline)', 2);
 					const state = graph.current!.view.getState(cell);
 					highlight.highlight(state);
 					highlightEdges.push(highlight);
