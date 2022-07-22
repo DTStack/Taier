@@ -662,7 +662,13 @@ export interface IResourceList {
  * 当前任务所属计算环境，区分实时任务和离线任务
  */
 export enum IComputeType {
+	/**
+	 * 实时任务
+	 */
 	STREAM = 0,
+	/**
+	 * 离线任务
+	 */
 	BATCH = 1,
 }
 

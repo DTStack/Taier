@@ -11,8 +11,8 @@
 	margin: 15px 0;
 
 	.workflow__widgets__componentName {
-		background: var(--editorBracketMatch-background);
-		border: 1px solid var(--editorBracketMatch-border);
+		background: var(--list-dropBackground);
+		border: 1px solid var(--panel-border);
 		color: var(--foreground);
 		cursor: move;
 		height: auto;
@@ -21,12 +21,17 @@
 		white-space: break-spaces;
 		width: 110px;
 		font-size: 12px;
+		transition: background .3s;
+
+		&:hover {
+			background: var(--list-hoverBackground);
+		}
 	}
 }
 
 .workflow__preview__vertex {
-	border: 1px solid var(--editorBracketMatch-border);
-	background: var(--editorBracketMatch-background);
+	border: 1px solid var(--panel-border);
+	background: var(--list-dropBackground);
 	padding: 2px 0;
 	text-align: center;
 	width: 110px;
@@ -57,6 +62,8 @@
 .workflow__vertex {
 	width: 210px;
 	height: 50px;
+	background: var(--list-dropBackground);
+	border: 1px solid var(--panel-border);
 
 	.workflow__vertex__suffixInput {
 		position: relative;
@@ -106,6 +113,7 @@
 		width: 110px;
 		margin: 0 auto;
 		line-height: 20px;
+		font-weight: normal;
 	}
 }
 
