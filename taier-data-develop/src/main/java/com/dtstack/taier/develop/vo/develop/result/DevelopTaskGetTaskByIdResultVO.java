@@ -241,6 +241,10 @@ public class DevelopTaskGetTaskByIdResultVO {
     @ApiModelProperty(value = "脏数据")
     private TaskDirtyDataManageVO TaskDirtyDataManageVO;
 
+
+    @ApiModelProperty(value = "工作流任务依赖")
+    private Map<Long, List<Long>> nodeMap;
+
     public Boolean getSubmitted() {
         return submitted;
     }
@@ -792,4 +796,11 @@ public class DevelopTaskGetTaskByIdResultVO {
         this.resourceIdList = resourceIdList;
     }
 
+    public Map<Long, List<Long>> getNodeMap() {
+        return nodeMap;
+    }
+
+    public void setNodeMap(Map<Long, List<Long>> nodeMap) {
+        this.nodeMap = nodeMap;
+    }
 }

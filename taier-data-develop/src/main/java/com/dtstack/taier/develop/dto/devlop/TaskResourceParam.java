@@ -121,6 +121,11 @@ public class TaskResourceParam extends Task {
      */
     private TaskDirtyDataManageVO taskDirtyDataManageVO;
 
+    /**
+     * 工作流任务依赖
+     */
+    private Map<Long, List<Long>> nodeMap;
+
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return taskDirtyDataManageVO;
     }
@@ -329,4 +334,11 @@ public class TaskResourceParam extends Task {
         return side;
     }
 
+    public Map<Long, List<Long>> getNodeMap() {
+        return nodeMap;
+    }
+
+    public void setNodeMap(Map<Long, List<Long>> nodeMap) {
+        this.nodeMap = nodeMap;
+    }
 }
