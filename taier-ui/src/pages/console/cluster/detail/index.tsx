@@ -136,43 +136,43 @@ export default function ClusterDetail() {
 
 	/**
 	 * 获取当前集群详情
-	 * 支持更新部分节点
 	 */
-	const getClusterDetail = (componentId?: number) => {
+	const getClusterDetail = () => {
 		const clusterId = history.location.query?.clusterId;
 		if (!clusterId) return;
 		api.getClusterInfo({ clusterId: clusterId as string }).then((res) => {
 			if (res.code === 1) {
-				if (typeof componentId === 'undefined') {
-					// 不指定更新的 component 则全量更新
-					setCurrent(res.data);
-				} else {
-					setCurrent((preCluster) => {
-						const nextCluster = { ...preCluster! };
+				setCurrent(res.data);
+				// if (typeof componentId === 'undefined') {
+				// 	// 不指定更新的 component 则全量更新
+				// 	setCurrent(res.data);
+				// } else {
+				// 	setCurrent((preCluster) => {
+				// 		const nextCluster = { ...preCluster! };
 
-						const nextData: IClusterDetailProps = res.data;
+				// 		const nextData: IClusterDetailProps = res.data;
 
-						const nextTarget = nextData.componentVOS.find(
-							(vos) => vos.id === componentId,
-						)!;
+				// 		const nextTarget = nextData.componentVOS.find(
+				// 			(vos) => vos.id === componentId,
+				// 		)!;
 
-						const target = nextCluster.componentVOS.find(
-							(vos) => vos.id === componentId,
-						);
+				// 		const target = nextCluster.componentVOS.find(
+				// 			(vos) => vos.id === componentId,
+				// 		);
 
-						// 没找到表示是第一次保存的数据
-						if (!target) {
-							const idx = nextCluster.componentVOS.findIndex(
-								(vos) => vos.componentTypeCode === nextTarget.componentTypeCode,
-							);
-							nextCluster.componentVOS.splice(idx, 1, nextTarget);
-						} else {
-							Object.assign(target, nextTarget);
-						}
+				// 		// 没找到表示是第一次保存的数据
+				// 		if (!target) {
+				// 			const idx = nextCluster.componentVOS.findIndex(
+				// 				(vos) => vos.componentTypeCode === nextTarget.componentTypeCode,
+				// 			);
+				// 			nextCluster.componentVOS.splice(idx, 1, nextTarget);
+				// 		} else {
+				// 			Object.assign(target, nextTarget);
+				// 		}
 
-						return nextCluster;
-					});
-				}
+				// 		return nextCluster;
+				// 	});
+				// }
 			}
 		});
 	};
@@ -463,8 +463,8 @@ export default function ClusterDetail() {
 
 				setEdited((p) => ({ ...p, [selectedKey!]: false }));
 
-				// 只更新当前节点
-				getClusterDetail(res.data.id);
+				// 更新当前节点
+				getDetailValue(currentComponent);
 
 				// 当前更新的节点所属组件
 				const currentComponentOwner = componentsData.find(
@@ -576,9 +576,11 @@ export default function ClusterDetail() {
 		if (target) {
 			const { versionName, ...restComponentConfig } = form.getFieldsValue();
 			target.componentConfig = JSON.stringify(restComponentConfig);
-			target.versionName = Array.isArray(versionName)
-				? versionName[versionName.length - 1]
-				: versionName;
+			if (versionName) {
+				target.versionName = Array.isArray(versionName)
+					? versionName[versionName.length - 1]
+					: versionName;
+			}
 			setCurrent({ ...currentCluster! });
 		}
 	};
