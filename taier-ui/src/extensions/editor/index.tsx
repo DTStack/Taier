@@ -22,7 +22,7 @@ import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { runTask, syntaxValidate } from '@/utils/extensions';
 import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
 import { history } from 'umi';
-import { cloneDeep, debounce } from 'lodash';
+import { debounce } from 'lodash';
 import ReactDOM from 'react-dom';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -89,7 +89,7 @@ function emitEvent() {
 				node.id = CONTAINER_ID;
 				root.appendChild(node);
 				if (currentTab) {
-					ReactDOM.render(<Publish data={cloneDeep(currentTab.data)} />, node);
+					ReactDOM.render(<Publish taskId={currentTab.data.id} />, node);
 				}
 				break;
 			}
