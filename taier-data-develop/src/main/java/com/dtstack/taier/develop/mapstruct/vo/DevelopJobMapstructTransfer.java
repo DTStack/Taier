@@ -20,8 +20,6 @@ package com.dtstack.taier.develop.mapstruct.vo;
 
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopExecuteResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopJobFindTaskRuleJobResultVO;
-import com.dtstack.taier.scheduler.vo.ScheduleDetailsVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -37,14 +35,5 @@ public interface DevelopJobMapstructTransfer {
      * @return
      */
     DevelopExecuteResultVO executeResultVOToDevelopExecuteResultVO(ExecuteResultVO executeResultVO);
-
-
-
-    /**
-     * ScheduleDetailsVO --> DevelopJobFindTaskRuleJobResultVO
-     * @param scheduleDetailsVO
-     * @return
-     */
-    DevelopJobFindTaskRuleJobResultVO scheduleDetailsVOToDevelopJobFindTaskRuleJobResultVO(ScheduleDetailsVO scheduleDetailsVO);
 
 }
