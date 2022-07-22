@@ -85,7 +85,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    private void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
+    public void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
                                        String beginTime, String endTime) throws Exception {
         List<Long> allList = Lists.newArrayList(all);
         List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobGraphTaskLimitSize());
