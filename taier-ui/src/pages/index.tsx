@@ -41,7 +41,7 @@ import QueueManage from './console/queue';
 import TaskDetail from './console/taskDetail';
 import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
-import ClusterDetail from './console/cluster/nextDetail';
+import ClusterDetail from './console/cluster/detail';
 import { getCookie } from '@/utils';
 import { useSupportJobType } from '@/hooks';
 import '@dtinsight/molecule/esm/style/mo.css';
