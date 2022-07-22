@@ -354,7 +354,7 @@ public class FlinkTaskService {
         Integer status = scheduleJob.getStatus();
         if (status != null) {
             //续跑或重跑
-            if (!TaskStatus.STOP_STATUS.contains(status)) {
+            if (!TaskStatus.isStopped(status)) {
                 throw new RdosDefineException("(任务状态不匹配)");
             }
             boolean reset = jobService.resetTaskStatus(scheduleJob.getJobId(), status, environmentContext.getLocalAddress());
