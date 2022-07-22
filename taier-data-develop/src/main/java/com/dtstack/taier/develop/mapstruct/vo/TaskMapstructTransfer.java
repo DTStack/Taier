@@ -21,13 +21,21 @@ package com.dtstack.taier.develop.mapstruct.vo;
 import com.dtstack.taier.dao.domain.DevelopResource;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.dto.DevelopTaskVersionDetailDTO;
-import com.dtstack.taier.dao.dto.UserDTO;
-import com.dtstack.taier.develop.dto.devlop.*;
+import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
+import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
+import com.dtstack.taier.develop.dto.devlop.TaskGetNotDeleteVO;
+import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
+import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopScheduleTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
-import com.dtstack.taier.develop.vo.develop.result.*;
-import com.dtstack.taier.scheduler.vo.ScheduleTaskVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopResourceResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
+import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taier.develop.vo.develop.result.TaskListResultVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
@@ -57,14 +65,6 @@ public interface TaskMapstructTransfer {
 
 
     /**
-     * DevelopScheduleTaskVO -> ScheduleTaskVO
-     * @param DevelopScheduleTaskVO
-     * @return
-     */
-    ScheduleTaskVO DevelopScheduleTaskVToScheduleTaskVO(DevelopScheduleTaskVO DevelopScheduleTaskVO);
-
-
-    /**
      * Task -> TaskListResultVO
      *
      * @param task
@@ -78,23 +78,6 @@ public interface TaskMapstructTransfer {
      * @return
      */
     TaskCatalogueResultVO TaskCatalogueVOToResultVO(TaskCatalogueVO taskCatalogueVO);
-
-
-    /**
-     * List<DevelopTaskVersionDetail>  -> List<DevelopTaskVersionDetailResultVO>
-     * @param DevelopTaskVersionDetailList
-     * @return
-     */
-    List<DevelopTaskVersionDetailResultVO> DevelopTaskVersionDetailListToResultVOList(List<DevelopTaskVersionDetailDTO> DevelopTaskVersionDetailList);
-
-
-    /**
-     * DevelopTaskVersionDetail -> DevelopTaskVersionDetailResultVO
-     * @param DevelopTaskVersionDetail
-     * @return
-     */
-    DevelopTaskVersionDetailResultVO DevelopTaskVersionDetailToResultVO(DevelopTaskVersionDetailDTO DevelopTaskVersionDetail);
-
 
     /**
      * ollection<DevelopSysParameter>  -> Collection<DevelopSysParameterResultVO>
@@ -111,11 +94,6 @@ public interface TaskMapstructTransfer {
     List<DevelopResourceResultVO> DevelopResourceListToDevelopResourceResultVOList(List<DevelopResource> DevelopResourceList);
 
 
-    /**
-     * DevelopTaskDevelopVO -> DevelopTaskGetTaskByIdResultVO
-     * @return
-     */
-    DevelopTaskGetTaskByIdResultVO DevelopTaskDevelopVOToDevelopTaskGetTaskByIdResultVO(DevelopTaskDevelopVO developTaskDevelopVO);
 
     /**
      * TaskCheckResultVO -> DevelopTaskPublishTaskResultVO
@@ -124,8 +102,6 @@ public interface TaskMapstructTransfer {
      */
     DevelopTaskPublishTaskResultVO TaskCheckResultVOToDevelopTaskPublishTaskResultVO(TaskCheckResultVO taskCheckResultVO);
 
-
-    DevelopUserResultVO dtpToResultVO(UserDTO value);
 
     /**
      * List<TaskGetNotDeleteVO> -> List<DevelopPreDeleteTaskResultVO>
