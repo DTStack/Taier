@@ -56,6 +56,7 @@ import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.DevelopTaskTask;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
 import com.dtstack.taier.dao.domain.TaskTemplate;
@@ -92,7 +93,9 @@ import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleTaskTaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -100,6 +103,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -115,6 +119,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -205,6 +210,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     @Autowired
     private TaskConfiguration taskConfiguration;
 
+    @Autowired
+    private ScheduleTaskTaskService scheduleTaskTaskService;
+
+    @Autowired
+    private DevelopTaskParamShadeService batchTaskParamShadeService;
+
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
     /**
@@ -242,6 +253,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
             setTaskVariables(taskVO, taskVO.getId());
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
+        }
+        if (task.getFlowId() != null && task.getFlowId() > 0) {
+            Task flow = getOne(task.getFlowId());
+            if (flow != null) {
+                taskVO.setFlowName(flow.getName());
+            }
         }
         List<Long> resourceIds = developTaskResourceService.getResourceIdList(taskVO.getId(), ResourceRefType.MAIN_RES.getType());
         taskVO.setResourceIdList(resourceIds);
@@ -373,13 +390,79 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             }
         }
 
+        // 需要发布的任务集合
+        List<Task> tasks = Lists.newArrayList();
+        // 工作流下所有子任务置为发布状态
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(task.getTaskType())) {
+            final List<Task> subTasks = this.getFlowWorkSubTasks(id);
+            tasks.addAll(subTasks);
+
+            HashMap<Long, List<Long>> relations = JSON.parseObject(task.getSqlText(), new TypeReference<HashMap<Long, List<Long>>>() {
+            });
+            final List<String> noParents = Lists.newArrayList();
+            for (final Task taskOne : subTasks) {
+                //没有父节点
+                if (CollectionUtils.isEmpty(relations.get(taskOne.getId()))) {
+                    noParents.add(taskOne.getName());
+                }
+            }
+            if (noParents.size() >= 2) {
+                throw new RdosDefineException("工作流中包含多个根节点:" + StringUtils.join(noParents, ","));
+            }
+            // 判断工作流任务是否成环
+            if (MapUtils.isNotEmpty(relations)) {
+                checkIsLoopByList(relations);
+            }
+
+            tasks.add(task);
+
+        }
         return publishTaskInfo(task, userId, publishDesc);
 
     }
 
 
+
     /**
-     * 批量发布任务至engine
+     * 判断是否成环
+     *
+     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
+     * @return
+     */
+    public void checkIsLoopByList(Map<Long, List<Long>> nodeMap) {
+        if (MapUtils.isEmpty(nodeMap)) {
+            return;
+        }
+        for (Map.Entry<Long, List<Long>> entry : nodeMap.entrySet()) {
+            mapDfs(entry.getKey(), new HashSet(), nodeMap);
+        }
+    }
+
+    /**
+     * 图深度遍历
+     *
+     * @param taskId  任务ID
+     * @param set     已经遍历过的节点
+     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
+     */
+    private void mapDfs(Long taskId, HashSet<Long> set, Map<Long, List<Long>> nodeMap) {
+        HashSet<Long> node = new HashSet<>(set);
+        // 判断该节点是否以及存在，如果存在，则证明成环了
+        if (set.contains(taskId)) {
+            Task task = developTaskMapper.selectById(taskId);
+            if (Objects.nonNull(task)) {
+                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
+            }
+        }
+        node.add(taskId);
+        for (Long j : nodeMap.get(taskId)) {
+            mapDfs(j, node, nodeMap);
+        }
+    }
+
+
+    /**
+     * 发布任务至engine
      *
      * @param userId      用户id
      * @param publishDesc 发布描述
@@ -389,17 +472,62 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
 
-        try {
-            // 构建要发布的任务列表
-            ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task);
+        if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())) {
 
-            // 提交任务参数信息并保存任务记录和更新任务状态
-            sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
-        } catch (Exception e) {
-            LOGGER.error("send task error {} ", task.getName(), e);
-            throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+            // 发布任务中所有的依赖关系
+            List<ScheduleTaskTaskShade> allTaskTaskList = new ArrayList<>();
+
+            final List<Task> subTasks = getFlowWorkSubTasks(task.getId());
+            if (CollectionUtils.isNotEmpty(subTasks)) {
+                for (Task subTask : subTasks) {
+                    try {
+                        // 构建要发布的任务列表
+                        ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(subTask, allTaskTaskList);
+
+                        // 提交任务参数信息并保存任务记录和更新任务状态
+                        sendTaskStartTrigger(subTask.getId(), userId, scheduleTasks);
+
+
+                        Map<String, ScheduleTaskTaskShade> keys = new HashMap<>(16);
+                        // 判断任务依赖关系
+                        if (CollectionUtils.isNotEmpty(allTaskTaskList)) {
+                            // 去重
+                            for (ScheduleTaskTaskShade scheduleTaskTaskShade : allTaskTaskList) {
+                                keys.put(String.format("%s.%s.%s", scheduleTaskTaskShade.getTaskId(), scheduleTaskTaskShade.getParentTaskId(), scheduleTaskTaskShade.getTenantId()), scheduleTaskTaskShade);
+                                Preconditions.checkNotNull(scheduleTaskTaskShade.getTaskId());
+                                // 清除原来关系
+                                scheduleTaskTaskService.deleteByTaskId(scheduleTaskTaskShade.getTaskId());
+                            }
+                            // 保存现有任务关系
+                            for (ScheduleTaskTaskShade taskTaskShade : keys.values()) {
+                                scheduleTaskTaskService.insert(taskTaskShade);
+                            }
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("send task error {} ", subTask.getName(), e);
+                        throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+                    }
+                    LOGGER.info("待发布任务参数提交完毕");
+                }
+            }
+
+
+        } else {
+            try {
+                // 构建要发布的任务列表
+                ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task,null);
+
+                // 提交任务参数信息并保存任务记录和更新任务状态
+                sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
+
+            } catch (Exception e) {
+                LOGGER.error("send task error {} ", task.getName(), e);
+                throw new RdosDefineException(String.format("任务提交异常：%s", e.getMessage()), e);
+            }
+
+            LOGGER.info("待发布任务参数提交完毕");
+            return checkResultVO;
         }
-        LOGGER.info("待发布任务参数提交完毕");
         return checkResultVO;
     }
 
@@ -494,10 +622,20 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param task 要发布的任务集合
      * @return 调度任务DTO
      */
-    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task) {
+    private ScheduleTaskShade buildScheduleTaskShadeDTO(final Task task, List<ScheduleTaskTaskShade> allTaskTaskList) {
         if (task.getId() <= 0) {
             //只有异常情况才会走到该逻辑
             throw new RdosDefineException("task id can't be 0", ErrorCode.SERVER_EXCEPTION);
+        }
+
+        //查询关联任务
+        List<ScheduleTaskTaskShade> batchTaskTaskList = scheduleTaskTaskService.getAllParentTask(task.getId());
+        // 处理任务之间的依赖关系
+        if (CollectionUtils.isNotEmpty(batchTaskTaskList)) {
+            for (ScheduleTaskTaskShade batchTaskTask : batchTaskTaskList) {
+                batchTaskTask.setTenantId(task.getTenantId());
+            }
+            allTaskTaskList.addAll(batchTaskTaskList);
         }
         ScheduleTaskShade scheduleTaskShadeDTO = new ScheduleTaskShade();
         BeanUtils.copyProperties(task, scheduleTaskShadeDTO);
@@ -529,6 +667,27 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     }
 
     /**
+     * 任务名称校验
+     *
+     * @param taskName
+     * @param tenantId
+     * @return
+     */
+    public Boolean checkTaskNameRepeat(String taskName,Long tenantId){
+        if (StringUtils.isBlank(taskName)) {
+            throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
+        }
+        Task task = developTaskMapper.selectOne(Wrappers.lambdaQuery(Task.class)
+                .eq(Task::getName, taskName)
+                .eq(Task::getTenantId, tenantId)
+                .last("limit 1"));
+        if (ObjectUtils.isNotEmpty(task)) {
+            throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
+        }
+        return true;
+    }
+
+    /**
      * 新增/更新任务
      * 内部使用 不对外提供
      *
@@ -547,6 +706,17 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 .eq(Task::getTenantId, taskVO.getTenantId())
                 .last("limit 1"));
 
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(taskVO.getTaskType())){
+            // 判断任务依赖是否成环
+            if (MapUtils.isNotEmpty(taskVO.getNodeMap())) {
+                taskVO.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
+                checkIsLoopByList(taskVO.getNodeMap());
+            }
+            for (Map.Entry<Long, List<Long>> entry : taskVO.getNodeMap().entrySet()) {
+                List<TaskVO> dependencyTasks = getTaskByIds(entry.getValue());
+                developTaskTaskService.addOrUpdateTaskTask(entry.getKey(), dependencyTasks);
+            }
+        }
         if (taskVO.getId() != null && taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
@@ -1284,6 +1454,23 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (taskId.equals(taskInfo.getId())) {
             throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
+    }
+
+    public List<TaskVO> getTaskByIds(List<Long> taskIdArray) {
+        if (CollectionUtils.isEmpty(taskIdArray)) {
+            return Collections.EMPTY_LIST;
+        }
+        List<Task> tasks = developTaskMapper.selectList(
+                Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
+        ArrayList<TaskVO> taskVOS = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(tasks)) {
+            tasks.stream().forEach(x -> {
+                TaskVO taskVO = new TaskVO();
+                BeanUtils.copyProperties(x, taskVO);
+                taskVOS.add(taskVO);
+            });
+        }
+        return taskVOS;
     }
 
 }
