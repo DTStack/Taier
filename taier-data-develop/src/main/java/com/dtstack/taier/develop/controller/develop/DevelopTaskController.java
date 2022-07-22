@@ -40,6 +40,7 @@ import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetByNameVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetChildTasksVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetComponentVersionVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskGetSupportJobTypesVO;
+import com.dtstack.taier.develop.vo.develop.query.DevelopTaskNameCheckVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskPublishTaskVO;
 import com.dtstack.taier.develop.vo.develop.query.DevelopTaskResourceParamVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
@@ -276,4 +277,14 @@ public class DevelopTaskController {
         }.execute();
     }
 
+    @PostMapping(value = "checkTaskNameRepeat")
+    @ApiOperation("数据开发-校验任务名称是否重复")
+    public R<Boolean> checkTaskNameRepeat(@RequestBody DevelopTaskNameCheckVO vo) {
+        return new APITemplate<Boolean>() {
+            @Override
+            protected Boolean process() {
+                return developTaskService.checkTaskNameRepeat(vo.getTaskName(), vo.getTenantId());
+            }
+        }.execute();
+    }
 }

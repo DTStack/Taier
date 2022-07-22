@@ -24,6 +24,7 @@ import com.dtstack.taier.common.enums.CatalogueLevel;
 import com.dtstack.taier.common.enums.CatalogueType;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DictType;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EngineCatalogueType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -40,6 +41,7 @@ import com.dtstack.taier.develop.enums.develop.RdosBatchCatalogueTypeEnum;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -593,7 +595,8 @@ public class DevelopCatalogueService {
         if (isGetFile) {
             //目录下的文件信息
             List<CatalogueVO> catalogueChildFileList = Lists.newArrayList();
-
+            //工作流子节点
+            Map<Long, List<CatalogueVO>> flowChildren = Maps.newHashMap();
             //任务目录
             if (CatalogueType.TASK_DEVELOP.getType().equals(currentCatalogueVO.getCatalogueType())) {
                 List<Task> taskList = developTaskService.catalogueListBatchTaskByNodePid(tenantId, currentCatalogueVO.getId());
@@ -603,10 +606,34 @@ public class DevelopCatalogueService {
                     for (Task task : taskList) {
                         CatalogueVO childCatalogueTask = new CatalogueVO();
                         BeanUtils.copyProperties(task, childCatalogueTask);
-                        childCatalogueTask.setType("file");
+                        if (task.getTaskType().intValue() == EScheduleJobType.WORK_FLOW.getVal()) {
+                            childCatalogueTask.setType("flow");
+                        } else {
+                            childCatalogueTask.setType("file");
+                        }
                         childCatalogueTask.setLevel(currentCatalogueVO.getLevel() + 1);
+
                         childCatalogueTask.setParentId(currentCatalogueVO.getId());
-                        catalogueChildFileList.add(childCatalogueTask);
+                        if (task.getFlowId() > 0L) {
+                            List<CatalogueVO> temp = flowChildren.get(task.getFlowId());
+                            if (CollectionUtils.isEmpty(temp)) {
+                                temp = Lists.newArrayList();
+                                temp.add(childCatalogueTask);
+                                flowChildren.put(task.getFlowId(), temp);
+                            } else {
+                                flowChildren.get(task.getFlowId()).add(childCatalogueTask);
+                            }
+                        } else {
+                            catalogueChildFileList.add(childCatalogueTask);
+                        }
+                    }
+
+                    //封装工作流子任务
+                    for (CatalogueVO catalogueVO : catalogueChildFileList) {
+                        List<CatalogueVO> children = flowChildren.get(catalogueVO.getId());
+                        if (CollectionUtils.isNotEmpty(children)){
+                            catalogueVO.setChildren(children);
+                        }
                     }
                 }
             } else if (CatalogueType.FUNCTION_MANAGER.getType().equals(currentCatalogueVO.getCatalogueType())) {
