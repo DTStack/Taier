@@ -17,6 +17,7 @@ export default class ColorThemeExtensions implements IExtension {
 						...builtinTheme.colors,
 						...content.colors,
 					},
+					tokenColors: [...builtinTheme.tokenColors!, ...content.tokenColors],
 				});
 			}
 		});
