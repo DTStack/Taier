@@ -84,11 +84,7 @@ public class FlinkResource extends CommonResource {
         Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         Component flinkComponent = componentService.getComponentByClusterId(clusterId, EComponentType.FLINK.getTypeCode(), null);
         if (null != flinkComponent) {
-            if (EDeployType.STANDALONE.getType() == flinkComponent.getDeployType()) {
-                return EComponentType.FLINK;
-            } else if (EDeployType.YARN.getType() == flinkComponent.getDeployType()) {
-                return EComponentType.YARN;
-            }
+            return EComponentType.YARN;
         }
         throw new RdosDefineException("No found resource EComponentType");
     }
