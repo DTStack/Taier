@@ -1,5 +1,6 @@
 package com.dtstack.taier.develop.service.develop.saver;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -20,16 +21,25 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskTaskService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTenantComponentService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -78,6 +88,9 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
     @Autowired
     private DevelopTenantComponentService developTenantComponentService;
+
+    @Autowired
+    private DevelopTaskTaskService developTaskTaskService;
 
     public abstract TaskResourceParam beforeProcessing(TaskResourceParam taskResourceParam);
 
@@ -161,6 +174,17 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         if (specialTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(specialTask.getTaskType())){
+            // 判断任务依赖是否成环
+            if (MapUtils.isNotEmpty(taskVO.getNodeMap())) {
+                taskVO.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
+                checkIsLoopByList(taskVO.getNodeMap());
+            }
+            for (Map.Entry<Long, List<Long>> entry : taskVO.getNodeMap().entrySet()) {
+                List<TaskVO> dependencyTasks = getTaskByIds(entry.getValue());
+                developTaskTaskService.addOrUpdateTaskTask(entry.getKey(), dependencyTasks);
+            }
+        }
         // 转换环境参数
         String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
                 FlinkVersion.getVersion(taskVO.getComponentVersion()),
@@ -169,6 +193,44 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         Task specialTask1 = new Task();
         TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
         developTaskService.updateById(specialTask1);
+    }
+
+
+    /**
+     * 判断是否成环
+     *
+     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
+     * @return
+     */
+    public void checkIsLoopByList(Map<Long, List<Long>> nodeMap) {
+        if (MapUtils.isEmpty(nodeMap)) {
+            return;
+        }
+        for (Map.Entry<Long, List<Long>> entry : nodeMap.entrySet()) {
+            mapDfs(entry.getKey(), new HashSet(), nodeMap);
+        }
+    }
+
+    /**
+     * 图深度遍历
+     *
+     * @param taskId  任务ID
+     * @param set     已经遍历过的节点
+     * @param nodeMap 任务完整依赖关系  key：节点  value 节点的所有父节点
+     */
+    private void mapDfs(Long taskId, HashSet<Long> set, Map<Long, List<Long>> nodeMap) {
+        HashSet<Long> node = new HashSet<>(set);
+        // 判断该节点是否以及存在，如果存在，则证明成环了
+        if (set.contains(taskId)) {
+            Task task = developTaskMapper.selectById(taskId);
+            if (Objects.nonNull(task)) {
+                throw new RdosDefineException(String.format("%s任务发生依赖闭环", task.getName()));
+            }
+        }
+        node.add(taskId);
+        for (Long j : nodeMap.get(taskId)) {
+            mapDfs(j, node, nodeMap);
+        }
     }
 
     /**
@@ -208,6 +270,23 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             return paramsBefore;
         }
         return taskTemplateService.getTaskTemplate(TaskTemplateType.TASK_PARAMS.getType(), taskType, after.getType()).getContent();
+    }
+
+    public List<TaskVO> getTaskByIds(List<Long> taskIdArray) {
+        if (CollectionUtils.isEmpty(taskIdArray)) {
+            return Collections.EMPTY_LIST;
+        }
+        List<Task> tasks = developTaskMapper.selectList(
+                Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
+        ArrayList<TaskVO> taskVOS = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(tasks)) {
+            tasks.stream().forEach(x -> {
+                TaskVO taskVO = new TaskVO();
+                BeanUtils.copyProperties(x, taskVO);
+                taskVOS.add(taskVO);
+            });
+        }
+        return taskVOS;
     }
 
 }
