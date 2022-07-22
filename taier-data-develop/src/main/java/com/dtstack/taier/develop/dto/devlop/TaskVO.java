@@ -89,6 +89,16 @@ public class TaskVO extends Task {
      */
     private List<Long> resourceIdList;
 
+    /**
+     * 工作流任务依赖
+     */
+    private Map<Long, List<Long>> nodeMap;
+
+    /**
+     * 工作流父任务名称
+     */
+    private String flowName;
+
     public List<Long> getResourceIdList() {
         return resourceIdList;
     }
@@ -239,5 +249,21 @@ public class TaskVO extends Task {
 
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
+    }
+
+    public Map<Long, List<Long>> getNodeMap() {
+        return nodeMap;
+    }
+
+    public void setNodeMap(Map<Long, List<Long>> nodeMap) {
+        this.nodeMap = nodeMap;
+    }
+
+    public String getFlowName() {
+        return flowName;
+    }
+
+    public void setFlowName(String flowName) {
+        this.flowName = flowName;
     }
 }
