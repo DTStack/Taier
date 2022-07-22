@@ -1416,26 +1416,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             developTaskMapper.updateById(updateInfo);
             return;
         }
-        if (taskId.equals(taskInfo.getId())) {
+        if (!taskId.equals(taskInfo.getId())) {
             throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
-    }
-
-    public List<TaskVO> getTaskByIds(List<Long> taskIdArray) {
-        if (CollectionUtils.isEmpty(taskIdArray)) {
-            return Collections.EMPTY_LIST;
-        }
-        List<Task> tasks = developTaskMapper.selectList(
-                Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
-        ArrayList<TaskVO> taskVOS = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(tasks)) {
-            tasks.stream().forEach(x -> {
-                TaskVO taskVO = new TaskVO();
-                BeanUtils.copyProperties(x, taskVO);
-                taskVOS.add(taskVO);
-            });
-        }
-        return taskVOS;
     }
 
 }
