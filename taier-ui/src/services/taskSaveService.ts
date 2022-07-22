@@ -582,7 +582,7 @@ class TaskSaveService extends GlobalEvent {
 			}
 
 			case TASK_TYPE_ENUM.WORK_FLOW: {
-				const { cells } = viewStoreService.getViewStorage<{
+				let { cells } = viewStoreService.getViewStorage<{
 					cells: mxCell[];
 					geometry: IGeometryPosition;
 				}>(data.id.toString());
@@ -602,6 +602,12 @@ class TaskSaveService extends GlobalEvent {
 							});
 						return Promise.reject();
 					}
+
+					// 保存过未保存的节点后，cell 需要重新获取，因为有更新
+					cells = viewStoreService.getViewStorage<{
+						cells: mxCell[];
+						geometry: IGeometryPosition;
+					}>(data.id.toString()).cells;
 				}
 
 				const nodeMap = cells.reduce((pre, cur, _, thisArr) => {
@@ -696,7 +702,14 @@ class TaskSaveService extends GlobalEvent {
 	 * @params `verbose` 是否输出 message
 	 */
 	public async saveTab(params: IOfflineTaskProps, config = { verbose: true }) {
-		const res = await api.addOfflineTask(params);
+		const { id, nodePid, ...restParams } = params;
+		const res = await api.addOfflineTask({
+			...restParams,
+			id: id.toString().startsWith('workflow__') ? undefined : id,
+			// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
+			nodePid: nodePid || molecule.folderTree.get(restParams.flowId)?.data.parentId,
+			computeType: IComputeType.BATCH,
+		});
 
 		if (res.code === 1) {
 			if (config.verbose) {
@@ -704,15 +717,15 @@ class TaskSaveService extends GlobalEvent {
 			}
 
 			const { data, code } = await api.getOfflineTaskByID<IOfflineTaskProps>({
-				id: params.id,
+				id: res.data.id,
 			});
 
 			// 1. 更新目标 tab 中的内容
-			const isOpen = molecule.editor.isOpened(params.id.toString());
+			const isOpen = molecule.editor.isOpened(res.data.id.toString());
 			if (isOpen) {
 				if (code === 1) {
 					molecule.editor.updateTab({
-						id: params.id.toString(),
+						id: res.data.id.toString(),
 						data,
 						status: undefined,
 					});
@@ -725,7 +738,7 @@ class TaskSaveService extends GlobalEvent {
 					data.flowId.toString(),
 				);
 
-				const targetCell = cells.find((i) => i.value.id === data.id);
+				const targetCell = cells.find((i) => i.value.id === params.id);
 				if (targetCell) {
 					targetCell.setValue({
 						...targetCell.value,

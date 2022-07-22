@@ -1,5 +1,23 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Form, Input, message, Modal, Select, Space, Tooltip } from 'antd';
+import viewStoreService from '@/services/viewStoreService';
+import api from '@/api';
+import taskSaveService from '@/services/taskSaveService';
+import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
+import context from '@/context';
+import classNames from 'classnames';
+import { taskTypeText } from '@/utils/enums';
+import ReactDOMServer from 'react-dom/server';
+import taskRenderService from '@/services/taskRenderService';
+import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
+import molecule from '@dtinsight/molecule';
+import { connect } from '@dtinsight/molecule/esm/react';
+import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
+import { getTenantId, randomId } from '@/utils';
+import { IComputeType } from '@/interface';
+import type { CREATE_MODEL_TYPE, FLINK_VERSIONS } from '@/constant';
+import type { mxCell, mxGraph } from 'mxgraph';
+import type { IOfflineTaskProps } from '@/interface';
 import type {
 	IContainerProps,
 	IContainerRef,
@@ -7,23 +25,6 @@ import type {
 	IGeometryPosition,
 	IKeyDownConfig,
 } from '@/components/mxGraph/container';
-import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
-import type { CREATE_MODEL_TYPE, FLINK_VERSIONS } from '@/constant';
-import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
-import context from '@/context';
-import classNames from 'classnames';
-import { taskTypeText } from '@/utils/enums';
-import ReactDOMServer from 'react-dom/server';
-import taskRenderService from '@/services/taskRenderService';
-import molecule from '@dtinsight/molecule';
-import { connect } from '@dtinsight/molecule/esm/react';
-import type { mxCell, mxGraph } from 'mxgraph';
-import { ApartmentOutlined, CheckOutlined } from '@ant-design/icons';
-import { getTenantId, randomId } from '@/utils';
-import type { IOfflineTaskProps } from '@/interface';
-import viewStoreService from '@/services/viewStoreService';
-import api from '@/api';
-import taskSaveService from '@/services/taskSaveService';
 import './index.scss';
 
 interface IFormFieldProps {
@@ -524,7 +525,6 @@ function Workflow({ current }: molecule.model.IEditor) {
 				)}
 				onContextMenu={handleContextMenu}
 				onEdgeContextMenu={handleEdgeContextMenu}
-				onDrawVertex={() => 'whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;'}
 				onRenderWidgets={() => {
 					return (
 						<>
@@ -533,8 +533,9 @@ function Workflow({ current }: molecule.model.IEditor) {
 								<Space direction="vertical" size={15}>
 									{supportJobTypes
 										.filter(
-											// TODO: t.computeType === IComputeType.BATCH,
-											(t) => t.key !== TASK_TYPE_ENUM.WORK_FLOW && true,
+											(t) =>
+												t.key !== TASK_TYPE_ENUM.WORK_FLOW &&
+												t.computeType === IComputeType.BATCH,
 										)
 										.map(({ key, value }) => (
 											<div

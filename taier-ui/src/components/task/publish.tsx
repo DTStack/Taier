@@ -94,7 +94,7 @@ export default ({ taskId }: { taskId: number }) => {
 				closable={false}
 			/>
 			<br />
-			<Alert message="新提交的任务需要第二天才能生成" type="warning" closable={false} />
+			<Alert message="新提交的任务需要第二天才能生成周期实例" type="warning" closable={false} />
 		</Modal>
 	);
 };
