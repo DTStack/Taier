@@ -86,4 +86,13 @@
 			cursor: pointer;
 		}
 	}
+
+	.cluster__detail__collapse {
+		margin-left: 15px;
+		overflow: hidden;
+		background: var(--sideBarSectionHeader-background);
+		margin-bottom: 1px;
+		border: 0px;
+		color: var(--sideBarSectionHeader-foreground);
+	}
 }
