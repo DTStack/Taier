@@ -401,7 +401,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             tasks.add(task);
 
         }
-        return publishTaskInfo(task, userId, publishDesc);
+        return publishTaskInfo(task, userId);
 
     }
 

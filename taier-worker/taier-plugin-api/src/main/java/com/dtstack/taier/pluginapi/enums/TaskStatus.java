@@ -30,16 +30,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
- *
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
- * @author sishu.yss
  *
+ * @author sishu.yss
  */
 public enum TaskStatus implements Serializable {
     //
-	UNSUBMIT(0),
+    UNSUBMIT(0),
     //
     CREATED(1),
     //
@@ -57,7 +55,7 @@ public enum TaskStatus implements Serializable {
     //
     SUBMITFAILD(9),
     //
-	SUBMITTING(10),
+    SUBMITTING(10),
     //
     RESTARTING(11),
     //
@@ -90,7 +88,7 @@ public enum TaskStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-	private final int status;
+    private final int status;
 
 
     public final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
@@ -105,20 +103,21 @@ public enum TaskStatus implements Serializable {
             AUTOCANCELED.getStatus()
     );
 
-	TaskStatus(int status){
-		this.status = status;
-	}
-	
-	public Integer getStatus(){
-		return this.status;
-	}
+    TaskStatus(int status) {
+        this.status = status;
+    }
+
+    public Integer getStatus() {
+        return this.status;
+    }
 
     /**
      * Exception cannot be caught. Conversion is required
+     *
      * @param taskStatus
      * @return
      */
-    public static TaskStatus getTaskStatus(String taskStatus){
+    public static TaskStatus getTaskStatus(String taskStatus) {
 
         if (Strings.isNullOrEmpty(taskStatus)) {
             return null;
@@ -135,41 +134,41 @@ public enum TaskStatus implements Serializable {
             return TaskStatus.WAITENGINE;
         }
 
-	    try {
+        try {
             return TaskStatus.valueOf(taskStatus);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.info("No enum constant :" + taskStatus);
-	        return null;
+            return null;
         }
     }
 
-    public static TaskStatus getTaskStatus(int status){
-        for(TaskStatus tmp : TaskStatus.values()){
-            if(tmp.getStatus() == status){
+    public static TaskStatus getTaskStatus(int status) {
+        for (TaskStatus tmp : TaskStatus.values()) {
+            if (tmp.getStatus() == status) {
                 return tmp;
             }
         }
 
         return null;
     }
-    
-    public static boolean needClean(Integer status){
 
-        if(STOPPED_STATUS.contains(status) || TaskStatus.RESTARTING.getStatus().equals(status)){
+    public static boolean needClean(Integer status) {
+
+        if (STOPPED_STATUS.contains(status) || TaskStatus.RESTARTING.getStatus().equals(status)) {
             return true;
         }
         return false;
     }
 
-    public static boolean canStart(Integer status){
-        if(TaskStatus.SUBMITTING.getStatus().equals(status) || TaskStatus.UNSUBMIT.getStatus().equals(status)){
-    	    return true;
+    public static boolean canStart(Integer status) {
+        if (TaskStatus.SUBMITTING.getStatus().equals(status) || TaskStatus.UNSUBMIT.getStatus().equals(status)) {
+            return true;
         }
 
         return false;
     }
 
-    public static boolean canReset(Integer currStatus){
+    public static boolean canReset(Integer currStatus) {
         return STOPPED_STATUS.contains(currStatus) || TaskStatus.UNSUBMIT.getStatus().equals(currStatus);
 
     }
@@ -198,7 +197,8 @@ public enum TaskStatus implements Serializable {
             RESTARTING.getStatus(), SUBMITTED.getStatus(), ENGINEACCEPTED.getStatus(), SCHEDULED.getStatus(), CREATED.getStatus(), COMPUTING.getStatus(), LACKING.getStatus());
     public final static List<Integer> SUBMITTING_STATUS = Lists.newArrayList(SUBMITTING.getStatus());
 
-    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), AUTOCANCELED.getStatus());;
+    public final static List<Integer> STOP_STATUS = Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), AUTOCANCELED.getStatus());
+    ;
     public final static List<Integer> FROZEN_STATUS = Lists.newArrayList(FROZEN.getStatus());
 
     public static String getCode(Integer status) {
@@ -281,7 +281,7 @@ public enum TaskStatus implements Serializable {
         STATUS_FAILED_DETAIL.put(PARENTFAILED.getStatus(), Lists.newArrayList(PARENTFAILED.getStatus()));
         STATUS_FAILED_DETAIL.put(WAITENGINE.getStatus(), WAIT_STATUS);
         STATUS_FAILED_DETAIL.put(SUBMITTING.getStatus(), Lists.newArrayList(SUBMITTING.getStatus()));
-        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), Lists.newArrayList(KILLED.getStatus(),CANCELED.getStatus(),AUTOCANCELED.getStatus()));
+        STATUS_FAILED_DETAIL.put(CANCELED.getStatus(), Lists.newArrayList(KILLED.getStatus(), CANCELED.getStatus(), AUTOCANCELED.getStatus()));
         STATUS_FAILED_DETAIL.put(FROZEN.getStatus(), Lists.newArrayList(FROZEN.getStatus()));
 
     }
@@ -302,9 +302,7 @@ public enum TaskStatus implements Serializable {
     }
 
     public static int getShowStatus(Integer status) {
-        if (SUBMITFAILD.getStatus().equals(status)) {
-            return SUBMITTED.getStatus();
-        } else if (FAILED_STATUS.contains(status)) {
+        if (FAILED_STATUS.contains(status)) {
             status = FAILED.getStatus();
         } else if (PARENTFAILED_STATUS.contains(status)) {
             status = PARENTFAILED.getStatus();
@@ -318,6 +316,7 @@ public enum TaskStatus implements Serializable {
      * Merge the status of process refinement into
      * completed, running, waiting for submission, waiting for operation, submitting, canceling and freezing
      * There is no need to merge the stop status (users need to view the stop status directly)
+     *
      * @param status
      * @return
      */
