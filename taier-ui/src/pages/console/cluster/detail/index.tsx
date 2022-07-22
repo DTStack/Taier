@@ -143,36 +143,6 @@ export default function ClusterDetail() {
 		api.getClusterInfo({ clusterId: clusterId as string }).then((res) => {
 			if (res.code === 1) {
 				setCurrent(res.data);
-				// if (typeof componentId === 'undefined') {
-				// 	// 不指定更新的 component 则全量更新
-				// 	setCurrent(res.data);
-				// } else {
-				// 	setCurrent((preCluster) => {
-				// 		const nextCluster = { ...preCluster! };
-
-				// 		const nextData: IClusterDetailProps = res.data;
-
-				// 		const nextTarget = nextData.componentVOS.find(
-				// 			(vos) => vos.id === componentId,
-				// 		)!;
-
-				// 		const target = nextCluster.componentVOS.find(
-				// 			(vos) => vos.id === componentId,
-				// 		);
-
-				// 		// 没找到表示是第一次保存的数据
-				// 		if (!target) {
-				// 			const idx = nextCluster.componentVOS.findIndex(
-				// 				(vos) => vos.componentTypeCode === nextTarget.componentTypeCode,
-				// 			);
-				// 			nextCluster.componentVOS.splice(idx, 1, nextTarget);
-				// 		} else {
-				// 			Object.assign(target, nextTarget);
-				// 		}
-
-				// 		return nextCluster;
-				// 	});
-				// }
 			}
 		});
 	};

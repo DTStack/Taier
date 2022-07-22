@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import type { FormItemProps } from 'antd';
 import {
 	Popconfirm,
@@ -14,11 +14,13 @@ import {
 	Input,
 	Layout,
 	Radio,
+	Collapse,
 	Spin,
 } from 'antd';
 import api from '@/api';
 import context from '@/context/cluster';
 import {
+	CaretRightOutlined,
 	DeleteOutlined,
 	DownloadOutlined,
 	LeftOutlined,
@@ -31,6 +33,7 @@ import type { IComponentProps } from '.';
 import './detail.scss';
 
 const { Sider, Content } = Layout;
+const { Panel } = Collapse;
 
 interface IDetailProps {
 	templateData: ILayoutData[];
@@ -234,6 +237,40 @@ export default function Detail({
 
 	const isEmptySider = !configFormItem && !kerberosFormItem && !versionFormItem;
 
+	/**
+	 * 把 templateData 的数据做一次 Group 收集
+	 */
+	const templateCollections = useMemo(() => {
+		const res: (
+			| { type: 'NON_GROUP'; children: ILayoutData[] }
+			| {
+					type: 'GROUP';
+					groupName: string;
+					children: ILayoutData[];
+			  }
+		)[] = [];
+		templateData.forEach((template) => {
+			if (Array.isArray(template.name)) {
+				const groupName = template.name[0]!.toString();
+
+				const target = res.find((i) => i.type === 'GROUP' && i.groupName === groupName);
+				if (target) {
+					target.children.push(template);
+				} else {
+					res.push({
+						type: 'GROUP',
+						groupName,
+						children: [template],
+					});
+				}
+			} else {
+				res.push({ type: 'NON_GROUP', children: [template] });
+			}
+		});
+
+		return res;
+	}, [templateData]);
+
 	return (
 		<Spin spinning={loading}>
 			<Layout className="detail-content">
@@ -253,64 +290,100 @@ export default function Detail({
 					</Sider>
 				)}
 				<Content className="detail-content">
-					{templateData.map((template) => {
-						const { id, componentProps, type, dependencyValue, label, ...restProps } =
-							template;
-
-						if (restProps.dependencies) {
-							const { dependencies, ...formItemProps } = restProps;
+					{templateCollections.map((template) => {
+						if (template.type === 'NON_GROUP') {
+							const {
+								id,
+								componentProps,
+								type,
+								dependencyValue,
+								label,
+								...restProps
+							} = template.children[0];
 							return (
 								<Form.Item
 									key={id}
-									noStyle
-									requiredMark={formItemProps.required}
-									dependencies={dependencies}
+									labelCol={{ span: 8 }}
+									wrapperCol={{ span: 12 }}
+									label={
+										<Tooltip title={label}>
+											<span className="formitem-config-text">{label}</span>
+										</Tooltip>
+									}
+									{...restProps}
 								>
-									{({ getFieldValue }) => {
-										const value = getFieldValue(restProps.dependencies![0]);
-										// 如果是多选框的话，value 是一个数组，判断数组是否 include 关键值
-										const isShow = Array.isArray(value)
-											? value.includes(dependencyValue)
-											: value === dependencyValue;
-
-										return (
-											isShow && (
-												<Form.Item
-													labelCol={{ span: 8 }}
-													wrapperCol={{ span: 12 }}
-													label={
-														<Tooltip title={label}>
-															<span className="formitem-config-text">
-																{label}
-															</span>
-														</Tooltip>
-													}
-													{...formItemProps}
-												>
-													{renderContent(template.type, componentProps)}
-												</Form.Item>
-											)
-										);
-									}}
+									{renderContent(type, componentProps)}
 								</Form.Item>
 							);
 						}
+
 						return (
-							<Form.Item
-								key={id}
-								labelCol={{ span: 8 }}
-								wrapperCol={{ span: 12 }}
-								label={
-									<Tooltip title={label}>
-										<span className="formitem-config-text">{label}</span>
-									</Tooltip>
-								}
-								{...restProps}
+							<Collapse
+								key={template.groupName}
+								bordered={false}
+								className="cluster__detail__collapse"
+								defaultActiveKey={[template.groupName]}
+								expandIcon={({ isActive }) => (
+									<CaretRightOutlined rotate={isActive ? 90 : 0} />
+								)}
 							>
-								{renderContent(template.type, componentProps)}
-							</Form.Item>
+								<Panel header={template.groupName} key={template.groupName}>
+									{template.children.map(
+										({
+											id,
+											componentProps,
+											type,
+											dependencyValue,
+											label,
+											dependencies,
+											...formItemProps
+										}) => {
+											return (
+												<Form.Item
+													key={id}
+													noStyle
+													requiredMark={formItemProps.required}
+													dependencies={dependencies}
+												>
+													{({ getFieldValue }) => {
+														const value = getFieldValue(
+															dependencies![0],
+														);
+														// 如果是多选框的话，value 是一个数组，判断数组是否 include 关键值
+														const isShow = Array.isArray(value)
+															? value.includes(dependencyValue)
+															: value === dependencyValue;
+														return (
+															isShow && (
+																<Form.Item
+																	labelCol={{ span: 8 }}
+																	wrapperCol={{ span: 12 }}
+																	label={
+																		<Tooltip title={label}>
+																			<span className="formitem-config-text">
+																				{label}
+																			</span>
+																		</Tooltip>
+																	}
+																	{...formItemProps}
+																>
+																	{renderContent(
+																		type,
+																		componentProps,
+																	)}
+																</Form.Item>
+															)
+														);
+													}}
+												</Form.Item>
+											);
+										},
+									)}
+								</Panel>
+							</Collapse>
 						);
 					})}
+
 					<Form.Item dependencies={['config']} noStyle>
 						{({ getFieldValue }) => {
 							const fieldValue = getFieldValue('config');
@@ -327,7 +400,7 @@ export default function Detail({
 										labelCol={{ span: 8 }}
 										wrapperCol={{ span: 12 }}
 									>
-										<Input value={fieldValue[key]} disabled />
+										<Input value={fieldValue[key]} />
 									</Form.Item>
 								);
 							});
