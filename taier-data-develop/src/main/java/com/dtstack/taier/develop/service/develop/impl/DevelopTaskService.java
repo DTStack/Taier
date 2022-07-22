@@ -77,6 +77,7 @@ import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
+import com.dtstack.taier.develop.service.schedule.TaskTaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
@@ -398,8 +399,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 checkIsLoopByList(relations);
             }
 
-            tasks.add(task);
-
         }
         return publishTaskInfo(task, userId);
 
@@ -460,6 +459,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             List<ScheduleTaskTaskShade> allTaskTaskList = new ArrayList<>();
 
             final List<Task> subTasks = getFlowWorkSubTasks(task.getId());
+            subTasks.add(task);
             if (CollectionUtils.isNotEmpty(subTasks)) {
                 for (Task subTask : subTasks) {
                     try {
@@ -685,17 +685,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 .eq(Task::getTenantId, taskVO.getTenantId())
                 .last("limit 1"));
 
-        if (EScheduleJobType.WORK_FLOW.getVal().equals(taskVO.getTaskType())){
-            // 判断任务依赖是否成环
-            if (MapUtils.isNotEmpty(taskVO.getNodeMap())) {
-                taskVO.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
-                checkIsLoopByList(taskVO.getNodeMap());
-            }
-            for (Map.Entry<Long, List<Long>> entry : taskVO.getNodeMap().entrySet()) {
-                List<TaskVO> dependencyTasks = getTaskByIds(entry.getValue());
-                developTaskTaskService.addOrUpdateTaskTask(entry.getKey(), dependencyTasks);
-            }
-        }
         if (taskVO.getId() != null && taskVO.getId() > 0) {//update
             if (task != null && task.getName().equals(taskVO.getName()) && !task.getId().equals(taskVO.getId())) {
                 throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
@@ -1427,26 +1416,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             developTaskMapper.updateById(updateInfo);
             return;
         }
-        if (taskId.equals(taskInfo.getId())) {
+        if (!taskId.equals(taskInfo.getId())) {
             throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
-    }
-
-    public List<TaskVO> getTaskByIds(List<Long> taskIdArray) {
-        if (CollectionUtils.isEmpty(taskIdArray)) {
-            return Collections.EMPTY_LIST;
-        }
-        List<Task> tasks = developTaskMapper.selectList(
-                Wrappers.lambdaQuery(Task.class).in(Task::getId, taskIdArray));
-        ArrayList<TaskVO> taskVOS = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(tasks)) {
-            tasks.stream().forEach(x -> {
-                TaskVO taskVO = new TaskVO();
-                BeanUtils.copyProperties(x, taskVO);
-                taskVOS.add(taskVO);
-            });
-        }
-        return taskVOS;
     }
 
 }
