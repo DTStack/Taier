@@ -160,7 +160,7 @@ update console_component_config set component_type_code = 6 where component_id =
 
 UPDATE console_component_config SET value = 'perjob' WHERE component_id = -108;
 
-DELETE FROM console_component_config WHERE component_id = -117;
+DELETE FROM console_component_config WHERE component_id = (-117,-118,-101);
 
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', null, null, null, null, now(), now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'username', '', null, null, null, null, now(), now(), 0);
@@ -170,7 +170,6 @@ INSERT INTO console_component_config (cluster_id, component_id, component_type_c
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', null, null, null, null, now(), now(), 0);
 
 
-DELETE FROM console_component_config WHERE component_id = -101;
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'INPUT', 1, 'host', '', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', null, null, null, null, now(),now(), 0);
 INSERT INTO console_component_config (cluster_id, component_id, component_type_code, type, required, `key`, value, `values`, dependencyKey, dependencyValue, `desc`, gmt_create, gmt_modified, is_deleted) VALUES (-2, -101, 6, '', 1, 'password', '1', null, 'auth', '1', null, now(),now(), 0);

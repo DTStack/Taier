@@ -248,11 +248,13 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         }
         task.setScheduleStatus(EScheduleStatus.NORMAL.getVal());
         task.setScheduleConf(task.getScheduleConf());
+        task.setSqlText(Objects.isNull(task.getSqlText()) ? "" : task.getSqlText());
         task.setVersion(Objects.isNull(task.getVersion()) ? 0 : task.getVersion());
         task.setMainClass(Objects.isNull(task.getMainClass()) ? "" : task.getMainClass());
         task.setTaskDesc(Objects.isNull(task.getTaskDesc()) ? "" : task.getTaskDesc());
         task.setSubmitStatus(ESubmitStatus.UNSUBMIT.getStatus());
         task.setCreateUserId(task.getModifyUserId());
+        task.setScheduleConf(StringUtils.isBlank(task.getScheduleConf()) ? AbstractTaskSaver.DEFAULT_SCHEDULE_CONF : task.getScheduleConf());
         developTaskService.save(task);
     }
 
