@@ -39,9 +39,6 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     private final static Logger LOGGER = LoggerFactory.getLogger(FillDataJobBuilder.class);
 
     private static final String FILL_DATA_TYPE = "fillData";
-    private static final String FILL_DATA_JOB_BUILDER = "FillDataJobBuilder";
-
-
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
@@ -175,7 +172,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
      */
     private void savaFillJob(List<ScheduleJobDetails> allJobList) {
         scheduleJobService.insertJobList(allJobList, EScheduleType.FILL_DATA.getType());
-        List<ScheduleJobOperatorRecord> operatorJobIds = allJobList
+        Set<ScheduleJobOperatorRecord> operatorJobIds = allJobList
                 .stream()
                 .map(jobBuilderBean -> {
                     ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
@@ -185,9 +182,9 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
                     record.setNodeAddress(jobBuilderBean.getScheduleJob().getNodeAddress());
                     return record;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        scheduleJobOperatorRecordService.saveBatch(operatorJobIds);
+        scheduleJobOperatorRecordService.insertBatch(operatorJobIds);
     }
 
     @Override
