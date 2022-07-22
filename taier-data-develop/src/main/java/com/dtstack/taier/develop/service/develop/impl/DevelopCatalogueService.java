@@ -675,6 +675,7 @@ public class DevelopCatalogueService {
         List<CatalogueVO> children = new ArrayList<>();
         for (DevelopCatalogue catalogue : childCatalogues) {
             CatalogueVO cv = CatalogueVO.toVO(catalogue);
+            cv.setCatalogueType(currentCatalogueVO.getCatalogueType());
             cv.setType(FILE_TYPE_FOLDER);
             children.add(cv);
         }

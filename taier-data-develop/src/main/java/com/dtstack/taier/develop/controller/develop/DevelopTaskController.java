@@ -24,6 +24,7 @@ import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;
+import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
@@ -52,6 +53,7 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultV
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.TaskCatalogueResultVO;
+import com.dtstack.taier.scheduler.service.ScheduleTaskShadeService;
 import com.google.common.base.Preconditions;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -73,6 +75,9 @@ public class DevelopTaskController {
 
     @Autowired
     private DevelopTaskService developTaskService;
+
+    @Autowired
+    private ScheduleTaskShadeService scheduleTaskShadeService;
 
     @PostMapping(value = "getTaskById")
     @ApiOperation("数据开发-根据任务id，查询详情")
@@ -287,4 +292,16 @@ public class DevelopTaskController {
             }
         }.execute();
     }
+
+    @PostMapping(value = "getFlowWorkSubTasks")
+    @ApiOperation("数据开发-获取任务流下的所有子任务")
+    public R<List<ScheduleTaskShade>> getFlowWorkSubTasks(@RequestBody DevelopScheduleTaskVO vo) {
+        return new APITemplate<List<ScheduleTaskShade>>() {
+            @Override
+            protected List<ScheduleTaskShade> process() {
+                return scheduleTaskShadeService.getFlowWorkSubTasks(vo.getTaskId());
+            }
+        }.execute();
+    }
+
 }
