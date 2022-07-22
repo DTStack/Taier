@@ -70,7 +70,7 @@ class MxFactory {
 		const { mxConstants, mxEdgeStyle } = this.mxInstance;
 		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-		style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
+		style[mxConstants.STYLE_STROKECOLOR] = 'var(--tree-indentGuidesStroke)';
 		style[mxConstants.STYLE_STROKEWIDTH] = 1;
 		style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
 		style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -92,7 +92,96 @@ class MxFactory {
 			mxEvent,
 			mxConstants,
 			mxGraphHandler,
+			mxSvgCanvas2D,
+			mxClient,
 		} = this.mxInstance;
+
+		/**
+		 * Function: updateStroke
+		 *
+		 * Transfers the stroke attributes from <state> to <node>.
+		 */
+		mxSvgCanvas2D.prototype.updateStroke = function () {
+			const s = this.state;
+
+			const strokeColor = String(s.strokeColor);
+			this.node.setAttribute(
+				'stroke',
+				// Prevent transform css variables into lower case
+				strokeColor.startsWith('var') ? strokeColor : strokeColor.toLowerCase(),
+			);
+
+			if (s.alpha < 1 || s.strokeAlpha < 1) {
+				// @ts-ignore
+				this.node.setAttribute('stroke-opacity', s.alpha * s.strokeAlpha);
+			}
+
+			const sw = this.getCurrentStrokeWidth();
+
+			if (sw !== 1) {
+				// @ts-ignore
+				this.node.setAttribute('stroke-width', sw);
+			}
+
+			if (this.node.nodeName === 'path') {
+				this.updateStrokeAttributes();
+			}
+
+			if (s.dashed) {
+				this.node.setAttribute(
+					'stroke-dasharray',
+					this.createDashPattern((s.fixDash ? 1 : s.strokeWidth) * s.scale),
+				);
+			}
+		};
+
+		/**
+		 * Function: updateFill
+		 *
+		 * Transfers the stroke attributes from <state> to <node>.
+		 */
+		mxSvgCanvas2D.prototype.updateFill = function () {
+			const s = this.state;
+
+			if (s.alpha < 1 || s.fillAlpha < 1) {
+				// @ts-ignore
+				this.node.setAttribute('fill-opacity', s.alpha * s.fillAlpha);
+			}
+
+			if (s.fillColor != null) {
+				if (s.gradientColor != null) {
+					const id = this.getSvgGradient(
+						String(s.fillColor),
+						String(s.gradientColor),
+						// @ts-ignore
+						s.gradientFillAlpha,
+						s.gradientAlpha,
+						s.gradientDirection,
+					);
+
+					if (
+						!mxClient.IS_CHROMEAPP &&
+						!mxClient.IS_IE &&
+						!mxClient.IS_IE11 &&
+						!mxClient.IS_EDGE &&
+						this.root.ownerDocument === document
+					) {
+						// Workaround for potential base tag and brackets must be escaped
+						const base = this.getBaseUrl().replace(/([()])/g, '\\$1');
+						this.node.setAttribute('fill', `url(${base}#${id})`);
+					} else {
+						this.node.setAttribute('fill', `url(#${id})`);
+					}
+				} else {
+					const fillColor = String(s.fillColor);
+					this.node.setAttribute(
+						'fill',
+						// Prevent transform css variables into lower case
+						fillColor.startsWith('var') ? fillColor : fillColor.toLowerCase(),
+					);
+				}
+			}
+		};
 
 		mxGraphView.prototype.optimizeVmlReflows = false;
 		// to avoid calling getBBox
@@ -134,7 +223,8 @@ class MxFactory {
 		// anchor styles
 		mxConstants.HANDLE_FILLCOLOR = '#ffffff';
 		mxConstants.HANDLE_STROKECOLOR = '#2491F7';
-		mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+
+		mxConstants.VERTEX_SELECTION_COLOR = 'var(--list-focusOutline)';
 		// @ts-ignore
 		mxConstants.STYLE_OVERFLOW = 'hidden';
 
