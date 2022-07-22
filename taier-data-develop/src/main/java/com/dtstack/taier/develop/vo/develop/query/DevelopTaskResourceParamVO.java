@@ -198,6 +198,8 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "是否开启脏数据")
     private Boolean openDirtyDataManage;
 
+    @ApiModelProperty(value = "工作流依赖")
+    private Map<Long, List<Long>> nodeMap;
     /**
      * 任务脏数据管理
      */
@@ -661,5 +663,13 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
 
     public List<JSONObject> getSide() {
         return side;
+    }
+
+    public Map<Long, List<Long>> getNodeMap() {
+        return nodeMap;
+    }
+
+    public void setNodeMap(Map<Long, List<Long>> nodeMap) {
+        this.nodeMap = nodeMap;
     }
 }
