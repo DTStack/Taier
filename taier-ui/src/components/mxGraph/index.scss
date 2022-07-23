@@ -6,9 +6,8 @@
 		display: inline-block;
 		width: 160px;
 		overflow: hidden;
-		color: #000;
+		color: var(--foreground);
 		font-weight: normal;
-		font-weight: 500;
 		font-size: 14px;
 		font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
 		line-height: 18px;
@@ -16,6 +15,16 @@
 		white-space: nowrap;
 		text-align: center;
 		text-overflow: ellipsis;
+		padding-right: 16px;
+		position: relative;
+
+		.vertex-extra {
+			position: absolute;
+			right: 0;
+			color: var(--foreground);
+			font-weight: normal;
+			cursor: pointer;
+		}
 	}
 
 	.vertex-desc {
