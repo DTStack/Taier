@@ -11,19 +11,23 @@ import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleFillDataJob;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.domain.po.CountFillDataJobStatusPO;
 import com.dtstack.taier.dao.domain.po.JobsStatusStatisticsPO;
 import com.dtstack.taier.dao.domain.po.StatusCountPO;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.event.FillStatusUpdateFinishEvent;
 import com.dtstack.taier.develop.mapstruct.fill.FillDataJobMapstructTransfer;
 import com.dtstack.taier.develop.mapstruct.job.JobMapstructTransfer;
+import com.dtstack.taier.develop.service.develop.impl.DevelopTaskService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.fill.FillDataJobVO;
 import com.dtstack.taier.develop.vo.fill.ReturnFillDataJobListVO;
 import com.dtstack.taier.develop.vo.fill.ReturnFillDataListVO;
+import com.dtstack.taier.develop.vo.schedule.QueryRelatedJobsVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnDisplayPeriodVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobListVO;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobStatusStatisticsVO;
@@ -45,10 +49,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -84,6 +90,9 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
 
     @Autowired
     private FillStatusUpdateFinishEvent fillStatusUpdateFinishEvent;
+
+    @Autowired
+    private DevelopTaskService developTaskService;
 
     /**
      * 查询周期实例列表
@@ -660,4 +669,43 @@ public class JobService extends ServiceImpl<ScheduleJobMapper, ScheduleJob> {
         LOGGER.info("jobId:{} update job status:{}.", jobId, TaskStatus.UNSUBMIT.getStatus());
         return true;
     }
+
+    /**
+     * 获取工作流节点的父节点和子节点关联信息
+     *
+     * @param jobId
+     * @return List<ReturnJobListVO>
+     */
+    public List<QueryRelatedJobsVO> getRelatedJobs(String jobId) {
+        ArrayList<QueryRelatedJobsVO> queryRelatedJobsVOS = new ArrayList<>();
+        List<ScheduleJob> scheduleJobs = this.baseMapper.selectList(Wrappers.lambdaQuery(ScheduleJob.class)
+                .eq(ScheduleJob::getFlowJobId, jobId)
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()));
+        if(CollectionUtils.isEmpty(scheduleJobs)){
+            return queryRelatedJobsVOS;
+        }
+        for (ScheduleJob scheduleJob : scheduleJobs) {
+            QueryRelatedJobsVO queryRelatedJobsVO = new QueryRelatedJobsVO();
+            ReturnJobListVO returnJobListVO = new ReturnJobListVO();
+            BeanUtils.copyProperties(scheduleJob, returnJobListVO);
+            returnJobListVO.setCycTime(DateUtil.addTimeSplit(scheduleJob.getCycTime()));
+            returnJobListVO.setStartExecTime(DateUtil.getDate(scheduleJob.getExecStartTime(), DateUtil.STANDARD_DATETIME_FORMAT));
+            returnJobListVO.setEndExecTime(DateUtil.getDate(scheduleJob.getExecEndTime(), DateUtil.STANDARD_DATETIME_FORMAT));
+            returnJobListVO.setExecTime(getExecTime(scheduleJob));
+            returnJobListVO.setStatus(TaskStatus.getShowStatus(scheduleJob.getStatus()));
+            Task task = developTaskService.getOne(scheduleJob.getTaskId());
+            if (ObjectUtils.isEmpty(task)){
+                continue;
+            }
+            TaskVO taskVO = new TaskVO();
+            BeanUtils.copyProperties(task, taskVO);
+            queryRelatedJobsVO.setReturnJobListVOS(returnJobListVO);
+            queryRelatedJobsVO.setTaskVOList(taskVO);
+            queryRelatedJobsVOS.add(queryRelatedJobsVO);
+        }
+        return queryRelatedJobsVOS;
+    }
+
+
+
 }
