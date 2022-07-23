@@ -39,6 +39,7 @@ export default {
 	SWITCH_QUEUE: `${BASE_URI}/tenant/bindingQueue`, // 修改集群和租户绑定信息
 	REFRESH_QUEUE: `${BASE_URI}/component/refresh`, // 集群配置刷新队列
 	GET_TASK: `${BASE_URI}/task/getTaskById`, // 获取任务通过任务ID
+	GET_SUB_TASK: `${BASE_URI}/task/getFlowWorkSubTasks`, // 获取工作流的子任务
 	GET_TASK_TYPES: `${BASE_URI}/task/getSupportJobTypes`, // 获取项目支持的任务类型
 	PUBLISH_TASK: `${BASE_URI}/task/publishTask`, // 发布任务至调度
 	GET_CUSTOM_TASK_PARAMS: `${BASE_URI}/task/getSysParams`, // 获取全局的系统参数
@@ -76,6 +77,7 @@ export default {
 	GET_TASK_CHILDREN: `${BASE_URI}/scheduleTaskTaskShade/displayOffSpring`, // 获取任务子节点
 	GET_TASK_LOG: `${BASE_URI}/action/queryJobLog`, // 获取离线任务日志
 	QUERY_JOBS: `${BASE_URI}/scheduleJob/queryJobs`, // 获取周期实例列表
+	GET_SUB_JOBS: `${BASE_URI}/scheduleJob/getRelatedJobs`, // 获取工作流实例的子实例
 	PATCH_TASK_DATA: `${BASE_URI}/fill/fillData`, // 补数据
 	BATCH_STOP_JOBS: `${BASE_URI}/action/batchStopJobs`, // 批量停止任务
 	BATCH_RESTART_AND_RESUME_JOB: `${BASE_URI}/action/restartJob`, // 批量重启并恢复任务

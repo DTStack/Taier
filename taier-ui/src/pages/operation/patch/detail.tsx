@@ -30,7 +30,9 @@ import {
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
+	TASK_TYPE_ENUM,
 } from '@/constant';
+import type { IOfflineTaskProps } from '@/interface';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import TaskJobFlowView from '../taskJobFlowView';
 import type { IScheduleTaskProps } from '../schedule';
@@ -79,7 +81,7 @@ export default () => {
 	);
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
 
-	const [selectedTask, setSelectedTask] = useState<ITableDataProps | null>(null);
+	const [selectedTask, setSelectedTask] = useState<ITableDataProps | undefined>(undefined);
 	const [visibleSlidePane, setSlideVisible] = useState(false);
 	const [btnStatus, setBtnStatus] = useState([false, false]);
 	const actionRef = useSketchRef();
@@ -238,7 +240,7 @@ export default () => {
 
 	const closeSlidePane = () => {
 		setSlideVisible(false);
-		setSelectedTask(null);
+		setSelectedTask(undefined);
 		removePopUpMenu();
 	};
 
@@ -417,6 +419,24 @@ export default () => {
 		];
 	}, [supportJobTypes]);
 
+	const handleExpandJob = async (expanded: boolean, record: ITableDataProps) => {
+		if (expanded) {
+			const res = await Api.getSubJobs<
+				{ returnJobListVOS: ITableDataProps; taskVOList: IOfflineTaskProps }[]
+			>({
+				jobId: record.jobId,
+			});
+			if (res.code === 1) {
+				return res.data.map((vo) => ({
+					...vo.returnJobListVOS,
+					taskName: vo.taskVOList.name,
+				}));
+			}
+		}
+
+		return [];
+	};
+
 	const convertToParams = (values: IFormFieldProps): Partial<IRequestParams> => {
 		return {
 			fillId: fillId || undefined,
@@ -467,10 +487,21 @@ export default () => {
 		return Api.getFillDataDetail(queryParams).then((res) => {
 			if (res.code === 1) {
 				actionRef.current?.setSelectedKeys([]);
+
+				const currentTableData: ITableDataProps[] = actionRef.current?.getTableData() || [];
 				return {
 					polling: true,
 					total: res.data.totalCount,
-					data: res.data.data.fillDataJobVOLists || [],
+					data: (res.data.data.fillDataJobVOLists || []).map((vo: ITableDataProps) => {
+						const children =
+							currentTableData.find((data) => data.jobId === vo.jobId)?.children ||
+							[];
+						return {
+							...vo,
+							children:
+								vo.taskType === TASK_TYPE_ENUM.WORK_FLOW ? children : undefined,
+						};
+					}),
 				};
 			}
 		});
@@ -554,6 +585,7 @@ export default () => {
 				headerTitle={renderStatus(statusList)}
 				headerTitleClassName="ope-statistics"
 				columns={columns}
+				onExpand={handleExpandJob}
 				tableProps={{
 					rowKey: 'jobId',
 					rowClassName: (record) => {
@@ -602,7 +634,6 @@ export default () => {
 			>
 				<TaskJobFlowView
 					taskJob={selectedTask}
-					visibleSlidePane={visibleSlidePane}
 					reload={() => actionRef.current?.submit()}
 				/>
 			</SlidePane>

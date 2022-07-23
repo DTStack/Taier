@@ -493,7 +493,7 @@ export const removePopUpMenu = () => {
 	setTimeout(remove, 500);
 };
 
-export function getVertxtStyle(type: TASK_STATUS): string {
+export function getVertexStyle(type: TASK_STATUS): string {
 	// 成功
 	if (FINISH_STATUS.includes(type)) {
 		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
