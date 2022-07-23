@@ -27,7 +27,8 @@ import { SyncOutlined, DownOutlined } from '@ant-design/icons';
 import SlidePane from '@/components/slidePane';
 import Api from '@/api';
 import Sketch, { useSketchRef } from '@/components/sketch';
-import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
+import type { TASK_PERIOD_ENUM } from '@/constant';
+import { TASK_TYPE_ENUM } from '@/constant';
 import {
 	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
@@ -35,7 +36,8 @@ import {
 	TASK_STATUS,
 	offlineTaskPeriodFilter,
 } from '@/constant';
-import { getTodayTime, goToTaskDev, removePopUpMenu } from '@/utils';
+import { getTodayTime, removePopUpMenu } from '@/utils';
+import type { IOfflineTaskProps } from '@/interface';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
@@ -83,6 +85,9 @@ export interface IScheduleTaskProps {
 	taskName: string;
 	taskType: TASK_TYPE_ENUM;
 	status: TASK_STATUS;
+
+	// 工作流实例具有子实例
+	children?: IScheduleTaskProps[];
 }
 
 export default () => {
@@ -90,7 +95,7 @@ export default () => {
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
 	const [visibleSlidePane, setSlideVisible] = useState(false);
 	const [killJobVisible, setKillJobVisible] = useState(false);
-	const [selectedTask, setSelectedTask] = useState<IScheduleTaskProps | null>(null);
+	const [selectedTask, setSelectedTask] = useState<IScheduleTaskProps | undefined>(undefined);
 	const actionRef = useSketchRef();
 
 	const loadJobStatics = (params: Partial<IRequestParams>) => {
@@ -112,7 +117,7 @@ export default () => {
 
 	const handleSlideClose = () => {
 		setSlideVisible(false);
-		setSelectedTask(null);
+		setSelectedTask(undefined);
 		removePopUpMenu();
 	};
 
@@ -460,12 +465,31 @@ export default () => {
 		return params;
 	};
 
+	const handleExpandJobs = async (
+		expanded: boolean,
+		record: IScheduleTaskProps,
+	): Promise<IScheduleTaskProps[]> => {
+		if (expanded) {
+			const res = await Api.getSubJobs<
+				{ returnJobListVOS: IScheduleTaskProps; taskVOList: IOfflineTaskProps }[]
+			>({ jobId: record.jobId });
+			if (res.code === 1) {
+				return res.data.map((vo) => ({
+					...vo.returnJobListVOS,
+					taskName: vo.taskVOList.name,
+				}));
+			}
+		}
+
+		return [];
+	};
+
 	const handleGetTableData = async (
 		values: IFormFieldProps,
 		{ current, pageSize }: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter: any,
-	) => {
+	): Promise<{ total: number; data: IScheduleTaskProps[] } | undefined> => {
 		const params = convertToParams(values);
 		const { status = [], periodType = [], taskType = [] } = filters;
 		const { field = 'cycTime', order } = sorter || {};
@@ -494,15 +518,20 @@ export default () => {
 			taskPeriodTypeList: (periodType || []) as number[],
 			[sortKey]: sortValue,
 		};
-		return Api.queryJobs(queryParams).then((res) => {
-			if (res.code === 1) {
-				loadJobStatics(queryParams);
-				return {
-					total: res.data.totalCount,
-					data: res.data.data,
-				};
-			}
-		});
+		return Api.queryJobs<{ data: IScheduleTaskProps[]; totalCount: number }>(queryParams).then(
+			(res) => {
+				if (res.code === 1) {
+					loadJobStatics(queryParams);
+					return {
+						total: res.data.totalCount,
+						data: res.data.data.map((d) => ({
+							...d,
+							children: d.taskType === TASK_TYPE_ENUM.WORK_FLOW ? [] : undefined,
+						})),
+					};
+				}
+			},
+		);
 	};
 
 	const handleRefresh = () => {
@@ -560,6 +589,7 @@ export default () => {
 				headerTitleClassName="ope-statistics"
 				request={handleGetTableData}
 				columns={columns}
+				onExpand={handleExpandJobs}
 				tableProps={{
 					rowKey: 'jobId',
 					rowClassName: (record) => {
@@ -613,12 +643,7 @@ export default () => {
 					position: 'fixed',
 				}}
 			>
-				<TaskJobFlowView
-					visibleSlidePane={visibleSlidePane}
-					goToTaskDev={goToTaskDev}
-					reload={actionRef.current?.submit}
-					taskJob={selectedTask}
-				/>
+				<TaskJobFlowView reload={actionRef.current?.submit} taskJob={selectedTask} />
 			</SlidePane>
 
 			<KillJobForm

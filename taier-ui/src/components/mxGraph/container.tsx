@@ -68,7 +68,13 @@ export interface IKeyDownConfig {
 }
 
 interface IMxGraphData {
+	/**
+	 * 下游节点
+	 */
 	childNode: any[];
+	/**
+	 * 上游节点
+	 */
 	parentNode?: any[];
 
 	[key: string]: any;
@@ -572,7 +578,11 @@ function MxGraphContainer<T extends IMxGraphData>(
 						[];
 					const edges = outEdges.concat(inEdges);
 					for (let i = 0; i < edges.length; i += 1) {
-						const highlight = new MxCellHighlight(graph.current!, 'var(--list-focusOutline)', 2);
+						const highlight = new MxCellHighlight(
+							graph.current!,
+							'var(--list-focusOutline)',
+							2,
+						);
 						const state = graph.current!.view.getState(edges[i]);
 						highlight.highlight(state);
 						highlightEdges.push(highlight);
@@ -582,7 +592,11 @@ function MxGraphContainer<T extends IMxGraphData>(
 					onClick?.(cell, graph.current!, evt.getProperty('event'));
 				} else {
 					// only highlight current edge
-					const highlight = new MxCellHighlight(graph.current!, 'var(--list-focusOutline)', 2);
+					const highlight = new MxCellHighlight(
+						graph.current!,
+						'var(--list-focusOutline)',
+						2,
+					);
 					const state = graph.current!.view.getState(cell);
 					highlight.highlight(state);
 					highlightEdges.push(highlight);
@@ -813,7 +827,7 @@ function MxGraphContainer<T extends IMxGraphData>(
 		initKeyDownEvent();
 
 		return () => {
-			Mx.dispose();
+			graph.current?.destroy();
 		};
 	}, [graphData]);
 

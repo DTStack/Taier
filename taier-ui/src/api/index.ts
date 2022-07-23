@@ -268,6 +268,9 @@ export default {
 	getOfflineTaskByID<T = any>(params: any) {
 		return http.post<T>(req.GET_TASK, params);
 	},
+	getOfflineSubTaskById<T = any>(params: any) {
+		return http.post<T>(req.GET_SUB_TASK, params);
+	},
 	getCustomParams(params?: any) {
 		return http.post(req.GET_CUSTOM_TASK_PARAMS, params);
 	},
@@ -395,18 +398,19 @@ export default {
 		// 转到前后周期
 		return http.post(req.GET_TASK_PERIODS, params);
 	},
-
-	queryJobs(params: any) {
-		return http.post(req.QUERY_JOBS, params);
+	queryJobs<T = any>(params: any) {
+		return http.post<T>(req.QUERY_JOBS, params);
 	},
-
+	getSubJobs<T = any>(params: any) {
+		return http.post<T>(req.GET_SUB_JOBS, params);
+	},
 	patchTaskData(params: any) {
 		// 补数据
 		return http.post(req.PATCH_TASK_DATA, params);
 	},
-	getTaskChildren(params: any) {
+	getTaskChildren<T = any>(params: any) {
 		// 获取任务子节点
-		return http.post(req.GET_TASK_CHILDREN, params);
+		return http.post<T>(req.GET_TASK_CHILDREN, params);
 	},
 
 	getFillData(params: any) {
@@ -426,9 +430,9 @@ export default {
 		// 重启并恢复任务
 		return http.post(req.BATCH_RESTART_AND_RESUME_JOB, params);
 	},
-	getJobChildren(params: any) {
+	getJobChildren<T = any>(params: any) {
 		// 获取任务子Job
-		return http.post(req.GET_JOB_CHILDREN, params);
+		return http.post<T>(req.GET_JOB_CHILDREN, params);
 	},
 
 	queryJobStatics(params: any) {

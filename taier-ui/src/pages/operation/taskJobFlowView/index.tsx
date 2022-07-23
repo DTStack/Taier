@@ -17,7 +17,8 @@
  */
 
 import { useContext, useEffect, useState } from 'react';
-import { ReloadOutlined } from '@ant-design/icons';
+import ReactDOMServer from 'react-dom/server';
+import { PlusSquareOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Tooltip, Modal, message, Row, Col } from 'antd';
 import LogInfo from './taskLog';
 import { taskStatusText } from '@/utils/enums';
@@ -28,19 +29,21 @@ import {
 	FAILED_STATUS,
 	PARENTFAILED_STATUS,
 	RUN_FAILED_STATUS,
+	TASK_TYPE_ENUM,
 } from '@/constant';
-import type { IUpstreamJobProps } from '@/interface';
+import type { IOfflineTaskProps, IUpstreamJobProps } from '@/interface';
 import context from '@/context';
 import { DIRECT_TYPE_ENUM } from '@/interface';
-import { formatDateTime, getVertxtStyle, goToTaskDev } from '@/utils';
+import { formatDateTime, getVertexStyle, goToTaskDev } from '@/utils';
 import { DetailInfoModal } from '@/components/detailInfo';
 import MxGraphContainer from '@/components/mxGraph/container';
 import type { IContextMenuConfig } from '@/components/mxGraph/container';
+import type { IScheduleTaskProps } from '../schedule';
 import type { mxCell } from 'mxgraph';
 import './index.scss';
 
 interface ITaskJobFlowViewProps {
-	taskJob?: IUpstreamJobProps;
+	taskJob?: IScheduleTaskProps;
 	reload?: () => void;
 }
 
@@ -70,6 +73,9 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		visible: false,
 		log: null,
 	});
+	// 工作流 modal
+	const [visible, setVisible] = useState(false);
+	const [workflowJob, setWorkflowJob] = useState<[IUpstreamJobProps] | null>(null);
 
 	// 获取任务日志详情
 	const handleGetTaskLog = (jobId: string, current?: number) => {
@@ -112,10 +118,11 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		});
 	};
 
-	const loadTaskChidren = (
+	const loadTaskChildren = (
 		jobId: string,
 		directType = DIRECT_TYPE_ENUM.CHILD,
 		level?: number,
+		isWorkflow?: boolean,
 	) => {
 		setLoading(true);
 		Api.getJobChildren({
@@ -131,7 +138,9 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 					const property =
 						directType === DIRECT_TYPE_ENUM.CHILD ? 'childNode' : 'parentNode';
 
-					setGraphData((graph) => {
+					const performDataHandler = isWorkflow ? setWorkflowJob : setGraphData;
+
+					performDataHandler((graph) => {
 						if (graph) {
 							const stack = [graph[0]];
 							while (stack.length) {
@@ -179,7 +188,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 	 */
 	const refresh = (jobId?: string) => {
 		setGraphData(null);
-		loadTaskChidren(jobId || taskJob!.jobId);
+		loadTaskChildren(jobId || taskJob!.jobId);
 	};
 
 	const loadByJobId = (jobId: string) => {
@@ -190,18 +199,80 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		handleGetTaskLog(data.jobId, 0);
 	};
 
+	const handleClickCell = (
+		cell: mxCell,
+		_: any,
+		event: React.MouseEvent<HTMLElement, MouseEvent>,
+	) => {
+		if ((event.target as HTMLElement).closest('.vertex-extra')) {
+			const data: IUpstreamJobProps = cell.value;
+
+			setLoading(true);
+			// 先获取任务的根节点 id
+			Api.getOfflineTaskByID<IOfflineTaskProps>({ id: data.taskId })
+				.then((res) => {
+					if (res.code === 1) {
+						const rootNodeTaskId = Object.entries(
+							JSON.parse(res.data.sqlText) as Record<number, number[]>,
+						).find(([, value]) => value.length === 0)?.[0];
+
+						if (rootNodeTaskId) return rootNodeTaskId;
+					}
+
+					return Promise.reject();
+				})
+				.then(async (rootTaskId) => {
+					// 通过根节点的 taskId 获取对应的 jobId
+					const res = await Api.getSubJobs<
+						{ returnJobListVOS: IScheduleTaskProps; taskVOList: IOfflineTaskProps }[]
+					>({
+						jobId: taskJob?.jobId,
+					});
+					if (res.code === 1) {
+						return res.data.find(
+							(vo) => vo.taskVOList.id.toString() === rootTaskId.toString(),
+						)?.returnJobListVOS.jobId;
+					}
+				})
+				.then((rootJobId) =>
+					// 根据 jobId 在获取对应的工作流图数据
+					Api.getJobChildren({
+						jobId: rootJobId,
+						directType: DIRECT_TYPE_ENUM.CHILD,
+						level: 6,
+					}),
+				)
+				.then((res) => {
+					if (res.code === 1) {
+						setWorkflowJob([res.data.rootNode]);
+						setVisible(true);
+					}
+				})
+				.finally(() => {
+					setLoading(false);
+				});
+		}
+	};
+
 	const handleRenderCell = (cell: mxCell) => {
 		if (cell.vertex && cell.value) {
 			const task: IUpstreamJobProps = cell.value;
 			const taskType = supportJobTypes.find((t) => t.key === task.taskType)?.value || '未知';
 			if (task) {
-				return `<div class="vertex">
-                <span class="vertex-title">
-                    ${task.taskName}
-                </span>
-                <br>
-                <span class="vertex-desc">${taskType}</span>
-                </div>`.replace(/(\r\n|\n)/g, '');
+				return ReactDOMServer.renderToString(
+					<div className="vertex">
+						<span className="vertex-title">
+							{task.taskName}
+							<span className="vertex-extra">
+								{task.taskType === TASK_TYPE_ENUM.WORK_FLOW && (
+									<PlusSquareOutlined />
+								)}
+							</span>
+						</span>
+						<br />
+						<span className="vertex-desc">{taskType}</span>
+					</div>,
+				);
 			}
 		}
 		return '';
@@ -211,11 +282,11 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 		return [
 			{
 				title: '展开上游（6层）',
-				callback: () => loadTaskChidren(data.jobId, DIRECT_TYPE_ENUM.FATHER, 6),
+				callback: () => loadTaskChildren(data.jobId, DIRECT_TYPE_ENUM.FATHER, 6),
 			},
 			{
 				title: '展开下游（6层）',
-				callback: () => loadTaskChidren(data.jobId, DIRECT_TYPE_ENUM.CHILD, 6),
+				callback: () => loadTaskChildren(data.jobId, DIRECT_TYPE_ENUM.CHILD, 6),
 			},
 			{
 				title: '查看任务日志',
@@ -289,8 +360,9 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 				vertexKey="jobId"
 				onRefresh={() => refresh()}
 				onRenderCell={handleRenderCell}
+				onClick={handleClickCell}
 				onContextMenu={handleContextMenu}
-				onDrawVertex={(data) => getVertxtStyle(data.status)}
+				onDrawVertex={(data) => getVertexStyle(data.status)}
 				onDoubleClick={handleDoubleClick}
 			>
 				{(data) => (
@@ -348,6 +420,25 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 					</>
 				)}
 			</MxGraphContainer>
+			<Modal
+				title="工作流"
+				visible={visible}
+				width={800}
+				footer={null}
+				bodyStyle={{ height: 400 }}
+				destroyOnClose
+				onCancel={() => setVisible(false)}
+			>
+				<MxGraphContainer<IUpstreamJobProps>
+					graphData={workflowJob}
+					loading={loading}
+					vertexKey="jobId"
+					onRenderCell={handleRenderCell}
+					onContextMenu={handleContextMenu}
+					onDrawVertex={(data) => getVertexStyle(data.status)}
+					onDoubleClick={handleDoubleClick}
+				/>
+			</Modal>
 			<DetailInfoModal
 				title="查看属性"
 				visible={taskAttribute.visible}
