@@ -286,22 +286,17 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	};
 
 	const handleAddFunction = (params: any) => {
-		return ajax
-			.addOfflineFunction({
-				...params,
-				catalogueType: MENU_TYPE_ENUM.SYSFUC,
-			})
-			.then((res) => {
-				if (res.code === 1) {
-					const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
-					if (parentNode) {
-						updateNodePid(parentNode);
-					}
-					return true;
+		return ajax.addOfflineFunction({ ...params }).then((res) => {
+			if (res.code === 1) {
+				const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
+				if (parentNode) {
+					updateNodePid(parentNode);
 				}
+				return true;
+			}
 
-				return false;
-			});
+			return false;
+		});
 	};
 
 	const handleEditCatalogue = (params: any) => {
