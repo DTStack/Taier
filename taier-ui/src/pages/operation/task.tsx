@@ -29,6 +29,7 @@ import type { IActionRef } from '@/components/sketch';
 import molecule from '@dtinsight/molecule';
 import Sketch from '@/components/sketch';
 import type { ITaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
 import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
@@ -267,7 +268,9 @@ export default () => {
 				render: (text: TASK_TYPE_ENUM) => {
 					return supportJobTypes.find((t) => t.key === text)?.value || '未知';
 				},
-				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
+				filters: supportJobTypes
+					.filter((t) => t.computeType === IComputeType.BATCH)
+					.map((t) => ({ text: t.value, value: t.key })),
 			},
 			{
 				title: '调度周期',

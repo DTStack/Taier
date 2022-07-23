@@ -22,7 +22,7 @@ import { Button, Input, Select, Form, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import FolderPicker from '../folderPicker';
 import type { DATA_SYNC_MODE, CREATE_MODEL_TYPE, TASK_TYPE_ENUM, FLINK_VERSIONS } from '@/constant';
-import { CATELOGUE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import api from '@/api';
@@ -247,7 +247,7 @@ const Create = connect(
 										molecule.folderTree.getState().folderTree?.data?.[0].id
 									}
 								>
-									<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
+									<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK} />
 								</FormItem>
 							)}
 							<FormItem

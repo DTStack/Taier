@@ -21,7 +21,7 @@ import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
 import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';
 import { ID_COLLECTIONS } from '@/constant';
-import { CATELOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
+import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
@@ -38,16 +38,16 @@ import md5 from 'md5';
  */
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE | null,
-	source: CATELOGUE_TYPE,
+	source: CATALOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
-		case CATELOGUE_TYPE.TASK: {
+		case CATALOGUE_TYPE.TASK: {
 			return taskRenderService.renderTaskIcon(type as TASK_TYPE_ENUM);
 		}
-		case CATELOGUE_TYPE.RESOURCE: {
+		case CATALOGUE_TYPE.RESOURCE: {
 			return <ResourceIcon style={{ color: '#0065f6' }} />;
 		}
-		case CATELOGUE_TYPE.FUNCTION:
+		case CATALOGUE_TYPE.FUNCTION:
 		default:
 			return 'code';
 	}
