@@ -20,7 +20,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { omit } from 'lodash';
 import type { CustomTreeSelectProps } from './customTreeSelect';
 import CustomTreeSelect from './customTreeSelect';
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
 import molecule from '@dtinsight/molecule';
 import resourceManagerTree from '@/services/resourceManagerService';
 import functionManagerService from '@/services/functionManagerService';
@@ -30,7 +30,7 @@ import api from '@/api';
 import { getTenantId } from '@/utils';
 
 interface FolderPickerProps extends CustomTreeSelectProps {
-	dataType: CATELOGUE_TYPE;
+	dataType: CATALOGUE_TYPE;
 }
 
 export default function FolderPicker(props: FolderPickerProps) {
@@ -50,18 +50,21 @@ export default function FolderPicker(props: FolderPickerProps) {
 
 	const treeData = useMemo(() => {
 		switch (props.dataType) {
-			case CATELOGUE_TYPE.TASK:
+			case CATALOGUE_TYPE.TASK:
 				return (molecule.folderTree.getState().folderTree?.data || [])[0];
-			case CATELOGUE_TYPE.RESOURCE: {
+			case CATALOGUE_TYPE.RESOURCE: {
 				// resource manager NOT support to insert data into root folder
 				const resourceData = (resourceManagerTree.getState().folderTree?.data || [])[0];
 				return resourceData?.children?.find(
 					(item) => item.data.catalogueType === MENU_TYPE_ENUM.RESOURCE,
 				);
 			}
-			case CATELOGUE_TYPE.FUNCTION: {
-				// function manager only support to insert data into custom function
-				return (functionManagerService.getState().folderTree?.data || [])[0];
+			case CATALOGUE_TYPE.FUNCTION: {
+				// function manager NOT support to insert data into root folder
+				const functionData = (functionManagerService.getState().folderTree?.data || [])[0];
+				return functionData.children?.find(
+					(item) => item.data.catalogueType === MENU_TYPE_ENUM.FUNCTION,
+				);
 			}
 			default:
 				return undefined;
@@ -70,9 +73,9 @@ export default function FolderPicker(props: FolderPickerProps) {
 
 	useEffect(() => {
 		switch (props.dataType) {
-			case CATELOGUE_TYPE.TASK:
+			case CATALOGUE_TYPE.TASK:
 				break;
-			case CATELOGUE_TYPE.RESOURCE: {
+			case CATALOGUE_TYPE.RESOURCE: {
 				if (
 					props.value !== undefined &&
 					props.value !== null &&
@@ -96,7 +99,7 @@ export default function FolderPicker(props: FolderPickerProps) {
 												id,
 												catalogueType: MENU_TYPE_ENUM.RESOURCE,
 											},
-											CATELOGUE_TYPE.RESOURCE,
+											CATALOGUE_TYPE.RESOURCE,
 										);
 									}
 
@@ -111,7 +114,7 @@ export default function FolderPicker(props: FolderPickerProps) {
 				}
 				break;
 			}
-			case CATELOGUE_TYPE.FUNCTION:
+			case CATALOGUE_TYPE.FUNCTION:
 				break;
 			default:
 				break;

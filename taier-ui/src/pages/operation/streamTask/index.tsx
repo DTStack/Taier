@@ -563,7 +563,7 @@ export default function StreamTask() {
 				},
 			},
 		],
-		[],
+		[supportJobTypes],
 	);
 
 	return (

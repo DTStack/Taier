@@ -3,7 +3,7 @@ import { Badge, Button, Descriptions, message, Modal, Spin, Tooltip } from 'antd
 import CopyToClipboard from 'react-copy-to-clipboard';
 import moment from 'moment';
 import context from '@/context';
-import { CATELOGUE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE } from '@/constant';
 import type { IDataSourceProps, IFunctionProps, IOfflineTaskProps } from '@/interface';
 import { formatDateTime } from '@/utils';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
@@ -11,7 +11,7 @@ import LinkInfoCell from '@/pages/dataSource/linkInfoCell';
 import './index.scss';
 
 interface IDetailInfoProps {
-	type: CATELOGUE_TYPE | 'dataSource' | 'taskJob';
+	type: CATALOGUE_TYPE | 'dataSource' | 'taskJob';
 	data: Record<string, any>;
 }
 
@@ -19,7 +19,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 	const { supportJobTypes } = useContext(context);
 
 	switch (type) {
-		case CATELOGUE_TYPE.TASK: {
+		case CATALOGUE_TYPE.TASK: {
 			const labelPrefix = '任务';
 			const tab = data as IOfflineTaskProps;
 			return (
@@ -47,7 +47,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 				</Descriptions>
 			);
 		}
-		case CATELOGUE_TYPE.FUNCTION: {
+		case CATALOGUE_TYPE.FUNCTION: {
 			const functionData = data as IFunctionProps;
 			return (
 				<Descriptions className="dt-taskinfo" bordered size="small">
@@ -83,7 +83,7 @@ export default function DetailInfo({ type, data }: IDetailInfoProps) {
 				</Descriptions>
 			);
 		}
-		case CATELOGUE_TYPE.RESOURCE: {
+		case CATALOGUE_TYPE.RESOURCE: {
 			const resourceData: Record<string, any> = data;
 			return (
 				<Descriptions className="dt-taskinfo" bordered size="small">
