@@ -512,6 +512,7 @@ export default function FlinkResultPanel({ current }: IRightBarComponentProps) {
 													}
 													topicOptionType={topicOptionList[sourceId]}
 													componentVersion={currentPage.componentVersion}
+													onColumnsChange={handleFormValuesChange}
 												/>
 											</Panel>
 										);
