@@ -30,7 +30,8 @@ import molecule from '@dtinsight/molecule';
 import Sketch from '@/components/sketch';
 import type { ITaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import type { TASK_PERIOD_ENUM, TASK_TYPE_ENUM } from '@/constant';
+import type { TASK_PERIOD_ENUM } from '@/constant';
+import { TASK_TYPE_ENUM } from '@/constant';
 import { offlineTaskPeriodFilter, SCHEDULE_STATUS } from '@/constant';
 import { formatDateTime, getCookie, goToTaskDev, removePopUpMenu } from '@/utils';
 import { TaskTimeType } from '@/utils/enums';
@@ -66,6 +67,29 @@ export default () => {
 	const [patchDataVisible, setPatchVisible] = useState(false);
 	const [patchTargetTask, setPatchTask] = useState<ITaskBasicProps | null>(null);
 	const actionRef = useRef<IActionRef>(null);
+
+	const handleExpandWorkflow = async (
+		expanded: boolean,
+		record: ITaskProps,
+	): Promise<ITaskProps[]> => {
+		if (expanded) {
+			const res = await api.getOfflineSubTaskById<ITaskProps[]>({ taskId: record.taskId });
+			if (res.code === 1) {
+				return res.data.map((data) => ({
+					taskId: data.taskId,
+					name: data.name,
+					taskType: data.taskType,
+					scheduleStatus: data.scheduleStatus,
+					periodType: data.periodType,
+					ownerUserName: data.ownerUserName,
+					ownerUserId: data.ownerUserId,
+					gmtModified: data.gmtModified,
+				}));
+			}
+		}
+
+		return [];
+	};
 
 	const convertToParams = (formField: IFormFieldProps) => {
 		const params: Partial<IRequestParams> = {
@@ -118,7 +142,10 @@ export default () => {
 		if (res.code === 1) {
 			return {
 				total: res.data.totalCount,
-				data: res.data.data,
+				data: res.data.data.map((d: ITaskProps) => ({
+					...d,
+					children: d.taskType === TASK_TYPE_ENUM.WORK_FLOW ? [] : undefined,
+				})),
 			};
 		}
 	};
@@ -359,6 +386,7 @@ export default () => {
 					</Button>,
 				]}
 				columns={columns}
+				onExpand={handleExpandWorkflow}
 				tableProps={{
 					rowKey: 'taskId',
 					rowClassName: (record) => {

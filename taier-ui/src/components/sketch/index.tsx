@@ -110,6 +110,10 @@ export interface ISketchProps<T, P> {
 	 */
 	onTableSelect?: (rowKeys: React.Key[], rows: T[]) => void;
 	/**
+	 * 表格的展开事件
+	 */
+	onExpand?: (expanded: boolean, record: T) => Promise<T[]>;
+	/**
 	 * 表格的列表项
 	 */
 	columns?: ColumnsType<T>;
@@ -167,6 +171,7 @@ export default function Sketch<
 	request,
 	onFormFieldChange,
 	onTableSelect,
+	onExpand,
 }: ISketchProps<T, P>) {
 	const [form] = Form.useForm<P>();
 	const insenseKeys = useRef(new Set(['name', 'multipleName']));
@@ -258,6 +263,19 @@ export default function Sketch<
 		getDataSource(pagination, filters, sorter as SorterResult<any>);
 	};
 
+	const handleExpand = (expanded: boolean, record: T) => {
+		onExpand?.(expanded, record).then((children) => {
+			setDataSource((d) => {
+				const next = [...d];
+				const idx = next.indexOf(record);
+				if (idx > -1) {
+					next[idx] = { ...record, children };
+				}
+				return next;
+			});
+		});
+	};
+
 	const handleSelectedRowChanged = (rowKeys: React.Key[], rows: T[]) => {
 		setSelectedKeys(rowKeys);
 		setSelectedRows(rows);
@@ -289,7 +307,7 @@ export default function Sketch<
 		...tableProps.pagination,
 	};
 
-	const { className: tableClassName, ...restTableProps } = tableProps;
+	const { className: tableClassName, expandable, ...restTableProps } = tableProps;
 
 	const renderFormItemByName = (name: string, props: Partial<ISlotItemProps> = {}) => {
 		switch (name) {
@@ -382,6 +400,10 @@ export default function Sketch<
 				rowSelection={{
 					selectedRowKeys,
 					onChange: handleSelectedRowChanged,
+				}}
+				expandable={{
+					onExpand: handleExpand,
+					...expandable,
 				}}
 				className={classnames('dt-sketch-table', tableClassName)}
 				scroll={{ ...calcTableScroll }}

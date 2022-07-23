@@ -82,6 +82,9 @@ export interface ITaskProps {
 	taskType: TASK_TYPE_ENUM;
 	taskId: number;
 	name: string;
+
+	// 工作流任务的子节点
+	children?: ITaskProps[];
 }
 
 /**
@@ -127,6 +130,9 @@ export interface IUpstreamJobProps {
 	scheduleStatus: SCHEDULE_STATUS;
 	taskPeriodId: TASK_PERIOD_ENUM;
 	gmtCreate: number;
+	/**
+	 * 是否是工作流任务
+	 */
 	isFlowTask: boolean;
 	jobId: string;
 	tenantId: number;
