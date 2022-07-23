@@ -81,7 +81,7 @@ interface IDimensionFormProps {
 		schema?: string | undefined,
 		searchKey?: string | undefined,
 	) => Promise<void>;
-	// onValuesChange?: (preVal: Partial<IFormFieldProps>, nextVal: Partial<IFormFieldProps>) => void;
+	onColumnsChange?: (changedValue: any, values: any) => void;
 }
 
 /**
@@ -105,6 +105,7 @@ export default function DimensionForm({
 	columnsOptions = [],
 	isFlink112 = true,
 	onTableSearch,
+	onColumnsChange,
 }: IDimensionFormProps) {
 	const { form } = useContext(FormContext) as {
 		form?: FormInstance<{ [NAME_FIELD]: IFormFieldProps[] }>;
@@ -127,7 +128,14 @@ export default function DimensionForm({
 
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns = nextCols;
-				form?.setFieldsValue(nextValue);
+				form?.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				break;
 			}
 
@@ -141,6 +149,12 @@ export default function DimensionForm({
 				nextValue[NAME_FIELD][index].columns = nextCols;
 				form?.setFieldsValue(nextValue);
 
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				break;
 			}
 
@@ -148,6 +162,13 @@ export default function DimensionForm({
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns = [];
 				form?.setFieldsValue(nextValue);
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				break;
 			}
 
@@ -160,6 +181,13 @@ export default function DimensionForm({
 					const nextValue = form!.getFieldsValue();
 					nextValue[NAME_FIELD][index].columns = nextCols;
 					form?.setFieldsValue(nextValue);
+
+					// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+					const changedValue: any[] = [];
+					changedValue[index] = {
+						columns: nextValue[NAME_FIELD][index].columns,
+					};
+					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -172,6 +200,13 @@ export default function DimensionForm({
 					const nextValue = form!.getFieldsValue();
 					nextValue[NAME_FIELD][index].columns = nextCols;
 					form?.setFieldsValue(nextValue);
+
+					// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+					const changedValue: any[] = [];
+					changedValue[index] = {
+						columns: nextValue[NAME_FIELD][index].columns,
+					};
+					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -184,6 +219,13 @@ export default function DimensionForm({
 					const nextValue = form!.getFieldsValue();
 					nextValue[NAME_FIELD][index].columns = nextCols;
 					form?.setFieldsValue(nextValue);
+
+					// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+					const changedValue: any[] = [];
+					changedValue[index] = {
+						columns: nextValue[NAME_FIELD][index].columns,
+					};
+					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				}
 				break;
 			}
@@ -196,6 +238,13 @@ export default function DimensionForm({
 					const nextValue = form!.getFieldsValue();
 					nextValue[NAME_FIELD][index].columns = nextCols;
 					form?.setFieldsValue(nextValue);
+
+					// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+					const changedValue: any[] = [];
+					changedValue[index] = {
+						columns: nextValue[NAME_FIELD][index].columns,
+					};
+					onColumnsChange?.({ [NAME_FIELD]: changedValue }, form!.getFieldsValue());
 				}
 				break;
 			}
