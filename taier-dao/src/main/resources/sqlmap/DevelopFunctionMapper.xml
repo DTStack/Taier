@@ -110,7 +110,7 @@
         SELECT
         <include refid="select_content_fragment"/>
         FROM develop_function
-        WHERE name = #{name} and tenant_id = #{tenantId} and type = #{type} and is_deleted = 0
+        WHERE name = #{name} and tenant_id = #{tenantId}  and is_deleted = 0
     </select>
 
     <select id="getByNameAndTenantId" resultType="com.dtstack.taier.dao.domain.DevelopFunction">
