@@ -434,7 +434,7 @@ export default function ClusterDetail() {
 				setEdited((p) => ({ ...p, [selectedKey!]: false }));
 
 				// 更新当前节点
-				getDetailValue(currentComponent);
+				getDetailValue({ ...res.data });
 
 				// 当前更新的节点所属组件
 				const currentComponentOwner = componentsData.find(
