@@ -11,6 +11,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleType;
+import com.dtstack.taier.common.enums.ResourceType;
 import com.dtstack.taier.common.enums.TableType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -229,7 +230,7 @@ public class FlinkTaskService {
 
     private String generateAddFlinkJar(Task task) {
         if (task.getTaskType() == EScheduleJobType.FLINK_MR.getVal().intValue()) {
-            List<DevelopResource> developResourceList = developTaskResourceService.getResources(task.getId(), task.getTaskType());
+            List<DevelopResource> developResourceList = developTaskResourceService.getResources(task.getId(), ResourceType.JAR.getType());
             if (CollectionUtils.isEmpty(developResourceList)) {
                 return "";
             }
