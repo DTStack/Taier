@@ -1,4 +1,4 @@
-import { CATELOGUE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE } from '@/constant';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
 import type molecule from '@dtinsight/molecule';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
@@ -21,7 +21,7 @@ export default class BreadcrumbService implements IBreadcrumbService {
 	}
 
 	private updateTree = () => {
-		const root = catalogueService.getRootFolder(CATELOGUE_TYPE.TASK);
+		const root = catalogueService.getRootFolder(CATALOGUE_TYPE.TASK);
 		if (root) {
 			this.hashTree = new TreeViewUtil<molecule.model.IFolderTreeNodeProps>(root);
 		}

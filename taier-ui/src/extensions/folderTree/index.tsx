@@ -27,7 +27,7 @@ import EditFolder from '@/components/task/editFolder';
 import { getParentNode } from '@/utils/extensions';
 import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
-import { CATELOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
+import { CATALOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
 import { IComputeType } from '@/interface';
 import { breadcrumbService, catalogueService } from '@/services';
 import notification from '@/components/notification';
@@ -71,7 +71,7 @@ function openCreateTab(id?: string) {
 						const parentNode = molecule.folderTree.get(`${params.parentId}-folder`);
 						if (parentNode) {
 							catalogueService
-								.loadTreeNode(parentNode.data, CATELOGUE_TYPE.TASK)
+								.loadTreeNode(parentNode.data, CATALOGUE_TYPE.TASK)
 								.then(() => {
 									// open this brand-new task
 									taskRenderService.openTask({ id: data.id });
@@ -95,8 +95,8 @@ function openCreateTab(id?: string) {
 		icon: 'file-add',
 		breadcrumb: [
 			{
-				id: catalogueService.getRootFolder(CATELOGUE_TYPE.TASK)!.id,
-				name: catalogueService.getRootFolder(CATELOGUE_TYPE.TASK)!.name,
+				id: catalogueService.getRootFolder(CATALOGUE_TYPE.TASK)!.id,
+				name: catalogueService.getRootFolder(CATALOGUE_TYPE.TASK)!.name,
 			},
 			{
 				id: tabId,
@@ -139,7 +139,7 @@ function init() {
 			}
 
 			// reload the parentNode
-			catalogueService.loadTreeNode(parentNode.data, CATELOGUE_TYPE.TASK).then(() => {
+			catalogueService.loadTreeNode(parentNode.data, CATALOGUE_TYPE.TASK).then(() => {
 				// TODO: don't need it after fix the issue https://github.com/DTStack/molecule/issues/724
 				if (molecule.folderTree.getState().folderTree?.current?.id !== undefined) {
 					document
@@ -239,7 +239,7 @@ function editTreeNodeName() {
 						id: parentNode?.data.id,
 						catalogueType: parentNode?.data.catalogueType,
 					},
-					CATELOGUE_TYPE.TASK,
+					CATALOGUE_TYPE.TASK,
 				);
 				molecule.explorer.forceUpdate();
 			} else {
@@ -275,7 +275,7 @@ const onAfterSubmit = (props: {
 						id: folderNode.data?.id,
 						catalogueType: folderNode.data?.catalogueType,
 					},
-					CATELOGUE_TYPE.TASK,
+					CATALOGUE_TYPE.TASK,
 				);
 			}
 			return Promise.resolve();
@@ -415,8 +415,8 @@ function contextMenu() {
 
 				const breadcrumb = [
 					{
-						id: catalogueService.getRootFolder(CATELOGUE_TYPE.TASK)!.id,
-						name: catalogueService.getRootFolder(CATELOGUE_TYPE.TASK)!.name,
+						id: catalogueService.getRootFolder(CATALOGUE_TYPE.TASK)!.id,
+						name: catalogueService.getRootFolder(CATALOGUE_TYPE.TASK)!.name,
 					},
 					{
 						id: tabId,
@@ -484,7 +484,7 @@ function contextMenu() {
 // 文件夹树异步加载
 function onLoadTree() {
 	molecule.folderTree.onLoadData((treeNode, callback) => {
-		catalogueService.loadTreeNode(treeNode.data, CATELOGUE_TYPE.TASK).then((res) => {
+		catalogueService.loadTreeNode(treeNode.data, CATALOGUE_TYPE.TASK).then((res) => {
 			if (res) {
 				callback(res);
 			} else {

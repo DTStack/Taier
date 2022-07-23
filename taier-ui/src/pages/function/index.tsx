@@ -32,7 +32,7 @@ import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
 import {
-	CATELOGUE_TYPE,
+	CATALOGUE_TYPE,
 	FUNCTOIN_ACTIONS,
 	ID_COLLECTIONS,
 	MENU_TYPE_ENUM,
@@ -89,7 +89,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
-		catalogueService.loadTreeNode(node.data, CATELOGUE_TYPE.FUNCTION);
+		catalogueService.loadTreeNode(node.data, CATALOGUE_TYPE.FUNCTION);
 	};
 
 	const handleSelect = (file?: ITreeNodeItemProps) => {
@@ -223,7 +223,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				updateNodePid(folderTree.current);
 			}
 		} else {
-			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.FUNCTION);
+			const rootFolder = catalogueService.getRootFolder(CATALOGUE_TYPE.FUNCTION);
 			if (rootFolder) {
 				updateNodePid(rootFolder);
 			}
@@ -286,22 +286,17 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	};
 
 	const handleAddFunction = (params: any) => {
-		return ajax
-			.addOfflineFunction({
-				...params,
-				catalogueType: MENU_TYPE_ENUM.SYSFUC,
-			})
-			.then((res) => {
-				if (res.code === 1) {
-					const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
-					if (parentNode) {
-						updateNodePid(parentNode);
-					}
-					return true;
+		return ajax.addOfflineFunction({ ...params }).then((res) => {
+			if (res.code === 1) {
+				const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
+				if (parentNode) {
+					updateNodePid(parentNode);
 				}
+				return true;
+			}
 
-				return false;
-			});
+			return false;
+		});
 	};
 
 	const handleEditCatalogue = (params: any) => {
@@ -383,7 +378,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				title="函数详情"
 				visible={viewVisible}
 				onCancel={handleCloseViewModal}
-				type={CATELOGUE_TYPE.FUNCTION}
+				type={CATALOGUE_TYPE.FUNCTION}
 				data={detailData}
 				loading={detailLoading}
 			/>
@@ -396,7 +391,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 			/>
 			<FolderModal
 				isModalShow={folderVisible}
-				dataType={CATELOGUE_TYPE.FUNCTION}
+				dataType={CATALOGUE_TYPE.FUNCTION}
 				toggleCreateFolder={handleCloseFolderModal}
 				treeData={currentMenuData}
 				defaultData={editData}

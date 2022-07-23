@@ -22,7 +22,7 @@ import { Modal, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import FolderPicker from '../../components/folderPicker';
 import {
-	CATELOGUE_TYPE,
+	CATALOGUE_TYPE,
 	formItemLayout,
 	TASK_TYPE_ENUM,
 	UDF_TYPE_NAMES,
@@ -54,7 +54,7 @@ interface IFormFieldProps {
 	nodePid?: number;
 }
 
-const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL];
+const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.HIVE_SQL];
 
 export default function FnModal({
 	data,
@@ -253,7 +253,7 @@ export default function FnModal({
 							},
 						]}
 					>
-						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
 					</FormItem>
 				</FormItem>
 				<FormItem label="用途" name="purpose">
@@ -287,19 +287,17 @@ export default function FnModal({
 				>
 					<Input.TextArea rows={4} placeholder="请输入函数的参数说明" />
 				</FormItem>
-				<FormItem {...formItemLayout} label="选择存储位置" required>
-					<FormItem
-						noStyle
-						name="nodePid"
-						rules={[
-							{
-								required: true,
-								message: '存储位置必选！',
-							},
-						]}
-					>
-						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.FUNCTION} />
-					</FormItem>
+				<FormItem
+					name="nodePid"
+					label="选择存储位置"
+					rules={[
+						{
+							required: true,
+							message: '存储位置必选！',
+						},
+					]}
+				>
+					<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.FUNCTION} />
 				</FormItem>
 			</Form>
 		</Modal>

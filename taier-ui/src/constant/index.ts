@@ -410,7 +410,7 @@ export const DATA_SOURCE_ENUM_OBJ = {
 /**
  * 目录结构类型
  */
-export enum CATELOGUE_TYPE {
+export enum CATALOGUE_TYPE {
 	/**
 	 * 任务开发
 	 */
