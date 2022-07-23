@@ -307,38 +307,38 @@ function onSelectFile() {
 function onRemove() {
 	molecule.folderTree.onRemove((id) => {
 		const treeNode = molecule.folderTree.get(id);
-		const type = treeNode?.data?.type;
+		const type = treeNode?.fileType;
 		Modal.confirm({
-			title: `确认要删除此${type === 'file' ? '任务' : '文件夹'}吗?`,
-			content: `删除的${type === 'file' ? '任务' : '文件夹'}无法${
-				type === 'file' ? '找回' : '恢复'
+			title: `确认要删除此${type === 'File' ? '任务' : '文件夹'}吗?`,
+			content: `删除的${type === 'File' ? '任务' : '文件夹'}无法${
+				type === 'File' ? '找回' : '恢复'
 			}！`,
 			onOk() {
-				if (treeNode?.data?.type === 'folder') {
-					api.delOfflineFolder({ id: treeNode.data.id }).then((res) => {
+				if (type === 'Folder') {
+					api.delOfflineFolder({ id: treeNode?.data.id }).then((res) => {
 						if (res.code === 1) {
 							message.success('删除成功');
 							molecule.folderTree.remove(id);
 						}
 						return res;
 					});
-				} else if (treeNode?.data?.type === 'file') {
-					api.delOfflineTask({ taskId: id }).then((res) => {
-						if (res.code === 1) {
-							message.success('删除成功');
-							molecule.folderTree.remove(id);
-							// Close the opened tab
-							const isOpened = molecule.editor.isOpened(id.toString());
-							if (isOpened) {
-								const groupId = molecule.editor.getGroupIdByTab(id.toString());
-								if (groupId) {
-									molecule.editor.closeTab(id.toString(), groupId);
-								}
+					return;
+				}
+				api.delOfflineTask({ taskId: id }).then((res) => {
+					if (res.code === 1) {
+						message.success('删除成功');
+						molecule.folderTree.remove(id);
+						// Close the opened tab
+						const isOpened = molecule.editor.isOpened(id.toString());
+						if (isOpened) {
+							const groupId = molecule.editor.getGroupIdByTab(id.toString());
+							if (groupId) {
+								molecule.editor.closeTab(id.toString(), groupId);
 							}
 						}
-						return res;
-					});
-				}
+					}
+					return res;
+				});
 			},
 			onCancel() {},
 		});

@@ -59,7 +59,7 @@ class TaskSaveService extends GlobalEvent {
 	/**
 	 * 校验器，用于发起校验以及校验结束后提示错误信息
 	 */
-	private async dataValidator<T extends any[]>(
+	private dataValidator = async <T extends any[]>(
 		currentPage: IOfflineTaskProps,
 		data: T,
 		validator: (
@@ -67,7 +67,7 @@ class TaskSaveService extends GlobalEvent {
 			version: IOfflineTaskProps['componentVersion'],
 		) => Promise<ValidateError[] | null>,
 		text: string,
-	) {
+	) => {
 		const { componentVersion } = currentPage;
 		const errors = await Promise.all(data.map((item) => validator(item, componentVersion)));
 		errors.forEach((error, index) => {
@@ -81,15 +81,15 @@ class TaskSaveService extends GlobalEvent {
 			}
 		});
 		return errors;
-	}
+	};
 
 	/**
 	 * 动态生成 Flink 结果表的校验规则
 	 */
-	private generateValidDesOutPut(
+	private generateValidDesOutPut = (
 		data?: IOfflineTaskProps['sink'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	): Rules {
+	): Rules => {
 		const schemaRequired =
 			data?.type &&
 			[
@@ -155,15 +155,15 @@ class TaskSaveService extends GlobalEvent {
 			batchWaitInterval: [{ required: isRDB(data?.type), message: '请输入数据输出时间' }],
 			batchSize: [{ required: isRDB(data?.type), message: '请输入数据输出条数' }],
 		};
-	}
+	};
 
 	/**
 	 * 动态生成 Flink 的维表校验字段
 	 */
-	private generateValidDesSide(
+	private generateValidDesSide = (
 		data: IOfflineTaskProps['side'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	): Rules {
+	): Rules => {
 		const isCacheLRU = data?.cache === 'LRU';
 		const isCacheTLLMSReqiured = data?.cache === 'LRU' || data?.cache === 'ALL';
 		const schemaRequired = [
@@ -204,15 +204,15 @@ class TaskSaveService extends GlobalEvent {
 			cacheSize: [{ required: isCacheLRU, message: '请输入缓存大小' }],
 			cacheTTLMs: [{ required: isCacheTLLMSReqiured, message: '请输入缓存超时时间' }],
 		};
-	}
+	};
 
 	/**
 	 * 校验 Flink 的源表表单值
 	 */
-	private async validDataSource(
+	private validDataSource = async (
 		data: IOfflineTaskProps['source'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	) {
+	) => {
 		const validDes = this.generateValidDesSource(data, componentVersion);
 		const validator = new ValidSchema(validDes);
 		const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -221,15 +221,15 @@ class TaskSaveService extends GlobalEvent {
 			});
 		});
 		return err;
-	}
+	};
 
 	/**
 	 * 校验 Flink 的结果表
 	 */
-	private async validDataOutput(
+	private validDataOutput = async (
 		data: IOfflineTaskProps['sink'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	) {
+	) => {
 		const validDes = this.generateValidDesOutPut(data, componentVersion);
 		const validator = new ValidSchema(validDes);
 		const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -238,15 +238,15 @@ class TaskSaveService extends GlobalEvent {
 			});
 		});
 		return err;
-	}
+	};
 
 	/**
 	 * 校验 Flink 维表
 	 */
-	private async validDataSide(
+	private validDataSide = async (
 		data: IOfflineTaskProps['side'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	) {
+	) => {
 		const validDes = this.generateValidDesSide(data, componentVersion);
 		const validator = new ValidSchema(validDes);
 		const err = await new Promise<ValidateError[] | null>((resolve) => {
@@ -255,9 +255,9 @@ class TaskSaveService extends GlobalEvent {
 			});
 		});
 		return err;
-	}
+	};
 
-	private async validTableData(currentPage: IOfflineTaskProps) {
+	private validTableData = async (currentPage: IOfflineTaskProps) => {
 		const VALID_FIELDS = ['source', 'sink', 'side'] as const;
 		const FIELDS_MAPPING = { source: '源表', sink: '结果表', side: '维表' } as const;
 		const FIELDS_VALID_FUNCTION_MAPPING = {
@@ -277,9 +277,9 @@ class TaskSaveService extends GlobalEvent {
 				);
 			}),
 		);
-	}
+	};
 
-	private checkSide(sides: IOfflineTaskProps['side'], componentVersion: string) {
+	private checkSide = (sides: IOfflineTaskProps['side'], componentVersion: string) => {
 		if (sides) {
 			for (let i = 0; i < sides.length; i += 1) {
 				const side = sides[i];
@@ -309,15 +309,15 @@ class TaskSaveService extends GlobalEvent {
 			}
 		}
 		return null;
-	}
+	};
 
 	/**
 	 * 为 Flink 的源表表单生成校验规则
 	 */
-	public generateValidDesSource(
+	public generateValidDesSource = (
 		data: IOfflineTaskProps['source'][number],
 		componentVersion?: Valueof<typeof FLINK_VERSIONS>,
-	) {
+	) => {
 		const isFlink112 = componentVersion === FLINK_VERSIONS.FLINK_1_12;
 		const haveSchema =
 			isKafka(data?.type) &&
@@ -349,9 +349,9 @@ class TaskSaveService extends GlobalEvent {
 				},
 			],
 		};
-	}
+	};
 
-	public transformTabDataToParams(data: IOfflineTaskProps) {
+	public transformTabDataToParams = (data: IOfflineTaskProps) => {
 		const params: IOfflineTaskProps & { value?: string } = { ...data };
 		params.sqlText = params.value || '';
 
@@ -365,12 +365,12 @@ class TaskSaveService extends GlobalEvent {
 		}
 
 		return params;
-	}
+	};
 
 	/**
 	 * 保存当前 tab
 	 */
-	public async save() {
+	public save = async () => {
 		const currentTask = molecule.editor.getState().current?.tab;
 		if (!currentTask) return Promise.reject();
 		const data = currentTask.data as IParamsProps;
@@ -695,13 +695,13 @@ class TaskSaveService extends GlobalEvent {
 				return Promise.reject();
 			}
 		}
-	}
+	};
 
 	/**
 	 * 保存指定 tab 的方法, 如果保存当前 tab，请使用 `taskSaveService.save()`
 	 * @params `verbose` 是否输出 message
 	 */
-	public async saveTab(params: IOfflineTaskProps, config = { verbose: true }) {
+	public saveTab = async (params: IOfflineTaskProps, config = { verbose: true }) => {
 		const { id, nodePid, ...restParams } = params;
 		const res = await api.addOfflineTask({
 			...restParams,
@@ -753,14 +753,14 @@ class TaskSaveService extends GlobalEvent {
 		}
 
 		return res;
-	}
+	};
 
 	/**
 	 * 保存任务成功的回调函数
 	 */
-	onSaveTask(listener: (task: IOfflineTaskProps) => void) {
+	onSaveTask = (listener: (task: IOfflineTaskProps) => void) => {
 		this.subscribe(SaveEventKind.onSaveTask, listener);
-	}
+	};
 }
 
 export default new TaskSaveService();
