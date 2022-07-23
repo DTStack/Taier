@@ -1,5 +1,5 @@
 import {
-	CATELOGUE_TYPE,
+	CATALOGUE_TYPE,
 	CREATE_MODEL_TYPE,
 	DATA_SYNC_MODE,
 	FLINK_VERSIONS,
@@ -116,7 +116,7 @@ const Resource = () => (
 			},
 		]}
 	>
-		<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+		<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
 	</Form.Item>
 );
 

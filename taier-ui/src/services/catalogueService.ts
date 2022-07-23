@@ -1,5 +1,5 @@
 import api from '@/api';
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import { CATALOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { getTenantId, getUserId } from '@/utils';
 import { fileIcon } from '@/utils/extensions';
@@ -18,14 +18,14 @@ interface ICatalogueService {
 	/**
 	 * 获取目录树的根目录
 	 */
-	getRootFolder: (source: CATELOGUE_TYPE) => molecule.model.IFolderTreeNodeProps | undefined;
+	getRootFolder: (source: CATALOGUE_TYPE) => molecule.model.IFolderTreeNodeProps | undefined;
 	/**
 	 * 获取目录树的子节点
 	 * @param node 更新当前 Node 节点的子节点，不改变 Node 节点
 	 */
 	loadTreeNode: (
 		node: Partial<Pick<CatalogueDataProps, 'id' | 'catalogueType'>>,
-		source: CATELOGUE_TYPE,
+		source: CATALOGUE_TYPE,
 	) => void;
 	/**
 	 * 目录树更新监听事件
@@ -59,17 +59,17 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 		return undefined;
 	};
 
-	private getRootFolderViaSource = (data: CatalogueDataProps[], source: CATELOGUE_TYPE) => {
+	private getRootFolderViaSource = (data: CatalogueDataProps[], source: CATALOGUE_TYPE) => {
 		switch (source) {
-			case CATELOGUE_TYPE.TASK: {
+			case CATALOGUE_TYPE.TASK: {
 				return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.TASK);
 			}
 
-			case CATELOGUE_TYPE.RESOURCE: {
+			case CATALOGUE_TYPE.RESOURCE: {
 				return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.RESOURCE);
 			}
 
-			case CATELOGUE_TYPE.FUNCTION: {
+			case CATALOGUE_TYPE.FUNCTION: {
 				return data.find((item) => item.catalogueType === MENU_TYPE_ENUM.FUNCTION);
 			}
 			default:
@@ -82,12 +82,12 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 	 */
 	private transformCatalogueToTree = (
 		catalogue: CatalogueDataProps | undefined,
-		source: CATELOGUE_TYPE,
+		source: CATALOGUE_TYPE,
 	) => {
 		if (!catalogue) return;
 		const folderType = ['folder', 'catalogue'];
 		switch (source) {
-			case CATELOGUE_TYPE.RESOURCE: {
+			case CATALOGUE_TYPE.RESOURCE: {
 				const fileType = folderType.includes(catalogue.type)
 					? FileTypes.Folder
 					: FileTypes.File;
@@ -105,7 +105,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 				});
 			}
 
-			case CATELOGUE_TYPE.FUNCTION: {
+			case CATALOGUE_TYPE.FUNCTION: {
 				const { type, name } = catalogue;
 				const fileType = folderType.includes(type) ? FileTypes.Folder : FileTypes.File;
 
@@ -123,7 +123,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 				});
 			}
 
-			case CATELOGUE_TYPE.TASK: {
+			case CATALOGUE_TYPE.TASK: {
 				const fileType = folderType.includes(catalogue.type)
 					? FileTypes.Folder
 					: FileTypes.File;
@@ -147,13 +147,13 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 		}
 	};
 
-	private getServiceBySource = (source: CATELOGUE_TYPE) => {
+	private getServiceBySource = (source: CATALOGUE_TYPE) => {
 		switch (source) {
-			case CATELOGUE_TYPE.TASK:
+			case CATALOGUE_TYPE.TASK:
 				return molecule.folderTree;
-			case CATELOGUE_TYPE.FUNCTION:
+			case CATALOGUE_TYPE.FUNCTION:
 				return functionManagerService;
-			case CATELOGUE_TYPE.RESOURCE:
+			case CATALOGUE_TYPE.RESOURCE:
 				return resourceManagerService;
 			default:
 				return null;
@@ -165,7 +165,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 	 */
 	public loadTreeNode = async (
 		node: Partial<Pick<CatalogueDataProps, 'id' | 'catalogueType'>>,
-		source: CATELOGUE_TYPE,
+		source: CATALOGUE_TYPE,
 	) => {
 		const data = await this.getCatalogueViaNode(node);
 		if (data) {
@@ -189,13 +189,13 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 		}
 	};
 
-	public getRootFolder = (source: CATELOGUE_TYPE) => {
+	public getRootFolder = (source: CATALOGUE_TYPE) => {
 		const service = this.getServiceBySource(source);
 		switch (source) {
-			case CATELOGUE_TYPE.TASK:
-			case CATELOGUE_TYPE.FUNCTION:
+			case CATALOGUE_TYPE.TASK:
+			case CATALOGUE_TYPE.FUNCTION:
 				return service?.getState().folderTree?.data?.[0];
-			case CATELOGUE_TYPE.RESOURCE:
+			case CATALOGUE_TYPE.RESOURCE:
 				return service?.getState().folderTree?.data?.[0]?.children?.[0];
 			default:
 				return undefined;
@@ -209,20 +209,20 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 			}
 			const { children } = res;
 
-			const taskData = this.getRootFolderViaSource(children, CATELOGUE_TYPE.TASK);
-			const resourceData = this.getRootFolderViaSource(children, CATELOGUE_TYPE.RESOURCE);
-			const funcData = this.getRootFolderViaSource(children, CATELOGUE_TYPE.FUNCTION);
+			const taskData = this.getRootFolderViaSource(children, CATALOGUE_TYPE.TASK);
+			const resourceData = this.getRootFolderViaSource(children, CATALOGUE_TYPE.RESOURCE);
+			const funcData = this.getRootFolderViaSource(children, CATALOGUE_TYPE.FUNCTION);
 
 			// 更新资源目录树
 			if (resourceData) {
 				const resourceRoot = resourceData;
 				const resourceNode = this.transformCatalogueToTree(
 					resourceRoot,
-					CATELOGUE_TYPE.RESOURCE,
+					CATALOGUE_TYPE.RESOURCE,
 				)!;
 				const childrenNodes =
 					resourceRoot.children?.map(
-						(child) => this.transformCatalogueToTree(child, CATELOGUE_TYPE.RESOURCE)!,
+						(child) => this.transformCatalogueToTree(child, CATALOGUE_TYPE.RESOURCE)!,
 					) || [];
 
 				// set a root folder
@@ -237,7 +237,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 				const funcRoot = funcData;
 				const functionNode = this.transformCatalogueToTree(
 					funcRoot,
-					CATELOGUE_TYPE.FUNCTION,
+					CATALOGUE_TYPE.FUNCTION,
 				)!;
 				const childrenNodes =
 					funcRoot.children
@@ -245,7 +245,7 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 						?.filter((child) => child.name !== '系统函数')
 						.map(
 							(child) =>
-								this.transformCatalogueToTree(child, CATELOGUE_TYPE.FUNCTION)!,
+								this.transformCatalogueToTree(child, CATALOGUE_TYPE.FUNCTION)!,
 						) || [];
 
 				// set a root folder
@@ -268,14 +268,14 @@ export default class CatalogueService extends GlobalEvent implements ICatalogueS
 				if (taskRootFolder) {
 					const taskNode = this.transformCatalogueToTree(
 						taskRootFolder,
-						CATELOGUE_TYPE.TASK,
+						CATALOGUE_TYPE.TASK,
 					)!;
 
 					taskNode.fileType = FileTypes.RootFolder;
 					molecule.folderTree.add(taskNode);
 
 					// 获取当前根目录的下级目录，确保打开 Explorer 有数据展示
-					this.loadTreeNode(taskRootFolder, CATELOGUE_TYPE.TASK);
+					this.loadTreeNode(taskRootFolder, CATALOGUE_TYPE.TASK);
 				}
 			}
 		});

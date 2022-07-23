@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { Radio, Space } from 'antd';
 import { Form, Modal, Button, Input, Select, Upload } from 'antd';
 import FolderPicker from '../../components/folderPicker';
-import { CATELOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
 import { IComputeType } from '@/interface';
 import type { RcFile } from 'antd/lib/upload';
 import { resourceNameMapping } from '@/utils/enums';
@@ -275,10 +275,10 @@ export default function ResModal({
 							},
 						]}
 						initialValue={
-							catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id
+							catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id
 						}
 					>
-						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile={false} />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile={false} />
 					</FormItem>
 					<FormItem
 						label="描述"
@@ -310,9 +310,9 @@ export default function ResModal({
 							validator: checkNotDir,
 						},
 					]}
-					initialValue={catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id}
+					initialValue={catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id}
 				>
-					<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+					<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
 				</FormItem>
 				<FormItem label="文件名" name="originFileName">
 					<Input disabled readOnly />
