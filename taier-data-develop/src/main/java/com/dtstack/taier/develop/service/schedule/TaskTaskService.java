@@ -161,7 +161,6 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         // 查询任务
         List<ScheduleTaskShade> taskShadeList = taskService.lambdaQuery()
                 .in(ScheduleTaskShade::getTaskId, taskIdList)
-                .eq(ScheduleTaskShade::getFlowId,0)
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                 .list();
         Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, Function.identity()));
