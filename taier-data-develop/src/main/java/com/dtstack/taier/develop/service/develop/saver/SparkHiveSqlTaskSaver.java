@@ -32,7 +32,7 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
     @Override
     public String processScheduleRunSqlText(Long tenantId, Integer taskType, String sqlText) {
         TenantComponent tenantEngine = developTenantComponentService.getByTenantAndTaskType(tenantId, taskType);
-        String sqlPlus = buildCustomFunctionSparkSql(sqlText, tenantId, taskType);
+        String sqlPlus = buildCustomFunctionSparkHiveSql(sqlText, tenantId, taskType);
         return processSql(sqlPlus, tenantEngine.getComponentIdentity());
     }
 
@@ -42,16 +42,16 @@ public class SparkHiveSqlTaskSaver extends DefaultTaskSaver {
     }
 
     /**
-     * 处理spark sql自定义函数
+     * 处理spark sql,Hive sql自定义函数
      *
      * @param sqlText
      * @param tenantId
      * @param taskType
      * @return
      */
-    public String buildCustomFunctionSparkSql(String sqlText, Long tenantId, Integer taskType) {
+    public String buildCustomFunctionSparkHiveSql(String sqlText, Long tenantId, Integer taskType) {
         String sqlPlus = SqlFormatUtil.formatSql(sqlText);
-        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)) {
+        if (EScheduleJobType.SPARK_SQL.getType().equals(taskType)|| EScheduleJobType.HIVE_SQL.getType().equals(taskType)) {
             String containFunction = developFunctionService.buildContainFunction(sqlText, tenantId, taskType);
             if (StringUtils.isNotBlank(containFunction)) {
                 sqlPlus = String.format(CREATE_TEMP_FUNCTION_SQL,containFunction,sqlPlus);

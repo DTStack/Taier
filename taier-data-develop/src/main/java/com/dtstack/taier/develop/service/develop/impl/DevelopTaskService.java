@@ -177,7 +177,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private DevelopSysParamService developSysParamService;
 
     @Autowired
-    private DevelopResourceService DevelopResourceService;
+    private DevelopResourceService developResourceService;
 
     @Autowired
     private DevelopTaskResourceShadeService developTaskResourceShadeService;
@@ -208,6 +208,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private DevelopTaskParamShadeService batchTaskParamShadeService;
+
+    @Autowired
+    private DevelopFunctionService developFunctionService;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -992,8 +995,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                         .eq(Task::getTenantId, tenantId)
                         .last("limit 1"));
             } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
-                obj = DevelopResourceService.listByNameAndTenantId(tenantId, name);
-            } else {
+                obj = developResourceService.listByNameAndTenantId(tenantId, name);
+            }  else if (type.equals(CatalogueType.FUNCTION_MANAGER.name())) {
+                obj = developFunctionService.listByNameAndTenantId(tenantId, name);
+            }else {
                 throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
             }
 
