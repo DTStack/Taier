@@ -75,6 +75,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
     @Autowired
     private UnnecessaryPreprocessJobPipeline unnecessaryPreprocessJobPipeline;
+
     /**
      * 开始运行实例
      *
@@ -576,5 +577,18 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         updateScheduleJob.setStatus(job.getStatus());
         this.baseMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
                 .eq(ScheduleJob::getJobId, job.getJobId()));
+    }
+
+    /**
+     * 批量查询实例
+     *
+     * @param jobId jobId
+     * @return 实例
+     */
+    public List<ScheduleJob> getWorkFlowSubJobs(String jobId) {
+        return this.baseMapper
+                .selectList(Wrappers.lambdaQuery(ScheduleJob.class)
+                        .eq(ScheduleJob::getFlowJobId, jobId)
+                        .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 }
