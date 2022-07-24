@@ -71,7 +71,7 @@ public interface DevelopFunctionMapper extends BaseMapper<DevelopFunction> {
      * @param type
      * @return
      */
-    List<DevelopFunction> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("name") String name, @Param("type") Integer type);
+    List<DevelopFunction> listByNameAndTenantId(@Param("tenantId") Long tenantId, @Param("name") String name);
 
     /**
      * 根据 租户、名称 查询
