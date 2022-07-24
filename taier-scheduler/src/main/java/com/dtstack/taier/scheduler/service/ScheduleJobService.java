@@ -556,4 +556,14 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         List<ScheduleJob> simpleScheduleJobPOS = this.baseMapper.listSimpleJobByStatusAddress(startId, unfinishedStatuses, nodeAddress);
         return ScheduleJobMapStruct.INSTANCE.scheduleJobTOSimpleScheduleJobDTO(simpleScheduleJobPOS);
     }
+
+    public void updateStatusWithExecTime(ScheduleJob job) {
+        ScheduleJob updateScheduleJob = new ScheduleJob();
+        updateScheduleJob.setExecStartTime(job.getExecStartTime());
+        updateScheduleJob.setExecEndTime(job.getExecEndTime());
+        updateScheduleJob.setExecTime(job.getExecTime());
+        updateScheduleJob.setStatus(job.getStatus());
+        this.baseMapper.update(updateScheduleJob, Wrappers.lambdaQuery(ScheduleJob.class)
+                .eq(ScheduleJob::getJobId, job.getJobId()));
+    }
 }

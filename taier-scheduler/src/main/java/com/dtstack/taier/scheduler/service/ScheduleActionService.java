@@ -52,6 +52,7 @@ import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.PipelineBuilder;
 import com.dtstack.taier.scheduler.server.pipeline.operator.SyncOperatorPipeline;
+import com.dtstack.taier.scheduler.server.pipeline.operator.UnnecessaryPreprocessJobPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.params.UploadParamPipeline;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
@@ -96,6 +97,9 @@ public class ScheduleActionService {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private UnnecessaryPreprocessJobPipeline unnecessaryPreprocessJobPipeline;
 
     @Autowired
     private SyncOperatorPipeline syncOperatorPipeline;
@@ -266,6 +270,9 @@ public class ScheduleActionService {
             pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
         } else if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             pipeline = syncOperatorPipeline;
+        } else if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())
+                || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
+            pipeline = unnecessaryPreprocessJobPipeline;
         } else {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
