@@ -26,7 +26,7 @@ public class UnnecessaryPreprocessJobPipeline extends IPipeline.AbstractPipeline
 
     public boolean preprocess(ScheduleJob job) {
         if (EScheduleJobType.WORK_FLOW.getVal().equals(job.getTaskType())) {
-            return buildToUpdate.andThen(s -> {
+            return BUILD_TO_UPDATE.andThen(s -> {
                 s.setStatus(TaskStatus.SUBMITTING.getStatus());
                 scheduleJobService.updateStatusWithExecTime(s);
                 return true;
@@ -35,7 +35,7 @@ public class UnnecessaryPreprocessJobPipeline extends IPipeline.AbstractPipeline
 
         if (EScheduleJobType.VIRTUAL.getType().equals(job.getTaskType())) {
             //虚节点写入开始时间和结束时间
-            return buildToUpdate.andThen(s -> {
+            return BUILD_TO_UPDATE.andThen(s -> {
                 s.setExecTime(0L);
                 s.setExecEndTime(new Timestamp(System.currentTimeMillis()));
                 s.setStatus(TaskStatus.FINISHED.getStatus());
@@ -47,7 +47,7 @@ public class UnnecessaryPreprocessJobPipeline extends IPipeline.AbstractPipeline
         return false;
     }
 
-    private static final Function<ScheduleJob, ScheduleJob> buildToUpdate = s -> {
+    private static final Function<ScheduleJob, ScheduleJob> BUILD_TO_UPDATE = s -> {
         ScheduleJob updateJob = new ScheduleJob();
         updateJob.setJobId(s.getJobId());
         updateJob.setExecStartTime(new Timestamp(System.currentTimeMillis()));
@@ -61,5 +61,9 @@ public class UnnecessaryPreprocessJobPipeline extends IPipeline.AbstractPipeline
         ScheduleJob job = (ScheduleJob) pipelineParam.get(AbstractPipeline.scheduleJobKey);
         boolean preprocess = preprocess(job);
         LOGGER.info("process {} result {}", job.getJobId(), preprocess);
+    }
+
+    public boolean isMatch(Integer taskType) {
+        return EScheduleJobType.WORK_FLOW.getVal().equals(taskType) || EScheduleJobType.VIRTUAL.getType().equals(taskType);
     }
 }
