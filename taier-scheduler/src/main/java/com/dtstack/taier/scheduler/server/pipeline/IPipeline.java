@@ -18,6 +18,11 @@
 
 package com.dtstack.taier.scheduler.server.pipeline;
 
+import com.dtstack.taier.scheduler.server.JobGraphBuilderTrigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
 /**
@@ -47,6 +52,7 @@ public interface IPipeline {
         public static final String taskShadeKey = "taskShade";
         public static final String scheduleJobKey = "scheduleJob";
         public static final String taskParamsToReplaceKey = "taskParamsToReplace";
+        protected static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
 
         public AbstractPipeline(String pipelineKey) {
             this.pipelineKey = pipelineKey;
@@ -57,6 +63,7 @@ public interface IPipeline {
             return nextPipeline;
         }
 
+        @Override
         public void setNextPipeline(IPipeline nextPipeline) {
             this.nextPipeline = nextPipeline;
         }
@@ -70,8 +77,8 @@ public interface IPipeline {
             }
         }
 
-        public Object getExecuteValue(Map<String, Object> actionParam, Map<String, Object> pipelineParam){
-            return pipelineParam.getOrDefault(pipelineKey,actionParam.get(pipelineKey));
+        public Object getExecuteValue(Map<String, Object> actionParam, Map<String, Object> pipelineParam) {
+            return pipelineParam.getOrDefault(pipelineKey, actionParam.get(pipelineKey));
         }
     }
 
