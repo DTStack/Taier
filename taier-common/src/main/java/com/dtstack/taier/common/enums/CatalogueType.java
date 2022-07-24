@@ -34,7 +34,12 @@ public enum CatalogueType {
     /**
      * 函数管理
      */
-    FUNCTION_MANAGER("FunctionManager");
+    FUNCTION_MANAGER("FunctionManager"),
+
+    /**
+     * 自定义函数
+     */
+    CUSTOM_FUNCTION("CustomFunction");
 
     private String type;
 

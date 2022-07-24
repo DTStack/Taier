@@ -191,7 +191,7 @@ public class DevelopFunctionService {
             AssertUtils.isTrue(EScheduleJobType.FLINK_SQL.getType().equals(taskType), "sparkSQL 任务只能引用上传到hdfs的资源");
         }
         if (ComputeType.BATCH.getType().equals(resource.getComputeType())) {
-            AssertUtils.isTrue(EScheduleJobType.SPARK_SQL.getType().equals(taskType), "flinkSQL 任务只能引用上传到sftp的资源");
+            AssertUtils.isTrue(EScheduleJobType.SPARK_SQL.getType().equals(taskType) || EScheduleJobType.HIVE_SQL.getType().equals(taskType), "flinkSQL 任务只能引用上传到sftp的资源");
         }
     }
 
@@ -445,6 +445,18 @@ public class DevelopFunctionService {
             }
         }
         return false;
+    }
+
+
+    /**
+     * 根据 租户、名称 获取资源列表
+     *
+     * @param tenantId     租户ID
+     * @param resourceName 资源名称
+     * @return
+     */
+    public List<DevelopFunction> listByNameAndTenantId(Long tenantId, String resourceName) {
+        return developFunctionMapper.listByNameAndTenantId(tenantId, resourceName);
     }
 
 }
