@@ -48,9 +48,9 @@ public class FillDataJobScheduler extends OperatorRecordJobScheduler {
     protected List<ScheduleJob> getScheduleJob(Set<String> jobIds) {
         return scheduleJobService.lambdaQuery().in(ScheduleJob::getJobId, jobIds)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .eq(ScheduleJob::getStatus, TaskStatus.UNSUBMIT.getStatus())
                 .eq(ScheduleJob::getType, getScheduleType().getType())
                 .eq(ScheduleJob::getPhaseStatus, JobPhaseStatus.CREATE.getCode())
+                .apply("(status = 0 or ((status = 10 or status=4) and task_type in (10)))")
                 .ne(ScheduleJob::getFillId, 0).list();
     }
 
