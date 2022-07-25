@@ -18,8 +18,9 @@
 
 import { useEffect, useState } from 'react';
 import { KeybindingHelper } from '@dtinsight/molecule/esm/services/keybinding';
-import './index.scss';
 import { Utils } from '@dtinsight/dt-utils/lib';
+import './index.scss';
+
 
 const commands = [
 	{ id: 'sidebar', label: '切换侧边栏' },
