@@ -49,6 +49,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     SFTP_NOT_FOUND(29, "sftp can not found","sftp不存在"),
 
     UPDATE_EXCEPTION(30, "update exception", "更新异常"),
+    UNSUPPORTED_OPERATION(31, "unSupported operation", "不支持的操作"),
     CONFIG_ERROR(51, "config error","配置错误"),
 
     HTTP_CALL_ERROR(64, "http call error", "远程调用失败"),

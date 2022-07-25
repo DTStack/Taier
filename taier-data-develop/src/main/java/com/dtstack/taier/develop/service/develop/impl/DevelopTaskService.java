@@ -69,6 +69,7 @@ import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taier.develop.enums.develop.WorkFlowScheduleConfEnum;
 import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
 import com.dtstack.taier.develop.mapstruct.vo.TaskMapstructTransfer;
 import com.dtstack.taier.develop.service.console.TenantService;
@@ -1408,8 +1409,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                 .eq(Task::getIsDeleted, Deleted.NORMAL.getStatus())
                 .eq(Task::getTenantId, tenantId));
 
+        Task updateInfo = new Task();
         if (Objects.isNull(taskInfo)) {
-            Task updateInfo = new Task();
             updateInfo.setId(taskId);
             updateInfo.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
             updateInfo.setName(taskName);
@@ -1422,6 +1423,72 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (!taskId.equals(taskInfo.getId())) {
             throw new RdosDefineException(ErrorCode.NAME_ALREADY_EXIST);
         }
+        updateInfo.setGmtModified(Timestamp.valueOf(LocalDateTime.now()));
+        updateInfo.setName(taskName);
+        updateInfo.setNodePid(catalogueId);
+        updateInfo.setTaskDesc(desc);
+        updateInfo.setComponentVersion(componentVersion);
+        developTaskMapper.update(updateInfo, Wrappers.lambdaUpdate(Task.class).eq(Task::getId, taskInfo.getId()));
+
+        if (Objects.equals(EScheduleJobType.WORK_FLOW.getType(), taskInfo.getTaskType())){
+            //更新父节点目录时，同步更新子节点
+            if (!taskInfo.getNodePid().equals(catalogueId)) {
+                updateSonTaskNodePidByFlowId(taskInfo.getId(), catalogueId);
+            }
+        }
+    }
+
+
+
+    /**
+     * 更新工作流的调度信息
+     * 历史任务若父节点和子节点的周期不一致，则在提交时将子节点自动改为与父节点一致
+     *
+     * @param flowWorkId      工作流id
+     * @param newScheduleConf 新调度信息
+     */
+    public void updateSubTaskScheduleConf(final Long flowWorkId, final JSONObject newScheduleConf) {
+        Task task = developTaskMapper.selectById(flowWorkId);
+        if (task == null) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+        final List<Task> batchTasks = this.getFlowWorkSubTasks(flowWorkId);
+        if (CollectionUtils.isEmpty(batchTasks)) {
+            return;
+        }
+        final int periodType = newScheduleConf.getInteger("periodType");
+        newScheduleConf.put("selfReliance", 0);
+        //工作流更新调度属性时，子任务同步更新
+        for (final Task bTask : batchTasks) {
+            //工作流配置的自动取消不同步子任务
+            newScheduleConf.remove("isExpire");
+            JSONObject subTaskScheduleConf = JSON.parseObject(bTask.getScheduleConf());
+            Boolean isFailRetry = MapUtils.getBoolean(subTaskScheduleConf, "isFailRetry", true);
+            Integer maxRetryNum = MapUtils.getInteger(subTaskScheduleConf, "maxRetryNum", 3);
+            newScheduleConf.put("isFailRetry", isFailRetry);
+            newScheduleConf.put("maxRetryNum", maxRetryNum);
+            WorkFlowScheduleConfEnum.valueOf(WorkFlowScheduleConfEnum.getCurrentPeriodType(String.valueOf(periodType)))
+                    .handleWorkFlowChildScheduleConf(bTask, newScheduleConf);
+            bTask.setPeriodType(periodType);
+        }
+        for (Task batchTask : batchTasks) {
+            Task task1 = new Task();
+            task1.setScheduleConf(batchTask.getScheduleConf());
+            developTaskMapper.update(task1,Wrappers.lambdaUpdate(Task.class).eq(Task::getId,batchTask.getId()));
+        }
+    }
+
+
+    /**
+     * 根据父任务id，更新所有子任务的目录id
+     *
+     * @param flowId
+     * @param nodePid
+     */
+    public void updateSonTaskNodePidByFlowId(Long flowId, Long nodePid) {
+        Task task = new Task();
+        task.setNodePid(nodePid);
+        developTaskMapper.update(task, Wrappers.lambdaUpdate(Task.class).eq(Task::getFlowId, flowId));
     }
 
 }

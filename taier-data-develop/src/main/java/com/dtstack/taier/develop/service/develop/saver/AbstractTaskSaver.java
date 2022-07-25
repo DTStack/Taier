@@ -174,6 +174,24 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         if (specialTask == null) {
             throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
         }
+        Task specialTask1 = new Task();
+        // 转换环境参数
+        if (!Objects.equals(EScheduleJobType.WORK_FLOW.getVal(), taskVO.getTaskType())){
+            String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
+                    FlinkVersion.getVersion(taskVO.getComponentVersion()),
+                    taskVO.getTaskParams(), taskVO.getTaskType());
+            taskVO.setTaskParams(convertParams);
+
+            TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
+            developTaskService.updateById(specialTask1);
+        }else {
+            TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
+            specialTask1.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
+            developTaskService.updateById(specialTask1);
+        }
+
+
+
         if (EScheduleJobType.WORK_FLOW.getVal().equals(specialTask.getTaskType())){
             // 判断任务依赖是否成环
             if (MapUtils.isNotEmpty(taskVO.getNodeMap())) {
@@ -184,15 +202,19 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
                 List<TaskVO> dependencyTasks = getTaskByIds(entry.getValue());
                 developTaskTaskService.addOrUpdateTaskTask(entry.getKey(), dependencyTasks);
             }
+
+
+            List<Task> childrenTaskByFlowId = developTaskService.getFlowWorkSubTasks(specialTask.getId());
+            if (CollectionUtils.isNotEmpty(childrenTaskByFlowId)){
+                developTaskService.updateSubTaskScheduleConf(taskVO.getId(), JSONObject.parseObject(taskVO.getScheduleConf()));
+            }
+
+            //更新父节点目录时，同步更新子节点
+            if (!taskVO.getNodePid().equals(specialTask.getNodePid())) {
+                developTaskService.updateSonTaskNodePidByFlowId(taskVO.getId(), taskVO.getNodePid());
+            }
         }
-        // 转换环境参数
-        String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
-                FlinkVersion.getVersion(taskVO.getComponentVersion()),
-                taskVO.getTaskParams(), taskVO.getTaskType());
-        taskVO.setTaskParams(convertParams);
-        Task specialTask1 = new Task();
-        TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
-        developTaskService.updateById(specialTask1);
+
     }
 
 
