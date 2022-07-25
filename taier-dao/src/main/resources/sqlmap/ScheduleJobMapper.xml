@@ -215,7 +215,13 @@
     </update>
 
     <update id="updateJobStatusAndExecTime">
-        update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+        update schedule_job
+        set gmt_modified=now()
+          , exec_end_time=now()
+          , status=#{status}
+          , exec_time=timestampdiff(SECOND, exec_start_time, now())
+          , exec_start_time = IF(exec_start_time = null, now(), exec_start_time)
+        where job_id = #{jobId};
     </update>
 
 </mapper>

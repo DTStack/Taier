@@ -1,10 +1,13 @@
 package com.dtstack.taier.develop.service.schedule;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.Tenant;
@@ -16,16 +19,16 @@ import com.dtstack.taier.develop.vo.schedule.ReturnTaskDisplayVO;
 import com.dtstack.taier.develop.vo.schedule.TaskNodeVO;
 import com.dtstack.taier.scheduler.dto.schedule.QueryTaskDisplayDTO;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,15 +53,16 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     @Autowired
     private UserService userService;
 
-    private ThreadLocal<HashMap<Long,String>> tenantThreadLocal = ThreadLocal.withInitial(HashMap::new);
+    private ThreadLocal<HashMap<Long, String>> tenantThreadLocal = ThreadLocal.withInitial(HashMap::new);
 
     /**
      * 展开任务上下游
+     *
      * @return 上下游规则
      */
     public ReturnTaskDisplayVO displayOffSpring(QueryTaskDisplayDTO dto) {
         // 查询的最长层级不能超过 max.jobJob.level
-        dto.setLevel(JobUtils.checkLevel(dto.getLevel(),context.getMaxLevel()));
+        dto.setLevel(JobUtils.checkLevel(dto.getLevel(), context.getMaxLevel()));
 
         // 查询任务
         ScheduleTaskShade taskShade = taskService.lambdaQuery()
@@ -73,7 +77,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         TaskNodeVO rootNode = new TaskNodeVO();
         setNode(taskShade, rootNode);
         Tenant tenant = tenantService.getTenantById(taskShade.getTenantId());
-        if(null != tenant){
+        if (null != tenant) {
             rootNode.setTenantName(tenant.getTenantName());
             rootNode.setTenantId(tenant.getId());
         }
@@ -95,29 +99,6 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         return vo;
     }
 
-    /**
-     * 展开工作流任务
-     * @param taskId 任务id
-     * @return 上下游规则
-     */
-    public ReturnTaskDisplayVO getAllFlowSubTasks(Long taskId) {
-        // 查询任务
-        ScheduleTaskShade taskShade = taskService.lambdaQuery()
-                .eq(ScheduleTaskShade::getTaskId, taskId)
-                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                .one();
-
-        if (taskShade == null) {
-            return null;
-        }
-
-        //如果任务是工作流节点，直接返回整个工作流
-        if (taskShade.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())) {
-            return displayAllFlowSubTasks(taskShade);
-        } else {
-            return new ReturnTaskDisplayVO();
-        }
-    }
 
     /**
      * 展示固定层级的节点
@@ -175,7 +156,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
 
             TaskNodeVO vo = new TaskNodeVO();
             if (taskShadeSon != null) {
-                setNode(taskShadeSon,vo);
+                setNode(taskShadeSon, vo);
 
                 if (DisplayDirect.CHILD.getType().equals(directType)) {
                     vo.setChildNode(displayLevelNode(taskShadeSon, level - 1, directType));
@@ -188,42 +169,6 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
         return taskNodeVOS;
     }
 
-    /**
-     * 查询所有工作流节点
-     *
-     * @param taskShade 工作流任务
-     * @return
-     */
-    private ReturnTaskDisplayVO displayAllFlowSubTasks(ScheduleTaskShade taskShade) {
-        ReturnTaskDisplayVO vo = new ReturnTaskDisplayVO();
-        // 头节点
-        TaskNodeVO root = new TaskNodeVO();
-        setNode(taskShade,root);
-        vo.setRootTaskNode(root);
-
-        // 查询出所有工作流任务
-        List<ScheduleTaskShade> taskShadeList = taskService.findAllFlowTasks(taskShade.getTaskId());
-        if (CollectionUtils.isEmpty(taskShadeList)) {
-            return vo;
-        }
-
-        // 查询出这些工作流的关系数据
-        Map<Long, ScheduleTaskShade> taskMaps = taskShadeList.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId,g->(g)));
-        Set<Long> taskSet = Sets.newHashSet(taskMaps.keySet());
-        taskSet.add(taskShade.getTaskId());
-        List<ScheduleTaskTaskShade> taskTaskShades = this.lambdaQuery()
-                .in(ScheduleTaskTaskShade::getTaskId, taskSet)
-                .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                .list();
-        if (CollectionUtils.isEmpty(taskTaskShades)) {
-            return vo;
-        }
-
-        // 递归工作流任务的关系
-        Map<Long, List<ScheduleTaskTaskShade>> taskTaskMap = taskTaskShades.stream().collect(Collectors.groupingBy(ScheduleTaskTaskShade::getParentTaskId));
-        root.setChildNode(findChildNode(root,taskMaps,taskTaskMap));
-        return vo;
-    }
 
     /**
      * 查询孩子节点
@@ -247,7 +192,7 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
             vo.setTaskId(taskTaskShade.getTaskId());
 
             if (taskShade != null) {
-                setNode(taskShade,vo);
+                setNode(taskShade, vo);
             }
 
             vo.setChildNode(findChildNode(vo, taskMaps, taskTaskMap));
@@ -259,8 +204,9 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
 
     /**
      * 设置node节点
+     *
      * @param taskShade 任务
-     * @param node 节点
+     * @param node      节点
      */
     private void setNode(ScheduleTaskShade taskShade, TaskNodeVO node) {
         node.setTaskId(taskShade.getTaskId());
@@ -280,4 +226,24 @@ public class TaskTaskService extends ServiceImpl<ScheduleTaskTaskShadeMapper, Sc
     }
 
 
+    /**
+     * 获取工作流的头节点
+     *
+     * @param taskId
+     * @return
+     */
+    public List<Long> getWorkFlowTopTask(Long taskId) {
+        ScheduleTaskShade workFlowTask = taskService.findTaskByTaskId(taskId);
+        if (null == workFlowTask || !Objects.equals(EScheduleJobType.WORK_FLOW.getType(), workFlowTask.getTaskType())) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+        JSONObject workFlowSql = JSONObject.parseObject(workFlowTask.getSqlText());
+        List<Long> topTasks = new ArrayList<>();
+        for (String taskIdKey : workFlowSql.keySet()) {
+            if (workFlowSql.getJSONArray(taskIdKey).isEmpty()) {
+                topTasks.add(Long.parseLong(taskIdKey));
+            }
+        }
+        return topTasks;
+    }
 }
