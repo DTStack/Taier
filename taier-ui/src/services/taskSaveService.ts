@@ -738,7 +738,7 @@ class TaskSaveService extends GlobalEvent {
 					data.flowId.toString(),
 				);
 
-				const targetCell = cells.find((i) => i.value.id === params.id);
+				const targetCell = cells.find((i) => i.vertex && i.value.id === params.id);
 				if (targetCell) {
 					targetCell.setValue({
 						...targetCell.value,

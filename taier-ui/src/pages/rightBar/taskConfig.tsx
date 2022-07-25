@@ -10,7 +10,6 @@ import {
 	dirtySaveType,
 	logPrintTimes,
 } from '@/components/helpDoc/docs';
-import LifeCycleSelect from '@/components/lifeCycleSelect';
 import api from '@/api';
 import { getTenantId } from '@/utils';
 import type { IRightBarComponentProps } from '@/services/rightBarService';
@@ -27,7 +26,6 @@ interface IFormFieldProps {
 		sourceId: number;
 	};
 	tableName?: string;
-	lifeCycle?: any;
 	logPrintInterval?: number;
 }
 
@@ -78,7 +76,6 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 				outputType,
 				linkInfo,
 				tableName,
-				lifeCycle,
 				logPrintInterval,
 			} = (current.tab.data.taskDirtyDataManageVO || {}) as IFormFieldProps;
 
@@ -89,7 +86,6 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 				outputType,
 				linkInfo,
 				tableName,
-				lifeCycle,
 				logPrintInterval,
 			};
 		}
@@ -196,19 +192,6 @@ export default function TaskConfig({ current }: IRightBarComponentProps) {
 															initialValue="flinkx_dirty_data"
 														>
 															<Input disabled />
-														</Form.Item>
-														<Form.Item
-															label="脏数据生命周期"
-															name="lifeCycle"
-															rules={[
-																{
-																	required: true,
-																	message: '生命周期不可为空!',
-																},
-															]}
-															initialValue={90}
-														>
-															<LifeCycleSelect width="100%" />
 														</Form.Item>
 													</>
 												)

@@ -496,12 +496,12 @@ export const removePopUpMenu = () => {
 export function getVertexStyle(type: TASK_STATUS): string {
 	// 成功
 	if (FINISH_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
+		return 'whiteSpace=wrap;fillColor=#f5ffe6;strokeColor=#12bc6a;';
 	}
 
 	// 运行中
 	if (RUNNING_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=rgba(63, 135, 255, 0.06);strokeColor=#3f87ff;';
+		return 'whiteSpace=wrap;fillColor=#e6f6ff;strokeColor=#3f87ff;';
 	}
 
 	// 等待提交/提交中/等待运行
