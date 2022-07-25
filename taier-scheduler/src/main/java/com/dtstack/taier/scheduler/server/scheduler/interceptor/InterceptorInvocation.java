@@ -41,8 +41,7 @@ public class InterceptorInvocation {
 
     public Boolean submit(ScheduleJobDetails scheduleJobDetails) {
         if (iterator == null || !iterator.hasNext()) {
-            scheduler.submitJob(scheduleJobDetails);
-            return Boolean.TRUE;
+            return scheduler.submitJob(scheduleJobDetails);
         } else {
             SubmitInterceptor next = iterator.next();
             return intercept(next, scheduleJobDetails);

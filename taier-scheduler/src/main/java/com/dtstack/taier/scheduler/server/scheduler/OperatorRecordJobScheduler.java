@@ -120,7 +120,7 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
                 ScheduleJob scheduleJob = scheduleJobMap.get(jobId);
 
                 // 如果周期实例是停止状态，那说明job运行完成后，这个时候Operator需要删除
-                if (scheduleJob!=null && TaskStatus.STOPPED_STATUS.contains(scheduleJob.getStatus())) {
+                if (scheduleJob != null && TaskStatus.STOPPED_STATUS.contains(scheduleJob.getStatus())) {
                     needDeleteJobIdList.add(jobId);
                 }
 
@@ -130,8 +130,10 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
                 }
 
             } else {
-                // cache信息不是空的，就可以直接删除，重启可以考cache重新拉起
-                needDeleteJobIdList.add(jobId);
+                if (TaskStatus.STOPPED_STATUS.contains(scheduleJobMap.get(jobId).getStatus())) {
+                    // 任务停止才删除
+                    needDeleteJobIdList.add(jobId);
+                }
             }
         }
 
@@ -139,19 +141,21 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
         if (CollectionUtils.isNotEmpty(needDeleteJobIdList)) {
             scheduleJobOperatorRecordService
                     .lambdaUpdate()
-                    .in(ScheduleJobOperatorRecord::getJobId,needDeleteJobIdList)
+                    .in(ScheduleJobOperatorRecord::getJobId, needDeleteJobIdList)
                     .remove();
         }
     }
 
     /**
      * 获得operator类型
+     *
      * @return 类型值
      */
     public abstract OperatorType getOperatorType();
 
     /**
      * 查询实例方法
+     *
      * @param jobIds 实例id
      * @return 实例
      */
