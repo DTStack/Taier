@@ -24,7 +24,13 @@ import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import moment from 'moment';
 import { isArray } from 'lodash';
 import api from '@/api';
-import { DATA_SYNC_MODE, SCHEDULE_DEPENDENCY, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
+import {
+	DATA_SYNC_MODE,
+	SCHEDULE_DEPENDENCY,
+	SCHEDULE_STATUS,
+	TASK_PERIOD_ENUM,
+	TASK_TYPE_ENUM,
+} from '@/constant';
 import type { IOfflineTaskProps, IScheduleConfProps, ITaskVOProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import FormWrap from './scheduleForm';
@@ -281,19 +287,13 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 		[],
 	);
 
-	/**
-	 * @deprecated
-	 * 是否是 workflow 任务, 目前暂不支持
-	 */
-	const isWorkflowNode = false;
-	/**
-	 * @deprecated
-	 * 是否是数据科学任务, 目前暂不支持
-	 */
-	const isScienceTask = false;
-
 	const tabData: IOfflineTaskProps = current!.tab!.data;
 	const scheduleConf = getInitScheduleConf();
+
+	/**
+	 * 是否是工作流任务的子任务
+	 */
+	const isWorkflowNode = useMemo(() => !!tabData.flowId, [tabData]);
 
 	return (
 		<molecule.component.Scrollable>
@@ -301,6 +301,8 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 				<Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
 					<Panel key="1" header="调度属性">
 						<FormWrap
+							isWorkflowNode={isWorkflowNode}
+							isWorkflowRoot={tabData.taskType === TASK_TYPE_ENUM.WORK_FLOW}
 							scheduleConf={scheduleConf}
 							status={tabData?.scheduleStatus}
 							handleScheduleStatus={handleScheduleStatus}
@@ -322,11 +324,7 @@ export default function SchedulingConfig({ current }: IRightBarComponentProps) {
 						<Panel key="3" header="跨周期依赖">
 							<Row style={{ marginBottom: '16px' }}>
 								<Col offset={1}>
-									<RadioGroup
-										disabled={isScienceTask}
-										onChange={handleRadioChanged}
-										value={selfReliance}
-									>
+									<RadioGroup onChange={handleRadioChanged} value={selfReliance}>
 										{!isIncrementMode && (
 											<Radio
 												style={radioStyle}
