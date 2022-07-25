@@ -120,7 +120,7 @@ export default function SchemaModal() {
 						<Select style={{ width: '100%' }}>
 							{taskList.map((l) => {
 								return (
-									<Select.Option value={l.taskType}>
+									<Select.Option key={l.taskType} value={l.taskType}>
 										<Badge status={l.schema ? 'success' : 'default'} />
 										{l.taskTypeName}
 									</Select.Option>
