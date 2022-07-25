@@ -249,7 +249,7 @@ public class DatasourceService {
 
     // 关系型数据库建表模版
     private static final String RDB_CREATE_TABLE_SQL_TEMPLATE = "create table %s ( %s );";
-    
+
     private final String SEMICOLON = ";";
 
     static {
@@ -655,7 +655,6 @@ public class DatasourceService {
         dsInfo.setDataDesc(dataSourceVO.getDataDesc());
         dsInfo.setStatus(1);
         dsInfo.setIsMeta(dataSourceVO.getIsMeta());
-        dsInfo.setTenantId(dataSourceVO.getTenantId());
         dsInfo.setTenantId(dataSourceVO.getTenantId());
         dsInfo.setSchemaName(dataSourceVO.getSchemaName());
         DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dataSourceVO.getDataType(), dataSourceVO.getDataVersion());
@@ -2947,7 +2946,7 @@ public class DatasourceService {
 
     /**
      * 处理oracle类型建表sql
-     * 
+     *
      * @param sourceId
      * @param sql
      * @param targetSchema
