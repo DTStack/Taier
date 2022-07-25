@@ -1,6 +1,7 @@
 package com.dtstack.taier.scheduler.server.scheduler;
 
 import com.dtstack.taier.common.CustomThreadRunsPolicy;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -16,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 /**
  * @Auther: dazhi
@@ -42,6 +44,11 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
     @Autowired
     private ScheduleJobService scheduleJobService;
 
+    Predicate<ScheduleJob> workFlowSubmit = job -> EScheduleJobType.WORK_FLOW.getType().equals(job.getTaskType()) && TaskStatus.UNSUBMIT.getStatus().equals(job.getStatus());
+    Predicate<ScheduleJob> normalJobSubmit = job -> !EScheduleJobType.WORK_FLOW.getType().equals(job.getTaskType()) &&
+            scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
+    Predicate<ScheduleJob> putFlagPredicate = workFlowSubmit.or(normalJobSubmit);
+
     /**
      * 实例提交条件
      *
@@ -52,14 +59,15 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
     public Boolean submitJob(ScheduleJobDetails scheduleJobDetails) {
         try {
             ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
-            boolean updateStatus = scheduleJobService.updatePhaseStatusById(scheduleJob.getId(), JobPhaseStatus.CREATE, JobPhaseStatus.JOIN_THE_TEAM);
-            if (updateStatus && scheduleJobQueue.contains(scheduleJobDetails)) {
+            if (scheduleJobQueue.contains(scheduleJobDetails)) {
                 //元素已存在，返回true
                 LOGGER.info("jobId:{} scheduleType:{} queue has contains ", scheduleJob.getJobId(), getSchedulerName());
                 return false;
             }
-            scheduleJobQueue.put(scheduleJobDetails);
-            LOGGER.info("jobId:{} scheduleType:{} enter queue", scheduleJob.getJobId(), getSchedulerName());
+            if (putFlagPredicate.test(scheduleJob)) {
+                scheduleJobQueue.put(scheduleJobDetails);
+                LOGGER.info("jobId:{} scheduleType:{} enter queue", scheduleJob.getJobId(), getSchedulerName());
+            }
             return true;
         } catch (InterruptedException e) {
             ScheduleJob scheduleJob = scheduleJobDetails.getScheduleJob();
@@ -101,7 +109,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
      */
     public void stop() {
         RUNNING.set(false);
-        LOGGER.info("---stop {}----",getSchedulerName());
+        LOGGER.info("---stop {}----", getSchedulerName());
     }
 
     @Override
@@ -112,7 +120,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
         String threadName = this.getClass().getSimpleName() + "_" + getSchedulerName() + "_startJobProcessor";
         executorService = new ThreadPoolExecutor(env.getJobExecutorPoolCorePoolSize(), env.getJobExecutorPoolMaximumPoolSize(), env.getJobExecutorPoolKeepAliveTime(), TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(env.getJobExecutorPoolQueueSize()),
-                new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(),(job -> {
+                new CustomThreadRunsPolicy<ScheduleJob>(threadName, getSchedulerName(), (job -> {
                     scheduleJobService.updatePhaseStatusById(job.getId(), JobPhaseStatus.JOIN_THE_TEAM, JobPhaseStatus.CREATE);
                     LOGGER.warn("start job processor reject job {},return job to db", job.getJobId());
                 })));
@@ -129,7 +137,7 @@ public abstract class AbstractJobSummitScheduler extends AbstractJobScanningSche
                 scheduleJob = scheduleJobDetails.getScheduleJob();
                 LOGGER.info("jobId:{} scheduleType:{} take job from queue.", scheduleJob.getJobId(), getSchedulerName());
                 this.submit(scheduleJobDetails);
-            } catch (InterruptedException ie){
+            } catch (InterruptedException ie) {
                 // swallow the interrupt as it's only possible from either a background
                 // operation and, thus, doesn't apply to this loop or the instance
                 // is being closed in which case the while test will get it

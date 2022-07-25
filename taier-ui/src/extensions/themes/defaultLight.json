@@ -1,0 +1,10 @@
+{
+    "id": "Default Light+",
+    "colors": {
+        "scrollbar.shadow": "#DDDDDD",
+		"scrollbarSlider.activeBackground": "#00000099",
+        "scrollbarSlider.background": "#64646466",
+		"scrollbarSlider.hoverBackground": "#646464b3",
+        "terminal.ansiBlue": "#3f87ff"
+    }
+}

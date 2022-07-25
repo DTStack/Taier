@@ -21,7 +21,7 @@ import { Button, Input, Form } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import FolderPicker from '../../components/folderPicker';
-import { CATELOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
+import { CATALOGUE_TYPE, formItemLayout, tailFormItemLayout } from '@/constant';
 import type { CatalogueDataProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import './editFolder.scss';
@@ -119,7 +119,7 @@ export default connect(
 							},
 						]}
 					>
-						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.TASK} />
+						<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.TASK} />
 					</FormItem>
 					<FormItem {...tailFormItemLayout}>
 						<Button type="primary" htmlType="submit" loading={loading}>

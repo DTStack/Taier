@@ -1,0 +1,41 @@
+{
+    "id": "GitHub Plus",
+    "colors": {
+        "inputValidation.errorBorder": "#BE1100",
+        "inputValidation.errorBackground": "#F2DEDE",
+        "list.focusBackground": "#E4E6F1",
+        "list.inactiveSelectionBackground": "#E4E6F1",
+        "list.focusOutline": "#0090F1",
+        "tree.indentGuidesStroke": "#eeeeee",
+        "editorError.foreground": "#c24038",
+        "minimapSlider.activeBackground": "#00000099",
+        "minimapSlider.background": "#64646480",
+        "minimapSlider.hoverBackground": "#64646480",
+        "scrollbarSlider.background": "#64646466",
+        "scrollbarSlider.hoverBackground": "#646464b3",
+        "scrollbarSlider.activeBackground": "#00000099",
+        "activityBar.inactiveForeground": "#ffffff66",
+        "disabledForeground": "#ddd",
+        "menu.selectionBackground": "#54a3ff"
+    },
+    "tokenColors": [
+        {
+            "scope": "error-token",
+            "settings": {
+                "foreground": "#cd3131"
+            }
+        },
+        {
+            "scope": "info-token",
+            "settings": {
+                "foreground": "#316bcd"
+            }
+        },
+        {
+            "scope": "warn-token",
+            "settings": {
+                "foreground": "#cd9731"
+            }
+        }
+    ]
+}

@@ -33,7 +33,7 @@ export interface ITaskResultService {
 	/**
 	 * 任务执行结果
 	 */
-	setResult: (key: string, result: any) => void;
+	setResult: (key: `${string}-${string}`, result: any) => void;
 	/**
 	 * 清除执行结果
 	 */
@@ -71,8 +71,9 @@ export interface ITaskResultStates {
 	logs: Record<string, string>;
 	/**
 	 * 任务执行结果
+	 * @key 前者为 tabId，后者为基于 sqlText 生成的 md5 码
 	 */
-	results: Record<string, any>;
+	results: Record<`${string}-${string}`, string[][]>;
 }
 
 class TaskResultService extends Component<ITaskResultStates> implements ITaskResultService {
@@ -82,21 +83,20 @@ class TaskResultService extends Component<ITaskResultStates> implements ITaskRes
 		super();
 		this.state = {
 			logs: {},
-			// 后续 results 下载需要 jobId 下载
 			results: {},
 		};
 	}
 
-	public setResult(key: string, res: any) {
+	public setResult(key: `${string}-${string}`, res: any) {
 		const nextResults = this.state.results;
 		nextResults[key] = res;
-		this.setState({ results: nextResults });
+		this.setState({ results: { ...nextResults } });
 	}
 
 	public clearResult(key: string) {
 		const nextResults = this.state.results;
 		Reflect.deleteProperty(nextResults, key);
-		this.setState({ results: nextResults });
+		this.setState({ results: { ...nextResults } });
 	}
 
 	public appendLogs(key: string, log: string) {

@@ -28,13 +28,13 @@ import com.dtstack.taier.develop.enums.develop.ClusterMode;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.utils.JsonUtils;
 import com.dtstack.taier.develop.utils.develop.hive.service.LogPluginDownload;
-import com.dtstack.taier.develop.utils.develop.service.impl.Engine2DTOService;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.service.ClusterService;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
@@ -52,9 +52,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import static com.dtstack.taier.develop.service.develop.impl.BatchDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
+import static com.dtstack.taier.develop.service.develop.impl.DevelopDownloadService.DEFAULT_LOG_PREVIEW_BYTES;
 
 @Service
 public class FlinkRuntimeLogService {
@@ -79,6 +85,9 @@ public class FlinkRuntimeLogService {
 
     @Autowired
     private DevelopTaskMapper developTaskMapper;
+
+    @Autowired
+    private ClusterService clusterService;
 
 
     private static Logger logger = LoggerFactory.getLogger(FlinkRuntimeLogService.class);
@@ -253,7 +262,7 @@ public class FlinkRuntimeLogService {
      */
     private String getEntityPre(String responseEntity) {
         if (StringUtils.isBlank(responseEntity)) {
-            logger.warn("获取网页信息最终空{}");
+            logger.warn("获取网页信息为空");
             return StringUtils.EMPTY;
         }
         Document document = Jsoup.parse(responseEntity);
@@ -441,15 +450,14 @@ public class FlinkRuntimeLogService {
     }
 
     public IDownloader downloadJobLogWithEngineJob(String applicationId, Integer taskType, Long tenantId, Integer limitNum, String taskManagerId) {
-        JSONObject yarnConf = Engine2DTOService.getComponentConfig(tenantId, EComponentType.YARN);
-        Map<String, Object> hadoop = Engine2DTOService.getHdfs(tenantId);
+        Map yarnConf = clusterService.getComponentByTenantId(tenantId, EComponentType.YARN.getTypeCode(), false,
+                Map.class, null);
+        Map hadoopConf = clusterService.getComponentByTenantId(tenantId, EComponentType.HDFS.getTypeCode(), false,
+                Map.class, null);
         AssertUtils.notNull(yarnConf, "获取yarn集群信息失败");
-        if (MapUtils.isEmpty(hadoop)) {
-            throw new DtCenterDefException("获取hdfs信息失败");
-        }
-
+        AssertUtils.notNull(hadoopConf, "获取hdfs信息失败");
         try {
-            return new LogPluginDownload(applicationId, yarnConf, hadoop, null, taskManagerId, limitNum).getHdfsLogDownloader();
+            return new LogPluginDownload(applicationId, yarnConf, hadoopConf, null, taskManagerId, limitNum).getHdfsLogDownloader();
         } catch (Exception e) {
             logger.error("downloadJobLog 失败:" + e.getMessage(), e);
             return null;

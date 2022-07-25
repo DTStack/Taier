@@ -1,27 +1,35 @@
 package com.dtstack.taier.develop.service.console;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.dtstack.taier.common.enums.DictType;
 import com.dtstack.taier.common.enums.DownloadType;
+import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
+import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
-import com.dtstack.taier.common.util.MathUtil;
+import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
 import com.dtstack.taier.common.util.ZipUtil;
-import com.dtstack.taier.dao.domain.*;
+import com.dtstack.taier.dao.domain.Cluster;
+import com.dtstack.taier.dao.domain.Component;
+import com.dtstack.taier.dao.domain.ComponentConfig;
+import com.dtstack.taier.dao.domain.Dict;
+import com.dtstack.taier.dao.domain.KerberosConfig;
 import com.dtstack.taier.dao.dto.Resource;
 import com.dtstack.taier.dao.mapper.ClusterMapper;
-import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.dao.mapper.ConsoleKerberosMapper;
 import com.dtstack.taier.develop.model.ClusterFactory;
 import com.dtstack.taier.develop.model.Part;
 import com.dtstack.taier.develop.model.PartCluster;
-import com.dtstack.taier.pluginapi.CustomThreadFactory;
+import com.dtstack.taier.develop.model.system.config.ComponentModel;
+import com.dtstack.taier.develop.vo.console.ComponentModelVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
@@ -31,16 +39,13 @@ import com.dtstack.taier.pluginapi.util.MD5Util;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
-import com.dtstack.taier.scheduler.impl.pojo.ComponentMultiTestResult;
 import com.dtstack.taier.scheduler.service.ComponentConfigService;
 import com.dtstack.taier.scheduler.service.ComponentService;
-import com.dtstack.taier.scheduler.service.QueueService;
 import com.dtstack.taier.scheduler.service.ScheduleDictService;
 import com.dtstack.taier.scheduler.utils.ComponentConfigUtils;
 import com.dtstack.taier.scheduler.utils.Krb5FileUtil;
 import com.dtstack.taier.scheduler.utils.XmlFileUtil;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
-import com.dtstack.taier.scheduler.vo.IComponentVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -57,15 +62,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.dtstack.taier.common.constant.CommonConstant.ZIP_SUFFIX;
-import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.*;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KERBEROS;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KEYTAB_SUFFIX;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.KRB5_CONF;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.MD5_SUM_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.TYPE_NAME_KEY;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.USER_DIR_DOWNLOAD;
+import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.USER_DIR_UNZIP;
 
 
 @org.springframework.stereotype.Component
@@ -78,12 +95,6 @@ public class ConsoleComponentService {
 
     @Autowired
     private ClusterMapper clusterMapper;
-
-    @Autowired
-    private QueueService queueService;
-
-    @Autowired
-    private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
     private EnvironmentContext env;
@@ -114,9 +125,6 @@ public class ConsoleComponentService {
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
 
-    private static ThreadPoolExecutor connectPool = new ThreadPoolExecutor(5, 10,
-            60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(20),
-            new CustomThreadFactory("connectPool"));
 
     static {
         //hdfs core 需要合并
@@ -128,35 +136,25 @@ public class ConsoleComponentService {
     @Transactional(rollbackFor = Exception.class)
     public ComponentVO addOrUpdateComponent(Long clusterId, String componentConfig,
                                             List<Resource> resources, String versionName,
-                                            String kerberosFileName, String componentTemplate,
+                                            String kerberosFileName,
                                             EComponentType componentType, Integer storeType,
                                             String principals, String principal, boolean isMetadata, Boolean isDefault, Integer deployType) {
-        if (StringUtils.isBlank(componentConfig)) {
-            componentConfig = new JSONObject().toJSONString();
-        }
+
         EComponentType storeComponent = null == storeType ? null : EComponentType.getByCode(storeType);
         PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
         Part part = partCluster.create(componentType, versionName, storeComponent, deployType);
         String versionValue = part.getVersionValue();
         String pluginName = part.getPluginName();
-
-
+        List<ComponentConfig> templateConfig = part.loadTemplate();
         Component componentDTO = new Component();
         componentDTO.setComponentTypeCode(componentType.getTypeCode());
-        Cluster cluster = clusterMapper.getOne(clusterId);
-        if (null == cluster) {
-            throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
-        }
-        String clusterName = cluster.getClusterName();
-
         Component addComponent = new Component();
         BeanUtils.copyProperties(componentDTO, addComponent);
         // 判断是否是更新组件, 需要校验组件版本
-        com.dtstack.taier.dao.domain.Component dbComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),
+        Component dbComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(),
                 ComponentVersionUtil.isMultiVersionComponent(componentType.getTypeCode()) ? versionValue : null, deployType);
         String dbHadoopVersion = "";
         boolean isUpdate = false;
-        boolean isOpenKerberos = isOpenKerberos(kerberosFileName, dbComponent);
         if (null != dbComponent) {
             //更新
             dbHadoopVersion = dbComponent.getVersionValue();
@@ -164,19 +162,12 @@ public class ConsoleComponentService {
             isUpdate = true;
         }
 
-        EComponentType storesComponent = this.checkStoresComponent(clusterId, storeType);
-        addComponent.setStoreType(storesComponent.getTypeCode());
+        addComponent.setStoreType(storeType);
         addComponent.setVersionValue(versionValue);
         addComponent.setComponentName(componentType.getName());
         addComponent.setComponentTypeCode(componentType.getTypeCode());
         addComponent.setDeployType(deployType);
-        if (EComponentType.HDFS == componentType) {
-            //hdfs的组件和yarn组件的版本保持强一致
-            com.dtstack.taier.dao.domain.Component yarnComponent = componentMapper.getByClusterIdAndComponentType(clusterId, EComponentType.YARN.getTypeCode(), null, null);
-            if (null != yarnComponent) {
-                versionName = yarnComponent.getVersionName();
-            }
-        }
+
         addComponent.setVersionName(versionName);
 
         if (StringUtils.isNotBlank(kerberosFileName)) {
@@ -195,62 +186,33 @@ public class ConsoleComponentService {
             componentMapper.insert(addComponent);
         }
 
-        changeMetadata(componentType.getTypeCode(), isMetadata, clusterId, addComponent.getIsMetadata());
-        List<ClientTemplate> clientTemplates = this.buildTemplate(
-                componentType, componentConfig, isOpenKerberos, md5Key, componentTemplate, pluginName);
-        componentConfigService.addOrUpdateComponentConfig(clientTemplates, addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode());
-        // 此时不需要查询默认版本
-        List<IComponentVO> componentVos = componentConfigService.getComponentVoByComponent(Lists.newArrayList(addComponent), true, clusterId, true, false);
+        List<ComponentConfig> componentConfigs = buildConfigs(componentType, componentConfig, md5Key, pluginName, templateConfig,
+                addComponent.getId(), addComponent.getClusterId());
+        componentConfigService.addOrUpdateComponentConfig(addComponent.getId(), addComponent.getClusterId(), componentType.getTypeCode(), componentConfigs);
         this.updateCache();
-        if (CollectionUtils.isNotEmpty(componentVos)) {
-            ComponentVO componentVO = (ComponentVO) componentVos.get(0);
-            componentVO.setClusterName(clusterName);
-            componentVO.setPrincipal(principal);
-            componentVO.setPrincipals(principals);
-            componentVO.setDeployType(deployType);
-            componentVO.setIsMetadata(BooleanUtils.toInteger(isMetadata));
-            return componentVO;
-        }
-        return null;
+        return ComponentVO.toVO(addComponent);
     }
 
 
-    private List<ClientTemplate> buildTemplate(EComponentType componentType, String componentString,
-                                               boolean isOpenKerberos, String md5Key,
-                                               String clientTemplates, String pluginName) {
-        List<ClientTemplate> templates = new ArrayList<>();
+    private List<ComponentConfig> buildConfigs(EComponentType componentType, String componentString, String md5Key, String pluginName,
+                                               List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
+        List<ComponentConfig> configs = new ArrayList<>();
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-        if (isOpenKerberos) {
-            if (EComponentType.HDFS.equals(componentType)) {
-                componentConfigJSON.put("dfs.namenode.kerberos.principal.pattern", "*");
-            }
-
-            if (EComponentType.YARN.equals(componentType)) {
-                componentConfigJSON.put("yarn.resourcemanager.principal.pattern", "*");
-            }
-        }
-        if (EComponentType.typeComponentVersion.contains(componentType)) {
             //添加typeName
-            ClientTemplate typeNameClientTemplate = ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName);
-            templates.add(typeNameClientTemplate);
-        }
+        configs.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName, componentId, clusterId, componentType.getTypeCode()));
         if (!StringUtils.isBlank(md5Key)) {
-            ClientTemplate md5ClientTemplate = ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key);
-            templates.add(md5ClientTemplate);
+            configs.add(ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key, componentId, clusterId, componentType.getTypeCode()));
         }
         if (EComponentType.noControlComponents.contains(componentType)) {
             //xml配置文件也转换为组件
-            List<ClientTemplate> xmlTemplates = ComponentConfigUtils.convertXMLConfigToComponentConfig(componentConfigJSON.toJSONString());
-            templates.addAll(xmlTemplates);
-            //yarn 和hdfs的自定义参数
-            templates.addAll(ComponentConfigUtils.dealXmlCustomControl(componentType, clientTemplates));
+            configs.addAll(componentConfigJSON.keySet().stream().map(key ->
+                    ComponentConfigUtils.buildCustomConfig(key, componentConfigJSON.getString(key), EFrontType.CUSTOM_CONTROL.name(),
+                            null, componentId, clusterId, componentType.getTypeCode())).collect(Collectors.toList()));
         } else {
-            List<ClientTemplate> controlTemplate = JSONObject.parseArray(clientTemplates, ClientTemplate.class);
-            templates.addAll(controlTemplate);
+            configs.addAll(ComponentConfigUtils.fillTemplateValue(componentConfigJSON, templateConfig, componentId, clusterId, componentType.getTypeCode()));
         }
-        return templates;
+        return configs;
     }
-
 
 
     /**
@@ -311,54 +273,6 @@ public class ConsoleComponentService {
         return componentMapper.updateDefault(clusterId, componentType.getTypeCode(), !isDefault);
     }
 
-    public boolean changeMetadata(Integer componentType, boolean isMetadata, Long clusterId, Integer oldMetadata) {
-        if (!EComponentType.metadataComponents.contains(EComponentType.getByCode(componentType))) {
-            return false;
-        }
-        Integer revertComponentType = EComponentType.HIVE_SERVER.getTypeCode().equals(componentType) ? EComponentType.SPARK_THRIFT.getTypeCode() : EComponentType.HIVE_SERVER.getTypeCode();
-        List<Component> components = componentMapper.listByClusterId(clusterId, revertComponentType, false);
-        Component revertComponent = CollectionUtils.isEmpty(components) ? null : components.get(0);
-        if (null == revertComponent) {
-            //单个组件默认勾选
-            componentMapper.updateMetadata(clusterId, componentType, 1);
-            return true;
-        }
-        if (null != oldMetadata && !BooleanUtils.toIntegerObject(isMetadata, 1, 0).equals(oldMetadata)) {
-            //如果集群已经绑定过租户 不允许修改
-            if (CollectionUtils.isNotEmpty(clusterTenantMapper.listByClusterId(clusterId))) {
-                throw new RdosDefineException(ErrorCode.CHANGE_META_NOT_PERMIT_WHEN_BIND_CLUSTER);
-            }
-        }
-        LOGGER.info("change metadata clusterId {} component {} to {} ", clusterId, componentType, isMetadata);
-        componentMapper.updateMetadata(clusterId, componentType, isMetadata ? 1 : 0);
-        componentMapper.updateMetadata(clusterId, revertComponentType, isMetadata ? 0 : 1);
-        return true;
-    }
-
-    private boolean isOpenKerberos(String kerberosFileName, Component dbComponent) {
-        boolean isOpenKerberos = StringUtils.isNotBlank(kerberosFileName);
-        if (!isOpenKerberos && null != dbComponent) {
-            KerberosConfig componentKerberos = consoleKerberosMapper.getByComponentType(dbComponent.getClusterId(), dbComponent.getComponentTypeCode(),
-                    ComponentVersionUtil.formatMultiVersion(dbComponent.getComponentTypeCode(), dbComponent.getVersionValue()));
-            if (componentKerberos != null) {
-                isOpenKerberos = true;
-            }
-        }
-        return isOpenKerberos;
-    }
-
-    private EComponentType checkStoresComponent(Long clusterId, Integer storeType) {
-        //默认为hdfs
-        if (null == storeType) {
-            return EComponentType.HDFS;
-        }
-        EComponentType componentType = EComponentType.getByCode(MathUtil.getIntegerVal(storeType));
-        Component storeComponent = componentMapper.getByClusterIdAndComponentType(clusterId, componentType.getTypeCode(), null, null);
-        if (null == storeComponent) {
-            throw new RdosDefineException(ErrorCode.PRE_COMPONENT_NOT_EXISTS.getMsg() + ":" + componentType.getName());
-        }
-        return componentType;
-    }
 
     private String updateResource(Long clusterId, String componentConfig, List<Resource> resources, String kerberosFileName, Integer componentCode, String principals, String principal, Component addComponent, Component dbComponent) {
         //上传资源依赖sftp组件
@@ -526,7 +440,6 @@ public class ConsoleComponentService {
     }
 
 
-
     /**
      * 解压kerberos文件到本地 并上传至sftp
      * * @param clusterId
@@ -590,7 +503,7 @@ public class ConsoleComponentService {
         }
         String versionName = addComponent.getVersionName();
         String componentVersion = "";
-        if(StringUtils.isNotBlank(versionName) && ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode())){
+        if (StringUtils.isNotBlank(versionName) && ComponentVersionUtil.isMultiVersionComponent(addComponent.getComponentTypeCode())) {
             //
             DictType dictType = null;
             if (EComponentType.SPARK.getTypeCode().equals(addComponent.getComponentTypeCode())) {
@@ -607,7 +520,7 @@ public class ConsoleComponentService {
         }
 
         //更新数据库kerberos信息
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(),componentVersion);
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(clusterId, addComponent.getComponentTypeCode(), componentVersion);
         boolean isFirstOpenKerberos = false;
         if (Objects.isNull(kerberosConfig)) {
             kerberosConfig = new KerberosConfig();
@@ -986,16 +899,20 @@ public class ConsoleComponentService {
      * 解析yml文件转换为前端渲染格式
      *
      * @param componentType 组件类型
-     * @param clusterId   集群ID
-     * @param versionName  组件版本名 如Hadoop 2.x
-     * @param storeType  存储组件type 如 HDFS
+     * @param clusterId     集群ID
+     * @param versionName   组件版本名 如Hadoop 2.x
+     * @param storeType     存储组件type 如 HDFS
      * @return
      */
-    public List<ClientTemplate> loadTemplate(Long clusterId, EComponentType componentType, String versionName, EComponentType storeType,Integer deployType) {
+    public List<ClientTemplate> loadTemplate(Long clusterId, EComponentType componentType, String versionName, EComponentType storeType, Integer deployType) {
         PartCluster cluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
-        Part part = cluster.create(componentType, versionName, storeType,deployType);
+        Part part = cluster.create(componentType, versionName, storeType, deployType);
         List<ComponentConfig> componentConfigs = part.loadTemplate();
-        return ComponentConfigUtils.buildDBDataToClientTemplate(componentConfigs);
+        return componentConfigs.stream().map(c -> {
+            ClientTemplate clientTemplate = new ClientTemplate();
+            BeanUtils.copyProperties(c, clientTemplate);
+            return clientTemplate;
+        }).collect(Collectors.toList());
     }
 
 
@@ -1012,11 +929,8 @@ public class ConsoleComponentService {
         return components;
     }
 
-    public ComponentTestResult testConnect(String clusterName, Integer componentType, String versionName) {
-        if (StringUtils.isBlank(clusterName)) {
-            throw new RdosDefineException(ErrorCode.NAME_FORMAT_ERROR);
-        }
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
+    public ComponentTestResult testConnect(Long clusterId, Integer componentType, String versionName) {
+        Cluster cluster = clusterMapper.getOne(clusterId);
         if (null == cluster) {
             throw new RdosDefineException(ErrorCode.CANT_NOT_FIND_CLUSTER);
         }
@@ -1024,25 +938,17 @@ public class ConsoleComponentService {
         if (null == testComponent) {
             throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
         }
-        if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-            ComponentTestResult componentTestResult = new ComponentTestResult();
-            componentTestResult.setComponentTypeCode(componentType);
-            componentTestResult.setResult(true);
-            componentTestResult.setComponentVersion(testComponent.getVersionValue());
-            return componentTestResult;
-        }
         Map sftpMap = componentService.getComponentByClusterId(cluster.getId(), EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-        return testComponentWithResult(clusterName, cluster, sftpMap, testComponent);
+        return testComponentWithResult(cluster, sftpMap, testComponent);
     }
 
     /**
      * 测试所有组件连通性
      *
-     * @param clusterName
      * @return
      */
-    public List<ComponentMultiTestResult> testConnects(String clusterName) {
-        Cluster cluster = clusterMapper.getByClusterName(clusterName);
+    public List<ComponentTestResult> testConnects(Long clusterId) {
+        Cluster cluster = clusterMapper.getOne(clusterId);
         List<Component> components = getComponents(cluster);
         if (CollectionUtils.isEmpty(components)) {
             return new ArrayList<>();
@@ -1052,43 +958,33 @@ public class ConsoleComponentService {
 
         Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
                 .collect(Collectors.toMap(component -> component,
-                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(clusterName, cluster, sftpMap, c), connectPool)));
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c))));
 
-        CompletableFuture<List<ComponentTestResult>> completableFuture = CompletableFuture
-                .allOf(completableFutureMap.values().toArray(new CompletableFuture[0]))
-                .thenApply((f) -> completableFutureMap.keySet().stream().map(component -> {
-                    try {
-                        return completableFutureMap.get(component).get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
-                    } catch (Exception e) {
-                        ComponentTestResult testResult = new ComponentTestResult();
-                        testResult.setResult(false);
-                        testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-                        testResult.setComponentVersion(component.getVersionValue());
-                        testResult.setComponentTypeCode(component.getComponentTypeCode());
-                        return testResult;
-                    }
-                }).collect(Collectors.toList()));
+        CompletableFuture<Void> totalFuture = CompletableFuture.allOf(completableFutureMap.values().toArray(new CompletableFuture[0]));
         try {
-            List<ComponentTestResult> componentTestResults = completableFuture.get();
-            Map<Integer, List<ComponentTestResult>> componentCodeResultMap = componentTestResults.stream()
-                    .collect(Collectors.groupingBy(ComponentTestResult::getComponentTypeCode, Collectors.collectingAndThen(Collectors.toList(), c -> c)));
-            return componentCodeResultMap.keySet().stream().map(componentCode -> {
-                ComponentMultiTestResult multiTestResult = new ComponentMultiTestResult(componentCode);
-                multiTestResult.setMultiVersion(componentCodeResultMap.get(componentCode));
-                List<ComponentTestResult> testResults = componentCodeResultMap.get(componentCode);
-                multiTestResult.setResult(testResults.stream().allMatch(ComponentTestResult::getResult));
-                testResults.stream()
-                        .filter(componentTestResult -> StringUtils.isNotBlank(componentTestResult.getErrorMsg()))
-                        .findFirst()
-                        .ifPresent(errorResult -> multiTestResult.setErrorMsg(errorResult.getErrorMsg()));
-                return multiTestResult;
-            }).collect(Collectors.toList());
+            totalFuture.get(env.getTestConnectTimeout(), TimeUnit.SECONDS);
         } catch (Exception e) {
-            throw new RdosDefineException(e);
+            LOGGER.error("get components testConnects time out", e);
         }
+
+        return completableFutureMap.keySet().stream().map(component -> {
+            ComponentTestResult testResult = new ComponentTestResult();
+            try {
+                testResult.setResult(false);
+                testResult.setErrorMsg("connect timeout");
+                return completableFutureMap.get(component).getNow(testResult);
+            } catch (Exception e) {
+                testResult.setResult(false);
+                testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
+                testResult.setVersionName(component.getVersionName());
+                testResult.setComponentTypeCode(component.getComponentTypeCode());
+                return testResult;
+            }
+        }).collect(Collectors.toList());
+
     }
 
-    private ComponentTestResult testComponentWithResult(String clusterName, Cluster cluster, Map sftpMap, Component component) {
+    private ComponentTestResult testComponentWithResult(Cluster cluster, Map sftpMap, Component component) {
         ComponentTestResult testResult = new ComponentTestResult();
         try {
             KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(cluster.getId(), component.getComponentTypeCode(),
@@ -1096,21 +992,12 @@ public class ConsoleComponentService {
                             StringUtils.isNotBlank(component.getVersionValue()) ? component.getVersionValue() : componentMapper.getDefaultComponentVersionByClusterAndComponentType(cluster.getId(), component.getComponentTypeCode()) : null);
             String componentConfig = componentService.getComponentByClusterId(cluster.getId(), component.getComponentTypeCode(), false, String.class, null);
             testResult = this.testConnect(component.getComponentTypeCode(), componentConfig, component.getVersionName(), component.getClusterId(), kerberosConfig, sftpMap, component.getStoreType(), component.getDeployType());
-            //测试联通性
-            if (EComponentType.YARN.getTypeCode().equals(component.getComponentTypeCode()) && testResult.getResult()) {
-                if (null != testResult.getClusterResourceDescription()) {
-                    queueService.updateQueue(cluster.getId(), testResult.getClusterResourceDescription());
-                } else {
-                    testResult.setResult(false);
-                    testResult.setErrorMsg(clusterName + "获取yarn信息为空");
-                }
-            }
         } catch (Exception e) {
             testResult.setResult(false);
             testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
             LOGGER.error("test connect {}  error ", component.getId(), e);
         } finally {
-            testResult.setComponentVersion(component.getVersionValue());
+            testResult.setVersionName(component.getVersionName());
             testResult.setComponentTypeCode(component.getComponentTypeCode());
         }
         return testResult;
@@ -1206,18 +1093,12 @@ public class ConsoleComponentService {
                                            Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            if (EComponentType.notCheckComponent.contains(EComponentType.getByCode(componentType))) {
-                componentTestResult.setResult(true);
-                return componentTestResult;
-            }
-
-            String typeName = null;
+            JSONObject config = JSONObject.parseObject(componentConfig);
+            String typeName = config.getString(TYPE_NAME_KEY);
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
-                typeName = componentService.buildHdfsTypeName(null,clusterId);
-            } else {
-                typeName = convertComponentTypeToClient(clusterId, componentType, versionName, storeType, deployType);
+                typeName = componentService.buildHdfsTypeName(null, clusterId);
             }
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
             pluginInfo.put(TYPE_NAME_KEY, typeName);
             componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
             if (null == componentTestResult) {
@@ -1225,12 +1106,6 @@ public class ConsoleComponentService {
                 componentTestResult.setResult(false);
                 componentTestResult.setErrorMsg("测试联通性失败");
                 return componentTestResult;
-            }
-            // 单组件连通性测试回写yarn的队列信息
-            if (EComponentType.YARN.getTypeCode().equals(componentType)
-                    && componentTestResult.getResult()
-                    && Objects.nonNull(componentTestResult.getClusterResourceDescription())) {
-                queueService.updateQueue(clusterId, componentTestResult.getClusterResourceDescription());
             }
 
         } catch (Throwable e) {
@@ -1242,7 +1117,7 @@ public class ConsoleComponentService {
         } finally {
             if (null != componentTestResult) {
                 componentTestResult.setComponentTypeCode(componentType);
-                componentTestResult.setComponentVersion(versionName);
+                componentTestResult.setVersionName(versionName);
             }
         }
         return componentTestResult;
@@ -1256,8 +1131,8 @@ public class ConsoleComponentService {
      * @param downloadType 0:kerberos配置文件 1:配置文件 2:模板文件
      * @return
      */
-    public File downloadFile(Long componentId,  Integer downloadType,  Integer componentType,
-                             String versionName,  Long clusterId,Integer deployType) {
+    public File downloadFile(Long componentId, Integer downloadType, Integer componentType,
+                             String versionName, Long clusterId, Integer deployType) {
         String localDownLoadPath = "";
         String uploadFileName = "";
         if (null == componentId) {
@@ -1382,13 +1257,6 @@ public class ConsoleComponentService {
         }
     }
 
-    /***
-     * 获取对应的组件版本信息
-     * @return
-     */
-    public Map getComponentVersion() {
-        return scheduleDictService.getVersion();
-    }
 
     public KerberosConfig getKerberosConfig(Long clusterId, Integer componentType, String componentVersion) {
         return consoleKerberosMapper.getByComponentType(clusterId, componentType, ComponentVersionUtil.formatMultiVersion(componentType, componentVersion));
@@ -1403,25 +1271,82 @@ public class ConsoleComponentService {
      * @param versionName
      * @return
      */
-    public String convertComponentTypeToClient(Long clusterId, Integer componentType, String versionName, Integer storeType,Integer deployType) {
+    public String convertComponentTypeToClient(Long clusterId, Integer componentType, String versionName, Integer storeType, Integer deployType) {
         EComponentType type = EComponentType.getByCode(componentType);
         EComponentType storeComponent = null == storeType ? null : EComponentType.getByCode(storeType);
         PartCluster partCluster = clusterFactory.newImmediatelyLoadCluster(clusterId);
-        Part part = partCluster.create(type, versionName, storeComponent,deployType);
+        Part part = partCluster.create(type, versionName, storeComponent, deployType);
         return part.getPluginName();
     }
 
+
     /**
-     * 刷新组件信息
+     * 获取可配置组件信息
      *
-     * @param clusterName
      * @return
      */
-    public List<ComponentTestResult> refresh(String clusterName) {
-        List<ComponentTestResult> refreshResults = new ArrayList<>();
-        ComponentTestResult componentTestResult = testConnect(clusterName, EComponentType.YARN.getTypeCode(),null);
-        refreshResults.add(componentTestResult);
-        return refreshResults;
+    public List<ComponentModelVO> getComponentModels() {
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.COMPONENT_MODEL);
+        if (CollectionUtils.isEmpty(dicts)) {
+            return new ArrayList<>();
+        }
+        List<ComponentModelVO> modelVOS = new ArrayList<>(dicts.size());
+        for (Dict dict : dicts) {
+            ComponentModelVO componentModelVO = new ComponentModelVO();
+            JSONObject componentModel = JSONObject.parseObject(dict.getDictValue());
+            componentModelVO.setAllowCoexistence(componentModel.getBooleanValue(ComponentModel.ALLOW_COEXISTENCE_KEY));
+            List<String> dependsOn = JSON.parseObject(componentModel.getString(ComponentModel.DEPENDS_ON_KEY), new TypeReference<List<String>>() {
+            });
+            if (CollectionUtils.isNotEmpty(dependsOn)) {
+                List<Integer> dependsVal = dependsOn.stream().map(d -> EComponentScheduleType.valueOf(d).getType()).collect(Collectors.toList());
+                componentModelVO.setDependOn(dependsVal);
+            }
+            EComponentScheduleType ownerComponentScheduleType = EComponentScheduleType.valueOf(componentModel.getString(ComponentModel.OWNER_KEY));
+            componentModelVO.setOwner(ownerComponentScheduleType.getType());
+            EComponentType componentType = EComponentType.valueOf(dict.getDictName());
+            componentModelVO.setComponentCode(componentType.getTypeCode());
+            componentModelVO.setName(componentType.getName());
+
+            //version
+            String versionDict = componentModel.getString(ComponentModel.VERSION_DICTIONARY_KEY);
+            if (!StringUtils.isBlank(versionDict)) {
+                List<Dict> versions = scheduleDictService.listByDictCode(versionDict.toLowerCase());
+                if (!CollectionUtils.isEmpty(versions)) {
+                    List<Pair<String, List<Pair>>> pairs = scheduleDictService.groupByDependName(versions);
+                    componentModelVO.setVersionDictionary(pairs);
+                }
+            }
+
+            //是否能配置kerberos
+            componentModelVO.setAllowKerberos(componentModel.getBooleanValue(ComponentModel.ALLOW_KERBEROS));
+            //上传文件控件
+            componentModelVO.setUploadConfigType(componentModel.getIntValue(ComponentModel.UPLOAD_CONFIG_TYPE));
+
+            modelVOS.add(componentModelVO);
+        }
+        return modelVOS;
     }
 
+    public ComponentVO getComponentInfo(Long componentId) {
+        Component component = componentMapper.selectById(componentId);
+        if (null == component) {
+            throw new RdosDefineException(ErrorCode.COMPONENT_INVALID);
+        }
+        ComponentVO componentVO = ComponentVO.toVO(component);
+        List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
+        Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
+        componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
+        if (null != kerberosConfig) {
+            componentVO.setPrincipal(kerberosConfig.getPrincipal());
+            componentVO.setPrincipals(kerberosConfig.getPrincipals());
+            componentVO.setMergeKrb5Content(kerberosConfig.getMergeKrbContent());
+            componentVO.setKerberosFileName(kerberosConfig.getName());
+        }
+        return componentVO;
+    }
+
+    public Component getByClusterIdAndComponentType(Long clusterId, Integer typeCode) {
+        return componentMapper.getByClusterIdAndComponentType(clusterId, typeCode, null, null);
+    }
 }

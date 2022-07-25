@@ -1,14 +1,12 @@
 package com.dtstack.taier.develop.vo.develop.result;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * @author zhiChen
  * @date 2021/1/7 20:13
  * @see TaskCheckpointTransfer
  */
-@Data
 public class GetSavePointResultVO {
 
     @ApiModelProperty(value = "间隔符", example = "_")
@@ -24,4 +22,35 @@ public class GetSavePointResultVO {
     @ApiModelProperty(value = "外部路径", example = "213")
     private String externalPath;
 
+    public static String getSPLIT() {
+        return SPLIT;
+    }
+
+    public static void setSPLIT(String SPLIT) {
+        GetSavePointResultVO.SPLIT = SPLIT;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
+    public String getExternalPath() {
+        return externalPath;
+    }
+
+    public void setExternalPath(String externalPath) {
+        this.externalPath = externalPath;
+    }
 }

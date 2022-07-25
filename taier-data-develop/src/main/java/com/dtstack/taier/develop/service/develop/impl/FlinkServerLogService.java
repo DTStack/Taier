@@ -116,7 +116,7 @@ public class FlinkServerLogService {
                 scheduleJobExpand.setEngineLog(engineLog + flinkRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
 
             }
-        } else if (task.getTaskType().equals(EScheduleJobType.SQL.getVal())) {
+        } else if (task.getTaskType().equals(EScheduleJobType.FLINK_SQL.getVal())) {
             //yarn日志下载
             scheduleJobExpand.setEngineLog(flinkRuntimeLogService.loadJobLogWithEngineJob(logsVO.getTenantId(), task.getTaskType(), scheduleJob.getApplicationId(), null, taskManagerId));
             downLoadUrl = String.format(DOWNLOAD_LOG, task.getJobId(), task.getTaskType(), taskManagerId);

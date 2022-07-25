@@ -10,7 +10,14 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @Auther: dazhi
@@ -31,12 +38,12 @@ public class OperationScheduleJobJobController {
         return R.ok(jobJobService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryJobDisplayVOToReturnJobDisplayVO(vo)));
     }
 
-    @RequestMapping(value="/displayOffSpringWorkFlow", method = {RequestMethod.POST})
-    @ApiOperation(value = "为工作流节点展开子节点")
+    @PostMapping(value = "/getWorkFlowTopJob")
+    @ApiOperation(value = "查询工作流顶节点实例信息 ")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "jobId", value = "实例id", required = true, dataType = "String"),
     })
-    public R<ReturnJobDisplayVO> displayOffSpringWorkFlow(@RequestParam("jobId") String jobId) {
-        return R.ok(jobJobService.displayOffSpringWorkFlowJob(jobId));
+    public R<List<String>> getWorkFlowTopJob(@RequestParam("jobId") String jobId) {
+        return R.ok(jobJobService.getWorkFlowTopTask(jobId));
     }
 }

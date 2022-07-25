@@ -1,7 +1,11 @@
 package com.dtstack.taier.scheduler.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
+import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
+import com.dtstack.taier.dao.dto.ScheduleJobDTO;
 import com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -32,5 +36,18 @@ public class ScheduleTaskShadeService extends ServiceImpl<ScheduleTaskShadeMappe
             startId = 0L;
         }
         return this.baseMapper.listRunnableTask(startId,scheduleStatusList,taskSize);
+    }
+
+
+    /**
+     * 获取任务流下的所有子任务
+     *
+     * @param taskId
+     * @return
+     */
+    public List<ScheduleTaskShade> getFlowWorkSubTasks( Long taskId) {
+        return this.baseMapper.selectList(Wrappers.lambdaQuery(ScheduleTaskShade.class)
+                .eq(ScheduleTaskShade::getFlowId, taskId)
+                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 }

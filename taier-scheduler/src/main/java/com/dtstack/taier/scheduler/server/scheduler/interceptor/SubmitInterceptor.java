@@ -2,6 +2,11 @@ package com.dtstack.taier.scheduler.server.scheduler.interceptor;
 
 import com.dtstack.taier.scheduler.server.ScheduleJobDetails;
 import com.dtstack.taier.scheduler.server.Sort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 
 /**
  * @Auther: dazhi
@@ -11,8 +16,11 @@ import com.dtstack.taier.scheduler.server.Sort;
  */
 public interface SubmitInterceptor extends Sort {
 
+    Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().getClass());
+
     /**
      * 提交任务前
+     *
      * @param scheduleJobDetails 任务详情
      * @return 是否放行 true 放行， false 拦截
      */
@@ -20,6 +28,7 @@ public interface SubmitInterceptor extends Sort {
 
     /**
      * 提交执行
+     *
      * @param scheduleJobDetails 任务详情
      */
     void afterSubmit(ScheduleJobDetails scheduleJobDetails);

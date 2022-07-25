@@ -1,5 +1,6 @@
 package com.dtstack.taier.scheduler.server.scheduler.interceptor;
 
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.DateUtil;
@@ -36,7 +37,7 @@ public class JobStatusSubmitInterceptor extends SubmitInterceptorAdapter {
         Integer status = scheduleJobService.getJobStatusByJobId(scheduleJob.getJobId());
 
         // 判断实例状态是不是等待提交
-        if (!TaskStatus.UNSUBMIT.getStatus().equals(status)) {
+        if (!TaskStatus.UNSUBMIT.getStatus().equals(status) && !EScheduleJobType.WORK_FLOW.getType().equals(scheduleJobDetails.getScheduleJob().getTaskType())) {
             return Boolean.FALSE;
         }
 

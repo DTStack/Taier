@@ -61,7 +61,7 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
                 scheduleJobJob.setIsDeleted(Deleted.NORMAL.getStatus());
                 jobJobList.add(scheduleJobJob);
             } catch (Exception e) {
-                LOGGER.error("",e);
+                LOGGER.error("", e);
             }
         }
         return jobJobList;
@@ -71,7 +71,7 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
      * 获得jobKey
      *
      * @param scheduleTaskShade 任务
-     * @param currentDate 当前时间
+     * @param currentDate       当前时间
      * @return jobKey
      */
     public String getJobKey(ScheduleTaskShade scheduleTaskShade, Date currentDate) throws Exception {
@@ -84,10 +84,13 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
         // 上一个周期
         Date lastDate = corn.isMatch(currentDate) ? currentDate : corn.last(currentDate);
 
-        // 该任务不在调度周期内，返回空字符串
-        if (beginDate.before(lastDate) || endDate.after(lastDate)) {
-            return "";
+        if (!corn.isMatch(currentDate)) {
+            // 该任务不在调度周期内 且上游任务和当前任务不在同一计划时间内，返回空字符串
+            if (beginDate.before(lastDate) || endDate.after(lastDate)) {
+                return "";
+            }
         }
+
 
         String lastDateStr = DateUtil.getDate(corn.isMatch(currentDate) ? currentDate : corn.last(currentDate), DateUtil.STANDARD_DATETIME_FORMAT);
 
@@ -95,6 +98,6 @@ public class UpstreamDependencyHandler extends AbstractJobDependency {
             throw new RdosDefineException("no find upstream task of last cycle");
         }
         String jobKey = JobKeyUtils.generateJobKey(keyPreStr, scheduleTaskShade.getTaskId(), lastDateStr);
-        return needCreateKey(lastDate,currentDate,jobKey);
+        return needCreateKey(lastDate, currentDate, jobKey);
     }
 }

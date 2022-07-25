@@ -39,26 +39,22 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     private final static Logger LOGGER = LoggerFactory.getLogger(FillDataJobBuilder.class);
 
     private static final String FILL_DATA_TYPE = "fillData";
-    private static final String FILL_DATA_JOB_BUILDER = "FillDataJobBuilder";
-
-
 
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
 
-
     /**
      * 创建补数据实例
      *
-     * @param all all list 所有节点
-     * @param run run list 可运行节点
-     * @param fillId 补数据id
-     * @param fillName 补数据名称
+     * @param all       all list 所有节点
+     * @param run       run list 可运行节点
+     * @param fillId    补数据id
+     * @param fillName  补数据名称
      * @param beginTime 开始时间
-     * @param endTime 结束时间
-     * @param startDay 每天时间范围 开始范围
-     * @param endDay 每天时间范围 结束范围
+     * @param endTime   结束时间
+     * @param startDay  每天时间范围 开始范围
+     * @param endDay    每天时间范围 结束范围
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
@@ -79,24 +75,24 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
     /**
      * 创建一天的补数据实例
      *
-     * @param fillName 补数据名称
-     * @param fillId 补数据id
-     * @param all all list 所有节点
-     * @param run run list 可运行节点
+     * @param fillName   补数据名称
+     * @param fillId     补数据id
+     * @param all        all list 所有节点
+     * @param run        run list 可运行节点
      * @param triggerDay 具体目标天
      * @param beginTime  每天时间范围 开始范围
-     * @param endTime 每天时间范围 结束范围
+     * @param endTime    每天时间范围 结束范围
      * @throws Exception
      */
     @Transactional(rollbackFor = Exception.class)
-    private void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
+    public void buildFillDataJobGraph(String fillName, Long fillId, Set<Long> all, Set<Long> run, String triggerDay,
                                        String beginTime, String endTime) throws Exception {
         List<Long> allList = Lists.newArrayList(all);
         List<List<Long>> partition = Lists.partition(allList, environmentContext.getJobGraphTaskLimitSize());
         AtomicJobSortWorker sortWorker = new AtomicJobSortWorker();
 
         for (List<Long> taskKey : partition) {
-            jobGraphBuildPool.submit(()->{
+            jobGraphBuildPool.submit(() -> {
                 try {
                     List<ScheduleJobDetails> saveList = Lists.newArrayList();
                     for (Long taskId : taskKey) {
@@ -118,32 +114,31 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
                                     Long flowId = scheduleTaskShade.getFlowId();
                                     if (!allList.contains(flowId)) {
                                         // 生成周期实例
-                                        jobBuilderBeanList = RetryUtil.executeWithRetry(() -> buildJob(scheduleTaskShade, fillName, triggerDay, beginTime, beginTime, fillId,sortWorker),
+                                        jobBuilderBeanList = RetryUtil.executeWithRetry(() -> buildJob(scheduleTaskShade, fillName, triggerDay, beginTime, beginTime, fillId, sortWorker),
                                                 environmentContext.getBuildJobErrorRetry(), 200, false);
                                     }
                                 }
 
                                 for (ScheduleJobDetails jobBuilderBean : jobBuilderBeanList) {
-                                    addMap(run, saveList,taskId, jobBuilderBean);
+                                    addMap(run, saveList, taskId, jobBuilderBean);
                                 }
                             }
                         } catch (Exception e) {
-                            LOGGER.error("taskKey : {} error:",taskId,e);
+                            LOGGER.error("taskKey : {} error:", taskId, e);
                         }
                     }
                     savaFillJob(saveList);
                 } catch (Exception e) {
-                    LOGGER.error("fill error:",e);
+                    LOGGER.error("fill error:", e);
                 }
             });
         }
     }
 
     /**
-     *
-     * @param run  run list 可运行节点
-     * @param saveList 生成实例集合
-     * @param taskId 任务id
+     * @param run            run list 可运行节点
+     * @param saveList       生成实例集合
+     * @param taskId         任务id
      * @param jobBuilderBean 构建出来的实际
      */
     private void addMap(Set<Long> run, List<ScheduleJobDetails> saveList, Long taskId, ScheduleJobDetails jobBuilderBean) {
@@ -155,17 +150,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
         }
 
         saveList.add(jobBuilderBean);
-//        saveMap.put(scheduleJob.getJobId(),jobBuilderBean);
-
-        List<ScheduleJobDetails> flowBean = jobBuilderBean.getFlowBean();
-        
-        if (CollectionUtils.isNotEmpty(flowBean)) {
-            for (ScheduleJobDetails builderBean : flowBean) {
-                ScheduleJob flowScheduleJob = builderBean.getScheduleJob();
-                flowScheduleJob.setFillType(FillJobTypeEnum.RUN_JOB.getType());
-                saveList.add(jobBuilderBean);
-            }
-        }
+        saveList.addAll(jobBuilderBean.getFlowBean().stream().peek(flowBean -> flowBean.getScheduleJob().setFillType(FillJobTypeEnum.RUN_JOB.getType())).collect(Collectors.toList()));
     }
 
     /**
@@ -175,7 +160,7 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
      */
     private void savaFillJob(List<ScheduleJobDetails> allJobList) {
         scheduleJobService.insertJobList(allJobList, EScheduleType.FILL_DATA.getType());
-        List<ScheduleJobOperatorRecord> operatorJobIds = allJobList
+        Set<ScheduleJobOperatorRecord> operatorJobIds = allJobList
                 .stream()
                 .map(jobBuilderBean -> {
                     ScheduleJobOperatorRecord record = new ScheduleJobOperatorRecord();
@@ -185,9 +170,9 @@ public class FillDataJobBuilder extends AbstractJobBuilder {
                     record.setNodeAddress(jobBuilderBean.getScheduleJob().getNodeAddress());
                     return record;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        scheduleJobOperatorRecordService.saveBatch(operatorJobIds);
+        scheduleJobOperatorRecordService.insertBatch(operatorJobIds);
     }
 
     @Override

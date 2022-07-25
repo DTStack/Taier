@@ -54,8 +54,8 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             "/taier/download/component/downloadFile",
             "/taier/upload/component/config",
             "/taier/upload/component/addOrUpdateComponent",
-            "/taier/upload/batch/batchResource/addResource",
-            "/taier/upload/batch/batchResource/replaceResource",
+            "/taier/upload/batch/resource/addResource",
+            "/taier/upload/batch/resource/replaceResource",
             "/taier/upload/component/parseKerberos",
             "/taier/upload/component/uploadKerberos",
             "/taier/user/login",
@@ -63,8 +63,8 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
             "/taier/dataSource/addDs/getPrincipalsWithConf",
             "/taier/dataSource/addDs/addOrUpdateSourceWithKerberos",
             "/taier/dataSource/addDs/testConWithKerberos",
-            "/taier/batchResource/addResource",
-            "/taier/batchResource/replaceResource",
+            "/taier/resource/addResource",
+            "/taier/resource/replaceResource",
             "/taier/developDownload/downloadJobLog"
     ).collect(Collectors.toList());
 

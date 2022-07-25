@@ -20,19 +20,16 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EParamType;
 import com.dtstack.taier.common.util.TimeParamOperator;
-import com.dtstack.taier.dao.domain.BatchSysParameter;
-import com.dtstack.taier.dao.domain.BatchTaskParam;
-import com.dtstack.taier.dao.domain.BatchTaskParamShade;
+import com.dtstack.taier.dao.domain.DevelopSysParameter;
+import com.dtstack.taier.dao.domain.DevelopTaskParam;
+import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 变量替换
@@ -42,15 +39,13 @@ import java.util.stream.Collectors;
  * @author xuchao
  */
 
-@Component("batchJobParamReplace")
+@Component("developJobParamReplace")
 public class JobParamReplace {
 
     @Autowired
-    private BatchSysParamService batchSysParamService;
+    private DevelopSysParamService developSysParamService;
 
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
-
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private final static String VAR_FORMAT = "${%s}";
 
@@ -69,14 +64,14 @@ public class JobParamReplace {
             Integer type;
             String paramName;
             String paramCommand;
-            if (param instanceof BatchTaskParamShade){
-                type = ((BatchTaskParamShade) param).getType();
-                paramName = ((BatchTaskParamShade) param).getParamName();
-                paramCommand = ((BatchTaskParamShade) param).getParamCommand();
+            if (param instanceof DevelopTaskParamShade){
+                type = ((DevelopTaskParamShade) param).getType();
+                paramName = ((DevelopTaskParamShade) param).getParamName();
+                paramCommand = ((DevelopTaskParamShade) param).getParamCommand();
             } else {
-                type = ((BatchTaskParam) param).getType();
-                paramName = ((BatchTaskParam) param).getParamName();
-                paramCommand = ((BatchTaskParam) param).getParamCommand();
+                type = ((DevelopTaskParam) param).getType();
+                paramName = ((DevelopTaskParam) param).getParamName();
+                paramCommand = ((DevelopTaskParam) param).getParamCommand();
             }
 
             String replaceStr = String.format(VAR_FORMAT, paramName);
@@ -92,35 +87,13 @@ public class JobParamReplace {
         return sql;
     }
 
-    /**
-     * 转化对应字符串中的自定义参数和系统参数
-     *
-     * @param sql
-     * @param paramList
-     * @return
-     */
-    public String paramReplace(String sql, List paramList){
-        return paramReplace(sql, paramList, sdf.format(new Date()));
-    }
-
-    /**
-     * 批量替换参数
-     * @param sqlList
-     * @param paramList
-     * @param cycTime
-     * @return
-     */
-    public List<String> batchParamReplace(List<String> sqlList,List paramList, String cycTime){
-        return sqlList.stream().map(t-> paramReplace(t,paramList,cycTime)).collect(Collectors.toList());
-
-    }
 
 
     public String convertParam(Integer type,String paramName,String paramCommand,String cycTime) {
 
         String command = null;
         if (type == EParamType.SYS_TYPE.getType()) {
-            BatchSysParameter sysParameter = batchSysParamService.getBatchSysParamByName(paramName);
+            DevelopSysParameter sysParameter = developSysParamService.getBatchSysParamByName(paramName);
             command = sysParameter.getParamCommand();
 
             // 特殊处理 bdp.system.currenttime

@@ -22,7 +22,12 @@ import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
-import com.dtstack.taier.pluginapi.pojo.*;
+import com.dtstack.taier.pluginapi.pojo.CheckResult;
+import com.dtstack.taier.pluginapi.pojo.ClusterResource;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
+import com.dtstack.taier.pluginapi.pojo.FileResult;
+import com.dtstack.taier.pluginapi.pojo.JobResult;
+import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +134,9 @@ public abstract class AbstractClient implements IClient {
 
     @Override
     public ComponentTestResult testConnect(String pluginInfo) {
-        return null;
+        ComponentTestResult componentTestResult = new ComponentTestResult();
+        componentTestResult.setResult(true);
+        return componentTestResult;
     }
 
     @Override

@@ -21,12 +21,11 @@ package com.dtstack.taier.hadoop;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
-import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
-import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.base.resource.EngineResourceInfo;
 import com.dtstack.taier.base.util.HadoopConfTool;
 import com.dtstack.taier.base.util.KerberosUtils;
+import com.dtstack.taier.hadoop.parser.AddJarOperator;
+import com.dtstack.taier.hadoop.util.HadoopConf;
 import com.dtstack.taier.pluginapi.JarFileInfo;
 import com.dtstack.taier.pluginapi.JobClient;
 import com.dtstack.taier.pluginapi.JobIdentifier;
@@ -37,13 +36,12 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.pluginapi.exception.PluginDefineException;
 import com.dtstack.taier.pluginapi.http.PoolHttpClient;
+import com.dtstack.taier.pluginapi.pojo.ClusterResource;
+import com.dtstack.taier.pluginapi.pojo.ComponentTestResult;
 import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.pojo.JudgeResult;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
-import com.dtstack.taier.pluginapi.util.MD5Util;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.hadoop.parser.AddJarOperator;
-import com.dtstack.taier.hadoop.util.HadoopConf;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -57,7 +55,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -65,10 +69,19 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 public class HadoopClient extends AbstractClient {
 
@@ -100,8 +113,8 @@ public class HadoopClient extends AbstractClient {
         HadoopConfTool.setFsHdfsImplDisableCache(conf);
 
         conf.set("mapreduce.framework.name", "yarn");
-        conf.set("mapreduce.map.memory.mb","1024");
-        conf.set("mapreduce.reduce.memory.mb","1024");
+        conf.set("mapreduce.map.memory.mb", "1024");
+        conf.set("mapreduce.reduce.memory.mb", "1024");
         conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
         setHadoopUserName(config);
@@ -131,7 +144,7 @@ public class HadoopClient extends AbstractClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
-            return KerberosUtils.login(config, ()->{
+            return KerberosUtils.login(config, () -> {
                 String jobId = jobIdentifier.getEngineJobId();
 
                 try {
@@ -143,7 +156,7 @@ public class HadoopClient extends AbstractClient {
                 JobResult jobResult = JobResult.newInstance(false);
                 jobResult.setData("jobid", jobId);
                 return jobResult;
-            },conf);
+            }, conf);
         } catch (Exception e) {
             LOG.error("cancelJob error:", e);
             return JobResult.createErrorResult(e);
@@ -158,14 +171,14 @@ public class HadoopClient extends AbstractClient {
     @Override
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
-            return KerberosUtils.login(config, ()->{
+            return KerberosUtils.login(config, () -> {
                 String jobId = jobIdentifier.getEngineJobId();
                 ApplicationId appId = generateApplicationId(jobId);
 
                 try {
                     ApplicationReport report = getYarnClient().getApplicationReport(appId);
                     YarnApplicationState applicationState = report.getYarnApplicationState();
-                    switch(applicationState) {
+                    switch (applicationState) {
                         case KILLED:
                             return TaskStatus.KILLED;
                         case NEW:
@@ -181,13 +194,13 @@ public class HadoopClient extends AbstractClient {
                         case FINISHED:
                             //state 为finished状态下需要兼顾判断finalStatus.
                             FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                            if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                            if (finalApplicationStatus == FinalApplicationStatus.FAILED) {
                                 return TaskStatus.FAILED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.SUCCEEDED) {
                                 return TaskStatus.FINISHED;
-                            }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                            } else if (finalApplicationStatus == FinalApplicationStatus.KILLED) {
                                 return TaskStatus.KILLED;
-                            }else{
+                            } else {
                                 return TaskStatus.RUNNING;
                             }
 
@@ -220,9 +233,9 @@ public class HadoopClient extends AbstractClient {
         try {
             setHadoopUserName(config);
             JobParam jobParam = new JobParam(jobClient);
-            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(),Map.class);
+            Map<String, Object> plugininfo = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), Map.class);
             Configuration jobConf = fillJobConfig(jobClient, conf);
-            if(plugininfo.containsKey(QUEUE)){
+            if (plugininfo.containsKey(QUEUE)) {
                 jobConf.set(MRJobConfig.QUEUE_NAME, plugininfo.get(QUEUE).toString());
             }
 
@@ -252,15 +265,15 @@ public class HadoopClient extends AbstractClient {
     private void downloadHdfsFile(String from, String to) throws IOException {
 
         try {
-            KerberosUtils.login(config, ()-> {
+            KerberosUtils.login(config, () -> {
                 try {
                     File toFile = new File(to);
-                    if(!toFile.getParentFile().exists()){
+                    if (!toFile.getParentFile().exists()) {
                         Files.createParentDirs(toFile);
                     }
                     Path hdfsFilePath = new Path(from);
-                    InputStream is= FileSystem.get(conf).open(hdfsFilePath);//读取文件
-                    IOUtils.copyBytes(is, new FileOutputStream(toFile),2048, true);//保存到本地
+                    InputStream is = FileSystem.get(conf).open(hdfsFilePath);//读取文件
+                    IOUtils.copyBytes(is, new FileOutputStream(toFile), 2048, true);//保存到本地
                 } catch (Exception e) {
                     throw new PluginDefineException(e);
                 }
@@ -285,7 +298,7 @@ public class HadoopClient extends AbstractClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
         try {
-            return KerberosUtils.login(config, ()-> {
+            return KerberosUtils.login(config, () -> {
                 String jobId = jobIdentifier.getEngineJobId();
 
                 try {
@@ -304,15 +317,15 @@ public class HadoopClient extends AbstractClient {
 
     }
 
-    private void setHadoopUserName(Config config){
-        if(Strings.isNullOrEmpty(config.getHadoopUserName())){
+    private void setHadoopUserName(Config config) {
+        if (Strings.isNullOrEmpty(config.getHadoopUserName())) {
             return;
         }
 
         UserGroupInformation.afterSetHadoopUserName(config.getHadoopUserName());
     }
 
-    public YarnClient getYarnClient(){
+    public YarnClient getYarnClient() {
         long startTime = System.currentTimeMillis();
         try {
             if (yarnClient == null) {
@@ -336,7 +349,7 @@ public class HadoopClient extends AbstractClient {
             yarnClient1.start();
             yarnClient = yarnClient1;
         } finally {
-            long endTime= System.currentTimeMillis();
+            long endTime = System.currentTimeMillis();
             LOG.info("cost getYarnClient start-time:{} end-time:{}, cost:{}.", startTime, endTime, endTime - startTime);
         }
         return yarnClient;
@@ -363,7 +376,7 @@ public class HadoopClient extends AbstractClient {
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
         List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
-        if(sqlArr.size() == 0){
+        if (sqlArr.size() == 0) {
             return;
         }
 
@@ -371,16 +384,16 @@ public class HadoopClient extends AbstractClient {
         Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
 
-        while (sqlItera.hasNext()){
+        while (sqlItera.hasNext()) {
             String tmpSql = sqlItera.next();
             // handle add jar statements and comment statements on the same line
             tmpSql = AddJarOperator.handleSql(tmpSql);
-            if(AddJarOperator.verific(tmpSql)){
+            if (AddJarOperator.verific(tmpSql)) {
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
 
                 String addFilePath = jarFileInfo.getJarPath();
                 //只支持hdfs
-                if(!addFilePath.startsWith(HDFS_PREFIX)) {
+                if (!addFilePath.startsWith(HDFS_PREFIX)) {
                     throw new PluginDefineException("only support hdfs protocol for jar path");
                 }
                 String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
@@ -403,19 +416,19 @@ public class HadoopClient extends AbstractClient {
     @Override
     public void afterSubmitFunc(JobClient jobClient) {
         List<String> fileList = cacheFile.get(jobClient.getJobId());
-        if(CollectionUtils.isEmpty(fileList)){
+        if (CollectionUtils.isEmpty(fileList)) {
             return;
         }
 
         //清理包含下载下来的临时jar文件
-        for(String path : fileList){
-            try{
+        for (String path : fileList) {
+            try {
                 File file = new File(path);
-                if(file.exists()){
+                if (file.exists()) {
                     file.delete();
                 }
 
-            }catch (Exception e1){
+            } catch (Exception e1) {
                 LOG.error("", e1);
             }
         }
@@ -425,6 +438,7 @@ public class HadoopClient extends AbstractClient {
 
     /**
      * 测试联通性 yarn需要返回集群队列信息
+     *
      * @param pluginInfo
      * @return
      */
@@ -432,75 +446,14 @@ public class HadoopClient extends AbstractClient {
     public ComponentTestResult testConnect(String pluginInfo) {
         ComponentTestResult testResult = new ComponentTestResult();
         testResult.setResult(false);
-        try {
-            Config allConfig = PublicUtil.jsonStrToObject(pluginInfo, Config.class);
-            if ("hdfs".equalsIgnoreCase(allConfig.getComponentName())) {
-                //测试hdfs联通性
-                return this.checkHdfsConnect(allConfig);
-            }
-            return KerberosUtils.login(allConfig,
-                    () -> testYarnConnect(testResult, allConfig),
-                    KerberosUtils.convertMapConfToConfiguration(allConfig.getYarnConf()));
-
-        } catch (Exception e) {
-            LOG.error("test yarn connect error", e);
-            testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-        }
         return testResult;
     }
 
-    private ComponentTestResult testYarnConnect(ComponentTestResult testResult, Config allConfig) {
-        HadoopConf hadoopConf = new HadoopConf();
-        hadoopConf.initYarnConf(allConfig.getYarnConf());
-
-        List<NodeReport> nodes = new ArrayList<>();
-        try (
-                YarnClient testYarnClient = YarnClient.createYarnClient();
-             ) {
-            testYarnClient.init(hadoopConf.getYarnConfiguration());
-            testYarnClient.start();
-            nodes = testYarnClient.getNodeReports(NodeState.RUNNING);
-
-            int totalMemory = 0;
-            int totalCores = 0;
-            for (NodeReport rep : nodes) {
-                totalMemory += rep.getCapability().getMemory();
-                totalCores += rep.getCapability().getVirtualCores();
-            }
-            List<ComponentTestResult.QueueDescription> descriptions = getQueueDescription(null, testYarnClient.getRootQueueInfos());
-            testResult.setClusterResourceDescription(new ComponentTestResult.ClusterResourceDescription(nodes.size(), totalMemory, totalCores, descriptions));
-        } catch (Exception e) {
-            LOG.error("test yarn connect error", e);
-            testResult.setErrorMsg(ExceptionUtil.getErrorMessage(e));
-            return testResult;
-        }
-        testResult.setResult(true);
-        return testResult;
-    }
-
-    private List<ComponentTestResult.QueueDescription> getQueueDescription(String parentPath, List<QueueInfo> queueInfos) {
-        List<ComponentTestResult.QueueDescription> descriptions = new ArrayList<>(queueInfos.size());
-        parentPath = StringUtils.isBlank(parentPath) ? "" : parentPath + ".";
-        for (QueueInfo queueInfo : queueInfos) {
-            String queuePath = queueInfo.getQueueName().startsWith(parentPath) ? queueInfo.getQueueName() : parentPath + queueInfo.getQueueName();
-            ComponentTestResult.QueueDescription queueDescription = new ComponentTestResult.QueueDescription();
-            queueDescription.setQueueName(queueInfo.getQueueName());
-            queueDescription.setCapacity(String.valueOf(queueInfo.getCapacity()));
-            queueDescription.setMaximumCapacity(String.valueOf(queueInfo.getMaximumCapacity()));
-            queueDescription.setQueueState(queueInfo.getQueueState().name());
-            queueDescription.setQueuePath(queuePath);
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                List<ComponentTestResult.QueueDescription> childQueues = getQueueDescription(queueInfo.getQueueName(), queueInfo.getChildQueues());
-                queueDescription.setChildQueues(childQueues);
-            }
-            descriptions.add(queueDescription);
-        }
-        return descriptions;
-    }
 
 
     /**
      * 上传文件到hdfs中
+     *
      * @param bytes
      * @param hdfsPath 文件路径
      * @return
@@ -517,7 +470,7 @@ public class HadoopClient extends AbstractClient {
                     FSDataOutputStream os = fs.create(destP);
                     IOUtils.copyBytes(is, os, 4096, true);
                 } catch (IOException e) {
-                    LOG.error("submit file {} to hdfs error", hdfsPath,e);
+                    LOG.error("submit file {} to hdfs error", hdfsPath, e);
                     throw new PluginDefineException("上传文件失败", e);
                 } finally {
                     if (null != fs) {
@@ -624,7 +577,7 @@ public class HadoopClient extends AbstractClient {
                     String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
                     String schedulerInfoMsg = PoolHttpClient.get(schedulerUrl, null);
                     JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
-                    if(schedulerInfo.containsKey("scheduler")){
+                    if (schedulerInfo.containsKey("scheduler")) {
                         clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("scheduler").getJSONObject("schedulerInfo"));
                     }
                     clusterResource.setQueues(getQueueResource(yarnClient));
@@ -709,7 +662,7 @@ public class HadoopClient extends AbstractClient {
         }
 
         for (Object ob : queueInfos.getJSONArray("queue")) {
-            JSONObject queueInfo = (JSONObject)ob;
+            JSONObject queueInfo = (JSONObject) ob;
             String queueName = queueInfo.getString("queueName");
             parentName = StringUtils.isBlank(parentName) ? "" : parentName + ".";
             String queueNewName = parentName + queueName;
@@ -767,7 +720,7 @@ public class HadoopClient extends AbstractClient {
         } else {
             JSONArray users = queueUsers.getJSONArray("user");
             for (Object user : users) {
-                JSONObject userJSONObject = (JSONObject)user;
+                JSONObject userJSONObject = (JSONObject) user;
                 userJSONObject.put("maxResource", userJSONObject.getJSONObject("userResourceLimit"));
                 userJSONObject.put("maxAMResource", queueInfo.getJSONObject("userAMResourceLimit"));
             }

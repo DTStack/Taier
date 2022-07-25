@@ -14,12 +14,14 @@
         WHERE `type` = #{type} AND is_deleted = 0 ORDER BY sort
     </select>
 
-    <select id="getTypeDefault" resultType="com.dtstack.taier.dao.domain.Dict">
+
+    <select id="listByDictCode" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT
         <include refid="select_content_fragment"/>
         FROM dict
-        WHERE `type` = #{type} AND is_deleted = 0 AND is_default = 1 LIMIT 1
+        WHERE `dict_code` = #{code} AND is_deleted = 0 ORDER BY sort
     </select>
+
 
     <select id="getByNameValue" resultType="com.dtstack.taier.dao.domain.Dict">
         SELECT

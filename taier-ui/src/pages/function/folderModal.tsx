@@ -20,7 +20,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import assign from 'object-assign';
 import type { FormInstance } from 'antd';
 import { Modal, Button, Input, Form } from 'antd';
-import type { CATELOGUE_TYPE } from '@/constant';
+import type { CATALOGUE_TYPE } from '@/constant';
 import { formItemLayout } from '@/constant';
 import FolderPicker from '../../components/folderPicker';
 import type { CatalogueDataProps } from '@/interface';
@@ -34,7 +34,7 @@ interface IFormFieldProps {
 
 interface IFolderFormProps {
 	form: FormInstance<IFormFieldProps>;
-	dataType: CATELOGUE_TYPE;
+	dataType: CATALOGUE_TYPE;
 	defaultData: IFolderModalProps['defaultData'];
 	treeData: IFolderModalProps['treeData'];
 }
@@ -51,7 +51,7 @@ interface IFolderModalProps {
 	 * 后端传过来的当前类别下的所有目录数据
 	 */
 	treeData: CatalogueDataProps;
-	dataType: CATELOGUE_TYPE;
+	dataType: CATALOGUE_TYPE;
 	toggleCreateFolder: () => void;
 	addOfflineCatalogue: (values: { nodeName: string; nodePid: number }) => Promise<boolean>;
 	editOfflineCatalogue: (values: {

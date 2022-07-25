@@ -18,17 +18,10 @@
 
 import molecule from '@dtinsight/molecule/esm';
 import type { IFolderTreeNodeProps } from '@dtinsight/molecule/esm/model';
-import {
-	FlinkSQLIcon,
-	SyntaxIcon,
-	HiveSQLIcon,
-	SparkSQLIcon,
-	ResourceIcon,
-	DataCollectionIcon,
-} from '@/components/icon';
+import { SyntaxIcon, ResourceIcon } from '@/components/icon';
 import type { RESOURCE_TYPE } from '@/constant';
 import { ID_COLLECTIONS } from '@/constant';
-import { CATELOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
+import { CATALOGUE_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { executeService } from '@/services';
 import taskResultService, { createLog } from '@/services/taskResultService';
@@ -36,36 +29,25 @@ import Result from '@/components/task/result';
 import { filterSql } from '.';
 import stream from '@/api';
 import { TreeViewUtil } from '@dtinsight/molecule/esm/common/treeUtil';
-import { transformTabDataToParams } from './saveTask';
+import taskRenderService from '@/services/taskRenderService';
+import taskSaveService from '@/services/taskSaveService';
+import md5 from 'md5';
 
 /**
  * 根据不同任务渲染不同的图标
  */
 export function fileIcon(
 	type: TASK_TYPE_ENUM | RESOURCE_TYPE | null,
-	source: CATELOGUE_TYPE,
+	source: CATALOGUE_TYPE,
 ): string | JSX.Element {
 	switch (source) {
-		case CATELOGUE_TYPE.TASK: {
-			switch (type) {
-				case TASK_TYPE_ENUM.SPARK_SQL:
-					return <SparkSQLIcon style={{ color: '#519aba' }} />;
-				case TASK_TYPE_ENUM.SYNC:
-					return 'sync';
-				case TASK_TYPE_ENUM.HIVE_SQL:
-					return <HiveSQLIcon style={{ color: '#4291f0' }} />;
-				case TASK_TYPE_ENUM.SQL:
-					return <FlinkSQLIcon style={{ color: '#5655d8' }} />;
-				case TASK_TYPE_ENUM.DATA_ACQUISITION:
-					return <DataCollectionIcon style={{ color: '#3F87FF' }} />;
-				default:
-					return 'file';
-			}
+		case CATALOGUE_TYPE.TASK: {
+			return taskRenderService.renderTaskIcon(type as TASK_TYPE_ENUM);
 		}
-		case CATELOGUE_TYPE.RESOURCE: {
+		case CATALOGUE_TYPE.RESOURCE: {
 			return <ResourceIcon style={{ color: '#0065f6' }} />;
 		}
-		case CATELOGUE_TYPE.FUNCTION:
+		case CATALOGUE_TYPE.FUNCTION:
 		default:
 			return 'code';
 	}
@@ -108,7 +90,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 
 			const value = currentTabData.value || '';
 			// 需要被执行的 sql 语句
-			const sqls = [];
+			const sqls: string[] = [];
 			const rawSelections = molecule.editor.editorInstance.getSelections() || [];
 			// 排除鼠标 focus 在 editor 中的情况
 			const selections = rawSelections.filter(
@@ -126,11 +108,10 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				sqls.push(...filterSql(value));
 			}
 			executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
-				const allResult = taskResultService.getState().results;
-				Object.keys(allResult).forEach((key) => {
-					const results = allResult[key];
+				const { results } = taskResultService.getState();
+				let nextActivePanel: string | null = null;
+				Object.entries(results).forEach(([key, values]) => {
 					const panel = molecule.panel.getPanel(key);
-
 					if (!panel) {
 						const panels = molecule.panel.getState().data || [];
 						const resultPanles = panels.filter((p) => p.name?.includes('结果'));
@@ -138,13 +119,14 @@ export function runTask(current: molecule.model.IEditorGroup) {
 							resultPanles[resultPanles.length - 1]?.name?.slice(2) || '',
 						);
 
-						molecule.panel.open({
+						nextActivePanel = key;
+						molecule.panel.add({
 							id: key,
 							name: `结果 ${lastIndexOf + 1}`,
 							closable: true,
 							renderPane: () => (
 								<Result
-									data={results}
+									data={values}
 									tab={{
 										tableType: 0,
 									}}
@@ -154,6 +136,10 @@ export function runTask(current: molecule.model.IEditorGroup) {
 						});
 					}
 				});
+
+				molecule.panel.setActive(
+					nextActivePanel || `${currentTabData.id}-${md5(sqls.at(-1) || 'sync')}`,
+				);
 			});
 		}
 	}
@@ -190,7 +176,7 @@ export function syntaxValidate(current: molecule.model.IEditorGroup) {
 	taskResultService.clearLogs(logId);
 	taskResultService.appendLogs(logId, createLog('语法检查开始', 'info'));
 
-	const params = transformTabDataToParams(currentTabData);
+	const params = taskSaveService.transformTabDataToParams(currentTabData);
 
 	let isSuccess = false;
 	stream

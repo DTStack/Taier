@@ -41,11 +41,11 @@ public class ParamTaskAction {
     @ApiModelProperty(notes = "工作流Id")
     private String flowJobId;
 
-    public ScheduleTaskShade getBatchTask() {
+    public ScheduleTaskShade getTask() {
         return task;
     }
 
-    public void setBatchTask(ScheduleTaskShade task) {
+    public void setTask(ScheduleTaskShade task) {
         this.task = task;
     }
 

@@ -52,6 +52,7 @@ import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.PipelineBuilder;
 import com.dtstack.taier.scheduler.server.pipeline.operator.SyncOperatorPipeline;
+import com.dtstack.taier.scheduler.server.pipeline.operator.UnnecessaryPreprocessJobPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.params.UploadParamPipeline;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
@@ -96,6 +97,9 @@ public class ScheduleActionService {
 
     @Autowired
     private ScheduleJobService scheduleJobService;
+
+    @Autowired
+    private UnnecessaryPreprocessJobPipeline unnecessaryPreprocessJobPipeline;
 
     @Autowired
     private SyncOperatorPipeline syncOperatorPipeline;
@@ -153,6 +157,15 @@ public class ScheduleActionService {
         }
     }
 
+    /**
+     * 参数替换
+     *
+     * @param task
+     * @param jobId
+     * @param flowJobId
+     * @return
+     * @throws Exception
+     */
     public ParamActionExt paramActionExt(ScheduleTaskShade task, String jobId, String flowJobId) throws Exception {
         if (StringUtils.isBlank(jobId)) {
             jobId = this.generateUniqueSign();
@@ -160,10 +173,9 @@ public class ScheduleActionService {
         LOGGER.info("startJob ScheduleTaskShade: {} jobId:{} flowJobId:{} ", JSONObject.toJSONString(task), jobId, flowJobId);
         ScheduleJob scheduleJob = buildScheduleJob(task, jobId, flowJobId);
         ParamActionExt paramActionExt = paramActionExt(task, scheduleJob, JSONObject.parseObject(task.getExtraInfo()));
-        if (paramActionExt == null) {
+        if (Objects.isNull(paramActionExt)) {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
-
         paramActionExt.setCycTime(scheduleJob.getCycTime());
         paramActionExt.setTaskId(task.getTaskId());
         paramActionExt.setComponentVersion(task.getComponentVersion());
@@ -181,7 +193,7 @@ public class ScheduleActionService {
         String scheduleConf = task.getScheduleConf();
         ScheduleJob scheduleJob = new ScheduleJob();
         scheduleJob.setJobId(jobId);
-        scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER+task.getName()+ CommonConstant.RUN_DELIMITER +cycTime);
+        scheduleJob.setJobName(CommonConstant.RUN_JOB_NAME + CommonConstant.RUN_DELIMITER + task.getName() + CommonConstant.RUN_DELIMITER + cycTime);
         scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
         scheduleJob.setComputeType(task.getComputeType());
 
@@ -195,7 +207,7 @@ public class ScheduleActionService {
 
         if (StringUtils.isNotBlank(scheduleConf)) {
             Map jsonMap = objMapper.readValue(scheduleConf, Map.class);
-            jsonMap.put("isFailRetry",false);
+            jsonMap.put("isFailRetry", false);
             scheduleConf = JSON.toJSONString(jsonMap);
             task.setScheduleConf(scheduleConf);
             ScheduleCorn scheduleCron = ScheduleConfManager.parseFromJson(scheduleConf);
@@ -219,18 +231,18 @@ public class ScheduleActionService {
             throw new RdosDefineException("extraInfo can't null or empty string");
         }
         Map<String, Object> actionParam = PublicUtil.strToMap(info.toJSONString());
-        dealActionParam(actionParam,task,scheduleJob);
+        dealActionParam(actionParam, task, scheduleJob);
         actionParam.put("name", scheduleJob.getJobName());
         actionParam.put("jobId", scheduleJob.getJobId());
         actionParam.put("taskType", task.getTaskType());
-        actionParam.put("componentVersion",task.getComponentVersion());
-        actionParam.put("type",scheduleJob.getType());
+        actionParam.put("componentVersion", task.getComponentVersion());
+        actionParam.put("type", scheduleJob.getType());
         actionParam.put("tenantId", task.getTenantId());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
 
-    private Map<String,Object> parseRetryParam(ScheduleTaskShade task) {
+    private Map<String, Object> parseRetryParam(ScheduleTaskShade task) {
         Map<String, Object> retryParam = new HashMap<>();
         JSONObject scheduleConf = JSONObject.parseObject(task.getScheduleConf());
         if (scheduleConf != null && scheduleConf.containsKey("isFailRetry")) {
@@ -250,28 +262,27 @@ public class ScheduleActionService {
         return retryParam;
     }
 
-    private void dealActionParam(Map<String, Object> actionParam,ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
+    private void dealActionParam(Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
         IPipeline pipeline = null;
         String pipelineConfig = null;
         if (actionParam.containsKey(PipelineBuilder.pipelineKey)) {
             pipelineConfig = (String) actionParam.get(PipelineBuilder.pipelineKey);
             pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
-        } else if (EScheduleJobType.SPARK_SQL.getType().equals(task.getTaskType())) {
-            pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         } else if (EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
             pipeline = syncOperatorPipeline;
-        } else if (EScheduleJobType.HIVE_SQL.getType().equals(task.getTaskType())) {
+        } else if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())
+                || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
+            pipeline = unnecessaryPreprocessJobPipeline;
+        } else {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
-        if (pipeline == null) {
-            throw new RdosDefineException(ErrorCode.CONFIG_ERROR);
-        }
+
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
         Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, task, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
             JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
-            String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(),null);
-            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY,hdfsTypeName);
+            String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(), null);
+            pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, hdfsTypeName);
             uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
             uploadPipelineMap.put(UploadParamPipeline.fileUploadPathKey, environmentContext.getHdfsTaskPath());
         });
@@ -280,11 +291,12 @@ public class ScheduleActionService {
 
     /**
      * 停止的请求接口
+     *
      * @throws Exception
      */
     public Boolean stop(List<String> jobIds) {
 
-        if(CollectionUtils.isEmpty(jobIds)){
+        if (CollectionUtils.isEmpty(jobIds)) {
             throw new RdosDefineException("jobIds不能为空");
         }
         return stop(jobIds, ForceCancelFlag.NO.getFlag());
@@ -313,7 +325,7 @@ public class ScheduleActionService {
         boolean result = TaskStatus.canStart(scheduleJob.getStatus());
         if (result) {
             engineJobRetryMapper.delete(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                    .eq(ScheduleEngineJobRetry::getJobId,jobId));
+                    .eq(ScheduleEngineJobRetry::getJobId, jobId));
             if (!TaskStatus.ENGINEACCEPTED.getStatus().equals(scheduleJob.getStatus())) {
                 scheduleJob.setStatus(TaskStatus.ENGINEACCEPTED.getStatus());
                 scheduleJobService.updateByJobId(scheduleJob);
@@ -349,8 +361,8 @@ public class ScheduleActionService {
         return scheduleJob;
     }
 
-    private <T> T getOrDefault(T value, T defaultValue){
-        return value != null? value : defaultValue;
+    private <T> T getOrDefault(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
     }
 
     /**
@@ -358,7 +370,7 @@ public class ScheduleActionService {
      */
     public ActionLogVO log(String jobId) {
 
-        if (StringUtils.isBlank(jobId)){
+        if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
@@ -367,9 +379,9 @@ public class ScheduleActionService {
         if (scheduleJobExpand != null) {
             vo.setEngineLog(scheduleJobExpand.getEngineLog());
             vo.setLogInfo(scheduleJobExpand.getLogInfo());
-            if(StringUtils.isBlank(scheduleJobExpand.getEngineLog())){
+            if (StringUtils.isBlank(scheduleJobExpand.getEngineLog())) {
                 ScheduleJob scheduleJob = scheduleJobService.getByJobId(jobId);
-                vo.setEngineLog(getEngineLog(jobId,scheduleJob));
+                vo.setEngineLog(getEngineLog(jobId, scheduleJob));
             }
         }
         return vo;
@@ -382,7 +394,6 @@ public class ScheduleActionService {
         }
         return engineLog;
     }
-
 
 
     /**
@@ -410,9 +421,9 @@ public class ScheduleActionService {
     /**
      * 根据jobid 和 计算类型，查询job的重试retry日志
      */
-    public ActionRetryLogVO retryLogDetail( String jobId, Integer retryNum) {
+    public ActionRetryLogVO retryLogDetail(String jobId, Integer retryNum) {
 
-        if (StringUtils.isBlank(jobId)){
+        if (StringUtils.isBlank(jobId)) {
             throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
         if (retryNum == null || retryNum <= 0) {
@@ -422,16 +433,16 @@ public class ScheduleActionService {
         //数组库中存储的retryNum为0开始的索引位置
         ScheduleEngineJobRetry jobRetry = engineJobRetryMapper
                 .selectOne(Wrappers.lambdaQuery(ScheduleEngineJobRetry.class)
-                .eq(ScheduleEngineJobRetry::getJobId, jobId)
+                        .eq(ScheduleEngineJobRetry::getJobId, jobId)
                         .eq(ScheduleEngineJobRetry::getRetryNum, retryNum - 1));
         ActionRetryLogVO vo = new ActionRetryLogVO();
         if (jobRetry != null) {
             vo.setRetryNum(jobRetry.getRetryNum());
             vo.setLogInfo(jobRetry.getLogInfo());
             String engineLog = jobRetry.getEngineLog();
-            if (StringUtils.isBlank(jobRetry.getEngineLog())){
+            if (StringUtils.isBlank(jobRetry.getEngineLog())) {
                 engineLog = jobDealer.getAndUpdateEngineLog(jobId, jobRetry.getEngineJobId(), jobRetry.getApplicationId(), scheduleJob.getTenantId());
-                if (engineLog != null){
+                if (engineLog != null) {
                     LOGGER.info("engineJobRetryDao.updateEngineLog id:{}, jobId:{}, engineLog:{}", jobRetry.getId(), jobRetry.getJobId(), engineLog);
                     jobRetry.setEngineLog(engineLog);
                     engineJobRetryMapper.updateById(jobRetry);
@@ -451,27 +462,27 @@ public class ScheduleActionService {
      */
     public List<ActionJobEntityVO> entitys(List<String> jobIds) {
 
-        if (CollectionUtils.isEmpty(jobIds)){
+        if (CollectionUtils.isEmpty(jobIds)) {
             throw new RdosDefineException("jobId  is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         List<ActionJobEntityVO> result = null;
         List<ScheduleJob> scheduleJobs = scheduleJobService.getByJobIds(jobIds);
         if (CollectionUtils.isNotEmpty(scheduleJobs)) {
-        	result = new ArrayList<>(scheduleJobs.size());
-        	for (ScheduleJob scheduleJob:scheduleJobs){
+            result = new ArrayList<>(scheduleJobs.size());
+            for (ScheduleJob scheduleJob : scheduleJobs) {
                 ActionJobEntityVO vo = new ActionJobEntityVO();
                 vo.setJobId(scheduleJob.getJobId());
                 vo.setStatus(scheduleJob.getStatus());
                 vo.setEngineJobId(scheduleJob.getEngineJobId());
                 vo.setApplicationId(scheduleJob.getApplicationId());
-        		result.add(vo);
-        	}
+                result.add(vo);
+            }
         }
         return result;
     }
 
-    public String generateUniqueSign(){
+    public String generateUniqueSign() {
         if (null == jobIdWorker) {
             String[] split = AddressUtil.getOneIp().split("\\.");
             jobIdWorker = DtJobIdWorker.getInstance(split.length >= 4 ? Integer.parseInt(split[3]) : 0, 0);

@@ -58,7 +58,12 @@ export default function AddTenantModal() {
 			cancelText="取消"
 			getContainer={() => document.querySelector('#add-tenant-modal') || document.body}
 		>
-			<Form<IFormFieldProps> form={form} {...formItemLayout} autoComplete="off" preserve={false}>
+			<Form<IFormFieldProps>
+				form={form}
+				{...formItemLayout}
+				autoComplete="off"
+				preserve={false}
+			>
 				<Form.Item
 					name="tenantName"
 					label="租户名称"
@@ -86,4 +91,4 @@ export default function AddTenantModal() {
 			</Form>
 		</Modal>
 	);
-} 4
+}

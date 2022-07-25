@@ -24,12 +24,13 @@ import type { ColumnsType, FilterValue, SorterResult } from 'antd/lib/table/inte
 import SlidePane from '@/components/slidePane';
 import context from '@/context';
 import Api from '@/api';
-import { TaskStatus, taskTypeText } from '@/utils/enums';
+import { TaskStatus } from '@/utils/enums';
 import {
 	TASK_STATUS_FILTERS,
 	RESTART_STATUS_ENUM,
 	STATISTICS_TYPE_ENUM,
 	TASK_STATUS,
+	TASK_TYPE_ENUM,
 } from '@/constant';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import TaskJobFlowView from '../taskJobFlowView';
@@ -79,7 +80,7 @@ export default () => {
 	);
 	const [statistics, setStatistics] = useState<Record<string, number>>({});
 
-	const [selectedTask, setSelectedTask] = useState<ITableDataProps | null>(null);
+	const [selectedTask, setSelectedTask] = useState<ITableDataProps | undefined>(undefined);
 	const [visibleSlidePane, setSlideVisible] = useState(false);
 	const [btnStatus, setBtnStatus] = useState([false, false]);
 	const actionRef = useSketchRef();
@@ -238,7 +239,7 @@ export default () => {
 
 	const closeSlidePane = () => {
 		setSlideVisible(false);
-		setSelectedTask(null);
+		setSelectedTask(undefined);
 		removePopUpMenu();
 	};
 
@@ -369,7 +370,7 @@ export default () => {
 				key: 'taskType',
 				width: '100px',
 				render: (text) => {
-					return taskTypeText(text);
+					return supportJobTypes.find((t) => t.key === text)?.value || '未知';
 				},
 				filters: supportJobTypes.map((t) => ({ text: t.value, value: t.key })),
 			},
@@ -417,6 +418,19 @@ export default () => {
 		];
 	}, [supportJobTypes]);
 
+	const handleExpandJob = async (expanded: boolean, record: Pick<ITableDataProps, 'jobId'>) => {
+		if (expanded) {
+			const res = await Api.getSubJobs<ITableDataProps[]>({
+				jobId: record.jobId,
+			});
+			if (res.code === 1) {
+				return res.data;
+			}
+		}
+
+		return [];
+	};
+
 	const convertToParams = (values: IFormFieldProps): Partial<IRequestParams> => {
 		return {
 			fillId: fillId || undefined,
@@ -432,7 +446,7 @@ export default () => {
 		{ current, pageSize }: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter?: SorterResult<any>,
-	) => {
+	): Promise<{ polling: true; total: number; data: ITableDataProps[] }> => {
 		const params = convertToParams(values);
 		const { status = [], taskType = [] } = filters;
 
@@ -464,15 +478,49 @@ export default () => {
 		};
 		loadJobStatics(queryParams);
 
-		return Api.getFillDataDetail(queryParams).then((res) => {
-			if (res.code === 1) {
-				actionRef.current?.setSelectedKeys([]);
-				return {
-					polling: true,
-					total: res.data.totalCount,
-					data: res.data.data.fillDataJobVOLists || [],
-				};
-			}
+		return new Promise((resolve) => {
+			const currentTableData: ITableDataProps[] = actionRef.current?.getTableData() || [];
+
+			const pendingGetChildrenList = currentTableData.reduce<string[]>((pre, cur) => {
+				if (cur.children?.length) {
+					return [...pre, cur.jobId];
+				}
+				return pre;
+			}, []);
+
+			Promise.all(pendingGetChildrenList.map((jobId) => handleExpandJob(true, { jobId })))
+				.then((results) =>
+					results.reduce<Record<string, IScheduleTaskProps[]>>(
+						(pre, cur, idx) => ({ ...pre, [pendingGetChildrenList[idx]]: cur }),
+						{},
+					),
+				)
+				.then((jobCollection) => {
+					Api.getFillDataDetail<{
+						totalCount: number;
+						data: {
+							fillDataJobVOLists?: ITableDataProps[];
+						};
+					}>(queryParams).then((res) => {
+						if (res.code === 1) {
+							actionRef.current?.setSelectedKeys([]);
+							resolve({
+								polling: true,
+								total: res.data.totalCount,
+								data: (res.data.data.fillDataJobVOLists || []).map((vo) => {
+									const children = jobCollection[vo.jobId] || [];
+									return {
+										...vo,
+										children:
+											vo.taskType === TASK_TYPE_ENUM.WORK_FLOW
+												? children
+												: undefined,
+									};
+								}),
+							});
+						}
+					});
+				});
 		});
 	};
 
@@ -554,6 +602,7 @@ export default () => {
 				headerTitle={renderStatus(statusList)}
 				headerTitleClassName="ope-statistics"
 				columns={columns}
+				onExpand={handleExpandJob}
 				tableProps={{
 					rowKey: 'jobId',
 					rowClassName: (record) => {
@@ -602,7 +651,6 @@ export default () => {
 			>
 				<TaskJobFlowView
 					taskJob={selectedTask}
-					visibleSlidePane={visibleSlidePane}
 					reload={() => actionRef.current?.submit()}
 				/>
 			</SlidePane>

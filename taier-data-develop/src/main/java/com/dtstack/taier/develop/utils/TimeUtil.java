@@ -1,14 +1,11 @@
 package com.dtstack.taier.develop.utils;
 
 import com.dtstack.taier.common.enums.ETimeCarry;
-import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.dto.devlop.TimespanVO;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -19,14 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TimeUtil {
-
-    private static final String TIME_STR_REGEX = "(?<num>\\d+)(?<type>[a-z])";
-
-    private static Pattern PATTERN = Pattern.compile(TIME_STR_REGEX);
-
-    private static FastDateFormat fastDateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
-
-    private static final String SECOND_REGEX = "\\d{13}";
 
     // 时间跨度匹配正则
     private static final String TIMESPAN_STR_REGEX = "((?<num>\\d+)(?<type>[smhdwy]))+";
@@ -40,40 +29,6 @@ public class TimeUtil {
 
     private static final Integer YEAR_TO_DAY = 365;
 
-    public static List<Long> getStartAndEndTime(String timeStr){
-        if (!timeStr.matches(TIME_STR_REGEX)){
-            throw new RdosDefineException("时间范围格式不正确");
-        }
-
-        Date now = new Date();
-        Long endTime = now.getTime();
-        int num = 10;
-        String type = "m";
-
-        Calendar calendar = new Calendar.Builder().build();
-        calendar.setTime(now);
-        Matcher matcher = PATTERN.matcher(timeStr);
-        if (matcher.find()){
-            num = Integer.parseInt(matcher.group("num"));
-            type = matcher.group("type");
-        }
-
-        if ("m".equals(type)){
-            calendar.add(Calendar.MINUTE,-num);
-        } else if("h".equals(type)){
-            calendar.add(Calendar.HOUR_OF_DAY,-num);
-        } else if("d".equals(type)){
-            calendar.add(Calendar.DATE,-num);
-        } else if("w".equals(type)){
-            calendar.add(Calendar.WEEK_OF_YEAR,-num);
-        }
-
-        Long startTime = calendar.getTimeInMillis();
-        List<Long> times = new ArrayList<>();
-        times.add(startTime);
-        times.add(endTime);
-        return times;
-    }
 
     /**
      * 获取开始时间
@@ -206,39 +161,6 @@ public class TimeUtil {
         timespanVO.setSpan(span * 1000);
         timespanVO.setFormatResult(formatTimespan.toString());
         return timespanVO;
-    }
-
-    public static Long getSecond(Object time){
-        String timestampStr = null;
-        if (time instanceof Long){
-            timestampStr = time.toString();
-        } else if(time instanceof String){
-            try {
-                timestampStr = String.valueOf(fastDateFormat.parse(time.toString()).getTime()/1000);
-            } catch (Exception ignore){
-            }
-        } else if(time instanceof Date){
-            timestampStr = String.valueOf(((Date)time).getTime()/1000);
-        }
-
-        if(timestampStr != null){
-            if(timestampStr.matches(SECOND_REGEX)){
-                timestampStr = timestampStr.substring(0,timestampStr.length() - 3);
-            }
-            return Long.parseLong(timestampStr);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 日期转指定字符串
-     * @param var
-     * @return
-     */
-    public static String dateToString(Date var) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return null != var ? simpleDateFormat.format(var) : null;
     }
 
     /**

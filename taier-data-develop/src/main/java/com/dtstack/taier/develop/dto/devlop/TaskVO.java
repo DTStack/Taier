@@ -2,6 +2,7 @@ package com.dtstack.taier.develop.dto.devlop;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.dao.domain.Task;
+import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -59,7 +60,7 @@ public class TaskVO extends Task {
     /**
      * 离线的参数替换字段
      */
-    private List<Map> taskVariables;
+    private List<Map<String, Object>> taskVariables;
 
     private Long parentId;
 
@@ -72,6 +73,55 @@ public class TaskVO extends Task {
      * 租户名称
      */
     private String tenantName;
+
+    /**
+     * 是否开启任务脏数据管理
+     */
+    private Boolean openDirtyDataManage;
+
+    /**
+     * 任务脏数据管理
+     */
+    private TaskDirtyDataManageVO TaskDirtyDataManageVO;
+
+    /**
+     * flink 依赖的资源ID
+     */
+    private List<Long> resourceIdList;
+
+    /**
+     * 工作流任务依赖
+     */
+    private Map<Long, List<Long>> nodeMap;
+
+    /**
+     * 工作流父任务名称
+     */
+    private String flowName;
+
+    public List<Long> getResourceIdList() {
+        return resourceIdList;
+    }
+
+    public void setResourceIdList(List<Long> resourceIdList) {
+        this.resourceIdList = resourceIdList;
+    }
+
+    public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
+        return TaskDirtyDataManageVO;
+    }
+
+    public void setTaskDirtyDataManageVO(TaskDirtyDataManageVO taskDirtyDataManageVO) {
+        TaskDirtyDataManageVO = taskDirtyDataManageVO;
+    }
+
+    public Boolean getOpenDirtyDataManage() {
+        return openDirtyDataManage;
+    }
+
+    public void setOpenDirtyDataManage(Boolean openDirtyDataManage) {
+        this.openDirtyDataManage = openDirtyDataManage;
+    }
 
     public Boolean getSubmitted() {
         return submitted;
@@ -153,11 +203,11 @@ public class TaskVO extends Task {
         this.syncContent = syncContent;
     }
 
-    public List<Map> getTaskVariables() {
+    public List<Map<String, Object>> getTaskVariables() {
         return taskVariables;
     }
 
-    public void setTaskVariables(List<Map> taskVariables) {
+    public void setTaskVariables(List<Map<String, Object>> taskVariables) {
         this.taskVariables = taskVariables;
     }
 
@@ -199,5 +249,21 @@ public class TaskVO extends Task {
 
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
+    }
+
+    public Map<Long, List<Long>> getNodeMap() {
+        return nodeMap;
+    }
+
+    public void setNodeMap(Map<Long, List<Long>> nodeMap) {
+        this.nodeMap = nodeMap;
+    }
+
+    public String getFlowName() {
+        return flowName;
+    }
+
+    public void setFlowName(String flowName) {
+        this.flowName = flowName;
     }
 }

@@ -34,6 +34,7 @@ import type {
 	DATA_SYNC_MODE,
 	UDF_TYPE_VALUES,
 	FLINK_VERSIONS,
+	DIRTY_DATA_SAVE,
 } from './constant';
 
 interface IUserProps {}
@@ -68,6 +69,7 @@ export interface CatalogueDataProps {
 	children: CatalogueDataProps[] | null;
 	catalogueType: MENU_TYPE_ENUM;
 	parentId: number;
+	taskDesc?: string;
 }
 
 // 运维中心-任务类型，@todo 应该是 Job
@@ -80,6 +82,9 @@ export interface ITaskProps {
 	taskType: TASK_TYPE_ENUM;
 	taskId: number;
 	name: string;
+
+	// 工作流任务的子节点
+	children?: ITaskProps[];
 }
 
 /**
@@ -125,6 +130,9 @@ export interface IUpstreamJobProps {
 	scheduleStatus: SCHEDULE_STATUS;
 	taskPeriodId: TASK_PERIOD_ENUM;
 	gmtCreate: number;
+	/**
+	 * 是否是工作流任务
+	 */
 	isFlowTask: boolean;
 	jobId: string;
 	tenantId: number;
@@ -138,6 +146,7 @@ export interface IUpstreamJobProps {
 	 * 操作人名称
 	 */
 	operatorName: string;
+	taskGmtCreate: number;
 	status: TASK_STATUS;
 	parentNode: IUpstreamJobProps[];
 	childNode: IUpstreamJobProps[];
@@ -169,7 +178,11 @@ export interface IResourceProps {
 /**
  * 所有任务类型
  */
-export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
+export interface IOfflineTaskProps
+	extends ISyncDataProps,
+		IFlinkSQLProps,
+		IWorkflowProps,
+		IFlinkProps {
 	createUserId: number;
 	cron: string;
 	currentProject: boolean;
@@ -179,6 +192,7 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	modifyUser: IUserProps | null;
 	modifyUserId: number;
 	name: string;
+	computeType: IComputeType;
 	nodePName: string;
 	nodePid: number;
 	ownerUserId: number;
@@ -207,6 +221,30 @@ export interface IOfflineTaskProps extends ISyncDataProps, IFlinkDataProps {
 	tenantId: string | null;
 	tenantName: string | null;
 	userId: number;
+	// 是否支持脏数据记录
+	openDirtyDataManage?: boolean;
+	// 脏数据管理字段收集
+	taskDirtyDataManageVO?: {
+		id: number;
+		maxRows?: number;
+		maxCollectFailedRows?: number;
+		outputType?: DIRTY_DATA_SAVE;
+		linkInfo?: {
+			sourceId: number;
+		};
+		tableName?: string;
+		lifeCycle?: any;
+		logPrintInterval?: number;
+	};
+}
+
+/**
+ * Flink 任务类型
+ */
+interface IFlinkProps {
+	mainClass?: string;
+	exeArgs?: string;
+	resourceIdList?: number[];
 }
 
 /**
@@ -217,6 +255,11 @@ export interface ISyncDataProps {
 	sourceMap: ISourceMapProps;
 	targetMap?: ITargetMapProps;
 	taskId: number;
+}
+
+export interface IWorkflowProps {
+	flowId: number;
+	flowName: string;
 }
 
 /**
@@ -485,7 +528,7 @@ export interface IDataSourceUsedInSyncProps {
 /**
  * flinkSQL 任务的属性
  */
-export interface IFlinkDataProps {
+export interface IFlinkSQLProps {
 	source: IFlinkSourceProps[];
 	sink: IFlinkSinkProps[];
 	side: IFlinkSideProps[];
@@ -621,7 +664,51 @@ export interface IResourceList {
 	isAdditionResource: number;
 }
 
+/**
+ * 当前任务所属计算环境，区分实时任务和离线任务
+ */
 export enum IComputeType {
-	STFP = 0,
-	HDFS = 1,
+	/**
+	 * 实时任务
+	 */
+	STREAM = 0,
+	/**
+	 * 离线任务
+	 */
+	BATCH = 1,
+}
+
+export enum RightBarKind {
+	/**
+	 * 任务属性
+	 */
+	TASK = 'task',
+	/**
+	 * 调度依赖
+	 */
+	DEPENDENCY = 'dependency',
+	/**
+	 * 任务参数
+	 */
+	TASK_PARAMS = 'task_params',
+	/**
+	 * 环境参数
+	 */
+	ENV_PARAMS = 'env_params',
+	/**
+	 * 任务设置
+	 */
+	TASK_CONFIG = 'task_config',
+	/**
+	 * 源表
+	 */
+	FLINKSQL_SOURCE = 'flinksql_source',
+	/**
+	 * 结果表
+	 */
+	FLINKSQL_RESULT = 'flinksql_result',
+	/**
+	 * 维表
+	 */
+	FLINKSQL_DIMENSION = 'flinksql_dimension',
 }

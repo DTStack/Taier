@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor';
+import * as monaco from '@dtinsight/molecule/esm/monaco';
 
 const jsonlog = 'jsonlog';
 

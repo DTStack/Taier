@@ -75,7 +75,7 @@ import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IFlinkSinkProps } f
 import Editor from '@/components/editor';
 import { NAME_FIELD } from '.';
 import { FormContext } from '@/services/rightBarService';
-import DataPreviewModal from '@/components/streamCollection/source/dataPreviewModal';
+import DataPreviewModal from '@/pages/editor/streamCollection/source/dataPreviewModal';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -116,6 +116,10 @@ interface IResultProps {
 		params: { sourceId: number; type: DATA_SOURCE_ENUM; schema?: string },
 		searchKey?: string,
 	) => void;
+	/**
+	 * columns 改变触发的回调
+	 */
+	onColumnsChange?: (changedValues: any, values: any) => void;
 }
 
 enum COLUMNS_OPERATORS {
@@ -217,6 +221,7 @@ export default function ResultForm({
 	topicOptionType = [],
 	componentVersion = FLINK_VERSIONS.FLINK_1_12,
 	getTableType,
+	onColumnsChange,
 }: IResultProps) {
 	const { form } = useContext(FormContext) as {
 		form?: FormInstance<{ [NAME_FIELD]: Partial<IFlinkSinkProps>[] }>;
@@ -334,6 +339,13 @@ export default function ResultForm({
 					type: column.type,
 				}));
 				form!.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
 				break;
 			}
 
@@ -342,6 +354,14 @@ export default function ResultForm({
 				nextValue[NAME_FIELD][index].columns = [];
 				nextValue[NAME_FIELD][index].primaryKey = [];
 				form!.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: [],
+					primaryKey: [],
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
 				break;
 			}
 
@@ -350,13 +370,20 @@ export default function ResultForm({
 				nextValue[NAME_FIELD][index].columns = nextValue[NAME_FIELD][index].columns || [];
 				nextValue[NAME_FIELD][index].columns!.push({});
 				form!.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
 				break;
 			}
 
 			case COLUMNS_OPERATORS.DELETE_ONE_LINE: {
 				const nextValue = form!.getFieldsValue();
 				const deleteCol = nextValue[NAME_FIELD][index].columns?.splice(i!, 1) || [];
-				// 删除一条字段的副作用是若该行是 primrayKey 则删除
+				// 删除一条字段的副作用是若该行是 primaryKey 则删除
 				if (deleteCol.length) {
 					const { primaryKey } = nextValue[NAME_FIELD][index];
 					if (
@@ -368,6 +395,15 @@ export default function ResultForm({
 					}
 				}
 				form!.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+					primaryKey: nextValue[NAME_FIELD][index].primaryKey,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
+
 				break;
 			}
 
@@ -375,6 +411,13 @@ export default function ResultForm({
 				const nextValue = form!.getFieldsValue();
 				nextValue[NAME_FIELD][index].columns![i!] = value!;
 				form!.setFieldsValue({ ...nextValue });
+
+				// 由于 setFieldsValue 不会触发表单的 onValuesChange 所以需要额外触发将 columns 保存到 tab 中
+				const changedValue: any[] = [];
+				changedValue[index] = {
+					columns: nextValue[NAME_FIELD][index].columns,
+				};
+				onColumnsChange?.({ [NAME_FIELD]: changedValue }, form?.getFieldsValue());
 				break;
 			}
 

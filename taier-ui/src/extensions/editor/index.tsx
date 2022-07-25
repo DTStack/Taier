@@ -16,35 +16,41 @@
  * limitations under the License.
  */
 
+import { createRoot } from 'react-dom/client';
 import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
 import { runTask, syntaxValidate } from '@/utils/extensions';
 import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
 import { history } from 'umi';
-import { cloneDeep, debounce } from 'lodash';
-import ReactDOM from 'react-dom';
+import { debounce } from 'lodash';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals, prettierJSONstring } from '@/utils';
 import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import { executeService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import saveTask from '@/utils/saveTask';
 import { editorActionBarService } from '@/services';
 import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
+import taskRenderService from '@/services/taskRenderService';
+import taskSaveService from '@/services/taskSaveService';
+import viewStoreService from '@/services/viewStoreService';
+import type { mxCell } from 'mxgraph';
+import type { IGeometryPosition } from '@/components/mxGraph/container';
+import { isEditing } from '@/pages/editor/workflow';
 
 function emitEvent() {
 	molecule.editor.onActionsClick(async (menuId, current) => {
-		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled
+		const actionDisabled = current?.actions?.find(({ id }) => id === menuId)?.disabled;
 		// TODO molecule发布新版就不用这一层根据action的状态控制是否可以点击的逻辑了
-		if (actionDisabled) return
+		if (actionDisabled) return;
 		switch (menuId) {
 			case ID_COLLECTIONS.TASK_RUN_ID: {
 				runTask(current);
@@ -64,31 +70,15 @@ function emitEvent() {
 				break;
 			}
 			case ID_COLLECTIONS.TASK_SAVE_ID: {
-				saveTask()
-					.then((res) => res?.data?.id)
-					.then((id) => {
-						if (id !== undefined) {
-							api.getOfflineTaskByID({ id }).then((res) => {
-								const { code } = res;
-								if (code === 1) {
-									molecule.editor.updateTab({
-										id: current.tab!.id,
-										status: undefined,
-									});
-								}
-							});
-						}
-					})
-					.catch((err: Error | undefined) => {
-						if (err) {
-							message.error(err.message);
-						}
-					});
+				taskSaveService.save().catch((err: Error | undefined) => {
+					if (err) {
+						message.error(err.message);
+					}
+				});
 				break;
 			}
 			case ID_COLLECTIONS.TASK_SUBMIT_ID: {
 				const currentTab = current.tab;
-				const root = document.getElementById('molecule')!;
 
 				const target = document.getElementById(CONTAINER_ID);
 				if (target) {
@@ -96,9 +86,12 @@ function emitEvent() {
 				}
 				const node = document.createElement('div');
 				node.id = CONTAINER_ID;
-				root.appendChild(node);
+				document.getElementById('molecule')!.appendChild(node);
+
+				const root = createRoot(node);
+
 				if (currentTab) {
-					ReactDOM.render(<Publish data={cloneDeep(currentTab.data)} />, node);
+					root.render(<Publish taskId={currentTab.data.id} />);
 				}
 				break;
 			}
@@ -108,29 +101,27 @@ function emitEvent() {
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
 				if (currentTabData) {
-					switch (currentTabData.taskType) {
-						case TASK_TYPE_ENUM.SPARK_SQL:
-						case TASK_TYPE_ENUM.HIVE_SQL:
-						case TASK_TYPE_ENUM.SYNC:
-							history.push({
-								query: {
-									drawer: DRAWER_MENU_ENUM.TASK,
-									tname: currentTabData.name,
-								},
-							});
-							break;
-						case TASK_TYPE_ENUM.DATA_ACQUISITION:
-						case TASK_TYPE_ENUM.SQL:
-							history.push({
-								query: {
-									drawer: DRAWER_MENU_ENUM.STREAM_TASK,
-									tname: currentTabData.name,
-								},
-							});
-							break;
+					const computerType = taskRenderService.supportTaskList.find(
+						(t) => t.key === currentTabData.taskType,
+					)?.computeType;
 
-						default:
-							return null;
+					if (computerType !== undefined) {
+						const targetDrawer =
+							computerType === IComputeType.STREAM
+								? DRAWER_MENU_ENUM.STREAM_TASK
+								: DRAWER_MENU_ENUM.TASK;
+
+						history.push({
+							query: {
+								drawer: targetDrawer,
+								tname: currentTabData.name,
+							},
+						});
+					} else {
+						notification.error({
+							key: 'WITHOUT_SUPPORT_TASK',
+							message: `当前不支持的任务类型，请查看是否支持任务类型为 ${currentTabData.taskType} 的任务`,
+						});
 					}
 				}
 				break;
@@ -155,31 +146,31 @@ function emitEvent() {
 						onOk() {
 							switch (currentTabData.taskType) {
 								case TASK_TYPE_ENUM.SYNC:
-									api.convertDataSyncToScriptMode({ id: currentTabData.id }).then(
-										(res) => {
-											if (res.code === 1) {
-												message.success('转换成功！');
-												api.getOfflineTaskByID({
-													id: currentTabData.id,
-												}).then((result) => {
-													if (result.code === 1) {
-														molecule.editor.updateTab({
-															id: result.data.id.toString(),
-															data: {
-																...currentTabData,
-																...result.data,
-																language: 'json',
-																value: prettierJSONstring(
-																	result.data.sqlText,
-																),
-															},
-															renderPane: undefined,
-														});
-													}
-												});
-											}
-										},
-									);
+									api.convertDataSyncToScriptMode({
+										id: currentTabData.id,
+									}).then((res) => {
+										if (res.code === 1) {
+											message.success('转换成功！');
+											api.getOfflineTaskByID({
+												id: currentTabData.id,
+											}).then((result) => {
+												if (result.code === 1) {
+													molecule.editor.updateTab({
+														id: result.data.id.toString(),
+														data: {
+															...currentTabData,
+															...result.data,
+															language: 'json',
+															value: prettierJSONstring(
+																result.data.sqlText,
+															),
+														},
+														renderPane: undefined,
+													});
+												}
+											});
+										}
+									});
 									break;
 								case TASK_TYPE_ENUM.DATA_ACQUISITION:
 								case TASK_TYPE_ENUM.SQL: {
@@ -244,7 +235,6 @@ function emitEvent() {
 			}
 			case ID_COLLECTIONS.TASK_IMPORT_ID: {
 				const currentTab = current.tab;
-				const root = document.getElementById('molecule')!;
 
 				const target = document.getElementById(CONTAINER_ID);
 				if (target) {
@@ -252,7 +242,9 @@ function emitEvent() {
 				}
 				const node = document.createElement('div');
 				node.id = CONTAINER_ID;
-				root.appendChild(node);
+				document.getElementById('molecule')!.appendChild(node);
+
+				const root = createRoot(node);
 				if (currentTab) {
 					const handleSuccess = (data: string) => {
 						// update the editor's content
@@ -260,9 +252,8 @@ function emitEvent() {
 						molecule.editor.editorInstance.getModel()?.setValue(prettierJSON);
 					};
 
-					ReactDOM.render(
+					root.render(
 						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess} />,
-						node,
 					);
 				}
 				break;
@@ -373,7 +364,8 @@ export default class EditorExtension implements IExtension {
 		emitEvent();
 		registerCompletion();
 
-		molecule.editor.onOpenTab(() => {
+		molecule.editor.onOpenTab((tab) => {
+			viewStoreService.clearStorage(tab.id.toString());
 			// Should delay to performSyncTaskActions
 			// because when onOpenTab called, the current tab was not changed
 			window.setTimeout(() => {
@@ -406,6 +398,98 @@ export default class EditorExtension implements IExtension {
 					message: `${tab.name} 任务执行完成!`,
 				});
 			}
+		});
+
+		// 当前任务保存回调
+		taskSaveService.onSaveTask(({ id }) => {
+			api.getOfflineTaskByID<IOfflineTaskProps>({ id }).then((res) => {
+				if (res.code === 1) {
+					const task = res.data;
+					const currentTab: molecule.model.IEditorTab<IOfflineTaskProps> =
+						molecule.editor.getState().current!.tab!;
+
+					// 更新当前 tab 的状态为已保存
+					molecule.editor.updateTab({
+						id: currentTab.id,
+						status: undefined,
+					});
+
+					// 若是工作流的节点任务
+					if (task.flowId) {
+						// 1. 更新 viewStorage 里的 cell 数据
+						const viewStorage = viewStoreService.getViewStorage<{
+							cells: mxCell[];
+							geometry: IGeometryPosition;
+						}>(task.flowId.toString());
+
+						const targetCell = viewStorage.cells.find(
+							(cell) => cell.value?.id === currentTab.data!.id,
+						);
+
+						if (targetCell) {
+							targetCell.setValue({
+								...targetCell.value,
+								...task,
+								[isEditing]: false,
+							});
+
+							viewStoreService.setViewStorage(task.flowId.toString(), {
+								...viewStorage,
+							});
+						}
+
+						// 通常来说，保存行为是一个前端向服务端同步的单向操作，但是工作流的保存行为存在需要服务端返回值同步到前端数据的操作
+						// 2. 更新 editor.tab 中的数据
+						molecule.editor.updateTab({
+							id: currentTab.id,
+							data: { ...currentTab.data!, ...task },
+						});
+
+						// 3. 更新工作流的 tab 的状态
+						const workflowId = task.flowId.toString();
+						const workflowTabGroup = molecule.editor.getGroupIdByTab(workflowId);
+						if (!workflowTabGroup) return;
+						const workflowTab = molecule.editor.getTabById(
+							workflowId,
+							workflowTabGroup,
+						);
+						if (!workflowTab) return;
+						if (workflowTab.status !== 'edited') {
+							molecule.editor.updateTab({
+								id: workflowTab.id,
+								status: 'edited',
+							});
+						}
+					}
+
+					// 如果是工作流任务，还需要更新工作流的子节点
+					if (task.taskType === TASK_TYPE_ENUM.WORK_FLOW) {
+						const { groups = [] } = molecule.editor.getState();
+						groups.forEach((group) => {
+							group.data?.forEach((tab) => {
+								if (tab.data?.flowId === id) {
+									api.getOfflineTaskByID<IOfflineTaskProps>({
+										id: tab.data.id,
+									}).then((subResult) => {
+										if (subResult.code === 1) {
+											molecule.editor.updateTab(
+												{
+													id: tab.id,
+													data: {
+														...tab.data,
+														...subResult.data,
+													},
+												},
+												group.id,
+											);
+										}
+									});
+								}
+							});
+						});
+					}
+				}
+			});
 		});
 	}
 }
