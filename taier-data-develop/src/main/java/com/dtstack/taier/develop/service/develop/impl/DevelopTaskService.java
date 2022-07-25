@@ -77,7 +77,6 @@ import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
-import com.dtstack.taier.develop.service.schedule.TaskTaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
@@ -120,7 +119,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -207,9 +205,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     private ScheduleTaskTaskService scheduleTaskTaskService;
 
     @Autowired
-    private DevelopTaskParamShadeService batchTaskParamShadeService;
-
-    @Autowired
     private DevelopFunctionService developFunctionService;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
@@ -236,6 +231,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     public TaskVO getTaskById(TaskVO taskVO) {
         Task task = getOne(taskVO.getId());
+        if (null == task) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
         TaskMapstructTransfer.INSTANCE.taskToTaskVO(task, taskVO);
         if (EScheduleJobType.FLINK_SQL.getType().equals(task.getTaskType())) {
             taskVO.setSource(flinkTaskService.dealWithSourceName(task.getSourceStr()));
@@ -449,7 +447,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
     /**
      * 发布任务至engine
      *
-     * @param userId      用户id
+     * @param userId 用户id
      * @return 发布结果
      */
     public TaskCheckResultVO publishTaskInfo(Task task, Long userId) {
@@ -500,7 +498,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } else {
             try {
                 // 构建要发布的任务列表
-                ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task,null);
+                ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task, null);
 
                 // 提交任务参数信息并保存任务记录和更新任务状态
                 sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
@@ -655,7 +653,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      * @param tenantId
      * @return
      */
-    public Boolean checkTaskNameRepeat(String taskName,Long tenantId){
+    public Boolean checkTaskNameRepeat(String taskName, Long tenantId) {
         if (StringUtils.isBlank(taskName)) {
             throw new RdosDefineException("名称不能为空", ErrorCode.INVALID_PARAMETERS);
         }
@@ -996,9 +994,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
                         .last("limit 1"));
             } else if (type.equals(CatalogueType.RESOURCE_MANAGER.name())) {
                 obj = developResourceService.listByNameAndTenantId(tenantId, name);
-            }  else if (type.equals(CatalogueType.FUNCTION_MANAGER.name())) {
+            } else if (type.equals(CatalogueType.FUNCTION_MANAGER.name())) {
                 obj = developFunctionService.listByNameAndTenantId(tenantId, name);
-            }else {
+            } else {
                 throw new RdosDefineException(ErrorCode.INVALID_PARAMETERS);
             }
 

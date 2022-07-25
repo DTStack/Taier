@@ -582,13 +582,13 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     /**
      * 批量查询实例
      *
-     * @param jobId jobId
+     * @param jobIds jobId
      * @return 实例
      */
-    public List<ScheduleJob> getWorkFlowSubJobs(String jobId) {
+    public List<ScheduleJob> getWorkFlowSubJobs(List<String> jobIds) {
         return this.baseMapper
                 .selectList(Wrappers.lambdaQuery(ScheduleJob.class)
-                        .eq(ScheduleJob::getFlowJobId, jobId)
+                        .in(ScheduleJob::getFlowJobId, jobIds)
                         .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()));
     }
 }
