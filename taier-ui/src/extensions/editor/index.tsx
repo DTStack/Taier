@@ -461,6 +461,33 @@ export default class EditorExtension implements IExtension {
 							});
 						}
 					}
+
+					// 如果是工作流任务，还需要更新工作流的子节点
+					if (task.taskType === TASK_TYPE_ENUM.WORK_FLOW) {
+						const { groups = [] } = molecule.editor.getState();
+						groups.forEach((group) => {
+							group.data?.forEach((tab) => {
+								if (tab.data?.flowId === id) {
+									api.getOfflineTaskByID<IOfflineTaskProps>({
+										id: tab.data.id,
+									}).then((subResult) => {
+										if (subResult.code === 1) {
+											molecule.editor.updateTab(
+												{
+													id: tab.id,
+													data: {
+														...tab.data,
+														...subResult.data,
+													},
+												},
+												group.id,
+											);
+										}
+									});
+								}
+							});
+						});
+					}
 				}
 			});
 		});

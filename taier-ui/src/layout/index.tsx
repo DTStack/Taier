@@ -24,6 +24,6 @@ message.config({
 	duration: 2,
 });
 
-export default function Layout(props: React.PropsWithChildren<React.ReactNode>) {
+export default function Layout(props: { children: React.ReactElement }) {
 	return <ConfigProvider locale={zhCN}>{props.children}</ConfigProvider>;
 }

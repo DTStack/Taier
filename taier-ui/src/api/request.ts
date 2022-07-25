@@ -75,6 +75,7 @@ export default {
 	GET_HBASE_COLUMN_FAMILY: `${BASE_URI}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
 	QUERY_TASKS: `${BASE_URI}/scheduleTaskShade/queryTasks`, // 获取离线任务管理列表
 	GET_TASK_CHILDREN: `${BASE_URI}/scheduleTaskTaskShade/displayOffSpring`, // 获取任务子节点
+	GET_ROOT_WORKFLOW_TASK: `${BASE_URI}/scheduleTaskTaskShade/getWorkFlowTopTask`, // 获取 task 的根节点
 	GET_TASK_LOG: `${BASE_URI}/action/queryJobLog`, // 获取离线任务日志
 	QUERY_JOBS: `${BASE_URI}/scheduleJob/queryJobs`, // 获取周期实例列表
 	GET_SUB_JOBS: `${BASE_URI}/scheduleJob/getRelatedJobs`, // 获取工作流实例的子实例
@@ -84,6 +85,7 @@ export default {
 	GET_FILL_DATA: `${BASE_URI}/fill/queryFillDataList`, // 获取补数据实例列表
 	GET_FILL_DATA_DETAIL: `${BASE_URI}/fill/queryFillDataJobList`, // 获取补数据实例详情
 	GET_JOB_CHILDREN: `${BASE_URI}/scheduleJobJob/displayOffSpring`, // 获取任务上下游关系
+	GET_ROOT_WORKFLOW_JOB: `${BASE_URI}/scheduleJobJob/getWorkFlowTopJob`, // 获取 job 的根节点
 	GET_TASK_PERIODS: `${BASE_URI}/scheduleJob/queryDisplayPeriods`, // 转到前后周期实例
 	QUERY_JOB_STATISTICS: `${BASE_URI}/scheduleJob/queryJobsStatusStatistics`, // 查询Job统计
 	STOP_FILL_DATA_JOBS: `${BASE_URI}/action/stopFillDataJobs`, // 停止补数据任务

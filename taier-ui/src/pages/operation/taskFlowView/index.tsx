@@ -20,7 +20,7 @@ import { useContext, useEffect, useState } from 'react';
 import { history } from 'umi';
 import Api from '@/api';
 import { DRAWER_MENU_ENUM, SCHEDULE_STATUS, TASK_TYPE_ENUM } from '@/constant';
-import type { IUpstreamJobProps, ITaskProps, IOfflineTaskProps } from '@/interface';
+import type { IUpstreamJobProps, ITaskProps } from '@/interface';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import type { IContextMenuConfig } from '@/components/mxGraph/container';
 import MxGraphContainer from '@/components/mxGraph/container';
@@ -48,10 +48,10 @@ interface IGetTaskChildrenParams {
 
 const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProps) => {
 	const { supportJobTypes } = useContext(context);
-	const [graphData, setGraphData] = useState<[IUpstreamJobProps] | null>(null);
+	const [graphData, setGraphData] = useState<IUpstreamJobProps[] | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [visible, setVisible] = useState(false);
-	const [currentWorkflowTask, setWorkflowTask] = useState<[IUpstreamJobProps] | null>(null);
+	const [currentWorkflowTask, setWorkflowTask] = useState<IUpstreamJobProps[] | null>(null);
 
 	/**
 	 * 获取任务上下游关系
@@ -180,31 +180,30 @@ const TaskFlowView = ({ tabData, onPatchData, onForzenTasks }: ITaskFlowViewProp
 			const data: IUpstreamJobProps = cell.value;
 
 			setLoading(true);
-			Api.getOfflineTaskByID<IOfflineTaskProps>({ id: data.taskId })
+			Api.getRootWorkflowTask<number[]>({ taskId: data.taskId })
 				.then((res) => {
 					if (res.code === 1) {
-						const rootNodeTaskId = Object.entries(
-							JSON.parse(res.data.sqlText) as Record<number, number[]>,
-						).find(([, value]) => value.length === 0)?.[0];
-
-						if (rootNodeTaskId) return rootNodeTaskId;
+						return res.data;
 					}
-
-					return Promise.reject();
+					return [];
 				})
-				.then((rootTaskId) =>
-					Api.getTaskChildren<{
-						rootTaskNode: IUpstreamJobProps;
-						directType: DIRECT_TYPE_ENUM;
-					}>({
-						taskId: rootTaskId,
-						directType: DIRECT_TYPE_ENUM.CHILD,
-						level: 6,
-					}),
-				)
-				.then((res) => {
-					if (res.code === 1) {
-						setWorkflowTask([res.data.rootTaskNode]);
+				.then((taskIdList) => {
+					return Promise.all(
+						taskIdList.map((taskId) =>
+							Api.getTaskChildren<{
+								rootTaskNode: IUpstreamJobProps;
+								directType: DIRECT_TYPE_ENUM;
+							}>({
+								taskId,
+								directType: DIRECT_TYPE_ENUM.CHILD,
+								level: 6,
+							}),
+						),
+					);
+				})
+				.then((results) => {
+					if (results.every((res) => res.code === 1)) {
+						setWorkflowTask(results.map((res) => res.data.rootTaskNode));
 						setVisible(true);
 					}
 				})

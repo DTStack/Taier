@@ -412,14 +412,16 @@ export default {
 		// 获取任务子节点
 		return http.post<T>(req.GET_TASK_CHILDREN, params);
 	},
-
+	getRootWorkflowTask<T = any>(params: any) {
+		return http.post<T>(req.GET_ROOT_WORKFLOW_TASK, params);
+	},
 	getFillData(params: any) {
 		// 补数据搜索
 		return http.post(req.GET_FILL_DATA, params);
 	},
-	getFillDataDetail(params: any) {
+	getFillDataDetail<T = any>(params: any) {
 		// 补数据详情
-		return http.post(req.GET_FILL_DATA_DETAIL, params);
+		return http.post<T>(req.GET_FILL_DATA_DETAIL, params);
 	},
 
 	batchStopJob(params: any) {
@@ -434,7 +436,9 @@ export default {
 		// 获取任务子Job
 		return http.post<T>(req.GET_JOB_CHILDREN, params);
 	},
-
+	getRootWorkflowJob<T = any>(params: any) {
+		return http.post<T>(req.GET_ROOT_WORKFLOW_JOB, params);
+	},
 	queryJobStatics(params: any) {
 		return http.post(req.QUERY_JOB_STATISTICS, params);
 	},

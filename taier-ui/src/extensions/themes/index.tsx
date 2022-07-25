@@ -34,6 +34,19 @@ export default class ColorThemeExtensions implements IExtension {
 				});
 			}
 		});
+
+		import('./defaultLight.json').then((content) => {
+			const builtinTheme = molecule.colorTheme.getThemeById(content.id);
+			if (builtinTheme) {
+				molecule.colorTheme.updateTheme({
+					...builtinTheme,
+					colors: {
+						...builtinTheme.colors,
+						...content.colors,
+					},
+				});
+			}
+		});
 	}
 	dispose(): void {
 		throw new Error('Method not implemented.');
