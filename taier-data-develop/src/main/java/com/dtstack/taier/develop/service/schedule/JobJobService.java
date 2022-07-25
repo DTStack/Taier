@@ -1,10 +1,12 @@
 package com.dtstack.taier.develop.service.schedule;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.DisplayDirect;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobJob;
@@ -21,13 +23,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,6 +54,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TaskTaskService taskTaskService;
+
     public ReturnJobDisplayVO displayOffSpring(QueryJobDisplayDTO dto) {
         // 设置层级 0<level< max.level
         dto.setLevel(JobUtils.checkLevel(dto.getLevel(), context.getMaxLevel()));
@@ -66,6 +71,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
             throw new RdosDefineException("job does not exist");
         }
 
+        ReturnJobDisplayVO vo = new ReturnJobDisplayVO();
+        vo.setDirectType(dto.getDirectType());
+
         // 先从db里面查询数据，然后在递归封装成节点
         List<String> jobKeys = Lists.newArrayList(scheduleJob.getJobKey());
         Map<String, List<String>> jobJobMaps = findJobJobByJobKeys(dto, jobKeys);
@@ -79,68 +87,18 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         // 查询所有任务
         Map<Long, ScheduleTaskShade> taskShadeMap = findTaskJob(scheduleJobList);
 
-        ReturnJobDisplayVO vo = new ReturnJobDisplayVO();
-        vo.setDirectType(dto.getDirectType());
-        vo.setRootNode(buildRootNode(dto.getDirectType(), scheduleJob, taskShadeMap,jobMap,jobJobMaps));
-        return vo;
-    }
-
-    public ReturnJobDisplayVO displayOffSpringWorkFlowJob(String jobId) {
-        // 查询实例是否存在,如不不存在，直接抛异常，下面的逻辑不需要在走了
-        ScheduleJob scheduleJob = jobService.lambdaQuery()
-                .eq(ScheduleJob::getJobId, jobId)
-                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .one();
-
-        if (scheduleJob == null) {
-            throw new RdosDefineException("job does not exist");
-        }
-
-        //如果任务是工作流节点，直接返回整个工作流
-        if (scheduleJob.getTaskType().equals(EScheduleJobType.WORK_FLOW.getVal())) {
-            return displayAllFlowSubJobs(scheduleJob);
-        } else {
-            return new ReturnJobDisplayVO();
-        }
-    }
-
-    private ReturnJobDisplayVO displayAllFlowSubJobs(ScheduleJob scheduleJob) {
-        List<ScheduleJob> scheduleJobList = jobService.lambdaQuery()
-                .eq(ScheduleJob::getFlowJobId, scheduleJob.getJobId())
-                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .list();
-        Map<String, ScheduleJob> jobMap = scheduleJobList.stream().collect(Collectors.toMap(ScheduleJob::getJobKey,g->(g)));
-
-        // 查询实例直接的关系
-        Set<String> jobKeySet = jobMap.keySet();
-        jobKeySet.add(scheduleJob.getJobKey());
-        List<ScheduleJobJob> scheduleJobJobs = this.lambdaQuery().in(ScheduleJobJob::getJobKey, jobKeySet)
-                .in(ScheduleJobJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .list();
-        Map<String, List<String>> jobJobMaps = scheduleJobJobs.stream().collect(Collectors.groupingBy(ScheduleJobJob::getParentJobKey, Collectors.mapping(ScheduleJobJob::getJobKey, Collectors.toList())));
-
-        // 查询任务信息
-        List<Long> taskIdList = scheduleJobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
-        taskIdList.add(scheduleJob.getTaskId());
-        List<ScheduleTaskShade> taskShades = taskService.lambdaQuery()
-                .in(ScheduleTaskShade::getTaskId, taskIdList)
-                .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                .list();
-        Map<Long, ScheduleTaskShade> taskShadeMap = taskShades.stream().collect(Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g)));
-
-        ReturnJobDisplayVO vo = new ReturnJobDisplayVO();
-        vo.setRootNode(buildRootNode(DisplayDirect.CHILD.getType(), scheduleJob, taskShadeMap,jobMap,jobJobMaps));
+        vo.setRootNode(buildRootNode(dto.getDirectType(), scheduleJob, taskShadeMap, jobMap, jobJobMaps));
         return vo;
     }
 
     /**
      * 封装头节点
      *
-     * @param directType 前端传过来的条件:方向
-     * @param scheduleJob 周期实例对象
+     * @param directType   前端传过来的条件:方向
+     * @param scheduleJob  周期实例对象
      * @param taskShadeMap 任务集合
-     * @param jobMap 实例集合
-     * @param jobJobMaps 实例之间的关系
+     * @param jobMap       实例集合
+     * @param jobJobMaps   实例之间的关系
      * @return 头节点
      */
     private JobNodeVO buildRootNode(Integer directType,
@@ -165,9 +123,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         }
 
         if (DisplayDirect.CHILD.getType().equals(directType)) {
-            rootNode.setChildNode(displayLevelNode(directType,scheduleJob.getJobKey(),taskShadeMap,jobMap,jobJobMaps));
+            rootNode.setChildNode(displayLevelNode(directType, scheduleJob.getJobKey(), taskShadeMap, jobMap, jobJobMaps));
         } else {
-            rootNode.setParentNode(displayLevelNode(directType,scheduleJob.getJobKey(),taskShadeMap,jobMap,jobJobMaps));
+            rootNode.setParentNode(displayLevelNode(directType, scheduleJob.getJobKey(), taskShadeMap, jobMap, jobJobMaps));
         }
         return rootNode;
     }
@@ -175,11 +133,11 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     /**
      * 递归分支节点
      *
-     * @param directType 前端传过来的条件:方向
-     * @param rootJobKey 头结点key
+     * @param directType   前端传过来的条件:方向
+     * @param rootJobKey   头结点key
      * @param taskShadeMap 任务集合
-     * @param jobMap 实例集合
-     * @param jobJobMaps 实例之间的关系
+     * @param jobMap       实例集合
+     * @param jobJobMaps   实例之间的关系
      * @return 节点列表
      */
     private List<JobNodeVO> displayLevelNode(Integer directType,
@@ -212,9 +170,9 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
                 }
 
                 if (DisplayDirect.CHILD.getType().equals(directType)) {
-                    vo.setChildNode(displayLevelNode(directType,scheduleJob.getJobKey(),taskShadeMap,jobMap,jobJobMaps));
+                    vo.setChildNode(displayLevelNode(directType, scheduleJob.getJobKey(), taskShadeMap, jobMap, jobJobMaps));
                 } else {
-                    vo.setParentNode(displayLevelNode(directType,scheduleJob.getJobKey(),taskShadeMap,jobMap,jobJobMaps));
+                    vo.setParentNode(displayLevelNode(directType, scheduleJob.getJobKey(), taskShadeMap, jobMap, jobJobMaps));
                 }
 
                 jobNodeVOList.add(vo);
@@ -259,14 +217,13 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
         return jobService.lambdaQuery()
                 .in(ScheduleJob::getJobKey, jobKeySet)
                 .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
-                .eq(ScheduleJob::getFlowJobId, 0)
                 .list();
     }
 
     /**
      * 查询周期实例的边
      *
-     * @param dto 前端传递的条件
+     * @param dto     前端传递的条件
      * @param jobKeys 周期实例key
      * @return 实例和实例直接的关系
      */
@@ -306,4 +263,18 @@ public class JobJobService extends ServiceImpl<ScheduleJobJobMapper, ScheduleJob
     }
 
 
+    public List<String> getWorkFlowTopTask(String jobId) {
+        ScheduleJob workFlowJob = jobService.getScheduleJob(jobId);
+        if (null == workFlowJob || !Objects.equals(EScheduleJobType.WORK_FLOW.getType(), workFlowJob.getTaskType())) {
+            throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_TASK);
+        }
+        List<Long> workFlowTopTaskId = taskTaskService.getWorkFlowTopTask(workFlowJob.getTaskId());
+        List<ScheduleJob> workFlowTopJobs = jobService.getBaseMapper().selectList(Wrappers.lambdaQuery(ScheduleJob.class)
+                .eq(ScheduleJob::getFlowJobId, jobId)
+                .in(ScheduleJob::getTaskId, workFlowTopTaskId)
+                .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus()));
+        return workFlowTopJobs.stream()
+                .map(ScheduleJob::getJobId)
+                .collect(Collectors.toList());
+    }
 }

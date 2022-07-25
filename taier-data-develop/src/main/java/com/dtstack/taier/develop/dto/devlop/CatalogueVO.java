@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.dto.devlop;
 
-import com.dtstack.taier.dao.domain.BatchCatalogue;
+import com.dtstack.taier.dao.domain.DevelopCatalogue;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class CatalogueVO {
 
-    public static CatalogueVO toVO(BatchCatalogue catalogue) {
+    public static CatalogueVO toVO(DevelopCatalogue catalogue) {
         CatalogueVO vo = new CatalogueVO();
         vo.setName(catalogue.getNodeName());
         vo.setLevel(catalogue.getLevel());
@@ -46,7 +46,6 @@ public class CatalogueVO {
     private Integer taskType;
     private Integer resourceType;
     private String catalogueType;
-    private String createUser;
     private Integer orderVal;
     private List<CatalogueVO> children;
     private Integer version;
@@ -60,11 +59,6 @@ public class CatalogueVO {
      * 租户Id
      */
     private Long tenantId;
-
-    /**
-     * 任务状态 0：未提交 ；1：已提交
-     */
-    private Integer status;
 
     public CatalogueVO(){}
 
@@ -132,14 +126,6 @@ public class CatalogueVO {
         this.catalogueType = catalogueType;
     }
 
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
     public Integer getOrderVal() {
         return orderVal;
     }
@@ -170,14 +156,6 @@ public class CatalogueVO {
 
     public void setOperateModel(Integer operateModel) {
         this.operateModel = operateModel;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Long getTenantId() {

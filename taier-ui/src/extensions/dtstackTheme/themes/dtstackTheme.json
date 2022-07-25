@@ -64,6 +64,8 @@
 		"focusBorder": "#3e4452",
 		"gitDecoration.ignoredResourceForeground": "#636b78",
 		"input.background": "#1d1f23",
+		"inputValidation.errorBorder": "#BE1100",
+		"inputValidation.errorBackground": "#5A1D1D",
 		"list.activeSelectionBackground": "#2c313a",
 		"list.activeSelectionForeground": "#d7dae0",
 		"list.focusBackground": "#323842",
@@ -147,7 +149,8 @@
 		"tree.tableColumnsBorder": "#CCCCCC20",
 		"walkThrough.embeddedEditorBackground": "#2e3440",
 		"welcomePage.buttonHoverBackground": "#404754",
-		"workbenchBackground": "#232730"
+		"workbenchBackground": "#232730",
+		"disabledForeground": "#CCCCCC80"
 	},
 	"tokenColors": [
 		{

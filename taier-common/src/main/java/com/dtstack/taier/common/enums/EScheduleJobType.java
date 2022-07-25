@@ -19,6 +19,7 @@
 package com.dtstack.taier.common.enums;
 
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.pluginapi.enums.EJobType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,34 +34,54 @@ public enum EScheduleJobType {
     /**
      * SparkSQL
      */
-    SPARK_SQL(0, "SparkSQL", 0, 1, EComponentType.SPARK, EComputeType.BATCH),
+    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * Spark
      */
-    SPARK(1, "Spark", 1, 2, EComponentType.SPARK, EComputeType.BATCH),
+//    SPARK(1, "Spark", EJobType.SQL.getType(), 2, EComponentType.SPARK, EComputeType.BATCH),
 
     /**
      * 数据同步
      */
-    SYNC(2, "数据同步", 2, 3, EComponentType.FLINK, EComputeType.BATCH),
+    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH),
+
+
     /**
-     * Shell
+     * shell
      */
-    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
+//    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
 
     /**
      * FlinkSQL
      */
-    SQL(5, "FlinkSQL", 0, 5, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM),
 
-    DATA_ACQUISITION(6, "实时采集", 2, 4,EComponentType.FLINK, EComputeType.STREAM),
+    /**
+     * 实时采集
+     */
+    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM),
 
-    HIVE_SQL(7, "HiveSQL", 0, 4,EComponentType.HIVE_SERVER, EComputeType.BATCH),
+    /**
+     * HiveSQL
+     */
+    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, EComponentType.HIVE_SERVER, EComputeType.BATCH),
+
+    /**
+     * OceanBaseSQL
+     */
+    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN_BASE, EComputeType.BATCH),
+
     /**
      * 工作流
      */
     WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH),
+
+    /**
+     * Flink
+     */
+    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM),
+
     ;
 
     private Integer type;
@@ -89,12 +110,13 @@ public enum EScheduleJobType {
 
     public static final List<Integer> STREAM_JOB_TYPES = new ArrayList<>();
     public static final List<Integer> BATCH_JOB_TYPES = new ArrayList<>();
+
     static {
         for (EScheduleJobType value : EScheduleJobType.values()) {
-            if (EComputeType.STREAM == value.getComputeType()){
+            if (EComputeType.STREAM == value.getComputeType()) {
                 STREAM_JOB_TYPES.add(value.getValue());
             }
-            if (EComputeType.BATCH == value.getComputeType()){
+            if (EComputeType.BATCH == value.getComputeType()) {
                 BATCH_JOB_TYPES.add(value.getValue());
             }
         }
@@ -113,10 +135,7 @@ public enum EScheduleJobType {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {
             if (eJobType.type == type) {
-                if (eJobType.getValue() != -1) {
-                    return eJobType;
-                }
-                break;
+                return eJobType;
             }
         }
         throw new RdosDefineException("不支持的任务类型");

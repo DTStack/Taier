@@ -2,7 +2,6 @@ package com.dtstack.taier.develop.flink.sql.sink;
 
 import com.dtstack.taier.develop.flink.sql.core.ISqlParamEnum;
 import com.dtstack.taier.develop.flink.sql.sink.param.MySqlSinkParamEnum;
-import lombok.Data;
 
 /**
  * mysql 结果表

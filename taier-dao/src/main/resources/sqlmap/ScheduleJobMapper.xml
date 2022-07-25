@@ -154,7 +154,7 @@
         <if test="type != null">
             AND type = #{type}
         </if>
-        AND status = 0
+        AND (status = 0 or ((status = 10 or status=4) and task_type in (10)))
         AND is_deleted = 0
         AND `phase_status` = #{jobPhaseStatus}
         order by job_execute_order asc limit 500
@@ -215,7 +215,13 @@
     </update>
 
     <update id="updateJobStatusAndExecTime">
-        update schedule_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+        update schedule_job
+        set gmt_modified=now()
+          , exec_end_time=now()
+          , status=#{status}
+          , exec_time=timestampdiff(SECOND, exec_start_time, now())
+          , exec_start_time = (case when exec_start_time is null then now() else exec_start_time end)
+        where job_id = #{jobId};
     </update>
 
 </mapper>

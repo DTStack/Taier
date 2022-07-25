@@ -29,8 +29,7 @@ interface IFormFieldProps {
 export interface ITableProps {
 	maxCapacity: string;
 	minCapacity: string;
-	queue: string;
-	queueId: number;
+	queueName: string;
 	tenantId: number;
 	tenantName: string;
 }
@@ -88,15 +87,7 @@ export default forwardRef(
 				},
 				{
 					title: '资源队列',
-					dataIndex: 'queue',
-				},
-				{
-					title: '最小容量（%）',
-					dataIndex: 'minCapacity',
-				},
-				{
-					title: '最大容量（%）',
-					dataIndex: 'maxCapacity',
+					dataIndex: 'queueName',
 				},
 				{
 					title: '操作',
@@ -125,7 +116,7 @@ export default forwardRef(
 				columns={columns}
 				tableProps={{
 					rowSelection: undefined,
-					rowKey: (record) => `${record.tenantId}-${record.queueId}`,
+					rowKey: (record) => `${record.tenantId}-${record.queueName}`,
 				}}
 			/>
 		);

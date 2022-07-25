@@ -76,7 +76,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
                                              String beginTime,
                                              String endTime,
                                              Long fillId,
-                                             JobSortWorker jobSortWorker) throws Exception{
+                                             JobSortWorker jobSortWorker) throws Exception {
 
         // 解析周期信息
         ScheduleCorn corn = ScheduleConfManager.parseFromJson(scheduleTaskShade.getScheduleConf());
@@ -86,8 +86,8 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         Pair<Date, Date> triggerRange = getTriggerRange(triggerDay, beginTime, endTime);
 
         // 获得实例命中的实际范围
-        Date startDate = getStartData(scheduleConf,triggerRange,scheduleTaskShade.getTaskId());
-        Date endDate = getEndDate(scheduleConf,triggerRange,scheduleTaskShade.getTaskId());
+        Date startDate = getStartData(scheduleConf, triggerRange, scheduleTaskShade.getTaskId());
+        Date endDate = getEndDate(scheduleConf, triggerRange, scheduleTaskShade.getTaskId());
 
         List<ScheduleJobDetails> jobBuilderBeanList = Lists.newArrayList();
 
@@ -122,21 +122,23 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
 
     /**
      * 周期实例生成bean方法
+     *
      * @param batchTaskShade 任务
-     * @param triggerDay 目标天
-     * @param sortWorker 排序器
+     * @param triggerDay     目标天
+     * @param sortWorker     排序器
      */
     public List<ScheduleJobDetails> buildJob(ScheduleTaskShade batchTaskShade, String triggerDay, AtomicJobSortWorker sortWorker) throws Exception {
-        return buildJob(batchTaskShade, "",triggerDay,"00:00","23:59",0L,sortWorker);
+        return buildJob(batchTaskShade, "", triggerDay, "00:00", "23:59", 0L, sortWorker);
     }
 
     /**
      * 获得实例名称
+     *
      * @param scheduleTaskShade 任务
-     * @param name 名称前缀
+     * @param name              名称前缀
      * @return 名称
      */
-    private String getName(ScheduleTaskShade scheduleTaskShade, String name,String cycTime ) {
+    private String getName(ScheduleTaskShade scheduleTaskShade, String name, String cycTime) {
         return getPrefix() + "_" + name + "_" + scheduleTaskShade.getName() + "_" + cycTime;
     }
 
@@ -144,12 +146,12 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * 构建JobBuilderBean
      *
      * @param scheduleTaskShade 需要被构建的任务
-     * @param name 实例名称
-     * @param fillId 补数据id
-     * @param jobSortWorker 排序器
-     * @param corn 周期实例
-     * @param scheduleConf 调度配置
-     * @param currentData 当前时间
+     * @param name              实例名称
+     * @param fillId            补数据id
+     * @param jobSortWorker     排序器
+     * @param corn              周期实例
+     * @param scheduleConf      调度配置
+     * @param currentData       当前时间
      * @return
      */
     private ScheduleJobDetails buildJobBuilderBean(ScheduleTaskShade scheduleTaskShade,
@@ -160,7 +162,7 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
                                                    ScheduleConf scheduleConf,
                                                    Date currentData,
                                                    String flowJobId) {
-        String triggerTime = DateUtil.getDate(currentData,DateUtil.STANDARD_DATETIME_FORMAT);
+        String triggerTime = DateUtil.getDate(currentData, DateUtil.STANDARD_DATETIME_FORMAT);
         String cycTime = DateUtil.getTimeStrWithoutSymbol(triggerTime);
         String jobKey = JobKeyUtils.generateJobKey(getKeyPreStr(name), scheduleTaskShade.getTaskId(), cycTime);
 
@@ -187,12 +189,12 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
         scheduleJob.setVersionId(scheduleTaskShade.getVersionId());
         scheduleJob.setComputeType(scheduleTaskShade.getComputeType());
         scheduleJob.setNextCycTime(DateUtil.getDate(corn.next(currentData), DateUtil.STANDARD_DATETIME_FORMAT));
-        scheduleJob.setJobExecuteOrder(JobExecuteOrderUtil.buildJobExecuteOrder(cycTime,jobSortWorker.getSort()));
+        scheduleJob.setJobExecuteOrder(JobExecuteOrderUtil.buildJobExecuteOrder(cycTime, jobSortWorker.getSort()));
 
         // 获得依赖
         List<ScheduleJobJob> jobJobList = Lists.newArrayList();
         JobDependency dependencyHandler = dependencyManager.getDependencyHandler(getKeyPreStr(name), scheduleTaskShade, corn);
-        jobJobList.addAll(dependencyHandler.generationJobJobForTask(corn, currentData,jobKey));
+        jobJobList.addAll(dependencyHandler.generationJobJobForTask(corn, currentData, jobKey));
 
         ScheduleJobDetails jobBuilderBean = new ScheduleJobDetails();
         jobBuilderBean.setJobJobList(jobJobList);
@@ -201,6 +203,9 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
     }
 
     private String getKeyPreStr(String name) {
+        if (StringUtils.isBlank(name)) {
+            return getPrefix();
+        }
         return getPrefix() + "_" + name;
     }
 
@@ -257,8 +262,8 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @return 实际开始时间
      */
     private Date getStartData(ScheduleConf scheduleConf, Pair<Date, Date> triggerRange, Long taskId) {
-        int  beginHour = scheduleConf.getBeginHour() != null ? scheduleConf.getBeginHour() : 0;
-        int  beginMin = scheduleConf.getBeginMin() != null ? scheduleConf.getBeginMin() : 0;
+        int beginHour = scheduleConf.getBeginHour() != null ? scheduleConf.getBeginHour() : 0;
+        int beginMin = scheduleConf.getBeginMin() != null ? scheduleConf.getBeginMin() : 0;
         String startStr = DateUtil.getDate(scheduleConf.getBeginDate(), DateUtil.DATE_FORMAT) + " " + beginHour + ":" + beginMin + ":00";
         Date beginDate = DateUtil.parseDate(startStr, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         // 这里有两个时间范围 1 任务运行的时间范围 2 计划的时间范围
@@ -279,8 +284,8 @@ public abstract class AbstractJobBuilder implements JobBuilder, InitializingBean
      * @return 实际结束时间
      */
     private Date getEndDate(ScheduleConf scheduleConf, Pair<Date, Date> triggerRange, Long taskId) {
-        int  endHour = scheduleConf.getBeginHour() != null ? scheduleConf.getEndHour() : 23;
-        int  endMin = scheduleConf.getBeginMin() != null ? scheduleConf.getEndMin() : 59;
+        int endHour = scheduleConf.getBeginHour() != null ? scheduleConf.getEndHour() : 23;
+        int endMin = scheduleConf.getBeginMin() != null ? scheduleConf.getEndMin() : 59;
         String endDateStr = DateUtil.getDate(scheduleConf.getEndDate(), DateUtil.DATE_FORMAT) + " " + endHour + ":" + endMin + ":00";
         Date endDate = DateUtil.parseDate(endDateStr, DateUtil.STANDARD_DATETIME_FORMAT, Locale.CHINA);
         if ((endDate.after(triggerRange.getLeft()) && endDate.before(triggerRange.getRight())) || endDate.after(triggerRange.getRight())) {

@@ -77,9 +77,11 @@ public class UpstreamNextJobDependencyHandler extends DecoratorJobDependency {
         // 上游任务的上一个周期
         Date lastDate = corn.last(upstreamTask);
 
-        // 该任务不在调度周期内，返回空字符串
-        if (beginDate.before(lastDate) || endDate.after(lastDate)) {
-            return "";
+        if (!corn.isMatch(currentDate)) {
+            // 该任务不在调度周期内 且上游任务和当前任务不在同一计划时间内，返回空字符串
+            if (beginDate.before(lastDate) || endDate.after(lastDate)) {
+                return "";
+            }
         }
 
         String lastDateStr = DateUtil.getDate(lastDate, DateUtil.STANDARD_DATETIME_FORMAT);

@@ -40,7 +40,6 @@ interface IEnginesProps {
 	gmtCreate: number;
 	gmtModified: number;
 	id: number;
-	queues: { queueId: number; queueName: string }[];
 }
 
 interface IFormFieldProps {
@@ -170,14 +169,14 @@ export default () => {
 			>
 				<FormItem label="集群" name="clusterId">
 					<Select
-						style={{ width: 264 }}
+						style={{ width: 200 }}
 						placeholder="请选择集群"
 						options={clusterOptions}
 					/>
 				</FormItem>
 				<FormItem label="引擎" name="engineId">
 					<Select
-						style={{ width: 264 }}
+						style={{ width: 200 }}
 						placeholder="请选择引擎"
 						options={engineOptions}
 					/>
@@ -193,52 +192,40 @@ export default () => {
 				绑定新租户
 			</Button>
 			<Spin spinning={tabLoading}>
-				{form.getFieldValue('engineId') ? (
-					<Tabs
-						animated={false}
-						activeKey={activeKey}
-						onChange={handleChangeEngine}
-						className="dt-resource-tabs"
-					>
-						{isSparkEngine(form.getFieldValue('engineId')) ? (
-							<TabPane tab="资源全景" key="showResource">
-								<Resource
-									clusterName={
-										clusterList.find(
-											(cluster) =>
-												cluster.id === form.getFieldValue('clusterId'),
-										)?.clusterName
-									}
-								/>
-							</TabPane>
-						) : null}
-						<TabPane tab="租户绑定" key="bindTenant">
-							<BindTenant
-								ref={bindTenantRef}
-								clusterId={form.getFieldValue('clusterId')}
-								clusterName={
-									clusterOptions.find(
-										(cluster) =>
-											cluster.value === form.getFieldValue('clusterId'),
-									)?.label
-								}
-								engineType={form.getFieldValue('engineId')}
-								onClick={handleResourceManage}
-							/>
+				<Tabs
+					animated={false}
+					activeKey={activeKey}
+					onChange={handleChangeEngine}
+					className="dt-resource-tabs"
+					destroyInactiveTabPane
+				>
+					{isSparkEngine(form.getFieldValue('engineId')) ? (
+						<TabPane tab="资源全景" key="showResource">
+							<Resource clusterId={form.getFieldValue('clusterId')} />
 						</TabPane>
-					</Tabs>
-				) : (
-					<span>无法获取资源全景，请检查是否选择引擎，或该集群下无引擎</span>
-				)}
+					) : null}
+					<TabPane tab="租户绑定" key="bindTenant">
+						<BindTenant
+							ref={bindTenantRef}
+							clusterId={form.getFieldValue('clusterId')}
+							clusterName={
+								clusterOptions.find(
+									(cluster) => cluster.value === form.getFieldValue('clusterId'),
+								)?.label
+							}
+							engineType={form.getFieldValue('engineId')}
+							onClick={handleResourceManage}
+						/>
+					</TabPane>
+				</Tabs>
 			</Spin>
 			<ResourceManageModal
 				title={`资源管理 (${tenantInfo?.tenantName ?? ''})`}
 				visible={manageModalVisible}
 				isBindTenant={false}
-				clusterList={clusterList}
 				clusterId={form.getFieldValue('clusterId')}
 				tenantId={tenantInfo?.tenantId}
-				queueId={tenantInfo?.queueId}
+				queueName={tenantInfo?.queueName}
 				onCancel={() => {
 					setManageModalVisible(false);
 					setTenantInfo(undefined);

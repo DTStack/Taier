@@ -20,10 +20,14 @@ package com.dtstack.taier.develop.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.dtstack.taier.common.env.EnvironmentContext;
+import com.dtstack.taier.dao.handler.TableEntityHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -84,6 +88,9 @@ public class MybatisConfig {
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         MybatisSqlSessionFactoryBean sqlSessionFactoryBean = new MybatisSqlSessionFactoryBean();
+        GlobalConfig globalConfig = GlobalConfigUtils.defaults();
+        globalConfig.setMetaObjectHandler(new TableEntityHandler());
+        sqlSessionFactoryBean.setGlobalConfig(globalConfig);
         sqlSessionFactoryBean.setDataSource(dataSource());
         sqlSessionFactoryBean.setTypeAliasesPackage("com.dtstack.taier.dao.domain,com.dtstack.taier.develop.domain");
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();

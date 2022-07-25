@@ -36,7 +36,8 @@ import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.pojo.ParamAction;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.scheduler.WorkerOperator;
-import com.dtstack.taier.scheduler.jobdealer.bo.JobCompletedInfo;
+import com.dtstack.taier.scheduler.enums.EJobLogType;
+import com.dtstack.taier.scheduler.jobdealer.bo.JobLogInfo;
 import com.dtstack.taier.scheduler.jobdealer.bo.JobStatusFrequency;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.jobdealer.cache.ShardManager;
@@ -53,7 +54,13 @@ import org.springframework.context.ApplicationContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -91,8 +98,7 @@ public class JobStatusDealer implements Runnable {
     private WorkerOperator workerOperator;
     private EnvironmentContext environmentContext;
     private ScheduleJobHistoryMapper scheduleJobHistoryMapper;
-    private long jobLogDelay;
-    private JobCompletedLogDelayDealer jobCompletedLogDelayDealer;
+    private JobLogDealer jobLogDealer;
 
     private int taskStatusDealerPoolSize;
 
@@ -190,7 +196,7 @@ public class JobStatusDealer implements Runnable {
                 taskStatus = checkNotFoundStatus(taskStatus, jobId);
                 Integer status = taskStatus.getStatus();
                 // 重试状态 先不更新状态
-                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob, engineJobCache, (job, client) -> ForkJoinPool.commonPool().execute(() -> {
+                boolean isRestart = jobRestartDealer.checkAndRestart(status, scheduleJob, engineJobCache, (job, client) -> jobLogDealer.executeLogRunnable(() -> {
                     String engineLog = workerOperator.getEngineLog(jobIdentifier);
                     jobRestartDealer.jobRetryRecord(job, client, engineLog);
                 }));
@@ -265,9 +271,11 @@ public class JobStatusDealer implements Runnable {
     }
 
 
-    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, int computeType,Integer type) {
+    private void jobLogDelayDealer(String jobId, JobIdentifier jobIdentifier, int computeType, Integer type) {
         //临时运行的任务立马去获取日志
-        jobCompletedLogDelayDealer.addCompletedTaskInfo(new JobCompletedInfo(jobId, jobIdentifier, computeType, EScheduleType.TEMP_JOB.getType().equals(type) ? 0 : jobLogDelay));
+        JobLogInfo jobLogInfo = new JobLogInfo(jobId, jobIdentifier, computeType, EScheduleType.TEMP_JOB.getType().equals(type) ?
+                0 : environmentContext.getJobLogDelay(), EJobLogType.FINISH_LOG);
+        jobLogDealer.addJobInfo(jobLogInfo);
     }
 
 
@@ -303,8 +311,6 @@ public class JobStatusDealer implements Runnable {
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
         setBean();
-        createLogDelayDealer();
-
         this.taskStatusDealerPoolSize = environmentContext.getTaskStatusDealerPoolSize();
         this.taskStatusPool = new ThreadPoolExecutor(taskStatusDealerPoolSize, taskStatusDealerPoolSize, 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000), new CustomThreadFactory(jobResource + this.getClass().getSimpleName() + "DealJob"), new BlockCallerPolicy());
@@ -317,11 +323,7 @@ public class JobStatusDealer implements Runnable {
         this.scheduleJobService = applicationContext.getBean(ScheduleJobService.class);
         this.scheduleJobCacheService = applicationContext.getBean(ScheduleJobCacheService.class);
         this.scheduleJobHistoryMapper = applicationContext.getBean(ScheduleJobHistoryMapper.class);
-    }
-
-    private void createLogDelayDealer() {
-        this.jobCompletedLogDelayDealer = new JobCompletedLogDelayDealer(applicationContext);
-        this.jobLogDelay = environmentContext.getJobLogDelay();
+        this.jobLogDealer = applicationContext.getBean(JobLogDealer.class);
     }
 
     public void start() {

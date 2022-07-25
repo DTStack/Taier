@@ -16,13 +16,13 @@
  * limitations under the License.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { Radio } from 'antd';
 import { Modal, Input, message, Select, Form } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import FolderPicker from '../../components/folderPicker';
 import {
-	CATELOGUE_TYPE,
+	CATALOGUE_TYPE,
 	formItemLayout,
 	TASK_TYPE_ENUM,
 	UDF_TYPE_NAMES,
@@ -30,7 +30,7 @@ import {
 } from '@/constant';
 import type { IFunctionProps } from '@/interface';
 import resourceManagerTree from '@/services/resourceManagerService';
-import { taskTypeText } from '@/utils/enums';
+import context from '@/context';
 
 const FormItem = Form.Item;
 
@@ -54,7 +54,7 @@ interface IFormFieldProps {
 	nodePid?: number;
 }
 
-const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL];
+const TASK_TYPE_OPTIONS = [TASK_TYPE_ENUM.SPARK_SQL, TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.HIVE_SQL];
 
 export default function FnModal({
 	data,
@@ -63,6 +63,7 @@ export default function FnModal({
 	onAddFunction,
 	onEditFunction,
 }: IFnModalProps) {
+	const { supportJobTypes } = useContext(context);
 	const [form] = Form.useForm<IFormFieldProps>();
 
 	const handleSubmit = () => {
@@ -172,7 +173,7 @@ export default function FnModal({
 						disabled={isEdit}
 						getPopupContainer={() => document.getElementById('molecule')!}
 						options={TASK_TYPE_OPTIONS.map((o) => ({
-							label: taskTypeText(o),
+							label: supportJobTypes.find((t) => t.key === o)?.value || '未知',
 							value: o,
 						}))}
 					/>
@@ -252,7 +253,7 @@ export default function FnModal({
 							},
 						]}
 					>
-						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
 					</FormItem>
 				</FormItem>
 				<FormItem label="用途" name="purpose">
@@ -286,19 +287,17 @@ export default function FnModal({
 				>
 					<Input.TextArea rows={4} placeholder="请输入函数的参数说明" />
 				</FormItem>
-				<FormItem {...formItemLayout} label="选择存储位置" required>
-					<FormItem
-						noStyle
-						name="nodePid"
-						rules={[
-							{
-								required: true,
-								message: '存储位置必选！',
-							},
-						]}
-					>
-						<FolderPicker showFile={false} dataType={CATELOGUE_TYPE.FUNCTION} />
-					</FormItem>
+				<FormItem
+					name="nodePid"
+					label="选择存储位置"
+					rules={[
+						{
+							required: true,
+							message: '存储位置必选！',
+						},
+					]}
+				>
+					<FolderPicker showFile={false} dataType={CATALOGUE_TYPE.FUNCTION} />
 				</FormItem>
 			</Form>
 		</Modal>

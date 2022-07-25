@@ -11,7 +11,7 @@ import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.dto.ScheduleTaskParamShade;
-import com.dtstack.taier.develop.service.develop.impl.BatchServerLogService;
+import com.dtstack.taier.develop.service.develop.impl.DevelopServerLogService;
 import com.dtstack.taier.develop.vo.schedule.ReturnJobLogVO;
 import com.dtstack.taier.scheduler.dto.schedule.ActionJobKillDTO;
 import com.dtstack.taier.scheduler.enums.RestartType;
@@ -68,7 +68,7 @@ public class ActionService {
     private ScheduleTaskShadeInfoService scheduleTaskShadeInfoService;
 
     @Autowired
-    private BatchServerLogService batchServerLogService;
+    private DevelopServerLogService developServerLogService;
 
     /**
      * 重跑实例
@@ -210,7 +210,7 @@ public class ActionService {
             if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
                 String syncLog = null;
                 try {
-                    syncLog = batchServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
+                    syncLog = developServerLogService.formatPerfLogInfo(scheduleJob.getEngineJobId(), scheduleJob.getJobId(),
                             Optional.ofNullable(execStartTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             Optional.ofNullable(execEndTime).orElse(Timestamp.valueOf(LocalDateTime.now())).getTime(),
                             scheduleJob.getTenantId());

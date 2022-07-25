@@ -18,12 +18,12 @@
 
 import type { IRightBarComponentProps } from '@/services/rightBarService';
 import DetailInfo from '@/components/detailInfo';
-import { CATELOGUE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE } from '@/constant';
 
 export default function TaskInfo({ current }: IRightBarComponentProps) {
 	return (
 		<div className="p-8">
-			<DetailInfo type={CATELOGUE_TYPE.TASK} data={current!.tab!.data} />
+			<DetailInfo type={CATALOGUE_TYPE.TASK} data={current!.tab!.data} />
 		</div>
 	);
 }

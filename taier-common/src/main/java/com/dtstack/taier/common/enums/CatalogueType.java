@@ -18,10 +18,7 @@
 
 package com.dtstack.taier.common.enums;
 
-/**
- * @author jiangbo
- * @time 2017/12/20
- */
+
 public enum CatalogueType {
 
     /**
@@ -35,35 +32,14 @@ public enum CatalogueType {
     RESOURCE_MANAGER("ResourceManager"),
 
     /**
-     * 自定义函数
-     */
-    CUSTOM_FUNCTION("CustomFunction"),
-
-    /**
-     * 系统函数
-     */
-    SYSTEM_FUNCTION("SystemFunction"),
-
-    /**
-     * 存储过程
-     */
-    PROCEDURE_FUNCTION("ProcedureFunction"),
-
-    /**
-     * spark系统函数
-     */
-    SPARKSQL_FUNCTION("SparkSQLFunction"),
-
-    /**
-     * flink系统函数
-     */
-    FLINKSQL_FUNCTION("FlinkSQLFunction"),
-
-    /**
      * 函数管理
      */
-    FUNCTION_MANAGER("FunctionManager");
+    FUNCTION_MANAGER("FunctionManager"),
 
+    /**
+     * 自定义函数
+     */
+    CUSTOM_FUNCTION("CustomFunction");
 
     private String type;
 
@@ -74,4 +50,5 @@ public enum CatalogueType {
     public String getType() {
         return type;
     }
+
 }

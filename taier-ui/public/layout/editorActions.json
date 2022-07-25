@@ -1,0 +1,97 @@
+[
+    {
+        "taskType": 0,
+        "actions": [
+            "SAVE_TASK",
+            "RUN_TASK",
+            "STOP_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 7,
+        "actions": [
+            "SAVE_TASK",
+            "RUN_TASK",
+            "STOP_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 2,
+        "actionsCondition": {
+            "key": "createModel",
+            "value": 0,
+            "actions": [
+                "CONVERT_TASK",
+                "SAVE_TASK",
+                "RUN_TASK",
+                "STOP_TASK",
+                "SUBMIT_TASK",
+                "OPERATOR_TASK"
+            ]
+        },
+        "actions": [
+            "SAVE_TASK",
+            "RUN_TASK",
+            "STOP_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 5,
+        "actionsCondition": {
+            "key": "createModel",
+            "value": 0,
+            "actions": [
+                "CONVERT_TASK",
+                "FORMAT_TASK",
+                "GRAMMAR_TASK",
+                "SAVE_TASK",
+                "OPERATOR_TASK"
+            ]
+        },
+        "actions": [
+            "GRAMMAR_TASK",
+            "SAVE_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 6,
+        "actionsCondition": {
+            "key": "createModel",
+            "value": 0,
+            "actions": [
+                "CONVERT_TASK",
+                "SAVE_TASK",
+                "OPERATOR_TASK"
+            ]
+        },
+        "actions": [
+            "SAVE_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 8,
+        "actions": [
+            "SAVE_TASK",
+            "RUN_TASK",
+            "STOP_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
+    },
+    {
+        "taskType": 10,
+        "actions": [
+            "SAVE_TASK",
+            "SUBMIT_TASK",
+            "OPERATOR_TASK"
+        ]
+    }
+]

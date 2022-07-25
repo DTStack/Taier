@@ -18,6 +18,11 @@
 
 import { createContext } from 'react';
 import type { TASK_TYPE_ENUM } from '@/constant';
+import type { IComputeType } from '@/interface';
+
+export enum SupportJobActionKind {
+	REQUEST = 'request',
+}
 
 export interface IPersonLists {
 	email: string;
@@ -30,16 +35,31 @@ export interface IPersonLists {
 export interface ISupportJobTypes {
 	key: TASK_TYPE_ENUM;
 	value: string;
+	computeType: IComputeType;
 }
 
 export interface IContext {
+	/**
+	 * 当前应用全部用户列表
+	 */
 	personList: IPersonLists[];
+	/**
+	 * 当前用户名称
+	 */
 	username?: string;
+	/**
+	 * 当前应用所支持的任务类型
+	 */
 	supportJobTypes: ISupportJobTypes[];
+	/**
+	 * 用于出发当前应用重新获取支持的任务类型
+	 */
+	dispatch: (action: { type: SupportJobActionKind }) => void;
 }
 
 export default createContext<IContext>({
 	personList: [],
 	username: undefined,
 	supportJobTypes: [],
+	dispatch: () => {},
 });

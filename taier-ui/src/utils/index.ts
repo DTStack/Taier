@@ -33,10 +33,10 @@ import {
 } from '@/constant';
 import { Utils } from '@dtinsight/dt-utils';
 import { history } from 'umi';
-import { openTaskInTab } from '@/extensions/folderTree';
 import { updateDrawer } from '@/components/customDrawer';
 import type { languages } from '@dtinsight/molecule/esm/monaco';
 import { Keywords, Snippets } from './competion';
+import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -450,7 +450,7 @@ export const utf8to16 = (str: string) => {
 export function goToTaskDev(record: { id: string | number; [key: string]: any }) {
 	const { id } = record ?? {};
 	// Open task in tab
-	openTaskInTab(id, { id });
+	taskRenderService.openTask({ id: id.toString() });
 	// Clear history query
 	history.push({
 		query: {},
@@ -493,15 +493,15 @@ export const removePopUpMenu = () => {
 	setTimeout(remove, 500);
 };
 
-export function getVertxtStyle(type: TASK_STATUS): string {
+export function getVertexStyle(type: TASK_STATUS): string {
 	// 成功
 	if (FINISH_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=rgba(18, 188, 106, 0.06);strokeColor=#12bc6a;';
+		return 'whiteSpace=wrap;fillColor=#f5ffe6;strokeColor=#12bc6a;';
 	}
 
 	// 运行中
 	if (RUNNING_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=rgba(63, 135, 255, 0.06);strokeColor=#3f87ff;';
+		return 'whiteSpace=wrap;fillColor=#e6f6ff;strokeColor=#3f87ff;';
 	}
 
 	// 等待提交/提交中/等待运行
@@ -565,6 +565,13 @@ export function createSQLProposals(
 	range: languages.CompletionItem['range'],
 ): languages.CompletionItem[] {
 	return Keywords(range).concat(Snippets(range));
+}
+
+/**
+ * 获取 13 位的随机 id
+ */
+export function randomId() {
+	return Date.now() + Math.round(Math.random() * 1000);
 }
 
 /**
@@ -680,4 +687,13 @@ export function getColumnsByColumnsText(text: string = '') {
 			});
 	}
 	return columns;
+}
+
+/**
+ * Get code character by keyCode
+ * @notice This is unreliable
+ */
+export function renderCharacterByCode(keyCode: number) {
+	const unicodeCharacter = String.fromCharCode(keyCode);
+	if (unicodeCharacter === '\b') return '⌫';
 }

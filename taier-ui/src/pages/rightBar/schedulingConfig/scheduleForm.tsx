@@ -16,14 +16,13 @@
  * limitations under the License.
  */
 
+import { forwardRef, useImperativeHandle } from 'react';
 import moment from 'moment';
 import get from 'lodash/get';
 import type { SelectProps, CheckboxProps } from 'antd';
 import { Form, Checkbox, DatePicker, Select, Input } from 'antd';
 import { scheduleConfigLayout, SCHEDULE_STATUS, TASK_PERIOD_ENUM } from '@/constant';
 import type { IScheduleConfProps } from '@/interface';
-import { forwardRef } from 'react';
-import { useImperativeHandle } from 'react';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -32,13 +31,12 @@ interface IFormWrapProps {
 	scheduleConf: Partial<IScheduleConfProps>;
 	status: SCHEDULE_STATUS;
 	/**
-	 * 是否为数据科学任务
-	 */
-	isScienceTask?: boolean;
-	/**
-	 * 是否为 workflow root
+	 * 是否为工作流任务
 	 */
 	isWorkflowRoot?: boolean;
+	/**
+	 * 是否为工作流任务的子任务
+	 */
 	isWorkflowNode?: boolean;
 	/**
 	 * 调度配置发生修改的回调函数
@@ -107,7 +105,6 @@ export default forwardRef(
 		{
 			scheduleConf,
 			status,
-			isScienceTask,
 			isWorkflowRoot,
 			isWorkflowNode,
 			handleScheduleStatus,
@@ -190,6 +187,7 @@ export default forwardRef(
 									initialValue={`${beginHour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -210,6 +208,7 @@ export default forwardRef(
 									initialValue={`${beginMin || '0'}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -229,7 +228,7 @@ export default forwardRef(
 								initialValue={`${gapMin}`}
 							>
 								<Select
-									disabled={isScienceTask}
+									disabled={isWorkflowNode}
 									onChange={handleScheduleConf}
 									options={GAP_OPTIONS}
 								/>
@@ -249,6 +248,7 @@ export default forwardRef(
 									initialValue={`${endHour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -269,6 +269,7 @@ export default forwardRef(
 									initialValue={`${endMin || '59'}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -297,6 +298,7 @@ export default forwardRef(
 									initialValue={`${beginHour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -317,6 +319,7 @@ export default forwardRef(
 									initialValue={`${beginMin || '0'}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -335,7 +338,11 @@ export default forwardRef(
 								]}
 								initialValue={`${gapHour}`}
 							>
-								<Select onChange={handleScheduleConf} options={GAP_HOUR_OPTIONS} />
+								<Select
+									disabled={isWorkflowNode}
+									onChange={handleScheduleConf}
+									options={GAP_HOUR_OPTIONS}
+								/>
 							</FormItem>
 							<FormItem {...scheduleConfigLayout} label="结束时间" required>
 								<FormItem
@@ -352,6 +359,7 @@ export default forwardRef(
 									initialValue={`${endHour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -372,6 +380,7 @@ export default forwardRef(
 									initialValue={`${endMin || '59'}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -386,7 +395,12 @@ export default forwardRef(
 					const prefix = isWorkflowNode ? '起调' : '具体';
 					return (
 						<span key={type}>
-							<FormItem {...scheduleConfigLayout} label={`${prefix}时间`} required>
+							<FormItem
+								{...scheduleConfigLayout}
+								label={`${prefix}时间`}
+								required
+								tooltip={isWorkflowNode ? `工作流子任务无法修改${prefix}时间` : ''}
+							>
 								<FormItem
 									noStyle
 									name="hour"
@@ -398,6 +412,7 @@ export default forwardRef(
 									initialValue={`${hour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -415,6 +430,7 @@ export default forwardRef(
 									initialValue={`${min}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -442,7 +458,7 @@ export default forwardRef(
 								<Select
 									mode="multiple"
 									style={{ width: '100%' }}
-									disabled={isScienceTask}
+									disabled={isWorkflowNode}
 									onChange={handleScheduleConf}
 									options={WEEKS_OPTIONS}
 								/>
@@ -459,6 +475,7 @@ export default forwardRef(
 									initialValue={`${hour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -476,6 +493,7 @@ export default forwardRef(
 									initialValue={`${min}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -503,7 +521,7 @@ export default forwardRef(
 								<Select
 									mode="multiple"
 									style={{ width: '100%' }}
-									disabled={isScienceTask}
+									disabled={isWorkflowNode}
 									onChange={handleScheduleConf}
 									options={DAYS_OPTIONS}
 								/>
@@ -520,6 +538,7 @@ export default forwardRef(
 									initialValue={`${hour}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={HOURS_OPTIONS}
@@ -537,6 +556,7 @@ export default forwardRef(
 									initialValue={`${min}`}
 								>
 									<Select
+										disabled={isWorkflowNode}
 										style={{ width: '40%' }}
 										onChange={handleScheduleConf}
 										options={MINS_OPTIONS}
@@ -569,9 +589,7 @@ export default forwardRef(
 					name="scheduleStatus"
 					valuePropName="checked"
 				>
-					<Checkbox disabled={isScienceTask} onChange={handleScheduleStatus}>
-						冻结
-					</Checkbox>
+					<Checkbox onChange={handleScheduleStatus}>冻结</Checkbox>
 				</FormItem>
 				{!isWorkflowRoot && (
 					<>
@@ -582,9 +600,7 @@ export default forwardRef(
 							initialValue={get(scheduleConf, 'isFailRetry')}
 							valuePropName="checked"
 						>
-							<Checkbox disabled={isScienceTask} onChange={handleScheduleConf}>
-								是
-							</Checkbox>
+							<Checkbox onChange={handleScheduleConf}>是</Checkbox>
 						</FormItem>
 						<FormItem noStyle dependencies={['isFailRetry']}>
 							{({ getFieldValue }) =>
@@ -606,7 +622,6 @@ export default forwardRef(
 													display: 'inline-block',
 													width: 70,
 												}}
-												disabled={isScienceTask}
 												onChange={handleScheduleConf}
 												options={RETRY_OPTIONS}
 											/>
@@ -618,126 +633,82 @@ export default forwardRef(
 						</FormItem>
 					</>
 				)}
-				{!isWorkflowNode && (
-					<div>
-						<FormItem {...scheduleConfigLayout} label="生效日期" required>
-							<FormItem
-								name="beginDate"
-								noStyle
-								initialValue={moment(beginDate)}
-								rules={[
-									{
-										required: true,
-										message: '请选择生效日期开始时间',
-									},
-								]}
-							>
-								<DatePicker
-									allowClear={false}
-									disabledDate={changeStartDisabledDate}
-									disabled={isScienceTask}
-									style={{ width: 115 }}
-									onChange={handleScheduleConf}
-								/>
-							</FormItem>
-							<span className="mx-5px">-</span>
-							<FormItem
-								noStyle
-								name="endDate"
-								initialValue={moment(endDate)}
-								rules={[
-									{
-										required: true,
-										message: '请选择生效日期结束时间',
-									},
-								]}
-							>
-								<DatePicker
-									allowClear={false}
-									disabled={isScienceTask}
-									disabledDate={changeEndDisabledDate}
-									style={{ width: 115 }}
-									onChange={handleScheduleConf}
-								/>
-							</FormItem>
-						</FormItem>
-						<FormItem
-							{...scheduleConfigLayout}
-							label="调度周期"
-							name="periodType"
-							initialValue={`${periodType}`}
-							rules={[
-								{
-									required: true,
-								},
-							]}
-						>
-							<Select disabled={isScienceTask} onChange={handleScheduleType}>
-								<Option key={0} value={TASK_PERIOD_ENUM.MINUTE.toString()}>
-									分钟
-								</Option>
-								<Option key={1} value={TASK_PERIOD_ENUM.HOUR.toString()}>
-									小时
-								</Option>
-								<Option key={2} value={TASK_PERIOD_ENUM.DAY.toString()}>
-									天
-								</Option>
-								<Option key={3} value={TASK_PERIOD_ENUM.WEEK.toString()}>
-									周
-								</Option>
-								<Option key={4} value={TASK_PERIOD_ENUM.MONTH.toString()}>
-									月
-								</Option>
-							</Select>
-						</FormItem>
-					</div>
-				)}
+				<FormItem {...scheduleConfigLayout} label="生效日期" required>
+					<FormItem
+						name="beginDate"
+						noStyle
+						initialValue={moment(beginDate)}
+						rules={[
+							{
+								required: true,
+								message: '请选择生效日期开始时间',
+							},
+						]}
+					>
+						<DatePicker
+							allowClear={false}
+							disabledDate={changeStartDisabledDate}
+							disabled={isWorkflowNode}
+							style={{ width: 115 }}
+							onChange={handleScheduleConf}
+						/>
+					</FormItem>
+					<span className="mx-5px">-</span>
+					<FormItem
+						noStyle
+						name="endDate"
+						initialValue={moment(endDate)}
+						rules={[
+							{
+								required: true,
+								message: '请选择生效日期结束时间',
+							},
+						]}
+					>
+						<DatePicker
+							allowClear={false}
+							disabled={isWorkflowNode}
+							disabledDate={changeEndDisabledDate}
+							style={{ width: 115 }}
+							onChange={handleScheduleConf}
+						/>
+					</FormItem>
+				</FormItem>
+				<FormItem
+					{...scheduleConfigLayout}
+					label="调度周期"
+					name="periodType"
+					initialValue={`${periodType}`}
+					rules={[
+						{
+							required: true,
+						},
+					]}
+				>
+					<Select disabled={isWorkflowNode} onChange={handleScheduleType}>
+						<Option key={0} value={TASK_PERIOD_ENUM.MINUTE.toString()}>
+							分钟
+						</Option>
+						<Option key={1} value={TASK_PERIOD_ENUM.HOUR.toString()}>
+							小时
+						</Option>
+						<Option key={2} value={TASK_PERIOD_ENUM.DAY.toString()}>
+							天
+						</Option>
+						<Option key={3} value={TASK_PERIOD_ENUM.WEEK.toString()}>
+							周
+						</Option>
+						<Option key={4} value={TASK_PERIOD_ENUM.MONTH.toString()}>
+							月
+						</Option>
+					</Select>
+				</FormItem>
 				<FormItem noStyle name="selfReliance">
-					<Input disabled={isScienceTask} type="hidden" />
+					<Input type="hidden" />
 				</FormItem>
 				<FormItem dependencies={['periodType']} noStyle>
 					{({ getFieldValue }) => renderTimeConfig(Number(getFieldValue('periodType')))}
 				</FormItem>
-				{/* <FormItem noStyle dependencies={['periodType']}>
-					{({ getFieldValue }) =>
-						// 调度周期为小时或者分钟
-						[
-							TASK_PERIOD_ENUM.MINUTE.toString(),
-							TASK_PERIOD_ENUM.HOUR.toString(),
-						].includes(getFieldValue('periodType').toString()) && (
-							<FormItem {...scheduleConfigLayout} label="延迟实例">
-								<FormItem
-									noStyle
-									name="isExpire"
-									valuePropName="checked"
-									initialValue={get(scheduleConf, 'isExpire')}
-								>
-									<Checkbox onChange={handleScheduleConf}>自动取消</Checkbox>
-								</FormItem>
-								<HelpDoc doc="autoSkipJobHelp" />
-							</FormItem>
-						)
-					}
-				</FormItem> */}
-				{/* <FormItem noStyle dependencies={['isExpire']}>
-					{({ getFieldValue }) =>
-						getFieldValue('isExpire') && (
-							<FormItem {...scheduleConfigLayout} label="当天最后实例">
-								<FormItem
-									noStyle
-									name="isLastInstance"
-									initialValue={isLastInstance ?? true}
-								>
-									<Group onChange={handleScheduleConf}>
-										<Radio value={true}>始终保留</Radio>
-										<Radio value={false}>延迟至第二天后自动取消</Radio>
-									</Group>
-								</FormItem>
-								<HelpDoc doc="theLastExample" />
-							</FormItem>
-						)
-					}
-				</FormItem> */}
 			</Form>
 		);
 	},

@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { Radio, Space } from 'antd';
 import { Form, Modal, Button, Input, Select, Upload } from 'antd';
 import FolderPicker from '../../components/folderPicker';
-import { CATELOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
+import { CATALOGUE_TYPE, formItemLayout, RESOURCE_TYPE } from '@/constant';
 import { IComputeType } from '@/interface';
 import type { RcFile } from 'antd/lib/upload';
 import { resourceNameMapping } from '@/utils/enums';
@@ -110,24 +110,24 @@ export default function ResModal({
 
 	const handleFormValueChange = (changed: Partial<IFormFieldProps>) => {
 		if ('id' in changed) {
-			const node = resourceManagerTree.get(changed.id!)
+			const node = resourceManagerTree.get(changed.id!);
 			if (node?.fileType === FileTypes.File) {
 				api.getOfflineRes({
 					resourceId: node.data.id,
-				}).then(res => {
+				}).then((res) => {
 					if (res.code === 1) {
 						form.setFieldsValue({
 							originFileName: res.data.originFileName,
 							resourceType: res.data.resourceType,
 							computeType: res.data.computeType,
-						})
+						});
 					}
-				})
+				});
 			} else {
 				form.resetFields(['originFileName', 'resourceType', 'computeType']);
 			}
 		}
-	}
+	};
 
 	/**
 	 * @description 检查所选是否为文件夹
@@ -237,8 +237,8 @@ export default function ResModal({
 										accept={
 											getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 												? `.${resourceNameMapping(
-													getFieldValue('resourceType'),
-												)}`
+														getFieldValue('resourceType'),
+												  )}`
 												: undefined
 										}
 										beforeUpload={() => false}
@@ -255,13 +255,13 @@ export default function ResModal({
 						name="computeType"
 						label="计算类型"
 						required
-						initialValue={IComputeType.STFP}
+						initialValue={IComputeType.STREAM}
 						tooltip="设置资源上传的计算组件类型"
 					>
 						<Radio.Group>
 							<Space>
-								<Radio value={IComputeType.STFP}>STFP</Radio>
-								<Radio value={IComputeType.HDFS}>HDFS</Radio>
+								<Radio value={IComputeType.STREAM}>STFP</Radio>
+								<Radio value={IComputeType.BATCH}>HDFS</Radio>
 							</Space>
 						</Radio.Group>
 					</FormItem>
@@ -275,10 +275,10 @@ export default function ResModal({
 							},
 						]}
 						initialValue={
-							catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id
+							catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id
 						}
 					>
-						<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile={false} />
+						<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile={false} />
 					</FormItem>
 					<FormItem
 						label="描述"
@@ -310,9 +310,9 @@ export default function ResModal({
 							validator: checkNotDir,
 						},
 					]}
-					initialValue={catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data?.id}
+					initialValue={catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data?.id}
 				>
-					<FolderPicker dataType={CATELOGUE_TYPE.RESOURCE} showFile />
+					<FolderPicker dataType={CATALOGUE_TYPE.RESOURCE} showFile />
 				</FormItem>
 				<FormItem label="文件名" name="originFileName">
 					<Input disabled readOnly />
@@ -354,8 +354,8 @@ export default function ResModal({
 				>
 					<Radio.Group disabled>
 						<Space>
-							<Radio value={IComputeType.STFP}>STFP</Radio>
-							<Radio value={IComputeType.HDFS}>HDFS</Radio>
+							<Radio value={IComputeType.STREAM}>STFP</Radio>
+							<Radio value={IComputeType.BATCH}>HDFS</Radio>
 						</Space>
 					</Radio.Group>
 				</FormItem>
@@ -387,8 +387,8 @@ export default function ResModal({
 									accept={
 										getFieldValue('resourceType') !== RESOURCE_TYPE.OTHER
 											? `.${resourceNameMapping(
-												getFieldValue('resourceType'),
-											)}`
+													getFieldValue('resourceType'),
+											  )}`
 											: undefined
 									}
 									beforeUpload={() => false}
@@ -434,7 +434,13 @@ export default function ResModal({
 			onOk={handleSubmit}
 			destroyOnClose
 		>
-			<Form preserve={false} form={form} onValuesChange={handleFormValueChange} autoComplete="off" {...formItemLayout}>
+			<Form
+				preserve={false}
+				form={form}
+				onValuesChange={handleFormValueChange}
+				autoComplete="off"
+				{...formItemLayout}
+			>
 				{renderFormItem()}
 			</Form>
 		</Modal>

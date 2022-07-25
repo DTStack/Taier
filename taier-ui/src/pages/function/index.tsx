@@ -32,7 +32,7 @@ import ajax from '../../api';
 import FnModal from './fnModal';
 import FolderModal from './folderModal';
 import {
-	CATELOGUE_TYPE,
+	CATALOGUE_TYPE,
 	FUNCTOIN_ACTIONS,
 	ID_COLLECTIONS,
 	MENU_TYPE_ENUM,
@@ -89,7 +89,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const [expandKeys, setExpandKeys] = useState<string[]>([]);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
-		catalogueService.loadTreeNode(node.data, CATELOGUE_TYPE.FUNCTION);
+		catalogueService.loadTreeNode(node.data, CATALOGUE_TYPE.FUNCTION);
 	};
 
 	const handleSelect = (file?: ITreeNodeItemProps) => {
@@ -223,7 +223,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				updateNodePid(folderTree.current);
 			}
 		} else {
-			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.FUNCTION);
+			const rootFolder = catalogueService.getRootFolder(CATALOGUE_TYPE.FUNCTION);
 			if (rootFolder) {
 				updateNodePid(rootFolder);
 			}
@@ -259,38 +259,16 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	const handleRightClick = (treeNode: ITreeNodeItemProps) => {
 		// 区分是系统函数的文件还是自定义函数的文件
 		if (treeNode.data.type === 'file') {
-			const { parentId } = treeNode.data;
-			const parentNode = functionManagerService.get(`${parentId}-folder`);
-			if (parentNode?.data.catalogueType === MENU_TYPE_ENUM.SYSFUC) {
-				// 系统函数文件没有右键菜单
-				return [];
-			}
-
 			return [FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE];
 		}
 
-		if (treeNode.data.type === 'folder') {
-			// 判断当前文件夹是否属于系统函数或者 SparkSQL 根目录
-			const SHOULD_NOT_HAVE_CONTEXT_MENU = [
-				MENU_TYPE_ENUM.SYSFUC,
-				MENU_TYPE_ENUM.SPARKFUNC,
-				MENU_TYPE_ENUM.FLINKFUNC,
-			];
-			if (SHOULD_NOT_HAVE_CONTEXT_MENU.includes(treeNode.data.catalogueType)) {
-				return [];
-			}
-
-			const baseContextMenu = [
-				FUNCTOIN_ACTIONS.CREATE_FUNCTION,
-				FUNCTOIN_ACTIONS.CREATE_FOLDER,
-			];
-			// root folder can't edit and remove
-			if (treeNode.data.level === 1) {
-				return baseContextMenu;
-			}
-
-			return baseContextMenu.concat([FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE]);
+		const baseContextMenu = [FUNCTOIN_ACTIONS.CREATE_FUNCTION, FUNCTOIN_ACTIONS.CREATE_FOLDER];
+		// root folder can't edit and remove
+		if (treeNode.data.level === 1) {
+			return baseContextMenu;
 		}
+
+		return baseContextMenu.concat([FUNCTOIN_ACTIONS.EDIT, FUNCTOIN_ACTIONS.DELETE]);
 	};
 
 	// 添加文件夹
@@ -308,22 +286,17 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 	};
 
 	const handleAddFunction = (params: any) => {
-		return ajax
-			.addOfflineFunction({
-				...params,
-				catalogueType: MENU_TYPE_ENUM.SYSFUC,
-			})
-			.then((res) => {
-				if (res.code === 1) {
-					const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
-					if (parentNode) {
-						updateNodePid(parentNode);
-					}
-					return true;
+		return ajax.addOfflineFunction({ ...params }).then((res) => {
+			if (res.code === 1) {
+				const parentNode = functionManagerService.get(`${params.nodePid}-folder`);
+				if (parentNode) {
+					updateNodePid(parentNode);
 				}
+				return true;
+			}
 
-				return false;
-			});
+			return false;
+		});
 	};
 
 	const handleEditCatalogue = (params: any) => {
@@ -405,7 +378,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 				title="函数详情"
 				visible={viewVisible}
 				onCancel={handleCloseViewModal}
-				type={CATELOGUE_TYPE.FUNCTION}
+				type={CATALOGUE_TYPE.FUNCTION}
 				data={detailData}
 				loading={detailLoading}
 			/>
@@ -418,7 +391,7 @@ const FunctionManagerView = ({ headerToolBar, panel, entry }: IFunctionViewProps
 			/>
 			<FolderModal
 				isModalShow={folderVisible}
-				dataType={CATELOGUE_TYPE.FUNCTION}
+				dataType={CATALOGUE_TYPE.FUNCTION}
 				toggleCreateFolder={handleCloseFolderModal}
 				treeData={currentMenuData}
 				defaultData={editData}

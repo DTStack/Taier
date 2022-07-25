@@ -4,33 +4,29 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.MultiEngineType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.Cluster;
-import com.dtstack.taier.dao.domain.ClusterTenant;
-import com.dtstack.taier.dao.domain.KerberosConfig;
-import com.dtstack.taier.dao.domain.Queue;
-import com.dtstack.taier.dao.mapper.*;
+import com.dtstack.taier.dao.mapper.ClusterMapper;
+import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
+import com.dtstack.taier.dao.mapper.ComponentMapper;
 import com.dtstack.taier.develop.vo.console.ClusterEngineVO;
 import com.dtstack.taier.develop.vo.console.ClusterVO;
 import com.dtstack.taier.develop.vo.console.EngineVO;
-import com.dtstack.taier.develop.vo.console.QueueVO;
-import com.dtstack.taier.scheduler.service.ComponentConfigService;
 import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.vo.ComponentVO;
-import com.dtstack.taier.scheduler.vo.IComponentVO;
-import com.dtstack.taier.scheduler.vo.SchedulingVo;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.DEFAULT_CLUSTER_ID;
@@ -48,16 +44,7 @@ public class ConsoleClusterService {
     private ComponentMapper componentMapper;
 
     @Autowired
-    private ConsoleKerberosMapper consoleKerberosMapper;
-
-    @Autowired
-    private ComponentConfigService componentConfigService;
-
-    @Autowired
     private ComponentService componentService;
-
-    @Autowired
-    private ConsoleQueueMapper consoleQueueMapper;
 
     public Long addCluster(String clusterName) {
         if (clusterMapper.getByClusterName(clusterName) != null) {
@@ -110,68 +97,8 @@ public class ConsoleClusterService {
         ClusterVO clusterVO = ClusterVO.toVO(cluster);
         // 查询默认版本或者多个版本
         List<com.dtstack.taier.dao.domain.Component> components = componentMapper.listByClusterId(clusterId, null, false);
-
-        List<IComponentVO> componentConfigs = componentConfigService.getComponentVoByComponent(components, true, clusterId, true, true);
-        Table<Integer, String, KerberosConfig> kerberosTable = null;
-        // kerberos的配置
-        kerberosTable = HashBasedTable.create();
-        for (KerberosConfig kerberosConfig : consoleKerberosMapper.getByClusters(clusterId)) {
-            kerberosTable.put(kerberosConfig.getComponentType(), StringUtils.isBlank(kerberosConfig.getComponentVersion()) ?
-                    StringUtils.EMPTY : kerberosConfig.getComponentVersion(), kerberosConfig);
-        }
-
-        Map<EComponentScheduleType, List<IComponentVO>> scheduleType = new HashMap<>(4);
-        // 组件根据用途分组(计算,资源)
-        if (CollectionUtils.isNotEmpty(componentConfigs)) {
-            scheduleType = componentConfigs.stream().collect(Collectors.groupingBy(c -> EComponentType.getScheduleTypeByComponent(c.getComponentTypeCode())));
-        }
-        List<SchedulingVo> schedulingVos = convertComponentToScheduling(kerberosTable, scheduleType);
-        clusterVO.setScheduling(schedulingVos);
-        clusterVO.setCanModifyMetadata(checkMetadata(clusterId, components));
+        clusterVO.setComponentVOS(ComponentVO.toVOS(components));
         return clusterVO;
-    }
-
-    private boolean checkMetadata(Long clusterId, List<com.dtstack.taier.dao.domain.Component> components) {
-        if (components.stream().anyMatch(c -> EComponentType.metadataComponents.contains(EComponentType.getByCode(c.getComponentTypeCode())))) {
-            List<ClusterTenant> clusterTenants = clusterTenantMapper.listByClusterId(clusterId);
-            return CollectionUtils.isEmpty(clusterTenants);
-        }
-        return true;
-    }
-
-    private List<SchedulingVo> convertComponentToScheduling(Table<Integer, String, KerberosConfig> kerberosTable, Map<EComponentScheduleType, List<IComponentVO>> scheduleType) {
-        List<SchedulingVo> schedulingVos = new ArrayList<>();
-        //为空也返回
-        for (EComponentScheduleType value : EComponentScheduleType.values()) {
-            SchedulingVo schedulingVo = new SchedulingVo();
-            schedulingVo.setSchedulingCode(value.getType());
-            schedulingVo.setSchedulingName(value.getName());
-            List<IComponentVO> componentVoList = scheduleType.getOrDefault(value, Collections.emptyList());
-            if (Objects.nonNull(kerberosTable) && !kerberosTable.isEmpty() && CollectionUtils.isNotEmpty(componentVoList)) {
-                componentVoList.forEach(component -> {
-                    // 组件每个版本设置k8s参数
-                    for (ComponentVO componentVO : component.loadComponents()) {
-                        KerberosConfig kerberosConfig;
-                        EComponentType type = EComponentType.getByCode(componentVO.getComponentTypeCode());
-                        if (type == EComponentType.YARN || type == EComponentType.SPARK_THRIFT ||
-                                type == EComponentType.HIVE_SERVER) {
-                            kerberosConfig = kerberosTable.get(type.getTypeCode(), StringUtils.EMPTY);
-                        } else {
-                            kerberosConfig = kerberosTable.get(componentVO.getComponentTypeCode(), StringUtils.isBlank(componentVO.getVersionValue()) ?
-                                    StringUtils.EMPTY : componentVO.getVersionValue());
-                        }
-                        if (Objects.nonNull(kerberosConfig)) {
-                            componentVO.setPrincipal(kerberosConfig.getPrincipal());
-                            componentVO.setPrincipals(kerberosConfig.getPrincipals());
-                            componentVO.setMergeKrb5Content(kerberosConfig.getMergeKrbContent());
-                        }
-                    }
-                });
-            }
-            schedulingVo.setComponents(componentVoList);
-            schedulingVos.add(schedulingVo);
-        }
-        return schedulingVos;
     }
 
 
@@ -192,16 +119,11 @@ public class ConsoleClusterService {
                     Collectors.mapping(c -> EComponentType.getEngineTypeByComponent(EComponentType.getByCode(c.getComponentTypeCode()), c.getDeployType()), Collectors.toSet())));
         }
 
-        List<com.dtstack.taier.dao.domain.Queue> queues = consoleQueueMapper.listByClusterWithLeaf(clusterId);
 
-        Map<Long, List<com.dtstack.taier.dao.domain.Queue>> engineQueueMapping = queues
-                .stream()
-                .collect(Collectors.groupingBy(Queue::getClusterId));
-
-        return fillEngineQueueInfo(clusterEngineMapping, engineQueueMapping, cluster);
+        return fillEngineInfo(clusterEngineMapping, cluster);
     }
 
-    private ClusterEngineVO fillEngineQueueInfo(Map<Long, Set<MultiEngineType>> clusterEngineMapping, Map<Long, List<Queue>> engineQueueMapping, Cluster cluster) {
+    private ClusterEngineVO fillEngineInfo(Map<Long, Set<MultiEngineType>> clusterEngineMapping, Cluster cluster) {
         ClusterEngineVO vo = ClusterEngineVO.toVO(cluster);
         Set<MultiEngineType> engineList = clusterEngineMapping.get(vo.getClusterId());
         if (CollectionUtils.isNotEmpty(engineList)) {
@@ -211,9 +133,6 @@ public class ConsoleClusterService {
                 engineVO.setEngineType(multiEngineType.getType());
                 engineVO.setEngineName(multiEngineType.getName());
                 engineVO.setClusterId(cluster.getId());
-                if (MultiEngineType.HADOOP.equals(multiEngineType)) {
-                    engineVO.setQueues(QueueVO.toVOs(engineQueueMapping.get(cluster.getId())));
-                }
                 engineVOS.add(engineVO);
             }
             engineVOS.sort(Comparator.comparingInt(EngineVO::getEngineType));
@@ -222,7 +141,4 @@ public class ConsoleClusterService {
         return vo;
     }
 
-    public Integer getMetaComponentByClusterId(Long clusterId) {
-        return componentService.getMetaComponentByClusterId(clusterId);
-    }
 }

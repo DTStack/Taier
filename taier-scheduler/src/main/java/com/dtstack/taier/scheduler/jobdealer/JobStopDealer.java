@@ -83,7 +83,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
-    private static final int JOB_STOP_LIMIT = 1000;
     private static final int WAIT_INTERVAL = 3000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
     private final int asyncDealStopJobQueueSize = 100;
@@ -93,7 +92,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private final DelayBlockingQueue<StoppedJob<JobElement>> stopJobQueue = new DelayBlockingQueue<StoppedJob<JobElement>>(1000);
     private final ExecutorService delayStopProcessorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new CustomThreadFactory("delayStopProcessor"));
-    private final ExecutorService asyncDealStopJobService = new ThreadPoolExecutor(asyncDealStopJobPoolSize, asyncDealStopJobPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(asyncDealStopJobQueueSize), new CustomThreadFactory("asyncDealStopJob"), new CustomThreadRunsPolicy("asyncDealStopJob", "stop", 180));
+    private final ExecutorService asyncDealStopJobService = new ThreadPoolExecutor(2, asyncDealStopJobPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(asyncDealStopJobQueueSize), new CustomThreadFactory("asyncDealStopJob"), new CustomThreadRunsPolicy("asyncDealStopJob", "stop", 180));
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
     private final DelayStopProcessor delayStopProcessor = new DelayStopProcessor();
     private final AcquireStopJob acquireStopJob = new AcquireStopJob();
@@ -114,7 +113,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      * 添加取消实例
      *
      * @param scheduleJobList 需要被取消的任务
-     * @param isForce 是否强制杀死
+     * @param isForce         是否强制杀死
      * @return 操作数（取消了任务数）
      */
     public int addStopJobs(List<ScheduleJob> scheduleJobList, Integer isForce) {
@@ -122,13 +121,13 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             return 0;
         }
 
-        if (scheduleJobList.size() > JOB_STOP_LIMIT) {
-            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
+        if (scheduleJobList.size() > environmentContext.getStopLimit()) {
+            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + environmentContext.getStopLimit());
         }
 
         // 分离实例是否提交到yarn上，如果提交到yarn上，需要发送请求stop，如果未提交，直接更新db
         List<ScheduleJob> needSendStopJobs = new ArrayList<>(scheduleJobList.size());
-        List<String> unSubmitJobList= new ArrayList<>(scheduleJobList.size());
+        List<String> unSubmitJobList = new ArrayList<>(scheduleJobList.size());
         for (ScheduleJob job : scheduleJobList) {
             if (isSubmit(job)) {
                 unSubmitJobList.add(job.getJobId());
@@ -141,7 +140,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         List<ScheduleJobOperatorRecord> scheduleJobOperatorRecordList = scheduleJobOperatorRecordService.lambdaQuery()
                 .in(ScheduleJobOperatorRecord::getJobId, scheduleJobList.stream().map(ScheduleJob::getJobId).collect(Collectors.toList()))
                 .eq(ScheduleJobOperatorRecord::getIsDeleted, Deleted.NORMAL.getStatus())
-                .eq(ScheduleJobOperatorRecord::getOperatorType,OperatorType.STOP.getType())
+                .eq(ScheduleJobOperatorRecord::getOperatorType, OperatorType.STOP.getType())
                 .list();
         List<String> alreadyExistJobIds = scheduleJobOperatorRecordList.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toList());
 
@@ -150,11 +149,11 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         if (CollectionUtils.isNotEmpty(needSendStopJobs)) {
             isForce = Optional.ofNullable(isForce).orElse(ForceCancelFlag.NO.getFlag());
             Integer finalIsForce = isForce;
-            List<ScheduleJobOperatorRecord> jobOperatorRecordList = needSendStopJobs.stream()
+            Set<ScheduleJobOperatorRecord> jobOperatorRecordList = needSendStopJobs.stream()
                     .filter(scheduleJob -> !alreadyExistJobIds.contains(scheduleJob.getJobId()))
-                    .map(scheduleJob -> buildScheduleJobOperatorRecord(finalIsForce, scheduleJob)).collect(Collectors.toList());
+                    .map(scheduleJob -> buildScheduleJobOperatorRecord(finalIsForce, scheduleJob)).collect(Collectors.toSet());
 
-            scheduleJobOperatorRecordService.saveBatch(jobOperatorRecordList);
+            scheduleJobOperatorRecordService.insertBatch(jobOperatorRecordList);
         }
 
         // 更新未提交到yarn实例状态
@@ -168,7 +167,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
      * 构建OperatorRecord
      *
      * @param finalIsForce 是否强制
-     * @param scheduleJob 周期实例
+     * @param scheduleJob  周期实例
      * @return ScheduleJobOperatorRecord
      */
     private ScheduleJobOperatorRecord buildScheduleJobOperatorRecord(Integer finalIsForce, ScheduleJob scheduleJob) {
@@ -275,15 +274,15 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                             }
 
                             boolean forceCancelFlag = ForceCancelFlag.YES.getFlag().equals(jobStopRecord.getForceCancelFlag());
-                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag );
+                            JobElement jobElement = new JobElement(jobCache.getJobId(), jobStopRecord.getId(), forceCancelFlag);
                             asyncDealStopJobService.submit(() -> asyncDealStopJob(new StoppedJob<>(jobElement, jobStoppedRetry, jobStoppedDelay)));
                         } else {
                             //jobCache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
                             ScheduleJob scheduleJob = new ScheduleJob();
                             scheduleJob.setStatus(TaskStatus.CANCELED.getStatus());
                             scheduleJobService.lambdaUpdate()
-                                    .eq(ScheduleJob::getJobId,jobStopRecord.getJobId())
-                                    .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
+                                    .eq(ScheduleJob::getJobId, jobStopRecord.getJobId())
+                                    .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                                     .in(ScheduleJob::getStatus, TaskStatus.getUnfinishedStatuses())
                                     .update(scheduleJob);
                             LOGGER.info("[Unnormal Job] jobId:{} update job status:{}, job is finished.", jobStopRecord.getJobId(), TaskStatus.CANCELED.getStatus());
@@ -310,7 +309,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
                 try {
                     StoppedJob<JobElement> stoppedJob = stopJobQueue.take();
                     asyncDealStopJobService.submit(() -> asyncDealStopJob(stoppedJob));
-                } catch (InterruptedException ie){
+                } catch (InterruptedException ie) {
                     LOGGER.warn("interruption of stopJobQueue.take...");
                     break;
                 } catch (Exception e) {
@@ -319,7 +318,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             }
         }
 
-        public void close(){
+        public void close() {
             open = Boolean.FALSE;
         }
 
@@ -430,7 +429,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
         shardCache.removeIfPresent(jobId);
         ScheduleJobCacheService.deleteByJobId(jobId);
         //修改任务状态
-        scheduleJobService.updateStatusAndLogInfoById(jobId, TaskStatus.CANCELED.getStatus(),"");
+        scheduleJobService.updateStatusAndLogInfoById(jobId, TaskStatus.CANCELED.getStatus(), "");
         LOGGER.info("jobId:{} delete jobCache and update job status:{}, job set finished.", jobId, TaskStatus.CANCELED.getStatus());
     }
 

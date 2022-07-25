@@ -53,7 +53,7 @@ public class ScheduleConfManager {
             scheduleCron = new ScheduleCronHourParser();
         }else if(periodType == ESchedulePeriodType.MIN.getVal()){
             scheduleCron = new ScheduleCronMinParser();
-        }else if (periodType == ESchedulePeriodType.CUSTOM.getVal()){
+        }else if (periodType == ESchedulePeriodType.CRON.getVal()){
             scheduleCron = new ScheduleCronCustomParser();
         } else{
             throw new RdosDefineException("not support period type!");
