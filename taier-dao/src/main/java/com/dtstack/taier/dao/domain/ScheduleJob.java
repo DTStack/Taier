@@ -38,7 +38,7 @@ public class ScheduleJob implements Serializable {
     /**
      * 实例唯一标识
      */
-    @TableId(value="id", type= IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**

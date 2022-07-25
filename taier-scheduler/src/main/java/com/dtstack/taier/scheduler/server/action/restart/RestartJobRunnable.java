@@ -1,6 +1,7 @@
 package com.dtstack.taier.scheduler.server.action.restart;
 
 import com.dtstack.taier.common.enums.Deleted;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
@@ -19,8 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +44,7 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
     private final ApplicationContext applicationContext;
 
     public RestartJobRunnable(List<String> jobIds, RestartType restartType, EnvironmentContext environmentContext, ApplicationContext applicationContext) {
-        super(environmentContext,applicationContext);
+        super(environmentContext, applicationContext);
         this.jobIds = jobIds;
         this.restartType = restartType;
         this.applicationContext = applicationContext;
@@ -51,9 +55,9 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
     @Override
     public void run() {
         try {
-            LOGGER.info("reset start jobIds:{},restartType:{}",jobIds,restartType);
+            LOGGER.info("reset start jobIds:{},restartType:{}", jobIds, restartType);
             List<ScheduleJob> jobList = scheduleJobService.lambdaQuery()
-                    .in(ScheduleJob::getJobId,jobIds)
+                    .in(ScheduleJob::getJobId, jobIds)
                     .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
 
@@ -61,21 +65,30 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
                 LOGGER.error("cat not find job by id:{} ", jobIds.toString());
                 return;
             }
+            //工作流补充所有子任务
+            List<String> workFlowJobIds = jobList.stream()
+                    .filter(job -> EScheduleJobType.WORK_FLOW.getType().equals(job.getTaskType()))
+                    .map(ScheduleJob::getJobId)
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(workFlowJobIds)) {
+                List<ScheduleJob> workFlowSubJobs = scheduleJobService.getWorkFlowSubJobs(workFlowJobIds);
+                jobList.addAll(workFlowSubJobs);
+            }
 
-            List<Long> taskIds = jobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toList());
+            Set<Long> taskIds = jobList.stream().map(ScheduleJob::getTaskId).collect(Collectors.toSet());
             List<ScheduleTaskShade> taskShadeList = scheduleTaskShadeService.lambdaQuery()
                     .in(ScheduleTaskShade::getTaskId, taskIds)
                     .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
                     .list();
-            Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect((Collectors.toMap(ScheduleTaskShade::getTaskId, g->(g))));
+            Map<Long, ScheduleTaskShade> taskShadeMap = taskShadeList.stream().collect((Collectors.toMap(ScheduleTaskShade::getTaskId, g -> (g))));
 
             Map<String, String> resumeBatchJobs = Maps.newHashMap();
             // 查询出能重跑的任务
-            jobList = findCanResetJob(jobList, taskShadeMap,resumeBatchJobs);
+            jobList = findCanResetJob(jobList, taskShadeMap, resumeBatchJobs);
 
             if (CollectionUtils.isNotEmpty(jobList)) {
                 Map<String, String> computeResumeBatchJobs = abstractRestartJob.computeResumeBatchJobs(jobList);
-                if(MapUtils.isNotEmpty(computeResumeBatchJobs)){
+                if (MapUtils.isNotEmpty(computeResumeBatchJobs)) {
                     resumeBatchJobs.putAll(computeResumeBatchJobs);
                 }
                 scheduleJobService.restartScheduleJob(resumeBatchJobs);
@@ -86,15 +99,13 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
     }
 
     /**
-     *
-     *
      * @param jobs
      * @param taskShadeMap
      * @param resumeBatchJobs
      * @return
      */
     private List<ScheduleJob> findCanResetJob(List<ScheduleJob> jobs, Map<Long, ScheduleTaskShade> taskShadeMap, Map<String, String> resumeBatchJobs) {
-        List<ScheduleJob> canResetList = Lists.newArrayList();
+        Map<String, ScheduleJob> canResetList = new HashMap<>();
         for (ScheduleJob job : jobs) {
             Integer jobStatus = job.getStatus();
 
@@ -105,35 +116,37 @@ public class RestartJobRunnable extends AbstractRestart implements Runnable {
 
             ScheduleTaskShade scheduleTaskShade = taskShadeMap.get(job.getTaskId());
             if (scheduleTaskShade == null || Deleted.DELETED.getStatus().equals(scheduleTaskShade.getIsDeleted())) {
-                LOGGER.error("cat not find taskShade by taskId:{}", job.getTaskId());
+                LOGGER.error("job {} cat not find taskShade by taskId:{}", job.getJobId(), job.getTaskId());
                 continue;
             }
 
-            canResetList.add(job);
+            canResetList.putIfAbsent(job.getJobId(), job);
 
             // 判断这个任务是否是工作流子任务，如果是需要带上工作流任务
             if (!StringUtils.equals("0", job.getFlowJobId())) {
                 ScheduleJob flowJob = scheduleJobService.lambdaQuery()
-                        .eq(ScheduleJob::getFlowJobId,job.getFlowJobId())
-                        .eq(ScheduleJob::getIsDeleted,Deleted.NORMAL.getStatus())
+                        .eq(ScheduleJob::getJobId, job.getFlowJobId())
+                        .eq(ScheduleJob::getIsDeleted, Deleted.NORMAL.getStatus())
                         .one();
                 if (flowJob != null) {
-                    resumeBatchJobs.put(flowJob.getJobId(),flowJob.getCycTime());
+                    resumeBatchJobs.put(flowJob.getJobId(), flowJob.getCycTime());
                 }
             }
         }
-        return canResetList;
+
+        return new ArrayList<>(canResetList.values());
     }
 
-    public AbstractRestartJob getAbstractRestartJob(){
-        switch (restartType){
+    public AbstractRestartJob getAbstractRestartJob() {
+        switch (restartType) {
             case SET_SUCCESSFULLY_AND_RESUME_SCHEDULING:
-                return new SetSuccessAndResumeSchedulingRestartJob(environmentContext,applicationContext);
+                return new SetSuccessAndResumeSchedulingRestartJob(environmentContext, applicationContext);
             case RESTART_CURRENT_NODE:
-                return new RestartCurrentNodeRestartJob(environmentContext,applicationContext);
+                return new RestartCurrentNodeRestartJob(environmentContext, applicationContext);
             case RESTART_CURRENT_AND_DOWNSTREAM_NODE:
-                return new RestartCurrentAndDownStreamNodeRestartJob(environmentContext,applicationContext);
-            default: return null;
+                return new RestartCurrentAndDownStreamNodeRestartJob(environmentContext, applicationContext);
+            default:
+                return null;
         }
     }
 }
