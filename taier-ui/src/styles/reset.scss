@@ -56,7 +56,6 @@
 	.ant-notification-notice {
 		background: var(--notifications-background);
 	}
-
 }
 
 [data-prefers-color] {
@@ -90,7 +89,8 @@
 	.ant-collapse,
 	.ant-form,
 	.ant-select-dropdown,
-	.ant-tabs-tab {
+	.ant-tabs-tab,
+	.ant-badge-status-text {
 		font-size: $font-size;
 	}
 
@@ -125,4 +125,18 @@
 // reset the hover color of A tag inside statusBar, which is polluted by Antd global style css
 .mo-statusBar a:hover {
 	color: inherit;
+}
+
+.mo-workbench {
+	.ant-tree-show-line .ant-tree-indent-unit::before {
+		border-right-color: var(--tree-indentGuidesStroke);
+	}
+
+	.ant-tree-switcher-leaf-line::before {
+		border-right-color: var(--tree-indentGuidesStroke);
+	}
+
+	.ant-tree-switcher-leaf-line::after {
+		border-bottom-color: var(--tree-indentGuidesStroke);
+	}
 }

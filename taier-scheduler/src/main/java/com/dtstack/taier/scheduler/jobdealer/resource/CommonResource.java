@@ -42,7 +42,7 @@ public class CommonResource {
             CommonResource commonResource = null;
             switch (taskType) {
                 case SYNC:
-                case SQL:
+                case FLINK_SQL:
                 case DATA_ACQUISITION:
                     commonResource = new FlinkResource();
                     commonResource.setClusterMapper(clusterMapper);
@@ -50,13 +50,9 @@ public class CommonResource {
                     commonResource.setComponentService(componentService);
                     commonResource.setClusterTenantMapper(clusterTenantMapper);
                     break;
-                case SPARK_SQL:
-                case SPARK:
-                case HIVE_SQL:
+                default:
                     commonResource = this;
                     break;
-                default:
-                    throw new RdosDefineException("taskType:" + taskType + " is not support.");
             }
             return commonResource;
         });
@@ -68,13 +64,12 @@ public class CommonResource {
         EScheduleJobType taskType = EScheduleJobType.getByTaskType(jobClient.getTaskType());
         switch (taskType) {
             case SPARK_SQL:
-            case SPARK:
             case HIVE_SQL:
                 return ComputeResourceType.Yarn;
             case SYNC:
                 return ComputeResourceType.FlinkYarnSession;
             default:
-                throw new RdosDefineException("taskType:" + taskType + " is not support.");
+                return null;
         }
     }
 

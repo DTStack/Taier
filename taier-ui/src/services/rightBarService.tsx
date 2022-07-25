@@ -4,9 +4,8 @@ import FlinkResultPanel from '@/pages/rightBar/flinkResult';
 import FlinkSourcePanel from '@/pages/rightBar/flinkSource';
 import EnvParams from '@/pages/rightBar/envParams';
 import SchedulingConfig from '@/pages/rightBar/schedulingConfig';
-import { CREATE_MODEL_TYPE, TASK_TYPE_ENUM } from '@/constant';
 import TaskInfo from '@/pages/rightBar/taskInfo';
-import TaskParams from '@/pages/rightBar/envParams';
+import TaskParams from '@/pages/rightBar/taskParams';
 import { isTaskTab } from '@/utils/is';
 import molecule from '@dtinsight/molecule';
 import { Component } from '@dtinsight/molecule/esm/react';
@@ -15,13 +14,11 @@ import { Form } from 'antd';
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { singleton } from 'tsyringe';
+import { RightBarKind } from '@/interface';
+import taskRenderService from './taskRenderService';
+import TaskConfig from '@/pages/rightBar/taskConfig';
 
 interface IRightBarService {
-	/**
-	 * 根据任务类型获取相应的右侧栏
-	 * @param isGuide 是否是向导模式
-	 */
-	getRightBarByType: (type?: TASK_TYPE_ENUM, isGuide?: boolean) => RightBarKind[];
 	/**
 	 * 根据枚举值获取对应的文本内容
 	 */
@@ -53,37 +50,6 @@ export interface IRightbarState {
 	 * 当前侧边栏选中项
 	 */
 	current: RightBarKind | null;
-}
-
-export enum RightBarKind {
-	/**
-	 * 任务属性
-	 */
-	TASK = 'task',
-	/**
-	 * 调度依赖
-	 */
-	DEPENDENCY = 'dependency',
-	/**
-	 * 任务参数
-	 */
-	TASK_PARAMS = 'task_params',
-	/**
-	 * 环境参数
-	 */
-	ENV_PARAMS = 'env_params',
-	/**
-	 * 源表
-	 */
-	FLINKSQL_SOURCE = 'flinksql_source',
-	/**
-	 * 结果表
-	 */
-	FLINKSQL_RESULT = 'flinksql_result',
-	/**
-	 * 维表
-	 */
-	FLINKSQL_DIMENSION = 'flinksql_dimension',
 }
 
 export const FormContext = React.createContext<{ form?: FormInstance }>({});
@@ -158,6 +124,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return '调度依赖';
 			case RightBarKind.TASK_PARAMS:
 				return '任务参数';
+			case RightBarKind.TASK_CONFIG:
+				return '任务配置';
 			case RightBarKind.ENV_PARAMS:
 				return '环境参数';
 			case RightBarKind.FLINKSQL_SOURCE:
@@ -171,42 +139,6 @@ export default class RightBarService extends Component<IRightbarState> implement
 		}
 	};
 
-	public getRightBarByType = (type?: TASK_TYPE_ENUM, isGuide: boolean = false) => {
-		const defaultBar = [RightBarKind.TASK, RightBarKind.ENV_PARAMS];
-		switch (type) {
-			case TASK_TYPE_ENUM.SPARK_SQL:
-			case TASK_TYPE_ENUM.HIVE_SQL:
-				return [
-					RightBarKind.TASK,
-					RightBarKind.DEPENDENCY,
-					RightBarKind.TASK_PARAMS,
-					RightBarKind.ENV_PARAMS,
-				];
-			case TASK_TYPE_ENUM.SYNC:
-				return [
-					RightBarKind.TASK,
-					RightBarKind.DEPENDENCY,
-					RightBarKind.TASK_PARAMS,
-					RightBarKind.ENV_PARAMS,
-				];
-			case TASK_TYPE_ENUM.DATA_ACQUISITION:
-				return defaultBar;
-			case TASK_TYPE_ENUM.SQL:
-				if (isGuide) {
-					return [
-						RightBarKind.TASK,
-						RightBarKind.FLINKSQL_SOURCE,
-						RightBarKind.FLINKSQL_RESULT,
-						RightBarKind.FLINKSQL_DIMENSION,
-						RightBarKind.ENV_PARAMS,
-					];
-				}
-				return defaultBar;
-			default:
-				return [RightBarKind.TASK];
-		}
-	};
-
 	public createContent = (kind: RightBarKind) => {
 		const { current } = molecule.editor.getState();
 		/**
@@ -215,10 +147,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 		const isInValidTab = !isTaskTab(current?.tab?.id);
 
 		// 判断当前的 tab 是否支持该 kind
-		const supportBars = this.getRightBarByType(
-			current?.tab?.data?.taskType,
-			current?.tab?.data?.createModel === CREATE_MODEL_TYPE.GUIDE,
-		);
+		const supportBars = taskRenderService.renderRightBar();
 
 		const isSupportThisKind = supportBars.includes(kind);
 		if (!isSupportThisKind) {
@@ -243,6 +172,8 @@ export default class RightBarService extends Component<IRightbarState> implement
 				return <TaskParams current={current} />;
 			case RightBarKind.ENV_PARAMS:
 				return <EnvParams current={current} />;
+			case RightBarKind.TASK_CONFIG:
+				return this.withForm(<TaskConfig key="config" current={current} />);
 			case RightBarKind.FLINKSQL_SOURCE:
 				return this.withForm(<FlinkSourcePanel key="source" current={current} />);
 			case RightBarKind.FLINKSQL_RESULT:

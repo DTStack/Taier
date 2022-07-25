@@ -6,13 +6,13 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `console_cluster`;
 CREATE TABLE `console_cluster` (
-                                   `id` int(11) NOT NULL AUTO_INCREMENT,
-                                   `cluster_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '集群名称',
-                                   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                   PRIMARY KEY (`id`),
-                                   UNIQUE KEY `uk_cluster_name` (`cluster_name`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cluster_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '集群名称',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cluster_name` (`cluster_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -27,14 +27,14 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `console_cluster_tenant`;
 CREATE TABLE `console_cluster_tenant` (
-                                          `id` int(11) NOT NULL AUTO_INCREMENT,
-                                          `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                          `cluster_id` int(11) NOT NULL COMMENT '集群id',
-                                          `queue_id` int(11) DEFAULT NULL COMMENT '队列id',
-                                          `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                          `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                          `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                          PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `cluster_id` int(11) NOT NULL COMMENT '集群id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `queue_name` varchar(32) COLLATE utf8_bin DEFAULT NULL COMMENT '队列名称',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -42,23 +42,23 @@ CREATE TABLE `console_cluster_tenant` (
 -- ----------------------------
 DROP TABLE IF EXISTS `console_component`;
 CREATE TABLE `console_component` (
-                                     `id` int(11) NOT NULL AUTO_INCREMENT,
-                                     `component_name` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '组件名称',
-                                     `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
-                                     `version_value` varchar(25) COLLATE utf8_bin DEFAULT '' COMMENT '组件hadoop版本',
-                                     `upload_file_name` varchar(126) COLLATE utf8_bin DEFAULT '' COMMENT '上传文件zip名称',
-                                     `kerberos_file_name` varchar(126) COLLATE utf8_bin DEFAULT '' COMMENT '上传kerberos文件zip名称',
-                                     `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
-                                     `is_metadata` tinyint(1) DEFAULT '0' COMMENT '/*1 metadata*/',
-                                     `is_default` tinyint(1) NOT NULL DEFAULT '1' COMMENT '组件默认版本',
-                                     `deploy_type` tinyint(1) DEFAULT NULL COMMENT '/* 0 standalone 1 yarn  */',
-                                     `cluster_id` int(11) DEFAULT NULL COMMENT '集群id',
-                                     `version_name` varchar(25) COLLATE utf8_bin DEFAULT NULL,
-                                     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                     PRIMARY KEY (`id`),
-                                     UNIQUE KEY `index_component` (`cluster_id`,`component_type_code`,`version_value`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `component_name` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '组件名称',
+  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
+  `version_value` varchar(25) COLLATE utf8_bin DEFAULT '' COMMENT '组件hadoop版本',
+  `upload_file_name` varchar(126) COLLATE utf8_bin DEFAULT '' COMMENT '上传文件zip名称',
+  `kerberos_file_name` varchar(126) COLLATE utf8_bin DEFAULT '' COMMENT '上传kerberos文件zip名称',
+  `store_type` tinyint(1) DEFAULT '4' COMMENT '组件存储类型: HDFS、NFS 默认HDFS',
+  `is_metadata` tinyint(1) DEFAULT '0' COMMENT '/*1 metadata*/',
+  `is_default` tinyint(1) NOT NULL DEFAULT '1' COMMENT '组件默认版本',
+  `deploy_type` tinyint(1) DEFAULT NULL COMMENT '/* 0 standalone 1 yarn  */',
+  `cluster_id` int(11) DEFAULT NULL COMMENT '集群id',
+  `version_name` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_component` (`cluster_id`,`component_type_code`,`version_value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -66,167 +66,172 @@ CREATE TABLE `console_component` (
 -- ----------------------------
 DROP TABLE IF EXISTS `console_component_config`;
 CREATE TABLE `console_component_config` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `cluster_id` int(11) NOT NULL COMMENT '集群id',
-                                            `component_id` int(11) NOT NULL COMMENT '组件id',
-                                            `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
-                                            `type` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '配置类型',
-                                            `required` tinyint(1) NOT NULL COMMENT 'true/false',
-                                            `key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '配置键',
-                                            `value` text COLLATE utf8_bin COMMENT '默认配置项',
-                                            `values` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '可配置项',
-                                            `dependencyKey` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖键',
-                                            `dependencyValue` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖值',
-                                            `desc` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '描述',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`),
-                                            KEY `index_cluster_id` (`cluster_id`),
-                                            KEY `index_componentId` (`component_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=535 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cluster_id` int(11) NOT NULL COMMENT '集群id',
+  `component_id` int(11) NOT NULL COMMENT '组件id',
+  `component_type_code` tinyint(1) NOT NULL COMMENT '组件类型',
+  `type` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '配置类型',
+  `required` tinyint(1) NOT NULL COMMENT 'true/false',
+  `key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '配置键',
+  `value` text COLLATE utf8_bin COMMENT '默认配置项',
+  `values` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '可配置项',
+  `dependencyKey` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖键',
+  `dependencyValue` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '依赖值',
+  `desc` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT '描述',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_cluster_id` (`cluster_id`),
+  KEY `index_componentId` (`component_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=819 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of console_component_config
 -- ----------------------------
 BEGIN;
-INSERT INTO `console_component_config` VALUES (255, -2, -101, 10, 'RADIO_LINKAGE', 1, 'auth', '1', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (257, -2, -101, 10, '', 1, 'password', '1', NULL, 'auth', '1', NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (259, -2, -101, 10, 'PASSWORD', 1, 'password', '', NULL, 'auth$password', '', NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (261, -2, -101, 10, '', 1, 'rsaPath', '2', NULL, 'auth', '2', NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (263, -2, -101, 10, 'input', 1, 'rsaPath', '', NULL, 'auth$rsaPath', '', NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (265, -2, -101, 10, 'INPUT', 1, 'fileTimeout', '300000', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (267, -2, -101, 10, 'INPUT', 1, 'host', '', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (269, -2, -101, 10, 'INPUT', 1, 'isUsePool', 'true', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (271, -2, -101, 10, 'INPUT', 1, 'maxIdle', '16', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (273, -2, -101, 10, 'INPUT', 1, 'maxTotal', '16', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (275, -2, -101, 10, 'INPUT', 1, 'maxWaitMillis', '3600000', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (277, -2, -101, 10, 'INPUT', 1, 'minIdle', '16', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (279, -2, -101, 10, 'INPUT', 1, 'path', '/data/sftp', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (281, -2, -101, 10, 'INPUT', 1, 'port', '22', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (283, -2, -101, 10, 'INPUT', 1, 'timeout', '0', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (285, -2, -101, 10, 'INPUT', 1, 'username', '', NULL, NULL, NULL, NULL, '2021-02-25 18:12:54', '2021-02-25 18:12:54', 0);
-INSERT INTO `console_component_config` VALUES (293, -2, -108, 1, 'CHECKBOX', 1, 'deploymode', '[\"perjob\"]', NULL, '', '', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (295, -2, -108, 1, 'GROUP', 1, 'perjob', '', NULL, 'deploymode', 'perjob', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (297, -2, -108, 1, 'INPUT', 0, 'addColumnSupport', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (299, -2, -108, 1, 'INPUT', 1, 'spark.cores.max', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (301, -2, -108, 1, 'INPUT', 0, 'spark.driver.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (303, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.compress', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (305, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.dir', 'hdfs://ns1/tmp/spark-yarn-logs', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (307, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.enabled', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (309, -2, -108, 1, 'INPUT', 1, 'spark.executor.cores', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (311, -2, -108, 1, 'INPUT', 0, 'spark.executor.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (313, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (315, -2, -108, 1, 'INPUT', 1, 'spark.executor.instances', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (317, -2, -108, 1, 'INPUT', 1, 'spark.executor.memory', '512m', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (319, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (321, -2, -108, 1, 'INPUT', 1, 'spark.rpc.askTimeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (323, -2, -108, 1, 'INPUT', 1, 'spark.speculation', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (325, -2, -108, 1, 'INPUT', 1, 'spark.submit.deployMode', 'cluster', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (327, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (329, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (331, -2, -108, 1, 'INPUT', 1, 'spark.yarn.maxAppAttempts', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (333, -2, -108, 1, 'INPUT', 1, 'sparkPythonExtLibPath', 'hdfs://ns1/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (335, -2, -108, 1, 'INPUT', 1, 'sparkSqlProxyPath', 'hdfs://ns1/dtInsight/spark/spark-sql-proxy.jar', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (337, -2, -108, 1, 'INPUT', 1, 'sparkYarnArchive', 'hdfs://ns1/dtInsight/sparkjars/jars', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (339, -2, -108, 1, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
-INSERT INTO `console_component_config` VALUES (341, -2, -117, 9, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (343, -2, -117, 9, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (345, -2, -117, 9, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (347, -2, -117, 9, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (349, -2, -117, 9, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (351, -2, -117, 9, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-02-14 11:27:44', '2022-02-14 11:27:44', 0);
-INSERT INTO `console_component_config` VALUES (353, -2, -115, 0, 'CHECKBOX', 1, 'deploymode', '[\"perjob\",\"session\"]', NULL, '', '', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (355, -2, -115, 0, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (357, -2, -115, 0, 'INPUT', 1, 'akka.ask.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (359, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (361, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'child-first', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (363, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'perjob', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (365, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (367, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (369, -2, -115, 0, 'INPUT', 1, 'flinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (371, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (373, -2, -115, 0, 'INPUT', 0, 'high-availability', 'ZOOKEEPER', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (375, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (377, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (379, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (381, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (383, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (385, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (387, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (389, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (391, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (393, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (395, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (397, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (399, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (401, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (403, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (405, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (407, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (409, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (411, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (413, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (415, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (417, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (419, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (421, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (423, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (425, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (427, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (429, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (431, -2, -115, 0, 'GROUP', 1, 'session', 'session', NULL, 'deploymode', 'session', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (433, -2, -115, 0, 'INPUT', 1, 'checkSubmitJobGraphInterval', '60', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (435, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (437, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'parent-first', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (439, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (441, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (443, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (445, -2, -115, 0, 'INPUT', 1, 'flinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (447, -2, -115, 0, 'INPUT', 1, 'slotmanager.number-of-slots.max', '10', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (449, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (451, -2, -115, 0, 'INPUT', 0, 'high-availability', 'NONE', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (453, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (455, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (457, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (459, -2, -115, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (461, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (463, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (465, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (467, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (469, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (471, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (473, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (475, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (477, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (479, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (481, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (483, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (485, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (487, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (489, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (491, -2, -115, 0, 'INPUT', 0, 'sessionRetryNum', '5', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (493, -2, -115, 0, 'INPUT', 1, 'sessionStartAuto', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (495, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (497, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (499, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (501, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (503, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (505, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (507, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (509, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (511, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (513, -2, -115, 0, 'INPUT', 1, 'remoteFlinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
-INSERT INTO `console_component_config` VALUES (515, -2, -115, 0, 'INPUT', 1, 'akka.tcp.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (517, -2, -115, 0, 'INPUT', 1, 'remoteFlinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (519, -2, -115, 0, 'INPUT', 1, 'flinkSessionName', 'flink_session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (521, -2, -115, 0, 'INPUT', 0, 'checkpoint.retain.time', '7', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 17:22:06', '2021-08-24 17:22:06', 0);
-INSERT INTO `console_component_config` VALUES (523, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 20:40:39', '2021-08-24 20:40:39', 0);
-INSERT INTO `console_component_config` VALUES (525, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-08-24 20:41:46', '2021-08-24 20:41:46', 0);
-INSERT INTO `console_component_config` VALUES (527, -2, -115, 0, 'INPUT', 0, 'restart-strategy', 'failure-rate', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (529, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.delay', '10s', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (531, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.failure-rate-intervalattempts', '5 min', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
-INSERT INTO `console_component_config` VALUES (533, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config` VALUES (535, -2, -117, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (537, -2, -117, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (539, -2, -117, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (541, -2, -117, 5, 'INPUT', 0, 'queue', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (543, -2, -117, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (545, -2, -117, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (547, -2, -101, 6, 'INPUT', 1, 'host', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (549, -2, -101, 6, 'RADIO_LINKAGE', 1, 'auth', '1', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (551, -2, -101, 6, '', 1, 'password', '1', NULL, 'auth', '1', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (553, -2, -101, 6, 'INPUT', 1, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (555, -2, -101, 6, 'PASSWORD', 1, 'password', '', NULL, 'auth$password', '', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (557, -2, -101, 6, 'INPUT', 1, 'port', '22', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (559, -2, -101, 6, 'INPUT', 1, 'path', '/data/sftp', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (561, -2, -101, 6, '', 1, 'rsaPath', '2', NULL, 'auth', '2', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (563, -2, -101, 6, 'input', 1, 'rsaPath', '', NULL, 'auth$rsaPath', '', NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (565, -2, -101, 6, 'INPUT', 1, 'fileTimeout', '300000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (567, -2, -101, 6, 'INPUT', 1, 'isUsePool', 'true', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (569, -2, -101, 6, 'INPUT', 1, 'maxIdle', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (571, -2, -101, 6, 'INPUT', 1, 'maxTotal', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (573, -2, -101, 6, 'INPUT', 1, 'maxWaitMillis', '3600000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (575, -2, -101, 6, 'INPUT', 1, 'minIdle', '16', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (577, -2, -101, 6, 'INPUT', 1, 'timeout', '10000', NULL, NULL, NULL, NULL, '2022-07-19 14:47:30', '2022-07-19 14:47:30', 0);
+INSERT INTO `console_component_config` VALUES (579, -2, -118, 5, 'INPUT', 1, 'jdbcUrl', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (581, -2, -118, 5, 'INPUT', 0, 'username', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (583, -2, -118, 5, 'PASSWORD', 0, 'password', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (585, -2, -118, 5, 'INPUT', 0, 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (587, -2, -118, 5, 'INPUT', 0, 'minJobPoolSize', '', NULL, NULL, NULL, NULL, '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
+INSERT INTO `console_component_config` VALUES (589, -2, -115, 0, 'CHECKBOX', 1, 'deploymode', '[\"perjob\",\"session\"]', NULL, '', '', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (591, -2, -115, 0, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (593, -2, -115, 0, 'INPUT', 1, 'akka.ask.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (595, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (597, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'child-first', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (599, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'perjob', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (601, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (603, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (605, -2, -115, 0, 'INPUT', 1, 'flinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (607, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (609, -2, -115, 0, 'INPUT', 0, 'high-availability', 'ZOOKEEPER', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (611, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (613, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (615, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (617, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (619, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (621, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (623, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (625, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (627, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (629, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (631, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (633, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (635, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (637, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (639, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (641, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$perjob$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (643, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (645, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (647, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (649, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (651, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (653, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (655, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (657, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (659, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (661, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (663, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (665, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (667, -2, -115, 0, 'GROUP', 1, 'session', 'session', NULL, 'deploymode', 'session', NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (669, -2, -115, 0, 'INPUT', 1, 'checkSubmitJobGraphInterval', '60', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (671, -2, -115, 0, 'INPUT', 0, 'classloader.dtstack-cache', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (673, -2, -115, 0, 'INPUT', 0, 'classloader.resolve-order', 'parent-first', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (675, -2, -115, 0, 'INPUT', 1, 'clusterMode', 'session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (677, -2, -115, 0, 'INPUT', 0, 'env.java.opts', '-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:MaxMetaspaceSize=500m -Dfile.encoding=UTF-8', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (679, -2, -115, 0, 'INPUT', 1, 'flinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (681, -2, -115, 0, 'INPUT', 1, 'flinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (683, -2, -115, 0, 'INPUT', 1, 'slotmanager.number-of-slots.max', '10', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (685, -2, -115, 0, 'INPUT', 0, 'jobmanager.memory.process.size', '1600m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (687, -2, -115, 0, 'INPUT', 0, 'high-availability', 'NONE', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (689, -2, -115, 0, 'INPUT', 1, 'taskmanager.memory.process.size', '2048m', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (691, -2, -115, 0, 'INPUT', 1, 'high-availability.storageDir', 'hdfs://ns1/dtInsight/flink112/ha', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (693, -2, -115, 0, 'INPUT', 1, 'high-availability.zookeeper.path.root', '/flink112', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (695, -2, -115, 0, 'INPUT', 0, 'high-availability.zookeeper.quorum', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (697, -2, -115, 0, 'INPUT', 1, 'jobmanager.archive.fs.dir', 'hdfs://ns1/dtInsight/flink112/completed-jobs', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (699, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.class', 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (701, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.deleteOnShutdown', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (703, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (705, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.deleteOnShutdown', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (707, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.host', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (709, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.jobName', '112job', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (711, -2, -115, 0, 'INPUT', 1, 'metrics.reporter.promgateway.port', '9091', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (713, -2, -115, 0, 'SELECT', 1, 'metrics.reporter.promgateway.randomJobNameSuffix', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (715, -2, -115, 0, '', 1, 'false', 'false', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (717, -2, -115, 0, '', 1, 'true', 'true', NULL, 'deploymode$session$metrics.reporter.promgateway.randomJobNameSuffix', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (719, -2, -115, 0, 'INPUT', 0, 'monitorAcceptedApp', 'false', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (721, -2, -115, 0, 'INPUT', 0, 'pluginLoadMode', 'shipfile', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (723, -2, -115, 0, 'INPUT', 0, 'prometheusHost', '', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (725, -2, -115, 0, 'INPUT', 0, 'prometheusPort', '9090', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (727, -2, -115, 0, 'INPUT', 0, 'sessionRetryNum', '5', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (729, -2, -115, 0, 'INPUT', 1, 'sessionStartAuto', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (731, -2, -115, 0, 'INPUT', 0, 'state.backend', 'RocksDB', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (733, -2, -115, 0, 'INPUT', 0, 'state.backend.incremental', 'true', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (735, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.dir', 'hdfs://ns1/dtInsight/flink112/checkpoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (737, -2, -115, 0, 'INPUT', 1, 'state.checkpoints.num-retained', '11', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (739, -2, -115, 0, 'INPUT', 0, 'state.savepoints.dir', 'hdfs://ns1/dtInsight/flink112/savepoints', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (741, -2, -115, 0, 'INPUT', 0, 'taskmanager.numberOfTaskSlots', '1', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (743, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (745, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (747, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (749, -2, -115, 0, 'INPUT', 1, 'remoteFlinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
+INSERT INTO `console_component_config` VALUES (751, -2, -115, 0, 'INPUT', 1, 'akka.tcp.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (753, -2, -115, 0, 'INPUT', 1, 'remoteFlinkxDistDir', '/data/insight_plugin1.12/flinkxplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (755, -2, -115, 0, 'INPUT', 1, 'flinkSessionName', 'flink_session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (757, -2, -115, 0, 'INPUT', 0, 'checkpoint.retain.time', '7', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 17:22:06', '2021-08-24 17:22:06', 0);
+INSERT INTO `console_component_config` VALUES (759, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 20:40:39', '2021-08-24 20:40:39', 0);
+INSERT INTO `console_component_config` VALUES (761, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$session', NULL, NULL, '2021-08-24 20:41:46', '2021-08-24 20:41:46', 0);
+INSERT INTO `console_component_config` VALUES (763, -2, -115, 0, 'INPUT', 0, 'restart-strategy', 'failure-rate', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config` VALUES (765, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.delay', '10s', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config` VALUES (767, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.failure-rate-interval', '5 min', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config` VALUES (769, -2, -115, 0, 'INPUT', 0, 'restart-strategy.failure-rate.max-failures-per-interval', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-09-24 12:07:31', '2021-09-24 12:07:31', 0);
+INSERT INTO `console_component_config` VALUES (771, -2, -108, 1, 'CHECKBOX', 1, 'deploymode', '[\"perjob\"]', NULL, '', '', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (773, -2, -108, 1, 'GROUP', 1, 'perjob', 'perjob', NULL, 'deploymode', 'perjob', NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (775, -2, -108, 1, 'INPUT', 0, 'addColumnSupport', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (777, -2, -108, 1, 'INPUT', 1, 'spark.cores.max', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (779, -2, -108, 1, 'INPUT', 0, 'spark.driver.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (781, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.compress', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (783, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.dir', 'hdfs://ns1/tmp/spark-yarn-logs', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (785, -2, -108, 1, 'INPUT', 0, 'spark.eventLog.enabled', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (787, -2, -108, 1, 'INPUT', 1, 'spark.executor.cores', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (789, -2, -108, 1, 'INPUT', 0, 'spark.executor.extraJavaOptions', '-Dfile.encoding=utf-8', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (791, -2, -108, 1, 'INPUT', 1, 'spark.executor.heartbeatInterval', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (793, -2, -108, 1, 'INPUT', 1, 'spark.executor.instances', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (795, -2, -108, 1, 'INPUT', 1, 'spark.executor.memory', '512m', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (797, -2, -108, 1, 'INPUT', 1, 'spark.network.timeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (799, -2, -108, 1, 'INPUT', 1, 'spark.rpc.askTimeout', '600s', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (801, -2, -108, 1, 'INPUT', 1, 'spark.speculation', 'true', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (803, -2, -108, 1, 'INPUT', 1, 'spark.submit.deployMode', 'cluster', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (805, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (807, -2, -108, 1, 'INPUT', 0, 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '/data/miniconda2/bin/python3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (809, -2, -108, 1, 'INPUT', 1, 'spark.yarn.maxAppAttempts', '1', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (811, -2, -108, 1, 'INPUT', 1, 'sparkPythonExtLibPath', 'hdfs://ns1/dtInsight/pythons/pyspark.zip,hdfs://ns1/dtInsight/pythons/py4j-0.10.7-src.zip', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (813, -2, -108, 1, 'INPUT', 1, 'sparkSqlProxyPath', 'hdfs://ns1/dtInsight/spark/spark-sql-proxy.jar', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (815, -2, -108, 1, 'INPUT', 1, 'sparkYarnArchive', 'hdfs://ns1/dtInsight/sparkjars/jars', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
+INSERT INTO `console_component_config` VALUES (817, -2, -108, 1, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$perjob', NULL, NULL, '2021-02-25 18:12:53', '2021-02-25 18:12:53', 0);
 COMMIT;
 
 -- ----------------------------
@@ -234,21 +239,21 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `console_kerberos`;
 CREATE TABLE `console_kerberos` (
-                                    `id` bigint(20) NOT NULL AUTO_INCREMENT,
-                                    `cluster_id` int(11) NOT NULL COMMENT '集群id',
-                                    `open_kerberos` tinyint(1) NOT NULL COMMENT '是否开启kerberos配置',
-                                    `name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT 'kerberos文件名称',
-                                    `remote_path` varchar(200) COLLATE utf8_bin NOT NULL COMMENT 'sftp存储路径',
-                                    `principal` varchar(50) COLLATE utf8_bin NOT NULL COMMENT 'principal',
-                                    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                    `krb_name` varchar(26) COLLATE utf8_bin DEFAULT NULL COMMENT 'krb5_conf名称',
-                                    `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
-                                    `principals` text COLLATE utf8_bin COMMENT 'keytab用户文件列表',
-                                    `merge_krb_content` text COLLATE utf8_bin COMMENT '合并后的krb5',
-                                    `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL COMMENT '组件版本',
-                                    PRIMARY KEY (`id`)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `cluster_id` int(11) NOT NULL COMMENT '集群id',
+  `open_kerberos` tinyint(1) NOT NULL COMMENT '是否开启kerberos配置',
+  `name` varchar(100) COLLATE utf8_bin NOT NULL COMMENT 'kerberos文件名称',
+  `remote_path` varchar(200) COLLATE utf8_bin NOT NULL COMMENT 'sftp存储路径',
+  `principal` varchar(50) COLLATE utf8_bin NOT NULL COMMENT 'principal',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `krb_name` varchar(26) COLLATE utf8_bin DEFAULT NULL COMMENT 'krb5_conf名称',
+  `component_type` int(11) DEFAULT NULL COMMENT '组件类型',
+  `principals` text COLLATE utf8_bin COMMENT 'keytab用户文件列表',
+  `merge_krb_content` text COLLATE utf8_bin COMMENT '合并后的krb5',
+  `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL COMMENT '组件版本',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -256,19 +261,19 @@ CREATE TABLE `console_kerberos` (
 -- ----------------------------
 DROP TABLE IF EXISTS `console_queue`;
 CREATE TABLE `console_queue` (
-                                 `id` int(11) NOT NULL AUTO_INCREMENT,
-                                 `queue_name` varchar(126) COLLATE utf8_bin NOT NULL COMMENT '队列名称',
-                                 `capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最小容量',
-                                 `max_capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最大容量',
-                                 `queue_state` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '运行状态',
-                                 `parent_queue_id` int(11) NOT NULL COMMENT '父队列id',
-                                 `queue_path` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '队列路径',
-                                 `cluster_id` int(11) DEFAULT NULL COMMENT '集群id',
-                                 `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                 `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                 `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                 PRIMARY KEY (`id`),
-                                 KEY `console_queue_cluster_id_index` (`cluster_id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `queue_name` varchar(126) COLLATE utf8_bin NOT NULL COMMENT '队列名称',
+  `capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最小容量',
+  `max_capacity` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '最大容量',
+  `queue_state` varchar(24) COLLATE utf8_bin NOT NULL COMMENT '运行状态',
+  `parent_queue_id` int(11) NOT NULL COMMENT '父队列id',
+  `queue_path` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '队列路径',
+  `cluster_id` int(11) DEFAULT NULL COMMENT '集群id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `console_queue_cluster_id_index` (`cluster_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -276,17 +281,17 @@ CREATE TABLE `console_queue` (
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_classify`;
 CREATE TABLE `datasource_classify` (
-                                       `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                       `classify_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型栏唯一编码',
-                                       `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '类型栏排序字段 默认从0开始',
-                                       `classify_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型名称 包含全部和常用栏',
-                                       `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
-                                       `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                       `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                       `create_user_id` int(11) DEFAULT '0',
-                                       `modify_user_id` int(11) DEFAULT '0',
-                                       PRIMARY KEY (`id`),
-                                       UNIQUE KEY `classify_code` (`classify_code`)
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `classify_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型栏唯一编码',
+  `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '类型栏排序字段 默认从0开始',
+  `classify_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '类型名称 包含全部和常用栏',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user_id` int(11) DEFAULT '0',
+  `modify_user_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `classify_code` (`classify_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源分类表';
 
 -- ----------------------------
@@ -311,29 +316,29 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_form_field`;
 CREATE TABLE `datasource_form_field` (
-                                         `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                         `name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '表单属性名称，同一模版表单中不重复',
-                                         `label` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '属性前label名称',
-                                         `widget` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '属性格式 如Input, Radio等',
-                                         `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必填 0-非必填 1-必填',
-                                         `invisible` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为隐藏 0-否 1-隐藏',
-                                         `default_value` text COLLATE utf8_bin COMMENT '表单属性中默认值, 默认为空',
-                                         `place_hold` text COLLATE utf8_bin COMMENT '输入框placeHold, 默认为空',
-                                         `request_api` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '请求数据Api接口地址，一般用于关联下拉框类型，如果不需要请求则为空',
-                                         `is_link` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为数据源需要展示的连接信息字段。0-否; 1-是',
-                                         `valid_info` text COLLATE utf8_bin COMMENT '校验返回信息文案',
-                                         `tooltip` text COLLATE utf8_bin COMMENT '输入框后问号的提示信息',
-                                         `style` text COLLATE utf8_bin COMMENT '前端表单样式参数',
-                                         `regex` text COLLATE utf8_bin COMMENT '正则校验表达式',
-                                         `type_version` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '对应数据源版本信息',
-                                         `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
-                                         `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                         `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                         `create_user_id` int(11) DEFAULT '0',
-                                         `modify_user_id` int(11) DEFAULT '0',
-                                         `options` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT 'select组件下拉内容',
-                                         PRIMARY KEY (`id`),
-                                         UNIQUE KEY `name` (`name`,`type_version`)
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '表单属性名称，同一模版表单中不重复',
+  `label` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '属性前label名称',
+  `widget` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '属性格式 如Input, Radio等',
+  `required` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否必填 0-非必填 1-必填',
+  `invisible` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为隐藏 0-否 1-隐藏',
+  `default_value` text COLLATE utf8_bin COMMENT '表单属性中默认值, 默认为空',
+  `place_hold` text COLLATE utf8_bin COMMENT '输入框placeHold, 默认为空',
+  `request_api` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '请求数据Api接口地址，一般用于关联下拉框类型，如果不需要请求则为空',
+  `is_link` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否为数据源需要展示的连接信息字段。0-否; 1-是',
+  `valid_info` text COLLATE utf8_bin COMMENT '校验返回信息文案',
+  `tooltip` text COLLATE utf8_bin COMMENT '输入框后问号的提示信息',
+  `style` text COLLATE utf8_bin COMMENT '前端表单样式参数',
+  `regex` text COLLATE utf8_bin COMMENT '正则校验表达式',
+  `type_version` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '对应数据源版本信息',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user_id` int(11) DEFAULT '0',
+  `modify_user_id` int(11) DEFAULT '0',
+  `options` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT 'select组件下拉内容',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`,`type_version`)
 ) ENGINE=InnoDB AUTO_INCREMENT=389 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源表单属性表';
 
 -- ----------------------------
@@ -541,25 +546,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_info`;
 CREATE TABLE `datasource_info` (
-                                   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                   `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
-                                   `data_version` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '数据源版本 如1.x, 0.9, 创建下的实例可能会没有版本号',
-                                   `data_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '数据源名称',
-                                   `data_desc` text COLLATE utf8_bin COMMENT '数据源描述',
-                                   `link_json` text COLLATE utf8_bin COMMENT '数据源连接信息, 不同数据源展示连接信息不同, 保存为json',
-                                   `data_json` text COLLATE utf8_bin COMMENT '数据源填写的表单信息, 保存为json, key键要与表单的name相同',
-                                   `status` tinyint(4) NOT NULL COMMENT '连接状态 0-连接失败, 1-正常',
-                                   `is_meta` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否有meta标志 0-否 1-是',
-                                   `tenant_id` int(11) NOT NULL COMMENT '租户主键id **可能不是id 其他唯一凭证',
-                                   `data_type_code` tinyint(4) NOT NULL DEFAULT '0' COMMENT '数据源类型编码',
-                                   `schema_name` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '数据源schemaName',
-                                   `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
-                                   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                   `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                   `create_user_id` int(11) DEFAULT '0',
-                                   `modify_user_id` int(11) DEFAULT '0',
-                                   PRIMARY KEY (`id`),
-                                   KEY `MODIFY_TIME` (`gmt_modified`)
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
+  `data_version` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '数据源版本 如1.x, 0.9, 创建下的实例可能会没有版本号',
+  `data_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '数据源名称',
+  `data_desc` text COLLATE utf8_bin COMMENT '数据源描述',
+  `link_json` text COLLATE utf8_bin COMMENT '数据源连接信息, 不同数据源展示连接信息不同, 保存为json',
+  `data_json` text COLLATE utf8_bin COMMENT '数据源填写的表单信息, 保存为json, key键要与表单的name相同',
+  `status` tinyint(4) NOT NULL COMMENT '连接状态 0-连接失败, 1-正常',
+  `is_meta` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否有meta标志 0-否 1-是',
+  `tenant_id` int(11) NOT NULL COMMENT '租户主键id **可能不是id 其他唯一凭证',
+  `data_type_code` tinyint(4) NOT NULL DEFAULT '0' COMMENT '数据源类型编码',
+  `schema_name` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '数据源schemaName',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user_id` int(11) DEFAULT '0',
+  `modify_user_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `MODIFY_TIME` (`gmt_modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源详细信息表';
 
 -- ----------------------------
@@ -567,20 +572,20 @@ CREATE TABLE `datasource_info` (
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_type`;
 CREATE TABLE `datasource_type` (
-                                   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                   `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
-                                   `data_classify_id` int(11) NOT NULL COMMENT '数据源分类栏主键id',
-                                   `weight` decimal(20,1) NOT NULL DEFAULT '0.0' COMMENT '数据源权重',
-                                   `img_url` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '数据源logo图片地址',
-                                   `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '数据源类型排序字段, 默认从0开始',
-                                   `invisible` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否可见',
-                                   `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
-                                   `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                   `create_user_id` int(11) DEFAULT '0',
-                                   `modify_user_id` int(11) DEFAULT '0',
-                                   PRIMARY KEY (`id`),
-                                   UNIQUE KEY `data_type` (`data_type`)
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
+  `data_classify_id` int(11) NOT NULL COMMENT '数据源分类栏主键id',
+  `weight` decimal(20,1) NOT NULL DEFAULT '0.0' COMMENT '数据源权重',
+  `img_url` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '数据源logo图片地址',
+  `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '数据源类型排序字段, 默认从0开始',
+  `invisible` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否可见',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user_id` int(11) DEFAULT '0',
+  `modify_user_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `data_type` (`data_type`)
 ) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源类型信息表';
 
 -- ----------------------------
@@ -638,17 +643,17 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `datasource_version`;
 CREATE TABLE `datasource_version` (
-                                      `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                      `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
-                                      `data_version` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源版本 如1.x, 0.9',
-                                      `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '版本排序字段,高版本排序,默认从0开始',
-                                      `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
-                                      `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                      `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                      `create_user_id` int(11) DEFAULT '0',
-                                      `modify_user_id` int(11) DEFAULT '0',
-                                      PRIMARY KEY (`id`),
-                                      UNIQUE KEY `data_type` (`data_type`,`data_version`)
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `data_type` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源类型唯一 如Mysql, Oracle, Hive',
+  `data_version` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '数据源版本 如1.x, 0.9',
+  `sorted` int(5) NOT NULL DEFAULT '0' COMMENT '版本排序字段,高版本排序,默认从0开始',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否删除,1删除，0未删除',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_user_id` int(11) DEFAULT '0',
+  `modify_user_id` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `data_type` (`data_type`,`data_version`)
 ) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='数据源版本表';
 
 -- ----------------------------
@@ -685,19 +690,19 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_catalogue`;
 CREATE TABLE `develop_catalogue` (
-                                     `id` int(11) NOT NULL AUTO_INCREMENT,
-                                     `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                     `node_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '文件夹名称',
-                                     `node_pid` int(11) NOT NULL DEFAULT '-1' COMMENT '父文件夹id -1:没有上级目录',
-                                     `order_val` int(3) DEFAULT NULL,
-                                     `level` tinyint(1) NOT NULL DEFAULT '3' COMMENT '目录层级 0:一级 1:二级 n:n+1级',
-                                     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                     `create_user_id` int(11) NOT NULL COMMENT '创建用户',
-                                     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                     `catalogue_type` tinyint(1) DEFAULT '0' COMMENT '目录类型 0任务目录 1 项目目录',
-                                     PRIMARY KEY (`id`),
-                                     KEY `index_catalogue_name` (`node_pid`,`node_name`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `node_name` varchar(128) COLLATE utf8_bin NOT NULL COMMENT '文件夹名称',
+  `node_pid` int(11) NOT NULL DEFAULT '-1' COMMENT '父文件夹id -1:没有上级目录',
+  `order_val` int(3) DEFAULT NULL,
+  `level` tinyint(1) NOT NULL DEFAULT '3' COMMENT '目录层级 0:一级 1:二级 n:n+1级',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `create_user_id` int(11) NOT NULL COMMENT '创建用户',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `catalogue_type` tinyint(1) DEFAULT '0' COMMENT '目录类型 0任务目录 1 项目目录',
+  PRIMARY KEY (`id`),
+  KEY `index_catalogue_name` (`node_pid`,`node_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='文件夹、目录表';
 
 -- ----------------------------
@@ -725,25 +730,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_function`;
 CREATE TABLE `develop_function` (
-                                    `id` int(11) NOT NULL AUTO_INCREMENT,
-                                    `name` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '函数名称',
-                                    `class_name` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT 'main函数类名',
-                                    `purpose` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数用途',
-                                    `command_formate` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数命令格式',
-                                    `param_desc` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数参数说明',
-                                    `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
-                                    `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                    `create_user_id` int(11) NOT NULL COMMENT '创建的用户',
-                                    `modify_user_id` int(11) NOT NULL COMMENT '创建的用户',
-                                    `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0自定义 1系统',
-                                    `udf_type` int(11) DEFAULT NULL COMMENT '函数类型',
-                                    `task_type` int(11) NOT NULL DEFAULT '0' COMMENT '0: SparkSQL ',
-                                    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                    `sql_text` text COLLATE utf8_bin COMMENT 'sql文本',
-                                    PRIMARY KEY (`id`),
-                                    KEY `index_develop_function` (`name`(128))
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '函数名称',
+  `class_name` varchar(512) COLLATE utf8_bin DEFAULT NULL COMMENT 'main函数类名',
+  `purpose` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数用途',
+  `command_formate` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数命令格式',
+  `param_desc` varchar(1024) COLLATE utf8_bin DEFAULT NULL COMMENT '函数参数说明',
+  `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `create_user_id` int(11) NOT NULL COMMENT '创建的用户',
+  `modify_user_id` int(11) NOT NULL COMMENT '创建的用户',
+  `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0自定义 1系统',
+  `udf_type` int(11) DEFAULT NULL COMMENT '函数类型',
+  `task_type` int(11) NOT NULL DEFAULT '0' COMMENT '0: SparkSQL ',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `sql_text` text COLLATE utf8_bin COMMENT 'sql文本',
+  PRIMARY KEY (`id`),
+  KEY `index_develop_function` (`name`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=383 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='函数管理表';
 
 -- ----------------------------
@@ -948,15 +953,15 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_function_resource`;
 CREATE TABLE `develop_function_resource` (
-                                             `id` int(11) NOT NULL AUTO_INCREMENT,
-                                             `function_id` int(11) NOT NULL COMMENT '函数id',
-                                             `resource_id` int(11) NOT NULL COMMENT '对应batch资源的id',
-                                             `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                             `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                             `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                             `tenant_id` bigint(20) DEFAULT NULL,
-                                             PRIMARY KEY (`id`),
-                                             UNIQUE KEY `index_rdos_function_resource` (`function_id`,`resource_id`,`is_deleted`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `function_id` int(11) NOT NULL COMMENT '函数id',
+  `resource_id` int(11) NOT NULL COMMENT '对应batch资源的id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `tenant_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_rdos_function_resource` (`function_id`,`resource_id`,`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='函数关联的资源表';
 
 -- ----------------------------
@@ -964,37 +969,722 @@ CREATE TABLE `develop_function_resource` (
 -- ----------------------------
 DROP TABLE IF EXISTS `develop_hive_select_sql`;
 CREATE TABLE `develop_hive_select_sql` (
-                                           `id` int(11) NOT NULL AUTO_INCREMENT,
-                                           `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-                                           `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
-                                           `is_select_sql` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
-                                           `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                           `user_id` int(11) DEFAULT NULL COMMENT '执行用户',
-                                           `sql_text` longtext COLLATE utf8_bin COMMENT 'sql',
-                                           `parsed_columns` longtext COLLATE utf8_bin COMMENT '字段信息',
-                                           `task_type` int(11) DEFAULT NULL COMMENT '任务类型',
-                                           `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                           `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                           `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                           PRIMARY KEY (`id`),
-                                           UNIQUE KEY `idx` (`job_id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
+  `temp_table_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '临时表名',
+  `is_select_sql` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-否 1-是',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `user_id` int(11) DEFAULT NULL COMMENT '执行用户',
+  `sql_text` longtext COLLATE utf8_bin COMMENT 'sql',
+  `parsed_columns` longtext COLLATE utf8_bin COMMENT '字段信息',
+  `task_type` int(11) DEFAULT NULL COMMENT '任务类型',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='sql查询临时表';
+
+-- ----------------------------
+-- Table structure for develop_resource
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_resource`;
+CREATE TABLE `develop_resource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
+  `url` varchar(1028) COLLATE utf8_bin NOT NULL COMMENT '资源路径',
+  `resource_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '资源类型 0:other, 1:jar, 2:py, 3:zip, 4:egg',
+  `resource_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '资源名称',
+  `origin_file_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '源文件名',
+  `resource_desc` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '源文描述',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `create_user_id` int(11) NOT NULL COMMENT '新建资源的用户',
+  `modify_user_id` int(11) NOT NULL COMMENT '修改人',
+  `compute_type` int(11) NOT NULL DEFAULT '0' COMMENT '上传组建类型',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `node_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_resource_name` (`resource_name`(128)),
+  KEY `index_resource_type` (`resource_type`,`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='资源表';
+
+-- ----------------------------
+-- Table structure for develop_sys_parameter
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_sys_parameter`;
+CREATE TABLE `develop_sys_parameter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
+  `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务开发-系统参数表';
+
+-- ----------------------------
+-- Records of develop_sys_parameter
+-- ----------------------------
+BEGIN;
+INSERT INTO `develop_sys_parameter` VALUES (1, 'bdp.system.bizdate', 'yyyyMMdd-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+INSERT INTO `develop_sys_parameter` VALUES (3, 'bdp.system.cyctime', 'yyyyMMddHHmmss', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+INSERT INTO `develop_sys_parameter` VALUES (5, 'bdp.system.currmonth', 'yyyyMM-0', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+INSERT INTO `develop_sys_parameter` VALUES (7, 'bdp.system.premonth', 'yyyyMM-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+INSERT INTO `develop_sys_parameter` VALUES (9, 'bdp.system.runtime', '${bdp.system.currenttime}', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+INSERT INTO `develop_sys_parameter` VALUES (11, 'bdp.system.bizdate2', 'yyyy-MM-dd,-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for develop_task
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task`;
+CREATE TABLE `develop_task` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
+  `name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务名称',
+  `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL ',
+  `compute_type` tinyint(1) NOT NULL COMMENT '计算类型 0实时，1 离线',
+  `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
+  `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
+  `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
+  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
+  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
+  `submit_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未提交,1已提交',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `modify_user_id` int(11) NOT NULL COMMENT '最后修改task的用户',
+  `create_user_id` int(11) NOT NULL COMMENT '新建task的用户',
+  `version` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `task_desc` varchar(256) COLLATE utf8_bin NOT NULL,
+  `main_class` varchar(256) COLLATE utf8_bin NOT NULL,
+  `exe_args` text COLLATE utf8_bin,
+  `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
+  `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL COMMENT '组件版本',
+  `source_str` longtext COLLATE utf8_bin COMMENT '输入源',
+  `target_str` longtext COLLATE utf8_bin COMMENT '输出源',
+  `side_str` longtext COLLATE utf8_bin COMMENT '维表',
+  `setting_str` longtext COLLATE utf8_bin COMMENT '设置',
+  `create_model` tinyint(4) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
+  `job_id` varchar(64) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_name` (`name`(128))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务表';
+
+-- ----------------------------
+-- Table structure for develop_task_param
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_param`;
+CREATE TABLE `develop_task_param` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `type` int(2) NOT NULL COMMENT '0:系统参数, 1:自定义参数',
+  `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
+  `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_batch_task_parameter` (`task_id`,`param_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务开发-任务参数配置表';
+
+-- ----------------------------
+-- Table structure for develop_task_param_shade
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_param_shade`;
+CREATE TABLE `develop_task_param_shade` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `type` int(2) NOT NULL COMMENT '0:系统参数, 1:自定义参数',
+  `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
+  `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_batch_task_parameter` (`task_id`,`param_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务参数配置- 提交表';
+
+-- ----------------------------
+-- Table structure for develop_task_resource
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_resource`;
+CREATE TABLE `develop_task_resource` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `resource_id` int(11) DEFAULT NULL COMMENT '对应batch资源的id',
+  `resource_type` int(11) DEFAULT NULL COMMENT '使用资源的类型 1:主体资源, 2:引用资源',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_project_task_resource_id` (`task_id`,`resource_id`,`resource_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务和资源关联表';
+
+-- ----------------------------
+-- Table structure for develop_task_resource_shade
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_resource_shade`;
+CREATE TABLE `develop_task_resource_shade` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `resource_id` int(11) DEFAULT NULL COMMENT '对应batch资源的id',
+  `resource_type` int(11) DEFAULT NULL COMMENT '使用资源的类型 1:主体资源, 2:引用资源',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_project_task_resource_shade_id` (`task_id`,`resource_id`,`resource_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务资源关联信息- 提交表';
+
+-- ----------------------------
+-- Table structure for develop_task_task
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_task`;
+CREATE TABLE `develop_task_task` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `parent_task_id` int(11) DEFAULT NULL COMMENT '对应batch任务父节点的id',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `parent_apptype` int(2) NOT NULL DEFAULT '1' COMMENT '对应任务父节点的产品类型',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_batch_task_task` (`parent_task_id`,`task_id`,`parent_apptype`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务上下游关联关系表';
+
+-- ----------------------------
+-- Table structure for develop_task_version
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_task_version`;
+CREATE TABLE `develop_task_version` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `task_id` int(11) NOT NULL COMMENT '父文件夹id',
+  `origin_sql` longtext COLLATE utf8_bin COMMENT '原始sql',
+  `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
+  `publish_desc` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
+  `create_user_id` int(11) NOT NULL COMMENT '新建的用户',
+  `version` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
+  `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
+  `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
+  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
+  `dependency_task_ids` text COLLATE utf8_bin NOT NULL COMMENT '依赖的任务id，多个以,号隔开',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务具体版本信息表';
+
+-- ----------------------------
+-- Table structure for develop_tenant_component
+-- ----------------------------
+DROP TABLE IF EXISTS `develop_tenant_component`;
+CREATE TABLE `develop_tenant_component` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `task_type` tinyint(1) NOT NULL COMMENT '任务类型',
+  `component_identity` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '组件的标识信息，也就是组件配置的dbname',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
+  `create_user_id` int(11) DEFAULT NULL COMMENT '创建人id',
+  `modify_user_id` int(11) DEFAULT NULL COMMENT '修改人id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='项目与engine的关联关系表';
+
+-- ----------------------------
+-- Table structure for dict
+-- ----------------------------
+DROP TABLE IF EXISTS `dict`;
+CREATE TABLE `dict` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dict_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '字典标识',
+  `dict_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '字典名称',
+  `dict_value` text COLLATE utf8_bin COMMENT '字典值',
+  `dict_desc` text COLLATE utf8_bin COMMENT '字典描述',
+  `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '枚举值',
+  `sort` int(11) NOT NULL DEFAULT '0' COMMENT '排序',
+  `data_type` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT 'STRING' COMMENT '数据类型',
+  `depend_name` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '依赖字典名称',
+  `is_default` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为默认值选项',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_dict_code` (`dict_code`),
+  KEY `index_type` (`type`)
+) ENGINE=InnoDB AUTO_INCREMENT=301 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='通用数据字典';
+
+-- ----------------------------
+-- Records of dict
+-- ----------------------------
+BEGIN;
+INSERT INTO `dict` VALUES (1, 'spark_version', '2.1', '210', NULL, 2, 1, 'INTEGER', '', 1, '2021-03-02 14:15:23', '2021-03-02 14:15:23', 0);
+INSERT INTO `dict` VALUES (3, 'spark_thrift_version', '1.x', '1.x', NULL, 3, 1, 'STRING', '', 0, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
+INSERT INTO `dict` VALUES (5, 'spark_thrift_version', '2.x', '2.x', NULL, 3, 2, 'STRING', '', 1, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
+INSERT INTO `dict` VALUES (7, 'hadoop_config', 'HDP 3.1.x', '-200', '', 5, 0, 'LONG', 'SPARK', 0, '2021-02-05 11:53:21', '2021-02-05 11:53:21', 0);
+INSERT INTO `dict` VALUES (9, 'typename_mapping', 'yarn3-hdfs3-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
+INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn2-hdfs2-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (15, 'typename_mapping', 'dummy', '-101', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (19, 'typename_mapping', 'hive', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (21, 'typename_mapping', 'hive2', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (23, 'typename_mapping', 'hive3', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
+INSERT INTO `dict` VALUES (25, 'hadoop_version', 'Apache Hadoop 2.x', '2.7.6', NULL, 0, 1, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO `dict` VALUES (27, 'hadoop_version', 'Apache Hadoop 3.x', '3.0.0', NULL, 0, 2, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
+INSERT INTO `dict` VALUES (29, 'hadoop_version', 'HDP 2.6.x', '2.7.3', NULL, 0, 1, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO `dict` VALUES (31, 'hadoop_version', 'HDP 3.x', '3.1.1', NULL, 0, 2, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
+INSERT INTO `dict` VALUES (33, 'hadoop_version', 'CDH 5.x', '2.3.0', NULL, 0, 1, 'STRING', 'CDH', 0, '2021-12-28 10:19:00', '2021-12-28 10:19:00', 0);
+INSERT INTO `dict` VALUES (35, 'hadoop_version', 'CDH 6.0.x', '3.0.0', NULL, 0, 11, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (37, 'hadoop_version', 'CDH 6.1.x', '3.0.0', NULL, 0, 12, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (39, 'hadoop_version', 'CDH 6.2.x', '3.0.0', NULL, 0, 13, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
+INSERT INTO `dict` VALUES (41, 'hadoop_version', 'CDP 7.x', '3.1.1', NULL, 0, 15, 'STRING', 'CDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (43, 'hadoop_version', 'TDH 5.2.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (45, 'hadoop_version', 'TDH 7.x', '2.7.0', NULL, 0, 2, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
+INSERT INTO `dict` VALUES (47, 'hadoop_version', 'TDH 6.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 11:44:02', '2021-12-28 11:44:02', 0);
+INSERT INTO `dict` VALUES (49, 'component_model', 'HDFS', '{\"owner\": \"STORAGE\", \"dependsOn\": [\"RESOURCE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (51, 'component_model', 'FLINK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"FLINK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (53, 'component_model', 'SPARK', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": true, \"uploadConfigType\": \"0\", \"versionDictionary\": \"SPARK_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-28 16:54:54', 0);
+INSERT INTO `dict` VALUES (55, 'component_model', 'SPARK_THRIFT', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"SPARK_THRIFT_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (57, 'component_model', 'HIVE_SERVER', '{\"owner\": \"COMPUTE\", \"dependsOn\": [\"RESOURCE\", \"STORAGE\"], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"HIVE_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (59, 'component_model', 'SFTP', '{\"owner\": \"COMMON\", \"dependsOn\": [], \"nameTemplate\": \"dummy\", \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (61, 'component_model', 'YARN', '{\"owner\": \"RESOURCE\", \"dependsOn\": [], \"allowKerberos\": \"true\", \"allowCoexistence\": false, \"uploadConfigType\": \"1\", \"versionDictionary\": \"HADOOP_VERSION\"}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
+INSERT INTO `dict` VALUES (63, 'component_model_config', '1.x', '{\"1.x\": \"hive\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO `dict` VALUES (65, 'component_model_config', '2.x', '{\"2.x\": \"hive2\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO `dict` VALUES (67, 'component_model_config', '3.x-apache', '{\"3.x-apache\": \"hive3\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO `dict` VALUES (69, 'component_model_config', '3.x-cdp', '{\"3.x-cdp\": \"hive3\"}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
+INSERT INTO `dict` VALUES (71, 'component_model_config', '1.x', '{\"1.x\": \"hive\"}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
+INSERT INTO `dict` VALUES (73, 'component_model_config', '2.x', '{\"2.x\": \"hive2\"}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
+INSERT INTO `dict` VALUES (75, 'SPARK_SQL', 'SPARK_SQL', '0', 'SparkSQL', 30, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (77, 'SYNC', '数据同步', '2', '数据同步', 30, 5, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (79, 'VIRTUAL', '虚节点', '-1', '虚节点', 30, 11, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
+INSERT INTO `dict` VALUES (81, 'ResourceManager', 'ResourceManager', '3', '资源管理', 31, 3, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO `dict` VALUES (83, 'SparkSQLFunction', 'SparkSQLFunction', '4', 'SparkSQL', 31, 4, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (85, 'TableQuery', 'TableQuery', '5', '表查询', 31, 5, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (87, 'TaskDevelop', 'TaskDevelop', '1', '任务开发', 31, 1, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
+INSERT INTO `dict` VALUES (89, 'ResourceManager', 'ResourceManager', '3', '资源管理', 32, 3, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO `dict` VALUES (91, 'TaskManager', 'TaskManager', '1', '任务管理', 32, 1, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
+INSERT INTO `dict` VALUES (93, 'CustomFunction', 'CustomFunction', '6', '自定义函数', 33, 4, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO `dict` VALUES (95, 'SystemFunction', 'SystemFunction', '6', '系统函数', 33, 2, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
+INSERT INTO `dict` VALUES (97, 'flink_version', '1.12', '112', NULL, 1, 2, 'INTEGER', '', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
+INSERT INTO `dict` VALUES (99, 'component_model_config', 'Apache Hadoop 2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:01:55', '2021-12-28 11:01:55', 0);
+INSERT INTO `dict` VALUES (101, 'component_model_config', 'Apache Hadoop 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:03:45', '2021-12-28 11:03:45', 0);
+INSERT INTO `dict` VALUES (103, 'component_model_config', 'HDP 3.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:23', '2021-12-28 11:04:23', 0);
+INSERT INTO `dict` VALUES (105, 'component_model_config', 'CDH 6.0.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:40', '2021-12-28 11:04:40', 0);
+INSERT INTO `dict` VALUES (107, 'component_model_config', 'CDH 6.1.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:55', '2021-12-28 11:04:55', 0);
+INSERT INTO `dict` VALUES (109, 'component_model_config', 'CDH 6.2.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"TONY\": \"yarn3-hdfs3-tony\", \"FLINK\": [{\"1.8\": \"yarn3-hdfs3-flink180\"}, {\"1.10\": \"yarn3-hdfs3-flink110\"}, {\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4(CDH 6.2)\": \"yarn3-hdfs3-spark240cdh620\"}], \"LEARNING\": \"yarn3-hdfs3-learning\", \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:05:06', '2021-12-28 11:05:06', 0);
+INSERT INTO `dict` VALUES (111, 'component_model_config', 'HDP 2.6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:06:38', '2021-12-28 11:06:38', 0);
+INSERT INTO `dict` VALUES (113, 'component_model_config', 'CDH 5.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:07:19', '2021-12-28 11:07:19', 0);
+INSERT INTO `dict` VALUES (115, 'component_model_config', 'HDP 3.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:43:05', '2021-12-28 11:43:05', 0);
+INSERT INTO `dict` VALUES (117, 'component_model_config', 'TDH 5.2.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:33', '2021-12-28 11:44:33', 0);
+INSERT INTO `dict` VALUES (119, 'component_model_config', 'TDH 6.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:43', '2021-12-28 11:44:43', 0);
+INSERT INTO `dict` VALUES (121, 'component_model_config', 'TDH 7.x', '{\"HDFS\": {\"HDFS\": \"yarn2-hdfs2-hadoop2\", \"FLINK\": [{\"1.12\": \"yarn2-hdfs2-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn2-hdfs2-spark210\", \"2.4\": \"yarn2-hdfs2-spark240\"}], \"DT_SCRIPT\": \"yarn2-hdfs2-dtscript\"}, \"YARN\": \"yarn2\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO `dict` VALUES (123, 'component_model_config', 'CDP 7.x', '{\"HDFS\": {\"HDFS\": \"yarn3-hdfs3-hadoop3\", \"FLINK\": [{\"1.12\": \"yarn3-hdfs3-flink112\"}], \"SPARK\": [{\"2.1\": \"yarn3-hdfs3-spark210\", \"2.4\": \"yarn3-hdfs3-spark240\"}], \"DT_SCRIPT\": \"yarn3-hdfs3-dtscript\"}, \"YARN\": \"yarn3\"}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
+INSERT INTO `dict` VALUES (125, 'typename_mapping', 'yarn2-hdfs2-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO `dict` VALUES (127, 'typename_mapping', 'yarn3-hdfs3-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
+INSERT INTO `dict` VALUES (129, 'hive_version', '1.x', '1.x', NULL, 4, 1, 'STRING', '', 0, '2022-05-03 22:20:53', '2022-05-03 22:20:53', 0);
+INSERT INTO `dict` VALUES (131, 'hive_version', '2.x', '2.x', NULL, 4, 2, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO `dict` VALUES (133, 'hive_version', '3.x-apache', '3.x-apache', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
+INSERT INTO `dict` VALUES (135, 'hive_version', '3.x-cdp', '3.x-cdp', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:55', '2022-05-03 22:20:55', 0);
+INSERT INTO `dict` VALUES (137, 'FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, '2022-05-03 22:21:10', '2022-07-05 14:54:37', 1);
+INSERT INTO `dict` VALUES (139, 'tips', 'spark.submit.deployMode', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (141, 'tips', 'sparkPythonExtLibPath', '远程存储系统上pyspark.zip和py4j-0.10.7-src.zip的路径\n注：pyspark.zip和py4j-0.10.7-src.zip在$SPARK_HOME/python/lib路径下获取', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (143, 'tips', 'sparkSqlProxyPath', '远程存储系统上spark-sql-proxy.jar路径\n注：spark-sql-proxy.jar是用来执行spark sql的jar包', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (145, 'tips', 'spark.yarn.maxAppAttempts', 'spark driver最大尝试次数, 默认为yarn上yarn.resourcemanager.am.max-attempts配置的值\n注：如果spark.yarn.maxAppAttempts配置的大于yarn.resourcemanager.am.max-attempts则无效', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (147, 'tips', 'sparkYarnArchive', '远程存储系统上spark jars的路径', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (149, 'tips', 'yarnAccepterTaskNumber', '允许yarn上同时存在状态为accepter的任务数量，当达到这个值后会禁止任务提交', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (151, 'tips', 'spark.speculation', 'spark任务推测行为', '1', 25, 0, 'STRING', '主要', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (153, 'tips', 'spark.executor.cores', '每个executor可以使用的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (155, 'tips', 'spark.executor.memory', '每个executor可以使用的内存量', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (157, 'tips', 'spark.executor.instances', 'executor实例数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (159, 'tips', 'spark.cores.max', ' standalone模式下任务最大能申请的cpu核数', '1', 25, 0, 'STRING', '资源', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (161, 'tips', 'spark.network.timeout', 'spark中所有网络交互的最大超时时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (163, 'tips', 'spark.rpc.askTimeout', 'RPC 请求操作在超时之前等待的持续时间', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (165, 'tips', 'spark.executor.heartbeatInterval', 'driver和executor之间心跳时间间隔', '1', 25, 0, 'STRING', '网络', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (167, 'tips', 'spark.eventLog.compress', '是否对spark事件日志进行压缩', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (169, 'tips', 'spark.eventLog.dir', 'spark事件日志存放路径', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (171, 'tips', 'spark.eventLog.enabled', '是否记录 spark 事件日志', '1', 25, 0, 'STRING', '事件日志', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (173, 'tips', 'spark.driver.extraJavaOptions', 'spark driver的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (175, 'tips', 'spark.executor.extraJavaOptions', 'spark executor的jvm扩展参数', '1', 25, 0, 'STRING', 'JVM', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (177, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'driver中用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (179, 'tips', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON', '用于执行pyspark任务的python二进制可执行文件路径', '1', 25, 0, 'STRING', '环境变量', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (181, 'tips', 'jobmanager.memory.process.size', 'JobManager 总内存(master)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (183, 'tips', 'taskmanager.memory.process.size', 'TaskManager 总内存(slaves)', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (185, 'tips', 'taskmanager.numberOfTaskSlots', '单个 TaskManager 可以运行的并行算子或用户函数实例的数量。', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (187, 'tips', 'high-availability', 'flink ha类型', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (189, 'tips', 'high-availability.zookeeper.quorum', 'zookeeper地址，当ha选择是zookeeper时必填', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (191, 'tips', 'high-availability.zookeeper.path.root', 'ha节点路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (193, 'tips', 'high-availability.storageDir', 'ha元数据存储路径', '0', 25, 0, 'STRING', '高可用', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (195, 'tips', 'prometheusHost', 'prometheus地址，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (197, 'tips', 'prometheusPort', 'prometheus，平台端使用', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (199, 'tips', 'metrics.reporter.promgateway.class', '用来推送指标类', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (201, 'tips', 'metrics.reporter.promgateway.host', 'promgateway地址', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (203, 'tips', 'metrics.reporter.promgateway.port', 'promgateway端口', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (205, 'tips', 'metrics.reporter.promgateway.deleteOnShutdown', '任务结束后是否删除指标', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (207, 'tips', 'metrics.reporter.promgateway.jobName', '指标任务名', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (209, 'tips', 'metrics.reporter.promgateway.randomJobNameSuffix', '是否在任务名上添加随机值', '0', 25, 0, 'STRING', 'metric监控', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (211, 'tips', 'state.backend', '状态后端', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (213, 'tips', 'state.backend.incremental', '是否开启增量', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (215, 'tips', 'state.checkpoints.dir', 'checkpoint路径地址', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (217, 'tips', 'state.checkpoints.num-retained', 'checkpoint保存个数', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (219, 'tips', 'state.savepoints.dir', 'savepoint路径', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (221, 'tips', 'checkpoint.retain.time', '检查点保留时间', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (223, 'tips', 'classloader.resolve-order', '类加载模式', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (225, 'tips', 'jobmanager.archive.fs.dir', '任务结束后任务信息存储路径', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (227, 'tips', 'akka.ask.timeout', 'akka通讯超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (229, 'tips', 'akka.tcp.timeout', 'tcp 连接的超时时间', '0', 25, 0, 'STRING', '高级', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (231, 'tips', 'env.java.opts', 'jvm参数', '0', 25, 0, 'STRING', 'JVM参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (233, 'tips', 'yarn.application-attempt-failures-validity-interval', '以毫秒为单位的时间窗口，它定义了重新启动 AM 时应用程序尝试失败的次数。不在此窗口范围内的故障不予考虑。将此值设置为 -1 以便全局计数。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (235, 'tips', 'yarn.application-attempts', 'ApplicationMaster 重新启动的次数。默认情况下，该值将设置为 1。如果启用了高可用性，则默认值为 2。重启次数也受 YARN 限制（通过 yarn.resourcemanager.am.max-attempts 配置）。注意整个 Flink 集群会重启，YARN Client 会失去连接。', '0', 25, 0, 'STRING', 'Yarn', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (237, 'tips', 'pluginLoadMode', '插件加载类型', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (239, 'tips', 'classloader.dtstack-cache', '是否缓存classloader', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (241, 'tips', 'sessionStartAuto', '是否允许engine启动flink session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (243, 'tips', 'checkSubmitJobGraphInterval', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (245, 'tips', 'flinkLibDir', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (247, 'tips', 'flinkxDistDir', 'flinkx plugins父级本地目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (249, 'tips', 'remoteFlinkLibDir', 'flink lib 远程路径', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (251, 'tips', 'remoteFlinkxDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (253, 'tips', 'flinkSessionName', 'yarn session名称', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (255, 'tips', 'monitorAcceptedApp', '是否监控yarn accepted状态任务', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (257, 'tips', 'yarnAccepterTaskNumber', '允许yarn accepter任务数量，达到这个值后不允许任务提交', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (259, 'tips', 'slotmanager.number-of-slots.max', 'flink session允许的最大slot数', '0', 25, 0, 'STRING', '公共参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (261, 'tips', 'sessionRetryNum', 'session重试次数，达到后会放缓重试的频率', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (263, 'tips', 'restart-strategy', 'none, off, disable:无重启策略。Fixed -delay, Fixed -delay:固定延迟重启策略。更多细节可以在这里找到。Failure -rate:故障率重启策略。更多细节可以在这里找到。如果检查点被禁用，默认值为none。如果检查点启用，默认值是fixed-delay with Integer。MAX_VALUE重启尝试和\'1 s\'延迟。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (265, 'tips', 'restart-strategy.failure-rate.delay', '如果restart-strategy设置为根据失败率重试，则两次连续重启尝试之间的延迟。可以用“1分钟”、“20秒”来表示', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (267, 'tips', 'clusterMode', '任务执行模式：perjob,session', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (269, 'tips', 'restart-strategy.failure-rate.failure-rate-interval', '如果重启策略设置为故障率，测量故障率的时间间隔。可以用“1分钟”、“20秒”来表示。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (271, 'tips', 'restart-strategy.failure-rate.max-failures-per-interval', '如果restart-strategy设置为根据失败率重试，在给定的时间间隔内，任务失败前的最大重启次数。', '0', 25, 0, 'STRING', '容错和checkpointing', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (273, 'tips', 'jdbcUrl', 'jdbc url地址', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (275, 'tips', 'jdbcUrl', 'jdbc url地址', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (277, 'tips', 'username', 'jdbc连接用户名', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (279, 'tips', 'username', 'jdbc连接用户名', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (281, 'tips', 'password', 'jdbc连接密码', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (283, 'tips', 'password', 'jdbc连接密码', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (285, 'tips', 'maxJobPoolSize', '任务最大线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (287, 'tips', 'maxJobPoolSize', '任务最大线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (289, 'tips', 'minJobPoolSize', '任务最小线程数', '4', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (291, 'tips', 'minJobPoolSize', '任务最小线程数', '5', 25, 0, 'STRING', '', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (293, 'FunctionManager', 'FunctionManager', '4', '函数管理', 31, 2, 'STRING', '', 1, '2022-07-05 14:56:43', '2022-07-05 14:56:43', 0);
+INSERT INTO `dict` VALUES (295, 'FunctionManager', 'FunctionManager', '4', '函数管理', 32, 4, 'STRING', '', 1, '2022-07-05 15:11:21', '2022-07-05 15:11:21', 0);
+INSERT INTO `dict` VALUES (297, 'component_model', 'OCEAN_BASE', '{\"owner\": \"COMPUTE\", \"dependsOn\": [], \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"\",\"nameTemplate\":\"oceanBase\"}', NULL, 12, 0, 'STRING', '', 0, '2022-07-06 17:17:03', '2022-07-06 17:17:03', 0);
+INSERT INTO `dict` VALUES (299, 'typename_mapping', 'oceanBase', '-118', NULL, 6, 0, 'LONG', '', 0, '2022-07-06 19:32:06', '2022-07-06 19:32:06', 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for schedule_engine_job_cache
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_engine_job_cache`;
+CREATE TABLE `schedule_engine_job_cache` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
+  `job_name` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
+  `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
+  `stage` tinyint(2) NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
+  `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT 'job信息',
+  `node_address` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
+  `job_resource` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT 'job的计算引擎资源类型',
+  `job_priority` bigint(20) DEFAULT NULL COMMENT '任务优先级',
+  `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
+  `wait_reason` text COLLATE utf8_bin COMMENT '任务等待原因',
+  `tenant_id` int(11) DEFAULT NULL COMMENT '租户id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_engine_job_retry
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_engine_job_retry`;
+CREATE TABLE `schedule_engine_job_retry` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
+  `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
+  `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
+  `log_info` mediumtext COLLATE utf8_bin COMMENT '错误信息',
+  `engine_log` longtext COLLATE utf8_bin COMMENT '引擎错误信息',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `retry_task_params` text COLLATE utf8_bin COMMENT '重试任务参数',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_id` (`job_id`) COMMENT '任务实例 id'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_fill_data_job
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_fill_data_job`;
+CREATE TABLE `schedule_fill_data_job` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `job_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '补数据任务名称',
+  `run_day` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '补数据运行日期yyyy-MM-dd',
+  `from_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据开始业务日期yyyy-MM-dd',
+  `to_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据结束业务日期yyyy-MM-dd',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `fill_data_info` mediumtext COLLATE utf8_bin COMMENT '补数据信息',
+  `fill_generate_status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '补数据生成状态：0默认值，按照原来的接口逻辑走。1 表示正在生成，2 完成生成补数据实例，3生成补数据失败',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_task_id` (`tenant_id`,`job_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_job
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job`;
+CREATE TABLE `schedule_job` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
+  `job_key` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务key',
+  `job_name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务名称',
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `type` tinyint(1) NOT NULL DEFAULT '2' COMMENT '0正常调度 1补数据 2临时运行',
+  `is_restart` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：非重启任务, 1：重启任务',
+  `cyc_time` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '调度时间 yyyyMMddHHmmss',
+  `dependency_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '依赖类型',
+  `flow_job_id` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '0' COMMENT '工作流实例id',
+  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
+  `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
+  `fill_id` int(11) DEFAULT '0' COMMENT '补数据id，默认为0',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
+  `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
+  `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
+  `max_retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '最大重试次数',
+  `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
+  `node_address` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
+  `version_id` int(10) DEFAULT '0' COMMENT '任务运行时候版本号',
+  `next_cyc_time` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '下一次调度时间 yyyyMMddHHmmss',
+  `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+  `compute_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
+  `phase_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
+  `job_execute_order` bigint(20) NOT NULL DEFAULT '0' COMMENT '按照计算时间排序字段',
+  `fill_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例 3 黑名单',
+  `submit_user_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '提交用户名',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_jobKey` (`job_key`),
+  UNIQUE KEY `index_job_id` (`job_id`,`is_deleted`),
+  KEY `idx_cyc_time` (`cyc_time`),
+  KEY `idx_exec_start_time` (`exec_start_time`),
+  KEY `idx_name_type` (`job_name`(128),`type`),
+  KEY `index_engine_job_id` (`engine_job_id`(128)),
+  KEY `index_fill_id` (`fill_id`),
+  KEY `index_flow_job_id` (`flow_job_id`),
+  KEY `index_gmt_modified` (`gmt_modified`),
+  KEY `index_job_execute_order` (`job_execute_order`),
+  KEY `index_task_id` (`task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_job_expand
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job_expand`;
+CREATE TABLE `schedule_job_expand` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
+  `retry_task_params` mediumtext COLLATE utf8_bin COMMENT '重试任务参数',
+  `job_graph` mediumtext COLLATE utf8_bin COMMENT 'jobGraph构建json',
+  `job_extra_info` mediumtext COLLATE utf8_bin COMMENT '任务提交额外信息',
+  `engine_log` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  `log_info` longtext COLLATE utf8_bin COMMENT '错误信息',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_job_graph_trigger
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job_graph_trigger`;
+CREATE TABLE `schedule_job_graph_trigger` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',
+  `trigger_time` datetime NOT NULL COMMENT '调度时间',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_trigger_time` (`trigger_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_job_history
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job_history`;
+CREATE TABLE `schedule_job_history` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(32) NOT NULL COMMENT '工作任务id',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
+  `engine_job_id` varchar(256) DEFAULT NULL COMMENT '额外id',
+  `application_id` varchar(256) DEFAULT NULL COMMENT 'applicationId',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_engine_job_id` (`engine_job_id`(128)),
+  KEY `index_job_id` (`job_id`,`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for schedule_job_job
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job_job`;
+CREATE TABLE `schedule_job_job` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `job_key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT 'batch 任务key',
+  `parent_job_key` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '对应batch任务父节点的key',
+  `job_key_type` int(11) NOT NULL DEFAULT '2' COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
+  `rule` int(11) DEFAULT NULL COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_job_jobKey` (`parent_job_key`(128)),
+  KEY `idx_job_parentJobKey` (`job_key`(255),`parent_job_key`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_job_operator_record
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_job_operator_record`;
+CREATE TABLE `schedule_job_operator_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(255) COLLATE utf8_bin NOT NULL COMMENT '任务id',
+  `version` int(10) DEFAULT '0' COMMENT '版本号',
+  `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
+  `operator_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作类型 0杀死 1重跑 2 补数据',
+  `force_cancel_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '强制标志 0非强制 1强制',
+  `node_address` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `job_id` (`job_id`,`operator_type`,`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_plugin_job_info
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_plugin_job_info`;
+CREATE TABLE `schedule_plugin_job_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
+  `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT '任务信息',
+  `log_info` text COLLATE utf8_bin COMMENT '任务信息',
+  `status` tinyint(2) NOT NULL COMMENT '任务状态',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`),
+  KEY `idx_gmt_modified` (`gmt_modified`) COMMENT '修改时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_task_shade
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_task_shade`;
+CREATE TABLE `schedule_task_shade` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL DEFAULT '-1' COMMENT '租户id',
+  `name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '任务名称',
+  `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
+  `compute_type` tinyint(1) NOT NULL COMMENT '计算类型 0实时，1 离线',
+  `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
+  `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
+  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
+  `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `modify_user_id` int(11) NOT NULL COMMENT '最后修改task的用户',
+  `create_user_id` int(11) NOT NULL COMMENT '新建task的用户',
+  `version_id` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `task_desc` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务描述',
+  `exe_args` text COLLATE utf8_bin COMMENT '额外参数',
+  `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
+  `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_task_id` (`task_id`),
+  KEY `index_name` (`name`(128))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_task_shade_info
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_task_shade_info`;
+CREATE TABLE `schedule_task_shade_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `info` text COLLATE utf8_bin COMMENT '任务运行信息',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_task_id` (`task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- ----------------------------
+-- Table structure for schedule_task_task_shade
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_task_task_shade`;
+CREATE TABLE `schedule_task_task_shade` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
+  `parent_task_id` int(11) DEFAULT NULL COMMENT '对应batch任务父节点的id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_batch_task_task` (`task_id`,`parent_task_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Table structure for stream_metric_support
 -- ----------------------------
 DROP TABLE IF EXISTS `stream_metric_support`;
 CREATE TABLE `stream_metric_support` (
-                                          `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
-                                          `name` varchar(255) NOT NULL COMMENT '指标中文名称',
-                                          `task_type` tinyint(4) NOT NULL COMMENT '指标支持的任务类型',
-                                          `value` varchar(255) NOT NULL COMMENT '指标key',
-                                          `metric_tag` int(11) NOT NULL COMMENT 'metric匹配模式',
-                                          `component_version` varchar(255) NOT NULL DEFAULT '1.10' COMMENT '组件版本',
-                                          `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                          `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                          `is_deleted` tinyint(4) DEFAULT NULL COMMENT '是否删除',
-                                          PRIMARY KEY (`id`) USING BTREE
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `name` varchar(255) NOT NULL COMMENT '指标中文名称',
+  `task_type` tinyint(4) NOT NULL COMMENT '指标支持的任务类型',
+  `value` varchar(255) NOT NULL COMMENT '指标key',
+  `metric_tag` int(11) NOT NULL COMMENT 'metric匹配模式',
+  `component_version` varchar(255) NOT NULL DEFAULT '1.10' COMMENT '组件版本',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(4) DEFAULT NULL COMMENT '是否删除',
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=256 DEFAULT CHARSET=utf8 COMMENT='任务支持的metric指标';
 
 -- ----------------------------
@@ -1043,629 +1733,41 @@ INSERT INTO `stream_metric_support` VALUES (253, '累计输入数据量', 6, 'fl
 INSERT INTO `stream_metric_support` VALUES (255, '累计输出数据量', 6, 'flink_taskmanager_job_task_operator_flinkx_byteWrite', 1, '1.12', '2021-09-26 17:04:01', '2021-09-26 17:04:01', 0);
 COMMIT;
 
-
 -- ----------------------------
--- Table structure for develop_resource
+-- Table structure for task_dirty_data_manage
 -- ----------------------------
-DROP TABLE IF EXISTS `develop_resource`;
-CREATE TABLE `develop_resource` (
-                                    `id` int(11) NOT NULL AUTO_INCREMENT,
-                                    `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                    `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
-                                    `url` varchar(1028) COLLATE utf8_bin NOT NULL COMMENT '资源路径',
-                                    `resource_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '资源类型 0:other, 1:jar, 2:py, 3:zip, 4:egg',
-                                    `resource_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '资源名称',
-                                    `origin_file_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '源文件名',
-                                    `resource_desc` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '源文描述',
-                                    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                    `create_user_id` int(11) NOT NULL COMMENT '新建资源的用户',
-                                    `modify_user_id` int(11) NOT NULL COMMENT '修改人',
-                                    `compute_type` int(11) NOT NULL DEFAULT '0' COMMENT '上传组建类型',
-                                    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                    `node_id` bigint(20) DEFAULT NULL,
-                                    PRIMARY KEY (`id`),
-                                    KEY `index_resource_name` (`resource_name`(128)),
-                                    KEY `index_resource_type` (`resource_type`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='资源表';
-
--- ----------------------------
--- Table structure for develop_sys_parameter
--- ----------------------------
-DROP TABLE IF EXISTS `develop_sys_parameter`;
-CREATE TABLE `develop_sys_parameter` (
-                                         `id` int(11) NOT NULL AUTO_INCREMENT,
-                                         `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
-                                         `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
-                                         `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                         `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                         `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                         PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务开发-系统参数表';
-
--- ----------------------------
--- Records of develop_sys_parameter
--- ----------------------------
-BEGIN;
-INSERT INTO `develop_sys_parameter` VALUES (1, 'bdp.system.bizdate', 'yyyyMMdd-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-INSERT INTO `develop_sys_parameter` VALUES (3, 'bdp.system.cyctime', 'yyyyMMddHHmmss', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-INSERT INTO `develop_sys_parameter` VALUES (5, 'bdp.system.currmonth', 'yyyyMM-0', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-INSERT INTO `develop_sys_parameter` VALUES (7, 'bdp.system.premonth', 'yyyyMM-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-INSERT INTO `develop_sys_parameter` VALUES (9, 'bdp.system.runtime', '${bdp.system.currenttime}', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-INSERT INTO `develop_sys_parameter` VALUES (11, 'bdp.system.bizdate2', 'yyyy-MM-dd,-1', '2022-02-12 23:31:50', '2022-02-12 23:31:50', 0);
-COMMIT;
-
--- ----------------------------
--- Table structure for develop_task
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task`;
-CREATE TABLE `develop_task` (
-                                `id` int(11) NOT NULL AUTO_INCREMENT,
-                                `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
-                                `name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务名称',
-                                `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL ',
-                                `compute_type` tinyint(1) NOT NULL COMMENT '计算类型 0实时，1 离线',
-                                `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
-                                `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
-                                `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
-                                `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
-                                `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
-                                `submit_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未提交,1已提交',
-                                `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                `modify_user_id` int(11) NOT NULL COMMENT '最后修改task的用户',
-                                `create_user_id` int(11) NOT NULL COMMENT '新建task的用户',
-                                `version` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
-                                `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                `task_desc` varchar(256) COLLATE utf8_bin NOT NULL,
-                                `main_class` varchar(256) COLLATE utf8_bin NOT NULL,
-                                `exe_args` text COLLATE utf8_bin,
-                                `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
-                                `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL COMMENT '组件版本',
-                                `source_str` longtext COLLATE utf8_bin COMMENT '输入源',
-                                `target_str` longtext COLLATE utf8_bin COMMENT '输出源',
-                                `side_str` longtext COLLATE utf8_bin COMMENT '维表',
-                                `setting_str` longtext COLLATE utf8_bin COMMENT '设置',
-                                `create_model` tinyint(4) DEFAULT NULL COMMENT '任务模式 0 向导模式  1 脚本模式',
-                                `job_id` varchar(64) DEFAULT null,
-                                PRIMARY KEY (`id`),
-                                KEY `index_name` (`name`(128))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务表';
-
--- ----------------------------
--- Table structure for develop_task_param
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_param`;
-CREATE TABLE `develop_task_param` (
-                                      `id` int(11) NOT NULL AUTO_INCREMENT,
-                                      `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                      `type` int(2) NOT NULL COMMENT '0:系统参数, 1:自定义参数',
-                                      `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
-                                      `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
-                                      `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                      `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                      `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                      PRIMARY KEY (`id`),
-                                      KEY `index_batch_task_parameter` (`task_id`,`param_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务开发-任务参数配置表';
-
--- ----------------------------
--- Table structure for develop_task_param_shade
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_param_shade`;
-CREATE TABLE `develop_task_param_shade` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                            `type` int(2) NOT NULL COMMENT '0:系统参数, 1:自定义参数',
-                                            `param_name` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数名称',
-                                            `param_command` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '参数替换指令',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`),
-                                            KEY `index_batch_task_parameter` (`task_id`,`param_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务参数配置- 提交表';
-
--- ----------------------------
--- Table structure for develop_task_resource
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_resource`;
-CREATE TABLE `develop_task_resource` (
-                                         `id` int(11) NOT NULL AUTO_INCREMENT,
-                                         `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                         `resource_id` int(11) DEFAULT NULL COMMENT '对应batch资源的id',
-                                         `resource_type` int(11) DEFAULT NULL COMMENT '使用资源的类型 1:主体资源, 2:引用资源',
-                                         `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                         `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                         `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                         `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                         PRIMARY KEY (`id`),
-                                         UNIQUE KEY `index_project_task_resource_id` (`task_id`,`resource_id`,`resource_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务和资源关联表';
-
--- ----------------------------
--- Table structure for develop_task_resource_shade
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_resource_shade`;
-CREATE TABLE `develop_task_resource_shade` (
-                                               `id` int(11) NOT NULL AUTO_INCREMENT,
-                                               `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                               `resource_id` int(11) DEFAULT NULL COMMENT '对应batch资源的id',
-                                               `resource_type` int(11) DEFAULT NULL COMMENT '使用资源的类型 1:主体资源, 2:引用资源',
-                                               `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                               `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                               `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                               `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                               PRIMARY KEY (`id`),
-                                               UNIQUE KEY `index_project_task_resource_shade_id` (`task_id`,`resource_id`,`resource_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务资源关联信息- 提交表';
-
--- ----------------------------
--- Table structure for develop_task_task
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_task`;
-CREATE TABLE `develop_task_task` (
-                                     `id` int(11) NOT NULL AUTO_INCREMENT,
-                                     `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                     `parent_task_id` int(11) DEFAULT NULL COMMENT '对应batch任务父节点的id',
-                                     `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                     `parent_apptype` int(2) NOT NULL DEFAULT '1' COMMENT '对应任务父节点的产品类型',
-                                     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                     `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                     PRIMARY KEY (`id`),
-                                     UNIQUE KEY `index_batch_task_task` (`parent_task_id`,`task_id`,`parent_apptype`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务上下游关联关系表';
-
--- ----------------------------
--- Table structure for develop_task_version
--- ----------------------------
-DROP TABLE IF EXISTS `develop_task_version`;
-CREATE TABLE `develop_task_version` (
-                                        `id` int(11) NOT NULL AUTO_INCREMENT,
-                                        `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                        `task_id` int(11) NOT NULL COMMENT '父文件夹id',
-                                        `origin_sql` longtext COLLATE utf8_bin COMMENT '原始sql',
-                                        `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
-                                        `publish_desc` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
-                                        `create_user_id` int(11) NOT NULL COMMENT '新建的用户',
-                                        `version` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
-                                        `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
-                                        `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
-                                        `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
-                                        `dependency_task_ids` text COLLATE utf8_bin NOT NULL COMMENT '依赖的任务id，多个以,号隔开',
-                                        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                        `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                        PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='任务具体版本信息表';
-
--- ----------------------------
--- Table structure for develop_tenant_component
--- ----------------------------
-DROP TABLE IF EXISTS `develop_tenant_component`;
-CREATE TABLE `develop_tenant_component` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                            `task_type` tinyint(1) NOT NULL COMMENT '任务类型',
-                                            `component_identity` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '组件的标识信息，也就是组件配置的dbname',
-                                            `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '项目状态0：初始化，1：正常,2:禁用,3:失败',
-                                            `create_user_id` int(11) DEFAULT NULL COMMENT '创建人id',
-                                            `modify_user_id` int(11) DEFAULT NULL COMMENT '修改人id',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='项目与engine的关联关系表';
-
--- ----------------------------
--- Table structure for dict
--- ----------------------------
-DROP TABLE IF EXISTS `dict`;
-CREATE TABLE `dict` (
-                        `id` int(11) NOT NULL AUTO_INCREMENT,
-                        `dict_code` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '字典标识',
-                        `dict_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '字典名称',
-                        `dict_value` text COLLATE utf8_bin COMMENT '字典值',
-                        `dict_desc` text COLLATE utf8_bin COMMENT '字典描述',
-                        `type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '枚举值',
-                        `sort` int(11) NOT NULL DEFAULT '0' COMMENT '排序',
-                        `data_type` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT 'STRING' COMMENT '数据类型',
-                        `depend_name` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '依赖字典名称',
-                        `is_default` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为默认值选项',
-                        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                        `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                        PRIMARY KEY (`id`),
-                        KEY `index_dict_code` (`dict_code`),
-                        KEY `index_type` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='通用数据字典';
-
--- ----------------------------
--- Records of dict
--- ----------------------------
-BEGIN;
-INSERT INTO `dict` VALUES (1, 'spark_version', '2.1', '210', NULL, 2, 1, 'INTEGER', '', 1, '2021-03-02 14:15:23', '2021-03-02 14:15:23', 0);
-INSERT INTO `dict` VALUES (3, 'spark_thrift_version', '1.x', '1.x', NULL, 3, 1, 'STRING', '', 0, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
-INSERT INTO `dict` VALUES (7, 'spark_thrift_version', '2.x', '2.x', NULL, 3, 2, 'STRING', '', 1, '2021-03-02 14:16:41', '2021-03-02 14:16:41', 0);
-INSERT INTO `dict` VALUES (9, 'hadoop_config', 'HDP 3.1.x', '-200', '', 5, 0, 'LONG', 'SPARK', 0, '2021-02-05 11:53:21', '2021-02-05 11:53:21', 0);
-INSERT INTO `dict` VALUES (11, 'typename_mapping', 'yarn3-hdfs3-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:23', '2021-03-04 17:50:23', 0);
-INSERT INTO `dict` VALUES (13, 'typename_mapping', 'yarn2-hdfs2-spark210', '-108', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (15, 'typename_mapping', 'yarn3-hdfs3-flink110', '-109', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (17, 'typename_mapping', 'dummy', '-101', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (19, 'typename_mapping', 'yarn2-hdfs2-flink110', '-109', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (21, 'typename_mapping', 'hive', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (23, 'typename_mapping', 'hive2', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (25, 'typename_mapping', 'hive3', '-117', NULL, 6, 0, 'LONG', '', 0, '2021-03-04 17:50:24', '2021-03-04 17:50:24', 0);
-INSERT INTO `dict` VALUES (27, 'hadoop_version', 'Apache Hadoop 2.x', '2.7.6', NULL, 0, 1, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
-INSERT INTO `dict` VALUES (29, 'hadoop_version', 'Apache Hadoop 3.x', '3.0.0', NULL, 0, 2, 'STRING', 'Apache Hadoop', 0, '2021-12-28 10:18:58', '2021-12-28 10:18:58', 0);
-INSERT INTO `dict` VALUES (31, 'hadoop_version', 'HDP 2.6.x', '2.7.3', NULL, 0, 1, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
-INSERT INTO `dict` VALUES (33, 'hadoop_version', 'HDP 3.x', '3.1.1', NULL, 0, 2, 'STRING', 'HDP', 0, '2021-12-28 10:18:59', '2021-12-28 10:18:59', 0);
-INSERT INTO `dict` VALUES (35, 'hadoop_version', 'CDH 5.x', '2.3.0', NULL, 0, 1, 'STRING', 'CDH', 0, '2021-12-28 10:19:00', '2021-12-28 10:19:00', 0);
-INSERT INTO `dict` VALUES (37, 'hadoop_version', 'CDH 6.0.x', '3.0.0', NULL, 0, 11, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (39, 'hadoop_version', 'CDH 6.1.x', '3.0.0', NULL, 0, 12, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (41, 'hadoop_version', 'CDH 6.2.x', '3.0.0', NULL, 0, 13, 'STRING', 'CDH', 0, '2021-12-28 10:19:01', '2021-12-28 10:19:01', 0);
-INSERT INTO `dict` VALUES (43, 'hadoop_version', 'CDP 7.x', '3.1.1', NULL, 0, 15, 'STRING', 'CDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (45, 'hadoop_version', 'TDH 5.2.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (47, 'hadoop_version', 'TDH 7.x', '2.7.0', NULL, 0, 2, 'STRING', 'TDH', 0, '2021-12-28 10:19:02', '2021-12-28 10:19:02', 0);
-INSERT INTO `dict` VALUES (49, 'hadoop_version', 'TDH 6.x', '2.7.0', NULL, 0, 1, 'STRING', 'TDH', 0, '2021-12-28 11:44:02', '2021-12-28 11:44:02', 0);
-INSERT INTO `dict` VALUES (51, 'component_model', 'HDFS', '{\n	\"owner\": \"STORAGE\",\n	\"dependsOn\": [\"RESOURCE\"],\n	\"allowCoexistence\": false,\n	\"versionDictionary\": \"HADOOP_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (53, 'component_model', 'FLINK', '{\n	\"owner\": \"COMPUTE\",\n	\"dependsOn\": [\"RESOURCE\", \"STORAGE\"],\n	\"allowCoexistence\": true,\n	\"versionDictionary\": \"FLINK_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (55, 'component_model', 'SPARK', '{\n	\"owner\": \"COMPUTE\",\n	\"dependsOn\": [\"RESOURCE\", \"STORAGE\"],\n	\"allowCoexistence\": true,\n	\"versionDictionary\": \"SPARK_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-28 16:54:54', 0);
-INSERT INTO `dict` VALUES (57, 'component_model', 'SPARK_THRIFT', '{\n	\"owner\": \"COMPUTE\",\n	\"dependsOn\": [\"RESOURCE\", \"STORAGE\"],\n	\"allowCoexistence\": false,\n	\"versionDictionary\": \"SPARK_THRIFT_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (59, 'component_model', 'HIVE_SERVER', '{\n	\"owner\": \"COMPUTE\",\n    \"dependsOn\": [\"RESOURCE\", \"STORAGE\"],\n	\"allowCoexistence\": false,\n	\"versionDictionary\": \"HIVE_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (61, 'component_model', 'SFTP', '{\n	\"owner\": \"COMMON\",\n	\"dependsOn\": [],\n	\"allowCoexistence\": false,\n	\"nameTemplate\": \"dummy\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (63, 'component_model', 'YARN', '{\n	\"owner\": \"RESOURCE\",\n	\"dependsOn\": [],\n	\"allowCoexistence\": false,\n	\"versionDictionary\": \"HADOOP_VERSION\"\n}', NULL, 12, 0, 'STRING', '', 0, '2021-12-07 11:26:57', '2021-12-07 11:26:57', 0);
-INSERT INTO `dict` VALUES (91, 'component_model_config', '1.x', '{\n    \"1.x\":\"hive\"\n}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (93, 'component_model_config', '2.x', '{\n    \"2.x\":\"hive2\"\n}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (95, 'component_model_config', '3.x-apache', '{\n    \"3.x-apache\":\"hive3\"\n}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (97, 'component_model_config', '3.x-cdp', '{\n    \"3.x-cdp\":\"hive3\"\n}', NULL, 14, 1, 'STRING', 'HIVE_SERVER', 0, '2021-12-31 14:53:44', '2021-12-31 14:53:44', 0);
-INSERT INTO `dict` VALUES (99, 'component_model_config', '1.x', '{\n    \"1.x\":\"hive\"\n}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
-INSERT INTO `dict` VALUES (101, 'component_model_config', '2.x', '{\n    \"2.x\":\"hive2\"\n}', NULL, 14, 1, 'STRING', 'SPARK_THRIFT', 0, '2021-12-31 15:00:16', '2021-12-31 15:00:16', 0);
-INSERT INTO `dict` VALUES (103, 'SPARK_SQL', 'SPARK_SQL', '0', 'SparkSQL', 30, 1, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (105, 'SYNC', '数据同步', '2', '数据同步', 30, 5, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (107, 'VIRTUAL', '虚节点', '-1', '虚节点', 30, 11, 'STRING', '', 1, '2022-02-11 10:28:45', '2022-02-11 10:28:45', 0);
-INSERT INTO `dict` VALUES (109, 'ResourceManager', 'ResourceManager', '3', '资源管理', 31, 3, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (111, 'SparkSQLFunction', 'SparkSQLFunction', '4', 'SparkSQL', 31, 4, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (113, 'TableQuery', 'TableQuery', '5', '表查询', 31, 5, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (115, 'TaskDevelop', 'TaskDevelop', '1', '任务开发', 31, 1, 'STRING', '', 1, '2022-02-11 10:40:14', '2022-02-11 10:40:14', 0);
-INSERT INTO `dict` VALUES (117, 'FunctionManager', 'FunctionManager', '4', '函数管理', 32, 4, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
-INSERT INTO `dict` VALUES (119, 'ResourceManager', 'ResourceManager', '3', '资源管理', 32, 3, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
-INSERT INTO `dict` VALUES (121, 'TaskManager', 'TaskManager', '1', '任务管理', 32, 1, 'STRING', '', 1, '2022-02-11 10:42:19', '2022-02-11 10:42:19', 0);
-INSERT INTO `dict` VALUES (123, 'CustomFunction', 'CustomFunction', '6', '自定义函数', 33, 4, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
-INSERT INTO `dict` VALUES (125, 'SystemFunction', 'SystemFunction', '6', '系统函数', 33, 2, 'STRING', '', 1, '2022-02-11 10:42:57', '2022-02-11 10:42:57', 0);
-INSERT INTO `dict` VALUES (127, 'flink_version', '1.12', '112', NULL, 1, 2, 'INTEGER', '0,1,2', 0, '2022-05-03 22:13:12', '2022-05-03 22:13:12', 0);
-INSERT INTO `dict` VALUES (129, 'component_model_config', 'Apache Hadoop 2.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:01:55', '2021-12-28 11:01:55', 0);
-INSERT INTO `dict` VALUES (131, 'component_model_config', 'Apache Hadoop 3.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:03:45', '2021-12-28 11:03:45', 0);
-INSERT INTO `dict` VALUES (133, 'component_model_config', 'HDP 3.0.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:23', '2021-12-28 11:04:23', 0);
-INSERT INTO `dict` VALUES (135, 'component_model_config', 'CDH 6.0.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.8\":\"yarn3-hdfs3-flink180\"\n            },\n            {\n                \"1.10\":\"yarn3-hdfs3-flink110\"\n            },\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {   \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:40', '2021-12-28 11:04:40', 0);
-INSERT INTO `dict` VALUES (137, 'component_model_config', 'CDH 6.1.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:04:55', '2021-12-28 11:04:55', 0);
-INSERT INTO `dict` VALUES (139, 'component_model_config', 'CDH 6.2.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.8\":\"yarn3-hdfs3-flink180\"\n            },\n            {\n                \"1.10\":\"yarn3-hdfs3-flink110\"\n            },\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4(CDH 6.2)\":\"yarn3-hdfs3-spark240cdh620\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\",\n        \"TONY\":\"yarn3-hdfs3-tony\",\n        \"LEARNING\":\"yarn3-hdfs3-learning\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:05:06', '2021-12-28 11:05:06', 0);
-INSERT INTO `dict` VALUES (141, 'component_model_config', 'HDP 2.6.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:06:38', '2021-12-28 11:06:38', 0);
-INSERT INTO `dict` VALUES (143, 'component_model_config', 'CDH 5.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:07:19', '2021-12-28 11:07:19', 0);
-INSERT INTO `dict` VALUES (145, 'component_model_config', 'HDP 3.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:43:05', '2021-12-28 11:43:05', 0);
-INSERT INTO `dict` VALUES (147, 'component_model_config', 'TDH 5.2.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:33', '2021-12-28 11:44:33', 0);
-INSERT INTO `dict` VALUES (149, 'component_model_config', 'TDH 6.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:44:43', '2021-12-28 11:44:43', 0);
-INSERT INTO `dict` VALUES (151, 'component_model_config', 'TDH 7.x', '{\n    \"YARN\":\"yarn2\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn2-hdfs2-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn2-hdfs2-spark210\",\n                \"2.4\":\"yarn2-hdfs2-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn2-hdfs2-dtscript\",\n        \"HDFS\":\"yarn2-hdfs2-hadoop2\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
-INSERT INTO `dict` VALUES (153, 'component_model_config', 'CDP 7.x', '{\n    \"YARN\":\"yarn3\",\n    \"HDFS\":{\n        \"FLINK\":[\n            {\n                \"1.12\":\"yarn3-hdfs3-flink112\"\n            }\n        ],\n        \"SPARK\":[\n            {\n                \"2.1\":\"yarn3-hdfs3-spark210\",\n                \"2.4\":\"yarn3-hdfs3-spark240\"\n            }\n        ],\n        \"DT_SCRIPT\":\"yarn3-hdfs3-dtscript\",\n        \"HDFS\":\"yarn3-hdfs3-hadoop3\"\n    }\n}', NULL, 14, 1, 'STRING', 'YARN', 0, '2021-12-28 11:45:02', '2021-12-28 11:45:02', 0);
-INSERT INTO `dict` VALUES (155, 'typename_mapping', 'yarn2-hdfs2-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
-INSERT INTO `dict` VALUES (157, 'typename_mapping', 'yarn3-hdfs3-flink112', '-115', NULL, 6, 0, 'LONG', '', 0, '2021-05-18 11:29:00', '2021-05-18 11:29:00', 0);
-INSERT INTO `dict` VALUES (159, 'hive_version', '1.x', '1.x', NULL, 4, 1, 'STRING', '', 0, '2022-05-03 22:20:53', '2022-05-03 22:20:53', 0);
-INSERT INTO `dict` VALUES (161, 'hive_version', '2.x', '2.x', NULL, 4, 2, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
-INSERT INTO `dict` VALUES (163, 'hive_version', '3.x-apache', '3.x-apache', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:54', '2022-05-03 22:20:54', 0);
-INSERT INTO `dict` VALUES (165, 'hive_version', '3.x-cdp', '3.x-cdp', NULL, 4, 3, 'STRING', '', 1, '2022-05-03 22:20:55', '2022-05-03 22:20:55', 0);
-INSERT INTO `dict` VALUES (167, 'FlinkSQLFunction', 'FlinkSQLFunction', '4', 'FlinkSQL', 31, 4, 'STRING', '', 1, '2022-05-03 22:21:10', '2022-05-03 22:21:10', 0);
-COMMIT;
-
--- ----------------------------
--- Table structure for schedule_engine_job_cache
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_engine_job_cache`;
-CREATE TABLE `schedule_engine_job_cache` (
-                                             `id` int(11) NOT NULL AUTO_INCREMENT,
-                                             `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-                                             `job_name` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '任务名称',
-                                             `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
-                                             `stage` tinyint(2) NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
-                                             `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT 'job信息',
-                                             `node_address` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-                                             `job_resource` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT 'job的计算引擎资源类型',
-                                             `job_priority` bigint(20) DEFAULT NULL COMMENT '任务优先级',
-                                             `is_failover` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：不是，1：由故障恢复来的任务',
-                                             `wait_reason` text COLLATE utf8_bin COMMENT '任务等待原因',
-                                             `tenant_id` int(11) DEFAULT NULL COMMENT '租户id',
-                                             `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                             `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                             `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                             PRIMARY KEY (`id`),
-                                             UNIQUE KEY `index_job_id` (`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_engine_job_retry
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_engine_job_retry`;
-CREATE TABLE `schedule_engine_job_retry` (
-                                             `id` int(11) NOT NULL AUTO_INCREMENT,
-                                             `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-                                             `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '离线任务id',
-                                             `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
-                                             `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
-                                             `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-                                             `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-                                             `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
-                                             `log_info` mediumtext COLLATE utf8_bin COMMENT '错误信息',
-                                             `engine_log` longtext COLLATE utf8_bin COMMENT '引擎错误信息',
-                                             `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                             `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                             `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                             `retry_task_params` text COLLATE utf8_bin COMMENT '重试任务参数',
-                                             PRIMARY KEY (`id`),
-                                             KEY `idx_job_id` (`job_id`) COMMENT '任务实例 id'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_fill_data_job
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_fill_data_job`;
-CREATE TABLE `schedule_fill_data_job` (
-                                          `id` int(11) NOT NULL AUTO_INCREMENT,
-                                          `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                          `job_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '补数据任务名称',
-                                          `run_day` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '补数据运行日期yyyy-MM-dd',
-                                          `from_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据开始业务日期yyyy-MM-dd',
-                                          `to_day` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '补数据结束业务日期yyyy-MM-dd',
-                                          `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                          `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                          `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
-                                          `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                          `fill_data_info` mediumtext COLLATE utf8_bin COMMENT '补数据信息',
-                                          `fill_generate_status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '补数据生成状态：0默认值，按照原来的接口逻辑走。1 表示正在生成，2 完成生成补数据实例，3生成补数据失败',
-                                          PRIMARY KEY (`id`),
-                                          UNIQUE KEY `index_task_id` (`tenant_id`,`job_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_job
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job`;
-CREATE TABLE `schedule_job` (
-                                `id` int(11) NOT NULL AUTO_INCREMENT,
-                                `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-                                `job_key` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务key',
-                                `job_name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '工作任务名称',
-                                `task_id` int(11) NOT NULL COMMENT '任务id',
-                                `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                `create_user_id` int(11) NOT NULL COMMENT '发起操作的用户',
-                                `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                `type` tinyint(1) NOT NULL DEFAULT '2' COMMENT '0正常调度 1补数据 2临时运行',
-                                `is_restart` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0：非重启任务, 1：重启任务',
-                                `cyc_time` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '调度时间 yyyyMMddHHmmss',
-                                `dependency_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '依赖类型',
-                                `flow_job_id` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '0' COMMENT '工作流实例id',
-                                `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
-                                `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
-                                `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
-                                `fill_id` int(11) DEFAULT '0' COMMENT '补数据id，默认为0',
-                                `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-                                `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-                                `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
-                                `submit_time` datetime DEFAULT NULL COMMENT '提交时间',
-                                `max_retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '最大重试次数',
-                                `retry_num` int(10) NOT NULL DEFAULT '0' COMMENT '执行时，重试的次数',
-                                `node_address` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-                                `version_id` int(10) DEFAULT '0' COMMENT '任务运行时候版本号',
-                                `next_cyc_time` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '下一次调度时间 yyyyMMddHHmmss',
-                                `engine_job_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '离线任务计算引擎id',
-                                `application_id` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
-                                `compute_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '计算类型STREAM(0), BATCH(1)',
-                                `phase_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运行状态: CREATE(0):创建,JOIN_THE_TEAM(1):入队,LEAVE_THE_TEAM(2):出队',
-                                `job_execute_order` bigint(20) NOT NULL DEFAULT '0' COMMENT '按照计算时间排序字段',
-                                `fill_type` tinyint(2) NOT NULL DEFAULT '0' COMMENT '0 默认值 周期实例，立即运行等非补数据实例的默认值 1 可执行补数据实例 2 中间实例 3 黑名单',
-                                `submit_user_name` varchar(64) COLLATE utf8_bin DEFAULT NULL COMMENT '提交用户名',
-                                PRIMARY KEY (`id`),
-                                UNIQUE KEY `idx_jobKey` (`job_key`),
-                                UNIQUE KEY `index_job_id` (`job_id`,`is_deleted`),
-                                KEY `idx_cyc_time` (`cyc_time`),
-                                KEY `idx_exec_start_time` (`exec_start_time`),
-                                KEY `idx_name_type` (`job_name`(128),`type`),
-                                KEY `index_engine_job_id` (`engine_job_id`(128)),
-                                KEY `index_fill_id` (`fill_id`),
-                                KEY `index_flow_job_id` (`flow_job_id`),
-                                KEY `index_gmt_modified` (`gmt_modified`),
-                                KEY `index_job_execute_order` (`job_execute_order`),
-                                KEY `index_task_id` (`task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_job_expand
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job_expand`;
-CREATE TABLE `schedule_job_expand` (
-                                       `id` int(11) NOT NULL AUTO_INCREMENT,
-                                       `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '工作任务id',
-                                       `retry_task_params` mediumtext COLLATE utf8_bin COMMENT '重试任务参数',
-                                       `job_graph` mediumtext COLLATE utf8_bin COMMENT 'jobGraph构建json',
-                                       `job_extra_info` mediumtext COLLATE utf8_bin COMMENT '任务提交额外信息',
-                                       `engine_log` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
-                                       `log_info` longtext COLLATE utf8_bin COMMENT '错误信息',
-                                       `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                       `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                       `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                       PRIMARY KEY (`id`),
-                                       UNIQUE KEY `index_job_id` (`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_job_graph_trigger
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job_graph_trigger`;
-CREATE TABLE `schedule_job_graph_trigger` (
-                                              `id` int(11) NOT NULL AUTO_INCREMENT,
-                                              `trigger_type` tinyint(3) NOT NULL COMMENT '0:正常调度 1补数据',
-                                              `trigger_time` datetime NOT NULL COMMENT '调度时间',
-                                              `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                              `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                              `is_deleted` int(10) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                              PRIMARY KEY (`id`),
-                                              UNIQUE KEY `index_trigger_time` (`trigger_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_job_history
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job_history`;
-CREATE TABLE `schedule_job_history` (
-                                        `id` int(11) NOT NULL AUTO_INCREMENT,
-                                        `job_id` varchar(32) NOT NULL COMMENT '工作任务id',
-                                        `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
-                                        `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
-                                        `engine_job_id` varchar(256) DEFAULT NULL COMMENT '额外id',
-                                        `application_id` varchar(256) DEFAULT NULL COMMENT 'applicationId',
-                                        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                        `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                        PRIMARY KEY (`id`),
-                                        KEY `index_engine_job_id` (`engine_job_id`(128)),
-                                        KEY `index_job_id` (`job_id`,`is_deleted`)
+DROP TABLE IF EXISTS `task_dirty_data_manage`;
+CREATE TABLE `task_dirty_data_manage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` int(11) NOT NULL COMMENT '任务id',
+  `output_type` varchar(25) NOT NULL COMMENT '输出类型1.log2.jdbc',
+  `max_rows` int(11) NOT NULL COMMENT '脏数据最大值',
+  `max_collect_failed_rows` int(11) NOT NULL COMMENT '失败条数',
+  `link_info` text NOT NULL COMMENT '连接信息json',
+  `log_print_interval` int(11) NOT NULL DEFAULT '0' COMMENT '日志打印频率',
+  `tenant_id` int(11) NOT NULL COMMENT '租户id',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_task_id` (`task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Table structure for schedule_job_job
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job_job`;
-CREATE TABLE `schedule_job_job` (
-                                    `id` int(11) NOT NULL AUTO_INCREMENT,
-                                    `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                    `job_key` varchar(256) COLLATE utf8_bin NOT NULL COMMENT 'batch 任务key',
-                                    `parent_job_key` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '对应batch任务父节点的key',
-                                    `job_key_type` int(11) NOT NULL DEFAULT '2' COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
-                                    `rule` int(11) DEFAULT NULL COMMENT 'parentJobKey类型： RelyType 1. 自依赖实例key 2. 上游任务key 3. 上游任务的下一个周期key',
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                    `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                    PRIMARY KEY (`id`),
-                                    KEY `idx_job_jobKey` (`parent_job_key`(128)),
-                                    KEY `idx_job_parentJobKey` (`job_key`(255),`parent_job_key`(255))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_job_operator_record
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_job_operator_record`;
-CREATE TABLE `schedule_job_operator_record` (
-                                                `id` int(11) NOT NULL AUTO_INCREMENT,
-                                                `job_id` varchar(255) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-                                                `version` int(10) DEFAULT '0' COMMENT '版本号',
-                                                `operator_expired` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '操作过期时间',
-                                                `operator_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作类型 0杀死 1重跑 2 补数据',
-                                                `force_cancel_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '强制标志 0非强制 1强制',
-                                                `node_address` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT '节点地址',
-                                                `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                                `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                                `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                                PRIMARY KEY (`id`),
-                                                UNIQUE KEY `job_id` (`job_id`,`operator_type`,`is_deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_plugin_job_info
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_plugin_job_info`;
-CREATE TABLE `schedule_plugin_job_info` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `job_id` varchar(64) COLLATE utf8_bin NOT NULL COMMENT '任务id',
-                                            `job_info` longtext COLLATE utf8_bin NOT NULL COMMENT '任务信息',
-                                            `log_info` text COLLATE utf8_bin COMMENT '任务信息',
-                                            `status` tinyint(2) NOT NULL COMMENT '任务状态',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`),
-                                            UNIQUE KEY `index_job_id` (`job_id`),
-                                            KEY `idx_gmt_modified` (`gmt_modified`) COMMENT '修改时间'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_task_shade
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_task_shade`;
-CREATE TABLE `schedule_task_shade` (
-                                       `id` int(11) NOT NULL AUTO_INCREMENT,
-                                       `tenant_id` int(11) NOT NULL DEFAULT '-1' COMMENT '租户id',
-                                       `name` varchar(256) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '任务名称',
-                                       `task_type` tinyint(1) NOT NULL COMMENT '任务类型 -1:虚节点, 0:sparksql, 1:spark, 2:数据同步, 3:pyspark, 4:R, 5:深度学习, 6:python, 7:shell, 8:机器学习, 9:hadoopMR, 10:工作流, 12:carbonSQL, 13:notebook, 14:算法实验, 15:libra sql, 16:kylin, 17:hiveSQL',
-                                       `compute_type` tinyint(1) NOT NULL COMMENT '计算类型 0实时，1 离线',
-                                       `sql_text` longtext COLLATE utf8_bin NOT NULL COMMENT 'sql 文本',
-                                       `task_params` text COLLATE utf8_bin NOT NULL COMMENT '任务参数',
-                                       `task_id` int(11) NOT NULL COMMENT '任务id',
-                                       `schedule_conf` varchar(512) COLLATE utf8_bin NOT NULL COMMENT '调度配置 json格式',
-                                       `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',
-                                       `schedule_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0未开始,1正常调度,2暂停',
-                                       `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                       `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                       `modify_user_id` int(11) NOT NULL COMMENT '最后修改task的用户',
-                                       `create_user_id` int(11) NOT NULL COMMENT '新建task的用户',
-                                       `version_id` int(11) NOT NULL DEFAULT '0' COMMENT 'task版本',
-                                       `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                       `task_desc` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '任务描述',
-                                       `exe_args` text COLLATE utf8_bin COMMENT '额外参数',
-                                       `flow_id` int(11) NOT NULL DEFAULT '0' COMMENT '工作流id',
-                                       `component_version` varchar(25) COLLATE utf8_bin DEFAULT NULL,
-                                       PRIMARY KEY (`id`),
-                                       UNIQUE KEY `index_task_id` (`task_id`),
-                                       KEY `index_name` (`name`(128))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_task_shade_info
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_task_shade_info`;
-CREATE TABLE `schedule_task_shade_info` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `task_id` int(11) NOT NULL COMMENT '任务id',
-                                            `info` text COLLATE utf8_bin COMMENT '任务运行信息',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`),
-                                            UNIQUE KEY `index_task_id` (`task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- ----------------------------
--- Table structure for schedule_task_task_shade
--- ----------------------------
-DROP TABLE IF EXISTS `schedule_task_task_shade`;
-CREATE TABLE `schedule_task_task_shade` (
-                                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                                            `tenant_id` int(11) NOT NULL COMMENT '租户id',
-                                            `task_id` int(11) NOT NULL COMMENT 'batch 任务id',
-                                            `parent_task_id` int(11) DEFAULT NULL COMMENT '对应batch任务父节点的id',
-                                            `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                                            `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                                            `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                            PRIMARY KEY (`id`),
-                                            UNIQUE KEY `index_batch_task_task` (`task_id`,`parent_task_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Table structure for task_template
 -- ----------------------------
 DROP TABLE IF EXISTS `task_template`;
 CREATE TABLE `task_template` (
-                                 `id` bigint(20) NOT NULL AUTO_INCREMENT,
-                                 `task_type` int(11) DEFAULT '0' COMMENT '任务类型',
-                                 `type` int(11) DEFAULT NULL COMMENT '业务类型',
-                                 `value_type` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '模版值类型',
-                                 `content` text COLLATE utf8_bin COMMENT '模版值',
-                                 `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
-                                 `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
-                                 `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                                 PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `task_type` int(11) DEFAULT '0' COMMENT '任务类型',
+  `type` int(11) DEFAULT NULL COMMENT '业务类型',
+  `value_type` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '模版值类型',
+  `content` text COLLATE utf8_bin COMMENT '模版值',
+  `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
 -- Records of task_template
@@ -1688,6 +1790,7 @@ INSERT INTO `task_template` VALUES (35, 5, 0, '1.12', '## 资源相关\nparallel
 INSERT INTO `task_template` VALUES (36, 6, 0, '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g\n\n## 时间相关\n## 设置Flink时间选项，有ProcessingTime,EventTime,IngestionTime可选\n## 非脚本模式会根据Kafka自动设置。脚本模式默认为ProcessingTime\n# pipeline.time-characteristic=EventTime\n\n## Checkpoint相关\n## 生成checkpoint时间间隔（以毫秒为单位），默认:5分钟,注释掉该选项会关闭checkpoint生成\nexecution.checkpointing.interval=5min\n## 状态恢复语义,可选参数EXACTLY_ONCE,AT_LEAST_ONCE；默认为EXACTLY_ONCE\n# execution.checkpointing.mode=EXACTLY_ONCE\n##任务取消后保留hdfs上的checkpoint文件\nexecution.checkpointing.externalized-checkpoint-retention=RETAIN_ON_CANCELLATION\n\n# Flink SQL独有，状态过期时间\ntable.exec.state.ttl=1d\n\nlog.level=INFO\n\n## 使用Iceberg和Hive维表开启\n# table.dynamic-table-options.enabled=true\n\n## Kerberos相关\n# security.kerberos.login.contexts=Client,KafkaClient\n\n\n## 高阶参数\n## 窗口提前触发时间\n# table.exec.emit.early-fire.enabled=true\n# table.exec.emit.early-fire.delay=1s\n\n## 当一个源在超时时间内没有收到任何元素时，它将被标记为临时空闲\n# table.exec.source.idle-timeout=10ms\n\n## 是否开启minibatch\n## 可以减少状态开销。这可能会增加一些延迟，因为它会缓冲一些记录而不是立即处理它们。这是吞吐量和延迟之间的权衡\n# table.exec.mini-batch.enabled=true\n## 状态缓存时间\n# table.exec.mini-batch.allow-latency=5s\n## 状态最大缓存条数\n# table.exec.mini-batch.size=5000\n\n## 是否开启Local-Global 聚合。前提需要开启minibatch\n## 聚合是为解决数据倾斜问题提出的，类似于 MapReduce 中的 Combine + Reduce 模式\n# table.optimizer.agg-phase-strategy=TWO_PHASE\n\n## 是否开启拆分 distinct 聚合\n## Local-Global 可以解决数据倾斜，但是在处理 distinct 聚合时，其性能并不令人满意。\n## 如：SELECT day, COUNT(DISTINCT user_id) FROM T GROUP BY day 如果 distinct key （即 user_id）的值分布稀疏，建议开启\n# table.optimizer.distinct-agg.split.enabled=true\n\n\n## Flink算子chaining开关。默认为true。排查性能问题时会暂时设置成false，但降低性能。\n# pipeline.operator-chaining=true', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO `task_template` VALUES (37, 17, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2022-04-13 14:30:53', '2022-04-13 14:30:53', 0);
 INSERT INTO `task_template` VALUES (61, 7, 0, '', '## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30## 指定mapreduce在yarn上的任务名称，默认为任务名称，可以重复\n#hiveconf:mapreduce.job.name=\n\n## 指定mapreduce运行的队列，默认走控制台配置的queue\n# hiveconf:mapreduce.job.queuename=default_queue_name\n\n## hivevar配置,用户自定义变量\n#hivevar:ageParams=30', '2021-11-18 10:36:13', '2021-11-18 10:36:13', 0);
+INSERT INTO `task_template` VALUES (63, 11, 0, '1.12', '## 资源相关\nparallelism.default=1\ntaskmanager.numberOfTaskSlots=1\njobmanager.memory.process.size=1g\ntaskmanager.memory.process.size=2g', '2022-07-19 14:47:31', '2022-07-19 14:47:31', 0);
 COMMIT;
 
 -- ----------------------------
@@ -1695,15 +1798,15 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `tenant`;
 CREATE TABLE `tenant` (
-                          `id` int(11) NOT NULL AUTO_INCREMENT,
-                          `tenant_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
-                          `tenant_desc` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT '租户描述',
-                          `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                          `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                          `create_user_id` int(11) NOT NULL,
-                          `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                          `tenant_identity` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '租户标识',
-                          PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tenant_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
+  `tenant_desc` varchar(256) COLLATE utf8_bin DEFAULT '' COMMENT '租户描述',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `create_user_id` int(11) NOT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `tenant_identity` varchar(64) COLLATE utf8_bin DEFAULT '' COMMENT '租户标识',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------
@@ -1718,17 +1821,17 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-                        `id` int(11) NOT NULL AUTO_INCREMENT,
-                        `user_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
-                        `password` varchar(128) COLLATE utf8_bin NOT NULL,
-                        `phone_number` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '用户手机号',
-                        `email` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户手机号',
-                        `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
-                        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-                        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-                        `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-                        PRIMARY KEY (`id`),
-                        KEY `index_user_name` (`user_name`(128))
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户名称',
+  `password` varchar(128) COLLATE utf8_bin NOT NULL,
+  `phone_number` varchar(256) COLLATE utf8_bin DEFAULT NULL COMMENT '用户手机号',
+  `email` varchar(256) COLLATE utf8_bin NOT NULL COMMENT '用户手机号',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '用户状态0：正常，1：禁用',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_user_name` (`user_name`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ----------------------------

@@ -23,8 +23,6 @@ import com.dtstack.taier.common.param.DtInsightAuthParam;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.List;
-
 @ApiModel("租户对接集群信息")
 public class ComponentBindTenantVO extends DtInsightAuthParam {
 
@@ -34,11 +32,8 @@ public class ComponentBindTenantVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "集群ID", example = "2", required = true)
     private Long clusterId;
 
-    @ApiModelProperty(value = "队列ID", example = "12")
-    private Long queueId;
-
-    @ApiModelProperty(value = "计算引擎对接信息")
-    private List<ComponentBindDBVO> bindDBList;
+    @ApiModelProperty(value = "队列名称", example = "default")
+    private String queueName;
 
     @Override
     public Long getTenantId() {
@@ -58,19 +53,11 @@ public class ComponentBindTenantVO extends DtInsightAuthParam {
         this.clusterId = clusterId;
     }
 
-    public Long getQueueId() {
-        return queueId;
+    public String getQueueName() {
+        return queueName;
     }
 
-    public void setQueueId(Long queueId) {
-        this.queueId = queueId;
-    }
-
-    public List<ComponentBindDBVO> getBindDBList() {
-        return bindDBList;
-    }
-
-    public void setBindDBList(List<ComponentBindDBVO> bindDBList) {
-        this.bindDBList = bindDBList;
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

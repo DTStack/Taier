@@ -36,7 +36,7 @@ import java.util.Objects;
 import static com.dtstack.taier.common.util.DataSourceUtils.PASSWORD;
 import static com.dtstack.taier.common.util.DataSourceUtils.USERNAME;
 import static com.dtstack.taier.develop.service.datasource.impl.DatasourceService.HDFS_DEFAULTFS;
-import static com.dtstack.taier.develop.service.develop.impl.BatchTaskService.HADOOP_CONFIG;
+import static com.dtstack.taier.develop.service.develop.impl.DevelopTaskService.HADOOP_CONFIG;
 
 @Component
 public class Hive2XReaderBuilder implements DaReaderBuilder {

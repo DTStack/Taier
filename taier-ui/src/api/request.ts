@@ -39,6 +39,7 @@ export default {
 	SWITCH_QUEUE: `${BASE_URI}/tenant/bindingQueue`, // 修改集群和租户绑定信息
 	REFRESH_QUEUE: `${BASE_URI}/component/refresh`, // 集群配置刷新队列
 	GET_TASK: `${BASE_URI}/task/getTaskById`, // 获取任务通过任务ID
+	GET_SUB_TASK: `${BASE_URI}/task/getFlowWorkSubTasks`, // 获取工作流的子任务
 	GET_TASK_TYPES: `${BASE_URI}/task/getSupportJobTypes`, // 获取项目支持的任务类型
 	PUBLISH_TASK: `${BASE_URI}/task/publishTask`, // 发布任务至调度
 	GET_CUSTOM_TASK_PARAMS: `${BASE_URI}/task/getSysParams`, // 获取全局的系统参数
@@ -54,34 +55,37 @@ export default {
 	SELECT_SQL_LOG: `${BASE_URI}/batchSelectSql/selectRunLog`, // 轮询调度查询sql状态
 	SELECT_SQL_STATUS: `${BASE_URI}/batchSelectSql/selectStatus`, // 轮询调度查询sql状态
 	GET_INCREMENT_COLUMNS: `${BASE_URI}/task/getIncreColumn`, // 获取增量字段
-	CHECK_SYNC_MODE: `${BASE_URI}/task/canSetIncreConf`, // 检测是否满足增量转换条件
 	CHECK_HIVE_PARTITIONS: `${BASE_URI}/batchDataSource/getHivePartitions`, // 获取 hive 表分区值
 	GET_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/getCatalogue`, // 获取目录结构
 	ADD_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/addCatalogue`, // 添加目录
 	DEL_OFFLINE_FOLDER: `${BASE_URI}/batchCatalogue/deleteCatalogue`, // 删除目录
 	EDIT_OFFLINE_CATALOGUE: `${BASE_URI}/batchCatalogue/updateCatalogue`, // 更新目录
-	ADD_OFFLINE_RESOURCE: `${BASE_URI}/batchResource/addResource`, // 添加资源
-	REPLACE_OFFLINE_RESOURCE: `${BASE_URI}/batchResource/replaceResource`, // 替换资源
+	ADD_OFFLINE_RESOURCE: `${BASE_URI}/resource/addResource`, // 添加资源
+	REPLACE_OFFLINE_RESOURCE: `${BASE_URI}/resource/replaceResource`, // 替换资源
 	ADD_OFFLINE_TASK: `${BASE_URI}/task/addOrUpdateTask`, // 添加任务
+	EDIT_TASK: `${BASE_URI}/task/editTask`, // 更新任务中不涉及内容的部分
 	SAVE_OFFLINE_JOBDATA: `${BASE_URI}/task/addOrUpdateTask`, // 更新任务
 	ADD_OFFLINE_FUNCTION: `${BASE_URI}/batchFunction/addOrUpdateFunction`, // 添加函数
 	GET_TABLE_INFO_BY_DATASOURCE: `${BASE_URI}/batchDataSource/getTableInfoByDataSource`, // 从目标表位置获取表格信息
 	DEL_OFFLINE_TASK: `${BASE_URI}/task/deleteTask`, // 删除任务
-	DEL_OFFLINE_RES: `${BASE_URI}/batchResource/deleteResource`, // 删除资源
+	DEL_OFFLINE_RES: `${BASE_URI}/resource/deleteResource`, // 删除资源
 	DEL_OFFLINE_FN: `${BASE_URI}/batchFunction/deleteFunction`, // 删除函数
 	GET_FN_DETAIL: `${BASE_URI}/batchFunction/getFunction`, // 获取函数详情
-	GET_RES_DETAIL: `${BASE_URI}/batchResource/getResourceById`, // 获取资源详情
+	GET_RES_DETAIL: `${BASE_URI}/resource/getResourceById`, // 获取资源详情
 	GET_HBASE_COLUMN_FAMILY: `${BASE_URI}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
 	QUERY_TASKS: `${BASE_URI}/scheduleTaskShade/queryTasks`, // 获取离线任务管理列表
 	GET_TASK_CHILDREN: `${BASE_URI}/scheduleTaskTaskShade/displayOffSpring`, // 获取任务子节点
+	GET_ROOT_WORKFLOW_TASK: `${BASE_URI}/scheduleTaskTaskShade/getWorkFlowTopTask`, // 获取 task 的根节点
 	GET_TASK_LOG: `${BASE_URI}/action/queryJobLog`, // 获取离线任务日志
 	QUERY_JOBS: `${BASE_URI}/scheduleJob/queryJobs`, // 获取周期实例列表
+	GET_SUB_JOBS: `${BASE_URI}/scheduleJob/getRelatedJobs`, // 获取工作流实例的子实例
 	PATCH_TASK_DATA: `${BASE_URI}/fill/fillData`, // 补数据
 	BATCH_STOP_JOBS: `${BASE_URI}/action/batchStopJobs`, // 批量停止任务
 	BATCH_RESTART_AND_RESUME_JOB: `${BASE_URI}/action/restartJob`, // 批量重启并恢复任务
 	GET_FILL_DATA: `${BASE_URI}/fill/queryFillDataList`, // 获取补数据实例列表
 	GET_FILL_DATA_DETAIL: `${BASE_URI}/fill/queryFillDataJobList`, // 获取补数据实例详情
 	GET_JOB_CHILDREN: `${BASE_URI}/scheduleJobJob/displayOffSpring`, // 获取任务上下游关系
+	GET_ROOT_WORKFLOW_JOB: `${BASE_URI}/scheduleJobJob/getWorkFlowTopJob`, // 获取 job 的根节点
 	GET_TASK_PERIODS: `${BASE_URI}/scheduleJob/queryDisplayPeriods`, // 转到前后周期实例
 	QUERY_JOB_STATISTICS: `${BASE_URI}/scheduleJob/queryJobsStatusStatistics`, // 查询Job统计
 	STOP_FILL_DATA_JOBS: `${BASE_URI}/action/stopFillDataJobs`, // 停止补数据任务
@@ -149,4 +153,11 @@ export default {
 	CREATE_DDL_TABLE: `${BASE_URI}/dataSource/addDs/ddlCreateTable`, // 创建 ddl 的表
 	BATCH_STOP_JOBS_BY_DATE: `${BASE_URI}/scheduleJob/stopJobByCondition`, // 按照业务日期杀任务
 	ALL_PRODUCT_GLOBAL_SEARCH: `${BASE_URI}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
+	GET_COMPONENT_MODELS: `${BASE_URI}/component/componentModels`, // 获取能配置的组件信息
+	GET_COMPONENT_INFO: `${BASE_URI}/component/getComponentInfo`, // 获取组件配置信息
+	GET_TENANT_COMPONENT_LIST: `${BASE_URI}/tenantComponent/selectTenantComponentList`, // 获取当前租户配置的任务组件运行信息
+	SAVE_TENANT_COMPONENT_INFO: `${BASE_URI}/tenantComponent/saveTenantComponentInfo`, // 保存组件运行schema信息
+	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
+	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
+	VALIDATE_REPEAT_TASK_NAME: `${BASE_URI}/task/checkTaskNameRepeat`, // 校验当前任务名称是否重名
 };

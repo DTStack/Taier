@@ -41,25 +41,24 @@ public class InterceptorInvocation {
 
     public Boolean submit(ScheduleJobDetails scheduleJobDetails) {
         if (iterator == null || !iterator.hasNext()) {
-            scheduler.submitJob(scheduleJobDetails);
-            return Boolean.TRUE;
+            return scheduler.submitJob(scheduleJobDetails);
         } else {
             SubmitInterceptor next = iterator.next();
             return intercept(next, scheduleJobDetails);
         }
     }
 
-    public Boolean intercept(SubmitInterceptor submitInterceptor, ScheduleJobDetails scheduleJobDetailss) {
+    public Boolean intercept(SubmitInterceptor submitInterceptor, ScheduleJobDetails scheduleJobDetails) {
         // 返回true 说明拦截通过
-        if (!submitInterceptor.beforeSubmit(scheduleJobDetailss)) {
+        if (!submitInterceptor.beforeSubmit(scheduleJobDetails)) {
             return Boolean.FALSE;
         }
 
-        if (!submit(scheduleJobDetailss)) {
+        if (!submit(scheduleJobDetails)) {
             return Boolean.FALSE;
         }
 
-        submitInterceptor.afterSubmit(scheduleJobDetailss);
+        submitInterceptor.afterSubmit(scheduleJobDetails);
         return Boolean.TRUE;
     }
 

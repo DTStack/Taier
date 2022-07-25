@@ -7,7 +7,6 @@ import com.dtstack.taier.common.util.MapUtil;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;

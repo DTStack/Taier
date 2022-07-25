@@ -16,15 +16,16 @@
  * limitations under the License.
  */
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useContext } from 'react';
 import { message, Modal, Button, Popconfirm, Tooltip, Space, Divider } from 'antd';
 import { SyncOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
 import { history } from 'umi';
 import { DateTime } from '@dtinsight/dt-utils';
-import type { IActionRef, ISketchProps } from '@/components/sketch';
+import type { IActionRef } from '@/components/sketch';
 import Sketch from '@/components/sketch';
 import type { IStreamJobProps } from '@/interface';
+import { IComputeType } from '@/interface';
 import type { ColumnsType, FilterValue } from 'antd/lib/table/interface';
 import { TASK_TYPE_ENUM, FLINK_SQL_TYPE } from '@/constant';
 import {
@@ -34,10 +35,11 @@ import {
 	FLINK_VERSION_TYPE_FILTER,
 } from '@/constant';
 import stream from '@/api';
-import { TaskStatus, taskTypeText } from '@/utils/enums';
+import { TaskStatus } from '@/utils/enums';
 import { goToTaskDev } from '@/utils';
 import DetailPane from './components/detailPane';
 import GoOnTask from './components/goOnTask';
+import context from '@/context';
 
 const { confirm } = Modal;
 
@@ -58,6 +60,7 @@ function isFlinkSqlGuideMode(taskData: IStreamJobProps) {
 }
 
 export default function StreamTask() {
+	const { supportJobTypes } = useContext(context);
 	const [overview, setOverview] = useState<{
 		ALL: number;
 		FAILED: number;
@@ -201,7 +204,7 @@ export default function StreamTask() {
 			TASK_STATUS.WAIT_COMPUTE,
 		];
 		const doPolling = data.some(({ status }) => SHOULD_POLLING_STATUS.includes(status));
-		
+
 		return doPolling;
 	};
 
@@ -257,9 +260,11 @@ export default function StreamTask() {
 				const isPolling = shouldRequstPolling(res.data?.data);
 				setPolling(isPolling);
 				return {
-					polling: isPolling ? {
-						delay: 5000
-					} : false,
+					polling: isPolling
+						? {
+								delay: 5000,
+						  }
+						: false,
 					total: res.data?.totalCount,
 					data: res.data?.data,
 				};
@@ -518,11 +523,13 @@ export default function StreamTask() {
 				dataIndex: 'taskType',
 				key: 'taskType',
 				width: 120,
-				render: (text) => taskTypeText(text),
-				filters: [TASK_TYPE_ENUM.SQL, TASK_TYPE_ENUM.DATA_ACQUISITION].map((t) => ({
-					text: taskTypeText(t),
-					value: t,
-				})),
+				render: (text) => supportJobTypes.find((t) => t.key === text)?.value || '未知',
+				filters: supportJobTypes
+					.filter((t) => t.computeType === IComputeType.STREAM)
+					.map((t) => ({
+						text: t.value,
+						value: t.key,
+					})),
 				filterMultiple: true,
 			},
 			{
@@ -556,7 +563,7 @@ export default function StreamTask() {
 				},
 			},
 		],
-		[],
+		[supportJobTypes],
 	);
 
 	return (

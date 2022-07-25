@@ -1,7 +1,6 @@
 package com.dtstack.taier.develop.dto.devlop;
 
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 
 /**

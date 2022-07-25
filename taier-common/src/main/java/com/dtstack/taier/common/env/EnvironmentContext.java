@@ -106,8 +106,8 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.log.delay:5}")
     private long jobLogDelay;
 
-    @Value("${job.compute.resource.plain:EngineTypeClusterQueueComputeType}")
-    private String computeResourcePlain;
+    @Value("${job.log.pool:2}")
+    private Integer jobLogPool;
 
     @Value("${job.submit.concurrent:1}")
     private int jobSubmitConcurrent;
@@ -226,6 +226,9 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${job.graph.task.limit.size:50}")
     private Integer jobGraphTaskLimitSize;
 
+    @Value("${select.limit:50}")
+    private Integer selectLimit;
+
     @Value("${create.table.type:parquet}")
     private String createTableType;
 
@@ -235,15 +238,17 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${temp.path:#{systemProperties['user.dir']}/temp}")
     private String tempDir;
 
-    @Value("${explain.enable:true}")
-    private Boolean explainEnable;
-
     @Value("${datasource.plugin.path:}")
     private String dataSourcePluginPath;
 
     @Value("${plugin.path:#{systemProperties['user.dir']}/pluginLibs}")
     private String pluginPath;
 
+    @Value("${stopLimit:100000}")
+    private Integer stopLimit;
+
+    @Value("${logs.limit.num:10000}")
+    private Integer logsLimitNum;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -368,9 +373,6 @@ public class EnvironmentContext implements InitializingBean {
         return jobLogDelay;
     }
 
-    public String getComputeResourcePlain() {
-        return computeResourcePlain;
-    }
 
     public int getJobSubmitConcurrent() {
         return jobSubmitConcurrent;
@@ -540,15 +542,31 @@ public class EnvironmentContext implements InitializingBean {
         return tempDir;
     }
 
-    public Boolean getExplainEnable() {
-        return explainEnable;
-    }
-
     public String getDataSourcePluginPath() {
         return dataSourcePluginPath;
     }
 
     public String getPluginPath() {
         return pluginPath;
+    }
+
+    public int getLogPoolSize() {
+        return jobLogPool;
+    }
+
+    public Integer getSelectLimit() {
+        return selectLimit;
+    }
+
+    public Integer getLogsLimitNum() {
+        return logsLimitNum;
+    }
+
+    public void setLogsLimitNum(Integer logsLimitNum) {
+        this.logsLimitNum = logsLimitNum;
+    }
+
+    public int getStopLimit() {
+        return stopLimit;
     }
 }

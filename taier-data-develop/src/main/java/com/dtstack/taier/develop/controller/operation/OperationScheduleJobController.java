@@ -69,5 +69,9 @@ public class OperationScheduleJobController {
         return R.ok(jobHistoryVOS);
     }
 
+    @PostMapping(value = "/getRelatedJobs")
+    public R<List<ReturnJobListVO>> getRelatedJobs(@RequestParam("jobId") String jobId) {
+        return R.ok(jobService.getRelatedJobs(jobId));
+    }
 
 }

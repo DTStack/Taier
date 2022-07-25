@@ -17,8 +17,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Badge, Button, Empty, message, Modal, Tag } from 'antd';
-import moment from 'moment';
+import { Button, Empty, message, Modal, Tag } from 'antd';
 import Base64 from 'base-64';
 import molecule from '@dtinsight/molecule';
 import { ActionBar, Menu, useContextView } from '@dtinsight/molecule/esm/components';
@@ -26,11 +25,11 @@ import { Content, Header } from '@dtinsight/molecule/esm/workbench/sidebar';
 import { connect } from '@dtinsight/molecule/esm/react';
 import dataSourceService from '@/services/dataSourceService';
 import API from '@/api';
-import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { getEventPosition } from '@dtinsight/molecule/esm/common/dom';
 import { ID_COLLECTIONS } from '@/constant';
-import { IDataSourceProps } from '@/interface';
-import LinkInfoCell from './linkInfoCell';
+import { DetailInfoModal } from '@/components/detailInfo';
+import type { IDataSourceProps } from '@/interface';
 import Search from './search';
 import Add from './add';
 import classNames from 'classnames';
@@ -69,7 +68,7 @@ const DataSourceView = () => {
 	const [total, setTotal] = useState<number>(0);
 
 	const [visible, setVisible] = useState<boolean>(false);
-	const [detailView, setView] = useState<IDataSourceProps | null>(null);
+	const [detailView, setView] = useState<IDataSourceProps | undefined>(undefined);
 
 	const contextView = useContextView();
 
@@ -223,10 +222,6 @@ const DataSourceView = () => {
 		));
 	};
 
-	const handleCloseModal = () => {
-		setVisible(false);
-	};
-
 	const handleSubmitDataSource = () => {
 		const nextParams = {
 			currentPage: 1,
@@ -344,84 +339,14 @@ const DataSourceView = () => {
 				) : (
 					<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
 				)}
-				<Modal
+				<DetailInfoModal
+					type="dataSource"
 					title="数据源详情"
 					visible={visible}
-					onCancel={handleCloseModal}
-					width={550}
-					footer={[
-						<Button size="large" onClick={handleCloseModal} key="cancel">
-							关闭
-						</Button>,
-					]}
-				>
-					{detailView ? (
-						<table className={classNames('ant-table', 'datasource-detail')}>
-							<tbody className="ant-table-tbody">
-								<tr>
-									<td className="w-1/5">名称</td>
-									<td>
-										{detailView.isMeta === 0 ? (
-											<span title={detailView.dataName}>
-												{detailView.dataName}
-											</span>
-										) : (
-											<>
-												<span title={detailView.dataName}>
-													{detailView.dataName}
-												</span>
-												<Tag>Meta</Tag>
-											</>
-										)}
-									</td>
-								</tr>
-								<tr>
-									<td>类型</td>
-									<td>
-										{detailView.dataType}
-										{detailView.dataVersion || ''}
-									</td>
-								</tr>
-								<tr>
-									<td>描述</td>
-									<td>{detailView.dataDesc || '--'}</td>
-								</tr>
-								<tr>
-									<td>连接信息</td>
-									<td>
-										<LinkInfoCell sourceData={detailView} />
-									</td>
-								</tr>
-								<tr>
-									<td>连接状态</td>
-									<td>
-										{detailView.status === 0 ? (
-											<span>
-												<Badge status="error" />
-												连接失败
-											</span>
-										) : (
-											<span>
-												<Badge status="success" />
-												正常
-											</span>
-										)}
-									</td>
-								</tr>
-								<tr>
-									<td>修改时间</td>
-									<td>
-										{moment(detailView.gmtModified).format(
-											'YYYY-MM-DD hh:mm:ss',
-										)}
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					) : (
-						<LoadingOutlined />
-					)}
-				</Modal>
+					loading={false}
+					onCancel={() => setVisible(false)}
+					data={detailView}
+				/>
 			</Content>
 		</div>
 	);

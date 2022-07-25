@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @Auther: dazhi
  * @Date: 2021/12/26 10:26 AM
@@ -26,18 +28,18 @@ public class OperationScheduleTaskTaskController {
     @Autowired
     private TaskTaskService tasktaskService;
 
-    @PostMapping(value="/displayOffSpring")
+    @PostMapping(value = "/displayOffSpring")
     public R<ReturnTaskDisplayVO> displayOffSpring(@RequestBody QueryTaskDisplayVO vo) {
         return R.ok(tasktaskService.displayOffSpring(JobMapstructTransfer.INSTANCE.queryTaskDisplayVOToQueryTaskDisplayDTO(vo)));
     }
 
-    @PostMapping(value="/getAllFlowSubTasks")
-    @ApiOperation(value = "查询工作流全部节点信息 -- 依赖树")
+    @PostMapping(value = "/getWorkFlowTopTask")
+    @ApiOperation(value = "查询工作流顶节点信息 ")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "taskId", value = "任务id", required = true, dataType = "Long"),
     })
-    public R<ReturnTaskDisplayVO> getAllFlowSubTasks(@RequestParam("taskId") Long taskId) {
-        return R.ok(tasktaskService.getAllFlowSubTasks(taskId));
+    public R<List<Long>> getWorkFlowTopTask(@RequestParam("taskId") Long taskId) {
+        return R.ok(tasktaskService.getWorkFlowTopTask(taskId));
     }
 
 }

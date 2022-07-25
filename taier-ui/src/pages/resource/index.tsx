@@ -31,7 +31,7 @@ import type { IFolderTree } from '@dtinsight/molecule/esm/model';
 import { FileTypes } from '@dtinsight/molecule/esm/model';
 import { connect } from '@dtinsight/molecule/esm/react';
 import { catalogueService } from '@/services';
-import { CATELOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
+import { CATALOGUE_TYPE, ID_COLLECTIONS, RESOURCE_ACTIONS } from '@/constant';
 import resourceManagerTree from '../../services/resourceManagerService';
 import type { IFormFieldProps } from './resModal';
 import ResModal from './resModal';
@@ -72,7 +72,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 	>(undefined);
 
 	const updateNodePid = async (node: ITreeNodeItemProps) => {
-		catalogueService.loadTreeNode(node.data, CATELOGUE_TYPE.RESOURCE);
+		catalogueService.loadTreeNode(node.data, CATALOGUE_TYPE.RESOURCE);
 	};
 
 	const handleUpload = () => {
@@ -109,7 +109,7 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 				updateNodePid(folderTree.current);
 			}
 		} else {
-			const rootFolder = catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE);
+			const rootFolder = catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE);
 			if (rootFolder) {
 				updateNodePid(rootFolder);
 			}
@@ -404,16 +404,16 @@ export default ({ panel, headerToolBar, entry }: IResourceViewProps & IFolderTre
 			<DetailInfoModal
 				title="资源详情"
 				data={detailData}
-				type={CATELOGUE_TYPE.RESOURCE}
+				type={CATALOGUE_TYPE.RESOURCE}
 				loading={detailLoading}
 				visible={isViewModalShow}
 				onCancel={handleCloseViewModal}
 			/>
 			<FolderModal
-				dataType={CATELOGUE_TYPE.RESOURCE}
+				dataType={CATALOGUE_TYPE.RESOURCE}
 				isModalShow={folderVisible}
 				toggleCreateFolder={handleCloseFolderModal}
-				treeData={catalogueService.getRootFolder(CATELOGUE_TYPE.RESOURCE)?.data}
+				treeData={catalogueService.getRootFolder(CATALOGUE_TYPE.RESOURCE)?.data}
 				defaultData={folderData}
 				addOfflineCatalogue={handleAddCatalogue}
 				editOfflineCatalogue={handleEditCatalogue}

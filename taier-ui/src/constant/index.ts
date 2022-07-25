@@ -143,6 +143,14 @@ export enum ID_COLLECTIONS {
 	 * 主题存储健
 	 */
 	COLOR_THEME_ID = 'taier.colorTheme',
+	/**
+	 * 新增租户
+	 */
+	ADD_TENANT = 'add.tenant',
+	/**
+	 * 配置 Schema
+	 */
+	ADD_SCHEMA = 'add.schema',
 }
 
 export const OFFSET_RESET_FORMAT = 'YYYY-MM-DD HH:mm:ss';
@@ -233,10 +241,12 @@ export enum TASK_TYPE_ENUM {
 	 */
 	DATA_ACQUISITION = 6,
 	HIVE_SQL = 7,
+	OCEANBASE = 8,
 	/**
 	 * 工作流
 	 */
 	WORK_FLOW = 10,
+	FLINK = 11,
 }
 
 /**
@@ -400,7 +410,7 @@ export const DATA_SOURCE_ENUM_OBJ = {
 /**
  * 目录结构类型
  */
-export enum CATELOGUE_TYPE {
+export enum CATALOGUE_TYPE {
 	/**
 	 * 任务开发
 	 */
@@ -869,10 +879,6 @@ export enum DRAWER_MENU_ENUM {
 	 */
 	CLUSTER_DETAIL = 'cluster-detail',
 }
-
-export const TENANT_MENU = {
-	ADD_TENANT: 'add-tenant',
-} as const;
 
 /**
  * 运维中心下拉菜单

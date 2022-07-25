@@ -17,22 +17,12 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Modal, Select, Input, Checkbox, Form } from 'antd';
+import { Modal, Select, Input, Form, Spin } from 'antd';
 import api from '@/api';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import type { COMPONENT_TYPE_VALUE } from '@/constant';
-import {
-	formItemLayout,
-	ENGINE_SOURCE_TYPE_ENUM,
-	ENGINE_SOURCE_TYPE,
-	PROJECT_CREATE_MODEL,
-	COMPONENT_CONFIG_NAME,
-} from '@/constant';
+import { formItemLayout, ENGINE_SOURCE_TYPE_ENUM, ENGINE_SOURCE_TYPE } from '@/constant';
 import { useEnv } from '../customHooks';
-import HelpDoc from '../helpDoc';
-import EngineConfigItem from './engineForm';
 import { getEngineSourceTypeName } from '@/utils/enums';
-import { convertToObj } from '@/utils';
 import './index.scss';
 
 const { Option } = Select;
@@ -69,11 +59,7 @@ interface IBindModal {
 	tenantInfo?: any;
 	clusterList: IClusterProps[];
 	onCancel?: () => void;
-	onOk?: (params: {
-		canSubmit: boolean;
-		reqParams: Record<string, any>;
-		hasKubernetes: boolean;
-	}) => Promise<void>;
+	onOk?: (params: IFormFieldProps) => Promise<void>;
 }
 
 export interface IClusterProps {
@@ -89,17 +75,12 @@ export interface IClusterProps {
 interface IFormFieldProps {
 	tenantId: number;
 	clusterId: number;
-	queueId: number;
+	queueName: string;
 }
 
 interface ITenantProps {
 	tenantId: number;
 	tenantName: string;
-}
-
-interface IQueueListProps {
-	queueId: number;
-	queueName: string;
 }
 
 export default ({
@@ -115,9 +96,11 @@ export default ({
 }: IBindModal) => {
 	const [form] = Form.useForm<IFormFieldProps>();
 	const [tenantList, setTenantList] = useState<ITenantProps[]>([]);
-	const [queueList, setQueueList] = useState<IQueueListProps[]>([]);
-	const [metaComponent, setMetaComponent] = useState<COMPONENT_TYPE_VALUE | undefined>(undefined);
+	const [queueList, setQueueList] = useState<string[]>([]);
 	const [loading, setLoading] = useState(false);
+	const [queueLoading, setQueueLoading] = useState(false);
+	// 是否支持队列选择，只有当前集群下有 hadoop 才支持队列选择
+	const [isHaveQueue, setHaveQueue] = useState(false);
 	const { env } = useEnv({
 		clusterId: form?.getFieldValue('clusterId') || clusterId,
 		visible,
@@ -133,40 +116,33 @@ export default ({
 		});
 	};
 
-	const getMetaComponent = (value: number) => {
-		api.getMetaComponent({
-			clusterId: value,
-		}).then((res) => {
-			if (res.code === 1) {
-				setMetaComponent(res.data);
-			}
-		});
-	};
-
 	const handleClusterChanged = (value: number) => {
-		if (typeof value !== 'undefined') {
-			getMetaComponent(value);
-		}
-
 		getQueueList(value);
 	};
 
 	const getQueueList = async (value: number) => {
+		setQueueLoading(true);
 		const res = await api.getEnginesByCluster({ clusterId: value });
 		if (res.code) {
 			const engines = res.data.engines || [];
-			const hadoopEngine = engines.find((e: any) => e.engineName === 'Hadoop');
+			const hadoopEngine = engines.find(
+				(e: any) => e.engineType === ENGINE_SOURCE_TYPE_ENUM.HADOOP,
+			);
+			setHaveQueue(!!hadoopEngine);
 			if (hadoopEngine) {
-				setQueueList(hadoopEngine.queues || []);
+				const queueRes = await api.getClusterResources({
+					clusterId: value,
+				});
+				if (queueRes.code === 1) {
+					setQueueList(queueRes.data.queues?.map((q: any) => q.queueName) || []);
+				}
 			}
 		}
+		setQueueLoading(false);
 	};
 
 	useEffect(() => {
 		onSearchTenantUser();
-		if (typeof clusterId !== 'undefined') {
-			getMetaComponent(clusterId);
-		}
 	}, []);
 
 	const getEnginName = () => {
@@ -185,24 +161,12 @@ export default ({
 	};
 
 	const handleModalOk = () => {
-		form.validateFields().then((rawValues) => {
-			const values = convertToObj(rawValues);
-
-			const params: any = {
+		form.validateFields().then((values) => {
+			const params = {
 				tenantId: values.tenantId,
 				clusterId: values.clusterId,
-				queueId: values.queueId,
-				bindDBList: [],
+				queueName: values.queueName,
 			};
-
-			params.bindDBList.push({
-				componentCode: metaComponent,
-				createFlag: !values.hadoop.createModel,
-				dbName:
-					values.hadoop.createModel === PROJECT_CREATE_MODEL.NORMAL
-						? undefined
-						: values.hadoop.database,
-			});
 
 			setLoading(true);
 			onOk?.(params).finally(() => {
@@ -218,7 +182,7 @@ export default ({
 			title={title}
 			visible={visible}
 			onOk={handleModalOk}
-			confirmLoading={loading}
+			confirmLoading={loading || queueLoading}
 			onCancel={onCancel}
 			width="600px"
 			destroyOnClose
@@ -299,71 +263,31 @@ export default ({
 							})}
 						</Select>
 					</FormItem>
-					<FormItem noStyle dependencies={['clusterId']}>
-						{({ getFieldValue: getValue }) => {
-							const hadoopName = metaComponent
-								? COMPONENT_CONFIG_NAME[metaComponent]
-								: '未知';
-							return (
-								(getValue('clusterId') || getValue('clusterId') === 0) && (
-									<>
-										<FormItem
-											label="队列"
-											{...formItemLayout}
-											name="queueId"
-											rules={[
-												{
-													required: true,
-													message: '队列不可为空！',
-												},
-											]}
-										>
-											<Select allowClear placeholder="请选择队列">
-												{queueList.map((item) => {
-													return (
-														<Option
-															key={`${item.queueId}`}
-															value={`${item.queueId}`}
-														>
-															{item.queueName}
-														</Option>
-													);
-												})}
-											</Select>
-										</FormItem>
-										<FormItem {...formItemLayout} label="计算引擎配置">
-											<FormItem
-												noStyle
-												name="enableHadoop"
-												initialValue={true}
-												valuePropName="checked"
-											>
-												<Checkbox>Hadoop</Checkbox>
-											</FormItem>
-											<HelpDoc param="Hive 2.x" doc="extraHive" />
-										</FormItem>
-										<FormItem
-											noStyle
-											dependencies={['clusterId', 'enableHadoop']}
-										>
-											{({ getFieldValue }) => (
-												<EngineConfigItem
-													formParentField="hadoop"
-													formItemLayout={formItemLayout}
-													checked={getFieldValue('enableHadoop')}
-													metaComponent={metaComponent}
-													hadoopName={hadoopName}
-													clusterId={getFieldValue('clusterId')}
-													engineType={ENGINE_SOURCE_TYPE_ENUM.HADOOP}
-												/>
-											)}
-										</FormItem>
-									</>
-								)
-							);
-						}}
-					</FormItem>
-
+					{isHaveQueue && (
+						<Spin spinning={queueLoading}>
+							<FormItem
+								label="队列"
+								{...formItemLayout}
+								name="queueName"
+								rules={[
+									{
+										required: true,
+										message: '队列不可为空！',
+									},
+								]}
+							>
+								<Select allowClear placeholder="请选择队列">
+									{queueList.map((item) => {
+										return (
+											<Option key={`${item}`} value={`${item}`}>
+												{item}
+											</Option>
+										);
+									})}
+								</Select>
+							</FormItem>
+						</Spin>
+					)}
 					{env[ENGINE_SOURCE_TYPE.KUBERNETES] && (
 						<div className="border-item">
 							<div className="engine-title">Kubernetes</div>

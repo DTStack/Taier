@@ -386,6 +386,7 @@ export default function FlinkDimensionPanel({ current }: IRightBarComponentProps
 														]
 													}
 													onTableSearch={getTableType}
+													onColumnsChange={handleFormValuesChange}
 												/>
 											</Panel>
 										);

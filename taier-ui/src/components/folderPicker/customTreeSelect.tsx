@@ -23,13 +23,13 @@ import { TreeSelect, Input } from 'antd';
 import type { TreeSelectProps } from 'antd/lib/tree-select';
 import { Icon } from '@dtinsight/molecule/esm/components';
 import type molecule from '@dtinsight/molecule';
-import { CATELOGUE_TYPE, MENU_TYPE_ENUM } from '@/constant';
+import type { CATALOGUE_TYPE } from '@/constant';
 import { fileIcon } from '@/utils/extensions';
 
 const { TreeNode } = TreeSelect;
 
 export interface CustomTreeSelectProps extends Omit<TreeSelectProps, 'treeData'> {
-	dataType: CATELOGUE_TYPE;
+	dataType: CATALOGUE_TYPE;
 	value?: number;
 	treeData?: molecule.model.IFolderTreeNodeProps;
 	onChange?: TreeSelectProps['onChange'];
@@ -64,7 +64,7 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 		setShowName(node.props?.[nextNodeNameField]);
 	};
 
-	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATELOGUE_TYPE) => {
+	const renderIcon = (isShowFile: boolean, type: string, catalogueType: CATALOGUE_TYPE) => {
 		if (isShowFile) {
 			return type === 'file' ? fileIcon({} as any, catalogueType) : <Icon type="folder" />;
 		}
@@ -74,15 +74,9 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 	// TODO: 将generateTreeNodes暴露出去以兼容不同的数据格式
 	const generateTreeNodes = () => {
 		const loop = (data: molecule.model.IFolderTreeNodeProps) => {
-			const { createUser, id, name, type, catalogueType } = data?.data || {};
+			const { createUser, id, name, type } = data?.data || {};
 			const isLeaf = type === 'file';
 			if (!showFile && type === 'file') return null;
-			const disabled = [
-				MENU_TYPE_ENUM.FUNCTION,
-				MENU_TYPE_ENUM.SYSFUC,
-				MENU_TYPE_ENUM.FLINKFUNC,
-				MENU_TYPE_ENUM.SPARKFUNC,
-			].includes(catalogueType);
 			return (
 				<TreeNode
 					title={
@@ -97,7 +91,6 @@ export default function CustomTreeSelect(props: CustomTreeSelectProps) {
 					name={name}
 					dataRef={data}
 					key={id}
-					disabled={disabled}
 					isLeaf={isLeaf}
 					icon={renderIcon(showFile, type, dataType)}
 				>

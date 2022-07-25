@@ -152,10 +152,10 @@ export default {
 	addCluster(params: { clusterName: string }) {
 		return http.post(req.ADD_CLUSTER, params); // 新增集群
 	},
-	getClusterInfo(params: { clusterId: number }) {
+	getClusterInfo(params: { clusterId: number | string }) {
 		return http.get(req.GET_CLUSTER_INFO, params);
 	},
-	uploadResource(params: { fileName: any; componentType: number }) {
+	uploadResource(params: { fileName: any; componentType: any }) {
 		return http.postAsFormData(req.UPLOAD_RESOURCE, params);
 	},
 	deleteComponent(params: { componentId: number }) {
@@ -164,16 +164,11 @@ export default {
 	deleteCluster(params: { clusterId: number }) {
 		return http.post(req.DELETE_CLUSTER, params);
 	},
-	testConnect(params: {
-		clusterName: string;
-		componentType: number;
-		versionName: string;
-		deployType: number | string;
-	}) {
+	testConnect(params: { clusterId: number; componentType: number; versionName: string }) {
 		return http.post(req.TEST_CONNECT, params);
 	},
-	testConnects(params: { clusterName: string }) {
-		return http.post(req.TEST_CONNECTS, params);
+	testConnects<T>(params: { clusterId: number }) {
+		return http.post<T>(req.TEST_CONNECTS, params);
 	},
 	closeKerberos(params: { componentId: number }) {
 		return http.post(req.CLOSE_KERBEROS, params);
@@ -201,7 +196,7 @@ export default {
 		return http.post(req.GET_COMPONENTSTORE, params);
 	},
 	// 上传kerberos文件
-	uploadKerberos(params: { kerberosFile: any; clusterId: string; componentCode: number }) {
+	uploadKerberos(params: any) {
 		return http.postAsFormData(req.UPLOAD_KERBEROS, params);
 	},
 	// 更新krb5.conf文件
@@ -240,8 +235,8 @@ export default {
 	getClusterResources(params: any) {
 		return http.post(req.GET_CLUSTER_RESOURCES, params);
 	},
-	getLoadTemplate(params: any) {
-		return http.post(req.GET_LOADTEMPLATE, params);
+	getLoadTemplate<T>(params: any) {
+		return http.post<T>(req.GET_LOADTEMPLATE, params);
 	},
 	getAllCluster(params?: any) {
 		return http.get(req.GET_ALL_CLUSTER, params);
@@ -270,8 +265,11 @@ export default {
 	convertDataSyncToScriptMode(params: any) {
 		return http.post(req.CONVERT_SYNC_T0_SCRIPT_MODE, params);
 	},
-	getOfflineTaskByID(params: any) {
-		return http.post(req.GET_TASK, params);
+	getOfflineTaskByID<T = any>(params: any) {
+		return http.post<T>(req.GET_TASK, params);
+	},
+	getOfflineSubTaskById<T = any>(params: any) {
+		return http.post<T>(req.GET_SUB_TASK, params);
 	},
 	getCustomParams(params?: any) {
 		return http.post(req.GET_CUSTOM_TASK_PARAMS, params);
@@ -304,13 +302,9 @@ export default {
 		// 停止执行SQL
 		return http.post(req.STOP_DATA_SYNC_IMMEDIATELY, params);
 	},
-	getIncrementColumns(params: any) {
+	getIncrementColumns(params: any, config?: any) {
 		// 获取增量字段
-		return http.post(req.GET_INCREMENT_COLUMNS, params);
-	},
-	checkSyncMode(params: any) {
-		// 检测是否满足增量数据同步
-		return http.post(req.CHECK_SYNC_MODE, params);
+		return http.post(req.GET_INCREMENT_COLUMNS, params, config);
 	},
 	getHivePartitions(params: any) {
 		// 获取Hive分区
@@ -366,6 +360,9 @@ export default {
 	saveOfflineJobData(params: any) {
 		return http.post(req.SAVE_OFFLINE_JOBDATA, params);
 	},
+	editTask(params: any) {
+		return http.post(req.EDIT_TASK, params);
+	},
 	addOfflineFunction(params: any) {
 		return http.post(req.ADD_OFFLINE_FUNCTION, params);
 	},
@@ -401,27 +398,30 @@ export default {
 		// 转到前后周期
 		return http.post(req.GET_TASK_PERIODS, params);
 	},
-
-	queryJobs(params: any) {
-		return http.post(req.QUERY_JOBS, params);
+	queryJobs<T = any>(params: any) {
+		return http.post<T>(req.QUERY_JOBS, params);
 	},
-
+	getSubJobs<T = any>(params: any) {
+		return http.post<T>(req.GET_SUB_JOBS, params);
+	},
 	patchTaskData(params: any) {
 		// 补数据
 		return http.post(req.PATCH_TASK_DATA, params);
 	},
-	getTaskChildren(params: any) {
+	getTaskChildren<T = any>(params: any) {
 		// 获取任务子节点
-		return http.post(req.GET_TASK_CHILDREN, params);
+		return http.post<T>(req.GET_TASK_CHILDREN, params);
 	},
-
+	getRootWorkflowTask<T = any>(params: any) {
+		return http.post<T>(req.GET_ROOT_WORKFLOW_TASK, params);
+	},
 	getFillData(params: any) {
 		// 补数据搜索
 		return http.post(req.GET_FILL_DATA, params);
 	},
-	getFillDataDetail(params: any) {
+	getFillDataDetail<T = any>(params: any) {
 		// 补数据详情
-		return http.post(req.GET_FILL_DATA_DETAIL, params);
+		return http.post<T>(req.GET_FILL_DATA_DETAIL, params);
 	},
 
 	batchStopJob(params: any) {
@@ -432,11 +432,13 @@ export default {
 		// 重启并恢复任务
 		return http.post(req.BATCH_RESTART_AND_RESUME_JOB, params);
 	},
-	getJobChildren(params: any) {
+	getJobChildren<T = any>(params: any) {
 		// 获取任务子Job
-		return http.post(req.GET_JOB_CHILDREN, params);
+		return http.post<T>(req.GET_JOB_CHILDREN, params);
 	},
-
+	getRootWorkflowJob<T = any>(params: any) {
+		return http.post<T>(req.GET_ROOT_WORKFLOW_JOB, params);
+	},
 	queryJobStatics(params: any) {
 		return http.post(req.QUERY_JOB_STATISTICS, params);
 	},
@@ -454,26 +456,26 @@ export default {
 	getTaskJobWorkflowNodes(params: any) {
 		return http.post(req.GET_TASK_JOB_WORKFLOW_NODES, params);
 	},
-	getOfflineTableList(params: any) {
-		return http.post(req.TABLE_LIST, params);
+	getOfflineTableList(params: any, config?: any) {
+		return http.post(req.TABLE_LIST, params, config);
 	},
-	getOfflineTableColumn(params: any) {
-		return http.post(req.GET_TABLE_COLUMN, params);
+	getOfflineTableColumn(params: any, config?: any) {
+		return http.post(req.GET_TABLE_COLUMN, params, config);
 	},
-	getOfflineColumnForSyncopate(params: any) {
-		return http.post(req.GET_COLUMN_FOR_SYNCOPATE, params);
+	getOfflineColumnForSyncopate(params: any, config?: any) {
+		return http.post(req.GET_COLUMN_FOR_SYNCOPATE, params, config);
 	},
-	getHivePartitionsForDataSource(params: any) {
-		return http.post(req.GET_HIVE_PARTITIONS, params);
+	getHivePartitionsForDataSource(params: any, config?: any) {
+		return http.post(req.GET_HIVE_PARTITIONS, params, config);
 	},
 	getDataSourcePreview(params: any) {
 		return http.post(req.GET_DATA_SOURCE_PREVIEW, params);
 	},
-	getAllSchemas(params: any) {
-		return http.post(req.GET_ALL_SCHEMAS, params);
+	getAllSchemas(params: any, config?: any) {
+		return http.post(req.GET_ALL_SCHEMAS, params, config);
 	},
-	queryByTenantId(params: any) {
-		return http.get(req.QUREY_BY_TENANT_ID, params);
+	queryByTenantId<T>(params: any) {
+		return http.get<T>(req.QUREY_BY_TENANT_ID, params);
 	},
 	dataSourcepage(params: any) {
 		return http.post(req.GET_DATA_SOURCE_PAGE, params);
@@ -526,5 +528,26 @@ export default {
 	},
 	allProductGlobalSearch(params: any) {
 		return http.post(req.ALL_PRODUCT_GLOBAL_SEARCH, params);
+	},
+	getComponentModels() {
+		return http.get(req.GET_COMPONENT_MODELS, {});
+	},
+	getComponentInfo(params: any) {
+		return http.get(req.GET_COMPONENT_INFO, params);
+	},
+	getComponentSchemaConfig<T>(params: any) {
+		return http.post<T>(req.GET_TENANT_COMPONENT_LIST, params);
+	},
+	saveComponentSchemaConfig(params: any) {
+		return http.post(req.SAVE_TENANT_COMPONENT_INFO, params);
+	},
+	getSchemaListByComponent<T>(params: any) {
+		return http.post<T>(req.GET_SCHEMA_LIST_BY_COMPONENT, params);
+	},
+	getResourceLocation<T = any>(params: any) {
+		return http.post<T>(req.GET_RESOUCE_LOCATION, params);
+	},
+	validateRepeatTaskName<T = any>(params: any) {
+		return http.post<T>(req.VALIDATE_REPEAT_TASK_NAME, params);
 	},
 };

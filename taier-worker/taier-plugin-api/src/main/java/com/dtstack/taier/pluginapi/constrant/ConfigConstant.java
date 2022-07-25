@@ -52,7 +52,6 @@ public class ConfigConstant {
 
     public static final String VERSION = "version";
     public static final String VERSION_NAME = "versionName";
-    public static final String IS_METADATA = "metadata";
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
 
@@ -80,6 +79,8 @@ public class ConfigConstant {
     public static final String KEYTAB_SUFFIX = ".keytab";
     public static final String KERBEROS_CONFIG = "kerberosConfig";
 
+    public static final String FS_DEFAULT = "fs.defaultFS";
+
 
     public static final String USER_DIR_UNZIP = System.getProperty("user.dir") + File.separator + "unzip";
     public static final String USER_DIR_DOWNLOAD = System.getProperty("user.dir") + File.separator + "download";
@@ -90,7 +91,6 @@ public class ConfigConstant {
      */
     public static final String TYPE_NAME_KEY = "typeName";
     public static final String TYPE_NAME = "typeName";
-    public static final String HADOOP_VERSION = "hadoopVersion";
     public static final String MD5_SUM_KEY = "md5zip";
 
 

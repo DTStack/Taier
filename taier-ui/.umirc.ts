@@ -12,6 +12,7 @@ export default defineConfig({
 	nodeModulesTransform: {
 		type: 'none',
 	},
+	dynamicImportSyntax: {},
 	routes: [
 		{
 			path: '/',
@@ -28,6 +29,9 @@ export default defineConfig({
 		memo.output.globalObject('this').set('globalObject', 'this');
 		memo.entry('sparksql.worker').add(
 			'monaco-sql-languages/out/esm/sparksql/sparksql.worker.js',
+		);
+		memo.entry('sql.worker').add(
+			'monaco-sql-languages/out/esm/sql/sql.worker.js',
 		);
 		memo.entry('hivesql.worker').add('monaco-sql-languages/out/esm/hivesql/hivesql.worker.js');
 		memo.entry('mysql.worker').add('monaco-sql-languages/out/esm/mysql/mysql.worker.js');

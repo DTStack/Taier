@@ -34,29 +34,6 @@ public class KerberosConfigUtil {
 
     protected static String localConfDir = String.format("%s/sourceConfDir", System.getProperty("user.dir"));
 
-//    protected static AppType currentAppType ;
-//
-//    /**
-//     * 设置Kerberos和数据源中心默认属性
-//     *
-//     * @param dataSourcePluginPath 当前数据源插件地址
-//     * @param localKerberosDir     当前默认Kerberos地址
-//     * @param currentAppType       当前应用类型
-//     */
-//    public static void setLocalKerberosConf(String dataSourcePluginPath, String localKerberosDir, AppType currentAppType) {
-//        // 设置数据源默认地址
-//        if (StringUtils.isNotBlank(dataSourcePluginPath)) {
-//            ClientCache.setUserDir(dataSourcePluginPath);
-//        }
-//
-//        // 设置本地Kerberos路径
-//        if (StringUtils.isNotBlank(localKerberosDir)) {
-//            KerberosConfigUtil.localKerberosDir = localKerberosDir;
-//        }
-//
-//        KerberosConfigUtil.currentAppType = currentAppType;
-//    }
-
     /**
      * 从 SFTP 上下载 kerberos 配置文件到本地。
      * 先比较传入时间戳与 本地 lock 文件的时间戳，如果传入时间戳大于本地文件时间戳则重新下载

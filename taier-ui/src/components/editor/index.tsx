@@ -18,7 +18,7 @@
  */
 import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from '@dtinsight/molecule/esm/monaco';
 import classNames from 'classnames';
 import { defaultOptions } from './config';
 import './language/jsonlog';

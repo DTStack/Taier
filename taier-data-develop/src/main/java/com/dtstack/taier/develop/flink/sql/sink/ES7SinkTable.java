@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.flink.sql.sink;
 
 import com.dtstack.taier.develop.flink.sql.core.ISqlParamEnum;
 import com.dtstack.taier.develop.flink.sql.sink.param.ES7SinkParamEnum;
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

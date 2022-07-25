@@ -2,7 +2,8 @@
 	"contributes": {
 		"themes": [
 			{
-				"label": "DTStack Theme",
+				"id": "DTStack Theme",
+				"label": "DTStack Theme(推荐)",
 				"uiTheme": "vs-dark",
 				"path": "./themes/dtstackTheme.json"
 			}

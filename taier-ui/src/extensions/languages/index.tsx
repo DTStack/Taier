@@ -122,11 +122,11 @@ function registerWorkers() {
 				case TASK_LANGUAGE.PLSQL: {
 					return './plsql.worker.js';
 				}
-				case TASK_LANGUAGE.SQL: {
-					return './sql.worker.js';
-				}
 				case TASK_LANGUAGE.JSON: {
 					return './json.worker.js';
+				}
+				case TASK_LANGUAGE.SQL: {
+					return './sql.worker.js';
 				}
 				default: {
 					return './editor.worker.js';
@@ -156,6 +156,12 @@ export class ExtendsSparkSQL implements IExtension {
 			if (isExist) {
 				molecule.problems.remove(Number(tabId));
 			}
+		});
+
+		molecule.editor.onCloseAll(() => {
+			molecule.problems.setState({
+				data: [],
+			});
 		});
 	}
 }

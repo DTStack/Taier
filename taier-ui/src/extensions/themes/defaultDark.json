@@ -1,0 +1,12 @@
+{
+    "id": "Default Dark+",
+    "colors": {
+        "editorError.foreground": "#F14C4C",
+        "scrollbar.shadow": "#000000",
+		"scrollbarSlider.activeBackground": "#bfbfbf66",
+        "scrollbarSlider.background": "#797979b3",
+		"scrollbarSlider.hoverBackground": "#646464b3",
+        "terminal.ansiBlue": "#3f87ff",
+        "notifications.background": "#252526"
+    }
+}
