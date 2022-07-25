@@ -14,11 +14,10 @@ import com.dtstack.taier.scheduler.service.ScheduleJobOperatorRecordService;
 import com.dtstack.taier.scheduler.service.ScheduleJobService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,39 +43,46 @@ public abstract class OperatorRecordJobScheduler extends AbstractJobSummitSchedu
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
+    private Long operatorRecordStartId = 0L;
+
     @Override
     protected List<ScheduleJobDetails> listExecJob(Long startSort, String nodeAddress, Boolean isEq) {
-        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordService.listOperatorRecord(startSort, nodeAddress, getOperatorType().getType(), isEq);
-
-        if (CollectionUtils.isNotEmpty(records)) {
-            Set<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toSet());
-            List<ScheduleJob> scheduleJobList = getScheduleJob(jobIds);
-
-            if (CollectionUtils.isNotEmpty(scheduleJobList)) {
-                List<String> jodExecIds = scheduleJobList.stream().map(ScheduleJob::getJobId).collect(Collectors.toList());
-                if (jobIds.size() != scheduleJobList.size()) {
-                    // 过滤出来已经提交运行的实例，删除操作记录
-                    List<String> deleteJobIdList = jobIds.stream().filter(jobId -> !jodExecIds.contains(jobId)).collect(Collectors.toList());
-                    removeOperatorRecord(deleteJobIdList);
-                }
-
-                List<String> jobKeys = scheduleJobList.stream().map(ScheduleJob::getJobKey).collect(Collectors.toList());
-                List<ScheduleJobJob> scheduleJobJobList = scheduleJobJobService.listByJobKeys(jobKeys);
-                Map<String, List<ScheduleJobJob>> jobJobMap = scheduleJobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey));
-                List<ScheduleJobDetails> scheduleJobDetailsList = new ArrayList<>(scheduleJobList.size());
-
-                for (ScheduleJob scheduleJob : scheduleJobList) {
-                    ScheduleJobDetails scheduleJobDetails = new ScheduleJobDetails();
-                    scheduleJobDetails.setScheduleJob(scheduleJob);
-                    scheduleJobDetails.setJobJobList(jobJobMap.get(scheduleJob.getJobKey()));
-                    scheduleJobDetailsList.add(scheduleJobDetails);
-                }
-                return scheduleJobDetailsList;
-            } else {
-                removeOperatorRecord(Lists.newArrayList(jobIds));
-            }
+        List<ScheduleJobOperatorRecord> records = scheduleJobOperatorRecordService.listOperatorRecord(operatorRecordStartId, nodeAddress, getOperatorType().getType(), isEq);
+        //empty
+        if (CollectionUtils.isEmpty(records)) {
+            operatorRecordStartId = 0L;
+            return new ArrayList<>();
         }
-        return Lists.newArrayList();
+
+        Set<String> jobIds = records.stream().map(ScheduleJobOperatorRecord::getJobId).collect(Collectors.toSet());
+        List<ScheduleJob> scheduleJobList = getScheduleJob(jobIds);
+
+        if (CollectionUtils.isEmpty(scheduleJobList)) {
+            operatorRecordStartId = 0L;
+            removeOperatorRecord(Lists.newArrayList(jobIds));
+        }
+
+        //set max
+        records.stream().max(Comparator.comparing(ScheduleJobOperatorRecord::getId))
+                .ifPresent(scheduleJobOperatorRecord -> operatorRecordStartId = scheduleJobOperatorRecord.getId());
+
+        if (jobIds.size() != scheduleJobList.size()) {
+            List<String> jodExecIds = scheduleJobList.stream().map(ScheduleJob::getJobId).collect(Collectors.toList());
+            // 过滤出来已经提交运行的实例，删除操作记录
+            List<String> deleteJobIdList = jobIds.stream().filter(jobId -> !jodExecIds.contains(jobId)).collect(Collectors.toList());
+            removeOperatorRecord(deleteJobIdList);
+        }
+
+        List<String> jobKeys = scheduleJobList.stream().map(ScheduleJob::getJobKey).collect(Collectors.toList());
+        List<ScheduleJobJob> scheduleJobJobList = scheduleJobJobService.listByJobKeys(jobKeys);
+        Map<String, List<ScheduleJobJob>> jobJobMap = scheduleJobJobList.stream().collect(Collectors.groupingBy(ScheduleJobJob::getJobKey));
+
+        return scheduleJobList.stream().map(scheduleJob -> {
+            ScheduleJobDetails scheduleJobDetails = new ScheduleJobDetails();
+            scheduleJobDetails.setScheduleJob(scheduleJob);
+            scheduleJobDetails.setJobJobList(jobJobMap.get(scheduleJob.getJobKey()));
+            return scheduleJobDetails;
+        }).collect(Collectors.toList());
     }
 
     /**
