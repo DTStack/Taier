@@ -10,11 +10,11 @@ public class JobUtils {
 
     public static Integer checkLevel(Integer currentLevel, Integer maxLevel) {
         if (currentLevel == null || currentLevel <= 0) {
-            return 1;
+            return 6;
         }
 
         if (currentLevel > maxLevel) {
-           return maxLevel;
+            return maxLevel;
         }
 
         return currentLevel;
