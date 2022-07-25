@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
  */
 public abstract class OperatorRecordJobScheduler extends AbstractJobSummitScheduler {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OperatorRecordJobScheduler.class);
-
     @Autowired
     protected ScheduleJobService scheduleJobService;
 
