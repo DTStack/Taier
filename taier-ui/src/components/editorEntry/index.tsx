@@ -18,7 +18,9 @@
 
 import { useEffect, useState } from 'react';
 import { KeybindingHelper } from '@dtinsight/molecule/esm/services/keybinding';
+import { Utils } from '@dtinsight/dt-utils/lib';
 import './index.scss';
+
 
 const commands = [
 	{ id: 'sidebar', label: '切换侧边栏' },
@@ -55,7 +57,7 @@ export default function EditorEntry() {
 						<div className="label">{key.label}</div>
 						<div className="keybindings">
 							{key.keybindings
-								.split('')
+								.split(Utils.isMacOs() ? '' : '+')
 								.filter(Boolean)
 								.map((keyCode) => (
 									<code key={keyCode} className="keyCode">{keyCode}</code>
