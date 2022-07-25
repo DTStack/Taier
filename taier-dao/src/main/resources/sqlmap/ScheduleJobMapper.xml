@@ -220,7 +220,7 @@
           , exec_end_time=now()
           , status=#{status}
           , exec_time=timestampdiff(SECOND, exec_start_time, now())
-          , exec_start_time = IF(exec_start_time = null, now(), exec_start_time)
+          , exec_start_time = (case when exec_start_time is null then now() else exec_start_time end)
         where job_id = #{jobId};
     </update>
 
