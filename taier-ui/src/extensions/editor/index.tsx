@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { createRoot } from 'react-dom/client';
 import { message, Modal } from 'antd';
 import molecule from '@dtinsight/molecule';
 import type { IExtension } from '@dtinsight/molecule/esm/model';
@@ -23,7 +24,6 @@ import { runTask, syntaxValidate } from '@/utils/extensions';
 import { DRAWER_MENU_ENUM, TASK_LANGUAGE, ID_COLLECTIONS } from '@/constant';
 import { history } from 'umi';
 import { debounce } from 'lodash';
-import ReactDOM from 'react-dom';
 import Publish, { CONTAINER_ID } from '@/components/task/publish';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { createSQLProposals, prettierJSONstring } from '@/utils';
@@ -79,7 +79,6 @@ function emitEvent() {
 			}
 			case ID_COLLECTIONS.TASK_SUBMIT_ID: {
 				const currentTab = current.tab;
-				const root = document.getElementById('molecule')!;
 
 				const target = document.getElementById(CONTAINER_ID);
 				if (target) {
@@ -87,9 +86,12 @@ function emitEvent() {
 				}
 				const node = document.createElement('div');
 				node.id = CONTAINER_ID;
-				root.appendChild(node);
+				document.getElementById('molecule')!.appendChild(node);
+
+				const root = createRoot(node);
+
 				if (currentTab) {
-					ReactDOM.render(<Publish taskId={currentTab.data.id} />, node);
+					root.render(<Publish taskId={currentTab.data.id} />);
 				}
 				break;
 			}
@@ -233,7 +235,6 @@ function emitEvent() {
 			}
 			case ID_COLLECTIONS.TASK_IMPORT_ID: {
 				const currentTab = current.tab;
-				const root = document.getElementById('molecule')!;
 
 				const target = document.getElementById(CONTAINER_ID);
 				if (target) {
@@ -241,7 +242,9 @@ function emitEvent() {
 				}
 				const node = document.createElement('div');
 				node.id = CONTAINER_ID;
-				root.appendChild(node);
+				document.getElementById('molecule')!.appendChild(node);
+
+				const root = createRoot(node);
 				if (currentTab) {
 					const handleSuccess = (data: string) => {
 						// update the editor's content
@@ -249,9 +252,8 @@ function emitEvent() {
 						molecule.editor.editorInstance.getModel()?.setValue(prettierJSON);
 					};
 
-					ReactDOM.render(
+					root.render(
 						<ImportTemplate taskId={currentTab.data.id} onSuccess={handleSuccess} />,
-						node,
 					);
 				}
 				break;

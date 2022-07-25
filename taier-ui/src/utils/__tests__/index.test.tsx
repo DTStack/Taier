@@ -19,15 +19,15 @@ import {
 	splitSql,
 } from '..';
 
-jest.mock('@/components/customDrawer', () => {
+jest.mock('@/services/taskRenderService', () => {
 	return {
-		updateDrawer: jest.fn(),
+		openTask: jest.fn(),
 	};
 });
 
-jest.mock('@/extensions/folderTree', () => {
+jest.mock('@/components/customDrawer', () => {
 	return {
-		openTaskInTab: jest.fn(),
+		updateDrawer: jest.fn(),
 	};
 });
 
