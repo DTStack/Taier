@@ -32,7 +32,7 @@ describe('enums', () => {
 		expect(taskTypeText(TASK_TYPE_ENUM.SQL)).toBe('FlinkSQL');
 		expect(taskTypeText(TASK_TYPE_ENUM.SYNC)).toBe('数据同步');
 		expect(taskTypeText(TASK_TYPE_ENUM.VIRTUAL)).toBe('虚节点');
-		expect(taskTypeText(TASK_TYPE_ENUM.WORK_FLOW)).toBe('未知');
+		expect(taskTypeText(TASK_TYPE_ENUM.WORK_FLOW)).toBe('工作流');
 	});
 
 	it('Render Task Status Text', () => {

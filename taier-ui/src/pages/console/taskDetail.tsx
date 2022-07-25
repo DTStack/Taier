@@ -27,10 +27,10 @@ import Sketch from '@/components/sketch';
 import type { TASK_STATUS } from '@/constant';
 import { JOB_STAGE_ENUM } from '@/constant';
 import type { ColumnsType } from 'antd/lib/table';
-import { SyncOutlined, CopyOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { SyncOutlined, DownOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import ViewDetail from '../../components/viewDetail';
 import Api from '../../api';
-import { taskStatusText } from '@/utils/enums';
+import { TaskStatus } from '@/utils/enums';
 
 const JOB_STAGE_OPTIONS = [
 	{
@@ -250,52 +250,49 @@ export default () => {
 			title: '任务名称',
 			dataIndex: 'jobName',
 			fixed: 'left',
-			width: 280,
+			ellipsis: true,
+			width: 150,
+			render: (text) => <Tooltip title={text}>{text}</Tooltip>,
 		},
 		{
 			title: '任务ID',
 			dataIndex: 'jobId',
+			width: 150,
 			render(_, record) {
 				return (
-					<span>
-						{record.jobId}
-						<CopyToClipboard
-							text={record.jobId}
-							onCopy={() => message.success('复制成功')}
-						>
-							<Tooltip placement="right" title="复制">
-								<CopyOutlined
-									className="copy-hover"
-									style={{
-										cursor: 'pointer',
-										fontSize: '13px',
-									}}
-								/>
-							</Tooltip>
-						</CopyToClipboard>
-					</span>
+					<CopyToClipboard
+						text={record.jobId}
+						onCopy={() => message.success('复制成功！')}
+					>
+						<Tooltip title="点击复制">
+							<code className="cursor-pointer">{record.jobId}</code>
+						</Tooltip>
+					</CopyToClipboard>
 				);
 			},
 		},
 		{
 			title: '状态',
 			dataIndex: 'status',
+			width: 100,
 			render(text) {
-				return taskStatusText(text);
+				return <TaskStatus value={text} />;
 			},
 		},
 		{
 			title: '节点',
+			width: 180,
 			dataIndex: 'nodeAddress',
 		},
 		{
 			title: '已等待',
+			width: 180,
 			dataIndex: 'waitTime',
 		},
 		{
 			title: '等待原因',
-			dataIndex: 'waitReason',
 			width: 300,
+			dataIndex: 'waitReason',
 			render(_, record) {
 				return (
 					<Tooltip title={record.waitReason} placement="top">
@@ -307,13 +304,17 @@ export default () => {
 		{
 			title: '提交时间',
 			dataIndex: 'generateTime',
+			width: 180,
 			render(text) {
 				return formatDateTime(text);
 			},
 		},
 		{
 			title: '租户',
+			width: 100,
+			ellipsis: true,
 			dataIndex: 'tenantName',
+			render: (text) => <Tooltip title={text}>{text}</Tooltip>,
 		},
 		{
 			title: '操作',
@@ -326,7 +327,7 @@ export default () => {
 				const insert = isSaved ? '插入队列头' : null;
 				const stickTxt = isQueueing ? '置顶' : insert;
 				return (
-					<Space split={<span style={{ color: '#3F87FF' }}>|</span>}>
+					<Space split="|">
 						<a onClick={() => viewDetails(record)}>查看详情</a>
 						<a onClick={() => killTask(record)}>杀任务</a>
 						{stickTxt && <a onClick={() => stickTask(record, stickTxt)}>{stickTxt}</a>}

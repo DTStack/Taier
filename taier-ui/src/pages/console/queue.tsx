@@ -169,13 +169,18 @@ export default () => {
 		{
 			title: '计算类型',
 			dataIndex: 'jobResource',
+			width: 180,
+			ellipsis: true,
 			render(text, record) {
-				return renderTableText(text, record, JOB_STAGE_ENUM.Queueing);
+				return (
+					<Tooltip title={text} placement="topLeft">
+						{renderTableText(text, record, JOB_STAGE_ENUM.Queueing)}
+					</Tooltip>
+				);
 			},
 		},
 		{
 			title: '队列中(等待时长)',
-			width: 220,
 			dataIndex: 'priorityJobSize',
 			render(text, record) {
 				const txt = text + (record.priorityWaitTime ? ` (${record.priorityWaitTime})` : '');

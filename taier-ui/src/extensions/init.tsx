@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+import { createRoot } from 'react-dom/client';
 import molecule from '@dtinsight/molecule';
 import {
 	CONSOLE,
@@ -44,7 +45,6 @@ import { getCookie, deleteCookie } from '@/utils';
 import { Button, message } from 'antd';
 import { Logo } from '@/components/icon';
 import Language from '@/components/language';
-import ReactDOM from 'react-dom';
 import AddTenantModal from '@/components/addTenantModal';
 import SchemaModal from '@/pages/account/schemaModal';
 
@@ -337,16 +337,16 @@ function updateAccountContext(contextMenu: IActivityMenuItemProps[]) {
  * 初始化登录
  */
 function initLogin() {
-	const usename = getCookie('username');
+	const userName = getCookie('username');
 	const tenantName = getCookie('tenant_name') || 'Unknown';
 	updateAccountContext(
-		usename
+		userName
 			? [
 					{
 						id: 'username',
-						disabled: !!usename,
+						disabled: !!userName,
 						icon: 'person',
-						name: usename,
+						name: userName,
 					},
 					{
 						id: 'divider',
@@ -363,11 +363,11 @@ function initLogin() {
 						name: '新增租户',
 						icon: 'person-add',
 						onClick: () => {
-							const root = document.getElementById('molecule')!;
 							const node = document.createElement('div');
 							node.id = 'add-tenant-modal';
-							root.appendChild(node);
-							ReactDOM.render(<AddTenantModal />, node);
+							document.getElementById('molecule')!.appendChild(node);
+							const root = createRoot(node);
+							root.render(<AddTenantModal />);
 						},
 					},
 					{
@@ -375,11 +375,11 @@ function initLogin() {
 						name: '配置 Schema',
 						icon: 'combine',
 						onClick: () => {
-							const root = document.getElementById('molecule')!;
 							const node = document.createElement('div');
 							node.id = 'add-tenant-modal';
-							root.appendChild(node);
-							ReactDOM.render(<SchemaModal />, node);
+							document.getElementById('molecule')!.appendChild(node);
+							const root = createRoot(node);
+							root.render(<SchemaModal />);
 						},
 					},
 					{
@@ -419,10 +419,12 @@ function initLogin() {
 		{
 			sortIndex: 0,
 			id: 'login',
-			name: usename || '未登录',
+			name: userName || '未登录',
 			onClick: () => {
-				!usename && showLoginModal();
-			}
+				if (!userName) {
+					showLoginModal();
+				}
+			},
 		},
 		molecule.model.Float.left,
 	);
