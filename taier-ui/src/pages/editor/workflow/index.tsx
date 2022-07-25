@@ -216,7 +216,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 				{
 					// workflow task don't need to getTaskById again
 					// since already request getTaskById for each vertex in workflow's useEffect
-					create: true,
+					create: data.id.toString().startsWith('workflow__'),
 				},
 			);
 		}
@@ -449,25 +449,39 @@ function Workflow({ current }: molecule.model.IEditor) {
 				)
 					.then((results) => {
 						if (results.every((res) => res.code === 1)) {
-							const lengthProperty = Symbol('length');
-							const tasks = results
-								.map((res) => ({
-									...res.data,
-									[lengthProperty]: nodeMap[res.data.id.toString()].length,
-								}))
-								.sort((pre, cur) => pre[lengthProperty] - cur[lengthProperty]);
+							const tasks = results.map((res) => res.data);
+							// 根节点集合
+							const rootTaskList = vertexIds.filter((key) => !nodeMap[key].length);
 
-							tasks.forEach((task) => {
-								const node = { ...task, childNode: [], [isEditing]: false };
-								if (task[lengthProperty] === 0) {
-									nextGraphData.push(node);
-								} else {
-									const parentId = nodeMap[task.id][0];
-									childrenNodeReference[parentId].childNode.push(node);
+							const stack = [...rootTaskList];
+
+							while (stack.length) {
+								const taskId = stack.pop()!;
+
+								const task = tasks.find(
+									(t) => t.id.toString() === taskId.toString(),
+								);
+
+								if (task) {
+									const node = { ...task, childNode: [], [isEditing]: false };
+
+									const parentTaskId: number | undefined = nodeMap[node.id]?.[0];
+									// 根节点添加的时候，childrenNodeReference 上不存在对象缓存
+									const referenceHandler =
+										childrenNodeReference[parentTaskId]?.childNode ||
+										nextGraphData;
+
+									referenceHandler.push(node);
+
+									childrenNodeReference[node.id] = node;
+
+									const depsTaskIds = vertexIds.filter((key) => {
+										return nodeMap[key].includes(Number(taskId));
+									});
+
+									stack.push(...depsTaskIds);
 								}
-								Reflect.deleteProperty(node, lengthProperty);
-								childrenNodeReference[task.id] = node;
-							});
+							}
 						}
 
 						setGraphData(nextGraphData);

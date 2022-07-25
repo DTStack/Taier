@@ -70,7 +70,7 @@ class MxFactory {
 		const { mxConstants, mxEdgeStyle } = this.mxInstance;
 		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-		style[mxConstants.STYLE_STROKECOLOR] = 'var(--tree-indentGuidesStroke)';
+		style[mxConstants.STYLE_STROKECOLOR] = 'var(--terminal-ansiBlue, #3f87ff)';
 		style[mxConstants.STYLE_STROKEWIDTH] = 1;
 		style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
 		style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
