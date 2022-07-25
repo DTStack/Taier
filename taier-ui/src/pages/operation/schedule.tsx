@@ -37,7 +37,6 @@ import {
 	offlineTaskPeriodFilter,
 } from '@/constant';
 import { getTodayTime, removePopUpMenu } from '@/utils';
-import type { IOfflineTaskProps } from '@/interface';
 import { TaskStatus, TaskTimeType } from '@/utils/enums';
 import KillJobForm from './killJobForm';
 import TaskJobFlowView from './taskJobFlowView';
@@ -467,17 +466,12 @@ export default () => {
 
 	const handleExpandJobs = async (
 		expanded: boolean,
-		record: IScheduleTaskProps,
+		record: Pick<IScheduleTaskProps, 'jobId'>,
 	): Promise<IScheduleTaskProps[]> => {
 		if (expanded) {
-			const res = await Api.getSubJobs<
-				{ returnJobListVOS: IScheduleTaskProps; taskVOList: IOfflineTaskProps }[]
-			>({ jobId: record.jobId });
+			const res = await Api.getSubJobs<IScheduleTaskProps[]>({ jobId: record.jobId });
 			if (res.code === 1) {
-				return res.data.map((vo) => ({
-					...vo.returnJobListVOS,
-					taskName: vo.taskVOList.name,
-				}));
+				return res.data;
 			}
 		}
 
@@ -518,20 +512,46 @@ export default () => {
 			taskPeriodTypeList: (periodType || []) as number[],
 			[sortKey]: sortValue,
 		};
-		return Api.queryJobs<{ data: IScheduleTaskProps[]; totalCount: number }>(queryParams).then(
-			(res) => {
-				if (res.code === 1) {
-					loadJobStatics(queryParams);
-					return {
-						total: res.data.totalCount,
-						data: res.data.data.map((d) => ({
-							...d,
-							children: d.taskType === TASK_TYPE_ENUM.WORK_FLOW ? [] : undefined,
-						})),
-					};
+
+		// 获取 job 状态统计
+		loadJobStatics(queryParams);
+
+		return new Promise((resolve) => {
+			const currentTableData: IScheduleTaskProps[] = actionRef.current?.getTableData() || [];
+
+			const pendingGetChildrenList = currentTableData.reduce<string[]>((pre, cur) => {
+				if (cur.children?.length) {
+					return [...pre, cur.jobId];
 				}
-			},
-		);
+				return pre;
+			}, []);
+
+			Promise.all(pendingGetChildrenList.map((jobId) => handleExpandJobs(true, { jobId })))
+				.then((results) =>
+					results.reduce<Record<string, IScheduleTaskProps[]>>(
+						(pre, cur, idx) => ({ ...pre, [pendingGetChildrenList[idx]]: cur }),
+						{},
+					),
+				)
+				.then((jobCollection) => {
+					Api.queryJobs<{ data: IScheduleTaskProps[]; totalCount: number }>(
+						queryParams,
+					).then((res) => {
+						if (res.code === 1) {
+							resolve({
+								total: res.data.totalCount,
+								data: res.data.data.map((d) => ({
+									...d,
+									children:
+										d.taskType === TASK_TYPE_ENUM.WORK_FLOW
+											? jobCollection[d.jobId] || []
+											: undefined,
+								})),
+							});
+						}
+					});
+				});
+		});
 	};
 
 	const handleRefresh = () => {

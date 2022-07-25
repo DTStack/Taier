@@ -32,7 +32,6 @@ import {
 	TASK_STATUS,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import type { IOfflineTaskProps } from '@/interface';
 import Sketch, { useSketchRef } from '@/components/sketch';
 import TaskJobFlowView from '../taskJobFlowView';
 import type { IScheduleTaskProps } from '../schedule';
@@ -419,18 +418,13 @@ export default () => {
 		];
 	}, [supportJobTypes]);
 
-	const handleExpandJob = async (expanded: boolean, record: ITableDataProps) => {
+	const handleExpandJob = async (expanded: boolean, record: Pick<ITableDataProps, 'jobId'>) => {
 		if (expanded) {
-			const res = await Api.getSubJobs<
-				{ returnJobListVOS: ITableDataProps; taskVOList: IOfflineTaskProps }[]
-			>({
+			const res = await Api.getSubJobs<ITableDataProps[]>({
 				jobId: record.jobId,
 			});
 			if (res.code === 1) {
-				return res.data.map((vo) => ({
-					...vo.returnJobListVOS,
-					taskName: vo.taskVOList.name,
-				}));
+				return res.data;
 			}
 		}
 
@@ -452,7 +446,7 @@ export default () => {
 		{ current, pageSize }: { current: number; pageSize: number },
 		filters: Record<string, FilterValue | null>,
 		sorter?: SorterResult<any>,
-	) => {
+	): Promise<{ polling: true; total: number; data: ITableDataProps[] }> => {
 		const params = convertToParams(values);
 		const { status = [], taskType = [] } = filters;
 
@@ -484,26 +478,49 @@ export default () => {
 		};
 		loadJobStatics(queryParams);
 
-		return Api.getFillDataDetail(queryParams).then((res) => {
-			if (res.code === 1) {
-				actionRef.current?.setSelectedKeys([]);
+		return new Promise((resolve) => {
+			const currentTableData: ITableDataProps[] = actionRef.current?.getTableData() || [];
 
-				const currentTableData: ITableDataProps[] = actionRef.current?.getTableData() || [];
-				return {
-					polling: true,
-					total: res.data.totalCount,
-					data: (res.data.data.fillDataJobVOLists || []).map((vo: ITableDataProps) => {
-						const children =
-							currentTableData.find((data) => data.jobId === vo.jobId)?.children ||
-							[];
-						return {
-							...vo,
-							children:
-								vo.taskType === TASK_TYPE_ENUM.WORK_FLOW ? children : undefined,
+			const pendingGetChildrenList = currentTableData.reduce<string[]>((pre, cur) => {
+				if (cur.children?.length) {
+					return [...pre, cur.jobId];
+				}
+				return pre;
+			}, []);
+
+			Promise.all(pendingGetChildrenList.map((jobId) => handleExpandJob(true, { jobId })))
+				.then((results) =>
+					results.reduce<Record<string, IScheduleTaskProps[]>>(
+						(pre, cur, idx) => ({ ...pre, [pendingGetChildrenList[idx]]: cur }),
+						{},
+					),
+				)
+				.then((jobCollection) => {
+					Api.getFillDataDetail<{
+						totalCount: number;
+						data: {
+							fillDataJobVOLists?: ITableDataProps[];
 						};
-					}),
-				};
-			}
+					}>(queryParams).then((res) => {
+						if (res.code === 1) {
+							actionRef.current?.setSelectedKeys([]);
+							resolve({
+								polling: true,
+								total: res.data.totalCount,
+								data: (res.data.data.fillDataJobVOLists || []).map((vo) => {
+									const children = jobCollection[vo.jobId] || [];
+									return {
+										...vo,
+										children:
+											vo.taskType === TASK_TYPE_ENUM.WORK_FLOW
+												? children
+												: undefined,
+									};
+								}),
+							});
+						}
+					});
+				});
 		});
 	};
 

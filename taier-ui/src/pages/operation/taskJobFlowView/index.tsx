@@ -31,7 +31,7 @@ import {
 	RUN_FAILED_STATUS,
 	TASK_TYPE_ENUM,
 } from '@/constant';
-import type { IOfflineTaskProps, IUpstreamJobProps } from '@/interface';
+import type { IUpstreamJobProps } from '@/interface';
 import context from '@/context';
 import { DIRECT_TYPE_ENUM } from '@/interface';
 import { formatDateTime, getVertexStyle, goToTaskDev } from '@/utils';
@@ -49,7 +49,7 @@ interface ITaskJobFlowViewProps {
 
 export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewProps) {
 	const { supportJobTypes } = useContext(context);
-	const [graphData, setGraphData] = useState<[IUpstreamJobProps] | null>(null);
+	const [graphData, setGraphData] = useState<IUpstreamJobProps[] | null>(null);
 	const [loading, setLoading] = useState(false);
 	// 任务属性
 	const [taskAttribute, setAttribute] = useState<{
@@ -75,7 +75,7 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 	});
 	// 工作流 modal
 	const [visible, setVisible] = useState(false);
-	const [workflowJob, setWorkflowJob] = useState<[IUpstreamJobProps] | null>(null);
+	const [workflowJob, setWorkflowJob] = useState<IUpstreamJobProps[] | null>(null);
 
 	// 获取任务日志详情
 	const handleGetTaskLog = (jobId: string, current?: number) => {
@@ -208,43 +208,29 @@ export default function TaskJobFlowView({ taskJob, reload }: ITaskJobFlowViewPro
 			const data: IUpstreamJobProps = cell.value;
 
 			setLoading(true);
-			// 先获取任务的根节点 id
-			Api.getOfflineTaskByID<IOfflineTaskProps>({ id: data.taskId })
+
+			Api.getRootWorkflowJob<string[]>({ jobId: data.jobId })
 				.then((res) => {
 					if (res.code === 1) {
-						const rootNodeTaskId = Object.entries(
-							JSON.parse(res.data.sqlText) as Record<number, number[]>,
-						).find(([, value]) => value.length === 0)?.[0];
-
-						if (rootNodeTaskId) return rootNodeTaskId;
+						return res.data;
 					}
-
-					return Promise.reject();
+					return [];
 				})
-				.then(async (rootTaskId) => {
-					// 通过根节点的 taskId 获取对应的 jobId
-					const res = await Api.getSubJobs<
-						{ returnJobListVOS: IScheduleTaskProps; taskVOList: IOfflineTaskProps }[]
-					>({
-						jobId: taskJob?.jobId,
-					});
-					if (res.code === 1) {
-						return res.data.find(
-							(vo) => vo.taskVOList.id.toString() === rootTaskId.toString(),
-						)?.returnJobListVOS.jobId;
-					}
+				.then((rootJobIds) => {
+					return Promise.all(
+						rootJobIds.map((rootJobId) =>
+							// 根据 jobId 在获取对应的工作流图数据
+							Api.getJobChildren({
+								jobId: rootJobId,
+								directType: DIRECT_TYPE_ENUM.CHILD,
+								level: 6,
+							}),
+						),
+					);
 				})
-				.then((rootJobId) =>
-					// 根据 jobId 在获取对应的工作流图数据
-					Api.getJobChildren({
-						jobId: rootJobId,
-						directType: DIRECT_TYPE_ENUM.CHILD,
-						level: 6,
-					}),
-				)
-				.then((res) => {
-					if (res.code === 1) {
-						setWorkflowJob([res.data.rootNode]);
+				.then((results) => {
+					if (results.every((res) => res.code === 1)) {
+						setWorkflowJob(results.map((res) => res.data.rootNode));
 						setVisible(true);
 					}
 				})

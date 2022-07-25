@@ -2,6 +2,7 @@
     "id": "Default Dark+",
     "colors": {
         "editorError.foreground": "#F14C4C",
+        "terminal.ansiBlue": "#3f87ff",
         "notifications.background": "#252526"
     }
 }
