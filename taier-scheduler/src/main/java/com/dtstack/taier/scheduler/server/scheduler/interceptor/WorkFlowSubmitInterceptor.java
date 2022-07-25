@@ -55,7 +55,7 @@ public class WorkFlowSubmitInterceptor extends SubmitInterceptorAdapter {
      */
     public boolean checkRemoveAndUpdateFlowJobStatus(ScheduleJob workFlowJob) {
         String jobId = workFlowJob.getJobId();
-        List<ScheduleJob> subJobs = scheduleJobService.getWorkFlowSubJobs(jobId);
+        List<ScheduleJob> subJobs = scheduleJobService.getWorkFlowSubJobs(Lists.newArrayList(jobId));
         boolean canRemove = false;
         Integer bottleStatus = null;
         //没有子任务
