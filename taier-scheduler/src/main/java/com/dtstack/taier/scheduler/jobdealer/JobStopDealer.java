@@ -83,7 +83,6 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
     @Autowired
     private ScheduleJobOperatorRecordService scheduleJobOperatorRecordService;
 
-    private static final int JOB_STOP_LIMIT = 1000;
     private static final int WAIT_INTERVAL = 3000;
     private static final int OPERATOR_EXPIRED_INTERVAL = 60000;
     private final int asyncDealStopJobQueueSize = 100;
@@ -93,7 +92,7 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
 
     private final DelayBlockingQueue<StoppedJob<JobElement>> stopJobQueue = new DelayBlockingQueue<StoppedJob<JobElement>>(1000);
     private final ExecutorService delayStopProcessorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new CustomThreadFactory("delayStopProcessor"));
-    private final ExecutorService asyncDealStopJobService = new ThreadPoolExecutor(asyncDealStopJobPoolSize, asyncDealStopJobPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(asyncDealStopJobQueueSize), new CustomThreadFactory("asyncDealStopJob"), new CustomThreadRunsPolicy("asyncDealStopJob", "stop", 180));
+    private final ExecutorService asyncDealStopJobService = new ThreadPoolExecutor(2, asyncDealStopJobPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(asyncDealStopJobQueueSize), new CustomThreadFactory("asyncDealStopJob"), new CustomThreadRunsPolicy("asyncDealStopJob", "stop", 180));
     private final ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(this.getClass().getSimpleName()));
     private final DelayStopProcessor delayStopProcessor = new DelayStopProcessor();
     private final AcquireStopJob acquireStopJob = new AcquireStopJob();
@@ -122,8 +121,8 @@ public class JobStopDealer implements InitializingBean, DisposableBean {
             return 0;
         }
 
-        if (scheduleJobList.size() > JOB_STOP_LIMIT) {
-            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + JOB_STOP_LIMIT);
+        if (scheduleJobList.size() > environmentContext.getStopLimit()) {
+            throw new RdosDefineException("please don't stop too many tasks at once, limit:" + environmentContext.getStopLimit());
         }
 
         // 分离实例是否提交到yarn上，如果提交到yarn上，需要发送请求stop，如果未提交，直接更新db
