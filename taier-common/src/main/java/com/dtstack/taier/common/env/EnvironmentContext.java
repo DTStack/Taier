@@ -244,6 +244,9 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${plugin.path:#{systemProperties['user.dir']}/pluginLibs}")
     private String pluginPath;
 
+    @Value("${stopLimit:100000}")
+    private Integer stopLimit;
+
     @Value("${logs.limit.num:10000}")
     private Integer logsLimitNum;
 
@@ -561,5 +564,9 @@ public class EnvironmentContext implements InitializingBean {
 
     public void setLogsLimitNum(Integer logsLimitNum) {
         this.logsLimitNum = logsLimitNum;
+    }
+
+    public int getStopLimit() {
+        return stopLimit;
     }
 }
