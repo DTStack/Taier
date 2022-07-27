@@ -106,16 +106,14 @@ public class ComponentService {
      * @return
      */
     public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig) {
-        JSONObject dataInfo = JSONObject.parseObject(componentConfig);
-        if (EComponentType.YARN.getTypeCode() == componentType) {
-            JSONObject confInfo = new JSONObject();
-            confInfo.put(EComponentType.YARN.getConfName(), dataInfo);
-            dataInfo = confInfo;
-        } else if (EComponentType.HDFS.getTypeCode() == componentType) {
-            JSONObject confInfo = new JSONObject();
-            confInfo.put(EComponentType.YARN.getConfName(), dataInfo);
-            dataInfo = confInfo;
+        EComponentType eComponentType = EComponentType.getByCode(componentType);
+        JSONObject dataInfo = new JSONObject();
+        if (EComponentType.YARN.equals(eComponentType) || EComponentType.HDFS.equals(eComponentType)) {
+            dataInfo.put(eComponentType.getConfName(), JSONObject.parseObject(componentConfig));
+        } else {
+            dataInfo = JSONObject.parseObject(componentConfig);
         }
+
 
         //开启了kerberos
         if (null != kerberosConfig) {
