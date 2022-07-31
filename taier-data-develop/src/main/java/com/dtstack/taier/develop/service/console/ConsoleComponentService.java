@@ -1098,7 +1098,7 @@ public class ConsoleComponentService {
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = componentService.buildHdfsTypeName(null, clusterId);
             }
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
             pluginInfo.put(TYPE_NAME_KEY, typeName);
             componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
             if (null == componentTestResult) {
