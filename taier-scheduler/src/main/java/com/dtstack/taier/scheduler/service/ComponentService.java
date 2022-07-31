@@ -110,7 +110,8 @@ public class ComponentService {
         JSONObject dataInfo = new JSONObject();
         if (EComponentType.YARN.equals(eComponentType) || EComponentType.HDFS.equals(eComponentType)) {
             dataInfo.put(eComponentType.getConfName(), JSONObject.parseObject(componentConfig));
-        } if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
+        } else if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
+            dataInfo = JSONObject.parseObject(componentConfig);
             putYarnConfig(clusterId, dataInfo);
         } else {
             dataInfo = JSONObject.parseObject(componentConfig);
