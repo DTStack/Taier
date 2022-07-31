@@ -142,7 +142,7 @@ public class EnvironmentContext implements InitializingBean {
     @Value("${task.status.dealer.pool.size:5}")
     private int taskStatusDealerPoolSize;
 
-    @Value("${test.connect.timeout:5}")
+    @Value("${test.connect.timeout:60}")
     private int testConnectTimeout;
 
     @Value("${build.job.retry:5}")
