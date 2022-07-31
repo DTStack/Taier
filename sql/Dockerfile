@@ -9,7 +9,7 @@ ENV AUTO_RUN_DIR /docker-entrypoint-initdb.d
 
 #### 执行sql ####
 # 定义要执行的sql文件名
-ENV CREATE_SQL_FILE sql/init.sql
+ENV CREATE_SQL_FILE ../init.sql
 
 # 配置mysql
 ENV MYSQL_DATABASE=taier
@@ -20,7 +20,6 @@ COPY utf8mb4.cnf /etc/mysql/conf.d/utf8mb4.cnf
 
 # 把sql文件复制到工作目录下和初始化脚本
 COPY $CREATE_SQL_FILE $AUTO_RUN_DIR/
-COPY $INSERT_SQL_FILE $AUTO_RUN_DIR/
 
 # 给执行文件增加可执行权限
 RUN chmod a+x $AUTO_RUN_DIR/$CREATE_DATA_SHELL
