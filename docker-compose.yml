@@ -1,21 +1,21 @@
 version: '3'
 services:
   taier-db:
-    image: dtopensource/taier-mysql:1.1
+    image: dtopensource/taier-mysql:latest
     environment:
       MYSQL_DATABASE: taier
       MYSQL_ROOT_PASSWORD: 123456
   taier-zk:
     image: zookeeper:3.4.9
   taier-ui:
-    image: dtopensource/taier-ui:1.1
+    image: dtopensource/taier-ui:latest
     ports:
       - 80:80
     environment:
       TAIER_IP: taier
       TAIER_PORT: 8090
   taier:
-    image: dtopensource/taier:1.1
+    image: dtopensource/taier:latest
     environment:
       ZK_HOST: taier-zk
       ZK_PORT: 2181
