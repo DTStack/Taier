@@ -151,7 +151,7 @@ export default {
 	UPLOAD_CODE: `${BASE_URI}/dataSource/addDs/getPrincipalsWithConf`, // 上传 kerberos 文件
 	GET_CREATE_TARGET_TABLE: `${BASE_URI}/dataSource/addDs/getCreateTargetTableSql`, // 获取创建表的默认语句
 	CREATE_DDL_TABLE: `${BASE_URI}/dataSource/addDs/ddlCreateTable`, // 创建 ddl 的表
-	BATCH_STOP_JOBS_BY_DATE: `${BASE_URI}/scheduleJob/stopJobByCondition`, // 按照业务日期杀任务
+	BATCH_STOP_JOBS_BY_DATE: `${BASE_URI}/action/stopJobByCondition`, // 按照业务日期杀任务
 	ALL_PRODUCT_GLOBAL_SEARCH: `${BASE_URI}/task/allProductGlobalSearch`, // 所有产品的已提交任务查询
 	GET_COMPONENT_MODELS: `${BASE_URI}/component/componentModels`, // 获取能配置的组件信息
 	GET_COMPONENT_INFO: `${BASE_URI}/component/getComponentInfo`, // 获取组件配置信息
