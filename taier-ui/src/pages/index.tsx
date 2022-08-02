@@ -80,7 +80,7 @@ export default function HomePage() {
 		});
 
 		checkLoginStatus();
-		dispatch({ type: SupportJobActionKind.REQUEST });
+		dispatch({ type: SupportJobActionKind.REQUEST, verbose: true });
 	}, []);
 
 	const openDrawer = (drawerId: string) => {
