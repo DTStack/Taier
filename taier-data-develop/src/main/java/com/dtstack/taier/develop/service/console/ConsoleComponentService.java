@@ -198,7 +198,7 @@ public class ConsoleComponentService {
                                                List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
         List<ComponentConfig> configs = new ArrayList<>();
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-            //添加typeName
+        //添加typeName
         configs.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName, componentId, clusterId, componentType.getTypeCode()));
         if (!StringUtils.isBlank(md5Key)) {
             configs.add(ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key, componentId, clusterId, componentType.getTypeCode()));
@@ -1336,7 +1336,8 @@ public class ConsoleComponentService {
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
         Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
         componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
+        String version = ComponentVersionUtil.formatMultiVersion(component.getComponentTypeCode(), component.getVersionName());
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), version);
         if (null != kerberosConfig) {
             componentVO.setPrincipal(kerberosConfig.getPrincipal());
             componentVO.setPrincipals(kerberosConfig.getPrincipals());
