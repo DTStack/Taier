@@ -304,7 +304,9 @@ public class ScheduleActionService {
 
     public Boolean stop(List<String> jobIds, Integer isForce) {
         List<ScheduleJob> jobs = new ArrayList<>(scheduleJobService.getByJobIds(jobIds));
-        jobStopDealer.addStopJobs(jobs, isForce);
+        if(CollectionUtils.isNotEmpty(jobs)){
+            jobStopDealer.addStopJobs(jobs, isForce);
+        }
         return true;
     }
 
