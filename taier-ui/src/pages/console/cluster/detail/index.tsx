@@ -162,6 +162,8 @@ export default function ClusterDetail() {
 					return null;
 				});
 
+				setPrincipals(res.data.principals?.split(',') || []);
+
 				requestedList.current.add(target.id!);
 				return res.data;
 			}
@@ -399,13 +401,13 @@ export default function ClusterDetail() {
 	const handleSaveComponent = async () => {
 		const currentComponent = findComponentVOS(selectedKey);
 		if (!currentComponent) return Promise.resolve();
-		const values = await form.validateFields();
+		const { kerberosFileName, principal, ...restValues } = await form.validateFields();
 		const versionName = form.getFieldValue('versionName');
 
 		// 上传配置文件所解析出来的配置项会放在 config 字段中，不存在于 values 里
 		const xmlConfig = form.getFieldValue('config');
 
-		const componentConfig = xmlConfig ? JSON.stringify(xmlConfig) : JSON.stringify(values);
+		const componentConfig = xmlConfig ? JSON.stringify(xmlConfig) : JSON.stringify(restValues);
 
 		try {
 			setDetailLoading(true);
@@ -425,6 +427,7 @@ export default function ClusterDetail() {
 				deployType: currentComponent.deployType,
 				clusterId: currentComponent.clusterId,
 				componentCode: currentComponent.componentTypeCode,
+				kerberosFileName: form.getFieldValue('kerberosFileName') ?? '',
 				resources1: isUploadConfig ? form.getFieldValue('uploadFileName') : '',
 			});
 
@@ -595,7 +598,12 @@ export default function ClusterDetail() {
 				};
 			}
 
-			form.setFieldsValue({ ...defaultValuesInForm, uploadFileName: target?.uploadFileName });
+			form.setFieldsValue({
+				...defaultValuesInForm,
+				uploadFileName: target?.uploadFileName,
+				kerberosFileName: target?.kerberosFileName,
+				principal: target?.principal,
+			});
 		}
 	}, [selectedKey]);
 
