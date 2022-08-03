@@ -19,7 +19,9 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 
-/** 保存flinkx配置信息
+/**
+ * 保存flinkx配置信息
+ *
  * @program: engine-plugins
  * @author: xiuzhu
  * @create: 2021/07/15
@@ -29,28 +31,30 @@ public class PluginConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginConfig.class);
 
-    private String remoteFlinkxDistDir;
+    private String remoteChunjunDistDir;
 
-    private String flinkxDistDir;
+    private String chunjunDistDir;
 
-    /** 插件上传方式 */
+    /**
+     * 插件上传方式
+     */
     private String pluginLoadMode;
 
     private PluginConfig() {
     }
 
-    public static PluginConfig newInstance(FlinkConfig flinkConfig){
+    public static PluginConfig newInstance(FlinkConfig flinkConfig) {
         PluginConfig pluginConfig = new PluginConfig();
         pluginConfig.init(flinkConfig);
         return pluginConfig;
     }
 
-    public void init(FlinkConfig flinkConfig){
+    public void init(FlinkConfig flinkConfig) {
         this.pluginLoadMode = flinkConfig.getPluginLoadMode();
-        this.flinkxDistDir = flinkConfig.getFlinkxDistDir();
-        this.remoteFlinkxDistDir = flinkConfig.getRemoteFlinkxDistDir();
-        LOG.info("---------flinkx local plugin dir is: " + flinkxDistDir);
-        LOG.info("---------flinkx remote plugin dir is: " + remoteFlinkxDistDir);
+        this.chunjunDistDir = flinkConfig.getChunjunDistDir();
+        this.remoteChunjunDistDir = flinkConfig.getRemoteChunjunDistDir();
+        LOG.info("---------chunjun local plugin dir is: " + chunjunDistDir);
+        LOG.info("---------chunjun remote plugin dir is: " + remoteChunjunDistDir);
     }
 
     /**
@@ -65,22 +69,23 @@ public class PluginConfig {
 
     /**
      * find jar from localFlinkxPluginDir witch name started with flinkx-core
+     *
      * @return jar name
      */
     private String getCoreJarPath() {
-        File pluginDir = new File(flinkxDistDir);
-        if (pluginDir.exists() && pluginDir.isDirectory()){
+        File pluginDir = new File(chunjunDistDir);
+        if (pluginDir.exists() && pluginDir.isDirectory()) {
             File[] jarFiles = pluginDir.listFiles((dir, name)
                     -> (name.toLowerCase().startsWith(ConfigConstant.FLINKX_CORE_JAR_PREFIX)
                     || name.toLowerCase().startsWith(ConfigConstant.CHUNJUN_CORE_JAR_PREFIX))
                     && name.toLowerCase().endsWith(".jar"));
 
             // todo: should check if jarFiles.length > 1
-            if (jarFiles != null && jarFiles.length > 0){
+            if (jarFiles != null && jarFiles.length > 0) {
                 return jarFiles[0].getAbsolutePath();
             }
         }
-        throw new PluginDefineException("Can not find chunjun core jar in path: " + flinkxDistDir);
+        throw new PluginDefineException("Can not find chunjun core jar in path: " + chunjunDistDir);
     }
 
     /**
@@ -91,18 +96,18 @@ public class PluginConfig {
     public List<String> buildProgramArgs(JobClient jobClient) throws IOException {
         String args = jobClient.getClassArgs();
         List<String> programArgs = Lists.newArrayList();
-        if(StringUtils.isNotBlank(args)){
+        if (StringUtils.isNotBlank(args)) {
             // 按空格,制表符等进行拆分
             programArgs.addAll(Arrays.asList(args.split("\\s+")));
         }
 
         programArgs.add("-mode");
         // 默认情况，以yarn-per-job模式构建jobGraph
-        if(EDeployMode.SESSION.getType().equals(jobClient.getDeployMode())){
+        if (EDeployMode.SESSION.getType().equals(jobClient.getDeployMode())) {
             programArgs.add("yarn-session");
-        }else if(EDeployMode.STANDALONE.getType().equals(jobClient.getDeployMode())){
+        } else if (EDeployMode.STANDALONE.getType().equals(jobClient.getDeployMode())) {
             programArgs.add("standalone");
-        }else {
+        } else {
             programArgs.add("yarn-per-job");
         }
 
@@ -119,9 +124,9 @@ public class PluginConfig {
         } else if (EJobType.SYNC.equals(jobTypeEnum)) {
             jobType = "sync";
             int jobIndex = 0;
-            for(; jobIndex < programArgs.size(); ++jobIndex){
-                if("-job".equals(programArgs.get(jobIndex)) ||
-                        "--job".equals(programArgs.get(jobIndex))){
+            for (; jobIndex < programArgs.size(); ++jobIndex) {
+                if ("-job".equals(programArgs.get(jobIndex)) ||
+                        "--job".equals(programArgs.get(jobIndex))) {
                     break;
                 }
             }
@@ -140,11 +145,11 @@ public class PluginConfig {
         programArgs.add("-pluginLoadMode");
         programArgs.add(pluginLoadMode);
 
-        programArgs.add("-flinkxDistDir");
-        programArgs.add(flinkxDistDir);
+        programArgs.add("-chunjunDistDir");
+        programArgs.add(chunjunDistDir);
 
-        programArgs.add("-remoteFlinkxDistDir");
-        programArgs.add(remoteFlinkxDistDir);
+        programArgs.add("-remoteChunJunDistDir");
+        programArgs.add(remoteChunjunDistDir);
 
         programArgs.add("-confProp");
         String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
