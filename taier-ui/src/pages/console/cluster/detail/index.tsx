@@ -162,7 +162,7 @@ export default function ClusterDetail() {
 					return null;
 				});
 
-				setPrincipals(res.data.principals || []);
+				setPrincipals(res.data.principals?.split(',') || []);
 
 				requestedList.current.add(target.id!);
 				return res.data;
