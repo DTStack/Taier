@@ -434,9 +434,9 @@ class YarnApplicationFileUploader implements AutoCloseable {
         // replace with remote directory
         String remoteFlinkJarPath = flinkConfiguration.getString(ConfigConstant.REMOTE_FLINK_LIB_DIR, null);
         if(remoteFlinkJarPath != null && remoteFlinkJarPath.startsWith(ConfigConstant.PREFIX_HDFS)) {
-            String remotePluginRootDir = flinkConfiguration.getString(ConfigConstant.REMOTE_FLINKX_DIST_DIR, null);
+            String remotePluginRootDir = flinkConfiguration.getString(ConfigConstant.REMOTE_CHUNJUN_DIST_DIR, null);
             String flinkJarPath = flinkConfiguration.getString(ConfigConstant.FLINK_LIB_DIR, null);
-            String flinkPluginRoot = flinkConfiguration.getString(ConfigConstant.FLINKX_DIST_DIR, null);
+            String flinkPluginRoot = flinkConfiguration.getString(ConfigConstant.CHUNJUN_DIST_DIR, null);
 
             String path = localSrcPath.toUri().getPath();
             if (path.startsWith(flinkJarPath)) {

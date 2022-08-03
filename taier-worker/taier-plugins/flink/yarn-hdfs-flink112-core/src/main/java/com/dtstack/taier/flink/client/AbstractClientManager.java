@@ -210,13 +210,13 @@ public class AbstractClientManager implements IClientManager {
         //检查HDFS上是否已经上传插件包及Lib包
         String remoteFlinkLibDir = flinkConfig.getRemoteFlinkLibDir();
         //remotePluginRootDir默认不为空
-        String remoteFlinkxDistDir = flinkConfig.getRemoteFlinkxDistDir();
+        String remoteChunjunDistDir = flinkConfig.getRemoteChunjunDistDir();
         //不考虑二者只有其一上传到了hdfs上的情况
-        if(StringUtils.startsWith(remoteFlinkLibDir, ConfigConstant.PREFIX_HDFS) && StringUtils.startsWith(remoteFlinkxDistDir, ConfigConstant.PREFIX_HDFS)){
+        if(StringUtils.startsWith(remoteFlinkLibDir, ConfigConstant.PREFIX_HDFS) && StringUtils.startsWith(remoteChunjunDistDir, ConfigConstant.PREFIX_HDFS)){
             flinkConfiguration.setString(ConfigConstant.REMOTE_FLINK_LIB_DIR, remoteFlinkLibDir);
-            flinkConfiguration.setString(ConfigConstant.REMOTE_FLINKX_DIST_DIR, remoteFlinkxDistDir);
+            flinkConfiguration.setString(ConfigConstant.REMOTE_CHUNJUN_DIST_DIR, remoteChunjunDistDir);
             flinkConfiguration.setString(ConfigConstant.FLINK_LIB_DIR, flinkConfig.getFlinkLibDir());
-            flinkConfiguration.setString(ConfigConstant.FLINKX_DIST_DIR, flinkConfig.getFlinkxDistDir());
+            flinkConfiguration.setString(ConfigConstant.CHUNJUN_DIST_DIR, flinkConfig.getChunjunDistDir());
         }
         return flinkConfiguration;
     }
