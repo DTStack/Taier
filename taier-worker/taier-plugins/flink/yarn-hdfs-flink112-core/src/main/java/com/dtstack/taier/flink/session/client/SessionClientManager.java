@@ -38,7 +38,14 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -329,7 +336,7 @@ public class SessionClientManager extends AbstractClientManager {
         if (StringUtils.isNotBlank(pluginLoadMode) && ConfigConstant.FLINK_PLUGIN_SHIPFILE_LOAD.equalsIgnoreCase(pluginLoadMode)) {
             newConf.setString(ConfigConstant.FLINKX_PLUGIN_LOAD_MODE, flinkConfig.getPluginLoadMode());
 
-            String flinkPluginRoot = flinkConfig.getFlinkxDistDir();
+            String flinkPluginRoot = flinkConfig.getChunjunDistDir();
             if (StringUtils.isNotBlank(flinkPluginRoot)) {
                 String syncPluginDir = flinkPluginRoot;
                 File syncFile = new File(syncPluginDir);

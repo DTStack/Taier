@@ -25,11 +25,11 @@ public class FlinkConfig extends BaseConfig {
 
     private static List<String> ENGINE_FLINK_CONFIGS= initEngineFlinkConfigFields();
 
-    /** flinkx dist jar directory*/
-    private String flinkxDistDir;
+    /** chunjun dist jar directory*/
+    private String chunjunDistDir;
 
-    /** remote flinkx dist jar directory*/
-    private String remoteFlinkxDistDir;
+    /** remote chunjun dist jar directory*/
+    private String remoteChunjunDistDir;
 
     /** flink lib jar directory*/
     private String flinkLibDir;
@@ -314,20 +314,20 @@ public class FlinkConfig extends BaseConfig {
         this.remoteFlinkLibDir = remoteFlinkLibDir;
     }
 
-    public String getFlinkxDistDir() {
-        return flinkxDistDir;
+    public String getChunjunDistDir() {
+        return chunjunDistDir;
     }
 
-    public void setFlinkxDistDir(String flinkxDistDir) {
-        this.flinkxDistDir = flinkxDistDir;
+    public void setChunjunDistDir(String chunjunDistDir) {
+        this.chunjunDistDir = chunjunDistDir;
     }
 
-    public String getRemoteFlinkxDistDir() {
-        return remoteFlinkxDistDir;
+    public String getRemoteChunjunDistDir() {
+        return remoteChunjunDistDir;
     }
 
-    public void setRemoteFlinkxDistDir(String remoteFlinkxDistDir) {
-        this.remoteFlinkxDistDir = remoteFlinkxDistDir;
+    public void setRemoteChunjunDistDir(String remoteChunjunDistDir) {
+        this.remoteChunjunDistDir = remoteChunjunDistDir;
     }
 
     public String getQueue() {
