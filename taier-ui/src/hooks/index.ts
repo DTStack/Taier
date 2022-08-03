@@ -22,6 +22,7 @@ import notification from '@/components/notification';
 import type { ISupportJobTypes } from '@/context';
 import { SupportJobActionKind } from '@/context';
 import taskRenderService from '@/services/taskRenderService';
+import http from '@/api/http';
 
 interface IPagination {
 	current?: number;
@@ -74,21 +75,26 @@ export const usePagination = ({
 export function useSupportJobType() {
 	const [supportJobTypes, setSupportJobTypes] = useState<ISupportJobTypes[]>([]);
 
-	const dispatch = (action: { type: SupportJobActionKind }) => {
+	const dispatch = (action: { type: SupportJobActionKind; verbose?: boolean }) => {
 		switch (action.type) {
 			case SupportJobActionKind.REQUEST: {
+				http.verbose = !!action.verbose;
 				// 获取当前支持的任务类型
-				api.getTaskTypes({}).then((res) => {
-					if (res.code === 1) {
-						setSupportJobTypes(res.data || []);
-						taskRenderService.supportTaskList = res.data || [];
-					} else {
-						notification.error({
-							key: 'FailedJob',
-							message: `获取支持的类型失败，将无法创建新的任务！`,
-						});
-					}
-				});
+				api.getTaskTypes({})
+					.then((res) => {
+						if (res.code === 1) {
+							setSupportJobTypes(res.data || []);
+							taskRenderService.supportTaskList = res.data || [];
+						} else if (http.verbose) {
+							notification.error({
+								key: 'FailedJob',
+								message: `获取支持的类型失败，将无法创建新的任务！`,
+							});
+						}
+					})
+					.finally(() => {
+						http.verbose = true;
+					});
 				break;
 			}
 			default:

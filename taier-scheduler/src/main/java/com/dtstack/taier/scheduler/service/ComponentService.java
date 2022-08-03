@@ -93,7 +93,7 @@ public class ComponentService {
                     ComponentVersionUtil.formatMultiVersion(componentCode, componentVersion));
         }
         Map sftpMap = getComponentByClusterId(clusterId, EComponentType.SFTP.getTypeCode(), false, Map.class, null);
-        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig);
+        pluginInfo = wrapperConfig(componentCode, componentConfig.toJSONString(), sftpMap, kerberosConfig,clusterId);
         return pluginInfo;
     }
 
@@ -105,17 +105,18 @@ public class ComponentService {
      * @param componentConfig
      * @return
      */
-    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig) {
-        JSONObject dataInfo = JSONObject.parseObject(componentConfig);
-        if (EComponentType.YARN.getTypeCode() == componentType) {
-            JSONObject confInfo = new JSONObject();
-            confInfo.put(EComponentType.YARN.getConfName(), dataInfo);
-            dataInfo = confInfo;
-        } else if (EComponentType.HDFS.getTypeCode() == componentType) {
-            JSONObject confInfo = new JSONObject();
-            confInfo.put(EComponentType.YARN.getConfName(), dataInfo);
-            dataInfo = confInfo;
+    public JSONObject wrapperConfig(int componentType, String componentConfig, Map<String, String> sftpConfig, KerberosConfig kerberosConfig,Long clusterId) {
+        EComponentType eComponentType = EComponentType.getByCode(componentType);
+        JSONObject dataInfo = new JSONObject();
+        if (EComponentType.YARN.equals(eComponentType) || EComponentType.HDFS.equals(eComponentType)) {
+            dataInfo.put(eComponentType.getConfName(), JSONObject.parseObject(componentConfig));
+        } else if (EComponentType.HIVE_SERVER.equals(eComponentType)) {
+            dataInfo = JSONObject.parseObject(componentConfig);
+            putYarnConfig(clusterId, dataInfo);
+        } else {
+            dataInfo = JSONObject.parseObject(componentConfig);
         }
+
 
         //开启了kerberos
         if (null != kerberosConfig) {
@@ -130,6 +131,13 @@ public class ComponentService {
         //common参数
         dataInfo.put(EComponentType.SFTP.getConfName(), sftpConfig);
         return dataInfo;
+    }
+
+    private void putYarnConfig(Long clusterId, JSONObject dataInfo) {
+        Map yarnMap = getComponentByClusterId(clusterId, EComponentType.YARN.getTypeCode(), false, Map.class, null);
+        if (null != yarnMap) {
+            dataInfo.put(EComponentType.YARN.getConfName(), yarnMap);
+        }
     }
 
     public Component getComponentByClusterId(Long clusterId, Integer componentType, String componentVersion) {
