@@ -25,7 +25,7 @@
 		"@dtinsight/dt-utils": "^1.0.9",
 		"@dtinsight/molecule": "^1.1.0",
 		"@handsontable/react": "^11.1.0",
-		"antd": "^4.21.7",
+		"antd": "^4.22.3",
 		"async-validator": "^4.0.7",
 		"base-64": "^1.0.0",
 		"classnames": "^2.3.1",

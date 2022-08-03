@@ -12,6 +12,7 @@ import com.dtstack.taier.common.enums.EFrontType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.thread.RdosThreadFactory;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.common.util.Pair;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
@@ -72,6 +73,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -124,6 +127,10 @@ public class ConsoleComponentService {
      * 组件配置文件映射
      */
     public static Map<Integer, List<String>> componentTypeConfigMapping = new HashMap<>(2);
+
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10,
+            100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
+            new RdosThreadFactory("test-connect"), new ThreadPoolExecutor.DiscardOldestPolicy());
 
 
     static {
@@ -198,7 +205,7 @@ public class ConsoleComponentService {
                                                List<ComponentConfig> templateConfig, Long componentId, Long clusterId) {
         List<ComponentConfig> configs = new ArrayList<>();
         JSONObject componentConfigJSON = JSONObject.parseObject(componentString);
-            //添加typeName
+        //添加typeName
         configs.add(ComponentConfigUtils.buildOthers(TYPE_NAME_KEY, pluginName, componentId, clusterId, componentType.getTypeCode()));
         if (!StringUtils.isBlank(md5Key)) {
             configs.add(ComponentConfigUtils.buildOthers(MD5_SUM_KEY, md5Key, componentId, clusterId, componentType.getTypeCode()));
@@ -948,6 +955,7 @@ public class ConsoleComponentService {
      * @return
      */
     public List<ComponentTestResult> testConnects(Long clusterId) {
+
         Cluster cluster = clusterMapper.getOne(clusterId);
         List<Component> components = getComponents(cluster);
         if (CollectionUtils.isEmpty(components)) {
@@ -958,7 +966,7 @@ public class ConsoleComponentService {
 
         Map<Component, CompletableFuture<ComponentTestResult>> completableFutureMap = components.stream()
                 .collect(Collectors.toMap(component -> component,
-                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c))));
+                        c -> CompletableFuture.supplyAsync(() -> testComponentWithResult(cluster, sftpMap, c),executor)));
 
         CompletableFuture<Void> totalFuture = CompletableFuture.allOf(completableFutureMap.values().toArray(new CompletableFuture[0]));
         try {
@@ -1098,7 +1106,7 @@ public class ConsoleComponentService {
             if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
                 typeName = componentService.buildHdfsTypeName(null, clusterId);
             }
-            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig);
+            JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
             pluginInfo.put(TYPE_NAME_KEY, typeName);
             componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
             if (null == componentTestResult) {
@@ -1336,7 +1344,8 @@ public class ConsoleComponentService {
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
         Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
         componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
+        String version = ComponentVersionUtil.formatMultiVersion(component.getComponentTypeCode(), component.getVersionName());
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), version);
         if (null != kerberosConfig) {
             componentVO.setPrincipal(kerberosConfig.getPrincipal());
             componentVO.setPrincipals(kerberosConfig.getPrincipals());
