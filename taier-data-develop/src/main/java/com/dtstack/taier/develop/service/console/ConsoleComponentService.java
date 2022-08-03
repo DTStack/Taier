@@ -1344,7 +1344,8 @@ public class ConsoleComponentService {
         List<ComponentConfig> componentConfigs = componentConfigService.listByComponentIds(Lists.newArrayList(componentId), false);
         Map<String, Object> configToMap = ComponentConfigUtils.convertComponentConfigToMap(componentConfigs);
         componentVO.setComponentConfig(JSONObject.toJSONString(configToMap));
-        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), component.getVersionName());
+        String version = ComponentVersionUtil.formatMultiVersion(component.getComponentTypeCode(), component.getVersionName());
+        KerberosConfig kerberosConfig = consoleKerberosMapper.getByComponentType(component.getClusterId(), component.getComponentTypeCode(), version);
         if (null != kerberosConfig) {
             componentVO.setPrincipal(kerberosConfig.getPrincipal());
             componentVO.setPrincipals(kerberosConfig.getPrincipals());
