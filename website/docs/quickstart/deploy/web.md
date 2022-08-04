@@ -4,177 +4,69 @@
 我们建议通过 [docker 部署](./docker.md)，解决环境安装的烦恼
 :::
 
-## 准备前端部署环境
+## 准备环境
 
-1. 首先，通过命令行安装 `Node.js` 的二进制文件。
+### 安装 Nginx
 
-```shell
-$ wget https://nodejs.org/dist/v16.14.0/node-v16.14.0-linux-x64.tar.xz
+[Nginx](https://www.nginx.com/) 是一个高性能的 Web 和反向代理服务器。
+
+> 以下安装以 Centos7 为例，不同服务器命令会有差异。
+
+```bash
+rpm -ivh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+yum -y install nginx
 ```
 
-:::tip 其他版本安装
-这里安装的 `Node.js` 的版本为 `v16.14.0`, 如果需要下载不同的版本或其他平台的 Node.js 安装包，可以通过 https://nodejs.org/zh-cn/download/ 查询其他版本。
+在安装完成后，可以在浏览器中输入服务器的 IP 地址，如果出现 `Welcome to nginx！`的字样则表示安装成功。
 
-我们建议 `Node.js` 的版本在 `12.18.0` 及以上。
+### 准备产物包
+
+Nginx 默认的配置路径是 `/var/www/html/`，现在我们选择在 `/var/www/taier-ui` 这里放我们的 taier 前端项目。
+
+```bash
+cd /var
+mkdir www && cd www
+mkdir taier-ui && cd taier-ui
+```
+
+下载最新的 dist 压缩包至当前目录
+
+```bash
+# 当前最新版为 `v.2.0`
+curl -LJO https://github.com/DTStack/Taier/releases/download/v1.2.0/dist.zip
+```
+
+若因部分原因无法通过 curl 下载该文件，可通过浏览器打开进行下载操作。
+
+:::tip
+其他版本的相关文件请通过 [release](https://github.com/DTStack/Taier/releases) 查看。
+
+`v1.2.0` 版本之前的版本请使用 `docker` 安装，具体安装步骤见 [docker 部署](./docker.md)
 :::
 
-1. 下载完成后，解压源码文件
+安装完成后在当前目录下会新增 `dist.zip` 文件
 
-```shell
-$ xz -d node-v16.14.0-linux-x64.tar.xz
-$ tar xvf node-v16.14.0-linux-x64.tar
+```bash
+ls
+# dist.zip
+unzip dist.zip
 ```
 
-2. 安装完成后，编辑环境变量
+执行完成后，目录下会新增 `dist` 文件夹
 
-```shell
-$ vim /etc/profile
+## 配置代理
+
+```bash
+cd /etc/nginx/conf.d
+touch taier.conf
 ```
 
-打开 vim 编辑器后，在文件最下面粘贴如下内容:
+在 `/etc/nginx/conf.d` 目录下，我们新建一个叫 `taier.conf` 的文件，用文件是用来配置 Nginx 的代理用的。在该文件中添加如下内容
 
-```shell
-#set for nodejs
-export NODE_HOME=/usr/local/node/16.14.0
-export PATH=$NODE_HOME/bin:$PATH
-```
-
-通过 `:wq` 保存并退出，退出后执行如下命令使之生效:
-
-```shell
-$ source /etc/profile
-```
-
-3. 验证安装
-
-通过执行 `node -v` 是否输出 Node.js 的版本信息判断是否安装成功。
-
-```shell
-$ node -v
-v16.14.0
-```
-
-:::note
-**我们推荐使用 `yarn` 来管理前端项目依赖**
-:::
-
-4. 安装 `yarn`
-
-安装 `Node.js` 的同时，会安装 `npm`，我们通过 `npm` 来安装 `yarn`.
-
-```shell
-$ npm -v
-6.14.13
-$ npm install -g yarn
-```
-
-安装完成后，通过以下命令确认是否安装成功
-
-```shell
-$ yarn -v
-1.22.10
-```
-
-## 安装项目依赖
-
-将当前路径切换到 `taier-ui` 文件夹下，然后执行 `yarn` 开始安装项目依赖
-
-```shell
-$ pwd
-~/Your-Project-Path/Taier/taier-ui
-$ yarn
-```
-
-:::tip 切换淘宝源
-国内用户在安装依赖的时候会比较慢，可以在安装之前将 `yarn` 的源换成淘宝源.
-
-```shell
-$ yarn config set registry https://registry.npm.taobao.org/
-```
-
-::::
-安装完成后，当前路径下会新增 `node_modules` 文件夹 和 `yarn.lock` 文件，前者是保存当前项目的依赖，后者是记录当前项目的依赖的版本信息。
-
-安装依赖成功后，执行 `yarn build` 对项目进行编译。
-
-```shell
-$ yarn build
-```
-
-项目编译完成后，会将编译后的结果存放在当前目录的 dist 文件夹下，
-
-```shell
-./
-├── README.md
-├── cup.config.js
-├── dist # 编译结果文件
-├── node_modules # 项目依赖
-├── package.json
-├── pom.xml
-├── public
-├── scripts
-├── src
-├── tailwind.config.js
-├── tsconfig.json
-├── typings.d.ts
-└── yarn.lock
-```
-
-然后这里我们借助 `mini-cup` 和 `pm2` 的能力来启动服务器，首先先全局安装 `mini-cup` 和 `pm2`.
-
-```shell
-$ yarn global add pm2 mini-cup
-```
-
-:::info
-[`PM2`](https://www.npmjs.com/package/pm2) is a production process manager for Node.js applications with a built-in load balancer.
-
-[`mini-cup`](https://github.com/wewoor/cup) is a lightweight web server for web applications.
-:::
-
-安装完成，就可以通过在 `taier-ui`目录下执行以下命令来启动服务:
-
-```shell
-$ pwd
-/Your-Project-Path/Taier/taier-ui
-$ pm2 start cup
-```
-
-执行命令后，打开浏览器输入 http://localhost:8080/ 即可看到页面。
-
-:::caution
-建议开发人员通过修改 `hosts` 进行开发
-:::
-
-该命令会查找当前目录下的 `cup.config.js` 文件，并将该文件作为配置文件启动服务器，该文件内容如下：
-
-```js title="cup.config.js"
-const publicURL = "http://taier.dtstack.cn"; // 跳转到后端部署的目录
-
-module.exports = {
-  name: "taier",
-  listen: 8080, // 服务启动端口
-  root: "./dist", // 服务启动的根目录
-  proxyTable: {
-    // 服务启动后的请求代理转发
-    "/taier": {
-      target: `${publicURL}:8090`,
-      changeOrigin: true,
-      secure: false,
-    },
-  },
-};
-```
-
-:::caution
-`mini-cup` 服务器仅用作本地快速部署，在实际生产环境中，我们推荐使用 `nginx` 作为代理服务器。
-:::
-
-如果您想要使用 `nginx` 作为代理服务，这里提供一份配置文件**仅供参考**。
-
-```nginx title="taier.conf"
-upstream taier{
-  server Your-Server-IP:Your-Server-PORT;
+```nginx title=taier.conf
+upstream server {
+  # The server ip and port
+  server 127.0.0.1:8090;
 }
 
 
@@ -182,7 +74,7 @@ server {
   listen *:80;
   listen [::]:80;
   # The host name to respond to
-  server_name .taier.dtstack.com .taier.dtstack.cn;
+  server_name .taier.com;
   client_max_body_size  100m;
 
   proxy_set_header   cache-control no-cache;
@@ -197,17 +89,68 @@ server {
 
 
   location / {
-    proxy_set_header X-Real-IP  $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $host;
-    proxy_pass http://Your-address-ip:8080;
+    root /var/www/taier-ui/dist;
+    index  index.html;
+    autoindex on;
   }
 
   location /taier {
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $host;
-    proxy_pass http://taier;
-  }
+    proxy_pass http://server;
+ 	}
 }
 ```
+
+### 重启服务
+
+配置完成后，重启 Nginx 服务。
+
+```bash
+nginx -s reload
+```
+
+此时访问 http://Your-IP-Address（例如：http://127.0.0.1/） 后仍然出现 `Welcome to nginx!` 的页面，原因是因为 Nginx 的默认监听端口和我们的 taier-ui 监听的端口都是 80 端口，此时 Nginx 通过 server_name 来区分需要转发到对应的应用中去。
+
+那么我们接下来需要通过配置 hosts 将 `.taier.com` 转发到路由去。
+
+## 配置 hosts
+
+:::caution
+这一步需要在主机电脑操作，并不是在服务器操作。即**打开浏览器的那一台电脑**。
+:::
+
+找到 `hosts` 文件所在的位置，windows 用户的 hosts 通常在 `C:\Windows\System32\drivers\etc\hosts`，而 Linux 通常在 `/etc/hosts`。
+
+打开 hosts 文件，其内容通常是一组一组的键值对，如下:
+
+```ini title="hosts"
+127.0.0.1   localhost
+::1         localhost
+```
+
+每一组的键值对都表示如果当前访问 localhost，则浏览器会通过 hosts 解析，将其 IP 地址解析为 127.0.0.1。
+
+那接下来，我们在 `hosts` 文件的最后一行添加如下内容：
+
+```nginx
+# Your-IP-Address Your-Address
+127.0.0.1 taier.com
+```
+
+上述代码的意思是，在浏览器中访问 http://www.taier.com 则系统会解析其对应的 IP 至 `127.0.0.1`。
+
+:::note
+这里需要填写你部署的 `taier-ui` 所在的服务器的 IP 地址。
+:::
+
+完成配置后，访问 http://www.taier.com 则可以看到页面。
+
+## 其他版本安装
+
+如果有需要安装低于 `v1.2.0` 的版本，我们**强烈建议**您通过 docker 部署。
+
+:::caution
+如果您执意要通过源码安装，则建议先学习前端知识，Linux 相关命令以及前端工程化相关知识。
+:::
