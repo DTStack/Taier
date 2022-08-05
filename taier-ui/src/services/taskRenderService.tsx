@@ -304,24 +304,38 @@ class TaskRenderService {
 	 * 根据任务类型渲染编辑器 actions
 	 */
 	public renderEditorActions = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps) => {
+		// All tasks should have save and submit actions
+		const defaultActions: (keyof typeof editorActionsScaffolds)[] = [
+			'SAVE_TASK',
+			'RUN_TASK',
+			'STOP_TASK',
+			'SUBMIT_TASK',
+		];
 		const actionsField = this.editorActionField.find((i) => i.taskType === key);
+
 		if (actionsField) {
 			const isConditionTrue = actionsField.actionsCondition
 				? record[actionsField.actionsCondition.key] === actionsField.actionsCondition.value
 				: false;
 
 			if (isConditionTrue) {
-				return (
-					actionsField.actionsCondition?.actions.map(
-						(action) => editorActionsScaffolds[action],
-					) || []
+				const actions = Array.from(
+					new Set(defaultActions.concat(actionsField.actionsCondition?.actions || [])),
 				);
+				return actions.map((action) => editorActionsScaffolds[action]) || [];
 			}
 
-			return actionsField.actions.map((action) => editorActionsScaffolds[action]) || [];
+			let actions = Array.from(new Set(defaultActions.concat(actionsField.actions || [])));
+
+			// TODO: 强制过滤掉工作流任务的运行和停止按钮
+			if (key === TASK_TYPE_ENUM.WORK_FLOW) {
+				actions = actions.filter((i) => i !== 'RUN_TASK' && i !== 'STOP_TASK');
+			}
+
+			return actions.map((action) => editorActionsScaffolds[action]) || [];
 		}
 
-		return [];
+		return defaultActions.map((action) => editorActionsScaffolds[action]);
 	};
 
 	/**
