@@ -17,7 +17,7 @@ import {
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
-import { RightBarKind } from '@/interface';
+import { IComputeType, RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
@@ -263,7 +263,24 @@ class TaskRenderService {
 
 		const record = current?.tab?.data as IOfflineTaskProps;
 
+		// Default rightBar for each task
+		const defaultRightBarField: Record<IComputeType, RightBarKind[]> = {
+			[IComputeType.BATCH]: [
+				RightBarKind.TASK,
+				RightBarKind.DEPENDENCY,
+				RightBarKind.TASK_PARAMS,
+				RightBarKind.ENV_PARAMS,
+			],
+			[IComputeType.STREAM]: [RightBarKind.TASK],
+		};
+
 		const rightBarField = this.rightBarField.find((i) => i.taskType === record.taskType);
+		const computeType =
+			this.supportTaskList.find((i) => i.key === record.taskType)?.computeType ||
+			IComputeType.STREAM;
+
+		// That's default right bar for each taskType
+		const defaultBarItem = defaultRightBarField[computeType];
 
 		if (rightBarField) {
 			const isConditionTrue = rightBarField.barItemCondition
@@ -272,13 +289,15 @@ class TaskRenderService {
 				: false;
 
 			if (isConditionTrue) {
-				return rightBarField.barItemCondition?.barItem || [];
+				return Array.from(
+					new Set(defaultBarItem.concat(rightBarField.barItemCondition?.barItem || [])),
+				);
 			}
 
-			return rightBarField.barItem || [];
+			return Array.from(new Set(defaultBarItem.concat(rightBarField.barItem || [])));
 		}
 
-		return [RightBarKind.TASK];
+		return defaultBarItem;
 	};
 
 	/**
@@ -346,7 +365,7 @@ class TaskRenderService {
 		} else {
 			if (record.taskType === undefined) {
 				notification.error({
-					key: 'OPNE_TASK_ERROR',
+					key: 'OPEN_TASK_ERROR',
 					message: `无法打开一个未知任务类型的任务，当前任务的任务类型为 ${record.taskType}`,
 				});
 				return;
@@ -354,7 +373,7 @@ class TaskRenderService {
 
 			if (record.name === undefined) {
 				notification.error({
-					key: 'OPNE_TASK_ERROR',
+					key: 'OPEN_TASK_ERROR',
 					message: `无法打开一个未知任务名称任务`,
 				});
 				return;
