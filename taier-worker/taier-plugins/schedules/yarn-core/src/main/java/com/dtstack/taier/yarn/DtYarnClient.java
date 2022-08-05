@@ -266,16 +266,26 @@ public class DtYarnClient extends AbstractClient {
             return null;
         }
         JSONObject schedulerInfoJson = schedulerJson.getJSONObject("schedulerInfo");
-        if (!schedulerInfoJson.containsKey("queues")) {
-            LOG.error("get yarn queueInfo error! Miss queues field");
-            return null;
+    
+        String schedulerType = schedulerInfoJson.getString("type");
+        if (StringUtils.equalsIgnoreCase(schedulerType, ConfigConstrant.CAPACITYSCHEDULER_TPYE)) {
+    
+            if (!schedulerInfoJson.containsKey("queues")) {
+                LOG.error("get yarn queueInfo error! Miss queues field");
+                return null;
+            }
+            JSONObject queuesJson = schedulerInfoJson.getJSONObject("queues");
+            return modifyCapQueueInfo(null, queuesJson);
         }
-        JSONObject queuesJson = schedulerInfoJson.getJSONObject("queues");
-        List<JSONObject> modifyQueueInfos = modifyQueueInfo(null, queuesJson);
-        return modifyQueueInfos;
+        if (StringUtils.equalsIgnoreCase(schedulerType, ConfigConstrant.FAIRSCHEDULER_TPYE)) {
+            JSONObject rootQueueJson = schedulerInfoJson.getJSONObject("rootQueue");
+            JSONObject queuesJson = rootQueueJson.getJSONObject("childQueues");
+            return modifyFairQueueInfo(queuesJson);
+        }
+        return null;
     }
 
-    private List<JSONObject> modifyQueueInfo(String parentName, JSONObject queueInfos) {
+    private List<JSONObject> modifyCapQueueInfo(String parentName, JSONObject queueInfos) {
         List<JSONObject> queues = new ArrayList<>();
         if (!queueInfos.containsKey("queue")) {
             return null;
@@ -288,7 +298,7 @@ public class DtYarnClient extends AbstractClient {
             String queueNewName = parentName + queueName;
 
             if (queueInfo.containsKey("queues")) {
-                List<JSONObject> childQueues = modifyQueueInfo(queueNewName, queueInfo.getJSONObject("queues"));
+                List<JSONObject> childQueues = modifyCapQueueInfo(queueNewName, queueInfo.getJSONObject("queues"));
                 if (childQueues != null) {
                     queues.addAll(childQueues);
                 }
@@ -298,6 +308,27 @@ public class DtYarnClient extends AbstractClient {
             if (!queueInfo.containsKey("queues")) {
                 fillUser(queueInfo);
                 retainCapacity(queueInfo);
+                queues.add(queueInfo);
+            }
+        }
+        return queues;
+    }
+    
+    private List<JSONObject> modifyFairQueueInfo(JSONObject queueInfos) {
+        List<JSONObject> queues = new ArrayList<>();
+        if (!queueInfos.containsKey("queue")) {
+            return null;
+        }
+    
+        for (Object ob : queueInfos.getJSONArray("queue")) {
+            JSONObject queueInfo = (JSONObject) ob;
+        
+            if (queueInfo.containsKey("childQueues")) {
+                List<JSONObject> childQueues = modifyFairQueueInfo(queueInfo.getJSONObject("queues"));
+                if (childQueues != null) {
+                    queues.addAll(childQueues);
+                }
+            } else {
                 queues.add(queueInfo);
             }
         }
