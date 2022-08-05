@@ -455,10 +455,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
         checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
 
-        if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())) {
+        // 发布任务中所有的依赖关系
+        List<ScheduleTaskTaskShade> allTaskTaskList = new ArrayList<>();
 
-            // 发布任务中所有的依赖关系
-            List<ScheduleTaskTaskShade> allTaskTaskList = new ArrayList<>();
+        if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())) {
 
             final List<Task> subTasks = getFlowWorkSubTasks(task.getId());
             subTasks.add(task);
@@ -499,7 +499,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         } else {
             try {
                 // 构建要发布的任务列表
-                ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task, null);
+                ScheduleTaskShade scheduleTasks = buildScheduleTaskShadeDTO(task, allTaskTaskList);
 
                 // 提交任务参数信息并保存任务记录和更新任务状态
                 sendTaskStartTrigger(task.getId(), userId, scheduleTasks);
