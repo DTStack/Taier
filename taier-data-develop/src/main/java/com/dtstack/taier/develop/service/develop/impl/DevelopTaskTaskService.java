@@ -45,12 +45,12 @@ public class DevelopTaskTaskService extends ServiceImpl<DevelopTaskTaskMapper, D
 
     @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateTaskTask(Long taskId, List<TaskVO> dependencyTasks) {
+        this.remove(Wrappers.lambdaQuery(DevelopTaskTask.class)
+                .eq(DevelopTaskTask::getTaskId, taskId));
+
         if (CollectionUtils.isEmpty(dependencyTasks)) {
             return;
         }
-
-        this.remove(Wrappers.lambdaQuery(DevelopTaskTask.class)
-                .eq(DevelopTaskTask::getTaskId, taskId));
 
         List<DevelopTaskTask> taskTaskList = dependencyTasks.stream().map(taskVO -> {
             DevelopTaskTask taskTask = new DevelopTaskTask();
