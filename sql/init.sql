@@ -197,9 +197,9 @@ INSERT INTO `console_component_config` VALUES (741, -2, -115, 0, 'INPUT', 0, 'ta
 INSERT INTO `console_component_config` VALUES (743, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempt-failures-validity-interval', '3600000', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (745, -2, -115, 0, 'INPUT', 0, 'yarn.application-attempts', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (747, -2, -115, 0, 'INPUT', 0, 'yarnAccepterTaskNumber', '3', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (749, -2, -115, 0, 'INPUT', 1, 'remotechunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
+INSERT INTO `console_component_config` VALUES (749, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:56:15', '2021-07-27 13:56:15', 0);
 INSERT INTO `console_component_config` VALUES (751, -2, -115, 0, 'INPUT', 1, 'akka.tcp.timeout', '60 s', NULL, 'deploymode$perjob', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
-INSERT INTO `console_component_config` VALUES (753, -2, -115, 0, 'INPUT', 1, 'remotechunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
+INSERT INTO `console_component_config` VALUES (753, -2, -115, 0, 'INPUT', 1, 'remoteChunjunDistDir', '/data/insight_plugin1.12/chunjunplugin', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (755, -2, -115, 0, 'INPUT', 1, 'flinkSessionName', 'flink_session', NULL, 'deploymode$session', NULL, NULL, '2021-07-27 13:52:46', '2021-07-27 13:52:46', 0);
 INSERT INTO `console_component_config` VALUES (757, -2, -115, 0, 'INPUT', 0, 'checkpoint.retain.time', '7', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 17:22:06', '2021-08-24 17:22:06', 0);
 INSERT INTO `console_component_config` VALUES (759, -2, -115, 0, 'INPUT', 1, 'remoteFlinkLibDir', '/data/insight_plugin1.12/flink_lib', NULL, 'deploymode$perjob', NULL, NULL, '2021-08-24 20:40:39', '2021-08-24 20:40:39', 0);
@@ -1350,7 +1350,7 @@ INSERT INTO `dict` VALUES (243, 'tips', 'checkSubmitJobGraphInterval', 'session 
 INSERT INTO `dict` VALUES (245, 'tips', 'flinkLibDir', 'session check间隔（60 * 10s）', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
 INSERT INTO `dict` VALUES (247, 'tips', 'chunjunDistDir', 'flinkx plugins父级本地目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
 INSERT INTO `dict` VALUES (249, 'tips', 'remoteFlinkLibDir', 'flink lib 远程路径', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
-INSERT INTO `dict` VALUES (251, 'tips', 'remotechunjunDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
+INSERT INTO `dict` VALUES (251, 'tips', 'remoteChunjunDistDir', 'flinkx plugins父级远程目录', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
 INSERT INTO `dict` VALUES (253, 'tips', 'flinkSessionName', 'yarn session名称', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
 INSERT INTO `dict` VALUES (255, 'tips', 'monitorAcceptedApp', '是否监控yarn accepted状态任务', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
 INSERT INTO `dict` VALUES (257, 'tips', 'yarnAccepterTaskNumber', '允许yarn accepter任务数量，达到这个值后不允许任务提交', '0', 25, 0, 'STRING', '数栈平台参数', 0, '2022-06-08 20:18:44', '2022-06-08 20:18:44', 0);
