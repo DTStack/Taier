@@ -3,7 +3,6 @@ package com.dtstack.taier.develop.service.develop;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -33,18 +32,6 @@ public interface ITaskRunner {
      * @throws Exception
      */
     ExecuteResultVO startSqlImmediately(Long userId, Long tenantId, String sql, Task task, List<Map<String, Object>> taskVariables) throws Exception;
-
-    /**
-     * 提交至调度
-     * <p>
-     * eg:
-     * 任务sql中参数(包括系统参数和自定义参数)的替换
-     *
-     * @param actionParam
-     * @param tenantId
-     * @throws Exception
-     */
-    void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception;
 
 
     /**
@@ -86,13 +73,6 @@ public interface ITaskRunner {
      */
     ExecuteResultVO runLog(String jobId, Integer taskType, Long tenantId, Integer limitNum);
 
-    /**
-     * 调度运行日志
-     *
-     * @param jobId
-     * @return
-     */
-    String scheduleRunLog(String jobId);
 
     /**
      * 完整日志下载

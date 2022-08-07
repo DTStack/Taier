@@ -7,7 +7,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -56,22 +55,6 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-        String sql = task.getSqlText() == null ? "" : task.getSqlText();
-        String taskParams = task.getTaskParams();
-        JSONObject syncJob = JSON.parseObject(task.getSqlText());
-        taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
-        String job = syncJob.getString("job");
-        // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-        job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
-
-        developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
-        actionParam.put("job", job);
-        actionParam.put("sqlText", sql);
-        actionParam.put("taskParams", taskParams);
-    }
-
-    @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
         return null;
     }
@@ -83,11 +66,6 @@ public class SyncTaskRunner implements ITaskRunner {
 
     @Override
     public ExecuteResultVO runLog(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
-        return null;
-    }
-
-    @Override
-    public String scheduleRunLog(String jobId) {
         return null;
     }
 
@@ -124,7 +102,7 @@ public class SyncTaskRunner implements ITaskRunner {
             List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
 
             JSONObject syncJob = JSON.parseObject(task.getSqlText());
-            taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
+            taskParams = replaceSyncParall(taskParams, parseSyncChannel(syncJob));
 
             String job = syncJob.getString("job");
 
@@ -171,7 +149,7 @@ public class SyncTaskRunner implements ITaskRunner {
         }
     }
 
-    public String replaceSyncParll(String taskParams, int parallelism) throws IOException {
+    public String replaceSyncParall(String taskParams, int parallelism) throws IOException {
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(taskParams.getBytes(StandardCharsets.UTF_8)));
         properties.put("mr.job.parallelism", parallelism);
