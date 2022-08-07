@@ -9,7 +9,6 @@ import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.RegexUtils;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TenantComponent;
@@ -85,11 +84,6 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-
-    }
-
-    @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
         return null;
     }
@@ -115,10 +109,6 @@ public abstract class JdbcTaskRunner implements ITaskRunner {
         return null;
     }
 
-    @Override
-    public String scheduleRunLog(String jobId) {
-        return null;
-    }
 
     @Override
     public IDownload logDownLoad(Long tenantId, String jobId, Integer limitNum) {

@@ -17,7 +17,7 @@ const sidebars = {
         {
             type: 'category',
             label: '关于 Taier',
-            collapsed: false,
+            collapsed: true,
             items: [
                 'guides/introduction',
                 'guides/work-deployment',
@@ -82,6 +82,15 @@ const sidebars = {
                 'functions/depend',
                 'functions/task-param',
                 'functions/environmental-parameters',
+            ],
+        },
+        {
+            type: 'category',
+            label: '自定义扩展开发',
+            collapsed: true,
+            items: [
+                'expand/task',
+                'expand/component',
             ],
         },
         'contributing',
