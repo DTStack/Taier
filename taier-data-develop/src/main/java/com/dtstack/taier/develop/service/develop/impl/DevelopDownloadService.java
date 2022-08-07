@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.enums.DownloadType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
+import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobExpandService;
@@ -87,12 +88,12 @@ public class DevelopDownloadService {
         try {
             if (iDownload == null) {
                 try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                    String log = taskRunner.scheduleRunLog(jobId);
-                    if (StringUtils.isNotBlank(log)) {
-                        bos.write(log.getBytes());
+                    ExecuteResultVO executeResultVO = taskRunner.runLog(jobId, taskType, tenantId, null);
+                    if (null != executeResultVO && StringUtils.isNotBlank(executeResultVO.getMsg())) {
+                        bos.write(executeResultVO.getMsg().getBytes());
                     }
-                }catch (Exception e) {
-                    LOGGER.error("下载engineLog异常，{}", e);
+                } catch (Exception e) {
+                    LOGGER.error("download error，{}", jobId, e);
                 }
             } else {
                 if (iDownload instanceof SyncDownload) {
@@ -104,19 +105,19 @@ public class DevelopDownloadService {
                             bos.write(row.toString().getBytes());
                         }
                     } catch (Exception e) {
-                        LOGGER.error("下载日志异常，{}", e);
+                        LOGGER.error("download error，{}", jobId, e);
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("",e);
+            LOGGER.error("download error，{}", jobId, e);
             if (e instanceof FileNotFoundException) {
                 writeFileWithEngineLog(response, jobId);
             } else {
                 try (OutputStream os = response.getOutputStream(); BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     bos.write(String.format("下载文件异常:", e.getMessage()).getBytes());
                 } catch (Exception e1) {
-                    LOGGER.error("", e1);
+                    LOGGER.error("download error，{}", jobId, e1);
                 }
             }
         } finally {
@@ -124,7 +125,7 @@ public class DevelopDownloadService {
                 try {
                     iDownload.close();
                 } catch (Exception e) {
-                    LOGGER.error("iDownload:{}", e);
+                    LOGGER.error("download error，{}", jobId, e);
                 }
             }
         }

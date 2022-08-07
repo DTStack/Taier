@@ -12,15 +12,12 @@ import com.dtstack.taier.common.enums.ETableType;
 import com.dtstack.taier.common.enums.TempJobType;
 import com.dtstack.taier.common.util.SqlFormatUtil;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.bo.ExecuteContent;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.service.develop.ITaskSaver;
-import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.develop.impl.DevelopFunctionService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopSelectSqlService;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
@@ -71,9 +68,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
 
     @Autowired
     protected DevelopTaskParamService developTaskParamService;
-
-    @Autowired
-    private TaskConfiguration taskConfiguration;
 
     @Autowired
     private JobParamReplace jobParamReplace;
@@ -207,18 +201,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return parseResult;
     }
 
-    @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-        String sql = task.getSqlText() == null ? "" : task.getSqlText();
-        String taskParams = task.getTaskParams();
-        developTaskParamService.checkParams(sql, taskParamsToReplace);
-
-        ITaskSaver taskSaver = taskConfiguration.getSave(task.getTaskType());
-        // 构建运行的SQL
-        sql = taskSaver.processScheduleRunSqlText(tenantId, task.getTaskType(), sql);
-        actionParam.put("sqlText", sql);
-        actionParam.put("taskParams", taskParams);
-    }
 
     @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
@@ -271,7 +253,6 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         return resultVO;
     }
 
-    @Override
     public String scheduleRunLog(String jobId) {
         ScheduleJobExpand jobExpand = jobExpandService.selectOneByJobId(jobId);
         String logInfo = jobExpand.getLogInfo();
