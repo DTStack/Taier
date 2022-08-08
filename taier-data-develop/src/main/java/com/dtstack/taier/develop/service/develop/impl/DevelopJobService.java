@@ -46,7 +46,6 @@ import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,8 +65,6 @@ public class DevelopJobService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevelopJobService.class);
 
-    private static final ObjectMapper objMapper = new ObjectMapper();
-
     private static final String DOWNLOAD_URL = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
@@ -77,16 +74,10 @@ public class DevelopJobService {
     private DevelopServerLogService developServerLogService;
 
     @Autowired
-    private DevelopTaskParamService developTaskParamService;
-
-    @Autowired
     private DevelopSelectSqlService developSelectSqlService;
 
     @Autowired
     private TenantService tenantService;
-
-    @Autowired
-    private DevelopTaskParamShadeService developTaskParamShadeService;
 
     @Autowired
     private ScheduleActionService actionService;

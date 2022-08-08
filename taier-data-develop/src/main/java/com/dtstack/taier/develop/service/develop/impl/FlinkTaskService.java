@@ -303,13 +303,6 @@ public class FlinkTaskService {
         confProp.put(KEY_CHECKPOINT_INTERVAL, interval);
     }
 
-    public void buildTaskDirtyDataManageDefaultArgs(JSONObject confProp) {
-        //1.12flink要传默认值
-        confProp.put(TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getParam(), TaskDirtyDataManageParamEnum.OUTPUT_TYPE.getDefaultValue());
-        confProp.put(TaskDirtyDataManageParamEnum.MAX_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_ROWS.getDefaultValue()));
-        confProp.put(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.MAX_COLLECT_FAILED_ROWS.getDefaultValue()));
-        confProp.put(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getParam(), Integer.valueOf(TaskDirtyDataManageParamEnum.LOG_PRINT_INTERVAL.getDefaultValue()));
-    }
 
     private String sendTaskStartTrigger(Task task, String externalPath) {
         //重置任务状态
@@ -323,12 +316,12 @@ public class FlinkTaskService {
             boolean isRestore = isRestore(job);
             if (isRestore) {
                 buildSyncTaskExecArgs(task.getTenantId(), taskParams, confProp);
-                taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE.toString());
+                taskParams += String.format(" \n %s=%s", KEY_OPEN_CHECKPOINT, Boolean.TRUE);
                 task.setTaskParams(taskParams);
             }
             task.setExeArgs(String.format(JOB_NAME_ARGS_TEMPLATE, task.getName(), EncoderUtil.encoderURL(job, Charsets.UTF_8.name())));
             taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
-            if (!Objects.equals(confProp.toString(), "{}")) {
+            if (confProp.size() > 0) {
                 String confPropArgs = String.format(JOB_SAVEPOINT_ARGS_TEMPLATE, EncoderUtil.encoderURL(confProp.toJSONString(), Charsets.UTF_8.name()));
                 if (StringUtils.isNotBlank(confPropArgs)) {
                     task.setExeArgs(task.getExeArgs() == null ? confPropArgs : task.getExeArgs() + confPropArgs);
