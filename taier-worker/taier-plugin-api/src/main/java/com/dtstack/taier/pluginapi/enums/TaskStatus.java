@@ -233,6 +233,7 @@ public enum TaskStatus implements Serializable {
     private final static List<Integer> UNFINISHED_STATUSES = Lists.newArrayList(
             RUNNING.getStatus(),
             UNSUBMIT.getStatus(),
+            NOTFOUND.getStatus(),
             RESTARTING.getStatus(),
             SUBMITTING.getStatus());
 
