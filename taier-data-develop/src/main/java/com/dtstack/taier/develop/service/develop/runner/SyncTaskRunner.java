@@ -100,8 +100,7 @@ public class SyncTaskRunner implements ITaskRunner {
         Map<String, Object> actionParam = Maps.newHashMap();
         try {
             List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
-            List<DevelopTaskParamShade> developTaskParamShades = developTaskParamService.convertShade(taskParamsToReplace);
-            readyForTaskStartTrigger(actionParam, tenantId, task, developTaskParamShades);
+            addConfPropAndParseJob(actionParam, tenantId, task, taskParamsToReplace);
             String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
             actionParam.put("taskSourceId", task.getId());
             actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
@@ -144,6 +143,27 @@ public class SyncTaskRunner implements ITaskRunner {
             sb.append(String.format("%s = %s%s", tmp.getKey(), tmp.getValue(), System.getProperty("line.separator")));
         }
         return sb.toString();
+    }
+
+
+    public void addConfPropAndParseJob(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParam> taskParamsToReplace) throws Exception {
+        String sql = task.getSqlText() == null ? "" : task.getSqlText();
+        String taskParams = task.getTaskParams();
+        JSONObject syncJob = JSON.parseObject(task.getSqlText());
+        taskParams = replaceSyncParallelism(taskParams, parseSyncChannel(syncJob));
+
+        String job = syncJob.getString("job");
+        // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
+        job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
+
+        developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
+
+        JSONObject confProp = new JSONObject();
+        taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
+        actionParam.put("job", job);
+        actionParam.put("sqlText", sql);
+        actionParam.put("taskParams", taskParams);
+        actionParam.put("confProp", confProp.toJSONString());
     }
 
 }
