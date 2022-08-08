@@ -127,6 +127,7 @@ public enum ErrorCode implements ExceptionEnums, Serializable {
     APPLICATION_NOT_FOUND(303, "application not found on yarn","获取不到application信息"),
     APPLICATION_NOT_MATCH(304, "application not match on yarn","application和当前任务jobId不匹配"),
     GET_APPLICATION_INFO_ERROR(305, "get application information error","获取applicationId信息错误"),
+    TASK_DEPENDENCY_IS_LOOP(306,"task dependencies are in a loop, please check the task dependencies","任务依赖成环，请检查任务依赖关系"),
 
     SOURCE_CAN_NOT_AS_INPUT(451, "","该数据源不能作为输入数据源"),
     SOURCE_CAN_NOT_AS_OUTPUT(452, "","该数据源不能作为输出数据源"),
