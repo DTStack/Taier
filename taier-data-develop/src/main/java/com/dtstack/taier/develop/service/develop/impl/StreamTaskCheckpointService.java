@@ -5,7 +5,6 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.util.MathUtil;
-import com.dtstack.taier.dao.mapper.ClusterTenantMapper;
 import com.dtstack.taier.develop.dto.devlop.CheckPointTimeRangeResultDTO;
 import com.dtstack.taier.develop.dto.devlop.EngineJobCheckpoint;
 import com.dtstack.taier.develop.dto.devlop.StreamTaskCheckpoint;
@@ -47,9 +46,6 @@ public class StreamTaskCheckpointService {
     private static final String DURATION = "duration";
 
     private static final String KEY_SAVEPOINT = "state.checkpoints.dir";
-
-    @Autowired
-    private ClusterTenantMapper clusterTenantMapper;
 
     @Autowired
     private ClusterService clusterService;
@@ -206,7 +202,6 @@ public class StreamTaskCheckpointService {
      * @return checkpoint存储路径
      */
     public String getSavepointPath(Long tenantId) {
-        Long clusterIdByTenantId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
         JSONObject flinkConf = clusterService.getConfigByKey(tenantId, EComponentType.FLINK.getConfName(), null);
         if (flinkConf != null && flinkConf.containsKey(KEY_SAVEPOINT)) {
             String savepointPath = flinkConf.getString(KEY_SAVEPOINT);

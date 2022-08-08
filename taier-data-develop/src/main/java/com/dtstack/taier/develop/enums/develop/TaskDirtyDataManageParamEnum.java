@@ -11,52 +11,52 @@ public enum TaskDirtyDataManageParamEnum {
     /**
      * 输出类型1.log2.jdbc
      */
-    OUTPUT_TYPE("flinkx.dirty-data.output-type", TaskDirtyOutPutTypeEnum.LOG.getValue()),
+    OUTPUT_TYPE("chunjun.dirty-data.output-type", TaskDirtyOutPutTypeEnum.LOG.getValue()),
 
     /**
      * 日志打印频率
      */
-    LOG_PRINT_INTERVAL("flinkx.dirty-data.log.print-interval", "1"),
+    LOG_PRINT_INTERVAL("chunjun.dirty-data.log.print-interval", "1"),
 
     /**
      * 脏数据最大值  total limit
      */
-    MAX_ROWS("flinkx.dirty-data.max-rows", "-1"),
+    MAX_ROWS("chunjun.dirty-data.max-rows", "-1"),
 
     /**
      * 失败条数 error limit
      */
-    MAX_COLLECT_FAILED_ROWS("flinkx.dirty-data.max-collect-failed-rows", "-1"),
+    MAX_COLLECT_FAILED_ROWS("chunjun.dirty-data.max-collect-failed-rows", "-1"),
 
     /**
      * url
      */
-    URL("flinkx.dirty-data.jdbc.url", null),
+    URL("chunjun.dirty-data.jdbc.url", null),
 
     /**
      * 用户名
      */
-    USERNAME("flinkx.dirty-data.jdbc.username", null),
+    USERNAME("chunjun.dirty-data.jdbc.username", null),
 
     /**
      * 密码
      */
-    PASSWORD("flinkx.dirty-data.jdbc.password", null),
+    PASSWORD("chunjun.dirty-data.jdbc.password", null),
 
     /**
      * 数据库 可写在url后面
      */
-    DATABASE("flinkx.dirty-data.jdbc.database", null),
+    DATABASE("chunjun.dirty-data.jdbc.database", null),
 
     /**
      * 表
      */
-    TABLE("flinkx.dirty-data.jdbc.table", "flinkx_dirty_data"),
+    TABLE("chunjun.dirty-data.jdbc.table", "chunjun_dirty_data"),
 
     /**
      * 脏数据建表 sql
      */
-    CREATE_TABLE_SQL("CREATE TABLE IF NOT EXISTS flinkx_dirty_data (  job_id        VARCHAR(32)                               NOT NULL COMMENT 'Flink Job Id',\n" +
+    CREATE_TABLE_SQL("CREATE TABLE IF NOT EXISTS chunjun_dirty_data (  job_id        VARCHAR(32)                               NOT NULL COMMENT 'Flink Job Id',\n" +
             "    job_name      VARCHAR(255)                              NOT NULL COMMENT 'Flink Job Name',\n" +
             "    operator_name VARCHAR(255)                              NOT NULL COMMENT '出现异常数据的算子名，包含表名',\n" +
             "    dirty_data    TEXT                                      NOT NULL COMMENT '脏数据的异常数据',\n" +
@@ -64,9 +64,9 @@ public enum TaskDirtyDataManageParamEnum {
             "    field_name    VARCHAR(255) COMMENT '脏数据中异常字段名',\n" +
             "    create_time   TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6) NOT NULL ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '脏数据出现的时间点'\n" +
             ")  COMMENT '存储脏数据';\n" +
-            "CREATE INDEX idx_job_id ON flinkx_dirty_data (job_id);\n" +
-            "CREATE INDEX idx_operator_name ON flinkx_dirty_data (operator_name);\n" +
-            "CREATE INDEX idx_create_time ON flinkx_dirty_data (create_time);", null);
+            "CREATE INDEX idx_job_id ON chunjun_dirty_data (job_id);\n" +
+            "CREATE INDEX idx_operator_name ON chunjun_dirty_data (operator_name);\n" +
+            "CREATE INDEX idx_create_time ON chunjun_dirty_data (create_time);", null);
 
     private final String param;
     private final String defaultValue;

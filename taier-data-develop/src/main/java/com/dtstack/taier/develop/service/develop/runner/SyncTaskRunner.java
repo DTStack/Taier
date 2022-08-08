@@ -14,6 +14,7 @@ import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
+import com.dtstack.taier.develop.service.develop.impl.TaskDirtyDataManageService;
 import com.dtstack.taier.develop.sql.ParseResult;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 import com.dtstack.taier.develop.utils.develop.sync.job.SourceType;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -43,7 +43,8 @@ public class SyncTaskRunner implements ITaskRunner {
     @Autowired
     private DatasourceService datasourceService;
 
-    private static final String JOB_ARGS_TEMPLATE = "-jobid %s -job %s";
+    @Autowired
+    private TaskDirtyDataManageService taskDirtyDataManageService;
 
     @Override
     public List<EScheduleJobType> support() {
@@ -60,15 +61,19 @@ public class SyncTaskRunner implements ITaskRunner {
         String sql = task.getSqlText() == null ? "" : task.getSqlText();
         String taskParams = task.getTaskParams();
         JSONObject syncJob = JSON.parseObject(task.getSqlText());
-        taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
+        taskParams = replaceSyncParallelism(taskParams, parseSyncChannel(syncJob));
         String job = syncJob.getString("job");
         // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
         job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
 
         developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
+
+        JSONObject confProp = new JSONObject();
+        taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
         actionParam.put("job", job);
         actionParam.put("sqlText", sql);
         actionParam.put("taskParams", taskParams);
+        actionParam.put("confProp", confProp.toJSONString());
     }
 
     @Override
@@ -120,36 +125,21 @@ public class SyncTaskRunner implements ITaskRunner {
     public Map<String, Object> readyForSyncImmediatelyJob(Task task, Long tenantId, Boolean isRoot) {
         Map<String, Object> actionParam = Maps.newHashMap();
         try {
-            String taskParams = task.getTaskParams();
             List<DevelopTaskParam> taskParamsToReplace = developTaskParamService.getTaskParam(task.getId());
-
-            JSONObject syncJob = JSON.parseObject(task.getSqlText());
-            taskParams = replaceSyncParll(taskParams, parseSyncChannel(syncJob));
-
-            String job = syncJob.getString("job");
-
-            // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-            job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
-
-            developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
-
+            List<DevelopTaskParamShade> developTaskParamShades = developTaskParamService.convertShade(taskParamsToReplace);
+            readyForTaskStartTrigger(actionParam, tenantId, task, developTaskParamShades);
             String name = "run_sync_task_" + task.getName() + "_" + System.currentTimeMillis();
-            String taskExeArgs = String.format(JOB_ARGS_TEMPLATE, name, job);
             actionParam.put("taskSourceId", task.getId());
             actionParam.put("taskType", EScheduleJobType.SYNC.getVal());
             actionParam.put("name", name);
             actionParam.put("computeType", task.getComputeType());
             actionParam.put("sqlText", "");
-            actionParam.put("taskParams", taskParams);
             actionParam.put("tenantId", tenantId);
             actionParam.put("sourceType", SourceType.TEMP_QUERY.getType());
             actionParam.put("isFailRetry", false);
             actionParam.put("maxRetryNum", 0);
-            actionParam.put("job", job);
+            //临时运行不做重试
             actionParam.put("taskParamsToReplace", JSON.toJSONString(taskParamsToReplace));
-            if (Objects.nonNull(taskExeArgs)) {
-                actionParam.put("exeArgs", taskExeArgs);
-            }
         } catch (Exception e) {
             throw new RdosDefineException(String.format("创建数据同步job失败: %s", e.getMessage()), e);
         }
@@ -171,7 +161,7 @@ public class SyncTaskRunner implements ITaskRunner {
         }
     }
 
-    public String replaceSyncParll(String taskParams, int parallelism) throws IOException {
+    public String replaceSyncParallelism(String taskParams, int parallelism) throws IOException {
         Properties properties = new Properties();
         properties.load(new ByteArrayInputStream(taskParams.getBytes(StandardCharsets.UTF_8)));
         properties.put("mr.job.parallelism", parallelism);

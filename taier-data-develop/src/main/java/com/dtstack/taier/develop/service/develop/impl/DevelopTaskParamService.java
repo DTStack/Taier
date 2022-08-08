@@ -38,7 +38,6 @@ import com.dtstack.taier.develop.utils.develop.sync.job.SyncJob;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +64,6 @@ public class DevelopTaskParamService {
     @Autowired
     private DevelopSysParamService developSysParamService;
 
-    @Autowired
-    private JobParamReplace jobParamReplace;
 
     private static final String PARAM_REGEX = "\\$\\{.*?\\}";
 
@@ -77,14 +74,15 @@ public class DevelopTaskParamService {
      */
     private static final String[] KERBEROS_IGNORE_KEYS = {"hadoopConfig"};
 
-    public void addOrUpdateTaskParam(final List<Map<String, Object>> taskVariables ,Long id) {
+    public void addOrUpdateTaskParam(final List<Map<String, Object>> taskVariables, Long id) {
         List<DevelopParamDTO> parameterSet = this.paramResolver(taskVariables);
         this.saveTaskParams(id, parameterSet);
     }
 
     /**
      * 校验任务中的 系统参数 和 自定义参数
-     * @param jobContent SQL内容
+     *
+     * @param jobContent   SQL内容
      * @param parameterSet 任务参数
      */
     public void checkParams(final String jobContent, final List parameterSet) {
@@ -92,7 +90,7 @@ public class DevelopTaskParamService {
         if (CollectionUtils.isNotEmpty(parameterSet)) {
             for (Object paramObj : parameterSet) {
                 DevelopTaskParam developTaskParam = PublicUtil.objectToObject(paramObj, DevelopTaskParam.class);
-                if(developTaskParam != null){
+                if (developTaskParam != null) {
                     if (StringUtils.isBlank(developTaskParam.getParamCommand()) || "$[]".equalsIgnoreCase(developTaskParam.getParamCommand())) {
                         throw new RdosDefineException("自定义参数赋值不能为空");
                     }
@@ -101,7 +99,7 @@ public class DevelopTaskParamService {
         }
 
         String jobStr = jobContent;
-        if (StringUtils.isBlank(jobStr)){
+        if (StringUtils.isBlank(jobStr)) {
             return;
         }
 
@@ -126,7 +124,7 @@ public class DevelopTaskParamService {
         }
     }
 
-    private  String removeConfig(String sql) {
+    private String removeConfig(String sql) {
         try {
             JSONObject jsonObject = JSONObject.parseObject(sql);
             removeJsonConfig(jsonObject);
@@ -136,28 +134,28 @@ public class DevelopTaskParamService {
         }
     }
 
-    private void removeJsonConfig(Object json){
-        if (json instanceof JSONObject){
+    private void removeJsonConfig(Object json) {
+        if (json instanceof JSONObject) {
             JSONObject jsonObject = ((JSONObject) json);
-            if (jsonObject.containsKey("hbaseConfig")){
+            if (jsonObject.containsKey("hbaseConfig")) {
                 jsonObject.remove("hbaseConfig");
             }
-            if (jsonObject.containsKey("hadoopConfig")){
+            if (jsonObject.containsKey("hadoopConfig")) {
                 jsonObject.remove("hadoopConfig");
             }
-            if (jsonObject.containsKey("kerberosConfig")){
+            if (jsonObject.containsKey("kerberosConfig")) {
                 jsonObject.remove("kerberosConfig");
             }
-            for (String key : jsonObject.keySet()){
-                if (jsonObject.get(key) instanceof JSONObject){
+            for (String key : jsonObject.keySet()) {
+                if (jsonObject.get(key) instanceof JSONObject) {
                     removeJsonConfig(jsonObject.get(key));
-                }else if (jsonObject.get(key) instanceof JSONArray){
+                } else if (jsonObject.get(key) instanceof JSONArray) {
                     removeJsonConfig(jsonObject.get(key));
-                }else if (jsonObject.get(key) instanceof String){
-                    jsonObject.put(key,removeConfig(jsonObject.getString(key)));
+                } else if (jsonObject.get(key) instanceof String) {
+                    jsonObject.put(key, removeConfig(jsonObject.getString(key)));
                 }
             }
-        }else if (json instanceof JSONArray){
+        } else if (json instanceof JSONArray) {
             JSONArray json1 = (JSONArray) json;
             for (int i = 0; i < json1.size(); i++) {
                 removeJsonConfig(json1.get(i));
@@ -203,6 +201,7 @@ public class DevelopTaskParamService {
 
     /**
      * 转换SQL任务中的 自定义参数 和 系统参数 为参数对象
+     *
      * @param taskVariables
      * @return
      */
@@ -222,7 +221,7 @@ public class DevelopTaskParamService {
     }
 
     public List<DevelopTaskParam> saveTaskParams(final Long taskId, final List<DevelopParamDTO> developParamDTOS) {
-        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId, taskId));
         final List<DevelopTaskParam> developTaskParams = this.buildBatchTaskParams(taskId, developParamDTOS);
         return developTaskParams;
     }
@@ -241,7 +240,7 @@ public class DevelopTaskParamService {
     }
 
     public void deleteTaskParam(long taskId) {
-        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId,taskId));
+        this.developTaskParamDao.delete(Wrappers.lambdaQuery(DevelopTaskParam.class).eq(DevelopTaskParam::getTaskId, taskId));
     }
 
     public List<DevelopTaskParam> buildBatchTaskParams(final long taskId, final List<DevelopParamDTO> developParamDTOS) {
@@ -265,6 +264,7 @@ public class DevelopTaskParamService {
 
     /**
      * 将SQL中的系统参数和自定义参数对象转换为 BatchTaskParamShade 对象
+     *
      * @param params
      * @return
      * @throws Exception
@@ -279,26 +279,11 @@ public class DevelopTaskParamService {
         return shades;
     }
 
-    /**
-     * 将 系统参数和自定义参数 的DTO对象转换为PO对象
-     * @param paramDTOs
-     * @return
-     * @throws Exception
-     */
-    public List<DevelopTaskParam> convertParam(final List<DevelopParamDTO> paramDTOs) {
-        final List<DevelopTaskParam> params = Lists.newArrayList();
-        if (paramDTOs != null) {
-            for (DevelopParamDTO paramDTO : paramDTOs) {
-                params.add(PublicUtil.objectToObject(paramDTO, DevelopTaskParam.class));
-            }
-        }
-        return params;
-    }
 
     public List<DevelopTaskParam> getTaskParam(final long taskId) {
         List<DevelopTaskParam> taskParams = developTaskParamDao.selectList(Wrappers.lambdaQuery(DevelopTaskParam.class)
-                                .eq(DevelopTaskParam::getTaskId,taskId)
-                                .eq(DevelopTaskParam::getIsDeleted,Deleted.NORMAL.getStatus()));
+                .eq(DevelopTaskParam::getTaskId, taskId)
+                .eq(DevelopTaskParam::getIsDeleted, Deleted.NORMAL.getStatus()));
         // 特殊处理 TaskParam 系统参数
         for (DevelopTaskParam taskParamShade : taskParams) {
             if (!EParamType.SYS_TYPE.getType().equals(taskParamShade.getType())) {
@@ -310,17 +295,5 @@ public class DevelopTaskParamService {
         }
         return taskParams;
     }
-
-    /**
-     *
-     *
-     * @param sql
-     * @param taskVariables
-     * @return
-     */
-    public String replaceSqlParams (String sql, List<Map> taskVariables) {
-        return jobParamReplace.paramReplace(sql, taskVariables, DateTime.now().toString("yyyyMMddHHmmss"));
-    }
-
 }
 
