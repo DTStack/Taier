@@ -5,12 +5,17 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
+import com.dtstack.taier.common.exception.DtCenterDefException;
+import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.ScheduleTaskShadeInfo;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.dao.domain.User;
 import com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper;
 import com.dtstack.taier.dao.pager.PageResult;
+import com.dtstack.taier.develop.graph.FlatDirectedGraphLoopJudge;
+import com.dtstack.taier.develop.graph.GenericFlatFlatDirectedGraphLoopJudge;
+import com.dtstack.taier.develop.graph.adapter.ScheduleTaskTaskShadeFlatGraphSideAdapterFlat;
 import com.dtstack.taier.develop.mapstruct.task.ScheduleTaskMapstructTransfer;
 import com.dtstack.taier.develop.service.user.UserService;
 import com.dtstack.taier.develop.vo.schedule.ReturnScheduleTaskVO;
@@ -31,6 +36,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -172,10 +178,36 @@ public class TaskService extends ServiceImpl<ScheduleTaskShadeMapper, ScheduleTa
             scheduleTaskTaskShade.setParentTaskId(parentTaskId);
             scheduleTaskTaskShadeList.add(scheduleTaskTaskShade);
         }
-        // TODO 这块后面还需要考虑成环判断
+        // 成环判断
+        if (checkLoop(scheduleTaskTaskShadeList)) {
+            throw new DtCenterDefException(ErrorCode.TASK_DEPENDENCY_IS_LOOP);
+        }
         // 删除任务依赖
         tasktaskService.lambdaUpdate().eq(ScheduleTaskTaskShade::getTaskId, scheduleTaskShade.getTaskId()).remove();
         return tasktaskService.saveBatch(scheduleTaskTaskShadeList);
+    }
+
+    private boolean checkLoop(List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList) {
+        if (CollectionUtils.isEmpty(scheduleTaskTaskShadeList)) {
+            return false;
+        }
+        Function<List<Long>, List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat>> parentProvider =
+                taskIds -> ScheduleTaskTaskShadeFlatGraphSideAdapterFlat.build(tasktaskService.listByIds(taskIds));
+
+        Function<List<Long>, List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat>> childProvider = parentIds -> {
+            List<ScheduleTaskTaskShade> scheduleTaskTaskShadeList1 = tasktaskService.lambdaQuery()
+                    .in(ScheduleTaskTaskShade::getParentTaskId, parentIds)
+                    .eq(ScheduleTaskTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
+                    .list();
+            return ScheduleTaskTaskShadeFlatGraphSideAdapterFlat.build(scheduleTaskTaskShadeList1);
+        };
+
+        List<ScheduleTaskTaskShadeFlatGraphSideAdapterFlat> adapters = ScheduleTaskTaskShadeFlatGraphSideAdapterFlat.build(scheduleTaskTaskShadeList);
+
+        FlatDirectedGraphLoopJudge<Long, Long, ScheduleTaskTaskShadeFlatGraphSideAdapterFlat> loopJudge
+                = new GenericFlatFlatDirectedGraphLoopJudge<>(adapters);
+
+        return loopJudge.isLoop(parentProvider, childProvider);
     }
 
     /**
