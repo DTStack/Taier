@@ -36,7 +36,6 @@
 		"lodash": "^4.17.21",
 		"md5": "^2.3.0",
 		"moment": "^2.29.1",
-		"monaco-editor": "0.30.1",
 		"monaco-sql-languages": "^0.9.4",
 		"mxgraph": "4.0.6",
 		"object-assign": "^4.1.1",

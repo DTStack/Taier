@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-import type { editor } from 'monaco-editor';
+import type { editor } from '@dtinsight/molecule/esm/monaco';
 
 export const defaultOptions: editor.IStandaloneEditorConstructionOptions = {
 	language: 'sql',

@@ -17,7 +17,7 @@ import {
 } from '@/components/icon';
 import scaffolds from '@/components/scaffolds/create';
 import editorActionsScaffolds from '@/components/scaffolds/editorActions';
-import { RightBarKind } from '@/interface';
+import { IComputeType, RightBarKind } from '@/interface';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
 import { prettierJSONstring } from '@/utils';
 import notification from '@/components/notification';
@@ -263,7 +263,24 @@ class TaskRenderService {
 
 		const record = current?.tab?.data as IOfflineTaskProps;
 
+		// Default rightBar for each task
+		const defaultRightBarField: Record<IComputeType, RightBarKind[]> = {
+			[IComputeType.BATCH]: [
+				RightBarKind.TASK,
+				RightBarKind.DEPENDENCY,
+				RightBarKind.TASK_PARAMS,
+				RightBarKind.ENV_PARAMS,
+			],
+			[IComputeType.STREAM]: [RightBarKind.TASK],
+		};
+
 		const rightBarField = this.rightBarField.find((i) => i.taskType === record.taskType);
+		const computeType =
+			this.supportTaskList.find((i) => i.key === record.taskType)?.computeType ||
+			IComputeType.STREAM;
+
+		// That's default right bar for each taskType
+		const defaultBarItem = defaultRightBarField[computeType];
 
 		if (rightBarField) {
 			const isConditionTrue = rightBarField.barItemCondition
@@ -272,37 +289,53 @@ class TaskRenderService {
 				: false;
 
 			if (isConditionTrue) {
-				return rightBarField.barItemCondition?.barItem || [];
+				return Array.from(
+					new Set(defaultBarItem.concat(rightBarField.barItemCondition?.barItem || [])),
+				);
 			}
 
-			return rightBarField.barItem || [];
+			return Array.from(new Set(defaultBarItem.concat(rightBarField.barItem || [])));
 		}
 
-		return [RightBarKind.TASK];
+		return defaultBarItem;
 	};
 
 	/**
 	 * 根据任务类型渲染编辑器 actions
 	 */
 	public renderEditorActions = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps) => {
+		// All tasks should have save and submit actions
+		const defaultActions: (keyof typeof editorActionsScaffolds)[] = [
+			'SAVE_TASK',
+			'RUN_TASK',
+			'STOP_TASK',
+			'SUBMIT_TASK',
+		];
 		const actionsField = this.editorActionField.find((i) => i.taskType === key);
+
 		if (actionsField) {
 			const isConditionTrue = actionsField.actionsCondition
 				? record[actionsField.actionsCondition.key] === actionsField.actionsCondition.value
 				: false;
 
 			if (isConditionTrue) {
-				return (
-					actionsField.actionsCondition?.actions.map(
-						(action) => editorActionsScaffolds[action],
-					) || []
+				const actions = Array.from(
+					new Set(defaultActions.concat(actionsField.actionsCondition?.actions || [])),
 				);
+				return actions.map((action) => editorActionsScaffolds[action]) || [];
 			}
 
-			return actionsField.actions.map((action) => editorActionsScaffolds[action]) || [];
+			let actions = Array.from(new Set(defaultActions.concat(actionsField.actions || [])));
+
+			// TODO: 强制过滤掉工作流任务的运行和停止按钮
+			if (key === TASK_TYPE_ENUM.WORK_FLOW) {
+				actions = actions.filter((i) => i !== 'RUN_TASK' && i !== 'STOP_TASK');
+			}
+
+			return actions.map((action) => editorActionsScaffolds[action]) || [];
 		}
 
-		return [];
+		return defaultActions.map((action) => editorActionsScaffolds[action]);
 	};
 
 	/**
@@ -346,7 +379,7 @@ class TaskRenderService {
 		} else {
 			if (record.taskType === undefined) {
 				notification.error({
-					key: 'OPNE_TASK_ERROR',
+					key: 'OPEN_TASK_ERROR',
 					message: `无法打开一个未知任务类型的任务，当前任务的任务类型为 ${record.taskType}`,
 				});
 				return;
@@ -354,7 +387,7 @@ class TaskRenderService {
 
 			if (record.name === undefined) {
 				notification.error({
-					key: 'OPNE_TASK_ERROR',
+					key: 'OPEN_TASK_ERROR',
 					message: `无法打开一个未知任务名称任务`,
 				});
 				return;
