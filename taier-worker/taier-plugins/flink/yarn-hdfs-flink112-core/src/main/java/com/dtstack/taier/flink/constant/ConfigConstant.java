@@ -149,7 +149,7 @@ public class ConfigConstant {
     public static final String PREFIX_HDFS = "hdfs://";
 
     public static final String REMOTE_FLINK_LIB_DIR = "remoteFlinkLibDir";
-    public static final String REMOTE_FLINKX_DIST_DIR = "remoteFlinkxDistDir";
+    public static final String REMOTE_CHUNJUN_DIST_DIR = "remoteChunjunDistDir";
     public static final String FLINK_LIB_DIR = "flinkLibDir";
-    public static final String FLINKX_DIST_DIR = "flinkxDistDir";
+    public static final String CHUNJUN_DIST_DIR = "chunjunDistDir";
 }

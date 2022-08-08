@@ -21,6 +21,9 @@ import type { TASK_TYPE_ENUM } from '@/constant';
 import type { IComputeType } from '@/interface';
 
 export enum SupportJobActionKind {
+	/**
+	 * 请求支持任务
+	 */
 	REQUEST = 'request',
 }
 
@@ -53,8 +56,9 @@ export interface IContext {
 	supportJobTypes: ISupportJobTypes[];
 	/**
 	 * 用于出发当前应用重新获取支持的任务类型
+	 * @param verbose 是否输出错误信息，默认不输出
 	 */
-	dispatch: (action: { type: SupportJobActionKind }) => void;
+	dispatch: (action: { type: SupportJobActionKind, verbose?: boolean }) => void;
 }
 
 export default createContext<IContext>({

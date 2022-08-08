@@ -22,10 +22,10 @@ sidebar_label: Flink
 | 参数项                    | 默认值                                   | 说明                                                  | 是否必填 |
 | ------------------------- | ---------------------------------------- | ----------------------------------------------------- | -------- |
 | clusterMode               | perjob、session                          | 任务执行模式：perjob, session                         | 是       |
-| flinkJarPath              | /data/insight_plugin/flink110_lib        | flink lib path(taier本地目录）                                   | 是       |
-| remoteFlinkJarPath        | /data/insight_plugin/flink110_lib        | flink lib 远程路径                                     | 是       |
-| flinkPluginRoot           | /data/insight_plugin                     | flinkx plugins父级本地目录(taier本地目录）           | 是       |
-| remotePluginRootDir       | /data/insight_plugin                     | flinkx plugins父级远程目录            | 是       |
+| flinkLibDir               | /data/insight_plugin1.12/flink_lib       | flink lib path(taier本地目录）                                   | 是       |
+| remoteFlinkLibDir         | /data/insight_plugin/flink110_lib        | flink lib 远程(sftp)路径                                     | 是       |
+| chunjunDistDir            | /data/insight_plugin1.12/chunjun-dist/   | chunjun plugins父级本地目录(taier本地目录）           | 是       |
+| remoteChunjunDistDir      | /data/insight_plugin1.12/chunjun-dist/   | chunjun plugins父级远程目录            | 是       |
 | pluginLoadMode            | shipfile                                 | 插件加载类型                                          | 否       |
 | monitorAcceptedApp        | false                                    | 是否监控yarn accepted状态任务                         | 否       |
 | yarnAccepterTaskNumber    | 3                                        | 允许yarn accepter任务数量，达到这个值后不允许任务提交 | 否       |

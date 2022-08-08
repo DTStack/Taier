@@ -23,6 +23,10 @@ import notification from '@/components/notification';
 import type { IResponseBodyProps } from '@/interface';
 
 class Http {
+	/**
+	 * 是否输出错误信息
+	 */
+	public verbose = true;
 	get<T = any>(url: any, params: any, config: Record<string, any> = {}) {
 		// GET请求
 		const newUrl = params ? this.build(url, params) : url;
@@ -83,8 +87,10 @@ class Http {
 			})
 			.then((res) => {
 				if (res.code !== 1) {
-					// 相同的错误文案只提示一次
-					message.error({ content: res.message, key: res.message });
+					if (this.verbose) {
+						// 相同的错误文案只提示一次
+						message.error({ content: res.message, key: res.message });
+					}
 				}
 				return res;
 			})
