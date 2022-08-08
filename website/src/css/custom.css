@@ -14,6 +14,7 @@
   --ifm-color-primary-lighter: rgb(1 111 255);
   --ifm-color-primary-lightest: rgb(1 111 255);
   --ifm-code-font-size: 95%;
+  --ifm-table-stripe-background: #f2f2f2;
 }
 
 .docusaurus-highlight-code-line {
@@ -25,4 +26,14 @@
 
 html[data-theme='dark'] .docusaurus-highlight-code-line {
   background-color: rgba(0, 0, 0, 0.3);
+}
+
+
+table{
+  display: table;
+  width: 100%;
+}
+
+table thead tr {
+  border-bottom: none;
 }
