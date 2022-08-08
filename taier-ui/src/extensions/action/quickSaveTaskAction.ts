@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { KeyMod, KeyCode } from 'monaco-editor';
+import { KeyMod, KeyCode } from '@dtinsight/molecule/esm/monaco';
 import { ID_COLLECTIONS } from '@/constant';
 import taskRenderService from '@/services/taskRenderService';
 import { isTaskTab } from '@/utils/is';
