@@ -7,7 +7,6 @@ import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.DevelopTaskParamShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
@@ -57,26 +56,6 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public void readyForTaskStartTrigger(Map<String, Object> actionParam, Long tenantId, Task task, List<DevelopTaskParamShade> taskParamsToReplace) throws Exception {
-        String sql = task.getSqlText() == null ? "" : task.getSqlText();
-        String taskParams = task.getTaskParams();
-        JSONObject syncJob = JSON.parseObject(task.getSqlText());
-        taskParams = replaceSyncParallelism(taskParams, parseSyncChannel(syncJob));
-        String job = syncJob.getString("job");
-        // 向导模式根据job中的sourceId填充数据源信息，保证每次运行取到最新的连接信息
-        job = datasourceService.setJobDataSourceInfo(job, tenantId, syncJob.getIntValue("createModel"));
-
-        developTaskParamService.checkParams(developTaskParamService.checkSyncJobParams(job), taskParamsToReplace);
-
-        JSONObject confProp = new JSONObject();
-        taskDirtyDataManageService.buildTaskDirtyDataManageArgs(task.getTaskType(), task.getId(), confProp);
-        actionParam.put("job", job);
-        actionParam.put("sqlText", sql);
-        actionParam.put("taskParams", taskParams);
-        actionParam.put("confProp", confProp.toJSONString());
-    }
-
-    @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
         return null;
     }
@@ -88,11 +67,6 @@ public class SyncTaskRunner implements ITaskRunner {
 
     @Override
     public ExecuteResultVO runLog(String jobId, Integer taskType, Long tenantId, Integer limitNum) {
-        return null;
-    }
-
-    @Override
-    public String scheduleRunLog(String jobId) {
         return null;
     }
 
