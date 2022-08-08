@@ -375,8 +375,10 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 			return TASK_LANGUAGE.FLINKSQL;
 		case TASK_TYPE_ENUM.OCEANBASE:
 			return TASK_LANGUAGE.SQL;
-		default:
+		case TASK_TYPE_ENUM.SYNC:
 			return TASK_LANGUAGE.JSON;
+		default:
+			return TASK_LANGUAGE.SQL;
 	}
 }
 
