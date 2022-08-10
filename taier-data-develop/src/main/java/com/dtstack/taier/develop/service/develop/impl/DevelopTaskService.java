@@ -39,7 +39,6 @@ import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.PublishTaskStatusEnum;
 import com.dtstack.taier.common.enums.ResourceRefType;
 import com.dtstack.taier.common.enums.TaskTemplateType;
 import com.dtstack.taier.common.env.EnvironmentContext;
@@ -453,7 +452,6 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
      */
     public TaskCheckResultVO publishTaskInfo(Task task, Long userId) {
         TaskCheckResultVO checkResultVO = new TaskCheckResultVO();
-        checkResultVO.setErrorSign(PublishTaskStatusEnum.NOMAL.getType());
 
         // 发布任务中所有的依赖关系
         List<ScheduleTaskTaskShade> allTaskTaskList = new ArrayList<>();

@@ -1,7 +1,5 @@
 package com.dtstack.taier.common.enums;
 
-import com.dtstack.taier.pluginapi.enums.ComputeType;
-
 /**
  * Created with IntelliJ IDEA.
  *
