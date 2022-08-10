@@ -11,14 +11,11 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
-import com.dtstack.dtcenter.loader.source.DataBaseType;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
 import com.dtstack.dtcenter.loader.utils.DBUtil;
 import com.dtstack.taier.common.constant.FormNames;
-import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -32,59 +29,22 @@ import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.DevelopDataSource;
 import com.dtstack.taier.dao.domain.DsFormField;
 import com.dtstack.taier.dao.domain.DsInfo;
-import com.dtstack.taier.develop.common.template.Reader;
-import com.dtstack.taier.develop.common.template.Setting;
-import com.dtstack.taier.develop.common.template.Writer;
 import com.dtstack.taier.develop.dto.devlop.DataSourceVO;
-import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.enums.develop.DataSourceDataBaseType;
-import com.dtstack.taier.develop.enums.develop.EDataSourcePermission;
 import com.dtstack.taier.develop.enums.develop.RDBMSSourceType;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TableLocationType;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.service.develop.impl.DevelopTaskParamService;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
-import com.dtstack.taier.develop.utils.Asserts;
-import com.dtstack.taier.develop.utils.develop.mapping.ComponentTypeDataSourceTypeMapping;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.HiveWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.OracleWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.PostgreSqlWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.handler.SyncBuilderFactory;
-import com.dtstack.taier.develop.utils.develop.sync.job.JobTemplate;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
-import com.dtstack.taier.develop.utils.develop.sync.template.AwsS3Reader;
-import com.dtstack.taier.develop.utils.develop.sync.template.AwsS3Writer;
-import com.dtstack.taier.develop.utils.develop.sync.template.CarbonDataReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.CarbonDataWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.DefaultSetting;
-import com.dtstack.taier.develop.utils.develop.sync.template.EsReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.EsWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.FtpReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.FtpWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.HBaseReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.HBaseWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.HDFSReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.HDFSWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.HiveReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.HiveWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.InceptorWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.InfluxDBReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.MongoDbReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.MongoDbWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.OdpsBase;
-import com.dtstack.taier.develop.utils.develop.sync.template.OdpsReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.OdpsWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.RDBBase;
-import com.dtstack.taier.develop.utils.develop.sync.template.RDBReader;
-import com.dtstack.taier.develop.utils.develop.sync.template.RDBWriter;
-import com.dtstack.taier.develop.utils.develop.sync.template.RedisWriter;
 import com.dtstack.taier.develop.utils.develop.sync.util.ADBForPGUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.CreateTableSqlParseUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.OracleSqlFormatUtil;
-import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.util.DtStringUtil;
 import com.dtstack.taier.scheduler.service.ClusterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -104,7 +64,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -112,7 +71,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -157,9 +115,6 @@ public class DatasourceService {
     private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
-    private DevelopTaskParamService developTaskParamService;
-
-    @Autowired
     private ClusterService clusterService;
 
     @Autowired
@@ -168,10 +123,7 @@ public class DatasourceService {
     @Autowired
     private EnvironmentContext environmentContext;
 
-    /**
-     * FIMXE 暂时将数据源读写权限设置在程序    里面
-     */
-    private static final Map<Integer, Integer> DATASOURCE_PERMISSION_MAP = Maps.newHashMap();
+
     private static final String IS_OPEN_CDB = "select * from v$database";
     public static final String JDBC_URL = "jdbcUrl";
     public static final String JDBC_USERNAME = "username";
@@ -189,8 +141,6 @@ public class DatasourceService {
     public static final String HIVE_PARTITION = "partition";
 
     private static final String TYPE = "type";
-
-    private static final String EXTRAL_CONFIG = "extralConfig";
 
     private static final List<String> MYSQL_NUMBERS = Lists.newArrayList("TINYINT", "SMALLINT", "MEDIUMINT", "INT", "BIGINT", "INT UNSIGNED");
 
@@ -268,27 +218,6 @@ public class DatasourceService {
     // 支持一键建表的数据源类型名称
     private static final String SUPPORT_CREATE_TABLE_DATASOURCES_NAMES = SUPPORT_CREATE_TABLE_DATASOURCES.stream().map(DataSourceType::getName).collect(Collectors.joining("、"));
 
-
-    static {
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.MySQL.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.Oracle.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.SQLServer.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.PostgreSQL.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.RDBMS.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.HDFS.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.HIVE.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.DB2.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.Clickhouse.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.HIVE1X.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.HIVE3X.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.Phoenix.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.PHOENIX5.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.TiDB.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.DMDB.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.GREENPLUM6.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.KINGBASE8.getVal(), EDataSourcePermission.READ_WRITE.getType());
-        DatasourceService.DATASOURCE_PERMISSION_MAP.put(DataSourceType.INCEPTOR.getVal(), EDataSourcePermission.WRITE.getType());
-    }
 
     /**
      * 解析kerberos文件获取principal列表
@@ -747,56 +676,6 @@ public class DatasourceService {
         }
     }
 
-    /**
-     * 根据租户ID匹配对应的hadoop引擎默认数据源类型
-     *
-     * @param tenantId
-     * @return
-     */
-    public DataSourceType getHadoopDefaultDataSourceByTenantId(Long tenantId) {
-        List<DsInfo> metaDataSourceList = dsInfoService.getAllMetaDataSourceListByTenantId(tenantId);
-        for (DsInfo dsInfo : metaDataSourceList) {
-            if (DataSourceType.HIVE.getVal().equals(dsInfo.getDataTypeCode())) {
-                return DataSourceType.HIVE;
-            }
-            if (DataSourceType.HIVE1X.getVal().equals(dsInfo.getDataTypeCode())) {
-                return DataSourceType.HIVE1X;
-            }
-            if (DataSourceType.HIVE3X.getVal().equals(dsInfo.getDataTypeCode())) {
-                return DataSourceType.HIVE3X;
-            }
-            if (DataSourceType.HIVE3_CDP.getVal().equals(dsInfo.getDataTypeCode())) {
-                return DataSourceType.HIVE3_CDP;
-            }
-            if (DataSourceType.SparkThrift2_1.getVal().equals(dsInfo.getDataTypeCode())) {
-                return DataSourceType.SparkThrift2_1;
-            }
-        }
-        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-    }
-
-    /**
-     * 根据租户ID匹配对应的hadoop引擎默认数据源类型-及其对应的任务类型
-     *
-     * @param tenantId
-     * @return
-     */
-    public EScheduleJobType getHadoopDefaultJobTypeByTenantId(Long tenantId) {
-        List<DsInfo> metaDataSourceList = dsInfoService.getAllMetaDataSourceListByTenantId(tenantId);
-        for (DsInfo dsInfo : metaDataSourceList) {
-            if (DataSourceType.HIVE.getVal().equals(dsInfo.getDataTypeCode())
-                    || DataSourceType.HIVE1X.getVal().equals(dsInfo.getDataTypeCode())
-                    || DataSourceType.HIVE3X.getVal().equals(dsInfo.getDataTypeCode())
-                    || DataSourceType.HIVE3_CDP.getVal().equals(dsInfo.getDataTypeCode())) {
-                return EScheduleJobType.HIVE_SQL;
-            }
-            if (DataSourceType.SparkThrift2_1.getVal().equals(dsInfo.getDataTypeCode())) {
-                return EScheduleJobType.SPARK_SQL;
-            }
-        }
-        throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
-    }
-
     public String setJobDataSourceInfo(String jobStr, Long tenantId, Integer createModel) {
         JSONObject job = JSONObject.parseObject(jobStr);
         JSONObject jobContent = job.getJSONObject("job");
@@ -1123,16 +1002,6 @@ public class DatasourceService {
         throw new PubSvcDefineException(ErrorCode.SFTP_NOT_FOUND);
     }
 
-    public Map<String, String> getSftpMapByClusterId(Long clusterId) {
-        JSONObject configByKey = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.SFTP.getConfName(), null);
-        try {
-            return PublicUtil.objectToObject(configByKey, Map.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new PubSvcDefineException(ErrorCode.SFTP_NOT_FOUND);
-    }
-
 
     private String getFileName(final String path){
         if (StringUtils.isEmpty(path)){
@@ -1187,71 +1056,6 @@ public class DatasourceService {
         return tableInfo.getPath();
     }
 
-    /**
-     * 配置或修改离线任务
-     *
-     * @param isFilter 获取数据同步脚本时候是否进行过滤用户名密码操作
-     * @return
-     * @throws IOException
-     */
-    public String getSyncSql(final TaskResourceParam param, boolean isFilter) {
-        final Map<String, Object> sourceMap = param.getSourceMap();//来源集合
-        final Map<String, Object> targetMap = param.getTargetMap();//目标集合
-        final Map<String, Object> settingMap = param.getSettingMap();//流控、错误集合
-        try {
-            this.setReaderJson(sourceMap, param.getId(), param.getTenantId(), isFilter);
-            this.setWriterJson(targetMap, param.getId(), param.getTenantId(), isFilter);
-            Reader reader = null;
-            Writer writer = null;
-            Setting setting = null;
-
-            final Integer sourceType = Integer.parseInt(sourceMap.get("dataSourceType").toString());
-            final Integer targetType = Integer.parseInt(targetMap.get("dataSourceType").toString());
-
-            if (!this.checkDataSourcePermission(sourceType, EDataSourcePermission.READ.getType())) {
-                throw new RdosDefineException(ErrorCode.SOURCE_CAN_NOT_AS_INPUT);
-            }
-
-            if (!this.checkDataSourcePermission(targetType, EDataSourcePermission.WRITE.getType())) {
-                throw new RdosDefineException(ErrorCode.SOURCE_CAN_NOT_AS_OUTPUT);
-            }
-
-            final List<Long> sourceIds = (List<Long>) sourceMap.get("sourceIds");
-            final List<Long> targetIds = (List<Long>) targetMap.get("sourceIds");
-
-            reader = this.syncReaderBuild(sourceType, sourceMap, sourceIds);
-            writer = this.syncWriterBuild(targetType, targetIds, targetMap, reader);
-
-            setting = PublicUtil.objectToObject(settingMap, DefaultSetting.class);
-
-            //检查有效性
-            if (writer instanceof HiveWriter) {
-                final HiveWriter hiveWriter = (HiveWriter) writer;
-                if (!hiveWriter.isValid()) {
-                    throw new RdosDefineException(hiveWriter.getErrMsg());
-                }
-            }
-
-            if (param.getCreateModel() == TaskCreateModelType.TEMPLATE.getType()) {  //脚本模式直接返回
-                return this.getJobText(this.putDefaultEmptyValueForReader(sourceType, reader),
-                        this.putDefaultEmptyValueForWriter(targetType, writer), this.putDefaultEmptyValueForSetting(setting));
-            }
-
-            //获得数据同步job.xml的配置
-            final String jobXml = this.getJobText(reader, writer, setting);
-            final String parserXml = this.getParserText(sourceMap, targetMap, settingMap);
-            final JSONObject sql = new JSONObject(3);
-            sql.put("job", jobXml);
-            sql.put("parser", parserXml);
-            sql.put("createModel", TaskCreateModelType.GUIDE.getType());
-
-            this.developTaskParamService.checkParams(this.developTaskParamService.checkSyncJobParams(sql.toJSONString()), param.getTaskVariables());
-            return sql.toJSONString();
-        } catch (final Exception e) {
-            LOGGER.error("", e);
-            throw new RdosDefineException("解析同步任务失败: " + e.getMessage(), ErrorCode.SERVER_EXCEPTION);
-        }
-    }
 
     /**
      * 解析数据源连接信息
@@ -1349,53 +1153,6 @@ public class DatasourceService {
     }
 
     /**
-     * 设置write属性
-     *
-     * @param map
-     * @param taskId
-     * @param tenantId
-     * @param isFilter 是否过滤账号密码
-     * @throws Exception
-     */
-    public void setWriterJson(Map<String, Object> map, Long taskId, Long tenantId, boolean isFilter) throws Exception {
-        if (map.get("sourceId") == null) {
-            throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
-        }
-
-        Long sourceId = Long.parseLong(map.get("sourceId").toString());
-        DevelopDataSource source = getOne(sourceId);
-        Map<String,Object> kerberos = fillKerberosConfig(sourceId);
-        map.put("sourceIds", Arrays.asList(sourceId));
-        map.put("source", source);
-
-        JSONObject json = JSON.parseObject(source.getDataJson());
-        map.put("dataSourceType", source.getType());
-        Integer sourceType = source.getType();
-        // 根据jdbc信息 替换map中的信息
-        replaceJdbcInfoByDataJsonToMap(map, sourceId, source, tenantId, json, sourceType);
-
-        if (DataSourceType.Kudu.getVal().equals(sourceType)) {
-            syncBuilderFactory.getSyncBuilder(DataSourceType.Kudu.getVal()).setWriterJson(map, json,kerberos);
-            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
-        }
-
-        if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
-            syncBuilderFactory.getSyncBuilder(DataSourceType.IMPALA.getVal()).setWriterJson(map, json,kerberos);
-            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
-        }
-
-        if (isFilter) {
-            map.remove("username");
-            map.remove("password");
-
-            //S3数据源不需要移除 accessKey
-            if(!DataSourceType.AWS_S3.getVal().equals(sourceType)){
-                map.remove("accessKey");
-            }
-        }
-    }
-
-    /**
      * 根据dataJson 替换map中 jdbc信息
      *
      * @param map
@@ -1472,8 +1229,7 @@ public class DatasourceService {
             map.put("secretKey", JsonUtils.getStrFromJson(json, "secretKey"));
             map.put("region", JsonUtils.getStrFromJson(json, "region"));
         } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-            DataBaseType dataBaseType = DataSourceDataBaseType.getBaseTypeBySourceType(sourceType);
-            map.put("type", dataBaseType);
+            map.put("type", DataSourceType.INCEPTOR);
             map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
             map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
             map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
@@ -1512,189 +1268,6 @@ public class DatasourceService {
         if (StringUtils.isNotBlank(hadoopConfig)) {
             map.put(HADOOP_CONFIG, JSON.parse(hadoopConfig));
         }
-    }
-
-    /**
-     * 校验数据源可以使用的场景---读写
-     * 如果数据源没有添加到关系里面,默认为true
-     * FIXME 暂时先把对应关系写在程序里面
-     *
-     * @return
-     */
-    private boolean checkDataSourcePermission(int dataSourceType, int targetType) {
-        Integer permission = DATASOURCE_PERMISSION_MAP.get(dataSourceType);
-        if (permission == null) {
-            return true;
-        }
-
-        return (permission & targetType) == targetType;
-
-    }
-
-    private Reader syncReaderBuild(final Integer sourceType, final Map<String, Object> sourceMap, final List<Long> sourceIds) throws IOException {
-
-        Reader reader = null;
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
-                && !DataSourceType.HIVE.getVal().equals(sourceType)
-                && !DataSourceType.HIVE1X.getVal().equals(sourceType)
-                && !DataSourceType.HIVE3X.getVal().equals(sourceType)
-                && !DataSourceType.CarbonData.getVal().equals(sourceType)
-                && !DataSourceType.IMPALA.getVal().equals(sourceType)
-                && !DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            reader = PublicUtil.objectToObject(sourceMap, RDBReader.class);
-            ((RDBBase) reader).setSourceIds(sourceIds);
-            return reader;
-        }
-
-        if (DataSourceType.HDFS.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, HDFSReader.class);
-        }
-
-        if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, HiveReader.class);
-        }
-
-        if (DataSourceType.HBASE.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, HBaseReader.class);
-        }
-
-        if (DataSourceType.FTP.getVal().equals(sourceType)) {
-            reader = PublicUtil.objectToObject(sourceMap, FtpReader.class);
-            if (sourceMap.containsKey("isFirstLineHeader") && (Boolean) sourceMap.get("isFirstLineHeader")) {
-                ((FtpReader) reader).setFirstLineHeader(true);
-            } else {
-                ((FtpReader) reader).setFirstLineHeader(false);
-            }
-            return reader;
-        }
-
-        if (DataSourceType.MAXCOMPUTE.getVal().equals(sourceType)) {
-            reader = PublicUtil.objectToObject(sourceMap, OdpsReader.class);
-            ((OdpsBase) reader).setSourceId(sourceIds.get(0));
-            return reader;
-        }
-
-        if (DataSourceType.ES.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, EsReader.class);
-        }
-
-        if (DataSourceType.MONGODB.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, MongoDbReader.class);
-        }
-
-        if (DataSourceType.CarbonData.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, CarbonDataReader.class);
-        }
-
-        if (DataSourceType.Kudu.getVal().equals(sourceType)) {
-            return syncBuilderFactory.getSyncBuilder(DataSourceType.Kudu.getVal()).syncReaderBuild(sourceMap, sourceIds);
-        }
-
-        if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, InfluxDBReader.class);
-        }
-
-        if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
-            //setSftpConf时，设置的hdfsConfig和sftpConf
-            if (sourceMap.containsKey(HADOOP_CONFIG)){
-                Object impalaConfig = sourceMap.get(HADOOP_CONFIG);
-                if (impalaConfig instanceof Map){
-                    sourceMap.put(HADOOP_CONFIG,impalaConfig);
-                    sourceMap.put("sftpConf",((Map) impalaConfig).get("sftpConf"));
-                }
-            }
-            return syncBuilderFactory.getSyncBuilder(DataSourceType.IMPALA.getVal()).syncReaderBuild(sourceMap, sourceIds);
-        }
-
-        if (DataSourceType.AWS_S3.getVal().equals(sourceType)) {
-            return PublicUtil.objectToObject(sourceMap, AwsS3Reader.class);
-        }
-
-        throw new RdosDefineException("暂不支持" + DataSourceType.getSourceType(sourceType).name() +"作为数据同步的源");
-    }
-
-    private Writer syncWriterBuild(final Integer targetType, final List<Long> targetIds, final Map<String, Object> targetMap, final Reader reader) throws IOException {
-        Writer writer = null;
-
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(targetType))
-                && !DataSourceType.HIVE.getVal().equals(targetType)
-                && !DataSourceType.HIVE1X.getVal().equals(targetType)
-                && !DataSourceType.HIVE3X.getVal().equals(targetType)
-                && !DataSourceType.IMPALA.getVal().equals(targetType)
-                && !DataSourceType.CarbonData.getVal().equals(targetType)
-                && !DataSourceType.SparkThrift2_1.getVal().equals(targetType)
-                && !DataSourceType.INCEPTOR.getVal().equals(targetType)) {
-            writer = PublicUtil.objectToObject(targetMap, RDBWriter.class);
-            ((RDBBase) writer).setSourceIds(targetIds);
-            return writer;
-        }
-
-        if (DataSourceType.HDFS.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, HDFSWriter.class);
-        }
-
-        if (DataSourceType.HIVE.getVal().equals(targetType) || DataSourceType.HIVE3X.getVal().equals(targetType) || DataSourceType.HIVE1X.getVal().equals(targetType) || DataSourceType.SparkThrift2_1.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, HiveWriter.class);
-        }
-
-        if (DataSourceType.FTP.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, FtpWriter.class);
-        }
-
-        if (DataSourceType.ES.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, EsWriter.class);
-        }
-
-        if (DataSourceType.HBASE.getVal().equals(targetType)) {
-            targetMap.put("hbaseConfig",targetMap.get("hbaseConfig"));
-            writer = PublicUtil.objectToObject(targetMap, HBaseWriter.class);
-            HBaseWriter hbaseWriter = (HBaseWriter) writer;
-            List<String> sourceColNames = new ArrayList<>();
-            List<Map<String,String>> columnList = (List<Map<String, String>>) targetMap.get("column");
-            for (Map<String,String> column : columnList){
-                if (column.containsKey("key")){
-                    sourceColNames.add(column.get("key"));
-                }
-            }
-            hbaseWriter.setSrcColumns(sourceColNames);
-            return writer;
-        }
-
-        if (DataSourceType.MAXCOMPUTE.getVal().equals(targetType)) {
-            writer = PublicUtil.objectToObject(targetMap, OdpsWriter.class);
-            ((OdpsBase) writer).setSourceId(targetIds.get(0));
-            return writer;
-        }
-
-        if (DataSourceType.REDIS.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, RedisWriter.class);
-        }
-
-        if (DataSourceType.MONGODB.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, MongoDbWriter.class);
-        }
-
-        if (DataSourceType.CarbonData.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, CarbonDataWriter.class);
-        }
-
-        if (DataSourceType.Kudu.getVal().equals(targetType)) {
-            return syncBuilderFactory.getSyncBuilder(DataSourceType.Kudu.getVal()).syncWriterBuild(targetIds, targetMap, reader);
-        }
-
-        if (DataSourceType.IMPALA.getVal().equals(targetType)) {
-            return syncBuilderFactory.getSyncBuilder(DataSourceType.IMPALA.getVal()).syncWriterBuild(targetIds, targetMap, reader);
-        }
-
-        if (DataSourceType.AWS_S3.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, AwsS3Writer.class);
-        }
-
-        if (DataSourceType.INCEPTOR.getVal().equals(targetType)) {
-            return PublicUtil.objectToObject(targetMap, InceptorWriter.class);
-        }
-
-        throw new RdosDefineException("暂不支持" + DataSourceType.getSourceType(targetType).name() +"作为数据同步的目标");
     }
 
     public void setSftpConfig(Long sourceId, JSONObject json, Long tenantId, Map<String, Object> map, String confKey) {
@@ -1742,341 +1315,6 @@ public class DatasourceService {
             conf.put(IS_HADOOP_AUTHORIZATION, "true");
             conf.put(HADOOP_AUTH_TYPE, "kerberos");
         }
-    }
-    /**
-     * @author toutian
-     */
-    private String getJobText(final Reader reader,
-                              final Writer writer,
-                              final Setting setting) {
-
-        return new JobTemplate() {
-            @Override
-            public Reader newReader() {
-                return reader;
-            }
-
-            @Override
-            public Writer newWrite() {
-                return writer;
-            }
-
-            @Override
-            public Setting newSetting() {
-                return setting;
-            }
-        }.toJobJsonString();
-    }
-
-    /**
-     * 向导模式，填充reader的默认信息
-     * @param sourceType
-     * @param reader
-     * @return
-     */
-    private Reader putDefaultEmptyValueForReader(int sourceType, Reader reader) {
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
-                && DataSourceType.HIVE.getVal() != sourceType
-                && DataSourceType.HIVE1X.getVal() != sourceType
-                && DataSourceType.HIVE3X.getVal() != sourceType
-                && DataSourceType.SparkThrift2_1.getVal() != sourceType
-                && DataSourceType.CarbonData.getVal() != sourceType) {
-            RDBReader rdbReader = (RDBReader) reader;
-            rdbReader.setWhere("");
-            rdbReader.setSplitPK("");
-            return rdbReader;
-        } else if (DataSourceType.ES.getVal() == sourceType) {
-            EsReader esReader = (EsReader) reader;
-            JSONObject obj = new JSONObject();
-            obj.put("col", "");
-            JSONObject query = new JSONObject();
-            query.put("match", obj);
-            esReader.setQuery(query);
-            JSONObject column = new JSONObject();
-            column.put("key", "col1");
-            column.put("type", "string");
-            esReader.getColumn().add(column);
-            return esReader;
-        } else if (DataSourceType.FTP.getVal() == sourceType) {
-            FtpReader ftpReader = (FtpReader) reader;
-            ftpReader.setPath("/");
-            return ftpReader;
-        } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
-            InfluxDBReader influxDBReader = (InfluxDBReader) reader;
-            influxDBReader.setWhere("");
-            influxDBReader.setSplitPK("");
-            return influxDBReader;
-        }
-        return reader;
-    }
-
-    private Writer putDefaultEmptyValueForWriter(int targetType, Writer writer) {
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(targetType))
-                && !notPutValueFoeWriterSourceTypeSet.contains(targetType)){
-            RDBWriter rdbWriter = (RDBWriter) writer;
-            rdbWriter.setPostSql("");
-            rdbWriter.setPostSql("");
-            rdbWriter.setSession("");
-            if (DataSourceType.GREENPLUM6.getVal() == targetType){
-                rdbWriter.setWriteMode("insert");
-            }else {
-                rdbWriter.setWriteMode("replace");
-            }
-            return rdbWriter;
-        } else if (DataSourceType.ES.getVal() == targetType) {
-            EsWriter esWriter = (EsWriter) writer;
-            esWriter.setType("");
-            esWriter.setIndex("");
-            JSONObject column = new JSONObject();
-            column.put("key", "col1");
-            column.put("type", "string");
-            JSONObject idColumn = new JSONObject();
-            idColumn.put("index", 0);
-            idColumn.put("type", "int");
-            esWriter.getIdColumn().add(idColumn);
-            return esWriter;
-        }
-        return writer;
-    }
-
-    private Setting putDefaultEmptyValueForSetting(Setting setting) {
-        DefaultSetting defaultSetting = (DefaultSetting) setting;
-        defaultSetting.setSpeed(1.0);
-        defaultSetting.setRecord(0);
-        defaultSetting.setPercentage(0.0);
-        return defaultSetting;
-    }
-
-    public String getParserText(final Map<String, Object> sourceMap,
-                                final Map<String, Object> targetMap,
-                                final Map<String, Object> settingMap) throws Exception {
-
-        JSONObject parser = new JSONObject(4);
-        parser.put("sourceMap", getSourceMap(sourceMap));
-        parser.put("targetMap", getTargetMap(targetMap));
-        parser.put("setting", settingMap);
-
-        JSONObject keymap = new JSONObject(2);
-        keymap.put("source", MapUtils.getObject(sourceMap, "column"));
-        keymap.put("target", MapUtils.getObject(targetMap, "column"));
-        parser.put("keymap", keymap);
-
-        return parser.toJSONString();
-    }
-
-    private Map<String, Object> getSourceMap(Map<String, Object> sourceMap) {
-        DevelopDataSource source = (DevelopDataSource) sourceMap.get("source");
-
-        Map<String, Object> typeMap = new HashMap<>(6);
-        typeMap.put("type", source.getType());
-
-        Object obj = JSON.parse(JSON.toJSONString(MapUtils.getObject(sourceMap, "column")));
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(source.getType())) && !DataSourceType.IMPALA.getVal().equals(source.getType())) {
-            if (DataSourceType.HIVE.getVal().equals(source.getType()) || DataSourceType.HIVE3X.getVal().equals(source.getType()) || DataSourceType.HIVE1X.getVal().equals(source.getType()) || DataSourceType.SparkThrift2_1.getVal().equals(source.getType())) {
-                typeMap.put("partition", MapUtils.getString(sourceMap, "partition"));
-            }
-
-            if (!DataSourceType.HIVE.getVal().equals(source.getType()) && !DataSourceType.HIVE3X.getVal().equals(source.getType()) && !DataSourceType.HIVE1X.getVal().equals(source.getType())
-                    && !DataSourceType.CarbonData.getVal().equals(source.getType()) && !DataSourceType.SparkThrift2_1.getVal().equals(source.getType())) {
-                String table = ((List<String>) sourceMap.get("table")).get(0);
-                JSONArray oriCols = (JSONArray) obj;
-                List<JSONObject> dbCols = this.getTableColumn(source, table, Objects.isNull(sourceMap.get("schema")) ? null : sourceMap.get("schema").toString());
-
-                if (oriCols.get(0) instanceof String) {//老版本存在字符串数组
-                    obj = dbCols;
-                } else {
-                    Set<String> keys = new HashSet<>(oriCols.size());
-                    for (int i = 0; i < oriCols.size(); i++) {
-                        keys.add(oriCols.getJSONObject(i).getString("key"));
-                    }
-
-                    List<JSONObject> newCols = new ArrayList<>();
-                    for (JSONObject dbCol : dbCols) {
-                        JSONObject col = null;
-                        for (Object oriCol : oriCols) {
-                            if (((JSONObject) oriCol).getString("key").equals(dbCol.getString("key"))) {
-                                col = (JSONObject) oriCol;
-                                break;
-                            }
-                        }
-
-                        if (col == null) {
-                            col = dbCol;
-                        }
-
-                        newCols.add(col);
-                    }
-
-                    //加上常量字段信息
-                    for (Object oriCol : oriCols) {
-                        if ("string".equalsIgnoreCase(((JSONObject) oriCol).getString("type"))) {
-                            //去重
-                            if(!keys.contains(((JSONObject) oriCol).getString("key"))){
-                                newCols.add((JSONObject) oriCol);
-                            }
-                        }
-                    }
-                    obj = newCols;
-                }
-            }
-
-            typeMap.put("where", MapUtils.getString(sourceMap, "where"));
-            typeMap.put("splitPK", MapUtils.getString(sourceMap, "splitPK"));
-            typeMap.put("table", sourceMap.get("table"));
-        } else if (DataSourceType.HDFS.getVal().equals(source.getType())) {
-            typeMap.put("path", MapUtils.getString(sourceMap, "path"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(sourceMap, "fieldDelimiter"));
-            typeMap.put("fileType", MapUtils.getString(sourceMap, "fileType"));
-            typeMap.put("encoding", MapUtils.getString(sourceMap, "encoding"));
-        } else if (DataSourceType.HBASE.getVal().equals(source.getType())) {
-            typeMap.put("encoding", MapUtils.getString(sourceMap, "encoding"));
-            typeMap.put("table", MapUtils.getString(sourceMap, "table"));
-            typeMap.put("startRowkey", MapUtils.getString(sourceMap, "startRowkey"));
-            typeMap.put("endRowkey", MapUtils.getString(sourceMap, "endRowkey"));
-            typeMap.put("isBinaryRowkey", MapUtils.getString(sourceMap, "isBinaryRowkey"));
-            typeMap.put("scanCacheSize", MapUtils.getString(sourceMap, "scanCacheSize"));
-            typeMap.put("scanBatchSize", MapUtils.getString(sourceMap, "scanBatchSize"));
-        } else if (DataSourceType.FTP.getVal().equals(source.getType())) {
-            typeMap.put("encoding", MapUtils.getString(sourceMap, "encoding"));
-            typeMap.put("path", sourceMap.get("path"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(sourceMap, "fieldDelimiter"));
-            typeMap.put("isFirstLineHeader", MapUtils.getBooleanValue(sourceMap, "isFirstLineHeader"));
-        } else if (DataSourceType.MAXCOMPUTE.getVal().equals(source.getType())) {
-            typeMap.put("table", MapUtils.getString(sourceMap, "table"));
-            typeMap.put("partition", MapUtils.getString(sourceMap, "partition"));
-        } else if (DataSourceType.Kudu.getVal().equals(source.getType())) {
-            Assert.isTrue(StringUtils.isNotEmpty(MapUtils.getString(sourceMap, "table")), "表名不能为空");
-            String table = MapUtils.getString(sourceMap, "table");
-            typeMap.put("table", table);
-            typeMap.put("where", MapUtils.getString(sourceMap, "where"));
-            obj = this.getTableColumn(source, table, null);
-        } else if (DataSourceType.IMPALA.getVal().equals(source.getType())) {
-            typeMap.put("table", MapUtils.getString(sourceMap, "table"));
-            typeMap.put(TableLocationType.key(), MapUtils.getString(sourceMap, TableLocationType.key()));
-            Optional.ofNullable(MapUtils.getString(sourceMap, "partition")).ifPresent(s -> typeMap.put("partition", s));
-        } else if (DataSourceType.AWS_S3.getVal().equals(source.getType())) {
-            typeMap.put("bucket", MapUtils.getString(sourceMap, "bucket"));
-            typeMap.put("objects", MapUtils.getObject(sourceMap, "objects"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(sourceMap, "fieldDelimiter"));
-            typeMap.put("encoding", MapUtils.getString(sourceMap, "encoding"));
-            typeMap.put("isFirstLineHeader", MapUtils.getBoolean(sourceMap, "isFirstLineHeader"));
-        } else if (DataSourceType.INFLUXDB.getVal().equals(source.getType())) {
-            typeMap.put("customSql", MapUtils.getString(sourceMap, "customSql"));
-            typeMap.put("format", MapUtils.getString(sourceMap, "format"));
-            typeMap.put("where", MapUtils.getString(sourceMap, "where"));
-            typeMap.put("splitPK", MapUtils.getString(sourceMap, "splitPK"));
-            typeMap.put("table", MapUtils.getObject(sourceMap, "table"));
-            typeMap.put("schema", MapUtils.getString(sourceMap, "schema"));
-        }
-
-        Map<String, Object> map = new HashMap<>(4);
-        map.put("sourceId", source.getId());
-        map.put("name", source.getDataName());
-        map.put("column", obj);
-        map.put("type", typeMap);
-        map.put(EXTRAL_CONFIG, sourceMap.getOrDefault(EXTRAL_CONFIG, ""));
-
-        if (sourceMap.containsKey("increColumn")) {
-            map.put("increColumn", sourceMap.get("increColumn"));
-        }
-
-        if (sourceMap.containsKey("sourceList")) {
-            map.put("sourceList", sourceMap.get("sourceList"));
-        }
-        if (sourceMap.containsKey("schema")) {
-            map.put("schema", sourceMap.get("schema"));
-        }
-        return map;
-    }
-
-    private Map<String, Object> getTargetMap(Map<String, Object> targetMap) throws Exception {
-        DevelopDataSource target = (DevelopDataSource) targetMap.get("source");
-
-        Map<String, Object> typeMap = new HashMap<>(6);
-        typeMap.put("type", target.getType());
-
-        Object obj = null;
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(target.getType())) && !DataSourceType.IMPALA.getVal().equals(target.getType())) {
-            Assert.isTrue(StringUtils.isNotEmpty(MapUtils.getString(targetMap, "table")), "表名不能为空");
-            if (DataSourceType.HIVE.getVal().equals(target.getType()) || DataSourceType.HIVE3X.getVal().equals(target.getType())
-                    || DataSourceType.HIVE1X.getVal().equals(target.getType()) || DataSourceType.SparkThrift2_1.getVal().equals(target.getType())
-                    || DataSourceType.INCEPTOR.getVal().equals(target.getType())) {
-                obj = MapUtils.getObject(targetMap, "column");
-                typeMap.put("partition", MapUtils.getString(targetMap, "partition"));
-            } else if (DataSourceType.CarbonData.getVal().equals(target.getType())) {
-                obj = MapUtils.getObject(targetMap, "column");
-            } else {
-                String schema = (targetMap.containsKey("schema") && targetMap.get("schema") != null) ? targetMap.get("schema").toString() : null;
-                String table = ((List<String>) targetMap.get("table")).get(0);
-                obj = this.getTableColumn(target, table, schema);
-            }
-
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-            typeMap.put("table", targetMap.get("table"));
-            typeMap.put("preSql", MapUtils.getString(targetMap, "preSql"));
-            typeMap.put("postSql", MapUtils.getString(targetMap, "postSql"));
-        } else if (DataSourceType.HDFS.getVal().equals(target.getType())) {
-            obj = MapUtils.getObject(targetMap, "column");
-            typeMap.put("path", MapUtils.getString(targetMap, "path"));
-            typeMap.put("fileName", MapUtils.getString(targetMap, "fileName"));
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(targetMap, "fieldDelimiter"));
-            typeMap.put("encoding", MapUtils.getString(targetMap, "encoding"));
-            typeMap.put("fileType", MapUtils.getString(targetMap, "fileType"));
-        } else if (DataSourceType.HBASE.getVal().equals(target.getType())) {
-            Assert.isTrue(StringUtils.isNotEmpty(MapUtils.getString(targetMap, "table")), "表名不能为空");
-            obj = MapUtils.getObject(targetMap, "column");
-            typeMap.put("encoding", MapUtils.getString(targetMap, "encoding"));
-            typeMap.put("table", MapUtils.getString(targetMap, "table"));
-            typeMap.put("nullMode", MapUtils.getString(targetMap, "nullMode"));
-            typeMap.put("writeBufferSize", MapUtils.getString(targetMap, "writeBufferSize"));
-            typeMap.put("rowkey", MapUtils.getString(targetMap, "rowkey"));
-        } else if (DataSourceType.FTP.getVal().equals(target.getType())) {
-            obj = MapUtils.getObject(targetMap, "column");
-            typeMap.put("encoding", MapUtils.getString(targetMap, "encoding"));
-            typeMap.put("ftpFileName", MapUtils.getString(targetMap, "ftpFileName"));
-            typeMap.put("path", MapUtils.getString(targetMap, "path"));
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(targetMap, "fieldDelimiter"));
-        } else if (DataSourceType.MAXCOMPUTE.getVal().equals(target.getType())) {
-            Assert.isTrue(StringUtils.isNotEmpty(MapUtils.getString(targetMap, "table")), "表名不能为空");
-            obj = MapUtils.getObject(targetMap, "column");
-            typeMap.put("table", MapUtils.getString(targetMap, "table"));
-            typeMap.put("partition", MapUtils.getString(targetMap, "partition"));
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-        } else if (DataSourceType.Kudu.getVal().equals(target.getType())) {
-            Assert.isTrue(StringUtils.isNotEmpty(MapUtils.getString(targetMap, "table")), "表名不能为空");
-            String table = MapUtils.getString(targetMap, "table");
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-            typeMap.put("table", table);
-            obj = this.getTableColumn(target, table, null);
-        } else if (DataSourceType.IMPALA.getVal().equals(target.getType())) {
-            typeMap.put("table", MapUtils.getString(targetMap, "table"));
-            typeMap.put(TableLocationType.key(), MapUtils.getString(targetMap, TableLocationType.key()));
-            Optional.ofNullable(MapUtils.getString(targetMap, "partition")).ifPresent(s -> typeMap.put("partition", s));
-            Optional.ofNullable(MapUtils.getString(targetMap, "writeMode")).ifPresent(s -> typeMap.put("writeMode", s));
-            obj = MapUtils.getObject(targetMap, "column");
-        } else if (DataSourceType.AWS_S3.getVal().equals(target.getType())) {
-            obj = MapUtils.getObject(targetMap, "column");
-            typeMap.put("bucket", MapUtils.getString(targetMap, "bucket"));
-            typeMap.put("object", MapUtils.getString(targetMap, "object"));
-            typeMap.put("writeMode", MapUtils.getString(targetMap, "writeMode"));
-            typeMap.put("fieldDelimiter", MapUtils.getString(targetMap, "fieldDelimiter"));
-            typeMap.put("encoding", MapUtils.getString(targetMap, "encoding"));
-        }
-
-        Map<String, Object> map = new HashMap<>(4);
-        map.put("sourceId", target.getId());
-        map.put("name", target.getDataName());
-        map.put("column", obj);
-        map.put("type", typeMap);
-        map.put(EXTRAL_CONFIG, targetMap.getOrDefault(EXTRAL_CONFIG, ""));
-        if (targetMap.containsKey("schema")) {
-            map.put("schema", targetMap.get("schema"));
-        }
-        map.put(EXTRAL_CONFIG, targetMap.getOrDefault(EXTRAL_CONFIG, ""));
-
-        return map;
     }
 
     /**
@@ -2137,101 +1375,6 @@ public class DatasourceService {
         }
     }
 
-    public DataSourceTypeEnum getDatasourceTypeByComponent(EComponentType eComponentType, JdbcInfo jdbcInfo){
-        if (EComponentType.SPARK_THRIFT == eComponentType){
-            return DataSourceTypeEnum.SparkThrift2_1;
-        }else if (EComponentType.HIVE_SERVER == eComponentType && StringUtils.isNotEmpty(jdbcInfo.getVersionName())){
-           return DataSourceTypeEnum.typeVersionOf(DataSourceTypeEnum.HIVE1X.getDataType(),jdbcInfo.getVersionName());
-        }
-        throw new RdosDefineException("not get datasourceType by componentType");
-    }
-
-    public JSONObject buildDataSourceDataJson(Long clusterId, EComponentType eComponentType, JdbcInfo jdbcInfo, String dataSourceName) {
-        // @TODO 目前先只写SparkThrift类型，后期可扩展
-        if (EComponentType.SPARK_THRIFT == eComponentType) {
-            return buildSparkThriftDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
-        }else if (EComponentType.HIVE_SERVER == eComponentType){
-            return buildHiveServerDataSourceDataJSON(clusterId, jdbcInfo, dataSourceName);
-        }
-        return null;
-    }
-
-    public JSONObject buildSparkThriftDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
-        String jdbcUrl = jdbcInfo.getJdbcUrl();
-        JSONObject dataJson = new JSONObject();
-        dataJson.put("username", jdbcInfo.getUsername());
-        dataJson.put("password", jdbcInfo.getPassword());
-
-        if (!jdbcUrl.contains("%s")) {
-            throw new RdosDefineException("控制台 "+ EComponentType.SPARK_THRIFT.getName() +" URL中 不包含占位符 %s");
-        }
-        jdbcUrl = String.format(jdbcUrl, dataSourceName);
-        dataJson.put("jdbcUrl", jdbcUrl);
-        JSONObject hdfsConf = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
-        String defaultFs = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
-        if (StringUtils.isNotBlank(defaultFs)) {
-            dataJson.put("defaultFS", defaultFs);
-        } else {
-            throw new RdosDefineException("默认数据源的defaultFs未找到");
-        }
-
-        JSONObject hdpConfig = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
-
-        if (!hdpConfig.isEmpty()) {
-            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
-        }
-
-        dataJson.put("hasHdfsConfig", true);
-
-        JSONObject kerberosConfig = jdbcInfo.getKerberosConfig();
-        if (Objects.nonNull(kerberosConfig)) {
-            Map<String, String> sftpMap = getSftpMapByClusterId(clusterId);
-            String remotePath = kerberosConfig.getString("remotePath");
-            kerberosConfig.put("remotePath", remotePath.replaceAll(sftpMap.get("path"), ""));
-            kerberosConfig.put("hive.server2.authentication", "KERBEROS");
-            dataJson.put("kerberosConfig", jdbcInfo.getKerberosConfig());
-        }
-        return dataJson;
-    }
-
-    public JSONObject buildHiveServerDataSourceDataJSON(Long clusterId, JdbcInfo jdbcInfo, String dataSourceName) {
-        String jdbcUrl = jdbcInfo.getJdbcUrl();
-        JSONObject dataJson = new JSONObject();
-        dataJson.put("username", jdbcInfo.getUsername());
-        dataJson.put("password", jdbcInfo.getPassword());
-
-        if (!jdbcUrl.contains("%s")) {
-            throw new RdosDefineException("控制台 "+ EComponentType.HIVE_SERVER.getName() +" URL中 不包含占位符 %s");
-        }
-        jdbcUrl = String.format(jdbcUrl, dataSourceName);
-        dataJson.put("jdbcUrl", jdbcUrl);
-        JSONObject hdfsConf = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
-        String defaultFs = hdfsConf.getString(ConfigConstant.FS_DEFAULT);
-
-        if (StringUtils.isNotBlank(defaultFs)) {
-            dataJson.put("defaultFS", defaultFs);
-        } else {
-            throw new RdosDefineException("默认数据源的defaultFs未找到");
-        }
-
-        JSONObject hdpConfig = clusterService.getConfigByKeyByClusterId(clusterId, EComponentType.HDFS.getConfName(), null);
-        if (!hdpConfig.isEmpty()) {
-            dataJson.put("hadoopConfig", hdpConfig.toJSONString());
-        }
-
-        dataJson.put("hasHdfsConfig", true);
-
-        JSONObject kerberosConfig = jdbcInfo.getKerberosConfig();
-        if (Objects.nonNull(kerberosConfig)) {
-            Map<String, String> sftpMap = getSftpMapByClusterId(clusterId);
-            String remotePath = kerberosConfig.getString("remotePath");
-            kerberosConfig.put("remotePath", remotePath.replaceAll(sftpMap.get("path"), ""));
-            kerberosConfig.put("hive.server2.authentication", "KERBEROS");
-            dataJson.put("kerberosConfig", jdbcInfo.getKerberosConfig());
-        }
-        return dataJson;
-    }
-
     public DevelopDataSource getOne(Long id) {
         DsInfo dsInfo = dsInfoService.getOneById(id);
         DevelopDataSource developDataSource = new DevelopDataSource();
@@ -2239,49 +1382,6 @@ public class DatasourceService {
         developDataSource.setType(dsInfo.getDataTypeCode());
         developDataSource.setIsDefault(dsInfo.getIsMeta());
         return developDataSource;
-    }
-
-
-    /**
-     * 转换成datasourceVo
-     * @param tenantId
-     * @param userId
-     * @param dscJson
-     * @param dataName
-     * @param dataSourceType
-     * @param dbName
-     * @return
-     */
-    private DataSourceVO convertParamToVO(Long tenantId, Long userId, String dscJson, String dataName, Integer dataSourceType, String dbName) {
-        DataSourceVO dataSourceVO = new DataSourceVO();
-        dataSourceVO.setUserId(userId);
-        dataSourceVO.setTenantId(tenantId);
-        dataSourceVO.setGmtCreate(new Date());
-        dataSourceVO.setGmtModified(new Date());
-        dataSourceVO.setDataName(dataName);
-        dataSourceVO.setType(dataSourceType);
-        dataSourceVO.setSchemaName(dbName);
-        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.valOf(dataSourceType);
-        Asserts.notNull(typeEnum, ErrorCode.CAN_NOT_FITABLE_SOURCE_TYPE);
-        dataSourceVO.setDataType(typeEnum.getDataType());
-        dataSourceVO.setDataVersion(typeEnum.getDataVersion());
-        if (Strings.isNotBlank(dscJson)) {
-            dataSourceVO.setDataJson(DataSourceUtils.getDataSourceJson(dscJson));
-        }
-        dataSourceVO.setIsMeta(1);
-        return dataSourceVO;
-    }
-
-    public void createMateDataSource(Long tenantId, Long userId, String dscJson, String dataName, Integer dataSourceType, String tenantDesc, String dbName) {
-
-        DataSourceVO dataSourceVO = convertParamToVO(tenantId,userId,dscJson,dataName,dataSourceType,dbName);
-        addOrUpdate(dataSourceVO, userId);
-
-    }
-
-    public Integer getEComponentTypeByDataSourceType(Integer val) {
-
-        return ComponentTypeDataSourceTypeMapping.getEComponentType(val);
     }
 
     /**
