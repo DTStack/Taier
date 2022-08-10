@@ -18,7 +18,6 @@
 
 package com.dtstack.taier.scheduler.server.pipeline;
 
-import com.dtstack.taier.scheduler.server.JobGraphBuilderTrigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
