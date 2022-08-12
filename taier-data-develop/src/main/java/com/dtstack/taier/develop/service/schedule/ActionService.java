@@ -1,11 +1,13 @@
 package com.dtstack.taier.develop.service.schedule;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.RdosDefineException;
+import com.dtstack.taier.common.util.DataFilter;
 import com.dtstack.taier.dao.domain.ScheduleEngineJobRetry;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleJobExpand;
@@ -201,7 +203,15 @@ public class ActionService {
             List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray(taskParams, ScheduleTaskParamShade.class);
             String sqlText = scheduleTaskShade.getSqlText();
             if (EScheduleJobType.SYNC.getType().equals(scheduleTaskShade.getTaskType())) {
-                sqlText = sqlText;
+                // 密码脱敏，日志中sqlText只展示job部分。
+                try {
+                    //job需要反序列化后脱敏
+                    JSONObject jobJson = JSON.parseObject(sqlText).getJSONObject("job");
+                    DataFilter.passwordFilter(jobJson);
+                    sqlText = jobJson.toJSONString();
+                } catch (final Exception e) {
+                    sqlText = sqlText.replaceAll("(\"password\"[^\"]+\")([^\"]+)(\")", "$1******$3");
+                }
             }
             sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
             jobLogVO.setSqlText(sqlText);
