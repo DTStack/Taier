@@ -22,6 +22,7 @@ package com.dtstack.taier.common.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,9 +79,13 @@ public class SqlRegexUtil {
 
     public static final String DICTIONARY = "(?i)create\\s+(temp\\s+)?table\\s+.*(\\s+DICTIONARY)\\s*.*";
 
-    public static final String EXPLAIN = "(?i)explain\\s+.*";
+    public static final String EXPLAIN = "(?i)^(explain\\s)([\\s\\S]*)";
 
-    private static final String SELECT = "(?i)select\\s+.*";
+    /**
+     * 必须保证select之后有空白字符如\n\s\t\r来进行分割之后才视作为有效query
+     *  并且select 之后可以是任意数据以及任意行文字及内容
+     */
+    private static final String SELECT = "(?i)^(select\\s)([\\s\\S]*)";
 
     public static final String COLLATE = "(?i)(?<collates>(COLLATE\\s+([a-zA-Z0-9_\\.\"]+)\\s*))";
 
