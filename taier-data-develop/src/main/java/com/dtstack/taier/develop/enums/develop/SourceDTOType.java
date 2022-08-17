@@ -302,7 +302,7 @@ public enum SourceDTOType {
                     .schema(schema)
                     .username(username)
                     .password(password)
-                    .keyPath((String)expandConfig.get(SSL_LOCAL_DIR))
+                    .keyPath((String) expandConfig.get(SSL_LOCAL_DIR))
                     .sourceType(DataSourceType.ES7.getVal())
                     .build();
             return esSourceDTO;
@@ -341,7 +341,6 @@ public enum SourceDTOType {
      * hbase
      */
     HBASE2(DataSourceType.HBASE2.getVal()) {
-
         @Override
         public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
             return getSourceDTO(dataJson, confMap, null, expandConfig);
@@ -1201,6 +1200,31 @@ public enum SourceDTOType {
     },
 
     /**
+     * emq
+     */
+    EMQ(DataSourceType.EMQ.getVal()) {
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, Map<String, Object> expandConfig) {
+            return getSourceDTO(dataJson, confMap, null, expandConfig);
+        }
+
+        @Override
+        public ISourceDTO getSourceDTO(JSONObject dataJson, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
+            String address = dataJson.containsKey("address") ? dataJson.getString("address") : "";
+            String username = dataJson.containsKey(JDBC_USERNAME) ? dataJson.getString(JDBC_USERNAME) : "";
+            String password = dataJson.containsKey(JDBC_PASSWORD) ? dataJson.getString(JDBC_PASSWORD) : "";
+            return EMQSourceDTO.builder()
+                    .password(password)
+                    .username(username)
+                    .url(address)
+                    .sourceType(DataSourceType.EMQ.getVal())
+                    .build()
+            ;
+        }
+    },
+
+
+    /**
      * Open_TSDB
      */
     OPEN_TSDB(DataSourceType.OPENTSDB.getVal()) {
@@ -1284,7 +1308,7 @@ public enum SourceDTOType {
      */
     public static ISourceDTO getSourceDTO(JSONObject dataJson, Integer sourceType, Map<String, Object> confMap, String schema, Map<String, Object> expandConfig) {
         SourceDTOType sourceDTOType = getSourceDTOType(sourceType);
-        return sourceDTOType.getSourceDTO(dataJson, confMap, schema,expandConfig);
+        return sourceDTOType.getSourceDTO(dataJson, confMap, schema, expandConfig);
     }
 
     protected KafkaSourceDTO buildKafkaSourceDTO(JSONObject dataJson, Map<String, Object> kerberosConfig) {
