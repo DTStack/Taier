@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
  * @Date: 2021/3/10
  */
 @Service
-public class DsTypeService  {
+public class DsTypeService {
 
     @Autowired
     private DsVersionService dsVersionService;
@@ -46,34 +47,35 @@ public class DsTypeService  {
      * @param searchParam
      * @return
      */
-   public List<DsTypeVO> queryDsTypeByClassify(DsTypeSearchParam searchParam) {
-       Long classifyId = searchParam.getClassifyId();
-       String search = searchParam.getSearch();
-       if (Strings.isNotBlank(search)) {
+    public List<DsTypeVO> queryDsTypeByClassify(DsTypeSearchParam searchParam) {
+        Long classifyId = searchParam.getClassifyId();
+        String search = searchParam.getSearch();
+        if (Strings.isNotBlank(search)) {
             classifyId = null;
             search = search.trim();
         }
-       List<DsType> dsTypes = dsTypeMapper.queryDsTypeByClassify(classifyId, search);
+        List<DsType> dsTypes = dsTypeMapper.queryDsTypeByClassify(classifyId, search.toLowerCase(Locale.ROOT));
         List<String> versionList = dsVersionService.listDsVersion().stream().map(DsVersion::getDataType)
                 .collect(Collectors.toList());
-        return dsTypes.stream().map(x ->{
-                    DsTypeVO dsTypeVO = DsTypeTransfer.INSTANCE.toInfoVO(x);
-                    dsTypeVO.setHaveVersion(versionList.contains(x.getDataType()));
-                    return dsTypeVO;
-                }).collect(Collectors.toList());
-   }
+        return dsTypes.stream().map(x -> {
+            DsTypeVO dsTypeVO = DsTypeTransfer.INSTANCE.toInfoVO(x);
+            dsTypeVO.setHaveVersion(versionList.contains(x.getDataType()));
+            return dsTypeVO;
+        }).collect(Collectors.toList());
+    }
 
     /**
      * 添加数据源类型的权重值
      * 目前固定增加1
+     *
      * @param dataType
      * @return
      */
-   public Boolean plusDataTypeWeight(String dataType, Integer plusWeight) {
-       Objects.requireNonNull(plusWeight);
-       Objects.requireNonNull(dataType);
-       return dsTypeMapper.plusDataTypeWeight(dataType, plusWeight) > 0;
-   }
+    public Boolean plusDataTypeWeight(String dataType, Integer plusWeight) {
+        Objects.requireNonNull(plusWeight);
+        Objects.requireNonNull(dataType);
+        return dsTypeMapper.plusDataTypeWeight(dataType, plusWeight) > 0;
+    }
 
 
 }
