@@ -21,7 +21,7 @@
         from datasource_type
         where is_deleted = 0   and invisible = 0
         <if test="search !=null and search!=''">
-            and data_type like concat('%',#{search},'%')
+            and lower(data_type) like concat('%',#{search},'%')
         </if>
         <if test="classifyId !=null and classifyId != 1 and classifyId!=2">
             and data_classify_id = #{classifyId}
