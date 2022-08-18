@@ -309,7 +309,7 @@ class TaskRenderService {
 			(
 				{
 					[IComputeType.BATCH]: ['SAVE_TASK', 'RUN_TASK', 'STOP_TASK', 'SUBMIT_TASK'],
-					[IComputeType.STREAM]: ['SAVE_TASK', 'SUBMIT_TASK'],
+					[IComputeType.STREAM]: ['SAVE_TASK'],
 				} as Record<IComputeType, (keyof typeof editorActionsScaffolds)[]>
 			)[record.computeType] || [];
 
