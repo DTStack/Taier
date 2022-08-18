@@ -305,12 +305,14 @@ class TaskRenderService {
 	 */
 	public renderEditorActions = (key: TASK_TYPE_ENUM, record: IOfflineTaskProps) => {
 		// All tasks should have save and submit actions
-		const defaultActions: (keyof typeof editorActionsScaffolds)[] = [
-			'SAVE_TASK',
-			'RUN_TASK',
-			'STOP_TASK',
-			'SUBMIT_TASK',
-		];
+		const defaultActions =
+			(
+				{
+					[IComputeType.BATCH]: ['SAVE_TASK', 'RUN_TASK', 'STOP_TASK', 'SUBMIT_TASK'],
+					[IComputeType.STREAM]: ['SAVE_TASK', 'SUBMIT_TASK'],
+				} as Record<IComputeType, (keyof typeof editorActionsScaffolds)[]>
+			)[record.computeType] || [];
+
 		const actionsField = this.editorActionField.find((i) => i.taskType === key);
 
 		if (actionsField) {
