@@ -1,10 +1,119 @@
-# 前端部署
+---
+title: 单机部署
+sidebar_label: 单机部署
+---
 
-:::tip
-我们建议通过 [docker 部署](./docker.md)，解决环境安装的烦恼
+:::caution
+在执行以下操作前，你需要先确定已完成Taier前的部署依赖准备工作
 :::
 
-## 准备环境
+## 环境准备
+- 本地正确安装JDK1.8+
+- 可用的zookeeper
+- 下载好的[DatasourceX](https://github.com/DTStack/DatasourceX/releases/tag)
+- MySQL初始化[Taier初始数据](https://github.com/DTStack/Taier/blob/master/sql/init.sql)
+
+:::tip
+低版本升级到高版本 执行[高版本目录](https://github.com/DTStack/Taier/tree/master/sql)下的`increment.sql`
+:::
+
+## 后端部署
+
+- 下载 [taier-data-develop-with-dependencies.jar](https://github.com/DTStack/Taier/releases/download/v1.2.0/taier-data-develop-with-dependencies.jar)
+- 下载 [taier-plugins插件包](https://github.com/DTStack/Taier/releases/download/v1.2.0/pluginLibs.tar.gz)
+
+- 解压plugins插件包
+
+- 配置文件目录
+```
+|-- conf 
+|---- application.properties  //配置文件
+|---- logback.xml             //日志配置
+```
+
+- 修改配置信息
+
+完整的application.properties应该如下
+```properties
+nodeZkAddress=127.0.0.1:2181/taier
+jdbc.driverClassName=com.mysql.jdbc.Driver
+jdbc.url=jdbc:mysql://127.0.0.1:3306/taier?charset=utf8&autoReconnect=true&tinyInt1isBit=false&serverTimezone=Asia/Shanghai
+jdbc.username=
+jdbc.password=
+
+server.tomcat.uri-encoding = UTF-8
+server.port = 8090
+server.tomcat.basedir = ./tmpSave
+datasource.plugin.path=/opt/dtstack/DTCommon/InsightPlugin/dataSourcePlugin
+```
+:::caution 
+jdbc需要指定`charset=utf8` 否则在对接完集群之后，获取开发目录可能会乱码  
+:::
+
+- 配置启动脚本
+```shell
+|-- bin
+|---- base.sh     //jvm相关参数设置脚本
+|---- taier.sh    //启动脚本
+```
+
+- 项目结构
+完整的项目结构如下
+``` shell
+├── bin
+│   ├── base.sh
+│   ├── taier.sh
+├── conf
+│   ├── application.properties
+│   ├── java.policy
+│   └── logback.xml
+├── flinkconf
+│   ├── debug
+│   ├── error
+│   ├── fatal
+│   ├── info
+│   ├── info-tmp
+│   ├── log4j2
+│   └── warn
+├── lib
+│   └── taier-data-develop-with-dependencies.jar
+├── logs
+│   ├── taier_flink_monitor.log
+│   ├── taier.log
+│   ├── taier_request.log
+│   ├── taier_schedule.log
+│   └── taier_zk.log
+├── pluginLibs
+│   ├── dummy
+│   ├── flinkcommon
+│   ├── hdfs2
+│   ├── hdfs3
+│   ├── hive
+│   ├── hive2
+│   ├── hive3
+│   ├── yarn2
+│   ├── yarn2-hdfs2-flink112
+│   ├── yarn2-hdfs2-hadoop2
+│   ├── yarn2-hdfs2-spark210
+│   ├── yarn3
+│   ├── yarn3-hdfs3-flink112
+│   ├── yarn3-hdfs3-hadoop3
+│   └── yarn3-hdfs3-spark210
+├── run
+│   └── rdos.pid
+```
+
+* 启动:
+```shell
+$ ./bin/taier.sh start
+```
+* 停止:
+```shell
+$ ./bin/taier.sh stop
+```
+
+
+## 前端部署
 
 ### 安装 Nginx
 
@@ -54,7 +163,7 @@ unzip dist.zip
 
 执行完成后，目录下会新增 `dist` 文件夹
 
-## 配置代理
+### 配置代理
 
 ```bash
 cd /etc/nginx/conf.d
@@ -103,7 +212,7 @@ server {
 }
 ```
 
-### 重启服务
+#### 重启服务
 
 配置完成后，重启 Nginx 服务。
 
@@ -115,7 +224,7 @@ nginx -s reload
 
 那么我们接下来需要通过配置 hosts 将 `.taier.com` 转发到路由去。
 
-## 配置 hosts
+### 配置 hosts
 
 :::caution
 这一步需要在主机电脑操作，并不是在服务器操作。即**打开浏览器的那一台电脑**。
@@ -145,7 +254,7 @@ nginx -s reload
 这里需要填写你部署的 `taier-ui` 所在的服务器的 IP 地址。
 :::
 
-完成配置后，访问 http://www.taier.com 则可以看到页面。
+完成配置后，访问 http://www.taier.com 则可以看到页面[快速上手](./quickstart/start.md)
 
 ## 其他版本安装
 
