@@ -1,62 +1,13 @@
-# docker 部署
+# Docker 部署
 
 :::tip
-注意：taier的docker镜像，目前是通过目录挂载的去加载datasourcex和chunjun，以下操作默认插件包都已经下载
+注意：taier的docker镜像，目前是通过目录挂载的去加载Datasourcex，以下操作默认Datasourcex都已经下载  
+[Datasourcex操作](./pre-operation.md)
+
+如果需要使用数据同步任务，还需要自行挂载chunjun的插件目录和flink lib目录
 :::
 
-以datasoucex为例 解压后目录结构为  
-```shell
-/data/datasourcex
-├── aws_s3
-├── clickhouse
-├── db2
-├── dmdb
-├── doris
-├── emq
-├── es
-├── es7
-├── ftp
-├── gbase
-├── greenplum6
-├── hbase
-├── hbase2
-├── hbase_gateway
-├── hdfs
-├── hive
-├── hive1
-├── hive3
-├── impala
-├── inceptor
-├── influxdb
-├── kafka
-├── kingbase8
-├── kudu
-├── kylin
-├── kylinrestful
-├── libra
-├── maxcompute
-├── mongo
-├── mysql5
-├── mysql8
-├── oceanbase
-├── opentsdb
-├── oracle
-├── phoenix
-├── phoenix4_8
-├── phoenix5
-├── postgresql
-├── presto
-├── redis
-├── restful
-├── s3
-├── socket
-├── solr
-├── spark
-├── sqlServer
-├── sqlServer2017
-├── vertica
-└── websocket
-```
+
 
 ## 1. 仅使用taier的web和ui镜像
 仅使用taier的web和ui，确保以下环境正常:

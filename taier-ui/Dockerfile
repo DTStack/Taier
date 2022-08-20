@@ -1,8 +1,5 @@
 FROM nginx
 
-# 作者
-MAINTAINER dazhi <dazhi@dtstack.com>
-
 # 定义工作目录
 ENV WORK_PATH /usr/taier
 ENV NODE_HOME /usr/local/node/node-v16.15.0-linux-x64

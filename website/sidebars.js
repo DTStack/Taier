@@ -20,7 +20,6 @@ const sidebars = {
             collapsed: true,
             items: [
                 'guides/introduction',
-                'guides/work-deployment',
                 'guides/explain',
                 'guides/taier-architecture',
             ],
@@ -37,9 +36,9 @@ const sidebars = {
                         label: '快速部署',
                         items: [
                             'quickstart/deploy/pre-operation',
-                            'quickstart/deploy/backend',
-                            'quickstart/deploy/web',
                             'quickstart/deploy/docker',
+                            'quickstart/deploy/deployment-quick',
+                            'quickstart/deploy/build',
                         ],
                  },
                   'quickstart/start',
@@ -53,22 +52,22 @@ const sidebars = {
                 'functions/multi-cluster',
                 {
                     type: 'category',
-                    collapsed: false,
+                    collapsed: true,
                     label: '组件配置',
                     items: [
                         'functions/component/sftp',
                         'functions/component/yarn',
                         'functions/component/hdfs',
                         'functions/component/flink',
+                        'functions/component/spark-thrift',
                         'functions/component/spark',
                         'functions/component/hive',
-                        'functions/component/spark-thrift',
                     ],
                  },
                 'functions/datasource',
                 {
                     type: 'category',
-                    collapsed: false,
+                    collapsed: true,
                     label: '任务类型',
                     items: [
                         'functions/task/sync',

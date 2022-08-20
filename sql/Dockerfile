@@ -1,9 +1,6 @@
 # 构建mysql 从5.7.37 版本开始
 FROM mysql:5.7.37-oracle
 
-# 作者
-MAINTAINER dazhi <dazhi@dtstack.com>
-
 # 定义会被容器自动执行的目录
 ENV AUTO_RUN_DIR /docker-entrypoint-initdb.d
 

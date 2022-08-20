@@ -1,8 +1,5 @@
 FROM suranagivinod/openjdk8
 
-# 作者
-MAINTAINER dazhi <dazhi@dtstack.com>
-
 # 定义工作目录
 ENV WORK_PATH /usr/taier
 
