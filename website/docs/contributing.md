@@ -4,14 +4,17 @@ sidebar_label: 贡献指南
 ---
 
 ## 为 Taier 做贡献
-**Taier** 使用了 Apache 的多个开源项目如`Flink`、`Spark` 作为计算组件实现数据同步和批处理计算，得益于开源社区才有 **Taier**。取之社区，
-回馈社区。**Taier** 迈出 `v1.0.0` 版本的这一步代表着 `袋鼠云技术研发团队` 对开源的决心，未来我们会
-尽快推出 **Taier** 后续版本，也欢迎对 Taier 感兴趣的开源伙伴一起参与共建！提出你宝贵的`Issue` 与 `PR`！
+**Taier** 使用了 Apache 的多个开源项目如`Flink`、`Spark` 作为计算组件实现数据同步和批处理计算    
+得益于开源社区才有 **Taier**。取之社区， 回馈社区。也欢迎对 Taier 感兴趣的开源伙伴一起参与共建！提出你宝贵的`Issue` 与 `PR`
 
-如果您想为 **Taier** 做贡献（即便是一些微小的），请不要犹豫，参考下面的指导方针。
+如果您想为 **Taier** 做贡献（即便是一些微小的），请不要犹豫，参考下面的指导方针
+
+1. 查看标记为feature或question的标签的问题并解决    
+2. 回答有疑问的问题   
+3. 改善使用文档
 
 ### 报告问题
-在报告任何关于 **Taier** 的问题时，请前往[Issues](https://github.com/DTStack/Taier/issues/new) 。
+在报告任何关于 **Taier** 的问题时，请前往[issues](https://github.com/DTStack/Taier/issues/new) 
 
 ### 贡献流程
 这是一个贡献者工作流程的大致说明：
