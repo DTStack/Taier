@@ -1,6 +1,6 @@
 ---
-title: 依赖组件
-sidebar_label: 依赖组件
+title: 部署依赖
+sidebar_label: 部署依赖
 ---
 
 # 依赖组件
@@ -24,3 +24,7 @@ sidebar_label: 依赖组件
 - [Spark](https://spark.apache.org/) On Yarn
   - Spark SQL 任务运行依赖
   - 版本：`spark-2.1.3`
+
+## Web 浏览器要求
+
+- 推荐使用 `Chrome`

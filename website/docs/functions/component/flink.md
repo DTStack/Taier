@@ -15,6 +15,10 @@ sidebar_label: Flink
 部署模式分为 `perjob`、`session` 两种模式
 :::
 
+### 下载chunjun
+依赖`Chunjun` [1.12](https://github.com/DTStack/chunjun/releases/tag/v1.12.3) 版本
+[Chunjun源码编译](https://github.com/DTStack/chunjun/blob/master/docs/quickstart.md)
+
 ### 参数说明
 
 #### perjob、session公共参数
