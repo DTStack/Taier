@@ -18,13 +18,18 @@
 ## 介绍
 > **Taier**  太阿，是中国古代十大名剑之一
 
+**Taier**是一个开源的分布式DAG调度系统，专注不同任务的提交和调度，旨在降低**ETL**开发成本。专注解决任务之间复杂的依赖关系和不同类型任务提交和运维带来的上手成本  
+
+在**Taier**上进行ETL开发，不用关心任务错综复杂的依赖关系与底层的大数据平台的架构实现，将工作的重心更多地聚焦在业务之中  
+
+**Taier**提供了一个提交、调度、运维、指标展示的一站式大数据开发平台
 
 ## 功能
-**Taier**是一个开源的分布式DAG调度系统，专注不同任务的提交和调度，旨在降低**ETL**开发成本  
-
 核心功能如下:
 - **分布式扩展**
 - **可视化DAG配置**
+- **自定义扩展任务插件**
+- **向导、脚本多种模式**
 - **上下游依赖调度**
 - **支持实时、离线任务**
 - **支持对接不同版本的hadoop**
@@ -39,6 +44,15 @@
 
 ![architecture](/website/static/img/readme/taier-architecture.png)
 
+
+## 快速开始
+- [官方文档](https://dtstack.github.io/Taier/docs/guides/introduction)  
+- [docker启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
+```shell
+$ docker-compose up -d
+```
+- [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
+
 ## 支持任务
 
 | 任务类型      | 文档说明 |
@@ -49,22 +63,15 @@
 | Spark SQL   | [文档](https://dtstack.github.io/Taier/docs/functions/task/spark-sql)     |
 | Hive SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/hive-sql)     |
 | OceanBase SQL   |[文档](https://dtstack.github.io/Taier/docs/functions/task/oceanbase-sql)   |
+| 自定义扩展   |[文档](https://dtstack.github.io/Taier/docs/expand/task)   |
 
-## 快速开始
 
-请参考官方文档: [docker启动](https://dtstack.github.io/Taier/docs/quickstart/deploy/docker#2-%E4%BD%BF%E7%94%A8docker-compose)
-```shell
-$ docker-compose up -d
-```
 
 ## 问题反馈
 在使用上有遇到bug或者优化点，强烈建议你提[issue](https://github.com/DTStack/Taier/issues/new/choose) 我们将及时修复
 
 ## 贡献代码
-
-参考[CONTRIBUTING](https://dtstack.github.io/Taier/docs/contributing).
-
-感谢所有向 Taier 贡献的朋友  
+参考[CONTRIBUTING](https://dtstack.github.io/Taier/docs/contributing)
 <a href="https://github.com/DTStack/Taier/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=DTStack/Taier" />
 </a>
