@@ -76,6 +76,7 @@ const sidebars = {
                         'functions/task/flink-sql',
                         'functions/task/spark-sql',
                         'functions/task/hive-sql',
+                        'functions/task/oceanbase-sql',
                     ],
                  },
                 'functions/maintenance',
