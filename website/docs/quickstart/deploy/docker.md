@@ -6,7 +6,7 @@
 
 以datasoucex为例 解压后目录结构为  
 ```shell
-/opt/dtstack/DTPlugin/InsightPlugin/dataSourcePlugin 
+/data/datasourcex
 ├── aws_s3
 ├── clickhouse
 ├── db2
@@ -65,8 +65,8 @@
 
 获取taier镜像 
 ```shell
-$ docker pull dtopensource/taier:1.1
-$ docker pull dtopensource/taier-ui:1.1
+$ docker pull dtopensource/taier:latest
+$ docker pull dtopensource/taier-ui:latest
 ```
 
 启动web容器,mysql和zookeeper的配置信息根据实际环境调整
@@ -78,19 +78,19 @@ docker run -itd -p 8090:8090 --env ZK_HOST=172.16.85.111 \
 --env DB_ROOT=root  \
 --env DB_PASSWORD=123456 \
 --env DATASOURCEX_PATH=/usr/taier/datasourcex \
--v /opt/dtstack/DTPlugin/InsightPlugin/dataSourcePlugin:/usr/taier/datasourcex \
-dtopensource/taier:1.1
+-v /data/datasourcex:/usr/taier/datasourcex \
+dtopensource/taier:latest
 ```
 
 启动ui容器
-TAIER_IP 为启动web容器ip
+TAIER_IP配置为启动的`web容器`的ip
 ```shell
 docker run -itd -p 80:80 --env TAIER_IP=172.16.100.38 \
 --env TAIER_PORT=8090 \
-dtopensource/taier-ui:1.1
+dtopensource/taier-ui:lastest
 ```
 
-当命令执行完成后，在浏览器上直接访问 127.0.0.1 即可
+当命令执行完成后，在浏览器上直接访问 127.0.0.1:8090 [快速上手](./quickstart/start.md)
 
 :::caution
 访问页面 如果浏览器出现502，请手动确认ui容器是否和web容器网络是否互通
@@ -105,26 +105,26 @@ firewall-cmd --reload
 :::
 
 ## 2. 使用docker-compose
-获取Taier最新的docker-compose文件
+通过docker-compose启动
 ```yaml
 version: '3'
 services:
   taier-db:
-    image: dtopensource/taier-mysql:1.1
+    image: dtopensource/taier-mysql:latest
     environment:
       MYSQL_DATABASE: taier
       MYSQL_ROOT_PASSWORD: 123456
   taier-zk:
     image: zookeeper:3.4.9
   taier-ui:
-    image: dtopensource/taier-ui:1.1
+    image: dtopensource/taier-ui:latest
     ports:
       - 80:80
     environment:
       TAIER_IP: taier
       TAIER_PORT: 8090
   taier:
-    image: dtopensource/taier:1.1
+    image: dtopensource/taier:latest
     environment:
       ZK_HOST: taier-zk
       ZK_PORT: 2181
@@ -134,14 +134,14 @@ services:
       DB_PASSWORD: 123456
       DATASOURCEX_PATH: /usr/taier/datasourcex
     volumes:
-        - /data/datasourcex:/usr/taier/datasourcex
+      - /data/datasourcex:/usr/taier/datasourcex
 ```
 
 进入docker-compose目录，执行
 ```shell
 $ docker-compose up -d
 ```
-当命令执行完成后，在浏览器上直接访问 127.0.0.1 即可
+当命令执行完成后，在浏览器上直接访问 127.0.0.1:8090 [快速上手](./quickstart/start.md)
 
 
 :::tip
