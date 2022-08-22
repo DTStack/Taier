@@ -53,7 +53,7 @@
 $ docker-compose up -d
 ```
 - [开发任务](https://dtstack.github.io/Taier/docs/quickstart/start)
-
+![main](/website/static/img/readme/main.png)
 ## 任务类型
 
 | 任务类型      | 文档说明 |
