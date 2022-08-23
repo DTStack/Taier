@@ -16,7 +16,7 @@ public class DsTypeSearchParam extends PubSvcBaseParam {
     private Long classifyId;
 
     @ApiModelProperty("数据源类目名称搜索")
-    private String search;
+    private String search = "";
 
     public Long getClassifyId() {
         return classifyId;
