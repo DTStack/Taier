@@ -244,6 +244,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
             taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
             setTaskVariables(taskVO, taskVO.getId());
+            JSONObject jsonObject = JSONObject.parseObject(taskVO.getSqlText());
+            taskVO.setSqlText(String.valueOf(jsonObject.get("job")));
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
         if (task.getFlowId() != null && task.getFlowId() > 0) {
@@ -796,11 +798,10 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         if (taskVO.getTaskType().equals(EScheduleJobType.FLINK_SQL.getVal())) {
             taskVO.setSqlText(flinkTaskService.generateCreateFlinkSql(task));
         } else {
-            JSONObject sqlJson = null;
-            if (StringUtils.isBlank(task.getSqlText())) {
-                sqlJson = new JSONObject();
-            } else {
-                sqlJson = JSON.parseObject(task.getSqlText());
+            JSONObject sqlJson = new JSONObject();
+            if (StringUtils.isNotBlank(task.getSqlText())) {
+                JSONObject jsonObject = JSON.parseObject(task.getSqlText());
+                sqlJson.put("job", jsonObject != null ? jsonObject.get("job") : "");
             }
             sqlJson.put("createModel", TaskCreateModelType.TEMPLATE.getType());
 
