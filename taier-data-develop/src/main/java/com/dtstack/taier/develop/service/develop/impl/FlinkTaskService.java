@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dtstack.dtcenter.loader.utils.AssertUtils;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EComponentType;
@@ -25,13 +26,11 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.dao.mapper.ScheduleJobMapper;
 import com.dtstack.taier.dao.mapper.UserMapper;
-import com.dtstack.taier.dao.pager.PageQuery;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.flink.sql.GuideTableParamsUtil;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
@@ -531,7 +530,9 @@ public class FlinkTaskService {
 
     public PageResult<List<TaskListResultVO>> getTaskList(TaskSearchVO taskSearchVO) {
         List<Integer> type = CollectionUtils.isEmpty(taskSearchVO.getType()) ? EScheduleJobType.STREAM_JOB_TYPES : taskSearchVO.getType().stream().filter(EScheduleJobType.STREAM_JOB_TYPES::contains).collect(Collectors.toList());
-        List<Task> taskList = developTaskMapper.selectList(Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchVO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
+        Page<Task> resultPage = new Page<>(taskSearchVO.getCurrentPage(), taskSearchVO.getPageSize());
+        Page<Task> result = developTaskMapper.selectPage(resultPage, Wrappers.lambdaQuery(Task.class).in(Task::getTaskType, type).eq(Task::getTenantId, taskSearchVO.getTenantId()).eq(Task::getIsDeleted, Deleted.NORMAL.getStatus()).like(Task::getName, taskSearchVO.getTaskName()));
+        List<Task> taskList = result.getRecords();
         if (CollectionUtils.isEmpty(taskList)) {
             return PageResult.EMPTY_PAGE_RESULT;
         }
@@ -542,7 +543,6 @@ public class FlinkTaskService {
             engineJobMap.put(scheduleJob.getJobId(), scheduleJob);
         }
 
-        PageQuery<TaskListResultVO> pageQuery = new PageQuery<>(taskSearchVO.getCurrentPage(), taskSearchVO.getPageSize());
         List<TaskListResultVO> streamTaskVOS = new ArrayList<>(taskList.size());
         for (Task task : taskList) {
             try {
@@ -568,7 +568,7 @@ public class FlinkTaskService {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        return new PageResult<>(streamTaskVOS, streamTaskVOS.size(), pageQuery);
+        return new PageResult<>((int) result.getCurrent(), (int) result.getSize(), result.getTotal(), streamTaskVOS);
     }
 
     public Map<String, Integer> getStatusCountByCondition(TaskStatusSearchVO taskSearchDTO) {
