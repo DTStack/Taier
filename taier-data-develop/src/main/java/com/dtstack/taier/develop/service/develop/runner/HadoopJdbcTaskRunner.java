@@ -140,8 +140,8 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     }
 
     private void prepareExecuteContent(final ExecuteContent executeContent) {
+        String sql = executeContent.getSql();
         executeContent.setDatabase(getCurrentDb(executeContent.getTenantId(), executeContent.getTaskType()));
-        String sql = jobParamReplace.paramReplace(executeContent.getSql(), executeContent.getVariableList(), DateTime.now().toString("yyyyMMddHHmmss"));
 
         //set sql / cache lazy table 暂时不解析血缘
         if (StringUtils.isNotBlank(sql)
