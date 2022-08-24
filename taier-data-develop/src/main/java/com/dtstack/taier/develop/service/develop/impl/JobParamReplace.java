@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.service.develop.impl;
 
 import com.dtstack.taier.common.enums.EParamType;
+import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.TimeParamOperator;
 import com.dtstack.taier.dao.domain.DevelopSysParameter;
 import com.dtstack.taier.dao.domain.DevelopTaskParam;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,14 +51,14 @@ public class JobParamReplace {
 
     private final static String VAR_FORMAT = "${%s}";
 
-    public String paramReplace(String sql, List paramList, String cycTime){
+    public String paramReplace(String sql, List paramList, String cycTime) {
 
-        if(CollectionUtils.isEmpty(paramList)){
+        if (CollectionUtils.isEmpty(paramList)) {
             return sql;
         }
 
         Matcher matcher = PARAM_PATTERN.matcher(sql);
-        if(!matcher.find()){
+        if (!matcher.find()) {
             return sql;
         }
 
@@ -64,10 +66,15 @@ public class JobParamReplace {
             Integer type;
             String paramName;
             String paramCommand;
-            if (param instanceof DevelopTaskParamShade){
+            if (param instanceof DevelopTaskParamShade) {
                 type = ((DevelopTaskParamShade) param).getType();
                 paramName = ((DevelopTaskParamShade) param).getParamName();
                 paramCommand = ((DevelopTaskParamShade) param).getParamCommand();
+            } else if (param instanceof Map) {
+                DevelopTaskParam taskParam = PublicUtil.mapToObject((Map<String, Object>) param, DevelopTaskParam.class);
+                type = taskParam.getType();
+                paramName = taskParam.getParamName();
+                paramCommand = taskParam.getParamCommand();
             } else {
                 type = ((DevelopTaskParam) param).getType();
                 paramName = ((DevelopTaskParam) param).getParamName();
@@ -80,7 +87,7 @@ public class JobParamReplace {
                 continue;
             }
 
-            String targetVal = convertParam(type,paramName,paramCommand,cycTime);
+            String targetVal = convertParam(type, paramName, paramCommand, cycTime);
             sql = sql.replace(replaceStr, targetVal);
         }
 
@@ -88,15 +95,14 @@ public class JobParamReplace {
     }
 
 
-
-    public String convertParam(Integer type,String paramName,String paramCommand,String cycTime) {
+    public String convertParam(Integer type, String paramName, String paramCommand, String cycTime) {
 
         String command = null;
-        if (type == EParamType.SYS_TYPE.getType()) {
+        if (EParamType.SYS_TYPE.getType().equals(type)) {
             DevelopSysParameter sysParameter = developSysParamService.getBatchSysParamByName(paramName);
             command = sysParameter.getParamCommand();
 
-            // 特殊处理 bdp.system.currenttime
+            // 特殊处理 bdp.system.current.time
             if ("bdp.system.runtime".equals(sysParameter.getParamName())) {
                 return TimeParamOperator.dealCustomizeTimeOperator(command, cycTime);
             }
