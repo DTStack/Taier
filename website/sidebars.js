@@ -94,7 +94,6 @@ const sidebars = {
             ],
         },
         'contributing',
-        'faq',
     ],
 
 };

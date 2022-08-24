@@ -1,0 +1,159 @@
+.introduction {
+  width: 100%;
+  padding: 5rem 2rem 7rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  .rightContainer {
+    animation: hideRightIn var(--ifm-transition-slow) ease-in-out;
+
+    @keyframes hideRightIn {
+      0% {
+        transform: translateX(2rem);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  }
+
+  .leftContainer {
+    padding: 5rem 2rem;
+    animation: hideIn var(--ifm-transition-slow) ease-in-out;
+
+    @keyframes hideIn {
+      0% {
+        transform: translateX(-2rem);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: var(--ifm-font-weight-semibold);
+      font-family: var(--ifm-font-family-monospace);
+    }
+
+    .description {
+      font-size: var(--ifm-h2-font-size);
+      color: var(--ifm-color-secondary-darker);
+      font-family: var(--ifm-font-family-monospace);
+    }
+
+    .divider {
+      border-top: var(--ifm-hr-border-width) solid var(--ifm-hr-border-color);
+      opacity: var(--ifm-darkest-value);
+    }
+
+    .verbose {
+      font-size: var(--ifm-h3-font-size);
+      color: var(--ifm-color-secondary-darkest);
+    }
+
+    .buttonGroups {
+      display: flex;
+      margin-top: 5px;
+      gap: 1rem;
+    }
+
+    .shields {
+      display: flex;
+      gap: 5px;
+      margin-top: var(--ifm-global-spacing);
+    }
+
+    .basicBtn {
+      display: inline-block;
+      font-size: 1.1rem;
+      border-radius: var(--ifm-button-border-radius);
+      border: 0;
+      outline: none;
+      color: #fff;
+      height: 45px;
+      width: 130px;
+      cursor: pointer;
+      font-family: var(--ifm-font-family-monospace);
+    }
+
+    .startBtn {
+      @extend .basicBtn;
+      background: linear-gradient(
+        to left,
+        var(--ifm-color-success-lightest),
+        var(--ifm-color-success-lighter)
+      );
+
+      &:hover {
+        background: linear-gradient(
+          to left,
+          var(--ifm-color-success-lightest),
+          var(--ifm-color-success-lightest)
+        );
+      }
+    }
+
+    .githubBtn {
+      @extend .basicBtn;
+      background: linear-gradient(
+        to left,
+        var(--ifm-color-primary-lightest),
+        var(--ifm-color-primary-lighter)
+      );
+
+      &:hover {
+        background: linear-gradient(
+          to left,
+          var(--ifm-color-primary-lightest),
+          var(--ifm-color-primary-lightest)
+        );
+      }
+    }
+
+    .giteeBtn {
+      @extend .basicBtn;
+      background: linear-gradient(
+        to left,
+        var(--ifm-color-info-lightest),
+        var(--ifm-color-info-lighter)
+      );
+
+      &:hover {
+        background: linear-gradient(
+          to left,
+          var(--ifm-color-info-lightest),
+          var(--ifm-color-info-lightest)
+        );
+      }
+    }
+  }
+}
+
+@media (max-width: 750px) {
+  .introduction {
+    display: block;
+
+    .leftContainer {
+      padding: 2rem;
+    }
+
+    .rightContainer {
+      display: none;
+    }
+
+    .buttonGroups {
+      flex-direction: column;
+    }
+
+    .shields {
+      flex-wrap: wrap;
+    }
+  }
+}

@@ -1,0 +1,76 @@
+.wrapper {
+  background-color: var(--ifm-code-background);
+  padding: 3rem 0;
+
+  .contactList {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5rem;
+
+    .list {
+      width: 250px;
+      padding-bottom: 1rem;
+      border-radius: 0.7rem;
+      background-color: var(--ifm-color-gray-200);
+
+      .logoTitle {
+        width: 100%;
+        font-size: 8rem;
+        color: var(--ifm-color-gray-1000);
+      }
+
+      .desc {
+        color: var(--ifm-color-gray-1000);
+        font-size: var(--ifm-h4-font-size);
+      }
+
+      .button {
+        margin-top: 1rem;
+        background-color: transparent;
+        width: 186px;
+        height: 34px;
+        border-radius: 0.7rem;
+        border: none;
+        outline: none;
+        font-size: var(--ifm-h4-font-size);
+        color: var(--ifm-color-info-darkest);
+        cursor: pointer;
+        transition: background-color var(--ifm-transition-slow);
+
+        &:hover {
+          background-color: var(--ifm-color-info-contrast-background);
+        }
+      }
+    }
+
+    .rotateCard {
+      position: relative;
+      transition: transform 1s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+
+      &.active {
+        transform: rotateY(180deg);
+        pointer-events: none;
+      }
+
+      .face {
+        width: 100%;
+        backface-visibility: hidden;
+
+        &.back {
+          position: absolute;
+          top: 0;
+          transform: rotateY(180deg);
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 750px) {
+  .contactList {
+    flex-direction: column;
+  }
+}
