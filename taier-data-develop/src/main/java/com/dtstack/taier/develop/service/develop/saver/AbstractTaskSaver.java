@@ -165,6 +165,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
             }
             addTask(taskVO);
         }
+        developTaskParamService.addOrUpdateTaskParam(taskVO.getTaskVariables(), taskVO.getId());
 
         return taskVO;
     }
@@ -176,7 +177,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
         }
         Task specialTask1 = new Task();
         // 转换环境参数
-        if (!Objects.equals(EScheduleJobType.WORK_FLOW.getVal(), taskVO.getTaskType())){
+        if (!Objects.equals(EScheduleJobType.WORK_FLOW.getVal(), taskVO.getTaskType())) {
             String convertParams = convertParams(FlinkVersion.getVersion(specialTask.getComponentVersion()),
                     FlinkVersion.getVersion(taskVO.getComponentVersion()),
                     taskVO.getTaskParams(), taskVO.getTaskType());
@@ -184,15 +185,14 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
             TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
             developTaskService.updateById(specialTask1);
-        }else {
+        } else {
             TaskMapstructTransfer.INSTANCE.taskVOTOTask(taskVO, specialTask1);
             specialTask1.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
             developTaskService.updateById(specialTask1);
         }
 
 
-
-        if (EScheduleJobType.WORK_FLOW.getVal().equals(specialTask.getTaskType())){
+        if (EScheduleJobType.WORK_FLOW.getVal().equals(specialTask.getTaskType())) {
             // 判断任务依赖是否成环
             if (MapUtils.isNotEmpty(taskVO.getNodeMap())) {
                 taskVO.setSqlText(String.valueOf(JSONObject.toJSON(taskVO.getNodeMap())));
@@ -205,7 +205,7 @@ public abstract class AbstractTaskSaver implements ITaskSaver {
 
 
             List<Task> childrenTaskByFlowId = developTaskService.getFlowWorkSubTasks(specialTask.getId());
-            if (CollectionUtils.isNotEmpty(childrenTaskByFlowId)){
+            if (CollectionUtils.isNotEmpty(childrenTaskByFlowId)) {
                 developTaskService.updateSubTaskScheduleConf(taskVO.getId(), JSONObject.parseObject(taskVO.getScheduleConf()));
             }
 

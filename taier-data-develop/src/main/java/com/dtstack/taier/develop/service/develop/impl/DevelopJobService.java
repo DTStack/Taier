@@ -49,6 +49,7 @@ import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +88,9 @@ public class DevelopJobService {
 
     @Autowired
     private TaskConfiguration taskConfiguration;
+
+    @Autowired
+    private JobParamReplace jobParamReplace;
 
     /**
      * 运行同步任务
@@ -284,6 +288,7 @@ public class DevelopJobService {
         ExecuteResultVO result = new ExecuteResultVO();
         try {
             Task task = developTaskService.getOneWithError(taskId);
+            sql = jobParamReplace.paramReplace(sql, taskVariables, DateTime.now().toString("yyyyMMddHHmmss"));
             task.setSqlText(sql);
             ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
 
