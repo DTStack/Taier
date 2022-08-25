@@ -138,6 +138,15 @@ public class JobClient implements Serializable {
 
     private int priorityLevel = 0;
 
+    private String queueName;
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
 
     public void setConfProperties(Properties confProperties) {
         this.confProperties = confProperties;
@@ -191,6 +200,7 @@ public class JobClient implements Serializable {
         this.retryIntervalTime = paramAction.getRetryIntervalTime();
         this.componentVersion = paramAction.getComponentVersion();
         this.taskType = paramAction.getTaskType();
+        this.queueName = paramAction.getQueueName();
 
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 0 : paramAction.getMaxRetryNum();
         if (taskParams != null) {
@@ -239,6 +249,7 @@ public class JobClient implements Serializable {
         action.setSubmitExpiredTime(submitExpiredTime);
         action.setComponentVersion(componentVersion);
         action.setTaskType(taskType);
+        action.setQueueName(queueName);
         return action;
     }
 

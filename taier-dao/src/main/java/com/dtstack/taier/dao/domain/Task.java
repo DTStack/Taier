@@ -115,6 +115,8 @@ public class Task  {
 
     private String mainClass;
 
+     private String queueName;
+
     private Timestamp gmtCreate;
 
     @TableField(fill = FieldFill.INSERT_UPDATE, update = "now()",value = "gmt_modified")
@@ -358,5 +360,13 @@ public class Task  {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

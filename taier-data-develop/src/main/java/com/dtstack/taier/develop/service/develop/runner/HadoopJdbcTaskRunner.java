@@ -101,15 +101,15 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
             return super.startSqlImmediately(userId, tenantId, sql, task, taskVariableList);
         } else {
             //异步执行
-            return startRunInScheduler(userId, tenantId, task.getId(), content);
+            return startRunInScheduler(userId, task, content);
         }
     }
 
-    public ExecuteResultVO startRunInScheduler(Long userId, Long tenantId, Long taskId, ExecuteContent content) {
+    public ExecuteResultVO startRunInScheduler(Long userId, Task task, ExecuteContent content) {
         ParseResult parseResult = content.getParseResult();
         String database = content.getDatabase();
         String jobId = actionService.generateUniqueSign();
-        developSelectSqlService.runSqlByTask(tenantId, parseResult, userId, database, taskId, content.getTaskType(), jobId);
+        developSelectSqlService.runSqlByTask(parseResult, userId, database, task, content.getTaskType(), jobId);
         ExecuteResultVO<List<Object>> result = new ExecuteResultVO<>();
         result.setJobId(jobId);
         result.setContinue(true);
@@ -321,8 +321,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
     }
 
     @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Long taskId) {
-        Task task = developTaskService.getDevelopTaskById(taskId);
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
         String originSql = parseResult.getStandardSql();
         String tempTable = TEMP_TABLE_PREFIX + System.nanoTime();
         if (StringUtils.isEmpty(originSql)) {
@@ -332,17 +331,17 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
         String sql = null;
         if (SqlType.QUERY.equals(parseResult.getSqlType())) {
             isSelectSql = TempJobType.SELECT.getType();
-            sql = buildSelectSqlCustomFunction(originSql, tenantId, database, tempTable, task.getTaskType());
+            sql = buildSelectSqlCustomFunction(originSql, task.getTenantId(), database, tempTable, task.getTaskType());
         } else {
             isSelectSql = TempJobType.OTHER.getType();
-            sql = buildCustomFunctionAndDbSql(originSql, tenantId, database, true, task.getTaskType());
+            sql = buildCustomFunctionAndDbSql(originSql, task.getTenantId(), database, true, task.getTaskType());
         }
         BuildSqlVO buildSqlVO = new BuildSqlVO();
         buildSqlVO.setSql(sql);
         buildSqlVO.setTaskParam(task.getTaskParams());
         buildSqlVO.setIsSelectSql(isSelectSql);
         buildSqlVO.setOriginSql(originSql);
-        buildSqlVO.setTenantId(tenantId);
+        buildSqlVO.setTenantId(task.getTenantId());
         buildSqlVO.setTempTable(tempTable);
         buildSqlVO.setUserId(userId);
         return buildSqlVO;
