@@ -75,7 +75,7 @@ public class ClusterService {
     @Autowired
     private ConsoleKerberosMapper consoleKerberosMapper;
 
-    public JSONObject pluginInfoJSON(Long tenantId, Integer taskType, Integer deployMode, String componentVersion) {
+    public JSONObject pluginInfoJSON(Long tenantId, Integer taskType, Integer deployMode, String componentVersion, String queueName) {
         EScheduleJobType engineJobType = EScheduleJobType.getByTaskType(taskType);
         EComponentType componentType = engineJobType.getComponentType();
         if (componentType == null) {
@@ -89,7 +89,9 @@ public class ClusterService {
         ComponentPluginInfoStrategy pluginInfoStrategy = convertPluginInfo(componentType);
         KerberosPluginInfo kerberosPluginInfo = new KerberosPluginInfo(pluginInfoStrategy, consoleKerberosMapper, componentMapper);
         JSONObject pluginJson = kerberosPluginInfo.configSecurity(clusterConfigJson, clusterId, deployMode);
-        String queueName = clusterTenantMapper.getQueueNameByTenantId(tenantId);
+        if (StringUtils.isBlank(queueName)) {
+            queueName = clusterTenantMapper.getQueueNameByTenantId(tenantId);
+        }
         pluginJson.put(QUEUE, queueName);
         return pluginJson;
     }

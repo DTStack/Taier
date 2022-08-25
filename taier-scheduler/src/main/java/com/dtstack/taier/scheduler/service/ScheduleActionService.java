@@ -238,6 +238,7 @@ public class ScheduleActionService {
         actionParam.put("componentVersion", task.getComponentVersion());
         actionParam.put("type", scheduleJob.getType());
         actionParam.put("tenantId", task.getTenantId());
+        actionParam.put("queueName", task.getQueueName());
         actionParam.putAll(parseRetryParam(task));
         return PublicUtil.mapToObject(actionParam, ParamActionExt.class);
     }
@@ -280,7 +281,7 @@ public class ScheduleActionService {
         List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
         Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, task, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
-            JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
+            JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null, null);
             String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(), null);
             pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, hdfsTypeName);
             uploadPipelineMap.put(UploadParamPipeline.pluginInfoKey, pluginInfo);
