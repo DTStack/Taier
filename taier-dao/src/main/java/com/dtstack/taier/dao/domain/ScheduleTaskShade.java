@@ -151,6 +151,11 @@ public class ScheduleTaskShade implements Serializable {
      */
     private String componentVersion;
 
+    /**
+     * yarn 队列名称
+     */
+    private String queueName;
+
     public Long getId() {
         return id;
     }
@@ -357,5 +362,13 @@ public class ScheduleTaskShade implements Serializable {
                 ", flowId=" + flowId +
                 ", componentVersion='" + componentVersion + '\'' +
                 '}';
+    }
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 }

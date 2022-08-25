@@ -92,6 +92,8 @@ public class ParamAction {
 
 	private Integer type;
 
+	private String queueName;
+
 	public Integer getType() {
 		return type;
 	}
@@ -292,5 +294,13 @@ public class ParamAction {
 		}
 
 		return jsonStr;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
 	}
 }

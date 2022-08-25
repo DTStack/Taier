@@ -31,7 +31,6 @@ import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.dtstack.taier.develop.enums.develop.FlinkVersion;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
-import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.flink.sql.GuideTableParamsUtil;
 import com.dtstack.taier.develop.flink.sql.SqlGenerateFactory;
 import com.dtstack.taier.develop.flink.sql.source.param.KafkaSourceParamEnum;
@@ -384,6 +383,7 @@ public class FlinkTaskService {
         actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(), task.getTaskType()));
         actionParam.put("name", getJobName(task.getName(), task.getJobId()));
         actionParam.put("deployMode", EDeployMode.PERJOB.getType());
+        actionParam.put("queueName", task.getQueueName());
 
         if (!Strings.isNullOrEmpty(externalPath)) {
             actionParam.put("externalPath", externalPath);

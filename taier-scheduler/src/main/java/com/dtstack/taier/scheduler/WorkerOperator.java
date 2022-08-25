@@ -73,7 +73,7 @@ public class WorkerOperator {
             LOGGER.error("pluginInfo params lost {}", jobIdentifier);
             throw new RdosDefineException("pluginInfo params lost");
         }
-        Map<String, Object> info = pluginWrapper.wrapperPluginInfo(jobIdentifier.getTaskType(), jobIdentifier.getComponentVersion(), jobIdentifier.getTenantId(), jobIdentifier.getDeployMode());
+        Map<String, Object> info = pluginWrapper.wrapperPluginInfo(jobIdentifier.getTaskType(), jobIdentifier.getComponentVersion(), jobIdentifier.getTenantId(), jobIdentifier.getDeployMode(), jobIdentifier.getQueueName());
         if(null == info){
             return null;
         }

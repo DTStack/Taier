@@ -112,6 +112,7 @@ public class DevelopJobService {
             scheduleTaskShade.setTaskId(task.getId());
             scheduleTaskShade.setScheduleConf(task.getScheduleConf());
             scheduleTaskShade.setComponentVersion(task.getComponentVersion());
+            scheduleTaskShade.setQueueName(task.getQueueName());
             paramTaskAction.setTask(scheduleTaskShade);
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             String jobId = paramActionExt.getJobId();

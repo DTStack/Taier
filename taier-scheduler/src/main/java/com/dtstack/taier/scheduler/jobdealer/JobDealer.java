@@ -266,7 +266,7 @@ public class JobDealer implements InitializingBean, ApplicationContextAware {
             Map<String, Object> pluginInfo = paramAction.getPluginInfo();
             JobIdentifier jobIdentifier = new JobIdentifier(engineJobId, appId, jobId,tenantId,paramAction.getTaskType(),
                     TaskParamsUtils.parseDeployTypeByTaskParams(paramAction.getTaskParams(),engineJobCache.getComputeType()).getType(),
-                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion());
+                    null, MapUtils.isEmpty(pluginInfo) ? null : JSONObject.toJSONString(pluginInfo),paramAction.getComponentVersion(), paramAction.getQueueName());
             //从engine获取log
             engineLog = workerOperator.getEngineLog(jobIdentifier);
             if (engineLog != null) {
