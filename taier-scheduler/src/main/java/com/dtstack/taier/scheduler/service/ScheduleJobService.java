@@ -26,6 +26,7 @@ import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleType;
 import com.dtstack.taier.common.enums.ForceCancelFlag;
 import com.dtstack.taier.common.enums.OperatorType;
+import com.dtstack.taier.common.enums.Restarted;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.TaierDefineException;
 import com.dtstack.taier.common.util.GenerateErrorMsgUtil;
@@ -166,6 +167,7 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                 ScheduleJob scheduleJob = new ScheduleJob();
                 scheduleJob.setStatus(TaskStatus.UNSUBMIT.getStatus());
                 scheduleJob.setPhaseStatus(JobPhaseStatus.CREATE.getCode());
+                scheduleJob.setIsRestart(Restarted.RESTARTED.getStatus());
                 scheduleJob.setNodeAddress(environmentContext.getLocalAddress());
                 scheduleJob.setRetryNum(0);
 
