@@ -84,13 +84,14 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             // 3. 查询db多线程生成周期实例
             Long startId = 0L;
             for (int i = 0; i < totalBatch; i++) {
-                // 取50个任务
+                // 默认取50个任务
                 final List<ScheduleTaskShade> batchTaskShades = scheduleTaskService.listRunnableTask(startId,
                         Lists.newArrayList(EScheduleStatus.NORMAL.getVal(), EScheduleStatus.FREEZE.getVal()),
-                        environmentContext.getFillDataLimitSize());
+                        environmentContext.getJobGraphTaskLimitSize());
 
-                // 如果取出来的任务集合是空的
+                // 如果取出来的任务集合是空的，处理周期实例生成过程中有任务被删除的情况
                 if (CollectionUtils.isEmpty(batchTaskShades)) {
+                    ctl.countDown();
                     continue;
                 }
 
