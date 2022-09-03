@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
-import com.dtstack.taier.dao.dto.ScheduleJobDTO;
 import com.dtstack.taier.dao.mapper.ScheduleTaskShadeMapper;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
