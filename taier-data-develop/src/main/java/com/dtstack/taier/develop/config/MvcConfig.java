@@ -17,7 +17,6 @@
  */
 
 
-
 package com.dtstack.taier.develop.config;
 
 import com.dtstack.taier.develop.interceptor.LoginInterceptor;
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -42,10 +42,7 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedHeaders("*/*")
-                .allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH");
+        registry.addMapping("/**").allowedOrigins("*").allowedHeaders("*/*").allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH");
     }
 
     @Bean
@@ -73,19 +70,30 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(loginInterceptor())
+                .addPathPatterns("/taier/api/**")
+                .excludePathPatterns("/taier/api/user/login",
+                        "/swagger-resources/**", "/webjars/**", "/swagger-ui.html", "/taier/*");
         super.addInterceptors(registry);
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**").addResourceLocations(
-                "classpath:/static/");
+        registry.addResourceHandler("/static/**").addResourceLocations("file:dist/static/");
         registry.addResourceHandler("swagger-ui.html").addResourceLocations(
                 "classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/taier/**").addResourceLocations("file:dist/");
+        registry.addResourceHandler("/**").addResourceLocations("file:dist/");
         super.addResourceHandlers(registry);
+    }
+
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/taier/").setViewName("forward:/taier/index.html");
+        registry.addViewController("/").setViewName("forward:/taier/index.html");
     }
 
     @Override
@@ -95,10 +103,12 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
 
     @Override
     protected void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix(ConfigConstant.REQUEST_PREFIX,
-                c -> (c.isAnnotationPresent(RestController.class) ||
-                c.isAnnotationPresent(Controller.class)) && c.getName().contains("com.dtstack.taier")
-        );
+        configurer.addPathPrefix(ConfigConstant.REQUEST_PREFIX, c -> (c.isAnnotationPresent(RestController.class) || c.isAnnotationPresent(Controller.class)) && c.getName().contains("com.dtstack.taier"));
+    }
+
+    @Bean
+    public InternalResourceViewResolver viewResolver() {
+        return new InternalResourceViewResolver();
     }
 
 }
