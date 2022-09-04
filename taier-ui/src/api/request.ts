@@ -1,4 +1,4 @@
-export const BASE_URI = '/taier';
+export const BASE_URI = '/taier/api';
 
 export default {
 	GET_RETAINDB_LIST: `${BASE_URI}/batchComponent/getAllDatabases`, // 获取可以对接项目的数据库表
