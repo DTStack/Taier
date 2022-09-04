@@ -19,6 +19,7 @@
 package com.dtstack.taier.develop.filter;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,22 +52,22 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
     public final static String DT_REQUEST_BODY = "DT_REQUEST_BODY";
 
     private static final List<String> excludeTargets = Stream.of(
-            "/taier/download/component/downloadFile",
-            "/taier/upload/component/config",
-            "/taier/upload/component/addOrUpdateComponent",
-            "/taier/upload/batch/resource/addResource",
-            "/taier/upload/batch/resource/replaceResource",
-            "/taier/upload/component/parseKerberos",
-            "/taier/upload/component/uploadKerberos",
-            "/taier/user/login",
-            "/taier/user/logout",
-            "/taier/dataSource/addDs/getPrincipalsWithConf",
-            "/taier/dataSource/addDs/addOrUpdateSourceWithKerberos",
-            "/taier/dataSource/addDs/testConWithKerberos",
-            "/taier/resource/addResource",
-            "/taier/resource/replaceResource",
-            "/taier/developDownload/downloadJobLog"
-    ).collect(Collectors.toList());
+            "/download/component/downloadFile",
+            "/upload/component/config",
+            "/upload/component/addOrUpdateComponent",
+            "/upload/batch/resource/addResource",
+            "/upload/batch/resource/replaceResource",
+            "/upload/component/parseKerberos",
+            "/upload/component/uploadKerberos",
+            "/user/login",
+            "/user/logout",
+            "/dataSource/addDs/getPrincipalsWithConf",
+            "/dataSource/addDs/addOrUpdateSourceWithKerberos",
+            "/dataSource/addDs/testConWithKerberos",
+            "/resource/addResource",
+            "/resource/replaceResource",
+            "/developDownload/downloadJobLog"
+    ).map(url -> ConfigConstant.REQUEST_PREFIX + url).collect(Collectors.toList());
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -115,11 +116,11 @@ public class DtRequestWrapperFilter extends OncePerRequestFilter {
     private String getParameterString(MultiReadHttpServletRequest requestWrapper) {
         StringBuilder infoBuilder = new StringBuilder();
         Map<String, String[]> map = requestWrapper.getParameterMap();
-        for (String key: map.keySet()) {
+        for (String key : map.keySet()) {
             String[] params = map.get(key);
             if (params.length == 0) {
                 infoBuilder.append(key).append(":").append("null ");
-            } else if (params.length == 1){
+            } else if (params.length == 1) {
                 infoBuilder.append(key).append(":").append(params[0]).append(" ");
             } else {
                 infoBuilder.append(key).append(":").append(Arrays.toString(params)).append(" ");
