@@ -65,7 +65,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
             // 1. 获得今天预计要生成的所有周期实例
             Integer totalTask = getTotalTask();
 
-            LOGGER.info("{} need build job : {}",triggerTimeStr, totalTask);
+            LOGGER.info("{} need build job : {}", triggerTimeStr, totalTask);
             if (totalTask <= 0) {
                 saveJobGraph(triggerDay);
                 return;
@@ -99,7 +99,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
 
                 try {
                     sph.acquire();
-                    jobGraphBuildPool.submit(()->{
+                    jobGraphBuildPool.submit(() -> {
                         try {
                             for (ScheduleTaskShade batchTaskShade : batchTaskShades) {
                                 try {
@@ -108,7 +108,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                                     // 插入周期实例
                                     savaJobList(scheduleJobDetails);
                                 } catch (Throwable e) {
-                                    LOGGER.error("build task failure taskId:{}",batchTaskShade.getTaskId(), e);
+                                    LOGGER.error("build task failure taskId:{}", batchTaskShade.getTaskId(), e);
                                 }
                             }
                         } catch (Throwable e) {
@@ -118,7 +118,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                             ctl.countDown();
                         }
                     });
-                }  catch (Throwable e) {
+                } catch (Throwable e) {
                     LOGGER.error("[acquire pool error]:", e);
                     throw new RdosDefineException(e);
                 }
@@ -179,7 +179,7 @@ public class CycleJobBuilder extends AbstractJobBuilder {
                 return null;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
-            LOGGER.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr,e);
+            LOGGER.error("addJobTrigger triggerTimeStr {} error ", triggerTimeStr, e);
             throw new RdosDefineException(e);
         }
         return true;
@@ -188,7 +188,8 @@ public class CycleJobBuilder extends AbstractJobBuilder {
     private Integer getTotalTask() {
         return scheduleTaskService.lambdaQuery()
                 .eq(ScheduleTaskShade::getIsDeleted, Deleted.NORMAL.getStatus())
-                .in(ScheduleTaskShade::getScheduleStatus, Sets.newHashSet(EScheduleStatus.NORMAL.getVal(),EScheduleStatus.FREEZE.getVal()))
+                .in(ScheduleTaskShade::getScheduleStatus, Sets.newHashSet(EScheduleStatus.NORMAL.getVal(), EScheduleStatus.FREEZE.getVal()))
+                .eq(ScheduleTaskShade::getFlowId, 0)
                 .count();
     }
 
