@@ -61,7 +61,7 @@ export default function SelectSource({
 	const getDataSourceList = (dataSourceId: string) => {
 		API.queryDsTypeByClassify({
 			classifyId: Number(dataSourceId),
-			search: searchName,
+			search: searchName || '',
 		})
 			.then((res) => {
 				const { data = [], success } = res;
