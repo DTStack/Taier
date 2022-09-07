@@ -10,6 +10,7 @@ import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.FlinkServerLogVO;
 import com.dtstack.taier.develop.dto.devlop.ServerLogsVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import com.dtstack.taier.scheduler.vo.action.ActionRetryLogVO;
@@ -43,7 +44,7 @@ public class FlinkServerLogService {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkServerLogService.class);
 
-    private static final String DOWNLOAD_LOG = "/taier/download/streamDownload/downloadJobLog?jobId=%s&taskType=%s&taskManagerId=%s";
+    private static final String DOWNLOAD_LOG = ConfigConstant.REQUEST_PREFIX + "/download/streamDownload/downloadJobLog?jobId=%s&taskType=%s&taskManagerId=%s";
 
     /**
      * 针对引擎获取的基本日志可能是String或者json

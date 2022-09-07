@@ -48,6 +48,7 @@ import com.dtstack.taier.develop.enums.develop.YarnAppLogType;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopServerLogByAppLogTypeResultVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.EDeployMode;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
@@ -112,8 +113,8 @@ public class DevelopServerLogService {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s";
-    private static final String DOWNLOAD_TYPE_LOG = "/taier/developDownload/downloadAppTypeLog?jobId=%s&logType=%s";
+    private static final String DOWNLOAD_LOG = ConfigConstant.REQUEST_PREFIX + "/developDownload/downloadJobLog?jobId=%s&taskType=%s";
+    private static final String DOWNLOAD_TYPE_LOG = ConfigConstant.REQUEST_PREFIX + "/developDownload/downloadAppTypeLog?jobId=%s&logType=%s";
 
 
     private static final int SECOND_LENGTH = 10;
