@@ -14,6 +14,15 @@ public class TaskProperties {
     private ActionsCondition actionsCondition;
     private List<String> actions;
     private List<String> barItem;
+    private BarItemCondition barItemCondition;
+
+    public BarItemCondition getBarItemCondition() {
+        return barItemCondition;
+    }
+
+    public void setBarItemCondition(BarItemCondition barItemCondition) {
+        this.barItemCondition = barItemCondition;
+    }
 
     public void setRenderCondition(RenderCondition renderCondition) {
         this.renderCondition = renderCondition;
