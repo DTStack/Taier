@@ -1,5 +1,7 @@
 package com.dtstack.taier.common.constant;
 
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+
 /**
  * 常用常量
  *
@@ -23,6 +25,6 @@ public interface CommonConstant {
 
     String LOGIN = "login";
 
-    String DOWNLOAD_LOG = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
+    String DOWNLOAD_LOG = ConfigConstant.REQUEST_PREFIX + "/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
 }

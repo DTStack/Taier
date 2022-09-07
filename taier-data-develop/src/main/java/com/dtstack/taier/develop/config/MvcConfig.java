@@ -71,8 +71,8 @@ public class MvcConfig extends DelegatingWebMvcConfiguration {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor())
-                .addPathPatterns("/taier/api/**")
-                .excludePathPatterns("/taier/api/user/login",
+                .addPathPatterns(ConfigConstant.REQUEST_PREFIX + "/**")
+                .excludePathPatterns(ConfigConstant.REQUEST_PREFIX + "/user/login",
                         "/swagger-resources/**", "/webjars/**", "/swagger-ui.html", "/taier/*");
         super.addInterceptors(registry);
     }
