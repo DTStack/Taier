@@ -26,7 +26,7 @@ import { CATALOGUE_TYPE } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
 import api from '@/api';
-import taskRenderService from '@/services/taskRenderService';
+import { taskRenderService } from '@/services';
 import './create.scss';
 
 const FormItem = Form.Item;
@@ -103,12 +103,12 @@ const Create = connect(
 								});
 
 								// 获取当前类型在新建的时候所需要的字段
-								const formFields = taskRenderService.createFormField.find(
-									(i) => i.taskType === res.data.taskType,
-								);
+								const formFields = taskRenderService
+									.getState()
+									.supportTaskList.find((i) => i.key === res.data.taskType);
 
 								if (formFields) {
-									formFields.formField.forEach((field) => {
+									formFields.taskProperties.formField?.forEach((field) => {
 										// 特殊处理
 										if (field === 'syncModel') {
 											form.setFieldsValue({

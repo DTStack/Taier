@@ -1,6 +1,6 @@
 import { ID_COLLECTIONS } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
-import taskRenderService from '@/services/taskRenderService';
+import { taskRenderService } from '@/services';
 import { isTaskTab } from '@/utils/is';
 import { runTask } from '@/utils/extensions';
 import molecule from '@dtinsight/molecule';
