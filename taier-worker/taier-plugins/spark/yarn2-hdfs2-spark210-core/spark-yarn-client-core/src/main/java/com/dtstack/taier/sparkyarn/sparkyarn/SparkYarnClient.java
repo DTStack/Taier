@@ -504,7 +504,8 @@ public class SparkYarnClient extends AbstractClient {
         if (sparkYarnConfig.isOpenKerberos()){
             String[] kerberosFiles = KerberosUtils.getKerberosFile(sparkYarnConfig, null);
             String keytab = kerberosFiles[0];
-            String principal = KerberosUtils.getPrincipal(keytab);
+            String principal = StringUtils.isNotBlank(sparkYarnConfig.getPrincipal()) ?
+                    sparkYarnConfig.getPrincipal() : KerberosUtils.getPrincipal(keytab);
             sparkConf.set("spark.yarn.keytab", keytab);
             sparkConf.set("spark.yarn.principal", principal);
             sparkConf.set("security", String.valueOf(sparkYarnConfig.isOpenKerberos()));
