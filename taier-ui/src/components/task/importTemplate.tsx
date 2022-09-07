@@ -53,7 +53,7 @@ export default function ImportTemplate({ taskId, onSuccess }: IImportTemplatePro
 	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
 
 	const getDataSourceList = () => {
-		api.queryByTenantId({ tenantId: getTenantId() }).then((res) => {
+		api.queryByTenantId<IDataSourceUsedInSyncProps[]>({ tenantId: getTenantId() }).then((res) => {
 			if (res.code === 1) {
 				setDataSourceList(res.data || []);
 			}

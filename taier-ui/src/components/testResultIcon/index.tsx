@@ -21,13 +21,28 @@ import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Tooltip, Modal } from 'antd';
 import { isArray } from 'lodash';
 import classNames from 'classnames';
-import type { ITestStatusProps } from '@/pages/console/cluster/newEdit/interface';
+import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import './index.scss';
 
 const TEST_STATUS = {
 	SUCCESS: true,
 	FAIL: false,
 };
+
+interface ITestStatusProps {
+	clusterResourceDescription?: null | string;
+	componentTypeCode: COMPONENT_TYPE_VALUE;
+	componentVersion?: string | null;
+	multiVersion?: ITestStatusProps[];
+	errorMsg:
+		| string
+		| null
+		| {
+				componentVersion?: string | null;
+				errorMsg: string | null;
+		  }[];
+	result: null | boolean;
+}
 
 interface ITestRestIconProps {
 	testStatus: ITestStatusProps;

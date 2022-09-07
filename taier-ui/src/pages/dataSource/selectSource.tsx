@@ -22,17 +22,18 @@ import { SearchOutlined } from '@ant-design/icons';
 import { useRef } from 'react';
 import { debounce } from 'lodash';
 import API from '@/api';
-import type { MenuInfo } from 'rc-menu/lib/interface';
 import classNames from 'classnames';
+import type { MenuProps } from 'antd';
 import type { IDataSourceType } from './add';
+import type { DATA_SOURCE_ENUM } from '@/constant';
 import './selectSource.scss';
 
 const IMG_URL = 'images';
-const IMGAE_SIZE = 216;
+const IMAGE_SIZE = 216;
 
 interface IProps {
 	defaultMenu?: string;
-	defaultDataSource?: string;
+	defaultDataSource?: DATA_SOURCE_ENUM;
 	onSelectDataSource?: (dataSource: IDataSourceType, currentMenuId: string) => void;
 }
 
@@ -56,7 +57,7 @@ export default function SelectSource({
 	const [menuList, setMenuList] = useState<IMenuProps[]>([]);
 	const [dataSourceTypeList, setDataSourceList] = useState<IDataSourceType[]>([]);
 	const [ratio, setRatio] = useState(1.0);
-	const [selectedDataSource, setSelected] = useState<string | undefined>(defaultDataSource);
+	const [selectedDataSource, setSelected] = useState<DATA_SOURCE_ENUM | undefined>(defaultDataSource);
 
 	const getDataSourceList = (dataSourceId: string) => {
 		API.queryDsTypeByClassify({
@@ -101,7 +102,7 @@ export default function SelectSource({
 			});
 	};
 
-	const handleMenuClick = ({ key }: MenuInfo) => {
+	const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
 		if (current[0] !== key) {
 			setCurrent([key]);
 			getDataSourceList(key);
@@ -121,12 +122,12 @@ export default function SelectSource({
 		debounce(() => {
 			if (wrapper.current) {
 				const width = parseFloat(window.getComputedStyle(wrapper.current).width);
-				const len = Math.floor(width / (IMGAE_SIZE + 16));
+				const len = Math.floor(width / (IMAGE_SIZE + 16));
 				if (len >= 1) {
-					const nextRatio = (width - 16 * len) / len / IMGAE_SIZE;
+					const nextRatio = (width - 16 * len) / len / IMAGE_SIZE;
 					setRatio(nextRatio);
 				} else {
-					setRatio(width / IMGAE_SIZE);
+					setRatio(width / IMAGE_SIZE);
 				}
 			}
 		}, 500),
@@ -201,7 +202,7 @@ export default function SelectSource({
 												selectedDataSource === item.dataType && 'selected',
 											)}
 											style={{
-												width: IMGAE_SIZE * ratio,
+												width: IMAGE_SIZE * ratio,
 												height: 108 * ratio,
 											}}
 										/>
