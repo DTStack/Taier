@@ -47,21 +47,19 @@ export default connect(
 					{current && rightBarService.createContent(current)}
 				</div>
 				<div className="dt-right-bar-title">
-					{taskRenderService
-						.renderRightBar(propsCurrent?.tab?.data?.taskType, propsCurrent?.tab?.data)
-						.map((key) => (
-							<div
-								className={classNames(
-									'dt-right-bar-title-item',
-									current === key && 'active',
-								)}
-								role="tab"
-								key={key}
-								onClick={() => handleClickTab(key)}
-							>
-								{rightBarService.getTextByKind(key)}
-							</div>
-						))}
+					{taskRenderService.renderRightBar().map((key) => (
+						<div
+							className={classNames(
+								'dt-right-bar-title-item',
+								current === key && 'active',
+							)}
+							role="tab"
+							key={key}
+							onClick={() => handleClickTab(key)}
+						>
+							{rightBarService.getTextByKind(key)}
+						</div>
+					))}
 				</div>
 			</div>
 		);

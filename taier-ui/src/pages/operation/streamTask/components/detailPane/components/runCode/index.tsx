@@ -3,9 +3,7 @@ import { Radio } from 'antd';
 import type { IStreamJobParamsProps } from '@/interface';
 import Editor from '@/components/editor';
 import { prettierJSONstring } from '@/utils';
-import { DATA_SOURCE_ENUM, TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
-import Address from './address';
-import ResultTable from './resultTable';
+import { TASK_TYPE_ENUM, CREATE_MODEL_TYPE } from '@/constant';
 
 export type IRunCodeDataProps = Pick<
 	IStreamJobParamsProps,
@@ -30,9 +28,7 @@ enum TAB_KEYS {
 	SOURCE = 'source',
 	SINK = 'sink',
 	SIDE = 'side',
-	RESULT_TABLE = 'resultTable',
 	ENV = 'env',
-	ADDRESS = 'address',
 }
 
 export default function RunCode({ data }: IProps) {
@@ -80,8 +76,6 @@ export default function RunCode({ data }: IProps) {
 						value={data?.settingStr}
 					/>
 				);
-			case TAB_KEYS.RESULT_TABLE:
-				return <ResultTable taskId={data?.id} />;
 			case TAB_KEYS.ENV:
 				return (
 					<Editor
@@ -92,8 +86,6 @@ export default function RunCode({ data }: IProps) {
 						value={data?.taskParams}
 					/>
 				);
-			case TAB_KEYS.ADDRESS:
-				return <Address taskId={data?.id} />;
 			default:
 				return null;
 		}
@@ -101,18 +93,6 @@ export default function RunCode({ data }: IProps) {
 
 	const isflinkSql = useMemo(() => data?.taskType === TASK_TYPE_ENUM.SQL, [data]);
 	const isGuideMode = useMemo(() => data?.createModel !== CREATE_MODEL_TYPE.SCRIPT, [data]);
-	const isShowAddress = useMemo(
-		() =>
-			data?.taskType == TASK_TYPE_ENUM.DATA_ACQUISITION &&
-			data?.originSourceType == DATA_SOURCE_ENUM.BEATS,
-		[data],
-	);
-	const isShowResultTable = useMemo(
-		() =>
-			data?.taskType == TASK_TYPE_ENUM.DATA_ACQUISITION &&
-			data?.targetSourceType == DATA_SOURCE_ENUM.HIVE,
-		[data],
-	);
 
 	return (
 		<div className="m-tabs h-full">
@@ -129,11 +109,7 @@ export default function RunCode({ data }: IProps) {
 						<Radio.Button value={TAB_KEYS.SIDE}>维表</Radio.Button>
 					</>
 				)}
-				{isShowResultTable && (
-					<Radio.Button value={TAB_KEYS.RESULT_TABLE}>结果表</Radio.Button>
-				)}
 				<Radio.Button value={TAB_KEYS.ENV}>环境参数</Radio.Button>
-				{isShowAddress && <Radio.Button value={TAB_KEYS.ADDRESS}>运行地址</Radio.Button>}
 			</Radio.Group>
 			{renderContent(tabKey)}
 		</div>
