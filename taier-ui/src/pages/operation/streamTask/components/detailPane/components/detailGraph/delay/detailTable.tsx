@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-// import Api from '@/api'
+import { useState, useEffect } from 'react';
 import { Breadcrumb, Table } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 import Chart from './detailGraph';
@@ -37,18 +36,20 @@ export default function DetailTable(props: Props) {
 			return;
 		}
 		setLoading(true);
-		Api.getTopicDetail({
-			taskId: taskId,
-			topicName: topicName,
-		})
-			.then((res) => {
-				if (res.code === 1) {
-					setTableData(res.data);
-				}
-			})
-			.finally(() => {
-				setLoading(false);
-			});
+		setTableData([]);
+		// TODO 需要后端配合新增接口
+		// Api.getTopicDetail({
+		// 	taskId: taskId,
+		// 	topicName: topicName,
+		// })
+		// 	.then((res) => {
+		// 		if (res.code === 1) {
+		// 			setTableData(res.data);
+		// 		}
+		// 	})
+		// 	.finally(() => {
+		// 		setLoading(false);
+		// 	});
 	}
 
 	function refresh() {
@@ -62,16 +63,6 @@ export default function DetailTable(props: Props) {
 		{ title: '总消息数', dataIndex: 'totalDelayCount' },
 		{ title: '当前消费位置', dataIndex: 'currentLocation' },
 	];
-
-	const pagination = {
-		size: 'small',
-		pageSize: 20,
-		showTotal: (total) => (
-			<>
-				共<span style={{ color: '#3F87FF' }}>{total}</span>条数据
-			</>
-		),
-	};
 
 	function expandedRowRender(record: TableData) {
 		return (
@@ -117,10 +108,17 @@ export default function DetailTable(props: Props) {
 					loading={loading}
 					className="dt-table-border"
 					style={{ height: 'calc(100vh - 335px)', boxShadow: 'none' }}
-					scroll={{ y: true }}
 					size="middle"
 					columns={columns}
-					pagination={pagination}
+					pagination={{
+						size: 'small',
+						pageSize: 20,
+						showTotal: (total) => (
+							<>
+								共<span style={{ color: '#3F87FF' }}>{total}</span>条数据
+							</>
+						),
+					}}
 					expandedRowRender={expandedRowRender}
 				/>
 			</div>
