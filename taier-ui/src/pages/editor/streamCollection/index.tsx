@@ -17,7 +17,6 @@
  */
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect as moleculeConnect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
@@ -33,11 +32,6 @@ import './index.scss';
 
 const confirm = Modal.confirm;
 
-const propType: any = {
-	editor: PropTypes.object,
-	toolbar: PropTypes.object,
-	console: PropTypes.object,
-};
 const initialState = {
 	showPublish: false,
 	showDebug: false,
@@ -46,15 +40,13 @@ const initialState = {
 };
 type Istate = typeof initialState;
 
-class StreamCollection extends React.Component<IEditor & typeof propType, Istate> {
+class StreamCollection extends React.Component<IEditor & any, Istate> {
 	state = {
 		showPublish: false,
 		showDebug: false,
 		notPublish: false,
 		runTitle: 'Command/Ctrl + R',
 	};
-
-	static propTypes = propType;
 
 	saveTask = taskSaveService.save;
 
