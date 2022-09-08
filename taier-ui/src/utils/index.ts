@@ -666,7 +666,7 @@ export function createSeries(num: number) {
  * 基于 text 解析 columns
  * @example
  * ```js
- * getColumnsByColumnsText('id int') // [{field: 'id', type: 'id'}]
+ * getColumnsByColumnsText('id int') // [{field: 'id', type: 'int'}]
  * ```
  */
 export function getColumnsByColumnsText(text: string = '') {
@@ -703,7 +703,7 @@ const regex = /({{).+?(}})/s;
  * Convert dynamic params used in dataSync Form
  * @example
  * ```js
- * const values = convertParams({ sourceId: '{{ form.a.b }}', { a: { b: 1 }} });
+ * const values = convertParams({ sourceId: '{{ form#a.b }}', { a: { b: 1 }} });
  * console.log(values); // { sourceId: 1 }
  * ```
  */
@@ -713,7 +713,7 @@ export const convertParams = (params: Record<string, any>, form: Record<string, 
 		if (typeof value === 'string' && regex.test(value)) {
 			const content = value.substring(2, value.length - 2);
 			const [scope, path] = content.split('#');
-			value = get({ form }, `${scope}.${path}`);
+			value = get({ form }, `${scope.trim()}.${path.trim()}`);
 		}
 
 		// eslint-disable-next-line no-param-reassign
@@ -805,7 +805,7 @@ export function visit<
  * 过滤掉对象中的 `undefined` 和 `null` 的值
  */
 export function pickByTruly<T extends Record<string, any>>(obj: T) {
-	return pickBy<T>(obj, (val) => val !== undefined || val !== null);
+	return pickBy<T>(obj, (val) => val !== undefined && val !== null);
 }
 
 /**
