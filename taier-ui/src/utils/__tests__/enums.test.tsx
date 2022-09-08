@@ -30,6 +30,7 @@ describe('enums', () => {
 		expect(taskTypeText(TASK_TYPE_ENUM.SPARK)).toBe('未知');
 		expect(taskTypeText(TASK_TYPE_ENUM.SPARK_SQL)).toBe('SparkSQL');
 		expect(taskTypeText(TASK_TYPE_ENUM.SQL)).toBe('FlinkSQL');
+		expect(taskTypeText(TASK_TYPE_ENUM.FLINK)).toBe('Flink');
 		expect(taskTypeText(TASK_TYPE_ENUM.SYNC)).toBe('数据同步');
 		expect(taskTypeText(TASK_TYPE_ENUM.VIRTUAL)).toBe('虚节点');
 		expect(taskTypeText(TASK_TYPE_ENUM.WORK_FLOW)).toBe('工作流');
@@ -273,15 +274,17 @@ describe('enums', () => {
 	});
 
 	it('Mapping Type To Language', () => {
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe(TASK_LANGUAGE.JSON);
+		// 默认值是 TASK_LANGUAGE.SQL
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe(TASK_LANGUAGE.SQL);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.OCEANBASE)).toBe(TASK_LANGUAGE.SQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.HIVE_SQL)).toBe(TASK_LANGUAGE.HIVESQL);
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SHELL)).toBe(TASK_LANGUAGE.JSON);
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SPARK)).toBe(TASK_LANGUAGE.JSON);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SHELL)).toBe(TASK_LANGUAGE.SQL);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SPARK)).toBe(TASK_LANGUAGE.SQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SPARK_SQL)).toBe(TASK_LANGUAGE.SPARKSQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SQL)).toBe(TASK_LANGUAGE.FLINKSQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SYNC)).toBe(TASK_LANGUAGE.JSON);
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.VIRTUAL)).toBe(TASK_LANGUAGE.JSON);
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.WORK_FLOW)).toBe(TASK_LANGUAGE.JSON);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.VIRTUAL)).toBe(TASK_LANGUAGE.SQL);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.WORK_FLOW)).toBe(TASK_LANGUAGE.SQL);
 	});
 
 	it('getFlinkDisabledSource', () => {
