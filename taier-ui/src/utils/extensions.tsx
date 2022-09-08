@@ -111,6 +111,15 @@ export function runTask(current: molecule.model.IEditorGroup) {
 				let nextActivePanel: string | null = null;
 				Object.entries(results).forEach(([key, values]) => {
 					const panel = molecule.panel.getPanel(key);
+					const renderPane = () => (
+						<Result
+							data={values}
+							tab={{
+								tableType: 0,
+							}}
+							extraView={null}
+						/>
+					)
 					if (!panel) {
 						const panels = molecule.panel.getState().data || [];
 						const resultPanles = panels.filter((p) => p.name?.includes('结果'));
@@ -123,16 +132,14 @@ export function runTask(current: molecule.model.IEditorGroup) {
 							id: key,
 							name: `结果 ${lastIndexOf + 1}`,
 							closable: true,
-							renderPane: () => (
-								<Result
-									data={values}
-									tab={{
-										tableType: 0,
-									}}
-									extraView={null}
-								/>
-							),
+							renderPane,
 						});
+					} else {
+						// 更新已有的panel
+						molecule.panel.update({
+							id: key,
+							renderPane,
+						})
 					}
 				});
 
