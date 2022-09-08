@@ -8,7 +8,7 @@ import context from '@/context';
 import classNames from 'classnames';
 import { taskTypeText } from '@/utils/enums';
 import ReactDOMServer from 'react-dom/server';
-import taskRenderService from '@/services/taskRenderService';
+import { taskRenderService } from '@/services';
 import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
 import molecule from '@dtinsight/molecule';
 import { connect } from '@dtinsight/molecule/esm/react';

@@ -1,440 +1,473 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
+import { debounce, get } from 'lodash';
+import { DATA_SOURCE_TEXT, formItemLayout } from '@/constant';
+import { Form, Collapse, InputNumber, Input, Radio, Switch, Empty } from 'antd';
+import { GlobalEvent } from '@dtinsight/molecule/esm/common/event';
+import KeyMap from './keyMap';
+import notification from '@/components/notification';
+import {
+	SelectWithPreviewer,
+	SelectWithCreate,
+	AutoCompleteWithRequest,
+	SelectWithRequest,
+} from '@/components/scaffolds/task';
+import { Context } from '@/context/dataSync';
+import { convertObjToNamePath, getPlus, pickByTruly, visit } from '@/utils';
+import { useConstant } from '@/hooks';
 import molecule from '@dtinsight/molecule';
-import { Scrollable } from '@dtinsight/molecule/esm/components';
 import { connect } from '@dtinsight/molecule/esm/react';
-import API from '@/api';
-import { message, Spin, Steps } from 'antd';
-import { checkExist, getTenantId } from '@/utils';
-import taskSaveService from '@/services/taskSaveService';
-import type {
-	IDataSourceUsedInSyncProps,
-	ISyncDataProps,
-	IChannelFormProps,
-	IDataColumnsProps,
-	ISourceFormField,
-	ITargetFormField,
-} from '@/interface';
-import { DATA_SYNC_MODE, SUPPROT_SUB_LIBRARY_DB_ARRAY } from '@/constant';
-import { Utils } from '@dtinsight/dt-utils/lib';
-import type { IKeyMapProps } from './keymap';
-import Keymap, { OPERATOR_TYPE } from './keymap';
-import Target from './target';
-import Channel, { UnlimitedSpeed } from './channel';
-import Source from './source';
-import Preview from './preview';
-import { getStepStatus } from './help';
 import { EditorEvent } from '@dtinsight/molecule/esm/model';
-import { throttle } from 'lodash';
+import taskSaveService from '@/services/taskSaveService';
+import { Scrollable } from '@dtinsight/molecule/esm/components';
+import api from '@/api';
+import type { Reducer } from 'react';
+import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
+import type { FormItemProps } from 'antd';
+import type { IOptionsFromRequest } from '@/components/scaffolds/task';
+import type { Rule } from 'antd/lib/form';
 import './index.scss';
 
-const { Step } = Steps;
+export const event = new (class extends GlobalEvent {})();
+export enum EventKind {
+	Changed = 'changed',
+}
 
-const throttleUpdateTab = throttle((nextTab: molecule.model.IEditorTab, isEmit: boolean) => {
+interface IWidget {
+	widget?: 'select' | 'input' | 'radio' | 'inputNumber' | 'textarea' | 'autoComplete' | string;
+	props?: any & IOptionsFromRequest;
+}
+
+interface IBasic {
+	/**
+	 * 组件展示的 label
+	 */
+	title: string;
+	/**
+	 * 组件的健值
+	 */
+	name: string;
+	/**
+	 * 透传给 Form.Item 的 rules
+	 * @reference https://ant.design/components/form-cn/#Rule
+	 */
+	rules?: FormItemProps['rules'];
+	validator?: string;
+	noStyle?: boolean;
+	/**
+	 * 隐藏后仍然会收集值
+	 */
+	hidden?:
+		| boolean
+		| {
+				field: string;
+				value: string;
+				/**
+				 * 是否取反
+				 */
+				isNot?: boolean;
+		  }[];
+	/**
+	 * 是否必选
+	 */
+	required?: boolean;
+	/**
+	 * 初始值
+	 */
+	initialValue?: any;
+
+	/**
+	 * 当前值与某一个值强关联，例如 type 字段，强绑定于 sourceId 字段
+	 */
+	bind?: {
+		field: string;
+		/**
+		 * 当 field 字段发生改变时，transformer 定义了如何基于 field 的值修改当前值
+		 * @example '{{ a.b#find.type }}' // equals with `a.b.find(i => i.value === field.value).type`
+		 */
+		transformer: string;
+	};
+
+	/**
+	 * 当前组件获取值的行为同某值相关
+	 * @notice 当前值依赖于某个值后，若该值发生改变，会导致当前值重置
+	 */
+	depends?: string[];
+}
+
+interface IObject extends IBasic {
+	type: 'object';
+	children: ISchema[];
+}
+
+interface INumber extends IWidget, IBasic {
+	type: 'number';
+}
+
+interface IString extends IWidget, IBasic {
+	type: 'string';
+}
+
+interface IBoolean extends IWidget, IBasic {
+	type: 'boolean';
+}
+
+/**
+ * Type Any is for the user-defined complex component like keyMap
+ */
+interface IAny {
+	type: 'any';
+	widget: string;
+
+	[key: string]: any;
+}
+
+type ISchema = IObject | INumber | IString | IBoolean | IAny;
+
+/**
+ * Root Schema must be an object with type and children
+ */
+type Root = Pick<IObject, 'type' | 'children'>;
+
+/**
+ * 定义「转化」的工厂，用于 Select 中接口返回的数据需要再「转化」
+ */
+const transformerFactory: Record<
+	string,
+	(value: any, index: number, array: any[]) => any | undefined
+> = {
+	sourceId: (item: IDataSourceUsedInSyncProps) => ({
+		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）-${item.dataTypeCode}`,
+		value: item.dataInfoId,
+		type: item.dataTypeCode,
+	}),
+	table: (item: string) => ({
+		label: item === 'ROW_NUMBER()' ? 'ROW_NUMBER' : item,
+		value: item,
+	}),
+	incrementColumn: (item: IDataColumnsProps) => ({
+		label: `${item.key}(${item.type})`,
+		value: item.key,
+	}),
+	split: (item: IDataColumnsProps) => ({
+		label: item.key === 'ROW_NUMBER()' ? 'ROW_NUMBER' : item.key,
+		value: item.key,
+	}),
+	restore: (item: { key: string; type: string }) => ({
+		label: `${item.key}(${item.type})`,
+		value: item.key,
+	}),
+};
+
+const validatorFactory: Record<string, (rule: any, value: string) => Promise<void>> = {
+	json: (_: any, value: string) => {
+		let msg = '';
+		try {
+			if (value) {
+				const t = JSON.parse(value);
+				if (typeof t !== 'object') {
+					msg = '请填写正确的JSON';
+				}
+			}
+		} catch (e) {
+			msg = '请检查JSON格式，确认无中英文符号混用！';
+		}
+
+		if (msg) {
+			return Promise.reject(new Error(msg));
+		}
+		return Promise.resolve();
+	},
+};
+
+/**
+ * 默认的 Widget
+ */
+const defaultWidget: Record<string, ((props: any) => JSX.Element) | undefined> = {
+	number: (props: any) => <InputNumber style={{ width: '100%' }} {...props} />,
+	string: (props: any) => <Input {...props} />,
+	boolean: (props: any) => <Switch {...props} />,
+	input: (props: any) => <Input {...props} />,
+	select: (props: any) => <SelectWithRequest {...props} />,
+	radio: (props: any) => <Radio.Group {...props} />,
+	inputNumber: (props: any) => <InputNumber style={{ width: '100%' }} {...props} />,
+	textarea: (props: any) => <Input.TextArea {...props} />,
+	autoComplete: (props: any) => <AutoCompleteWithRequest {...props} />,
+	// User-Defined Widget
+	SelectWithCreate: (props: any) => <SelectWithCreate {...props} />,
+	SelectWithPreviewer: (props: any) => <SelectWithPreviewer {...props} />,
+};
+
+/**
+ * 类型为 Any 的 Widget
+ */
+const registerWidget: Record<string, (props: any) => JSX.Element> = {
+	KeyMap: (props: any) => <KeyMap {...props} />,
+};
+
+export const updateValuesInData = debounce((data) => {
 	const { current } = molecule.editor.getState();
 	if (current?.tab) {
-		molecule.editor.updateTab(nextTab);
-
-		// emit OnUpdateTab so taskParams could be updated
-		if (isEmit) {
-			molecule.editor.emit(EditorEvent.OnUpdateTab, nextTab);
-		}
+		molecule.editor.updateTab({
+			id: current?.tab?.id,
+			data: {
+				...current.tab.data,
+				...data,
+			},
+		});
+		const groupId = molecule.editor.getGroupIdByTab(current.tab.id)!;
+		const tab = molecule.editor.getTabById(current.tab.id, groupId);
+		molecule.editor.emit(EditorEvent.OnUpdateTab, tab);
 	}
-}, 800);
+}, 300);
 
-function DataSync({ current }: molecule.model.IEditor) {
-	const [currentStep, setCurrentStep] = useState(0);
-	const [currentData, rawSetCurrentData] = useState<ISyncDataProps | null>(null);
+export default connect(molecule.editor, ({ current }: molecule.model.IEditor) => {
+	const [form] = Form.useForm();
+	const [templateSchema, setSchema] = useState<Root>({
+		type: 'object',
+		children: [],
+	});
 	/**
-	 * keymap 中用户自定义的字段
+	 * 全局的 state，用于存放接口返回的数据
 	 */
-	const [userColumns, setUserColumns] = useState<IKeyMapProps>({ source: [], target: [] });
-	const [loading, setLoading] = useState(false);
-	const [dataSourceList, setDataSourceList] = useState<IDataSourceUsedInSyncProps[]>([]);
-
-	/**
-	 * 包装一层 setCurrentData，以便于区分是否触发 onUpdateTab 事件
-	 */
-	const setCurrentData = (
-		nextValues: ISyncDataProps | ((prev: ISyncDataProps | null) => ISyncDataProps),
-		isEmit: boolean = true,
-	) => {
-		if (typeof nextValues === 'function') {
-			rawSetCurrentData((value) => {
-				const nextValue = nextValues(value);
-				setTimeout(() => {
-					if (current?.tab) {
-						const { sourceMap, targetMap, settingMap } = nextValue;
-						const nextTab = {
-							...current.tab,
-							data: { ...current.tab.data, sourceMap, targetMap, settingMap },
-						};
-						throttleUpdateTab(nextTab, isEmit);
-					}
-				}, 0);
-
-				return nextValue;
-			});
-		} else {
-			rawSetCurrentData(nextValues);
-			// sync to tab data
-			if (current?.tab) {
-				const { sourceMap, targetMap, settingMap } = nextValues;
-				const nextTab = {
-					...current.tab,
-					data: { ...current.tab.data, sourceMap, targetMap, settingMap },
+	const [optionCollections, dispatch] = useReducer<
+		Reducer<
+			Record<string, any[]>,
+			{
+				type: 'update';
+				payload: {
+					field: string;
+					collection: any[];
 				};
-				throttleUpdateTab(nextTab, isEmit);
 			}
+		>
+	>((state, action) => {
+		switch (action.type) {
+			case 'update':
+				return {
+					...state,
+					[action.payload.field]: action.payload.collection,
+				};
+			default:
+				return state;
 		}
+	}, {});
+	const optionCollectionsRef = useConstant(optionCollections);
+
+	const handleValuesChanged = (changed: Record<string, any>) => {
+		const [namePath, value] = convertObjToNamePath(changed);
+		event.emit(EventKind.Changed, namePath, value);
+
+		updateValuesInData(form.getFieldsValue());
 	};
 
-	const handleSourceChanged = (values: Partial<ISourceFormField>) => {
-		setCurrentData((d) => {
-			const currentDataSourceId = d?.sourceMap?.sourceId || values.sourceId;
-			const target = dataSourceList.find((l) => l.dataInfoId === currentDataSourceId);
-
-			const isSupportSub = SUPPROT_SUB_LIBRARY_DB_ARRAY.includes(target?.dataTypeCode || -1);
-			// Only the dataSource which has sub library like mySQL need this
-			const sourceList = isSupportSub
-				? [
-						{
-							key: 'main',
-							tables: values.table || d?.sourceMap?.table,
-							type: target!.dataTypeCode,
-							name: target!.dataName,
-							sourceId: values.sourceId || d?.sourceMap?.sourceId,
-						},
-				  ]
-				: [];
-
-			// increment updates
-			const nextData = d!;
-
-			nextData.sourceMap = {
-				...nextData.sourceMap,
-				...values,
-				sourceList,
-				type: target?.dataTypeCode || nextData.sourceMap?.type,
-			};
-
-			// 以下属性的变更会引起 columns 的变更
-			const PROPERTY_OF_EFFECTS = ['table', 'schema', 'sourceId'];
-
-			if (PROPERTY_OF_EFFECTS.some((property) => Object.keys(values).includes(property))) {
-				nextData.sourceMap.column = [];
-				if (nextData.targetMap) {
-					nextData.targetMap.column = [];
+	const renderContent = (data: ISchema, prefix?: string[]) => {
+		switch (data.type) {
+			case 'object': {
+				return (
+					<Collapse
+						className="taier__dataSync__collapse"
+						defaultActiveKey={[data.name]}
+						key={data.title}
+					>
+						<Collapse.Panel key={data.name} header={data.title}>
+							{data.children.map((child) =>
+								renderContent(child, prefix ? [...prefix, data.name] : [data.name]),
+							)}
+						</Collapse.Panel>
+					</Collapse>
+				);
+			}
+			case 'any': {
+				const Widget = registerWidget[data.widget || data.type];
+				if (Widget) {
+					return <Widget key={data.widget} />;
 				}
-			}
 
-			return nextData;
-		});
-	};
-
-	const handleTargetChanged = (values: Partial<ITargetFormField>) => {
-		const nextValue = values;
-		const SHOULD_TRIM_FIELD: (keyof ITargetFormField)[] = [
-			'partition',
-			'path',
-			'fileName',
-			'fileName',
-		];
-		SHOULD_TRIM_FIELD.forEach((field) => {
-			if (nextValue.hasOwnProperty(field)) {
-				nextValue[field] = Utils.trimAll(nextValue[field] as string) as any;
-			}
-		});
-
-		const target = dataSourceList.find((l) => l.dataInfoId === values.sourceId);
-
-		// increment updates
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-
-			nextData.targetMap = {
-				...nextData.targetMap,
-				...values,
-				name: target?.dataName || nextData.targetMap?.name,
-				type: target?.dataTypeCode || nextData.targetMap?.type,
-			};
-
-			// 以下属性的变更会引起 columns 的变更
-			const PROPERTY_OF_EFFECTS = ['table', 'schema', 'sourceId'];
-
-			if (PROPERTY_OF_EFFECTS.some((property) => Object.keys(values).includes(property))) {
-				nextData.sourceMap!.column = [];
-				nextData.targetMap.column = [];
-			}
-			return nextData;
-		});
-	};
-
-	const handleLinesChange = (lines: IKeyMapProps) => {
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-			nextData.sourceMap!.column = lines.source;
-			nextData.targetMap!.column = lines.target;
-			return nextData;
-		});
-	};
-
-	const handleColChanged = (
-		col: IDataColumnsProps | IDataColumnsProps[],
-		operation: Valueof<typeof OPERATOR_TYPE>,
-		flag: 'source' | 'target',
-	) => {
-		const cols = Array.isArray(col) ? col : [col];
-		switch (operation) {
-			case OPERATOR_TYPE.ADD: {
-				cols.forEach((c) => {
-					handleAddCol(c, flag);
+				notification.error({
+					key: 'UNDEFINED_WIDGET',
+					message: `未找到 ${data.widget}`,
 				});
-				break;
+				return <Empty key={data.widget} />;
 			}
-			case OPERATOR_TYPE.REMOVE: {
-				cols.forEach((c) => {
-					handleRemoveCol(c, flag);
-				});
-				break;
-			}
-			case OPERATOR_TYPE.EDIT: {
-				cols.forEach((c) => {
-					handleEditCol(c, flag);
-				});
-				break;
-			}
-			case OPERATOR_TYPE.REPLACE: {
-				// replace mode is to replace the whole column field
-				setUserColumns((uCols) => {
-					const nextCols = { ...uCols };
-					nextCols[flag] = cols;
-					return nextCols;
-				});
-				break;
+			case 'string':
+			case 'boolean':
+			case 'number': {
+				const Widget = defaultWidget[data.widget || data.type];
+				if (!Widget) {
+					notification.error({
+						key: 'UNDEFINED_WIDGET',
+						message: `未找到 ${data.name} 注册的 ${data.widget || data.type}`,
+					});
+					return <Empty key={data.name} />;
+				}
+				const dependencies = data.depends?.map((d) => d.split('.')) || [];
+				return (
+					<Form.Item noStyle dependencies={dependencies} key={data.name}>
+						{({ getFieldsValue }) => {
+							const values = getFieldsValue();
+							const depValues = dependencies.reduce<string>(
+								(pre, cur) => `${pre}-${get(values, cur.join('.'))}`,
+								'',
+							);
+
+							const hidden = Array.isArray(data.hidden)
+								? data.hidden
+										.map((item) => {
+											const value = get({ form: values }, item.field);
+											const isEqual = item.value
+												?.split(',')
+												.includes(`${value}`);
+
+											return item.isNot ? !isEqual : isEqual;
+										})
+										.some(Boolean)
+								: data.hidden;
+
+							const rules: Rule[] = [];
+							if (data.required) {
+								rules.push({
+									required: data.required,
+								});
+							}
+
+							if (data.rules) {
+								rules.push(...data.rules);
+							}
+
+							if (data.validator) {
+								rules.push({
+									validator: validatorFactory[data.validator],
+								});
+							}
+
+							return hidden ? null : (
+								<Form.Item
+									key={depValues}
+									name={prefix ? [...prefix, data.name] : data.name}
+									label={data.title}
+									noStyle={data.noStyle}
+									initialValue={data.initialValue}
+									rules={rules}
+									valuePropName={data.type === 'boolean' ? 'checked' : 'value'}
+								>
+									{!data.noStyle && <Widget {...data.props} />}
+								</Form.Item>
+							);
+						}}
+					</Form.Item>
+				);
 			}
 			default:
-				break;
+				return null;
 		}
-	};
-
-	// 编辑列
-	const handleEditCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		// const field = flag === 'source' ? 'sourceMap' : 'targetMap';
-		setUserColumns((cols) => {
-			const nextCols = { ...cols };
-			const column = nextCols[flag];
-			if (!column.includes(col)) return cols;
-			const idx = column.indexOf(col);
-			// 这里只做赋值，不做深拷贝
-			// 因为字段映射的数组里的值和 column 字段的值是同一个引用，直接改这个值就可以做到都改了。如果做深拷贝则需要改两次值
-			Object.assign(column[idx], col);
-			return nextCols;
-		});
-	};
-
-	// 添加列
-	const handleAddCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		setUserColumns((cols) => {
-			const nextCols = { ...cols };
-			const columns = nextCols[flag];
-			if (checkExist(col.index) && columns.some((o) => o.index === col.index)) {
-				message.error(`添加失败：索引值不能重复`);
-				return cols;
-			}
-			if (checkExist(col.key) && columns.some((o) => o.key === col.key)) {
-				message.error(`添加失败：字段名不能重复`);
-				return cols;
-			}
-			columns.push(col);
-			return nextCols;
-		});
-	};
-
-	// 移除列
-	const handleRemoveCol = (col: IDataColumnsProps, flag: 'source' | 'target') => {
-		setUserColumns((cols) => {
-			const nextCols = { ...cols };
-			const columns = nextCols[flag];
-			if (!columns || !columns.includes(col)) return cols;
-			const idx = columns.indexOf(col);
-			columns.splice(idx, 1);
-			return nextCols;
-		});
-	};
-
-	const handleSettingChanged = (values: IChannelFormProps) => {
-		const nextSettings = { ...values };
-		const isUnlimited = nextSettings.speed === UnlimitedSpeed;
-		if (isUnlimited) {
-			nextSettings.speed = '-1';
-		}
-		if (nextSettings.isRestore === false) {
-			nextSettings.restoreColumnName = undefined;
-		}
-		// 增量模式下，开启断点续传字段默认与增量字段保存一致
-		if (isIncrementMode && nextSettings.isRestore === true) {
-			nextSettings.restoreColumnName = currentData!.sourceMap!.increColumn;
-		}
-		setCurrentData((d) => {
-			const nextData = { ...d! };
-			nextData.settingMap = nextSettings;
-			return nextData;
-		});
-	};
-
-	const handleChannelSubmit = (next: boolean, values?: IChannelFormProps) => {
-		if (!next) {
-			setCurrentStep((s) => s - 1);
-			return;
-		}
-		if (values) {
-			// 存在值的话，则保存当前值
-			handleSettingChanged(values);
-		}
-		setCurrentStep((s) => s + 1);
-	};
-
-	const handleSaveTab = () => {
-		taskSaveService.save();
-	};
-
-	// 获取当前任务的数据
-	const getJobData = () => {
-		const taskId = current?.tab?.data.id;
-		if (typeof taskId === 'undefined') return;
-		const [, step] = getStepStatus(current?.tab?.data);
-		setCurrentStep(step);
-		const { id, sourceMap, targetMap, settingMap } = current?.tab?.data || {};
-		setCurrentData(
-			{
-				sourceMap,
-				targetMap,
-				settingMap,
-				taskId: id,
-			},
-			false,
-		);
-	};
-
-	const getDataSourceList = () => {
-		setLoading(true);
-		return API.queryByTenantId<IDataSourceUsedInSyncProps[]>({ tenantId: getTenantId() })
-			.then((res) => {
-				if (res.code === 1) {
-					setDataSourceList(res.data || []);
-				}
-			})
-			.finally(() => {
-				setLoading(false);
-			});
 	};
 
 	useEffect(() => {
-		// Should first to get the datasource list
-		// as there are lots of requests should get sourceType via sourceId and to check whether could request
-		getDataSourceList().then(() => {
-			getJobData();
-		});
-	}, [current?.activeTab]);
+		// 赋予初始值
+		if (current?.tab?.data) {
+			const data: IOfflineTaskProps = current?.tab?.data;
+			const targetMap = data.targetMap ? pickByTruly(data.targetMap) : undefined;
+			const settingMap = data.settingMap
+				? pickByTruly({
+						...data.settingMap,
+						speed:
+							data.settingMap?.speed === '-1'
+								? '不限制传输速率'
+								: data.settingMap?.speed,
+				  })
+				: {};
+			const sourceMap = pickByTruly(data.sourceMap);
 
-	// 是否是增量模式
-	const isIncrementMode = useMemo(() => {
-		if (current?.tab?.data?.sourceMap?.syncModel !== undefined) {
-			return current?.tab?.data?.sourceMap?.syncModel === DATA_SYNC_MODE.INCREMENT;
+			form.setFieldsValue({
+				sourceMap,
+				targetMap,
+				settingMap,
+			});
 		}
-		return false;
-	}, [current]);
+	}, [templateSchema]);
 
-	const steps = [
-		{
-			key: 'source',
-			title: '数据来源',
-			content: (
-				<Source
-					isIncrementMode={isIncrementMode}
-					sourceMap={currentData?.sourceMap}
-					dataSourceList={dataSourceList}
-					onFormValuesChanged={handleSourceChanged}
-					onNext={() => setCurrentStep((s) => s + 1)}
-				/>
-			),
-		},
-		{
-			key: 'target',
-			title: '选择目标',
-			content: (
-				<Target
-					isIncrementMode={isIncrementMode}
-					sourceMap={currentData?.sourceMap}
-					targetMap={currentData?.targetMap}
-					dataSourceList={dataSourceList}
-					onFormValuesChanged={handleTargetChanged}
-					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
-				/>
-			),
-		},
-		{
-			key: 'keymap',
-			title: '字段映射',
-			content: currentData?.sourceMap && currentData.targetMap && (
-				<Keymap
-					sourceMap={currentData.sourceMap}
-					targetMap={currentData.targetMap}
-					userColumns={userColumns}
-					onColsChanged={handleColChanged}
-					onLinesChanged={handleLinesChange}
-					onNext={(next) => setCurrentStep((s) => (next ? s + 1 : s - 1))}
-				/>
-			),
-		},
-		{
-			key: 'setting',
-			title: '通道控制',
-			content: currentData?.sourceMap && currentData.targetMap && (
-				<Channel
-					isIncrementMode={isIncrementMode}
-					sourceMap={currentData.sourceMap}
-					targetMap={currentData.targetMap}
-					setting={currentData.settingMap}
-					onNext={handleChannelSubmit}
-					onFormValuesChanged={handleSettingChanged}
-				/>
-			),
-		},
-		{
-			key: 'preview',
-			title: '预览保存',
-			content: currentData && (
-				<Preview
-					isIncrementMode={isIncrementMode}
-					data={currentData}
-					dataSourceList={dataSourceList}
-					userColumns={userColumns}
-					onStepTo={(step) =>
-						setCurrentStep((s) => (typeof step === 'number' ? step : s - 1))
+	// 监听 form 的 values 修改事件
+	useEffect(() => {
+		function handler(field: string[], value: any) {
+			visit<Root, ISchema>(
+				templateSchema,
+				(i) => !!(i.bind || i.depends),
+				(item, vNode) => {
+					if (item.bind) {
+						if (field.join('.') === item.bind?.field) {
+							const val = getPlus(
+								{
+									optionCollections: optionCollectionsRef.current,
+								},
+								item.bind.transformer,
+								value,
+							);
+							form.setFieldValue(vNode.formName, val);
+							event.emit(EventKind.Changed, vNode.formName, val);
+						}
 					}
-					onSave={handleSaveTab}
-				/>
-			),
-		},
-	];
+
+					if (item.depends) {
+						if (item.depends.includes(field.join('.'))) {
+							form.setFieldValue(vNode.formName, undefined);
+							event.emit(EventKind.Changed, vNode.formName, undefined);
+						}
+					}
+				},
+			);
+		}
+		event.subscribe(EventKind.Changed, handler);
+
+		return () => {
+			event.unsubscribe(EventKind.Changed, handler);
+		};
+	}, [templateSchema]);
+
+	// 监听保存事件
+	useEffect(() => {
+		const listener = (
+			action: Parameters<Parameters<typeof taskSaveService['onBeforeSave']>[0]>[0],
+		) => {
+			form.validateFields()
+				.then(() => {
+					action.continue();
+				})
+				.catch(() => {
+					action.stop();
+				});
+		};
+
+		taskSaveService.onBeforeSave(listener);
+		return () => {
+			taskSaveService.unsubScribeOnBeforeSave(listener);
+		};
+	}, []);
+
+	useEffect(() => {
+		api.getSyncProperties({}).then((res) => {
+			if (res.code === 1) {
+				setSchema(res.data);
+			}
+		});
+	}, []);
 
 	return (
 		<Scrollable isShowShadow>
-			<div className="dt-datasync">
-				<Spin spinning={loading}>
-					<Steps size="small" current={currentStep}>
-						{steps.map((item) => (
-							<Step key={item.title} title={item.title} />
-						))}
-					</Steps>
-					<div className="dt-datasync-content">
-						{currentData && steps[currentStep].content}
-					</div>
-				</Spin>
+			<div className="taier__dataSync__container">
+				<Context.Provider value={{ optionCollections, dispatch, transformerFactory }}>
+					<Form
+						{...formItemLayout}
+						validateMessages={{
+							// eslint-disable-next-line no-template-curly-in-string
+							required: '请选择${label}',
+						}}
+						onValuesChange={handleValuesChanged}
+						form={form}
+					>
+						{templateSchema.children.map((child) => renderContent(child))}
+					</Form>
+				</Context.Provider>
 			</div>
 		</Scrollable>
 	);
-}
-
-export default connect(molecule.editor, DataSync);
+});
