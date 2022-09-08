@@ -36,6 +36,7 @@ import com.dtstack.taier.pluginapi.pojo.JobResult;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
 import com.dtstack.taier.yarn.constrant.ConfigConstrant;
 import com.dtstack.taier.yarn.util.HadoopConf;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.NodeReport;
@@ -200,7 +201,7 @@ public class DtYarnClient extends AbstractClient {
                     if (schedulerInfo.containsKey("scheduler")) {
                         clusterResource.setScheduleInfo(schedulerInfo.getJSONObject("scheduler").getJSONObject("schedulerInfo"));
                     }
-                    clusterResource.setQueues(getQueueResource(resourceClient));
+                    clusterResource.setQueues(getQueueResource(schedulerInfo));
                     clusterResource.setResourceMetrics(metrics);
 
                 } catch (Exception e) {
@@ -254,11 +255,8 @@ public class DtYarnClient extends AbstractClient {
         return retain.setScale(position, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
-    private List<JSONObject> getQueueResource(YarnClient yarnClient) throws Exception {
-        String webAddress = getYarnWebAddress(yarnClient);
-        String schedulerUrl = String.format(YARN_SCHEDULER_FORMAT, webAddress);
-        String schedulerInfoMsg = getDataFromYarnRest(yarnClient.getConfig(), schedulerUrl);
-        JSONObject schedulerInfo = JSONObject.parseObject(schedulerInfoMsg);
+    @VisibleForTesting
+    List<JSONObject> getQueueResource(JSONObject schedulerInfo) {
 
         JSONObject schedulerJson = schedulerInfo.getJSONObject("scheduler");
         if (!schedulerJson.containsKey("schedulerInfo")) {
@@ -266,10 +264,10 @@ public class DtYarnClient extends AbstractClient {
             return null;
         }
         JSONObject schedulerInfoJson = schedulerJson.getJSONObject("schedulerInfo");
-    
+
         String schedulerType = schedulerInfoJson.getString("type");
         if (StringUtils.equalsIgnoreCase(schedulerType, ConfigConstrant.CAPACITYSCHEDULER_TPYE)) {
-    
+
             if (!schedulerInfoJson.containsKey("queues")) {
                 LOG.error("get yarn queueInfo error! Miss queues field");
                 return null;
@@ -316,7 +314,7 @@ public class DtYarnClient extends AbstractClient {
     
     private List<JSONObject> modifyFairQueueInfo(JSONObject queueInfos) {
         List<JSONObject> queues = new ArrayList<>();
-        if (!queueInfos.containsKey("queue")) {
+        if (null == queueInfos || !queueInfos.containsKey("queue")) {
             return null;
         }
     
