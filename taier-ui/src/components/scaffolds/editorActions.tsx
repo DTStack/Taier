@@ -131,4 +131,4 @@ export default {
 	GRAMMAR_TASK,
 	RUNNING_TASK,
 	FORMAT_TASK,
-};
+} as Record<string, IEditorActionsProps>;

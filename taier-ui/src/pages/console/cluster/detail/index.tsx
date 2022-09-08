@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useContext } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { history } from 'umi';
 import { Layout, Empty, message, Form } from 'antd';
 import api from '@/api';
@@ -6,14 +6,14 @@ import req from '@/api/request';
 import Detail from './detail';
 import { FILE_TYPE } from '@/constant';
 import context from '@/context/cluster';
-import layoutContext, { SupportJobActionKind } from '@/context';
 import Toolbar from './toolbar';
 import SideBar, { ComponentScheduleKind } from './sideBar';
+import notification from '@/components/notification';
+import { taskRenderService } from '@/services';
 import type { RcFile } from 'antd/lib/upload';
 import type { ILayoutData, ITemplateData } from './detail';
 import type { COMPONENT_TYPE_VALUE } from '@/constant';
 import type { ITreeNodeProps, ComponentKindType } from './sideBar';
-import notification from '@/components/notification';
 import './index.scss';
 
 const { Content, Footer } = Layout;
@@ -91,7 +91,6 @@ function getTargetPath(tree: any[], targetKey: string) {
 }
 
 export default function ClusterDetail() {
-	const { dispatch } = useContext(layoutContext);
 	const [form] = Form.useForm();
 	const container = useRef<HTMLElement>(null);
 	// 左侧组件树的全部信息
@@ -446,7 +445,7 @@ export default function ClusterDetail() {
 
 				// 如果是计算组件的变更，会引起当前应用支持的任务类型的变动
 				if (currentComponentOwner === ComponentScheduleKind.Compute) {
-					dispatch({ type: SupportJobActionKind.REQUEST });
+					taskRenderService.getTaskTypes();
 				}
 			}
 		} finally {

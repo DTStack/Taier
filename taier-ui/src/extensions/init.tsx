@@ -387,7 +387,7 @@ function initLogin() {
 						icon: 'log-out',
 						name: '登出',
 						onClick: () => {
-							http.post('/taier/user/logout')
+							http.post('/taier/api/user/logout')
 								.then((res) => {
 									if (!res.data) {
 										return message.error('登出失败');
