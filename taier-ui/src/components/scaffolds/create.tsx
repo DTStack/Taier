@@ -157,4 +157,4 @@ export default {
 	resourceIdList: Resource,
 	mainClass: MainClass,
 	exeArgs: ExeArgs,
-};
+} as Record<string, (...args: any[]) => JSX.Element>;

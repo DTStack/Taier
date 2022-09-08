@@ -17,12 +17,6 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import api from '@/api';
-import notification from '@/components/notification';
-import type { ISupportJobTypes } from '@/context';
-import { SupportJobActionKind } from '@/context';
-import taskRenderService from '@/services/taskRenderService';
-import http from '@/api/http';
 
 interface IPagination {
 	current?: number;
@@ -68,39 +62,12 @@ export const usePagination = ({
 	return { ...pageInfoRef.current, setPagination };
 };
 
-/**
- * 获取项目支持的任务类型的自定义 hooks
- * @notice 不用 useReducer 的原因是，reducer 貌似不支持 Promise
- */
-export function useSupportJobType() {
-	const [supportJobTypes, setSupportJobTypes] = useState<ISupportJobTypes[]>([]);
+export function useConstant<T>(val: T) {
+	const ref = useRef(val);
 
-	const dispatch = (action: { type: SupportJobActionKind; verbose?: boolean }) => {
-		switch (action.type) {
-			case SupportJobActionKind.REQUEST: {
-				http.verbose = !!action.verbose;
-				// 获取当前支持的任务类型
-				api.getTaskTypes({})
-					.then((res) => {
-						if (res.code === 1) {
-							setSupportJobTypes(res.data || []);
-							taskRenderService.supportTaskList = res.data || [];
-						} else if (http.verbose) {
-							notification.error({
-								key: 'FailedJob',
-								message: `获取支持的类型失败，将无法创建新的任务！`,
-							});
-						}
-					})
-					.finally(() => {
-						http.verbose = true;
-					});
-				break;
-			}
-			default:
-				throw new Error();
-		}
-	};
+	useEffect(() => {
+		ref.current = val;
+	});
 
-	return [supportJobTypes, dispatch] as const;
+	return ref;
 }

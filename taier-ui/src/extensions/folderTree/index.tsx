@@ -29,9 +29,8 @@ import api from '@/api';
 import type { UniqueId } from '@dtinsight/molecule/esm/common/types';
 import { CATALOGUE_TYPE, TASK_TYPE_ENUM, ID_COLLECTIONS } from '@/constant';
 import { IComputeType } from '@/interface';
-import { breadcrumbService, catalogueService } from '@/services';
+import { taskRenderService, breadcrumbService, catalogueService } from '@/services';
 import notification from '@/components/notification';
-import taskRenderService from '@/services/taskRenderService';
 
 /**
  * 	实时采集和FlinkSql任务的computeType返回0

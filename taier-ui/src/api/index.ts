@@ -550,4 +550,7 @@ export default {
 	validateRepeatTaskName<T = any>(params: any) {
 		return http.post<T>(req.VALIDATE_REPEAT_TASK_NAME, params);
 	},
+	getSyncProperties<T = any>(params: any) {
+		return http.post<T>(req.QUERY_SYNC_DATA_SOURCE, params);
+	},
 };

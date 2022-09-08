@@ -19,11 +19,9 @@
 import classNames from 'classnames';
 import { connect } from '@dtinsight/molecule/esm/react';
 import molecule from '@dtinsight/molecule';
-import { rightBarService } from '@/services';
+import { taskRenderService, rightBarService } from '@/services';
 import type { IRightbarState } from '@/services/rightBarService';
-import type { RightBarKind } from '@/interface';
 import './index.scss';
-import taskRenderService from '@/services/taskRenderService';
 
 interface IProps {
 	editor: molecule.model.IEditor;
@@ -36,7 +34,7 @@ export default connect(
 		const { current: propsCurrent } = editor;
 		const { width, current } = rightBar;
 
-		const handleClickTab = (key: RightBarKind) => {
+		const handleClickTab = (key: string) => {
 			const nextCurrent = current === key ? null : key;
 			rightBarService.setCurrent(nextCurrent);
 		};

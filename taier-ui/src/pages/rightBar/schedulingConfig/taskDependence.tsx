@@ -24,7 +24,7 @@ import type { ColumnsType } from 'antd/lib/table';
 import { getCookie } from '@/utils';
 import type { ITaskSearchResultProps } from './upstreamDependentTasks';
 import UpstreamDependentTasks from './upstreamDependentTasks';
-import taskRenderService from '@/services/taskRenderService';
+import { taskRenderService } from '@/services';
 
 interface ITaskDependenceProps {
 	tabData: IOfflineTaskProps;

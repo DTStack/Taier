@@ -18,7 +18,6 @@
 
 import 'reflect-metadata';
 import { useState, useEffect, useLayoutEffect } from 'react';
-import { SupportJobActionKind } from '@/context';
 import type { IPersonLists } from '@/context';
 import Context from '@/context';
 import { history } from 'umi';
@@ -43,7 +42,9 @@ import ResourceManage from './console/resource';
 import ClusterManage from './console/cluster';
 import ClusterDetail from './console/cluster/detail';
 import { getCookie } from '@/utils';
-import { useSupportJobType } from '@/hooks';
+import { taskRenderService } from '@/services';
+import { connect } from '@dtinsight/molecule/esm/react';
+import type { ITaskRenderState } from '@/services/taskRenderService';
 import '@dtinsight/molecule/esm/style/mo.css';
 import './index.scss';
 
@@ -59,10 +60,9 @@ moInstance.onBeforeInit(() => {
 
 const MoleculeProvider = () => moInstance.render(<Workbench />);
 
-export default function HomePage() {
+export default connect(taskRenderService, ({ supportTaskList }: ITaskRenderState) => {
 	const [personList, setPersonList] = useState<IPersonLists[]>([]);
 	const [username, setUsername] = useState<string | undefined>(undefined);
-	const [supportJobTypes, dispatch] = useSupportJobType();
 
 	const checkLoginStatus = () => {
 		const usernameInCookie = getCookie('username');
@@ -80,7 +80,6 @@ export default function HomePage() {
 		});
 
 		checkLoginStatus();
-		dispatch({ type: SupportJobActionKind.REQUEST, verbose: true });
 	}, []);
 
 	const openDrawer = (drawerId: string) => {
@@ -291,8 +290,7 @@ export default function HomePage() {
 			value={{
 				personList,
 				username,
-				supportJobTypes,
-				dispatch,
+				supportJobTypes: supportTaskList,
 			}}
 		>
 			<MoleculeProvider />
@@ -300,4 +298,4 @@ export default function HomePage() {
 			<CustomDrawer id="root" renderContent={() => null} />
 		</Context.Provider>
 	);
-}
+});

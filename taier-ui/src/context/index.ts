@@ -18,7 +18,7 @@
 
 import { createContext } from 'react';
 import type { TASK_TYPE_ENUM } from '@/constant';
-import type { IComputeType } from '@/interface';
+import type { IComputeType, IOfflineTaskProps } from '@/interface';
 
 export enum SupportJobActionKind {
 	/**
@@ -37,8 +37,65 @@ export interface IPersonLists {
 
 export interface ISupportJobTypes {
 	key: TASK_TYPE_ENUM;
+	/**
+	 * 任务名称
+	 */
 	value: string;
 	computeType: IComputeType;
+	/**
+	 * 任务渲染相关属性
+	 */
+	taskProperties: {
+		/**
+		 * 当前任务渲染所需组件，不填默认用 `editor` 渲染
+		 * @notice 需要在 `src/pages/editor` 目录下存在对应的组件
+		 */
+		renderKind?: string;
+		/**
+		 * 当前组件只有满足该条件下使用 `renderKind` 定义的组件渲染，否则用 `editor` 渲染
+		 */
+		renderCondition?: {
+			key: keyof IOfflineTaskProps;
+			value: any;
+		};
+		/**
+		 * 当前组件在被创建的时候所需要的额外字段
+		 * @notice 需要在 `src/components/scaffolds/create.tsx` 中导出相应组件
+		 */
+		formField?: string[];
+		/**
+		 * 当前组件的右侧栏
+		 * @notice 需要在 {@link https://github.com/DTStack/Taier/blob/master/taier-ui/src/services/rightBarService.tsx#L142-L186 rightBarService#createContent} 方法中返回对应值的组件
+		 */
+		barItem?: string[];
+		/**
+		 * 当前组件在满足该条件下会返回 `barItemCondition.barItem` 作为右侧栏
+		 */
+		barItemCondition?: {
+			key: keyof IOfflineTaskProps;
+			value: any;
+			/**
+			 * 当满足条件时返回的右侧栏
+			 */
+			barItem: string[];
+		};
+		/**
+		 * 当前组件在 actions 按钮
+		 * @notice 需要和 `src/components/scaffolds/editorActions.tsx` 中导出的组件名一一对应
+		 */
+		actions?: string[];
+		/**
+		 * 当前组件满足该条件下会返回 `actionsCondition.actions` 作为 actions 按钮
+		 */
+		actionsCondition?: {
+			key: keyof IOfflineTaskProps;
+			value: any;
+			/**
+			 * 当满足条件时返回的 actions 按钮
+			 */
+			actions: string[];
+		};
+	};
 }
 
 export interface IContext {
@@ -54,16 +111,10 @@ export interface IContext {
 	 * 当前应用所支持的任务类型
 	 */
 	supportJobTypes: ISupportJobTypes[];
-	/**
-	 * 用于出发当前应用重新获取支持的任务类型
-	 * @param verbose 是否输出错误信息，默认不输出
-	 */
-	dispatch: (action: { type: SupportJobActionKind, verbose?: boolean }) => void;
 }
 
 export default createContext<IContext>({
 	personList: [],
 	username: undefined,
 	supportJobTypes: [],
-	dispatch: () => {},
 });

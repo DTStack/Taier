@@ -11,8 +11,12 @@ enum ViewStorageEventKind {
 class ViewStoreService extends GlobalEvent {
 	private viewStorage = new Map<string, any>();
 
-	public setViewStorage = <T>(tabId: string, value: T) => {
-		this.viewStorage.set(tabId, value);
+	public setViewStorage = <T>(tabId: string, value: ((preVal: T) => T) | T) => {
+		if (typeof value === 'function') {
+			this.viewStorage.set(tabId, (value as (preVal: T) => T)(this.getViewStorage(tabId)));
+		} else {
+			this.viewStorage.set(tabId, value);
+		}
 	};
 
 	public getViewStorage = <T>(tabId: string) => {
