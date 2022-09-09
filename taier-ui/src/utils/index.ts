@@ -496,12 +496,12 @@ export const removePopUpMenu = () => {
 export function getVertexStyle(type: TASK_STATUS): string {
 	// 成功
 	if (FINISH_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=#f5ffe6;strokeColor=#12bc6a;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-finished-background);strokeColor=var(--badge-finished-border);';
 	}
 
 	// 运行中
 	if (RUNNING_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=#e6f6ff;strokeColor=#3f87ff;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-running-background);strokeColor=var(--badge-running-border);';
 	}
 
 	// 等待提交/提交中/等待运行
@@ -510,7 +510,7 @@ export function getVertexStyle(type: TASK_STATUS): string {
 			collection.includes(type),
 		)
 	) {
-		return 'whiteSpace=wrap;fillColor=#fffbe6;strokeColor=#fdb313;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-pending-background);strokeColor=var(--badge-pending-border);';
 	}
 
 	// 失败
@@ -519,16 +519,16 @@ export function getVertexStyle(type: TASK_STATUS): string {
 			collection.includes(type),
 		)
 	) {
-		return 'whiteSpace=wrap;fillColor=#fff1f0;strokeColor=#fe615c;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-failed-background);strokeColor=var(--badge-failed-border);';
 	}
 
 	// 冻结/取消
 	if ([STOP_STATUS, FROZEN_STATUS].some((collection) => collection.includes(type))) {
-		return 'whiteSpace=wrap;fillColor=#e6e9f2;strokeColor=#5b6da6;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-cancel-background);strokeColor=var(--badge-cancel-border);';
 	}
 
 	// 默认
-	return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+	return 'whiteSpace=wrap;fillColor=var(--badge-common-background);strokeColor=var(--badge-common-border);';
 }
 
 function formatJSON(str: string) {
