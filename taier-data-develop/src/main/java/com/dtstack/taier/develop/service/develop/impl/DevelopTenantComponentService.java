@@ -29,7 +29,7 @@ import com.dtstack.taier.dao.mapper.DevelopTenantComponentMapper;
 import com.dtstack.taier.develop.service.console.ClusterTenantService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTenantComponentResultVO;
 import com.dtstack.taier.pluginapi.enums.EJobType;
 import com.google.common.collect.Lists;
@@ -85,7 +85,7 @@ public class DevelopTenantComponentService {
      * @return
      */
     public List<DevelopTenantComponentResultVO> selectTenantComponentList(Long tenantId) {
-        List<DevelopTaskGetSupportJobTypesResultVO> supportJobTypes = developTaskService.getSupportJobTypes(tenantId);
+        List<DevelopTaskTypeVO> supportJobTypes = developTaskService.getSupportJobTypes(tenantId);
         if (CollectionUtils.isEmpty(supportJobTypes)) {
             return Lists.newArrayList();
         }

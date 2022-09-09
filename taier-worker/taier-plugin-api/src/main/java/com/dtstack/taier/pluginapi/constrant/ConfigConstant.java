@@ -30,7 +30,7 @@ import java.io.File;
 
 public class ConfigConstant {
 
-    public static final String REQUEST_PREFIX = "/taier";
+    public static final String REQUEST_PREFIX = "/taier/api";
 
 
     public static final String CONSOLE = "CONSOLE";
