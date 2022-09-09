@@ -33,32 +33,15 @@ import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
 import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
 import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
 import com.dtstack.dtcenter.loader.source.DataSourceType;
-import com.dtstack.taier.common.enums.CatalogueType;
-import com.dtstack.taier.common.enums.Deleted;
-import com.dtstack.taier.common.enums.EComponentType;
-import com.dtstack.taier.common.enums.EComputeType;
-import com.dtstack.taier.common.enums.EScheduleJobType;
-import com.dtstack.taier.common.enums.EScheduleStatus;
-import com.dtstack.taier.common.enums.ResourceRefType;
-import com.dtstack.taier.common.enums.TaskTemplateType;
+import com.dtstack.taier.common.enums.*;
 import com.dtstack.taier.common.env.EnvironmentContext;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.util.PublicUtil;
-import com.dtstack.taier.dao.domain.Component;
-import com.dtstack.taier.dao.domain.DevelopCatalogue;
-import com.dtstack.taier.dao.domain.DevelopDataSource;
-import com.dtstack.taier.dao.domain.DevelopSysParameter;
-import com.dtstack.taier.dao.domain.DevelopTaskParam;
-import com.dtstack.taier.dao.domain.DevelopTaskTask;
-import com.dtstack.taier.dao.domain.ScheduleTaskShade;
-import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
-import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.dao.domain.TaskTemplate;
-import com.dtstack.taier.dao.domain.Tenant;
+import com.dtstack.taier.common.util.Strings;
+import com.dtstack.taier.dao.domain.*;
 import com.dtstack.taier.dao.mapper.DevelopTaskMapper;
 import com.dtstack.taier.develop.dto.devlop.TaskCatalogueVO;
 import com.dtstack.taier.develop.dto.devlop.TaskCheckResultVO;
@@ -84,16 +67,14 @@ import com.dtstack.taier.develop.vo.develop.query.AllProductGlobalSearchVO;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturnVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
+import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
 import com.dtstack.taier.scheduler.enums.ESchedulePeriodType;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
-import com.dtstack.taier.scheduler.service.ClusterService;
-import com.dtstack.taier.scheduler.service.ComponentService;
-import com.dtstack.taier.scheduler.service.ScheduleActionService;
-import com.dtstack.taier.scheduler.service.ScheduleTaskTaskService;
+import com.dtstack.taier.scheduler.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -206,6 +187,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private DevelopFunctionService developFunctionService;
+
+    @Autowired
+    private ScheduleDictService scheduleDictService;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -1335,11 +1319,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
 
     /**
-     * 根据支持的引擎类型返回
+     * 根据支持的任务类型返回
      *
      * @return
      */
-    public List<DevelopTaskGetSupportJobTypesResultVO> getSupportJobTypes(Long tenantId) {
+    public List<DevelopTaskTypeVO> getSupportJobTypes(Long tenantId) {
         List<Component> engineSupportVOS = componentService.listComponents(tenantId);
         if (CollectionUtils.isEmpty(engineSupportVOS)) {
             throw new DtCenterDefException("该租户对应集群未配置任何组件");
@@ -1348,8 +1332,17 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         List<EScheduleJobType> eScheduleJobTypes = Arrays.stream(EScheduleJobType.values())
                 .filter(a -> a.getComponentType() == null || (tenantSupportMultiEngine.contains(a.getComponentType().getTypeCode())))
                 .collect(Collectors.toList());
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.TASK_TYPE_PROPERTIES);
+        Map<Integer, String> taskProperties = dicts.stream().collect(Collectors.toMap(d -> Integer.parseInt(d.getDictCode()), Dict::getDictValue));
         return eScheduleJobTypes.stream()
-                .map(j -> new DevelopTaskGetSupportJobTypesResultVO(j.getType(), j.getName(), j.getComputeType().getType()))
+                .map(j -> {
+                    DevelopTaskTypeVO taskTypeVO = new DevelopTaskTypeVO(j.getType(), j.getName(), j.getComputeType().getType());
+                    String properties = taskProperties.get(j.getType());
+                    if (!StringUtils.isBlank(properties)) {
+                        taskTypeVO.setTaskProperties(JSONObject.parseObject(properties, TaskProperties.class));
+                    }
+                    return taskTypeVO;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -1429,14 +1422,13 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         updateInfo.setComponentVersion(componentVersion);
         developTaskMapper.update(updateInfo, Wrappers.lambdaUpdate(Task.class).eq(Task::getId, taskInfo.getId()));
 
-        if (Objects.equals(EScheduleJobType.WORK_FLOW.getType(), taskInfo.getTaskType())){
+        if (Objects.equals(EScheduleJobType.WORK_FLOW.getType(), taskInfo.getTaskType())) {
             //更新父节点目录时，同步更新子节点
             if (!taskInfo.getNodePid().equals(catalogueId)) {
                 updateSonTaskNodePidByFlowId(taskInfo.getId(), catalogueId);
             }
         }
     }
-
 
 
     /**
@@ -1473,7 +1465,7 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         for (Task batchTask : batchTasks) {
             Task task1 = new Task();
             task1.setScheduleConf(batchTask.getScheduleConf());
-            developTaskMapper.update(task1,Wrappers.lambdaUpdate(Task.class).eq(Task::getId,batchTask.getId()));
+            developTaskMapper.update(task1, Wrappers.lambdaUpdate(Task.class).eq(Task::getId, batchTask.getId()));
         }
     }
 
@@ -1490,4 +1482,11 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         developTaskMapper.update(task, Wrappers.lambdaUpdate(Task.class).eq(Task::getFlowId, flowId));
     }
 
+    public JSONObject getSyncProperties() {
+        List<Dict> dicts = scheduleDictService.listByDictType(DictType.SYNC_MAPPING);
+        if (CollectionUtils.isEmpty(dicts)) {
+            return new JSONObject();
+        }
+        return JSONObject.parseObject(dicts.get(0).getDictValue());
+    }
 }
