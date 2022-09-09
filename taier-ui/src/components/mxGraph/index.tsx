@@ -70,7 +70,7 @@ class MxFactory {
 		const { mxConstants, mxEdgeStyle } = this.mxInstance;
 		const style: StyleMap = [];
 		style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-		style[mxConstants.STYLE_STROKECOLOR] = 'var(--terminal-ansiBlue, #3f87ff)';
+		style[mxConstants.STYLE_STROKECOLOR] = '#3F87FFFF';
 		style[mxConstants.STYLE_STROKEWIDTH] = 1;
 		style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
 		style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -224,7 +224,7 @@ class MxFactory {
 		mxConstants.HANDLE_FILLCOLOR = '#ffffff';
 		mxConstants.HANDLE_STROKECOLOR = '#2491F7';
 
-		mxConstants.VERTEX_SELECTION_COLOR = 'var(--list-focusOutline)';
+		mxConstants.VERTEX_SELECTION_COLOR = 'var(--editor-background)';
 		// @ts-ignore
 		mxConstants.STYLE_OVERFLOW = 'hidden';
 

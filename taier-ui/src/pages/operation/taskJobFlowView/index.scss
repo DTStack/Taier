@@ -11,34 +11,34 @@
 .mxYellow {
 	@extend .mxBasicColor;
 
-	background: #fffbe6;
-	border: 1px solid #fdb313;
+	background: var(--badge-pending-background);
+	border: 1px solid var(--badge-pending-border);
 }
 
 .mxBlue {
 	@extend .mxBasicColor;
 
-	background: #e6f6ff;
-	border: 1px solid #3f87ff;
+	background: var(--badge-running-background);
+	border: 1px solid var(--badge-running-border);
 }
 
 .mxGreen {
 	@extend .mxBasicColor;
 
-	background: #f5ffe6;
-	border: 1px solid #12bc6a;
+	background: var(--badge-finished-background);
+	border: 1px solid var(--badge-finished-border);
 }
 
 .mxRed {
 	@extend .mxBasicColor;
 
-	background: #fff1f0;
-	border: 1px solid #fe615c;
+	background: var(--badge-failed-background);
+	border: 1px solid var(--badge-failed-border);
 }
 
 .mxGray {
 	@extend .mxBasicColor;
 
-	background: #e6e9f2;
-	border: 1px solid #5b6da6;
+	background: var(--badge-cancel-background);
+	border: 1px solid var(--badge-cancel-border);
 }

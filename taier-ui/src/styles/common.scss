@@ -46,43 +46,43 @@
 .status_overview_fail_font {
 	@extend .status_overview_basic_block;
 
-	color: #ef5350;
-	background: #ffe9e9;
+	color: var(--badge-failed-foreground);
+	background: var(--badge-failed-background);
 }
 
 .status_overview_running_font {
 	@extend .status_overview_basic_block;
 
-	color: #2491f7;
-	background: #def;
+	color: var(--badge-running-foreground);
+	background: var(--badge-running-background);
 }
 
 .status_overview_grey_font {
 	@extend .status_overview_basic_block;
 
-	color: #94a8c6;
-	background: #e6e9f2;
+	color: var(--badge-cancel-foreground);
+	background: var(--badge-cancel-background);
 }
 
 .status_overview_yellow_font {
 	@extend .status_overview_basic_block;
 
-	color: #f5a623;
-	background: #f9f3de;
+	color: var(--badge-pending-foreground);
+	background: var(--badge-pending-background);
 }
 
 .status_overview_finished_font {
 	@extend .status_overview_basic_block;
 
-	color: #00a755;
-	background: #cdf7e2;
+	color: var(--badge-finished-foreground);
+	background: var(--badge-finished-background);
 }
 
 .status_overview_count_font {
 	@extend .status_overview_basic_block;
 
-	color: #333;
-	background: #f2f2f2;
+	color: var(--badge-common-foreground);
+	background: var(--badge-common-background);
 }
 
 .dt-refresh.ant-btn {
@@ -113,8 +113,8 @@
 	}
 }
 
-.ellipsis{
+.ellipsis {
 	overflow: hidden;
-    text-overflow: ellipsis;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
