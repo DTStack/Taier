@@ -275,7 +275,7 @@ describe('enums', () => {
 
 	it('Mapping Type To Language', () => {
 		// 默认值是 TASK_LANGUAGE.SQL
-		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe(TASK_LANGUAGE.SQL);
+		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.DATA_ACQUISITION)).toBe(TASK_LANGUAGE.JSON);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.OCEANBASE)).toBe(TASK_LANGUAGE.SQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.HIVE_SQL)).toBe(TASK_LANGUAGE.HIVESQL);
 		expect(mappingTaskTypeToLanguage(TASK_TYPE_ENUM.SHELL)).toBe(TASK_LANGUAGE.SQL);
