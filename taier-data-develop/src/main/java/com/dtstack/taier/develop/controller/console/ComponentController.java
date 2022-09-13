@@ -93,9 +93,9 @@ public class ComponentController {
             @ApiImplicitParam(name = "componentType", value = "组件code", required = true, dataType = "int"),
     })
     public R<List<ClientTemplate>> loadTemplate(@RequestParam("componentType") Integer componentType, @RequestParam("clusterId") Long clusterId,
-                                                @RequestParam("versionName") String versionName) {
+                                                @RequestParam("versionName") String versionName, @RequestParam("deployType") Integer deployType) {
         EComponentType type = EComponentType.getByCode(componentType);
-        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, EComponentType.HDFS, null));
+        return R.ok(consoleComponentService.loadTemplate(clusterId, type, versionName, EComponentType.HDFS, deployType));
     }
 
 
