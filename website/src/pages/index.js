@@ -3,8 +3,7 @@ import Layout from "@theme/Layout";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Intro from "../components/intro";
 import Features from "../components/features";
-import Process from "../components/process";
-import Contact from "../components/contact";
+import Case from '../components/case';
 import "./index.scss";
 
 export default function Home() {
@@ -13,8 +12,7 @@ export default function Home() {
     <Layout title={siteConfig.title} description={siteConfig.tagline}>
       <Intro />
       <Features />
-      <Process />
-      <Contact />
+      <Case />
     </Layout>
   );
 }
