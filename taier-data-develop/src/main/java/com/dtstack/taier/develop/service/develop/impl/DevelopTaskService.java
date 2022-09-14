@@ -228,11 +228,9 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             taskVO.setTargetMap(JSON.parseObject(taskVO.getTargetStr(), Map.class));
             taskVO.setSettingMap(JSON.parseObject(taskVO.getSettingStr(), Map.class));
             setTaskVariables(taskVO, taskVO.getId());
-            try {
+            if (EScheduleJobType.DATA_ACQUISITION.getType().equals(task.getTaskType()) || EScheduleJobType.SYNC.getType().equals(task.getTaskType())) {
                 JSONObject jsonObject = JSONObject.parseObject(taskVO.getSqlText());
                 taskVO.setSqlText(String.valueOf(jsonObject.get("job")));
-            } catch (Exception e) {
-                //其他sql任务脚本非json 格式
             }
             taskVO.setDependencyTasks(buildDependTaskList(task.getId()));
         }
