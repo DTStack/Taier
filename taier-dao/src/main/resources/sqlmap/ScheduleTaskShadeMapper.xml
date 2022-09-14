@@ -17,6 +17,7 @@
                 #{scheduleStatus}
             </foreach>
             AND `is_deleted` = 0
+            AND `flow_id` = 0
         ORDER BY `id` ASC
         <if test="taskSize!=null">
             LIMIT #{taskSize}

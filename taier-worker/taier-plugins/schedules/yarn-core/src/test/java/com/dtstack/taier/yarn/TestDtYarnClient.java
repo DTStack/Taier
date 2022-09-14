@@ -18,20 +18,11 @@
 
 package com.dtstack.taier.yarn;
 
-import com.dtstack.taier.pluginapi.JobClient;
-import com.dtstack.taier.pluginapi.pojo.ClusterResource;
-import com.dtstack.taier.pluginapi.pojo.ParamAction;
-import com.dtstack.taier.pluginapi.util.MD5Util;
-import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.Properties;
+import java.util.List;
 
 public class TestDtYarnClient {
 
@@ -39,29 +30,10 @@ public class TestDtYarnClient {
 
     public static void main(String[] args) throws Exception {
 
-        System.setProperty("HADOOP_USER_NAME", "admin");
-
-        // input params json file path
-        String filePath = args[0];
-        File paramsFile = new File(filePath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(paramsFile)));
-        String request = reader.readLine();
-        Map params =  PublicUtil.jsonStrToObject(request, Map.class);
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
-
-        String pluginInfo = jobClient.getPluginInfo();
-        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        String md5plugin = MD5Util.getMd5String(pluginInfo);
-        properties.setProperty("md5sum", md5plugin);
-
         DtYarnClient client = new DtYarnClient();
-        client.init(properties);
+        JSONObject jsonObject = JSONObject.parseObject("{\"scheduler\":{\"schedulerInfo\":{\"type\":\"fairScheduler\",\"rootQueue\":{\"maxApps\":2147483647,\"minResources\":{\"memory\":0,\"vCores\":0},\"maxResources\":{\"memory\":12288,\"vCores\":8},\"usedResources\":{\"memory\":0,\"vCores\":0},\"amUsedResources\":{\"memory\":0,\"vCores\":0},\"amMaxResources\":{\"memory\":0,\"vCores\":0},\"demandResources\":{\"memory\":0,\"vCores\":0},\"steadyFairResources\":{\"memory\":12288,\"vCores\":8},\"fairResources\":{\"memory\":12288,\"vCores\":8},\"clusterResources\":{\"memory\":12288,\"vCores\":8},\"reservedResources\":{\"memory\":0,\"vCores\":0},\"pendingContainers\":0,\"allocatedContainers\":0,\"reservedContainers\":0,\"queueName\":\"root\",\"schedulingPolicy\":\"DRF\",\"childQueues\":{\"queue\":[{\"type\":\"fairSchedulerLeafQueueInfo\",\"maxApps\":2147483647,\"minResources\":{\"memory\":0,\"vCores\":0},\"maxResources\":{\"memory\":12288,\"vCores\":8},\"usedResources\":{\"memory\":0,\"vCores\":0},\"amUsedResources\":{\"memory\":0,\"vCores\":0},\"amMaxResources\":{\"memory\":0,\"vCores\":0},\"demandResources\":{\"memory\":0,\"vCores\":0},\"steadyFairResources\":{\"memory\":6144,\"vCores\":4},\"fairResources\":{\"memory\":0,\"vCores\":0},\"clusterResources\":{\"memory\":12288,\"vCores\":8},\"reservedResources\":{\"memory\":0,\"vCores\":0},\"pendingContainers\":0,\"allocatedContainers\":0,\"reservedContainers\":0,\"queueName\":\"root.default\",\"schedulingPolicy\":\"DRF\",\"preemptable\":true,\"numPendingApps\":0,\"numActiveApps\":0},{\"maxApps\":2147483647,\"minResources\":{\"memory\":0,\"vCores\":0},\"maxResources\":{\"memory\":12288,\"vCores\":8},\"usedResources\":{\"memory\":0,\"vCores\":0},\"amUsedResources\":{\"memory\":0,\"vCores\":0},\"amMaxResources\":{\"memory\":0,\"vCores\":0},\"demandResources\":{\"memory\":0,\"vCores\":0},\"steadyFairResources\":{\"memory\":6144,\"vCores\":4},\"fairResources\":{\"memory\":0,\"vCores\":0},\"clusterResources\":{\"memory\":12288,\"vCores\":8},\"reservedResources\":{\"memory\":0,\"vCores\":0},\"pendingContainers\":0,\"allocatedContainers\":0,\"reservedContainers\":0,\"queueName\":\"root.users\",\"schedulingPolicy\":\"DRF\",\"childQueues\":{\"queue\":[{\"type\":\"fairSchedulerLeafQueueInfo\",\"maxApps\":2147483647,\"minResources\":{\"memory\":0,\"vCores\":0},\"maxResources\":{\"memory\":12288,\"vCores\":8},\"usedResources\":{\"memory\":0,\"vCores\":0},\"amUsedResources\":{\"memory\":0,\"vCores\":0},\"amMaxResources\":{\"memory\":6144,\"vCores\":4},\"demandResources\":{\"memory\":0,\"vCores\":0},\"steadyFairResources\":{\"memory\":6144,\"vCores\":4},\"fairResources\":{\"memory\":0,\"vCores\":0},\"clusterResources\":{\"memory\":12288,\"vCores\":8},\"reservedResources\":{\"memory\":0,\"vCores\":0},\"pendingContainers\":0,\"allocatedContainers\":0,\"reservedContainers\":0,\"queueName\":\"root.users.hadoop\",\"schedulingPolicy\":\"fair\",\"preemptable\":true,\"numPendingApps\":0,\"numActiveApps\":0}]},\"preemptable\":true}]},\"preemptable\":true}}}}");
+        List<JSONObject> queueResource = client.getQueueResource(jsonObject);
+        System.out.println(queueResource);
 
-        ClusterResource clusterResource = client.getClusterResource();
-
-        LOG.info("submit success!");
-        LOG.info(clusterResource.toString());
-        System.exit(0);
     }
 }
