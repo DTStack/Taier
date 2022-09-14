@@ -7,6 +7,13 @@
 }
 
 :root[data-prefers-color='light'] {
+	--taier-rightBar-foreground: #3f87ff;
+	--taier-rightBar-background: #eef6fe;
+	--taier-workflow-widget-foreground: #333333;
+	--taier-workflow-widget-background: #edf6ff;
+	--taier-workflow-widget-border: #a7cdf0;
+	--taier-workflow-widget-description: #666;
+
 	--badge-common-background: #f2f2f2;
 	--badge-common-foreground: #333;
 	--badge-common-border: #d4d4d4;
@@ -28,6 +35,13 @@
 }
 
 :root[data-prefers-color='dark'] {
+	--taier-rightBar-foreground: #f2f2f2;
+	--taier-rightBar-background: #282a38;
+	--taier-workflow-widget-foreground: #f2f2f2;
+	--taier-workflow-widget-background: #1a1c29;
+	--taier-workflow-widget-border: #282b40;
+	--taier-workflow-widget-description: #999999;
+
 	--badge-common-background: #e6e6e612;
 	--badge-common-foreground: #d9d9d9ff;
 	--badge-common-border: #d4d4d4;
