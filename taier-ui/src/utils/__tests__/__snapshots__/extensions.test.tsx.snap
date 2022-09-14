@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`utils/extensions Should render file icon 1`] = `
+<ResourceIcon
+  style={
+    Object {
+      "color": "#0065f6",
+    }
+  }
+/>
+`;

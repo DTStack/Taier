@@ -7,4 +7,5 @@ module.exports = {
 		subscribe = jest.fn();
 	},
 	connect: jest.fn(),
+	...require('./monaco-editor'),
 };
