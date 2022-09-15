@@ -9,3 +9,15 @@ exports[`utils/extensions Should render file icon 1`] = `
   }
 />
 `;
+
+exports[`utils/extensions Should run task with some effects 1`] = `
+<Result
+  data="test"
+  extraView={null}
+  tab={
+    Object {
+      "tableType": 0,
+    }
+  }
+/>
+`;
