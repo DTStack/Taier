@@ -1,34 +1,8 @@
-// .taier__container {
-//   margin: 0 auto;
-//   max-width: var(--ifm-container-width);
-//   text-align: center;
-
-//   .taier__title {
-//     font-size: var(--ifm-h1-font-size);
-//     position: relative;
-//     margin-bottom: 3rem;
-//   }
-// }
-
-// @media only screen and (min-width: 480px) and (max-width: 575px) {
-//   .taier__container {
-//     max-width: 450px;
-//   }
-// }
-
-// @media only screen and (min-width: 576px) and (max-width: 767px) {
-//   .taier__container {
-//     max-width: 540px;
-//   }
-// }
-
-// @media (min-width: 1440px) {
-//   .taier__container {
-//     max-width: var(--ifm-container-width-xl);
-//   }
-// }
-
-.main-wrapper {
-  background: #fbfcff;
+.banner {
+  background: linear-gradient(
+    to bottom,
+    var(--banner-background-surface-liner-gradient-from-color),
+    var(--banner-background-surface-liner-gradient-to-color)
+  );
   font-family: PingFangSC-Regular, PingFang SC;
 }

@@ -4,7 +4,7 @@
   padding-bottom: 48px;
 
   .titleRow {
-    color: #3d446e;
+    color: var(--ifm-color-content);
     line-height: 33px;
     font-size: 24px;
     font-weight: 500;
@@ -62,8 +62,19 @@
     }
 
     .card {
-      background: #ffffff;
+      background: linear-gradient(
+        to bottom right,
+        var(--homepage-feature-liner-gradient-to-color),
+        var(--homepage-feature-liner-gradient-from-color)
+      );
       box-shadow: 0px 0px 24px 0px rgba(61, 68, 110, 0.08);
+      border-radius: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 0px 34px 0px rgba(44, 113, 203, 0.16);
+      }
 
       + .card {
         margin-left: 20px;
@@ -78,7 +89,7 @@
 
         .number {
           font-size: 120px;
-          color: #3d446e08;
+          color: var(--ifm-color-content);
           float: right;
           height: 144px;
           line-height: 144px;
@@ -88,7 +99,7 @@
 
       .cardTitle {
         font-weight: 600;
-        color: #3d446e;
+        color: var(--ifm-color-content);
         line-height: 28px;
         font-size: 20px;
         padding: 20px 0 21px 48px;
@@ -96,7 +107,7 @@
 
       .description {
         font-weight: 400;
-        color: #3d446e;
+        color: var(--ifm-color-content);
         line-height: 22px;
         font-size: 14px;
         padding: 21px 48px 40px;
@@ -105,35 +116,32 @@
   }
 }
 
-// .cardGroups {
-//   display: flex;
-//   flex-wrap: wrap;
+// dark mode
+:global(html[data-theme="dark"]) {
+  .container .titleRow .title {
+    &::before {
+      background: linear-gradient(
+        90deg,
+        #00a8e300,
+        #00ace40f,
+        #00b6e736,
+        #00c6ec75,
+        #00dcf3cc
+      );
+    }
 
-//   .card {
-//     width: 30%;
-//     border-radius: var(--ifm-card-border-radius);
-//     background-color: var(--ifm-card-background-color);
-//     margin: var(--ifm-card-horizontal-spacing) var(--ifm-card-vertical-spacing);
-//     padding: 1rem 2rem;
-//     position: relative;
-//     box-shadow: var(--ifm-global-shadow-lw);
-//     transition: box-shadow var(--ifm-transition-slow);
-
-//     &:hover {
-//       box-shadow: var(--ifm-global-shadow-md);
-//     }
-
-//     .cardTitle {
-//       font-size: var(--ifm-h2-font-size);
-//       font-weight: var(--ifm-font-weight-semibold);
-//       margin-bottom: 1rem;
-
-//       :global(.icon) {
-//         color: var(--ifm-color-success-lightest);
-//       }
-//     }
-//   }
-// }
+    &::after {
+      background: linear-gradient(
+        -90deg,
+        #00a8e300,
+        #00ace40f,
+        #00b6e736,
+        #00c6ec75,
+        #00dcf3cc
+      );
+    }
+  }
+}
 
 @media (max-width: 750px) {
   // .cardGroups {
