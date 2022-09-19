@@ -57,11 +57,13 @@ public class JobIdentifier implements Serializable {
 
     private String archiveFsDir;
 
+    private String queueName;
+
 
     private JobIdentifier() {
     }
 
-    public JobIdentifier(String engineJobId, String applicationId, String jobId, Long tenantId, Integer taskType, Integer deployMode, Long userId, String pluginInfo, String componentVersion) {
+    public JobIdentifier(String engineJobId, String applicationId, String jobId, Long tenantId, Integer taskType, Integer deployMode, Long userId, String pluginInfo, String componentVersion, String queueName) {
         this.engineJobId = engineJobId;
         this.applicationId = applicationId;
         this.jobId = jobId;
@@ -71,6 +73,7 @@ public class JobIdentifier implements Serializable {
         this.userId = userId;
         this.pluginInfo = pluginInfo;
         this.componentVersion = componentVersion;
+        this.queueName = queueName;
     }
 
     public JobIdentifier(String engineJobId, String applicationId, String jobId, Boolean forceCancel) {
@@ -156,6 +159,15 @@ public class JobIdentifier implements Serializable {
 
     public void setArchiveFsDir(String archiveFsDir) {
         this.archiveFsDir = archiveFsDir;
+    }
+
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
     }
 
     @Override
