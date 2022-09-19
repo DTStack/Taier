@@ -48,7 +48,7 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturn
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetChildTasksResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopSysParameterResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
-import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetTaskByIdResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskPublishTaskResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskResultVO;
@@ -242,10 +242,10 @@ public class DevelopTaskController {
 
     @PostMapping(value = "getSupportJobTypes")
     @ApiOperation("根据支持的引擎类型返回")
-    public R<List<DevelopTaskGetSupportJobTypesResultVO>> getSupportJobTypes(@RequestBody(required = false) DevelopTaskGetSupportJobTypesVO detailVO) {
-        return new APITemplate<List<DevelopTaskGetSupportJobTypesResultVO>>() {
+    public R<List<DevelopTaskTypeVO>> getSupportJobTypes(@RequestBody(required = false) DevelopTaskGetSupportJobTypesVO detailVO) {
+        return new APITemplate<List<DevelopTaskTypeVO>>() {
             @Override
-            protected List<DevelopTaskGetSupportJobTypesResultVO>  process() {
+            protected List<DevelopTaskTypeVO>  process() {
                 return developTaskService.getSupportJobTypes(detailVO.getTenantId());
             }
         }.execute();
@@ -304,6 +304,12 @@ public class DevelopTaskController {
         }.execute();
     }
 
+
+    @PostMapping(value = "getSyncProperties")
+    @ApiOperation("数据开发-获取数据同步字段映射")
+    public R<JSONObject> getSyncProperties() {
+        return R.ok(developTaskService.getSyncProperties());
+    }
 
 
 

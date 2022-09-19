@@ -1,4 +1,4 @@
-export const BASE_URI = '/taier';
+export const BASE_URI = '/taier/api';
 
 export default {
 	GET_RETAINDB_LIST: `${BASE_URI}/batchComponent/getAllDatabases`, // 获取可以对接项目的数据库表
@@ -160,4 +160,5 @@ export default {
 	GET_SCHEMA_LIST_BY_COMPONENT: `${BASE_URI}/tenantComponent/getByTenantAndTaskType`, // 获取任务类型可配置的shema
 	GET_RESOUCE_LOCATION: `${BASE_URI}/batchCatalogue/getCatalogueIds`, // 获取当前目录的位置
 	VALIDATE_REPEAT_TASK_NAME: `${BASE_URI}/task/checkTaskNameRepeat`, // 校验当前任务名称是否重名
+	QUERY_SYNC_DATA_SOURCE: `${BASE_URI}/task/getSyncProperties`, // 获取当前数据同步任务的数据
 };

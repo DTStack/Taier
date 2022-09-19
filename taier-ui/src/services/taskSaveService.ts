@@ -8,7 +8,6 @@ import ValidSchema from 'async-validator';
 import {
 	CREATE_MODEL_TYPE,
 	DATA_SOURCE_ENUM,
-	DATA_SYNC_MODE,
 	FLINK_VERSIONS,
 	rdbmsDaType,
 	SOURCE_TIME_TYPE,
@@ -51,7 +50,14 @@ interface IParamsProps extends IOfflineTaskProps {
 }
 
 export enum SaveEventKind {
+	/**
+	 * 保存成功后的钩子
+	 */
 	onSaveTask = 'onsave',
+	/**
+	 * 保存前的钩子
+	 */
+	onBeforeSave = 'onBeforeSave',
 }
 
 @singleton()
@@ -378,51 +384,62 @@ class TaskSaveService extends GlobalEvent {
 		const { taskType } = data;
 		switch (taskType) {
 			case TASK_TYPE_ENUM.SYNC: {
-				const params: IParamsProps = cloneDeep(data);
-				const DATASYNC_FIELDS = ['settingMap', 'sourceMap', 'targetMap'] as const;
-				// 向导模式需要去检查填写是否正确
-				if (params.createModel === CREATE_MODEL_TYPE.GUIDE) {
-					if (DATASYNC_FIELDS.every((f) => params.hasOwnProperty(f) && params[f])) {
-						const isIncrementMode =
-							params.sourceMap.syncModel !== undefined &&
-							DATA_SYNC_MODE.INCREMENT === params.sourceMap.syncModel;
-						if (!isIncrementMode) {
-							params.sourceMap!.increColumn = undefined; // Delete increColumn
+				return new Promise((resolve, reject) => {
+					const doSaveFn = () => {
+						const params = { ...data };
+						// 工作流中的数据同步保存
+						if (params.flowId) {
+							// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
+							if (params.id?.toString().startsWith('workflow__')) {
+								Reflect.deleteProperty(params, 'id');
+							}
+							params.computeType = IComputeType.BATCH;
+							// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
+							params.nodePid =
+								params.nodePid ||
+								molecule.folderTree.get(data.flowId)?.data.parentId;
 						}
 
-						// 服务端需要的参数
-						params.sourceMap!.rdbmsDaType = rdbmsDaType.Poll;
+						api.saveOfflineJobData({
+							...params,
+							// 修改task配置时接口要求的标记位
+							preSave: true,
+							sqlText: params.value || '',
+							computeType: IComputeType.BATCH,
+							sourceMap: {
+								...params.sourceMap,
+								rdbmsDaType: rdbmsDaType.Poll,
+							},
+							settingMap: {
+								...params.settingMap,
+								speed: /[\u4e00-\u9fa5]/.test(params.settingMap!.speed)
+									? '-1'
+									: params.settingMap?.speed,
+							},
+						}).then((res) => {
+							if (res.code === 1) {
+								message.success('保存成功！');
+								this.emit(SaveEventKind.onSaveTask, res.data);
+								resolve(res);
+							}
+						});
+					};
+
+					// 向导模式需要 form 表单校验
+					if (data.createModel === CREATE_MODEL_TYPE.GUIDE) {
+						this.emit(SaveEventKind.onBeforeSave, {
+							continue: () => {
+								doSaveFn();
+							},
+							stop: () => {
+								reject(new Error('请检查数据同步任务是否填写正确'));
+							},
+						});
 					} else {
-						return Promise.reject(new Error('请检查数据同步任务是否填写正确'));
+						// 脚本模式直接保存
+						doSaveFn();
 					}
-				}
-
-				// 修改task配置时接口要求的标记位
-				params.preSave = true;
-				params.sqlText = params.value || '';
-
-				// 工作流中的数据同步保存
-				if (params.flowId) {
-					// 如果是 workflow__ 开头的，表示还没有保存过的工作流节点
-					if (params.id?.toString().startsWith('workflow__')) {
-						Reflect.deleteProperty(params, 'id');
-					}
-
-					params.computeType = IComputeType.BATCH;
-					// 如果是没保存过的工作流节点，会获取不到 nodePid，则通过 flowId 去拿 nodePid
-					params.nodePid =
-						params.nodePid || molecule.folderTree.get(data.flowId)?.data.parentId;
-				}
-
-				const res = await api.saveOfflineJobData(params);
-
-				if (res.code === 1) {
-					message.success('保存成功！');
-					this.emit(SaveEventKind.onSaveTask, res.data);
-					return res;
-				}
-
-				return Promise.reject();
+				});
 			}
 			case TASK_TYPE_ENUM.SQL: {
 				const params: IParamsProps = cloneDeep(data);
@@ -760,6 +777,19 @@ class TaskSaveService extends GlobalEvent {
 	 */
 	onSaveTask = (listener: (task: IOfflineTaskProps) => void) => {
 		this.subscribe(SaveEventKind.onSaveTask, listener);
+	};
+
+	/**
+	 * 任务保存之前的回调函数，需要执行 `action.continue` 才会继续执行后续保存操作
+	 */
+	onBeforeSave = (listener: (action: { continue: () => void; stop: () => void }) => void) => {
+		this.subscribe(SaveEventKind.onBeforeSave, listener);
+	};
+
+	unsubScribeOnBeforeSave = (
+		listener: (action: { continue: () => void; stop: () => void }) => void,
+	) => {
+		this.unsubscribe(SaveEventKind.onBeforeSave, listener);
 	};
 }
 

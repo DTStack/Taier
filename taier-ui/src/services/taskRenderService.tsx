@@ -26,88 +26,40 @@ import molecule from '@dtinsight/molecule';
 import { breadcrumbService, editorActionBarService } from '.';
 import type { IOfflineTaskProps } from '@/interface';
 import { isTaskTab } from '@/utils/is';
+import { Component } from '@dtinsight/molecule/esm/react';
 
-interface ICreateFormField {
-	taskType: TASK_TYPE_ENUM;
-	/**
-	 * 渲染方式条件，仅当 renderKind 为 customize 时生效
-	 */
-	renderCondition?: {
-		key: keyof IOfflineTaskProps;
-		value: any;
-	};
-	/**
-	 * 当前任务在编辑器中的渲染方式，分为 editor 和 customize
-	 */
-	renderKind: string;
-	/**
-	 * 定义当前任务在新建的时候支持的字段
-	 */
-	formField: (keyof typeof scaffolds)[];
-}
-
-interface IRightBarField {
-	taskType: TASK_TYPE_ENUM;
-	/**
-	 * 渲染方式条件，其中 barItemCondition.barItem 为当条件成立时渲染的侧边栏
-	 */
-	barItemCondition?: { key: keyof IOfflineTaskProps; value: any; barItem: RightBarKind[] };
-	/**
-	 * 默认渲染方式，若存在 barItemCondition 则该值为条件判断为假值时的侧边栏
-	 */
-	barItem: RightBarKind[];
-}
-
-interface IEditorActionField {
-	taskType: TASK_TYPE_ENUM;
-	/**
-	 * 渲染方式条件
-	 */
-	actionsCondition?: {
-		key: keyof IOfflineTaskProps;
-		value: any;
-		actions: (keyof typeof editorActionsScaffolds)[];
-	};
-	actions: (keyof typeof editorActionsScaffolds)[];
+export interface ITaskRenderState {
+	supportTaskList: ISupportJobTypes[];
 }
 
 @singleton()
-class TaskRenderService {
-	/**
-	 * 不同任务在新建任务的表单值域
-	 */
-	public createFormField: ICreateFormField[] = [];
-	/**
-	 * 不同任务在侧边栏的定义
-	 */
-	public rightBarField: IRightBarField[] = [];
-	/**
-	 * 不同任务在编辑器 actions 的定义
-	 */
-	public editorActionField: IEditorActionField[] = [];
-	/**
-	 * 当前支持的全部任务列表
-	 */
-	public supportTaskList: ISupportJobTypes[] = [];
+export default class TaskRenderService extends Component<ITaskRenderState> {
+	state: ITaskRenderState = {
+		/**
+		 * 当前支持的全部任务列表
+		 */
+		supportTaskList: [],
+	};
 
 	constructor() {
-		fetch('./layout/create.json', { method: 'GET' })
-			.then<ICreateFormField[]>((res) => res.json())
-			.then((res) => {
-				this.createFormField = res;
-			});
+		super();
+		this.getTaskTypes();
+	}
 
-		fetch('./layout/rightBar.json', { method: 'GET' })
-			.then<IRightBarField[]>((res) => res.json())
-			.then((res) => {
-				this.rightBarField = res;
-			});
-
-		fetch('./layout/editorActions.json', { method: 'GET' })
-			.then<IEditorActionField[]>((res) => res.json())
-			.then((res) => {
-				this.editorActionField = res;
-			});
+	// 获取当前支持的任务类型
+	public getTaskTypes() {
+		api.getTaskTypes({}).then((res) => {
+			if (res.code === 1) {
+				this.setState({
+					supportTaskList: res.data || [],
+				});
+			} else {
+				notification.error({
+					key: 'FailedJob',
+					message: `获取支持的类型失败，将无法创建新的任务！`,
+				});
+			}
+		});
 	}
 
 	/**
@@ -118,17 +70,17 @@ class TaskRenderService {
 		record?: Record<string, any>,
 		form?: Omit<FormInstance, 'scrollToField' | '__INTERNAL__' | 'getFieldInstance'>,
 	) => {
-		const field = this.createFormField.find((i) => i.taskType === key);
+		const field = this.state.supportTaskList.find((i) => i.key === key)?.taskProperties;
 		if (!field) {
 			return null;
 		}
 
 		return (
 			<>
-				{field.formField.map((f) => {
-					const Compoennt = scaffolds[f];
+				{field.formField?.map((f) => {
+					const DefinedComponent = scaffolds[f];
 					return (
-						<Compoennt
+						<DefinedComponent
 							key={f}
 							disabled={!!record}
 							onChange={() => {
@@ -189,7 +141,7 @@ class TaskRenderService {
 		key: TASK_TYPE_ENUM,
 		record: { id: number | string; name: string; taskType: TASK_TYPE_ENUM; [key: string]: any },
 	): molecule.model.IEditorTab => {
-		const fields = this.createFormField.find((i) => i.taskType === key);
+		const fields = this.state.supportTaskList.find((i) => i.key === key)?.taskProperties;
 		const renderKind = fields?.renderKind || 'editor';
 
 		const isWorkflow = !!record.flowId;
@@ -231,10 +183,10 @@ class TaskRenderService {
 		} else {
 			try {
 				// 自定义渲染需要声明 renderPane 组件
-				const Component = lazy(() => import(`@/pages/editor/${renderKind}`));
+				const PageComponent = lazy(() => import(`@/pages/editor/${renderKind}`));
 				tabData.renderPane = (data) => (
 					<Suspense key={data.id} fallback={<div>loading...</div>}>
-						<Component />
+						<PageComponent />
 					</Suspense>
 				);
 			} catch (err) {
@@ -251,7 +203,7 @@ class TaskRenderService {
 	/**
 	 * 根据任务类型定义侧边栏
 	 */
-	public renderRightBar = (): RightBarKind[] => {
+	public renderRightBar = (): string[] => {
 		const { current } = molecule.editor.getState();
 		/**
 		 * 当前的 tab 是否不合法，如不合法则展示 Empty
@@ -264,7 +216,7 @@ class TaskRenderService {
 		const record = current?.tab?.data as IOfflineTaskProps;
 
 		// Default rightBar for each task
-		const defaultRightBarField: Record<IComputeType, RightBarKind[]> = {
+		const defaultRightBarField: Record<IComputeType, string[]> = {
 			[IComputeType.BATCH]: [
 				RightBarKind.TASK,
 				RightBarKind.DEPENDENCY,
@@ -274,9 +226,11 @@ class TaskRenderService {
 			[IComputeType.STREAM]: [RightBarKind.TASK],
 		};
 
-		const rightBarField = this.rightBarField.find((i) => i.taskType === record.taskType);
+		const rightBarField = this.state.supportTaskList.find(
+			(i) => i.key === record.taskType,
+		)?.taskProperties;
 		const computeType =
-			this.supportTaskList.find((i) => i.key === record.taskType)?.computeType ||
+			this.state.supportTaskList.find((i) => i.key === record.taskType)?.computeType ||
 			IComputeType.STREAM;
 
 		// That's default right bar for each taskType
@@ -310,10 +264,10 @@ class TaskRenderService {
 				{
 					[IComputeType.BATCH]: ['SAVE_TASK', 'RUN_TASK', 'STOP_TASK', 'SUBMIT_TASK'],
 					[IComputeType.STREAM]: ['SAVE_TASK'],
-				} as Record<IComputeType, (keyof typeof editorActionsScaffolds)[]>
+				} as Record<IComputeType, string[]>
 			)[record.computeType] || [];
 
-		const actionsField = this.editorActionField.find((i) => i.taskType === key);
+		const actionsField = this.state.supportTaskList.find((i) => i.key === key)?.taskProperties;
 
 		if (actionsField) {
 			const isConditionTrue = actionsField.actionsCondition
@@ -406,5 +360,3 @@ class TaskRenderService {
 		}
 	};
 }
-
-export default new TaskRenderService();

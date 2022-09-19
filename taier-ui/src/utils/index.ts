@@ -17,7 +17,7 @@
  */
 
 /* eslint-disable no-bitwise */
-import { endsWith, range as lodashRange } from 'lodash';
+import { endsWith, get, pickBy, range as lodashRange } from 'lodash';
 import moment from 'moment';
 import {
 	FAILED_STATUS,
@@ -36,7 +36,7 @@ import { history } from 'umi';
 import { updateDrawer } from '@/components/customDrawer';
 import type { languages } from '@dtinsight/molecule/esm/monaco';
 import { Keywords, Snippets } from './competion';
-import taskRenderService from '@/services/taskRenderService';
+import { taskRenderService } from '@/services';
 
 /**
  * 返回今日 [00:00:00, 23:59:69]
@@ -496,12 +496,12 @@ export const removePopUpMenu = () => {
 export function getVertexStyle(type: TASK_STATUS): string {
 	// 成功
 	if (FINISH_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=#f5ffe6;strokeColor=#12bc6a;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-finished-background);strokeColor=var(--badge-finished-border);';
 	}
 
 	// 运行中
 	if (RUNNING_STATUS.includes(type)) {
-		return 'whiteSpace=wrap;fillColor=#e6f6ff;strokeColor=#3f87ff;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-running-background);strokeColor=var(--badge-running-border);';
 	}
 
 	// 等待提交/提交中/等待运行
@@ -510,7 +510,7 @@ export function getVertexStyle(type: TASK_STATUS): string {
 			collection.includes(type),
 		)
 	) {
-		return 'whiteSpace=wrap;fillColor=#fffbe6;strokeColor=#fdb313;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-pending-background);strokeColor=var(--badge-pending-border);';
 	}
 
 	// 失败
@@ -519,16 +519,16 @@ export function getVertexStyle(type: TASK_STATUS): string {
 			collection.includes(type),
 		)
 	) {
-		return 'whiteSpace=wrap;fillColor=#fff1f0;strokeColor=#fe615c;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-failed-background);strokeColor=var(--badge-failed-border);';
 	}
 
 	// 冻结/取消
 	if ([STOP_STATUS, FROZEN_STATUS].some((collection) => collection.includes(type))) {
-		return 'whiteSpace=wrap;fillColor=#e6e9f2;strokeColor=#5b6da6;';
+		return 'whiteSpace=wrap;fillColor=var(--badge-cancel-background);strokeColor=var(--badge-cancel-border);';
 	}
 
 	// 默认
-	return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+	return 'whiteSpace=wrap;fillColor=var(--badge-common-background);strokeColor=var(--badge-common-border);';
 }
 
 function formatJSON(str: string) {
@@ -666,7 +666,7 @@ export function createSeries(num: number) {
  * 基于 text 解析 columns
  * @example
  * ```js
- * getColumnsByColumnsText('id int') // [{field: 'id', type: 'id'}]
+ * getColumnsByColumnsText('id int') // [{field: 'id', type: 'int'}]
  * ```
  */
 export function getColumnsByColumnsText(text: string = '') {
@@ -697,3 +697,144 @@ export function renderCharacterByCode(keyCode: number) {
 	const unicodeCharacter = String.fromCharCode(keyCode);
 	if (unicodeCharacter === '\b') return '⌫';
 }
+
+const regex = /({{).+?(}})/s;
+/**
+ * Convert dynamic params used in dataSync Form
+ * @example
+ * ```js
+ * const values = convertParams({ sourceId: '{{ form#a.b }}', { a: { b: 1 }} });
+ * console.log(values); // { sourceId: 1 }
+ * ```
+ */
+export const convertParams = (params: Record<string, any>, form: Record<string, any>) => {
+	return Object.keys(params).reduce<Record<string, any>>((pre, cur) => {
+		let value = params[cur];
+		if (typeof value === 'string' && regex.test(value)) {
+			const content = value.substring(2, value.length - 2);
+			const [scope, path] = content.split('#');
+			value = get({ form }, `${scope.trim()}.${path.trim()}`);
+		}
+
+		// eslint-disable-next-line no-param-reassign
+		pre[cur] = value;
+		return pre;
+	}, {});
+};
+
+/**
+ * Advanced get function of lodash
+ * @example
+ * ```js
+ * const values = getPlus({ a: { b: [{ c: 1, value: 100 }]} }, '{{a.b#find.c}}', 100);
+ * console.log(values); // 1
+ * ```
+ */
+export function getPlus(obj: Record<string, any>, rawPath: string, value?: any) {
+	const path = regex.test(rawPath) ? rawPath.substring(2, rawPath.length - 2) : rawPath;
+	const namePath = path.split('.');
+	if (namePath.some((p) => p.includes('#'))) {
+		const idx = namePath.findIndex((p) => p.includes('#'));
+		const firstPath = namePath.slice(0, idx);
+		const [idxPath, idxHandler] = namePath[idx].split('#');
+		const restPath = namePath.slice(idx + 1);
+		const rest = get(obj, firstPath);
+		const target = rest[idxPath][idxHandler]((item: any) => item.value === value);
+		return get(target, restPath);
+	}
+
+	return get(obj, path);
+}
+
+/**
+ * Convert nested object to form's name path
+ * @example
+ * ```js
+ * const results = convertObjToNamePath({ a: { b: 1 }});
+ * console.log(results); // [['a','b'], 1]
+ * ```
+ */
+export function convertObjToNamePath(obj: Record<string, any>) {
+	let stack = { ...obj };
+	const namePath = [];
+	while (typeof stack === 'object' && Object.keys(stack).length) {
+		const firstKey = Object.keys(stack)[0];
+		namePath.push(firstKey);
+		stack = stack[firstKey];
+	}
+
+	return [namePath, stack];
+}
+
+/**
+ * For visiting a tree with children
+ * @example
+ * ```js
+ * visit(tree, (item) => item.type === 1, (item) => {
+ * 	// Define the value of nodes whose type equals to 1 to be 1
+ * 	item.value = 1;
+ * })
+ * ```
+ */
+export function visit<
+	T extends { children: P[]; [key: string]: any },
+	P extends { type: string; [key: string]: any },
+>(obj: T, filter: (item: P) => boolean, handler: (item: P, vNode: { formName: string[] }) => void) {
+	const stack = [
+		...obj.children.map((child) => ({ node: child, vNode: { formName: [child.name] } })),
+	];
+	while (stack.length) {
+		const item = stack.pop()!;
+		const isVisit = filter(item.node);
+		if (isVisit) {
+			handler(item.node, item.vNode);
+		}
+
+		if (item.node.type === 'object' && item.node.children.length) {
+			stack.push(
+				...item.node.children.map((child: any) => ({
+					node: child,
+					vNode: { formName: [...item.vNode.formName, child.name] },
+				})),
+			);
+		}
+	}
+}
+
+/**
+ * 过滤掉对象中的 `undefined` 和 `null` 的值
+ */
+export function pickByTruly<T extends Record<string, any>>(obj: T) {
+	return pickBy<T>(obj, (val) => val !== undefined && val !== null);
+}
+
+/**
+ * 将对象按照 keys 数据进行分割
+ */
+export function splitByKey<T extends Record<string, any>>(obj: T, keys: string[]) {
+	return Object.keys(obj).reduce<{ obj1: Partial<T>; obj2: Partial<T> }>(
+		(pre, cur) => {
+			Object.defineProperty(keys.includes(cur) ? pre.obj1 : pre.obj2, cur, {
+				value: obj[cur],
+				writable: true,
+				enumerable: true,
+				configurable: true,
+			});
+
+			return pre;
+		},
+		{
+			obj1: {},
+			obj2: {},
+		},
+	);
+}
+
+/**
+ * 判断数据库的类型是否是 string
+ */
+export const isValidFormatType = (type: string) => {
+	if (!type) return false;
+	const typeStr = type.toUpperCase();
+	return typeStr === 'STRING' || typeStr === 'VARCHAR' || typeStr === 'VARCHAR2';
+};

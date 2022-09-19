@@ -28,14 +28,14 @@
 		writing-mode: vertical-rl;
 
 		&:hover {
-			color: $main-color;
-			background-color: #eef6fe;
+			color: var(--taier-rightBar-foreground);
+			background-color: var(--taier-rightBar-background);
 		}
 
 		&.active {
 			position: relative;
-			color: $main-color;
-			background-color: var(--activityBar-activeBorder);
+			color: var(--taier-rightBar-foreground);
+			background-color: var(--taier-rightBar-background);
 
 			&::after {
 				position: absolute;

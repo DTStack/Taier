@@ -206,6 +206,17 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "脏数据")
     private TaskDirtyDataManageVO taskDirtyDataManageVO;
 
+    @ApiModelProperty(value = "yarn队列名称")
+    private String queueName;
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
     public Boolean getOpenDirtyDataManage() {
         return openDirtyDataManage;
     }

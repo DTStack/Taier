@@ -75,7 +75,7 @@ export default function BatchModal({
 				<b style={{ color: 'rgb(255, 102, 0)' }}>
 					{desc && Object.prototype.toString.call(desc)?.slice(8, -1) === 'String'
 						? desc.split(',').map((item: any) => <p key={item}>{item}</p>)
-						: { desc }}
+						: desc}
 				</b>
 				<p>
 					常用数据类型（type)：

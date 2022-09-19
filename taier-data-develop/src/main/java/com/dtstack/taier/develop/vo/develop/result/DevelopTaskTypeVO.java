@@ -1,11 +1,12 @@
 package com.dtstack.taier.develop.vo.develop.result;
 
+import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
-@ApiModel("支持的引擎类型")
-public class DevelopTaskGetSupportJobTypesResultVO {
+@ApiModel("支持的任务类型")
+public class DevelopTaskTypeVO {
 
     @ApiModelProperty(value = "任务类型", example = "0")
     private Integer key;
@@ -15,6 +16,16 @@ public class DevelopTaskGetSupportJobTypesResultVO {
 
     @ApiModelProperty(value = "任务类型", example = "0：stream 1:batch")
     private Integer computeType;
+
+    private TaskProperties taskProperties;
+
+    public TaskProperties getTaskProperties() {
+        return taskProperties;
+    }
+
+    public void setTaskProperties(TaskProperties taskProperties) {
+        this.taskProperties = taskProperties;
+    }
 
     public Integer getComputeType() {
         return computeType;
@@ -40,11 +51,12 @@ public class DevelopTaskGetSupportJobTypesResultVO {
         this.value = value;
     }
 
-    public DevelopTaskGetSupportJobTypesResultVO(Integer key, String value, Integer computeType) {
+    public DevelopTaskTypeVO(Integer key, String value, Integer computeType) {
         this.key = key;
         this.value = value;
         this.computeType = computeType;
     }
-    public DevelopTaskGetSupportJobTypesResultVO() {
+
+    public DevelopTaskTypeVO() {
     }
 }

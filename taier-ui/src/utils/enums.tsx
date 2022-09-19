@@ -376,6 +376,7 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 		case TASK_TYPE_ENUM.OCEANBASE:
 			return TASK_LANGUAGE.SQL;
 		case TASK_TYPE_ENUM.SYNC:
+		case TASK_TYPE_ENUM.DATA_ACQUISITION:
 			return TASK_LANGUAGE.JSON;
 		default:
 			return TASK_LANGUAGE.SQL;

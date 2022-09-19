@@ -5,7 +5,7 @@ import molecule from '@dtinsight/molecule';
 import editorActions from '@/components/scaffolds/editorActions';
 import { Component } from '@dtinsight/molecule/esm/react';
 import ExecuteService from './executeService';
-import taskRenderService from './taskRenderService';
+import { taskRenderService } from '.';
 import type { IExecuteService } from './executeService';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 

@@ -114,13 +114,12 @@ public interface ITaskRunner {
      * 构建sqlVO （支持：sql运行直接走调度任务的方式）
      *
      * @param parseResult
-     * @param tenantId
      * @param userId
      * @param database
-     * @param taskId
+     * @param task
      * @return
      */
-    BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Long taskId);
+    BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task);
 
 
     /**

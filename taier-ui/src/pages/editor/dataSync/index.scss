@@ -1,18 +1,21 @@
-.dt-datasync {
-	min-width: 770px;
-	min-height: 200px;
-	padding: 50px;
+.taier__dataSync__container {
+	height: 100%;
+	padding: 20px 15px;
 
-	&-content {
-		margin-top: 20px;
-		padding: 20px 0 40px 0;
-		background: var(--workbenchBackground);
-		border: 1px dashed var(--widget-shadow);
-		border-radius: 0;
+	.taier__dataSync__collapse {
+		border-color: var(--tab-border);
+
+		+ .taier__dataSync__collapse {
+			margin-top: 15px;
+		}
+
+		.ant-collapse-item {
+			border-color: var(--tab-border);
+		}
 	}
 
-	.steps-action {
-		margin-top: 24px;
-		text-align: center;
+	.ant-collapse-content {
+		border-color: var(--tab-border);
+		background-color: var(--panel-background);
 	}
 }
