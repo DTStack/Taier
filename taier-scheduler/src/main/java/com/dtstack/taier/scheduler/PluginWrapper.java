@@ -41,24 +41,25 @@ public class PluginWrapper {
     @Autowired
     private ScheduleDictService scheduleDictService;
 
-    public Map<String, Object> wrapperPluginInfo(Integer taskType, String taskParam, Integer computeType, String componentVersion, Long tenantId) {
+    public Map<String, Object> wrapperPluginInfo(Integer taskType, String taskParam, Integer computeType, String componentVersion, Long tenantId, String queueName) {
         EDeployMode deployMode = EDeployMode.PERJOB;
         if (EScheduleJobType.SYNC.getType().equals(taskType)) {
             deployMode = TaskParamsUtils.parseDeployTypeByTaskParams(taskParam, computeType);
         }
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
-        JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue);
-        pluginInfo.put(DEPLOY_MODEL,deployMode.getType());
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(tenantId, taskType, deployMode.getType(), componentVersionValue, queueName);
+        pluginInfo.put(DEPLOY_MODEL, deployMode.getType());
         return pluginInfo;
     }
-    public Map<String, Object> wrapperPluginInfo(Integer taskType,String componentVersion, Long tenantId,Integer deployMode) {
+
+    public Map<String, Object> wrapperPluginInfo(Integer taskType, String componentVersion, Long tenantId, Integer deployMode, String queueName) {
         String componentVersionValue = scheduleDictService.convertVersionNameToValue(componentVersion, taskType);
-        return clusterService.pluginInfoJSON(tenantId, taskType, deployMode, componentVersionValue);
+        return clusterService.pluginInfoJSON(tenantId, taskType, deployMode, componentVersionValue, queueName);
     }
 
     public void wrapperJobClient(JobClient jobClient) {
         Map<String, Object> pluginInfo = wrapperPluginInfo(jobClient.getTaskType(), jobClient.getTaskParams(), jobClient.getComputeType().getType(),
-                jobClient.getComponentVersion(), jobClient.getTenantId());
+                jobClient.getComponentVersion(), jobClient.getTenantId(), jobClient.getQueueName());
         jobClient.setPluginInfo(JSONObject.toJSONString(pluginInfo));
         jobClient.setJobType(EJobType.getEjobType(EScheduleJobType.getByTaskType(jobClient.getTaskType()).getEngineJobType()));
         if (pluginInfo.containsKey(DEPLOY_MODEL)) {

@@ -383,6 +383,7 @@ public class FlinkTaskService {
         actionParam.put("taskParams", formatTaskParams(taskParams, task.getSourceStr(), task.getComponentVersion(), task.getTaskType()));
         actionParam.put("name", getJobName(task.getName(), task.getJobId()));
         actionParam.put("deployMode", EDeployMode.PERJOB.getType());
+        actionParam.put("queueName", task.getQueueName());
 
         if (!Strings.isNullOrEmpty(externalPath)) {
             actionParam.put("externalPath", externalPath);

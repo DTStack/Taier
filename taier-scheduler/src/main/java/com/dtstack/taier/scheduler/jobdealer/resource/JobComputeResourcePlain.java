@@ -71,7 +71,7 @@ public class JobComputeResourcePlain {
         String clusterName = cluster.getClusterName();
         //%s_default
         String groupName = clusterName + SPLIT + RESOURCE_NAMESPACE_OR_QUEUE_DEFAULT;
-
+        //todo 如果任务没有指定队列，走租户默认的
         String queue = clusterTenantMapper.getQueueNameByTenantId(jobClient.getTenantId());
         if (null != queue) {
             groupName = clusterName + SPLIT + queue;

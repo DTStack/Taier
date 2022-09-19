@@ -126,6 +126,20 @@ public class TaskResourceParam extends Task {
      */
     private Map<Long, List<Long>> nodeMap;
 
+    /**
+     * yarn 队列名称
+     */
+    private String queueName;
+
+
+    public String getQueueName() {
+        return queueName;
+    }
+
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return taskDirtyDataManageVO;
     }
