@@ -412,7 +412,7 @@ public class FlinkRuntimeLogService {
 
             JobIdentifier jobIdentifier = new JobIdentifier(scheduleJob.getEngineJobId(), scheduleJob.getApplicationId(), jobId, scheduleJob.getTenantId(),
                     scheduleJob.getTaskType(),
-                    EDeployMode.PERJOB.getType(), scheduleJob.getCreateUserId(), null, paramAction.getComponentVersion());
+                    EDeployMode.PERJOB.getType(), scheduleJob.getCreateUserId(), null, paramAction.getComponentVersion(), paramAction.getQueueName());
             return workerOperator.getRollingLogBaseInfo(jobIdentifier);
         } catch (Exception e) {
             throw new RdosDefineException(String.format("get job:%s ref application url error..", jobId), ErrorCode.UNKNOWN_ERROR, e);

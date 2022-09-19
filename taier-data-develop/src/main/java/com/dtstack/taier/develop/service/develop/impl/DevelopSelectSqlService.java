@@ -21,6 +21,7 @@ package com.dtstack.taier.develop.service.develop.impl;
 import com.dtstack.taier.common.enums.EComputeType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
+import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.mapper.DevelopHiveSelectSqlMapper;
 import com.dtstack.taier.develop.dto.devlop.BuildSqlVO;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
@@ -102,24 +103,22 @@ public class DevelopSelectSqlService {
     /**
      * 使用任务的方式运行sql
      *
-     * @param tenantId
      * @param parseResult
      * @param userId
      * @param database
-     * @param taskId
      * @param taskType
      * @param preJobId
      * @return
      */
-    public String runSqlByTask(Long tenantId, ParseResult parseResult, Long userId, String database,
-                               Long taskId, Integer taskType, String preJobId) {
+    public String runSqlByTask(ParseResult parseResult, Long userId, String database,
+                               Task task, Integer taskType, String preJobId) {
         ITaskRunner iTaskRunner = taskConfiguration.get(taskType);
         try {
-            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, tenantId, userId, database, taskId);
+            BuildSqlVO buildSqlVO = iTaskRunner.buildSql(parseResult, userId, database, task);
             // 发送sql任务
-            sendSqlTask(tenantId, buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, taskId, taskType);
+            sendSqlTask(buildSqlVO.getSql(), buildSqlVO.getTaskParam(), preJobId, task, taskType);
             // 记录job
-            addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), tenantId,
+            addSelectSql(preJobId, buildSqlVO.getTempTable(), buildSqlVO.getIsSelectSql(), task.getTenantId(),
                     parseResult.getOriginSql(), userId, buildSqlVO.getParsedColumns(), taskType);
             return preJobId;
         } catch (Exception e) {
@@ -127,7 +126,7 @@ public class DevelopSelectSqlService {
         }
     }
 
-    public String sendSqlTask(Long tenantId, String sql, String taskParams, String jobId, Long taskId, Integer taskType) {
+    public String sendSqlTask(String sql, String taskParams, String jobId, Task task, Integer taskType) {
         ParamActionExt paramActionExt = new ParamActionExt();
         paramActionExt.setTaskType(taskType);
         paramActionExt.setSqlText(sql);
@@ -135,7 +134,8 @@ public class DevelopSelectSqlService {
         paramActionExt.setJobId(jobId);
         paramActionExt.setName(String.format(TASK_NAME_PREFIX, "sql", System.currentTimeMillis()));
         paramActionExt.setTaskParams(taskParams);
-        paramActionExt.setTenantId(tenantId);
+        paramActionExt.setTenantId(task.getTenantId());
+        paramActionExt.setQueueName(task.getQueueName());
         actionService.start(paramActionExt);
         return jobId;
     }

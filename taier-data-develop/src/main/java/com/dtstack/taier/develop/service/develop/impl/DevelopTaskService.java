@@ -39,6 +39,7 @@ import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
+import com.dtstack.taier.common.util.AssertUtils;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.common.util.Strings;
 import com.dtstack.taier.dao.domain.*;
@@ -72,6 +73,10 @@ import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
+import com.dtstack.taier.scheduler.service.ClusterService;
+import com.dtstack.taier.scheduler.service.ComponentService;
+import com.dtstack.taier.scheduler.service.ScheduleActionService;
+import com.dtstack.taier.scheduler.service.ScheduleTaskTaskService;
 import com.dtstack.taier.scheduler.enums.ESchedulePeriodType;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.*;
@@ -510,20 +515,22 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             throw new RdosDefineException("can not find task by id:" + taskId);
         }
         String extraInfo = getExtraInfo(task, userId);
-        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getValue())) {
-            ParamTaskAction paramTaskAction = new ParamTaskAction();
-            paramTaskAction.setIsRestart(0);
-            scheduleTasks.setExtraInfo(extraInfo);
-            if (!scheduleTasks.getScheduleConf().contains("periodType")) {
-                JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
-                scheduleConf.put("periodType", ESchedulePeriodType.DAY.getVal());
-                scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
-            }
-            paramTaskAction.setTask(scheduleTasks);
-        } else if (EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType()) {
-            JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
-            scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
-        }
+        //实时采集不会走到这
+//        if (Objects.equals(task.getTaskType(), EScheduleJobType.DATA_ACQUISITION.getValue())) {
+//            ParamTaskAction paramTaskAction = new ParamTaskAction();
+//            paramTaskAction.setIsRestart(0);
+//            scheduleTasks.setExtraInfo(extraInfo);
+//            if (!scheduleTasks.getScheduleConf().contains("periodType")) {
+//                JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
+//                scheduleConf.put("periodType", ESchedulePeriodType.DAY.getVal());
+//                scheduleTasks.setScheduleConf(JSON.toJSONString(scheduleConf));
+//            }
+//            paramTaskAction.setTask(scheduleTasks);
+//        } else
+        AssertUtils.isTrue(EComputeType.BATCH == EScheduleJobType.getByTaskType(task.getTaskType()).getComputeType(), "unsupported STREAM type task");
+        JSONObject scheduleConf = JSONObject.parseObject(scheduleTasks.getScheduleConf());
+        scheduleTasks.setPeriodType(scheduleConf.getInteger("periodType"));
+
         SavaTaskDTO savaTaskDTO = new SavaTaskDTO();
         scheduleTasks.setExtraInfo(extraInfo);
         savaTaskDTO.setScheduleTaskShade(scheduleTasks);
