@@ -91,7 +91,7 @@ public class SyncTaskRunner implements ITaskRunner {
     }
 
     @Override
-    public BuildSqlVO buildSql(ParseResult parseResult, Long tenantId, Long userId, String database, Long taskId) {
+    public BuildSqlVO buildSql(ParseResult parseResult, Long userId, String database, Task task) {
         return null;
     }
 

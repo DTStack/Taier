@@ -49,6 +49,7 @@ import { formItemLayout } from '@/constant';
 import type { RcFile } from 'antd/lib/upload';
 import { getRules } from './formRules';
 import HDFSTooltips from './tooltips';
+import type { DATA_SOURCE_ENUM } from '@/constant';
 import './index.scss';
 
 const { TextArea } = Input;
@@ -56,7 +57,7 @@ const { Option } = Select;
 
 interface IProps {
 	record: {
-		dataType: string;
+		dataType: DATA_SOURCE_ENUM;
 		/**
 		 * Will be existed in edit operation
 		 */
@@ -501,7 +502,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 				return (
 					<Form.Item
 						label={item.label}
-						tooltip={HDFSTooltips}
+						tooltip={<HDFSTooltips />}
 						key={index}
 						required={!!item.required}
 					>
@@ -898,7 +899,7 @@ export default forwardRef(({ record, version = '', onValuesChange }: IProps, ref
 										</Form.Item>
 										<Form.Item label="高可用配置">
 											<Form.Item
-												tooltip={HDFSTooltips}
+												tooltip={<HDFSTooltips />}
 												name="hadoopConfig"
 												noStyle
 												initialValue={detailData?.hadoopConfig || ''}

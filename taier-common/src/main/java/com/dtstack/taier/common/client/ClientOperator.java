@@ -120,7 +120,7 @@ public class ClientOperator {
             return JobResult.createSuccessResult(jobClient.getJobId());
         }
         JobIdentifier jobIdentifier = new JobIdentifier(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getJobId()
-                , jobClient.getTenantId(), jobClient.getTaskType(), jobClient.getDeployMode(), jobClient.getUserId(), jobClient.getPluginInfo(), jobClient.getComponentVersion());
+                , jobClient.getTenantId(), jobClient.getTaskType(), jobClient.getDeployMode(), jobClient.getUserId(), jobClient.getPluginInfo(), jobClient.getComponentVersion(), jobClient.getQueueName());
         jobIdentifier.setForceCancel(jobClient.getForceCancel());
         checkoutOperator(jobClient.getPluginInfo(), jobIdentifier);
 

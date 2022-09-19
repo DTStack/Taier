@@ -26,10 +26,11 @@ import { ID_COLLECTIONS } from '@/constant';
 import { SyncOutlined } from '@ant-design/icons';
 import { utf16to8 } from '@/utils';
 import API from '@/api';
-import type { IDataSourceProps } from '@/interface';
 import Version from './version';
 import SelectSource from './selectSource';
 import InfoConfig from './InfoConfig';
+import type { IDataSourceProps } from '@/interface';
+import type { DATA_SOURCE_ENUM} from '@/constant';
 import './add.scss';
 
 const { Step } = Steps;
@@ -37,7 +38,7 @@ const { Step } = Steps;
 const STEPS = ['选择数据源', '版本选择', '信息配置'];
 
 export interface IDataSourceType {
-	dataType: string;
+	dataType: DATA_SOURCE_ENUM;
 	haveVersion: boolean;
 	imgUrl: string;
 	typeId: number;
@@ -85,20 +86,17 @@ export default function Add({ record, onSubmit }: IAddProps) {
 	};
 
 	const request = (handelParams: any, name: 'testCon' | 'testConWithKerberos') => {
-		const controller = new AbortController();
-		const { signal } = controller;
 		return new Promise<any>((resolve, reject) => {
 			let status = 0; // 0 等待 1 完成 2 超时
 			let timer: NodeJS.Timeout | undefined = setTimeout(() => {
 				if (status === 0) {
 					status = 2;
 					timer = undefined;
-					controller.abort();
 					reject(new Error('测试连通性请求超时'));
 				}
 			}, 60000);
 
-			API[name](handelParams, { signal }).then((res) => {
+			API[name](handelParams).then((res) => {
 				if (status !== 2) {
 					if (timer) {
 						clearTimeout(timer);

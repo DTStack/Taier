@@ -38,6 +38,7 @@ import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
@@ -66,7 +67,7 @@ public class DevelopJobService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DevelopJobService.class);
 
-    private static final String DOWNLOAD_URL = "/taier/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
+    private static final String DOWNLOAD_URL = ConfigConstant.REQUEST_PREFIX + "/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
     @Autowired
     private DevelopTaskService developTaskService;
@@ -116,6 +117,7 @@ public class DevelopJobService {
             scheduleTaskShade.setTaskId(task.getId());
             scheduleTaskShade.setScheduleConf(task.getScheduleConf());
             scheduleTaskShade.setComponentVersion(task.getComponentVersion());
+            scheduleTaskShade.setQueueName(task.getQueueName());
             paramTaskAction.setTask(scheduleTaskShade);
             ParamActionExt paramActionExt = actionService.paramActionExt(paramTaskAction.getTask(), paramTaskAction.getJobId(), paramTaskAction.getFlowJobId());
             String jobId = paramActionExt.getJobId();

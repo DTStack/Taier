@@ -4,12 +4,14 @@ import ExecuteService from './executeService';
 import CatalogueService from './catalogueService';
 import BreadcrumbService from './breadcrumbService';
 import RightBarService from './rightBarService';
+import TaskRenderService from './taskRenderService';
 
 const editorActionBarService = container.resolve(EditorActionBarService);
 const executeService = container.resolve(ExecuteService);
 const catalogueService = container.resolve(CatalogueService);
 const breadcrumbService = container.resolve(BreadcrumbService);
 const rightBarService = container.resolve(RightBarService);
+const taskRenderService = container.resolve(TaskRenderService);
 
 export {
 	editorActionBarService,
@@ -17,4 +19,5 @@ export {
 	executeService,
 	breadcrumbService,
 	rightBarService,
+	taskRenderService
 };

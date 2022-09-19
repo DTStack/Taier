@@ -111,7 +111,7 @@ function initializeColorTheme() {
 
 	const currentThemeMode = molecule.colorTheme.getColorThemeMode();
 	if (currentThemeMode === ColorThemeMode.dark) {
-		loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
+		loadStyles('/assets/antd.dark.css');
 	}
 	document.documentElement.setAttribute('data-prefers-color', currentThemeMode);
 
@@ -120,7 +120,7 @@ function initializeColorTheme() {
 		document.documentElement.setAttribute('data-prefers-color', themeMode);
 
 		if (themeMode === ColorThemeMode.dark) {
-			loadStyles('https://unpkg.com/antd@4.20.3/dist/antd.dark.css');
+			loadStyles('/assets/antd.dark.css');
 		} else {
 			removeStyles();
 		}
@@ -387,7 +387,7 @@ function initLogin() {
 						icon: 'log-out',
 						name: '登出',
 						onClick: () => {
-							http.post('/taier/user/logout')
+							http.post('/taier/api/user/logout')
 								.then((res) => {
 									if (!res.data) {
 										return message.error('登出失败');

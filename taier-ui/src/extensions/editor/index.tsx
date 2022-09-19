@@ -31,15 +31,13 @@ import api from '@/api';
 import { TASK_TYPE_ENUM } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { IComputeType } from '@/interface';
-import { executeService } from '@/services';
 import type { IParamsProps } from '@/services/taskParamsService';
 import taskParamsService from '@/services/taskParamsService';
 import ImportTemplate from '@/components/task/importTemplate';
 import { languages } from '@dtinsight/molecule/esm/monaco';
-import { editorActionBarService } from '@/services';
+import { editorActionBarService, taskRenderService, executeService } from '@/services';
 import notification from '@/components/notification';
 import { mappingTaskTypeToLanguage } from '@/utils/enums';
-import taskRenderService from '@/services/taskRenderService';
 import taskSaveService from '@/services/taskSaveService';
 import viewStoreService from '@/services/viewStoreService';
 import type { mxCell } from 'mxgraph';
@@ -101,9 +99,11 @@ function emitEvent() {
 					| (CatalogueDataProps & IOfflineTaskProps & { value?: string })
 					| undefined = current.tab?.data;
 				if (currentTabData) {
-					const computerType = taskRenderService.supportTaskList.find(
-						(t) => t.key === currentTabData.taskType,
-					)?.computeType;
+					const computerType = taskRenderService
+						.getState()
+						.supportTaskList.find(
+							(t) => t.key === currentTabData.taskType,
+						)?.computeType;
 
 					if (computerType !== undefined) {
 						const targetDrawer =

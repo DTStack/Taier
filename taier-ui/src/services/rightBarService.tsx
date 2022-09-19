@@ -15,7 +15,7 @@ import classNames from 'classnames';
 import { useEffect } from 'react';
 import { singleton } from 'tsyringe';
 import { RightBarKind } from '@/interface';
-import taskRenderService from './taskRenderService';
+import { taskRenderService } from '.';
 import TaskConfig from '@/pages/rightBar/taskConfig';
 
 interface IRightBarService {
@@ -49,7 +49,7 @@ export interface IRightbarState {
 	/**
 	 * 当前侧边栏选中项
 	 */
-	current: RightBarKind | null;
+	current: string | null;
 }
 
 export const FormContext = React.createContext<{ form?: FormInstance }>({});
@@ -105,7 +105,7 @@ export default class RightBarService extends Component<IRightbarState> implement
 		return collapse ? RightBarService.ACTIVE_WIDTH : RightBarService.UNACTIVE_WIDTH;
 	};
 
-	public setCurrent = (nextCurrent: RightBarKind | null) => {
+	public setCurrent = (nextCurrent: string | null) => {
 		this.setState({
 			current: nextCurrent,
 			width: this.setWidth(!!nextCurrent),
@@ -116,7 +116,10 @@ export default class RightBarService extends Component<IRightbarState> implement
 		return this.form;
 	};
 
-	public getTextByKind = (kind: RightBarKind) => {
+	/**
+	 * 根据右侧栏的 key 值返回字符串作为标题
+	 */
+	public getTextByKind = (kind: string) => {
 		switch (kind) {
 			case RightBarKind.TASK:
 				return '任务属性';
@@ -139,7 +142,10 @@ export default class RightBarService extends Component<IRightbarState> implement
 		}
 	};
 
-	public createContent = (kind: RightBarKind) => {
+	/**
+	 * 根据右侧栏的 key 值返回对应的 JSX 组件
+	 */
+	public createContent = (kind: string) => {
 		const { current } = molecule.editor.getState();
 		/**
 		 * 当前的 tab 是否不合法，如不合法则展示 Empty
