@@ -20,6 +20,7 @@ import { EditorEvent } from '@dtinsight/molecule/esm/model';
 import taskSaveService from '@/services/taskSaveService';
 import { Scrollable } from '@dtinsight/molecule/esm/components';
 import api from '@/api';
+import { taskRenderService } from '@/services';
 import type { Reducer } from 'react';
 import type { IDataColumnsProps, IDataSourceUsedInSyncProps, IOfflineTaskProps } from '@/interface';
 import type { FormItemProps } from 'antd';
@@ -135,10 +136,21 @@ const transformerFactory: Record<
 	string,
 	(value: any, index: number, array: any[]) => any | undefined
 > = {
-	sourceId: (item: IDataSourceUsedInSyncProps) => ({
+	sourceIdOnWriter: (item: IDataSourceUsedInSyncProps) => ({
 		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）-${item.dataTypeCode}`,
 		value: item.dataInfoId,
 		type: item.dataTypeCode,
+		disabled: !taskRenderService
+			.getState()
+			.supportSourceList.writers.includes(item.dataTypeCode),
+	}),
+	sourceIdOnReader: (item: IDataSourceUsedInSyncProps) => ({
+		label: `${item.dataName}（${DATA_SOURCE_TEXT[item.dataTypeCode]}）-${item.dataTypeCode}`,
+		value: item.dataInfoId,
+		type: item.dataTypeCode,
+		disabled: !taskRenderService
+			.getState()
+			.supportSourceList.readers.includes(item.dataTypeCode),
 	}),
 	table: (item: string) => ({
 		label: item === 'ROW_NUMBER()' ? 'ROW_NUMBER' : item,
