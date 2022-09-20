@@ -1,5 +1,7 @@
 import { TASK_STATUS } from '@/constant';
+import { taskRenderService } from '@/services';
 import moment from 'moment';
+import { history } from 'umi';
 import {
 	checkExist,
 	convertObjToNamePath,
@@ -8,7 +10,9 @@ import {
 	convertToStr,
 	copyText,
 	createSeries,
+	createSQLProposals,
 	deleteCookie,
+	disableRangeCreater,
 	filterComments,
 	filterSql,
 	formatDateTime,
@@ -20,6 +24,7 @@ import {
 	getTodayTime,
 	getUserId,
 	getVertexStyle,
+	goToTaskDev,
 	isValidFormatType,
 	pickByTruly,
 	prettierJSONstring,
@@ -48,11 +53,17 @@ jest.mock('umi', () => {
 
 jest.mock('@/services', () => {
 	return {
-		taskRenderService: { openTask: jest.fn() },
+		taskRenderService: {
+			openTask: jest.fn(),
+		},
 	};
 });
 
 describe('utils/index', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('Should Get the time', () => {
 		const today = getTodayTime();
 		expect(today).toHaveLength(2);
@@ -99,8 +110,18 @@ describe('utils/index', () => {
 	});
 
 	it('Should Filter Comments In SQL', () => {
-		const sql = 'show tables;-- name test';
-		expect(filterComments(sql)).toBe('show tables; ');
+		expect(filterComments('show tables;-- name test')).toBe('show tables; ');
+		expect(filterComments('-- select test from A where id = "taier";')).toBe(' ');
+		expect(filterComments('-- name test\nshow tables;-- name test')).toBe(' \nshow tables; ');
+		expect(filterComments('/* select test from A where id = "taier"; */')).toBe(' ');
+		expect(filterComments('select test from A where id = "taier";-- name test')).toBe(
+			'select test from A where id = "taier"; ',
+		);
+
+		// Error
+		expect(filterComments('show tables";-- name test')).toBe('show tables";-- name test');
+		// Error
+		expect(filterComments('show tables/*;-- name test')).toBe('show tables/*;-- name test');
 	});
 
 	it('Should Replace String By Index Array', () => {
@@ -109,10 +130,12 @@ describe('utils/index', () => {
 	});
 
 	it('Should Split Sqls', () => {
+		expect(splitSql('')).toEqual('');
+		expect(splitSql('show tables')).toEqual(['show tables']);
 		expect(splitSql('show tables;')).toEqual(['show tables']);
-		expect(splitSql('show tables;select * from tableA;')).toEqual([
+		expect(splitSql('show tables;select * from tableA where id = "1";')).toEqual([
 			'show tables',
-			'select * from tableA',
+			'select * from tableA where id = "1"',
 		]);
 	});
 
@@ -196,27 +219,28 @@ describe('utils/index', () => {
 
 	it('Should render different status', () => {
 		expect(getVertexStyle(TASK_STATUS.AUTO_CANCEL)).toBe(
-			'whiteSpace=wrap;fillColor=#e6e9f2;strokeColor=#5b6da6;',
+			'whiteSpace=wrap;fillColor=var(--badge-cancel-background);strokeColor=var(--badge-cancel-border);',
 		);
 
 		expect(getVertexStyle(TASK_STATUS.COMPUTING)).toBe(
-			'whiteSpace=wrap;fillColor=#fffbe6;strokeColor=#fdb313;',
+			'whiteSpace=wrap;fillColor=var(--badge-pending-background);strokeColor=var(--badge-pending-border);',
 		);
 
 		expect(getVertexStyle(TASK_STATUS.FINISHED)).toBe(
-			'whiteSpace=wrap;fillColor=#f5ffe6;strokeColor=#12bc6a;',
+			'whiteSpace=wrap;fillColor=var(--badge-finished-background);strokeColor=var(--badge-finished-border);',
 		);
 
 		expect(getVertexStyle(TASK_STATUS.RUNNING)).toBe(
-			'whiteSpace=wrap;fillColor=#e6f6ff;strokeColor=#3f87ff;',
+			'whiteSpace=wrap;fillColor=var(--badge-running-background);strokeColor=var(--badge-running-border);',
 		);
 
 		expect(getVertexStyle(TASK_STATUS.PARENT_FAILD)).toBe(
-			'whiteSpace=wrap;fillColor=#fff1f0;strokeColor=#fe615c;',
+			'whiteSpace=wrap;fillColor=var(--badge-failed-background);strokeColor=var(--badge-failed-border);',
 		);
 
+		// default
 		expect(getVertexStyle(99999)).toBe(
-			'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;',
+			'whiteSpace=wrap;fillColor=var(--badge-common-background);strokeColor=var(--badge-common-border);',
 		);
 	});
 
@@ -236,6 +260,7 @@ describe('utils/index', () => {
 	it('Should support copyText', () => {
 		const mockFn = jest.fn();
 		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
 			value: { writeText: mockFn },
 		});
 
@@ -394,5 +419,87 @@ describe('utils/index', () => {
 		expect(isValidFormatType('varChar')).toBe(true);
 		expect(isValidFormatType('varChar2')).toBe(true);
 		expect(isValidFormatType('abc')).toBe(false);
+	});
+
+	it('Should have completion for sql', () => {
+		const completions = createSQLProposals({
+			startLineNumber: 0,
+			startColumn: 0,
+			endLineNumber: 0,
+			endColumn: 0,
+		});
+
+		expect(completions).toMatchSnapshot();
+	});
+
+	it('disableRangeCreater', () => {
+		expect(disableRangeCreater(null, null, 'hour')).toEqual([]);
+
+		// [0,1,2,3,4,...,23]
+		const hoursRange = new Array(24).fill(1).map((_, idx) => idx);
+		// [0,1,2,3,4,...,59]
+		const minutesRange = new Array(60).fill(1).map((_, idx) => idx);
+		// [0,1,2,3,4,...,59]
+		const secondsRange = new Array(60).fill(1).map((_, idx) => idx);
+
+		// Range span a day
+		expect(disableRangeCreater(moment('2013-02-08'), moment('2013-02-09'), 'hour')).toEqual(
+			hoursRange.slice(1),
+		);
+
+		expect(
+			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:30'), 'hour'),
+		).toEqual(hoursRange.slice(11));
+
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08 09:30'),
+				moment('2013-02-08 10:30'),
+				'hour',
+				true,
+			),
+		).toEqual(hoursRange.slice(0, 9));
+
+		// Returns [] since different hour
+		expect(
+			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 10:35'), 'minute'),
+		).toEqual([]);
+
+		expect(
+			disableRangeCreater(moment('2013-02-08 09:30'), moment('2013-02-08 9:35'), 'minute'),
+		).toEqual(minutesRange.slice(36));
+
+		// Returns [] since different hour
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08 09:30:26'),
+				moment('2013-02-08 10:30:26'),
+				'second',
+			),
+		).toEqual([]);
+
+		// Returns [] since different minute
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08 09:30:26'),
+				moment('2013-02-08 09:31:26'),
+				'second',
+			),
+		).toEqual([]);
+
+		expect(
+			disableRangeCreater(
+				moment('2013-02-08 09:30:26'),
+				moment('2013-02-08 09:30:50'),
+				'second',
+			),
+		).toEqual(secondsRange.slice(51));
+	});
+
+	it('Should support to goToTaskDev', () => {
+		goToTaskDev({ id: 1 });
+
+		expect(taskRenderService.openTask).toBeCalledWith({ id: '1' });
+		expect(history.push).toBeCalledWith({ query: {} });
 	});
 });
