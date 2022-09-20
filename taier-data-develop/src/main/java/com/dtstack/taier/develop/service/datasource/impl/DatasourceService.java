@@ -34,13 +34,12 @@ import com.dtstack.taier.develop.enums.develop.RDBMSSourceType;
 import com.dtstack.taier.develop.enums.develop.SourceDTOType;
 import com.dtstack.taier.develop.enums.develop.TableLocationType;
 import com.dtstack.taier.develop.enums.develop.TaskCreateModelType;
+import com.dtstack.taier.develop.service.template.hive.HiveWriterFormat;
 import com.dtstack.taier.develop.sql.formate.SqlFormatter;
 import com.dtstack.taier.develop.utils.develop.sync.format.ColumnType;
 import com.dtstack.taier.develop.utils.develop.sync.format.TypeFormat;
-import com.dtstack.taier.develop.utils.develop.sync.format.writer.HiveWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.OracleWriterFormat;
 import com.dtstack.taier.develop.utils.develop.sync.format.writer.PostgreSqlWriterFormat;
-import com.dtstack.taier.develop.utils.develop.sync.handler.SyncBuilderFactory;
 import com.dtstack.taier.develop.utils.develop.sync.job.PluginName;
 import com.dtstack.taier.develop.utils.develop.sync.util.ADBForPGUtil;
 import com.dtstack.taier.develop.utils.develop.sync.util.CreateTableSqlParseUtil;
@@ -110,9 +109,6 @@ public class DatasourceService {
 
     @Autowired
     private DsTypeService typeService;
-
-    @Autowired
-    private SyncBuilderFactory syncBuilderFactory;
 
     @Autowired
     private ClusterService clusterService;
@@ -1057,194 +1053,6 @@ public class DatasourceService {
     }
 
 
-    /**
-     * 解析数据源连接信息
-     *
-     * @param map       不允许为空
-     * @param taskId
-     * @param tenantId
-     * @param isFilter 是否过滤数据源账号密码信息
-     */
-    public void setReaderJson(Map<String, Object> map, Long taskId, Long tenantId, boolean isFilter) throws Exception {
-        List<Long> sourceIds = new ArrayList<>();
-        if (map == null){
-            throw new RdosDefineException("传入信息有误");
-        }
-
-        if (!map.containsKey("sourceId")) {
-            throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);
-        }
-        Long dataSourceId = MapUtils.getLong(map, "sourceId", 0L);
-        DevelopDataSource source = getOne(dataSourceId);
-        Integer sourceType = source.getType();
-        map.put("type",sourceType);
-        // 包含 sourceList 为分库分表读取,兼容原来的单表读取逻辑
-        if ((DataSourceType.MySQL.getVal().equals(sourceType) || DataSourceType.TiDB.getVal().equals(sourceType)) && map.containsKey("sourceList")) {
-            List<Object> sourceList = (List<Object>) map.get("sourceList");
-            JSONArray connections = new JSONArray();
-            for (Object dataSource : sourceList) {
-                Map<String, Object> sourceMap = (Map<String, Object>) dataSource;
-                Long sourceId = Long.parseLong(sourceMap.get("sourceId").toString());
-                DevelopDataSource developDataSource = getOne(sourceId);
-
-                JSONObject json = JSON.parseObject(developDataSource.getDataJson());
-                JSONObject conn = new JSONObject();
-                if (!isFilter) {
-                    conn.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
-                    conn.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
-                }
-                conn.put("jdbcUrl", Collections.singletonList(JsonUtils.getStrFromJson(json, JDBC_URL)));
-
-                if (sourceMap.get("tables") instanceof String) {
-                    conn.put("table", Collections.singletonList(sourceMap.get("tables")));
-                } else {
-                    conn.put("table", sourceMap.get("tables"));
-                }
-
-                conn.put("type", developDataSource.getType());
-                conn.put("sourceId", sourceId);
-
-                connections.add(conn);
-                sourceIds.add(sourceId);
-
-                sourceMap.put("name", developDataSource.getDataName());
-                map.putIfAbsent("source", developDataSource);
-                if (map.get("datasourceType") == null) {
-                    map.put("dataSourceType", developDataSource.getType());
-                }
-            }
-
-            Map<String, Object> sourceMap = (Map<String, Object>) sourceList.get(0);
-            map.put("sourceId", sourceMap.get("sourceId"));
-            map.put("name", sourceMap.get("name"));
-            map.put("type", sourceType);
-            map.put("connections", connections);
-            processTable(map);
-        } else {
-            sourceIds.add(dataSourceId);
-            Long sourceId = source.getId();
-            map.put("source", source);
-            map.put("dataSourceType", source.getType());
-            JSONObject json = JSON.parseObject(source.getDataJson());
-            // 根据jdbc信息 替换map中的信息
-            replaceJdbcInfoByDataJsonToMap(map, sourceId, source, tenantId, json, sourceType);
-            if (DataSourceType.Kudu.getVal().equals(sourceType)) {
-                syncBuilderFactory.getSyncBuilder(DataSourceType.Kudu.getVal()).setReaderJson(map, json,fillKerberosConfig(sourceId));
-                setSftpConfig(sourceId, json, tenantId, map, "hadoopConfig");
-            }
-            if (DataSourceType.IMPALA.getVal().equals(sourceType)) {
-                syncBuilderFactory.getSyncBuilder(DataSourceType.IMPALA.getVal()).setReaderJson(map, json,fillKerberosConfig(sourceId));
-                setSftpConfig(sourceId, json, tenantId, map, "hadoopConfig");
-            }
-        }
-
-        // isFilter为true表示过滤数据源信息，移除相关属性
-        if (isFilter) {
-            map.remove("username");
-            map.remove("password");
-
-            //S3数据源不需要移除 accessKey
-            if(!DataSourceType.AWS_S3.getVal().equals(sourceType)){
-                map.remove("accessKey");
-            }
-        }
-
-        map.put("sourceIds", sourceIds);
-    }
-
-    /**
-     * 根据dataJson 替换map中 jdbc信息
-     *
-     * @param map
-     * @param sourceId
-     * @param source
-     * @param tenantId
-     * @param json
-     * @param sourceType
-     * @throws Exception
-     */
-    private void replaceJdbcInfoByDataJsonToMap(Map<String, Object> map, Long sourceId, DevelopDataSource source, Long tenantId, JSONObject json, Integer sourceType) throws Exception {
-        if (Objects.nonNull(RDBMSSourceType.getByDataSourceType(sourceType))
-                && !DataSourceType.HIVE.getVal().equals(sourceType)
-                && !DataSourceType.HIVE3X.getVal().equals(sourceType)
-                && !DataSourceType.HIVE1X.getVal().equals(sourceType)
-                && !DataSourceType.SparkThrift2_1.getVal().equals(sourceType)
-                && !DataSourceType.IMPALA.getVal().equals(sourceType)
-                && !DataSourceType.CarbonData.getVal().equals(sourceType)
-                && !DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-            map.put("type", sourceType);
-            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
-            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
-            processTable(map);
-        } else if (DataSourceType.HIVE.getVal().equals(sourceType) || DataSourceType.HIVE3X.getVal().equals(sourceType) || DataSourceType.HIVE1X.getVal().equals(sourceType) || DataSourceType.SparkThrift2_1.getVal().equals(sourceType)) {
-            map.put("isDefaultSource",  1 == source.getIsDefault());
-            map.put("type", sourceType);
-            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
-            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
-            map.put("partition", map.get(HIVE_PARTITION));
-            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
-            this.checkLastHadoopConfig(map, json);
-            if (1 == source.getIsDefault()) {
-                setDefaultHadoopSftpConfig(json, tenantId, map);
-            } else {
-                setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
-            }
-        } else if (DataSourceType.HDFS.getVal().equals(sourceType)) {
-            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
-            this.checkLastHadoopConfig(map,json);
-            setSftpConfig(sourceId, json, tenantId, map, HADOOP_CONFIG);
-        } else if (DataSourceType.HBASE.getVal().equals(sourceType)) {
-            String jsonStr = json.getString(HBASE_CONFIG);
-            Map jsonMap = new HashMap();
-            if (StringUtils.isNotEmpty(jsonStr)){
-                jsonMap = objectMapper.readValue(jsonStr,Map.class);
-            }
-            map.put("hbaseConfig", jsonMap);
-            setSftpConfig(sourceId, json, tenantId, map, "hbaseConfig");
-        } else if (DataSourceType.FTP.getVal().equals(sourceType)) {
-            map.putAll(json);
-        } else if (DataSourceType.MAXCOMPUTE.getVal().equals(sourceType)) {
-            map.put("accessId", json.get("accessId"));
-            map.put("accessKey", json.get("accessKey"));
-            map.put("project", json.get("project"));
-            map.put("endPoint", json.get("endPoint"));
-        } else if ((DataSourceType.ES.getVal().equals(sourceType))) {
-            map.put("address", json.get("address"));
-            map.put("username", JsonUtils.getStrFromJson(json, "username"));
-            map.put("password", JsonUtils.getStrFromJson(json, "password"));
-        } else if (DataSourceType.REDIS.getVal().equals(sourceType)) {
-            map.put("type", "string");
-            map.put("hostPort", JsonUtils.getStrFromJson(json, "hostPort"));
-            map.put("database", json.getIntValue("database"));
-            map.put("password", JsonUtils.getStrFromJson(json, "password"));
-        } else if (DataSourceType.MONGODB.getVal().equals(sourceType)) {
-            map.put(JDBC_HOSTPORTS, JsonUtils.getStrFromJson(json, JDBC_HOSTPORTS));
-            map.put("username", JsonUtils.getStrFromJson(json, "username"));
-            map.put("database", JsonUtils.getStrFromJson(json, "database"));
-            map.put("password", JsonUtils.getStrFromJson(json, "password"));
-        } else if (DataSourceType.AWS_S3.getVal().equals(sourceType)) {
-            map.put("accessKey", JsonUtils.getStrFromJson(json, "accessKey"));
-            map.put("secretKey", JsonUtils.getStrFromJson(json, "secretKey"));
-            map.put("region", JsonUtils.getStrFromJson(json, "region"));
-        } else if (DataSourceType.INCEPTOR.getVal().equals(sourceType)) {
-            map.put("type", DataSourceType.INCEPTOR);
-            map.put("password", JsonUtils.getStrFromJson(json, JDBC_PASSWORD));
-            map.put("username", JsonUtils.getStrFromJson(json, JDBC_USERNAME));
-            map.put("jdbcUrl", JsonUtils.getStrFromJson(json, JDBC_URL));
-            map.put("partition", map.get(HIVE_PARTITION));
-            map.put("defaultFS", JsonUtils.getStrFromJson(json, HDFS_DEFAULTFS));
-            map.put("hiveMetastoreUris", JsonUtils.getStrFromJson(json, HIVE_METASTORE_URIS));
-            checkLastHadoopConfig(map, json);
-            setSftpConfig(sourceId, json, tenantId, map, "hadoopConfig");
-        } else if (DataSourceType.INFLUXDB.getVal().equals(sourceType)) {
-            map.put("username", JsonUtils.getStrFromJson(json, "username"));
-            map.put("password", JsonUtils.getStrFromJson(json, "password"));
-            map.put("url", JsonUtils.getStrFromJson(json, "url"));
-        }
-    }
-
     private void processTable(Map<String, Object> map) {
         Object table = map.get("table");
         List<String> tables = new ArrayList<>();
@@ -2083,4 +1891,7 @@ public class DatasourceService {
         }
     }
 
+    public Object support() {
+        return null;
+    }
 }
