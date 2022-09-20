@@ -6,6 +6,7 @@ module.exports = {
 	},
 	FolderTreeService: jest.fn(),
 	GlobalEvent: class {
+		emit = jest.fn();
 		subscribe = jest.fn();
 	},
 	panel: {
@@ -20,11 +21,23 @@ module.exports = {
 		updateActions: jest.fn(),
 		...editor,
 	},
+	folderTree: {
+		get: jest.fn(),
+		add: jest.fn(),
+		getState: jest.fn(),
+		update: jest.fn(),
+	},
 	layout: {
 		getState: jest.fn(),
 		togglePanelVisibility: jest.fn(),
 	},
 	connect: jest.fn(),
 	TreeViewUtil: jest.fn(),
+	FileTypes: {},
+	TreeNodeModel: class {
+		constructor(params) {
+			Object.assign(this, params);
+		}
+	},
 	...rest,
 };
