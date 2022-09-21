@@ -3,6 +3,8 @@ const { editor, ...rest } = require('./monaco-editor');
 module.exports = {
 	Component: class {
 		subscribe = jest.fn();
+		getState = () => this.state;
+		setState = (state) => (this.state = state);
 	},
 	FolderTreeService: jest.fn(),
 	GlobalEvent: class {
@@ -19,6 +21,9 @@ module.exports = {
 	},
 	editor: {
 		updateActions: jest.fn(),
+		updateGroup: jest.fn(),
+		getDefaultActions: jest.fn(),
+		getState: jest.fn(),
 		...editor,
 	},
 	folderTree: {
