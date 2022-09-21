@@ -52,19 +52,10 @@ import { FormContext } from '@/services/rightBarService';
 import { CustomParams } from '../customParams';
 import DataPreviewModal from '../../editor/streamCollection/source/dataPreviewModal';
 import taskSaveService from '@/services/taskSaveService';
+import { taskRenderService } from '@/services';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-
-/**
- * 源表类型下拉菜单
- */
-const DATASOURCE_OPTIONS_TYPE = [
-	DATA_SOURCE_ENUM.KAFKA_2X,
-	DATA_SOURCE_ENUM.KAFKA,
-	DATA_SOURCE_ENUM.KAFKA_11,
-	DATA_SOURCE_ENUM.KAFKA_10,
-];
 
 interface ISourceFormProps {
 	/**
@@ -116,10 +107,12 @@ export default function SourceForm({
 					filterOption={(input, option) =>
 						!!option?.value?.toString().toUpperCase().includes(input.toUpperCase())
 					}
-					options={DATASOURCE_OPTIONS_TYPE.map((t) => ({
-						label: DATA_SOURCE_TEXT[t],
-						value: t,
-					}))}
+					options={taskRenderService
+						.getState()
+						.supportSourceList.flinkSqlSources.map((t) => ({
+							label: DATA_SOURCE_TEXT[t],
+							value: t,
+						}))}
 				/>
 			</FormItem>
 			<FormItem label="数据源" name={[index, 'sourceId']} rules={validDes.sourceId}>

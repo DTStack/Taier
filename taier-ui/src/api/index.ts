@@ -553,4 +553,7 @@ export default {
 	getSyncProperties<T = any>(params: any) {
 		return http.post<T>(req.QUERY_SYNC_DATA_SOURCE, params);
 	},
+	getSupportSource<T = any>(params: any) {
+		return http.post<T>(req.QUERY_SUPPORT_SOURCE, params);
+	},
 };
