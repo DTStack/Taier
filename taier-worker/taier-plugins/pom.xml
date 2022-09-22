@@ -29,6 +29,7 @@
         <module>stores</module>
         <module>schedules</module>
         <module>local-test</module>
+        <module>flink/flink112-standalone</module>
     </modules>
 
     <dependencies>
