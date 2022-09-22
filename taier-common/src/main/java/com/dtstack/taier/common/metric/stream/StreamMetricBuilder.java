@@ -48,14 +48,14 @@ public class StreamMetricBuilder {
         granularityMap.put("d", 24 * 60 * 60 * GRANULARITY_BASIC_UNIT);
         granularityMap.put("w", 7 * 24 * 60 * 60 * GRANULARITY_BASIC_UNIT);
 
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_numReadPerSecond","data_acquisition_input_rps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_numWritePerSecond","data_acquisition_output_rps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_byteReadPerSecond","data_acquisition_input_bps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_byteWritePerSecond","data_acquisition_output_bps");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_numRead","data_acquisition_input_record_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_numWrite","data_acquisition_output_record_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_byteRead","data_acquisition_input_byte_sum");
-        metricNameMap.put("flink_taskmanager_job_task_operator_flinkx_byteWrite","data_acquisition_output_byte_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numReadPerSecond","data_acquisition_input_rps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWritePerSecond","data_acquisition_output_rps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteReadPerSecond","data_acquisition_input_bps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWritePerSecond","data_acquisition_output_bps");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numRead","data_acquisition_input_record_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_numWrite","data_acquisition_output_record_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteRead","data_acquisition_input_byte_sum");
+        metricNameMap.put("flink_taskmanager_job_task_operator_chunjun_byteWrite","data_acquisition_output_byte_sum");
 
         cumulativeMetricName.add("data_acquisition_record_sum");
         cumulativeMetricName.add("data_acquisition_byte_sum");

@@ -22,7 +22,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.enums.TempJobType;
-import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.JsonUtils;
 import com.dtstack.taier.common.util.MathUtil;
@@ -30,16 +29,13 @@ import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.ScheduleJob;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
-import com.dtstack.taier.dao.domain.Tenant;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.develop.ITaskRunner;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
 import com.dtstack.taier.develop.service.schedule.JobService;
 import com.dtstack.taier.develop.vo.develop.result.DevelopGetSyncTaskStatusInnerResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopStartSyncResultVO;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
-import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.exception.ExceptionUtil;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
@@ -47,7 +43,6 @@ import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ScheduleActionService;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -56,6 +51,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +74,6 @@ public class DevelopJobService {
 
     @Autowired
     private DevelopSelectSqlService developSelectSqlService;
-
-    @Autowired
-    private TenantService tenantService;
 
     @Autowired
     private ScheduleActionService actionService;
@@ -152,7 +146,7 @@ public class DevelopJobService {
         try {
             ScheduleJob job = jobService.getScheduleJob(jobId);
             if (Objects.isNull(job)) {
-                resultVO.setMsg("无法获取engine数据");
+                resultVO.setMsg("can not found job");
                 return resultVO;
             }
 
@@ -161,11 +155,14 @@ public class DevelopJobService {
             if (TaskStatus.RUNNING.getStatus().equals(status)) {
                 resultVO.setMsg("运行中");
             }
+            if (TaskStatus.FINISHED.getStatus().equals(status) && job.getExecEndTime() != null) {
+                //prometheus 指标为异步推送 任务快速结束 可能指标还未推送
+                if (job.getExecEndTime().toInstant().plus(90, ChronoUnit.SECONDS).isAfter(Instant.now())) {
+                    status = TaskStatus.RUNNING.getStatus();
+                    resultVO.setStatus(status);
+                }
+            }
 
-            final JSONObject logsBody = new JSONObject(2);
-            logsBody.put("jobId", jobId);
-            logsBody.put("jobIds", Lists.newArrayList(jobId));
-            logsBody.put("computeType", ComputeType.BATCH.getType());
             ActionLogVO actionLogVO = actionService.log(jobId);
             String engineLogStr = actionLogVO.getEngineLog();
             String logInfoStr = actionLogVO.getLogInfo();
@@ -194,13 +191,6 @@ public class DevelopJobService {
                 final JSONObject engineLog = JSON.parseObject(engineLogStr);
                 final JSONObject logIngo = JSON.parseObject(logInfoStr);
                 final StringBuilder logBuild = new StringBuilder();
-
-                // 读取prometheus的相关信息
-                Tenant tenantById = this.tenantService.getTenantById(tenantId);
-                if (Objects.isNull(tenantById)) {
-                    LOGGER.info("can not find job tenant{}.", tenantId);
-                    throw new RdosDefineException(ErrorCode.SERVER_EXCEPTION);
-                }
                 List<ActionJobEntityVO> engineEntities = actionService.entitys(Collections.singletonList(jobId));
 
                 String engineJobId = "";
@@ -208,7 +198,7 @@ public class DevelopJobService {
                     engineJobId = engineEntities.get(0).getEngineJobId();
                 }
                 final long startTime = Objects.isNull(job.getExecStartTime()) ? System.currentTimeMillis() : job.getExecStartTime().getTime();
-                final String perf = StringUtils.isBlank(engineJobId) ? null : this.developServerLogService.formatPerfLogInfo(engineJobId, jobId, startTime, System.currentTimeMillis(), tenantById.getId());
+                final String perf = StringUtils.isBlank(engineJobId) ? null : this.developServerLogService.formatPerfLogInfo(engineJobId, jobId, startTime, System.currentTimeMillis(), tenantId);
                 if (StringUtils.isNotBlank(perf)) {
                     logBuild.append(perf.replace("\n", "  "));
                 }
@@ -246,10 +236,6 @@ public class DevelopJobService {
                         logBuild.append(JsonUtils.formatJSON(sqlLog));
                         logBuild.append("\n");
                     }
-                } else if (TaskStatus.FINISHED.getStatus().equals(status) && retryTimes < 3) {
-                    // FIXME perjob模式运行任务，任务完成后统计信息可能还没收集到，这里等待1秒后再请求一次结果
-                    Thread.sleep(1000);
-                    return this.getSyncTaskStatusInner(tenantId, jobId, 3);
                 }
                 if (TaskStatus.FINISHED.getStatus().equals(status) || TaskStatus.CANCELED.getStatus().equals(status)
                         || TaskStatus.FAILED.getStatus().equals(status)) {
@@ -259,10 +245,10 @@ public class DevelopJobService {
             } catch (Exception e) {
                 // 日志解析失败，可能是任务失败，日志信息为非json格式
                 LOGGER.error("", e);
-                resultVO.setMsg(StringUtils.isEmpty(engineLogStr) ? "engine调度失败" : engineLogStr);
+                resultVO.setMsg(StringUtils.isEmpty(engineLogStr) ? "job run fail" : engineLogStr);
             }
         } catch (Exception e) {
-            LOGGER.error("获取同步任务状态失败", e);
+            LOGGER.error("get job {} status error", jobId, e);
         }
 
         return resultVO;
