@@ -6,7 +6,7 @@ module.exports = {
 		getState = () => this.state;
 		setState = (state) => (this.state = state);
 	},
-	FolderTreeService: jest.fn(),
+	FolderTreeService: class FolderTreeService {},
 	GlobalEvent: class {
 		emit = jest.fn();
 		subscribe = jest.fn();
