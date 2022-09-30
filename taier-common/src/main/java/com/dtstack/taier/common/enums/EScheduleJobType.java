@@ -46,12 +46,6 @@ public enum EScheduleJobType {
      */
     SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH),
 
-
-    /**
-     * shell
-     */
-//    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
-
     /**
      * FlinkSQL
      */
@@ -82,6 +76,15 @@ public enum EScheduleJobType {
      */
     FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM),
 
+    /**
+     * Python
+     */
+    PYTHON(12,"Python", EJobType.PYTHON.getType(),12, EComponentType.SCRIPT, EComputeType.BATCH),
+
+    /**
+     * Shell
+     */
+    SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH),
     ;
 
     private Integer type;

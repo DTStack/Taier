@@ -36,6 +36,7 @@ public enum EComponentType {
     HIVE_SERVER(5, "HiveServer", "hiveServerConf",EComponentScheduleType.COMPUTE),
     SFTP(6, "SFTP", "sftpConf",EComponentScheduleType.COMMON),
     OCEAN_BASE(7, "OceanBase", "oceanBaseConf",EComponentScheduleType.COMPUTE),
+    SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
 
     ;
 

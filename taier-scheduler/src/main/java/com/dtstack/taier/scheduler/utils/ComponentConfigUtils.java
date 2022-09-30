@@ -102,7 +102,7 @@ public class ComponentConfigUtils {
 //                    {
 //                        "pythonConf":{},
 //                        "jupyterConf":{},
-//                        "typeName":"yarn2-hdfs2-dtscript",
+//                        "typeName":"yarn2-hdfs2-script",
 //                        "commonConf":{}
 //                    }
                     configMaps.put(componentConfig.getKey(), deepToBuildConfigMap);
