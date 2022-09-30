@@ -140,6 +140,16 @@ public class TaskResourceParam extends Task {
         this.queueName = queueName;
     }
 
+    private Integer pythonVersion;
+
+    public Integer getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(Integer pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return taskDirtyDataManageVO;
     }
