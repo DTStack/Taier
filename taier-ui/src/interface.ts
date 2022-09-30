@@ -711,4 +711,8 @@ export enum RightBarKind {
 	 * 维表
 	 */
 	FLINKSQL_DIMENSION = 'flinksql_dimension',
+	/**
+	 * 队列管理
+	 */
+	QUEUE = 'queue',
 }

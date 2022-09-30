@@ -469,13 +469,21 @@ export default function SideBar({
 					isLeaf: !child.allowCoexistence,
 					selectable: !child.allowCoexistence,
 					children: child.allowCoexistence
-						? child.versionDictionary?.map((versions) => ({
-								title: `${child.name}${versions.key}`,
-								// 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
-								key: joinVersions(child.componentCode, versions.key),
-								isLeaf: true,
-								data: versions,
-						  }))
+						? child.versionDictionary
+								?.filter((version) =>
+									currentComponents.some(
+										(c) =>
+											`${c.componentTypeCode}-${c.versionName}` ===
+											`${child.componentCode}-${version.key}`,
+									),
+								)
+								?.map((versions) => ({
+									title: `${child.name}${versions.key}`,
+									// 多版本的组件 id 用当前的 versionName 和 componentCode 拼接字符串
+									key: joinVersions(child.componentCode, versions.key),
+									isLeaf: true,
+									data: versions,
+								}))
 						: [],
 					data: child,
 				})),
