@@ -3,6 +3,7 @@ package com.dtstack.taier.develop.service.develop.saver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.enums.EScheduleJobType;
+import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.dto.devlop.TaskVO;
 import com.google.common.collect.ImmutableList;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author qiuyun
@@ -55,7 +57,7 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
         exeArgs.put("--input", param.getInput());
         exeArgs.put("--output", param.getOutput());
         exeArgs.put("--files", param.getResourceIdList());
-        // 由前端传入的 app-type 为 python2/python3  区分 python 版本
+        exeArgs.put("--app-type", findAppType(param.getTaskType(), param.getPythonVersion()));
 
         final String exeArgsParam = param.getExeArgs();
         if (StringUtils.isNotEmpty(exeArgsParam)) {
@@ -65,5 +67,20 @@ public class ScriptTaskSaver extends AbstractTaskSaver {
             exeArgs = paramObj;
         }
         param.setExeArgs(exeArgs.toJSONString());
+    }
+
+    private static String findAppType(Integer taskType, Integer pythonVersion) {
+        if (EScheduleJobType.SHELL.getType().equals(taskType)) {
+            return "shell";
+        }
+        if (EScheduleJobType.PYTHON.getType().equals(taskType) && Objects.nonNull(pythonVersion)) {
+            switch (pythonVersion) {
+                case 2:
+                    return "python2";
+                case 3:
+                    return "python3";
+            }
+        }
+        throw new RdosDefineException("not support pythonVersion:" + pythonVersion);
     }
 }

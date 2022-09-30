@@ -126,6 +126,16 @@ public class TaskResourceParam extends Task {
      */
     private Map<Long, List<Long>> nodeMap;
 
+    private Integer pythonVersion;
+
+    public Integer getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(Integer pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
     public TaskDirtyDataManageVO getTaskDirtyDataManageVO() {
         return taskDirtyDataManageVO;
     }
