@@ -555,7 +555,7 @@ public class ScheduleActionService {
      * @throws Exception
      */
     private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
-        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null, null);
         String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(), null);
         pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, hdfsTypeName);
 
