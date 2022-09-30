@@ -37,6 +37,7 @@ public enum EComponentType {
     SFTP(6, "SFTP", "sftpConf",EComponentScheduleType.COMMON),
     OCEAN_BASE(7, "OceanBase", "oceanBaseConf",EComponentScheduleType.COMPUTE),
     SCRIPT(8, "Script", "scriptConf", EComponentScheduleType.COMPUTE),
+    CLICK_HOUSE(9, "ClickHouse", "clickHouseConf", EComponentScheduleType.COMPUTE)
 
     ;
 

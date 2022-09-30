@@ -104,3 +104,17 @@ logLevel=INFO',now(),now(), 0);
 update dict set dict_value = REPLACE(dict_value, '-dtscript', '-script') where `type` = 14 and depend_name = 'YARN' and dict_value like '%dtscript%';
 update dict set dict_value = REPLACE(dict_value, 'DT_SCRIPT', 'SCRIPT') where `type` = 14 and depend_name = 'YARN' and dict_value like '%DT_SCRIPT%';
 COMMIT;
+
+-- 增加 clickhouse 计算组件
+DELETE FROM dict WHERE dict_code = 'component_model' AND dict_name = 'CLICK_HOUSE';
+DELETE FROM dict WHERE dict_code = 'typename_mapping' AND dict_name = 'clickHouse';
+DELETE FROM console_component_config WHERE component_id = '-119';
+
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model', 'CLICK_HOUSE', '{\"owner\": \"COMPUTE\", \"dependsOn\": [], \"allowKerberos\": \"false\", \"allowCoexistence\": false, \"uploadConfigType\": \"0\", \"versionDictionary\": \"\",\"nameTemplate\":\"clickHouse\"}', NULL, '12', '0', 'STRING', '', '0', now(), now(), '0');
+INSERT INTO dict (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'clickHouse', '-119', NULL, '6', '0', 'LONG', '', '0', now(), now(), '0');
+INSERT INTO console_component_config (`cluster_id`, `component_id`, `component_type_code`, `type`, `required`, `key`, `value`, `values`, `dependencyKey`, `dependencyValue`, `desc`, `gmt_create`, `gmt_modified`, `is_deleted`) VALUES
+('-2', '-119', '9', 'INPUT', '1', 'jdbcUrl', '', NULL, NULL, NULL, NULL, now(), now(), '0'),
+('-2', '-119', '9', 'INPUT', '0', 'username', '', NULL, NULL, NULL, NULL, now(), now(), '0'),
+('-2', '-119', '9', 'PASSWORD', '0', 'password', '', NULL, NULL, NULL, NULL, now(), now(),'0'),
+('-2', '-119', '9', 'INPUT', '0', 'maxJobPoolSize', '', NULL, NULL, NULL, NULL, now(), now(),'0'),
+('-2', '-119', '9', 'INPUT', '0', 'minJobPoolSize', '', NULL, NULL, NULL, NULL, now(), now(), '0');

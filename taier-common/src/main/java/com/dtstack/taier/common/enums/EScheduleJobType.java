@@ -85,6 +85,11 @@ public enum EScheduleJobType {
      * Shell
      */
     SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH),
+
+    /**
+     * ClickHouseSQL
+     */
+    CLICK_HOUSE_SQL(14, "ClickHouseSQL",  EJobType.SQL.getType(),14, EComponentType.CLICK_HOUSE, EComputeType.BATCH)
     ;
 
     private Integer type;
