@@ -102,6 +102,11 @@ $node-size: 24px;
 
 		.component-name {
 			line-height: $node-size;
+			max-width: 73px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			display: block;
 		}
 
 		.component-remove {
