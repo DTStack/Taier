@@ -38,21 +38,25 @@ public class Launcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
 
-    public static final String USER_DIR = System.getProperty("user.dir");
     public static final String SP = File.separator;
 
-    public static void main(String[] args) throws Exception {
+    public static final String USER_DIR = System.getProperty("user.dir")
+            + SP + "taier-worker"
+            + SP + "taier-plugins";
 
+    public static final String PlUGIN_DIR = System.getProperty("user.dir");
+
+    public static void main(String[] args) throws Exception {
         System.setProperty("HADOOP_USER_NAME", "admin");
 
         // job json path
-        String jobJsonPath = USER_DIR + SP + "local-test/src/main/json/dtscript-agent.json";
+        String jobJsonPath = USER_DIR + SP + "local-test/src/main/json/shell.json";
 
         // create jobClient
         String content = getJobContent(jobJsonPath);
-        Map params =  PublicUtil.jsonStrToObject(content, Map.class);
+        Map params = PublicUtil.jsonStrToObject(content, Map.class);
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient jobClient = new JobClient(paramAction);
+        JobClient jobClient = JobClientUtil.conversionScriptJobClient(paramAction);
 
         // create jobIdentifier
         String jobId = "jobId";
@@ -67,7 +71,7 @@ public class Launcher {
         properties.setProperty("md5sum", md5plugin);
 
         // create client
-        String pluginParentPath = USER_DIR + SP + "pluginLibs";
+        String pluginParentPath = PlUGIN_DIR + SP + "pluginLibs";
         IClient client = ClientFactory.buildPluginClient(pluginInfo, pluginParentPath);
 
         // client init
@@ -82,12 +86,14 @@ public class Launcher {
         // test target method
         ClassLoaderCallBackMethod.callbackAndReset(new CallBack<Object>() {
             @Override
-            public Object execute() throws Exception {
+            public Object execute() {
                 JobResult jobResult = client.submitJob(jobClient);
+                LOG.info("jobResult:{}", jobResult);
                 return jobResult;
             }
         }, client.getClass().getClassLoader(), true);
 
+        Thread.sleep(2400L);
         LOG.info("Launcher Success!");
         System.exit(0);
     }

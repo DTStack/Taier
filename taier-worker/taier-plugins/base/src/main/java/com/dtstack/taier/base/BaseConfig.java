@@ -46,6 +46,26 @@ public class BaseConfig {
 
     private String mergeKrbContent;
 
+    private String hadoopUserName;
+
+    private String dtProxyUserName;
+
+    public String getHadoopUserName() {
+        return hadoopUserName;
+    }
+
+    public void setHadoopUserName(String hadoopUserName) {
+        this.hadoopUserName = hadoopUserName;
+    }
+
+    public String getDtProxyUserName() {
+        return dtProxyUserName;
+    }
+
+    public void setDtProxyUserName(String dtProxyUserName) {
+        this.dtProxyUserName = dtProxyUserName;
+    }
+
     public String getMergeKrbContent() {
         return mergeKrbContent;
     }

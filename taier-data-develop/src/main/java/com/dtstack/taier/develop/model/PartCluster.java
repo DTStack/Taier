@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  *                      "210":"yarn2-hdfs2-spark210"
  *                  }
  *              ],
- *              "DT_SCRIPT":"yarn2-hdfs2-dtscript",
+ *              "SCRIPT":"yarn2-hdfs2-script",
  *              "HADOOP":"yarn2-hdfs2-hadoop3",
  *              "TONY":"yarn2-hdfs2-tony",
  *              "LEARNING":"yarn2-hdfs2-learning"
