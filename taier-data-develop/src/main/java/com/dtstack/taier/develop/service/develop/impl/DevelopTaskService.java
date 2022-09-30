@@ -78,6 +78,7 @@ import com.dtstack.taier.develop.service.console.TenantService;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.develop.ITaskSaver;
 import com.dtstack.taier.develop.service.develop.TaskConfiguration;
+import com.dtstack.taier.develop.service.develop.runner.ScriptTaskRunner;
 import com.dtstack.taier.develop.service.develop.saver.AbstractTaskSaver;
 import com.dtstack.taier.develop.service.schedule.TaskService;
 import com.dtstack.taier.develop.service.task.TaskTemplateService;
@@ -218,6 +219,12 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
 
     @Autowired
     private ScheduleDictService scheduleDictService;
+
+    @Autowired
+    private DevelopScriptService developScriptService;
+
+    @Autowired
+    private ScriptTaskRunner scriptTaskRunner;
 
     private static final String KERBEROS_CONFIG = "kerberosConfig";
 
@@ -586,6 +593,8 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             String sqlText = taskSaver.processScheduleRunSqlText(task.getTenantId(), task.getTaskType(), task.getSqlText());
             actionParam.put("sqlText", sqlText);
         }
+        String taskExeArgs = buildExeArgs(task);
+        Optional.ofNullable(taskExeArgs).ifPresent(v -> actionParam.put("exeArgs", taskExeArgs));
         actionParam.put("taskId", taskId);
         actionParam.put("taskType", task.getTaskType());
         actionParam.put("name", task.getName());
@@ -1520,5 +1529,14 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
             return new JSONObject();
         }
         return JSONObject.parseObject(dicts.get(0).getDictValue());
+    }
+
+    private String buildExeArgs(Task task) {
+        if (!scriptTaskRunner.support().contains(EScheduleJobType.getByTaskType(task.getTaskType()))) {
+            return null;
+        }
+        // add place holder
+        String fileDir = "${uploadPath}";
+        return developScriptService.buildExeArgs(task, fileDir);
     }
 }
