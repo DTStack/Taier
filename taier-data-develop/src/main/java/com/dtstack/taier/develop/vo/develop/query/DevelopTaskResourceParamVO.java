@@ -206,6 +206,17 @@ public class DevelopTaskResourceParamVO extends DtInsightAuthParam {
     @ApiModelProperty(value = "脏数据")
     private TaskDirtyDataManageVO taskDirtyDataManageVO;
 
+    @ApiModelProperty(value = "python version, 2 or 3")
+    private Integer pythonVersion;
+
+    public Integer getPythonVersion() {
+        return pythonVersion;
+    }
+
+    public void setPythonVersion(Integer pythonVersion) {
+        this.pythonVersion = pythonVersion;
+    }
+
     public Boolean getOpenDirtyDataManage() {
         return openDirtyDataManage;
     }

@@ -74,7 +74,10 @@ public class DevelopScriptService {
                 TempJobType.PYTHON_SHELL.getType(), task.getTenantId(),
                 buildSaveData(taskShadeName), userId, task.getTaskType()
         );
-        return new ExecuteResultVO(paramActionExt.getJobId());
+        ExecuteResultVO resultVO = new ExecuteResultVO(paramActionExt.getJobId());
+        // indicating frontEnd should polling
+        resultVO.setContinue(true);
+        return resultVO;
     }
 
     private Map<String, Object> readyForScriptImmediatelyJob(Task task, String sqlText, Long tenantId) {
