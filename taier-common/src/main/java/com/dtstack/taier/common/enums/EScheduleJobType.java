@@ -82,6 +82,10 @@ public enum EScheduleJobType {
      */
     FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM),
 
+    /**
+     * ClickHouseSQL
+     */
+    CLICK_HOUSE_SQL(12, "ClickHouseSQL",  EJobType.SQL.getType(),13 , EComponentType.CLICK_HOUSE, EComputeType.BATCH)
     ;
 
     private Integer type;
