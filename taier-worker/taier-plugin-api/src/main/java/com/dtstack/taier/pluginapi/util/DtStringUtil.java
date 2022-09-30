@@ -119,4 +119,27 @@ public class DtStringUtil {
         }
         return compressedStr;
     }
+
+    public static List<String> splitIngoreBlank(String str){
+        String[] strs = str.trim().split("\\s+");
+        List<String> tokensList = new ArrayList<>();
+        boolean inSingleQuotes = false;
+        StringBuilder b = new StringBuilder();
+        for (String c : strs) {
+            if (c.contains("\'")) {
+                inSingleQuotes = !inSingleQuotes;
+                b.append(c).append(' ');
+                if (!inSingleQuotes){
+                    tokensList.add(b.toString().replace('\'',' '));
+                    b = new StringBuilder();
+                }
+            } else if (inSingleQuotes){
+                b.append(c).append(' ');
+            } else {
+                tokensList.add(c);
+            }
+        }
+
+        return tokensList;
+    }
 }

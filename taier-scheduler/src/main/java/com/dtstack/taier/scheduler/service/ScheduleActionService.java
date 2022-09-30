@@ -43,6 +43,7 @@ import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
+import com.dtstack.taier.scheduler.WorkerOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.jobdealer.JobStopDealer;
@@ -50,10 +51,12 @@ import com.dtstack.taier.scheduler.server.builder.ScheduleConf;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleConfManager;
 import com.dtstack.taier.scheduler.server.builder.cron.ScheduleCorn;
 import com.dtstack.taier.scheduler.server.pipeline.IPipeline;
+import com.dtstack.taier.scheduler.server.pipeline.JobParamReplace;
 import com.dtstack.taier.scheduler.server.pipeline.PipelineBuilder;
 import com.dtstack.taier.scheduler.server.pipeline.operator.SyncOperatorPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.operator.UnnecessaryPreprocessJobPipeline;
 import com.dtstack.taier.scheduler.server.pipeline.params.UploadParamPipeline;
+import com.dtstack.taier.scheduler.utils.FileUtil;
 import com.dtstack.taier.scheduler.vo.action.ActionJobEntityVO;
 import com.dtstack.taier.scheduler.vo.action.ActionLogVO;
 import com.dtstack.taier.scheduler.vo.action.ActionRetryLogVO;
@@ -116,6 +119,9 @@ public class ScheduleActionService {
             !(name.equalsIgnoreCase("taskParams") || name.equalsIgnoreCase("sqlText"));
 
     private DtJobIdWorker jobIdWorker;
+
+    @Autowired
+    private WorkerOperator workerOperator;
 
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
@@ -265,6 +271,8 @@ public class ScheduleActionService {
     private void dealActionParam(Map<String, Object> actionParam, ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
         IPipeline pipeline = null;
         String pipelineConfig = null;
+        List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
+
         if (actionParam.containsKey(PipelineBuilder.pipelineKey)) {
             pipelineConfig = (String) actionParam.get(PipelineBuilder.pipelineKey);
             pipeline = PipelineBuilder.buildPipeline(pipelineConfig);
@@ -273,11 +281,14 @@ public class ScheduleActionService {
         } else if (EScheduleJobType.WORK_FLOW.getType().equals(task.getTaskType())
                 || EScheduleJobType.VIRTUAL.getType().equals(task.getTaskType())) {
             pipeline = unnecessaryPreprocessJobPipeline;
+        } else if (EScheduleJobType.PYTHON.getType().equals(task.getTaskType())
+            || EScheduleJobType.SHELL.getType().equals(task.getTaskType())) {
+            handleExeArgsIfNeed(actionParam, task, taskParamsToReplace, scheduleJob);
+            return;
         } else {
             pipeline = PipelineBuilder.buildDefaultSqlPipeline();
         }
 
-        List<ScheduleTaskParamShade> taskParamsToReplace = JSONObject.parseArray((String) actionParam.get("taskParamsToReplace"), ScheduleTaskParamShade.class);
         Map<String, Object> pipelineInitMap = PipelineBuilder.getPipelineInitMap(pipelineConfig, scheduleJob, task, taskParamsToReplace, (uploadPipelineMap) -> {
             //fill 文件上传的信息
             JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
@@ -502,6 +513,53 @@ public class ScheduleActionService {
 
         calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + beforeDay);
         return sdf.format(calendar.getTime());
+    }
+
+    /**
+     * sqlText 上传到 hdfs 得到路径后，替换占位符
+     * @param actionParam
+     * @param task
+     * @param taskParamsToReplace
+     * @param scheduleJob
+     * @throws Exception
+     */
+    private void handleExeArgsIfNeed(Map<String, Object> actionParam, ScheduleTaskShade task, List<ScheduleTaskParamShade> taskParamsToReplace, ScheduleJob scheduleJob) throws Exception {
+        String exeArgs = Objects.toString(actionParam.get("exeArgs"), "");
+        if (!exeArgs.contains("${uploadPath}")) {
+            return;
+        }
+        Integer taskType = task.getTaskType();
+        String sqlText = Objects.toString(actionParam.get("sqlText"), "");
+        if (StringUtils.isEmpty(sqlText)) {
+            throw new RdosDefineException("sqlText can't null or empty string");
+        }
+        if (CollectionUtils.isNotEmpty(taskParamsToReplace)) {
+            sqlText = JobParamReplace.paramReplace(sqlText, taskParamsToReplace, scheduleJob.getCycTime());
+        }
+        if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
+            sqlText = sqlText.replaceAll("\r\n", System.getProperty("line.separator"));
+        }
+        String hdfsPath = uploadToHdfs(sqlText, task, scheduleJob);
+        // cyc scheduling，should in time replace placeHolder to hdfs path
+        exeArgs = exeArgs.replace("${uploadPath}", hdfsPath);
+        actionParam.put("exeArgs", exeArgs);
+    }
+
+    /**
+     * 将脚本上传到 hdfs
+     * @param sqlText
+     * @param task
+     * @param scheduleJob
+     * @return
+     * @throws Exception
+     */
+    private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
+        JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null);
+        String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(), null);
+        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, hdfsTypeName);
+
+        String hdfsPath = environmentContext.getHdfsTaskPath() + (FileUtil.getUploadFileName(task.getTaskType(), scheduleJob.getJobId()));
+        return workerOperator.uploadStringToHdfs(pluginInfo.toJSONString(), sqlText, hdfsPath);
     }
 
 }

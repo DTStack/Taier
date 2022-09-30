@@ -29,6 +29,7 @@
         <module>stores</module>
         <module>schedules</module>
         <module>local-test</module>
+        <module>script</module>
     </modules>
 
     <dependencies>

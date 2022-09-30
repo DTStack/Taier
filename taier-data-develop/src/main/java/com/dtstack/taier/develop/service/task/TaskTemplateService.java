@@ -26,6 +26,9 @@ import com.dtstack.taier.dao.mapper.TaskTemplateMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Auther: dazhi
  * @Date: 2020/9/29 4:38 下午
@@ -45,4 +48,26 @@ public class TaskTemplateService {
                 .eq(StringUtils.isNotBlank(valueType), TaskTemplate::getValueType, valueType));
     }
 
+    /**
+     * 去除被注释掉的环境参数
+     * @param envTaskParams
+     * @return
+     */
+    public static String formatEnvTaskParams(String envTaskParams) {
+        if (org.apache.commons.lang.StringUtils.isEmpty(envTaskParams)) {
+            return envTaskParams;
+        }
+        List<String> params = new ArrayList<>();
+        for (String param : envTaskParams.split("\r|\n")) {
+            // remove comments
+            if (org.apache.commons.lang.StringUtils.isNotEmpty(param.trim()) && !param.trim().startsWith("#")) {
+                String[] parts = param.split("=");
+                if (parts.length < 2) {
+                    continue;
+                }
+                params.add(param.trim());
+            }
+        }
+        return org.apache.commons.lang.StringUtils.join(params, "\n");
+    }
 }
