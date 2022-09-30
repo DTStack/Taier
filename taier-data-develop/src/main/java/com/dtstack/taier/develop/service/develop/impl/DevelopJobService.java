@@ -280,8 +280,8 @@ public class DevelopJobService {
             task.setSqlText(sql);
             ITaskRunner taskRunner = taskConfiguration.get(task.getTaskType());
 
-            result.setTaskType(task.getTaskType());
             result = taskRunner.startSqlImmediately(userId, tenantId, sql, task, taskVariables);
+            result.setTaskType(task.getTaskType());
         } catch (Exception e) {
             LOGGER.warn("startSqlImmediately-->", e);
             result.setMsg(ExceptionUtil.getErrorMessage(e));

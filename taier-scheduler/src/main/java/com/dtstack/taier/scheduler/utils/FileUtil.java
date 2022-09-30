@@ -20,6 +20,7 @@ package com.dtstack.taier.scheduler.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.constant.CommonConstant;
+import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.Xml2JsonUtil;
@@ -175,5 +176,14 @@ public class FileUtil {
             throw new RdosDefineException("file does not exist");
         }
         return file;
+    }
+
+    public static String getUploadFileName(Integer taskType, String jobId) {
+        EScheduleJobType jobType = EScheduleJobType.getByTaskType(taskType);
+        String suffix = ".py";
+        if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
+            suffix = ".sh";
+        }
+        return String.format("%s_%s_%s%s", jobType.name(), jobId, System.currentTimeMillis(), suffix);
     }
 }
