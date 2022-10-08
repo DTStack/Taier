@@ -90,6 +90,8 @@ import com.dtstack.taier.develop.vo.develop.result.DevelopAllProductGlobalReturn
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetComponentVersionResultVO;
 import com.dtstack.taier.develop.vo.develop.result.DevelopTaskTypeVO;
 import com.dtstack.taier.develop.vo.develop.result.job.TaskProperties;
+import com.dtstack.taier.develop.vo.develop.result.DevelopTaskGetSupportJobTypesResultVO;
+import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.scheduler.dto.schedule.SavaTaskDTO;
 import com.dtstack.taier.scheduler.dto.schedule.ScheduleTaskShadeDTO;
@@ -280,7 +282,22 @@ public class DevelopTaskService extends ServiceImpl<DevelopTaskMapper, Task> {
         TaskDirtyDataManage oneByTaskId = taskDirtyDataManageService.getOneByTaskId(task.getId());
         taskVO.setTaskDirtyDataManageVO(TaskDirtyDataManageTransfer.INSTANCE.taskDirtyDataManageToTaskDirtyDataManageVO(oneByTaskId));
         taskVO.setOpenDirtyDataManage(taskVO.getTaskDirtyDataManageVO() != null);
+        populatePythonVersionIfNeed(task, taskVO);
         return taskVO;
+    }
+
+    private void populatePythonVersionIfNeed(Task task, TaskVO taskVO) {
+        if (!task.getTaskType().equals(EScheduleJobType.PYTHON.getType())) {
+            return;
+        }
+        JSONObject exeArgsJson = JSON.parseObject(task.getExeArgs());
+        String appType = exeArgsJson.getString(ConfigConstant.APP_TYPE);
+        if (StringUtils.isEmpty(appType)) {
+            return;
+        }
+        // python2、python3 remove prefix 「python」to find version
+        String pythonVersion = StringUtils.removeStartIgnoreCase(appType, EScheduleJobType.PYTHON.name());
+        taskVO.setPythonVersion(pythonVersion);
     }
 
     /**
