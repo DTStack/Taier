@@ -95,7 +95,7 @@ public class ScriptClient extends AbstractClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getEngineJobId();
+        String jobId = jobIdentifier.getApplicationId();
         try {
             return KerberosUtils.login(configMap, ()->{
                 try {
@@ -137,7 +137,7 @@ public class ScriptClient extends AbstractClient {
 
     @Override
     public TaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        String jobId = jobIdentifier.getEngineJobId();
+        String jobId = jobIdentifier.getApplicationId();
         if(StringUtils.isEmpty(jobId)){
             return null;
         }
@@ -192,7 +192,7 @@ public class ScriptClient extends AbstractClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
         try {
             return KerberosUtils.login(configMap, ()-> {
-                String engineJobId = jobIdentifier.getEngineJobId();
+                String engineJobId = jobIdentifier.getApplicationId();
                 Map<String, Object> jobLog = new HashMap<>(4);
                 try {
                     ApplicationReport applicationReport = client.getApplicationReport(engineJobId);
