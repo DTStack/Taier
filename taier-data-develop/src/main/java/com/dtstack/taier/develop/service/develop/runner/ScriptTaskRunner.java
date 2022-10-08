@@ -78,7 +78,7 @@ public class ScriptTaskRunner implements ITaskRunner {
 
     @Override
     public ExecuteResultVO selectData(Task task, DevelopSelectSql selectSql, Long tenantId, Long userId, Boolean isRoot, Integer taskType) throws Exception {
-        throw new RdosDefineException("not support");
+        return null;
     }
 
     @Override
