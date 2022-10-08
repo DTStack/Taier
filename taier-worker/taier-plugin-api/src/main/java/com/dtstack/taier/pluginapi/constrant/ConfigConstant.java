@@ -101,4 +101,5 @@ public class ConfigConstant {
     public static final String DEPLOY_MODEL = "deployMode";
     public static final String CHECK_POINTS_DIR = "state.checkpoints.dir";
     public static final String SAVE_POINTS_DIR = "state.savepoints.dir";
+    public static final String APP_TYPE = "--app-type";
 }
