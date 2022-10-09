@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dtstack.taier.develop.service.datasource.impl;
 
 import com.alibaba.fastjson.JSON;
@@ -66,7 +84,7 @@ import static com.dtstack.taier.develop.service.template.bulider.reader.DaReader
  * @Date: 2021/3/10
  */
 @Service
-public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
+public class DsInfoService extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     @Autowired
     private DsInfoMapper dsInfoMapper;
@@ -96,6 +114,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     private static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, MAX_POOL_SIZE,
             KEEP_ALIVE, TimeUnit.SECONDS, new LinkedBlockingQueue<>(QUEUE_CAPACITY),
             new RdosThreadFactory("kafka-consumer"), new ThreadPoolExecutor.DiscardOldestPolicy());
+
     /**
      * 数据源列表分页
      *
@@ -108,22 +127,22 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         listQuery.turn();
         Integer total = this.baseMapper.countDsPage(listQuery);
         if (total == 0) {
-            return new PageResult<>(0,0,0,0,new ArrayList<>());
+            return new PageResult<>(0, 0, 0, 0, new ArrayList<>());
         }
         List<DsListBO> dsListBOList = baseMapper.queryDsPage(listQuery);
         if (CollectionUtils.isEmpty(dsListBOList)) {
-            return new PageResult<>(0,0,0,0,new ArrayList<>());
+            return new PageResult<>(0, 0, 0, 0, new ArrayList<>());
         }
         List<DsListVO> dsListVOS = new ArrayList<>();
         for (DsListBO dsListBO : dsListBOList) {
             DsListVO dsListVO = DsListTransfer.INSTANCE.toInfoVO(dsListBO);
             String linkJson = dsListVO.getLinkJson();
             JSONObject linkData = DataSourceUtils.getDataSourceJson(linkJson);
-            linkData.put("schemaName",dsListVO.getSchemaName());
-            dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData,true));
+            linkData.put("schemaName", dsListVO.getSchemaName());
+            dsListVO.setLinkJson(DataSourceUtils.getEncodeDataSource(linkData, true));
             dsListVOS.add(dsListVO);
         }
-        return new PageResult<>(dsListParam.getCurrentPage(),dsListParam.getPageSize(),total,dsListVOS);
+        return new PageResult<>(dsListParam.getCurrentPage(), dsListParam.getPageSize(), total, dsListVOS);
     }
 
     /**
@@ -136,13 +155,13 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         DsInfo dsInfo = lambdaQuery().eq(DsInfo::getId, dataInfoId).one();
         String dataJson = dsInfo.getDataJson();
         JSONObject dataSourceJson = DataSourceUtils.getDataSourceJson(dataJson);
-        if(DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)){
+        if (DataSourceUtils.judgeOpenKerberos(dataJson) && null == dataSourceJson.getString(FormNames.PRINCIPAL)) {
             JSONObject kerberosConfig = dataSourceJson.getJSONObject(FormNames.KERBEROS_CONFIG);
-            dataSourceJson.put(FormNames.PRINCIPAL,kerberosConfig.getString(FormNames.PRINCIPAL));
+            dataSourceJson.put(FormNames.PRINCIPAL, kerberosConfig.getString(FormNames.PRINCIPAL));
         }
-        if(DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson()) && dsInfo.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())){
+        if (DataSourceUtils.judgeOpenKerberos(dsInfo.getDataJson()) && dsInfo.getDataType().equals(DataSourceTypeEnum.KAFKA.getDataType())) {
             //kafka开启了kerberos认证
-            dataSourceJson.put(FormNames.AUTHENTICATION,FormNames.KERBROS);
+            dataSourceJson.put(FormNames.AUTHENTICATION, FormNames.KERBROS);
         }
         return dsInfo;
     }
@@ -161,6 +180,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         }
         return this.getBaseMapper().deleteById(dataInfoId) > 0;
     }
+
     /**
      * 特殊表名处理
      *
@@ -288,6 +308,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
             map.put(confKey, conf);
         }
     }
+
     public String getDBFromJdbc(String jdbcUrl) {
         String[] split = jdbcUrl.split("/|\\?|;");
         if (split.length >= 3) {
@@ -296,11 +317,13 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         }
         return null;
     }
+
     public String getDBFromJdbc(Long sourceId) {
         DsInfo dsServiceInfoDTO = getOneById(sourceId);
         JSONObject json = JSONObject.parseObject(dsServiceInfoDTO.getDataJson());
         return getDBFromJdbc(json.getString(JDBC_URL));
     }
+
     /**
      * 处理 表字段平铺处理
      *
@@ -376,7 +399,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
             }
             String[] tablesName = tableNameStr.split(",");
             for (String singleTablesName : tablesName) {
-                String tName = dealSpecialTableName(singleTablesName.trim(),  source.getDataTypeCode(), schema);
+                String tName = dealSpecialTableName(singleTablesName.trim(), source.getDataTypeCode(), schema);
                 SqlQueryDTO sqlQueryDTO = SqlQueryDTO.builder().tableName(tName).build();
                 sqlQueryDTO.setFilterPartitionColumns(true);
                 List<ColumnMetaDTO> columnMetaDTOList = ClientCache.getClient(source.getDataTypeCode()).getColumnMetaData(sourceDTO, sqlQueryDTO);
@@ -501,8 +524,10 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         }
         return binLogList;
     }
+
     /**
      * 通过数据源主键id获取特定数据源
+     *
      * @param dsInfoId
      * @return
      */
@@ -520,6 +545,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     /**
      * 判断当前数据源新增或者编辑是否有重名
+     *
      * @param dsInfo
      * @return
      */
@@ -532,6 +558,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     /**
      * 根据租户查询数据源列表
+     *
      * @param tenantId
      * @return
      */
@@ -592,7 +619,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     }
 
     public List<String> getTopicData(Long sourceId, String topic, String previewModel) {
-        List<String> kafkaTopicData = getKafkaTopicData( sourceId, previewModel, topic);
+        List<String> kafkaTopicData = getKafkaTopicData(sourceId, previewModel, topic);
         if (kafkaTopicData != null && kafkaTopicData.size() > TOPIC_MESSAGE_LENGTH) {
             kafkaTopicData = kafkaTopicData.subList(0, TOPIC_MESSAGE_LENGTH);
         }
@@ -620,7 +647,6 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         }
         return records.stream().map(Object::toString).collect(Collectors.toList());
     }
-
 
     public List<DsListVO> total(DsListParam dsListParam) {
         dsListParam.setCurrentPage(1);

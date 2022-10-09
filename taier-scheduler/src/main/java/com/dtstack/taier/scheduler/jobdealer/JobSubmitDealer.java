@@ -20,6 +20,7 @@ package com.dtstack.taier.scheduler.jobdealer;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dtstack.taier.common.BlockCallerPolicy;
+import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EJobCacheStage;
 import com.dtstack.taier.common.enums.EJobClientType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -46,6 +47,7 @@ import com.dtstack.taier.scheduler.jobdealer.cache.ShardCache;
 import com.dtstack.taier.scheduler.server.JobPartitioner;
 import com.dtstack.taier.scheduler.server.queue.GroupInfo;
 import com.dtstack.taier.scheduler.server.queue.GroupPriorityQueue;
+import com.dtstack.taier.scheduler.service.ComponentService;
 import com.dtstack.taier.scheduler.service.ScheduleJobCacheService;
 import com.dtstack.taier.scheduler.service.ScheduleJobExpandService;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +63,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * company: www.dtstack.com
@@ -395,6 +399,44 @@ public class JobSubmitDealer implements Runnable {
         } catch (Throwable e) {
             handlerFailedWithRetry(jobClient, true, e);
         }
+    }
+
+    private RdbJobExecutor getRdbJobExecutor(JobClient jobClient) {
+        if (rdbJobExecutor == null) {
+            try {
+                rdbExecutorLock.lock();
+                // 获取集群信息
+                String pluginInfo = jobClient.getPluginInfo();
+                if (StringUtils.isBlank(pluginInfo)) {
+                    // 查询组件信息
+                    Integer componentType = EScheduleJobType.getByTaskType(jobClient.getTaskType()).getComponentType().getTypeCode();
+                    pluginInfo = componentService.getComponentByTenantId(jobClient.getTenantId(), componentType);
+                }
+
+                if (StringUtils.isNotBlank(pluginInfo)) {
+                    JSONObject jsonObject = JSONObject.parseObject(pluginInfo);
+                    Integer queueSize = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_QUEUE_SIZE);
+                    Integer minNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MIN_NUM);
+                    Integer maxNum = jsonObject.getInteger(CommonConstant.RDB_SUBMIT_CONSUMER_MAX_NUM);
+                    rdbJobExecutor = new RdbJobExecutor(queueSize, minNum, maxNum, applicationContext);
+                } else {
+                    rdbJobExecutor = new RdbJobExecutor(null, null, null, applicationContext);
+                }
+                new ThreadPoolExecutor(
+                        jobSubmitConcurrent,
+                        jobSubmitConcurrent,
+                        60L,
+                        TimeUnit.SECONDS,
+                        new SynchronousQueue<>(true),
+                        new CustomThreadFactory(this.getClass().getSimpleName() + "_" + jobResource + "_RdbJobExecutor"),
+                        new BlockCallerPolicy()
+                ).execute(rdbJobExecutor);
+
+            } finally {
+                rdbExecutorLock.unlock();
+            }
+        }
+        return rdbJobExecutor;
     }
 
 

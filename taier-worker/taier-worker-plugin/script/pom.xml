@@ -18,16 +18,3 @@
         <module>yarn2-hdfs2-script</module>
         <module>yarn3-hdfs3-script</module>
     </modules>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java/</directory>
-            </resource>
-            <resource>
-                <directory>src/main/resources/</directory>
-            </resource>
-        </resources>
-    </build>
-
-</project>
