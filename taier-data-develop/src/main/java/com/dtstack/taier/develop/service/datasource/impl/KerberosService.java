@@ -1,23 +1,13 @@
 package com.dtstack.taier.develop.service.datasource.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IKerberos;
-import com.dtstack.dtcenter.loader.kerberos.HadoopConfTool;
-import com.dtstack.taier.common.constant.FormNames;
-import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.env.EnvironmentContext;
-import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.PubSvcDefineException;
 import com.dtstack.taier.common.kerberos.KerberosConfigVerify;
 import com.dtstack.taier.common.sftp.SFTPHandler;
-import com.dtstack.taier.common.util.DataSourceUtils;
-import com.dtstack.taier.common.util.Strings;
-import com.dtstack.taier.dao.domain.po.DsInfoBO;
 import com.dtstack.taier.scheduler.service.ClusterService;
-import com.jcraft.jsch.SftpException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,23 +20,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-
 /**
  * Kerberos 服务类
- * @description:
- * @author: liuxx
- * @date: 2021/3/19
+ *
+ * @author liu
+ * date 2021/3/19
  */
 @Service
 public class KerberosService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KerberosService.class);
 
-
     private static final String DS_CENTER = "DsCenter";
-
-    private static final String SFTP_CONF = "sftpConf";
-
 
     @Autowired
     private EnvironmentContext environmentContext;
@@ -54,12 +39,12 @@ public class KerberosService {
     @Autowired
     private ClusterService clusterService;
 
-
     /**
      * 上传本地配置目录到sftp
-     * @param configMap
-     * @param srcDir
-     * @param dataSourceKey
+     *
+     * @param configMap     sftp 配置
+     * @param srcDir        本地文件路径
+     * @param dataSourceKey sourceKey
      */
     public static void uploadDirFinal(Map<String, String> configMap, String srcDir, String dataSourceKey) {
         SFTPHandler handler = SFTPHandler.getInstance(configMap);
@@ -78,9 +63,10 @@ public class KerberosService {
 
     /**
      * 设置SFTP路径
-     * @param configMap
-     * @param dataSourceKey
-     * @return
+     *
+     * @param configMap     sftp 配置
+     * @param dataSourceKey sourceKey
+     * @return sftp 绝对路径
      */
     public static String getSftpPath(Map<String, String> configMap, String dataSourceKey) {
         String dstDir = configMap.get("path");
@@ -89,18 +75,19 @@ public class KerberosService {
 
     /**
      * 设置 Kerberos 临时文件目录
-     * @param userId
-     * @return
+     *
+     * @param userId 用户 id
+     * @return kerberos 文件临时存放目录
      */
     public String getTempLocalKerberosConf(Long userId) {
         return getLocalKerberosPath(null) + File.separator + "USER_" + userId.toString();
     }
 
-
     /**
      * 获取特定数据源 Kerberos 配置文件地址
-     * @param sourceId
-     * @return
+     *
+     * @param sourceId 本地 kerberos 临时目录
+     * @return kerberos 目录
      */
     public String getLocalKerberosPath(Long sourceId) {
         String kerberosPath = environmentContext.getTempDir();
@@ -108,12 +95,12 @@ public class KerberosService {
         return kerberosPath + File.separator + key;
     }
 
-
     /**
      * 数据源地址规则
-     * @param sourceId
-     * @param prefix
-     * @return
+     *
+     * @param sourceId 数据源 id
+     * @param prefix   sourceKey 前缀
+     * @return 数据源 sftp 配置路径
      */
     public String getSourceKey(Long sourceId, String prefix) {
         prefix = StringUtils.isBlank(prefix) ? DS_CENTER :
@@ -121,38 +108,16 @@ public class KerberosService {
         return prefix + "_" + Optional.ofNullable(sourceId).orElse(0L);
     }
 
-
-    /**
-     * 从SFTP上下载特定数据源的信息
-     * @param sourceId
-     * @param dataJson
-     * @param localKerberosConf
-     * @param tenantId
-     * @throws SftpException
-     */
-    public void downloadKerberosFromSftp(Integer isMeta, Long sourceId, JSONObject dataJson, String localKerberosConf, Long tenantId) throws SftpException {
-        // 需要读取配置文件
-        Map<String, String> sftpMap = getSftpMap(tenantId);
-        String kerberosDir;
-        if (isMeta == 1){
-            JSONObject kerberosConfig = dataJson.getJSONObject(FormNames.KERBEROS_CONFIG);
-            String remotePath = kerberosConfig.getString("remotePath");
-            kerberosDir = remotePath.substring(remotePath.indexOf("CONSOLE"));
-        }else{
-            kerberosDir = getSourceKey(sourceId, null);
-        }
-        KerberosConfigVerify.downloadKerberosFromSftp(kerberosDir, localKerberosConf, sftpMap, dataJson.getTimestamp(FormNames.KERBEROS_FILE_TIMESTAMP));
-    }
-
     /**
      * 获取集群SFTP配置信息
-     * @param tenantId
-     * @return
+     *
+     * @param tenantId 租户 id
+     * @return sftp 配置
      */
     public Map<String, String> getSftpMap(Long tenantId) {
-        Map<String,String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
         // 解析SFTP配置信息
-        JSONObject sftpConfig = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(),null);
+        JSONObject sftpConfig = clusterService.getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
         if (Objects.isNull(sftpConfig)) {
             throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
         } else {
@@ -162,46 +127,4 @@ public class KerberosService {
         }
         return map;
     }
-    @Autowired
-    private DsTypeService dsTypeService;
-
-    /**
-     * 预处理Kerberos配置
-     */
-    public void prepareKerberosConfig(DsInfoBO dsInfoBO){
-        if (dsInfoBO.getKerberosConfig()==null) {
-            return;
-        }
-        try {
-            // 获取kerberos本地路径
-            String localKerberosConf = getLocalKerberosPath(dsInfoBO.getId());
-            downloadKerberosFromSftp(dsInfoBO.getIsMeta(), dsInfoBO.getId(),
-                    DataSourceUtils.getDataSourceJson(dsInfoBO.getDataJson()), localKerberosConf, dsInfoBO.getTenantId());
-        } catch (SftpException e) {
-            throw new DtCenterDefException(String.format("获取kerberos认证文件失败,Caused by: %s", e.getMessage()), e);
-        }
-        String localKerberosPath = getLocalKerberosPath(dsInfoBO.getId());
-        JSONObject dataJson = dsInfoBO.getData();
-        //principal 键
-        String principal = dataJson.getString(FormNames.PRINCIPAL);
-        Map<String, Object> kerberosConfig = dsInfoBO.getKerberosConfig();
-        if (Strings.isNotBlank(principal)) {
-            kerberosConfig.put(HadoopConfTool.PRINCIPAL, principal);
-        }
-        //Hbase master kerberos Principal
-        String hbaseMasterPrincipal = dataJson.getString(FormNames.HBASE_MASTER_PRINCIPAL);
-        if (Strings.isNotBlank(hbaseMasterPrincipal)) {
-            kerberosConfig.put(HadoopConfTool.HBASE_MASTER_PRINCIPAL, hbaseMasterPrincipal);
-        }
-        //Hbase region kerberos Principal
-        String hbasePrincipal = dataJson.getString(FormNames.HBASE_REGION_PRINCIPAL);
-        if (Strings.isNotBlank(hbasePrincipal)) {
-            kerberosConfig.put(HadoopConfTool.HBASE_REGION_PRINCIPAL, hbasePrincipal);
-        }
-        DataSourceTypeEnum typeEnum = DataSourceTypeEnum.typeVersionOf(dsInfoBO.getDataType(), dsInfoBO.getDataVersion());
-        IKerberos kerberos = ClientCache.getKerberos(typeEnum.getVal());
-        kerberos.prepareKerberosForConnect(kerberosConfig, localKerberosPath);
-        dsInfoBO.setKerberosConfig(kerberosConfig);
-    }
-
 }

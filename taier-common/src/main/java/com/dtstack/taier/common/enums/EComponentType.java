@@ -25,30 +25,39 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public enum EComponentType {
 
-    FLINK(0, "Flink", "flinkConf",EComponentScheduleType.COMPUTE),
-    SPARK(1, "Spark", "sparkConf",EComponentScheduleType.COMPUTE),
-    HDFS(2, "HDFS", "hadoopConf",EComponentScheduleType.STORAGE),
-    YARN(3, "YARN", "yarnConf",EComponentScheduleType.RESOURCE),
-    SPARK_THRIFT(4, "SparkThrift", "hiveConf",EComponentScheduleType.COMPUTE),
-    HIVE_SERVER(5, "HiveServer", "hiveServerConf",EComponentScheduleType.COMPUTE),
-    SFTP(6, "SFTP", "sftpConf",EComponentScheduleType.COMMON),
-    OCEAN_BASE(7, "OceanBase", "oceanBaseConf",EComponentScheduleType.COMPUTE),
-
+    FLINK(0, "Flink", "flinkConf", EComponentScheduleType.COMPUTE),
+    SPARK(1, "Spark", "sparkConf", EComponentScheduleType.COMPUTE),
+    HDFS(2, "HDFS", "hadoopConf", EComponentScheduleType.STORAGE),
+    YARN(3, "YARN", "yarnConf", EComponentScheduleType.RESOURCE),
+    SPARK_THRIFT(4, "SparkThrift", "hiveConf", EComponentScheduleType.COMPUTE),
+    HIVE_SERVER(5, "HiveServer", "hiveServerConf", EComponentScheduleType.COMPUTE),
+    SFTP(6, "SFTP", "sftpConf", EComponentScheduleType.COMMON),
+    OCEAN_BASE(7, "OceanBase", "oceanBaseConf", EComponentScheduleType.COMPUTE),
+    GaussDB(8, "GaussDB", "gaussDBConf", EComponentScheduleType.COMPUTE),
+    IMPALA(9, "Impala", "impalaConf", EComponentScheduleType.COMPUTE),
+    TIDB(10, "TiDB", "tidbConf", EComponentScheduleType.COMPUTE),
+    ORACLE(11, "Oracle", "oracleConf", EComponentScheduleType.COMPUTE),
+    GREENPLUM(12, "Greenplum", "greenplumConf", EComponentScheduleType.COMPUTE),
+    INCEPTOR(13, "Inceptor", "inceptorConf", EComponentScheduleType.COMPUTE),
+    MYSQL(14, "Mysql", "mysqlConf", EComponentScheduleType.COMPUTE),
+    SQLSERVER(15, "SqlServer", "sqlServerConf", EComponentScheduleType.COMPUTE),
+    DB2(16, "DB2", "db2Conf", EComponentScheduleType.COMPUTE),
+    TRINO(17, "Trino", "trinoConf", EComponentScheduleType.COMPUTE),
+    HANA(19, "Hana", "hanaConf", EComponentScheduleType.COMPUTE),
     ;
 
-    private Integer typeCode;
+    private final Integer typeCode;
 
-    private String name;
+    private final String name;
 
-    private String confName;
+    private final String confName;
 
-    private EComponentScheduleType componentScheduleType;
+    private final EComponentScheduleType componentScheduleType;
 
 
-    EComponentType(int typeCode, String name, String confName,EComponentScheduleType componentScheduleType) {
+    EComponentType(int typeCode, String name, String confName, EComponentScheduleType componentScheduleType) {
         this.typeCode = typeCode;
         this.name = name;
         this.confName = confName;
@@ -112,7 +121,7 @@ public enum EComponentType {
     }
 
     // hadoop引擎组件
-    private static List<EComponentType> HadoopComponents = Lists.newArrayList(
+    private static final List<EComponentType> HadoopComponents = Lists.newArrayList(
             EComponentType.SPARK, EComponentType.SPARK_THRIFT,
             EComponentType.FLINK, EComponentType.HIVE_SERVER,
             EComponentType.YARN
@@ -126,16 +135,16 @@ public enum EComponentType {
     }
 
     // 需要添加TypeName的组件
-    public static List<EComponentType> typeComponentVersion = Lists.newArrayList(
+    public static final List<EComponentType> typeComponentVersion = Lists.newArrayList(
             EComponentType.FLINK, EComponentType.SPARK,
             EComponentType.HDFS, EComponentType.HIVE_SERVER
     );
 
     //允许一个组件多个版本
-    public static List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK, EComponentType.SPARK);
+    public static final List<EComponentType> multiVersionComponents = Lists.newArrayList(EComponentType.FLINK, EComponentType.SPARK);
 
     //没有控件渲染的组件
-    public static List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
+    public static final List<EComponentType> noControlComponents = Lists.newArrayList(EComponentType.YARN, EComponentType.HDFS);
 
 }
 

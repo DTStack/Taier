@@ -1,9 +1,9 @@
 package com.dtstack.taier.develop.service.develop.runner;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.dto.source.SparkSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.SparkSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.engine.JdbcInfo;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;

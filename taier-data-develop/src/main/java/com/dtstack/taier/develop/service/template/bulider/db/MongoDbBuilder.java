@@ -1,12 +1,12 @@
 package com.dtstack.taier.develop.service.template.bulider.db;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.dto.source.MongoSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.MongoSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Component
 public class MongoDbBuilder implements DbBuilder{
-    private static final String DEFAULT_MONGO_COLLECTION_CREATE_SQL = "db.createCollection('%s')";
+
     @Override
     public IClient getClient() {
         return ClientCache.getClient(getDataSourceType().getVal());

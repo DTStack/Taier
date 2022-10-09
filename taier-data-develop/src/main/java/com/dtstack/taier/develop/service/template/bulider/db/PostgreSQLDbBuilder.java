@@ -1,8 +1,8 @@
 package com.dtstack.taier.develop.service.template.bulider.db;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Component
 public class PostgreSQLDbBuilder extends AbsRdbmsDbBuilder {
 
-    private static Pattern sys = Pattern.compile("^pg_|gp_toolkit|information_schema");
+    private static final Pattern sys = Pattern.compile("^pg_|gp_toolkit|information_schema");
 
     @Override
     public List<String> listSchemas(ISourceDTO sourceDTO, String db) {

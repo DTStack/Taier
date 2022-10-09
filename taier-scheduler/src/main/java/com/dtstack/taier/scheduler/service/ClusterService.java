@@ -23,6 +23,7 @@ import com.dtstack.taier.common.enums.EComponentScheduleType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
+import com.dtstack.taier.common.exception.PubSvcDefineException;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.ComponentVersionUtil;
 import com.dtstack.taier.dao.domain.Cluster;
@@ -46,8 +47,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.dtstack.taier.pluginapi.constrant.ConfigConstant.CLUSTER;
@@ -135,6 +138,29 @@ public class ClusterService {
 
     public Cluster getCluster(Long clusterId) {
         return clusterMapper.selectById(clusterId);
+    }
+
+    /**
+     * 获取集群SFTP配置信息
+     *
+     * @param tenantId 租户 id
+     * @return sftp 配置
+     */
+    public Map<String, String> getSftp(Long tenantId) {
+        if (Objects.isNull(tenantId)) {
+            return null;
+        }
+        Map<String, String> map = new HashMap<>();
+        // 解析SFTP配置信息
+        JSONObject sftpConfig = getConfigByKey(tenantId, EComponentType.SFTP.getConfName(), null);
+        if (Objects.isNull(sftpConfig)) {
+            throw new PubSvcDefineException(ErrorCode.CAN_NOT_FIND_SFTP);
+        } else {
+            for (String key : sftpConfig.keySet()) {
+                map.put(key, sftpConfig.getString(key));
+            }
+        }
+        return map;
     }
 
     public JSONObject getConfigByKey(Long tenantId, String componentConfName, String componentVersion) {

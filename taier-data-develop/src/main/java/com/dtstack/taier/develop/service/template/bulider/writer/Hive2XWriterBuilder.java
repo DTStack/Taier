@@ -2,12 +2,12 @@ package com.dtstack.taier.develop.service.template.bulider.writer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.Table;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.Table;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -21,7 +21,6 @@ import com.dtstack.taier.develop.enums.develop.SyncWriteMode;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.PluginName;
-import com.dtstack.taier.develop.service.template.bulider.db.HiveDbBuilder;
 import com.dtstack.taier.develop.service.template.hdfs.HdfsWriter;
 import com.dtstack.taier.develop.service.template.hive.Hive2XWriter;
 import com.dtstack.taier.develop.service.template.hive.Hive2XWriterParam;
@@ -50,10 +49,10 @@ public class Hive2XWriterBuilder implements DaWriterBuilder {
 
     @Autowired
     DsInfoService dataSourceAPIClient;
-    @Autowired
-    HiveDbBuilder hiveDbBuilder;
+
     @Autowired
     DatasourceService datasourceService;
+
     public static final String WRITE_TABLE_TYPE = "writeTableType";
 
     @Override

@@ -2,7 +2,7 @@ package com.dtstack.taier.develop.service.template.rdbms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.develop.service.template.BaseWriterPlugin;
 import org.apache.commons.lang.StringUtils;
