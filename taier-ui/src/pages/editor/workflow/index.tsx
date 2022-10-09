@@ -6,7 +6,6 @@ import taskSaveService from '@/services/taskSaveService';
 import { formItemLayout, TASK_TYPE_ENUM } from '@/constant';
 import context from '@/context';
 import classNames from 'classnames';
-import { taskTypeText } from '@/utils/enums';
 import ReactDOMServer from 'react-dom/server';
 import { taskRenderService } from '@/services';
 import MxGraphContainer, { WIDGETS_PREFIX } from '@/components/mxGraph/container';
@@ -142,7 +141,7 @@ function Workflow({ current }: molecule.model.IEditor) {
 	// 渲染拖拽的预览节点
 	const handleRenderPreview = (node: HTMLElement) => {
 		const taskType = Number(node.dataset.type);
-		const text = taskTypeText(taskType);
+		const text = supportJobTypes.find((type) => type.key === taskType)?.value || '';
 		const previewDragTarget = document.createElement('div');
 		previewDragTarget.className = 'workflow__preview__vertex';
 		previewDragTarget.setAttribute('data-item', text);
@@ -329,7 +328,9 @@ function Workflow({ current }: molecule.model.IEditor) {
 					{value[isEditing] && <Badge status="processing" />}
 					{value.name || '-'}
 				</div>
-				<div className="workflow__vertex__taskType">{taskTypeText(value.taskType)}</div>
+				<div className="workflow__vertex__taskType">
+					{supportJobTypes.find((i) => i.key === value.taskType)?.value || '未知'}
+				</div>
 			</div>,
 		);
 	};

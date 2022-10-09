@@ -405,6 +405,14 @@ class TaskSaveService extends GlobalEvent {
 							params.sourceMap.type || -1,
 						);
 
+						if (params.settingMap) {
+							params.settingMap.speed = /[\u4e00-\u9fa5]/.test(
+								params.settingMap!.speed,
+							)
+								? '-1'
+								: params.settingMap?.speed;
+						}
+
 						api.saveOfflineJobData({
 							...params,
 							// 修改task配置时接口要求的标记位
@@ -425,12 +433,6 @@ class TaskSaveService extends GlobalEvent {
 									  ]
 									: [],
 								rdbmsDaType: rdbmsDaType.Poll,
-							},
-							settingMap: {
-								...params.settingMap,
-								speed: /[\u4e00-\u9fa5]/.test(params.settingMap!.speed)
-									? '-1'
-									: params.settingMap?.speed,
 							},
 						}).then((res) => {
 							if (res.code === 1) {
