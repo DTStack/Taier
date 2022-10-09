@@ -79,7 +79,7 @@ public class RdbJobExecutor implements Runnable {
 
         this.queueSize = Objects.isNull(queueSize) ? DEFAULT_QUEUE_SIZE : queueSize;
 
-        this.rdbJobWaitQueue = new LinkedBlockingQueue<>(queueSize);
+        this.rdbJobWaitQueue = new LinkedBlockingQueue<>(this.queueSize);
         this.datasourceOperator = applicationContext.getBean(DatasourceOperator.class);
         this.jobDealer = applicationContext.getBean(JobDealer.class);
         this.jobRestartDealer = applicationContext.getBean(JobRestartDealer.class);

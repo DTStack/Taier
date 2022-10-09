@@ -1,9 +1,7 @@
 package com.dtstack.taier.datasource.api.source;
 
 import com.dtstack.taier.datasource.api.exception.SourceException;
-import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

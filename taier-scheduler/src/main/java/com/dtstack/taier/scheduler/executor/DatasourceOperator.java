@@ -1,6 +1,7 @@
 package com.dtstack.taier.scheduler.executor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DatasourceTypeUtil;
@@ -89,5 +90,50 @@ public class DatasourceOperator {
             LOGGER.error("jobId {} buildPluginInfo failed!", jobClient.getJobId(), e);
             throw new RdosDefineException("buildPluginInfo error", e);
         }
+    }
+
+    /**
+     * 上传 string 到 hdfs 路径
+     *
+     * @param pluginInfo pluginInfo
+     * @param tenantId   租户 id
+     * @param strContent str 信息
+     * @param hdfsPath   hdfs 路径
+     * @return 路径
+     */
+    public String uploadToHdfs(JSONObject pluginInfo, Long tenantId, String strContent, String hdfsPath) {
+        handleHdfsPluginInfo(pluginInfo, tenantId);
+        ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+        return ClientCache.getHdfs(sourceDTO.getSourceType()).uploadStringToHdfs(sourceDTO, strContent, hdfsPath);
+    }
+
+    /**
+     * 上传字节数组到 hdfs 路径
+     *
+     * @param pluginInfo pluginInfo
+     * @param tenantId   租户 id
+     * @param bytes      字节数组
+     * @param hdfsPath   hdfs 路径
+     */
+    public void uploadInputStreamToHdfs(JSONObject pluginInfo, Long tenantId, byte[] bytes, String hdfsPath) {
+        handleHdfsPluginInfo(pluginInfo, tenantId);
+        ISourceDTO sourceDTO = PluginInfoToSourceDTO.getSourceDTO(pluginInfo.toJSONString());
+        ClientCache.getHdfs(sourceDTO.getSourceType()).uploadInputStreamToHdfs(sourceDTO, bytes, hdfsPath);
+    }
+
+
+    /**
+     * 处理 pluginInfo 添加 dataSourceType
+     *
+     * @param pluginInfo pluginInfo
+     * @param tenantId   租户信息
+     */
+    public void handleHdfsPluginInfo(JSONObject pluginInfo, Long tenantId) {
+        Long clusterId = clusterService.getClusterIdByTenantId(tenantId);
+        // 获取组件信息
+        com.dtstack.taier.dao.domain.Component component = componentService.getComponentByClusterId(clusterId, EComponentType.HDFS.getTypeCode(), null);
+        // 获取对应的数据源类型
+        Integer dataSourceType = DatasourceTypeUtil.getTypeByComponentAndVersion(EComponentType.HDFS.getTypeCode(), component.getVersionName());
+        pluginInfo.put(DatasourceOperator.DATA_SOURCE_TYPE, dataSourceType);
     }
 }
