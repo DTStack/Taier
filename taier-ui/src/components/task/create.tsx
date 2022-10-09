@@ -21,7 +21,13 @@ import Context from '@/context';
 import { Button, Input, Select, Form, Spin, Empty } from 'antd';
 import molecule from '@dtinsight/molecule/esm';
 import FolderPicker from '../folderPicker';
-import type { DATA_SYNC_MODE, CREATE_MODEL_TYPE, TASK_TYPE_ENUM, FLINK_VERSIONS } from '@/constant';
+import {
+	DATA_SYNC_MODE,
+	CREATE_MODEL_TYPE,
+	TASK_TYPE_ENUM,
+	FLINK_VERSIONS,
+	PythonVersionKind,
+} from '@/constant';
 import { CATALOGUE_TYPE } from '@/constant';
 import type { CatalogueDataProps, IOfflineTaskProps } from '@/interface';
 import { connect } from '@dtinsight/molecule/esm/react';
@@ -60,6 +66,7 @@ export interface IFormFieldProps {
 	resourceIdList?: [number];
 	mainClass?: string;
 	exeArgs?: string;
+	pythonVersion?: PythonVersionKind;
 	componentVersion: Valueof<typeof FLINK_VERSIONS>;
 }
 
@@ -109,6 +116,7 @@ const Create = connect(
 
 								if (formFields) {
 									formFields.taskProperties.formField?.forEach((field) => {
+										console.log('field;', field);
 										// 特殊处理
 										if (field === 'syncModel') {
 											form.setFieldsValue({
@@ -116,6 +124,19 @@ const Create = connect(
 													syncModel: res.data.sourceMap?.syncModel,
 												},
 											});
+										} else if (field === 'pythonVersion') {
+											try {
+												const pyVersion: string | undefined = JSON.parse(
+													res.data.exeArgs,
+												)?.['--app-type'];
+
+												const version = pyVersion?.endsWith('3')
+													? PythonVersionKind.py3
+													: PythonVersionKind.py2;
+												form.setFieldsValue({
+													pythonVersion: version,
+												});
+											} catch {}
 										} else {
 											form.setFieldsValue({
 												[field]: res.data[field],
@@ -217,6 +238,8 @@ const Create = connect(
 								<Select<string>
 									placeholder="请选择任务类型"
 									disabled={!!record}
+									showSearch
+									optionFilterProp="label"
 									notFoundContent={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
 									options={supportJobTypes.map((t) => ({
 										label: t.value,
