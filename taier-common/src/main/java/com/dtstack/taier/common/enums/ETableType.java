@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.common.enums;
 
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.google.common.collect.Sets;
 

@@ -1,10 +1,10 @@
 package com.dtstack.taier.develop.flink.sql.source;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.dto.source.KafkaSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.KafkaSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.KafkaTimeFeature;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.MapUtil;
@@ -144,18 +144,18 @@ public class KafkaSourceTable extends AbstractSourceTable {
             String brokerList = StringUtils.isNotBlank(getAllParam().getString(KafkaSourceParamEnum.BOOT_STRAP_SERVERS.getFront())) ?
                     getAllParam().getString(KafkaSourceParamEnum.BOOT_STRAP_SERVERS.getFront()) : getAllParam().getString("brokerList");
             if (StringUtils.isBlank(brokerList)) {
-                brokerList = getAllBrokersAddress(getAllParam().getString("address"), null, DataSourceType.KAFKA.getVal());
+                brokerList = getAllBrokersAddress(getAllParam().getString("address"), null);
             }
             MapUtil.putIfValueNotNull(getAllParam(), KafkaSourceParamEnum.BOOT_STRAP_SERVERS.getFront(), brokerList);
         }
     }
 
-    public static String getAllBrokersAddress(String urls, String brokerUrls, Integer sourceType) {
+    public static String getAllBrokersAddress(String urls, String brokerUrls) {
         try {
             ISourceDTO sourceDTO = KafkaSourceDTO.builder().url(urls).build();
             String zkBrokersAddress = ClientCache.getKafka(DataSourceType.KAFKA.getVal()).getAllBrokersAddress(sourceDTO);
-            brokerUrls = org.apache.commons.lang3.StringUtils.isBlank(brokerUrls) ? "" : brokerUrls;
-            return org.apache.commons.lang3.StringUtils.isBlank(zkBrokersAddress) ? brokerUrls : zkBrokersAddress;
+            brokerUrls = StringUtils.isBlank(brokerUrls) ? "" : brokerUrls;
+            return StringUtils.isBlank(zkBrokersAddress) ? brokerUrls : zkBrokersAddress;
         } catch (Exception e) {
             throw new DtCenterDefException(e.getMessage(), e);
         }

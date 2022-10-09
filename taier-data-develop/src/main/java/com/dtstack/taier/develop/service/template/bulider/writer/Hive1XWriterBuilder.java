@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.service.template.bulider.writer;
 
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import org.springframework.stereotype.Component;
 
 @Component

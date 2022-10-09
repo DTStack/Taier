@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.service.template.bulider.nameMapping;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import org.springframework.stereotype.Component;
 

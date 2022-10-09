@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.constant.CommonConstant;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
@@ -328,7 +328,7 @@ public abstract class HadoopJdbcTaskRunner extends JdbcTaskRunner {
             return null;
         }
         int isSelectSql;
-        String sql = null;
+        String sql;
         if (SqlType.QUERY.equals(parseResult.getSqlType())) {
             isSelectSql = TempJobType.SELECT.getType();
             sql = buildSelectSqlCustomFunction(originSql, task.getTenantId(), database, tempTable, task.getTaskType());

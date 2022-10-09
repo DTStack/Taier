@@ -61,10 +61,6 @@ public class TestHadoopClient {
             HadoopClient client = new HadoopClient();
             client.init(properties);
 
-            ClusterResource clusterResource = client.getClusterResource();
-
-            LOG.info("submit success!");
-            LOG.info(clusterResource.toString());
             System.exit(0);
         } catch (Exception e) {
             LOG.error("submit error!", e);
