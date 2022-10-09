@@ -11,6 +11,8 @@ import {
 	FlinkSQLIcon,
 	HiveSQLIcon,
 	OceanBaseIcon,
+	PythonIcon,
+	ShellIcon,
 	SparkSQLIcon,
 	VirtualIcon,
 	WorkflowIcon,
@@ -146,6 +148,13 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 			<>
 				{field.formField?.map((f) => {
 					const DefinedComponent = scaffolds[f];
+					if (!DefinedComponent) {
+						notification.error({
+							key: 'UNDEFINED_DEFINED_COMPONENT',
+							message: `未定义的表单组件-「${f}」`,
+						});
+						return null;
+					}
 					return (
 						<DefinedComponent
 							key={f}
@@ -196,6 +205,10 @@ export default class TaskRenderService extends Component<ITaskRenderState> {
 				return <VirtualIcon />;
 			case TASK_TYPE_ENUM.WORK_FLOW:
 				return <WorkflowIcon style={{ color: '#2491F7' }} />;
+			case TASK_TYPE_ENUM.PYTHON:
+				return <PythonIcon />;
+			case TASK_TYPE_ENUM.SHELL:
+				return <ShellIcon />;
 			default:
 				return 'file';
 		}

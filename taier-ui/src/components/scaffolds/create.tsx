@@ -4,6 +4,7 @@ import {
 	DATA_SYNC_MODE,
 	FLINK_VERSIONS,
 	FLINK_VERSION_TYPE,
+	PythonVersionKind,
 } from '@/constant';
 import { Form, Input, Radio, Select } from 'antd';
 import { syncModeHelp, syncTaskHelp } from '../helpDoc/docs';
@@ -147,6 +148,15 @@ const ExeArgs = () => (
 	</Form.Item>
 );
 
+const PythonVersion = () => (
+	<Form.Item label="Python 版本" name="pythonVersion">
+		<Radio.Group>
+			<Radio value={PythonVersionKind.py2}>Python 2.x</Radio>
+			<Radio value={PythonVersionKind.py3}>Python 3.x</Radio>
+		</Radio.Group>
+	</Form.Item>
+);
+
 /**
  * key 值为服务端字段名，value 为组件名
  */
@@ -157,4 +167,5 @@ export default {
 	resourceIdList: Resource,
 	mainClass: MainClass,
 	exeArgs: ExeArgs,
+	pythonVersion: PythonVersion,
 } as Record<string, (...args: any[]) => JSX.Element>;

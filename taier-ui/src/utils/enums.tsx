@@ -378,6 +378,10 @@ export function mappingTaskTypeToLanguage(taskType: TASK_TYPE_ENUM) {
 		case TASK_TYPE_ENUM.SYNC:
 		case TASK_TYPE_ENUM.DATA_ACQUISITION:
 			return TASK_LANGUAGE.JSON;
+		case TASK_TYPE_ENUM.PYTHON:
+			return TASK_LANGUAGE.PYTHON;
+		case TASK_TYPE_ENUM.SHELL:
+			return TASK_LANGUAGE.SHELL;
 		default:
 			return TASK_LANGUAGE.SQL;
 	}
