@@ -17,7 +17,7 @@
  */
 
 import { useMemo } from 'react';
-import { Collapse, Input, Form } from 'antd';
+import { Collapse, Input, Form, Tooltip } from 'antd';
 import type { IOfflineTaskProps } from '@/interface';
 import molecule from '@dtinsight/molecule/esm';
 import { formItemLayout, PARAMS_ENUM } from '@/constant';
@@ -106,7 +106,11 @@ export default function TaskParams({ current }: IRightBarComponentProps) {
 									<FormItem
 										key={param.paramName}
 										{...formItemLayout}
-										label={param.paramName}
+										label={
+											<Tooltip className='taskParams__ellipsis' title={param.paramName}>
+												{param.paramName}
+											</Tooltip>
+										}
 										name={param.paramName}
 										rules={[
 											{
