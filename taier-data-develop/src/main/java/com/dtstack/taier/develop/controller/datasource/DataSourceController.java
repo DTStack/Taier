@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.controller.datasource;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.lang.coc.APITemplate;
 import com.dtstack.taier.common.lang.web.R;

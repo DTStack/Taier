@@ -18,7 +18,7 @@
 
 package com.dtstack.taier.develop.enums.develop;
 
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.google.common.collect.Sets;
 
 import java.util.Set;

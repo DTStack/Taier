@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- * 数据源类型枚举类 对应com.dtstack.dtcenter.loader.source.DataSourceType
+ * 数据源类型枚举类
  * @description:
  * @author: liuxx
  * @date: 2021/3/11

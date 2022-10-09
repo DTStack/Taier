@@ -140,6 +140,19 @@ public class ComponentService {
         }
     }
 
+    public String getComponentByTenantId(Long tenantId, Integer componentType) {
+        Long clusterId = clusterTenantMapper.getClusterIdByTenantId(tenantId);
+
+        if (clusterId == null) {
+            return "";
+        }
+
+        if (componentType == null) {
+            return "";
+        }
+        return getComponentByClusterId(clusterId, componentType, false, String.class, null);
+    }
+
     public Component getComponentByClusterId(Long clusterId, Integer componentType, String componentVersion) {
         return componentMapper.getByClusterIdAndComponentType(clusterId, componentType, componentVersion, null);
     }
