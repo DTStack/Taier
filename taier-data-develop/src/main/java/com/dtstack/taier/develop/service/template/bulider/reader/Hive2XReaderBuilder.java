@@ -2,23 +2,24 @@ package com.dtstack.taier.develop.service.template.bulider.reader;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.Table;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.Table;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Reader;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
 import com.dtstack.taier.develop.enums.develop.SyncWriteMode;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.service.template.PluginName;
-import com.dtstack.taier.develop.service.template.bulider.db.HiveDbBuilder;
 import com.dtstack.taier.develop.service.template.hive.Hive2XReader;
 import com.dtstack.taier.develop.service.template.hive.Hive2XReaderParam;
 import com.dtstack.taier.develop.utils.develop.sync.util.ColumnUtil;
@@ -28,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,11 +43,13 @@ import static com.dtstack.taier.develop.service.develop.impl.DevelopTaskService.
 public class Hive2XReaderBuilder implements DaReaderBuilder {
 
     @Autowired
-    DsInfoService dataSourceAPIClient;
+    private DsInfoService dsInfoService;
+
     @Autowired
-    HiveDbBuilder hiveDbBuilder;
+    private SourceLoaderService sourceLoaderService;
+
     @Autowired
-    DatasourceService datasourceService;
+    private DatasourceService datasourceService;
 
     @Override
     public void setReaderJson(TaskResourceParam param) {
@@ -56,7 +59,7 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
         }
 
         Long sourceId = Long.parseLong(map.get("sourceId").toString());
-        DsInfo source = dataSourceAPIClient.getOneById(sourceId);
+        DsInfo source = dsInfoService.getOneById(sourceId);
         map.put("source", source);
         map.put("type", source.getDataTypeCode());
         map.put("dataName", source.getDataName());
@@ -74,18 +77,7 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
         map.put(PASSWORD, json.getString(PASSWORD));
         //用于下载kerberos配置
         map.put("sourceId", sourceId);
-        map.put("sourceIds", Arrays.asList(sourceId));
-        String partition = param.getSourceMap().getOrDefault("partition","").toString();
-        List<String> partList = null;
-        if (StringUtils.isNotBlank(partition)) {
-            String[] parts = partition.split("/");
-            partList = new ArrayList<>();
-            for (String part : parts) {
-                String[] partDetail = part.split("=");
-                String partCol = partDetail[0];
-                partList.add(partCol);
-            }
-        }
+        map.put("sourceIds", Collections.singletonList(sourceId));
     }
 
     @Override
@@ -101,7 +93,8 @@ public class Hive2XReaderBuilder implements DaReaderBuilder {
                 try {
                     //获取hive客户端
                     IClient client = ClientCache.getClient(targetSource.getDataTypeCode());
-                    Table tableInfo = client.getTable(dataSourceAPIClient.getSourceDTO(targetSource.getId()), SqlQueryDTO.builder().tableName(hive2XReaderParam.getTable()).build());
+                    ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(targetSource.getId());
+                    Table tableInfo = client.getTable(sourceDTO, SqlQueryDTO.builder().tableName(hive2XReaderParam.getTable()).build());
                     hive2XReaderParam.setPath(tableInfo.getPath());
                     hive2XReaderParam.setFileType(tableInfo.getStoreType());
                     List<ColumnMetaDTO> columnMetaData = tableInfo.getColumns();

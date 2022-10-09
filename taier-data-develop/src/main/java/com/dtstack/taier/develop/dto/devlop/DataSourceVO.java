@@ -125,11 +125,6 @@ public class DataSourceVO{
     private Map<String, Object> kerberosConfig;
 
     /**
-     * 本地 Kerberos 地址
-     */
-    private String localKerberosConf;
-
-    /**
      * 授权产品编码 可为空
      */
     private List<Integer> appTypeList;
@@ -298,14 +293,6 @@ public class DataSourceVO{
 
     public void setKerberosConfig(Map<String, Object> kerberosConfig) {
         this.kerberosConfig = kerberosConfig;
-    }
-
-    public String getLocalKerberosConf() {
-        return localKerberosConf;
-    }
-
-    public void setLocalKerberosConf(String localKerberosConf) {
-        this.localKerberosConf = localKerberosConf;
     }
 
     public List<Integer> getAppTypeList() {
