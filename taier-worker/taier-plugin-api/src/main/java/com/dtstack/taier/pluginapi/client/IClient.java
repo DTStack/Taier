@@ -54,12 +54,6 @@ public interface IClient {
 
     ComponentTestResult testConnect(String pluginInfo);
 
-    List<List<Object>> executeQuery(String sql,String database);
-
-	String uploadStringToHdfs(String bytes, String hdfsPath);
-
-	ClusterResource getClusterResource();
-
 	List<String> getRollingLogBaseInfo(JobIdentifier jobIdentifier);
 
 	CheckResult grammarCheck(JobClient jobClient);

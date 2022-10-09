@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.service.template.es;
 
-import com.dtstack.dtcenter.loader.utils.AssertUtils;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;

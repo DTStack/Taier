@@ -32,8 +32,8 @@
 
 
         <dependency>
-            <groupId>com.dtstack.dtcenter</groupId>
-            <artifactId>common.loader.core</artifactId>
+            <groupId>com.dtstack.taier</groupId>
+            <artifactId>taier-datasource-api</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
@@ -100,6 +100,10 @@
             <version>3.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <!-- DAG -->
 
         <dependency>
