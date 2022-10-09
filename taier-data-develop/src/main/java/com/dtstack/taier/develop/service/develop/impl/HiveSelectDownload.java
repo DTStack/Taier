@@ -18,13 +18,13 @@
 
 package com.dtstack.taier.develop.service.develop.impl;
 
-import com.dtstack.dtcenter.loader.IDownloader;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.Table;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.Table;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
 
@@ -79,15 +79,6 @@ public class HiveSelectDownload implements IDownload {
     }
 
     @Override
-    public void configure() {
-        try {
-            pluginDownloader.configure();
-        } catch (Exception e) {
-            throw new DtCenterDefException("下载器configure失败", e);
-        }
-    }
-
-    @Override
     public List<String> getMetaInfo() {
         try {
             return pluginDownloader.getMetaInfo();
@@ -127,11 +118,6 @@ public class HiveSelectDownload implements IDownload {
         } catch (Exception e) {
             throw new DtCenterDefException("下载器close失败", e);
         }
-    }
-
-    @Override
-    public String getFileName() {
-        return pluginDownloader.getFileName();
     }
 
     /**

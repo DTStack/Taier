@@ -29,64 +29,107 @@ public enum EScheduleJobType {
     /**
      * 虚节点
      */
-    VIRTUAL(-1, "虚节点", -1, 0, null, EComputeType.BATCH),
+    VIRTUAL(-1, "虚节点", -1, 0, null, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * SparkSQL
      */
-    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH),
-
-    /**
-     * Spark
-     */
-//    SPARK(1, "Spark", EJobType.SQL.getType(), 2, EComponentType.SPARK, EComputeType.BATCH),
+    SPARK_SQL(0, "SparkSQL", EJobType.SQL.getType(), 1, EComponentType.SPARK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * 数据同步
      */
-    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH),
-
-
-    /**
-     * shell
-     */
-//    SHELL(3, "Shell", 2, 3, null, EComputeType.BATCH),
+    SYNC(2, "数据同步", EJobType.SYNC.getType(), 3, EComponentType.FLINK, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * FlinkSQL
      */
-    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_SQL(5, "FlinkSQL", EJobType.SQL.getType(), 5, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * 实时采集
      */
-    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM),
+    DATA_ACQUISITION(6, "实时采集", EJobType.SYNC.getType(), 4, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * HiveSQL
      */
-    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, EComponentType.HIVE_SERVER, EComputeType.BATCH),
+    HIVE_SQL(7, "HiveSQL", EJobType.SQL.getType(), 4, EComponentType.HIVE_SERVER, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * OceanBaseSQL
      */
-    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN_BASE, EComputeType.BATCH),
+    OCEANBASE_SQL(8, "OceanBaseSQL", EJobType.SQL.getType(), 4, EComponentType.OCEAN_BASE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
 
     /**
      * 工作流
      */
-    WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH),
+    WORK_FLOW(10, "工作流", -1, 9, null, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
 
     /**
      * Flink
      */
-    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM),
+    FLINK_MR(11, "Flink", EJobType.MR.getType(), 11, EComponentType.FLINK, EComputeType.STREAM, EJobClientType.ENGINE_PLUGIN),
 
+    /**
+     * GaussDBSQL
+     */
+    GaussDB_SQL(12, "GaussDBSQL", EJobType.SQL.getType(), 4, EComponentType.GaussDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * ImpalaSQL
+     */
+    IMPALA_SQL(13, "ImpalaSQL", EJobType.SQL.getType(), 4, EComponentType.IMPALA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * TiDBSQL
+     */
+    TIDB_SQL(14, "TiDBSQL", EJobType.SQL.getType(), 4, EComponentType.TIDB, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * OracleSQL
+     */
+    ORACLE_SQL(15, "OracleSQL", EJobType.SQL.getType(), 4, EComponentType.ORACLE, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * GreenplumSQL
+     */
+    GREENPLUM_SQL(16, "GreenplumSQL", EJobType.SQL.getType(), 4, EComponentType.GREENPLUM, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * InceptorSQL
+     */
+    INCEPTOR_SQL(18, "InceptorSQL", EJobType.SQL.getType(), 4, EComponentType.INCEPTOR, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * MySQL
+     */
+    MYSQL(19, "MySQL", EJobType.SQL.getType(), 4, EComponentType.MYSQL, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * SQLServerSQL
+     */
+    SQL_SERVER_SQL(20, "SQLServerSQL", EJobType.SQL.getType(), 4, EComponentType.SQLSERVER, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * DB2SQL
+     */
+    DB2_SQL(21, "DB2SQL", EJobType.SQL.getType(), 4, EComponentType.DB2, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * TrinoSQL
+     */
+    TRINO_SQL(22, "TrinoSQL", EJobType.SQL.getType(), 4, EComponentType.TRINO, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
+
+    /**
+     * HanaSQL
+     */
+    HANA_SQL(23, "HanaSQL", EJobType.SQL.getType(), 4, EComponentType.HANA, EComputeType.BATCH, EJobClientType.DATASOURCE_PLUGIN),
     ;
 
-    private Integer type;
+    private final Integer type;
 
-    private String name;
+    private final String name;
 
     /**
      * 引擎能够接受的jobType
@@ -96,17 +139,21 @@ public enum EScheduleJobType {
      * PYTHON           3
      * 不接受的任务类型    -1
      */
-    private Integer engineJobType;
+    private final Integer engineJobType;
 
-    private Integer sort;
+    private final Integer sort;
 
-    private EComponentType componentType;
+    private final EComponentType componentType;
 
     /**
      * 任务所属类型
      */
-    private EComputeType computeType;
+    private final EComputeType computeType;
 
+    /**
+     * job client 类型 {@link EJobClientType}
+     */
+    private final EJobClientType jobClientType;
 
     public static final List<Integer> STREAM_JOB_TYPES = new ArrayList<>();
     public static final List<Integer> BATCH_JOB_TYPES = new ArrayList<>();
@@ -122,15 +169,15 @@ public enum EScheduleJobType {
         }
     }
 
-    EScheduleJobType(Integer type, String name, Integer engineJobType, Integer sort, EComponentType componentType, EComputeType computeType) {
+    EScheduleJobType(Integer type, String name, Integer engineJobType, Integer sort, EComponentType componentType, EComputeType computeType, EJobClientType jobClientType) {
         this.type = type;
         this.name = name;
         this.engineJobType = engineJobType;
         this.sort = sort;
         this.componentType = componentType;
         this.computeType = computeType;
+        this.jobClientType = jobClientType;
     }
-
     public static EScheduleJobType getByTaskType(int type) {
         EScheduleJobType[] eJobTypes = EScheduleJobType.values();
         for (EScheduleJobType eJobType : eJobTypes) {
@@ -173,4 +220,7 @@ public enum EScheduleJobType {
         return componentType;
     }
 
+    public EJobClientType getJobClientType() {
+        return jobClientType;
+    }
 }

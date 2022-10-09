@@ -4,12 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.Mysql5SourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
@@ -52,8 +52,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 
-import static com.dtstack.taier.develop.enums.develop.SourceDTOType.JDBC_PASSWORD;
-import static com.dtstack.taier.develop.enums.develop.SourceDTOType.JDBC_USERNAME;
 import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREATE_MODEL_TEMPLATE;
 
 
@@ -65,6 +63,7 @@ import static com.dtstack.taier.develop.utils.develop.common.enums.Constant.CREA
  */
 @Component
 public class MysqlReaderBuilder implements DaReaderBuilder {
+
     private Map<Integer, DaReaderBuilder> builderMap = new HashMap<>();
     @Autowired
     private DsInfoService dsInfoService;

@@ -27,4 +27,11 @@ public interface CommonConstant {
 
     String DOWNLOAD_LOG = ConfigConstant.REQUEST_PREFIX + "/developDownload/downloadJobLog?jobId=%s&taskType=%s&tenantId=%s";
 
+    String DATASOURCE_PREFIX = "taier.datasource.";
+
+    String RDB_SUBMIT_QUEUE_SIZE = "jobQueueSize";
+
+    String RDB_SUBMIT_CONSUMER_MIN_NUM = "minJobPoolSize";
+
+    String RDB_SUBMIT_CONSUMER_MAX_NUM = "maxJobPoolSize";
 }

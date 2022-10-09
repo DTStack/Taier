@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.service.develop;
 
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.dao.domain.DevelopSelectSql;
 import com.dtstack.taier.dao.domain.Task;

@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.flink.sql.core;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.develop.flink.sql.side.AbstractSideTable;
 import com.dtstack.taier.develop.flink.sql.side.MySqlSideTable;

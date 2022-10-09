@@ -159,28 +159,6 @@ public class ClientOperator {
         return clusterClient.submitJob(jobClient);
     }
 
-    public ComponentTestResult testConnect(String pluginInfo){
-        JSONObject pluginConfig = JSONObject.parseObject(pluginInfo);
-        String typeName = pluginConfig.getString(ConfigConstant.TYPE_NAME_KEY);
-        IClient clusterClient = clientCache.getDefaultPlugin(typeName);
-        return clusterClient.testConnect(pluginInfo);
-    }
-
-    public List<List<Object>> executeQuery(String pluginInfo, String sql, String database) throws Exception {
-        IClient client = clientCache.getClient(pluginInfo);
-        return client.executeQuery(sql, database);
-    }
-
-    public String uploadStringToHdfs(String pluginInfo, String bytes, String hdfsPath) throws Exception {
-        IClient client = clientCache.getClient(pluginInfo);
-        return client.uploadStringToHdfs(bytes, hdfsPath);
-    }
-
-    public ClusterResource getClusterResource(String pluginInfo) throws ClientAccessException{
-        IClient client = clientCache.getClient(pluginInfo);
-        return client.getClusterResource();
-    }
-
     public List<FileResult> listFile(String path,boolean isPathPattern, String pluginInfo) throws Exception {
         IClient client = clientCache.getClient(pluginInfo);
         return client.listFile(path,isPathPattern);
