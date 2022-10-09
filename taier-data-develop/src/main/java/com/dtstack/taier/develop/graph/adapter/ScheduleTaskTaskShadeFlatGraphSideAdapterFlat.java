@@ -1,6 +1,6 @@
 package com.dtstack.taier.develop.graph.adapter;
 
-import com.dtstack.dtcenter.loader.utils.AssertUtils;
+import com.dtstack.taier.datasource.api.utils.AssertUtils;
 import com.dtstack.taier.dao.domain.ScheduleTaskTaskShade;
 import com.dtstack.taier.develop.graph.AbstractFlatDirectGraphSide;
 

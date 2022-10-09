@@ -2,12 +2,12 @@ package com.dtstack.taier.develop.service.develop.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.IDownloader;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IRestful;
-import com.dtstack.dtcenter.loader.dto.restful.Response;
-import com.dtstack.dtcenter.loader.dto.source.RestfulSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IRestful;
+import com.dtstack.taier.datasource.api.dto.restful.Response;
+import com.dtstack.taier.datasource.api.dto.source.RestfulSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.enums.EComponentType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.exception.ErrorCode;
@@ -359,9 +359,9 @@ public class FlinkRuntimeLogService {
             DownloadLogVO downloadLogVO = new DownloadLogVO();
             downloadLogVO.setJobId(jobId);
             downloadLogVO.setTenantId(tenantId);
-            IDownloader download = flinkDownloadLogService.downloadJobLog(downloadLogVO);
+            LogPluginDownload download = (LogPluginDownload) flinkDownloadLogService.downloadJobLog(downloadLogVO);
             if (Objects.nonNull(download)) {
-                List<String> containers = download.getContainers();
+                List<String> containers = download.getTaskManagerList();
                 for (String container : containers) {
                     JSONObject otherInfo = new JSONObject();
                     otherInfo.put("id", container);

@@ -140,21 +140,6 @@ public abstract class AbstractClient implements IClient {
     }
 
     @Override
-    public List<List<Object>> executeQuery(String sql, String database) {
-        return null;
-    }
-
-    @Override
-    public String uploadStringToHdfs(String bytes, String hdfsPath) {
-        return null;
-    }
-
-    @Override
-    public ClusterResource getClusterResource() {
-        return null;
-    }
-
-    @Override
     public CheckResult grammarCheck(JobClient jobClient){
         return null;
     }

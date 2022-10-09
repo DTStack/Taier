@@ -6,14 +6,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.dto.source.Mysql5SourceDTO;
-import com.dtstack.dtcenter.loader.dto.source.OracleSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.Mysql5SourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.OracleSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.constant.FormNames;
 import com.dtstack.taier.common.enums.DataSourceTypeEnum;
 import com.dtstack.taier.common.exception.DtCenterDefException;
@@ -28,9 +28,9 @@ import com.dtstack.taier.dao.domain.po.DsListQuery;
 import com.dtstack.taier.dao.mapper.DsInfoMapper;
 import com.dtstack.taier.dao.pager.PageResult;
 import com.dtstack.taier.develop.bo.datasource.DsListParam;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.enums.develop.PatternType;
 import com.dtstack.taier.develop.mapstruct.datasource.DsListTransfer;
-import com.dtstack.taier.develop.service.develop.impl.SourceLoaderService;
 import com.dtstack.taier.develop.service.template.bulider.db.DbBuilder;
 import com.dtstack.taier.develop.service.template.bulider.db.DbBuilderFactory;
 import com.dtstack.taier.develop.vo.datasource.BinLogFileVO;
@@ -346,7 +346,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
             if (source == null || tableName == null) {
                 throw new RdosDefineException(ErrorCode.CAN_NOT_FIND_DATA_SOURCE);
             }
-            ISourceDTO sourceDTO = getSourceDTO(source.getId());
+            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(source.getId());
             if (isPartition) {
                 JSONObject tableNameStr = new JSONObject().fluentPutAll((Map) tableName);
                 for (String groupName : tableNameStr.keySet()) {
@@ -398,7 +398,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
 
     public List<String> tableList(Long sourceId, String tableNamePattern, boolean isAll) {
         try {
-            ISourceDTO sourceDTO = getSourceDTO(sourceId);
+            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(sourceId);
             SqlQueryDTO queryDTO = SqlQueryDTO.builder().tableNamePattern(tableNamePattern).build();
             if (!isAll) {
                 queryDTO.setLimit(LIMIT_COUNT);
@@ -415,23 +415,8 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
     }
 
     public ISourceDTO getSourceDTO(Long sourceId) {
-        return getSourceDTO(sourceId, null);
+        return sourceLoaderService.buildSourceDTO(sourceId);
     }
-
-    /**
-     * 根据数据源 id 获取 对应的sourceDTO
-     *
-     * @param sourceId 数据源id
-     * @return 对应的 sourceDTO
-     */
-    public ISourceDTO getSourceDTO(Long sourceId, String schema) {
-        if (sourceId == null) {
-            throw new RdosDefineException("sourceId 不能为null");
-        }
-        return sourceLoaderService.buildSourceDTO(sourceId, schema);
-    }
-
-
 
     public List<BinLogFileVO> getBinLogListBySource(Long sourceId, Boolean isAll, String journalName) {
         DsInfo dsServiceInfoDTO = getOneById(sourceId);
@@ -607,7 +592,7 @@ public class DsInfoService  extends ServiceImpl<DsInfoMapper, DsInfo> {
         if (StringUtils.isBlank(schema)) {
             return tableList(sourceId, tableNamePattern, false);
         }
-        ISourceDTO sourceDTO = getSourceDTO(sourceId, schema);
+        ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(sourceId, schema);
         DbBuilder dbBuilder = dbBuilderFactory.getDbBuilder(sourceDTO.getSourceType());
         List<String> tables = dbBuilder.listTablesBySchema(schema, tableNamePattern, sourceDTO, null);
         // 按照字典表排序

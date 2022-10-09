@@ -18,17 +18,15 @@
 
 package com.dtstack.taier.develop.utils.develop.hive.service;
 
-import com.dtstack.dtcenter.loader.IDownloader;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IHdfsFile;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.HdfsSourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IHdfsFile;
+import com.dtstack.taier.datasource.api.downloader.IDownloader;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.HdfsSourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.DtCenterDefException;
 import com.dtstack.taier.common.util.PublicUtil;
 import com.dtstack.taier.develop.utils.develop.common.IDownload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -43,8 +41,6 @@ import java.util.Objects;
  */
 public class LogPluginDownload implements IDownload {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(LogPluginDownload.class);
-
     private IDownloader hdfsLogDownloader;
 
     private String applicationStr;
@@ -58,6 +54,8 @@ public class LogPluginDownload implements IDownload {
     private Integer readLimit;
 
     private String taskManagerId;
+
+    private HdfsSourceDTO sourceDTO;
 
     public LogPluginDownload(String applicationStr, Map<String, Object> yarnConf, Map<String, Object> hdfsConf, String user, Integer readLimit) throws Exception {
         this.applicationStr = applicationStr;
@@ -88,7 +86,7 @@ public class LogPluginDownload implements IDownload {
                 kerberosConfMap = (Map<String, Object>) kerberosConfig;
             }
         }
-        HdfsSourceDTO sourceDTO = HdfsSourceDTO.builder()
+        sourceDTO = HdfsSourceDTO.builder()
                 .config(PublicUtil.objectToStr(hdfsConf))
                 .defaultFS(hdfsConf.getOrDefault("fs.defaultFS","").toString())
                 .kerberosConfig(kerberosConfMap)
@@ -104,13 +102,9 @@ public class LogPluginDownload implements IDownload {
         hdfsLogDownloader = hdfsClient.getLogDownloader(sourceDTO, sqlQueryDTO);
     }
 
-    @Override
-    public void configure() {
-        try {
-            hdfsLogDownloader.configure();
-        } catch (Exception e) {
-            throw new DtCenterDefException(String.format("下载器configure失败，原因是：%s", e.getMessage()));
-        }
+    public List<String> getTaskManagerList() {
+        IHdfsFile hdfsClient = ClientCache.getHdfs(DataSourceType.HDFS.getVal());
+        return hdfsClient.getTaskManagerList(sourceDTO, applicationStr);
     }
 
     @Override
@@ -147,16 +141,6 @@ public class LogPluginDownload implements IDownload {
         } catch (Exception e) {
             throw new DtCenterDefException(String.format("下载器close失败，原因是：%s", e.getMessage()));
         }
-    }
-
-    @Override
-    public String getFileName() {
-        try {
-            return hdfsLogDownloader.getFileName();
-        } catch (Exception e) {
-            LOGGER.error(String.format("获取getFileName失败,原因是%s",e.getMessage()),e);
-        }
-        return "";
     }
 
     public IDownloader getHdfsLogDownloader() {
