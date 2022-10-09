@@ -13,8 +13,8 @@ import com.dtstack.taier.dao.domain.DevelopTaskParam;
 import com.dtstack.taier.dao.domain.ScheduleTaskShade;
 import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.develop.dto.devlop.ExecuteResultVO;
-import com.dtstack.taier.develop.utils.develop.common.HdfsOperator;
 import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.impl.pojo.ParamTaskAction;
 import com.dtstack.taier.scheduler.service.ClusterService;
@@ -55,6 +55,9 @@ public class DevelopScriptService {
 
     @Autowired
     private ClusterService clusterService;
+
+    @Autowired
+    private DatasourceOperator datasourceOperator;
 
     public ExecuteResultVO runScriptWithTask(Long userId, Long tenantId, String sqlText, Task task) throws Exception {
         Map<String, Object> actionParam = readyForScriptImmediatelyJob(task, sqlText, tenantId);
@@ -147,7 +150,7 @@ public class DevelopScriptService {
             if (taskType.equals(EScheduleJobType.SHELL.getVal())) {
                 sqlText = sqlText.replaceAll("\r\n", System.getProperty("line.separator"));
             }
-            HdfsOperator.uploadInputStreamToHdfs(hdfsConf, hdfsConf.getJSONObject(ConfigConstant.KERBEROS_CONFIG), sqlText.getBytes(), hdfsPath);
+            datasourceOperator.uploadInputStreamToHdfs(hdfsConf, tenantId, sqlText.getBytes(), hdfsPath);
         } catch (Exception e) {
             LOG.error("Update task to HDFS failure", e);
             throw new RdosDefineException("Update task to HDFS failure:" + e.getMessage());

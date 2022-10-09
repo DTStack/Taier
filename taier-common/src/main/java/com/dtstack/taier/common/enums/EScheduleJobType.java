@@ -79,7 +79,7 @@ public enum EScheduleJobType {
     /**
      * Shell
      */
-    SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
+    SHELL(13,"Shell", EJobType.PYTHON.getType(),13, EComponentType.SCRIPT, EComputeType.BATCH, EJobClientType.ENGINE_PLUGIN),
     /**
      * GaussDBSQL
      */

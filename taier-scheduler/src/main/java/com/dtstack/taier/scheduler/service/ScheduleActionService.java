@@ -43,7 +43,7 @@ import com.dtstack.taier.pluginapi.constrant.ConfigConstant;
 import com.dtstack.taier.pluginapi.enums.ComputeType;
 import com.dtstack.taier.pluginapi.enums.TaskStatus;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ParamActionExt;
 import com.dtstack.taier.scheduler.jobdealer.JobDealer;
 import com.dtstack.taier.scheduler.jobdealer.JobStopDealer;
@@ -121,7 +121,7 @@ public class ScheduleActionService {
     private DtJobIdWorker jobIdWorker;
 
     @Autowired
-    private WorkerOperator workerOperator;
+    private DatasourceOperator datasourceOperator;
 
     /**
      * 接受来自客户端的请求, 并判断节点队列长度。
@@ -552,15 +552,10 @@ public class ScheduleActionService {
      * @param task
      * @param scheduleJob
      * @return
-     * @throws Exception
      */
-    private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) throws Exception {
+    private String uploadToHdfs(String sqlText, ScheduleTaskShade task, ScheduleJob scheduleJob) {
         JSONObject pluginInfo = clusterService.pluginInfoJSON(task.getTenantId(), task.getTaskType(), null, null, null);
-        String hdfsTypeName = componentService.buildHdfsTypeName(task.getTenantId(), null);
-        pluginInfo.put(ConfigConstant.TYPE_NAME_KEY, hdfsTypeName);
-
         String hdfsPath = environmentContext.getHdfsTaskPath() + (FileUtil.getUploadFileName(task.getTaskType(), scheduleJob.getJobId()));
-        return workerOperator.uploadStringToHdfs(pluginInfo.toJSONString(), sqlText, hdfsPath);
+        return datasourceOperator.uploadToHdfs(pluginInfo, task.getTenantId(), sqlText, hdfsPath);
     }
-
 }
