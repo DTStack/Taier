@@ -5,17 +5,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
 import com.dtstack.taier.common.enums.Deleted;
 import com.dtstack.taier.common.enums.EScheduleJobType;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.dao.domain.DsInfo;
-import com.dtstack.taier.dao.domain.Task;
 import com.dtstack.taier.dao.domain.TaskDirtyDataManage;
-import com.dtstack.taier.develop.enums.develop.SourceDTOType;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.dao.mapper.TaskDirtyDataManageMapper;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyDataManageParamEnum;
 import com.dtstack.taier.develop.enums.develop.TaskDirtyOutPutTypeEnum;
@@ -23,7 +22,6 @@ import com.dtstack.taier.develop.mapstruct.vo.TaskDirtyDataManageTransfer;
 import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
 import com.dtstack.taier.develop.vo.develop.query.TaskDirtyDataManageVO;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +44,15 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
 
     @Autowired
     private TaskDirtyDataManageIService taskDirtyDataIService;
+
     @Autowired
     private DsInfoService dsInfoService;
+
     @Autowired
     private DatasourceService datasourceService;
+
+    @Autowired
+    private SourceLoaderService sourceLoaderService;
 
     public void deleteByTaskId(Long taskId) {
         Map<String, Object> columnMap = new HashMap<>();
@@ -128,10 +131,7 @@ public class TaskDirtyDataManageService extends ServiceImpl<TaskDirtyDataManageM
     public void createTable(Long sourceId) {
         // 默认表名
         try {
-            Map<String, Object> kerberosConfig = datasourceService.fillKerberosConfig(sourceId);
-            DsInfo dataSource = dsInfoService.getOneById(sourceId);
-            JSONObject dataJson = JSON.parseObject(dataSource.getDataJson());
-            ISourceDTO sourceDTO = SourceDTOType.getSourceDTO(dataJson, dataSource.getDataTypeCode(), kerberosConfig, Maps.newHashMap());
+            ISourceDTO sourceDTO = sourceLoaderService.buildSourceDTO(sourceId);
             // 如果已经存在，则直接返回
             if (checkDirtyTableExist(sourceDTO)) {
                 return;

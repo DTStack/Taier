@@ -1,7 +1,7 @@
 package com.dtstack.taier.develop.service.template.rdbms;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.source.DataBaseType;
+import com.dtstack.taier.datasource.api.source.DataBaseType;
 import com.dtstack.taier.develop.common.template.Reader;
 import com.dtstack.taier.develop.dto.devlop.ColumnDTO;
 import com.dtstack.taier.develop.dto.devlop.ConnectionDTO;

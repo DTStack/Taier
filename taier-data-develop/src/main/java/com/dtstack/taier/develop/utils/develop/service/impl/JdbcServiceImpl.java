@@ -18,12 +18,13 @@
 
 package com.dtstack.taier.develop.utils.develop.service.impl;
 
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.client.IClient;
-import com.dtstack.dtcenter.loader.dto.ColumnMetaDTO;
-import com.dtstack.dtcenter.loader.dto.SqlQueryDTO;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.utils.DBUtil;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.client.IClient;
+import com.dtstack.taier.datasource.api.dto.ColumnMetaDTO;
+import com.dtstack.taier.datasource.api.dto.SqlQueryDTO;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.dto.source.RdbmsSourceDTO;
+import com.dtstack.taier.datasource.api.utils.DBUtil;
 import com.dtstack.taier.develop.service.develop.IJdbcService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -59,31 +60,33 @@ public class JdbcServiceImpl implements IJdbcService {
     }
 
     @Override
-    public List<String> getAllDataBases(ISourceDTO iSourceDTO) {
-        IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        return client.getAllDatabases(iSourceDTO, SqlQueryDTO.builder().build());
+    public List<String> getAllDataBases(ISourceDTO sourceDTO) {
+        IClient client = ClientCache.getClient(sourceDTO.getSourceType());
+        return client.getAllDatabases(sourceDTO, SqlQueryDTO.builder().build());
     }
 
 
     @SuppressWarnings("all")
-    public List<List<Object>> executeQueryWithVariables(ISourceDTO iSourceDTO, List<String> sqls, Integer limit, String taskParam) {
+    public List<List<Object>> executeQueryWithVariables(ISourceDTO sourceDTO, List<String> sqls, Integer limit, String taskParam) {
         List<List<Object>> returnList = new ArrayList<>();
-        IClient client = ClientCache.getClient(iSourceDTO.getSourceType());
-        // 率先获取Con，复用，为什么不使用try with resource，因为关闭捕获的异常太大了
-        Connection con = client.getCon(iSourceDTO, taskParam);
+        IClient client = ClientCache.getClient(sourceDTO.getSourceType());
+        // to json properties
+        String properties = DBUtil.propToJson(taskParam);
+        ((RdbmsSourceDTO) sourceDTO).setProperties(properties);
+        Connection con = client.getCon(sourceDTO);
         // 处理 variables SQL
         try {
-            iSourceDTO.setConnection(con);
+            sourceDTO.setConnection(con);
             List<Map<String, Object>> list = new ArrayList<>();
             for (int i = 0; i < sqls.size(); i++) {
                 LOGGER.info("jdbc run sql:{}", sqls.get(i));
-                client.executeSqlWithoutResultSet(iSourceDTO, SqlQueryDTO.builder().sql(sqls.get(i)).build());
+                client.executeSqlWithoutResultSet(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(i)).build());
                 if (i == sqls.size() - 1) {
-                    list = client.executeQuery(iSourceDTO, SqlQueryDTO.builder().sql(sqls.get(i)).limit(limit).build());
+                    list = client.executeQuery(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(i)).limit(limit).build());
                 }
             }
 
-            List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(iSourceDTO, SqlQueryDTO.builder().sql(sqls.get(sqls.size() - 1)).limit(0).build());
+            List<ColumnMetaDTO> columnMetaDataWithSql = client.getColumnMetaDataWithSql(sourceDTO, SqlQueryDTO.builder().sql(sqls.get(sqls.size() - 1)).limit(0).build());
             if (CollectionUtils.isNotEmpty(columnMetaDataWithSql)) {
                 List<Object> column = new ArrayList<>();
                 columnMetaDataWithSql.forEach(bean -> column.add(bean.getKey()));
@@ -97,10 +100,9 @@ public class JdbcServiceImpl implements IJdbcService {
                 }
             }
         } finally {
-            iSourceDTO.setConnection(null);
+            sourceDTO.setConnection(null);
             DBUtil.closeDBResources(null, null, con);
         }
-
         return returnList;
     }
 

@@ -2,18 +2,17 @@ package com.dtstack.taier.develop.service.template.bulider.writer;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dtstack.dtcenter.loader.client.ClientCache;
-import com.dtstack.dtcenter.loader.dto.source.ISourceDTO;
-import com.dtstack.dtcenter.loader.source.DataSourceType;
+import com.dtstack.taier.datasource.api.base.ClientCache;
+import com.dtstack.taier.datasource.api.dto.source.ISourceDTO;
+import com.dtstack.taier.datasource.api.source.DataSourceType;
 import com.dtstack.taier.common.exception.ErrorCode;
 import com.dtstack.taier.common.exception.RdosDefineException;
 import com.dtstack.taier.common.util.DataSourceUtils;
 import com.dtstack.taier.dao.domain.DsInfo;
 import com.dtstack.taier.develop.common.template.Writer;
+import com.dtstack.taier.develop.datasource.convert.load.SourceLoaderService;
 import com.dtstack.taier.develop.dto.devlop.TaskResourceParam;
-import com.dtstack.taier.develop.service.datasource.impl.DatasourceService;
 import com.dtstack.taier.develop.service.datasource.impl.DsInfoService;
-import com.dtstack.taier.develop.service.develop.impl.SourceLoaderService;
 import com.dtstack.taier.develop.service.template.kafka.KafkaBaseWriter;
 import com.dtstack.taier.develop.service.template.kafka.KafkaWriterParam;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,12 +31,15 @@ import java.util.Map;
  */
 @Component
 public abstract class KafkaBaseWriterBuilder implements DaWriterBuilder {
+
     @Autowired
-    DsInfoService dataSourceAPIClient;
+    private DsInfoService dataSourceAPIClient;
+
     @Autowired
-    SourceLoaderService sourceLoaderService;
+    private SourceLoaderService sourceLoaderService;
+
     @Override
-   public void setWriterJson(TaskResourceParam param){
+    public void setWriterJson(TaskResourceParam param) {
         Map<String, Object> map = param.getTargetMap();
         if (!map.containsKey("sourceId")) {
             throw new RdosDefineException(ErrorCode.DATA_SOURCE_NOT_SET);

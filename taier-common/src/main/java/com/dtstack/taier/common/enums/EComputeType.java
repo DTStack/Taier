@@ -11,7 +11,7 @@ public enum EComputeType {
 
     STREAM(0),BATCH(1);
 
-    private int type;
+    private final int type;
 
     EComputeType(int type){
         this.type = type;

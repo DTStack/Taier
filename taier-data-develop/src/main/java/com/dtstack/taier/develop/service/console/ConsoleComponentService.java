@@ -38,7 +38,7 @@ import com.dtstack.taier.pluginapi.sftp.SftpConfig;
 import com.dtstack.taier.pluginapi.sftp.SftpFileManage;
 import com.dtstack.taier.pluginapi.util.MD5Util;
 import com.dtstack.taier.pluginapi.util.PublicUtil;
-import com.dtstack.taier.scheduler.WorkerOperator;
+import com.dtstack.taier.scheduler.executor.DatasourceOperator;
 import com.dtstack.taier.scheduler.impl.pojo.ClientTemplate;
 import com.dtstack.taier.scheduler.service.ComponentConfigService;
 import com.dtstack.taier.scheduler.service.ComponentService;
@@ -106,7 +106,7 @@ public class ConsoleComponentService {
     private ConsoleKerberosMapper consoleKerberosMapper;
 
     @Autowired
-    private WorkerOperator workerOperator;
+    private DatasourceOperator datasourceOperator;
 
     @Autowired
     private ComponentConfigService componentConfigService;
@@ -1094,21 +1094,15 @@ public class ConsoleComponentService {
 
 
     /**
-     * 测试单个组件联通性
+     * 测试单个组件联通性, 所有组件的测试连通性全部迁移到 datasource-plugin 中
      */
     public ComponentTestResult testConnect(Integer componentType, String componentConfig,
                                            String versionName, Long clusterId, KerberosConfig kerberosConfig,
                                            Map<String, String> sftpConfig, Integer storeType, Integer deployType) {
         ComponentTestResult componentTestResult = new ComponentTestResult();
         try {
-            JSONObject config = JSONObject.parseObject(componentConfig);
-            String typeName = config.getString(TYPE_NAME_KEY);
-            if (EComponentType.HDFS.getTypeCode().equals(componentType)) {
-                typeName = componentService.buildHdfsTypeName(null, clusterId);
-            }
             JSONObject pluginInfo = componentService.wrapperConfig(componentType, componentConfig, sftpConfig, kerberosConfig, clusterId);
-            pluginInfo.put(TYPE_NAME_KEY, typeName);
-            componentTestResult = workerOperator.testConnect(pluginInfo.toJSONString());
+            componentTestResult = datasourceOperator.testConnect(componentType, pluginInfo.toJSONString(), versionName);
             if (null == componentTestResult) {
                 componentTestResult = new ComponentTestResult();
                 componentTestResult.setResult(false);
