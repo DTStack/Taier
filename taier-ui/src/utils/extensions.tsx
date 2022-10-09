@@ -91,8 +91,6 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			// 需要被执行的 sql 语句
 			const sqls: string[] = [];
 
-			console.log('currentTabData;',currentTabData);
-
 			if (
 				// 支持执行选中行的任务类型
 				[
