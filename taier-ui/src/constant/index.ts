@@ -231,7 +231,6 @@ export enum TASK_TYPE_ENUM {
 	SPARK_SQL = 0,
 	SPARK = 1,
 	SYNC = 2,
-	SHELL = 3,
 	/**
 	 * FlinkSQL
 	 */
@@ -247,6 +246,8 @@ export enum TASK_TYPE_ENUM {
 	 */
 	WORK_FLOW = 10,
 	FLINK = 11,
+	PYTHON = 12,
+	SHELL = 13,
 }
 
 /**
@@ -1275,6 +1276,8 @@ export enum TASK_LANGUAGE {
 	PLSQL = 'plsql',
 	SQL = 'sql',
 	JSON = 'json',
+	PYTHON = 'python',
+	SHELL = 'shell'
 }
 
 /**
@@ -1588,3 +1591,8 @@ export const CHARTS_COLOR = [
 	'#16DFB4',
 	'#86E159',
 ] as const;
+
+export enum PythonVersionKind {
+	py2 = 2,
+	py3 = 3,
+}
