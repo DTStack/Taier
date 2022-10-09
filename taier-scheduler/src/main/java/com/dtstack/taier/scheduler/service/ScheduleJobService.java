@@ -159,9 +159,9 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
      * @param scheduleType             调度类型 正常调度 和 补数据
      */
     @Transactional(rollbackFor = Exception.class)
-    public Long insertJobList(Collection<ScheduleJobDetails> jobBuilderBeanCollection, Integer scheduleType) {
+    public void insertJobList(Collection<ScheduleJobDetails> jobBuilderBeanCollection, Integer scheduleType) {
         if (CollectionUtils.isEmpty(jobBuilderBeanCollection)) {
-            return null;
+            return;
         }
 
         Iterator<ScheduleJobDetails> batchJobIterator = jobBuilderBeanCollection.iterator();
@@ -172,7 +172,6 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
         int count = 0;
         int jobBatchSize = environmentContext.getBatchInsertSize();
         int jobJobBatchSize = environmentContext.getBatchJobJobInsertSize();
-        Long minJobId = null;
         List<ScheduleJob> jobWaitForSave = Lists.newArrayList();
         List<ScheduleJobJob> jobJobWaitForSave = Lists.newArrayList();
 
@@ -195,16 +194,14 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
 
                 LOGGER.debug("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
                 if (count % jobBatchSize == 0 || count == (jobBuilderBeanCollection.size() - 1) || jobJobWaitForSave.size() > jobJobBatchSize) {
-                    minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
+                    persistJobs(jobWaitForSave, jobJobWaitForSave, jobJobBatchSize);
                     LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{} jobJobSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize, jobJobWaitForSave.size());
                 }
             }
             LOGGER.info("insertJobList count:{} batchJobs:{} finalBatchNodeSize:{}", count, jobBuilderBeanCollection.size(), finalBatchNodeSize);
             //结束前persist一次，flush所有jobs
-            minJobId = persistJobs(jobWaitForSave, jobJobWaitForSave, minJobId, jobJobBatchSize);
-
+            persistJobs(jobWaitForSave, jobJobWaitForSave, jobJobBatchSize);
         }
-        return minJobId;
     }
 
     /**
@@ -230,16 +227,11 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
     /**
      * 插入实例
      */
-    private Long persistJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Long minJobId, Integer jobJobSize) {
+    private void persistJobs(List<ScheduleJob> jobWaitForSave, List<ScheduleJobJob> jobJobWaitForSave, Integer jobJobSize) {
         try {
-            return RetryUtil.executeWithRetry(() -> {
-                Long curMinJobId = minJobId;
+            RetryUtil.executeWithRetry(() -> {
                 if (jobWaitForSave.size() > 0) {
                     this.saveBatch(jobWaitForSave);
-                    if (Objects.isNull(minJobId)) {
-                        curMinJobId = jobWaitForSave.stream().map(ScheduleJob::getId).min(Long::compareTo).orElse(null);
-                    }
-
                     // 插入扩展数据
                     List<ScheduleJobExpand> scheduleJobExpandList = ScheduleJobMapStruct.INSTANCE.scheduleJobTOScheduleJobExpand(jobWaitForSave);
                     scheduleJobExpandService.saveBatch(scheduleJobExpandList);
@@ -257,18 +249,14 @@ public class ScheduleJobService extends ServiceImpl<ScheduleJobMapper, ScheduleJ
                     }
                     jobJobWaitForSave.clear();
                 }
-                return curMinJobId;
+                return 1;
             }, environmentContext.getBuildJobErrorRetry(), 200, false);
         } catch (Exception e) {
             LOGGER.error("!!!!! persistJobs job error !!!! job {} jobjob {}", jobWaitForSave, jobJobWaitForSave, e);
             throw new RdosDefineException(e);
         } finally {
-            if (jobWaitForSave.size() > 0) {
-                jobWaitForSave.clear();
-            }
-            if (jobJobWaitForSave.size() > 0) {
-                jobJobWaitForSave.clear();
-            }
+            jobWaitForSave.clear();
+            jobJobWaitForSave.clear();
         }
     }
 
