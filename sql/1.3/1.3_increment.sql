@@ -1,5 +1,5 @@
 BEGIN;
-INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.12', '{"1.12":"flink112-standalone"}', null, 14, 1, 'STRING', 'FLINK', 0, now(), now(), 0);
+INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('component_model_config', '1.12-standalone', '{"1.12-standalone":"flink112-standalone"}', null, 14, 1, 'STRING', 'FLINK', 0, now(), now(), 0);
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('typename_mapping', 'flink112-standalone', '-120', NULL, 6, 0, 'LONG', '', 0, now(), now(), 0);
 INSERT INTO `dict` (dict_code, dict_name, dict_value, dict_desc, type, sort, data_type, depend_name, is_default, gmt_create, gmt_modified, is_deleted) VALUES ('flink_version', '1.12-standalone', '112_standalone', null, 1, 2, 'INTEGER', '', 0, now(),now(), 0);
 
