@@ -511,9 +511,8 @@ export interface IFunctionProps {
  */
 export interface IDataSourceProps {
 	dataInfoId: number;
-	dataType: DATA_SOURCE_ENUM;
-	// 0 for false, 1 for true
-	isMeta: number;
+	dataType: string;
+	dataTypeCode: DATA_SOURCE_ENUM;
 	appNames: string;
 	dataDesc: string;
 	dataName: string;
