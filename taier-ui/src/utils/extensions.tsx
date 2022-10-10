@@ -90,22 +90,37 @@ export function runTask(current: molecule.model.IEditorGroup) {
 			const value = currentTabData.value || '';
 			// 需要被执行的 sql 语句
 			const sqls: string[] = [];
-			const rawSelections = molecule.editor.editorInstance.getSelections() || [];
-			// 排除鼠标 focus 在 editor 中的情况
-			const selections = rawSelections.filter(
-				(s) => s.startLineNumber !== s.endLineNumber || s.startColumn !== s.endColumn,
-			);
-			// 如果存在选中行，则执行选中行
-			if (selections?.length) {
-				selections?.forEach((s) => {
-					const text = molecule.editor.editorInstance.getModel()?.getValueInRange(s);
-					if (text) {
-						sqls.push(...filterSql(text));
-					}
-				});
+
+			if (
+				// 支持执行选中行的任务类型
+				[
+					TASK_TYPE_ENUM.FLINK,
+					TASK_TYPE_ENUM.HIVE_SQL,
+					TASK_TYPE_ENUM.OCEANBASE,
+					TASK_TYPE_ENUM.SPARK_SQL,
+					TASK_TYPE_ENUM.SQL,
+				].includes(currentTabData.taskType)
+			) {
+				const rawSelections = molecule.editor.editorInstance.getSelections() || [];
+				// 排除鼠标 focus 在 editor 中的情况
+				const selections = rawSelections.filter(
+					(s) => s.startLineNumber !== s.endLineNumber || s.startColumn !== s.endColumn,
+				);
+				// 如果存在选中行，则执行选中行
+				if (selections?.length) {
+					selections?.forEach((s) => {
+						const text = molecule.editor.editorInstance.getModel()?.getValueInRange(s);
+						if (text) {
+							sqls.push(...filterSql(text));
+						}
+					});
+				} else {
+					sqls.push(...filterSql(value));
+				}
 			} else {
-				sqls.push(...filterSql(value));
+				sqls.push(value);
 			}
+
 			executeService.execSql(currentTabData.id, currentTabData, params, sqls).then(() => {
 				const { results } = taskResultService.getState();
 				let nextActivePanel: string | null = null;
@@ -119,7 +134,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 							}}
 							extraView={null}
 						/>
-					)
+					);
 					if (!panel) {
 						const panels = molecule.panel.getState().data || [];
 						const resultPanles = panels.filter((p) => p.name?.includes('结果'));
@@ -139,7 +154,7 @@ export function runTask(current: molecule.model.IEditorGroup) {
 						molecule.panel.update({
 							id: key,
 							renderPane,
-						})
+						});
 					}
 				});
 

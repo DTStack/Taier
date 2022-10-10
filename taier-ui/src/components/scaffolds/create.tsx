@@ -152,9 +152,19 @@ const ExeArgs = () => (
 	</Form.Item>
 );
 
-const PythonVersion = () => (
-	<Form.Item label="Python 版本" name="pythonVersion">
-		<Radio.Group>
+const PythonVersion = ({ disabled }: ICreateFormProps) => (
+	<Form.Item
+		label="Python 版本"
+		name="pythonVersion"
+		rules={[
+			{
+				required: true,
+				message: '请选择 Python 版本',
+			},
+		]}
+		initialValue={PythonVersionKind.py2}
+	>
+		<Radio.Group disabled={disabled}>
 			<Radio value={PythonVersionKind.py2}>Python 2.x</Radio>
 			<Radio value={PythonVersionKind.py3}>Python 3.x</Radio>
 		</Radio.Group>
