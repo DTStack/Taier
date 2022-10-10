@@ -559,4 +559,7 @@ export default {
 	getResourceByTenant(params: any) {
 		return http.post(req.GET_RESOURCES_BY_TENANT, params);
 	},
+	getAllDataSource(params: any) {
+		return http.post(req.GET_ALL_DATA_SOURCE, params);
+	},
 };
